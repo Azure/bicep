@@ -36,7 +36,7 @@ internal class GrpcLocalExtension(
         Func<GrpcChannel> channelBuilder;
         GrpcChannel? channel = null;
 
-        if (Socket.OSSupportsUnixDomainSockets)
+        if (!OperatingSystem.IsWindows())
         {
             var socketName = $"{Guid.NewGuid()}.tmp";
             var socketPath = Path.Combine(Path.GetTempPath(), socketName);
