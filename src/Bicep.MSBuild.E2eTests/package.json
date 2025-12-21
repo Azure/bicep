@@ -13,7 +13,7 @@
     "eslint-plugin-notice": "^1.0.0",
     "prettier": "^3.7.4",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.49.0",
+    "typescript-eslint": "^8.50.0",
     "vitest": "^2.1.9"
   },
   "scripts": {
