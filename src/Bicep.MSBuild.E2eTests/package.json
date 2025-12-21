@@ -7,7 +7,7 @@
     "@types/cross-spawn": "^6.0.6",
     "@types/eslint__js": "^8.42.3",
     "@types/uuid": "^11.0.0",
-    "@vitest/eslint-plugin": "^1.4.3",
+    "@vitest/eslint-plugin": "^1.5.4",
     "cross-spawn": "^7.0.6",
     "eslint": "^9.39.2",
     "eslint-plugin-notice": "^1.0.0",
