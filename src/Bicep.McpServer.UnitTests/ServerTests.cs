@@ -35,12 +35,12 @@ public class ServerTests
         var tools = await helper.Client.ListToolsAsync();
 
         var toolDefinitions = tools.Select(x => new
-            {
-                x.Name,
-                x.Description,
-                x.JsonSchema,
-                x.ReturnJsonSchema,
-            })
+        {
+            x.Name,
+            x.Description,
+            x.JsonSchema,
+            x.ReturnJsonSchema,
+        })
             .OrderByAscending(x => x.Name)
             .ToImmutableArray();
 
