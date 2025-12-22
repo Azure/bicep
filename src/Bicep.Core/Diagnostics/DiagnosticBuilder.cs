@@ -2022,6 +2022,25 @@ namespace Bicep.Core.Diagnostics
                     "BCP444",
                     $"This expression is being used as a default value for an extension configuration property, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
+
+            public Diagnostic ParamImportableFunctionOnlyInvocationNotAllowed(string functionName, IEnumerable<string> accessChain)
+            {
+                var message = accessChain.Any()
+                    ? $"Function \"{functionName}\" cannot be invoked at this location. This is because it is indirectly referencing a function that is meant to be invoked only from a bicepparam file: (\"{string.Join("\" -> \"", accessChain)}\")."
+                    : $"Function \"{functionName}\" can only be invoked in a bicepparam file.";
+                return CoreError("BCP445", message);
+            }
+
+            public Diagnostic ParamImportableFunctionOnlyNotImportableInBicepFile(string functionName) => CoreError(
+                "BCP446",
+                $"Cannot import function '{functionName}' in a Bicep file because it contains a reference to a function that is only importable into a bicepparam file.");
+
+            public Diagnostic WildcardImportContainsFunctionsWithExternalInputs()
+            {
+                return CoreError(
+                    "BCP447",
+                    $"This wildcard import includes a reference to a function that can only be imported into a bicepparam file.");
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

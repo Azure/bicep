@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics.Metadata;
@@ -304,6 +305,14 @@ namespace Bicep.Core.Semantics
                                 {
                                     ExportedTypeMetadata exportedType => new ImportedTypeSymbol(context, item, syntax, model, exportedType),
                                     ExportedVariableMetadata exportedVariable => new ImportedVariableSymbol(context, item, syntax, model, exportedVariable),
+                                    ExportedFunctionMetadata exportedFunction when exportedFunction.ParamFileImportOnly is true && context.SourceFile.FileKind != BicepSourceFileKind.ParamsFile
+                                     => new ErroredImportSymbol(context,
+                                        importedOriginalName,
+                                        item,
+                                        item.Name,
+                                        [
+                                            DiagnosticBuilder.ForPosition(item.OriginalSymbolName).ParamImportableFunctionOnlyNotImportableInBicepFile(importedOriginalName),
+                                        ]),
                                     ExportedFunctionMetadata exportedFunction => new ImportedFunctionSymbol(context, item, syntax, model, exportedFunction),
                                     _ when exportMetadata.Kind == ExportMetadataKind.Error => new ErroredImportSymbol(context,
                                         importedOriginalName,
@@ -413,6 +422,35 @@ namespace Bicep.Core.Semantics
         {
             return info.Scope.ReplaceChildren(info.Children.Select(MakeImmutable)).ReplaceLocals(info.Locals);
         }
+
+        // private bool ShouldAllowFunctionImport(ISemanticModel model, ExportedFunctionMetadata metadata)
+        // {
+        //     // For .bicepparam files, allow importing functions with external input
+        //     if (context.SourceFile.FileKind == BicepSourceFileKind.ParamsFile)
+        //     {
+        //         return true;
+        //     }
+        //
+        //     // For .bicep files, disallow importing functions containing external input
+        //     return !ContainsExternalInput(model, metadata);
+        // }
+        //
+        // private bool ContainsExternalInput(ISemanticModel model, ExportedFunctionMetadata metadata)
+        // {
+        //     if (model is not SemanticModel semanticModel)
+        //     {
+        //         return false;
+        //     }
+        //
+        //     var symbol = semanticModel.Root.FunctionDeclarations
+        //         .FirstOrDefault(f => LanguageConstants.IdentifierComparer.Equals(f.Name, metadata.Name));
+        //     if (symbol is null)
+        //     {
+        //         return false;
+        //     }
+        //
+        //     return ExternalInputFunctionReferenceVisitor.FunctionContainsExternalInputReference(semanticModel, symbol);
+        // }
 
         /// <summary>
         /// Allows us to mutate child scopes without having to swap out items on the stack

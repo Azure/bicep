@@ -263,6 +263,32 @@ param foo = externalInput('my.param.provider')
         });
     }
 
+     [TestMethod]
+    public void ExternalInput_from_an_exported_user_defined_function()
+    {
+        var result = CompilationHelper.CompileParams(
+("parameters.bicepparam", """
+using none
+import { scopeBinding } from 'main.bicep'
+param foo = scopeBinding('BINDING')
+"""), ("main.bicep", """
+@export()
+func scopeBinding(bindingName string) any => externalInput('scope.binding', bindingName)
+"""));
+
+        result.Should().NotHaveAnyDiagnostics();
+        // var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        // parameters["foo"].Value.Should().BeNull();
+        // parameters["foo"].Expression.Should().DeepEqual("""[externalInputs('scope_binding_provider_0')]""");
+
+        // var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        // externalInputs["scope_binding_provider_0"].Should().DeepEqual(new JObject
+        // {
+        //     ["kind"] = "scope.binding.provider",
+        //     ["config"] = "BINDING",
+        // });
+    }
+
     [TestMethod]
     public void ExternalInput_assigned_to_parameter_with_config()
     {

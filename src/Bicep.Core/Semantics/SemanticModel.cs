@@ -196,7 +196,8 @@ namespace Bicep.Core.Semantics
             .Select(f => new ExportedFunctionMetadata(f.Name,
                 [.. f.Overload.FixedParameters.Select(p => new ExportedFunctionParameterMetadata(p.Name, p.Type, p.Description))],
                 new(f.Overload.TypeSignatureSymbol, null),
-                DescriptionHelper.TryGetFromDecorator(this, f.DeclaringFunction)));
+                DescriptionHelper.TryGetFromDecorator(this, f.DeclaringFunction),
+                f.IsParamFileImportableOnly(this)));
 
         private static void TraceBuildOperation(BicepSourceFile sourceFile, IFeatureProvider features, RootConfiguration configuration)
         {

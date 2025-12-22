@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 
@@ -26,7 +27,12 @@ public record ExportedFunctionParameterMetadata(string Name, ITypeReference Type
 
 public record ExportedFunctionReturnMetadata(ITypeReference TypeReference, string? Description);
 
-public record ExportedFunctionMetadata(string Name, ImmutableArray<ExportedFunctionParameterMetadata> Parameters, ExportedFunctionReturnMetadata Return, string? Description)
+public record ExportedFunctionMetadata(
+    string Name, 
+    ImmutableArray<ExportedFunctionParameterMetadata> Parameters, 
+    ExportedFunctionReturnMetadata Return, 
+    string? Description, 
+    bool? ParamFileImportOnly)
     : ExportMetadata(ExportMetadataKind.Function, Name, new LambdaType([.. Parameters.Select(md => md.TypeReference)], [], Return.TypeReference), Description);
 
 public record DuplicatedExportMetadata(string Name, ImmutableArray<string> ExportKindsWithSameName)
