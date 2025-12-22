@@ -305,15 +305,15 @@ namespace Bicep.Core.Semantics
                                 {
                                     ExportedTypeMetadata exportedType => new ImportedTypeSymbol(context, item, syntax, model, exportedType),
                                     ExportedVariableMetadata exportedVariable => new ImportedVariableSymbol(context, item, syntax, model, exportedVariable),
+                                    ExportedFunctionMetadata exportedFunction when exportedFunction.ParamFileImportOnly is true && context.SourceFile.FileKind != BicepSourceFileKind.ParamsFile
+                                     => new ErroredImportSymbol(context,
+                                        importedOriginalName,
+                                        item,
+                                        item.Name,
+                                        [
+                                            DiagnosticBuilder.ForPosition(item.OriginalSymbolName).ParamImportableFunctionOnlyNotImportableInBicepFile(importedOriginalName),
+                                        ]),
                                     ExportedFunctionMetadata exportedFunction => new ImportedFunctionSymbol(context, item, syntax, model, exportedFunction),
-                                    // ExportedFunctionMetadata exportedFunction when ShouldAllowFunctionImport(model, exportedFunction) => new ImportedFunctionSymbol(context, item, syntax, model, exportedFunction),
-                                    // ExportedFunctionMetadata exportedFunction when !ShouldAllowFunctionImport(model, exportedFunction) => new ErroredImportSymbol(context,
-                                    //     importedOriginalName,
-                                    //     item,
-                                    //     item.Name,
-                                    //     [
-                                    //         DiagnosticBuilder.ForPosition(item.OriginalSymbolName).CannotImportFunctionWithExternalInputInBicepFile(importedOriginalName),
-                                    //     ]),
                                     _ when exportMetadata.Kind == ExportMetadataKind.Error => new ErroredImportSymbol(context,
                                         importedOriginalName,
                                         item,

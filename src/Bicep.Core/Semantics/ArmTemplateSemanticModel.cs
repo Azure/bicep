@@ -274,7 +274,8 @@ namespace Bicep.Core.Semantics
                             Name: $"{namePrefix}{kvp.Key}",
                             Parameters: [.. kvp.Value.Parameters.CoalesceEnumerable().Select(p => new ExportedFunctionParameterMetadata(p.Name?.Value ?? string.Empty, GetType(p), GetMostSpecificDescription(p)))],
                             Return: new(GetType(kvp.Value.Output), GetMostSpecificDescription(kvp.Value.Output)),
-                            Description: kvp.Value.Metadata?.Value is JObject metadataObject ? GetDescriptionFromMetadata(metadataObject) : null)));
+                            Description: kvp.Value.Metadata?.Value is JObject metadataObject ? GetDescriptionFromMetadata(metadataObject) : null,
+                            ParamFileImportOnly: null)));
                 }
             }
 

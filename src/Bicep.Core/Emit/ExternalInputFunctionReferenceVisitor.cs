@@ -54,7 +54,7 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
                 {
                     if (!visited.Contains(functionCall) &&
                         model.GetSymbolInfo(functionCall) is FunctionSymbol functionSymbol &&
-                        functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ExternalInput))
+                        functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ParamFileImportableOnly))
                     {
                         return true;
                     }

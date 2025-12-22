@@ -3,6 +3,7 @@
 
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
 using static Bicep.Core.Semantics.FunctionOverloadBuilder;
 
@@ -113,5 +114,20 @@ namespace Bicep.Core.Semantics
 
         public static ISemanticModel GetSemanticModel(this DeclaredSymbol symbol)
             => symbol.Context.ModelLookup.GetSemanticModel(symbol.Context.SourceFile);
+
+        public static bool IsParamFileImportableOnly(this DeclaredFunctionSymbol declaredFunctionSymbol, SemanticModel model)
+        {
+            var functionCalls = SyntaxAggregator.AggregateByType<FunctionCallSyntaxBase>(declaredFunctionSymbol.DeclaringFunction.Lambda);
+            foreach (var functionCall in functionCalls)
+            {
+                if (model.GetSymbolInfo(functionCall) is FunctionSymbol functionSymbol &&
+                    functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ParamFileImportableOnly))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
     }
 }

@@ -90,7 +90,7 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// The function can only be used within an instance function lambda.
         /// </summary>
-        ExternalInput = 1 << 16,
+        ParamFileImportableOnly = 1 << 16,
 
         /// <summary>
         /// The function can be used as a resource or module decorator.

@@ -11,18 +11,9 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Emit;
 
-public class ExternalInputInvocationValidator : AstVisitor
+public class ExternalInputInvocationValidator(SemanticModel model, IDiagnosticWriter diagnosticWriter) : AstVisitor
 {
-    private readonly SemanticModel model;
-    private readonly IDiagnosticWriter diagnosticWriter;
-    private ImmutableStack<string> referenceStack;
-
-    public ExternalInputInvocationValidator(SemanticModel model, IDiagnosticWriter diagnosticWriter)
-    {
-        this.model = model;
-        this.diagnosticWriter = diagnosticWriter;
-        this.referenceStack = [];
-    }
+    private ImmutableStack<string> referenceStack = [];
 
     public static void Validate(SemanticModel model, IDiagnosticWriter diagnosticWriter)
     {
@@ -47,6 +38,8 @@ public class ExternalInputInvocationValidator : AstVisitor
 
     public override void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax)
     {
+        // external input invocation is allowed inside function declarations
+        // so we do not need to validate the body of the function
     }
 
     public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
@@ -88,9 +81,9 @@ public class ExternalInputInvocationValidator : AstVisitor
 
         switch (symbol)
         {
-            case FunctionSymbol functionSymbol when functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ExternalInput):
+            case FunctionSymbol functionSymbol when functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ParamFileImportableOnly):
                 var accessChain = this.BuildAccessChain();
-                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).ExternalInputFunctionInvocationNotAllowed(functionSymbol.Name, accessChain));
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).ParamImportableFunctionOnlyInvocationNotAllowed(functionSymbol.Name, accessChain));
                 break;
             case DeclaredFunctionSymbol declaredFunctionSymbol:
                 ValidateDeclaredFunction(declaredFunctionSymbol);
@@ -98,5 +91,5 @@ public class ExternalInputInvocationValidator : AstVisitor
         }
     }
 
-    private ImmutableArray<string> BuildAccessChain() => this.referenceStack.Reverse().ToImmutableArray();
+    private ImmutableArray<string> BuildAccessChain() => [.. this.referenceStack.Reverse()];
 }

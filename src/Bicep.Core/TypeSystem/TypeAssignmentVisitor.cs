@@ -1249,6 +1249,13 @@ namespace Bicep.Core.TypeSystem
 
                     if (export is ExportedFunctionMetadata exportedFunction)
                     {
+                        if (exportedFunction.ParamFileImportOnly is true &&
+                           model.SourceFileKind != BicepSourceFileKind.ParamsFile)
+                        {
+                            diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Wildcard).WildcardImportContainsFunctionsWithExternalInputs());
+                            continue;
+                        } 
+
                         nsFunctions.Add(TypeHelper.OverloadWithResolvedTypes(resourceDerivedTypeResolver, exportedFunction));
                     }
                     else
