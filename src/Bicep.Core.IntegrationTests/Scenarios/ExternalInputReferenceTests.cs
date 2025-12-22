@@ -5,6 +5,9 @@ using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit;
+using Bicep.IO.Abstraction;
+using Bicep.Core.Semantics;
 
 namespace Bicep.Core.IntegrationTests.Scenarios;
 
@@ -183,6 +186,28 @@ func foo(test string) any => externalInput('type', test)
 var result = foo('myInput')
 """);
 
+        result.Should().NotGenerateATemplate();
+    }
+
+    [TestMethod]
+    public void TestSomething()
+    {
+        var result = CompilationHelper.Compile(
+            ("module.bicep", """
+func foo(test string) any => externalInput('type', test)
+func bar() any => foo('yeah')
+@export()
+func baz() any => bar()
+"""),
+            ("main.bicep", """
+import { baz } from 'module.bicep'
+var yep = baz()
+"""));
+
+        // var model = (result.Compilation.GetSemanticModel(IOUri.FromFilePath("C:/path/to/module.bicep")) as SemanticModel)!;
+        // var sym = model.Root.FunctionDeclarations.First(x => x.Name == "baz");
+        // var res = ExternalInputFunctionReferenceVisitor
+        //     .FunctionContainsExternalInputReference(model, sym);
         result.Should().NotGenerateATemplate();
     }
 }

@@ -7,6 +7,8 @@ using System.Text.RegularExpressions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Emit;
@@ -37,6 +39,32 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
     {
         VisitFunctionCallSyntaxInternal(syntax);
         base.VisitInstanceFunctionCallSyntax(syntax);
+    }
+
+    public static bool FunctionContainsExternalInputReference(SemanticModel model, DeclaredFunctionSymbol targetSymbol)
+    {
+        var closure = model.Binder.GetReferencedSymbolClosureFor(targetSymbol).Add(targetSymbol);
+        var visited = new HashSet<SyntaxBase>();
+        foreach (var symbol in closure)
+        {
+            if (symbol is DeclaredFunctionSymbol declaredFunctionSymbol)
+            {
+                var functionCalls = SyntaxAggregator.AggregateByType<FunctionCallSyntaxBase>(declaredFunctionSymbol.DeclaringFunction.Lambda);
+                foreach (var functionCall in functionCalls)
+                {
+                    if (!visited.Contains(functionCall) &&
+                        model.GetSymbolInfo(functionCall) is FunctionSymbol functionSymbol &&
+                        functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ExternalInput))
+                    {
+                        return true;
+                    }
+
+                    visited.Add(functionCall);
+                }
+            }
+        }
+
+        return false;
     }
 
     public static ExternalInputReferences CollectExternalInputReferences(SemanticModel model)

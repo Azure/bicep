@@ -2023,8 +2023,25 @@ namespace Bicep.Core.Diagnostics
                     $"This expression is being used as a default value for an extension configuration property, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
 
-            public Diagnostic ExternalInputFunctionInvocationNotAllowed(string functionName) => CoreError(
-                "BCP445", $"Function \"{functionName}\" is not valid at this location. It can only be used within a declared function body.");
+            public Diagnostic ExternalInputFunctionInvocationNotAllowed(string functionName, IEnumerable<string> accessChain)
+            {
+                var message = accessChain.Any()
+                    ? $"Function \"{functionName}\" cannot be invoked at this location. This is because it is indirectly referencing an external input (\"{string.Join("\" -> \"", accessChain)}\")."
+                    : $"Function \"{functionName}\" can only be invoked in a bicepparam file.";
+                return CoreError("BCP445", message);
+            }
+
+            public Diagnostic CannotImportFunctionWithExternalInputInBicepFile(string functionName) => CoreError(
+                "BCP446",
+                $"Cannot import function '{functionName}' in a Bicep file because it contains external input function references. Functions with external input can only be imported in Bicep parameters files.");
+
+            public Diagnostic WildcardImportContainsFunctionsWithExternalInputs(IEnumerable<string> functionNames)
+            {
+                var functionList = string.Join(", ", functionNames.Select(name => $"'{name}'"));
+                return CoreError(
+                    "BCP447",
+                    $"This wildcard import includes the following function(s) that reference external inputs, which cannot be used in .bicep files: {functionList}. ");
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

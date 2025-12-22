@@ -15,13 +15,13 @@ public class ExternalInputInvocationValidator : AstVisitor
 {
     private readonly SemanticModel model;
     private readonly IDiagnosticWriter diagnosticWriter;
-    private ImmutableHashSet<DeclaredFunctionSymbol> visitedFunctions;
+    private ImmutableStack<string> referenceStack;
 
     public ExternalInputInvocationValidator(SemanticModel model, IDiagnosticWriter diagnosticWriter)
     {
         this.model = model;
         this.diagnosticWriter = diagnosticWriter;
-        this.visitedFunctions = [];
+        this.referenceStack = [];
     }
 
     public static void Validate(SemanticModel model, IDiagnosticWriter diagnosticWriter)
@@ -31,14 +31,24 @@ public class ExternalInputInvocationValidator : AstVisitor
         {
             return;
         }
-        
+
         var visitor = new ExternalInputInvocationValidator(model, diagnosticWriter);
         visitor.Visit(model.SourceFile.ProgramSyntax);
+    }
+
+
+    public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
+    {
+        var previousStack = this.referenceStack;
+        this.referenceStack = this.referenceStack.Push(syntax.Name.IdentifierName);
+        base.VisitVariableDeclarationSyntax(syntax);
+        this.referenceStack = previousStack;
     }
 
     public override void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax)
     {
     }
+
     public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
     {
         ValidateFunctionCall(syntax);
@@ -55,17 +65,9 @@ public class ExternalInputInvocationValidator : AstVisitor
     {
         void ValidateDeclaredFunction(DeclaredFunctionSymbol declaredFunction)
         {
-            if (visitedFunctions.Contains(declaredFunction))
-            {
-                return;
-            }
-
-            // save previous state
-            var previousVisitedFunctions = visitedFunctions;
-
-            visitedFunctions = visitedFunctions.Add(declaredFunction);
             var lambda = declaredFunction.DeclaringFunction.Lambda;
-
+            var previousStack = this.referenceStack;
+            this.referenceStack = this.referenceStack.Push(declaredFunction.Name);
             switch (lambda)
             {
                 case TypedLambdaSyntax typedLambda:
@@ -76,8 +78,7 @@ public class ExternalInputInvocationValidator : AstVisitor
                     Visit(untypedLambda.Body);
                     break;
             }
-
-            visitedFunctions = previousVisitedFunctions;
+            this.referenceStack = previousStack;
         }
 
         if (model.GetSymbolInfo(syntax) is not IFunctionSymbol symbol)
@@ -88,11 +89,14 @@ public class ExternalInputInvocationValidator : AstVisitor
         switch (symbol)
         {
             case FunctionSymbol functionSymbol when functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ExternalInput):
-                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).ExternalInputFunctionInvocationNotAllowed(functionSymbol.Name));
+                var accessChain = this.BuildAccessChain();
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).ExternalInputFunctionInvocationNotAllowed(functionSymbol.Name, accessChain));
                 break;
             case DeclaredFunctionSymbol declaredFunctionSymbol:
                 ValidateDeclaredFunction(declaredFunctionSymbol);
                 break;
         }
     }
+
+    private ImmutableArray<string> BuildAccessChain() => this.referenceStack.Reverse().ToImmutableArray();
 }

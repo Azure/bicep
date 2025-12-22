@@ -11,6 +11,7 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
@@ -61,6 +62,7 @@ namespace Bicep.Core.Emit
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
             BlockExplicitDependenciesInOrOnInlinedExistingResources(model, resourceTypeResolver, diagnostics);
             ValidateUsingWithClauseMatchesExperimentalFeatureEnablement(model, diagnostics);
+            BlockExternalInputImportsInBicepFiles(model, diagnostics);
 
             var paramAssignmentEvaluator = new ParameterAssignmentEvaluator(model);
             var (paramAssignments, usingConfig) = CalculateParameterAssignments(model, paramAssignmentEvaluator, diagnostics);
@@ -546,6 +548,59 @@ namespace Bicep.Core.Emit
                     }
 
                     visited.Add(arrayAccess);
+                }
+            }
+        }
+
+        private static void BlockExternalInputImportsInBicepFiles(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            if (model.SourceFile.FileKind != BicepSourceFileKind.BicepFile)
+            {
+                return;
+            }
+
+            foreach (var importedFunctionSymbol in model.Root.ImportedFunctions)
+            {
+                var originalName = importedFunctionSymbol.OriginalSymbolName;
+                if (importedFunctionSymbol.SourceModel is not SemanticModel sourceModel)
+                {
+                    continue;
+                }
+
+                var originalSymbol = sourceModel.Root.FunctionDeclarations
+                    .FirstOrDefault(f => LanguageConstants.IdentifierComparer.Equals(f.Name, originalName));
+
+                if (originalSymbol is null)
+                {
+                    continue;
+                }
+
+                if (ExternalInputFunctionReferenceVisitor.FunctionContainsExternalInputReference(sourceModel, originalSymbol))
+                {
+                    diagnostics.Write(
+                        importedFunctionSymbol.DeclaringImportedSymbolsListItem,
+                        x => x.CannotImportFunctionWithExternalInputInBicepFile(importedFunctionSymbol.Name));
+                }
+            }
+
+            // Check wildcard imports
+            foreach (var wildcardImport in model.Root.WildcardImports)
+            {
+                if (wildcardImport.SourceModel is not SemanticModel sourceModel)
+                {
+                    continue;
+                }
+
+                var functionsWithExternalInputs = sourceModel.Root.FunctionDeclarations
+                    .Where(f => ExternalInputFunctionReferenceVisitor.FunctionContainsExternalInputReference(sourceModel, f))
+                    .Select(f => f.Name)
+                    .ToImmutableArray();
+
+                if (functionsWithExternalInputs.Any())
+                {
+                    diagnostics.Write(
+                        wildcardImport.EnclosingDeclaration,
+                        x => x.WildcardImportContainsFunctionsWithExternalInputs(functionsWithExternalInputs));
                 }
             }
         }
