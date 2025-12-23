@@ -5,8 +5,16 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <!-- generates a NOTICE file in the publish output using our custom targets -->
-    <EnableNoticeInPublishOutput>true</EnableNoticeInPublishOutput>
+    <EnableNuget>true</EnableNuget>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <PackageTags>Azure;ResourceManager;ARM;Deployments;Templates;Bicep</PackageTags>
+    <Description>
+      Bicep MCP Server
+    </Description>
+
+    <!-- Set up the NuGet package to be an MCP server -->
+    <PackAsTool>true</PackAsTool>
+    <PackageType>McpServer</PackageType>
   </PropertyGroup>
 
   <ItemGroup>
