@@ -182,8 +182,6 @@ module main 'main.bicep' = {
             });
         }
 
-        private delegate bool TryReadDelegate(Uri fileUri, out string? fileContents, out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder);
-
         [TestMethod]
         public void SourceFileGroupingBuilder_build_should_throw_diagnostic_exception_if_entrypoint_file_read_fails()
         {

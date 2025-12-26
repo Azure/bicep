@@ -43,7 +43,7 @@ public static class ArmFunctionReturnTypeEvaluator
             args[i + prefixArgsArray.Length] = new(converted);
         }
 
-        if (EvaluateOperatorAsArmFunction(armFunctionName, out var result, out var builderFunc, args))
+        if (EvaluateOperatorAsArmFunction(armFunctionName, args).IsSuccess(out var result, out var builderFunc))
         {
             if (TypeHelper.TryCreateTypeLiteral(result) is { } literalType)
             {
@@ -113,28 +113,22 @@ public static class ArmFunctionReturnTypeEvaluator
         return target;
     }
 
-    private static bool EvaluateOperatorAsArmFunction(string armFunctionName,
-        [NotNullWhen(true)] out JToken? result,
-        [NotNullWhen(false)] out DiagnosticBuilder.DiagnosticBuilderDelegate? builderFunc,
-        params FunctionArgument[] arguments)
+    private static ResultWithDiagnosticBuilder<JToken> EvaluateOperatorAsArmFunction(string armFunctionName, params FunctionArgument[] arguments)
     {
         try
         {
-            result = ExpressionBuiltInFunctions.Functions.EvaluateFunction(armFunctionName, arguments, new TemplateExpressionEvaluationHelper().EvaluationContext);
-            builderFunc = default;
-            return true;
+            var result = ExpressionBuiltInFunctions.Functions.EvaluateFunction(armFunctionName, arguments, new TemplateExpressionEvaluationHelper().EvaluationContext);
+            return new(result);
         }
         catch (Exception e)
         {
             // The ARM function invoked will almost certainly fail at runtime, but there's a chance a fix has been
             // deployed to ARM since this version of Bicep was released. Given that context, this failure will only
             // be reported as a warning, and the fallback type will be used.
-            builderFunc = b => b.ArmFunctionLiteralTypeConversionFailedWithMessage(
+            return new(b => b.ArmFunctionLiteralTypeConversionFailedWithMessage(
                 string.Join(", ", arguments.Select(a => a.TryGetToken()?.ToString())),
                 armFunctionName,
-                e.Message);
-            result = default;
-            return false;
+                e.Message));
         }
     }
 }
