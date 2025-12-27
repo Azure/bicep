@@ -3,7 +3,6 @@
 using System.Collections.Immutable;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Visitors;
 
@@ -18,7 +17,6 @@ namespace Bicep.Core.Emit
             DataFlowAnalyzer = new(semanticModel);
             ResourceDependencies = ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
             FunctionVariables = FunctionVariableGeneratorVisitor.GetFunctionVariables(semanticModel);
-            ExternalInputReferences = ExternalInputFunctionReferenceVisitor.CollectExternalInputReferences(semanticModel);
         }
 
         public EmitterSettings Settings { get; }
@@ -30,7 +28,5 @@ namespace Bicep.Core.Emit
         public ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> ResourceDependencies { get; }
 
         public ImmutableDictionary<FunctionCallSyntaxBase, FunctionVariable> FunctionVariables { get; }
-
-        public ExternalInputReferences ExternalInputReferences { get; }
     }
 }
