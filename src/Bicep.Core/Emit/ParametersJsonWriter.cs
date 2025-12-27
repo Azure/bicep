@@ -67,9 +67,9 @@ public class ParametersJsonWriter
             }
         });
 
-        if (this.Context.ExternalInputReferences.ExternalInputIndexMap.Count > 0)
+        if (this.Context.SemanticModel.ExternalInputReferences.ExternalInputInfoBySyntax.Count > 0)
         {
-            WriteExternalInputDefinitions(emitter, this.Context.ExternalInputReferences.ExternalInputIndexMap);
+            WriteExternalInputDefinitions(emitter, this.Context.SemanticModel.ExternalInputReferences.ExternalInputInfoBySyntax);
         }
 
         if (this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
@@ -108,16 +108,16 @@ public class ParametersJsonWriter
         return content.FromJson<JToken>();
     }
 
-    private void WriteExternalInputDefinitions(ExpressionEmitter emitter, IDictionary<FunctionCallSyntaxBase, string> externalInputIndexMap)
+    private void WriteExternalInputDefinitions(ExpressionEmitter emitter, IDictionary<FunctionCallSyntaxBase, ExternalInputInfo> externalInputInfo)
     {
         emitter.EmitObjectProperty("externalInputDefinitions", () =>
         {
             // Sort the external input references by name for deterministic ordering
-            foreach (var reference in externalInputIndexMap.OrderBy(x => x.Value))
+            foreach (var reference in externalInputInfo.OrderBy(x => x.Value.DefinitionKey))
             {
                 var expression = (FunctionCallExpression)ExpressionBuilder.Convert(reference.Key);
 
-                emitter.EmitObjectProperty(reference.Value, () =>
+                emitter.EmitObjectProperty(reference.Value.DefinitionKey, () =>
                 {
                     emitter.EmitProperty("kind", expression.Parameters[0]);
                     if (expression.Parameters.Length > 1)
