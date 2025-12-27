@@ -67,9 +67,12 @@ public class ParametersJsonWriter
             }
         });
 
-        if (this.Context.ExternalInputReferences.ExternalInputIndexMap.Count > 0)
+        if (this.Context.SemanticModel.ExternalInputReferences.ExternalInputInfoBySyntax.Count > 0)
         {
-            WriteExternalInputDefinitions(emitter, this.Context.ExternalInputReferences.ExternalInputIndexMap);
+            WriteExternalInputDefinitions(
+                emitter,
+                jsonWriter,
+                this.Context.SemanticModel.ExternalInputReferences.ExternalInputInfoBySyntax);
         }
 
         if (this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
@@ -108,21 +111,24 @@ public class ParametersJsonWriter
         return content.FromJson<JToken>();
     }
 
-    private void WriteExternalInputDefinitions(ExpressionEmitter emitter, IDictionary<FunctionCallSyntaxBase, string> externalInputIndexMap)
+    private void WriteExternalInputDefinitions(
+        ExpressionEmitter emitter,
+        PositionTrackingJsonTextWriter writer,
+        IDictionary<FunctionCallSyntaxBase, ExternalInputInfo> externalInputInfo)
     {
         emitter.EmitObjectProperty("externalInputDefinitions", () =>
         {
             // Sort the external input references by name for deterministic ordering
-            foreach (var reference in externalInputIndexMap.OrderBy(x => x.Value))
+            foreach (var reference in externalInputInfo.OrderBy(x => x.Value.DefinitionKey))
             {
-                var expression = (FunctionCallExpression)ExpressionBuilder.Convert(reference.Key);
+                var currInfo = reference.Value;
 
-                emitter.EmitObjectProperty(reference.Value, () =>
+                emitter.EmitObjectProperty(currInfo.DefinitionKey, () =>
                 {
-                    emitter.EmitProperty("kind", expression.Parameters[0]);
-                    if (expression.Parameters.Length > 1)
+                    emitter.EmitProperty("kind", currInfo.Kind);
+                    if (currInfo.Config is { } config)
                     {
-                        emitter.EmitProperty("config", expression.Parameters[1]);
+                        emitter.EmitProperty("config", currInfo.Config);
                     }
                 });
             }

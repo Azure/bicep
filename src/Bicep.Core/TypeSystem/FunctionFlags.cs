@@ -88,6 +88,11 @@ namespace Bicep.Core.TypeSystem
         IsArgumentValueIndependent = 1 << 15,
 
         /// <summary>
+        /// The function represents a request for inputs from external tooling.
+        /// </summary>
+        ExternalInput = 1 << 16,
+
+        /// <summary>
         /// The function can be used as a resource or module decorator.
         /// </summary>
         ResourceOrModuleDecorator = ResourceDecorator | ModuleDecorator,

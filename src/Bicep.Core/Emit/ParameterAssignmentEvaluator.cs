@@ -158,7 +158,6 @@ public class ParameterAssignmentEvaluator
     private readonly ImmutableDictionary<string, ImportedSymbol> importsByName;
     private readonly ImmutableDictionary<string, WildcardImportPropertyReference> wildcardImportPropertiesByName;
     private readonly ImmutableDictionary<string, Expression> synthesizedVariableValuesByName;
-    private readonly ExternalInputReferences externalInputReferences;
     private readonly ExpressionConverter converter;
 
     private static IEnumerable<FunctionVariable> CollectFunctionVariablesIncludingExtends(SemanticModel model, EmitterContext context)
@@ -248,8 +247,6 @@ public class ParameterAssignmentEvaluator
         this.synthesizedVariableValuesByName = CollectFunctionVariablesIncludingExtends(model, context)
             .GroupBy(result => result.Name)
             .ToImmutableDictionary(x => x.Key, x => x.First().Value);
-
-        this.externalInputReferences = context.ExternalInputReferences;
     }
 
     private ExpressionConverter GetConverterForParameter(ParameterAssignmentSymbol parameter)
@@ -279,12 +276,10 @@ public class ParameterAssignmentEvaluator
                 var parameterConverter = GetConverterForParameter(parameter);
                 var intermediate = parameterConverter.ConvertToIntermediateExpression(declaringParam.Value);
 
-                if (this.externalInputReferences.ParametersReferences.Contains(parameter))
+                if (semanticModel.SymbolsToInline.ParameterAssignmentsToInline.Contains(parameter))
                 {
-                    var rewrittenExpression = ExternalInputExpressionRewriter
-                        .Rewrite(intermediate, this.externalInputReferences);
-
-                    return Result.For(rewrittenExpression);
+                    var rewritten = ExternalInputExpressionRewriter.Rewrite(intermediate, semanticModel.ExternalInputReferences);
+                    return Result.For(rewritten);
                 }
 
                 if (intermediate is ParameterKeyVaultReferenceExpression keyVaultReferenceExpression)
@@ -312,8 +307,7 @@ public class ParameterAssignmentEvaluator
 
         var intermediate = converter.ConvertToIntermediateExpression(config);
 
-        var rewrittenExpression = ExternalInputExpressionRewriter
-            .Rewrite(intermediate, this.externalInputReferences);
+        var rewrittenExpression = ExternalInputExpressionRewriter.Rewrite(intermediate, semanticModel.ExternalInputReferences);
 
         return Result.For(rewrittenExpression);
     }
@@ -627,12 +621,12 @@ public class ParameterAssignmentEvaluator
         public override Expression ReplaceFunctionCallExpression(FunctionCallExpression expression)
         {
             if (expression.SourceSyntax is FunctionCallSyntaxBase functionCallSyntax &&
-                externalInputReferences.ExternalInputIndexMap.TryGetValue(functionCallSyntax, out var definitionKey))
+                externalInputReferences.ExternalInputInfoBySyntax.TryGetValue(functionCallSyntax, out var info))
             {
                 return new FunctionCallExpression(
                     functionCallSyntax,
                     LanguageConstants.ExternalInputsArmFunctionName,
-                    [ExpressionFactory.CreateStringLiteral(definitionKey)]
+                    [ExpressionFactory.CreateStringLiteral(info.DefinitionKey)]
                 );
             }
 
