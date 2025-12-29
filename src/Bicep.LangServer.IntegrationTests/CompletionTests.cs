@@ -2739,7 +2739,7 @@ func foo(innerVar string) string => '${outerVar|}'
         [TestMethod]
         public async Task Func_definition_lambda_completions_suggest_imported_variables()
         {
-            var exportContent = """              
+            var exportContent = """
 @export()
 var whatsup = 'Whatsup?'
 """;
@@ -5833,7 +5833,7 @@ output people Person[] = [{
               name: 'foo'
               |
             }
-            
+
             output readOnlyRequired string = myRes.readOnlyRequired
             """);
 
@@ -6095,6 +6095,30 @@ param foo string = 'bar'
               mode: 'stack'|
             }
             """);
+        }
+
+        [TestMethod]
+        public async Task Decorator_completion_should_include_nullIfNotFound_for_existing_resources_when_feature_enabled()
+        {
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(
+                TestContext,
+                s => s.WithFeatureOverrides(new(ExistingNullIfNotFoundEnabled: true))
+                    .WithNamespaceProvider(BuiltInTestTypes.Create()));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            // Test that @nullIfNotFound is offered for existing resources
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+            @|
+            resource testRes 'Test.Rp/readWriteTests@2020-01-01' existing = {
+              name: 'test'
+            }
+            """);
+
+            var bicepFile = await helper.OpenFile("/path/to/main.bicep", text);
+            var completions = await bicepFile.RequestAndResolveCompletions(cursor);
+
+            // Should have 'nullIfNotFound' completion for existing resource
+            completions.Should().Contain(c => c.Label == "nullIfNotFound", "nullIfNotFound decorator should be offered for existing resources");
         }
     }
 }
