@@ -78,7 +78,7 @@ public class BicepToolsTests
     {
         var response = await tools.ListAvmMetadata();
         var modules = response.Modules;
-        
+
         modules.Should().HaveCountGreaterThan(200, "response should have more than 200 modules");
 
         modules.Should().AllSatisfy(module =>
