@@ -6,27 +6,29 @@ using Bicep.Core.Text;
 using Newtonsoft.Json.Linq;
 using SharpYaml.Serialization;
 
-namespace Bicep.Core.Semantics
+namespace Bicep.Core.Semantics;
+
+public class YamlObjectParser : ObjectParser
 {
-    public class YamlObjectParser : ObjectParser
+    protected override ResultWithDiagnostic<JToken> ExtractTokenFromObject(string fileContent, IPositionable positionable)
     {
-        /// <summary>
-        /// Deserialize raises an exception if the fileContent is not a valid YAML object
-        /// </summary>
-        override protected JToken? ExtractTokenFromObject(string fileContent)
+        if (TryDeserialize(fileContent) is { } deserialized)
         {
-            try
-            {
-                return new Serializer().Deserialize(fileContent) is { } deserialized ? JToken.FromObject(deserialized) : null;
-            }
-            catch
-            {
-                return null;
-            }
+            return new(JToken.FromObject(deserialized));
         }
 
-        override protected Diagnostic GetExtractTokenErrorType(IPositionable positionable)
-            => DiagnosticBuilder.ForPosition(positionable).UnparsableYamlType();
+        return new(DiagnosticBuilder.ForPosition(positionable).UnparsableYamlType());
+    }
 
+    private static object? TryDeserialize(string fileContent)
+    {
+        try
+        {
+            return new Serializer().Deserialize(fileContent);
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

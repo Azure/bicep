@@ -5,10 +5,9 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Text;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.Core.Semantics
+namespace Bicep.Core.Semantics;
+
+public interface IObjectParser
 {
-    public interface IObjectParser
-    {
-        bool TryExtractFromObject(string fileContent, string? tokenSelectorPath, IPositionable[] positionable, [NotNullWhen(false)] out IDiagnostic? errorDiagnostic, [NotNullWhen(true)] out JToken? newToken);
-    }
+    ResultWithDiagnostic<JToken> TryExtractFromObject(string fileContent, string? tokenSelectorPath, IPositionable[] positionable);
 }
