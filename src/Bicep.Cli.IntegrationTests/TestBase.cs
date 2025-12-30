@@ -79,34 +79,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         protected static Task<CliResult> Bicep(InvocationSettings settings, Action<IServiceCollection>? registerAction, CancellationToken cancellationToken, params string?[] args /*null args are ignored*/)
-            => TextWriterHelper.InvokeWriterAction((@out, err)
-                => new Program(
-                    new(Input: new StringReader(string.Empty), Output: @out, Error: err),
-                    services =>
-                    {
-                        if (settings.FeatureOverrides is { })
-                        {
-                            services.WithFeatureOverrides(settings.FeatureOverrides);
-                        }
-
-                        IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, settings.ModuleMetadataClient);
-
-                        services
-                            .AddSingletonIfNotNull(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
-                            .AddSingletonIfNotNull(settings.ClientFactory)
-                            .AddSingletonIfNotNull(settings.TemplateSpecRepositoryFactory)
-                            .AddSingleton(AnsiConsole.Create(new()
-                            {
-                                Ansi = AnsiSupport.Yes,
-                                ColorSystem = ColorSystemSupport.Standard,
-                                Interactive = InteractionSupport.No,
-                                Out = new AnsiConsoleOutput(@out),
-                            }));
-
-                        registerAction?.Invoke(services);
-                    }
-                   )
-                   .RunAsync(args.ToArrayExcludingNull(), cancellationToken));
+            => BicepInternal(settings, registerAction, null, cancellationToken, args);
 
         protected static Task<CliResult> Bicep(params string[] args) => Bicep(InvocationSettings.Default, args);
 
@@ -118,6 +91,9 @@ namespace Bicep.Cli.IntegrationTests
 
         protected static Task<CliResult> Bicep(InvocationSettings settings, params string?[] args /*null args are ignored*/)
             => Bicep(settings, null, CancellationToken.None, args);
+
+        protected static Task<CliResult> Bicep(InputContext inputContext, params string[] args)
+            => BicepInternal(InvocationSettings.Default, null, inputContext, CancellationToken.None, args);
 
         protected static void AssertNoErrors(string error)
         {
@@ -188,5 +164,35 @@ namespace Bicep.Cli.IntegrationTests
             ("intEnvVariableName", "100"),
             ("boolEnvironmentVariable", "true")
         );
+
+        private static Task<CliResult> BicepInternal(InvocationSettings settings, Action<IServiceCollection>? registerAction, InputContext? inputContext, CancellationToken cancellationToken, params string?[] args /*null args are ignored*/)
+            => TextWriterHelper.InvokeWriterAction((@out, err)
+                => new Program(
+                    new(Input: inputContext ?? new(new StringReader(string.Empty), false), Output: @out, Error: err),
+                    services =>
+                    {
+                        if (settings.FeatureOverrides is { })
+                        {
+                            services.WithFeatureOverrides(settings.FeatureOverrides);
+                        }
+
+                        IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, settings.ModuleMetadataClient);
+
+                        services
+                            .AddSingletonIfNotNull(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
+                            .AddSingletonIfNotNull(settings.ClientFactory)
+                            .AddSingletonIfNotNull(settings.TemplateSpecRepositoryFactory)
+                            .AddSingleton(AnsiConsole.Create(new()
+                            {
+                                Ansi = AnsiSupport.Yes,
+                                ColorSystem = ColorSystemSupport.Standard,
+                                Interactive = InteractionSupport.No,
+                                Out = new AnsiConsoleOutput(@out),
+                            }));
+
+                        registerAction?.Invoke(services);
+                    }
+                   )
+                   .RunAsync(args.ToArrayExcludingNull(), cancellationToken)); 
     }
 }
