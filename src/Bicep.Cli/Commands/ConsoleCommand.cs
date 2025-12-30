@@ -57,10 +57,10 @@ public class ConsoleCommand(
     {
         logger.LogWarning($"WARNING: The '{args.CommandName}' CLI command is an experimental feature. Experimental features should be used for testing purposes only, as there are no guarantees about the quality or stability of these features.");
 
-        if (Console.IsInputRedirected)
+        if (io.Input.IsRedirected)
         {
             // Read all input from stdin if redirected (via pipe or file redirection)
-            var input = await io.Input.ReadToEndAsync();
+            var input = await io.Input.Reader.ReadToEndAsync();
 
             if (string.IsNullOrWhiteSpace(input))
             {
