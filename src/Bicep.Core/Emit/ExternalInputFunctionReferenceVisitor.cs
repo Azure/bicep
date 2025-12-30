@@ -95,15 +95,15 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
             return;
         }
 
-        // Extract the 'kind' and 'config' from the evaluated representation
-        var evaluated = this.expressionConverter.ConvertExpression(functionCall);
-        if (evaluated is not FunctionExpression functionExpression || functionExpression.Parameters.Length < 1)
-        {
-            return;
-        }
-
         try
         {
+            // Extract the 'kind' and 'config' from the evaluated representation
+            var evaluated = this.expressionConverter.ConvertExpression(functionCall);
+            if (evaluated is not FunctionExpression functionExpression || functionExpression.Parameters.Length < 1)
+            {
+                return;
+            }
+
             var evalContext = this.evaluationHelper.EvaluationContext;
             var kind = functionExpression.Parameters[0].EvaluateExpression(evalContext).ToString();
             JToken? config = null;
@@ -118,6 +118,9 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
         }
         catch (Exception)
         {
+            // Swallow any exceptions during evaluation to avoid impacting the compilation flow.
+            // Syntax errors will be reported elsewhere.
+            // Any evaluation errors will be reported in ParameterAssignmentEvaluator.
             return;
         }
     }
