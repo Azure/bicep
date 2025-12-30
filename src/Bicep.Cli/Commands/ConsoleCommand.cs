@@ -57,6 +57,43 @@ public class ConsoleCommand(
     {
         logger.LogWarning($"WARNING: The '{args.CommandName}' CLI command is an experimental feature. Experimental features should be used for testing purposes only, as there are no guarantees about the quality or stability of these features.");
 
+        if (Console.IsInputRedirected)
+        {
+            // Read all input from stdin if redirected (via pipe or file redirection)
+            var input = await io.Input.ReadToEndAsync();
+
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return 0;
+            }
+
+            // Handle input line by line (to support multi-line strings)
+            var outputBuilder = new StringBuilder();
+            var inputBuffer = new StringBuilder();
+
+            using var reader = new StringReader(input);
+            while (await reader.ReadLineAsync() is { } line)
+            {
+                inputBuffer.Append(line);
+                inputBuffer.Append('\n');
+
+                var current = inputBuffer.ToString();
+                if (ReplEnvironment.ShouldSubmitBuffer(current, line))
+                {
+                    inputBuffer.Clear();
+                    outputBuilder.Append(replEnvironment.EvaluateAndGetOutput(current));
+                }
+            }
+
+            if (inputBuffer.Length > 0)
+            {
+                outputBuilder.Append(replEnvironment.EvaluateAndGetOutput(inputBuffer.ToString()));
+            }
+
+            await io.Output.WriteAsync(outputBuilder.ToString());
+            return 0;
+        }
+
         if (!console.Profile.Capabilities.Interactive)
         {
             logger.LogError($"The '{args.CommandName}' CLI command requires an interactive console.");
