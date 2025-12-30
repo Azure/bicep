@@ -81,7 +81,7 @@ namespace Bicep.Cli.IntegrationTests
         protected static Task<CliResult> Bicep(InvocationSettings settings, Action<IServiceCollection>? registerAction, CancellationToken cancellationToken, params string?[] args /*null args are ignored*/)
             => TextWriterHelper.InvokeWriterAction((@out, err)
                 => new Program(
-                    new(Output: @out, Error: err),
+                    new(Input: new StringReader(string.Empty), Output: @out, Error: err),
                     services =>
                     {
                         if (settings.FeatureOverrides is { })

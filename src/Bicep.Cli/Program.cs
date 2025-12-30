@@ -24,6 +24,7 @@ using Spectre.Console;
 namespace Bicep.Cli
 {
     public record IOContext(
+        TextReader Input,
         TextWriter Output,
         TextWriter Error);
 
@@ -55,7 +56,7 @@ namespace Bicep.Cli
                 // this event listener picks up SDK events and writes them to Trace.WriteLine()
                 using (FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
                 {
-                    var program = new Program(new(Output: Console.Out, Error: Console.Error));
+                    var program = new Program(new(Input: Console.In, Output: Console.Out, Error: Console.Error));
 
                     // this must be awaited so dispose of the listener occurs in the continuation
                     // rather than the sync part at the beginning of RunAsync()
