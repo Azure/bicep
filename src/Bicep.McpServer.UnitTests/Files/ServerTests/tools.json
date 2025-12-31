@@ -229,6 +229,38 @@
     }
   },
   {
+    "name": "get_file_references",
+    "description": "Analyzes a Bicep file (.bicep) or Bicep parameters file (.bicepparam) and returns a list of all files referenced by the entry file, including modules, parameter files, and any other dependencies.\n\nUse this tool to:\n- Identify all files that a Bicep or Bicep parameters file depends on\n- Perform dependency or impact analysis before making changes\n- Understand the structure and external links of a Bicep deployment\n\nThe result is a list of absolute URIs for each referenced file. The file path must be absolute. Only direct references are included; transitive references require additional calls.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "filePath": {
+          "description": "The path to the .bicep or .bicepparam file",
+          "type": "string"
+        }
+      },
+      "required": [
+        "filePath"
+      ]
+    },
+    "returnJsonSchema": {
+      "type": "object",
+      "properties": {
+        "fileUris": {
+          "description": "The list of files being referenced by the specified Bicep or Bicep parameters file",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "required": [
+        "fileUris"
+      ]
+    }
+  },
+  {
     "name": "list_avm_metadata",
     "description": "Lists metadata for all Azure Verified Modules (AVM) - Microsoft's official, pre-built, tested, and maintained Bicep modules for common Azure resource patterns.\n\nUse this tool to:\n- Discover reusable, production-ready Bicep modules for common scenarios\n- Find officially supported modules instead of writing resources from scratch\n- Check available versions and documentation for AVM modules\n- Accelerate Bicep development by leveraging tested, best-practice implementations\n\nAzure Verified Modules provide:\n- Pre-configured resource deployments following Microsoft best practices\n- Built-in security, reliability, and compliance features\n- Regular updates and maintenance by Microsoft\n- Comprehensive documentation and examples\n\nUse these modules in your Bicep files to reduce code and improve quality.",
     "jsonSchema": {

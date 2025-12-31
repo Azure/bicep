@@ -36,7 +36,7 @@
     <PackageIcon>bicep-logo-256.png</PackageIcon>
 
     <!-- generate symbols for upload to the nuget feed -->
-    <IncludeSymbols>true</IncludeSymbols>
+    <IncludeSymbols Condition=" '$(SelfContained)' != 'true' ">true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
     <!-- sourcelink configuration -->

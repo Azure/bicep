@@ -59,4 +59,32 @@ public class BicepCompilerToolsTests
 
         response.Content.Should().Contain("param foo string");
     }
+
+    [TestMethod]
+    public async Task GetFileReferences_returns_referenced_files()
+    {
+        var outputFolder = FileHelper.SaveResultFiles(TestContext, [
+            new("main.bicep", """
+                param location string
+                """),
+            new("main.bicepparam", """
+                using 'main.bicep'
+
+                param location = loadTextContent('location.txt')
+                """),
+            new("location.txt", "westus"),
+            new("bicepconfig.json", """
+                {
+                }
+                """),
+        ]);
+
+        var response = await tools.GetFileReferences(Path.Combine(outputFolder, "main.bicepparam"));
+        response.FileUris.Select(u => u.AbsoluteUri.Split('/').Last()).Should().BeEquivalentTo([
+            "main.bicep",
+            "main.bicepparam",
+            "bicepconfig.json",
+            "location.txt",
+        ]);
+    }
 }
