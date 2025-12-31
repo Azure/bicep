@@ -10,6 +10,7 @@ using Bicep.McpServer.ResourceProperties;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using ModelContextProtocol.Protocol;
 
 namespace Bicep.McpServer;
 
@@ -21,15 +22,35 @@ public static class IServiceCollectionExtensions
             .AddSingleton<ILogger<ResourceVisitor>>(NullLoggerFactory.Instance.CreateLogger<ResourceVisitor>())
             .AddSingleton<AzResourceTypeLoader>(provider => new(new AzTypeLoader()))
             .AddSingleton<ResourceVisitor>()
-            .AddBicepCore();
+            .AddBicepCore()
+            .AddBicepDecompiler();
 
         services
-            .AddSingleton<BicepTools>();
+            .AddSingleton<BicepTools>()
+            .AddSingleton<BicepCompilerTools>()
+            .AddSingleton<BicepDecompilerTools>();
 
         return services.AddMcpServer(options =>
         {
             options.ServerInstructions = Constants.ServerInstructions;
         })
-        .WithTools<BicepTools>();
+        .WithTools<BicepTools>()
+        .WithTools<BicepCompilerTools>()
+        .WithTools<BicepDecompilerTools>()
+        .AddCallToolFilter((next) => async (request, cancellationToken) =>
+        {
+            try
+            {
+                return await next(request, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                return new CallToolResult
+                {
+                    Content = [new TextContentBlock { Text = $"Error: {ex.Message}" }],
+                    IsError = true
+                };
+            }
+        });
     }
 }

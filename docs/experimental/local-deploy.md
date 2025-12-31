@@ -58,6 +58,12 @@ All extension binaries are expected to meet the following requirements:
 
 For .NET applications, there is a [NuGet package](https://www.nuget.org/packages/Azure.Bicep.Local.Extension) available which abstracts most of the above implementation.
 
+### Debugging
+Use [the debugging guide](./local-deploy-dotnet-debugging-guide.md) for helpful tips on debugging your extension during development using Visual Studio or VS Code.
+
+### Unit testing
+Use the [unit testing guide](./local-deploy-dotnet-unittesting-guide.md) for some tips on how to unit test your extension.
+
 ### Publishing
 Extensions can be published using the `bicep publish-extension` CLI command group. They can either be published to the local file system, or to an ACR instance.
 
