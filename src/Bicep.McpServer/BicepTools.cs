@@ -47,6 +47,10 @@ public sealed class BicepTools(
         [Description("List of Azure Verified Module metadata entries")]
         ImmutableArray<AvmModuleMetadata> Modules);
 
+    public record LocalDeployExtensionsResult(
+        [Description("Markdown document containing available Bicep Local Deploy extensions and their descriptions")]
+        string Content);
+
     private static Lazy<BinaryData> BestPracticesMarkdownLazy { get; } = new(() =>
         BinaryData.FromStream(
             typeof(BicepTools).Assembly.GetManifestResourceStream("Files/bestpractices.md") ??
@@ -143,7 +147,7 @@ public sealed class BicepTools(
 
     Extensions run locally using the experimental 'bicep local-deploy' command and can manage resources like GitHub repositories, Kubernetes objects, HTTP API calls, and more.
     """)]
-    public string GetBicepLocalDeployExtensions() => LocalDeployExtensionsMarkdownLazy.Value.ToString();
+    public LocalDeployExtensionsResult GetBicepLocalDeployExtensions() => new(LocalDeployExtensionsMarkdownLazy.Value.ToString());
 
     [McpServerTool(Title = "List Azure Verified Modules (AVM)", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
