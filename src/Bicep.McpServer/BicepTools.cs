@@ -47,10 +47,19 @@ public sealed class BicepTools(
         [Description("List of Azure Verified Module metadata entries")]
         ImmutableArray<AvmModuleMetadata> Modules);
 
+    public record LocalDeployExtensionsResult(
+        [Description("Markdown document containing available Bicep Local Deploy extensions and their descriptions")]
+        string Content);
+
     private static Lazy<BinaryData> BestPracticesMarkdownLazy { get; } = new(() =>
         BinaryData.FromStream(
             typeof(BicepTools).Assembly.GetManifestResourceStream("Files/bestpractices.md") ??
             throw new InvalidOperationException("Could not find embedded resource 'Files/bestpractices.md'")));
+
+    private static Lazy<BinaryData> LocalDeployExtensionsMarkdownLazy { get; } = new(() =>
+        BinaryData.FromStream(
+            typeof(BicepTools).Assembly.GetManifestResourceStream("Files/localdeployextensions.md") ??
+            throw new InvalidOperationException("Could not find embedded resource 'Files/localdeployextensions.md'")));
 
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
@@ -61,14 +70,14 @@ public sealed class BicepTools(
     [McpServerTool(Title = "List available Azure resource types", Destructive = false, Idempotent = true, OpenWorld = false, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
     Lists all available Azure resource types and their API versions for a specific Azure resource provider namespace.
-    
+
     Use this tool to:
     - Discover what resource types are available in a provider (e.g., what can be created under Microsoft.Storage)
     - Find the latest API versions for Azure resources
     - Explore the complete resource type catalog for a given provider
-    
+
     Data is sourced directly from Azure Resource Provider APIs, ensuring accuracy and currency.
-    
+
     Example provider namespaces: Microsoft.Compute, Microsoft.Storage, Microsoft.Network, Microsoft.Web, Microsoft.KeyVault
     """)]
     public ResourceTypeListResult ListAzResourceTypesForProvider(
@@ -84,14 +93,14 @@ public sealed class BicepTools(
     [McpServerTool(Title = "Get Azure resource type schema", Destructive = false, Idempotent = true, OpenWorld = false, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
     Retrieves the complete JSON schema definition for a specific Azure resource type and API version, including all properties, nested types, and constraints.
-    
+
     Use this tool to:
     - Understand what properties are available on an Azure resource
     - Learn about required vs optional properties, their types, and allowed values
     - Discover nested resource types and their schemas
     - Find available resource functions and their signatures
     - Generate accurate Bicep code with proper property names and types
-    
+
     The returned JSON schema includes resource type definitions, nested complex types, resource function signatures (like list* operations), and property constraints.
     Data is sourced directly from Azure Resource Provider APIs, ensuring the most accurate and up-to-date schema information.
     Specify the resource type (e.g., Microsoft.KeyVault/vaults) and API version (e.g., 2024-11-01 or 2024-12-01-preview).
@@ -113,34 +122,49 @@ public sealed class BicepTools(
     [McpServerTool(Title = "Get Bicep best-practices", Destructive = false, Idempotent = true, OpenWorld = false, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
     Retrieves comprehensive, up-to-date best practices and coding standards for authoring Bicep templates.
-    
+
     Use this tool when:
     - Generating new Bicep code to ensure it follows current best practices
     - Reviewing existing Bicep code for quality improvements
     - Learning recommended patterns for common scenarios
     - Understanding security, maintainability, and reliability guidelines
-    
+
     Covers naming conventions, code organization, parameter usage, resource declarations, module composition, security recommendations, performance optimization, and testing approaches.
     The practices are maintained by the Bicep team and reflect current recommended approaches.
     """)]
     public BestPracticesResult GetBicepBestPractices() => new(BestPracticesMarkdownLazy.Value.ToString());
 
+
+    [McpServerTool(Title = "Get available Bicep Local Deploy extensions", Destructive = false, Idempotent = true, OpenWorld = false, ReadOnly = true, UseStructuredContent = true)]
+    [Description("""
+    Lists available Bicep Local Deploy extensions that enable managing non-Azure resources and third-party services using Bicep syntax.
+
+    Use this tool when:
+    - Users ask about managing non-Azure resources with Bicep (e.g., GitHub, Kubernetes, Cloudflare, Databricks)
+    - Looking for extensions to interact with external APIs, DNS providers, or container platforms
+    - Exploring ways to extend Bicep beyond Azure Resource Manager deployments
+    - Checking if a community extension exists for a specific service or platform
+
+    Extensions run locally using the experimental 'bicep local-deploy' command and can manage resources like GitHub repositories, Kubernetes objects, HTTP API calls, and more.
+    """)]
+    public LocalDeployExtensionsResult GetBicepLocalDeployExtensions() => new(LocalDeployExtensionsMarkdownLazy.Value.ToString());
+
     [McpServerTool(Title = "List Azure Verified Modules (AVM)", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
     Lists metadata for all Azure Verified Modules (AVM) - Microsoft's official, pre-built, tested, and maintained Bicep modules for common Azure resource patterns.
-    
+
     Use this tool to:
     - Discover reusable, production-ready Bicep modules for common scenarios
     - Find officially supported modules instead of writing resources from scratch
     - Check available versions and documentation for AVM modules
     - Accelerate Bicep development by leveraging tested, best-practice implementations
-    
+
     Azure Verified Modules provide:
     - Pre-configured resource deployments following Microsoft best practices
     - Built-in security, reliability, and compliance features
     - Regular updates and maintenance by Microsoft
     - Comprehensive documentation and examples
-    
+
     Use these modules in your Bicep files to reduce code and improve quality.
     """)]
     public async Task<AvmMetadataResult> ListAvmMetadata()

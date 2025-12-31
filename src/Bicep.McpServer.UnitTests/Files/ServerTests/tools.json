@@ -229,6 +229,26 @@
     }
   },
   {
+    "name": "get_bicep_local_deploy_extensions",
+    "description": "Lists available Bicep Local Deploy extensions that enable managing non-Azure resources and third-party services using Bicep syntax.\n\nUse this tool when:\n- Users ask about managing non-Azure resources with Bicep (e.g., GitHub, Kubernetes, Cloudflare, Databricks)\n- Looking for extensions to interact with external APIs, DNS providers, or container platforms\n- Exploring ways to extend Bicep beyond Azure Resource Manager deployments\n- Checking if a community extension exists for a specific service or platform\n\nExtensions run locally using the experimental \u0027bicep local-deploy\u0027 command and can manage resources like GitHub repositories, Kubernetes objects, HTTP API calls, and more.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {}
+    },
+    "returnJsonSchema": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "description": "Markdown document containing available Bicep Local Deploy extensions and their descriptions",
+          "type": "string"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    }
+  },
+  {
     "name": "list_avm_metadata",
     "description": "Lists metadata for all Azure Verified Modules (AVM) - Microsoft's official, pre-built, tested, and maintained Bicep modules for common Azure resource patterns.\n\nUse this tool to:\n- Discover reusable, production-ready Bicep modules for common scenarios\n- Find officially supported modules instead of writing resources from scratch\n- Check available versions and documentation for AVM modules\n- Accelerate Bicep development by leveraging tested, best-practice implementations\n\nAzure Verified Modules provide:\n- Pre-configured resource deployments following Microsoft best practices\n- Built-in security, reliability, and compliance features\n- Regular updates and maintenance by Microsoft\n- Comprehensive documentation and examples\n\nUse these modules in your Bicep files to reduce code and improve quality.",
     "jsonSchema": {
