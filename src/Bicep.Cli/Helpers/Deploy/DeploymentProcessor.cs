@@ -353,24 +353,52 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
         return GetDeploymentView(deployment, operations);
     }
 
-    private static string? GetError(ArmDeploymentOperation operation)
+     internal static string FormatError(string? symbolicName, string? resourceType, string? resourceName, string? errorCode, string? errorMessage)
+    {
+        var resourceContext = string.Empty;
+
+        if (resourceType is not null && resourceName is not null)
+        {
+            resourceContext = !string.IsNullOrEmpty(symbolicName)
+            ? $"Resource '{symbolicName}' ({resourceType} '{resourceName}'): "
+            : $"Resource {resourceType} '{resourceName}': ";
+        }
+
+        return $"{resourceContext}{errorCode}: {errorMessage}";
+    }
+
+    internal static string? GetError(ArmDeploymentOperation operation)
     {
         if (operation.Properties.StatusMessage?.Error is not { } error)
         {
             return null;
         }
 
-        return $"{error.Code}: {error.Message}";
+        var tr = operation.Properties.TargetResource;
+
+        return FormatError(
+        tr?.SymbolicName,
+        tr?.ResourceType,
+        tr?.ResourceName,
+        error.Code,
+        error.Message);
     }
 
-    private static string? GetError(DeploymentOperationDefinition operation)
+    internal static string? GetError(DeploymentOperationDefinition operation)
     {
         if (operation.Properties.StatusMessage?.GetProperty("error") is not { } error)
         {
             return null;
         }
 
-        return $"{error.GetProperty("code")}: {error.GetProperty("message")}";
+        var tr = operation.Properties.TargetResource;
+
+    return FormatError(
+        tr?.SymbolicName,
+        tr?.ResourceType,
+        tr?.ResourceName,
+        error.GetProperty("code").ToString(),
+        error.GetProperty("message").ToString());
     }
 
     private static string? GetError(ArmDeploymentData deployment)
