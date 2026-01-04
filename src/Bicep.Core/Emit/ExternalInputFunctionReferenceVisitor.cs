@@ -80,12 +80,12 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 
     private void VisitFunctionCallSyntaxInternal(FunctionCallSyntaxBase functionCallSyntax)
     {
-        if (SemanticModelHelper.TryGetFunctionInNamespace(semanticModel, SystemNamespaceType.BuiltInName, functionCallSyntax) is not { } functionCall)
-        {
-            return;
-        }
+        //if (SemanticModelHelper.TryGetFunctionInNamespace(semanticModel, SystemNamespaceType.BuiltInName, functionCallSyntax) is not { } functionCall)
+        //{
+        //    return;
+        //}
 
-        if (semanticModel.GetSymbolInfo(functionCall) is not FunctionSymbol functionSymbol)
+        if (semanticModel.GetSymbolInfo(functionCallSyntax) is not FunctionSymbol functionSymbol)
         {
             return;
         }
@@ -98,7 +98,7 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
         try
         {
             // Extract the 'kind' and 'config' from the evaluated representation
-            var evaluated = this.expressionConverter.ConvertExpression(functionCall);
+            var evaluated = this.expressionConverter.ConvertExpression(functionCallSyntax);
             if (evaluated is not FunctionExpression functionExpression || functionExpression.Parameters.Length < 1)
             {
                 return;
@@ -114,7 +114,7 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 
             var index = this.externalInputReferences.Count;
             var definitionKey = GetExternalInputDefinitionName(kind, index);
-            this.externalInputReferences.TryAdd(functionCall, new(kind, config, definitionKey));
+            this.externalInputReferences.TryAdd(functionCallSyntax, new(kind, config, definitionKey));
         }
         catch (Exception)
         {

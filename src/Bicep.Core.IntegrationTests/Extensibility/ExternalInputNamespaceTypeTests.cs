@@ -21,52 +21,70 @@ namespace Bicep.Core.IntegrationTests.Extensibility;
 [TestClass]
 public class ExternalInputNamespaceTypeTests
 {
-    //private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem, string registryHost, string repositoryPath)
-    //{
-    //    var clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor(registryHost, repositoryPath, ["tag"]));
-
-    //    return new ServiceBuilder()
-    //        .WithFileSystem(fileSystem)
-    //        .WithContainerRegistryClientFactory(clientFactory);
-    //}
-
     [NotNull]
     public TestContext? TestContext { get; set; }
-
-    //private async Task<ServiceBuilder> GetServicesWithPrepublishedTypes()
-    //{
-    //    var typesTgz = GetExternalInputTypesTgz();
-    //    var extensionTgz = await ExtensionV1Archive.Build(new(typesTgz, false, []));
-
-    //    var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext));
-
-    //    var tgzData = GetExternalInputTypesTgz();
-    //    await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.0.0", tgzData);
-
-    //    return services;
-    //}
 
     public static BinaryData GetExternalInputTypesTgz()
     {
         var factory = new TypeFactory([]);
 
         var stringType = factory.Create(() => new StringType());
+        var boolType = factory.Create(() => new BooleanType());
+        var sasUriConfig = factory.Create(() => new ObjectType("sasUriConfig", new Dictionary<string, ObjectTypeProperty>
+        {
+            ["path"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.Required, "Path to artifact"),
+            ["isDirectory"] = new(factory.GetReference(boolType), ObjectTypePropertyFlags.None, "Is a directory"),
+            ["enableScopeTagBindings"] = new(factory.GetReference(boolType), ObjectTypePropertyFlags.None, "Enable binding replacements")
+        }, null));
+
         var anyType = factory.Create(() => new AnyType());
         var scopeBindingFunctionType = factory.Create(() => new NamespaceFunctionType(
             "scopeBinding",
             "Reads scope binding from external tooling",
-            "[externalInputs('binding', parameters('bindingKey'))]",
-            [new FunctionParameter("kind", factory.GetReference(stringType), "The kind parameter")],
+            "[externalInput('ev2.scopeBinding', parameters('bindingKey'))]",
+            [new NamespaceFunctionParameter("bindingKey", factory.GetReference(stringType), "The binding key parameter", NamespaceFunctionParameterFlags.Required | NamespaceFunctionParameterFlags.Constant)],
             factory.GetReference(anyType),
-            NamespaceFunctionTypeFlags.ExternalInput,
-            NamespaceFunctionTypeFileVisibilityFlags.Bicepparam));
+            NamespaceFunctionFlags.ExternalInput,
+            NamespaceFunctionFileVisibilityRestriction.Bicepparam));
+
+        var configFunctionType = factory.Create(() => new NamespaceFunctionType(
+            "config",
+            "Reads configuration from external tooling",
+            "[externalInput('ev2.expression', concat('$config(', parameters('configKey'), ')'))]",
+            [new NamespaceFunctionParameter("configKey", factory.GetReference(stringType), "The configuration key parameter", NamespaceFunctionParameterFlags.Required | NamespaceFunctionParameterFlags.Constant)],
+            factory.GetReference(anyType),
+            NamespaceFunctionFlags.ExternalInput,
+            NamespaceFunctionFileVisibilityRestriction.Bicepparam));
+
+        var sysVariableFunctionType = factory.Create(() => new NamespaceFunctionType(
+            "sysVar",
+            "Reads configuration from external tooling",
+            "[externalInput('ev2.expression', parameters('varExpr'))]",
+            [new NamespaceFunctionParameter("varExpr", factory.GetReference(stringType), "The system variable expression", NamespaceFunctionParameterFlags.Required | NamespaceFunctionParameterFlags.Constant)],
+            factory.GetReference(anyType),
+            NamespaceFunctionFlags.ExternalInput,
+            NamespaceFunctionFileVisibilityRestriction.Bicepparam));
+
+        var sasUriFunctionType = factory.Create(() => new NamespaceFunctionType(
+            "sasUri",
+            "Reads SAS URI from external tooling",
+            "[externalInput('ev2.sasUriForPath', parameters('sasUriConfig'))]",
+            [new NamespaceFunctionParameter("sasUriConfig", factory.GetReference(sasUriConfig), "The SAS URI configuration properties", NamespaceFunctionParameterFlags.Required | NamespaceFunctionParameterFlags.Constant)],
+            factory.GetReference(anyType),
+            NamespaceFunctionFlags.ExternalInput,
+            NamespaceFunctionFileVisibilityRestriction.Bicepparam));
 
         var settings = new TypeSettings(name: "ThirdPartyExtension", version: "1.0.0", isSingleton: false, configurationType: null!);
 
         var index = new TypeIndex(
             new Dictionary<string, CrossFileTypeReference>(),
             new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
-            new List<CrossFileTypeReference>() { new("types.json", factory.GetIndex(scopeBindingFunctionType)) },
+            new List<CrossFileTypeReference>() {
+                new("types.json", factory.GetIndex(scopeBindingFunctionType)),
+                new("types.json", factory.GetIndex(configFunctionType)),
+                new("types.json", factory.GetIndex(sasUriFunctionType)),
+                new("types.json", factory.GetIndex(sysVariableFunctionType)),
+            },
             settings,
             null);
 
@@ -76,32 +94,26 @@ public class ExternalInputNamespaceTypeTests
     }
 
     [TestMethod]
-    public async Task ExternalInput_function_works()
+    public async Task ExternalInput_alias_functions_works()
     {
         var typesTgz = GetExternalInputTypesTgz();
         var extensionTgz = await ExtensionV1Archive.Build(new(typesTgz, false, []));
-
+        await File.WriteAllBytesAsync("C:\\Users\\muriukilevi\\Repos\\playground\\bicep\\external-inputs\\extension\\extension.tgz", extensionTgz);
         var services = new ServiceBuilder();
-        var result = await CompilationHelper.RestoreAndCompile(services,
+        var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("parameters.bicepparam", new("""
 using none
 
 extension '../extension.tgz' as ext
 param foo = ext.scopeBinding('BINDING')
+param bar = ext.config('redis')
+param buildVer = ext.sysVar('$buildVersion()')
+param servicePackageLink = ext.sasUri({
+    path: 'bin/service.sfpkg'
+})
 """)),
             ("../extension.tgz", extensionTgz));
 
-        var model = result.Compilation.GetEntrypointSemanticModel();
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 }
-
-//internal class NamespaceFunctionType : TypeBase
-//{
-//    [JsonConstructor]
-//    public NamespaceFunctionType(string name, ITypeReference type, string? description) => (Name, Type, Description) = (name, type, description);
-
-//    public string Name { get; }
-//    public ITypeReference Type { get; }
-//    public string? Description { get; }
-//}
