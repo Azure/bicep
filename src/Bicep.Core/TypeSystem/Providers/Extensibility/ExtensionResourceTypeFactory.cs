@@ -4,6 +4,8 @@ using System.Collections.Concurrent;
 using Azure.Bicep.Types.Index;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Types;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
@@ -57,7 +59,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             return bodyType;
         }
 
-        public FunctionOverload GetNamespaceFunctionOverload(Azure.Bicep.Types.Concrete.NamespaceFunctionType namespaceFunctionType)
+        public (FunctionOverload, BicepSourceFileKind?) GetNamespaceFunctionOverload(Azure.Bicep.Types.Concrete.NamespaceFunctionType namespaceFunctionType)
         {
             var builder = new FunctionOverloadBuilder(namespaceFunctionType.Name);
             if (namespaceFunctionType.Description is { } description)
@@ -71,11 +73,20 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             foreach (var parameter in namespaceFunctionType.Parameters)
             {
                 var paramType = GetTypeSymbol(parameter.Type.Type, false);
-                builder = builder.WithRequiredParameter(parameter.Name, paramType, parameter.Description ?? "");
+                var paramFlags = GetNamespaceFunctionParameterFlags(parameter);
+                builder = builder.WithParameter(parameter.Name, paramType, parameter.Description ?? "", paramFlags);
             }
 
-            builder = builder.WithFlags(FunctionFlags.RequiresInlining);
-            return builder.Build();
+            if (!string.IsNullOrWhiteSpace(namespaceFunctionType.EvaluatesTo))
+            {
+                builder = builder.WithExpressionConverter(ExtensionNamespaceTypeHelper.GetExpressionConverter(namespaceFunctionType));
+            }
+
+            builder = builder.WithFlags(GetNamespaceFunctionFlags(namespaceFunctionType));
+
+            var fileVisibilityRestriction = GetFunctionVisibilityRestriction(namespaceFunctionType);
+
+            return (builder.Build(), fileVisibilityRestriction);
         }
 
         private IEnumerable<FunctionOverload> GetResourceFunctionOverloads(Azure.Bicep.Types.Concrete.ResourceType resourceType)
@@ -158,6 +169,44 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             return flags;
         }
 
+        private static FunctionFlags GetNamespaceFunctionFlags(Azure.Bicep.Types.Concrete.NamespaceFunctionType input)
+        {
+            var flags = FunctionFlags.Default;
+
+            if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.NamespaceFunctionFlags.ExternalInput))
+            {
+                flags |= FunctionFlags.ExternalInput;
+            }
+
+            return flags;
+        }
+
+        private static FunctionParameterFlags GetNamespaceFunctionParameterFlags(Azure.Bicep.Types.Concrete.NamespaceFunctionParameter input)
+        {
+            var flags = FunctionParameterFlags.None;
+
+            if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.NamespaceFunctionParameterFlags.Required))
+            {
+                flags |= FunctionParameterFlags.Required;
+            }
+            if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.NamespaceFunctionParameterFlags.Constant))
+            {
+                flags |= FunctionParameterFlags.Constant;
+            }
+
+            return flags;
+        }
+
+        private static BicepSourceFileKind? GetFunctionVisibilityRestriction(Azure.Bicep.Types.Concrete.NamespaceFunctionType input)
+        {
+            return input.FileVisibilityRestriction switch
+            {
+                Azure.Bicep.Types.Concrete.NamespaceFunctionFileVisibilityRestriction.Bicepparam => BicepSourceFileKind.ParamsFile,
+                Azure.Bicep.Types.Concrete.NamespaceFunctionFileVisibilityRestriction.Bicep => BicepSourceFileKind.BicepFile,
+                _ => null, // default, visible in all file kinds
+            };
+        }
+
         private TypeSymbol ToTypeSymbol(Azure.Bicep.Types.Concrete.TypeBase typeBase, bool isResourceBodyType)
         {
             switch (typeBase)
@@ -214,7 +263,6 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
 
                         return new DiscriminatedObjectType(discriminatedObjectType.Name, GetValidationFlags(isResourceBodyType, isSensitive: false), discriminatedObjectType.Discriminator, elementReferences);
                     }
-                case Azure.Bicep.Types.Concrete.NamespaceFunctionType namespaceFunctionType:
                 default:
                     throw new ArgumentException();
             }

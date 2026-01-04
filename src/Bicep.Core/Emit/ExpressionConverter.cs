@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -96,9 +97,18 @@ namespace Bicep.Core.Emit
                         ConvertExpression(ternary.False));
 
                 case FunctionCallExpression function:
-                    return CreateFunction(
-                        function.Name,
-                        function.Parameters.Select(ConvertExpression));
+                    {
+                        var converted = CreateFunction(
+                            function.Name,
+                            function.Parameters.Select(ConvertExpression));
+
+                        if (function.SourceSyntax is FunctionCallSyntaxBase functionCall &&
+                            context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is { ExpressionConverter: { } } functionOverload)
+                        {
+                            return functionOverload.ExpressionConverter(converted);
+                        }
+                        return converted;
+                    }
 
                 case UserDefinedFunctionCallExpression function:
                     return CreateFunction(

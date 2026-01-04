@@ -660,7 +660,7 @@ public class ParameterAssignmentEvaluator
                 externalInputReferences.ExternalInputInfoBySyntax.TryGetValue(functionCallSyntax, out var info))
             {
                 return new FunctionCallExpression(
-                    functionCallSyntax,
+                    null,
                     LanguageConstants.ExternalInputsArmFunctionName,
                     [ExpressionFactory.CreateStringLiteral(info.DefinitionKey)]
                 );

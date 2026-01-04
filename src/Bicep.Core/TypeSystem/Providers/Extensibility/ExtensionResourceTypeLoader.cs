@@ -7,6 +7,7 @@ using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.Providers.Extensibility
@@ -28,7 +29,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             this.typeLoader = typeLoader;
             this.resourceTypeFactory = new ExtensionResourceTypeFactory(typeIndex.Settings);
             this.availableTypes = typeIndex.Resources.ToImmutableDictionary(x => ResourceTypeReference.Parse(x.Key), x => x.Value);
-            this.namespaceFunctions = [.. typeIndex.NamespaceFunctions];
+            this.namespaceFunctions = typeIndex.NamespaceFunctions is { } nsFunctions ? [.. nsFunctions] : [];
             this.typeSettings = typeIndex.Settings;
             this.fallbackResourceType = typeIndex.FallbackResourceType;
         }
@@ -88,9 +89,9 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                 null);
         }
 
-        public ImmutableArray<FunctionOverload> LoadNamespaceFunctions()
+        public ImmutableArray<(FunctionOverload, BicepSourceFileKind?)> LoadNamespaceFunctions()
         {
-            var overloads = ImmutableArray.CreateBuilder<FunctionOverload>();
+            var overloads = ImmutableArray.CreateBuilder<(FunctionOverload, BicepSourceFileKind?)>();
             foreach (var functionLocation in namespaceFunctions)
             {
                 var serializedFunctionType = typeLoader.LoadType(functionLocation);
@@ -99,8 +100,8 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                     throw new InvalidOperationException($"Namespace function type at index {functionLocation.Index} in \"{functionLocation.RelativePath}\" is not a valid NamespaceFunctionType.");
                 }
 
-                var overload = resourceTypeFactory.GetNamespaceFunctionOverload(functionType);
-                overloads.Add(overload);
+                var (overload, fileVisibility) = resourceTypeFactory.GetNamespaceFunctionOverload(functionType);
+                overloads.Add((overload, fileVisibility));
             }
 
             return overloads.ToImmutable();

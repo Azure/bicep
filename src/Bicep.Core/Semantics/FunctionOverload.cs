@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
@@ -21,13 +22,17 @@ namespace Bicep.Core.Semantics
         public delegate Expression EvaluatorDelegate(
             FunctionCallExpression expression);
 
-        public FunctionOverload(string name, string genericDescription, string description, ResultBuilderDelegate resultBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, FunctionFlags flags = FunctionFlags.Default)
+        public delegate LanguageExpression ExpressionConverterDelegate(
+            FunctionExpression expression);
+
+        public FunctionOverload(string name, string genericDescription, string description, ResultBuilderDelegate resultBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, ExpressionConverterDelegate? expressionConverter, FunctionFlags flags = FunctionFlags.Default)
         {
             Name = name;
             GenericDescription = genericDescription;
             Description = description;
             ResultBuilder = resultBuilder;
             Evaluator = evaluator;
+            ExpressionConverter  = expressionConverter;
             FixedParameters = [.. fixedParameters];
             VariableParameter = variableParameter;
             Flags = flags;
@@ -58,6 +63,8 @@ namespace Bicep.Core.Semantics
         public TypeSymbol TypeSignatureSymbol { get; }
 
         public EvaluatorDelegate? Evaluator { get; }
+
+        public ExpressionConverterDelegate? ExpressionConverter { get; }
 
         public FunctionFlags Flags { get; }
 

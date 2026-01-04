@@ -76,12 +76,12 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 
     private void VisitFunctionCallSyntaxInternal(FunctionCallSyntaxBase functionCallSyntax)
     {
-        if (SemanticModelHelper.TryGetFunctionInNamespace(semanticModel, SystemNamespaceType.BuiltInName, functionCallSyntax) is not { } functionCall)
-        {
-            return;
-        }
+        //if (SemanticModelHelper.TryGetFunctionInNamespace(semanticModel, SystemNamespaceType.BuiltInName, functionCallSyntax) is not { } functionCall)
+        //{
+        //    return;
+        //}
 
-        if (semanticModel.GetSymbolInfo(functionCall) is not FunctionSymbol functionSymbol)
+        if (semanticModel.GetSymbolInfo(functionCallSyntax) is not FunctionSymbol functionSymbol)
         {
             return;
         }
