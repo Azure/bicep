@@ -36,8 +36,18 @@ To try out a particular extension, follow the README instructions from one of sa
 ### Via CLI
 1. Run:
     ```sh
-    bicep local-deploy <path_to_bicepparam_file>
+    bicep local-deploy <path_to_bicepparam_file> [arguments]
     ```
+
+#### Arguments
+
+The `bicep local-deploy` command takes the following arguments:
+
+| Argument            | Description                                                                                                                 |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `<path_to_bicepparam_file>`     | **Required**. The path to the `.bicepparam` file to be deployed locally.                                                    |
+| `--no-restore`      | Skips the automatic restoration of external modules or extensions before the deployment starts.                             |
+| `--format <format>` | Specifies the output format of the deployment results. Supported values are **Default** (interactive/tabular) and **Json**. |
 
 ## Building your own extension
 ### Quickstart
