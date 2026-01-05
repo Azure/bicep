@@ -1094,6 +1094,8 @@ param objParam object
 
             result.Should().Succeed();
             result.Stdout.Should().NotBeEmpty();
+            var parameters = result.Stdout.FromJson<BuildParamsStdout>().parametersJson.FromJson<JToken>();
+            parameters.Should().HaveValueAtPath("parameters.bar.value", "my-value-foo");
             result.Stderr.Should().Contain("WARNING: The following experimental Bicep features have been enabled: Enable extendable parameters. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
             result.ExitCode.Should().Be(0);
         }
