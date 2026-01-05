@@ -49,7 +49,7 @@ describe("ExtractToModuleCommand", () => {
     const client = mockClient(response);
     const command = new ExtractToModuleCommand(client);
 
-    const documentUri = Uri.file("/workspaces/bicep/main.bicep");
+    const documentUri = Uri.file("/tmp/main.bicep");
     window.activeTextEditor = {
       document: {
         uri: documentUri, languageId: "bicep",
