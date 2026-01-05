@@ -35,6 +35,10 @@ public sealed class BicepCompilerTools(
         [Description("The formatted Bicep or Bicep parameters file content")]
         string Content);
 
+    public record GetFileReferencesResult(
+        [Description("The list of files being referenced by the specified Bicep or Bicep parameters file")]
+        ImmutableArray<Uri> FileUris);
+
     [McpServerTool(Title = "Get Bicep File Diagnostics", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
     Analyzes a Bicep file (.bicep) or Bicep parameters file (.bicepparam) and returns all compilation diagnostics including errors, warnings, and informational messages.
@@ -103,5 +107,45 @@ public sealed class BicepCompilerTools(
         var context = PrettyPrinterV2Context.Create(options, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
 
         return new FormatResult(PrettyPrinterV2.Print(sourceFile.ProgramSyntax, context));
+    }
+
+    [McpServerTool(Title = "Get File References", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
+    [Description("""
+    Analyzes a Bicep file (.bicep) or Bicep parameters file (.bicepparam) and returns a list of all files referenced by the entry file, including modules, parameter files, and any other dependencies.
+
+    Use this tool to:
+    - Identify all files that a Bicep or Bicep parameters file depends on
+    - Perform dependency or impact analysis before making changes
+    - Understand the structure and external links of a Bicep deployment
+
+    The result is a list of absolute URIs for each referenced file. The file path must be absolute. Only direct references are included; transitive references require additional calls.
+    """)]
+    public async Task<GetFileReferencesResult> GetFileReferences(
+        [Description("The path to the .bicep or .bicepparam file")] string filePath)
+    {
+        var fileUri = IOUri.FromFilePath(filePath);
+        if (!fileUri.HasBicepExtension() && !fileUri.HasBicepParamExtension())
+        {
+            throw new ArgumentException("The specified file must have a .bicep or .bicepparam extension.", nameof(filePath));
+        }
+
+        var compilation = await compiler.CreateCompilation(fileUri);
+
+        // fetch all diagnostics to ensure that all files are loaded
+        var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
+
+        var fileUris = new HashSet<IOUri>();
+        foreach (var otherModel in compilation.GetAllBicepModels())
+        {
+            fileUris.Add(otherModel.SourceFile.FileHandle.Uri);
+            fileUris.UnionWith(otherModel.SourceFile.GetReferencedAuxiliaryFileUris());
+            if (otherModel.Configuration.ConfigFileUri is { } configFileUri)
+            {
+                fileUris.Add(configFileUri);
+            }
+        }
+
+        return new(
+            [.. fileUris.Select(x => x.ToUri()).OrderBy(x => x.ToString())]);
     }
 }
