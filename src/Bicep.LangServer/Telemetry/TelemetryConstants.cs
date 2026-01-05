@@ -54,6 +54,9 @@ namespace Bicep.LanguageServer.Telemetry
             public const string ExternalSourceDocLinkClickFailure = "ExternalSourceDocLinkClick/failure";
 
             public const string ExtractionRefactoring = "refactoring/extraction";
+
+            public const string ExtractToModuleSuccess = "ExtractToModule/success";
+            public const string ExtractToModuleFailure = "ExtractToModule/failure";
         }
     }
 }
