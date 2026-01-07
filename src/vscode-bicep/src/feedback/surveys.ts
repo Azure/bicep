@@ -4,7 +4,7 @@
 import assert from "assert";
 import https from "https";
 import { callWithTelemetryAndErrorHandling, IActionContext, parseError } from "@microsoft/vscode-azext-utils";
-import { commands, ConfigurationTarget, MessageItem, Uri, window } from "vscode";
+import { commands, MessageItem, Uri, window } from "vscode";
 import { GlobalState, GlobalStateKeys } from "../globalState";
 import { bicepConfigurationKeys } from "../language/constants";
 import { getBicepConfiguration } from "../language/getBicepConfiguration";
@@ -17,7 +17,7 @@ import { daysToMs, monthsToDays } from "../utils/time";
 //   "bicep.debug.surveys.now": "2023-10-01 PDT" // or whatever date you want to pretend the current date/time is
 //                                               //   (assumes GMT if you don't specify a time zone)
 //   "bicep.debug.surveys.link:<old link>": "<new link>" // Use a different link for a survey
-//       // e.g., "bicep.debug.surveys.link:bicep/surveys/annual": "bicep/surveys/testLink"
+//       // e.g., "bicep.debug.surveys.link:bicep-csat-survey": "bicep/surveys/testLink"
 //
 // To reset global state for surveys, add this:
 //   "bicep.debug.surveys.clearState": true
@@ -25,14 +25,14 @@ import { daysToMs, monthsToDays } from "../utils/time";
 // You'll need to manually set it back to false if you don't want it to keep clearing on each startup
 // ======================================================
 
-// Annual HaTS survey
-const hatsAnnualSurveyInfo: ISurveyInfo = {
-  akaLinkToSurvey: "bicep/surveys/annual",
+// Always on HaTS survey
+const hatsAlwaysOnSurveyInfo: ISurveyInfo = {
+  akaLinkToSurvey: "bicep-csat-survey",
   // Enough to be sure we don't ask again before the next survey, but still have flexibility about sending out the next
   //   survey earlier than a year if we want to.
   postponeAfterTakenInDays: monthsToDays(6),
   surveyPrompt: "Do you have a few minutes to tell us about your experience with Bicep?",
-  postponeForLaterInDays: 2 * 7,
+  postponeForLaterInDays: 7,
   surveyStateKey: GlobalStateKeys.annualSurveyStateKey,
 };
 
@@ -43,7 +43,7 @@ const debugSurveyLinkKeyPrefix = "debug.surveys.link:";
 type MessageItemWithId = MessageItem & { id: string };
 
 export function showSurveys(globalState: GlobalState): void {
-  checkShowSurvey(globalState, hatsAnnualSurveyInfo);
+  checkShowSurvey(globalState, hatsAlwaysOnSurveyInfo);
 }
 
 export function checkShowSurvey(globalState: GlobalState, surveyInfo: ISurveyInfo): void {
@@ -226,9 +226,9 @@ export class Survey {
     state: ISurveyState, // this is modified
     now: Date,
   ): Promise<void> {
-    const neverAskAgain: MessageItemWithId = {
-      title: "Never ask again",
-      id: "never",
+    const dontAskAgain: MessageItemWithId = {
+      title: "Don't ask again",
+      id: "dontAskAgain",
     };
     const later: MessageItemWithId = { title: "Maybe later", id: "later" };
     const yes: MessageItemWithId = { title: "Yes", id: "yes" };
@@ -238,11 +238,11 @@ export class Survey {
     };
 
     const response =
-      (await this.inject?.showInformationMessage(this.surveyInfo.surveyPrompt, yes, later, neverAskAgain)) ?? dismissed;
+      (await this.inject?.showInformationMessage(this.surveyInfo.surveyPrompt, yes, later, dontAskAgain)) ?? dismissed;
     context.telemetry.properties.userResponse = String(response.id);
 
-    if (response.id === neverAskAgain.id) {
-      await this.disableSurveys();
+    if (response.id === dontAskAgain.id) {
+      await this.postponeSurvey(state, now, 180);
     } else if (response.id === later.id) {
       await this.postponeSurvey(state, now, this.surveyInfo.postponeForLaterInDays);
     } else if (response.id === yes.id) {
@@ -250,8 +250,9 @@ export class Survey {
       state.postponedUntil = undefined;
       await this.inject.launchSurvey(context, this.surveyInfo);
     } else {
-      // Try again next time
+      // Dismissed/ignored - treat same as "later"
       assert(response.id === dismissed.id, `Unexpected response: ${response.id}`);
+      await this.postponeSurvey(state, now, this.surveyInfo.postponeForLaterInDays);
     }
   }
 
@@ -314,12 +315,6 @@ export class Survey {
 
   public areSurveysEnabled(): boolean {
     return this.inject.provideBicepConfiguration().get<boolean>(bicepConfigurationKeys.enableSurveys, true);
-  }
-
-  private async disableSurveys(): Promise<void> {
-    return this.inject
-      .provideBicepConfiguration()
-      .update(bicepConfigurationKeys.enableSurveys, false, ConfigurationTarget.Global);
   }
 
   public async clearGlobalState(): Promise<void> {

@@ -7460,4 +7460,192 @@ output locations array = flatten(map(databases, database => database.properties.
 
         result.Should().ContainDiagnostic("BCP051", DiagnosticLevel.Error, "The specified path seems to reference an absolute path. Files must be referenced using relative paths.");
     }
+
+    [TestMethod]
+    public void Test_Issue18217()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+            using 'mod.json'
+
+            param foo = 'bar'
+            """),
+            ("mod.json", """
+            {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                "foo": {}
+              },
+              "resources": []
+            }
+            """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue18217_module()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+            module mod 'mod.json' = {
+              params: {
+                foo: 'bar'
+              }
+            }
+            """),
+            ("mod.json", """
+            {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                "foo": {}
+              },
+              "resources": []
+            }
+            """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue18416()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("foo.json", """
+                {
+                    "default": 5,
+                    "boolLiteral": true
+                }
+                """),
+            ("main.bicep", """
+                type fooType = 5 | 10 | 15
+
+                param foo fooType
+
+                param bar true
+                """),
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+
+                var fooVar = loadJsonContent('foo.json')
+
+                param foo = fooVar.default
+                param bar = fooVar.boolLiteral
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue17555()
+    {
+        var result = CompilationHelper.Compile("""
+            metadata name = 'ts-devopspool'
+            metadata description = 'Creates a managed devops pool'
+            metadata version = '1.0.0'
+
+            @description('Optional, default value is empty. Resource tags. Dictionary of tag names and values. See Tags in templates')
+            param parTags object = {}
+
+            #disable-next-line no-unused-vars
+            var varTags = union(parTags, {
+              'ts-name': deployment().properties.template.metadata.name
+              'ts-version': deployment().properties.template.metadata.version
+            })
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue18520()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                module mod 'mod.bicep' = [for i in range(0, 10): if (i >= 0) {}]
+
+                module mod2 'mod2.bicep' = {
+                  params: {
+                    secureStrings: [for i in range(0, 10): mod[i]!.outputs.foo]
+                  }
+                }
+                
+                """),
+            ("mod.bicep", """
+                @secure()
+                output foo string = 'foo'
+                """),
+            ("mod2.bicep", """
+                @secure()
+                type secureString = string
+
+                param secureStrings secureString[]
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue18603()
+    {
+        var result = CompilationHelper.Compile("""
+            @secure()
+            param secretValue string
+
+            resource keyVault 'Microsoft.KeyVault/vaults@2025-05-01' = {
+              name: 'name'
+              location: resourceGroup().location
+              properties: {
+                tenantId: subscription().tenantId
+                sku: {
+                  family: 'A'
+                  name: 'standard'
+                }
+                softDeleteRetentionInDays: 30
+                enableRbacAuthorization: true
+              }
+
+              @onlyIfNotExists()
+              resource clientSecret 'secrets' = {
+                name: 'secret'
+                properties: {
+                  value: secretValue
+                }
+              }
+            }
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
+    }
+
+    [TestMethod]
+    public void Syntactically_nested_existing_resources_with_explicit_dependencies_should_use_lv_2()
+    {
+        var result = CompilationHelper.Compile("""
+            resource keyVault 'Microsoft.KeyVault/vaults@2025-05-01' existing = {
+              name: 'name'
+
+              resource clientSecret 'secrets' existing = {
+                name: 'secret'
+                dependsOn: [
+                  c
+                ]
+              }
+            }
+            
+            
+            resource c 'Microsoft.Network/dnsZones@2018-05-01' = {
+              name: 'zone'
+              location: resourceGroup().location
+            }
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
+    }
 }

@@ -143,7 +143,7 @@ namespace Bicep.Core.UnitTests.Parsing
             leadingTrivia.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                    x.Type.Should().Be(SyntaxTriviaType.DiagnosticsPragma);
                     x.Text.Should().Be("#disable-next-line BCP037");
                 });
         }
@@ -194,7 +194,7 @@ namespace Bicep.Core.UnitTests.Parsing
                 },
                 x =>
                 {
-                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                    x.Type.Should().Be(SyntaxTriviaType.DiagnosticsPragma);
                 });
         }
 
@@ -214,7 +214,7 @@ namespace Bicep.Core.UnitTests.Parsing
             var leadingTrivia = tokens.First().LeadingTrivia;
             leadingTrivia.Count().Should().Be(1);
 
-            var disableNextLineSyntaxTrivia = leadingTrivia.First() as DisableNextLineDiagnosticsSyntaxTrivia;
+            var disableNextLineSyntaxTrivia = leadingTrivia.First() as DiagnosticsPragmaSyntaxTrivia;
             disableNextLineSyntaxTrivia.Should().NotBeNull();
             disableNextLineSyntaxTrivia!.DiagnosticCodes.Count().Should().Be(1);
 
@@ -223,7 +223,7 @@ namespace Bicep.Core.UnitTests.Parsing
             firstCode.Text.Should().Be("BCP226");
             firstCode.Span.Should().Be(new TextSpan(19, 6));
 
-            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DiagnosticsPragma);
             disableNextLineSyntaxTrivia.Text.Should().Be(text);
             disableNextLineSyntaxTrivia.Span.Should().Be(new TextSpan(0, 25));
         }
@@ -244,7 +244,7 @@ namespace Bicep.Core.UnitTests.Parsing
             var leadingTrivia = tokens.First().LeadingTrivia;
             leadingTrivia.Count().Should().Be(1);
 
-            var disableNextLineSyntaxTrivia = leadingTrivia.First() as DisableNextLineDiagnosticsSyntaxTrivia;
+            var disableNextLineSyntaxTrivia = leadingTrivia.First() as DiagnosticsPragmaSyntaxTrivia;
             disableNextLineSyntaxTrivia.Should().NotBeNull();
             disableNextLineSyntaxTrivia!.DiagnosticCodes.Count().Should().Be(2);
 
@@ -258,7 +258,7 @@ namespace Bicep.Core.UnitTests.Parsing
             secondCode.Text.Should().Be("BCP227");
             secondCode.Span.Should().Be(new TextSpan(26, 6));
 
-            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DiagnosticsPragma);
             disableNextLineSyntaxTrivia.Text.Should().Be(text);
             disableNextLineSyntaxTrivia.Span.Should().Be(new TextSpan(0, 32));
         }
@@ -288,7 +288,7 @@ namespace Bicep.Core.UnitTests.Parsing
                 x =>
                 {
                     x.Text.Should().Be("#disable-next-line BCP226");
-                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                    x.Type.Should().Be(SyntaxTriviaType.DiagnosticsPragma);
                 });
         }
 
@@ -312,7 +312,7 @@ namespace Bicep.Core.UnitTests.Parsing
                 x =>
                 {
                     x.Text.Should().Be("#disable-next-line BCP226");
-                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                    x.Type.Should().Be(SyntaxTriviaType.DiagnosticsPragma);
                 },
                 x =>
                 {
@@ -349,7 +349,7 @@ namespace Bicep.Core.UnitTests.Parsing
                 x =>
                 {
                     x.Text.Should().Be("#disable-next-line BCP226");
-                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                    x.Type.Should().Be(SyntaxTriviaType.DiagnosticsPragma);
                 },
                 x =>
                 {
@@ -504,11 +504,11 @@ namespace Bicep.Core.UnitTests.Parsing
             var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
             lexer.Lex();
 
-            lexer.GetTokens().Select(t => t.Type).Should().Equal(TokenType.MultilineString, TokenType.EndOfFile);
+            lexer.GetTokens().Select(t => t.Type).Should().Equal(TokenType.StringComplete, TokenType.EndOfFile);
 
             var multilineToken = lexer.GetTokens().First();
             multilineToken.Text.Should().Be(text);
-            Lexer.TryGetMultilineStringValue(multilineToken).Should().Be(expectedValue);
+            Lexer.TryGetMultilineStringValue(multilineToken, 0).Should().Be(expectedValue);
         }
 
         [DataRow("'''abc")]
@@ -520,7 +520,7 @@ namespace Bicep.Core.UnitTests.Parsing
             var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
             lexer.Lex();
 
-            lexer.GetTokens().Select(t => t.Type).Should().Equal(TokenType.MultilineString, TokenType.EndOfFile);
+            lexer.GetTokens().Select(t => t.Type).Should().Equal(TokenType.StringComplete, TokenType.EndOfFile);
             var diagnostics = diagnosticWriter.GetDiagnostics().ToList();
 
             diagnostics.Should().HaveCount(1);
@@ -528,6 +528,53 @@ namespace Bicep.Core.UnitTests.Parsing
 
             diagnostic.Code.Should().Be("BCP140");
             diagnostic.Message.Should().Be($"The multi-line string at this location is not terminated. Terminate it with \"'''\".");
+        }
+
+        [TestMethod]
+        [DataRow("''", false, 0)]
+        [DataRow("'${", false, 0)]
+        [DataRow("'foo${", false, 0)]
+        [DataRow("'''abc'''", true, 0)]
+        [DataRow("$'''abc'''", true, 1)]
+        [DataRow("$'''abc${", true, 1)]
+        [DataRow("$$'''abc'''", true, 2)]
+        [DataRow("$$'''abc${", true, 2)]
+        [DataRow("$$$$$$$'''abc${", true, 7)]
+        public void GetStringTokenInfo_returns_expected_results(string input, bool expectedResult, int expectedInterpolationCount)
+        {
+            Lexer lexer = new(new(input), ToListDiagnosticWriter.Create());
+            lexer.Lex();
+
+            lexer.GetTokens().Should().HaveCount(2); // input token + EOF token
+            var token = lexer.GetTokens()[0];
+
+            Lexer.GetStringTokenInfo(token).Should().Be((expectedResult, expectedInterpolationCount));
+        }
+
+        [TestMethod]
+        [DataRow("''", new string[] { "" })]
+        [DataRow("'foo", null)]
+        [DataRow("'foo\\nbar'", new string[] { "foo\nbar" })]
+        [DataRow("'foo${foo}bar'", new string[] { "foo", "bar" })]
+        [DataRow("'foo${foo}bar${bar}baz'", new string[] { "foo", "bar", "baz" })]
+        [DataRow("'''foo\nbar'''", new string[] { "foo\nbar" })]
+        [DataRow("'''foo${foo}bar'''", new string[] { "foo${foo}bar" })]
+        [DataRow("$'''foo${foo}bar'''", new string[] { "foo", "bar" })]
+        [DataRow("$'''foo${foo}bar${bar}baz'''", new string[] { "foo", "bar", "baz" })]
+        [DataRow("$$'''foo${foo}bar'''", new string[] { "foo${foo}bar" })]
+        [DataRow("$$'''foo$${foo}bar'''", new string[] { "foo", "bar" })]
+        [DataRow("$$'''foo$${foo}bar''", null)]
+        [DataRow("$$'''foo$${foo}bar$${bar}baz'''", new string[] { "foo", "bar", "baz" })]
+        [DataRow("$$'''foo$${foo}bar${bar}baz'''", new string[] { "foo", "bar${bar}baz" })]
+        public void TryGetRawStringSegments_returns_expected_results(string input, string[] expectedSegments)
+        {
+            Lexer lexer = new(new(input), ToListDiagnosticWriter.Create());
+            lexer.Lex();
+
+            var tokens = lexer.GetTokens()
+                .TakeWhile(x => x.Type != TokenType.EndOfFile)
+                .Where(x => x.Type is TokenType.StringComplete or TokenType.StringLeftPiece or TokenType.StringMiddlePiece or TokenType.StringRightPiece).ToArray();
+            Lexer.TryGetRawStringSegments(tokens).Should().BeEquivalentTo(expectedSegments);
         }
 
         private static void RunSingleTokenTest(string text, TokenType expectedTokenType, string expectedMessage, string expectedCode, int expectedStartPosition = 0, int? expectedLength = null, string? expectedTokenText = null)

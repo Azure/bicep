@@ -76,7 +76,7 @@ namespace Bicep.Core.Emit
         public TemplateWriter(SemanticModel semanticModel)
         {
             ExpressionBuilder = new ExpressionBuilder(new EmitterContext(semanticModel));
-            declaredTypesByName = ImmutableDictionary<string, DeclaredTypeExpression>.Empty;
+            declaredTypesByName = [];
         }
 
         public void Write(SourceAwareJsonTextWriter writer)
@@ -1254,7 +1254,9 @@ namespace Bicep.Core.Emit
                     });
                 }
 
+                // The DSC feature flag is checked during scope validation, so just always handle it here.
                 if (metadata.IsAzResource ||
+                    this.Context.SemanticModel.TargetScope == ResourceScope.DesiredStateConfiguration ||
                     this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
                 {
                     emitter.EmitProperty("type", metadata.TypeReference.FormatType());
@@ -1652,7 +1654,7 @@ namespace Bicep.Core.Emit
                         break;
                     }
 
-                    emitter.EmitResourceIdReference(resource, reference.IndexContext);
+                    emitter.EmitFullyQualifiedResourceId(resource, reference.IndexContext);
                     break;
                 case ModuleReferenceExpression { Module: ModuleSymbol module } reference:
                     if (module.IsCollection && reference.IndexContext?.Index is null)
@@ -1664,7 +1666,7 @@ namespace Bicep.Core.Emit
                         break;
                     }
 
-                    emitter.EmitResourceIdReference(module, reference.IndexContext);
+                    emitter.EmitFullyQualifiedResourceId(module, reference.IndexContext);
 
                     break;
                 default:

@@ -1,46 +1,64 @@
-# Using Bicep MCP Server in VS Code (Experimental!)
+# Using the Bicep MCP Server
 
-> [!NOTE]
-> This feature is currently Experimental while we collect feedback.
+## What is it
 
-## What is it?
-The Bicep VS Code extension now includes a Bicep MCP server with agentic tools to support Bicep code generation for AI agents in VS Code. To find out more about MCP, see [Use MCP servers in VS Code](https://code.visualstudio.com/docs/copilot/chat/mcp-servers).
+We have built a Bicep MCP server with agentic tools to support Bicep code generation for AI agents in VS Code. To find out more about MCP, see [Use MCP servers in VS Code][00].
 
 ### Available Bicep MCP tools
+
+- `get_bicep_best_practices`: Lists up-to-date recommended Bicep best-practices for authoring templates. These practices help improve maintainability, security, and reliability of your Bicep files. This is helpful additional context if you've been asked to generate Bicep code.
 - `list_az_resource_types_for_provider`: Lists all available Azure resource types for a specific provider. The return value is a newline-separated list of resource types including their API version, e.g. `Microsoft.KeyVault/vaults@2024-11-01`. Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs.
 - `get_az_resource_type_schema`: Gets the schema for a specific Azure resource type and API version. Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs.
-- `get_bicep_best_practices`:  Lists up-to-date recommended Bicep best-practices for authoring templates. These practices help improve maintainability, security, and reliability of your Bicep files. This is helpful additional context if you've been asked to generate Bicep code.
+- `list_avm_metadata`: Lists up-to-date metadata for all Azure Verified Modules (AVM). The return value is a newline-separated list of AVM metadata. Each line includes the module name, description, versions, and documentation URI for a specific module.
 
 Please see below on how to contribute to the Bicep best practices tool.
 
+## Where can I use it?
 
-## How to use it?
+The Bicep MCP Server can be used directly in VS Code (preferred), but can also be run locally with other AI services such as Claude Desktop and Code, OpenAI Codex CLI, LMStudio, and other MCP-compatible services. 
+
+## How to use the Bicep MCP Server directly in VS Code
+
 ### Prerequisites
-- Install the latest version of the [Bicep VS Code Extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-bicep)
-- Confirm access to [Copilot in VS Code](https://code.visualstudio.com/docs/copilot/overview)
+
+- Install the latest version of the [Bicep VS Code Extension][01]
+- Confirm access to [Copilot in VS Code][02]
 
 ### Installing
+
 Ensure you have the latest version of the Bicep extension installed.
 
 ### Troubleshooting
+
 The Bicep server may not appear in your list of MCP servers and tools in VS Code until it has been triggered. If you do not see the server, try opening and saving a `.bicep` file and then try providing a Bicep related-prompt in the Copilot chat window in "Agent" mode (as shown in Step #3 of the Viewing and Using Bicep Tools in the Bicep MCP Server section below). You may also need to press the "Refresh" button in the Copilot chat box.
 
-![Refresh copilot tools](../images\refresh-mcp-tools.png)
+![Refresh copilot tools][05]
 
-## Viewing and Using Bicep Tools in the Bicep MCP Server
-1. Open the GitHub copilot extension window and select "Agent Mode".
+If any of the tools are missing from the list of available tools, start/restart the MCP server in VS Code, by hitting `Ctrl + Shift + P`, selecting `MCP: List Servers`, then choosing the Bicep MCP Server and clicking on `Start Server` or `Restart Server`.
 
-![Agent Mode Selection](../images/mcp-agent-mode.png)
+### Viewing and Using Bicep MCP Server Tools in VS Code
 
-2. Click on the tool icon in the GitHub copilot chat window and search for "Bicep (PREVIEW)".
+1. Open the GitHub Copilot extension window and select "Agent Mode".
 
-![Bicep MCP Tool Selection](../images/mcp-tools-selection.png)
+   ![Agent Mode Selection][06]
 
-3. Start using Agent Mode to help with your Bicep tasks!
+1. Click on the tool icon in the GitHub Copilot chat window and search for "Bicep (PREVIEW)".
 
-![Bicep MCP Usage Example](../images/use-agent-mode-with-bicep.png)
+   ![Bicep MCP Tool Selection][07]
+
+1. Start using Agent Mode to help with your Bicep tasks!
+
+   ![Bicep MCP Usage Example][08]
+
+## How to use the Bicep MCP Server locally with AI Agents
+Please refer to [this step by step tutorial](https://github.com/johnlokerse/azure-bicep-mcp-integration-setup) on how to integrate the Bicep MCP Server with Claude Code, Codex, LM Studio, and other AI tools.
+
+This article has all the tools you need to run the Bicep MCP Server locally, with pre-written commands, helper scripts, and client setup guides.
+
+Note: This is contributed by our community member [@johnlokerse](https://github.com/johnlokerse). Thanks John!
 
 ## Limitations
+
 > [!NOTE]
 > It is your responsibility to review all code generated by an LLM and **deploy at your own risk**.
 
@@ -49,9 +67,23 @@ These tools provide additional context to help the chosen model generate semanti
 There is no way to definitively guarantee whether the agent orchestrator will use any particular Bicep tool. As a workaround, you can view the available Bicep tools and use specific prompting to guide the agent orchestrator to invoke a tool (e.g. "Create a Bicep file to do X using Bicep best practices")
 
 ## Contributing and providing feedback
-These tools are early on and we value and welcome feedback to improve them. See `CONTRIBUTING.md` for guidelines.
 
-In particular, we are looking to crowd source community wisdom on the `get_bicep_best_practices` tool. You can contribute to our forum on bicep best practices on [this Bicep Issue](https://github.com/Azure/bicep/issues/17660).
+These tools are early on and we value and welcome feedback to improve them. See [`CONTRIBUTING.md`][09] for guidelines.
+
+In particular, we are looking to crowd source community wisdom on the `get_bicep_best_practices` tool. You can contribute to our forum on bicep best practices on [this Bicep Issue][03].
 
 ## Raising bugs or feature requests
-Please raise bug reports or feature requests under [Bicep Issues](https://github.com/Azure/bicep/issues) and tag with "story: bicep MCP".
+
+Please raise bug reports or feature requests under [Bicep Issues][04] and tag with "story: bicep MCP".
+
+<!-- Link reference definitions -->
+[00]: https://code.visualstudio.com/docs/copilot/chat/mcp-servers
+[01]: https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-bicep
+[02]: https://code.visualstudio.com/docs/copilot/overview
+[03]: https://github.com/Azure/bicep/issues/17660
+[04]: https://github.com/Azure/bicep/issues
+[05]: ../images/refresh-mcp-tools.png
+[06]: ../images/mcp-agent-mode.png
+[07]: ../images/mcp-tools-selection.png
+[08]: ../images/use-agent-mode-with-bicep.png
+[09]: ../../CONTRIBUTING.md

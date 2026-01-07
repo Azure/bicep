@@ -1801,7 +1801,7 @@ var multilineString = '''
 //@[000:003) Identifier |var|
 //@[004:019) Identifier |multilineString|
 //@[020:021) Assignment |=|
-//@[022:036) MultilineString |'''\nHELLO!\n'''|
+//@[022:036) StringComplete |'''\nHELLO!\n'''|
 HELLO!
 '''
 //@[003:005) NewLine |\n\n|
@@ -1810,13 +1810,13 @@ var multilineEmpty = ''''''
 //@[000:003) Identifier |var|
 //@[004:018) Identifier |multilineEmpty|
 //@[019:020) Assignment |=|
-//@[021:027) MultilineString |''''''|
+//@[021:027) StringComplete |''''''|
 //@[027:028) NewLine |\n|
 var multilineEmptyNewline = '''
 //@[000:003) Identifier |var|
 //@[004:025) Identifier |multilineEmptyNewline|
 //@[026:027) Assignment |=|
-//@[028:035) MultilineString |'''\n'''|
+//@[028:035) StringComplete |'''\n'''|
 '''
 //@[003:005) NewLine |\n\n|
 
@@ -1826,7 +1826,7 @@ var multilineExtraQuotes = ''''abc''''
 //@[000:003) Identifier |var|
 //@[004:024) Identifier |multilineExtraQuotes|
 //@[025:026) Assignment |=|
-//@[027:038) MultilineString |''''abc''''|
+//@[027:038) StringComplete |''''abc''''|
 //@[038:040) NewLine |\n\n|
 
 // evaluates to '\'\nabc\n\''
@@ -1835,7 +1835,7 @@ var multilineExtraQuotesNewlines = ''''
 //@[000:003) Identifier |var|
 //@[004:032) Identifier |multilineExtraQuotesNewlines|
 //@[033:034) Assignment |=|
-//@[035:048) MultilineString |''''\nabc\n''''|
+//@[035:048) StringComplete |''''\nabc\n''''|
 abc
 ''''
 //@[004:006) NewLine |\n\n|
@@ -1844,7 +1844,7 @@ var multilineSingleLine = '''hello!'''
 //@[000:003) Identifier |var|
 //@[004:023) Identifier |multilineSingleLine|
 //@[024:025) Assignment |=|
-//@[026:038) MultilineString |'''hello!'''|
+//@[026:038) StringComplete |'''hello!'''|
 //@[038:040) NewLine |\n\n|
 
 var multilineFormatted = format('''
@@ -1853,7 +1853,7 @@ var multilineFormatted = format('''
 //@[023:024) Assignment |=|
 //@[025:031) Identifier |format|
 //@[031:032) LeftParen |(|
-//@[032:061) MultilineString |'''\nHello,\nmy\nname is\n{0}\n'''|
+//@[032:061) StringComplete |'''\nHello,\nmy\nname is\n{0}\n'''|
 Hello,
 my
 name is
@@ -1868,7 +1868,7 @@ var multilineJavaScript = '''
 //@[000:003) Identifier |var|
 //@[004:023) Identifier |multilineJavaScript|
 //@[024:025) Assignment |=|
-//@[026:586) MultilineString |'''\n// NOT RECOMMENDED PATTERN\nconst fs = require('fs');\n\nmodule.exports = function (context) {\n    fs.readFile('./hello.txt', (err, data) => {\n        if (err) {\n            context.log.error('ERROR', err);\n            // BUG #1: This will result in an uncaught exception that crashes the entire process\n            throw err;\n        }\n        context.log(`Data from file: ${data}`);\n        // context.done() should be called here\n    });\n    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends\n    context.done();\n}\n'''|
+//@[026:586) StringComplete |'''\n// NOT RECOMMENDED PATTERN\nconst fs = require('fs');\n\nmodule.exports = function (context) {\n    fs.readFile('./hello.txt', (err, data) => {\n        if (err) {\n            context.log.error('ERROR', err);\n            // BUG #1: This will result in an uncaught exception that crashes the entire process\n            throw err;\n        }\n        context.log(`Data from file: ${data}`);\n        // context.done() should be called here\n    });\n    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends\n    context.done();\n}\n'''|
 // NOT RECOMMENDED PATTERN
 const fs = require('fs');
 

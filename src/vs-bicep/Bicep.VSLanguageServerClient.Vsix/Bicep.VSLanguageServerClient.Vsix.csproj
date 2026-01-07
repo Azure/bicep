@@ -70,7 +70,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Azure.Deployments.Internal.GenerateNotice" Version="0.1.45">
+    <PackageReference Include="Azure.Deployments.Internal.GenerateNotice" Version="0.1.60">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>

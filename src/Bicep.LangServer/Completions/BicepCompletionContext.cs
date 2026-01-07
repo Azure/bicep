@@ -158,13 +158,13 @@ namespace Bicep.LanguageServer.Completions
                     {
                         var previousTrivia = FindTriviaMatchingOffset(bicepFile.ProgramSyntax, position - 1);
 
-                        if (previousTrivia is DisableNextLineDiagnosticsSyntaxTrivia)
+                        if (previousTrivia is DiagnosticsPragmaSyntaxTrivia)
                         {
                             return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
                         }
                     }
                     break;
-                case SyntaxTriviaType.DisableNextLineDiagnosticsDirective:
+                case SyntaxTriviaType.DiagnosticsPragma:
                     // This will handle the following case: #disable-next-line |
                     if (triviaMatchingOffset.Text.EndsWith(' '))
                     {
@@ -672,7 +672,8 @@ namespace Bicep.LanguageServer.Completions
                     SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (property, variableAccess, identifier, token) => ReferenceEquals(property.Value, variableAccess)))
                 {
                     return BicepCompletionContextKind.PropertyValue | BicepCompletionContextKind.Expression;
-                };
+                }
+                ;
 
                 // | indicates cursor position
                 if (
@@ -1178,7 +1179,6 @@ namespace Bicep.LanguageServer.Completions
                 TokenType.StringLeftPiece => true,
                 TokenType.StringMiddlePiece => true,
                 TokenType.StringRightPiece => true,
-                TokenType.MultilineString => true,
                 _ => false,
             });
 

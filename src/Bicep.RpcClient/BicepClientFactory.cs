@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,6 +21,13 @@ public class BicepClientFactory(HttpClient httpClient) : IBicepClientFactory
     private static readonly Architecture CurrentArchitecture = RuntimeInformation.OSArchitecture;
 
     public async Task<IBicepClient> DownloadAndInitialize(BicepClientConfiguration configuration, CancellationToken cancellationToken)
+    {
+        var bicepCliPath = await Download(configuration, cancellationToken).ConfigureAwait(false);
+
+        return await InitializeFromPath(bicepCliPath, cancellationToken).ConfigureAwait(false);
+    }
+
+    internal async Task<string> Download(BicepClientConfiguration configuration, CancellationToken cancellationToken)
     {
         if (configuration.BicepVersion is { } version && !VersionRegex.IsMatch(version))
         {
@@ -48,7 +56,7 @@ public class BicepClientFactory(HttpClient httpClient) : IBicepClientFactory
                 cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
-        return await InitializeFromPath(bicepCliPath, cancellationToken).ConfigureAwait(false);
+        return bicepCliPath;
     }
 
     public async Task<IBicepClient> InitializeFromPath(string bicepCliPath, CancellationToken cancellationToken)

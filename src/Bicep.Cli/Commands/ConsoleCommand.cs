@@ -6,9 +6,11 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers.Repl;
 using Bicep.Cli.Services;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Syntax;
+using Bicep.Core.Utils;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
@@ -23,6 +25,7 @@ namespace Bicep.Cli.Commands;
 public class ConsoleCommand(
     ILogger logger,
     IOContext io,
+    IEnvironment environment,
     ReplEnvironment replEnvironment,
     IAnsiConsole console) : ICommand
 {
@@ -60,7 +63,7 @@ public class ConsoleCommand(
             return 1;
         }
 
-        await io.Output.WriteLineAsync($"Bicep Console {RootCommand.GetVersionString()}");
+        await io.Output.WriteLineAsync($"Bicep Console version {environment.GetVersionString()}");
         await io.Output.WriteLineAsync("Type 'help' for available commands, press ESC to quit.");
         await io.Output.WriteLineAsync("Multi-line input supported.");
         await io.Output.WriteLineAsync(string.Empty);
@@ -73,8 +76,6 @@ public class ConsoleCommand(
             {
                 break;
             }
-
-            await io.Output.WriteAsync("\n");
 
             if (buffer.Length == 0)
             {
@@ -97,21 +98,18 @@ public class ConsoleCommand(
                 }
             }
 
-            buffer.AppendLine(rawLine);
+            buffer.Append(rawLine);
+            buffer.Append('\n');
 
             var current = buffer.ToString();
 
-            // If line is blank -> submit
-            if (rawLine.Length == 0)
+            if (ReplEnvironment.ShouldSubmitBuffer(current, rawLine))
             {
-                await SubmitBuffer(buffer, current);
-                continue;
-            }
+                buffer.Clear();
 
-            // Auto-submit when structure complete immediately after this line.
-            if (ShouldTerminateWithNewLine(current))
-            {
-                await SubmitBuffer(buffer, current);
+                // evaluate input
+                var output = replEnvironment.EvaluateAndGetOutput(current);
+                await io.Output.WriteAsync(output);
             }
         }
 
@@ -214,53 +212,8 @@ public class ConsoleCommand(
             await io.Output.WriteAsync(output);
         }
 
+        await io.Output.WriteAsync("\n");
+
         return string.Concat(lineBuffer);
-    }
-
-    private async Task SubmitBuffer(StringBuilder buffer, string current)
-    {
-        if (current.Trim().Length == 0)
-        {
-            buffer.Clear();
-            return;
-        }
-
-        // evaluate input
-        var result = replEnvironment.EvaluateInput(current);
-
-        if (result.Value is { } value)
-        {
-            var highlighted = replEnvironment.HighlightSyntax(value);
-
-            await io.Output.WriteLineAsync(highlighted);
-        }
-        else if (result.AnnotatedDiagnostics.Any())
-        {
-            var highlighted = replEnvironment.HighlightSyntax(current);
-            await io.Output.WriteLineAsync(PrintHelper.PrintWithAnnotations(current, result.AnnotatedDiagnostics, highlighted));
-        }
-        buffer.Clear();
-    }
-
-    /// <summary>
-    /// Heuristic structural completeness check: ensures bracket/brace/paren balance
-    /// and not inside (multi-line) string or interpolation expression.
-    /// Not a full parse; parse errors still reported by real parser.
-    /// </summary>
-    private static bool ShouldTerminateWithNewLine(string text)
-    {
-        var program = new ReplParser(text).Program();
-        if (program.Children.Length != 1)
-        {
-            return true;
-        }
-
-        return program.Children[0] switch
-        {
-            VariableDeclarationSyntax { Value: SkippedTriviaSyntax } => false,
-            TypeDeclarationSyntax { Value: SkippedTriviaSyntax } => false,
-            FunctionDeclarationSyntax { Lambda: SkippedTriviaSyntax } => false,
-            _ => true,
-        };
     }
 }
