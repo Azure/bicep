@@ -20,6 +20,7 @@ To get going with Bicep:
 1. **Start by [installing the tooling](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/install).**
 2. **Complete the [Fundamentals of Bicep Learning Path](https://learn.microsoft.com/en-us/training/paths/fundamentals-bicep/)**
 3. **See the full list of [Learn modules for Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/learn-bicep)**
+> **Tip:** If you're new to Bicep, start by installing the Bicep VS Code extension and deploying a simple resource (like a storage account) to get comfortable with the end-to-end workflow before moving to larger templates.
 
 If you have an existing ARM Template or set of Azure resources that you would like to convert to `.bicep` format, see the [recommended workflow for migrating resources to Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/migrate) and [Decompiling an ARM Template](https://learn.microsoft.com/azure/azure-resource-manager/bicep/decompile).
 

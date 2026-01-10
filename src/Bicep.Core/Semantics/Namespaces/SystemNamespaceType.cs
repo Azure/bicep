@@ -1431,7 +1431,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             if (TryLoadTextContentFromFile(model, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null, characterLimit)
                 .IsSuccess(out var result, out var errorDiagnostic) &&
-                objectParser.TryExtractFromObject(result.Content, tokenSelectorPath, positionables, out errorDiagnostic, out var token))
+                objectParser.TryExtractFromObject(result.Content, tokenSelectorPath, positionables).IsSuccess(out var token, out errorDiagnostic))
             {
                 return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
             }

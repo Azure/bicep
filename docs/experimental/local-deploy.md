@@ -36,8 +36,18 @@ To try out a particular extension, follow the README instructions from one of sa
 ### Via CLI
 1. Run:
     ```sh
-    bicep local-deploy <path_to_bicepparam_file>
+    bicep local-deploy <path_to_bicepparam_file> [arguments]
     ```
+
+#### Arguments
+
+The `bicep local-deploy` command takes the following arguments:
+
+| Argument            | Description                                                                                                                 |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `<path_to_bicepparam_file>`     | **Required**. The path to the `.bicepparam` file to be deployed locally.                                                    |
+| `--no-restore`      | Skips the automatic restoration of external modules or extensions before the deployment starts.                             |
+| `--format <format>` | Specifies the output format of the deployment results. Supported values are **Default** (interactive/tabular) and **Json**. |
 
 ## Building your own extension
 ### Quickstart
@@ -57,6 +67,12 @@ All extension binaries are expected to meet the following requirements:
 1. Responds to SIGTERM to request a graceful shutdown.
 
 For .NET applications, there is a [NuGet package](https://www.nuget.org/packages/Azure.Bicep.Local.Extension) available which abstracts most of the above implementation.
+
+### Debugging
+Use [the debugging guide](./local-deploy-dotnet-debugging-guide.md) for helpful tips on debugging your extension during development using Visual Studio or VS Code.
+
+### Unit testing
+Use the [unit testing guide](./local-deploy-dotnet-unittesting-guide.md) for some tips on how to unit test your extension.
 
 ### Publishing
 Extensions can be published using the `bicep publish-extension` CLI command group. They can either be published to the local file system, or to an ACR instance.

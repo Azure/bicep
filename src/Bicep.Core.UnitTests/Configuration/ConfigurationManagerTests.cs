@@ -113,7 +113,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "desiredStateConfiguration": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "multilineStringInterpolation": false,
           "thisNamespace": false
         },
         "formatting": {
@@ -198,7 +197,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "desiredStateConfiguration": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "multilineStringInterpolation": false,
           "thisNamespace": false
         },
         "formatting": {
@@ -305,7 +303,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "desiredStateConfiguration": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "multilineStringInterpolation": false,
           "thisNamespace": false
         },
         "formatting": {
@@ -393,7 +390,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 DesiredStateConfiguration: false,
                 UserDefinedConstraints: false,
                 DeployCommands: false,
-                MultilineStringInterpolation: false,
                 ThisNamespace: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
@@ -479,7 +475,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 "desiredStateConfiguration": false,
                 "userDefinedConstraints": false,
                 "deployCommands": false,
-                "multilineStringInterpolation": false,
                 "thisNamespace": false
             },
             "formatting": {
@@ -832,7 +827,6 @@ namespace Bicep.Core.UnitTests.Configuration
                     "desiredStateConfiguration": false,
                     "userDefinedConstraints": false,
                     "deployCommands": false,
-                    "multilineStringInterpolation": false,
                     "thisNamespace": false
                   },
                   "formatting": {

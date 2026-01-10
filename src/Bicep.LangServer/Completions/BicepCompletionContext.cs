@@ -158,13 +158,13 @@ namespace Bicep.LanguageServer.Completions
                     {
                         var previousTrivia = FindTriviaMatchingOffset(bicepFile.ProgramSyntax, position - 1);
 
-                        if (previousTrivia is DisableNextLineDiagnosticsSyntaxTrivia)
+                        if (previousTrivia is DiagnosticsPragmaSyntaxTrivia)
                         {
                             return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
                         }
                     }
                     break;
-                case SyntaxTriviaType.DisableNextLineDiagnosticsDirective:
+                case SyntaxTriviaType.DiagnosticsPragma:
                     // This will handle the following case: #disable-next-line |
                     if (triviaMatchingOffset.Text.EndsWith(' '))
                     {
