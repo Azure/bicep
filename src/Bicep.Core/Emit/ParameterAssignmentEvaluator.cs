@@ -380,12 +380,12 @@ public class ParameterAssignmentEvaluator
             // Sort by definition key for deterministic ordering
             foreach (var (_, externalInputInfo) in externalInputInfoBySyntax.OrderBy(x => x.Value.DefinitionKey))
             {
-                var kind = converter.ConvertExpression(externalInputInfo.Kind).EvaluateExpression(context).ToString();
+                var kind = externalInputInfo.Kind.EvaluateExpression(context).ToString();
 
                 JToken? config = null;
                 if (externalInputInfo.Config is { } configExpression)
                 {
-                    config = converter.ConvertExpression(configExpression).EvaluateExpression(context);
+                    config = configExpression.EvaluateExpression(context);
                 }
 
                 resultBuilder.Add(new ExternalInputDefinition(externalInputInfo.DefinitionKey, kind, config));
@@ -660,7 +660,7 @@ public class ParameterAssignmentEvaluator
                 externalInputReferences.ExternalInputInfoBySyntax.TryGetValue(functionCallSyntax, out var info))
             {
                 return new FunctionCallExpression(
-                    functionCallSyntax,
+                    null,
                     LanguageConstants.ExternalInputsArmFunctionName,
                     [ExpressionFactory.CreateStringLiteral(info.DefinitionKey)]
                 );
