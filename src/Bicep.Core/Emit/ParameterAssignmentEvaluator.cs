@@ -364,6 +364,42 @@ public class ParameterAssignmentEvaluator
                 return resultBuilder.ToImmutableDictionary();
             });
 
+    public ImmutableArray<ExternalInputDefinition>? TryGetExternalInputDefinitions()
+    {
+        var externalInputInfoBySyntax = semanticModel.ExternalInputReferences.ExternalInputInfoBySyntax;
+        if (externalInputInfoBySyntax.Count == 0)
+        {
+            return null;
+        }
+
+        try
+        {
+            var context = GetExpressionEvaluationContext();
+            var resultBuilder = ImmutableArray.CreateBuilder<ExternalInputDefinition>();
+
+            // Sort by definition key for deterministic ordering
+            foreach (var (_, externalInputInfo) in externalInputInfoBySyntax.OrderBy(x => x.Value.DefinitionKey))
+            {
+                var kind = converter.ConvertExpression(externalInputInfo.Kind).EvaluateExpression(context).ToString();
+
+                JToken? config = null;
+                if (externalInputInfo.Config is { } configExpression)
+                {
+                    config = converter.ConvertExpression(configExpression).EvaluateExpression(context);
+                }
+
+                resultBuilder.Add(new ExternalInputDefinition(externalInputInfo.DefinitionKey, kind, config));
+            }
+
+            return resultBuilder.ToImmutable();
+        }
+        catch (Exception)
+        {
+            // we may fail to evaluate expressions e.g. due to invalid syntax, which will be reported elsewhere
+            return null;
+        }
+    }
+
     private Result EvaluateVariable(VariableSymbol variable)
         => varResults.GetOrAdd(
             variable,

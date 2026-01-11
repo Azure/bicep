@@ -67,12 +67,9 @@ public class ParametersJsonWriter
             }
         });
 
-        if (this.Context.SemanticModel.ExternalInputReferences.ExternalInputInfoBySyntax.Count > 0)
+        if (this.Context.SemanticModel.EmitLimitationInfo.ExternalInputDefinitions is { } externalInputDefinitions)
         {
-            WriteExternalInputDefinitions(
-                emitter,
-                jsonWriter,
-                this.Context.SemanticModel.ExternalInputReferences.ExternalInputInfoBySyntax);
+            WriteExternalInputDefinitions(emitter, jsonWriter, externalInputDefinitions);
         }
 
         if (this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
@@ -114,21 +111,18 @@ public class ParametersJsonWriter
     private void WriteExternalInputDefinitions(
         ExpressionEmitter emitter,
         PositionTrackingJsonTextWriter writer,
-        IDictionary<FunctionCallSyntaxBase, ExternalInputInfo> externalInputInfo)
+        IEnumerable<ExternalInputDefinition> externalInputDefinitions)
     {
         emitter.EmitObjectProperty("externalInputDefinitions", () =>
         {
-            // Sort the external input references by name for deterministic ordering
-            foreach (var reference in externalInputInfo.OrderBy(x => x.Value.DefinitionKey))
+            foreach (var externalInputDefinition in externalInputDefinitions)
             {
-                var currInfo = reference.Value;
-
-                emitter.EmitObjectProperty(currInfo.DefinitionKey, () =>
+                emitter.EmitObjectProperty(externalInputDefinition.Key, () =>
                 {
-                    emitter.EmitProperty("kind", currInfo.Kind);
-                    if (currInfo.Config is { } config)
+                    emitter.EmitProperty("kind", externalInputDefinition.Kind);
+                    if (externalInputDefinition.Config is { } config)
                     {
-                        emitter.EmitProperty("config", currInfo.Config);
+                        emitter.EmitProperty("config", () => config.WriteTo(writer));
                     }
                 });
             }

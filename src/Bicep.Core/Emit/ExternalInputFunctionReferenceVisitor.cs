@@ -3,7 +3,6 @@
 
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
-using Azure.Deployments.Templates.Expressions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;

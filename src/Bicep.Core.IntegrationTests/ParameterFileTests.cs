@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
-using System.Web.Services.Description;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
