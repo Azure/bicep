@@ -14,7 +14,7 @@ public abstract class ObjectParser : IObjectParser
     public ResultWithDiagnostic<JToken> TryExtractFromObject(string fileContent, string? tokenSelectorPath, IPositionable[] positionable)
     {
         var result = ExtractTokenFromObject(fileContent, positionable[0]);
-        if (result.IsSuccess(out var newToken) && tokenSelectorPath is {})
+        if (result.IsSuccess(out var newToken) && tokenSelectorPath is { })
         {
             return TryExtractFromTokenByPath(newToken, tokenSelectorPath, positionable[1]);
         }

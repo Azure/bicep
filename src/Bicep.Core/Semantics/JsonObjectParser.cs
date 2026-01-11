@@ -11,7 +11,7 @@ public class JsonObjectParser : ObjectParser
 {
     protected override ResultWithDiagnostic<JToken> ExtractTokenFromObject(string fileContent, IPositionable positionable)
     {
-        if (fileContent.TryFromJson<JToken>() is {} jToken)
+        if (fileContent.TryFromJson<JToken>() is { } jToken)
         {
             return new(jToken);
         }
