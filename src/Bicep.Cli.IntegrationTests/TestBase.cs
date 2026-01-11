@@ -92,8 +92,9 @@ namespace Bicep.Cli.IntegrationTests
         protected static Task<CliResult> Bicep(InvocationSettings settings, params string?[] args /*null args are ignored*/)
             => Bicep(settings, null, CancellationToken.None, args);
 
-        protected static Task<CliResult> Bicep(InputContext inputContext, params string[] args)
-            => BicepInternal(InvocationSettings.Default, null, inputContext, CancellationToken.None, args);
+        protected static Task<CliResult> Bicep(
+            Func<TextWriter, TextWriter, IOContext> ioContextFactory, params string[] args)
+            => BicepInternal(InvocationSettings.Default, null, ioContextFactory, CancellationToken.None, args);
 
         protected static void AssertNoErrors(string error)
         {
@@ -165,10 +166,18 @@ namespace Bicep.Cli.IntegrationTests
             ("boolEnvironmentVariable", "true")
         );
 
-        private static Task<CliResult> BicepInternal(InvocationSettings settings, Action<IServiceCollection>? registerAction, InputContext? inputContext, CancellationToken cancellationToken, params string?[] args /*null args are ignored*/)
-            => TextWriterHelper.InvokeWriterAction((@out, err)
-                => new Program(
-                    new(Input: inputContext ?? new(new StringReader(string.Empty), false), Output: @out, Error: err),
+        private static Task<CliResult> BicepInternal(
+            InvocationSettings settings,
+            Action<IServiceCollection>? registerAction,
+            Func<TextWriter, TextWriter, IOContext>? ioContextFactory,
+            CancellationToken cancellationToken, params string?[] args /*null args are ignored*/)
+            => TextWriterHelper.InvokeWriterAction((@out, err) =>
+            {
+                var ioContext = ioContextFactory?.Invoke(@out, err) ?? new IOContext(
+                    Input: new(new StringReader(string.Empty), false),
+                    Output: new(@out, false),
+                    Error: new(err, false));
+                return new Program(ioContext,
                     services =>
                     {
                         if (settings.FeatureOverrides is { })
@@ -192,7 +201,7 @@ namespace Bicep.Cli.IntegrationTests
 
                         registerAction?.Invoke(services);
                     }
-                   )
-                   .RunAsync(args.ToArrayExcludingNull(), cancellationToken)); 
+                ).RunAsync(args.ToArrayExcludingNull(), cancellationToken);
+            });
     }
 }

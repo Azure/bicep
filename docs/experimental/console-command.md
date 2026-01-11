@@ -94,7 +94,7 @@ true
 - Bicep console also supports the [`load*()` functions](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-functions-files). Note: The directory from which the `bicep console` command is run is used as the _current directory_ when evaluating the `load*()` functions
 
 
-### Piping and standard input redirection
+### Piping and standard input/output redirection
 The console command supports evaluating expressions provided through piping or redirected standard input, i.e.:
 
 **Powershell**:
@@ -117,6 +117,11 @@ Multi-line input is also supported, i.e:
 > foo: 'bar'
 > }.foo" | bicep console
 # Output: bar
+```
+
+Output redirection is also supported:
+```sh
+"toObject([{name:'Evie', age:4},{name:'Casper', age:3}], x => x.name)" | bicep console > output.json
 ```
 
 ## Limitations
