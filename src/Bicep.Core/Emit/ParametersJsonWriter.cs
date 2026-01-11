@@ -67,9 +67,9 @@ public class ParametersJsonWriter
             }
         });
 
-        if (this.Context.ExternalInputReferences.ExternalInputIndexMap.Count > 0)
+        if (this.Context.SemanticModel.EmitLimitationInfo.ExternalInputDefinitions is { } externalInputDefinitions)
         {
-            WriteExternalInputDefinitions(emitter, this.Context.ExternalInputReferences.ExternalInputIndexMap);
+            WriteExternalInputDefinitions(emitter, jsonWriter, externalInputDefinitions);
         }
 
         if (this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
@@ -108,21 +108,21 @@ public class ParametersJsonWriter
         return content.FromJson<JToken>();
     }
 
-    private void WriteExternalInputDefinitions(ExpressionEmitter emitter, IDictionary<FunctionCallSyntaxBase, string> externalInputIndexMap)
+    private void WriteExternalInputDefinitions(
+        ExpressionEmitter emitter,
+        PositionTrackingJsonTextWriter writer,
+        IEnumerable<ExternalInputDefinition> externalInputDefinitions)
     {
         emitter.EmitObjectProperty("externalInputDefinitions", () =>
         {
-            // Sort the external input references by name for deterministic ordering
-            foreach (var reference in externalInputIndexMap.OrderBy(x => x.Value))
+            foreach (var externalInputDefinition in externalInputDefinitions)
             {
-                var expression = (FunctionCallExpression)ExpressionBuilder.Convert(reference.Key);
-
-                emitter.EmitObjectProperty(reference.Value, () =>
+                emitter.EmitObjectProperty(externalInputDefinition.Key, () =>
                 {
-                    emitter.EmitProperty("kind", expression.Parameters[0]);
-                    if (expression.Parameters.Length > 1)
+                    emitter.EmitProperty("kind", externalInputDefinition.Kind);
+                    if (externalInputDefinition.Config is { } config)
                     {
-                        emitter.EmitProperty("config", expression.Parameters[1]);
+                        emitter.EmitProperty("config", () => config.WriteTo(writer));
                     }
                 });
             }

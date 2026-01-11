@@ -62,10 +62,10 @@ namespace Bicep.Core.Emit
             ValidateUsingWithClauseMatchesExperimentalFeatureEnablement(model, diagnostics);
 
             var paramAssignmentEvaluator = new ParameterAssignmentEvaluator(model);
-            var (paramAssignments, usingConfig) = CalculateParameterAssignments(model, paramAssignmentEvaluator, diagnostics);
+            var (paramAssignments, usingConfig, externalInputDefinitions) = CalculateParameterAssignments(model, paramAssignmentEvaluator, diagnostics);
             var extConfigAssignments = CalculateExtensionConfigAssignments(model, paramAssignmentEvaluator, diagnostics);
 
-            return new(diagnostics.GetDiagnostics(), paramAssignments, extConfigAssignments, usingConfig);
+            return new(diagnostics.GetDiagnostics(), paramAssignments, extConfigAssignments, usingConfig, externalInputDefinitions);
         }
 
         private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
@@ -598,14 +598,14 @@ namespace Bicep.Core.Emit
                 .WhereNotNull()
                 .Select(forbiddenSafeAccessMarker => DiagnosticBuilder.ForPosition(forbiddenSafeAccessMarker).SafeDereferenceNotPermittedOnResourceCollections()));
 
-        private static (ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> paramAssignments, ParameterAssignmentValue? usingConfig) CalculateParameterAssignments(
+        private static (ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> paramAssignments, ParameterAssignmentValue? usingConfig, ImmutableArray<ExternalInputDefinition>? externalInputDefinitions) CalculateParameterAssignments(
             SemanticModel model,
             ParameterAssignmentEvaluator evaluator,
             IDiagnosticWriter diagnostics)
         {
             if (model.HasParsingErrors())
             {
-                return ([], null);
+                return ([], null, null);
             }
 
             var referencesInValues = model.Binder.Bindings.Values.OfType<DeclaredSymbol>().Distinct()
@@ -689,13 +689,14 @@ namespace Bicep.Core.Emit
                 }
             }
 
+            var externalInputDefinitions = evaluator.TryGetExternalInputDefinitions();
             ParameterAssignmentValue? usingConfig = null;
             if (evaluator.EvaluateUsingConfig(model.Root) is { } usingConfigResult)
             {
                 usingConfig = new(usingConfigResult.Value, usingConfigResult.Expression, usingConfigResult.KeyVaultReference);
             }
 
-            return (generated.ToImmutableDictionary(), usingConfig);
+            return (generated.ToImmutableDictionary(), usingConfig, externalInputDefinitions);
         }
 
         private static ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>> CalculateExtensionConfigAssignments(
