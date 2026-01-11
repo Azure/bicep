@@ -100,6 +100,13 @@ internal class ArmDeclarationToExpressionConverter
             Exported: null);
     }
 
+    internal Expression ConvertToExpression(LanguageExpression armExpression) => armExpression switch
+    {
+        JTokenExpression jTokenExpression => ConvertToExpression(ImmutableDictionary<JToken, LanguageExpression>.Empty, jTokenExpression.Value),
+        FunctionExpression functionExpression => ConvertToExpression(functionExpression),
+        _ => throw new InvalidOperationException($"Encountered an unrecognized LanguageExpression of type {armExpression.GetType().Name}"),
+    };
+
     #region typeConversion
     private DeclaredTypeExpression CreateDeclaredTypeExpressionFor(string convertedSymbolName, ITemplateSchemaNode schemaNode)
     {
@@ -473,13 +480,6 @@ internal class ArmDeclarationToExpressionConverter
             },
         };
     }
-
-    private Expression ConvertToExpression(LanguageExpression armExpression) => armExpression switch
-    {
-        JTokenExpression jTokenExpression => ConvertToExpression(ImmutableDictionary<JToken, LanguageExpression>.Empty, jTokenExpression.Value),
-        FunctionExpression functionExpression => ConvertToExpression(functionExpression),
-        _ => throw new InvalidOperationException($"Encountered an unrecognized LanguageExpression of type {armExpression.GetType().Name}"),
-    };
 
     private Expression ConvertToExpression(FunctionExpression func)
     {

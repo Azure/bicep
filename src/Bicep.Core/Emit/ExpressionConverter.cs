@@ -103,10 +103,11 @@ namespace Bicep.Core.Emit
                             function.Parameters.Select(ConvertExpression));
 
                         if (function.SourceSyntax is FunctionCallSyntaxBase functionCall &&
-                            context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is { ExpressionConverter: { } } functionOverload)
+                            context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is { LanguageExpressionTransformer: { } } functionOverload)
                         {
-                            return functionOverload.ExpressionConverter(converted);
+                            return functionOverload.LanguageExpressionTransformer(converted);
                         }
+
                         return converted;
                     }
 

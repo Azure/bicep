@@ -13,8 +13,8 @@ using Bicep.Core.Features;
 using Bicep.Core.TypeSystem.Types;
 using ExpressionEvaluationContext = Azure.Deployments.Expression.Intermediate.ExpressionEvaluationContext;
 using FunctionEvaluator = Azure.Deployments.Expression.Intermediate.FunctionEvaluator;
-using FunctionExpression = Azure.Deployments.Expression.Intermediate.FunctionExpression;
-using LegacyFunctionExpression = Azure.Deployments.Expression.Expressions.FunctionExpression;
+using IntermediateFunctionExpression = Azure.Deployments.Expression.Intermediate.FunctionExpression;
+using FunctionExpression = Azure.Deployments.Expression.Expressions.FunctionExpression;
 
 namespace Bicep.Core.Semantics.Namespaces
 {
@@ -33,19 +33,18 @@ namespace Bicep.Core.Semantics.Namespaces
             ];
         }
 
-        public static FunctionOverload.ExpressionConverterDelegate GetExpressionConverter(NamespaceFunctionType functionDefinition)
+        public static FunctionOverload.LanguageExpressionTransformerDelegate GetLanguageExpressionTransformer(NamespaceFunctionType functionDefinition)
         {
             return expression =>
             {
                 var evaluationContext = new ExpressionEvaluationContext (
                 [
                     new NamespaceFunctionEvaluationScope(functionDefinition, expression),
-                    Azure.Deployments.Expression.Expressions.ExpressionBuiltInFunctions.Functions,
+                    Azure.Deployments.Expression.Expressions.ExpressionBuiltInFunctions.Functions, // to handle use of e.g. 'concat' function
                 ]);
                 var parsed = ExpressionParser.ParseLanguageExpression(functionDefinition.EvaluatesTo);
                 var evaluated = evaluationContext.EvaluateExpression(parsed);
-                var evaluatedAsLanguageExpression = evaluated.ToLanguageExpression();
-                return evaluatedAsLanguageExpression;
+                return evaluated.ToLanguageExpression();
             };
         }
 
@@ -53,7 +52,7 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             private readonly Dictionary<string, FunctionEvaluator> functionTable;
 
-            public NamespaceFunctionEvaluationScope(NamespaceFunctionType functionDefinition, LegacyFunctionExpression expression)
+            public NamespaceFunctionEvaluationScope(NamespaceFunctionType functionDefinition, FunctionExpression expression)
             {
                 this.functionTable = new(StringComparer.OrdinalIgnoreCase)
                 {
@@ -71,7 +70,7 @@ namespace Bicep.Core.Semantics.Namespaces
             public override string Name => LanguageConstants.ExternalInputBicepFunctionName;
             protected override ITemplateLanguageExpression? Evaluate(string functionName, StringExpression kind, IValueExpression config, IPositionalMetadataHolder positionalMetadata)
             {
-                return new FunctionExpression(
+                return new IntermediateFunctionExpression(
                     LanguageConstants.ExternalInputBicepFunctionName,
                     [kind, config],
                     positionalMetadata);
@@ -81,7 +80,7 @@ namespace Bicep.Core.Semantics.Namespaces
         private class ParametersFunction : UnaryExpressionFunction<StringExpression>
         {
             private readonly Dictionary<string, int> parameterLookup;
-            public ParametersFunction(NamespaceFunctionType functionDefinition, LegacyFunctionExpression functionExpression)
+            public ParametersFunction(NamespaceFunctionType functionDefinition, FunctionExpression functionExpression)
             {
                 this.FunctionExpression = functionExpression;
                 this.parameterLookup = functionDefinition.Parameters
@@ -91,7 +90,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             public override string Name => ExpressionConstants.ParametersFunction;
 
-            private LegacyFunctionExpression FunctionExpression { get; }
+            private FunctionExpression FunctionExpression { get; }
 
             protected override ITemplateLanguageExpression? Evaluate(string functionName, StringExpression parameterName, IPositionalMetadataHolder positionalMetadata)
             {
@@ -100,13 +99,11 @@ namespace Bicep.Core.Semantics.Namespaces
                     throw new InvalidOperationException($"Parameter '{parameterName.Value}' not found in function '{functionName}'.");
                 }
 
-                // TODO: Can we do it differently?
+                // map the LanguageExpression to ITemplateLanguageExpression
                 var evalHelper = new TemplateExpressionEvaluationHelper();
                 var evaluatedParam = FunctionExpression.Parameters[parameterIdx].EvaluateExpression(evalHelper.EvaluationContext);
                 return ExpressionParser.ParseLanguageExpression(evaluatedParam);
             }
         }
     }
-
-    
 }

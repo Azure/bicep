@@ -22,17 +22,17 @@ namespace Bicep.Core.Semantics
         public delegate Expression EvaluatorDelegate(
             FunctionCallExpression expression);
 
-        public delegate LanguageExpression ExpressionConverterDelegate(
+        public delegate LanguageExpression LanguageExpressionTransformerDelegate(
             FunctionExpression expression);
 
-        public FunctionOverload(string name, string genericDescription, string description, ResultBuilderDelegate resultBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, ExpressionConverterDelegate? expressionConverter, FunctionFlags flags = FunctionFlags.Default)
+        public FunctionOverload(string name, string genericDescription, string description, ResultBuilderDelegate resultBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, LanguageExpressionTransformerDelegate? expressionConverter, FunctionFlags flags = FunctionFlags.Default)
         {
             Name = name;
             GenericDescription = genericDescription;
             Description = description;
             ResultBuilder = resultBuilder;
             Evaluator = evaluator;
-            ExpressionConverter  = expressionConverter;
+            LanguageExpressionTransformer  = expressionConverter;
             FixedParameters = [.. fixedParameters];
             VariableParameter = variableParameter;
             Flags = flags;
@@ -64,7 +64,7 @@ namespace Bicep.Core.Semantics
 
         public EvaluatorDelegate? Evaluator { get; }
 
-        public ExpressionConverterDelegate? ExpressionConverter { get; }
+        public LanguageExpressionTransformerDelegate? LanguageExpressionTransformer { get; }
 
         public FunctionFlags Flags { get; }
 

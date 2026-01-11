@@ -79,7 +79,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
 
             if (!string.IsNullOrWhiteSpace(namespaceFunctionType.EvaluatesTo))
             {
-                builder = builder.WithExpressionConverter(ExtensionNamespaceTypeHelper.GetExpressionConverter(namespaceFunctionType));
+                builder = builder.WithExpressionConverter(ExtensionNamespaceTypeHelper.GetLanguageExpressionTransformer(namespaceFunctionType));
             }
 
             builder = builder.WithFlags(GetNamespaceFunctionFlags(namespaceFunctionType));

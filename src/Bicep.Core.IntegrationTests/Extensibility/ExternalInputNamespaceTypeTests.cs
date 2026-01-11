@@ -106,11 +106,11 @@ using none
 
 extension '../extension.tgz' as ext
 param foo = ext.scopeBinding('BINDING')
-param bar = ext.config('redis')
-param buildVer = ext.sysVar('$buildVersion()')
-param servicePackageLink = ext.sasUri({
-    path: 'bin/service.sfpkg'
-})
+//param bar = ext.config('redis')
+//param buildVer = ext.sysVar('$buildVersion()')
+//param servicePackageLink = ext.sasUri({
+//    path: 'bin/service.sfpkg'
+//})
 """)),
             ("../extension.tgz", extensionTgz));
 

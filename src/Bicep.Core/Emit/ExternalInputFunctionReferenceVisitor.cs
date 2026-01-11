@@ -8,6 +8,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit;
 
@@ -76,11 +77,6 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 
     private void VisitFunctionCallSyntaxInternal(FunctionCallSyntaxBase functionCallSyntax)
     {
-        //if (SemanticModelHelper.TryGetFunctionInNamespace(semanticModel, SystemNamespaceType.BuiltInName, functionCallSyntax) is not { } functionCall)
-        //{
-        //    return;
-        //}
-
         if (semanticModel.GetSymbolInfo(functionCallSyntax) is not FunctionSymbol functionSymbol)
         {
             return;
@@ -95,25 +91,35 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
         }
 
         // External input functions should lower to the same IR, i.e. externalInput('<kind>', <config>)
-        var intermediate = expressionConverter.ConvertToIntermediateExpression(functionCallSyntax);
-        if (intermediate is not FunctionCallExpression functionExpression || functionExpression.Parameters.Length < 1)
+        try
         {
+            var intermediate = expressionConverter.ConvertExpression(functionCallSyntax);
+            if (intermediate is not FunctionExpression functionExpression || functionExpression.Parameters.Length < 1)
+            {
+                return;
+            }
+
+            if (functionExpression.Parameters[0] is not JTokenExpression kindExpression)
+            {
+                return;
+            }
+
+            LanguageExpression? configExpression = null;
+            if (functionExpression.Parameters.Length > 1)
+            {
+                configExpression = functionExpression.Parameters[1];
+            }
+
+            var index = this.externalInputReferences.Count;
+            var definitionKey = GetExternalInputDefinitionName(kindExpression.Value.ToString(), index);
+            externalInputReferences.TryAdd(functionCallSyntax, new(kindExpression, configExpression, definitionKey));
+        }
+        catch (Exception)
+        {
+            // we may get an exception during expression conversion e.g. due to invalid syntax.
+            // diagnostics for such will be reported elsewhere.
             return;
         }
-
-        if (functionExpression.Parameters[0] is not StringLiteralExpression kindExpression)
-        {
-            return;
-        }
-
-        Expression? configExpression = null;
-        if (functionExpression.Parameters.Length > 1)
-        {
-            configExpression = functionExpression.Parameters[1];
-        }
-        var index = this.externalInputReferences.Count;
-        var definitionKey = GetExternalInputDefinitionName(kindExpression.Value, index);
-        externalInputReferences.TryAdd(functionCallSyntax, new(kindExpression, configExpression, definitionKey));
     }
 
     private static string GetExternalInputDefinitionName(string kind, int index)
@@ -129,7 +135,7 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
     private static partial Regex NonAlphanumericPattern();
 }
 
-public record ExternalInputInfo(Expression Kind, Expression? Config, string DefinitionKey);
+public record ExternalInputInfo(LanguageExpression Kind, LanguageExpression? Config, string DefinitionKey);
 
 public record ExternalInputReferences(
     ImmutableDictionary<FunctionCallSyntaxBase, ExternalInputInfo> ExternalInputInfoBySyntax
