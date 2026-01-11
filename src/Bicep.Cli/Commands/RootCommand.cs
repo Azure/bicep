@@ -253,26 +253,26 @@ Usage:
 
 "; // this newline is intentional
 
-            io.Output.Write(output);
-            io.Output.Flush();
+            io.Output.Writer.Write(output);
+            io.Output.Writer.Flush();
         }
 
         private void PrintVersion()
         {
             var output = $@"Bicep CLI version {environment.GetVersionString()}{System.Environment.NewLine}";
 
-            io.Output.Write(output);
-            io.Output.Flush();
+            io.Output.Writer.Write(output);
+            io.Output.Writer.Flush();
         }
 
         private void PrintLicense()
         {
-            WriteEmbeddedResource(io.Output, "LICENSE.deflated");
+            WriteEmbeddedResource(io.Output.Writer, "LICENSE.deflated");
         }
 
         private void PrintThirdPartyNotices()
         {
-            WriteEmbeddedResource(io.Output, "NOTICE.deflated");
+            WriteEmbeddedResource(io.Output.Writer, "NOTICE.deflated");
         }
 
         private static void WriteEmbeddedResource(TextWriter writer, string streamName)

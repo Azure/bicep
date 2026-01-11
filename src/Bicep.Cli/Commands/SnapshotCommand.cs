@@ -79,7 +79,7 @@ public class SnapshotCommand(
                         logger.LogWarning("Snapshot validation failed. Expected no changes, but found the following:");
                     }
 
-                    await io.Output.WriteAsync(WhatIfOperationResultFormatter.Format(changes));
+                    await io.Output.Writer.WriteAsync(WhatIfOperationResultFormatter.Format(changes));
                     return changes.Any() ? 1 : 0;
                 }
             default:
