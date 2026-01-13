@@ -110,7 +110,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "waitAndRetry": false,
           "localDeploy": false,
           "resourceInfoCodegen": false,
-          "desiredStateConfiguration": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
           "thisNamespace": false
@@ -194,7 +193,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
-          "desiredStateConfiguration": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
           "thisNamespace": false
@@ -300,7 +298,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
-          "desiredStateConfiguration": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
           "thisNamespace": false
@@ -387,7 +384,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 LocalDeploy: false,
                 ResourceInfoCodegen: false,
                 ModuleExtensionConfigs: false,
-                DesiredStateConfiguration: false,
                 UserDefinedConstraints: false,
                 DeployCommands: false,
                 ThisNamespace: false);
@@ -472,7 +468,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 "localDeploy": false,
                 "resourceInfoCodegen": false,
                 "moduleExtensionConfigs": false,
-                "desiredStateConfiguration": false,
                 "userDefinedConstraints": false,
                 "deployCommands": false,
                 "thisNamespace": false
@@ -824,7 +819,6 @@ namespace Bicep.Core.UnitTests.Configuration
                     "localDeploy": false,
                     "resourceInfoCodegen": false,
                     "moduleExtensionConfigs": false,
-                    "desiredStateConfiguration": false,
                     "userDefinedConstraints": false,
                     "deployCommands": false,
                     "thisNamespace": false
