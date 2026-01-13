@@ -23,7 +23,6 @@ public record FeatureProviderOverrides(
     bool? ExtendableParamFilesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
     bool? ModuleExtensionConfigsEnabled = default,
-    bool? DesiredStateConfigurationEnabled = default,
     bool? UserDefinedConstraintsEnabled = default,
     bool? DeployCommandsEnabled = default,
     bool? ThisNamespaceEnabled = default)
@@ -44,7 +43,6 @@ public record FeatureProviderOverrides(
         bool? ExtendableParamFilesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
         bool? ModuleExtensionConfigsEnabled = default,
-        bool? DesiredStateConfigurationEnabled = default,
         bool? UserDefinedConstraintsEnabled = default,
         bool? DeployCommandsEnabled = default,
         bool? ThisNamespaceEnabled = default) : this(
@@ -63,7 +61,6 @@ public record FeatureProviderOverrides(
             ExtendableParamFilesEnabled,
             AssemblyVersion,
             ModuleExtensionConfigsEnabled,
-            DesiredStateConfigurationEnabled,
             UserDefinedConstraintsEnabled,
             DeployCommandsEnabled,
             ThisNamespaceEnabled)

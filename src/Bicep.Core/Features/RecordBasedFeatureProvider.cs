@@ -23,7 +23,6 @@ namespace Bicep.Core.Features
         public bool ExtendableParamFilesEnabled => features.ExtendableParamFiles;
         public bool ResourceInfoCodegenEnabled => features.ResourceInfoCodegen;
         public bool ModuleExtensionConfigsEnabled => features.ModuleExtensionConfigs;
-        public bool DesiredStateConfigurationEnabled => features.DesiredStateConfiguration;
         public bool UserDefinedConstraintsEnabled => features.UserDefinedConstraints;
         public bool DeployCommandsEnabled => features.DeployCommands;
         public bool ThisNamespaceEnabled => features.ThisNamespace;
