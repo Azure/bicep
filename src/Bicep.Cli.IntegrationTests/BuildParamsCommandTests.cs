@@ -328,6 +328,193 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
+        public async Task Build_params_extends_variable_uses_base_params_not_overridden()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "base.bicepparam",
+                """
+                using none
+
+                param foo = 'abc'
+                var x = foo
+                param bar = x
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './base.bicepparam'
+
+                param foo = 'def'
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param foo string
+                param bar string
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "bicepconfig.json",
+                """
+                {
+                    "experimentalFeaturesEnabled": {
+                        "extendableParamFiles": true
+                    }
+                }
+                """,
+                outputPath);
+
+            var mainParamsFile = Path.Combine(outputPath, "main.bicepparam");
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            // bar should be 'abc' because it uses base's `var x` which uses base's `foo='abc'`
+            paramsObject.Should().HaveValueAtPath("parameters.bar.value", "abc");
+            // foo should be 'def' because main overrides it
+            paramsObject.Should().HaveValueAtPath("parameters.foo.value", "def");
+        }
+
+        [TestMethod]
+        public async Task Build_params_extends_variables_are_scoped_to_file()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "base.bicepparam",
+                """
+                using none
+
+                var x = 'foo'
+                param p1 = 'p-${x}'
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './base.bicepparam'
+
+                var x = 'bar'
+                param p2 = 'p-${x}'
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param p1 string
+                param p2 string
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "bicepconfig.json",
+                """
+                {
+                    "experimentalFeaturesEnabled": {
+                        "extendableParamFiles": true
+                    }
+                }
+                """,
+                outputPath);
+
+            var mainParamsFile = Path.Combine(outputPath, "main.bicepparam");
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            // p1 should use base's `x='foo'`
+            paramsObject.Should().HaveValueAtPath("parameters.p1.value", "p-foo");
+            // p2 should use main's `x='bar'`
+            paramsObject.Should().HaveValueAtPath("parameters.p2.value", "p-bar");
+        }
+
+        [TestMethod]
+        public async Task Build_params_extends_base_variables_visible_but_scoped()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "base.bicepparam",
+                """
+                using none
+
+                var x = 'foo'
+                param p1 = 'p-${x}'
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './base.bicepparam'
+
+                param p2 = 'p-${x}'
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param p1 string
+                param p2 string
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "bicepconfig.json",
+                """
+                {
+                    "experimentalFeaturesEnabled": {
+                        "extendableParamFiles": true
+                    }
+                }
+                """,
+                outputPath);
+
+            var mainParamsFile = Path.Combine(outputPath, "main.bicepparam");
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            // Both p1 and p2 use base's `x='foo'` since that's the only `x` defined
+            paramsObject.Should().HaveValueAtPath("parameters.p1.value", "p-foo");
+            paramsObject.Should().HaveValueAtPath("parameters.p2.value", "p-foo");
+        }
+
+        [TestMethod]
         public async Task Build_params_with_base_merging_succeeds()
         {
             var baseParamsFile = FileHelper.SaveResultFile(
