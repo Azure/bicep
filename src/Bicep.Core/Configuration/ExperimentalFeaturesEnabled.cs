@@ -21,7 +21,6 @@ public record ExperimentalFeaturesEnabled(
     bool LocalDeploy,
     bool ResourceInfoCodegen,
     bool ModuleExtensionConfigs,
-    bool DesiredStateConfiguration,
     bool UserDefinedConstraints,
     bool DeployCommands,
     bool ThisNamespace)
@@ -43,7 +42,6 @@ public record ExperimentalFeaturesEnabled(
         LocalDeploy: false,
         ResourceInfoCodegen: false,
         ModuleExtensionConfigs: false,
-        DesiredStateConfiguration: false,
         UserDefinedConstraints: false,
         DeployCommands: false,
         ThisNamespace: false);

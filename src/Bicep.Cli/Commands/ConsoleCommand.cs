@@ -26,8 +26,7 @@ public class ConsoleCommand(
     ILogger logger,
     IOContext io,
     IEnvironment environment,
-    ReplEnvironment replEnvironment,
-    IAnsiConsole console) : ICommand
+    ReplEnvironment replEnvironment) : ICommand
 {
     private const string FirstLinePrefix = "> ";
 
@@ -57,16 +56,52 @@ public class ConsoleCommand(
     {
         logger.LogWarning($"WARNING: The '{args.CommandName}' CLI command is an experimental feature. Experimental features should be used for testing purposes only, as there are no guarantees about the quality or stability of these features.");
 
-        if (!console.Profile.Capabilities.Interactive)
+        if (io.Input.IsRedirected)
         {
-            logger.LogError($"The '{args.CommandName}' CLI command requires an interactive console.");
-            return 1;
+            // Read all input from stdin if redirected (via pipe or file redirection)
+            var input = await io.Input.Reader.ReadToEndAsync();
+
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return 0;
+            }
+
+            // Handle input line by line (to support multi-line strings)
+            var outputBuilder = new StringBuilder();
+            var inputBuffer = new StringBuilder();
+
+            using var reader = new StringReader(input);
+            while (await reader.ReadLineAsync() is { } line)
+            {
+                inputBuffer.Append(line);
+                inputBuffer.Append('\n');
+
+                var current = inputBuffer.ToString();
+                if (ReplEnvironment.ShouldSubmitBuffer(current, line))
+                {
+                    inputBuffer.Clear();
+                    outputBuilder.Append(replEnvironment.EvaluateAndGetOutput(current));
+                }
+            }
+
+            if (inputBuffer.Length > 0)
+            {
+                outputBuilder.Append(replEnvironment.EvaluateAndGetOutput(inputBuffer.ToString()));
+            }
+
+            var output = outputBuilder.ToString();
+            if (io.Output.IsRedirected)
+            {
+                output = AnsiHelper.RemoveCodes(output);
+            }
+            await io.Output.Writer.WriteAsync(output);
+            return 0;
         }
 
-        await io.Output.WriteLineAsync($"Bicep Console version {environment.GetVersionString()}");
-        await io.Output.WriteLineAsync("Type 'help' for available commands, press ESC to quit.");
-        await io.Output.WriteLineAsync("Multi-line input supported.");
-        await io.Output.WriteLineAsync(string.Empty);
+        await io.Output.Writer.WriteLineAsync($"Bicep Console version {environment.GetVersionString()}");
+        await io.Output.Writer.WriteLineAsync("Type 'help' for available commands, press ESC to quit.");
+        await io.Output.Writer.WriteLineAsync("Multi-line input supported.");
+        await io.Output.Writer.WriteLineAsync(string.Empty);
 
         var buffer = new StringBuilder();
 
@@ -92,8 +127,8 @@ public class ConsoleCommand(
 
                 if (rawLine.Equals("help", StringComparison.OrdinalIgnoreCase))
                 {
-                    await io.Output.WriteLineAsync("Enter expressions or 'var name = <expr>'. Multi-line supported until structure closes.");
-                    await io.Output.WriteLineAsync("Commands: exit, clear");
+                    await io.Output.Writer.WriteLineAsync("Enter expressions or 'var name = <expr>'. Multi-line supported until structure closes.");
+                    await io.Output.Writer.WriteLineAsync("Commands: exit, clear");
                     continue;
                 }
             }
@@ -109,7 +144,7 @@ public class ConsoleCommand(
 
                 // evaluate input
                 var output = replEnvironment.EvaluateAndGetOutput(current);
-                await io.Output.WriteAsync(output);
+                await io.Output.Writer.WriteAsync(output);
             }
         }
 
@@ -132,8 +167,8 @@ public class ConsoleCommand(
             cursorOffset = lineBuffer.Count;
 
             var output2 = replEnvironment.HighlightInputLine(FirstLinePrefix, buffer.ToString(), lineBuffer, cursorOffset, printPrevLines: true);
-            await io.Output.WriteAsync(PrintHelper.MoveCursorUp(prevBufferLineCount));
-            await io.Output.WriteAsync(output2);
+            await io.Output.Writer.WriteAsync(PrintHelper.MoveCursorUp(prevBufferLineCount));
+            await io.Output.Writer.WriteAsync(output2);
             return cursorOffset;
         }
 
@@ -145,7 +180,7 @@ public class ConsoleCommand(
 
     private async Task<string?> ReadLine(StringBuilder buffer)
     {
-        await io.Output.WriteAsync(GetPrefix(buffer));
+        await io.Output.Writer.WriteAsync(GetPrefix(buffer));
 
         var lineBuffer = new List<Rune>();
         var cursorOffset = 0;
@@ -180,7 +215,7 @@ public class ConsoleCommand(
             }
             if (keyInfo.Key == ConsoleKey.Enter)
             {
-                await io.Output.FlushAsync();
+                await io.Output.Writer.FlushAsync();
                 break;
             }
             else if (keyInfo.Key == ConsoleKey.Backspace)
@@ -209,10 +244,10 @@ public class ConsoleCommand(
             }
 
             var output = replEnvironment.HighlightInputLine(GetPrefix(buffer), buffer.ToString(), lineBuffer, cursorOffset, printPrevLines: false);
-            await io.Output.WriteAsync(output);
+            await io.Output.Writer.WriteAsync(output);
         }
 
-        await io.Output.WriteAsync("\n");
+        await io.Output.Writer.WriteAsync("\n");
 
         return string.Concat(lineBuffer);
     }

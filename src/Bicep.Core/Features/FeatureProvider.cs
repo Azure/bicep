@@ -50,8 +50,6 @@ namespace Bicep.Core.Features
 
         public bool ModuleExtensionConfigsEnabled => configuration.ExperimentalFeaturesEnabled.ModuleExtensionConfigs;
 
-        public bool DesiredStateConfigurationEnabled => configuration.ExperimentalFeaturesEnabled.DesiredStateConfiguration;
-
         public bool UserDefinedConstraintsEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedConstraints;
 
         public bool DeployCommandsEnabled => configuration.ExperimentalFeaturesEnabled.DeployCommands;
