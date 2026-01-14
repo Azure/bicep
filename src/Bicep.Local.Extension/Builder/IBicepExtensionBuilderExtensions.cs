@@ -9,6 +9,7 @@ using Bicep.Local.Extension.Builder;
 using Bicep.Local.Extension.Host.Extensions;
 using Bicep.Local.Extension.Host.Handlers;
 using Bicep.Local.Extension.Types;
+using Bicep.Local.Extension.Types.Models;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -39,13 +40,13 @@ public static class IBicepExtensionBuilderExtensions
     /// <param name="builder">The extension builder to which the type configuration will be added.</param>
     /// <param name="configuration">The type representing the configuration to register. If <see langword="null"/>, no configuration is added.</param>
     /// <returns>The same <see cref="IBicepExtensionBuilder"/> instance, enabling method chaining.</returns>
-    public static IBicepExtensionBuilder WithTypeConfiguration(this IBicepExtensionBuilder builder, Type? configuration)        
+    public static IBicepExtensionBuilder WithTypeConfiguration(this IBicepExtensionBuilder builder, Type? configuration)
     {
-        if(configuration is not null)
+        if (configuration is not null)
         {
             builder.Services.AddSingleton<Type>(configuration);
         }
-        
+
         return builder;
     }
 
@@ -64,7 +65,7 @@ public static class IBicepExtensionBuilderExtensions
     public static IBicepExtensionBuilder WithDefaultTypeBuilder(this IBicepExtensionBuilder builder, Assembly typeAssembly, Type? configurationType = null)
     {
         builder.Services.AddSingleton<ITypeProvider>(new TypeProvider([typeAssembly]));
-      
+
 
         var typeDictionary = new Dictionary<Type, Func<TypeBase>>
                     {
@@ -101,6 +102,20 @@ public static class IBicepExtensionBuilderExtensions
     public static IBicepExtensionBuilder WithTypeBuilder(this IBicepExtensionBuilder builder, ITypeDefinitionBuilder typeDefinitionBuilder)
     {
         builder.Services.AddSingleton<ITypeDefinitionBuilder>(typeDefinitionBuilder);
+        return builder;
+    }
+
+    public static IBicepExtensionBuilder WithFallbackType<TFallback>(this IBicepExtensionBuilder builder)
+        where TFallback : class
+    {
+        // Check if fallback is already registered
+        if (builder.Services.Any(sd => sd.ServiceType == typeof(FallbackTypeContainer)))
+        {
+            throw new InvalidOperationException(
+                $"A fallback type has already been registered. Only one fallback type is allowed per extension.");
+        }
+
+        builder.Services.AddSingleton(new FallbackTypeContainer(typeof(TFallback)));
         return builder;
     }
 

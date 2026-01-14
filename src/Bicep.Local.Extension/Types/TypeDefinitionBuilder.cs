@@ -14,10 +14,12 @@ using Azure.Bicep.Types.Index;
 using Azure.Bicep.Types.Serialization;
 using Bicep.Local.Extension.Builder;
 using Bicep.Local.Extension.Types.Attributes;
+using Bicep.Local.Extension.Types.Models;
 using Microsoft.Extensions.Options;
 using static Google.Protobuf.Reflection.GeneratedCodeInfo.Types;
 
 namespace Bicep.Local.Extension.Types;
+
 public class TypeDefinitionBuilder
     : ITypeDefinitionBuilder
 {
@@ -26,6 +28,7 @@ public class TypeDefinitionBuilder
     private readonly FrozenDictionary<Type, Func<TypeBase>> typeToTypeBaseMap;
 
     protected readonly ConcurrentDictionary<Type, TypeBase> typeCache;
+    private readonly Type? fallbackType;
     private readonly BicepExtensionInfo extensionInfo;
     private readonly Type? configurationType;
     protected readonly TypeFactory factory;
@@ -47,10 +50,11 @@ public class TypeDefinitionBuilder
     /// </para>
     /// </remarks>
     public TypeDefinitionBuilder(
-        BicepExtensionInfo extensionInfo,        
+        BicepExtensionInfo extensionInfo,
         TypeFactory factory,
         ITypeProvider typeProvider,
-        TypeDefinitionBuilderOptions options)
+        TypeDefinitionBuilderOptions options,
+        FallbackTypeContainer? fallbackTypeContainer)
     {
         ArgumentNullException.ThrowIfNull(options);
 
@@ -65,6 +69,7 @@ public class TypeDefinitionBuilder
 
         this.visited = new HashSet<Type>();
         this.typeCache = new ConcurrentDictionary<Type, TypeBase>();
+        this.fallbackType = fallbackTypeContainer?.FallbackResourceType;
     }
 
     /// <summary>
@@ -93,11 +98,18 @@ public class TypeDefinitionBuilder
             config = new CrossFileTypeReference(typesJsonPath, factory.GetIndex(configReference));
         }
 
+        CrossFileTypeReference? fallbackResourceType = null;
+        if (fallbackType is not null)
+        {
+            var fallbackReference = factory.Create(() => GenerateResource(factory, typeCache, fallbackType, new ResourceTypeAttribute("FallbackResource")));
+            fallbackResourceType = new CrossFileTypeReference(typesJsonPath, factory.GetIndex(fallbackReference));
+        }
+
         var index = new TypeIndex(
-            resourceTypes,
-            new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
-            new TypeSettings(name: extensionInfo.Name, version: extensionInfo.Version, isSingleton: extensionInfo.IsSingleton, configurationType: config!),
-            null);
+            resources: resourceTypes,
+            resourceFunctions: new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+            settings: new TypeSettings(name: extensionInfo.Name, version: extensionInfo.Version, isSingleton: extensionInfo.IsSingleton, configurationType: config!),
+            fallbackResourceType: fallbackResourceType);
 
         return new(
             IndexFileContent: GetString(stream => TypeSerializer.SerializeIndex(stream, index)),
