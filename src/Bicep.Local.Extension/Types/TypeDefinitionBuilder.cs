@@ -68,7 +68,7 @@ public class TypeDefinitionBuilder
     /// </para>
     /// </remarks>
     public TypeDefinitionBuilder(
-        BicepExtensionInfo extensionInfo,,
+        BicepExtensionInfo extensionInfo,
         ITypeProvider typeProvider,
         TypeDefinitionBuilderOptions options)
     {

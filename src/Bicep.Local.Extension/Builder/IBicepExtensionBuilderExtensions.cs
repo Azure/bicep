@@ -66,40 +66,18 @@ public static class IBicepExtensionBuilderExtensions
     public static IBicepExtensionBuilder WithDefaultTypeBuilder(this IBicepExtensionBuilder builder, Assembly typeAssembly, Type? configurationType = null)
     {
         builder.Services.AddSingleton<ITypeProvider>(new TypeProvider([typeAssembly]));
+        builder.Services.AddSingleton(new TypeDefinitionBuilderOptions(configurationType));
 
-
-        var typeDictionary = new Dictionary<Type, Func<TypeBase>>
-                    {
-                        { typeof(string), () => new StringType() },
-                        { typeof(bool), () => new BooleanType() },
-                        { typeof(int), () => new IntegerType() }
-                    };
-
-        builder.Services.AddSingleton(new TypeDefinitionBuilderOptions(typeDictionary.ToFrozenDictionary(), configurationType));
-
-        var typeFactory = new TypeFactory([]);
-
-        foreach (var type in typeDictionary)
-        {
-            typeFactory.Create(type.Value);
-        }
-
-        builder.Services.AddSingleton<TypeFactory>(typeFactory);
-
-        builder.WithTypeBuilder<TypeDefinitionBuilder>();
+        builder.Services.AddSingleton<ITypeDefinitionBuilder>(sp => new TypeDefinitionBuilder
+        (
+            extensionInfo: sp.GetRequiredService<BicepExtensionInfo>(),
+            typeProvider: sp.GetRequiredService<ITypeProvider>(),
+            options: sp.GetRequiredService<TypeDefinitionBuilderOptions>()
+        ));
 
         return builder;
     }
 
-    /// <summary>
-    /// Registers the specified type definition builder as a singleton service in the extension builder's service
-    /// collection.
-    /// </summary>
-    /// <remarks>This method allows custom type definition logic to be injected into the extension's service
-    /// pipeline. Subsequent calls will replace any previously registered ITypeDefinitionBuilder singleton.</remarks>
-    /// <param name="builder">The extension builder to which the type definition builder will be added.</param>
-    /// <param name="typeDefinitionBuilder">The type definition builder instance to register as a singleton service. Cannot be null.</param>
-    /// <returns>The same extension builder instance, enabling fluent configuration.</returns>
     public static IBicepExtensionBuilder WithTypeBuilder(this IBicepExtensionBuilder builder, ITypeDefinitionBuilder typeDefinitionBuilder)
     {
         builder.Services.AddSingleton<ITypeDefinitionBuilder>(typeDefinitionBuilder);
