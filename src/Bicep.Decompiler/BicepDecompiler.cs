@@ -17,12 +17,25 @@ using Bicep.Core.Syntax;
 using Bicep.Decompiler.ArmHelpers;
 using Bicep.Decompiler.Exceptions;
 using Bicep.IO.Abstraction;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Decompiler;
 
 public class BicepDecompiler
 {
+    public static BicepDecompiler Create(Action<IServiceCollection>? configureServices = null)
+    {
+        var services = new ServiceCollection();
+        configureServices?.Invoke(services);
+
+        services.AddBicepDecompiler();
+
+        return services
+            .BuildServiceProvider()
+            .GetRequiredService<BicepDecompiler>();
+    }
+
     private readonly BicepCompiler bicepCompiler;
 
     public static string DecompilerDisclaimerMessage => DecompilerResources.DecompilerDisclaimerMessage;
@@ -86,6 +99,7 @@ public class BicepDecompiler
         {
             var bicepPath = bicepFileUri?.GetPathRelativeTo(entryBicepparamUri);
             statements.Add(new UsingDeclarationSyntax(
+                [],
                 SyntaxFactory.UsingKeywordToken,
                 bicepPath is not null
                     ? SyntaxFactory.CreateStringLiteral(bicepPath)

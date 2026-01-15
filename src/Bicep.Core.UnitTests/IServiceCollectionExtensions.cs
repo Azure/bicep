@@ -38,37 +38,6 @@ namespace Bicep.Core.UnitTests;
 
 public static class IServiceCollectionExtensions
 {
-    public static IServiceCollection AddBicepCore(this IServiceCollection services)
-    {
-        services
-            .AddSingleton<INamespaceProvider, NamespaceProvider>()
-            .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
-            .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
-            .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
-            .AddSingleton<IArmClientProvider, ArmClientProvider>()
-            .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
-            .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
-            .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
-            .AddSingleton<IEnvironment>(TestEnvironment.Default)
-            .AddSingleton<IFileSystem, LocalFileSystem>()
-            .AddSingleton<IFileExplorer, FileSystemFileExplorer>()
-            .AddSingleton<IAuxiliaryFileCache, AuxiliaryFileCache>()
-            .AddSingleton<IConfigurationManager, ConfigurationManager>()
-            .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
-            .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
-            .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
-            .AddSingleton<ISourceFileFactory, SourceFileFactory>()
-            .AddRegistryCatalogServices()
-            .AddSingleton<BicepCompiler>();
-
-        AddMockHttpClient(services, PublicModuleIndexHttpClientMocks.Create([]).Object);
-
-        return services;
-    }
-
-    public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services
-        .AddSingleton<BicepDecompiler>();
-
     private static IServiceCollection Register<TService>(IServiceCollection services, TService service)
         where TService : class
         => services.AddSingleton(service);
@@ -163,7 +132,7 @@ public static class IServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddMockHttpClient<TClient>(IServiceCollection services, TClient? httpClient) where TClient : class
+    public static IServiceCollection AddMockHttpClient<TClient>(this IServiceCollection services, TClient? httpClient) where TClient : class
     {
         return AddMockHttpClientIfNotNull(services, httpClient);
     }

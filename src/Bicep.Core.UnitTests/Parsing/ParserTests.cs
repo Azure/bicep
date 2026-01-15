@@ -79,6 +79,18 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
+        [DataRow("$'''${abc}def'''", "$'''${abc}def'''")]
+        [DataRow("$'''abc${def}'''", "$'''abc${def}'''")]
+        [DataRow("$'''${abc}def${ghi}'''", "$'''${abc}def${ghi}'''")]
+        [DataRow("$'''abc${def}ghi${klm}nop'''", "$'''abc${def}ghi${klm}nop'''")]
+        [DataRow("$'''abc${1234}def'''", "$'''abc${1234}def'''")]
+        [DataRow("$'''abc${true}def'''", "$'''abc${true}def'''")]
+        public void Multiline_string_interpolation_should_parse_correctly(string text, string expected)
+        {
+            RunExpressionTest(text, expected, typeof(StringSyntax));
+        }
+
+        [DataTestMethod]
         // empty
         [DataRow("''''''", "")]
         [DataRow("'''\r\n'''", "")]
@@ -120,6 +132,22 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
+        [DataRow("$'''${>}def'''")]
+        [DataRow("$'''${concat)}def'''")]
+        [DataRow("$'''${'nest\\ed'}def'''")]
+        [DataRow("$'''${a b c}def'''")]
+        [DataRow("$'''abc${}'''")]
+        [DataRow("$'''def${>}'''")]
+        [DataRow("$'''abc${>}def${=}'''")]
+        [DataRow("$'''${>}def${=}abc'''")]
+        [DataRow("$'''${>}def${=}'''")]
+        public void Multiline_interpolation_with_bad_expressions_should_parse_successfully(string text)
+        {
+            var expression = ParseAndVerifyType<StringSyntax>(text);
+            expression.Expressions.Should().Contain(x => x is SkippedTriviaSyntax || x is BinaryOperationSyntax);
+        }
+
+        [DataTestMethod]
         [DataRow("'${!}def'")]
         [DataRow("'${ -}def'")]
         [DataRow("'${b+}def'")]
@@ -129,6 +157,21 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("'${true ? : }def'")]
         [DataRow("'${true ? : null}def'")]
         public void Interpolation_with_incomplete_expressions_should_parse_successfully(string text)
+        {
+            var expression = ParseAndVerifyType<StringSyntax>(text);
+            expression.Expressions.Should().Contain(x => x is UnaryOperationSyntax || x is BinaryOperationSyntax || x is TernaryOperationSyntax);
+        }
+
+        [DataTestMethod]
+        [DataRow("$'''${!}def'''")]
+        [DataRow("$'''${ -}def'''")]
+        [DataRow("$'''${b+}def'''")]
+        [DataRow("$'''${b + (d /}def'''")]
+        [DataRow("$'''${true ? }def'''")]
+        [DataRow("$'''${true ? false }def'''")]
+        [DataRow("$'''${true ? : }def'''")]
+        [DataRow("$'''${true ? : null}def'''")]
+        public void Multiline_interpolation_with_incomplete_expressions_should_parse_successfully(string text)
         {
             var expression = ParseAndVerifyType<StringSyntax>(text);
             expression.Expressions.Should().Contain(x => x is UnaryOperationSyntax || x is BinaryOperationSyntax || x is TernaryOperationSyntax);

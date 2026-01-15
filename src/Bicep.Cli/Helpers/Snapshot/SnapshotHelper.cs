@@ -142,7 +142,7 @@ public static class SnapshotHelper
             this.tryResolveExternalInput = tryResolveExternalInput;
         }
 
-        public override ITemplateLanguageExpression MapFunctionExpression(FunctionExpression expression, ISet<ITemplateLanguageExpression>? expressionsToSkip)
+        protected override ITemplateLanguageExpression RewriteFunction(FunctionExpression expression, Func<ITemplateLanguageExpression, ITemplateLanguageExpression> rewriteChildExpression)
         {
             if (expression.Name.Equals(LanguageConstants.ExternalInputsArmFunctionName, StringComparison.OrdinalIgnoreCase))
             {
@@ -168,7 +168,7 @@ public static class SnapshotHelper
                 };
             }
 
-            return base.MapFunctionExpression(expression, expressionsToSkip);
+            return base.RewriteFunction(expression, rewriteChildExpression);
         }
     }
 

@@ -15,11 +15,24 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core;
 
 public class BicepCompiler
 {
+    public static BicepCompiler Create(Action<IServiceCollection>? configureServices = null)
+    {
+        var services = new ServiceCollection();
+        configureServices?.Invoke(services);
+
+        services.AddBicepCore();
+
+        return services
+            .BuildServiceProvider()
+            .GetRequiredService<BicepCompiler>();
+    }
+
     private readonly IEnvironment environment;
     private readonly INamespaceProvider namespaceProvider;
     private readonly IBicepAnalyzer bicepAnalyzer;
@@ -100,7 +113,7 @@ public class BicepCompiler
             bicepAnalyzer,
             moduleDispatcher,
             this.SourceFileFactory,
-            ImmutableDictionary<ISourceFile, ISemanticModel>.Empty);
+            []);
 
     private static ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<ArtifactResolutionInfo> originalModulesToRestore, bool forceModulesRestore)
     {

@@ -1,27 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Management;
-using System.Net;
+using System.IO.Abstractions;
 using System.Text;
-using System.Threading.Tasks;
 using Bicep.Cli.Helpers.Repl;
-using Bicep.Cli.Helpers.WhatIf;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
-using Bicep.Core.Highlighting;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
@@ -31,8 +24,11 @@ namespace Bicep.Cli.Services;
 
 public class ReplEnvironment
 {
-    private readonly InMemoryFileExplorer fileExplorer;
+    private readonly InMemoryFileExplorer fileExplorer = new();
     private readonly BicepCompiler compiler;
+
+    // Auxiliary directory for resolving relative paths for load* functions.
+    private readonly IDirectoryHandle auxiliaryDirectory;
 
     // Persist original variable declaration text (ordered) and lookup to allow redefinition.
     private readonly List<string> declarationLines = [];
@@ -41,10 +37,13 @@ public class ReplEnvironment
     private readonly List<string> history = [];
     private int lastHistoryIndex = -1;
 
-    public ReplEnvironment(BicepCompiler compiler)
+    public ReplEnvironment(
+        BicepCompiler compiler,
+        IFileSystem auxiliaryFileSystem,
+        IFileExplorer auxiliaryFileExplorer)
     {
-        this.fileExplorer = new InMemoryFileExplorer();
         this.compiler = compiler;
+        this.auxiliaryDirectory = auxiliaryFileExplorer.GetDirectory(IOUri.FromFilePath(auxiliaryFileSystem.Directory.GetCurrentDirectory()));
     }
 
     public string HighlightInputLine(string prefix, string prevLines, IReadOnlyList<Rune> lineBuffer, int cursorOffset, bool printPrevLines)
@@ -83,6 +82,22 @@ public class ReplEnvironment
         var model = compilation.GetEntrypointSemanticModel();
 
         return PrintHelper.PrintWithSyntaxHighlighting(model, content);
+    }
+
+    public string EvaluateAndGetOutput(string input)
+    {
+        var result = EvaluateInput(input);
+
+        if (result.Value is { } value)
+        {
+            return HighlightSyntax(value) + '\n';
+        }
+        else if (result.AnnotatedDiagnostics.Any())
+        {
+            return PrintHelper.PrintWithAnnotations(input, result.AnnotatedDiagnostics, HighlightSyntax(input));
+        }
+
+        return string.Empty;
     }
 
     public AnnotatedReplResult EvaluateInput(string input)
@@ -138,31 +153,17 @@ public class ReplEnvironment
 
         var model = compilation.GetEntrypointSemanticModel();
         var diagnostics = model.GetAllDiagnostics().Where(d => d.Source != DiagnosticSource.CoreLinter).ToList();
-        if (diagnostics.Count > 0)
+
+        if (!diagnostics.Where(x => x.IsError()).Any())
         {
-            return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(diagnostics, declarationText, fullContent.Length));
+            // Persist only after successful evaluation.
+            declarationLines.Clear();
+            declarationLines.AddRange(workingLines);
+            declarationLines.Add(declarationText);
+            declarationLookup[declarationName] = declarationText;
         }
 
-        ExpressionEvaluationResult? evalResult = null;
-        if (model.GetSymbolInfo(declaration) is VariableSymbol variableSymbol)
-        {
-            // Find and evaluate the newly declared variable symbol.
-            var evaluator = new ParameterAssignmentEvaluator(model);
-            evalResult = evaluator.EvaluateExpression(variableSymbol.DeclaringVariable.Value);
-        }
-
-        if (evalResult?.Diagnostics.Any() == true)
-        {
-            return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(evalResult.Diagnostics, declarationText, fullContent.Length));
-        }
-
-        // Persist only after successful evaluation.
-        declarationLines.Clear();
-        declarationLines.AddRange(workingLines);
-        declarationLines.Add(declarationText);
-        declarationLookup[declarationName] = declarationText;
-
-        return new AnnotatedReplResult(ParseJToken(evalResult?.Value), []);
+        return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(diagnostics, declarationText, fullContent.Length));
     }
 
     private AnnotatedReplResult EvaluateExpression(SyntaxBase expressionSyntax)
@@ -185,10 +186,9 @@ public class ReplEnvironment
         var model = compilation.GetEntrypointSemanticModel();
 
         var diagnostics = model.GetAllDiagnostics().Where(d => d.Source != DiagnosticSource.CoreLinter).ToList();
-
-        if (diagnostics.Count > 0)
+        if (diagnostics.Any(x => x.IsError()))
         {
-            return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(diagnostics, userExpression, fullContent.Length));
+            return new(null, CreateAnnotatedDiagnostics(diagnostics, userExpression, fullContent.Length));
         }
 
         var evaluator = new ParameterAssignmentEvaluator(model);
@@ -198,12 +198,7 @@ public class ReplEnvironment
         var boundVariable = model.Root.VariableDeclarations.First(v => v.Name == tempVarName);
 
         var expressionEvalResult = evaluator.EvaluateExpression(boundVariable.DeclaringVariable.Value);
-        if (expressionEvalResult.Diagnostics.Any())
-        {
-            return new AnnotatedReplResult(null, CreateAnnotatedDiagnostics(expressionEvalResult.Diagnostics, userExpression, fullContent.Length));
-        }
-
-        return new AnnotatedReplResult(ParseJToken(expressionEvalResult.Value), []);
+        return new(ParseJToken(expressionEvalResult.Value), CreateAnnotatedDiagnostics(expressionEvalResult.Diagnostics, userExpression, fullContent.Length));
     }
 
     public string? TryGetHistory(bool backwards)
@@ -246,7 +241,7 @@ public class ReplEnvironment
     private Compilation CompileInternal(string fullContent)
     {
         var fileHandle = fileExplorer.GetFile(replFileUri);
-        var sourceFile = compiler.SourceFileFactory.CreateBicepReplFile(fileHandle, fullContent);
+        var sourceFile = compiler.SourceFileFactory.CreateBicepReplFile(fileHandle, this.auxiliaryDirectory, fullContent);
         var workspace = new ActiveSourceFileSet();
         workspace.UpsertSourceFile(sourceFile);
 
@@ -282,6 +277,8 @@ public class ReplEnvironment
             JTokenType.Integer => SyntaxFactory.CreatePositiveOrNegativeInteger(value.Value<long>()),
             JTokenType.String => SyntaxFactory.CreateStringLiteral(value.ToString()),
             JTokenType.Boolean => SyntaxFactory.CreateBooleanLiteral(value.Value<bool>()),
+            // Floats are currently not supported in Bicep, so fallback to string syntax
+            JTokenType.Float => SyntaxFactory.CreateStringLiteral(value.ToString()),
             JTokenType.Null => SyntaxFactory.CreateNullLiteral(),
             _ => throw new NotImplementedException($"Unrecognized token type {value.Type}"),
         };
@@ -294,6 +291,27 @@ public class ReplEnvironment
         => SyntaxFactory.CreateObject(
             jObject.Properties()
                 .Select(x => SyntaxFactory.CreateObjectProperty(x.Name, ParseJToken(x.Value))));
+
+    /// <summary>
+    /// Heuristic structural completeness check: ensures bracket/brace/paren balance
+    /// and not inside (multi-line) string or interpolation expression.
+    /// Not a full parse; parse errors still reported by real parser.
+    /// </summary>
+    public static bool ShouldSubmitBuffer(string text, string currentLine)
+    {
+        // If line is blank, submit - even if structurally incomplete.
+        // This avoids trapping the user in a state where they cannot recover.
+        if (currentLine.Length == 0)
+        {
+            return true;
+        }
+
+        var program = new ReplParser(text).Program();
+
+        // Use the existence of skipped trivia to determine whether we have a complete structure.
+        var allNodes = SyntaxAggregator.Aggregate(program, x => x is not Token, useCst: true);
+        return allNodes.Last() is not SkippedTriviaSyntax;
+    }
 }
 
 public record AnnotatedReplResult(SyntaxBase? Value, IEnumerable<PrintHelper.AnnotatedDiagnostic> AnnotatedDiagnostics);

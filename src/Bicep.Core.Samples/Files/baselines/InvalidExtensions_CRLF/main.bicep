@@ -3,16 +3,33 @@
 param boolParam1 bool
 param strParam1 string
 param objParam1 object
+param invalidParamAssignment1 string = k8s.config.namespace
 
 // END: Parameters
 
-// BEGIN: Valid Extension declarations
+// BEGIN: Valid extension declarations
 
 extension az
 extension kubernetes as k8s
 extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig1
 
-// END: Valid Extension declarations
+// END: Valid extension declarations
+
+// BEGIN: Invalid extension declarations
+
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' with {
+  optionalString: testResource1.properties.ns // no reference calls, use module extension configs instead.
+} as invalidExtDecl1
+
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' with {
+  optionalString: newGuid()
+} as invalidExtDecl2
+
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
+  requiredSecureString: kv1.getSecret('abc')
+} as invalidExtDecl3
+
+// END: Invalid extension declarations
 
 // BEGIN: Key vaults
 

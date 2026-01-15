@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:3754) ProgramExpression
+//@[000:4364) ProgramExpression
 //@[000:0000) | | └─ObjectPropertyExpression [UNPARENTED]
 //@[000:0000) | |   ├─StringLiteralExpression { Value = name } [UNPARENTED]
 //@[000:0000) | |   └─FunctionCallExpression { Name = format } [UNPARENTED]
@@ -106,6 +106,9 @@ param boolParam1 bool
 var strVar1 = 'strVar1Value'
 //@[000:0028) ├─DeclaredVariableExpression { Name = strVar1 }
 //@[014:0028) | └─StringLiteralExpression { Value = strVar1Value }
+var strParamVar1 = strParam1
+//@[000:0028) ├─DeclaredVariableExpression { Name = strParamVar1 }
+//@[019:0028) | └─ParametersReferenceExpression { Parameter = strParam1 }
 
 // END: Variables
 
@@ -119,6 +122,42 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as 
 //@[000:0102) ├─ExtensionExpression { Name = extWithOptionalConfig1 }
 extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig2
 //@[000:0102) ├─ExtensionExpression { Name = extWithOptionalConfig2 }
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' with {
+//@[000:0141) ├─ExtensionExpression { Name = extWithOptionalConfig3 }
+//@[082:0115) | └─ObjectExpression
+  optionalString: strParam1
+//@[002:0027) |   └─ObjectPropertyExpression
+//@[002:0016) |     ├─StringLiteralExpression { Value = optionalString }
+//@[018:0027) |     └─ParametersReferenceExpression { Parameter = strParam1 }
+} as extWithOptionalConfig3
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
+//@[000:0146) ├─ExtensionExpression { Name = extWithSecureStr1 }
+//@[080:0125) | └─ObjectExpression
+  requiredSecureString: secureStrParam1
+//@[002:0039) |   └─ObjectPropertyExpression
+//@[002:0022) |     ├─StringLiteralExpression { Value = requiredSecureString }
+//@[024:0039) |     └─ParametersReferenceExpression { Parameter = secureStrParam1 }
+} as extWithSecureStr1
+extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with {
+//@[000:0132) ├─ExtensionExpression { Name = extWithConfig1 }
+//@[074:0114) | └─ObjectExpression
+  requiredString: testResource1.id
+//@[002:0034) |   └─ObjectPropertyExpression
+//@[002:0016) |     ├─StringLiteralExpression { Value = requiredString }
+//@[018:0034) |     └─PropertyAccessExpression { PropertyName = id }
+//@[018:0031) |       └─ResourceReferenceExpression
+} as extWithConfig1
+extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with {
+//@[000:0153) ├─ExtensionExpression { Name = extWithConfig2 }
+//@[074:0135) | └─ObjectExpression
+  requiredString: boolParam1 ? strParamVar1 : strParam1
+//@[002:0055) |   └─ObjectPropertyExpression
+//@[002:0016) |     ├─StringLiteralExpression { Value = requiredString }
+//@[018:0055) |     └─TernaryExpression
+//@[018:0028) |       ├─ParametersReferenceExpression { Parameter = boolParam1 }
+//@[031:0043) |       ├─VariableReferenceExpression { Variable = strParamVar1 }
+//@[046:0055) |       └─ParametersReferenceExpression { Parameter = strParam1 }
+} as extWithConfig2
 
 // END: Extension declarations
 

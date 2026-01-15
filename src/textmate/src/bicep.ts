@@ -108,18 +108,38 @@ const escapeChar: MatchRule = {
   match: `\\\\(u{[0-9A-Fa-f]+}|n|r|t|\\\\|'|\\\${)`,
 };
 
-const stringVerbatim: BeginEndRule = {
-  key: "string-verbatim",
-  scope: "string.quoted.multi.bicep",
-  begin: `'''`,
-  end: `'''${notBefore(`'`)}`,
-  patterns: [],
-};
-
 const stringSubstitution: BeginEndRule = {
-  key: "string-literal-subst",
+  key: "string-subst",
   scope: meta,
   begin: `${notAfter(`\\\\`)}(\\\${)`,
+  beginCaptures: {
+    "1": { scope: "punctuation.definition.template-expression.begin.bicep" },
+  },
+  end: `(})`,
+  endCaptures: {
+    "1": { scope: "punctuation.definition.template-expression.end.bicep" },
+  },
+  patterns: withComments([expression]),
+};
+
+const multiLine1StringSubstitution: BeginEndRule = {
+  key: "multiline-1-string-subst",
+  scope: meta,
+  begin: `(\\\${)`,
+  beginCaptures: {
+    "1": { scope: "punctuation.definition.template-expression.begin.bicep" },
+  },
+  end: `(})`,
+  endCaptures: {
+    "1": { scope: "punctuation.definition.template-expression.end.bicep" },
+  },
+  patterns: withComments([expression]),
+};
+
+const multiLine2StringSubstitution: BeginEndRule = {
+  key: "multiline-2-string-subst",
+  scope: meta,
+  begin: `(\\$\\\${)`,
   beginCaptures: {
     "1": { scope: "punctuation.definition.template-expression.begin.bicep" },
   },
@@ -136,6 +156,30 @@ const stringLiteral: BeginEndRule = {
   begin: `'${notBefore(`''`)}`,
   end: `'`,
   patterns: [escapeChar, stringSubstitution],
+};
+
+const multiLineString: BeginEndRule = {
+  key: "multiline-string",
+  scope: "string.quoted.multi.bicep",
+  begin: `'''`,
+  end: `'''${notBefore(`'`)}`,
+  patterns: [],
+};
+
+const multiLineString1Interpolation: BeginEndRule = {
+  key: "multiline-string-1-interp",
+  scope: "string.quoted.multi.bicep",
+  begin: `${notAfter(`\\$`)}\\$'''`,
+  end: `'''${notBefore(`'`)}`,
+  patterns: [multiLine1StringSubstitution],
+};
+
+const multiLineString2Interpolation: BeginEndRule = {
+  key: "multiline-string-2-interp",
+  scope: "string.quoted.multi.bicep",
+  begin: `\\$\\$'''`,
+  end: `'''${notBefore(`'`)}`,
+  patterns: [multiLine2StringSubstitution],
 };
 
 const numericLiteral: MatchRule = {
@@ -234,7 +278,9 @@ const directiveStatement: BeginEndRule = {
 
 expression.patterns = [
   stringLiteral,
-  stringVerbatim,
+  multiLineString,
+  multiLineString1Interpolation,
+  multiLineString2Interpolation,
   numericLiteral,
   namedLiteral,
   objectLiteral,

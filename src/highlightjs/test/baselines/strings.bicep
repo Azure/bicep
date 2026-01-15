@@ -7,3 +7,13 @@ abc
 ''''
 
 var multilineSingleLine = '''hello!'''
+
+var name = 'Anthony'
+var multilineInterpolation = $'''
+hello ${name}!
+'''
+
+var multilineInterpolationMultipleEscapes = $$'''
+hello $${name}!
+${this} is literal
+'''

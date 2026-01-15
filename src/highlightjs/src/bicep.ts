@@ -74,17 +74,45 @@ const escapeChar: Mode = {
   match: `\\\\(u{[0-9A-Fa-f]+}|n|r|t|\\\\|'|\\\${)`,
 };
 
-const stringVerbatim: Mode = {
-  className: "string",
-  begin: `'''`,
-  end: `'''${notBefore(`'`)}`,
-};
-
 const stringSubstitution: Mode = {
   className: "subst",
   begin: `${notAfter(`\\\\`)}(\\\${)`,
   end: `(})`,
   contains: withComments([expression]),
+};
+
+const multiLine1StringSubstitution: Mode = {
+  className: "subst",
+  begin: `(\\\${)`,
+  end: `(})`,
+  contains: withComments([expression]),
+};
+
+const multiLine2StringSubstitution: Mode = {
+  className: "subst",
+  begin: `(\\$\\\${)`,
+  end: `(})`,
+  contains: withComments([expression]),
+};
+
+const multiLineString: Mode = {
+  className: "string",
+  begin: `'''`,
+  end: `'''${notBefore(`'`)}`,
+};
+
+const multiLineString1Interpolation: Mode = {
+  className: "string",
+  begin: `${notAfter(`\\$`)}\\$'''`,
+  end: `'''${notBefore(`'`)}`,
+  contains: [multiLine1StringSubstitution],
+};
+
+const multiLineString2Interpolation: Mode = {
+  className: "string",
+  begin: `\\$\\$'''`,
+  end: `'''${notBefore(`'`)}`,
+  contains: [multiLine2StringSubstitution],
 };
 
 const stringLiteral: Mode = {
@@ -172,7 +200,9 @@ const directiveStatement: Mode = {
 
 expression.variants = [
   stringLiteral,
-  stringVerbatim,
+  multiLineString,
+  multiLineString1Interpolation,
+  multiLineString2Interpolation,
   numericLiteral,
   namedLiteral,
   objectLiteral,

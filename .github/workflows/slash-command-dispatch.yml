@@ -35,7 +35,7 @@ jobs:
         run: echo "$COMMENT_CONTEXT"
 
       - name: Dispatch slash command
-        uses: peter-evans/slash-command-dispatch@v4
+        uses: peter-evans/slash-command-dispatch@v5
         id: slash-command
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

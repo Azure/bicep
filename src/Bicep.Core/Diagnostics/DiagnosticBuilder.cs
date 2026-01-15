@@ -2004,6 +2004,24 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic SecureDecoratorTargetMustFitWithinStringOrObject() => CoreError(
                 "BCP440",
                 "The @secure() decorator can only be used on statements whose type is a subtype of \"string\" or \"object\".");
+
+            public Diagnostic CannotUseExistingWithWriteOnlyResource(ResourceTypeReference resourceTypeReference) => CoreError(
+                "BCP441",
+                $"Resource type \"{resourceTypeReference.FormatName()}\" cannot be used with the 'existing' keyword.");
+
+            public Diagnostic UsingWithClauseRequiredIfExperimentalFeatureEnabled() => CoreError(
+                "BCP443",
+                $"""The "{LanguageConstants.UsingKeyword}" statement requires a "{LanguageConstants.WithKeyword}" clause if the EXPERIMENTAL feature "{nameof(ExperimentalFeaturesEnabled.DeployCommands)}" is enabled.""");
+
+            public Diagnostic RuntimeValueNotAllowedInExtensionDeclarationWithClause(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
+            {
+                var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
+                var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
+
+                return CoreError(
+                    "BCP444",
+                    $"This expression is being used as a default value for an extension configuration property, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

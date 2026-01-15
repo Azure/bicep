@@ -9,6 +9,8 @@ namespace Azure.Bicep.MSBuild;
 
 public abstract class BicepToolTask : ToolTask
 {
+    public bool BicepTreatInfoAsWarnings { get; set; } = false;
+
     protected override string ToolName => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "bicep.exe" : "bicep";
 
     protected override string GenerateFullPathToTool()
@@ -36,6 +38,15 @@ public abstract class BicepToolTask : ToolTask
         // however startup errors simply write a message to StdErr
         if (singleLine.Contains(") : "))
         {
+            if (this.BicepTreatInfoAsWarnings &&
+                BicepDiagnosticParser.TryParseDiagnostic(singleLine) is { } parsed &&
+                string.Equals(parsed.Category, "Info", StringComparison.Ordinal))
+            {
+                // we have an info diagnostic and the user requested info diagnostics to be promoted to warnings
+                var promoted = parsed with { Category = "Warning" };
+                singleLine = BicepDiagnosticParser.ReconstructDiagnostic(promoted);
+            }
+
             // likely a canonical diagnostic
             base.LogEventsFromTextOutput(singleLine, messageImportance);
 

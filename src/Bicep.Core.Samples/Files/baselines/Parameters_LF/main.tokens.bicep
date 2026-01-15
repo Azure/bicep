@@ -11,7 +11,7 @@
 //@[004:005) Dot |.|
 //@[005:016) Identifier |description|
 //@[016:017) LeftParen |(|
-//@[017:074) MultilineString |'''\nthis is my multi line\ndescription for my myString\n'''|
+//@[017:074) StringComplete |'''\nthis is my multi line\ndescription for my myString\n'''|
 this is my multi line
 description for my myString
 ''')

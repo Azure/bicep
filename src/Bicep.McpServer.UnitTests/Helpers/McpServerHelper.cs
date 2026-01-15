@@ -18,9 +18,9 @@ namespace Bicep.McpServer.UnitTests.Helpers;
 public sealed class McpServerHelper : IAsyncDisposable
 {
     public IHost Server { get; }
-    public IMcpClient Client { get; }
+    public McpClient Client { get; }
 
-    private McpServerHelper(IHost server, IMcpClient client)
+    private McpServerHelper(IHost server, McpClient client)
     {
         Server = server;
         Client = client;
@@ -49,7 +49,7 @@ public sealed class McpServerHelper : IAsyncDisposable
         var loggerFactory = LoggerFactory.Create(builder =>
             builder.AddProvider(new TestContextLoggerProvider(testContext)));
 
-        var client = await McpClientFactory.CreateAsync(
+        var client = await McpClient.CreateAsync(
             clientTransport: new StreamClientTransport(
                 serverInput: serverPipe.Writer.AsStream(),
                 serverOutput: clientPipe.Reader.AsStream()),

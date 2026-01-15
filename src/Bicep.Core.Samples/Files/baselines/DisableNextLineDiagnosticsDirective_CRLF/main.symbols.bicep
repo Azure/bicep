@@ -28,3 +28,20 @@ param storageAccount3 string = 'testStorageAccount'
          #disable-next-line   no-unused-params                // Test comment 2
 param storageAccount5 string = 'testStorageAccount'
 //@[6:21) Parameter storageAccount5. Type: string. Declaration start char: 0, length: 51
+
+#disable-diagnostics                 no-unused-params                      no-unused-vars
+param storageAccount4 string = 'testStorageAccount'
+//@[6:21) Parameter storageAccount4. Type: string. Declaration start char: 0, length: 51
+var unusedVar1 = 'This is an unused variable'
+//@[4:14) Variable unusedVar1. Type: 'This is an unused variable'. Declaration start char: 0, length: 45
+var unusedVar2 = 'This is another unused variable'
+//@[4:14) Variable unusedVar2. Type: 'This is another unused variable'. Declaration start char: 0, length: 50
+#restore-diagnostics   no-unused-vars
+param storageAccount6 string = 'testStorageAccount'
+//@[6:21) Parameter storageAccount6. Type: string. Declaration start char: 0, length: 51
+var unusedVar3 = 'This is yet another unused variable'
+//@[4:14) Variable unusedVar3. Type: 'This is yet another unused variable'. Declaration start char: 0, length: 54
+#restore-diagnostics    no-unused-params
+param storageAccount7 string = 'testStorageAccount'
+//@[6:21) Parameter storageAccount7. Type: string. Declaration start char: 0, length: 51
+

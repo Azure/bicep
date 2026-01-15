@@ -15,6 +15,7 @@ using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers.WhatIf;
+using Bicep.Core;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
@@ -49,7 +50,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
         if (result.Template?.Template is not { } template ||
             result.Parameters is not { } parameters)
         {
-            throw new Exception($"Failed to compile Bicep parameters");
+            throw new InvalidOperationException($"Failed to compile Bicep parameters");
         }
 
         var foundCliArgs = new HashSet<string>();
@@ -85,6 +86,11 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
         ]);
 
         var usingConfigJToken = parameters.FromJson<JObject>().GetProperty(ParametersJsonWriter.UsingConfigPropertyName);
+        if (usingConfigJToken is null)
+        {
+            // This should have been validated by the compilation process
+            throw new UnreachableException();
+        }
         var usingConfig = usingConfigJToken.FromJToken<DeploymentParameterDefinition>() switch
         {
             { Expression: { } expression } => ToJTokenExpressionSerializer.Serialize(evalContext.EvaluateExpression(ExpressionParser.ParseLanguageExpression(expression))),
@@ -391,7 +397,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
     {
         if (deployment.Properties.Outputs is not { } outputsData)
         {
-            return ImmutableDictionary<string, JsonNode>.Empty;
+            return [];
         }
 
         var outputs = outputsData.ToString().FromJson<Dictionary<string, DeploymentParameterDefinition>>();
@@ -405,7 +411,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
     {
         if (deployment.Properties.Outputs is not { } outputs)
         {
-            return ImmutableDictionary<string, JsonNode>.Empty;
+            return [];
         }
 
         return outputs.ToImmutableDictionary(
