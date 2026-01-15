@@ -6,11 +6,12 @@ using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text.Json;
-using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
-using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
+using Bicep.Core.Resources;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Providers.Extensibility;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Local.Extension.Builder;
 using Bicep.Local.Extension.Host;
@@ -76,7 +77,7 @@ public class TypeDefinitionBuilderTests
 
     #region Constructor Tests
     [TestMethod]
-    public void Constructor_Throws_On_Empty_TypeToTypeBaseMap()
+    public void GenerateTypeDefinition_Returns_Empty_When_TypeProvider_Has_No_Types()
     {
         var extensionInfo = CreateExtensionInfo();
         var typeFactory = CreateTypeFactory();
@@ -89,7 +90,7 @@ public class TypeDefinitionBuilderTests
     }
 
     [TestMethod]
-    public void Constructor_Succeeds_With_Valid_Arguments()
+    public void GenerateTypeDefinition_Throws_On_Unsupported_Property_Type()
     {
         var extensionInfo = CreateExtensionInfo();
         var factory = CreateTypeFactory();
@@ -98,7 +99,8 @@ public class TypeDefinitionBuilderTests
         var options = CreateOptions([(typeof(string), () => new StringType())]);
         var generator = new TypeDefinitionBuilder(extensionInfo, factory, typeProvider, options);
 
-        generator.Should().NotBeNull();
+        Action act = () => builder.GenerateTypeDefinition();
+        act.Should().Throw<NotImplementedException>();
     }
 
     [TestMethod]
@@ -284,7 +286,22 @@ public class TypeDefinitionBuilderTests
 
         var builder = new TypeDefinitionBuilder(extensionInfo, factory, typeProviderMock.Object, options);
 
+    private record PrimitiveResource
+    {
+        public int IntProp { get; init; }
+        public string StringProp { get; init; } = "";
+        public bool BoolProp { get; init; }
+        public int? NullableIntProp { get; init; }
+        public bool? NullableBoolProp { get; init; }
+        [TypeProperty("Secure string", isSecure: true)]
+        public string SecureStringProp { get; init; } = "";
+    }
+
+    private static IResourceTypeLoader GenerateTypes(TypeDefinitionBuilder builder)
+    {
         var result = builder.GenerateTypeDefinition();
+        var types = new Dictionary<string, string>(result.TypeFileContents);
+        types["index.json"] = result.IndexFileContent;
 
         result.Should().NotBeNull();
         result.IndexFileContent.Should().NotBeNullOrEmpty();
@@ -293,8 +310,7 @@ public class TypeDefinitionBuilderTests
             because: "the types JSON should be an empty array '[]' when no resource types are generated");
     }
 
-    [TestMethod]
-    public void GenerateTypeDefinition_Emits_Resource_When_TypeProvider_Has_Types()
+    private static ResourceTypeComponents CreateResourceType(Type type, string typeName, string? apiVersion = null)
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
@@ -307,7 +323,8 @@ public class TypeDefinitionBuilderTests
         var options = CreateOptions([(typeof(string), () => new StringType())]);
         var builder = new TypeDefinitionBuilder(extensionInfo, factory, typeProviderMock.Object, options);
 
-        var result = builder.GenerateTypeDefinition();
+        resourceType.TypeReference.Name.Should().Be(typeName);
+        resourceType.TypeReference.ApiVersion.Should().Be(apiVersion);
 
         result.Should().NotBeNull();
         result.IndexFileContent.Should().Contain("SimpleResource");
@@ -370,12 +387,15 @@ public class TypeDefinitionBuilderTests
 
     private record ArrayResource(string[] Items);
 
-    private record EnumerableResource(IEnumerable<string> Items);
+        var body = resourceType.Body.Type.Should().BeOfType<ObjectType>().Subject;
+        body.Properties["items"].TypeReference.Type.Should().BeOfType<TypedArrayType>()
+            .Which.Item.Type.Should().BeOfType<StringType>();
+    }
 
     private record ComplexArrayResource(SimpleResource[] Resources);
 
     [TestMethod]
-    public void GenerateTypeDefinition_Emits_ArrayType_For_ArrayProperty()
+    public void GenerateTypeDefinition_handles_collection_types()
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
@@ -388,7 +408,10 @@ public class TypeDefinitionBuilderTests
         var options = CreateOptions(map: [(typeof(string), () => new StringType())]);
         var builder = new TypeDefinitionBuilder(extensionInfo, factory, typeProviderMock.Object, options);
 
-        var result = builder.GenerateTypeDefinition();
+    [TestMethod]
+    public void GenerateTypeDefinition_handles_enum_types()
+    {
+        var resourceType = CreateResourceType(typeof(EnumResource), nameof(EnumResource));
 
         result.Should().NotBeNull();
         result.TypeFileContents.Values.Single().Should().Contain("ArrayResource");
@@ -397,7 +420,7 @@ public class TypeDefinitionBuilderTests
     }
 
     [TestMethod]
-    public void GenerateTypeDefinition_Emits_ArrayType_For_IEnumerableProperty()
+    public void GenerateTypeDefinition_handles_dictionary_types()
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
@@ -410,7 +433,10 @@ public class TypeDefinitionBuilderTests
 
         var builder = new TypeDefinitionBuilder(extensionInfo, factory, typeProviderMock.Object, options);
 
-        var result = builder.GenerateTypeDefinition();
+    [TestMethod]
+    public void GenerateTypeDefinition_handles_primitive_types()
+    {
+        var resourceType = CreateResourceType(typeof(PrimitiveResource), nameof(PrimitiveResource));
 
         result.Should().NotBeNull();
         result.TypeFileContents.Values.Single().Should().Contain("EnumerableResource");

@@ -17,7 +17,6 @@ namespace Bicep.Core.Syntax
             TokenType.StringMiddlePiece or
             TokenType.StringRightPiece or
             TokenType.StringComplete or
-            TokenType.MultilineString or
             TokenType.Unrecognized => true,
             _ => false,
         };
@@ -63,6 +62,7 @@ namespace Bicep.Core.Syntax
             TokenType.Pipe => "|",
             TokenType.Ellipsis => "...",
             TokenType.Hat => "^",
+            TokenType.Dollar => "$",
             _ => null,
         };
 
@@ -140,7 +140,7 @@ namespace Bicep.Core.Syntax
 
         public static bool IsComment(this SyntaxTrivia? trivia) => IsSingleLineComment(trivia) || IsMultiLineComment(trivia);
 
-        public static bool IsDirective(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.DisableNextLineDiagnosticsDirective;
+        public static bool IsDirective(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.DiagnosticsPragma;
 
         public static bool IsWhitespace(this SyntaxTrivia? trivia) => trivia?.Type == SyntaxTriviaType.Whitespace;
 

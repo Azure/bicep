@@ -59,7 +59,7 @@ namespace Bicep.Cli.Commands
             {
                 if (publishSource)
                 {
-                    await ioContext.Error.WriteLineAsync($"Cannot publish with source when the target is an ARM template file.");
+                    await ioContext.Error.Writer.WriteLineAsync($"Cannot publish with source when the target is an ARM template file.");
                     return 1;
                 }
 

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6854917204260024602"
+      "templateHash": "13899506092646034502"
     }
   },
   "parameters": {
@@ -164,7 +164,7 @@
     {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
-      "scope": "[format('Microsoft.Network/networkProfiles/{0}', variables('networkProfileName'))]",
+      "scope": "[resourceId('Microsoft.Network/networkProfiles', variables('networkProfileName'))]",
       "name": "[guid(variables('networkRoleDefinitionId'), parameters('azureContainerInstanceOID'), variables('networkProfileName'))]",
       "properties": {
         "roleDefinitionId": "[variables('networkRoleDefinitionId')]",
@@ -187,7 +187,7 @@
     {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
-      "scope": "[format('Microsoft.Relay/namespaces/{0}', parameters('relayNamespaceName'))]",
+      "scope": "[resourceId('Microsoft.Relay/namespaces', parameters('relayNamespaceName'))]",
       "name": "[guid(variables('contributorRoleDefinitionId'), parameters('azureContainerInstanceOID'), parameters('relayNamespaceName'))]",
       "properties": {
         "roleDefinitionId": "[variables('contributorRoleDefinitionId')]",

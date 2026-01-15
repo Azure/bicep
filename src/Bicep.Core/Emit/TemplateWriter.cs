@@ -60,12 +60,6 @@ namespace Bicep.Core.Emit
                 return "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#";
             }
 
-            // The feature flag is checked during scope validation, so just always handle it here.
-            if (targetScope.HasFlag(ResourceScope.DesiredStateConfiguration))
-            {
-                return "https://aka.ms/dsc/schemas/v3/bundled/config/document.json"; // the trailing '#' is against DSC's schema
-            }
-
             return "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
         }
 
@@ -76,7 +70,7 @@ namespace Bicep.Core.Emit
         public TemplateWriter(SemanticModel semanticModel)
         {
             ExpressionBuilder = new ExpressionBuilder(new EmitterContext(semanticModel));
-            declaredTypesByName = ImmutableDictionary<string, DeclaredTypeExpression>.Empty;
+            declaredTypesByName = [];
         }
 
         public void Write(SourceAwareJsonTextWriter writer)
@@ -1652,7 +1646,7 @@ namespace Bicep.Core.Emit
                         break;
                     }
 
-                    emitter.EmitResourceIdReference(resource, reference.IndexContext);
+                    emitter.EmitFullyQualifiedResourceId(resource, reference.IndexContext);
                     break;
                 case ModuleReferenceExpression { Module: ModuleSymbol module } reference:
                     if (module.IsCollection && reference.IndexContext?.Index is null)
@@ -1664,7 +1658,7 @@ namespace Bicep.Core.Emit
                         break;
                     }
 
-                    emitter.EmitResourceIdReference(module, reference.IndexContext);
+                    emitter.EmitFullyQualifiedResourceId(module, reference.IndexContext);
 
                     break;
                 default:

@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16645188667250947045"
+      "templateHash": "14060902819474990171"
     }
   },
   "parameters": {
@@ -60,7 +60,7 @@
     "automation_account_diagnostic": {
       "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
-      "scope": "[format('Microsoft.Automation/automationAccounts/{0}', variables('automationaccountName'))]",
+      "scope": "[resourceId('Microsoft.Automation/automationAccounts', variables('automationaccountName'))]",
       "name": "[variables('automationaccountDiagName')]",
       "properties": {
         "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspaceName'))]",

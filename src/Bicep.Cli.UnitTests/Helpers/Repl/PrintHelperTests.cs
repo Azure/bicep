@@ -81,7 +81,7 @@ public class PrintHelperTests
 
         AnsiHelper.ReplaceCodes(result).Should().Be("""
             [Gray]var[Reset] [Blue]foo[Reset] = {
-                [Orange]~~~ Variable "foo" is declared but never used.[Reset]
+                [DarkYellow]~~~ Variable "foo" is declared but never used.[Reset]
               [DarkYellow]abc[Reset]: [Blue]def[Reset]
                    [Red]~~~ The name "def" does not exist in the current context.[Reset]
               [DarkYellow]ghi[Reset]: [Orange]123[Reset][Reset],[Reset]

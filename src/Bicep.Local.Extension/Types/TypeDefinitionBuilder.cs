@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
@@ -23,7 +24,6 @@ namespace Bicep.Local.Extension.Types;
 public class TypeDefinitionBuilder
     : ITypeDefinitionBuilder
 {
-    private readonly HashSet<Type> visited;
     private readonly ITypeProvider typeProvider;
     private readonly FrozenDictionary<Type, Func<TypeBase>> typeToTypeBaseMap;
 
@@ -31,7 +31,7 @@ public class TypeDefinitionBuilder
     
     private readonly BicepExtensionInfo extensionInfo;
     private readonly Type? configurationType;
-    protected readonly TypeFactory factory;
+    private readonly TypeFactory factory;
 
     private static readonly string typesJsonPath = "types.json";
 
@@ -117,109 +117,159 @@ public class TypeDefinitionBuilder
     protected virtual ResourceType GenerateResource(TypeFactory typeFactory, ConcurrentDictionary<Type, TypeBase> typeCache, Type type, ResourceTypeAttribute attribute)
         => typeFactory.Create(() => new ResourceType(
             name: attribute.FullName,
-            body: typeFactory.GetReference(typeFactory.Create(() => GenerateForRecord(typeFactory, typeCache, type))),
+            body: GenerateForType(type, null) ?? throw new NotImplementedException($"Unsupported resource body type: '{type}'"),
             functions: null,
             writableScopes_in: ScopeType.All,
             readableScopes_in: ScopeType.All));
 
-    protected virtual TypeBase GenerateForRecord(TypeFactory factory, ConcurrentDictionary<Type, TypeBase> typeCache, Type type)
+    private ITypeReference AddType(Type type, TypeBase bicepType, bool doNotCache = false)
+    {
+        var result = factory.GetReference(factory.Create(() => bicepType));
+        if (!doNotCache)
+        {
+            typeCache[type] = result;
+        }
+        return result;
+    }
+
+    private ITypeReference? GenerateForType(Type type, TypePropertyAttribute? annotation)
+    {
+        if (type == typeof(string) && annotation?.IsSecure == true)
+        {
+            // Use a placeholder type to differentiate against non-secure strings.
+            type = typeof(SecureStringReferenceType);
+        }
+
+        if (typeCache.TryGetValue(type, out var cachedValue))
+        {
+            return cachedValue;
+        }
+
+        if (builtInTypes.TryGetValue(type, out var bicepType))
+        {
+            return AddType(type, bicepType);
+        }
+
+        if (type.IsGenericType &&
+            type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+            type.GetGenericArguments()[0] is { } innerType)
+        {
+            if (GenerateForType(typeof(NullReferenceType), null) is { } nullType &&
+                GenerateForType(innerType, annotation) is { } innerBicepType)
+            {
+                return AddType(type, new UnionType([nullType, innerBicepType]));
+            }
+
+            return null;
+        }
+
+        if (typeof(IDictionary).IsAssignableFrom(type))
+        {
+            Type? keyType = null;
+            Type? valueType = null;
+
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IDictionary<,>))
+            {
+                keyType = type.GetGenericArguments()[0];
+                valueType = type.GetGenericArguments()[1];
+            }
+            else if (type.GetInterfaces()
+                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IDictionary<,>)) is { } dictType)
+            {
+                keyType = dictType.GetGenericArguments()[0];
+                valueType = dictType.GetGenericArguments()[1];
+            }
+
+            if (keyType is null ||
+                valueType is null ||
+                keyType != typeof(string) ||
+                GenerateForType(valueType, null) is not { } valueTypeReference)
+            {
+                throw new NotImplementedException($"Unsupported dictionary type: '{type}'");
+            }
+
+            return AddType(type, new ObjectType(
+                $"Dictionary<string, {valueType.Name}>",
+                properties: ImmutableDictionary<string, ObjectTypeProperty>.Empty,
+                additionalProperties: valueTypeReference));
+        }
+
+        if (typeof(IEnumerable).IsAssignableFrom(type))
+        {
+            Type? elementType = null;
+
+            if (type.IsArray)
+            {
+                elementType = type.GetElementType();
+            }
+            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            {
+                elementType = type.GetGenericArguments()[0];
+            }
+            else if (type.GetInterfaces()
+                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>)) is { } enumerableType)
+            {
+                elementType = enumerableType.GetGenericArguments()[0];
+            }
+
+            if (elementType is null)
+            {
+                throw new NotImplementedException($"Unsupported collection type: '{type}'");
+            }
+
+            if (GenerateForType(elementType, annotation) is not { } elementTypeReference)
+            {
+                throw new NotImplementedException($"Unsupported element type: '{elementType}'");
+            }
+
+            return AddType(type, new ArrayType(elementTypeReference));
+        }
+
+        if (type.IsClass)
+        {
+            return GenerateForRecord(type);
+        }
+
+        if (type.IsEnum)
+        {
+            var enumMembers = type.GetEnumNames()
+                .Select(x => factory.Create(() => new StringLiteralType(x)))
+                .Select(x => factory.GetReference(x))
+                .ToImmutableArray();
+
+            return AddType(type, new UnionType(enumMembers));
+        }
+
+        return null;
+    }
+
+    private ITypeReference GenerateForRecord(Type type)
     {
         var typeProperties = new Dictionary<string, ObjectTypeProperty>();
 
         foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
-            if (visited.Contains(property.PropertyType))
-            {
-                continue;
-            }
-
             var annotation = property.GetCustomAttributes<TypePropertyAttribute>(true).FirstOrDefault();
             var propertyType = property.PropertyType;
 
-            TypeBase? typeReference = null;
-
-            if (!TryResolveTypeReference(propertyType, annotation, out typeReference))
+            if (GenerateForType(propertyType, annotation) is not { } typeReference)
             {
-                if (propertyType != typeof(string) && typeof(IEnumerable).IsAssignableFrom(propertyType))
-                {
-                    // protect against infinite recursion
-                    visited.Add(property.PropertyType);
-
-                    Type? elementType = null;
-                    if (propertyType.IsArray)
-                    {
-                        elementType = propertyType.GetElementType();
-                    }
-                    else if (propertyType.IsGenericType &&
-                             propertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                    {
-                        elementType = propertyType.GetGenericArguments()[0];
-                    }
-
-                    if (elementType is null)
-                    {
-                        throw new NotImplementedException($"Unsupported collection type {elementType}");
-                    }
-
-                    if (!TryResolveTypeReference(elementType, annotation, out var elementTypeReference))
-                    {
-                        elementTypeReference = typeCache.GetOrAdd(elementType, _ => factory.Create(() => GenerateForRecord(factory, typeCache, elementType)));
-                    }
-
-                    typeReference = typeCache.GetOrAdd(propertyType, _ => factory.Create(() => new ArrayType(factory.GetReference(elementTypeReference))));
-                }
-                else if (propertyType.IsClass)
-                {
-                    visited.Add(property.PropertyType);
-
-                    typeReference = typeCache.GetOrAdd(propertyType, _ => factory.Create(() => GenerateForRecord(factory, typeCache, propertyType)));
-                }
-                else if (propertyType.IsGenericType &&
-                    propertyType.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                    propertyType.GetGenericArguments()[0] is { IsEnum: true } enumType)
-                {
-                    var enumMembers = enumType.GetEnumNames()
-                        .Select(x => factory.Create(() => new StringLiteralType(x)))
-                        .Select(x => factory.GetReference(x))
-                        .ToImmutableArray();
-
-                    typeReference = typeCache.GetOrAdd(propertyType, _ => factory.Create(() => new UnionType(enumMembers)));
-                }
-                else
-                {
-                    throw new NotImplementedException($"Unsupported property type {propertyType}");
-                }
+                throw new NotImplementedException($"Property '{property.Name}' references unsupported type: '{propertyType}'");
             }
 
             typeProperties[CamelCase(property.Name)] = new ObjectTypeProperty(
-            factory.GetReference(typeReference),
-            annotation?.Flags ?? ObjectTypePropertyFlags.None,
-            annotation?.Description);
+                typeReference,
+                annotation?.Flags ?? ObjectTypePropertyFlags.None,
+                annotation?.Description);
         }
 
-        return new ObjectType(
+        return AddType(type, new ObjectType(
             $"{type.Name}",
             typeProperties,
-            null);
+            null));
     }
 
-    private bool TryResolveTypeReference(Type type, TypePropertyAttribute? annotation, [NotNullWhen(true)] out TypeBase? typeReference)
-    {
-        typeReference = null;
-        if (type == typeof(string) && annotation?.IsSecure == true)
-        {
-            typeReference = typeCache.GetOrAdd(type, _ => factory.Create(() => new StringType(sensitive: true)));
-        }
-        else if (typeToTypeBaseMap.TryGetValue(type, out var typeFunc))
-        {
-            typeReference = typeCache.GetOrAdd(type, _ => factory.Create(typeFunc));
-        }
-
-        return typeReference is not null;
-    }
-
-
-    protected virtual string GetString(Action<Stream> streamWriteFunc)
+    private string GetString(Action<Stream> streamWriteFunc)
     {
         using var memoryStream = new MemoryStream();
         streamWriteFunc(memoryStream);
@@ -227,6 +277,6 @@ public class TypeDefinitionBuilder
         return Encoding.UTF8.GetString(memoryStream.ToArray());
     }
 
-    protected static string CamelCase(string input)
+    private static string CamelCase(string input)
         => $"{input[..1].ToLowerInvariant()}{input[1..]}";
 }

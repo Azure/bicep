@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3313850547374953435"
+      "templateHash": "4336017980831296844"
     }
   },
   "parameters": {
@@ -344,7 +344,7 @@
     {
       "type": "My.Rp/extensionResource",
       "apiVersion": "2020-12-01",
-      "scope": "[format('Microsoft.Compute/virtualMachines/{0}', 'vmName')]",
+      "scope": "[resourceId('Microsoft.Compute/virtualMachines', 'vmName')]",
       "name": "extension",
       "dependsOn": [
         "[resourceId('Microsoft.Compute/virtualMachines', 'vmName')]"
@@ -353,7 +353,7 @@
     {
       "type": "My.Rp/extensionResource",
       "apiVersion": "2020-12-01",
-      "scope": "[extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
+      "scope": "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
       "name": "extension",
       "dependsOn": [
         "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]"
@@ -380,7 +380,7 @@
     {
       "type": "My.Rp/extensionResource",
       "apiVersion": "2020-12-01",
-      "scope": "[extensionResourceId(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'Mock.Rp/existingExtensionResource', 'existing1')]",
+      "scope": "[extensionResourceId(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'Mock.Rp/existingExtensionResource', 'existing1')]",
       "name": "extension3",
       "dependsOn": [
         "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]"
@@ -520,7 +520,7 @@
       },
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[format('Microsoft.Network/dnsZones/{0}', format('zone{0}', range(0, 4)[range(0, 2)[copyIndex()]]))]",
+      "scope": "[resourceId('Microsoft.Network/dnsZones', format('zone{0}', range(0, 4)[range(0, 2)[copyIndex()]]))]",
       "name": "[format('lock{0}', range(0, 2)[copyIndex()])]",
       "properties": {
         "level": "CanNotDelete"
@@ -536,7 +536,7 @@
       },
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[format('Microsoft.Network/dnsZones/{0}', format('zone{0}', range(0, 4)[copyIndex()]))]",
+      "scope": "[resourceId('Microsoft.Network/dnsZones', format('zone{0}', range(0, 4)[copyIndex()]))]",
       "name": "[format('another{0}', copyIndex())]",
       "properties": {
         "level": "ReadOnly"
@@ -548,7 +548,7 @@
     {
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[format('Microsoft.Network/dnsZones/{0}', format('zone{0}', range(0, 4)[0]))]",
+      "scope": "[resourceId('Microsoft.Network/dnsZones', format('zone{0}', range(0, 4)[0]))]",
       "name": "single-lock",
       "properties": {
         "level": "ReadOnly"
@@ -608,7 +608,7 @@
     {
       "type": "Microsoft.Rp2/resource2",
       "apiVersion": "2020-06-01",
-      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'p2res1', 'child1')]",
+      "scope": "[resourceId('Microsoft.Rp1/resource1/child1', 'p2res1', 'child1')]",
       "name": "res2",
       "dependsOn": [
         "[resourceId('Microsoft.Rp1/resource1/child1', 'p2res1', 'child1')]"
@@ -617,7 +617,7 @@
     {
       "type": "Microsoft.Rp2/resource2/child2",
       "apiVersion": "2020-06-01",
-      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'p2res1', 'child1')]",
+      "scope": "[resourceId('Microsoft.Rp1/resource1/child1', 'p2res1', 'child1')]",
       "name": "[format('{0}/{1}', 'res2', 'child2')]",
       "dependsOn": [
         "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'p2res1', 'child1'), 'Microsoft.Rp2/resource2', 'res2')]"

@@ -9,21 +9,16 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Rpc;
 using Bicep.Core;
 using Bicep.Core.Features;
+using Bicep.Core.Utils;
 using StreamJsonRpc;
 
 namespace Bicep.Cli.Commands;
 
-public class JsonRpcCommand : ICommand
+public class JsonRpcCommand(
+    BicepCompiler compiler,
+    InputOutputArgumentsResolver inputOutputArgumentsResolver,
+    IEnvironment environment) : ICommand
 {
-    private readonly BicepCompiler compiler;
-    private readonly InputOutputArgumentsResolver inputOutputArgumentsResolver;
-
-    public JsonRpcCommand(BicepCompiler compiler, InputOutputArgumentsResolver inputOutputArgumentsResolver)
-    {
-        this.compiler = compiler;
-        this.inputOutputArgumentsResolver = inputOutputArgumentsResolver;
-    }
-
     public async Task<int> RunAsync(JsonRpcArguments args, CancellationToken cancellationToken)
     {
         if (args.Pipe is { } pipeName)
@@ -63,7 +58,7 @@ public class JsonRpcCommand : ICommand
             jsonRpc.TraceSource.Listeners.AddRange(Trace.Listeners);
         }
 
-        var server = new CliJsonRpcServer(this.compiler, this.inputOutputArgumentsResolver);
+        var server = new CliJsonRpcServer(compiler, inputOutputArgumentsResolver, environment);
         jsonRpc.AddLocalRpcTarget<ICliJsonRpcProtocol>(server, null);
 
         jsonRpc.StartListening();

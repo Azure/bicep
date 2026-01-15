@@ -104,7 +104,7 @@ public class LocalDeploymentEngine
                 originalDeploymentName: context.DeploymentName,
                 isNestedDeployment: false,
                 validateOnly: false,
-                request: null,
+                requestContext: null,
                 frontdoorEndpointUri: new Uri(requestContext.FrontdoorEndpoint),
                 cancellationToken: cancellationToken,
                 oboToken: oboToken,

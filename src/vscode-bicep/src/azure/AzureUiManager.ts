@@ -47,7 +47,7 @@ export class AzureUiManager implements IAzureUiManager {
 
       case "managementGroup": {
         const subscription = await this.azurePickers.pickSubscription(this.context);
-        const managementGroup = await this.azurePickers.pickManagementGroup(this.context);
+        const managementGroup = await this.azurePickers.pickManagementGroup(this.context, subscription);
         const location = await this.azurePickers.pickLocation(this.context, subscription);
 
         return {

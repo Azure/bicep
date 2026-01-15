@@ -31,7 +31,7 @@ describe("msbuild", () => {
 
     expect(result.stderr).toBe("");
 
-    const framework = "net8.0";
+    const framework = "net10.0";
     getOutputFiles("Debug", framework, false).forEach((file) => example.expectTemplate(file));
 
     const cleanResult = example.clean();

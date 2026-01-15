@@ -272,6 +272,60 @@ extension baz with {
         }
 
         [TestMethod]
+        public async Task Extension_import_existing_blocked_for_writeonly_resource()
+        {
+            // Create a mock extension with a write only resource (no readable scopes, has writable scopes)
+            var services = CreateServiceBuilder();
+            await ExtensionTestHelper.AddMockExtensions(services, TestContext, CreateMockExtWithWriteOnlyResource());
+
+            var mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [mainUri] = """
+                extension 'br:mcr.microsoft.com/bicep/extensions/writeonly/v1:1.2.3'
+
+                resource myResource 'writeOnlyType@v1' existing = {
+                  identifier: 'test-resource'
+                }
+                """
+            };
+
+            var compilation = await services.BuildCompilationWithRestore(files, mainUri);
+
+            compilation.Should().HaveDiagnostics(new[] {
+                ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"myResource\" is declared but never used."),
+                ("BCP441", DiagnosticLevel.Error, "Resource type \"writeOnlyType@v1\" cannot be used with the 'existing' keyword."),
+            });
+        }
+
+        [TestMethod]
+        public async Task Extension_writeonly_resource_can_be_deployed_normally()
+        {
+            // Create a mock extension with a write only resource
+            var services = CreateServiceBuilder();
+            await ExtensionTestHelper.AddMockExtensions(services, TestContext, CreateMockExtWithWriteOnlyResource());
+
+            var mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [mainUri] = """
+                extension 'br:mcr.microsoft.com/bicep/extensions/writeonly/v1:1.2.3'
+
+                // Write-only resources should work fine for normal (non-existing) deployment
+                resource myResource 'writeOnlyType@v1' = {
+                  identifier: 'test-resource'
+                }
+
+                output resourceId string = myResource.identifier
+                """
+            };
+
+            var compilation = await services.BuildCompilationWithRestore(files, mainUri);
+
+            compilation.Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
         public void Kubernetes_competing_imports_are_blocked()
         {
             var result = CompilationHelper.Compile(CreateServiceBuilder(), @"
@@ -1119,6 +1173,32 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                                     ["b1"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.Required, null)
                                 })
                         }))
+                });
+
+        private static MockExtensionData CreateMockExtWithWriteOnlyResource(string extName = "writeonly") =>
+            ExtensionTestHelper.CreateMockExtensionMockData(
+                extName, "1.2.3", "v1", new CustomExtensionTypeFactoryDelegates
+                {
+                    CreateResourceTypes = (ctx, tf) =>
+                    {
+                        var bodyType = tf.Create(() => new ObjectType(
+                            "writeOnlyBody",
+                            new Dictionary<string, ObjectTypeProperty>
+                            {
+                                ["identifier"] = new(ctx.CoreStringTypeRef, ObjectTypePropertyFlags.Required | ObjectTypePropertyFlags.Identifier, "The resource identifier")
+                            },
+                            null));
+
+                        // Create a write only resource: no readable scopes, but has writable scopes
+                        var writeOnlyType = tf.Create(() => new ResourceType(
+                            "writeOnlyType@v1",
+                            tf.GetReference(bodyType),
+                            null,
+                            writableScopes_in: ScopeType.All,
+                            readableScopes_in: (ScopeType)0)); // No readable scopes makes it write only
+
+                        return [writeOnlyType];
+                    }
                 });
 
         #endregion

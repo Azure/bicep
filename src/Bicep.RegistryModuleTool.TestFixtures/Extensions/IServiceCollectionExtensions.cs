@@ -13,10 +13,10 @@ namespace Bicep.RegistryModuleTool.TestFixtures.Extensions
     public static class IServiceCollectionExtensions
     {
         public static IServiceCollection AddBicepCompilerWithFileSystem(this IServiceCollection serviceCollection, IFileSystem fileSystem) => serviceCollection
-            .AddBicepCompiler()
-            .AddSingleton(new FeatureProviderOverrides())
+            .AddSingleton<IFeatureProviderFactory, OverriddenFeatureProviderFactory>()
             .AddSingleton<FeatureProviderFactory>()
-            .Replace(ServiceDescriptor.Singleton<IFeatureProviderFactory, OverriddenFeatureProviderFactory>())
-            .Replace(ServiceDescriptor.Singleton(fileSystem));
+            .AddSingleton(new FeatureProviderOverrides())
+            .AddSingleton(fileSystem)
+            .AddBicepCore();
     }
 }

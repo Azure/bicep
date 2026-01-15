@@ -77,7 +77,7 @@ public class PrintHelper
                 var color = annotation.Diagnostic.Level switch
                 {
                     DiagnosticLevel.Error => Color.Red,
-                    DiagnosticLevel.Warning => Color.Orange,
+                    DiagnosticLevel.Warning => Color.DarkYellow,
                     _ => Color.Reset,
                 };
 

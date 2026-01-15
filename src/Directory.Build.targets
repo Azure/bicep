@@ -36,7 +36,7 @@
     <PackageIcon>bicep-logo-256.png</PackageIcon>
 
     <!-- generate symbols for upload to the nuget feed -->
-    <IncludeSymbols>true</IncludeSymbols>
+    <IncludeSymbols Condition=" '$(SelfContained)' != 'true' ">true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
     <!-- sourcelink configuration -->
@@ -44,6 +44,11 @@
     <RepositoryUrl>https://github.com/Azure/bicep</RepositoryUrl>
 
     <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- WASM projects don't need runtime identifiers and the mono runtime package is missing for win-arm64 -->
+    <RuntimeIdentifiers Condition=" $(UsingMicrosoftNETSdkBlazorWebAssembly) != 'true' and '$(PackAsTool)' != 'true' ">win-x64;linux-x64;linux-musl-x64;osx-x64;win-arm64;linux-arm64;osx-arm64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(EnableNuget)' == 'true'">

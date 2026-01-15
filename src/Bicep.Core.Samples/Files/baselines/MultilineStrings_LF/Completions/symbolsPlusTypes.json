@@ -1,0 +1,3751 @@
+[
+  {
+    "label": "I_WANT_IT_ALL",
+    "kind": "variable",
+    "detail": "I_WANT_IT_ALL",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_I_WANT_IT_ALL",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "I_WANT_IT_ALL"
+    }
+  },
+  {
+    "label": "_",
+    "kind": "variable",
+    "detail": "_",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2__",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "_"
+    }
+  },
+  {
+    "label": "_0a_1b",
+    "kind": "variable",
+    "detail": "_0a_1b",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2__0a_1b",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "_0a_1b"
+    }
+  },
+  {
+    "label": "_1_",
+    "kind": "variable",
+    "detail": "_1_",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2__1_",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "_1_"
+    }
+  },
+  {
+    "label": "__",
+    "kind": "variable",
+    "detail": "__",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2___",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "__"
+    }
+  },
+  {
+    "label": "add",
+    "kind": "variable",
+    "detail": "add",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_add",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "add"
+    }
+  },
+  {
+    "label": "and",
+    "kind": "variable",
+    "detail": "and",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_and",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "and"
+    }
+  },
+  {
+    "label": "any",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nany(value: any): any\n\n```  \nConverts the specified value to the `any` type.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_any",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "any($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "anyIndexOnAny",
+    "kind": "variable",
+    "detail": "anyIndexOnAny",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_anyIndexOnAny",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "anyIndexOnAny"
+    }
+  },
+  {
+    "label": "array",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\narray(valueToConvert: any): array\n\n```  \nConverts the value to an array.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_array",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "array($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "arrayOfArraysViaLoop",
+    "kind": "variable",
+    "detail": "arrayOfArraysViaLoop",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayOfArraysViaLoop",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayOfArraysViaLoop"
+    }
+  },
+  {
+    "label": "arrayOfBooleans",
+    "kind": "variable",
+    "detail": "arrayOfBooleans",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayOfBooleans",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayOfBooleans"
+    }
+  },
+  {
+    "label": "arrayOfHardCodedBools",
+    "kind": "variable",
+    "detail": "arrayOfHardCodedBools",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayOfHardCodedBools",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayOfHardCodedBools"
+    }
+  },
+  {
+    "label": "arrayOfHardCodedNumbers",
+    "kind": "variable",
+    "detail": "arrayOfHardCodedNumbers",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayOfHardCodedNumbers",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayOfHardCodedNumbers"
+    }
+  },
+  {
+    "label": "arrayOfHardCodedStrings",
+    "kind": "variable",
+    "detail": "arrayOfHardCodedStrings",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayOfHardCodedStrings",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayOfHardCodedStrings"
+    }
+  },
+  {
+    "label": "arrayOfNonRuntimeFunctionCalls",
+    "kind": "variable",
+    "detail": "arrayOfNonRuntimeFunctionCalls",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayOfNonRuntimeFunctionCalls",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayOfNonRuntimeFunctionCalls"
+    }
+  },
+  {
+    "label": "arrayOfObjectsViaLoop",
+    "kind": "variable",
+    "detail": "arrayOfObjectsViaLoop",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayOfObjectsViaLoop",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayOfObjectsViaLoop"
+    }
+  },
+  {
+    "label": "arrayOfStringsViaLoop",
+    "kind": "variable",
+    "detail": "arrayOfStringsViaLoop",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arrayOfStringsViaLoop",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "arrayOfStringsViaLoop"
+    }
+  },
+  {
+    "label": "arraySpread",
+    "kind": "variable",
+    "detail": "arraySpread",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arraySpread",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "arraySpread"
+    }
+  },
+  {
+    "label": "az",
+    "kind": "folder",
+    "detail": "az",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_az",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "az."
+    },
+    "command": {
+      "title": "symbol completion",
+      "command": "editor.action.triggerSuggest"
+    }
+  },
+  {
+    "label": "az.resourceGroup",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresourceGroup(): resourceGroup\nresourceGroup(resourceGroupName: string): resourceGroup\nresourceGroup(subscriptionId: string, resourceGroupName: string): resourceGroup\n\n```  \nReturns a resource group scope.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_az.resourceGroup",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "az.resourceGroup($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "base64",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nbase64(inputString: string): string\n\n```  \nReturns the base64 representation of the input string.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_base64",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "base64($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "base64ToJson",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nbase64ToJson(base64Value: string): any\n\n```  \nConverts a base64 representation to a JSON object.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_base64ToJson",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "base64ToJson($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "base64ToString",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nbase64ToString(base64Value: string): string\n\n```  \nConverts a base64 representation to a string.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_base64ToString",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "base64ToString($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "bool",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nbool(value: any): bool\n\n```  \nConverts the parameter to a boolean.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_bool",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "bool($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "bracketAtBeginning",
+    "kind": "variable",
+    "detail": "bracketAtBeginning",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_bracketAtBeginning",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "bracketAtBeginning"
+    }
+  },
+  {
+    "label": "bracketInTheMiddle",
+    "kind": "variable",
+    "detail": "bracketInTheMiddle",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_bracketInTheMiddle",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "bracketInTheMiddle"
+    }
+  },
+  {
+    "label": "bracketStringInExpression",
+    "kind": "variable",
+    "detail": "bracketStringInExpression",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_bracketStringInExpression",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "bracketStringInExpression"
+    }
+  },
+  {
+    "label": "buildUri",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nbuildUri(components: parseUri): string\n\n```  \nConstructs a URI from specified components and returns an object with these components.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_buildUri",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "buildUri($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "cidrHost",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ncidrHost(network: string, hostIndex: int): string\n\n```  \nCalculates the usable IP address of the host with the specified index on the specified IP address range in CIDR notation.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_cidrHost",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "cidrHost($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "cidrSubnet",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ncidrSubnet(network: string, cidr: int, subnetIndex: int): string\n\n```  \nSplits the specified IP address range in CIDR notation into subnets with a new CIDR value and returns the IP address range of the subnet with the specified index.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_cidrSubnet",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "cidrSubnet($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "complexMultilineInterpolation",
+    "kind": "variable",
+    "detail": "complexMultilineInterpolation",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_complexMultilineInterpolation",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "complexMultilineInterpolation"
+    }
+  },
+  {
+    "label": "concat",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nconcat(... : array): array\nconcat(... : bool | int | string): string\n\n```  \nCombines multiple arrays and returns the concatenated array, or combines multiple string values and returns the concatenated string.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_concat",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "concat($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "contains",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ncontains(object: object, propertyName: string): bool\ncontains(array: array, itemToFind: any): bool\ncontains(string: string, itemToFind: string): bool\n\n```  \nChecks whether an array contains a value, an object contains a key, or a string contains a substring. The string comparison is case-sensitive. However, when testing if an object contains a key, the comparison is case-insensitive.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_contains",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "contains($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "copyBlockInObject",
+    "kind": "variable",
+    "detail": "copyBlockInObject",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_copyBlockInObject",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "copyBlockInObject"
+    }
+  },
+  {
+    "label": "createArray",
+    "kind": "variable",
+    "detail": "createArray",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_createArray",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "createArray"
+    }
+  },
+  {
+    "label": "createObject",
+    "kind": "variable",
+    "detail": "createObject",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_createObject",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "createObject"
+    }
+  },
+  {
+    "label": "curliesInInterp",
+    "kind": "variable",
+    "detail": "curliesInInterp",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_curliesInInterp",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "curliesInInterp"
+    }
+  },
+  {
+    "label": "curliesInInterpMulti",
+    "kind": "variable",
+    "detail": "curliesInInterpMulti",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_curliesInInterpMulti",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "curliesInInterpMulti"
+    }
+  },
+  {
+    "label": "curliesWithNoInterp",
+    "kind": "variable",
+    "detail": "curliesWithNoInterp",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_curliesWithNoInterp",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "curliesWithNoInterp"
+    }
+  },
+  {
+    "label": "dataUri",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndataUri(valueToConvert: any): string\n\n```  \nConverts a value to a data URI.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dataUri",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "dataUri($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "dataUriToString",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndataUriToString(dataUriToConvert: string): string\n\n```  \nConverts a data URI formatted value to a string.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dataUriToString",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "dataUriToString($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "dateTimeAdd",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndateTimeAdd(base: string, duration: string, [format: string]): string\n\n```  \nAdds a time duration to a base value. ISO 8601 format is expected.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dateTimeAdd",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "dateTimeAdd($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "dateTimeFromEpoch",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndateTimeFromEpoch([epochTime: int]): string\n\n```  \nConverts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dateTimeFromEpoch",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "dateTimeFromEpoch($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "dateTimeToEpoch",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndateTimeToEpoch([dateTime: string]): int\n\n```  \nConverts an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string to an epoch time integer value.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dateTimeToEpoch",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "dateTimeToEpoch($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "deployer",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndeployer(): deployer\n\n```  \nReturns information about the current deployment principal.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_deployer",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "deployer()$0"
+    }
+  },
+  {
+    "label": "deployment",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndeployment(): deployment\n\n```  \nReturns information about the current deployment operation.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_deployment",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "deployment()$0"
+    }
+  },
+  {
+    "label": "deploymentName",
+    "kind": "variable",
+    "detail": "deploymentName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_deploymentName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "deploymentName"
+    }
+  },
+  {
+    "label": "div",
+    "kind": "variable",
+    "detail": "div",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_div",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "div"
+    }
+  },
+  {
+    "label": "doubleInterp",
+    "kind": "variable",
+    "detail": "doubleInterp",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_doubleInterp",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "doubleInterp"
+    }
+  },
+  {
+    "label": "doubleInterpMulti",
+    "kind": "variable",
+    "detail": "doubleInterpMulti",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_doubleInterpMulti",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "doubleInterpMulti"
+    }
+  },
+  {
+    "label": "empty",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nempty(itemToTest: array | null | object | string): bool\n\n```  \nDetermines if an array, object, or string is empty.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_empty",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "empty($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "emptyJsonArray",
+    "kind": "variable",
+    "detail": "emptyJsonArray",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_emptyJsonArray",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "emptyJsonArray"
+    }
+  },
+  {
+    "label": "endsWith",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nendsWith(stringToSearch: string, stringToFind: string): bool\n\n```  \nDetermines whether a string ends with a value. The comparison is case-insensitive.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_endsWith",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "endsWith($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "environment",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nenvironment(): environment\n\n```  \nReturns information about the Azure environment used for deployment.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_environment",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "environment()$0"
+    }
+  },
+  {
+    "label": "equals",
+    "kind": "field",
+    "detail": "equals",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_equals",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "equals"
+    }
+  },
+  {
+    "label": "expressionIndexOnAny",
+    "kind": "variable",
+    "detail": "expressionIndexOnAny",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_expressionIndexOnAny",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "expressionIndexOnAny"
+    }
+  },
+  {
+    "label": "extensionResourceId",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nextensionResourceId(resourceId: string, resourceType: string, ... : string): string\n\n```  \nReturns the resource ID for an [extension](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/extension-resource-types) resource, which is a resource type that is applied to another resource to add to its capabilities.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_extensionResourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "extensionResourceId($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "fail",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nfail(message: string): never\n\n```  \nRaises a runtime error with the provided message. Will cause a deployment to fail when evaluated.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_fail",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "fail($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "filter",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nfilter(array: array, predicate: (any[, int]) => bool): array\n\n```  \nFilters an array with a custom filtering function.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_filter",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "filter($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "first",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nfirst(array: array): any\nfirst(string: string): string\n\n```  \nReturns the first element of the array, or first character of the string.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_first",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "first($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "flatten",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nflatten(array: array[]): array\n\n```  \nTakes an array of arrays, and returns an array of sub-array elements, in the original order. Sub-arrays are only flattened once, not recursively.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_flatten",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "flatten($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "for",
+    "kind": "snippet",
+    "detail": "for",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n[for item in list: ]\n```  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_for",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "[for ${2:item} in ${1:list}: $0]"
+    }
+  },
+  {
+    "label": "for-indexed",
+    "kind": "snippet",
+    "detail": "for-indexed",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\n[for (item, index) in list: ]\n```  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_for-indexed",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "[for (${2:item}, ${3:index}) in ${1:list}: $0]"
+    }
+  },
+  {
+    "label": "forceLineBreaks1",
+    "kind": "variable",
+    "detail": "forceLineBreaks1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_forceLineBreaks1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "forceLineBreaks1"
+    }
+  },
+  {
+    "label": "forceLineBreaks2",
+    "kind": "variable",
+    "detail": "forceLineBreaks2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_forceLineBreaks2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "forceLineBreaks2"
+    }
+  },
+  {
+    "label": "forceLineBreaks3",
+    "kind": "variable",
+    "detail": "forceLineBreaks3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_forceLineBreaks3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "forceLineBreaks3"
+    }
+  },
+  {
+    "label": "format",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nformat(formatString: string, ... : any): string\n\n```  \nCreates a formatted string from input values.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_format",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "format($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "functionOnIndexer1",
+    "kind": "variable",
+    "detail": "functionOnIndexer1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_functionOnIndexer1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "functionOnIndexer1"
+    }
+  },
+  {
+    "label": "greater",
+    "kind": "variable",
+    "detail": "greater",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_greater",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "greater"
+    }
+  },
+  {
+    "label": "greaterOrEquals",
+    "kind": "variable",
+    "detail": "greaterOrEquals",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_greaterOrEquals",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "greaterOrEquals"
+    }
+  },
+  {
+    "label": "groupBy",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ngroupBy(array: array, keyPredicate: any => string, [valuePredicate: any => any]): object\n\n```  \nConverts an array to an object containing a lookup from key to array values filtered by said key. Values can be optionally translated using a mapping function.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_groupBy",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "groupBy($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "guid",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nguid(... : string): string\n\n```  \nCreates a value in the format of a globally unique identifier based on the values provided as parameters.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_guid",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "guid($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "if",
+    "kind": "variable",
+    "detail": "if",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_if",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "if"
+    }
+  },
+  {
+    "label": "if-else",
+    "kind": "snippet",
+    "detail": "if-else",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_if-else",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "${1:condition} ? ${2:TrueValue} : ${3:FalseValue}"
+    }
+  },
+  {
+    "label": "incrementingNumbers",
+    "kind": "variable",
+    "detail": "incrementingNumbers",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_incrementingNumbers",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "incrementingNumbers"
+    }
+  },
+  {
+    "label": "indexOf",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nindexOf(stringToSearch: string, stringToFind: string): int\nindexOf(array: array, itemToFind: any): int\n\n```  \nReturns the first position of a value within a string. The comparison is case-insensitive.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_indexOf",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "indexOf($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "int",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nint(valueToConvert: int | string): int\n\n```  \nConverts the specified value to an integer.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_int",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "int($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "intIndexer",
+    "kind": "variable",
+    "detail": "intIndexer",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_intIndexer",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "intIndexer"
+    }
+  },
+  {
+    "label": "interp1",
+    "kind": "variable",
+    "detail": "interp1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_interp1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "interp1"
+    }
+  },
+  {
+    "label": "interp1Multi",
+    "kind": "variable",
+    "detail": "interp1Multi",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_interp1Multi",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "interp1Multi"
+    }
+  },
+  {
+    "label": "interp2",
+    "kind": "variable",
+    "detail": "interp2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_interp2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "interp2"
+    }
+  },
+  {
+    "label": "interp2Multi",
+    "kind": "variable",
+    "detail": "interp2Multi",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_interp2Multi",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "interp2Multi"
+    }
+  },
+  {
+    "label": "interp3",
+    "kind": "variable",
+    "detail": "interp3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_interp3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "interp3"
+    }
+  },
+  {
+    "label": "interp3Multi",
+    "kind": "variable",
+    "detail": "interp3Multi",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_interp3Multi",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "interp3Multi"
+    }
+  },
+  {
+    "label": "interp4",
+    "kind": "variable",
+    "detail": "interp4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_interp4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "interp4"
+    }
+  },
+  {
+    "label": "interp4Multi",
+    "kind": "variable",
+    "detail": "interp4Multi",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_interp4Multi",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "interp4Multi"
+    }
+  },
+  {
+    "label": "interpMultiEmpty",
+    "kind": "variable",
+    "detail": "interpMultiEmpty",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_interpMultiEmpty",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "interpMultiEmpty"
+    }
+  },
+  {
+    "label": "interpolatedBrackets",
+    "kind": "variable",
+    "detail": "interpolatedBrackets",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_interpolatedBrackets",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "interpolatedBrackets"
+    }
+  },
+  {
+    "label": "intersection",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nintersection(... : object): object\nintersection(... : array): array\n\n```  \nReturns a single array or object with the common elements from the parameters.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_intersection",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "intersection($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "isFalse",
+    "kind": "variable",
+    "detail": "isFalse",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_isFalse",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "isFalse"
+    }
+  },
+  {
+    "label": "isPrefixed",
+    "kind": "variable",
+    "detail": "isPrefixed",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_isPrefixed",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "isPrefixed"
+    }
+  },
+  {
+    "label": "isTrue",
+    "kind": "variable",
+    "detail": "isTrue",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_isTrue",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "isTrue"
+    }
+  },
+  {
+    "label": "issue1332",
+    "kind": "variable",
+    "detail": "issue1332",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue1332",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue1332"
+    }
+  },
+  {
+    "label": "issue1332_propname",
+    "kind": "variable",
+    "detail": "issue1332_propname",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue1332_propname",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue1332_propname"
+    }
+  },
+  {
+    "label": "items",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nitems(object: object): object[]\n\n```  \nReturns an array of keys and values for an object. Elements are consistently ordered alphabetically by key.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_items",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "items($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "join",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\njoin(inputArray: (bool | int | string)[], delimiter: string): string\n\n```  \nJoins multiple strings into a single string, separated using a delimiter.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_join",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "join($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "joinedString",
+    "kind": "variable",
+    "detail": "joinedString",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_joinedString",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "joinedString"
+    }
+  },
+  {
+    "label": "json",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\njson(json: string): any\n\n```  \nConverts a valid JSON string into a JSON data type.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_json",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "json($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "last",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nlast(array: array): any\nlast(string: string): string\n\n```  \nReturns the last element of the array, or last character of the string.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_last",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "last($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "lastIndexOf",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nlastIndexOf(stringToSearch: string, stringToFind: string): int\nlastIndexOf(array: array, itemToFind: any): int\n\n```  \nReturns the last position of a value within a string. The comparison is case-insensitive.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_lastIndexOf",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "lastIndexOf($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "length",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nlength(arg: object | string): int\nlength(arg: array): int\n\n```  \nReturns the number of characters in a string, elements in an array, or root-level properties in an object.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_length",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "length($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "less",
+    "kind": "variable",
+    "detail": "less",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_less",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "less"
+    }
+  },
+  {
+    "label": "lessOrEquals",
+    "kind": "variable",
+    "detail": "lessOrEquals",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_lessOrEquals",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "lessOrEquals"
+    }
+  },
+  {
+    "label": "loadDirectoryFileInfo",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nloadDirectoryFileInfo(directoryPath: string, [searchPattern: string]): any\n\n```  \nLoads basic information about a directory's files as bicep object. File loading occurs during compilation, not at runtime.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_loadDirectoryFileInfo",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "loadDirectoryFileInfo($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "loadFileAsBase64",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nloadFileAsBase64(filePath: string): string\n\n```  \nLoads the specified file as base64 string. File loading occurs during compilation, not at runtime. The maximum allowed size is 96 Kb.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_loadFileAsBase64",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "loadFileAsBase64($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "loadJsonContent",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nloadJsonContent(filePath: string, [jsonPath: string], [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): any\n\n```  \nLoads the specified JSON file as bicep object. File loading occurs during compilation, not at runtime.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_loadJsonContent",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "loadJsonContent($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "loadTextContent",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nloadTextContent(filePath: string, [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): string\n\n```  \nLoads the content of the specified file into a string. Content loading occurs during compilation, not at runtime. The maximum allowed content size is 131072 characters (including line endings).  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_loadTextContent",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "loadTextContent($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "loadYamlContent",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nloadYamlContent(filePath: string, [pathFilter: string], [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): any\n\n```  \nLoads the specified YAML file as bicep object. File loading occurs during compilation, not at runtime.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_loadYamlContent",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "loadYamlContent($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "loginEndpoint",
+    "kind": "variable",
+    "detail": "loginEndpoint",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_loginEndpoint",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "loginEndpoint"
+    }
+  },
+  {
+    "label": "loopInput",
+    "kind": "variable",
+    "detail": "loopInput",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_loopInput",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "loopInput"
+    }
+  },
+  {
+    "label": "managementGroup",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmanagementGroup(name: string): managementGroup\n\n```  \nReturns a management group scope.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_managementGroup",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "managementGroup($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "managementGroupResourceId",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmanagementGroupResourceId(resourceType: string, ... : string): string\nmanagementGroupResourceId(managementGroupId: string, resourceType: string, ... : string): string\n\n```  \nReturns the unique identifier for a resource deployed at the management group level.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_managementGroupResourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "managementGroupResourceId($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "map",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmap(array: array, predicate: (any[, int]) => any): array\n\n```  \nApplies a custom mapping function to each element of an array and returns the result array.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_map",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "map($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "mapValues",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmapValues(object: object, predicate: any => any): array\n\n```  \nApplies a custom mapping function to the values of an object and returns the result object.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_mapValues",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "mapValues($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "max",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmax(... : int): int\nmax(intArray: int[]): int\n\n```  \nReturns the maximum value from an array of integers or a comma-separated list of integers.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_max",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "max($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "min",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmin(... : int): int\nmin(intArray: int[]): int\n\n```  \nReturns the minimum value from an array of integers or a comma-separated list of integers.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_min",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "min($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "mod",
+    "kind": "field",
+    "detail": "mod",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_mod",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "mod"
+    }
+  },
+  {
+    "label": "mul",
+    "kind": "variable",
+    "detail": "mul",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_mul",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "mul"
+    }
+  },
+  {
+    "label": "multilineEmpty",
+    "kind": "variable",
+    "detail": "multilineEmpty",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineEmpty",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineEmpty"
+    }
+  },
+  {
+    "label": "multilineEmptyNewline",
+    "kind": "variable",
+    "detail": "multilineEmptyNewline",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineEmptyNewline",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineEmptyNewline"
+    }
+  },
+  {
+    "label": "multilineExtraQuotes",
+    "kind": "variable",
+    "detail": "multilineExtraQuotes",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineExtraQuotes",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineExtraQuotes"
+    }
+  },
+  {
+    "label": "multilineExtraQuotesNewlines",
+    "kind": "variable",
+    "detail": "multilineExtraQuotesNewlines",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineExtraQuotesNewlines",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineExtraQuotesNewlines"
+    }
+  },
+  {
+    "label": "multilineFormatted",
+    "kind": "variable",
+    "detail": "multilineFormatted",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineFormatted",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineFormatted"
+    }
+  },
+  {
+    "label": "multilineInterpolation",
+    "kind": "variable",
+    "detail": "multilineInterpolation",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineInterpolation",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineInterpolation"
+    }
+  },
+  {
+    "label": "multilineJavaScript",
+    "kind": "variable",
+    "detail": "multilineJavaScript",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineJavaScript",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineJavaScript"
+    }
+  },
+  {
+    "label": "multilineSingleLine",
+    "kind": "variable",
+    "detail": "multilineSingleLine",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineSingleLine",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineSingleLine"
+    }
+  },
+  {
+    "label": "multilineString",
+    "kind": "variable",
+    "detail": "multilineString",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_multilineString",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "multilineString"
+    }
+  },
+  {
+    "label": "myArr",
+    "kind": "variable",
+    "detail": "myArr",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myArr",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myArr"
+    }
+  },
+  {
+    "label": "myArrWithObjects",
+    "kind": "variable",
+    "detail": "myArrWithObjects",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myArrWithObjects",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myArrWithObjects"
+    }
+  },
+  {
+    "label": "myBigInt",
+    "kind": "variable",
+    "detail": "myBigInt",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myBigInt",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myBigInt"
+    }
+  },
+  {
+    "label": "myBigIntExpression",
+    "kind": "variable",
+    "detail": "myBigIntExpression",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myBigIntExpression",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myBigIntExpression"
+    }
+  },
+  {
+    "label": "myBigIntExpression2",
+    "kind": "variable",
+    "detail": "myBigIntExpression2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myBigIntExpression2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myBigIntExpression2"
+    }
+  },
+  {
+    "label": "myEmptyArray",
+    "kind": "variable",
+    "detail": "myEmptyArray",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myEmptyArray",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myEmptyArray"
+    }
+  },
+  {
+    "label": "myEmptyObj",
+    "kind": "variable",
+    "detail": "myEmptyObj",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myEmptyObj",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myEmptyObj"
+    }
+  },
+  {
+    "label": "myFalsehood",
+    "kind": "variable",
+    "detail": "myFalsehood",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myFalsehood",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myFalsehood"
+    }
+  },
+  {
+    "label": "myInt",
+    "kind": "variable",
+    "detail": "myInt",
+    "documentation": {
+      "kind": "markdown",
+      "value": "an int variable  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myInt",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myInt"
+    }
+  },
+  {
+    "label": "myIntExpression",
+    "kind": "variable",
+    "detail": "myIntExpression",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myIntExpression",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myIntExpression"
+    }
+  },
+  {
+    "label": "myObj",
+    "kind": "variable",
+    "detail": "myObj",
+    "documentation": {
+      "kind": "markdown",
+      "value": "a object variable  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myObj",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myObj"
+    }
+  },
+  {
+    "label": "myPropertyName",
+    "kind": "variable",
+    "detail": "myPropertyName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myPropertyName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myPropertyName"
+    }
+  },
+  {
+    "label": "myStr",
+    "kind": "variable",
+    "detail": "myStr",
+    "documentation": {
+      "kind": "markdown",
+      "value": "a string variable  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myStr",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myStr"
+    }
+  },
+  {
+    "label": "myTruth",
+    "kind": "variable",
+    "detail": "myTruth",
+    "documentation": {
+      "kind": "markdown",
+      "value": "a bool variable  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myTruth",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myTruth"
+    }
+  },
+  {
+    "label": "myVar",
+    "kind": "variable",
+    "detail": "myVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myVar"
+    }
+  },
+  {
+    "label": "myVar2",
+    "kind": "variable",
+    "detail": "myVar2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myVar2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myVar2"
+    }
+  },
+  {
+    "label": "myVar3",
+    "kind": "variable",
+    "detail": "myVar3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myVar3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myVar3"
+    }
+  },
+  {
+    "label": "myVar4",
+    "kind": "variable",
+    "detail": "myVar4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_myVar4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "myVar4"
+    }
+  },
+  {
+    "label": "name",
+    "kind": "variable",
+    "detail": "name",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_name",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "name"
+    }
+  },
+  {
+    "label": "namedPropertyIndexer",
+    "kind": "variable",
+    "detail": "namedPropertyIndexer",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_namedPropertyIndexer",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "namedPropertyIndexer"
+    }
+  },
+  {
+    "label": "nameof",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nnameof(symbol: any): string\n\n```  \nReturns the name of a declared symbol or property. Evaluation occurs during compilation, not at runtime.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_nameof",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameof($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "nameof1",
+    "kind": "variable",
+    "detail": "nameof1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nameof1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameof1"
+    }
+  },
+  {
+    "label": "nameof2",
+    "kind": "variable",
+    "detail": "nameof2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nameof2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameof2"
+    }
+  },
+  {
+    "label": "nameof3",
+    "kind": "variable",
+    "detail": "nameof3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nameof3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nameof3"
+    }
+  },
+  {
+    "label": "nestedBrackets",
+    "kind": "variable",
+    "detail": "nestedBrackets",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedBrackets",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedBrackets"
+    }
+  },
+  {
+    "label": "nestedInterpolatedBrackets",
+    "kind": "variable",
+    "detail": "nestedInterpolatedBrackets",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_nestedInterpolatedBrackets",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "nestedInterpolatedBrackets"
+    }
+  },
+  {
+    "label": "not",
+    "kind": "variable",
+    "detail": "not",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_not",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "not"
+    }
+  },
+  {
+    "label": "objWithInterp",
+    "kind": "variable",
+    "detail": "objWithInterp",
+    "documentation": {
+      "kind": "markdown",
+      "value": "a object with interp  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_objWithInterp",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "objWithInterp"
+    }
+  },
+  {
+    "label": "objectKeys",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nobjectKeys(object: object): string[]\n\n```  \nReturns an array of object keys. Elements are consistently ordered alphabetically.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_objectKeys",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "objectKeys($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "or",
+    "kind": "variable",
+    "detail": "or",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_or",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "or"
+    }
+  },
+  {
+    "label": "padLeft",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\npadLeft(valueToPad: int | string, totalLength: int, [paddingCharacter: string]): string\n\n```  \nReturns a right-aligned string by adding characters to the left until reaching the total specified length.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_padLeft",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "padLeft($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "parameters",
+    "kind": "field",
+    "detail": "parameters",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `bool`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_parameters",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "parameters"
+    }
+  },
+  {
+    "label": "parseCidr",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nparseCidr(network: string): parseCidr\n\n```  \nParses an IP address range in CIDR notation to get various properties of the address range.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_parseCidr",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "parseCidr($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "parseUri",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nparseUri(baseUrl: string): parseUri\n\n```  \nParses a URI string into its components (scheme, host, port, path, query).  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_parseUri",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "parseUri($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "pickZones",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\npickZones(providerNamespace: string, resourceType: string, location: string, [numberOfZones: int], [offset: int]): array\n\n```  \nDetermines whether a resource type supports zones for a region.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_pickZones",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "pickZones($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "portalEndpoint",
+    "kind": "variable",
+    "detail": "portalEndpoint",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_portalEndpoint",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "portalEndpoint"
+    }
+  },
+  {
+    "label": "prefix",
+    "kind": "variable",
+    "detail": "prefix",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_prefix",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "prefix"
+    }
+  },
+  {
+    "label": "previousEmitLimit",
+    "kind": "variable",
+    "detail": "previousEmitLimit",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_previousEmitLimit",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "previousEmitLimit"
+    }
+  },
+  {
+    "label": "previousEmitLimit2",
+    "kind": "variable",
+    "detail": "previousEmitLimit2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_previousEmitLimit2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "previousEmitLimit2"
+    }
+  },
+  {
+    "label": "previousEmitLimit3",
+    "kind": "variable",
+    "detail": "previousEmitLimit3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_previousEmitLimit3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "previousEmitLimit3"
+    }
+  },
+  {
+    "label": "printToSingleLine1",
+    "kind": "variable",
+    "detail": "printToSingleLine1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_printToSingleLine1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "printToSingleLine1"
+    }
+  },
+  {
+    "label": "printToSingleLine2",
+    "kind": "variable",
+    "detail": "printToSingleLine2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_printToSingleLine2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "printToSingleLine2"
+    }
+  },
+  {
+    "label": "printToSingleLine3",
+    "kind": "variable",
+    "detail": "printToSingleLine3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_printToSingleLine3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "printToSingleLine3"
+    }
+  },
+  {
+    "label": "propertyAccessFromObject",
+    "kind": "variable",
+    "detail": "propertyAccessFromObject",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_propertyAccessFromObject",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "propertyAccessFromObject"
+    }
+  },
+  {
+    "label": "providers",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nproviders(providerNamespace: string): Provider\nproviders(providerNamespace: string, resourceType: string): ProviderResource\n\n```  \nReturns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_providers",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "providers($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "providersTest",
+    "kind": "variable",
+    "detail": "providersTest",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_providersTest",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "providersTest"
+    }
+  },
+  {
+    "label": "providersTest2",
+    "kind": "variable",
+    "detail": "providersTest2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_providersTest2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "providersTest2"
+    }
+  },
+  {
+    "label": "range",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nrange(startIndex: int, count: int): int[]\n\n```  \nCreates an array of integers from a starting integer and containing a number of items.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_range",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "range($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "reduce",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nreduce(array: array, initialValue: any, predicate: (any, any[, int]) => any): any\n\n```  \nReduces an array with a custom reduce function.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_reduce",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "reduce($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "reference",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nreference(resourceNameOrIdentifier: string, [apiVersion: string], [full: string]): object\n\n```  \nReturns an object representing a resource's runtime state.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_reference",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "reference($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "replace",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nreplace(originalString: string, oldString: string, newString: string): string\n\n```  \nReturns a new string with all instances of one string replaced by another string.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_replace",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "replace($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "resourceGroup",
+    "kind": "variable",
+    "detail": "resourceGroup",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_resourceGroup",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceGroup"
+    }
+  },
+  {
+    "label": "resourceGroupName",
+    "kind": "variable",
+    "detail": "resourceGroupName",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_resourceGroupName",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceGroupName"
+    }
+  },
+  {
+    "label": "resourceGroupObject",
+    "kind": "variable",
+    "detail": "resourceGroupObject",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_resourceGroupObject",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceGroupObject"
+    }
+  },
+  {
+    "label": "resourceId",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresourceId(resourceType: string, ... : string): string\nresourceId(subscriptionId: string, resourceType: string, ... : string): string\nresourceId(resourceGroupName: string, resourceType: string, ... : string): string\nresourceId(subscriptionId: string, resourceGroupName: string, resourceType: string, ... : string): string\n\n```  \nReturns the unique identifier of a resource. You use this function when the resource name is ambiguous or not provisioned within the same template. The format of the returned identifier varies based on whether the deployment happens at the scope of a resource group, subscription, management group, or tenant.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_resourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resourceId($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "scopesWithArmRepresentation",
+    "kind": "variable",
+    "detail": "scopesWithArmRepresentation",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_scopesWithArmRepresentation",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "scopesWithArmRepresentation"
+    }
+  },
+  {
+    "label": "scopesWithoutArmRepresentation",
+    "kind": "variable",
+    "detail": "scopesWithoutArmRepresentation",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_scopesWithoutArmRepresentation",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "scopesWithoutArmRepresentation"
+    }
+  },
+  {
+    "label": "shallowMerge",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nshallowMerge(entries: object[]): object\n\n```  \nReturns a single array or object with all elements from the parameters. Duplicate values or keys are only included once.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_shallowMerge",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "shallowMerge($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "singleQuote",
+    "kind": "variable",
+    "detail": "singleQuote",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_singleQuote",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "singleQuote"
+    }
+  },
+  {
+    "label": "skip",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nskip(originalValue: array, numberToSkip: int): array\nskip(originalValue: string, numberToSkip: int): string\n\n```  \nReturns a string with all the characters after the specified number of characters, or an array with all the elements after the specified number of elements.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_skip",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "skip($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "someText",
+    "kind": "variable",
+    "detail": "someText",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_someText",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "someText"
+    }
+  },
+  {
+    "label": "sort",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsort(array: array, predicate: (any, any) => bool): array\n\n```  \nSorts an array with a custom sort function.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_sort",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "sort($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "split",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsplit(inputString: string, delimiter: array | string): string[]\n\n```  \nReturns an array of strings that contains the substrings of the input string that are delimited by the specified delimiters.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_split",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "split($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "spread",
+    "kind": "variable",
+    "detail": "spread",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_spread",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "spread"
+    }
+  },
+  {
+    "label": "startsWith",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nstartsWith(stringToSearch: string, stringToFind: string): bool\n\n```  \nDetermines whether a string starts with a value. The comparison is case-insensitive.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_startsWith",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "startsWith($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "string",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nstring(valueToConvert: any): string\n\n```  \nConverts the specified value to a string.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_string",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "string($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "sub",
+    "kind": "variable",
+    "detail": "sub",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_sub",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "sub"
+    }
+  },
+  {
+    "label": "subscription",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsubscription(): subscription\nsubscription(subscriptionId: string): subscription\n\n```  \nReturns a subscription scope.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_subscription",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "subscription($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "subscriptionResourceId",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsubscriptionResourceId(resourceType: string, ... : string): string\nsubscriptionResourceId(subscriptionId: string, resourceType: string, ... : string): string\n\n```  \nReturns the unique identifier for a resource deployed at the subscription level.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_subscriptionResourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "subscriptionResourceId($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "substring",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsubstring(stringToParse: string, startIndex: int, [length: int]): string\n\n```  \nReturns a substring that starts at the specified character position and contains the specified number of characters.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_substring",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "substring($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "sys",
+    "kind": "folder",
+    "detail": "sys",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_sys",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "sys."
+    },
+    "command": {
+      "title": "symbol completion",
+      "command": "editor.action.triggerSuggest"
+    }
+  },
+  {
+    "label": "take",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntake(originalValue: array, numberToTake: int): array\ntake(originalValue: string, numberToTake: int): string\n\n```  \nReturns an array or string. An array has the specified number of elements from the start of the array. A string has the specified number of characters from the start of the string.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_take",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "take($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "templateContentVersion",
+    "kind": "variable",
+    "detail": "templateContentVersion",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_templateContentVersion",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "templateContentVersion"
+    }
+  },
+  {
+    "label": "templateLinkId",
+    "kind": "variable",
+    "detail": "templateLinkId",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_templateLinkId",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "templateLinkId"
+    }
+  },
+  {
+    "label": "templateLinkUri",
+    "kind": "variable",
+    "detail": "templateLinkUri",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_templateLinkUri",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "templateLinkUri"
+    }
+  },
+  {
+    "label": "tenant",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntenant(): tenant\n\n```  \nReturns the current tenant scope.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_tenant",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "tenant()$0"
+    }
+  },
+  {
+    "label": "tenantResourceId",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntenantResourceId(resourceType: string, ... : string): string\n\n```  \nReturns the unique identifier for a resource deployed at the tenant level.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_tenantResourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "tenantResourceId($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "test",
+    "kind": "variable",
+    "detail": "test",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_test",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "test"
+    }
+  },
+  {
+    "label": "toLogicalZone",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoLogicalZone(subscriptionId: string, location: string, physicalZone: string): string\n\n```  \nReturns the logical zone corresponding to the given physical zone.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toLogicalZone",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "toLogicalZone($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "toLogicalZones",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoLogicalZones(subscriptionId: string, location: string, physicalZones: array): string[]\n\n```  \nReturns the logical zone array corresponding to the given array of physical zones.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toLogicalZones",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "toLogicalZones($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "toLower",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoLower(stringToChange: string): string\n\n```  \nConverts the specified string to lower case.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toLower",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "toLower($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "toObject",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoObject(array: array, keyPredicate: any => string, [valuePredicate: any => any]): object\n\n```  \nConverts an array to an object with a custom key function and optional custom value function.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toObject",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "toObject($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "toPhysicalZone",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoPhysicalZone(subscriptionId: string, location: string, logicalZone: string): string\n\n```  \nReturns the physical zone corresponding to the given logical zone.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toPhysicalZone",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "toPhysicalZone($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "toPhysicalZones",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoPhysicalZones(subscriptionId: string, location: string, logicalZones: array): string[]\n\n```  \nReturns the physical zone array corresponding to the given array of logical zones.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toPhysicalZones",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "toPhysicalZones($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "toUpper",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoUpper(stringToChange: string): string\n\n```  \nConverts the specified string to upper case.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toUpper",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "toUpper($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "trim",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntrim(stringToTrim: string): string\n\n```  \nRemoves all leading and trailing white-space characters from the specified string.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_trim",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "trim($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "union",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nunion(... : object): object\nunion(... : array): array\n\n```  \nReturns a single array or object with all elements from the parameters. Duplicate values or keys are only included once.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_union",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "union($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "uniqueString",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nuniqueString(... : string): string\n\n```  \nCreates a deterministic hash string based on the values provided as parameters. The returned value is 13 characters long.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uniqueString",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "uniqueString($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "unusedIntermediate",
+    "kind": "variable",
+    "detail": "unusedIntermediate",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_unusedIntermediate",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "unusedIntermediate"
+    }
+  },
+  {
+    "label": "unusedIntermediateRef",
+    "kind": "variable",
+    "detail": "unusedIntermediateRef",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_unusedIntermediateRef",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "unusedIntermediateRef"
+    }
+  },
+  {
+    "label": "uri",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nuri(baseUri: string, relativeUri: string): string\n\n```  \nCreates an absolute URI by combining the baseUri and the relativeUri string.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uri",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "uri($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "uriComponent",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nuriComponent(stringToEncode: string): string\n\n```  \nEncodes a URI.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uriComponent",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "uriComponent($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "uriComponentToString",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nuriComponentToString(uriEncodedString: string): string\n\n```  \nReturns a string of a URI encoded value.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_uriComponentToString",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "uriComponentToString($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "variables",
+    "kind": "variable",
+    "detail": "variables",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_variables",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "variables"
+    }
+  }
+]

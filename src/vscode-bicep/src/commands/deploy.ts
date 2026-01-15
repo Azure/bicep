@@ -189,7 +189,7 @@ export class DeployCommand implements Command {
     deploymentName: string,
   ): Promise<BicepDeploymentStartResponse | undefined> {
     const subscription = await this.azurePickers.pickSubscription(context);
-    const managementGroup = await this.azurePickers.pickManagementGroup(context);
+    const managementGroup = await this.azurePickers.pickManagementGroup(context, subscription);
     const location = await this.azurePickers.pickLocation(context, subscription);
     const parameterFilePath = await this.selectParameterFile(context, documentUri);
 
