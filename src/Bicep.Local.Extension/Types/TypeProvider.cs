@@ -85,7 +85,8 @@ public class TypeProvider : ITypeProvider
             // check that fallback type has ResourceTypeAttribute
             var resourceTypeAttribute = this.fallbackType.GetCustomAttribute<ResourceTypeAttribute>(true);
 
-            if(this.fallbackType.IsVisible && resourceTypeAttribute is not null)
+            // ensure fallback type is public and annotated with ResourceTypeAttribute
+            if (this.fallbackType.IsVisible && resourceTypeAttribute is not null)
             {
                 return new(Type: this.fallbackType, Attribute: resourceTypeAttribute);
             }                        
