@@ -136,7 +136,7 @@ public static class IBicepExtensionBuilderExtensions
     /// <param name="implementationFactory">A factory function that creates an instance of <see cref="ITypeDefinitionBuilder"/> using the provided <see
     /// cref="IServiceProvider"/>.</param>
     /// <returns>The same <see cref="IBicepExtensionBuilder"/> instance, enabling method chaining.</returns>
-    public static IBicepExtensionBuilder WithTypebuilder(this IBicepExtensionBuilder builder, Func<IServiceProvider, ITypeDefinitionBuilder> implementationFactory)
+    public static IBicepExtensionBuilder WithTypeBuilder(this IBicepExtensionBuilder builder, Func<IServiceProvider, ITypeDefinitionBuilder> implementationFactory)
     {
         builder.Services.AddSingleton<ITypeDefinitionBuilder>(implementationFactory);
         return builder;
