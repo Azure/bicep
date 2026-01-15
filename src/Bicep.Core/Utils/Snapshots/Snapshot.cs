@@ -6,7 +6,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Bicep.Cli.Helpers.Snapshot;
+namespace Bicep.Core.Utils.Snapshots;
 
 [JsonSerializable(typeof(Snapshot))]
 [JsonSourceGenerationOptions(
