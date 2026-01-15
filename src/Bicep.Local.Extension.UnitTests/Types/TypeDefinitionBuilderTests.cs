@@ -15,12 +15,14 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.Local.Extension.Builder;
 using Bicep.Local.Extension.Host;
 using Bicep.Local.Extension.Types;
+using Bicep.Local.Extension.Types.Models;
 using Bicep.Local.Extension.Types.Attributes;
 using FluentAssertions;
 using JsonDiffPatchDotNet;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Moq;
+
 using static Microsoft.WindowsAzure.ResourceStack.Common.Utilities.FastActivator;
 
 namespace Bicep.Local.Extension.UnitTests.TypesTests;
@@ -43,6 +45,8 @@ public class TypeDefinitionBuilderTests
     private record NestedConfiguration(
         string Name = "",
         SimpleConfiguration? Nested = null);
+
+    private record FallbackResource(string Message = "", int Code = 0);
 
     private static BicepExtensionInfo CreateExtensionInfo() =>
         new(Name: "TestExtension", Version: "2025-01-01", IsSingleton: true);
@@ -134,6 +138,7 @@ public class TypeDefinitionBuilderTests
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([]);
+        typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
 
         var options = CreateOptions(
             map: [(typeof(string), () => new StringType())],
@@ -154,6 +159,7 @@ public class TypeDefinitionBuilderTests
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([]);
+        typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
 
         var options = CreateOptions(
             map: [(typeof(string), () => new StringType()), (typeof(int), () => new IntegerType())],
@@ -179,6 +185,7 @@ public class TypeDefinitionBuilderTests
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([]);
+        typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
 
         var options = CreateOptions(
             map: [
@@ -207,6 +214,7 @@ public class TypeDefinitionBuilderTests
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([]);
+        typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
 
         var options = CreateOptions(
             map: [
@@ -233,8 +241,11 @@ public class TypeDefinitionBuilderTests
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
-            (typeof(SimpleResource), new ResourceTypeAttribute("SimpleResource"))
+            new ResourceTypeDefinitionDetails(
+                Type: typeof(SimpleResource),
+                Attribute: new ResourceTypeAttribute("SimpleResource"))
         ]);
+        typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
 
         var options = CreateOptions(
             map: [
@@ -267,6 +278,7 @@ public class TypeDefinitionBuilderTests
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([]);
+        typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
 
         var options = CreateOptions([(typeof(string), () => new StringType())]);
 
@@ -286,8 +298,11 @@ public class TypeDefinitionBuilderTests
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
-            (typeof(SimpleResource), new ResourceTypeAttribute("SimpleResource"))
+            new ResourceTypeDefinitionDetails(
+                Type: typeof(SimpleResource),
+                Attribute: new ResourceTypeAttribute("SimpleResource"))
         ]);
+        typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
 
         var options = CreateOptions([(typeof(string), () => new StringType())]);
         var builder = new TypeDefinitionBuilder(extensionInfo, factory, typeProviderMock.Object, options);
@@ -306,9 +321,14 @@ public class TypeDefinitionBuilderTests
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
-            (typeof(SimpleResource), new ResourceTypeAttribute("SimpleResource")),
-            (typeof(ArrayResource), new ResourceTypeAttribute("ArrayResource"))
+            new ResourceTypeDefinitionDetails(
+                Type: typeof(SimpleResource),
+                Attribute: new ResourceTypeAttribute("SimpleResource")),
+            new ResourceTypeDefinitionDetails(
+                Type: typeof(ArrayResource),
+                Attribute: new ResourceTypeAttribute("ArrayResource"))
         ]);
+        typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
 
         var options = CreateOptions([(typeof(string), () => new StringType())]);
         var builder = new TypeDefinitionBuilder(extensionInfo, factory, typeProviderMock.Object, options);
@@ -329,8 +349,11 @@ public class TypeDefinitionBuilderTests
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
-            (typeof(TestUnsupportedProperty), new ResourceTypeAttribute("TestUnsupportedProperty"))
+            new ResourceTypeDefinitionDetails(
+                Type: typeof(TestUnsupportedProperty),
+                Attribute: new ResourceTypeAttribute("TestUnsupportedProperty"))
         ]);
+        typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
 
         var options = CreateOptions([(typeof(string), () => new StringType())]);
 
@@ -356,8 +379,11 @@ public class TypeDefinitionBuilderTests
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
-            (typeof(ArrayResource), new ResourceTypeAttribute("ArrayResource"))
+            new ResourceTypeDefinitionDetails(
+                Type: typeof(ArrayResource),
+                Attribute: new ResourceTypeAttribute("ArrayResource"))
         ]);
+        typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
 
         var options = CreateOptions(map: [(typeof(string), () => new StringType())]);
         var builder = new TypeDefinitionBuilder(extensionInfo, factory, typeProviderMock.Object, options);
@@ -375,8 +401,11 @@ public class TypeDefinitionBuilderTests
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
-            (typeof(EnumerableResource), new ResourceTypeAttribute("EnumerableResource"))
+            new ResourceTypeDefinitionDetails(
+                Type: typeof(EnumerableResource),
+                Attribute: new ResourceTypeAttribute("EnumerableResource"))
         ]);
+        typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
         var options = CreateOptions(map: [(typeof(string), () => new StringType())]);
 
         var builder = new TypeDefinitionBuilder(extensionInfo, factory, typeProviderMock.Object, options);
@@ -394,8 +423,11 @@ public class TypeDefinitionBuilderTests
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
-            (typeof(ComplexArrayResource), new ResourceTypeAttribute("ComplexArrayResource"))
+            new ResourceTypeDefinitionDetails(
+                Type: typeof(ComplexArrayResource),
+                Attribute: new ResourceTypeAttribute("ComplexArrayResource"))
         ]);
+        typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
         var options = CreateOptions(map: [(typeof(string), () => new StringType())]);
 
         var builder = new TypeDefinitionBuilder(extensionInfo, factory, typeProviderMock.Object, options);
@@ -423,8 +455,11 @@ public class TypeDefinitionBuilderTests
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
-            (typeof(EnumResource), new ResourceTypeAttribute("EnumResource"))
+            new ResourceTypeDefinitionDetails(
+                Type: typeof(EnumResource),
+                Attribute: new ResourceTypeAttribute("EnumResource"))
         ]);
+        typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
 
         var options = CreateOptions(map: [(typeof(string), () => new StringType())]);
         var builder = new TypeDefinitionBuilder(extensionInfo, factory, typeProviderMock.Object, options);
@@ -449,8 +484,11 @@ public class TypeDefinitionBuilderTests
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
-            (typeof(CamelCaseTestResource), new ResourceTypeAttribute("CamelCaseTest"))
+            new ResourceTypeDefinitionDetails(
+                Type: typeof(CamelCaseTestResource),
+                Attribute: new ResourceTypeAttribute("CamelCaseTest"))
         ]);
+        typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
 
         var options = CreateOptions(map: [(typeof(string), () => new StringType())]);
         var builder = new TypeDefinitionBuilder(extensionInfo, factory, typeProviderMock.Object, options);
@@ -476,8 +514,11 @@ public class TypeDefinitionBuilderTests
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
-            (typeof(MultiTypeResource), new ResourceTypeAttribute("MultiTypeResource"))
+            new ResourceTypeDefinitionDetails(
+                Type: typeof(MultiTypeResource),
+                Attribute: new ResourceTypeAttribute("MultiTypeResource"))
         ]);
+        typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
 
         var options = CreateOptions(map: [
             (typeof(string), () => new StringType()),
@@ -501,8 +542,11 @@ public class TypeDefinitionBuilderTests
     {
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
-            (typeof(MultiTypeResource), new ResourceTypeAttribute("MultiTypeResource"))
+            new ResourceTypeDefinitionDetails(
+                Type: typeof(MultiTypeResource),
+                Attribute: new ResourceTypeAttribute("MultiTypeResource"))
         ]);
+        typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
 
         // Only provide string mapping, missing int and bool
         var options = CreateOptions(map: [(typeof(string), () => new StringType())]);
@@ -523,6 +567,7 @@ public class TypeDefinitionBuilderTests
         var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
 
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([]);
+        typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
 
         var options = CreateOptions(map: [(typeof(string), () => new StringType())]);
         var builder = new TypeDefinitionBuilder(extensionInfo, factory, typeProviderMock.Object, options);
@@ -534,5 +579,127 @@ public class TypeDefinitionBuilderTests
         result.IndexFileContent.Should().Contain("2025-01-01");
     }
 
-    #endregion Extension Info Tests
-}
+        #endregion Extension Info Tests
+
+        #region Fallback Type Tests
+
+        [TestMethod]
+        public void GenerateTypeDefinition_Without_FallbackType_DoesNotIncludeFallbackInIndex()
+        {
+            var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
+            typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([]);
+            typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns((ResourceTypeDefinitionDetails?)null);
+
+            var options = CreateOptions([(typeof(string), () => new StringType())]);
+            var builder = new TypeDefinitionBuilder(extensionInfo, factory, typeProviderMock.Object, options);
+
+            var result = builder.GenerateTypeDefinition();
+
+            result.Should().NotBeNull();
+            result.IndexFileContent.Should().NotBeNullOrEmpty();
+            result.IndexFileContent.Should().Contain("\"fallbackResourceType\": null",
+                because: "no fallback resource type was specified");
+        }
+
+        [TestMethod]
+        public void GenerateTypeDefinition_With_FallbackType_IncludesFallbackInIndex()
+        {
+            var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
+            typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([]);
+            typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns(
+                new ResourceTypeDefinitionDetails(
+                    Type: typeof(FallbackResource),
+                    Attribute: new ResourceTypeAttribute("FallbackResource")));
+
+            var options = CreateOptions([
+                (typeof(string), () => new StringType()),
+                (typeof(int), () => new IntegerType())
+            ]);
+            var builder = new TypeDefinitionBuilder(extensionInfo, factory, typeProviderMock.Object, options);
+
+            var result = builder.GenerateTypeDefinition();
+
+            result.Should().NotBeNull();
+            result.IndexFileContent.Should().Contain("fallbackResourceType",
+                because: "a fallback resource type was specified");
+            result.TypeFileContents.Values.Single().Should().Contain("FallbackResource",
+                because: "the fallback resource type should be included in types");
+            result.TypeFileContents.Values.Single().Should().Contain("message",
+                because: "fallback resource properties should be camelCased");
+            result.TypeFileContents.Values.Single().Should().Contain("code",
+                because: "all fallback resource properties should be included");
+        }
+
+        [TestMethod]
+        public void GenerateTypeDefinition_With_FallbackType_And_Resources_IncludesBoth()
+        {
+            var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
+            typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
+                new ResourceTypeDefinitionDetails(
+                    Type: typeof(SimpleResource),
+                    Attribute: new ResourceTypeAttribute("SimpleResource"))
+            ]);
+            typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns(
+                new ResourceTypeDefinitionDetails(
+                    Type: typeof(FallbackResource),
+                    Attribute: new ResourceTypeAttribute("FallbackResource")));
+
+            var options = CreateOptions([
+                (typeof(string), () => new StringType()),
+                (typeof(int), () => new IntegerType())
+            ]);
+            var builder = new TypeDefinitionBuilder(extensionInfo, factory, typeProviderMock.Object, options);
+
+            var result = builder.GenerateTypeDefinition();
+
+            result.Should().NotBeNull();
+            result.IndexFileContent.Should().Contain("SimpleResource",
+                because: "resource types should be in the index");
+            result.IndexFileContent.Should().Contain("fallbackResourceType",
+                because: "fallback resource type should be in the index");
+
+            var typesContent = result.TypeFileContents.Values.Single();
+            typesContent.Should().Contain("SimpleResource");
+            typesContent.Should().Contain("FallbackResource");
+        }
+
+        [TestMethod]
+        public void GenerateTypeDefinition_With_FallbackType_ConfigurationType_And_Resources_IncludesAll()
+        {
+            var (extensionInfo, factory, typeProviderMock) = CreateTestInfrastructure();
+            typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
+                new ResourceTypeDefinitionDetails(
+                    Type: typeof(SimpleResource),
+                    Attribute: new ResourceTypeAttribute("SimpleResource"))
+            ]);
+            typeProviderMock.Setup(tp => tp.GetFallbackType()).Returns(
+                new ResourceTypeDefinitionDetails(
+                    Type: typeof(FallbackResource),
+                    Attribute: new ResourceTypeAttribute("FallbackResource")));
+
+            var options = CreateOptions(
+                map: [
+                    (typeof(string), () => new StringType()),
+                    (typeof(int), () => new IntegerType())
+                ],
+                configurationType: typeof(SimpleConfiguration));
+            var builder = new TypeDefinitionBuilder(extensionInfo, factory, typeProviderMock.Object, options);
+
+            var result = builder.GenerateTypeDefinition();
+
+            result.Should().NotBeNull();
+            result.IndexFileContent.Should().Contain("SimpleResource",
+                because: "resource types should be in the index");
+            result.IndexFileContent.Should().Contain("configurationType",
+                because: "configuration type should be in the index");
+            result.IndexFileContent.Should().Contain("fallbackResourceType",
+                because: "fallback resource type should be in the index");
+
+            var typesContent = result.TypeFileContents.Values.Single();
+            typesContent.Should().Contain("SimpleResource");
+            typesContent.Should().Contain("SimpleConfiguration");
+            typesContent.Should().Contain("FallbackResource");
+        }
+
+        #endregion Fallback Type Tests
+    }

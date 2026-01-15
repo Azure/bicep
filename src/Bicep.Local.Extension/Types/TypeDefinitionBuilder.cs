@@ -28,11 +28,12 @@ public class TypeDefinitionBuilder
     private readonly FrozenDictionary<Type, Func<TypeBase>> typeToTypeBaseMap;
 
     protected readonly ConcurrentDictionary<Type, TypeBase> typeCache;
-    private readonly Type? fallbackType;
+    
     private readonly BicepExtensionInfo extensionInfo;
     private readonly Type? configurationType;
     protected readonly TypeFactory factory;
 
+    private static readonly string typesJsonPath = "types.json";
 
     /// <summary>
     /// Provides functionality to generate Bicep resource type definitions from .NET types.
@@ -53,8 +54,7 @@ public class TypeDefinitionBuilder
         BicepExtensionInfo extensionInfo,
         TypeFactory factory,
         ITypeProvider typeProvider,
-        TypeDefinitionBuilderOptions options,
-        FallbackTypeContainer? fallbackTypeContainer)
+        TypeDefinitionBuilderOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
 
@@ -69,7 +69,6 @@ public class TypeDefinitionBuilder
 
         this.visited = new HashSet<Type>();
         this.typeCache = new ConcurrentDictionary<Type, TypeBase>();
-        this.fallbackType = fallbackTypeContainer?.FallbackResourceType;
     }
 
     /// <summary>
@@ -86,30 +85,20 @@ public class TypeDefinitionBuilder
     /// </remarks>
     public virtual TypeDefinition GenerateTypeDefinition()
     {
-        var typesJsonPath = "types.json";
         var resourceTypes = typeProvider.GetResourceTypes()
-            .Select(x => GenerateResource(factory, typeCache, x.type, x.attribute))
+            .Select(x => GenerateResource(factory, typeCache, x.Type, x.Attribute))
             .ToDictionary(rt => rt.Name, rt => new CrossFileTypeReference(typesJsonPath, factory.GetIndex(rt)));
 
-        CrossFileTypeReference? config = null;
-        if (configurationType is not null)
-        {
-            var configReference = factory.Create(() => GenerateForRecord(factory, typeCache, configurationType));
-            config = new CrossFileTypeReference(typesJsonPath, factory.GetIndex(configReference));
-        }
+        var fallbackResourceType = typeProvider.GetFallbackType();
 
-        CrossFileTypeReference? fallbackResourceType = null;
-        if (fallbackType is not null)
-        {
-            var fallbackReference = factory.Create(() => GenerateResource(factory, typeCache, fallbackType, new ResourceTypeAttribute("FallbackResource")));
-            fallbackResourceType = new CrossFileTypeReference(typesJsonPath, factory.GetIndex(fallbackReference));
-        }
-
+        CrossFileTypeReference? config = configurationType is not null ? CreateCrossFileTypeReference(configurationType) : null;        
+        CrossFileTypeReference? fallbackType = fallbackResourceType?.Type is not null ? CreateCrossFileTypeReference(fallbackResourceType.Type) : null;
+        
         var index = new TypeIndex(
             resources: resourceTypes,
             resourceFunctions: new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
             settings: new TypeSettings(name: extensionInfo.Name, version: extensionInfo.Version, isSingleton: extensionInfo.IsSingleton, configurationType: config!),
-            fallbackResourceType: fallbackResourceType);
+            fallbackResourceType: fallbackType);
 
         return new(
             IndexFileContent: GetString(stream => TypeSerializer.SerializeIndex(stream, index)),
@@ -117,6 +106,12 @@ public class TypeDefinitionBuilder
             {
                 [typesJsonPath] = GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes())),
             }.ToImmutableDictionary());
+    }
+
+    private CrossFileTypeReference? CreateCrossFileTypeReference(Type type)
+    {
+        var reference = factory.Create(() => GenerateForRecord(factory, typeCache, type));
+        return new CrossFileTypeReference(typesJsonPath, this.factory.GetIndex(reference));
     }
 
     protected virtual ResourceType GenerateResource(TypeFactory typeFactory, ConcurrentDictionary<Type, TypeBase> typeCache, Type type, ResourceTypeAttribute attribute)

@@ -9,6 +9,7 @@ using Bicep.Local.Extension.Builder;
 using Bicep.Local.Extension.Host.Extensions;
 using Bicep.Local.Extension.Host.Handlers;
 using Bicep.Local.Extension.Types;
+using Bicep.Local.Extension.Types.Attributes;
 using Bicep.Local.Extension.Types.Models;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -107,15 +108,20 @@ public static class IBicepExtensionBuilderExtensions
 
     public static IBicepExtensionBuilder WithFallbackType<TFallback>(this IBicepExtensionBuilder builder)
         where TFallback : class
-    {
-        // Check if fallback is already registered
-        if (builder.Services.Any(sd => sd.ServiceType == typeof(FallbackTypeContainer)))
+    {        
+        if (builder.Services.Any(sd => sd.ServiceType == typeof(FallbackTypeRegistration)))
         {
             throw new InvalidOperationException(
                 $"A fallback type has already been registered. Only one fallback type is allowed per extension.");
         }
+        
+        if(typeof(TFallback).GetCustomAttribute<ResourceTypeAttribute>() is null)
+        {
+            throw new InvalidOperationException(
+                $"The fallback type '{typeof(TFallback).FullName}' must be annotated with the ResourceTypeAttribute.");
+        }
 
-        builder.Services.AddSingleton(new FallbackTypeContainer(typeof(TFallback)));
+        builder.Services.AddSingleton(new FallbackTypeRegistration(typeof(TFallback)));
         return builder;
     }
 

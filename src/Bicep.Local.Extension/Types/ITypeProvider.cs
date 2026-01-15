@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Local.Extension.Types.Attributes;
+using Bicep.Local.Extension.Types.Models;
 
 namespace Bicep.Local.Extension.Types;
 
@@ -15,5 +16,16 @@ namespace Bicep.Local.Extension.Types;
 /// </remarks>
 public interface ITypeProvider
 {
-    IEnumerable<(Type type, ResourceTypeAttribute attribute)> GetResourceTypes(bool throwOnDuplicate = true);
+    /// <summary>
+    /// Retrieves all resource type definitions available to the extension.
+    /// </summary>
+    /// <param name="throwOnDuplicate">Indicates whether to throw an exception if duplicate resource types are found.</param>
+    /// <returns>An enumerable collection of resource type definitions.</returns>
+    IEnumerable<ResourceTypeDefinitionDetails> GetResourceTypes(bool throwOnDuplicate = true);
+
+    /// <summary>
+    /// Retrieves the fallback resource type definition, if one has been registered.
+    /// </summary>
+    /// <returns>The fallback resource type definition, or <see langword="null"/> if no fallback type is registered.</returns>
+    ResourceTypeDefinitionDetails? GetFallbackType();
 }
