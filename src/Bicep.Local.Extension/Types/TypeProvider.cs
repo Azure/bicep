@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Bicep.Local.Extension.Types.Attributes;
+using Bicep.Local.Extension.Types.Models;
 
 namespace Bicep.Local.Extension.Types;
 
@@ -17,9 +18,24 @@ public class TypeProvider : ITypeProvider
 {
     private readonly Assembly[] assemblies;
 
-    public TypeProvider(Assembly[]? assemblies = null)
+    private readonly Lazy<ImmutableArray<(Type type, ResourceTypeAttribute attribute)>> lazyResourceTypes;
+
+    public TypeProvider(
+        TypesAssemblyContainer? assemblyContainer = null,
+        ConfigurationTypeContainer? configurationTypeContainer = null)
     {
         this.assemblies = assemblies ?? GetAssembliesInReferenceScope();
+
+        ConfigurationType = configurationTypeContainer?.type;
+
+        // lazily cache resource types to improve performance on repeated calls
+        this.lazyResourceTypes = new Lazy<ImmutableArray<(Type type, ResourceTypeAttribute attribute)>>(() =>
+            this.assemblies
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(x => x.IsVisible)
+            .Select(x => (type: x, attribute: x.GetCustomAttribute<ResourceTypeAttribute>(true)!))
+            .Where(x => x.attribute is not null)
+            .ToImmutableArray());
     }
 
     private static Assembly[] GetAssembliesInReferenceScope()
@@ -32,6 +48,8 @@ public class TypeProvider : ITypeProvider
                 .ToArray();
     }
 
+    public Type? ConfigurationType { get; }
+
     /// <summary>
     /// Provides resource type discovery for Bicep extensions by scanning loaded assemblies for types
     /// annotated with <see cref="ResourceTypeAttribute"/>.
@@ -43,14 +61,7 @@ public class TypeProvider : ITypeProvider
     /// </remarks>
     public IEnumerable<(Type type, ResourceTypeAttribute attribute)> GetResourceTypes(bool throwOnDuplicate)
     {
-        var result = assemblies
-            .SelectMany(assembly => assembly.GetTypes())
-            .Where(x => x.IsVisible)
-            .Select(x => (type: x, attribute: x.GetCustomAttribute<ResourceTypeAttribute>(true)!))
-            .Where(x => x.attribute is not null)
-            .ToImmutableArray();
-
-        foreach (var group in result.GroupBy(x => x.attribute.FullName))
+        foreach (var group in lazyResourceTypes.Value.GroupBy(x => x.attribute.FullName))
         {
             if (throwOnDuplicate && group.Count() > 1)
             {

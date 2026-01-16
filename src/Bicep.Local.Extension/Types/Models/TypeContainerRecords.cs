@@ -3,8 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace Bicep.Local.Extension.Types.Models;
 
-public record ConfigurationTypeContainer(Type configurationType);
+public record ConfigurationTypeContainer(Type type);
+public record FallbackTypeContainer(Type Type);
+
+public record TypesAssemblyContainer(Assembly[]? Assemblies);

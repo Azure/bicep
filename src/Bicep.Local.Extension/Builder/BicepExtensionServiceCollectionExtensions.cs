@@ -26,7 +26,14 @@ using Microsoft.Extensions.Hosting;
 namespace Microsoft.Extensions.DependencyInjection;
 
 public static class BicepExtensionServiceCollectionExtensions
-{    
+{
+    /// <summary>
+    /// Adds the Bicep extension and its required services to the specified service collection.
+    /// </summary>
+    /// <remarks>This method registers services necessary for Bicep resource handling and enables detailed
+    /// error reporting for gRPC services. It also adds gRPC reflection support to the service collection.</remarks>
+    /// <param name="services">The service collection to which the Bicep extension services will be added. Cannot be null.</param>
+    /// <returns>An instance of <see cref="IBicepExtensionBuilder"/> that can be used to further configure the Bicep extension.</returns>
     public static IBicepExtensionBuilder AddBicepExtension(this IServiceCollection services)
     {
         services.AddSingleton<IResourceHandlerCollection, ResourceHandlerCollection>();

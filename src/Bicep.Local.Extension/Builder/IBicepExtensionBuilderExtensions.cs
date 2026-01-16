@@ -41,15 +41,28 @@ public static class IBicepExtensionBuilderExtensions
         return builder;
     }
 
-    public static IBicepExtensionBuilder WithTypeConfiguration(this IBicepExtensionBuilder builder, Type configuartion)
-    {
-        builder.Services.AddSingleton(new ConfigurationTypeContainer(configuartion));
-        return builder;            
-    }
-
-    public static IBicepExtensionBuilder WithTypeBuilder(this IBicepExtensionBuilder builder, ITypeDefinitionBuilder typeDefinitionBuilder)
+    public static IBicepExtensionBuilder WithTypeDefinitionBuilder(this IBicepExtensionBuilder builder, ITypeDefinitionBuilder typeDefinitionBuilder)
     {
         builder.Services.AddSingleton<ITypeDefinitionBuilder>(typeDefinitionBuilder);
         return builder;
     }
+
+    public static IBicepExtensionBuilder WithDefaultTypeDefinitionBuilder(this IBicepExtensionBuilder builder)
+    {
+        builder.Services.AddSingleton<ITypeProvider, TypeProvider>();
+        builder.Services.AddSingleton<ITypeDefinitionBuilder, TypeDefinitionBuilder>();
+        return builder;
+    }
+
+    public static IBicepExtensionBuilder WithTypeAssemblies(this IBicepExtensionBuilder builder, Assembly[] assemblies)
+    {
+        builder.Services.AddSingleton(new TypesAssemblyContainer(assemblies));
+        return builder;
+    }
+    public static IBicepExtensionBuilder WithConfigurationType(this IBicepExtensionBuilder builder, Type configuartion)
+    {
+        builder.Services.AddSingleton(new ConfigurationTypeContainer(configuartion));
+        return builder;
+    }
+
 }
