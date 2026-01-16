@@ -15,12 +15,13 @@ using Azure.Deployments.Engine.Workers;
 using Azure.Deployments.Engine.Workers.Utils;
 using Azure.Deployments.Expression.Intermediate.Extensions;
 using Azure.Deployments.Templates.Engines;
+using Bicep.Core.Utils.Snapshots;
 using Bicep.Cli.Commands;
 using JsonDiffPatchDotNet;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.Cli.Helpers.Snapshot;
+namespace Bicep.Cli.Helpers.Snapshots;
 
 public class SnapshotDiffer
 {

@@ -28,7 +28,8 @@ public static class IServiceCollectionExtensions
         services
             .AddSingleton<BicepTools>()
             .AddSingleton<BicepCompilerTools>()
-            .AddSingleton<BicepDecompilerTools>();
+            .AddSingleton<BicepDecompilerTools>()
+            .AddSingleton<BicepDeploymentTools>();
 
         return services.AddMcpServer(options =>
         {
@@ -37,6 +38,7 @@ public static class IServiceCollectionExtensions
         .WithTools<BicepTools>()
         .WithTools<BicepCompilerTools>()
         .WithTools<BicepDecompilerTools>()
+        .WithTools<BicepDeploymentTools>()
         .AddCallToolFilter((next) => async (request, cancellationToken) =>
         {
             try

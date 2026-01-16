@@ -4,7 +4,7 @@
 using System.Collections.Immutable;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
-using Bicep.Cli.Helpers.Snapshot;
+using Bicep.Core.Utils.Snapshots;
 using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
