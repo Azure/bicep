@@ -115,13 +115,29 @@ public static class IBicepExtensionBuilderExtensions
             .WithTypeDefinitionBuilder<TypeDefinitionBuilder>()
             .WithTypeProvider<TypeProvider>();
 
-
+    /// <summary>
+    /// Configures the specified Bicep extension builder to use the provided type provider for type resolution.
+    /// </summary>
+    /// <remarks>The type provider is registered as a singleton service, ensuring that the same instance is
+    /// used throughout the application's lifetime.</remarks>
+    /// <param name="builder">The Bicep extension builder to configure with the type provider.</param>
+    /// <param name="typeProvider">The type provider to be registered with the Bicep extension builder. This instance will be used for resolving
+    /// types within the extension.</param>
+    /// <returns>The configured Bicep extension builder instance, enabling method chaining.</returns>
     public static IBicepExtensionBuilder WithTypeProvider(IBicepExtensionBuilder builder, ITypeProvider typeProvider)
     {
         builder.Services.AddSingleton<ITypeProvider>(typeProvider);
         return builder;
     }
 
+    /// <summary>
+    /// Configures the specified Bicep extension builder to use the provided type provider for type resolution.
+    /// </summary>
+    /// <remarks>The type provider is registered as a singleton service, ensuring that the same instance is
+    /// used throughout the application's lifetime.</remarks>
+    /// <typeparam name="TTypeProvider">The type of the type provider to register. This type must implement the ITypeProvider interface.</typeparam>
+    /// <param name="builder">The Bicep extension builder instance to which the type provider will be added.</param>
+    /// <returns>The updated instance of the IBicepExtensionBuilder for further configuration.</returns>
     public static IBicepExtensionBuilder WithTypeProvider<TTypeProvider>(this IBicepExtensionBuilder builder)
         where TTypeProvider : class, ITypeProvider
     {
@@ -143,10 +159,25 @@ public static class IBicepExtensionBuilderExtensions
         return builder;
     }
 
+    /// <summary>
+    /// Configures the Bicep extension builder to use the specified assembly for type resolution.
+    /// </summary>
+    /// <remarks>This method allows the user to specify an assembly that contains type definitions, which can
+    /// be utilized by the Bicep extension during processing.</remarks>
+    /// <typeparam name="TEntry">The type whose containing assembly will be used for configuration.</typeparam>
+    /// <param name="builder">The Bicep extension builder to configure.</param>
+    /// <returns>The configured instance of <see cref="IBicepExtensionBuilder"/>, enabling further configuration.</returns>
     public static IBicepExtensionBuilder WithTypeAssembly<TEntry>(this IBicepExtensionBuilder builder)
         => builder.WithTypeAssembly(typeof(TEntry).Assembly);
     
-
+    /// <summary>
+    /// Configures the Bicep extension builder to include the specified type assemblies.
+    /// </summary>
+    /// <remarks>This method iterates through the provided assemblies and adds each one to the builder. Ensure
+    /// that the assemblies contain the necessary types for the Bicep extension to function correctly.</remarks>
+    /// <param name="builder">The Bicep extension builder to configure with the type assemblies.</param>
+    /// <param name="assemblies">An array of assemblies that contain types to be included in the Bicep extension. Cannot be null.</param>
+    /// <returns>The configured instance of the Bicep extension builder, allowing for method chaining.</returns>
     public static IBicepExtensionBuilder WithTypeAssemblies(this IBicepExtensionBuilder builder, Assembly[] assemblies)
     {
         foreach(var a in  assemblies)
@@ -157,6 +188,16 @@ public static class IBicepExtensionBuilderExtensions
         return builder;
     }
 
+    /// <summary>
+    /// Registers a configuration type for the Bicep extension, enabling customization of the extension's behavior using
+    /// the specified configuration type.
+    /// </summary>
+    /// <remarks>Call this method before invoking any other configuration-related methods to ensure the
+    /// configuration type is set correctly.</remarks>
+    /// <param name="builder">The builder instance used to configure the Bicep extension.</param>
+    /// <param name="configuartion">The type that represents the configuration to be registered. This type must not have been registered previously.</param>
+    /// <returns>The updated instance of the IBicepExtensionBuilder, allowing for method chaining.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if a configuration type has already been registered for the extension.</exception>
     public static IBicepExtensionBuilder WithConfigurationType(this IBicepExtensionBuilder builder, Type configuartion)
     {
         if(builder.Services.Any(s => s.ServiceType == typeof(ConfigurationTypeContainer)))
@@ -168,9 +209,27 @@ public static class IBicepExtensionBuilderExtensions
         return builder;
     }
 
+    /// <summary>
+    /// Configures the Bicep extension builder to use the specified configuration type.
+    /// </summary>
+    /// <remarks>Use this method to specify a custom configuration type for the Bicep extension. The provided
+    /// type must be compatible with the extension's expected configuration requirements.</remarks>
+    /// <typeparam name="TConfig">The type of configuration to associate with the Bicep extension builder.</typeparam>
+    /// <param name="builder">The Bicep extension builder instance to configure.</param>
+    /// <returns>The same Bicep extension builder instance configured to use the specified configuration type.</returns>
     public static IBicepExtensionBuilder WithConfigurationType<TConfig>(this IBicepExtensionBuilder builder)
         => builder.WithConfigurationType(typeof(TConfig));
 
+    /// <summary>
+    /// Registers a fallback type with the Bicep extension builder to be used when no explicit type is specified for a
+    /// resource or operation.
+    /// </summary>
+    /// <remarks>Only one fallback type can be registered per extension. Attempting to register multiple
+    /// fallback types will result in an exception.</remarks>
+    /// <param name="builder">The Bicep extension builder to configure with the fallback type.</param>
+    /// <param name="fallbackType">The type to use as the fallback when no other type is specified. This parameter must not be null.</param>
+    /// <returns>The same instance of the Bicep extension builder, enabling method chaining.</returns>
+    /// <exception cref="InvalidOperationException">Thrown if a fallback type has already been registered for the extension.</exception>
     public static IBicepExtensionBuilder WithFallbackType(this IBicepExtensionBuilder builder, Type fallbackType)
     {
         if(builder.Services.Any(s => s.ServiceType == typeof(FallbackTypeContainer)))
@@ -182,6 +241,15 @@ public static class IBicepExtensionBuilderExtensions
         return builder;
     }
 
+    /// <summary>
+    /// Registers a fallback type with the Bicep extension builder to be used when no explicit type is specified for a
+    /// resource or operation.
+    /// </summary>
+    /// <remarks>Only one fallback type can be registered per extension. Attempting to register multiple
+    /// fallback types will result in an exception.</remarks>
+    /// <typeparam name="TFallback">The type to use as a fallback if the primary type is not applicable or available.</typeparam>
+    /// <param name="builder">The Bicep extension builder instance to configure with the fallback type.</param>
+    /// <returns>The updated Bicep extension builder instance with the fallback type applied.</returns>
     public static IBicepExtensionBuilder WithFallbackType<TFallback>(this IBicepExtensionBuilder builder)
         => builder.WithFallbackType(typeof(TFallback));
 
