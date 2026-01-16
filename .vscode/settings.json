@@ -15,5 +15,8 @@
         "outfile",
         "outputdir",
         "sarif"
-    ]
+    ],
+    "chat.tools.terminal.autoApprove": {
+        "dotnet build": true
+    }
 }

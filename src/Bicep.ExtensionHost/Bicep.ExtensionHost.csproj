@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <AssemblyName>Azure.Bicep.ExtensionHost</AssemblyName>
+    <RootNamespace>Bicep.ExtensionHost</RootNamespace>
+    <!-- Disable trim analyzer for this web application -->
+    <EnableTrimAnalyzer>false</EnableTrimAnalyzer>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Bicep.Local.Rpc/Bicep.Local.Rpc.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Containers.ContainerRegistry" />
+    <PackageReference Include="Grpc.Net.Client" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" />
+  </ItemGroup>
+</Project>
