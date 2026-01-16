@@ -22,7 +22,7 @@ public class TypeProvider : ITypeProvider
     private readonly Lazy<ImmutableArray<(Type type, ResourceTypeAttribute attribute)>> lazyResourceTypes;
 
     public TypeProvider(
-        TypesAssemblyContainer? assemblyContainer = null,
+        Assembly[]? assemblies = null,
         ConfigurationTypeContainer? configurationTypeContainer = null,
         FallbackTypeContainer? fallbackTypeContainer = null)
     {
@@ -31,8 +31,8 @@ public class TypeProvider : ITypeProvider
         ConfigurationType = configurationTypeContainer?.Type;
 
         if(fallbackTypeContainer?.Type != null)
-        {
-            FallbackType = fallbackTypeContainer.Type.GetCustomAttribute<ResourceTypeAttribute>(true) is not null
+        { // validate fallback type is annotated with ResourceTypeAttribute and is visible (public)
+            FallbackType = fallbackTypeContainer.Type.GetCustomAttribute<ResourceTypeAttribute>(true) is not null && fallbackTypeContainer.Type.IsVisible
                 ? fallbackTypeContainer.Type
                 : throw new InvalidOperationException("Fallback type must be decorated with ResourceTypeAttribute.");
         }
@@ -45,16 +45,6 @@ public class TypeProvider : ITypeProvider
             .Select(x => (type: x, attribute: x.GetCustomAttribute<ResourceTypeAttribute>(true)!))
             .Where(x => x.attribute is not null)
             .ToImmutableArray());
-    }
-
-    private static Assembly[] GetAssembliesInReferenceScope()
-    {
-        var executingAssembly = Assembly.GetExecutingAssembly();
-        return executingAssembly
-                .GetReferencedAssemblies()
-                .Select(Assembly.Load)
-                .Append(executingAssembly)
-                .ToArray();
     }
 
     public Type? FallbackType { get; }
@@ -81,5 +71,15 @@ public class TypeProvider : ITypeProvider
 
             yield return group.First();
         }
+    }
+
+    private static Assembly[] GetAssembliesInReferenceScope()
+    {
+        var executingAssembly = Assembly.GetExecutingAssembly();
+        return executingAssembly
+                .GetReferencedAssemblies()
+                .Select(Assembly.Load)
+                .Append(executingAssembly)
+                .ToArray();
     }
 }

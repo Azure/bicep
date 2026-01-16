@@ -10,6 +10,7 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Local.Extension.Builder.Models;
 using Bicep.Local.Extension.Types;
 using Bicep.Local.Extension.Types.Attributes;
 using FluentAssertions;
@@ -23,13 +24,17 @@ public class TypeDefinitionBuilderTests
 
     private record SimpleResource(string Name = "", string AnotherString = "");
 
+    private static readonly ExtensionInfo extensionInfo = new("TestSettings", "2025-01-01", true);
+
     [TestMethod]
     public void GenerateTypeDefinition_Returns_Empty_When_TypeProvider_Has_No_Types()
     {
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([]);
+        typeProviderMock.SetupGet(tp => tp.ConfigurationType).Returns(() => null!);
+        typeProviderMock.SetupGet(tp => tp.FallbackType).Returns(() => null!);
 
-        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, typeProviderMock.Object);
+        var builder = new TypeDefinitionBuilder(extensionInfo, typeProviderMock.Object);
         var result = GenerateTypes(builder);
         result.GetAvailableTypes().Should().BeEmpty();
     }
@@ -39,8 +44,10 @@ public class TypeDefinitionBuilderTests
     {
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(typeof(TestUnsupportedProperty), new("TestUnsupportedProperty"))]);
+        typeProviderMock.SetupGet(tp => tp.ConfigurationType).Returns(() => null!);
+        typeProviderMock.SetupGet(tp => tp.FallbackType).Returns(() => null!);
 
-        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, typeProviderMock.Object);
+        var builder = new TypeDefinitionBuilder(extensionInfo, typeProviderMock.Object);
 
         Action act = () => builder.GenerateTypeDefinition();
         act.Should().Throw<NotImplementedException>();
@@ -95,8 +102,10 @@ public class TypeDefinitionBuilderTests
     {
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(type, new(typeName, apiVersion))]);
+        typeProviderMock.SetupGet(tp => tp.ConfigurationType).Returns(() => null!);
+        typeProviderMock.SetupGet(tp => tp.FallbackType).Returns(() => null!);
 
-        var builder = new TypeDefinitionBuilder("TestSettings", "0.0.1", true, null, typeProviderMock.Object);
+        var builder = new TypeDefinitionBuilder(extensionInfo, typeProviderMock.Object);
         var typeLoader = GenerateTypes(builder);
         var resourceType = typeLoader.LoadType(typeLoader.GetAvailableTypes().Single());
 
@@ -112,6 +121,8 @@ public class TypeDefinitionBuilderTests
         var resourceType = CreateResourceType(typeof(SimpleResource), nameof(SimpleResource));
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(typeof(SimpleResource), new("SimpleResource"))]);
+        typeProviderMock.SetupGet(tp => tp.ConfigurationType).Returns(() => null!);
+        typeProviderMock.SetupGet(tp => tp.FallbackType).Returns(() => null!);
 
         var body = resourceType.Body.Type.Should().BeOfType<ObjectType>().Subject;
         body.Properties["name"].TypeReference.Type.Should().BeOfType<StringType>();

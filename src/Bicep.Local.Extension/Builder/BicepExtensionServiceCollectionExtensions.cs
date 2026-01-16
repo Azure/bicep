@@ -28,11 +28,13 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class BicepExtensionServiceCollectionExtensions
 {
     /// <summary>
-    /// Adds the Bicep extension and its required services to the specified service collection.
+    /// Adds the Bicep extension to the specified service collection, enabling support for resource handling and gRPC
+    /// services within the application.
     /// </summary>
-    /// <remarks>This method registers services necessary for Bicep resource handling and enables detailed
-    /// error reporting for gRPC services. It also adds gRPC reflection support to the service collection.</remarks>
-    /// <param name="services">The service collection to which the Bicep extension services will be added. Cannot be null.</param>
+    /// <remarks>This method registers a singleton implementation of <see cref="IResourceHandlerCollection"/>
+    /// and configures gRPC services with detailed error reporting and reflection enabled. Call this method during
+    /// application startup to enable Bicep extension features.</remarks>
+    /// <param name="services">The service collection to which the Bicep extension and related services will be added. Cannot be null.</param>
     /// <returns>An instance of <see cref="IBicepExtensionBuilder"/> that can be used to further configure the Bicep extension.</returns>
     public static IBicepExtensionBuilder AddBicepExtension(this IServiceCollection services)
     {
@@ -47,25 +49,14 @@ public static class BicepExtensionServiceCollectionExtensions
         return new DefaultBicepExtensionBuilder(services);
     }
 
-    /// <summary>
-    /// Configures the dependency injection container with core Bicep extension services and type definitions.
-    /// </summary>
-    /// <example>
-    /// <code>
-    /// services.AddBicepExtension(
-    ///     name: "MyCompany.KubernetesExtension",
-    ///     version: "1.0.0",
-    ///     isSingleton: true,
-    ///     typeConfiguration: (typeFactory, config) => {
-    ///         var stringType = typeFactory.Create(() => new StringType());
-    ///         config["apiUrl"] = new ObjectTypeProperty(
-    ///             typeFactory.GetReference(stringType), 
-    ///             ObjectTypePropertyFlags.Required, 
-    ///             "The Kubernetes API server URL");
-    ///     });
-    /// </code>
-    /// </example>
-    [Obsolete("Use AddBicepExtension(this IServiceCollection services) instead for more fluent configuration.")]
+    [Obsolete("""
+    Use the fluent configuration API instead:
+    services
+        .AddBicepExtension()
+        .WithDefaults("MyExtension", "1.0.0", isSingleton: true)
+        .WithTypeAssemblies([typeof(MyResource).Assembly])
+        .WithConfigurationType<MyConfig>()
+    """, error: false)]
     public static IBicepExtensionBuilder AddBicepExtension(
         this IServiceCollection services,
         string name,
@@ -74,24 +65,18 @@ public static class BicepExtensionServiceCollectionExtensions
         Assembly typeAssembly,
         Type? configurationType = null)
     {
-        var configuration = new Dictionary<string, ObjectTypeProperty>();
+        var builder = services
+                       .AddBicepExtension()
+                       .WithDefaults(name, version, isSingleton)
+                       .WithTypeAssemblies([typeAssembly]);
 
-        services.AddSingleton<ITypeProvider>(new TypeProvider([typeAssembly]));
-        services.AddSingleton<ITypeDefinitionBuilder>(sp => new TypeDefinitionBuilder(
-            name,
-            version,
-            isSingleton,
-            configurationType,
-            sp.GetRequiredService<ITypeProvider>()));
-
-        services.AddSingleton<IResourceHandlerCollection, ResourceHandlerCollection>();
-
-        services.AddGrpc(options =>
+        if(configurationType is not null)
         {
-            options.EnableDetailedErrors = true;
-        });
-        services.AddGrpcReflection();
+            builder.WithConfigurationType(configurationType);
+        }
 
-        return new DefaultBicepExtensionBuilder(services);
-    }
+        return builder;
+    }        
+
+
 }

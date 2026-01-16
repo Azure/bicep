@@ -47,6 +47,12 @@ public static class IBicepExtensionBuilderExtensions
         return builder;
     }
 
+    public static IBicepExtensionBuilder WithDefaults(this IBicepExtensionBuilder builder, string name, string version, bool isSingleton = true)
+        => builder
+            .WithExtensionInfo(name, version, isSingleton)
+            .WithDefaultTypeDefinitionBuilder();
+
+
     public static IBicepExtensionBuilder WithDefaultTypeDefinitionBuilder(this IBicepExtensionBuilder builder)
     {
         builder.Services.AddSingleton<ITypeProvider, TypeProvider>();
@@ -54,14 +60,33 @@ public static class IBicepExtensionBuilderExtensions
         return builder;
     }
 
+    public static IBicepExtensionBuilder WithTypeAssembly(this IBicepExtensionBuilder builder, Assembly assembly)
+    {
+        builder.Services.AddSingleton(assembly);
+        return builder;
+    }
+
+    public static IBicepExtensionBuilder WithTypeAssembly<TEntry>(this IBicepExtensionBuilder builder)
+        => builder.WithTypeAssembly(typeof(TEntry).Assembly);
+    
+
     public static IBicepExtensionBuilder WithTypeAssemblies(this IBicepExtensionBuilder builder, Assembly[] assemblies)
     {
-        builder.Services.AddSingleton(new TypesAssemblyContainer(assemblies));
+        foreach(var a in  assemblies)
+        {
+            builder.WithTypeAssembly(a);
+        }
+
         return builder;
     }
 
     public static IBicepExtensionBuilder WithConfigurationType(this IBicepExtensionBuilder builder, Type configuartion)
     {
+        if(builder.Services.Any(s => s.ServiceType == typeof(ConfigurationTypeContainer)))
+        {
+            throw new InvalidOperationException("A configuration type has already been registered. Only one configuration type can be registered per extension.");
+        }
+
         builder.Services.AddSingleton(new ConfigurationTypeContainer(configuartion));
         return builder;
     }
@@ -71,6 +96,11 @@ public static class IBicepExtensionBuilderExtensions
 
     public static IBicepExtensionBuilder WithFallbackType(this IBicepExtensionBuilder builder, Type fallbackType)
     {
+        if(builder.Services.Any(s => s.ServiceType == typeof(FallbackTypeContainer)))
+        {
+            throw new InvalidOperationException("A fallback type has already been registered. Only one fallback type can be registered per extension.");
+        }
+
         builder.Services.AddSingleton(new FallbackTypeContainer(fallbackType));
         return builder;
     }
