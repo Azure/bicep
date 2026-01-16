@@ -261,6 +261,59 @@
     }
   },
   {
+    "name": "get_snapshot",
+    "description": "Creates a deployment snapshot from a Bicep parameters file (.bicepparam) by compiling it and pre-expanding the resulting ARM template.\nThe snapshot contains the predicted resources (as they would appear in a deployment) and any diagnostics produced during preflight.\n\nUse this tool to:\n- Preview what resources a deployment would create without running a deployment\n- Validate that parameters resolve as expected\n- Troubleshoot why a deployment would produce unexpected resource IDs, names, or locations\n- Inspect preflight diagnostics produced by template expansion\n\nThis tool can also be used to perform a semantic diff between two Bicep implementations:\n- Generate a snapshot for each version (using the same parameter values and metadata)\n- Compare the resulting predicted resources and diagnostics to verify both produce the same deployment outcome\n\nThis is especially useful for automated refactoring, where text-level diffs are noisy but the intended deployment result should remain unchanged.\n\nThe file path must be absolute and must point to a .bicepparam file.\nThe optional tenant/subscription/resource group/location/deployment name values are used as deployment metadata during snapshot generation.\nIf a value is omitted, the snapshot may contain unresolved placeholder expressions for the corresponding metadata.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "filePath": {
+          "description": "The absolute path to the .bicepparam file",
+          "type": "string"
+        },
+        "tenantId": {
+          "description": "Optional Azure tenant ID to use as deployment metadata",
+          "type": "string",
+          "default": null
+        },
+        "subscriptionId": {
+          "description": "Optional Azure subscription ID to use as deployment metadata",
+          "type": "string",
+          "default": null
+        },
+        "resourceGroup": {
+          "description": "Optional Azure resource group name to use as deployment metadata",
+          "type": "string",
+          "default": null
+        },
+        "location": {
+          "description": "Optional Azure location to use as deployment metadata",
+          "type": "string",
+          "default": null
+        },
+        "deploymentName": {
+          "description": "Optional deployment name to use as deployment metadata",
+          "type": "string",
+          "default": null
+        }
+      },
+      "required": [
+        "filePath"
+      ]
+    },
+    "returnJsonSchema": {
+      "type": "object",
+      "properties": {
+        "snapshotContents": {
+          "description": "Serialized snapshot JSON containing predicted resources and diagnostics",
+          "type": "string"
+        }
+      },
+      "required": [
+        "snapshotContents"
+      ]
+    }
+  },
+  {
     "name": "list_avm_metadata",
     "description": "Lists metadata for all Azure Verified Modules (AVM) - Microsoft's official, pre-built, tested, and maintained Bicep modules for common Azure resource patterns.\n\nUse this tool to:\n- Discover reusable, production-ready Bicep modules for common scenarios\n- Find officially supported modules instead of writing resources from scratch\n- Check available versions and documentation for AVM modules\n- Accelerate Bicep development by leveraging tested, best-practice implementations\n\nAzure Verified Modules provide:\n- Pre-configured resource deployments following Microsoft best practices\n- Built-in security, reliability, and compliance features\n- Regular updates and maintenance by Microsoft\n- Comprehensive documentation and examples\n\nUse these modules in your Bicep files to reduce code and improve quality.",
     "jsonSchema": {
