@@ -11,15 +11,10 @@ using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Definitions.Extensibility;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
-using Azure.Deployments.Engine.Definitions;
 using Azure.Deployments.Expression.Intermediate;
 using Azure.Deployments.Expression.Intermediate.Extensions;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.ParsedEntities;
-using Bicep.Cli.Arguments;
-using Bicep.Cli.Helpers;
-using Bicep.Cli.Helpers.WhatIf;
-using Bicep.Cli.Logging;
 using Bicep.Core;
 using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
@@ -34,7 +29,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
-namespace Bicep.Cli.Helpers.Snapshot;
+namespace Bicep.Core.Utils.Snapshots;
 
 public static class SnapshotHelper
 {
@@ -59,7 +54,7 @@ public static class SnapshotHelper
         var template = TemplateEngine.ParseTemplate(templateContent);
 
         var scope = EnumConverter.ToTemplateDeploymentScope(targetScope)
-            ?? throw new CommandLineException($"Cannot create snapshot of template with a target scope of {targetScope}");
+            ?? throw new InvalidOperationException($"Cannot create snapshot of template with a target scope of {targetScope}");
 
         var expansionResult = await TemplateEngine.ExpandNestedDeployments(
             EmitConstants.NestedDeploymentResourceApiVersion,
@@ -199,7 +194,7 @@ public static class SnapshotHelper
         {
             if (scope is not TemplateDeploymentScope.Subscription and not TemplateDeploymentScope.ResourceGroup)
             {
-                throw new CommandLineException($"Subscription ID cannot be specified for a template of scope {scope}");
+                throw new InvalidOperationException($"Subscription ID cannot be specified for a template of scope {scope}");
             }
 
             metadata[DeploymentMetadata.SubscriptionKey] = new ObjectExpression(
@@ -218,7 +213,7 @@ public static class SnapshotHelper
         {
             if (scope is not TemplateDeploymentScope.ResourceGroup)
             {
-                throw new CommandLineException($"Resource group name cannot be specified for a template of scope {scope}");
+                throw new InvalidOperationException($"Resource group name cannot be specified for a template of scope {scope}");
             }
 
             metadata[DeploymentMetadata.ResourceGroupKey] = new ObjectExpression(
