@@ -53,6 +53,8 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableDictionary<ExtensionConfigAssignmentSymbol, ExtensionMetadata?>> extensionDeclarationsByExtensionConfigAssignment;
         private readonly Lazy<ImmutableDictionary<ExtensionMetadata, ExtensionConfigAssignmentSymbol?>> extensionConfigAssignmentsByDeclaration;
 
+        private readonly Lazy<ExternalInputReferences> externalInputReferencesLazy;
+
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
@@ -150,6 +152,8 @@ namespace Bicep.Core.Semantics
             this.extensionsLazy = new(FindExtensions);
             this.extensionDeclarationsByExtensionConfigAssignment = new(InitializeExtensionDeclarationToAssignmentDictionary);
             this.extensionConfigAssignmentsByDeclaration = new(InitializeExtensionConfigAssignmentToDeclarationDictionary);
+
+            this.externalInputReferencesLazy = new(() => ExternalInputFunctionReferenceVisitor.CollectExternalInputReferences(this));
 
             this.exportsLazy = new(() => FindExportedTypes().Concat(FindExportedVariables()).Concat(FindExportedFunctions())
                 .DistinctBy(export => export.Name, LanguageConstants.IdentifierComparer)
@@ -257,6 +261,8 @@ namespace Bicep.Core.Semantics
         public ImportClosureInfo ImportClosureInfo => importClosureInfoLazy.Value;
 
         public InlineDependencyVisitor.SymbolsToInline SymbolsToInline => symbolsToInlineLazy.Value;
+
+        public ExternalInputReferences ExternalInputReferences => externalInputReferencesLazy.Value;
 
         public ResourceAncestorGraph ResourceAncestors => resourceAncestorsLazy.Value;
 
