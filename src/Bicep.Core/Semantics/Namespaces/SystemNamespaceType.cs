@@ -1281,7 +1281,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     yield return new FunctionOverloadBuilder(LanguageConstants.ReadEnvVarBicepFunctionName)
                         .WithGenericDescription($"Reads the specified environment variable as bicep string.")
                         .WithRequiredParameter("variableName", LanguageConstants.String, "The name of the environment variable.", flags: FunctionParameterFlags.Constant)
-                        .WithFlags(FunctionFlags.ExternalInput)
+                        .WithFlags(FunctionFlags.RequiresExternalInput)
                         .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, [new StringLiteralExpression(null, "sys.envVar"), .. exp.Parameters]))
                         .WithReturnType(LanguageConstants.String)
                         .Build();
@@ -1289,7 +1289,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     yield return new FunctionOverloadBuilder(LanguageConstants.ReadCliArgBicepFunctionName)
                         .WithGenericDescription($"Reads the specified CLI argument as bicep string.")
                         .WithRequiredParameter("argumentName", LanguageConstants.String, "The name of the CLI argument.", flags: FunctionParameterFlags.Constant)
-                        .WithFlags(FunctionFlags.ExternalInput)
+                        .WithFlags(FunctionFlags.RequiresExternalInput)
                         .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, [new StringLiteralExpression(null, "sys.cliArg"), .. exp.Parameters]))
                         .WithReturnType(LanguageConstants.String)
                         .Build();
@@ -1299,7 +1299,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
                     .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.", flags: FunctionParameterFlags.Constant)
                     .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.", flags: FunctionParameterFlags.Constant)
-                    .WithFlags(FunctionFlags.ExternalInput)
+                    .WithFlags(FunctionFlags.RequiresExternalInput)
                     .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, exp.Parameters))
                     .WithReturnType(LanguageConstants.Any)
                     .Build();
