@@ -54,7 +54,7 @@ public static class BicepExtensionServiceCollectionExtensions
     services
         .AddBicepExtension()
         .WithDefaults("MyExtension", "1.0.0", isSingleton: true)
-        .WithTypeAssemblies([typeof(MyResource).Assembly])
+        .WithTypeAssembly(typeof(MyResource).Assembly)
         .WithConfigurationType<MyConfig>()
     """, error: false)]
     public static IBicepExtensionBuilder AddBicepExtension(
