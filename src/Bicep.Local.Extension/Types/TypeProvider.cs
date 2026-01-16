@@ -5,6 +5,7 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -22,12 +23,20 @@ public class TypeProvider : ITypeProvider
 
     public TypeProvider(
         TypesAssemblyContainer? assemblyContainer = null,
-        ConfigurationTypeContainer? configurationTypeContainer = null)
+        ConfigurationTypeContainer? configurationTypeContainer = null,
+        FallbackTypeContainer? fallbackTypeContainer = null)
     {
         this.assemblies = assemblies ?? GetAssembliesInReferenceScope();
 
-        ConfigurationType = configurationTypeContainer?.type;
+        ConfigurationType = configurationTypeContainer?.Type;
 
+        if(fallbackTypeContainer?.Type != null)
+        {
+            FallbackType = fallbackTypeContainer.Type.GetCustomAttribute<ResourceTypeAttribute>(true) is not null
+                ? fallbackTypeContainer.Type
+                : throw new InvalidOperationException("Fallback type must be decorated with ResourceTypeAttribute.");
+        }
+        
         // lazily cache resource types to improve performance on repeated calls
         this.lazyResourceTypes = new Lazy<ImmutableArray<(Type type, ResourceTypeAttribute attribute)>>(() =>
             this.assemblies
@@ -47,6 +56,8 @@ public class TypeProvider : ITypeProvider
                 .Append(executingAssembly)
                 .ToArray();
     }
+
+    public Type? FallbackType { get; }
 
     public Type? ConfigurationType { get; }
 

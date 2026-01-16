@@ -59,10 +59,23 @@ public static class IBicepExtensionBuilderExtensions
         builder.Services.AddSingleton(new TypesAssemblyContainer(assemblies));
         return builder;
     }
+
     public static IBicepExtensionBuilder WithConfigurationType(this IBicepExtensionBuilder builder, Type configuartion)
     {
         builder.Services.AddSingleton(new ConfigurationTypeContainer(configuartion));
         return builder;
     }
+
+    public static IBicepExtensionBuilder WithConfigurationType<TConfig>(this IBicepExtensionBuilder builder)
+        => builder.WithConfigurationType(typeof(TConfig));
+
+    public static IBicepExtensionBuilder WithFallbackType(this IBicepExtensionBuilder builder, Type fallbackType)
+    {
+        builder.Services.AddSingleton(new FallbackTypeContainer(fallbackType));
+        return builder;
+    }
+
+    public static IBicepExtensionBuilder WithFallbackType<TFallback>(this IBicepExtensionBuilder builder)
+        => builder.WithFallbackType(typeof(TFallback));
 
 }
