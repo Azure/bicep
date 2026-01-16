@@ -26,7 +26,20 @@ using Microsoft.Extensions.Hosting;
 namespace Microsoft.Extensions.DependencyInjection;
 
 public static class BicepExtensionServiceCollectionExtensions
-{
+{    
+    public static IBicepExtensionBuilder AddBicepExtension(this IServiceCollection services)
+    {
+        services.AddSingleton<IResourceHandlerCollection, ResourceHandlerCollection>();
+
+        services.AddGrpc(options =>
+        {
+            options.EnableDetailedErrors = true;
+        });
+        services.AddGrpcReflection();
+
+        return new DefaultBicepExtensionBuilder(services);
+    }
+
     /// <summary>
     /// Configures the dependency injection container with core Bicep extension services and type definitions.
     /// </summary>
@@ -45,6 +58,7 @@ public static class BicepExtensionServiceCollectionExtensions
     ///     });
     /// </code>
     /// </example>
+    [Obsolete("Use AddBicepExtension(this IServiceCollection services) instead for more fluent configuration.")]
     public static IBicepExtensionBuilder AddBicepExtension(
         this IServiceCollection services,
         string name,

@@ -1,8 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Reflection;
+using Bicep.Local.Extension.Builder.Models;
 using Bicep.Local.Extension.Host.Extensions;
 using Bicep.Local.Extension.Host.Handlers;
+using Bicep.Local.Extension.Types;
+using Bicep.Local.Extension.Types.Attributes;
+using Bicep.Local.Extension.Types.Models;
+using Bicep.Local.Rpc;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -26,6 +32,24 @@ public static class IBicepExtensionBuilderExtensions
     {
         builder.Services.AddSingleton<IResourceHandler>(resourceHandler);
 
+        return builder;
+    }
+
+    public static IBicepExtensionBuilder WithExtensionInfo(this IBicepExtensionBuilder builder, string name, string version, bool isSingleton = true)
+    {
+        builder.Services.AddSingleton(new ExtensionInfo(name, version, isSingleton));
+        return builder;
+    }
+
+    public static IBicepExtensionBuilder WithTypeConfiguration(this IBicepExtensionBuilder builder, Type configuartion)
+    {
+        builder.Services.AddSingleton(new ConfigurationTypeContainer(configuartion));
+        return builder;            
+    }
+
+    public static IBicepExtensionBuilder WithTypeBuilder(this IBicepExtensionBuilder builder, ITypeDefinitionBuilder typeDefinitionBuilder)
+    {
+        builder.Services.AddSingleton<ITypeDefinitionBuilder>(typeDefinitionBuilder);
         return builder;
     }
 }
