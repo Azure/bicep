@@ -157,10 +157,11 @@ The application will start on `http://localhost:5180` (or `https://localhost:718
 
 ## Deploying to Azure Container Apps
 
-1. Build and push the Docker image:
+1. Build and push the Docker image (current working directory is the repo root):
 ```bash
-docker build -t myacr.azurecr.io/bicep-extension-host:latest .
-docker push myacr.azurecr.io/bicep-extension-host:latest
+docker build -t ligaracr.azurecr.io/bicep-extension-host:latest -f src/Bicep.ExtensionHost/Dockerfile .
+az acr login -g ligar-test --name ligaracr
+docker push ligaracr.azurecr.io/bicep-extension-host:latest
 ```
 
 2. Create an Azure Container App with the required environment variables for your extensions.
