@@ -31,7 +31,7 @@
     "vite-plugin-static-copy": "3.1.4"
   },
   "dependencies": {
-    "@microsoft/applicationinsights-web": "3.3.10",
+    "@microsoft/applicationinsights-web": "3.3.11",
     "bootstrap": "5.3.8",
     "monaco-editor": "0.54.0",
     "pako": "2.1.0",
