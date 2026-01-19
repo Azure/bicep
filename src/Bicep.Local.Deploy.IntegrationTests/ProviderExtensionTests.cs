@@ -53,12 +53,10 @@ public class ProviderExtensionTests : TestBase
                 var builder = WebApplication.CreateBuilder();
 
                 builder.AddBicepExtensionHost(processArgs);
-                registerHandlers(builder.Services
-                    .AddBicepExtension(
-                        name: "MockExtension",
-                        version: "0.0.1",
-                        isSingleton: true,
-                        typeAssembly: typeof(ProviderExtensionTests).Assembly));
+            registerHandlers(builder.Services
+                    .AddBicepExtension()
+                    .WithDefaults("MockExtension", "0.0.1", true)
+                    .WithTypeAssembly(typeof(ProviderExtensionTests).Assembly));
 
                 var app = builder.Build();
 
