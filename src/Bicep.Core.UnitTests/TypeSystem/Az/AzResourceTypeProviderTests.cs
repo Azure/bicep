@@ -163,8 +163,9 @@ resource missingResource 'Mock.Rp/madeUpResourceType@2020-01-01' = {
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Mock.Rp/madeUpResourceType@2020-01-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed.")
-            });
+            ("BCP081", DiagnosticLevel.Warning, "Resource type \"Mock.Rp/madeUpResourceType@2020-01-01\" does not have type definitions available. Bicep cannot validate properties or provide IntelliSense for this resource; deployment will still be attempted by Azure Resource Manager. See https://learn.microsoft.com/azure/azure-resource-manager/bicep/diagnostics/bcp081 for details.")
+});
+
         }
 
         [TestMethod]
