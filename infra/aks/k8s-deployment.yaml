@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bicep-extension-host
+  labels:
+    app: bicep-extension-host
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bicep-extension-host
+  template:
+    metadata:
+      labels:
+        app: bicep-extension-host
+    spec:
+      containers:
+        - name: extension-host
+          image: ligaracr.azurecr.io/bicep-extension-host:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_URLS
+              value: "http://+:8080"
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Production"
+            - name: ExtensionHost__ExtensionStoragePath
+              value: "/app/extensions"
+            - name: ExtensionHost__Extensions
+              value: "[]"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bicep-extension-host
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: bicep-extension-host

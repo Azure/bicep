@@ -19,9 +19,6 @@ param namePrefix string = 'bicepext'
 @description('The container image to deploy (e.g., myacr.azurecr.io/bicep-extension-host:latest)')
 param containerImage string
 
-@description('The Azure Container Registry server URL')
-param acrServer string
-
 @description('Enable system-assigned managed identity for ACR pull')
 param useSystemAssignedIdentity bool = true
 

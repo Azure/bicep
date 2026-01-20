@@ -8,8 +8,8 @@ This directory contains infrastructure-as-code for deploying Bicep Extension Hos
 |--------|--------|--------|----------|
 | **Azure Container Apps** | [aca/](aca/) | ✅ Ready | Serverless containers, auto-scaling |
 | Azure Container Instances | aci/ | 🔲 Planned | Simple single-container deployments |
-| Azure App Service | appservice/ | 🔲 Planned | PaaS with built-in features |
-| Azure Kubernetes Service | aks/ | 🔲 Planned | Full orchestration control |
+| Azure App Service | [appservice/](appservice/) | ⚠️ Experimental | PaaS (may have sandbox limitations) |
+| **Azure Kubernetes Service** | [aks/](aks/) | ✅ Ready | Full orchestration control |
 
 ## Shared Files
 
