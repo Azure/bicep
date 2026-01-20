@@ -40,7 +40,7 @@ namespace Bicep.Core.Emit
 
             if (targetVariable is not null)
             {
-                // the functionality 
+                // the functionality
                 this.currentStack = [];
                 this.capturedSequence = null;
             }
@@ -162,7 +162,7 @@ namespace Bicep.Core.Emit
                 // here we know that the resource is an existing resource that can also be targeted directly by
                 // resource ID. We will need to "inline" (**not** emit an `"existing": true` resource in the ARM JSON)
                 // any resource whose `name` property contains runtime expressions or is scoped to- or a child of an
-                // inlined resource. 
+                // inlined resource.
                 var hasInlinedAncestor = false;
                 foreach (var ancestor in model.ResourceAncestors.GetAncestors(resourceMetadata))
                 {
@@ -266,7 +266,10 @@ namespace Bicep.Core.Emit
                         // recursively visit dependent variables
                         this.Visit(variableSymbol.DeclaringSyntax);
 
-                        shouldInline = shouldInlineCache[variableSymbol];
+                        if (!shouldInlineCache.TryGetValue(variableSymbol, out shouldInline))
+                        {
+                            shouldInline = Decision.NotInline;
+                        }
 
                         if (shouldInline == Decision.Inline && this.targetVariable is not null && this.capturedSequence is null)
                         {
