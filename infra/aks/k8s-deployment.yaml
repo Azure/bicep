@@ -1,3 +1,7 @@
+# Self-signed TLS Secret
+# Generate with: kubectl create secret tls bicep-extension-host-tls --cert=tls.crt --key=tls.key
+# Or use the quick OpenSSL command in the README
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -31,10 +35,10 @@ spec:
           resources:
             requests:
               memory: "256Mi"
-              cpu: "250m"
+              cpu: "100m"
             limits:
               memory: "512Mi"
-              cpu: "500m"
+              cpu: "250m"
           livenessProbe:
             httpGet:
               path: /health
@@ -53,9 +57,28 @@ kind: Service
 metadata:
   name: bicep-extension-host
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - port: 80
       targetPort: 8080
   selector:
     app: bicep-extension-host
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bicep-extension-host
+spec:
+  ingressClassName: webapprouting.kubernetes.azure.com
+  tls:
+    - secretName: bicep-extension-host-tls
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bicep-extension-host
+                port:
+                  number: 80

@@ -86,6 +86,11 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-09-01' = {
         }
       }
     }
+    ingressProfile: {
+      webAppRouting: {
+        enabled: true
+      }
+    }
     networkProfile: {
       networkPlugin: 'azure'
       loadBalancerSku: 'standard'

@@ -21,7 +21,8 @@ Deploy Bicep Extension Host to Azure Kubernetes Service.
 │  │  │  └─────────────────────────────────────┘    │    │   │
 │  │  └─────────────────────────────────────────────┘    │   │
 │  │                        │                             │   │
-│  │              LoadBalancer Service                    │   │
+│  │              Web Application Routing                 │   │
+│  │              (Managed NGINX Ingress + TLS)           │   │
 │  └─────────────────────────────────────────────────────┘   │
 │                                                             │
 │  ┌────────────────────────────────────┐                    │
@@ -39,9 +40,9 @@ Deploy Bicep Extension Host to Azure Kubernetes Service.
 
 | File | Description |
 |------|-------------|
-| `main.bicep` | AKS cluster deployment template |
+| `main.bicep` | AKS cluster deployment template (includes Web Application Routing add-on) |
 | `main.bicepparam` | Parameters file |
-| `k8s-deployment.yaml` | Kubernetes deployment & service manifest |
+| `k8s-deployment.yaml` | Kubernetes deployment, service & ingress manifest |
 
 ## Deploy
 
@@ -51,7 +52,7 @@ Deploy Bicep Extension Host to Azure Kubernetes Service.
 # Create resource group
 az group create --name rg-bicep-extension-host-aks --location eastus
 
-# Deploy AKS cluster
+# Deploy AKS cluster (includes Web Application Routing add-on)
 az deployment group create `
   --resource-group rg-bicep-extension-host-aks `
   --template-file infra/aks/main.bicep `
@@ -66,30 +67,45 @@ az aks get-credentials `
   --name (az aks list -g rg-bicep-extension-host-aks --query '[0].name' -o tsv)
 ```
 
-### Step 3: Deploy Application
+### Step 3: Create Self-Signed TLS Certificate
+
+```powershell
+# Generate self-signed certificate
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 `
+  -keyout tls.key -out tls.crt `
+  -subj "/CN=bicep-extension-host/O=bicep-extension-host"
+
+# Create Kubernetes TLS secret
+kubectl create secret tls bicep-extension-host-tls --cert=tls.crt --key=tls.key
+
+# Clean up local files
+Remove-Item tls.crt, tls.key
+```
+
+### Step 4: Deploy Application
 
 ```powershell
 kubectl apply -f infra/aks/k8s-deployment.yaml
 ```
 
-### Step 4: Get External IP
+### Step 5: Get Ingress Address
 
 ```powershell
-# Wait for external IP (may take a few minutes)
-kubectl get service bicep-extension-host --watch
+# Wait for the ingress to get an external address (may take a few minutes)
+kubectl get ingress bicep-extension-host --watch
 ```
 
 ## Verify
 
 ```powershell
 # Get the external IP
-$EXTERNAL_IP = kubectl get service bicep-extension-host -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
+$INGRESS_IP = kubectl get ingress bicep-extension-host -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
 
-# Check health endpoint
-curl "http://$EXTERNAL_IP/health"
+# Check health endpoint (use -k to skip certificate verification for self-signed cert)
+curl -k "https://$INGRESS_IP/health"
 
 # Check extensions
-curl "http://$EXTERNAL_IP/extensions"
+curl -k "https://$INGRESS_IP/extensions"
 ```
 
 ## View Logs
@@ -112,7 +128,8 @@ kubectl logs $POD -f
 | **Scaling** | Manual or HPA (Horizontal Pod Autoscaler) |
 | **Cost** | VM cost (~$30-50/month for B2s) + AKS free tier |
 | **Cold Start** | None (always running) |
-| **Networking** | LoadBalancer with public IP |
+| **Networking** | HTTPS via Web Application Routing (managed NGINX ingress) |
+| **TLS** | Self-signed certificate (can upgrade to Let's Encrypt) |
 | **Complexity** | Medium (requires kubectl) |
 | **Process Spawning** | ✅ Full support |
 
