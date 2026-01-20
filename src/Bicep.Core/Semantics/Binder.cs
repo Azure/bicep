@@ -64,13 +64,8 @@ namespace Bicep.Core.Semantics
                         }
                     }
 
-                    var parentVariables = extendedModel.Root.VariableDeclarations.OfType<VariableSymbol>().ToImmutableArray();
-
                     var nonConflicting = allParentAssignments.Where(a => !fileScope.Locals.Any(e => string.Equals(e.Name, a.Name, LanguageConstants.IdentifierComparison)));
                     fileScope = fileScope.ReplaceLocals(fileScope.Locals.AddRange(nonConflicting));
-
-                    var nonConflictingVars = parentVariables.Where(v => !fileScope.Locals.Any(e => string.Equals(e.Name, v.Name, LanguageConstants.IdentifierComparison)));
-                    fileScope = fileScope.ReplaceLocals(fileScope.Locals.AddRange(nonConflictingVars));
                 }
 
                 if (parentParameterAssignments.Any())
@@ -89,18 +84,6 @@ namespace Bicep.Core.Semantics
                     ProcessSyntaxForBinding(
                         parentAssignment.DeclaringParameterAssignment.Value,
                         parentAssignment.Context.Binder,
-                        baseBindings);
-                }
-
-                var inheritedVariables = fileScope.Locals.OfType<VariableSymbol>()
-                    .Where(v => !ReferenceEquals(v.Context.SourceFile, sourceFile))
-                    .ToImmutableArray();
-
-                foreach (var inheritedVar in inheritedVariables)
-                {
-                    ProcessSyntaxForBinding(
-                        inheritedVar.DeclaringVariable.Value,
-                        inheritedVar.Context.Binder,
                         baseBindings);
                 }
             }

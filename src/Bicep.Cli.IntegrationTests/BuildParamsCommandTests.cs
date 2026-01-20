@@ -454,7 +454,68 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public async Task Build_params_extends_base_variables_visible_but_scoped()
+        public async Task Build_params_extends_derived_var_declared_after_param()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "base.bicepparam",
+                """
+                using none
+
+                var x = 'foo'
+                param p1 = 'p-${x}'
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './base.bicepparam'
+
+                param p2 = 'p-${x}'
+                var x = 'bar'
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param p1 string
+                param p2 string
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "bicepconfig.json",
+                """
+                {
+                    "experimentalFeaturesEnabled": {
+                        "extendableParamFiles": true
+                    }
+                }
+                """,
+                outputPath);
+
+            var mainParamsFile = Path.Combine(outputPath, "main.bicepparam");
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            paramsObject.Should().HaveValueAtPath("parameters.p1.value", "p-foo");
+            paramsObject.Should().HaveValueAtPath("parameters.p2.value", "p-bar");
+        }
+
+        [TestMethod]
+        public async Task Build_params_extends_base_variables_not_visible_in_derived_file()
         {
             var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
 
@@ -505,13 +566,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
 
-            result.Should().Succeed();
-
-            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
-            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
-            // Both p1 and p2 use base's `x='foo'` since that's the only `x` defined
-            paramsObject.Should().HaveValueAtPath("parameters.p1.value", "p-foo");
-            paramsObject.Should().HaveValueAtPath("parameters.p2.value", "p-foo");
+            result.Should().Fail().And.HaveStderrMatch("*Error BCP057: The name \"x\" does not exist in the current context.*");
         }
 
         [TestMethod]
