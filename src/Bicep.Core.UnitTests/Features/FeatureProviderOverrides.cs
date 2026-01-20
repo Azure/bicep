@@ -23,10 +23,8 @@ public record FeatureProviderOverrides(
     bool? ExtendableParamFilesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
     bool? ModuleExtensionConfigsEnabled = default,
-    bool? DesiredStateConfigurationEnabled = default,
     bool? UserDefinedConstraintsEnabled = default,
     bool? DeployCommandsEnabled = default,
-    bool? MultilineStringInterpolationEnabled = default,
     bool? ThisNamespaceEnabled = default)
 {
     public FeatureProviderOverrides(
@@ -45,10 +43,8 @@ public record FeatureProviderOverrides(
         bool? ExtendableParamFilesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
         bool? ModuleExtensionConfigsEnabled = default,
-        bool? DesiredStateConfigurationEnabled = default,
         bool? UserDefinedConstraintsEnabled = default,
         bool? DeployCommandsEnabled = default,
-        bool? MultilineStringInterpolationEnabled = default,
         bool? ThisNamespaceEnabled = default) : this(
             FileHelper.GetCacheRootDirectory(testContext),
             RegistryEnabled,
@@ -65,10 +61,8 @@ public record FeatureProviderOverrides(
             ExtendableParamFilesEnabled,
             AssemblyVersion,
             ModuleExtensionConfigsEnabled,
-            DesiredStateConfigurationEnabled,
             UserDefinedConstraintsEnabled,
             DeployCommandsEnabled,
-            MultilineStringInterpolationEnabled,
             ThisNamespaceEnabled)
     { }
 }

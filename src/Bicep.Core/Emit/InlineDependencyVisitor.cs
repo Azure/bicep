@@ -48,6 +48,7 @@ namespace Bicep.Core.Emit
 
         public record SymbolsToInline(
             IReadOnlySet<VariableSymbol> VariablesToInline,
+            IReadOnlySet<ParameterAssignmentSymbol> ParameterAssignmentsToInline,
             IReadOnlySet<ResourceSymbol> ExistingResourcesToInline);
 
         /// <summary>
@@ -58,9 +59,11 @@ namespace Bicep.Core.Emit
         {
             var visitor = new InlineDependencyVisitor(model, null);
             visitor.VisitNodes(model.Root.VariableDeclarations.Select(d => d.DeclaringSyntax)
+                .Concat(model.Root.ParameterAssignments.Select(d => d.DeclaringSyntax))
                 .Concat(model.Root.ResourceDeclarations.Select(d => d.DeclaringSyntax)));
 
             List<VariableSymbol> variablesToInline = new();
+            List<ParameterAssignmentSymbol> parameterAssignmentsToInline = new();
             List<ResourceSymbol> existingResourcesToInline = new();
 
             foreach (var kvp in visitor.shouldInlineCache.Where(kvp => kvp.Value == Decision.Inline))
@@ -70,16 +73,19 @@ namespace Bicep.Core.Emit
                     case VariableSymbol variable:
                         variablesToInline.Add(variable);
                         break;
+                    case ParameterAssignmentSymbol parameterAssignment:
+                        parameterAssignmentsToInline.Add(parameterAssignment);
+                        break;
                     case ResourceSymbol resource when resource.DeclaringResource.IsExistingResource():
                         existingResourcesToInline.Add(resource);
                         break;
                     default:
                         throw new InvalidOperationException(
-                            $"Only expected shouldInlineCache to contain variables and existing resources but found {kvp.Key.Type}");
+                            $"Expected shouldInlineCache to only contain variables, parameter assignments, and existing resources but found {kvp.Key.Type}");
                 }
             }
 
-            return new(variablesToInline.ToFrozenSet(), existingResourcesToInline.ToFrozenSet());
+            return new(variablesToInline.ToFrozenSet(), parameterAssignmentsToInline.ToFrozenSet(), existingResourcesToInline.ToFrozenSet());
         }
 
         /// <summary>
@@ -131,6 +137,32 @@ namespace Bicep.Core.Emit
             this.currentDeclaration = variableSymbol;
             this.shouldInlineCache[variableSymbol] = Decision.NotInline;
             base.VisitVariableDeclarationSyntax(syntax);
+
+            // restore previous declaration
+            this.currentDeclaration = prevDeclaration;
+        }
+
+        public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
+        {
+            if (this.model.GetSymbolInfo(syntax) is not ParameterAssignmentSymbol parameterSymbol)
+            {
+                // we have errors that prevent further validation
+                // skip this part of the tree
+                return;
+            }
+
+            if (shouldInlineCache.ContainsKey(parameterSymbol))
+            {
+                // we've already analyzed this parameter
+                return;
+            }
+
+            // save previous declaration as we may call this recursively
+            var prevDeclaration = this.currentDeclaration;
+
+            this.currentDeclaration = parameterSymbol;
+            this.shouldInlineCache[parameterSymbol] = Decision.NotInline;
+            base.VisitParameterAssignmentSyntax(syntax);
 
             // restore previous declaration
             this.currentDeclaration = prevDeclaration;
@@ -255,39 +287,48 @@ namespace Bicep.Core.Emit
                 return;
             }
 
+            void ProcessInlinableSymbol(DeclaredSymbol symbol, string identifierName)
+            {
+                var previousStack = this.currentStack;
+                if (!shouldInlineCache.TryGetValue(symbol, out var shouldInline))
+                {
+                    this.currentStack = this.currentStack?.Push(identifierName);
+
+                    // recursively visit dependent symbols
+                    this.Visit(symbol.DeclaringSyntax);
+
+                    if (!shouldInlineCache.TryGetValue(symbol, out shouldInline))
+                    {
+                        shouldInline = Decision.NotInline;
+                    }
+
+                    if (shouldInline == Decision.Inline && this.targetVariable is not null && this.capturedSequence is null)
+                    {
+                        // this point is where the decision is made to inline the variable
+                        // the variable access stack will be the deepest here
+                        // (once captured, we will not reset because the visitor will be short-circuiting and
+                        //  unrolling the recursion which would produce shorter and inaccurate paths)
+
+                        // capture the sequence of variable accesses
+                        this.capturedSequence = this.currentStack;
+                    }
+                }
+
+                // if we depend on a symbol that requires inlining, then we also require inlining
+                var newValue = shouldInlineCache[currentDeclaration] == Decision.Inline || shouldInline == Decision.Inline;
+                SetInlineCache(newValue);
+
+                this.currentStack = previousStack;
+            }
+
             switch (model.GetSymbolInfo(syntax))
             {
                 case VariableSymbol variableSymbol:
-                    var previousStack = this.currentStack;
-                    if (!shouldInlineCache.TryGetValue(variableSymbol, out var shouldInline))
-                    {
-                        this.currentStack = this.currentStack?.Push(syntax.Name.IdentifierName);
+                    ProcessInlinableSymbol(variableSymbol, syntax.Name.IdentifierName);
+                    return;
 
-                        // recursively visit dependent variables
-                        this.Visit(variableSymbol.DeclaringSyntax);
-
-                        if (!shouldInlineCache.TryGetValue(variableSymbol, out shouldInline))
-                        {
-                            shouldInline = Decision.NotInline;
-                        }
-
-                        if (shouldInline == Decision.Inline && this.targetVariable is not null && this.capturedSequence is null)
-                        {
-                            // this point is where the decision is made to inline the variable
-                            // the variable access stack will be the deepest here
-                            // (once captured, we will not reset because the visitor will be short-circuiting and
-                            //  unrolling the recursion which would produce shorter and inaccurate paths)
-
-                            // capture the sequence of variable accesses
-                            this.capturedSequence = this.currentStack;
-                        }
-                    }
-
-                    // if we depend on a variable that requires inlining, then we also require inlining
-                    var newValue = shouldInlineCache[currentDeclaration] == Decision.Inline || shouldInline == Decision.Inline;
-                    SetInlineCache(newValue);
-
-                    this.currentStack = previousStack;
+                case ParameterAssignmentSymbol parameterAssignmentSymbol:
+                    ProcessInlinableSymbol(parameterAssignmentSymbol, syntax.Name.IdentifierName);
                     return;
 
                 case ResourceSymbol:
@@ -389,7 +430,8 @@ namespace Bicep.Core.Emit
 
             if (functionSymbol is { })
             {
-                var shouldInline = functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining);
+                var shouldInline = functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining) ||
+                                   functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresExternalInput);
                 SetInlineCache(shouldInline);
             }
         }

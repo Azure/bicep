@@ -2,65 +2,114 @@ syntax = "proto3";
 
 option csharp_namespace = "Bicep.Local.Rpc";
 
+// This contract is based on the following extension contract for server-side extensibility:
+// https://github.com/Azure/bicep-extensibility/blob/main/docs/vnext/openapi.yaml
 package extension;
 
 service BicepExtension {
+  // Create or update a resource.
   rpc CreateOrUpdate (ResourceSpecification) returns (LocalExtensibilityOperationResponse);
+  // Preview a resource creation or update operation by simulating the process.
   rpc Preview (ResourceSpecification) returns (LocalExtensibilityOperationResponse);
+  // Get a resource given its type, identifiers, and configuration.
   rpc Get (ResourceReference) returns (LocalExtensibilityOperationResponse);
+  // Delete a resource given its type, identifiers, configuration, and configuration ID.
   rpc Delete (ResourceReference) returns (LocalExtensibilityOperationResponse);
+  // Retrieve type definition files for the extension.
   rpc GetTypeFiles(Empty) returns (TypeFilesResponse);
+  // Health check endpoint to verify extension availability.
   rpc Ping(Empty) returns (Empty);
 }
 
 message Empty {}
 
 message ResourceSpecification {
+  // Contains configuration items that are served as necessary context information for completing the resource operation.
+  // This is the user-supplied extension configuration in the Bicep or ARM template file.
+  // Formatted as a serialized JSON string.
   optional string config = 1;
+  // The type of the resource.
   string type = 2;
+  // The API version of the resource.
   optional string apiVersion = 3;
+  // The properties of the resource.
+  // Formatted as a serialized JSON string.
   string properties = 4;
 }
 
 message ResourceReference {
+  // An object comprising key properties that, when paired with the resource's type and configuration, uniquely identify a resource.
+  // These properties are generally a subset of the resource properties provided in the createOrUpdate request payload.
+  // Formatted as a serialized JSON string.
   string identifiers = 1;
+  // Contains configuration items that are served as necessary context information for completing the resource operation.
+  // This is the user-supplied extension configuration in the Bicep or ARM template file.
+  // Formatted as a serialized JSON string.
   optional string config = 2;
+  // The type of the resource.
   string type = 3;
+  // The API version of the resource.
   optional string apiVersion = 4;
 }
 
 message LocalExtensibilityOperationResponse {
+  // The resource data if the operation succeeded.
   optional Resource resource = 1;
+  // Error information if the operation failed.
   optional ErrorData errorData = 2;
 }
 
 message Resource {
+  // The type of the resource.
   string type = 1;
+  // The API version of the resource.
   optional string apiVersion = 2;
+  // An object comprising key properties that, when paired with the resource's type and configuration, uniquely identify a resource.
+  // These properties are generally a subset of the resource properties provided in the createOrUpdate request payload.
+  // Formatted as a serialized JSON string.
   string identifiers = 3;
+  // The properties of the resource.
+  // Formatted as a serialized JSON string.
   string properties = 4;
+  // Indicates the provisioning status of the resource or long-running operation.
+  // There are three terminal status: Succeeded, Failed, and Canceled.
+  // A null or undefined status property is treated as Succeeded.
+  // Any other status is a non-terminal state and is defined by each extension (e.g., Running).
   optional string status = 5;
 }
 
 message ErrorData {
+  // The error details.
   Error error = 1;
 }
 
 message Error {
+  // A short unlocalized string which can be used to identify a particular class of error. The code should be Pascal-cased.
   string code = 1;
+  // An absolute JSON Pointer (see RFC 6901) to the property causing the error.
   optional string target = 2;
+  // Describes the error in detail and provides debugging information.
+  // If the Accept-Language header is set in the request, it must be localized accordingly.
   string message = 3;
+  // An array of details about specific errors that led to this reported error.
   repeated ErrorDetail details = 4;
+  // An object containing more specific information than the current object about the error.
   optional string innerError = 5;
 }
 
 message ErrorDetail {
+  // A short unlocalized string which can be used to identify a particular class of error. The code should be Pascal-cased.
   string code = 1;
+  // An absolute JSON Pointer (see RFC 6901) to the property causing the error.
   optional string target = 2;
+  // Describes the error in detail and provides debugging information.
+  // If the Accept-Language header is set in the request, it must be localized accordingly.
   string message = 3;
 }
 
 message TypeFilesResponse {
+  // Path to the main index file for type definitions.
   string indexFile = 1;
+  // Map of file paths to their contents (all type definition files).
   map<string, string> typeFiles = 2;
 }

@@ -53,6 +53,8 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableDictionary<ExtensionConfigAssignmentSymbol, ExtensionMetadata?>> extensionDeclarationsByExtensionConfigAssignment;
         private readonly Lazy<ImmutableDictionary<ExtensionMetadata, ExtensionConfigAssignmentSymbol?>> extensionConfigAssignmentsByDeclaration;
 
+        private readonly Lazy<ExternalInputReferences> externalInputReferencesLazy;
+
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
@@ -150,6 +152,8 @@ namespace Bicep.Core.Semantics
             this.extensionsLazy = new(FindExtensions);
             this.extensionDeclarationsByExtensionConfigAssignment = new(InitializeExtensionDeclarationToAssignmentDictionary);
             this.extensionConfigAssignmentsByDeclaration = new(InitializeExtensionConfigAssignmentToDeclarationDictionary);
+
+            this.externalInputReferencesLazy = new(() => ExternalInputFunctionReferenceVisitor.CollectExternalInputReferences(this));
 
             this.exportsLazy = new(() => FindExportedTypes().Concat(FindExportedVariables()).Concat(FindExportedFunctions())
                 .DistinctBy(export => export.Name, LanguageConstants.IdentifierComparer)
@@ -258,6 +262,8 @@ namespace Bicep.Core.Semantics
 
         public InlineDependencyVisitor.SymbolsToInline SymbolsToInline => symbolsToInlineLazy.Value;
 
+        public ExternalInputReferences ExternalInputReferences => externalInputReferencesLazy.Value;
+
         public ResourceAncestorGraph ResourceAncestors => resourceAncestorsLazy.Value;
 
         public ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> ResourceScopeData => resourceScopeDataLazy.Value.scopeData;
@@ -343,21 +349,12 @@ namespace Bicep.Core.Semantics
                 .Concat(GetAdditionalParamsSemanticDiagnostics())
                 .Distinct()
                 .OrderBy(diag => diag.Span.Position);
-            var filteredDiagnostics = new List<IDiagnostic>();
+            var filteredDiagnostics = ImmutableArray.CreateBuilder<IDiagnostic>();
 
-            var disabledDiagnosticsCache = SourceFile.DisabledDiagnosticsCache;
             foreach (IDiagnostic diagnostic in diagnostics)
             {
-                (int diagnosticLine, _) = TextCoordinateConverter.GetPosition(SourceFile.LineStarts, diagnostic.Span.Position);
-
-                if (diagnosticLine == 0 || !diagnostic.CanBeSuppressed())
-                {
-                    filteredDiagnostics.Add(diagnostic);
-                    continue;
-                }
-
-                if (disabledDiagnosticsCache.TryGetDisabledNextLineDirective(diagnosticLine - 1) is { } disableNextLineDirectiveEndPositionAndCodes &&
-                    disableNextLineDirectiveEndPositionAndCodes.diagnosticCodes.Contains(diagnostic.Code))
+                if (diagnostic.CanBeSuppressed() &&
+                    SourceFile.DisabledDiagnosticsCache.IsDisabledAtPosition(diagnostic.Code, diagnostic.Span.Position))
                 {
                     continue;
                 }
@@ -365,7 +362,7 @@ namespace Bicep.Core.Semantics
                 filteredDiagnostics.Add(diagnostic);
             }
 
-            return [.. filteredDiagnostics];
+            return filteredDiagnostics.ToImmutable();
         }
 
         /// <summary>

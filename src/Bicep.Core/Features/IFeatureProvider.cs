@@ -33,13 +33,9 @@ public interface IFeatureProvider
 
     bool ModuleExtensionConfigsEnabled { get; }
 
-    bool DesiredStateConfigurationEnabled { get; }
-
     bool UserDefinedConstraintsEnabled { get; }
 
     bool DeployCommandsEnabled { get; }
-
-    bool MultilineStringInterpolationEnabled { get; }
 
     bool ThisNamespaceEnabled { get; }
 
@@ -61,10 +57,8 @@ public interface IFeatureProvider
                 (LocalDeployEnabled, "Enable local deploy", true, true),
                 (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
-                (DesiredStateConfigurationEnabled, "Enable defining Desired State Configuration documents", true, false),
                 (UserDefinedConstraintsEnabled, "Enable @validate() decorator", true, true),
                 (DeployCommandsEnabled, "Enable deploy commands", true, true),
-                (MultilineStringInterpolationEnabled, "Enable multiline string interpolation", false, false),
                 (ThisNamespaceEnabled, "Enable 'this' namespace", true, true),
             })
             {

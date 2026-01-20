@@ -53,19 +53,6 @@ public static class BicepExtensionServiceCollectionExtensions
         Assembly typeAssembly,
         Type? configurationType = null)
     {
-        var typeDictionary = new Dictionary<Type, Func<TypeBase>>
-                            {
-                                { typeof(string), () => new StringType() },
-                                { typeof(bool), () => new BooleanType() },
-                                { typeof(int), () => new IntegerType() }
-                            }.ToImmutableDictionary();
-        var typeFactory = new TypeFactory([]);
-
-        foreach (var type in typeDictionary)
-        {
-            typeFactory.Create(type.Value);
-        }
-
         var configuration = new Dictionary<string, ObjectTypeProperty>();
 
         services.AddSingleton<ITypeProvider>(new TypeProvider([typeAssembly]));
@@ -74,9 +61,7 @@ public static class BicepExtensionServiceCollectionExtensions
             version,
             isSingleton,
             configurationType,
-            typeFactory,
-            sp.GetRequiredService<ITypeProvider>(),
-            typeDictionary));
+            sp.GetRequiredService<ITypeProvider>()));
 
         services.AddSingleton<IResourceHandlerCollection, ResourceHandlerCollection>();
 

@@ -17,10 +17,6 @@ Should be enabled in tandem with `testFramework` experimental feature flag for e
 
 Enables `deploy`, `what-if` and `teardown` command groups, as well as the `with` syntax in a `.bicepparam` file. For more information, see [Using the Deploy Commands](./experimental/deploy-commands.md).
 
-### `desiredStateConfiguration`
-
-Allows you to author configuration documents for [Microsoft's Desired State Configuration platform](https://github.com/PowerShell/DSC) using `targetScope = 'desiredStateConfiguration'`. If enabled, the file must only contain DSC resource instances. The built file is a valid configuration document to be used with the CLI. For example, `dsc.exe config test --file example.json`. This feature is in early development.
-
 ### `extendableParamFiles`
 
 Enables the ability to extend bicepparam files from other bicepparam files. For more information, see [Extendable Bicep Params Files](./experimental/extendable-param-files.md).
@@ -37,23 +33,6 @@ Enables Bicep to run deployments locally, so that you can run Bicep extensions w
 
 Moves defining extension configurations to the module level rather than from within a template. The feature also
 includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use.
-
-### `multilineStringInterpolation`
-
-Adds an optional `$` prefix to the current multiline opening syntax `'''`, which enables interpolation using standard `${...}` Bicep interpolation. To permit a `${...}` literal value without escaping requirements, you can specify the number of `$` characters required for interpolation by repeating the `$` prefix.
-
-Basic example:
-```bicep
-var s = $'''
-this is ${interpolated}'''
-```
-
-With multiple `$` characters:
-```bicep
-var s = $$'''
-this is $${interpolated}
-this is not ${interpolated}'''
-```
 
 ### `resourceInfoCodegen`
 
@@ -76,7 +55,7 @@ Allows the ARM template layer to use a new schema to represent resources as an o
 Should be enabled in tandem with `assertions` experimental feature flag for expected functionality. Allows you to author client-side, offline unit-test test blocks that reference Bicep files and mock deployment parameters in a separate `test.bicep` file using the new `test` keyword. Test blocks can be run with the command *bicep test <filepath_to_file_with_test_blocks>* which runs all `assert` statements in the Bicep files referenced by the test blocks. For more information, see [Bicep Experimental Test Framework](https://github.com/Azure/bicep/issues/11967).
 ### `thisNamespace`
 
-Enables the `this` namespace for accessing the current resource instance. The `this` namespace is only discoverable in resource bodies. Currently, `this.exists()` and `this.existingResource()` are available for usage. `this.exists()` returns a bool indicating the existence of the current resource. `this.existingResource()` returns null if the resource does not exist and returns the full resource if the resource exists. (Note: This feature will not work until the backend service support has been deployed) 
+Enables the `this` namespace for accessing the current resource instance. The `this` namespace is only discoverable in resource bodies. Currently, `this.exists()` and `this.existingResource()` are available for usage. `this.exists()` returns a bool indicating the existence of the current resource. `this.existingResource()` returns null if the resource does not exist and returns the full resource if the resource exists. (Note: This feature will not work until the backend service support has been deployed)
 ```
 resource usingThis 'Microsoft...' = {
   name: 'example'
