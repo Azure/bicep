@@ -17,7 +17,7 @@ namespace Bicep.Core.Semantics
             IEnumerable<FixedFunctionParameter> fixedArgumentTypes,
             VariableFunctionParameter? variableArgumentType,
             EvaluatorDelegate? evaluator,
-            LanguageExpressionTransformerDelegate? expressionConverter,
+            LanguageExpressionEvaluatorDelegate? expressionConverter,
             FunctionFlags flags = FunctionFlags.Default)
             : base(name, genericDescription, description, resultBuilder, returnType, fixedArgumentTypes, variableArgumentType, evaluator, expressionConverter, flags)
         {

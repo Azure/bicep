@@ -83,9 +83,6 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
             return;
         }
 
-        // TODO in the extension namespace implementation:
-        // Ideally extension namespace function authors shouldn't need to set this flag in the types.json at all if they have externalInputs in the "evaluatesTo" property
-        // Consider using visitor pattern to determine this automatically
         if (!functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresExternalInput))
         {
             return;

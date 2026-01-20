@@ -80,9 +80,11 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             if (!string.IsNullOrWhiteSpace(namespaceFunctionType.EvaluatesTo))
             {
                 builder = builder.WithExpressionConverter(ExtensionNamespaceTypeHelper.GetLanguageExpressionTransformer(namespaceFunctionType));
+                if (ExtensionNamespaceTypeHelper.RequiresExternalInputs(namespaceFunctionType))
+                {
+                    builder = builder.WithFlags(FunctionFlags.RequiresExternalInput);
+                }
             }
-
-            builder = builder.WithFlags(GetNamespaceFunctionFlags(namespaceFunctionType));
 
             var fileVisibilityRestriction = GetFunctionVisibilityRestriction(namespaceFunctionType);
 
@@ -164,18 +166,6 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             {
                 // for non-required and non-readonly resource properties, we allow null assignment
                 flags |= TypePropertyFlags.AllowImplicitNull;
-            }
-
-            return flags;
-        }
-
-        private static FunctionFlags GetNamespaceFunctionFlags(Azure.Bicep.Types.Concrete.NamespaceFunctionType input)
-        {
-            var flags = FunctionFlags.Default;
-
-            if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.NamespaceFunctionFlags.ExternalInput))
-            {
-                flags |= FunctionFlags.ExternalInput;
             }
 
             return flags;

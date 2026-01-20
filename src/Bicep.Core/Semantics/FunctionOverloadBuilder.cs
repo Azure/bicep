@@ -45,7 +45,7 @@ public class FunctionOverloadBuilder
 
     protected FunctionOverload.EvaluatorDelegate? Evaluator { get; private set; }
 
-    protected FunctionOverload.LanguageExpressionTransformerDelegate? ExpressionConverter { get; private set; }
+    protected FunctionOverload.LanguageExpressionEvaluatorDelegate? ExpressionConverter { get; private set; }
 
     protected FunctionFlags Flags { get; private set; }
 
@@ -129,7 +129,7 @@ public class FunctionOverloadBuilder
         return this;
     }
 
-    public FunctionOverloadBuilder WithExpressionConverter(FunctionOverload.LanguageExpressionTransformerDelegate expressionConverter)
+    public FunctionOverloadBuilder WithExpressionConverter(FunctionOverload.LanguageExpressionEvaluatorDelegate expressionConverter)
     {
         ExpressionConverter = expressionConverter;
         return this;

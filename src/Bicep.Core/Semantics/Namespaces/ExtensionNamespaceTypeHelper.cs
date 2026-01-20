@@ -15,6 +15,7 @@ using ExpressionEvaluationContext = Azure.Deployments.Expression.Intermediate.Ex
 using FunctionEvaluator = Azure.Deployments.Expression.Intermediate.FunctionEvaluator;
 using IntermediateFunctionExpression = Azure.Deployments.Expression.Intermediate.FunctionExpression;
 using FunctionExpression = Azure.Deployments.Expression.Expressions.FunctionExpression;
+using Azure.Deployments.Expression.Engines;
 
 namespace Bicep.Core.Semantics.Namespaces
 {
@@ -33,7 +34,17 @@ namespace Bicep.Core.Semantics.Namespaces
             ];
         }
 
-        public static FunctionOverload.LanguageExpressionTransformerDelegate GetLanguageExpressionTransformer(NamespaceFunctionType functionDefinition)
+        public static bool RequiresExternalInputs(NamespaceFunctionType namespaceFunction)
+        {
+            if (namespaceFunction.EvaluatesTo is not { } evaluatesTo)
+            {
+                return false;
+            }
+
+            return ExpressionsEngine.ExpressionHasFunction(evaluatesTo, LanguageConstants.ExternalInputBicepFunctionName);
+        }
+
+        public static FunctionOverload.LanguageExpressionEvaluatorDelegate GetLanguageExpressionTransformer(NamespaceFunctionType functionDefinition)
         {
             return expression =>
             {

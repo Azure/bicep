@@ -22,10 +22,11 @@ namespace Bicep.Core.Semantics
         public delegate Expression EvaluatorDelegate(
             FunctionCallExpression expression);
 
-        public delegate LanguageExpression LanguageExpressionTransformerDelegate(
+        // Delegate to be invoked by the ExpressionConverter to reduce/partially evaluate the function LanguageExpression
+        public delegate LanguageExpression LanguageExpressionEvaluatorDelegate(
             FunctionExpression expression);
 
-        public FunctionOverload(string name, string genericDescription, string description, ResultBuilderDelegate resultBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, LanguageExpressionTransformerDelegate? expressionConverter, FunctionFlags flags = FunctionFlags.Default)
+        public FunctionOverload(string name, string genericDescription, string description, ResultBuilderDelegate resultBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, LanguageExpressionEvaluatorDelegate? expressionConverter, FunctionFlags flags = FunctionFlags.Default)
         {
             Name = name;
             GenericDescription = genericDescription;
@@ -64,7 +65,7 @@ namespace Bicep.Core.Semantics
 
         public EvaluatorDelegate? Evaluator { get; }
 
-        public LanguageExpressionTransformerDelegate? LanguageExpressionTransformer { get; }
+        public LanguageExpressionEvaluatorDelegate? LanguageExpressionTransformer { get; }
 
         public FunctionFlags Flags { get; }
 
