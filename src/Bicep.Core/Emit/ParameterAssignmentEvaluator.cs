@@ -151,6 +151,10 @@ public class ParameterAssignmentEvaluator
     private readonly ConcurrentDictionary<SemanticModel, ResultWithDiagnosticBuilder<Template>> templateResults = new();
     private readonly ConcurrentDictionary<Template, TemplateVariablesEvaluator> armEvaluators = new();
     private readonly ConcurrentDictionary<SemanticModel, ExpressionConverter> converterCache = new();
+    private readonly ConcurrentDictionary<SemanticModel, ImmutableDictionary<string, VariableSymbol>> variablesByModelAndName = new();
+    private readonly ConcurrentDictionary<SemanticModel, ImmutableDictionary<string, ParameterAssignmentSymbol>> paramsByModelAndName = new();
+    private readonly ConcurrentDictionary<SemanticModel, ImmutableDictionary<string, Expression>> synthesizedVariablesByModelAndName = new();
+    private readonly ConcurrentDictionary<SemanticModel, ParameterAssignmentEvaluationContext> evaluationContextCache = new();
     private readonly ImmutableDictionary<string, ParameterAssignmentSymbol> paramsByName;
     private readonly SemanticModel semanticModel;
     private readonly ImmutableDictionary<string, VariableSymbol> variablesByName;
@@ -159,6 +163,72 @@ public class ParameterAssignmentEvaluator
     private readonly ImmutableDictionary<string, WildcardImportPropertyReference> wildcardImportPropertiesByName;
     private readonly ImmutableDictionary<string, Expression> synthesizedVariableValuesByName;
     private readonly ExpressionConverter converter;
+
+    private static ImmutableDictionary<string, VariableSymbol> GetVariablesForModel(SemanticModel model)
+    {
+        return model.Root.VariableDeclarations
+            .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
+            .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
+    }
+
+    private static ImmutableDictionary<string, ParameterAssignmentSymbol> GetParametersForModel(SemanticModel model)
+    {
+        return model.Root.ParameterAssignments
+            .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
+            .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
+    }
+
+    private static ImmutableDictionary<string, Expression> GetSynthesizedVariablesForModel(SemanticModel model)
+    {
+        var context = new EmitterContext(model);
+        return context.FunctionVariables.Values
+            .GroupBy(result => result.Name)
+            .ToImmutableDictionary(x => x.Key, x => x.First().Value);
+    }
+
+    private static IEnumerable<VariableSymbol> GetVariableDeclarationsIncludingExtends(SemanticModel model)
+    {
+        foreach (var variable in model.Root.VariableDeclarations)
+        {
+            yield return variable;
+        }
+
+        if (model.SourceFile is not BicepParamFile)
+        {
+            yield break;
+        }
+
+        var visitedModels = new HashSet<ISemanticModel>();
+
+        IEnumerable<VariableSymbol> WalkExtends(SemanticModel current)
+        {
+            foreach (var extends in current.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>())
+            {
+                if (!current.TryGetReferencedModel(extends).IsSuccess(out var referenced) || !visitedModels.Add(referenced) || referenced is not SemanticModel referencedSemantic)
+                {
+                    continue;
+                }
+
+                foreach (var inherited in referencedSemantic.Root.VariableDeclarations)
+                {
+                    yield return inherited;
+                }
+
+                if (referencedSemantic.SourceFile is BicepParamFile)
+                {
+                    foreach (var nested in WalkExtends(referencedSemantic))
+                    {
+                        yield return nested;
+                    }
+                }
+            }
+        }
+
+        foreach (var variable in WalkExtends(model))
+        {
+            yield return variable;
+        }
+    }
 
     private static IEnumerable<FunctionVariable> CollectFunctionVariablesIncludingExtends(SemanticModel model, EmitterContext context)
     {
@@ -221,13 +291,57 @@ public class ParameterAssignmentEvaluator
         }
     }
 
+    private static IEnumerable<ParameterAssignmentSymbol> GetParameterAssignmentsIncludingExtends(SemanticModel model)
+    {
+        foreach (var param in model.Root.ParameterAssignments)
+        {
+            yield return param;
+        }
+
+        if (model.SourceFile is not BicepParamFile)
+        {
+            yield break;
+        }
+
+        var visitedModels = new HashSet<ISemanticModel>();
+
+        IEnumerable<ParameterAssignmentSymbol> WalkExtends(SemanticModel current)
+        {
+            foreach (var extends in current.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>())
+            {
+                if (!current.TryGetReferencedModel(extends).IsSuccess(out var referenced) || !visitedModels.Add(referenced) || referenced is not SemanticModel referencedSemantic)
+                {
+                    continue;
+                }
+
+                foreach (var inherited in referencedSemantic.Root.ParameterAssignments)
+                {
+                    yield return inherited;
+                }
+
+                if (referencedSemantic.SourceFile is BicepParamFile)
+                {
+                    foreach (var nested in WalkExtends(referencedSemantic))
+                    {
+                        yield return nested;
+                    }
+                }
+            }
+        }
+
+        foreach (var param in WalkExtends(model))
+        {
+            yield return param;
+        }
+    }
+
     public ParameterAssignmentEvaluator(SemanticModel model)
     {
         this.semanticModel = model;
-        this.paramsByName = model.Root.ParameterAssignments
+        this.paramsByName = GetParameterAssignmentsIncludingExtends(model)
             .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
             .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
-        this.variablesByName = model.Root.VariableDeclarations
+        this.variablesByName = GetVariableDeclarationsIncludingExtends(model)
             .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
             .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
         this.functionsByName = model.Root.FunctionDeclarations
@@ -264,12 +378,28 @@ public class ParameterAssignmentEvaluator
         return converter;
     }
 
+    private ExpressionConverter GetConverterForVariable(VariableSymbol variable)
+    {
+        if (ReferenceEquals(variable.Context.SourceFile, semanticModel.SourceFile))
+        {
+            return converter;
+        }
+
+        if (variable.Context.ModelLookup.GetSemanticModel(variable.Context.SourceFile) is SemanticModel variableModel)
+        {
+            return converterCache.GetOrAdd(variableModel, model => new ExpressionConverter(new EmitterContext(model)));
+        }
+
+        return converter;
+    }
+
     public Result EvaluateParameter(ParameterAssignmentSymbol parameter)
         => results.GetOrAdd(
             parameter,
             parameter =>
             {
-                var context = GetExpressionEvaluationContext();
+                var parameterModel = GetModelForSymbol(parameter);
+                var context = GetExpressionEvaluationContextForModel(parameterModel);
 
                 var declaringParam = parameter.DeclaringParameterAssignment;
 
@@ -407,10 +537,12 @@ public class ParameterAssignmentEvaluator
             {
                 try
                 {
-                    var context = GetExpressionEvaluationContext();
-                    var intermediate = converter.ConvertToIntermediateExpression(variable.DeclaringVariable.Value);
+                    var variableModel = GetModelForSymbol(variable);
+                    var context = GetExpressionEvaluationContextForModel(variableModel);
+                    var variableConverter = GetConverterForVariable(variable);
+                    var intermediate = variableConverter.ConvertToIntermediateExpression(variable.DeclaringVariable.Value);
 
-                    return Result.For(converter.ConvertExpression(intermediate).EvaluateExpression(context));
+                    return Result.For(variableConverter.ConvertExpression(intermediate).EvaluateExpression(context));
                 }
                 catch (Exception ex)
                 {
@@ -419,20 +551,32 @@ public class ParameterAssignmentEvaluator
                 }
             });
 
-    private Result EvaluateSynthesizeVariableExpression(string name, Expression expression)
+    private Result EvaluateSynthesizeVariableExpression(string name, Expression expression, SemanticModel model)
         => synthesizedVariableResults.GetOrAdd(
             expression,
             expression =>
             {
                 try
                 {
-                    return Result.For(converter.ConvertExpression(expression).EvaluateExpression(GetExpressionEvaluationContext()));
+                    var evalContext = GetExpressionEvaluationContextForModel(model);
+                    var exprConverter = converterCache.GetOrAdd(model, m => new ExpressionConverter(new EmitterContext(m)));
+                    return Result.For(exprConverter.ConvertExpression(expression).EvaluateExpression(evalContext));
                 }
                 catch (Exception e)
                 {
                     return Result.For(DiagnosticBuilder.ForDocumentStart().FailedToEvaluateVariable(name, e.Message));
                 }
             });
+
+    private SemanticModel GetModelForSymbol(DeclaredSymbol symbol)
+    {
+        if (ReferenceEquals(symbol.Context.SourceFile, semanticModel.SourceFile))
+        {
+            return semanticModel;
+        }
+
+        return symbol.Context.ModelLookup.GetSemanticModel(symbol.Context.SourceFile) as SemanticModel ?? semanticModel;
+    }
 
     private ResultWithDiagnosticBuilder<Template> GetTemplateWithCaching(ISemanticModel model)
         => model switch
@@ -551,41 +695,66 @@ public class ParameterAssignmentEvaluator
 
     private ParameterAssignmentEvaluationContext GetExpressionEvaluationContext()
     {
-        var helper = new TemplateExpressionEvaluationHelper
+        return GetExpressionEvaluationContextForModel(semanticModel);
+    }
+
+    private ParameterAssignmentEvaluationContext GetExpressionEvaluationContextForModel(SemanticModel model)
+    {
+        return evaluationContextCache.GetOrAdd(model, m =>
         {
-            OnGetVariable = (name, _) =>
+            var modelVariables = variablesByModelAndName.GetOrAdd(m, GetVariablesForModel);
+            var modelParams = paramsByModelAndName.GetOrAdd(m, GetParametersForModel);
+            var modelSynthesizedVars = synthesizedVariablesByModelAndName.GetOrAdd(m, GetSynthesizedVariablesForModel);
+
+            var modelContext = new EmitterContext(m);
+            var modelImportsByName = modelContext.SemanticModel.ImportClosureInfo.ImportedSymbolNames.Keys
+                .Select(importedVariable => (modelContext.SemanticModel.ImportClosureInfo.ImportedSymbolNames[importedVariable], importedVariable))
+                .GroupBy(x => x.Item1, LanguageConstants.IdentifierComparer)
+                .ToImmutableDictionary(x => x.Key, x => x.First().importedVariable, LanguageConstants.IdentifierComparer);
+            var modelWildcardImportsByName = modelContext.SemanticModel.ImportClosureInfo.WildcardImportPropertyNames
+                .GroupBy(x => x.Value, LanguageConstants.IdentifierComparer)
+                .ToImmutableDictionary(x => x.Key, x => x.First().Key, LanguageConstants.IdentifierComparer);
+
+            var helper = new TemplateExpressionEvaluationHelper
             {
-                if (variablesByName.TryGetValue(name, out var variable))
+                OnGetVariable = (name, _) =>
                 {
-                    return EvaluateVariable(variable).Value ?? throw new InvalidOperationException($"Variable {name} has an invalid value");
-                }
+                    if (modelVariables.TryGetValue(name, out var variable))
+                    {
+                        return EvaluateVariable(variable).Value ?? throw new InvalidOperationException($"Variable {name} has an invalid value");
+                    }
 
-                if (importsByName.TryGetValue(name, out var imported) && imported is ImportedVariableSymbol importedVariable)
+                    if (modelImportsByName.TryGetValue(name, out var imported) && imported is ImportedVariableSymbol importedVariable)
+                    {
+                        return EvaluateImport(importedVariable).Value ?? throw new InvalidOperationException($"Imported variable {name} has an invalid value");
+                    }
+
+                    if (modelWildcardImportsByName.TryGetValue(name, out var wildcardImportProperty))
+                    {
+                        return EvaluateWildcardImportPropertyAsVariable(wildcardImportProperty).Value
+                            ?? throw new InvalidOperationException($"Imported variable {wildcardImportProperty.WildcardImport.Name}.{wildcardImportProperty.PropertyName} has an invalid value");
+                    }
+
+                    if (modelSynthesizedVars.TryGetValue(name, out var value))
+                    {
+                        return EvaluateSynthesizeVariableExpression(name, value, m).Value
+                            ?? throw new InvalidOperationException($"Synthesized variable {name} has an invalid value");
+                    }
+
+                    throw new InvalidOperationException($"Variable {name} not found");
+                },
+                OnGetParameter = (name, _) =>
                 {
-                    return EvaluateImport(importedVariable).Value ?? throw new InvalidOperationException($"Imported variable {name} has an invalid value");
-                }
+                    if (modelParams.TryGetValue(name, out var param))
+                    {
+                        return EvaluateParameter(param).Value ?? throw new InvalidOperationException($"Parameter {name} has an invalid value");
+                    }
+                    throw new InvalidOperationException($"Parameter {name} not found");
+                },
+            };
 
-                if (wildcardImportPropertiesByName.TryGetValue(name, out var wildcardImportProperty))
-                {
-                    return EvaluateWildcardImportPropertyAsVariable(wildcardImportProperty).Value
-                        ?? throw new InvalidOperationException($"Imported variable {wildcardImportProperty.WildcardImport.Name}.{wildcardImportProperty.PropertyName} has an invalid value");
-                }
-
-                if (synthesizedVariableValuesByName.TryGetValue(name, out var value))
-                {
-                    return EvaluateSynthesizeVariableExpression(name, value).Value
-                        ?? throw new InvalidOperationException($"Synthesized variable {name} has an invalid value");
-                }
-
-                throw new InvalidOperationException($"Variable {name} not found");
-            },
-            OnGetParameter = (name, _) =>
-            {
-                return EvaluateParameter(paramsByName[name]).Value ?? throw new InvalidOperationException($"Parameter {name} has an invalid value");
-            },
-        };
-
-        return new(helper, this);
+            return new(helper, this);
+        });
     }
 
     private static ResultWithDiagnosticBuilder<Template> GetTemplate(SemanticModel model)

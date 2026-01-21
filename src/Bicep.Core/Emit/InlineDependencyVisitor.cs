@@ -297,7 +297,10 @@ namespace Bicep.Core.Emit
                     // recursively visit dependent symbols
                     this.Visit(symbol.DeclaringSyntax);
 
-                    shouldInline = shouldInlineCache[symbol];
+                    if (!shouldInlineCache.TryGetValue(symbol, out shouldInline))
+                    {
+                        shouldInline = Decision.NotInline;
+                    }
 
                     if (shouldInline == Decision.Inline && this.targetVariable is not null && this.capturedSequence is null)
                     {
