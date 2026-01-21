@@ -1,12 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.IO.Abstraction;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -30,7 +28,7 @@ public class BicepDeploymentToolsTests
     private readonly BicepDeploymentTools tools = GetServiceProvider().GetRequiredService<BicepDeploymentTools>();
 
     [TestMethod]
-    public async Task GetSnapshot_returns_a_valid_snapshot()
+    public async Task GetDeploymentSnapshot_returns_a_valid_snapshot()
     {
         var outputFolder = FileHelper.SaveResultFiles(TestContext, [
             new("main.bicep", """
@@ -60,7 +58,7 @@ public class BicepDeploymentToolsTests
                 """),
         ]);
 
-        var response = await tools.GetSnapshot(
+        var response = await tools.GetDeploymentSnapshot(
             filePath: Path.Combine(outputFolder, "main.bicepparam"),
             tenantId: null,
             subscriptionId: "1ec1dd71-d88e-465d-95e2-4996c828833a",
@@ -68,9 +66,9 @@ public class BicepDeploymentToolsTests
             location: "antartica",
             deploymentName: null,
             cancellationToken: default);
-        response.SnapshotContents.Should().DeepEqualJson("""
+        JsonSerializer.Serialize(response).Should().DeepEqualJson("""
         {
-          "predictedResources": [
+          "PredictedResources": [
             {
               "id": "/subscriptions/1ec1dd71-d88e-465d-95e2-4996c828833a/resourceGroups/myRg/providers/Microsoft.Storage/storageAccounts/storejztimcr36svny",
               "type": "Microsoft.Storage/storageAccounts",
@@ -84,7 +82,7 @@ public class BicepDeploymentToolsTests
               "properties": {}
             }
           ],
-          "diagnostics": []
+          "Diagnostics": []
         }
         """);
     }

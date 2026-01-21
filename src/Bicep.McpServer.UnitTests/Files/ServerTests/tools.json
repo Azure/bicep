@@ -229,39 +229,7 @@
     }
   },
   {
-    "name": "get_file_references",
-    "description": "Analyzes a Bicep file (.bicep) or Bicep parameters file (.bicepparam) and returns a list of all files referenced by the entry file, including modules, parameter files, and any other dependencies.\n\nUse this tool to:\n- Identify all files that a Bicep or Bicep parameters file depends on\n- Perform dependency or impact analysis before making changes\n- Understand the structure and external links of a Bicep deployment\n\nThe result is a list of absolute URIs for each referenced file. The file path must be absolute. Only direct references are included; transitive references require additional calls.",
-    "jsonSchema": {
-      "type": "object",
-      "properties": {
-        "filePath": {
-          "description": "The path to the .bicep or .bicepparam file",
-          "type": "string"
-        }
-      },
-      "required": [
-        "filePath"
-      ]
-    },
-    "returnJsonSchema": {
-      "type": "object",
-      "properties": {
-        "fileUris": {
-          "description": "The list of files being referenced by the specified Bicep or Bicep parameters file",
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uri"
-          }
-        }
-      },
-      "required": [
-        "fileUris"
-      ]
-    }
-  },
-  {
-    "name": "get_snapshot",
+    "name": "get_deployment_snapshot",
     "description": "Creates a deployment snapshot from a Bicep parameters file (.bicepparam) by compiling it and pre-expanding the resulting ARM template.\nThe snapshot contains the predicted resources (as they would appear in a deployment) and any diagnostics produced during preflight.\n\nUse this tool to:\n- Preview what resources a deployment would create without running a deployment\n- Validate that parameters resolve as expected\n- Troubleshoot why a deployment would produce unexpected resource IDs, names, or locations\n- Inspect preflight diagnostics produced by template expansion\n\nThis tool can also be used to perform a semantic diff between two Bicep implementations:\n- Generate a snapshot for each version (using the same parameter values and metadata)\n- Compare the resulting predicted resources and diagnostics to verify both produce the same deployment outcome\n\nThis is especially useful for automated refactoring, where text-level diffs are noisy but the intended deployment result should remain unchanged.\n\nThe file path must be absolute and must point to a .bicepparam file.\nThe optional tenant/subscription/resource group/location/deployment name values are used as deployment metadata during snapshot generation.\nIf a value is omitted, the snapshot may contain unresolved placeholder expressions for the corresponding metadata.",
     "jsonSchema": {
       "type": "object",
@@ -303,13 +271,54 @@
     "returnJsonSchema": {
       "type": "object",
       "properties": {
-        "snapshotContents": {
-          "description": "Serialized snapshot JSON containing predicted resources and diagnostics",
+        "predictedResources": {
+          "description": "The predicted resources in the deployment snapshot",
+          "type": "array",
+          "items": {}
+        },
+        "diagnostics": {
+          "description": "The diagnostics produced during snapshot generation",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "predictedResources",
+        "diagnostics"
+      ]
+    }
+  },
+  {
+    "name": "get_file_references",
+    "description": "Analyzes a Bicep file (.bicep) or Bicep parameters file (.bicepparam) and returns a list of all files referenced by the entry file, including modules, parameter files, and any other dependencies.\n\nUse this tool to:\n- Identify all files that a Bicep or Bicep parameters file depends on\n- Perform dependency or impact analysis before making changes\n- Understand the structure and external links of a Bicep deployment\n\nThe result is a list of absolute URIs for each referenced file. The file path must be absolute. Only direct references are included; transitive references require additional calls.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "filePath": {
+          "description": "The path to the .bicep or .bicepparam file",
           "type": "string"
         }
       },
       "required": [
-        "snapshotContents"
+        "filePath"
+      ]
+    },
+    "returnJsonSchema": {
+      "type": "object",
+      "properties": {
+        "fileUris": {
+          "description": "The list of files being referenced by the specified Bicep or Bicep parameters file",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "required": [
+        "fileUris"
       ]
     }
   },

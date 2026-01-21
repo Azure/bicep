@@ -3,9 +3,9 @@
 
 using System.Collections.Immutable;
 using System.ComponentModel;
+using System.Text.Json;
 using Bicep.Core;
 using Bicep.Core.Extensions;
-using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Utils.Snapshots;
 using Bicep.IO.Abstraction;
 using ModelContextProtocol.Server;
@@ -16,9 +16,11 @@ namespace Bicep.McpServer;
 public sealed class BicepDeploymentTools(
     BicepCompiler compiler)
 {
-    public record GetSnapshotResultDefinition(
-        [Description("Serialized snapshot JSON containing predicted resources and diagnostics")]
-        string SnapshotContents);
+    public record SnapshotResult(
+        [Description("The predicted resources in the deployment snapshot")]
+        ImmutableArray<JsonElement> PredictedResources,
+        [Description("The diagnostics produced during snapshot generation")]
+        ImmutableArray<string> Diagnostics);
 
     [McpServerTool(Title = "Get deployment snapshot", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
@@ -41,7 +43,7 @@ public sealed class BicepDeploymentTools(
     The optional tenant/subscription/resource group/location/deployment name values are used as deployment metadata during snapshot generation.
     If a value is omitted, the snapshot may contain unresolved placeholder expressions for the corresponding metadata.
     """)]
-    public async Task<GetSnapshotResultDefinition> GetSnapshot(
+    public async Task<SnapshotResult> GetDeploymentSnapshot(
         [Description("The absolute path to the .bicepparam file")] string filePath,
         [Description("Optional Azure tenant ID to use as deployment metadata")] string? tenantId = null,
         [Description("Optional Azure subscription ID to use as deployment metadata")] string? subscriptionId = null,
@@ -77,6 +79,8 @@ public sealed class BicepDeploymentTools(
             cancellationToken: cancellationToken,
             externalInputs: []);
 
-        return new(SnapshotHelper.Serialize(snapshot));
+        return new(
+             PredictedResources: snapshot.PredictedResources,
+             Diagnostics: snapshot.Diagnostics);
     }
 }
