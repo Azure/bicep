@@ -160,7 +160,7 @@ namespace Bicep.Core.Semantics
             {
                 var current = stack.Pop();
 
-                if (current is VariableAccessSyntax || current == rootSyntax || current is PropertyAccessSyntax || current is ArrayAccessSyntax)
+                if (current is VariableAccessSyntax || current == rootSyntax || current is PropertyAccessSyntax || current is ArrayAccessSyntax || current is FunctionCallSyntaxBase)
                 {
                     var parentSymbol = parentBinder.GetSymbolInfo(current);
                     if (parentSymbol is not null && !baseBindings.ContainsKey(current))
