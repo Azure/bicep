@@ -17,16 +17,19 @@ namespace Bicep.Local.Extension.Types;
 
 public class TypeProvider : ITypeProvider
 {
-    private readonly Assembly[] assemblies;
+    private readonly IEnumerable<Assembly> assemblies;
 
     private readonly Lazy<ImmutableArray<(Type type, ResourceTypeAttribute attribute)>> lazyResourceTypes;
 
     public TypeProvider(
-        Assembly[]? assemblies = null,
+        IEnumerable<Assembly>? assemblies = null,
         ConfigurationTypeContainer? configurationTypeContainer = null,
         FallbackTypeContainer? fallbackTypeContainer = null)
     {
-        this.assemblies = assemblies ?? GetAssembliesInReferenceScope();
+        var assemblyList = assemblies?.ToList();
+        this.assemblies = (assemblyList is null || assemblyList.Count == 0)
+            ? GetAssembliesInReferenceScope()
+            : assemblyList.Distinct();
 
         ConfigurationType = configurationTypeContainer?.Type;
 
@@ -73,13 +76,20 @@ public class TypeProvider : ITypeProvider
         }
     }
 
-    private static Assembly[] GetAssembliesInReferenceScope()
+    private static IEnumerable<Assembly> GetAssembliesInReferenceScope()
     {
         var executingAssembly = Assembly.GetExecutingAssembly();
-        return executingAssembly
+        var entryAssembly = Assembly.GetEntryAssembly();
+        var assemblies = executingAssembly
                 .GetReferencedAssemblies()
                 .Select(Assembly.Load)
-                .Append(executingAssembly)
-                .ToArray();
+                .Append(executingAssembly);
+
+        if(entryAssembly is not null)
+        {
+           assemblies = assemblies.Append(entryAssembly);
+        }
+
+        return assemblies.Distinct();
     }
 }
