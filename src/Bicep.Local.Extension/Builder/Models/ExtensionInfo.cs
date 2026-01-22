@@ -9,15 +9,18 @@ using Google.Protobuf.Compiler;
 
 namespace Bicep.Local.Extension.Builder.Models;
 
-public class ExtensionInfo(string name, string version, bool isSingleton)
+public class ExtensionInfo
 {
-    public string Name { get; } = ValidateValue(name, nameof(name));
-    public string Version { get; } = ValidateValue(version, nameof(version));
-    public bool IsSingleton { get; } = isSingleton;
-
-    private static string ValidateValue(string value, string parameterName)
+    public string Name { get; }
+    public string Version { get; }
+    public bool IsSingleton { get; }
+    
+    ExtensionInfo(string name, string version, bool isSingleton)
     {
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(value, parameterName);
-        return value;
-    } 
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(version);
+        Name = name;
+        Version = version;
+        IsSingleton = isSingleton;    
+    }
 }
