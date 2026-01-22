@@ -15,7 +15,7 @@ public class ExtensionInfo
     public string Version { get; }
     public bool IsSingleton { get; }
     
-    ExtensionInfo(string name, string version, bool isSingleton)
+    public ExtensionInfo(string name, string version, bool isSingleton)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(name);
         ArgumentNullException.ThrowIfNullOrWhiteSpace(version);
