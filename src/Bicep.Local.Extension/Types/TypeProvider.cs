@@ -5,32 +5,54 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Bicep.Local.Extension.Types.Attributes;
+using Bicep.Local.Extension.Types.Models;
 
 namespace Bicep.Local.Extension.Types;
 
 public class TypeProvider : ITypeProvider
 {
-    private readonly Assembly[] assemblies;
+    private readonly IEnumerable<Assembly> assemblies;
 
-    public TypeProvider(Assembly[]? assemblies = null)
+    private readonly Lazy<ImmutableArray<(Type type, ResourceTypeAttribute attribute)>> lazyResourceTypes;
+
+    public TypeProvider(
+        IEnumerable<Assembly>? assemblies = null,
+        ConfigurationTypeContainer? configurationTypeContainer = null,
+        FallbackTypeContainer? fallbackTypeContainer = null)
     {
-        this.assemblies = assemblies ?? GetAssembliesInReferenceScope();
+        var assemblyList = assemblies?.ToList();
+        this.assemblies = (assemblyList is null || assemblyList.Count == 0)
+            ? GetAssembliesInReferenceScope()
+            : assemblyList.Distinct();
+
+        ConfigurationType = configurationTypeContainer?.Type;
+
+        if(fallbackTypeContainer?.Type != null)
+        { // validate fallback type is annotated with ResourceTypeAttribute and is visible (public)
+            FallbackType = fallbackTypeContainer.Type.GetCustomAttribute<ResourceTypeAttribute>(true) is not null && fallbackTypeContainer.Type.IsVisible
+                ? fallbackTypeContainer.Type
+                : throw new InvalidOperationException("Fallback type must be decorated with ResourceTypeAttribute.");
+        }
+        
+        // lazily cache resource types to improve performance on repeated calls
+        this.lazyResourceTypes = new Lazy<ImmutableArray<(Type type, ResourceTypeAttribute attribute)>>(() =>
+            this.assemblies
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(x => x.IsVisible)
+            .Select(x => (type: x, attribute: x.GetCustomAttribute<ResourceTypeAttribute>(true)!))
+            .Where(x => x.attribute is not null)
+            .ToImmutableArray());
     }
 
-    private static Assembly[] GetAssembliesInReferenceScope()
-    {
-        var executingAssembly = Assembly.GetExecutingAssembly();
-        return executingAssembly
-                .GetReferencedAssemblies()
-                .Select(Assembly.Load)
-                .Append(executingAssembly)
-                .ToArray();
-    }
+    public Type? FallbackType { get; }
+
+    public Type? ConfigurationType { get; }
 
     /// <summary>
     /// Provides resource type discovery for Bicep extensions by scanning loaded assemblies for types
@@ -43,14 +65,7 @@ public class TypeProvider : ITypeProvider
     /// </remarks>
     public IEnumerable<(Type type, ResourceTypeAttribute attribute)> GetResourceTypes(bool throwOnDuplicate)
     {
-        var result = assemblies
-            .SelectMany(assembly => assembly.GetTypes())
-            .Where(x => x.IsVisible)
-            .Select(x => (type: x, attribute: x.GetCustomAttribute<ResourceTypeAttribute>(true)!))
-            .Where(x => x.attribute is not null)
-            .ToImmutableArray();
-
-        foreach (var group in result.GroupBy(x => x.attribute.FullName))
+        foreach (var group in lazyResourceTypes.Value.GroupBy(x => x.attribute.FullName))
         {
             if (throwOnDuplicate && group.Count() > 1)
             {
@@ -59,5 +74,22 @@ public class TypeProvider : ITypeProvider
 
             yield return group.First();
         }
+    }
+
+    private static IEnumerable<Assembly> GetAssembliesInReferenceScope()
+    {
+        var executingAssembly = Assembly.GetExecutingAssembly();
+        var entryAssembly = Assembly.GetEntryAssembly();
+        var assemblies = executingAssembly
+                .GetReferencedAssemblies()
+                .Select(Assembly.Load)
+                .Append(executingAssembly);
+
+        if(entryAssembly is not null)
+        {
+           assemblies = assemblies.Append(entryAssembly);
+        }
+
+        return assemblies.Distinct();
     }
 }
