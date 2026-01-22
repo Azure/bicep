@@ -42,6 +42,8 @@ public static class IBicepExtensionBuilderExtensions
     /// <returns>The same instance of the Bicep extension builder, configured with the specified resource handler.</returns>
     public static IBicepExtensionBuilder WithResourceHandler(this IBicepExtensionBuilder builder, IResourceHandler resourceHandler)
     {
+        ArgumentNullException.ThrowIfNull(resourceHandler);
+
         builder.Services.AddSingleton<IResourceHandler>(resourceHandler);
 
         return builder;
@@ -60,6 +62,9 @@ public static class IBicepExtensionBuilderExtensions
     /// <returns>The same <see cref="IBicepExtensionBuilder"/> instance with the extension information registered.</returns>
     public static IBicepExtensionBuilder WithExtensionInfo(this IBicepExtensionBuilder builder, string name, string version, bool isSingleton = true)
     {
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(version);
+
         builder.Services.AddSingleton(new ExtensionInfo(name, version, isSingleton));
         return builder;
     }
@@ -75,6 +80,7 @@ public static class IBicepExtensionBuilderExtensions
     /// <returns>The updated Bicep extension builder instance, allowing for method chaining.</returns>
     public static IBicepExtensionBuilder WithTypeDefinitionBuilder(this IBicepExtensionBuilder builder, ITypeDefinitionBuilder typeDefinitionBuilder)
     {
+        ArgumentNullException.ThrowIfNull(typeDefinitionBuilder);
         builder.Services.AddSingleton<ITypeDefinitionBuilder>(typeDefinitionBuilder);
         return builder;
     }
@@ -126,6 +132,7 @@ public static class IBicepExtensionBuilderExtensions
     /// <returns>The configured Bicep extension builder instance, enabling method chaining.</returns>
     public static IBicepExtensionBuilder WithTypeProvider(IBicepExtensionBuilder builder, ITypeProvider typeProvider)
     {
+        ArgumentNullException.ThrowIfNull(typeProvider); 
         builder.Services.AddSingleton<ITypeProvider>(typeProvider);
         return builder;
     }
@@ -155,6 +162,7 @@ public static class IBicepExtensionBuilderExtensions
     /// <returns>The configured instance of the Bicep extension builder.</returns>
     public static IBicepExtensionBuilder WithTypeAssembly(this IBicepExtensionBuilder builder, Assembly assembly)
     {
+        ArgumentNullException.ThrowIfNull(assembly);
         builder.Services.AddSingleton(assembly);
         return builder;
     }
@@ -180,7 +188,12 @@ public static class IBicepExtensionBuilderExtensions
     /// <returns>The configured instance of the Bicep extension builder, allowing for method chaining.</returns>
     public static IBicepExtensionBuilder WithTypeAssemblies(this IBicepExtensionBuilder builder, Assembly[] assemblies)
     {
-        foreach(var a in  assemblies)
+        if (assemblies is null || assemblies.Length == 0)
+        {
+            throw new ArgumentException("Assembly array cannot be null or empty. Use at least one assembly.", nameof(assemblies));
+        }
+
+        foreach (var a in  assemblies)
         {
             builder.WithTypeAssembly(a);
         }
@@ -200,6 +213,7 @@ public static class IBicepExtensionBuilderExtensions
     /// <exception cref="InvalidOperationException">Thrown if a configuration type has already been registered for the extension.</exception>
     public static IBicepExtensionBuilder WithConfigurationType(this IBicepExtensionBuilder builder, Type configuartion)
     {
+        ArgumentNullException.ThrowIfNull(configuartion);
         if(builder.Services.Any(s => s.ServiceType == typeof(ConfigurationTypeContainer)))
         {
             throw new InvalidOperationException("A configuration type has already been registered. Only one configuration type can be registered per extension.");
@@ -232,6 +246,7 @@ public static class IBicepExtensionBuilderExtensions
     /// <exception cref="InvalidOperationException">Thrown if a fallback type has already been registered for the extension.</exception>
     public static IBicepExtensionBuilder WithFallbackType(this IBicepExtensionBuilder builder, Type fallbackType)
     {
+        ArgumentNullException.ThrowIfNull(fallbackType);
         if(builder.Services.Any(s => s.ServiceType == typeof(FallbackTypeContainer)))
         {
             throw new InvalidOperationException("A fallback type has already been registered. Only one fallback type can be registered per extension.");
