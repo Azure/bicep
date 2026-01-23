@@ -55,6 +55,7 @@ public static class ExtensionResourceTypeHelper
                 [requestType.Name] = new CrossFileTypeReference("v1/types.json", factory.GetIndex(requestType)),
             },
             new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+            [],
             settings,
             null);
 
@@ -112,6 +113,7 @@ public static class ExtensionResourceTypeHelper
         {
             [fooType.Name] = new CrossFileTypeReference("types.json", factory.GetIndex(fooType)),
         }, new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+            [],
             settings,
             null);
 
@@ -177,6 +179,7 @@ public static class ExtensionResourceTypeHelper
         {
             [fooType.Name] = new CrossFileTypeReference("v1/types.json", factory.GetIndex(fooType)),
         }, new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+            [],
             settings,
             fallbackResource);
 
@@ -274,6 +277,7 @@ public static class ExtensionResourceTypeHelper
         var index = new TypeIndex(
             resourceTypes.ToDictionary(x => x.Name, x => new CrossFileTypeReference("types.json", factory.GetIndex(x))),
             new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+            [],
             settings,
             null);
 
@@ -327,6 +331,7 @@ public static class ExtensionResourceTypeHelper
         var index = new TypeIndex(
             resourceTypes.ToDictionary(x => x.Name, x => new CrossFileTypeReference("types.json", factory.GetIndex(x))),
             new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+            [],
             settings,
             fallbackResource);
 
@@ -406,6 +411,7 @@ public static class ExtensionResourceTypeHelper
         var index = new TypeIndex(
             resourceTypes.ToDictionary(x => x.Name, x => new CrossFileTypeReference("types.json", typesJsonTypeContext.TypeFactory.GetIndex(x))),
             new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+            [],
             settings,
             null);
 
