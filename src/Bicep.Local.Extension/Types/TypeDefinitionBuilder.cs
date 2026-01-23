@@ -97,6 +97,7 @@ public class TypeDefinitionBuilder : ITypeDefinitionBuilder
         var index = new TypeIndex(
                 resources: resourceTypes,
                 resourceFunctions: new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+                [],
                 settings: new TypeSettings(name: extensionInfo.Name, version: extensionInfo.Version, isSingleton: extensionInfo.IsSingleton, configurationType: config),
                 fallbackResourceType: fallback);
 
