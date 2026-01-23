@@ -484,7 +484,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ResourceTypesUnavailable(ResourceTypeReference resourceTypeReference) => CoreWarning(
                 "BCP081",
-                "Bicep cannot validate properties or provide IntelliSense for this resource; deployment will still be attempted by Azure Resource Manager. " +
+                "Property type validations and code completions are not available for this resource type, but the resource update operation will still be attempted if this file is deployed. " +
                 "See https://learn.microsoft.com/azure/azure-resource-manager/bicep/diagnostics/bcp081 for details.");
 
 
