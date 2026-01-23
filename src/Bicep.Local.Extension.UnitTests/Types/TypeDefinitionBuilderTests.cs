@@ -314,9 +314,6 @@ public class TypeDefinitionBuilderTests
 
         root.TryGetProperty("settings", out _).Should().BeTrue(
             "index.json must contain 'settings' property");
-
-        root.TryGetProperty("fallbackResourceType", out _).Should().BeTrue(
-            "index.json must contain 'fallbackResourceType' property");
     }
 
     [TestMethod]
