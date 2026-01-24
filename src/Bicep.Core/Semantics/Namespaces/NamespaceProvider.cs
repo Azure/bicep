@@ -183,7 +183,7 @@ public class NamespaceProvider : INamespaceProvider
         return typeProvider switch
         {
             AzResourceTypeProvider => new(AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind)),
-            ExtensionResourceTypeProvider extensionResourceTypeProvider => new(ExtensionNamespaceType.Create(aliasName, extensionResourceTypeProvider, artifact.Reference, sourceFile.Features)),
+            ExtensionResourceTypeProvider extensionResourceTypeProvider => new(ExtensionNamespaceType.Create(aliasName, extensionResourceTypeProvider, artifact.Reference, sourceFile.Features, sourceFile.FileKind)),
             _ => throw new InvalidOperationException($"Unexpected resource type provider type: {typeProvider.GetType().Name}."),
         };
     }

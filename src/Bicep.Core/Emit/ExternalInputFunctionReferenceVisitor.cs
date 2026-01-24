@@ -3,11 +3,13 @@
 
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
+using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit;
 
@@ -76,44 +78,49 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 
     private void VisitFunctionCallSyntaxInternal(FunctionCallSyntaxBase functionCallSyntax)
     {
-        if (SemanticModelHelper.TryGetFunctionInNamespace(semanticModel, SystemNamespaceType.BuiltInName, functionCallSyntax) is not { } functionCall)
+        // TODO: Technically the evaluated expression could have multiple external inputs, e.g. ext.helper() reduces to [concat(externalInput(..), externalInput(..), ...)]
+        // In which case a single functionCallSyntax would map to multiple ExternalInputInfo entries.
+        if (semanticModel.GetSymbolInfo(functionCallSyntax) is not FunctionSymbol functionSymbol)
         {
             return;
         }
 
-        if (semanticModel.GetSymbolInfo(functionCall) is not FunctionSymbol functionSymbol)
-        {
-            return;
-        }
-
-        // TODO in the extension namespace implementation:
-        // Ideally extension namespace function authors shouldn't need to set this flag in the types.json at all if they have externalInputs in the "evaluatesTo" property
-        // Consider using visitor pattern to determine this automatically
         if (!functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresExternalInput))
         {
             return;
         }
 
-        // External input functions should lower to the same IR, i.e. externalInput('<kind>', <config>)
-        var intermediate = expressionConverter.ConvertToIntermediateExpression(functionCallSyntax);
-        if (intermediate is not FunctionCallExpression functionExpression || functionExpression.Parameters.Length < 1)
+        try
         {
+            // extension namespace functions denote the reduced 'external inputs' as part of the `EvaluatedLanguageExpression` property
+            // the IR alone is not sufficient to capture the necessary information about the external input calls
+            var intermediate = expressionConverter.ConvertExpression(functionCallSyntax);
+            if (intermediate is not FunctionExpression functionExpression || functionExpression.Parameters.Length < 1)
+            {
+                return;
+            }
+
+            if (functionExpression.Parameters[0] is not JTokenExpression kindExpression)
+            {
+                return;
+            }
+
+            LanguageExpression? configExpression = null;
+            if (functionExpression.Parameters.Length > 1)
+            {
+                configExpression = functionExpression.Parameters[1];
+            }
+
+            var index = this.externalInputReferences.Count;
+            var definitionKey = GetExternalInputDefinitionName(kindExpression.Value.ToString(), index);
+            externalInputReferences.TryAdd(functionCallSyntax, new(kindExpression, configExpression, definitionKey));
+        }
+        catch (Exception)
+        {
+            // we may get an exception during expression conversion e.g. due to invalid syntax.
+            // diagnostics for such will be reported elsewhere.
             return;
         }
-
-        if (functionExpression.Parameters[0] is not StringLiteralExpression kindExpression)
-        {
-            return;
-        }
-
-        Expression? configExpression = null;
-        if (functionExpression.Parameters.Length > 1)
-        {
-            configExpression = functionExpression.Parameters[1];
-        }
-        var index = this.externalInputReferences.Count;
-        var definitionKey = GetExternalInputDefinitionName(kindExpression.Value, index);
-        externalInputReferences.TryAdd(functionCallSyntax, new(kindExpression, configExpression, definitionKey));
     }
 
     private static string GetExternalInputDefinitionName(string kind, int index)
@@ -129,7 +136,7 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
     private static partial Regex NonAlphanumericPattern();
 }
 
-public record ExternalInputInfo(Expression Kind, Expression? Config, string DefinitionKey);
+public record ExternalInputInfo(LanguageExpression Kind, LanguageExpression? Config, string DefinitionKey);
 
 public record ExternalInputReferences(
     ImmutableDictionary<FunctionCallSyntaxBase, ExternalInputInfo> ExternalInputInfoBySyntax
