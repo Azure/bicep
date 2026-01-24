@@ -55,7 +55,7 @@ public static class ExtensionResourceTypeHelper
                 [requestType.Name] = new CrossFileTypeReference("v1/types.json", factory.GetIndex(requestType)),
             },
             new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
-            [],
+            new List<CrossFileTypeReference>(),
             settings,
             null);
 
