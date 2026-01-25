@@ -18,7 +18,7 @@
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.53.0",
     "uuid": "^13.0.0",
-    "vitest": "^4.0.17",
+    "vitest": "^4.0.18",
     "vscode-jsonrpc": "^8.2.1"
   },
   "scripts": {
