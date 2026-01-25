@@ -28,7 +28,7 @@
     "vite": "7.3.1",
     "vite-plugin-ejs": "1.7.0",
     "vite-plugin-monaco-editor-esm": "2.0.2",
-    "vite-plugin-static-copy": "3.1.4"
+    "vite-plugin-static-copy": "3.1.6"
   },
   "dependencies": {
     "@microsoft/applicationinsights-web": "3.3.11",
