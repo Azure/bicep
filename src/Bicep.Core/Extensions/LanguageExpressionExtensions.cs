@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using Azure.Deployments.Expression.Expressions;
 
-namespace Bicep.Decompiler
+namespace Bicep.Core.Extensions
 {
     public static class LanguageExpressionExtensions
     {

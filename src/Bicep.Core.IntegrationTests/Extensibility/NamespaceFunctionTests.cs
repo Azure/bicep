@@ -21,10 +21,8 @@ public class NamespaceFunctionTests
     [TestMethod]
     public async Task Function_visiblity_is_validated()
     {
-        var typesTgz = GetTypesTgz();
-        var extensionTgz = await ExtensionV1Archive.Build(new(typesTgz, false, []));
+        var extensionTgz = await GetExtensionTgz();
         var services = new ServiceBuilder();
-
         var result = await CompilationHelper.RestoreAndCompile(services,
             ("main.bicep", new("""
 extension '../extension.tgz' as ext
@@ -41,8 +39,7 @@ var foo = ext.config('redis')
     [TestMethod]
     public async Task Function_parameter_flags_are_validated()
     {
-        var typesTgz = GetTypesTgz();
-        var extensionTgz = await ExtensionV1Archive.Build(new(typesTgz, false, []));
+        var extensionTgz = await GetExtensionTgz();
         var services = new ServiceBuilder();
         var result = await CompilationHelper.RestoreAndCompile(services,
             ("main.bicep", new("""
@@ -60,8 +57,7 @@ var foo = ext.foo()
     [TestMethod]
     public async Task Function_parameter_types_are_validated()
     {
-        var typesTgz = GetTypesTgz();
-        var extensionTgz = await ExtensionV1Archive.Build(new(typesTgz, false, []));
+        var extensionTgz = await GetExtensionTgz();
         var services = new ServiceBuilder();
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("parameters.bicepparam", new("""
@@ -80,12 +76,10 @@ param servicePackageLink = ext.sasUri({
     }
 
     [TestMethod]
-    public async Task Function_with_specified_evaluated_language_expression_compiles()
+    public async Task Function_with_single_external_input_request_compiles()
     {
-        var typesTgz = GetTypesTgz();
-        var extensionTgz = await ExtensionV1Archive.Build(new(typesTgz, false, []));
+        var extensionTgz = await GetExtensionTgz();
         var services = new ServiceBuilder();
-
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("parameters.bicepparam", new("""
 using none
@@ -102,8 +96,8 @@ param servicePackageLink = ext.sasUri({
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
-        parameters["bar"].Expression.Should().DeepEqual("""[externalInputs('sys_expression_0')]""");
-        parameters["servicePackageLink"].Expression.Should().DeepEqual("""[externalInputs('sys_sasUriForPath_1')]""");
+        parameters["bar"].Expression.Should().DeepEqual("[externalInputs('sys_expression_0')]");
+        parameters["servicePackageLink"].Expression.Should().DeepEqual("[externalInputs('sys_sasUriForPath_1')]");
 
         var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
         externalInputs["sys_expression_0"].Should().DeepEqual(new JObject
@@ -123,13 +117,60 @@ param servicePackageLink = ext.sasUri({
         });
     }
 
-    private static BinaryData GetTypesTgz()
+    [TestMethod]
+    public async Task Function_with_multiple_external_input_request_compiles()
+    {
+        var extensionTgz = await GetExtensionTgz();
+        var services = new ServiceBuilder();
+        var result = await CompilationHelper.RestoreAndCompileParams(services,
+            ("parameters.bicepparam", new("""
+using none
+
+extension '../extension.tgz' as ext
+var lifeMeaning = 42
+param baz = ext.concatConfig(substring('hello world', 0, 5), lifeMeaning, {
+    path: '/path/to/something'
+})
+""")),
+            ("../extension.tgz", extensionTgz));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["baz"].Expression.Should().DeepEqual("[concat(externalInputs('sys_expression_0'), '-combined-with-', externalInputs('sys_expression_1'), '-and-with-', externalInputs('sys_expression_2'))]");
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["sys_expression_0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.expression",
+            ["config"] = "hello"
+        });
+        externalInputs["sys_expression_1"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.expression",
+            ["config"] = 42
+        });
+        externalInputs["sys_expression_2"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.expression",
+            ["config"] = new JObject
+            {
+                ["path"] = "/path/to/something"
+            }
+        });
+    }
+
+    private static async Task<BinaryData> GetExtensionTgz()
     {
         var factory = new TypeFactory([]);
 
+        var intType = factory.Create(() => new IntegerType());
         var stringType = factory.Create(() => new StringType());
         var boolType = factory.Create(() => new BooleanType());
-
+        var sasUriConfigType = factory.Create(() => new ObjectType("myConfig", new Dictionary<string, ObjectTypeProperty>
+        {
+            ["path"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.Required, "Path to artifact"),
+            ["isDirectory"] = new(factory.GetReference(boolType), ObjectTypePropertyFlags.None, "Is a directory"),
+            ["enableReplacements"] = new(factory.GetReference(boolType), ObjectTypePropertyFlags.None, "Enable replacements")
+        }, null));
         var anyType = factory.Create(() => new AnyType());
 
         var simpleFunctionType = factory.Create(() => new NamespaceFunctionType(
@@ -138,7 +179,7 @@ param servicePackageLink = ext.sasUri({
             null,
             [new NamespaceFunctionParameter("myParam", factory.GetReference(stringType), null, NamespaceFunctionParameterFlags.Required)],
             factory.GetReference(anyType),
-            BicepSourceFileKind.BicepFile));
+            null));
 
         var configFunctionType = factory.Create(() => new NamespaceFunctionType(
             "config",
@@ -148,17 +189,24 @@ param servicePackageLink = ext.sasUri({
             factory.GetReference(anyType),
             BicepSourceFileKind.ParamsFile));
 
-        var sasUriConfig = factory.Create(() => new ObjectType("myConfig", new Dictionary<string, ObjectTypeProperty>
-        {
-            ["path"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.Required, "Path to artifact"),
-            ["isDirectory"] = new(factory.GetReference(boolType), ObjectTypePropertyFlags.None, "Is a directory"),
-            ["enableReplacements"] = new(factory.GetReference(boolType), ObjectTypePropertyFlags.None, "Enable replacements")
-        }, null));
+        var concatConfigFunctionType = factory.Create(() => new NamespaceFunctionType(
+            "concatConfig",
+            "Requests configuration from external tooling",
+            "[concat(externalInput('sys.expression', parameters('config1')), '-combined-with-', externalInput('sys.expression', parameters('config2')), '-and-with-', externalInput('sys.expression', parameters('config3')))]",
+            [
+                new NamespaceFunctionParameter("config1", factory.GetReference(stringType), "The first configuration key parameter", NamespaceFunctionParameterFlags.Required),
+                new NamespaceFunctionParameter("config2", factory.GetReference(intType), "The second configuration key parameter", NamespaceFunctionParameterFlags.Required),
+                new NamespaceFunctionParameter("config3", factory.GetReference(sasUriConfigType), "The third configuration key parameter", NamespaceFunctionParameterFlags.Required),
+            ],
+            factory.GetReference(anyType),
+            BicepSourceFileKind.ParamsFile));
+
+
         var sasUriFunctionType = factory.Create(() => new NamespaceFunctionType(
             "sasUri",
             "Requests SAS URI from external tooling",
             "[externalInput('sys.sasUriForPath', parameters('sasUriConfig'))]",
-            [new NamespaceFunctionParameter("sasUriConfig", factory.GetReference(sasUriConfig), "The SAS URI configuration properties", NamespaceFunctionParameterFlags.Required | NamespaceFunctionParameterFlags.CompileTimeConstant)],
+            [new NamespaceFunctionParameter("sasUriConfig", factory.GetReference(sasUriConfigType), "The SAS URI configuration properties", NamespaceFunctionParameterFlags.Required | NamespaceFunctionParameterFlags.CompileTimeConstant)],
             factory.GetReference(anyType),
             BicepSourceFileKind.ParamsFile));
 
@@ -167,16 +215,19 @@ param servicePackageLink = ext.sasUri({
         var index = new TypeIndex(
             new Dictionary<string, CrossFileTypeReference>(),
             new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
-            new List<CrossFileTypeReference>() {
+            new List<CrossFileTypeReference> {
                 new("types.json", factory.GetIndex(simpleFunctionType)),
                 new("types.json", factory.GetIndex(configFunctionType)),
+                new("types.json", factory.GetIndex(concatConfigFunctionType)),
                 new("types.json", factory.GetIndex(sasUriFunctionType)),
             },
             settings,
             null);
 
-        return ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(
+        var indexTgz = ExtensionResourceTypeHelper.GetTypesTgzBytesFromFiles(
             ("index.json", StreamHelper.GetString(stream => TypeSerializer.SerializeIndex(stream, index))),
             ("types.json", StreamHelper.GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes()))));
+
+        return await ExtensionV1Archive.Build(new(indexTgz, false, []));
     }
 }

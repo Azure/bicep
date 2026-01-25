@@ -3,26 +3,28 @@
 
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
+using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
-using Bicep.Core.Intermediate;
+using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit;
 
 public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 {
     private readonly SemanticModel semanticModel;
-    private readonly ImmutableDictionary<FunctionCallSyntaxBase, ExternalInputInfo>.Builder externalInputReferences;
+    // a FunctionSyntax can request multiple external inputs, hence the array as value
+    private readonly ImmutableDictionary<FunctionCallSyntaxBase, ImmutableArray<ExternalInputInfo>>.Builder infoBySyntax;
+    private readonly ImmutableDictionary<string, ExternalInputInfo>.Builder infoBySerializedExpression;
     private readonly ExpressionConverter expressionConverter;
     private ExternalInputFunctionReferenceVisitor(SemanticModel semanticModel)
     {
         this.semanticModel = semanticModel;
         this.expressionConverter = new ExpressionConverter(new EmitterContext(semanticModel));
-        this.externalInputReferences = ImmutableDictionary.CreateBuilder<FunctionCallSyntaxBase, ExternalInputInfo>();
+        this.infoBySyntax = ImmutableDictionary.CreateBuilder<FunctionCallSyntaxBase, ImmutableArray<ExternalInputInfo>>();
+        this.infoBySerializedExpression = ImmutableDictionary.CreateBuilder<string, ExternalInputInfo>();
     }
 
     public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
@@ -60,8 +62,6 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 
         var visitor = new ExternalInputFunctionReferenceVisitor(model);
 
-        // Process the parameter assignments and variable declarations to find any direct references
-        // to the external input function.
         ProcessReferences(visitor, model.Root.ParameterAssignments);
         ProcessReferences(visitor, model.Root.VariableDeclarations);
 
@@ -72,72 +72,89 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
         }
 
         return new ExternalInputReferences(
-            ExternalInputInfoBySyntax: visitor.externalInputReferences.ToImmutable()
+            InfoBySyntax: visitor.infoBySyntax.ToImmutable(),
+            InfoBySerializedExpression: visitor.infoBySerializedExpression.ToImmutable()
         );
     }
 
     private void VisitFunctionCallSyntaxInternal(FunctionCallSyntaxBase functionCallSyntax)
     {
-        // TODO: Technically the evaluated expression could have multiple external inputs, e.g. ext.helper() reduces to [concat(externalInput(..), externalInput(..), ...)]
-        // In which case a single functionCallSyntax would map to multiple ExternalInputInfo entries.
-        if (semanticModel.GetSymbolInfo(functionCallSyntax) is not FunctionSymbol functionSymbol)
-        {
-            return;
-        }
-
-        if (!functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresExternalInput))
+        if (semanticModel.GetSymbolInfo(functionCallSyntax) is not FunctionSymbol functionSymbol ||
+            !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresExternalInput))
         {
             return;
         }
 
         try
         {
-            // extension namespace functions denote the reduced 'external inputs' as part of the `EvaluatedLanguageExpression` property
-            // the IR alone is not sufficient to capture the necessary information about the external input calls
             var intermediate = expressionConverter.ConvertExpression(functionCallSyntax);
-            if (intermediate is not FunctionExpression functionExpression || functionExpression.Parameters.Length < 1)
+            if (intermediate is FunctionExpression functionExpression)
             {
-                return;
+                // it's possible the function syntax maps to multiple external inputs, e.g. concat(externalInput('input1'), externalInput('input2'))
+                // therefore we need to collect all external inputs found within the reduced expression
+                CollectExternalInputs(functionCallSyntax, functionExpression);
             }
-
-            if (functionExpression.Parameters[0] is not JTokenExpression kindExpression)
-            {
-                return;
-            }
-
-            LanguageExpression? configExpression = null;
-            if (functionExpression.Parameters.Length > 1)
-            {
-                configExpression = functionExpression.Parameters[1];
-            }
-
-            var index = this.externalInputReferences.Count;
-            var definitionKey = GetExternalInputDefinitionName(kindExpression.Value.ToString(), index);
-            externalInputReferences.TryAdd(functionCallSyntax, new(kindExpression, configExpression, definitionKey));
         }
         catch (Exception)
         {
-            // we may get an exception during expression conversion e.g. due to invalid syntax.
-            // diagnostics for such will be reported elsewhere.
+            // Exception during expression conversion (e.g., invalid syntax).
+            // Diagnostics will be reported elsewhere.
+        }
+    }
+
+    private void CollectExternalInputs(FunctionCallSyntaxBase sourceSyntax, FunctionExpression functionExpression)
+    {
+        if (!functionExpression.NameEquals(LanguageConstants.ExternalInputBicepFunctionName))
+        {
+            foreach (var parameter in functionExpression.Parameters)
+            {
+                if (parameter is FunctionExpression nestedFunc)
+                {
+                    CollectExternalInputs(sourceSyntax, nestedFunc);
+                }
+            }
             return;
         }
+
+        if (functionExpression.Parameters.Length < 1 ||
+            functionExpression.Parameters[0] is not JTokenExpression kindExpression)
+        {
+            return;
+        }
+
+        var configExpression = functionExpression.Parameters.Length > 1 ? functionExpression.Parameters[1] : null;
+
+        // externalInput invocations with the same 'kind' and 'config' parameters should map to the same ExternalInputInfo
+        var serializedExpr = ExpressionsEngine.SerializeExpression(functionExpression);
+        if (infoBySerializedExpression.ContainsKey(serializedExpr))
+        {
+            return;
+        }
+
+        var index = infoBySerializedExpression.Count;
+        var definitionKey = GetExternalInputDefinitionName(kindExpression.Value.ToString(), index);
+        var externalInputInfo = new ExternalInputInfo(kindExpression, configExpression, definitionKey);
+
+        infoBySerializedExpression.Add(serializedExpr, externalInputInfo);
+        infoBySyntax.TryAdd(sourceSyntax, []);
+        infoBySyntax[sourceSyntax] = infoBySyntax[sourceSyntax].Add(externalInputInfo);
     }
 
     private static string GetExternalInputDefinitionName(string kind, int index)
     {
         // The name of the external input definition is a combination of the kind and the index.
         // e.g. 'sys.cli' becomes 'sys_cli_0'
-        var nonAlphanumericPattern = NonAlphanumericPattern();
-        var sanitizedKind = nonAlphanumericPattern.Replace(kind, "_");
+        var sanitizedKind = NonAlphanumericPattern().Replace(kind, "_");
         return $"{sanitizedKind}_{index}";
     }
 
-    [GeneratedRegex(@"\W", RegexOptions.Compiled)]
+    [GeneratedRegex(@"\W")]
     private static partial Regex NonAlphanumericPattern();
 }
 
 public record ExternalInputInfo(LanguageExpression Kind, LanguageExpression? Config, string DefinitionKey);
 
 public record ExternalInputReferences(
-    ImmutableDictionary<FunctionCallSyntaxBase, ExternalInputInfo> ExternalInputInfoBySyntax
+    ImmutableDictionary<FunctionCallSyntaxBase, ImmutableArray<ExternalInputInfo>> InfoBySyntax,
+    ImmutableDictionary<string, ExternalInputInfo> InfoBySerializedExpression
 );
