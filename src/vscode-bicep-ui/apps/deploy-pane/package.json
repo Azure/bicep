@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@azure/arm-resources": "^5.2.0",
-    "@azure/identity": "^4.9.1",
+    "@azure/identity": "^4.13.0",
     "@microsoft/vscode-azext-utils": "^4.0.3",
     "@vscode-bicep-ui/components": "^0.0.0",
     "@vscode-elements/elements": "^2.4.0",
