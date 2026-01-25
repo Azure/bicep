@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core;
+using Bicep.Core.ArmHelpers;
 using Bicep.Decompiler.ArmHelpers;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
