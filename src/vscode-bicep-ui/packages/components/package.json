@@ -36,7 +36,7 @@
     "@storybook/addon-themes": "^9.0.14",
     "@storybook/react-vite": "^9.0.14",
     "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@types/d3-drag": "^3.0.7",
     "@types/d3-selection": "^3.0.10",
