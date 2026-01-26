@@ -34,4 +34,9 @@
     <ProjectReference Include="../Bicep.Decompiler/Bicep.Decompiler.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Nerdbank.GitVersioning automatically takes care of replacing 0.0.0-placeholder in this file with the correct version -->
+    <None Include=".mcp\server.json" Pack="true" PackagePath="/.mcp/" />
+  </ItemGroup>
+
 </Project>
