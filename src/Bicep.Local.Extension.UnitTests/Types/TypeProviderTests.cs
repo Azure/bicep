@@ -89,7 +89,7 @@ namespace Bicep.Local.Extension.UnitTests.TypesTests
             types.Should().Contain(typeof(ActiveResource));
             types.Should().Contain(typeof(NestedActiveResource));
             types.Should().Contain(typeof(FallbackResource));
-            
+
             // All three versioned resources (unique FullNames)
             types.Should().Contain(typeof(Types_A.VersionedResourceV1), "v1 is a unique version");
             types.Should().Contain(typeof(Types_A.VersionedResourceV2), "v2 is a unique version");
@@ -444,4 +444,4 @@ namespace Bicep.Local.Extension.UnitTests.TypesTests
     }
 }
 
-        #endregion
+#endregion
