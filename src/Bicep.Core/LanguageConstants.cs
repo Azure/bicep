@@ -188,6 +188,9 @@ namespace Bicep.Core
         public const string ResourceLocationPropertyName = "location";
         public const string ResourcePropertiesPropertyName = "properties";
         public const string ResourceAssertPropertyName = "asserts";
+        public const string ResourceMethodPropertyName = "method";
+        public const string ResourceMethodPatchValue = "PATCH";
+        public const string ResourceMethodPutValue = "PUT";
 
         // types
         public const string TypeNameString = "string";

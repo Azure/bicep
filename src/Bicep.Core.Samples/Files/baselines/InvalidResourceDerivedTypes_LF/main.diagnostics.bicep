@@ -50,7 +50,7 @@ type hello = {
 }
 
 type typoInPropertyName = resourceInput<'Microsoft.Storage/storageAccounts@2023-01-01'>.nom
-//@[088:091) [BCP053 (Error)] The type "Microsoft.Storage/storageAccounts" does not contain property "nom". Available properties include "apiVersion", "asserts", "dependsOn", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "name", "plan", "properties", "scale", "sku", "tags", "type", "zones". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |nom|
+//@[088:091) [BCP053 (Error)] The type "Microsoft.Storage/storageAccounts" does not contain property "nom". Available properties include "apiVersion", "asserts", "dependsOn", "eTag", "extendedLocation", "id", "identity", "kind", "location", "managedBy", "managedByExtended", "method", "name", "plan", "properties", "scale", "sku", "tags", "type", "zones". (bicep https://aka.ms/bicep/core-diagnostics#BCP053) |nom|
 type typoInPropertyName2 = resourceInput<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*].tenatId
 //@[110:117) [BCP083 (Error)] The type "AccessPolicyEntry" does not contain property "tenatId". Did you mean "tenantId"? (bicep https://aka.ms/bicep/core-diagnostics#BCP083) |tenatId|
 type typoInPropertyName3 = resourceInput<'Microsoft.KeyVault/vaults@2022-07-01'>.properties[*].accessPolicies.tenantId
