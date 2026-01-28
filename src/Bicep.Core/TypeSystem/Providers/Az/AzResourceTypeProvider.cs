@@ -121,6 +121,14 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 
             yield return new NamedTypeProperty("properties", LanguageConstants.Object);
 
+            // The 'method' property is used to specify the HTTP method for resource deployments (PATCH for partial updates).
+            // It is hidden from IntelliSense because it is intended for internal use by Azure Policy, not end users.
+            yield return new NamedTypeProperty(
+                LanguageConstants.ResourceMethodPropertyName,
+                TypeFactory.CreateStringLiteralType(LanguageConstants.ResourceMethodPatchValue),
+                TypePropertyFlags.Hidden | TypePropertyFlags.SystemProperty,
+                "The HTTP method to use for the resource operation. Currently only 'PATCH' is supported for partial updates.");
+
             yield return new NamedTypeProperty("sku", new ObjectType("sku", TypeSymbolValidationFlags.Default, new[]
             {
                 new NamedTypeProperty("name", LanguageConstants.String),

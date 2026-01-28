@@ -71,5 +71,11 @@ namespace Bicep.Core.TypeSystem.Types
         /// Resource identifier property (e.g. name, uniqueName)
         /// </summary>
         ResourceIdentifier = 1 << 11,
+
+        /// <summary>
+        /// Property is hidden from IntelliSense/completions but still valid when specified.
+        /// Used for internal properties that should not be discoverable by users.
+        /// </summary>
+        Hidden = 1 << 12,
     }
 }

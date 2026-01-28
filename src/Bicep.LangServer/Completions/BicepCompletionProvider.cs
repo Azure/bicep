@@ -1285,10 +1285,12 @@ namespace Bicep.LanguageServer.Completions
             var specifiedPropertyNames = context.Object.ToNamedPropertyDictionary();
 
             // exclude read-only properties as they can't be set
+            // exclude hidden properties (internal, not meant for user discovery)
             // exclude properties whose name has been specified in the object already
             var includeColon = !context.Kind.HasFlag(BicepCompletionContextKind.ObjectPropertyColonExists);
             return GetProperties(declaredType)
                 .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly)
+                            && !p.Flags.HasFlag(TypePropertyFlags.Hidden)
                             && specifiedPropertyNames.ContainsKey(p.Name) == false)
                 .Select(p => CreatePropertyNameCompletion(p, includeColon, context.ReplacementRange));
         }
