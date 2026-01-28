@@ -121,13 +121,16 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 
             yield return new NamedTypeProperty("properties", LanguageConstants.Object);
 
-            // The 'method' property is used to specify the HTTP method for resource deployments (PATCH for partial updates).
+            // The 'method' property is used to specify the HTTP method for resource deployments.
             // It is hidden from IntelliSense because it is intended for internal use by Azure Policy, not end users.
+            // Allowed values are 'PUT' (default) and 'PATCH' (for partial updates).
             yield return new NamedTypeProperty(
                 LanguageConstants.ResourceMethodPropertyName,
-                TypeFactory.CreateStringLiteralType(LanguageConstants.ResourceMethodPatchValue),
+                TypeHelper.CreateTypeUnion(
+                    TypeFactory.CreateStringLiteralType(LanguageConstants.ResourceMethodPutValue),
+                    TypeFactory.CreateStringLiteralType(LanguageConstants.ResourceMethodPatchValue)),
                 TypePropertyFlags.Hidden | TypePropertyFlags.SystemProperty,
-                "The HTTP method to use for the resource operation. Currently only 'PATCH' is supported for partial updates.");
+                "The HTTP method to use for the resource operation. Allowed values are 'PUT' (default) and 'PATCH' (for partial updates).");
 
             yield return new NamedTypeProperty("sku", new ObjectType("sku", TypeSymbolValidationFlags.Default, new[]
             {
@@ -365,7 +368,12 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             {
                 if (!properties.ContainsKey(item.Name))
                 {
-                    properties = properties.Add(item.Name, new(item.Name, item.TypeReference, item.Flags | TypePropertyFlags.FallbackProperty));
+                    // Don't add FallbackProperty flag for properties that have the Hidden flag,
+                    // as they are intentionally added by Bicep and should not trigger warnings.
+                    var propertyFlags = item.Flags.HasFlag(TypePropertyFlags.Hidden)
+                        ? item.Flags
+                        : item.Flags | TypePropertyFlags.FallbackProperty;
+                    properties = properties.Add(item.Name, new(item.Name, item.TypeReference, propertyFlags));
                 }
             }
 

@@ -23,8 +23,7 @@ public record ExperimentalFeaturesEnabled(
     bool ModuleExtensionConfigs,
     bool UserDefinedConstraints,
     bool DeployCommands,
-    bool ThisNamespace,
-    bool ResourcePatchMethod)
+    bool ThisNamespace)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();
@@ -45,6 +44,5 @@ public record ExperimentalFeaturesEnabled(
         ModuleExtensionConfigs: false,
         UserDefinedConstraints: false,
         DeployCommands: false,
-        ThisNamespace: false,
-        ResourcePatchMethod: false);
+        ThisNamespace: false);
 }
