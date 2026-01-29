@@ -96,9 +96,19 @@ namespace Bicep.Core.Emit
                         ConvertExpression(ternary.False));
 
                 case FunctionCallExpression function:
-                    return CreateFunction(
-                        function.Name,
-                        function.Parameters.Select(ConvertExpression));
+                    {
+                        var converted = CreateFunction(
+                            function.Name,
+                            function.Parameters.Select(ConvertExpression));
+
+                        if (function.SourceSyntax is FunctionCallSyntaxBase functionCall &&
+                            context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is { ArmExpressionEvaluator: { } } functionOverload)
+                        {
+                            return functionOverload.ArmExpressionEvaluator(converted);
+                        }
+
+                        return converted;
+                    }
 
                 case UserDefinedFunctionCallExpression function:
                     return CreateFunction(
