@@ -25,5 +25,8 @@ This list of best-practices builds on top of information available at https://le
 ### Syntax
 1. If you hit warnings or errors with null properties, prefer solving them with the safe-dereference (`.?`) operator, in conjunction with the coalesce (`??`) operator. For example, `a.?b ?? c` is better than `a!.b` which may cause runtime errors, or `a != null ? a.b : c` which is unnecessarily verbose.
 
+### Formatting
+1. Only include comments if they provide additional context. Use simple single line comments for smaller blocks of text, e.g. `// this is a comment`, and avoid adding unnecessary demarcation - e.g. `// ====`.
+
 ## Glossary
 * Child resource: an Azure resource type with type name consisting of more than 1 `/` characters. For example, `Microsoft.Network/virtualNetworks/subnets` is a child resource. `Microsoft.Network/virtualNetworks` is not.
