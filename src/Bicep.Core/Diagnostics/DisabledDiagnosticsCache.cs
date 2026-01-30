@@ -63,15 +63,7 @@ public class DisabledDiagnosticsCache
     }
 
     public IEnumerable<string> GetDiagnosticsDisabledAtPosition(int position)
-    {
-        foreach (var kvp in cachesLazy.Value.disabledDiagnosticsByCodeCache)
-        {
-            if (IsDisabledAtPosition(kvp.Key, position))
-            {
-                yield return kvp.Key;
-            }
-        }
-    }
+        => cachesLazy.Value.disabledDiagnosticsByCodeCache.Keys.Where(code => IsDisabledAtPosition(code, position));
 
     private class SyntaxTriviaVisitor : CstVisitor
     {

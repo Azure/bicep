@@ -1713,9 +1713,8 @@ namespace Bicep.LanguageServer.Completions
                 ?.diagnosticCodes
                 .ToHashSet() ?? [];
             return model.SourceFile.DisabledDiagnosticsCache.GetDiagnosticsDisabledAtPosition(position)
-                .Order()
-                .Distinct()
-                .Where(code => !disabledInPrecedingNextLineDirective.Contains(code));
+                .Where(code => !disabledInPrecedingNextLineDirective.Contains(code))
+                .Order();
         }
 
         private int GetPosition(Range range, ImmutableArray<int> lineStarts)
