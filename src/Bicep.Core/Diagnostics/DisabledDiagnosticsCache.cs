@@ -62,6 +62,17 @@ public class DisabledDiagnosticsCache
         return false;
     }
 
+    public IEnumerable<string> GetDiagnosticsDisabledAtPosition(int position)
+    {
+        foreach (var kvp in cachesLazy.Value.disabledDiagnosticsByCodeCache)
+        {
+            if (IsDisabledAtPosition(kvp.Key, position))
+            {
+                yield return kvp.Key;
+            }
+        }
+    }
+
     private class SyntaxTriviaVisitor : CstVisitor
     {
         private readonly ImmutableArray<int> lineStarts;
