@@ -80,8 +80,10 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetCompileTimeImportCompletions(model, context))
                 .Concat(GetFunctionParamCompletions(model, context))
                 .Concat(GetExpressionCompletions(model, context))
-                .Concat(GetDisableNextLineDiagnosticsDirectiveCompletion(context))
+                .Concat(GetDirectiveCompletion(context))
                 .Concat(GetDisableNextLineDiagnosticsDirectiveCodesCompletion(model, context))
+                .Concat(GetDisableDiagnosticsDirectiveCodesCompletion(model, context))
+                .Concat(GetRestoreDiagnosticsDirectiveCodesCompletion(model, context))
                 .Concat(GetParamIdentifierCompletions(model, context))
                 .Concat(GetParamValueCompletions(model, context))
                 .Concat(GetAssertValueCompletions(model, context))
@@ -1632,11 +1634,13 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private static IEnumerable<CompletionItem> GetDisableNextLineDiagnosticsDirectiveCompletion(BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetDirectiveCompletion(BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.DirectiveStart))
             {
                 yield return CreateKeywordCompletion(LanguageConstants.DisableNextLineDiagnosticsKeyword, "Disable next line diagnostics directive", context.ReplacementRange);
+                yield return CreateKeywordCompletion(LanguageConstants.DisableDiagnosticsKeyword, "Disable diagnostics directive", context.ReplacementRange);
+                yield return CreateKeywordCompletion(LanguageConstants.RestoreDiagnosticsKeyword, "Restore diagnostics directive", context.ReplacementRange);
             }
         }
 
@@ -1644,14 +1648,14 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes))
             {
-                foreach (var diagnostic in GetDiagnosticCodes(context.ReplacementRange, model))
+                foreach (var diagnostic in GetNextLineDiagnosticCodes(context.ReplacementRange, model))
                 {
                     yield return CreateKeywordCompletion(diagnostic.Code, diagnostic.Message, context.ReplacementRange);
                 }
             }
         }
 
-        private IEnumerable<IDiagnostic> GetDiagnosticCodes(Range range, SemanticModel model)
+        private IEnumerable<IDiagnostic> GetNextLineDiagnosticCodes(Range range, SemanticModel model)
         {
             var lineStarts = model.SourceFile.LineStarts;
             var position = GetPosition(range, lineStarts);
@@ -1666,6 +1670,51 @@ namespace Bicep.LanguageServer.Completions
             return model.GetAllDiagnostics()
                 .Where(diagnostic => nextLineSpan.ContainsInclusive(diagnostic.Span.Position) && diagnostic.CanBeSuppressed())
                 .DistinctBy(x => x.Code);
+        }
+
+        private IEnumerable<CompletionItem> GetDisableDiagnosticsDirectiveCodesCompletion(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.DisableDiagnosticsCodes))
+            {
+                foreach (var diagnostic in GetDisablableDiagnosticCodes(context.ReplacementRange, model))
+                {
+                    yield return CreateKeywordCompletion(diagnostic.Code, diagnostic.Message, context.ReplacementRange);
+                }
+            }
+        }
+
+        private IEnumerable<IDiagnostic> GetDisablableDiagnosticCodes(Range range, SemanticModel model)
+        {
+            var position = GetPosition(range, model.SourceFile.LineStarts);
+
+            return model.GetAllDiagnostics()
+                .Where(diagnostic => diagnostic.Span.Position > position && diagnostic.CanBeSuppressed())
+                .DistinctBy(x => x.Code);
+        }
+
+        private IEnumerable<CompletionItem> GetRestoreDiagnosticsDirectiveCodesCompletion(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.RestoreDiagnosticsCodes))
+            {
+                foreach (var diagnosticCode in GetRestorableDiagnosticCodes(context.ReplacementRange, model))
+                {
+                    yield return CreateKeywordCompletion(diagnosticCode, diagnosticCode, context.ReplacementRange);
+                }
+            }
+        }
+
+        private IEnumerable<string> GetRestorableDiagnosticCodes(Range range, SemanticModel model)
+        {
+            var lineStarts = model.SourceFile.LineStarts;
+            var position = GetPosition(range, lineStarts);
+            (var line, _) = TextCoordinateConverter.GetPosition(lineStarts, position);
+            var disabledInPrecedingNextLineDirective = model.SourceFile.DisabledDiagnosticsCache
+                .TryGetDisabledNextLineDirective(line - 1)
+                ?.diagnosticCodes
+                .ToHashSet() ?? [];
+            return model.SourceFile.DisabledDiagnosticsCache.GetDiagnosticsDisabledAtPosition(position)
+                .Where(code => !disabledInPrecedingNextLineDirective.Contains(code))
+                .Order();
         }
 
         private int GetPosition(Range range, ImmutableArray<int> lineStarts)
