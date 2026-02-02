@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14957212358466844811"
+    }
+  },
+  "variables": {
+    "emojis": "💪😊😈🍕☕",
+    "ninjaCat": "🐱‍👤",
+    "variousAlphabets": {
+      "α": "α",
+      "Ωω": [
+        "Θμ"
+      ],
+      "ążźćłóę": "Cześć!",
+      "áéóúñü": "¡Hola!",
+      "二头肌": "二头肌"
+    },
+    "surrogate_char": "𐐷",
+    "surrogate_codepoint": "𐐷",
+    "surrogate_pairs": "𐐷",
+    "hello": "❆ Hello World! ❁"
+  },
+  "resources": [],
+  "outputs": {
+    "concatUnicodeStrings": {
+      "type": "string",
+      "value": "[concat('Θμ', '二头肌', 'α')]"
+    },
+    "interpolateUnicodeStrings": {
+      "type": "string",
+      "value": "[format('Θμ二{0}头肌{1}α', variables('emojis'), variables('ninjaCat'))]"
+    }
+  }
+}
