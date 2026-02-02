@@ -21,7 +21,18 @@ public class NamespaceFunctionTests
     [TestMethod]
     public async Task Function_visiblity_is_validated()
     {
-        var extensionTgz = await GetExtensionTgz();
+        var extensionTgz = await GetExtensionTgz((factory, types) =>
+        {
+            var configFunctionType = factory.Create(() => new NamespaceFunctionType(
+                "config",
+                "Requests configuration from external tooling",
+                "[externalInput('sys.expression', concat('$config(', parameters('configKey'), ')'))]",
+                [new NamespaceFunctionParameter("configKey", factory.GetReference(types.StringType), "The configuration key parameter", NamespaceFunctionParameterFlags.Required | NamespaceFunctionParameterFlags.CompileTimeConstant)],
+                factory.GetReference(types.AnyType),
+                BicepSourceFileKind.ParamsFile));
+
+            return [configFunctionType];
+        });
         var services = new ServiceBuilder();
         var result = await CompilationHelper.RestoreAndCompile(services,
             ("main.bicep", new("""
@@ -39,7 +50,18 @@ var foo = ext.config('redis')
     [TestMethod]
     public async Task Function_parameter_flags_are_validated()
     {
-        var extensionTgz = await GetExtensionTgz();
+        var extensionTgz = await GetExtensionTgz((factory, types) =>
+        {
+            var simpleFunctionType = factory.Create(() => new NamespaceFunctionType(
+                "foo",
+                null,
+                null,
+                [new NamespaceFunctionParameter("myParam", factory.GetReference(types.StringType), null, NamespaceFunctionParameterFlags.Required)],
+                factory.GetReference(types.StringType),
+                null));
+
+            return [simpleFunctionType];
+        });
         var services = new ServiceBuilder();
         var result = await CompilationHelper.RestoreAndCompile(services,
             ("main.bicep", new("""
@@ -57,7 +79,25 @@ var foo = ext.foo()
     [TestMethod]
     public async Task Function_parameter_types_are_validated()
     {
-        var extensionTgz = await GetExtensionTgz();
+        var extensionTgz = await GetExtensionTgz((factory, types) =>
+        {
+            var sasUriConfigType = factory.Create(() => new ObjectType("myConfig", new Dictionary<string, ObjectTypeProperty>
+            {
+                ["path"] = new(factory.GetReference(types.StringType), ObjectTypePropertyFlags.Required, "Path to artifact"),
+                ["isDirectory"] = new(factory.GetReference(types.BoolType), ObjectTypePropertyFlags.None, "Is a directory"),
+                ["enableReplacements"] = new(factory.GetReference(types.BoolType), ObjectTypePropertyFlags.None, "Enable replacements")
+            }, null));
+
+            var sasUriFunctionType = factory.Create(() => new NamespaceFunctionType(
+                "sasUri",
+                "Requests SAS URI from external tooling",
+                "[externalInput('sys.sasUriForPath', parameters('sasUriConfig'))]",
+                [new NamespaceFunctionParameter("sasUriConfig", factory.GetReference(sasUriConfigType), "The SAS URI configuration properties", NamespaceFunctionParameterFlags.Required | NamespaceFunctionParameterFlags.CompileTimeConstant)],
+                factory.GetReference(types.AnyType),
+                BicepSourceFileKind.ParamsFile));
+
+            return [sasUriFunctionType];
+        });
         var services = new ServiceBuilder();
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("parameters.bicepparam", new("""
@@ -76,22 +116,77 @@ param servicePackageLink = ext.sasUri({
     }
 
     [TestMethod]
-    public async Task Function_with_single_external_input_request_compiles()
+    public async Task Function_evaluation_failure_when_collecting_external_inputs_returns_diagnostic()
     {
-        var extensionTgz = await GetExtensionTgz();
+        var extensionTgz = await GetExtensionTgz((factory, types) =>
+        {
+            var fooFunctionType = factory.Create(() => new NamespaceFunctionType(
+                "foo",
+                null,
+                "[externalInput('foo', unknown())]",
+                [],
+                factory.GetReference(types.StringType),
+                BicepSourceFileKind.ParamsFile));
+
+            return [fooFunctionType];
+        });
         var services = new ServiceBuilder();
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("parameters.bicepparam", new("""
-using none
+                               using none
+                               extension '../extension.tgz' as ext
+                               param myParam = ext.foo()
+                               """)),
+            ("../extension.tgz", extensionTgz));
 
-extension '../extension.tgz' as ext
-param bar = ext.config('redis')
-param servicePackageLink = ext.sasUri({
-    path: 'bin/service.sfpkg'
-    isDirectory: false
-    enableReplacements: true
-})
-""")),
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP338", DiagnosticLevel.Error, "Failed to evaluate function \"ext.foo()\": The template function 'unknown' is not valid. Please see https://aka.ms/arm-functions for usage details."),
+        });
+    }
+
+    [TestMethod]
+    public async Task Function_with_single_external_input_request_compiles()
+    {
+        var extensionTgz = await GetExtensionTgz((factory, types) =>
+        {
+            var configFunctionType = factory.Create(() => new NamespaceFunctionType(
+                "config",
+                "Requests configuration from external tooling",
+                "[externalInput('sys.expression', concat('$config(', parameters('configKey'), ')'))]",
+                [new NamespaceFunctionParameter("configKey", factory.GetReference(types.StringType), "The configuration key parameter", NamespaceFunctionParameterFlags.Required | NamespaceFunctionParameterFlags.CompileTimeConstant)],
+                factory.GetReference(types.AnyType),
+                BicepSourceFileKind.ParamsFile));
+
+            var sasUriConfigType = factory.Create(() => new ObjectType("myConfig", new Dictionary<string, ObjectTypeProperty>
+            {
+                ["path"] = new(factory.GetReference(types.StringType), ObjectTypePropertyFlags.Required, "Path to artifact"),
+                ["isDirectory"] = new(factory.GetReference(types.BoolType), ObjectTypePropertyFlags.None, "Is a directory"),
+                ["enableReplacements"] = new(factory.GetReference(types.BoolType), ObjectTypePropertyFlags.None, "Enable replacements")
+            }, null));
+
+            var sasUriFunctionType = factory.Create(() => new NamespaceFunctionType(
+                "sasUri",
+                "Requests SAS URI from external tooling",
+                "[externalInput('sys.sasUriForPath', parameters('sasUriConfig'))]",
+                [new NamespaceFunctionParameter("sasUriConfig", factory.GetReference(sasUriConfigType), "The SAS URI configuration properties", NamespaceFunctionParameterFlags.Required | NamespaceFunctionParameterFlags.CompileTimeConstant)],
+                factory.GetReference(types.AnyType),
+                BicepSourceFileKind.ParamsFile));
+
+            return [configFunctionType, sasUriFunctionType];
+        });
+        var services = new ServiceBuilder();
+        var result = await CompilationHelper.RestoreAndCompileParams(services,
+            ("parameters.bicepparam", new("""
+                                          using none
+                                          extension '../extension.tgz' as ext
+                                          param bar = ext.config('redis')
+                                          param servicePackageLink = ext.sasUri({
+                                              path: 'bin/service.sfpkg'
+                                              isDirectory: false
+                                              enableReplacements: true
+                                          })
+                                          """)),
             ("../extension.tgz", extensionTgz));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
@@ -120,7 +215,29 @@ param servicePackageLink = ext.sasUri({
     [TestMethod]
     public async Task Function_with_multiple_external_input_request_compiles()
     {
-        var extensionTgz = await GetExtensionTgz();
+        var extensionTgz = await GetExtensionTgz((factory, types) =>
+        {
+            var sasUriConfigType = factory.Create(() => new ObjectType("myConfig", new Dictionary<string, ObjectTypeProperty>
+            {
+                ["path"] = new(factory.GetReference(types.StringType), ObjectTypePropertyFlags.Required, "Path to artifact"),
+                ["isDirectory"] = new(factory.GetReference(types.BoolType), ObjectTypePropertyFlags.None, "Is a directory"),
+                ["enableReplacements"] = new(factory.GetReference(types.BoolType), ObjectTypePropertyFlags.None, "Enable replacements")
+            }, null));
+
+            var concatConfigFunctionType = factory.Create(() => new NamespaceFunctionType(
+                "concatConfig",
+                "Requests configuration from external tooling",
+                "[concat(externalInput('sys.expression', parameters('config1')), '-combined-with-', externalInput('sys.expression', parameters('config2')), '-and-with-', externalInput('sys.expression', parameters('config3')))]",
+                [
+                    new NamespaceFunctionParameter("config1", factory.GetReference(types.StringType), "The first configuration key parameter", NamespaceFunctionParameterFlags.Required),
+                    new NamespaceFunctionParameter("config2", factory.GetReference(types.IntType), "The second configuration key parameter", NamespaceFunctionParameterFlags.Required),
+                    new NamespaceFunctionParameter("config3", factory.GetReference(sasUriConfigType), "The third configuration key parameter", NamespaceFunctionParameterFlags.Required),
+                ],
+                factory.GetReference(types.AnyType),
+                BicepSourceFileKind.ParamsFile));
+
+            return [concatConfigFunctionType];
+        });
         var services = new ServiceBuilder();
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("parameters.bicepparam", new("""
@@ -158,69 +275,131 @@ param baz = ext.concatConfig(substring('hello world', 0, 5), lifeMeaning, {
         });
     }
 
-    private static async Task<BinaryData> GetExtensionTgz()
+    [TestMethod]
+    public async Task Function_with_external_input_in_property_access_compiles()
+    {
+        var extensionTgz = await GetExtensionTgz((factory, types) =>
+        {
+            var endpointConfigType = factory.Create(() => new ObjectType("endpointConfig", new Dictionary<string, ObjectTypeProperty>(), factory.GetReference(types.AnyType)));
+
+            var getEndpointFunctionType = factory.Create(() => new NamespaceFunctionType(
+                "getEndpoint",
+                null,
+                "[parameters('config')[externalInput('endpointId')]]",
+                [new NamespaceFunctionParameter("config", factory.GetReference(endpointConfigType), null, NamespaceFunctionParameterFlags.None)],
+                factory.GetReference(types.AnyType),
+                BicepSourceFileKind.ParamsFile));
+
+            return [getEndpointFunctionType];
+        });
+        var services = new ServiceBuilder();
+        var result = await CompilationHelper.RestoreAndCompileParams(services,
+            ("parameters.bicepparam", new("""
+using none
+
+extension '../extension.tgz' as ext
+param endpoint = ext.getEndpoint({
+    endpointId: 'endpointId'
+    endpointName: 'endpointName'
+})
+""")),
+            ("../extension.tgz", extensionTgz));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["endpoint"].Expression.Should().DeepEqual("[createObject('endpointId', 'endpointId', 'endpointName', 'endpointName')[externalInputs('endpointId_0')]]");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["endpointId_0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "endpointId",
+        });
+    }
+
+    [TestMethod]
+    public async Task Function_output_type_is_validated()
+    {
+        var extensionTgz = await GetExtensionTgz((factory, types) =>
+        {
+            var simpleFunctionType = factory.Create(() => new NamespaceFunctionType(
+                "foo",
+                null,
+                null,
+                [new NamespaceFunctionParameter("myParam", factory.GetReference(types.StringType), null, NamespaceFunctionParameterFlags.Required)],
+                factory.GetReference(types.StringType),
+                null));
+
+            return [simpleFunctionType];
+        });
+        var services = new ServiceBuilder();
+        var result = await CompilationHelper.RestoreAndCompile(services,
+            ("main.bicep", new("""
+extension '../extension.tgz' as ext
+var result = ext.foo('myValue')
+var numberValue = result + 42
+""")),
+            ("../extension.tgz", extensionTgz));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"string\" and \"42\"."),
+        });
+    }
+
+    [TestMethod]
+    public async Task Nested_namespace_function_calls_compiles()
+    {
+        var extensionTgz = await GetExtensionTgz((factory, types) =>
+        {
+            var simpleFunctionType = factory.Create(() => new NamespaceFunctionType(
+                "foo",
+                null,
+                null,
+                [new NamespaceFunctionParameter("myParam", factory.GetReference(types.StringType), null, NamespaceFunctionParameterFlags.Required)],
+                factory.GetReference(types.StringType),
+                null));
+
+            var bazType = factory.Create(() => new NamespaceFunctionType(
+                "baz",
+                null,
+                "[parameters('configKey')]",
+                [new NamespaceFunctionParameter("configKey", factory.GetReference(types.StringType), null, NamespaceFunctionParameterFlags.Required)],
+                factory.GetReference(types.StringType),
+                null));
+
+            return [simpleFunctionType, bazType];
+        });
+        var services = new ServiceBuilder();
+        var result = await CompilationHelper.RestoreAndCompile(services,
+            ("main.bicep", new("""
+extension '../extension.tgz' as ext
+var nested = ext.baz(ext.foo('innerValue'))
+""")),
+            ("../extension.tgz", extensionTgz));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    private static async Task<BinaryData> GetExtensionTgz(Func<TypeFactory, CommonPrimitives, TypeBase[]> configureFunctions)
     {
         var factory = new TypeFactory([]);
+        var commonTypes = new CommonPrimitives(
+            IntType: factory.Create(() => new IntegerType()),
+            StringType: factory.Create(() => new StringType()),
+            BoolType: factory.Create(() => new BooleanType()),
+            AnyType: factory.Create(() => new AnyType()));
 
-        var intType = factory.Create(() => new IntegerType());
-        var stringType = factory.Create(() => new StringType());
-        var boolType = factory.Create(() => new BooleanType());
-        var sasUriConfigType = factory.Create(() => new ObjectType("myConfig", new Dictionary<string, ObjectTypeProperty>
-        {
-            ["path"] = new(factory.GetReference(stringType), ObjectTypePropertyFlags.Required, "Path to artifact"),
-            ["isDirectory"] = new(factory.GetReference(boolType), ObjectTypePropertyFlags.None, "Is a directory"),
-            ["enableReplacements"] = new(factory.GetReference(boolType), ObjectTypePropertyFlags.None, "Enable replacements")
-        }, null));
-        var anyType = factory.Create(() => new AnyType());
-
-        var simpleFunctionType = factory.Create(() => new NamespaceFunctionType(
-            "foo",
-            null,
-            null,
-            [new NamespaceFunctionParameter("myParam", factory.GetReference(stringType), null, NamespaceFunctionParameterFlags.Required)],
-            factory.GetReference(anyType),
-            null));
-
-        var configFunctionType = factory.Create(() => new NamespaceFunctionType(
-            "config",
-            "Requests configuration from external tooling",
-            "[externalInput('sys.expression', concat('$config(', parameters('configKey'), ')'))]",
-            [new NamespaceFunctionParameter("configKey", factory.GetReference(stringType), "The configuration key parameter", NamespaceFunctionParameterFlags.Required | NamespaceFunctionParameterFlags.CompileTimeConstant)],
-            factory.GetReference(anyType),
-            BicepSourceFileKind.ParamsFile));
-
-        var concatConfigFunctionType = factory.Create(() => new NamespaceFunctionType(
-            "concatConfig",
-            "Requests configuration from external tooling",
-            "[concat(externalInput('sys.expression', parameters('config1')), '-combined-with-', externalInput('sys.expression', parameters('config2')), '-and-with-', externalInput('sys.expression', parameters('config3')))]",
-            [
-                new NamespaceFunctionParameter("config1", factory.GetReference(stringType), "The first configuration key parameter", NamespaceFunctionParameterFlags.Required),
-                new NamespaceFunctionParameter("config2", factory.GetReference(intType), "The second configuration key parameter", NamespaceFunctionParameterFlags.Required),
-                new NamespaceFunctionParameter("config3", factory.GetReference(sasUriConfigType), "The third configuration key parameter", NamespaceFunctionParameterFlags.Required),
-            ],
-            factory.GetReference(anyType),
-            BicepSourceFileKind.ParamsFile));
-
-
-        var sasUriFunctionType = factory.Create(() => new NamespaceFunctionType(
-            "sasUri",
-            "Requests SAS URI from external tooling",
-            "[externalInput('sys.sasUriForPath', parameters('sasUriConfig'))]",
-            [new NamespaceFunctionParameter("sasUriConfig", factory.GetReference(sasUriConfigType), "The SAS URI configuration properties", NamespaceFunctionParameterFlags.Required | NamespaceFunctionParameterFlags.CompileTimeConstant)],
-            factory.GetReference(anyType),
-            BicepSourceFileKind.ParamsFile));
+        // Let the caller configure the functions
+        var functions = configureFunctions(factory, commonTypes);
 
         var settings = new TypeSettings(name: "ThirdPartyExtension", version: "1.0.0", isSingleton: false, configurationType: null!);
+
+        var functionReferences = functions.Select(f => new CrossFileTypeReference("types.json", factory.GetIndex(f))).ToList();
 
         var index = new TypeIndex(
             new Dictionary<string, CrossFileTypeReference>(),
             new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
-            new List<CrossFileTypeReference> {
-                new("types.json", factory.GetIndex(simpleFunctionType)),
-                new("types.json", factory.GetIndex(configFunctionType)),
-                new("types.json", factory.GetIndex(concatConfigFunctionType)),
-                new("types.json", factory.GetIndex(sasUriFunctionType)),
-            },
+            functionReferences,
             settings,
             null);
 
@@ -230,4 +409,6 @@ param baz = ext.concatConfig(substring('hello world', 0, 5), lifeMeaning, {
 
         return await ExtensionV1Archive.Build(new(indexTgz, false, []));
     }
+
+    private record CommonPrimitives(TypeBase IntType, TypeBase StringType, TypeBase BoolType, TypeBase AnyType);
 }

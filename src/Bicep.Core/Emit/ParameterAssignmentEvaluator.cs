@@ -504,9 +504,7 @@ public class ParameterAssignmentEvaluator
             var resultBuilder = ImmutableArray.CreateBuilder<ExternalInputDefinition>();
 
             // Sort by definition key for deterministic ordering
-            foreach (var info in externalInputInfo
-                         .Select(x => x.Value)
-                         .OrderBy(x => x.DefinitionKey))
+            foreach (var info in externalInputInfo.Select(x => x.Value).OrderBy(x => x.DefinitionKey))
             {
                 var kind = info.Kind.EvaluateExpression(context).ToString();
                 var config = info.Config?.EvaluateExpression(context);

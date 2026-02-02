@@ -3,8 +3,10 @@
 
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
+using Azure.Deployments.Core.Exceptions;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -15,13 +17,17 @@ namespace Bicep.Core.Emit;
 public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 {
     private readonly SemanticModel semanticModel;
+
+    private readonly IDiagnosticWriter diagnosticWriter;
+
     // a FunctionSyntax can request multiple external inputs, hence the array as value
     private readonly ImmutableDictionary<FunctionCallSyntaxBase, ImmutableArray<ExternalInputInfo>>.Builder infoBySyntax;
     private readonly ImmutableDictionary<string, ExternalInputInfo>.Builder infoBySerializedExpression;
     private readonly ExpressionConverter expressionConverter;
-    private ExternalInputFunctionReferenceVisitor(SemanticModel semanticModel)
+    private ExternalInputFunctionReferenceVisitor(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
     {
         this.semanticModel = semanticModel;
+        this.diagnosticWriter = diagnosticWriter;
         this.expressionConverter = new ExpressionConverter(new EmitterContext(semanticModel));
         this.infoBySyntax = ImmutableDictionary.CreateBuilder<FunctionCallSyntaxBase, ImmutableArray<ExternalInputInfo>>();
         this.infoBySerializedExpression = ImmutableDictionary.CreateBuilder<string, ExternalInputInfo>();
@@ -39,7 +45,7 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
         base.VisitInstanceFunctionCallSyntax(syntax);
     }
 
-    public static ExternalInputReferences CollectExternalInputReferences(SemanticModel model)
+    public static ExternalInputReferences CollectExternalInputReferences(SemanticModel model, IDiagnosticWriter diagnosticWriter)
     {
         static void ProcessReferences(
             ExternalInputFunctionReferenceVisitor visitor,
@@ -60,7 +66,7 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
             }
         }
 
-        var visitor = new ExternalInputFunctionReferenceVisitor(model);
+        var visitor = new ExternalInputFunctionReferenceVisitor(model, diagnosticWriter);
 
         ProcessReferences(visitor, model.Root.ParameterAssignments);
         ProcessReferences(visitor, model.Root.VariableDeclarations);
@@ -95,10 +101,10 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
                 CollectExternalInputs(functionCallSyntax, functionExpression);
             }
         }
-        catch (Exception)
+        catch (ExpressionException ex) // expected if NamespaceFunctionType.EvaluatedLanguageExpression could not be evaluated
         {
-            // Exception during expression conversion (e.g., invalid syntax).
-            // Diagnostics will be reported elsewhere.
+            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(functionCallSyntax.Span)
+                .FailedToEvaluateSubject("function", functionCallSyntax.ToString(), ex.Message));
         }
     }
 
@@ -109,6 +115,13 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
             foreach (var parameter in functionExpression.Parameters)
             {
                 if (parameter is FunctionExpression nestedFunc)
+                {
+                    CollectExternalInputs(sourceSyntax, nestedFunc);
+                }
+            }
+            foreach (var property in functionExpression.Properties)
+            {
+                if (property is FunctionExpression nestedFunc)
                 {
                     CollectExternalInputs(sourceSyntax, nestedFunc);
                 }

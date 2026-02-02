@@ -102,9 +102,9 @@ namespace Bicep.Core.Emit
                             function.Parameters.Select(ConvertExpression));
 
                         if (function.SourceSyntax is FunctionCallSyntaxBase functionCall &&
-                            context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is { ArmExpressionEvaluator: { } } functionOverload)
+                            context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is { ArmExpressionEvaluator: { } armExpressionEvaluator })
                         {
-                            return functionOverload.ArmExpressionEvaluator(converted);
+                            return armExpressionEvaluator(converted);
                         }
 
                         return converted;
