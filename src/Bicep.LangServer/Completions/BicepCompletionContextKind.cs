@@ -273,5 +273,10 @@ namespace Bicep.LanguageServer.Completions
         /// We're at this place: 'using 'main.bicep' with |'
         /// </summary>
         UsingWithFollower = 1UL << 50,
+
+        /// <summary>
+        /// The current location is in the index expression of a type array access (e.g., type foo = someType[|]).
+        /// </summary>
+        TypeArrayIndex = 1UL << 51,
     }
 }
