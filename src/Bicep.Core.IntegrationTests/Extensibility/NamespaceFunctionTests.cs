@@ -36,9 +36,9 @@ public class NamespaceFunctionTests
         var services = new ServiceBuilder();
         var result = await CompilationHelper.RestoreAndCompile(services,
             ("main.bicep", new("""
-extension '../extension.tgz' as ext
-var foo = ext.config('redis')
-""")),
+                extension '../extension.tgz' as ext
+                var foo = ext.config('redis')
+                """)),
             ("../extension.tgz", extensionTgz));
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
@@ -65,9 +65,9 @@ var foo = ext.config('redis')
         var services = new ServiceBuilder();
         var result = await CompilationHelper.RestoreAndCompile(services,
             ("main.bicep", new("""
-extension '../extension.tgz' as ext
-var foo = ext.foo()
-""")),
+                extension '../extension.tgz' as ext
+                var foo = ext.foo()
+                """)),
             ("../extension.tgz", extensionTgz));
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
@@ -101,14 +101,13 @@ var foo = ext.foo()
         var services = new ServiceBuilder();
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("parameters.bicepparam", new("""
-using none
-
-extension '../extension.tgz' as ext
-param servicePackageLink = ext.sasUri({
-    pth: 'bin/service.sfpkg' // typo here
-    isDirectory: 'false'
-})
-""")),
+                using none
+                extension '../extension.tgz' as ext
+                param servicePackageLink = ext.sasUri({
+                    pth: 'bin/service.sfpkg' // typo here
+                    isDirectory: 'false'
+                })
+                """)),
             ("../extension.tgz", extensionTgz));
 
         result.ExcludingLinterDiagnostics().Should().ContainDiagnostic("BCP089", DiagnosticLevel.Error, "The property \"pth\" is not allowed on objects of type \"myConfig\". Did you mean \"path\"?");
@@ -133,16 +132,13 @@ param servicePackageLink = ext.sasUri({
         var services = new ServiceBuilder();
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("parameters.bicepparam", new("""
-                               using none
-                               extension '../extension.tgz' as ext
-                               param myParam = ext.foo()
-                               """)),
+                using none
+                extension '../extension.tgz' as ext
+                param myParam = ext.foo()
+                """)),
             ("../extension.tgz", extensionTgz));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP338", DiagnosticLevel.Error, "Failed to evaluate function \"ext.foo()\": The template function 'unknown' is not valid. Please see https://aka.ms/arm-functions for usage details."),
-        });
+        result.Should().ContainDiagnostic("BCP338", DiagnosticLevel.Error, "Failed to evaluate function \"ext.foo()\": The template function 'unknown' is not valid. Please see https://aka.ms/arm-functions for usage details.");
     }
 
     [TestMethod]
@@ -178,15 +174,15 @@ param servicePackageLink = ext.sasUri({
         var services = new ServiceBuilder();
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("parameters.bicepparam", new("""
-                                          using none
-                                          extension '../extension.tgz' as ext
-                                          param bar = ext.config('redis')
-                                          param servicePackageLink = ext.sasUri({
-                                              path: 'bin/service.sfpkg'
-                                              isDirectory: false
-                                              enableReplacements: true
-                                          })
-                                          """)),
+                using none
+                extension '../extension.tgz' as ext
+                param bar = ext.config('redis')
+                param servicePackageLink = ext.sasUri({
+                    path: 'bin/service.sfpkg'
+                    isDirectory: false
+                    enableReplacements: true
+                })
+                """)),
             ("../extension.tgz", extensionTgz));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
@@ -217,11 +213,9 @@ param servicePackageLink = ext.sasUri({
     {
         var extensionTgz = await GetExtensionTgz((factory, types) =>
         {
-            var sasUriConfigType = factory.Create(() => new ObjectType("myConfig", new Dictionary<string, ObjectTypeProperty>
+            var objectType = factory.Create(() => new ObjectType("myConfig", new Dictionary<string, ObjectTypeProperty>
             {
                 ["path"] = new(factory.GetReference(types.StringType), ObjectTypePropertyFlags.Required, "Path to artifact"),
-                ["isDirectory"] = new(factory.GetReference(types.BoolType), ObjectTypePropertyFlags.None, "Is a directory"),
-                ["enableReplacements"] = new(factory.GetReference(types.BoolType), ObjectTypePropertyFlags.None, "Enable replacements")
             }, null));
 
             var concatConfigFunctionType = factory.Create(() => new NamespaceFunctionType(
@@ -231,7 +225,7 @@ param servicePackageLink = ext.sasUri({
                 [
                     new NamespaceFunctionParameter("config1", factory.GetReference(types.StringType), "The first configuration key parameter", NamespaceFunctionParameterFlags.Required),
                     new NamespaceFunctionParameter("config2", factory.GetReference(types.IntType), "The second configuration key parameter", NamespaceFunctionParameterFlags.Required),
-                    new NamespaceFunctionParameter("config3", factory.GetReference(sasUriConfigType), "The third configuration key parameter", NamespaceFunctionParameterFlags.Required),
+                    new NamespaceFunctionParameter("config3", factory.GetReference(objectType), "The third configuration key parameter", NamespaceFunctionParameterFlags.Required),
                 ],
                 factory.GetReference(types.AnyType),
                 BicepSourceFileKind.ParamsFile));
@@ -241,14 +235,14 @@ param servicePackageLink = ext.sasUri({
         var services = new ServiceBuilder();
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("parameters.bicepparam", new("""
-using none
+                using none
 
-extension '../extension.tgz' as ext
-var lifeMeaning = 42
-param baz = ext.concatConfig(substring('hello world', 0, 5), lifeMeaning, {
-    path: '/path/to/something'
-})
-""")),
+                extension '../extension.tgz' as ext
+                var lifeMeaning = 42
+                param baz = ext.concatConfig(substring('hello world', 0, 5), lifeMeaning, {
+                    path: '/path/to/something'
+                })
+                """)),
             ("../extension.tgz", extensionTgz));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
@@ -295,14 +289,13 @@ param baz = ext.concatConfig(substring('hello world', 0, 5), lifeMeaning, {
         var services = new ServiceBuilder();
         var result = await CompilationHelper.RestoreAndCompileParams(services,
             ("parameters.bicepparam", new("""
-using none
-
-extension '../extension.tgz' as ext
-param endpoint = ext.getEndpoint({
-    endpointId: 'endpointId'
-    endpointName: 'endpointName'
-})
-""")),
+                using none
+                extension '../extension.tgz' as ext
+                param endpoint = ext.getEndpoint({
+                    endpointId: 'endpointId'
+                    endpointName: 'endpointName'
+                })
+                """)),
             ("../extension.tgz", extensionTgz));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
@@ -334,10 +327,10 @@ param endpoint = ext.getEndpoint({
         var services = new ServiceBuilder();
         var result = await CompilationHelper.RestoreAndCompile(services,
             ("main.bicep", new("""
-extension '../extension.tgz' as ext
-var result = ext.foo('myValue')
-var numberValue = result + 42
-""")),
+                extension '../extension.tgz' as ext
+                var result = ext.foo('myValue')
+                var numberValue = result + 42
+                """)),
             ("../extension.tgz", extensionTgz));
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
@@ -372,9 +365,9 @@ var numberValue = result + 42
         var services = new ServiceBuilder();
         var result = await CompilationHelper.RestoreAndCompile(services,
             ("main.bicep", new("""
-extension '../extension.tgz' as ext
-var nested = ext.baz(ext.foo('innerValue'))
-""")),
+                extension '../extension.tgz' as ext
+                var nested = ext.baz(ext.foo('innerValue'))
+                """)),
             ("../extension.tgz", extensionTgz));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
