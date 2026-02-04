@@ -147,7 +147,7 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location is after # sign.
         /// </summary>
-        DisableNextLineDiagnosticsDirectiveStart = 1UL << 26,
+        DirectiveStart = 1UL << 26,
 
         /// <summary>
         /// The current location is after '#disable-next-line |'.
@@ -273,5 +273,15 @@ namespace Bicep.LanguageServer.Completions
         /// We're at this place: 'using 'main.bicep' with |'
         /// </summary>
         UsingWithFollower = 1UL << 50,
+
+        /// <summary>
+        /// The current location is after '#disable-diagnostics |'.
+        /// </summary>
+        DisableDiagnosticsCodes = 1UL << 51,
+
+        /// <summary>
+        /// The current location is after '#restore-diagnostics |'.
+        /// </summary>
+        RestoreDiagnosticsCodes = 1UL << 52,
     }
 }

@@ -158,9 +158,17 @@ namespace Bicep.LanguageServer.Completions
                     {
                         var previousTrivia = FindTriviaMatchingOffset(bicepFile.ProgramSyntax, position - 1);
 
-                        if (previousTrivia is DiagnosticsPragmaSyntaxTrivia)
+                        if (previousTrivia is DiagnosticsPragmaSyntaxTrivia diagnosticsPragma)
                         {
-                            return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                            var contextKind = diagnosticsPragma.PragmaType switch
+                            {
+                                DiagnosticsPragmaType.DisableNextLine => BicepCompletionContextKind.DisableNextLineDiagnosticsCodes,
+                                DiagnosticsPragmaType.Disable => BicepCompletionContextKind.DisableDiagnosticsCodes,
+                                DiagnosticsPragmaType.Restore => BicepCompletionContextKind.RestoreDiagnosticsCodes,
+                                _ => BicepCompletionContextKind.None,
+                            };
+
+                            return new BicepCompletionContext(bicepFile, contextKind, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
                         }
                     }
                     break;
@@ -168,7 +176,14 @@ namespace Bicep.LanguageServer.Completions
                     // This will handle the following case: #disable-next-line |
                     if (triviaMatchingOffset.Text.EndsWith(' '))
                     {
-                        return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                        var contextKind = triviaMatchingOffset switch
+                        {
+                            DiagnosticsPragmaSyntaxTrivia { PragmaType: DiagnosticsPragmaType.DisableNextLine } => BicepCompletionContextKind.DisableNextLineDiagnosticsCodes,
+                            DiagnosticsPragmaSyntaxTrivia { PragmaType: DiagnosticsPragmaType.Disable } => BicepCompletionContextKind.DisableDiagnosticsCodes,
+                            DiagnosticsPragmaSyntaxTrivia { PragmaType: DiagnosticsPragmaType.Restore } => BicepCompletionContextKind.RestoreDiagnosticsCodes,
+                            _ => BicepCompletionContextKind.None,
+                        };
+                        return new BicepCompletionContext(bicepFile, contextKind, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
                     }
                     return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
                 case SyntaxTriviaType.SingleLineComment when offset > triviaMatchingOffset.Span.Position:
@@ -179,7 +194,7 @@ namespace Bicep.LanguageServer.Completions
 
             if (IsDisableNextLineDiagnosticsDirectiveStartContext(bicepFile, offset, matchingNodes))
             {
-                return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DirectiveStart, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
             }
 
             var pattern = SyntaxPattern.Create(bicepFile.ProgramSyntax, offset);
