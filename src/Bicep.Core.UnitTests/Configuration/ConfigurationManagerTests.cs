@@ -112,7 +112,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "thisNamespace": false
+          "thisNamespace": false,
+          "patchPolicy": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -195,7 +196,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "thisNamespace": false
+          "thisNamespace": false,
+          "patchPolicy": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -300,7 +302,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "thisNamespace": false
+          "thisNamespace": false,
+          "patchPolicy": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -471,7 +474,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 "moduleExtensionConfigs": false,
                 "userDefinedConstraints": false,
                 "deployCommands": false,
-                "thisNamespace": false
+                "thisNamespace": false,
+                "patchPolicy": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -822,7 +826,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "moduleExtensionConfigs": false,
                     "userDefinedConstraints": false,
                     "deployCommands": false,
-                    "thisNamespace": false
+                    "thisNamespace": false,
+                    "patchPolicy": false
                   },
                   "formatting": {
                     "indentKind": "Space",
