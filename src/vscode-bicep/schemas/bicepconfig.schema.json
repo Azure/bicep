@@ -906,7 +906,7 @@
         },
         "patchPolicy": {
           "type": "boolean",
-          "description": "Enables the @patchPolicy decorator for deploying resources using the PATCH HTTP method. This feature is restricted to Azure Policy DeployIfNotExists scenarios."
+          "description": "Enables the @patchPolicy decorator for deploying resources using the PATCH HTTP method. This feature is restricted to Azure Policy DeployIfNotExists scenarios. See https://aka.ms/bicep/experimental-features#patchpolicy"
         }
       },
       "additionalProperties": false
