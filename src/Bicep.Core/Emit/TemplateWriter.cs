@@ -1230,12 +1230,13 @@ namespace Bicep.Core.Emit
                     EmitResourceExtensionReference(emitter, extensionSymbol.Name);
                 }
 
-                // Emit the options property if there are entries in the DecoratorConfig dictionary
-                if (resource.DecoratorConfig.Count > 0)
+                // Emit the options property if there are entries in the DecoratorConfig dictionary (excluding patchPolicy which is handled separately)
+                var nonPatchPolicyDecorators = resource.DecoratorConfig.Where(kvp => kvp.Key != LanguageConstants.PatchPolicyDecoratorName);
+                if (nonPatchPolicyDecorators.Any())
                 {
                     emitter.EmitObjectProperty("@options", () =>
                     {
-                        foreach (var (name, items) in resource.DecoratorConfig)
+                        foreach (var (name, items) in nonPatchPolicyDecorators)
                         {
                             emitter.EmitArrayProperty(name, () =>
                             {
@@ -1246,6 +1247,12 @@ namespace Bicep.Core.Emit
                             });
                         }
                     });
+                }
+
+                // Emit method: PATCH if patchPolicy decorator is present
+                if (resource.DecoratorConfig.TryGetValue(LanguageConstants.PatchPolicyDecoratorName, out var patchPolicyConfig))
+                {
+                    emitter.EmitProperty(LanguageConstants.ResourceMethodPropertyName, LanguageConstants.ResourceMethodPatchValue);
                 }
 
                 if (metadata.IsAzResource ||
@@ -1268,6 +1275,13 @@ namespace Bicep.Core.Emit
                 {
                     emitter.EmitProperty(AzResourceTypeProvider.ResourceNamePropertyName, emitter.GetFullyQualifiedResourceName(metadata));
                     emitter.EmitObjectProperties((ObjectExpression)body);
+
+                    // Emit patchPolicy decorator properties directly on the resource
+                    if (resource.DecoratorConfig.TryGetValue(LanguageConstants.PatchPolicyDecoratorName, out var patchPolicyItems) &&
+                        patchPolicyItems.Items.FirstOrDefault() is ObjectExpression patchPolicyBody)
+                    {
+                        emitter.EmitObjectProperties(patchPolicyBody);
+                    }
                 }
                 else
                 {
