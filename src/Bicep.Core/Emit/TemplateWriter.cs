@@ -1230,14 +1230,21 @@ namespace Bicep.Core.Emit
                     EmitResourceExtensionReference(emitter, extensionSymbol.Name);
                 }
 
-                // Emit the options property if there are entries in the DecoratorConfig dictionary (excluding patchPolicy which is handled separately)
-                var nonPatchPolicyDecorators = resource.DecoratorConfig.Where(kvp => kvp.Key != LanguageConstants.PatchPolicyDecoratorName);
-                if (nonPatchPolicyDecorators.Any())
+                // Check for patchPolicy decorator once - it requires special handling separate from @options
+                var hasPatchPolicy = resource.DecoratorConfig.TryGetValue(LanguageConstants.PatchPolicyDecoratorName, out var patchPolicyConfig);
+
+                // Emit the options property if there are entries in the DecoratorConfig dictionary (excluding patchPolicy)
+                if (resource.DecoratorConfig.Count > (hasPatchPolicy ? 1 : 0))
                 {
                     emitter.EmitObjectProperty("@options", () =>
                     {
-                        foreach (var (name, items) in nonPatchPolicyDecorators)
+                        foreach (var (name, items) in resource.DecoratorConfig)
                         {
+                            if (name == LanguageConstants.PatchPolicyDecoratorName)
+                            {
+                                continue;
+                            }
+
                             emitter.EmitArrayProperty(name, () =>
                             {
                                 foreach (var item in items.Items)
@@ -1250,7 +1257,7 @@ namespace Bicep.Core.Emit
                 }
 
                 // Emit method: PATCH if patchPolicy decorator is present
-                if (resource.DecoratorConfig.TryGetValue(LanguageConstants.PatchPolicyDecoratorName, out var patchPolicyConfig))
+                if (hasPatchPolicy)
                 {
                     emitter.EmitProperty(LanguageConstants.ResourceMethodPropertyName, LanguageConstants.ResourceMethodPatchValue);
                 }
@@ -1277,8 +1284,7 @@ namespace Bicep.Core.Emit
                     emitter.EmitObjectProperties((ObjectExpression)body);
 
                     // Emit patchPolicy decorator properties directly on the resource
-                    if (resource.DecoratorConfig.TryGetValue(LanguageConstants.PatchPolicyDecoratorName, out var patchPolicyItems) &&
-                        patchPolicyItems.Items.FirstOrDefault() is ObjectExpression patchPolicyBody)
+                    if (hasPatchPolicy && patchPolicyConfig?.Items.FirstOrDefault() is ObjectExpression patchPolicyBody)
                     {
                         emitter.EmitObjectProperties(patchPolicyBody);
                     }
