@@ -37,7 +37,7 @@
     <PackageVersion Include="Grpc.Tools" Version="2.76.0" />
     <PackageVersion Include="JetBrains.Annotations" Version="2025.2.2" />
     <PackageVersion Include="JsonDiffPatch.Net" Version="2.3.0" />
-    <PackageVersion Include="JsonPatch.Net" Version="3.3.0" />
+    <PackageVersion Include="JsonPatch.Net" Version="5.0.0" />
     <PackageVersion Include="JsonPath.Net" Version="2.1.1" />
     <PackageVersion Include="JsonSchema.Net" Version="7.3.3" />
     <PackageVersion Include="Microsoft.Playwright" Version="1.56.0" />
