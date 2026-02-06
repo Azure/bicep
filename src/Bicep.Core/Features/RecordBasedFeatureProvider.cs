@@ -26,6 +26,6 @@ namespace Bicep.Core.Features
         public bool UserDefinedConstraintsEnabled => features.UserDefinedConstraints;
         public bool DeployCommandsEnabled => features.DeployCommands;
         public bool ThisNamespaceEnabled => features.ThisNamespace;
-        public bool PatchPolicyEnabled => features.PatchPolicy;
+        public bool PatchEnabled => features.Patch;
     }
 }

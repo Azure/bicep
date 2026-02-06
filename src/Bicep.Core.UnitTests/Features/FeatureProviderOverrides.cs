@@ -26,7 +26,7 @@ public record FeatureProviderOverrides(
     bool? UserDefinedConstraintsEnabled = default,
     bool? DeployCommandsEnabled = default,
     bool? ThisNamespaceEnabled = default,
-    bool? PatchPolicyEnabled = default)
+    bool? PatchEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -47,7 +47,7 @@ public record FeatureProviderOverrides(
         bool? UserDefinedConstraintsEnabled = default,
         bool? DeployCommandsEnabled = default,
         bool? ThisNamespaceEnabled = default,
-        bool? PatchPolicyEnabled = default) : this(
+        bool? PatchEnabled = default) : this(
             FileHelper.GetCacheRootDirectory(testContext),
             RegistryEnabled,
             SymbolicNameCodegenEnabled,
@@ -66,6 +66,6 @@ public record FeatureProviderOverrides(
             UserDefinedConstraintsEnabled,
             DeployCommandsEnabled,
             ThisNamespaceEnabled,
-            PatchPolicyEnabled)
+            PatchEnabled)
     { }
 }

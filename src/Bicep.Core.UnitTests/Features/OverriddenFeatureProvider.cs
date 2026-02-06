@@ -49,5 +49,5 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool ThisNamespaceEnabled => overrides.ThisNamespaceEnabled ?? features.ThisNamespaceEnabled;
 
-    public bool PatchPolicyEnabled => overrides.PatchPolicyEnabled ?? features.PatchPolicyEnabled;
+    public bool PatchEnabled => overrides.PatchEnabled ?? features.PatchEnabled;
 }

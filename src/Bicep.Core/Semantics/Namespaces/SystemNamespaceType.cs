@@ -2051,11 +2051,10 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithEvaluator(AddDecoratorConfigToResource)
                     .Build();
 
-                if (featureProvider.PatchPolicyEnabled)
+                if (featureProvider.PatchEnabled)
                 {
-                    yield return new DecoratorBuilder(LanguageConstants.PatchPolicyDecoratorName)
-                        .WithDescription("Causes the resource to be deployed using the PATCH HTTP method with the specified properties. This feature is restricted to Azure Policy DeployIfNotExists scenarios.")
-                        .WithParameter("properties", LanguageConstants.Object, "The properties to patch on the resource.", FunctionParameterFlags.Required)
+                    yield return new DecoratorBuilder(LanguageConstants.PatchDecoratorName)
+                        .WithDescription("Causes the resource to be deployed using the PATCH HTTP method. This feature is restricted to Azure Policy DeployIfNotExists scenarios.")
                         .WithFlags(FunctionFlags.ResourceDecorator)
                         .WithEvaluator(AddDecoratorConfigToResource)
                         .Build();

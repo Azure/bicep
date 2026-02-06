@@ -113,7 +113,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "userDefinedConstraints": false,
           "deployCommands": false,
           "thisNamespace": false,
-          "patchPolicy": false
+          "patch": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -197,7 +197,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "userDefinedConstraints": false,
           "deployCommands": false,
           "thisNamespace": false,
-          "patchPolicy": false
+          "patch": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -303,7 +303,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "userDefinedConstraints": false,
           "deployCommands": false,
           "thisNamespace": false,
-          "patchPolicy": false
+          "patch": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -390,7 +390,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 UserDefinedConstraints: false,
                 DeployCommands: false,
                 ThisNamespace: false,
-                PatchPolicy: false);
+                Patch: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -475,7 +475,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "userDefinedConstraints": false,
                 "deployCommands": false,
                 "thisNamespace": false,
-                "patchPolicy": false
+                "patch": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -827,7 +827,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "userDefinedConstraints": false,
                     "deployCommands": false,
                     "thisNamespace": false,
-                    "patchPolicy": false
+                    "patch": false
                   },
                   "formatting": {
                     "indentKind": "Space",

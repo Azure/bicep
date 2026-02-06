@@ -1230,11 +1230,11 @@ namespace Bicep.Core.Emit
                     EmitResourceExtensionReference(emitter, extensionSymbol.Name);
                 }
 
-                // Check for patchPolicy decorator once as it requires special handling separate from @options
-                var hasPatchPolicy = resource.DecoratorConfig.TryGetValue(LanguageConstants.PatchPolicyDecoratorName, out var patchPolicyConfig);
+                // Check for patch decorator once as it requires special handling separate from @options
+                var hasPatch = resource.DecoratorConfig.TryGetValue(LanguageConstants.PatchDecoratorName, out _);
 
-                // Emit the @options property for decorators (excluding patchPolicy which is handled separately)
-                var optionsDecorators = resource.DecoratorConfig.Where(kvp => kvp.Key != LanguageConstants.PatchPolicyDecoratorName);
+                // Emit the @options property for decorators (excluding patch which is handled separately)
+                var optionsDecorators = resource.DecoratorConfig.Where(kvp => kvp.Key != LanguageConstants.PatchDecoratorName);
                 if (optionsDecorators.Any())
                 {
                     emitter.EmitObjectProperty("@options", () =>
@@ -1252,8 +1252,8 @@ namespace Bicep.Core.Emit
                     });
                 }
 
-                // Emit method: PATCH if patchPolicy decorator is present
-                if (hasPatchPolicy)
+                // Emit method: PATCH if patch decorator is present
+                if (hasPatch)
                 {
                     emitter.EmitProperty(LanguageConstants.ResourceMethodPropertyName, LanguageConstants.ResourceMethodPatchValue);
                 }
@@ -1278,12 +1278,6 @@ namespace Bicep.Core.Emit
                 {
                     emitter.EmitProperty(AzResourceTypeProvider.ResourceNamePropertyName, emitter.GetFullyQualifiedResourceName(metadata));
                     emitter.EmitObjectProperties((ObjectExpression)body);
-
-                    // Emit patchPolicy decorator properties directly on the resource
-                    if (hasPatchPolicy && patchPolicyConfig?.Items.FirstOrDefault() is ObjectExpression patchPolicyBody)
-                    {
-                        emitter.EmitObjectProperties(patchPolicyBody);
-                    }
                 }
                 else
                 {

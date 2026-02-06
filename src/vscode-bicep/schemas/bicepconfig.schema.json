@@ -904,9 +904,9 @@
           "type": "boolean",
           "description": "Allows you to use this namespace to modify resource properties based on whether the resource already exists. Ex. this.exists() and this.existingResource(). See https://aka.ms/bicep/experimental-features#thisnamespace"
         },
-        "patchPolicy": {
+        "patch": {
           "type": "boolean",
-          "description": "Enables the @patchPolicy decorator for deploying resources using the PATCH HTTP method. This feature is restricted to Azure Policy DeployIfNotExists scenarios. See https://aka.ms/bicep/experimental-features#patchpolicy"
+          "description": "Enables the @patch() decorator for deploying resources using the PATCH HTTP method. This feature is restricted to Azure Policy DeployIfNotExists scenarios. See https://aka.ms/bicep/experimental-features#patch"
         }
       },
       "additionalProperties": false
