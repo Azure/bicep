@@ -2051,6 +2051,15 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithEvaluator(AddDecoratorConfigToResource)
                     .Build();
 
+                if (featureProvider.PatchEnabled)
+                {
+                    yield return new DecoratorBuilder(LanguageConstants.PatchDecoratorName)
+                        .WithDescription("Causes the resource to be deployed using the PATCH HTTP method. This feature is restricted to Azure Policy DeployIfNotExists scenarios.")
+                        .WithFlags(FunctionFlags.ResourceDecorator)
+                        .WithEvaluator(AddDecoratorConfigToResource)
+                        .Build();
+                }
+
 
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")

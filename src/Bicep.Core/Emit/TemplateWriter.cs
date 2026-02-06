@@ -1230,12 +1230,16 @@ namespace Bicep.Core.Emit
                     EmitResourceExtensionReference(emitter, extensionSymbol.Name);
                 }
 
-                // Emit the options property if there are entries in the DecoratorConfig dictionary
-                if (resource.DecoratorConfig.Count > 0)
+                // Check for patch decorator once as it requires special handling separate from @options
+                var hasPatch = resource.DecoratorConfig.TryGetValue(LanguageConstants.PatchDecoratorName, out _);
+
+                // Emit the @options property for decorators (excluding patch which is handled separately)
+                var optionsDecorators = resource.DecoratorConfig.Where(kvp => kvp.Key != LanguageConstants.PatchDecoratorName);
+                if (optionsDecorators.Any())
                 {
                     emitter.EmitObjectProperty("@options", () =>
                     {
-                        foreach (var (name, items) in resource.DecoratorConfig)
+                        foreach (var (name, items) in optionsDecorators)
                         {
                             emitter.EmitArrayProperty(name, () =>
                             {
@@ -1246,6 +1250,12 @@ namespace Bicep.Core.Emit
                             });
                         }
                     });
+                }
+
+                // Emit method: PATCH if patch decorator is present
+                if (hasPatch)
+                {
+                    emitter.EmitProperty(LanguageConstants.ResourceMethodPropertyName, LanguageConstants.ResourceMethodPatchValue);
                 }
 
                 if (metadata.IsAzResource ||
