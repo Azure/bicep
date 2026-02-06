@@ -550,14 +550,66 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
+        [TestMethod]
+        public async Task GetFilteredCompletions_WithAvmModulePath_UsesSuffixLabelAndPrefixDescription()
+        {
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
+                RegistryCatalogMocks.MockPublicMetadataProvider([
+                    new("bicep/avm/ptn/ai-ml/ai-foundry", null, null, []),
+                    new("bicep/avm/ptn/ai-ml/ai-platform", null, null, []),
+                ])
+            );
+
+            var (completionContext, sourceFile) = GetBicepCompletionContext("module test 'br/public:|'");
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                catalog,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
+            var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
+
+            completions.Should().Contain(
+                c => c.Label == "ai-foundry" &&
+                c.LabelDetails != null &&
+                c.LabelDetails.Description == "avm/ptn/ai-ml/" &&
+                c.TextEdit!.TextEdit!.NewText == "'br/public:avm/ptn/ai-ml/ai-foundry:$0'");
+        }
+
+        [TestMethod]
+        public async Task GetFilteredCompletions_WithAvmPathPrefix_ReturnsMatchingCompletion()
+        {
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
+                RegistryCatalogMocks.MockPublicMetadataProvider([
+                    new("bicep/avm/ptn/ai-ml/ai-foundry", null, null, []),
+                    new("bicep/avm/ptn/ai-ml/ai-platform", null, null, []),
+                    new("bicep/avm/ptn/ai-platform/baseline", null, null, []),
+                ])
+            );
+
+            var (completionContext, sourceFile) = GetBicepCompletionContext("module test 'br/public:avm/ptn/ai-ml/|'");
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                catalog,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object);
+            var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
+
+            completions.Should().Contain(
+                c => c.Label == "ai-foundry" &&
+                c.TextEdit!.TextEdit!.NewText == "'br/public:avm/ptn/ai-ml/ai-foundry:$0'");
+            completions.Should().NotContain(
+                c => c.TextEdit!.TextEdit!.NewText == "'br/public:avm/ptn/ai-platform/baseline:$0'");
+        }
+
         [DataTestMethod]
-        [DataRow("module test 'br:registry.contoso.io/bicep/|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
-        [DataRow("module test 'br:registry.contoso.io/bicep/|", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
-        [DataRow("module test 'br/myRegistry:|'", "abc/foo/bar", "'br/myRegistry:abc/foo/bar:$0'")]
-        [DataRow("module test 'br/myRegistry_noPath:|'", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'")]
+        [DataRow("module test 'br:registry.contoso.io/bicep/|'", "bar", "bicep/whatever/abc/foo/", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
+        [DataRow("module test 'br:registry.contoso.io/bicep/|", "bar", "bicep/whatever/abc/foo/", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
+        [DataRow("module test 'br/myRegistry:|'", "bar", "abc/foo/", "'br/myRegistry:abc/foo/bar:$0'")]
+        [DataRow("module test 'br/myRegistry_noPath:|'", "bar", "bicep/whatever/abc/foo/", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'")]
         public async Task GetFilteredCompletions_WithPrivateModulePathCompletions_ReturnsCompletionItems(
             string inputWithCursors,
             string expectedLabel,
+            string expectedLabelDescription,
             string expectedCompletionText)
         {
             var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
@@ -598,6 +650,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 c =>
                 {
                     c.Label.Should().Be(expectedLabel);
+                    c.LabelDetails.Should().NotBeNull();
+                    c.LabelDetails!.Description.Should().Be(expectedLabelDescription);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.Detail.Should().Be("d1");
                     c.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help1)");
