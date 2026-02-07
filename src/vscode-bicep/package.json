@@ -797,7 +797,7 @@
     "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
-    "webpack": "^5.98.0",
+    "webpack": "^5.105.0",
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
