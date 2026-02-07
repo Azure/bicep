@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
+using Azure.Deployments.Expression.Engines;
+using Azure.Deployments.Expression.Expressions;
+using Bicep.Core.ArmHelpers;
+using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
-using Microsoft.Identity.Client;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
@@ -57,7 +59,8 @@ public class ParametersJsonWriter
                     {
                         // The backend is always expecting an expression string, so we must always ensure we emit
                         // a top-level expression, even if we could simplify by emitting a top-level object.
-                        emitter.EmitProperty("expression", () => emitter.EmitLanguageExpression(expression));
+                        //emitter.EmitProperty("expression", () => emitter.EmitLanguageExpression(expression));
+                        emitter.EmitPropertyWithTransform("expression", expression, RewriteExternalInputReferences);
                     }
                     else
                     {
@@ -93,7 +96,7 @@ public class ParametersJsonWriter
                 {
                     // The backend is always expecting an expression string, so we must always ensure we emit
                     // a top-level expression, even if we could simplify by emitting a top-level object.
-                    emitter.EmitProperty("expression", () => emitter.EmitLanguageExpression(expression));
+                    emitter.EmitPropertyWithTransform("expression", expression, RewriteExternalInputReferences);
                 }
                 else
                 {
@@ -180,4 +183,18 @@ public class ParametersJsonWriter
                 }
             });
     }
+
+    private LanguageExpression RewriteExternalInputReferences(LanguageExpression expression) =>
+        LanguageExpressionRewriter.Rewrite(expression, exp =>
+        {
+            if (exp is not FunctionExpression function || !function.NameEquals(LanguageConstants.ExternalInputBicepFunctionName))
+            {
+                return exp;
+            }
+
+            var serialized = ExpressionsEngine.SerializeExpression(function);
+            return !this.Context.SemanticModel.ExternalInputReferences.InfoBySerializedExpression.TryGetValue(serialized, out var info)
+                ? exp
+                : new FunctionExpression(LanguageConstants.ExternalInputsArmFunctionName, [new JTokenExpression(info.DefinitionKey)], []);
+        });
 }

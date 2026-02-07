@@ -408,8 +408,7 @@ public class ParameterAssignmentEvaluator
 
                 if (semanticModel.SymbolsToInline.ParameterAssignmentsToInline.Contains(parameter))
                 {
-                    var rewritten = ExternalInputExpressionRewriter.Rewrite(intermediate, semanticModel.ExternalInputReferences);
-                    return Result.For(rewritten);
+                    return Result.For(intermediate);
                 }
 
                 if (intermediate is ParameterKeyVaultReferenceExpression keyVaultReferenceExpression)
@@ -436,10 +435,7 @@ public class ParameterAssignmentEvaluator
         }
 
         var intermediate = converter.ConvertToIntermediateExpression(config);
-
-        var rewrittenExpression = ExternalInputExpressionRewriter.Rewrite(intermediate, semanticModel.ExternalInputReferences);
-
-        return Result.For(rewrittenExpression);
+        return Result.For(intermediate);
     }
 
     public ImmutableDictionary<string, Result> EvaluateExtensionConfigAssignment(ExtensionConfigAssignmentSymbol inputExtConfigAssignment)
@@ -496,8 +492,8 @@ public class ParameterAssignmentEvaluator
 
     public ImmutableArray<ExternalInputDefinition>? TryGetExternalInputDefinitions()
     {
-        var externalInputInfoBySyntax = semanticModel.ExternalInputReferences.ExternalInputInfoBySyntax;
-        if (externalInputInfoBySyntax.Count == 0)
+        var externalInputInfo = semanticModel.ExternalInputReferences.InfoBySerializedExpression;
+        if (externalInputInfo.Count == 0)
         {
             return null;
         }
@@ -508,17 +504,12 @@ public class ParameterAssignmentEvaluator
             var resultBuilder = ImmutableArray.CreateBuilder<ExternalInputDefinition>();
 
             // Sort by definition key for deterministic ordering
-            foreach (var (_, externalInputInfo) in externalInputInfoBySyntax.OrderBy(x => x.Value.DefinitionKey))
+            foreach (var info in externalInputInfo.Select(x => x.Value).OrderBy(x => x.DefinitionKey))
             {
-                var kind = converter.ConvertExpression(externalInputInfo.Kind).EvaluateExpression(context).ToString();
+                var kind = info.Kind.EvaluateExpression(context).ToString();
+                var config = info.Config?.EvaluateExpression(context);
 
-                JToken? config = null;
-                if (externalInputInfo.Config is { } configExpression)
-                {
-                    config = converter.ConvertExpression(configExpression).EvaluateExpression(context);
-                }
-
-                resultBuilder.Add(new ExternalInputDefinition(externalInputInfo.DefinitionKey, kind, config));
+                resultBuilder.Add(new ExternalInputDefinition(info.DefinitionKey, kind, config));
             }
 
             return resultBuilder.ToImmutable();
@@ -797,45 +788,6 @@ public class ParameterAssignmentEvaluator
         {
             return ExpressionEvaluationResult.For([DiagnosticBuilder.ForPosition(expressionSyntax)
                 .FailedToEvaluateSubject("expression", expressionSyntax.ToString(), ex.Message)]);
-        }
-    }
-
-    /// <summary>
-    /// Rewrites the external input function calls to use the externalInputs function with the index of the external input.
-    /// e.g. externalInput('sys.cli', 'foo') becomes externalInputs('0')
-    /// </summary>
-    private class ExternalInputExpressionRewriter : ExpressionRewriteVisitor
-    {
-        private readonly ExternalInputReferences externalInputReferences;
-
-        private ExternalInputExpressionRewriter(
-            ExternalInputReferences externalInputReferences)
-        {
-            this.externalInputReferences = externalInputReferences;
-        }
-
-        public static Expression Rewrite(
-            Expression expression,
-            ExternalInputReferences externalInputReferences)
-        {
-            var visitor = new ExternalInputExpressionRewriter(externalInputReferences);
-            var rewritten = visitor.Replace(expression);
-            return rewritten;
-        }
-
-        public override Expression ReplaceFunctionCallExpression(FunctionCallExpression expression)
-        {
-            if (expression.SourceSyntax is FunctionCallSyntaxBase functionCallSyntax &&
-                externalInputReferences.ExternalInputInfoBySyntax.TryGetValue(functionCallSyntax, out var info))
-            {
-                return new FunctionCallExpression(
-                    functionCallSyntax,
-                    LanguageConstants.ExternalInputsArmFunctionName,
-                    [ExpressionFactory.CreateStringLiteral(info.DefinitionKey)]
-                );
-            }
-
-            return base.ReplaceFunctionCallExpression(expression);
         }
     }
 }
