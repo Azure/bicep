@@ -347,4 +347,22 @@ public static class TypeStringifier
         return
             $"{StringUtils.EscapeBicepPropertyName(property.Name)}: {StringifyCore(property.TypeReference.Type, property, strictness, visitedTypes)}";
     }
+
+    /// <summary>
+    /// Formats a resource-derived type reference (e.g., <c>resourceInput&lt;'Microsoft.Storage/storageAccounts@2022-09-01'&gt;.sku</c>).
+    /// </summary>
+    public static string FormatResourceDerivedType(IUnresolvedResourceDerivedType unresolved)
+    {
+        var pointer = unresolved.PointerSegments.Length > 0
+            ? $".{string.Join(".", unresolved.PointerSegments)}"
+            : string.Empty;
+
+        var keyword = unresolved.Variant switch
+        {
+            ResourceDerivedTypeVariant.Output => LanguageConstants.TypeNameResourceOutput,
+            _ => LanguageConstants.TypeNameResourceInput,
+        };
+
+        return $"{keyword}<'{unresolved.TypeReference.FormatName()}'>" + pointer;
+    }
 }
