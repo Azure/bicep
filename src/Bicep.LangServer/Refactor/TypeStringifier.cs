@@ -45,7 +45,7 @@ public static class TypeStringifier
     }
 
     // This works off of the syntax tree of the declared resource rather than the types due to type system limitations
-    public static string? TryGetResourceDerivedTypeName(SemanticModel semanticModel, ObjectPropertySyntax propertySyntax)
+    public static string? TryGetResourceDerivedTypeName(SemanticModel semanticModel, ObjectPropertySyntax propertySyntax, bool includeLeafProperties = false)
     {
         SyntaxBase? current = propertySyntax;
         string propertyAccessDotNotation = ""; // Includes leading periods
@@ -69,6 +69,19 @@ public static class TypeStringifier
 
                 if (isInterestingObjectType || declaredType is ArrayType)
                 {
+                    var propertyName = (objectPropertySyntax.Key as IdentifierSyntax)?.IdentifierName;
+                    if (propertyName is null)
+                    {
+                        return null;
+                    }
+
+                    propertyAccessDotNotation = $".{propertyName}{propertyAccessDotNotation}";
+                }
+                else if (includeLeafProperties)
+                {
+                    // When includeLeafProperties is true, include all property segments in the path
+                    // (e.g., for undefined symbol code fixes where the resource-derived type provides
+                    // better documentation and type safety than a simple primitive type).
                     var propertyName = (objectPropertySyntax.Key as IdentifierSyntax)?.IdentifierName;
                     if (propertyName is null)
                     {

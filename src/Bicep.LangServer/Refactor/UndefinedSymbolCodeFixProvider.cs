@@ -331,46 +331,20 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
     /// <summary>
     /// Detects when the undefined symbol is used as a resource property value,
     /// allowing generation of resource-derived types.
+    /// Delegates to <see cref="TypeStringifier.TryGetResourceDerivedTypeName"/> to avoid duplicating
+    /// the resource-derived type path-building logic.
     /// </summary>
     private static string? TryGetResourceInputTypeString(SemanticModel semanticModel, VariableAccessSyntax variableAccess)
     {
-        // Walk up to see if we're in a resource property assignment
-        SyntaxBase? current = variableAccess;
-        List<string> propertyPath = new();
-
-        // Build the property path by walking up through ObjectPropertySyntax nodes
-        while (current is not null)
+        // Find the nearest parent ObjectPropertySyntax — that's the starting point
+        // TypeStringifier.TryGetResourceDerivedTypeName expects.
+        var parentProperty = semanticModel.Binder.GetNearestAncestor<ObjectPropertySyntax>(variableAccess);
+        if (parentProperty is null)
         {
-            current = semanticModel.Binder.GetParent(current);
-
-            if (current is ObjectPropertySyntax objProp && objProp.TryGetKeyText() is string propName)
-            {
-                // Add property name to the front of the path (we're walking backwards)
-                propertyPath.Insert(0, propName);
-            }
-            else if (current is ResourceDeclarationSyntax resourceDecl)
-            {
-                // We've reached the resource declaration
-                // Generate resourceInput type for any resource property with a path
-                if (propertyPath.Count == 0)
-                {
-                    // No property path found
-                    return null;
-                }
-
-                // Try to get the resource type string
-                if (resourceDecl.Type is StringSyntax stringSyntax &&
-                    stringSyntax.TryGetLiteralValue() is string resourceTypeString)
-                {
-                    // Build the full type path: resourceInput<'Type@version'>.sku or .properties.encryption
-                    var fullPath = string.Join(".", propertyPath);
-                    return $"resourceInput<'{resourceTypeString}'>.{fullPath}";
-                }
-                break;
-            }
+            return null;
         }
 
-        return null;
+        return TypeStringifier.TryGetResourceDerivedTypeName(semanticModel, parentProperty, includeLeafProperties: true);
     }
 
     private static string? TryGetUserDefinedTypeName(SemanticModel semanticModel, VariableAccessSyntax variableAccess, DeclaredTypeAssignment? assignment)
