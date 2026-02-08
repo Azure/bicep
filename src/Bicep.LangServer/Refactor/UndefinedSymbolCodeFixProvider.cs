@@ -14,7 +14,6 @@ using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.SourceGraph;
-using Bicep.LanguageServer.Completions;
 using Bicep.Core.Text;
 using Bicep.Core.PrettyPrintV2;
 
@@ -27,14 +26,10 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
 {
     private const string DiagnosticCode = "BCP057";
 
-    private readonly SemanticModel semanticModel;
-
     public UndefinedSymbolCodeFixProvider(SemanticModel semanticModel)
     {
-        this.semanticModel = semanticModel;
+        // Constructor kept for ICodeFixProvider interface compatibility
     }
-
-    private string NewLine => semanticModel.Configuration.Formatting.Data.NewlineKind.ToEscapeSequence();
 
     public IEnumerable<CodeFix> GetFixes(SemanticModel semanticModel, IReadOnlyList<SyntaxBase> matchingNodes)
     {
@@ -104,10 +99,10 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
                 continue;
             }
 
-            var contextualType = NullIfErrorOrAny(semanticModel.GetDeclaredType(variableAccess));
+            var contextualType = TypeHelper.NullIfErrorOrAny(semanticModel.GetDeclaredType(variableAccess));
             var declaredAssignment = semanticModel.GetDeclaredTypeAssignment(variableAccess);
-            var declaredAssignmentType = NullIfErrorOrAny(declaredAssignment?.Reference.Type);
-            var inferredType = NullIfErrorOrAny(semanticModel.GetTypeInfo(variableAccess));
+            var declaredAssignmentType = TypeHelper.NullIfErrorOrAny(declaredAssignment?.Reference.Type);
+            var inferredType = TypeHelper.NullIfErrorOrAny(semanticModel.GetTypeInfo(variableAccess));
             var contextInferredType = InferByContext(semanticModel, variableAccess);
             var effectiveType = declaredAssignmentType ?? contextualType ?? inferredType ?? contextInferredType;
 
@@ -135,10 +130,11 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
                     ?? GetTypeString(effectiveType);
             }
 
-            // For variables, use simpler type string for initializer
-            var variableTypeString = GetTypeString(effectiveType);
+            // Variable declarations use SyntaxFactory so no string-based initializer needed
 
-            foreach (var fix in CreateQuickFixes(parentStatement, name, parameterTypeString, variableTypeString, effectiveType, NewLine))
+            var prettyPrintContext = PrettyPrinterV2Context.From(semanticModel);
+
+            foreach (var fix in CreateQuickFixes(semanticModel, prettyPrintContext, parentStatement, name, parameterTypeString, effectiveType))
             {
                 results.Add(fix);
             }
@@ -147,19 +143,44 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
         return results;
     }
 
-    private IEnumerable<CodeFix> CreateQuickFixes(StatementSyntax parentStatement, string name, string parameterTypeString, string variableTypeString, TypeSymbol? effectiveType, string newline)
+    private static IEnumerable<CodeFix> CreateQuickFixes(
+        SemanticModel semanticModel,
+        PrettyPrinterV2Context prettyPrintContext,
+        StatementSyntax parentStatement,
+        string name,
+        string parameterTypeString,
+        TypeSymbol? effectiveType)
     {
-        var parameterInsertionOffset = FindInsertionOffset(parentStatement, typeof(ParameterDeclarationSyntax));
-        var parameterText = BuildDeclarationText(parameterInsertionOffset, $"param {name} {parameterTypeString}", newline);
+        // Parameter declaration
+        var (parameterInsertionOffset, _, _) = DeclarationInsertionHelper.FindOffsetToInsertNewDeclaration(
+            semanticModel.SourceFile,
+            parentStatement,
+            parentStatement.Span.Position,
+            typeof(ParameterDeclarationSyntax));
+        var parameterText = BuildDeclarationText(
+            semanticModel,
+            prettyPrintContext,
+            parameterInsertionOffset,
+            $"param {name} {parameterTypeString}");
         yield return new CodeFix(
             $"Create parameter '{name}'",
             isPreferred: false,
             CodeFixKind.QuickFix,
             new CodeReplacement(new TextSpan(parameterInsertionOffset, 0), parameterText));
 
-        var variableInsertionOffset = FindInsertionOffset(parentStatement, typeof(VariableDeclarationSyntax));
+        // Variable declaration via SyntaxFactory
+        var (variableInsertionOffset, _, _) = DeclarationInsertionHelper.FindOffsetToInsertNewDeclaration(
+            semanticModel.SourceFile,
+            parentStatement,
+            parentStatement.Span.Position,
+            typeof(VariableDeclarationSyntax));
         var defaultInitializer = GetDefaultInitializer(effectiveType);
-        var variableText = BuildDeclarationText(variableInsertionOffset, $"var {name} = {defaultInitializer}", newline);
+        var variableDeclaration = SyntaxFactory.CreateVariableDeclaration(name, defaultInitializer);
+        var variableText = BuildDeclarationText(
+            semanticModel,
+            prettyPrintContext,
+            variableInsertionOffset,
+            PrettyPrinterV2.Print(variableDeclaration, prettyPrintContext).TrimEnd());
         yield return new CodeFix(
             $"Create variable '{name}'",
             isPreferred: false,
@@ -172,20 +193,20 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
     /// Ensures consistent formatting: adds newlines to create one blank line
     /// between the new declaration and existing code.
     /// </summary>
-    private string BuildDeclarationText(int insertionOffset, string declaration, string newline)
+    private static string BuildDeclarationText(SemanticModel semanticModel, PrettyPrinterV2Context prettyPrintContext, int insertionOffset, string declaration)
     {
-        var existingNewlines = CountConsecutiveNewlinesAtOffset(insertionOffset, newline);
+        var existingNewlines = CountConsecutiveNewlinesAtOffset(semanticModel, insertionOffset, prettyPrintContext.Newline);
 
         // Target spacing: one blank line after the declaration (2 newlines total).
         // If we're already on a blank line, add just enough to separate cleanly.
         var totalDesiredNewlines = 2;
         var additionalNewlines = Math.Max(totalDesiredNewlines - existingNewlines, 1);
-        var spacing = string.Concat(Enumerable.Repeat(newline, additionalNewlines));
+        var spacing = string.Concat(Enumerable.Repeat(prettyPrintContext.Newline, additionalNewlines));
 
         return $"{declaration}{spacing}";
     }
 
-    private int CountConsecutiveNewlinesAtOffset(int insertionOffset, string newline)
+    private static int CountConsecutiveNewlinesAtOffset(SemanticModel semanticModel, int insertionOffset, string newline)
     {
         var lineStarts = semanticModel.SourceFile.LineStarts;
         if (lineStarts.Length == 0 || insertionOffset < 0 || insertionOffset > semanticModel.SourceFile.Text.Length)
@@ -222,34 +243,6 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
         return count;
     }
 
-    /// <summary>
-    /// Finds optimal insertion point for a new declaration.
-    /// Inserts after existing declarations of the same type, or before the anchor
-    /// statement if no prior declarations of that type exist.
-    /// </summary>
-    private int FindInsertionOffset(StatementSyntax anchorStatement, Type declarationType)
-    {
-        var sourceFile = semanticModel.SourceFile;
-        var lineStarts = sourceFile.LineStarts;
-
-        var existing = sourceFile.ProgramSyntax.Children.OfType<StatementSyntax>()
-            .Where(s => s.GetType() == declarationType && s.Span.Position < anchorStatement.Span.Position)
-            .OrderByDescending(s => s.Span.Position)
-            .FirstOrDefault();
-
-        if (existing is { })
-        {
-            var insertLine = TextCoordinateConverter.GetPosition(lineStarts, existing.GetEndPosition()).line + 1;
-            return TextCoordinateConverter.GetOffset(lineStarts, insertLine, 0);
-        }
-
-        var anchorStartLine = ExpressionAndTypeExtractor.GetFirstLineOfStatementIncludingComments(
-            lineStarts,
-            sourceFile.ProgramSyntax,
-            anchorStatement);
-        return TextCoordinateConverter.GetOffset(lineStarts, anchorStartLine, 0);
-    }
-
     private static string GetTypeString(TypeSymbol? type)
     {
         // Use TypeStringifier for consistent type string generation
@@ -258,22 +251,22 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
         return TypeStringifier.Stringify(type, typeProperty: null, TypeStringifier.Strictness.Medium, removeTopLevelNullability: true);
     }
 
-    private static string GetDefaultInitializer(TypeSymbol? type)
+    private static SyntaxBase GetDefaultInitializer(TypeSymbol? type)
     {
         return GetDefaultInitializerCore(type, []);
     }
 
-    private static string GetDefaultInitializerCore(TypeSymbol? type, HashSet<TypeSymbol> visitedTypes)
+    private static SyntaxBase GetDefaultInitializerCore(TypeSymbol? type, HashSet<TypeSymbol> visitedTypes)
     {
         if (type is null)
         {
-            return "''";
+            return SyntaxFactory.CreateStringLiteral(string.Empty);
         }
 
         // Prevent infinite recursion for recursive types
         if (visitedTypes.Contains(type))
         {
-            return "{}";
+            return SyntaxFactory.CreateObject([]);
         }
 
         // Handle nullable types - use the non-null default
@@ -284,20 +277,20 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
 
         return type switch
         {
-            BooleanLiteralType boolLit => boolLit.Value.ToString().ToLowerInvariant(),
-            BooleanType => "false",
-            IntegerLiteralType intLit => intLit.Value.ToString(),
-            IntegerType => "0",
-            StringLiteralType strLit => StringUtils.EscapeBicepString(strLit.RawStringValue),
-            StringType => "''",
-            ArrayType or TypedArrayType or TupleType => "[]",
+            BooleanLiteralType boolLit => SyntaxFactory.CreateBooleanLiteral(boolLit.Value),
+            BooleanType => SyntaxFactory.CreateBooleanLiteral(false),
+            IntegerLiteralType intLit => SyntaxFactory.CreatePositiveOrNegativeInteger(intLit.Value),
+            IntegerType => SyntaxFactory.CreateIntegerLiteral(0),
+            StringLiteralType strLit => SyntaxFactory.CreateStringLiteral(strLit.RawStringValue),
+            StringType => SyntaxFactory.CreateStringLiteral(string.Empty),
+            ArrayType or TypedArrayType or TupleType => SyntaxFactory.CreateArray([]),
             ObjectType objectType => GetDefaultInitializerForObject(objectType, visitedTypes),
             UnionType union => GetDefaultInitializerForUnion(union, visitedTypes),
-            _ => "''"
+            _ => SyntaxFactory.CreateStringLiteral(string.Empty)
         };
     }
 
-    private static string GetDefaultInitializerForObject(ObjectType objectType, HashSet<TypeSymbol> visitedTypes)
+    private static SyntaxBase GetDefaultInitializerForObject(ObjectType objectType, HashSet<TypeSymbol> visitedTypes)
     {
         var writeableProperties = objectType.Properties.Values
             .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly))
@@ -306,34 +299,33 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
         // For empty objects or objects with only optional properties, just use {}
         if (writeableProperties.Length == 0)
         {
-            return "{}";
+            return SyntaxFactory.CreateObject([]);
         }
 
         // Limit object expansion to 5 properties to keep generated code readable;
         // larger objects are better left as {} for manual population
         if (writeableProperties.Length > 5)
         {
-            return "{}";
+            return SyntaxFactory.CreateObject([]);
         }
 
         visitedTypes = [.. visitedTypes, objectType];
 
         var properties = writeableProperties
-            .Select(p =>
-            {
-                var propName = StringUtils.EscapeBicepPropertyName(p.Name);
-                var defaultValue = GetDefaultInitializerCore(p.TypeReference.Type, visitedTypes);
-                return $"{propName}: {defaultValue}";
-            });
+            .Select(p => SyntaxFactory.CreateObjectProperty(
+                p.Name,
+                GetDefaultInitializerCore(p.TypeReference.Type, visitedTypes)));
 
-        return $"{{ {string.Join(", ", properties)} }}";
+        return SyntaxFactory.CreateObject(properties);
     }
 
-    private static string GetDefaultInitializerForUnion(UnionType union, HashSet<TypeSymbol> visitedTypes)
+    private static SyntaxBase GetDefaultInitializerForUnion(UnionType union, HashSet<TypeSymbol> visitedTypes)
     {
         // For unions, try to pick a reasonable default from the first non-null member
         var firstNonNullMember = union.Members.FirstOrDefault(m => m.Type is not NullType)?.Type;
-        return firstNonNullMember is not null ? GetDefaultInitializerCore(firstNonNullMember, visitedTypes) : "null";
+        return firstNonNullMember is not null
+            ? GetDefaultInitializerCore(firstNonNullMember, visitedTypes)
+            : SyntaxFactory.CreateNullLiteral();
     }
 
     /// <summary>
@@ -470,8 +462,6 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
         return isNullable ? $"{typeAlias.Name}?" : typeAlias.Name;
     }
 
-    private static TypeSymbol? NullIfErrorOrAny(TypeSymbol? type) => type is ErrorType or AnyType ? null : type;
-
     private static bool SpansOverlap(int requestStart, int requestEnd, TextSpan span) =>
         requestStart <= span.GetEndPosition() && requestEnd >= span.Position;
 
@@ -479,10 +469,15 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
     /// Checks if the child syntax node is contained within the parent syntax node's span.
     /// This is used instead of reference equality when walking up the syntax tree,
     /// because the child may be wrapped in intermediate nodes (e.g., parentheses).
+    /// Uses <see cref="IPositionableExtensions.IsOverlapping(IPositionable,int)"/> to
+    /// avoid duplicating span comparison logic.
     /// </summary>
-    private static bool IsContainedIn(SyntaxBase child, SyntaxBase parent) =>
-        child.Span.Position >= parent.Span.Position &&
-        child.Span.GetEndPosition() <= parent.Span.GetEndPosition();
+    private static bool IsContainedIn(SyntaxBase child, SyntaxBase parent)
+    {
+        var span = child.Span;
+        return parent.IsOverlapping(span.Position) &&
+               parent.IsOverlapping(span.GetEndPosition());
+    }
 
     private static string? TryGetModuleParameterTypeString(SemanticModel semanticModel, VariableAccessSyntax variableAccess)
     {
@@ -545,7 +540,7 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
 
                 if (parameterType is IUnresolvedResourceDerivedType unresolvedResourceDerivedType)
                 {
-                    return FormatResourceDerivedType(unresolvedResourceDerivedType);
+                    return TypeStringifier.FormatResourceDerivedType(unresolvedResourceDerivedType);
                 }
 
                 return GetTypeString(parameterType);
@@ -555,21 +550,6 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
         }
 
         return null;
-    }
-
-    private static string FormatResourceDerivedType(IUnresolvedResourceDerivedType unresolved)
-    {
-        var pointer = unresolved.PointerSegments.Length > 0
-            ? $".{string.Join(".", unresolved.PointerSegments)}"
-            : string.Empty;
-
-        var keyword = unresolved.Variant switch
-        {
-            ResourceDerivedTypeVariant.Output => "resourceOutput",
-            _ => "resourceInput",
-        };
-
-        return $"{keyword}<'{unresolved.TypeReference.FormatName()}'>" + pointer;
     }
 
     /// <summary>
@@ -608,14 +588,19 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
             return LanguageConstants.Array;
         }
 
-        // Try to derive from enclosing property type (e.g., resource property).
-        if (semanticModel.Binder.GetParent(variableAccess) is SyntaxBase parent)
+        // Walk ancestors to find a non-error declared type that applies to this
+        // expression position, handling cases where the access is wrapped in
+        // neutral syntax nodes (e.g., parentheses).
+        SyntaxBase? current = semanticModel.Binder.GetParent(variableAccess);
+        while (current is not null)
         {
-            var declaredType = semanticModel.GetDeclaredType(parent);
-            if (declaredType is not null && declaredType is not ErrorType && declaredType is not AnyType)
+            var declaredType = TypeHelper.NullIfErrorOrAny(semanticModel.GetDeclaredType(current));
+            if (declaredType is not null)
             {
                 return declaredType;
             }
+
+            current = semanticModel.Binder.GetParent(current);
         }
 
         return null;
@@ -725,9 +710,10 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
                 // Use span-based containment to determine which operand contains the access
                 // This handles cases where access is wrapped (e.g., in parentheses)
                 var otherExpression = IsContainedIn(access, binary.LeftExpression) ? binary.RightExpression : binary.LeftExpression;
-                var otherType = NullIfErrorOrAny(model.GetTypeInfo(otherExpression));
+                var otherType = model.GetTypeInfo(otherExpression);
 
-                if (TryMapToPrimitive(otherType) is { } primitiveType)
+                if (TypeHelper.TryGetArmPrimitiveType(otherType) is { } primitiveType &&
+                    primitiveType is StringType or IntegerType or BooleanType)
                 {
                     return primitiveType;
                 }
@@ -737,24 +723,6 @@ public class UndefinedSymbolCodeFixProvider : ICodeFixProvider
         }
 
         return null;
-    }
-
-    private static TypeSymbol? TryMapToPrimitive(TypeSymbol? type)
-    {
-        if (type is null)
-        {
-            return null;
-        }
-
-        var nonNullable = TypeHelper.TryRemoveNullability(type) ?? type;
-
-        return nonNullable switch
-        {
-            StringLiteralType or StringType => LanguageConstants.String,
-            IntegerLiteralType or IntegerType => LanguageConstants.Int,
-            BooleanLiteralType or BooleanType => LanguageConstants.Bool,
-            _ => null,
-        };
     }
 
 }

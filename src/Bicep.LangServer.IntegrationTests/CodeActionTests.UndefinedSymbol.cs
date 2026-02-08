@@ -361,7 +361,11 @@ public partial class CodeActionTests : CodeActionTestBase
               name: string
             }
 
-            var config = { count: 0, enabled: false, name: '' }
+            var config = {
+              count: 0
+              enabled: false
+              name: ''
+            }
 
             output out ConfigType = config
             """);
@@ -482,7 +486,10 @@ public partial class CodeActionTests : CodeActionTestBase
               numbers: int
             }
 
-            var myParam = { name: '', numbers: 0 }
+            var myParam = {
+              name: ''
+              numbers: 0
+            }
 
             output myOutput myType = myParam
             """);
