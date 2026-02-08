@@ -2,14 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
-using System.Drawing.Text;
-using System.Text;
 using System.Text.RegularExpressions;
-using Azure.Core.GeoJson;
 using Bicep.Core;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Extensions;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics;
@@ -18,16 +14,13 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Model;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using static Bicep.LanguageServer.Completions.BicepCompletionContext;
 using static Bicep.LanguageServer.Refactor.TypeStringifier;
 using static Bicep.LanguageServer.Telemetry.BicepTelemetryEvent;
-using static Google.Protobuf.Reflection.ExtensionRangeOptions.Types;
 using Type = System.Type;
 
 namespace Bicep.LanguageServer.Refactor;
@@ -147,7 +140,7 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
         //   what we're assigning to), otherwise use the actual calculated type of the expression
         var inferredType = semanticModel.GetTypeInfo(extractionContext.ExpressionSyntax);
         var declaredType = semanticModel.GetDeclaredType(extractionContext.ExpressionSyntax);
-        var newParamType = NullIfErrorOrAny(declaredType) ?? NullIfErrorOrAny(inferredType);
+        var newParamType = TypeHelper.NullIfErrorOrAny(declaredType) ?? TypeHelper.NullIfErrorOrAny(inferredType);
 
         // Don't create nullable params - they're not allowed to have default values
         const bool ignoreTopLevelNullability = true;
@@ -248,7 +241,7 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
         }
 
         var parentStatementPosition = extractionContext.ParentStatement.Span.Position;
-        var (declarationInsertionOffset, insertNewlineBefore, insertNewlineAfter) = FindOffsetToInsertNewDeclaration(semanticModel.SourceFile, extractionContext.ParentStatement, parentStatementPosition, declarationStatementSyntaxType);
+        var (declarationInsertionOffset, insertNewlineBefore, insertNewlineAfter) = DeclarationInsertionHelper.FindOffsetToInsertNewDeclaration(semanticModel.SourceFile, extractionContext.ParentStatement, parentStatementPosition, declarationStatementSyntaxType);
         var declarationInsertionPosition = TextCoordinateConverter.GetPosition(semanticModel.SourceFile.LineStarts, declarationInsertionOffset);
 
         var newName = FindUnusedValidName(extractionContext, defaultNoncontextualName);
@@ -344,8 +337,6 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
         return prettyDeclarationText;
     }
 
-    private static TypeSymbol? NullIfErrorOrAny(TypeSymbol? type) => TypeHelper.NullIfErrorOrAny(type);
-
     private string FindUnusedValidName(ExtractionContext extractionContext, string defaultNonContextualName)
     {
         var preferredName = extractionContext.ContextDerivedName ?? defaultNonContextualName;
@@ -379,14 +370,6 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
                 .TruncateWithEllipses(MaxExpressionLengthInCodeAction)
                 .Trim()
             + "\"";
-    }
-
-    // Finds a suitable location to create a new declaration, putting it near existing declarations of that type
-    //   *above the extraction point*, if there are any.
-    private (int offset, bool insertNewlineBefore, bool insertNewlineAfter) FindOffsetToInsertNewDeclaration(BicepSourceFile sourceFile, StatementSyntax extractionStatement, int extractionOffset, Type declarationSyntaxType)
-    {
-        return DeclarationInsertionHelper.FindOffsetToInsertNewDeclaration(
-            sourceFile, extractionStatement, extractionOffset, declarationSyntaxType);
     }
 
     public static (bool hasContent, bool hasComments) CheckLineContent(IReadOnlyList<int> lineStarts, SyntaxBase programSyntax, int line)
