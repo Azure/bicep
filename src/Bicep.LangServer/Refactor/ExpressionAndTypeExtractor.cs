@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Drawing.Text;
 using System.Text;
@@ -48,21 +47,6 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
         TypeProperty? TypeProperty, // The type property for PropertySyntax
         string? ContextDerivedName  // Suggested name based on context
     );
-
-    private record LineContentType
-    {
-        public LineContentType((bool hasContent, bool hasComments) checkResult)
-        {
-            HasContent = checkResult.hasContent;
-            HasComments = checkResult.hasComments;
-        }
-
-        public bool HasContent { get; init; }
-        public bool HasComments { get; init; }
-        public bool IsEmpty => !HasContent && !HasComments;
-        public bool IsNotEmpty => !IsEmpty;
-        public bool HasCommentsOnly => !HasContent && HasComments;
-    }
 
     public ExpressionAndTypeExtractor(SemanticModel semanticModel)
     {
@@ -360,7 +344,7 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
         return prettyDeclarationText;
     }
 
-    private TypeSymbol? NullIfErrorOrAny(TypeSymbol? type) => type is ErrorType || type is AnyType ? null : type;
+    private static TypeSymbol? NullIfErrorOrAny(TypeSymbol? type) => TypeHelper.NullIfErrorOrAny(type);
 
     private string FindUnusedValidName(ExtractionContext extractionContext, string defaultNonContextualName)
     {
@@ -401,134 +385,17 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
     //   *above the extraction point*, if there are any.
     private (int offset, bool insertNewlineBefore, bool insertNewlineAfter) FindOffsetToInsertNewDeclaration(BicepSourceFile sourceFile, StatementSyntax extractionStatement, int extractionOffset, Type declarationSyntaxType)
     {
-        ImmutableArray<int> lineStarts = sourceFile.LineStarts;
-
-        var extractionLine = TextCoordinateConverter.GetPosition(lineStarts, extractionOffset).line;
-
-        var existingDeclarationStatement = sourceFile.ProgramSyntax.Children.OfType<StatementSyntax>()
-            .Where(s => s.GetType() == declarationSyntaxType)
-            .Where(s => s.Span.Position < extractionOffset)
-            .OrderByDescending(s => s.Span.Position)
-            .FirstOrDefault();
-        if (existingDeclarationStatement is { })
-        {
-            // Insert after the existing declaration of the same type
-            int existingDeclarationLine = TextCoordinateConverter.GetPosition(lineStarts, existingDeclarationStatement.GetEndPosition()).line;
-            var insertionLine = existingDeclarationLine + 1;
-
-            // Is there a blank line above this existing statement that we found (excluding its leading nodes/comments)?
-            //   If so, put one before the new declaration as well.
-            var (addBlankBefore, addBlankAfter) = ShouldAddBlankLines(existingDeclarationStatement);
-            return (TextCoordinateConverter.GetOffset(lineStarts, insertionLine, 0), addBlankBefore, addBlankAfter);
-        }
-
-        // If no existing declarations of the desired type, insert right before the statement containing the extraction expression
-        var extractionStatementFirstLine = GetFirstLineOfStatementIncludingComments(semanticModel.SourceFile, extractionStatement);
-        var extractionLineHasNewlineBefore = IsFirstLine(extractionStatementFirstLine) || CheckLineContent(extractionStatementFirstLine - 1).IsEmpty;
-        return (TextCoordinateConverter.GetOffset(lineStarts, extractionLine, 0), false, extractionLineHasNewlineBefore);
+        return DeclarationInsertionHelper.FindOffsetToInsertNewDeclaration(
+            sourceFile, extractionStatement, extractionOffset, declarationSyntaxType);
     }
-
-    private bool IsFirstLine(int line) => line == 0;
-
-    private bool IsLastLine(int line) => line >= semanticModel.SourceFile.LineStarts.Length - 1;
-
-    private LineContentType CheckLineContent(int line) =>
-        new(CheckLineContent(semanticModel.SourceFile.LineStarts, semanticModel.SourceFile.ProgramSyntax, line));
 
     public static (bool hasContent, bool hasComments) CheckLineContent(IReadOnlyList<int> lineStarts, SyntaxBase programSyntax, int line)
     {
-        var lineSpan = TextCoordinateConverter.GetLineSpan(lineStarts, programSyntax.GetEndPosition(), line);
-        var visitor = new CheckContentVisitor(lineSpan);
-        programSyntax.Accept(visitor);
-        return (visitor.HasContent, visitor.HasComments);
+        return StatementLineHelper.CheckLineContent(lineStarts, programSyntax, line);
     }
-
-    private static int GetFirstLineOfStatementIncludingComments(BicepSourceFile sourceFile, StatementSyntax statementSyntax) =>
-        GetFirstLineOfStatementIncludingComments(sourceFile.LineStarts, sourceFile.ProgramSyntax, statementSyntax);
 
     public static int GetFirstLineOfStatementIncludingComments(IReadOnlyList<int> lineStarts, ProgramSyntax programSyntax, StatementSyntax statementSyntax)
     {
-        var statementStartLine = TextCoordinateConverter.GetPosition(lineStarts, statementSyntax.Span.Position).line; // Includes trivia but not comments
-
-        for (int line = statementStartLine; line >= 1; --line)
-        {
-            var (hasContent, hasComments) = CheckLineContent(lineStarts, programSyntax, line - 1);
-            if (hasComments && !hasContent)
-            {
-                continue;
-            }
-            else
-            {
-                return line;
-            }
-        }
-
-        return 0;
-    }
-
-    private static int GetLastLineOfStatement(BicepSourceFile sourceFile, StatementSyntax statementSyntax)
-    {
-        return TextCoordinateConverter.GetPosition(sourceFile.LineStarts, statementSyntax.GetEndPosition()).line;
-    }
-
-    private (bool addBefore, bool addAfter) ShouldAddBlankLines(StatementSyntax statementSyntax)
-    {
-        bool addBefore = false;
-        bool addAfter = false;
-
-        var startingLine = GetFirstLineOfStatementIncludingComments(semanticModel.SourceFile, statementSyntax);
-        var endingLine = GetLastLineOfStatement(semanticModel.SourceFile, statementSyntax);
-
-        bool? hasBlankLineBefore = IsFirstLine(startingLine) ? null : CheckLineContent(startingLine - 1).IsEmpty;
-        bool? hasBlankLineAfter = IsLastLine(endingLine) ? null : CheckLineContent(endingLine + 1).IsEmpty;
-
-        bool existingDeclarationUsesBlankLines = hasBlankLineBefore ?? hasBlankLineAfter ?? true;
-        addBefore = existingDeclarationUsesBlankLines;
-        addAfter = hasBlankLineAfter ?? true;
-
-        // Don't add another after if there's already one
-        addAfter = addAfter && (IsLastLine(endingLine) || CheckLineContent(endingLine + 1).IsNotEmpty);
-
-        return (addBefore, addAfter);
-    }
-
-    private sealed class CheckContentVisitor : CstVisitor
-    {
-        private readonly TextSpan span;
-
-        public CheckContentVisitor(TextSpan span)
-        {
-            this.span = span;
-        }
-
-        public bool HasContent { get; private set; } = false;
-        public bool HasComments { get; private set; } = false;
-        public bool HasContentOrComments => HasContent || HasComments;
-
-        public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
-        {
-            if (!HasComments && TextSpan.AreOverlapping(span, syntaxTrivia.Span))
-            {
-                if (syntaxTrivia.Type == SyntaxTriviaType.SingleLineComment || syntaxTrivia.Type == SyntaxTriviaType.MultiLineComment)
-                {
-                    HasComments = true;
-                }
-            }
-        }
-
-        protected override void VisitInternal(SyntaxBase node)
-        {
-            if ((HasComments && HasContent) || !TextSpan.AreOverlapping(span, node.GetSpanIncludingTrivia()))
-            {
-                return;
-            }
-
-            if (!HasContent && node is Token token && token.Text.Trim().Length > 0)
-            {
-                HasContent = true;
-            }
-
-            base.VisitInternal(node);
-        }
+        return StatementLineHelper.GetFirstLineOfStatementIncludingComments(lineStarts, programSyntax, statementSyntax);
     }
 }
