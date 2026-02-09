@@ -19,8 +19,8 @@ namespace Bicep.Core.SourceGraph
         BicepFile CreateBicepFile(IFileHandle fileHandle, string fileContents);
 
         BicepParamFile CreateBicepParamFile(IOUri fileUri, string fileContents);
-        
-        BicepReplFile CreateBicepReplFile(IFileHandle fileHandle, string fileContents);
+
+        BicepReplFile CreateBicepReplFile(IFileHandle fileHandle, IDirectoryHandle auxiliaryDirectoryHandle, string fileContents);
 
         ArmTemplateFile CreateArmTemplateFile(IOUri fileUri, string fileContents);
 

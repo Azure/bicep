@@ -110,5 +110,8 @@ namespace Bicep.Core.Semantics
 
         public static bool IsExported(this Symbol symbol, SemanticModel model)
             => TryGetDecorator(symbol, model, SystemNamespaceType.BuiltInName, LanguageConstants.ExportPropertyName) is { };
+
+        public static ISemanticModel GetSemanticModel(this DeclaredSymbol symbol)
+            => symbol.Context.ModelLookup.GetSemanticModel(symbol.Context.SourceFile);
     }
 }

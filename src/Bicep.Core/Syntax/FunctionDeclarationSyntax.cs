@@ -6,22 +6,16 @@ using Bicep.Core.Text;
 
 namespace Bicep.Core.Syntax;
 
-public class FunctionDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
+public class FunctionDeclarationSyntax : NamedDeclarationSyntax
 {
     public FunctionDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase lambda)
-        : base(leadingNodes)
+        : base(keyword, name, leadingNodes)
     {
         AssertKeyword(keyword, nameof(keyword), LanguageConstants.FunctionKeyword);
         AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
 
-        this.Keyword = keyword;
-        this.Name = name;
         this.Lambda = lambda;
     }
-
-    public Token Keyword { get; }
-
-    public IdentifierSyntax Name { get; }
 
     public SyntaxBase Lambda { get; }
 

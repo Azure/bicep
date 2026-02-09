@@ -6,6 +6,16 @@ Extendable Bicep Parameter Files (enabled with the `extend` keyword) is a featur
 
 When using extendable bicep parameter files, you will have a main `.bicepparam` file that can be consumed by multiple extended `.bicepparam` files.
 
+> NOTE: This feature is experimental. Enable it in `bicepconfig.json` under `experimentalFeaturesEnabled.extendableParamFiles` before use.
+>
+>```json
+>{
+>  "experimentalFeaturesEnabled": {
+>    "extendableParamFiles": true
+>  }
+>}
+>```
+
 ## Example Usage
 
 `main.bicep` This is your main bicep file, which will define your parameters for deployment.
@@ -13,7 +23,7 @@ When using extendable bicep parameter files, you will have a main `.bicepparam` 
 ```bicep
 param namePrefix string
 param location string
-param tag string
+param tags object
 ```
 
 `root.bicepparam` This is your main bicepparam file, which can be reused by multiple extended .bicepparam files and in multiple deployments.
@@ -24,6 +34,10 @@ using none
 
 param namePrefix = 'Prod'
 param location = 'westus'
+param tags = {
+  environment: 'dev'
+  owner: 'platform'
+}
 ```
 
 `leaf.bicepparam` This is your extended bicepparam file, which will refer to one main.bicep file and one main .bicepparam file. Any parameter value in this file will override all previous values.
@@ -34,19 +48,71 @@ using 'main.bicep'
 extends 'root.bicepparam'
 
 param namePrefix = 'Dev'
-param tag = 'test'
+param tags = {
+  ...base.tags        // inherit the object from the base file
+  environment: 'prod' // override a single property
+  region: 'westus2'   // add new data
+}
 ```
 
 Resolved Values
+
 | Param | Value |
 | -- | -- |
 | namePrefix | `'Dev'` |
 | location | `'westus'` |
-| tag | `'test'` |
+| tags | `{ environment: 'prod', owner: 'platform', region: 'westus2' }` |
 
-**Note**: Any parameter values in the **`leaf.bicepparam`** file will override the values of the parameter in **both** the `main.bicep` and `root.bicepparam` files. So in this case, `namePrefix`is defined in both the `root.bicepparam` and `leaf.bicepparam` files, and is given the value `Dev` as defined in the `leaf.bicepparam` file, overriding the original value of `Prod`.
+**Note**: Any parameter values in the **`leaf.bicepparam`** file will override the values of the parameter in **both** the `main.bicep` and `root.bicepparam` files. In the example, `namePrefix` is defined in both the `root.bicepparam` and `leaf.bicepparam` files and resolves to `Dev` from the leaf file. The `tags` object is merged using `base.tags`, preserving `owner` while overriding `environment` and adding `region`.
+
+### Accessing parent parameters with `base`
+
+When a parameters file declares an `extends` clause, the `base` identifier becomes available and exposes the parent file's parameters as properties. Use it to merge or extend values instead of retyping them.
+
+```bicep
+// shared.bicepparam
+using none
+
+param app = {
+  name: 'demo'
+  tags: {
+    owner: 'platform'
+    environment: 'dev'
+  }
+}
+param locations = ['westus', 'eastus']
+
+// child.bicepparam
+using './main.bicep'
+extends './shared.bicepparam'
+
+// Merge objects
+param app = {
+  ...base.app
+  tags: {
+    ...base.app.tags
+    environment: 'prod'
+    costCenter: '1234'
+  }
+}
+
+// Merge arrays
+param locations = [...base.locations, 'centralus']
+
+// Use base in expressions or variables
+var suffix = '-api'
+param fullName = '${base.app.name}${suffix}'
+```
+
+**Rules and tips**
+
+- `base` is only available when the file has a single `extends` clause. Using it without `extends` results in an error.
+- `base` is reserved; you cannot redeclare it as a parameter or variable.
+- Object and array spreads work with `base` for merging. Spreading a non-object/non-array value fails during compilation.
+- Types must still align with the target parameter type; incompatible overrides produce type errors.
 
 ### Nested Parameter Files
+
 We also support nested parameter files, so that `a.bicepparam` extends `b.bicepparam` extends `c.bicepparam`. In this case, you will use `using none` for file `a.bicepparam` and `b.bicepparam`.
 
 ## Limitations

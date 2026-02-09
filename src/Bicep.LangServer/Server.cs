@@ -7,6 +7,7 @@ using System.ServiceProcess;
 using Bicep.Core.Features;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Tracing;
+using Bicep.Core.Utils;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Options;
 using Bicep.LanguageServer.Providers;
@@ -24,8 +25,10 @@ namespace Bicep.LanguageServer
     public class Server : IDisposable
     {
         private readonly OmnisharpLanguageServer server;
+        private readonly IEnvironment environment;
         public Server(BicepLangServerOptions bicepLangServerOptions, Action<LanguageServerOptions> onOptionsFunc)
         {
+            environment = new Core.Utils.Environment();
             server = OmnisharpLanguageServer.PreInit(options =>
             {
                 options
@@ -79,7 +82,8 @@ namespace Bicep.LanguageServer
         {
             await server.Initialize(cancellationToken);
 
-            server.LogInfo($"Running on processId {Environment.ProcessId}");
+            server.LogInfo($"Bicep version: {environment.GetVersionString()}, OS: {environment.CurrentPlatform?.ToString() ?? "unknown"}, Architecture: {environment.CurrentArchitecture}");
+            server.LogInfo($"Running on processId {System.Environment.ProcessId}");
 
             if (FeatureProvider.TracingEnabled)
             {

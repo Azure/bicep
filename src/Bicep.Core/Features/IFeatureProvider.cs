@@ -35,11 +35,11 @@ public interface IFeatureProvider
 
     bool ModuleExtensionConfigsEnabled { get; }
 
-    bool DesiredStateConfigurationEnabled { get; }
-
     bool UserDefinedConstraintsEnabled { get; }
 
     bool DeployCommandsEnabled { get; }
+
+    bool ThisNamespaceEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
@@ -59,9 +59,9 @@ public interface IFeatureProvider
                 (LocalDeployEnabled, "Enable local deploy", true, true),
                 (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
-                (DesiredStateConfigurationEnabled, "Enable defining Desired State Configuration documents", true, false),
                 (UserDefinedConstraintsEnabled, "Enable @validate() decorator", true, true),
                 (DeployCommandsEnabled, "Enable deploy commands", true, true),
+                (ThisNamespaceEnabled, "Enable 'this' namespace", true, true),
             })
             {
                 if (enabled)

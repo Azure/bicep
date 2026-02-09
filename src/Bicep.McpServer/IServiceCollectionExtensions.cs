@@ -10,6 +10,7 @@ using Bicep.McpServer.ResourceProperties;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using ModelContextProtocol.Protocol;
 
 namespace Bicep.McpServer;
 
@@ -20,29 +21,38 @@ public static class IServiceCollectionExtensions
         services
             .AddSingleton<ILogger<ResourceVisitor>>(NullLoggerFactory.Instance.CreateLogger<ResourceVisitor>())
             .AddSingleton<AzResourceTypeLoader>(provider => new(new AzTypeLoader()))
-            .AddSingleton<ResourceVisitor>();
+            .AddSingleton<ResourceVisitor>()
+            .AddBicepCore()
+            .AddBicepDecompiler();
 
         services
-            .AddSingleton<BicepTools>();
+            .AddSingleton<BicepTools>()
+            .AddSingleton<BicepCompilerTools>()
+            .AddSingleton<BicepDecompilerTools>()
+            .AddSingleton<BicepDeploymentTools>();
 
         return services.AddMcpServer(options =>
         {
             options.ServerInstructions = Constants.ServerInstructions;
         })
-        .WithTools<BicepTools>();
-    }
-
-    public static IServiceCollection WithAvmSupport(this IServiceCollection services)
-    {
-        // using type based registration for Http clients so dependencies can be injected automatically
-        // without manually constructing up the graph, see https://learn.microsoft.com/en-us/dotnet/core/extensions/httpclient-factory#typed-clients
-        services
-            .AddHttpClient<IPublicModuleIndexHttpClient, PublicModuleMetadataHttpClient>()
-            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+        .WithTools<BicepTools>()
+        .WithTools<BicepCompilerTools>()
+        .WithTools<BicepDecompilerTools>()
+        .WithTools<BicepDeploymentTools>()
+        .AddCallToolFilter((next) => async (request, cancellationToken) =>
+        {
+            try
             {
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-            });
-
-        return services;
+                return await next(request, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                return new CallToolResult
+                {
+                    Content = [new TextContentBlock { Text = $"Error: {ex.Message}" }],
+                    IsError = true
+                };
+            }
+        });
     }
 }

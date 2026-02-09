@@ -13,6 +13,7 @@ using Azure.Deployments.Engine.Definitions;
 using Azure.Deployments.Engine.Dependencies;
 using Azure.Deployments.Engine.DeploymentExpander;
 using Azure.Deployments.Engine.External;
+using Azure.Deployments.Engine.Http;
 using Azure.Deployments.Engine.Interfaces;
 using Azure.Deployments.Engine.Providers;
 using Azure.Deployments.Engine.Storage.Volatile;
@@ -31,7 +32,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Storage.Volatile;
 
 namespace Bicep.Local.Deploy.Engine;
 
-public static class IServiceCollectionExtensions
+internal static class IServiceCollectionExtensions
 {
     public static IServiceCollection RegisterLocalDeployServices(this IServiceCollection services, LocalExtensionDispatcher extensionHostManager)
     {
@@ -40,7 +41,7 @@ public static class IServiceCollectionExtensions
         services.AddSingleton<IDeploymentEventSource>(eventSource);
         services.AddSingleton<IDeploymentMetricsReporter, NoOpDeploymentMetricsReporter>();
 
-        services.AddSingleton<IHttpContentHandler, LocalHttpContentHandler>();
+        services.AddSingleton<IHttpResponseReader, DefaultHttpResponseReader>();
         services.AddSingleton<IKeyVaultDataProvider, LocalKeyVaultDataProvider>();
         services.AddSingleton<IAzureDeploymentSettings, LocalDeploymentSettings>();
         services.AddSingleton<IEnablementConfigProvider, LocalEnablementConfigProvider>();

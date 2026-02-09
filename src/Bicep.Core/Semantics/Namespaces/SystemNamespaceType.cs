@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
+using Azure.Deployments.Expression.Extensions;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -1279,14 +1280,16 @@ namespace Bicep.Core.Semantics.Namespaces
                 {
                     yield return new FunctionOverloadBuilder(LanguageConstants.ReadEnvVarBicepFunctionName)
                         .WithGenericDescription($"Reads the specified environment variable as bicep string.")
-                        .WithRequiredParameter("variableName", LanguageConstants.String, "The name of the environment variable.")
+                        .WithRequiredParameter("variableName", LanguageConstants.String, "The name of the environment variable.", flags: FunctionParameterFlags.Constant)
+                        .WithFlags(FunctionFlags.RequiresExternalInput)
                         .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, [new StringLiteralExpression(null, "sys.envVar"), .. exp.Parameters]))
                         .WithReturnType(LanguageConstants.String)
                         .Build();
 
                     yield return new FunctionOverloadBuilder(LanguageConstants.ReadCliArgBicepFunctionName)
                         .WithGenericDescription($"Reads the specified CLI argument as bicep string.")
-                        .WithRequiredParameter("argumentName", LanguageConstants.String, "The name of the CLI argument.")
+                        .WithRequiredParameter("argumentName", LanguageConstants.String, "The name of the CLI argument.", flags: FunctionParameterFlags.Constant)
+                        .WithFlags(FunctionFlags.RequiresExternalInput)
                         .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, [new StringLiteralExpression(null, "sys.cliArg"), .. exp.Parameters]))
                         .WithReturnType(LanguageConstants.String)
                         .Build();
@@ -1294,19 +1297,11 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 yield return new FunctionOverloadBuilder(LanguageConstants.ExternalInputBicepFunctionName)
                     .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
-                    .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
-                    .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
+                    .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.", flags: FunctionParameterFlags.Constant)
+                    .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.", flags: FunctionParameterFlags.Constant)
+                    .WithFlags(FunctionFlags.RequiresExternalInput)
                     .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, exp.Parameters))
-                    .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
-                    {
-                        var visitor = new CompileTimeConstantVisitor(diagnostics);
-                        foreach (var arg in functionCall.Arguments)
-                        {
-                            arg.Accept(visitor);
-                        }
-
-                        return new(LanguageConstants.Any);
-                    }, LanguageConstants.Any)
+                    .WithReturnType(LanguageConstants.Any)
                     .Build();
             }
 
@@ -1430,7 +1425,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             if (TryLoadTextContentFromFile(model, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null, characterLimit)
                 .IsSuccess(out var result, out var errorDiagnostic) &&
-                objectParser.TryExtractFromObject(result.Content, tokenSelectorPath, positionables, out errorDiagnostic, out var token))
+                objectParser.TryExtractFromObject(result.Content, tokenSelectorPath, positionables).IsSuccess(out var token, out errorDiagnostic))
             {
                 return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
             }
@@ -1666,10 +1661,10 @@ namespace Bicep.Core.Semantics.Namespaces
                 JValue value => value.Type switch
                 {
                     JTokenType.String => TypeFactory.CreateStringLiteralType(value.ToString(CultureInfo.InvariantCulture)),
-                    JTokenType.Integer => LanguageConstants.Int,
+                    JTokenType.Integer => TypeFactory.CreateIntegerLiteralType(value.ToLong()),
                     // Floats are currently not supported in Bicep, so fall back to the default behavior of "any"
                     JTokenType.Float => LanguageConstants.Any,
-                    JTokenType.Boolean => LanguageConstants.Bool,
+                    JTokenType.Boolean => TypeFactory.CreateBooleanLiteralType(value.ToObject<bool>()),
                     JTokenType.Null => LanguageConstants.Null,
                     _ => LanguageConstants.Any,
                 },
@@ -1844,24 +1839,14 @@ namespace Bicep.Core.Semantics.Namespaces
                             return;
                         }
 
-                        var targetTypeClause = UnwrapNullableSyntax(GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder));
-                        if (IsLiteralSyntax(targetTypeClause, typeManager))
+                        if (TypeHelper.TryGetArmPrimitiveType(targetType) is null)
                         {
-                            // @secure() is allowed on literal string and object types
-                            return;
+                            // if we won't be emitting a "type" constraint in the compiled JSON, we can't make it a secure type
+                            diagnosticWriter.Write(
+                                DiagnosticBuilder.ForPosition(decoratorSyntax).SecureDecoratorTargetMustFitWithinStringOrObject());
                         }
 
-                        if (targetTypeClause is not null &&
-                            binder.GetSymbolInfo(targetTypeClause) is AmbientTypeSymbol ambientType &&
-                            ambientType.DeclaringNamespace.ExtensionName.Equals(BuiltInName) &&
-                            ambientType.Name is LanguageConstants.TypeNameString or LanguageConstants.ObjectType)
-                        {
-                            // @secure() is allowed if the target's type syntax is "string" or "object"
-                            return;
-                        }
-
-                        diagnosticWriter.Write(
-                            DiagnosticBuilder.ForPosition(decoratorSyntax).SecureDecoratorOnlyAllowedOnStringsAndObjects());
+                        ValidateNotTargetingAlias(decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter);
                     })
                     .WithEvaluator((functionCall, decorated) =>
                     {

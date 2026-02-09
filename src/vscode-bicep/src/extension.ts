@@ -204,7 +204,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
           lm.registerMcpServerDefinitionProvider("bicep", {
             provideMcpServerDefinitions: async () => {
               const mcpServerPath = await ensureMcpServerExists(extensionContext);
-              return [new McpStdioServerDefinition("Bicep (EXPERIMENTAL)", dotnetCommandPath, [mcpServerPath])];
+              return [new McpStdioServerDefinition("Bicep", dotnetCommandPath, [mcpServerPath])];
             },
           }),
         );

@@ -40,7 +40,7 @@ jobs:
           - osx-arm64
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -52,14 +52,14 @@ jobs:
         run: dotnet publish --configuration release --self-contained true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
 
       - name: Upload Bicep
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: bicep-release-${{ matrix.rid }}
-          path: ./src/Bicep.Cli/bin/release/net8.0/${{ matrix.rid }}/publish/*
+          path: ./src/Bicep.Cli/bin/release/net10.0/${{ matrix.rid }}/publish/*
           if-no-files-found: error
 
       - name: Upload Bicep project assets file
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: bicep-project-assets-${{ matrix.rid }}
           path: ./src/Bicep.Cli/obj/project.assets.json
@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -82,7 +82,7 @@ jobs:
         run: dotnet pack --configuration release
 
       - name: Upload Packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: bicep-nupkg-any
           path: out/*
@@ -95,13 +95,13 @@ jobs:
       TURBO_TELEMETRY_DISABLED: 1
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -111,12 +111,12 @@ jobs:
       - name: Publish Language Server
         run: |
           dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
-          cp -R src/Bicep.LangServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepLanguageServer
+          cp -R src/Bicep.LangServer/bin/release/net10.0/publish ./src/vscode-bicep/bicepLanguageServer
 
       - name: Publish MCP Server
         run: |
           dotnet publish --configuration release ./src/Bicep.McpServer/Bicep.McpServer.csproj
-          cp -R src/Bicep.McpServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepMcpServer
+          cp -R src/Bicep.McpServer/bin/release/net10.0/publish ./src/vscode-bicep/bicepMcpServer
 
       - name: Check npm version
         run: npm -v
@@ -146,7 +146,7 @@ jobs:
         working-directory: ./src/vscode-bicep
 
       - name: Upload VSIX
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: vscode-bicep.vsix
           path: ./src/vscode-bicep/vscode-bicep.vsix
@@ -165,13 +165,13 @@ jobs:
           - macos-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -214,13 +214,13 @@ jobs:
             os: macos-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -230,12 +230,12 @@ jobs:
       - name: Publish Language Server
         run: |
           dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
-          cp -R src/Bicep.LangServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepLanguageServer
+          cp -R src/Bicep.LangServer/bin/release/net10.0/publish ./src/vscode-bicep/bicepLanguageServer
 
       - name: Publish MCP Server
         run: |
           dotnet publish --configuration release ./src/Bicep.McpServer/Bicep.McpServer.csproj
-          cp -R src/Bicep.McpServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepMcpServer
+          cp -R src/Bicep.McpServer/bin/release/net10.0/publish ./src/vscode-bicep/bicepMcpServer
 
       - name: Check npm version
         run: npm -v
@@ -293,7 +293,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -313,14 +313,14 @@ jobs:
 
       - name: Upload BicepInVisualStudio.sln build binlog
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: build-binlog-files
           path: ./src/binlog/bicep_in_visual_studio_build.binlog
           if-no-files-found: error
 
       - name: Upload BicepLanguageServerClient VSIX
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Bicep.VSLanguageServerClient.Vsix.vsix
           path: ./src/vs-bicep/Bicep.VSLanguageServerClient.Vsix/bin/Release/vs-bicep.vsix
@@ -350,7 +350,7 @@ jobs:
     needs: build-cli
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -359,13 +359,13 @@ jobs:
         uses: actions/setup-dotnet@v5
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: bicep-release-win-x64
           path: ./src/installer-win/bicep
 
       - name: Download Bicep CLI project assets file
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: bicep-project-assets-win-x64
           path: ./src/installer-win/bicep
@@ -374,10 +374,10 @@ jobs:
         run: dotnet build --configuration release ./src/installer-win/installer.proj
 
       - name: Upload Windows Installer
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: bicep-setup-win-x64
-          path: ./src/installer-win/bin/release/net8.0/bicep-setup-win-x64.exe
+          path: ./src/installer-win/bin/release/net10.0/bicep-setup-win-x64.exe
           if-no-files-found: error
 
   build-cli-nugets:
@@ -413,7 +413,7 @@ jobs:
             runTests: false
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -422,7 +422,7 @@ jobs:
         uses: actions/setup-dotnet@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -440,19 +440,19 @@ jobs:
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/tools
 
       - name: Download Bicep CLI project assets file
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: bicep-project-assets-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/tools
 
       - name: Download .Net Packages
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: bicep-nupkg-any
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
@@ -469,7 +469,7 @@ jobs:
         run: dotnet build --configuration Release /p:RuntimeSuffix=${{ matrix.rid }} ./src/Bicep.Cli.Nuget/nuget.proj
 
       - name: Upload CLI Package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: bicep-nupkg-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/*.nupkg
@@ -477,7 +477,7 @@ jobs:
 
       - name: Download CLI Package
         if: matrix.runTests
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: bicep-nupkg-${{ matrix.rid }}
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
@@ -492,7 +492,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -501,7 +501,7 @@ jobs:
         uses: actions/setup-dotnet@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 23
 
@@ -521,18 +521,18 @@ jobs:
         working-directory: ./src/playground
 
       - name: Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: playground
           path: ./src/playground/dist/*
           if-no-files-found: error
-
-  build-highlight-libs:
-    name: Build Highlight Libraries
+          
+  test-playground:
+    name: Test Playground
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -541,7 +541,53 @@ jobs:
         uses: actions/setup-dotnet@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
+        with:
+          node-version: 23
+    
+      - name: Install wasm tools workload
+        run: dotnet workload install wasm-tools
+        working-directory: ./src/playground
+
+      - name: Install Playground dependencies
+        run: npm ci
+        working-directory: ./src/playground
+
+      - name: Build
+        run: npm run package
+        working-directory: ./src/playground
+
+      - name: Run playground locally
+        run: npm run preview &
+        working-directory: ./src/playground
+        
+      - name: Build E2E Tests
+        run: dotnet build --configuration Release
+        working-directory: ./src/Bicep.Playground.E2ETests
+
+      - name: Install Playwright
+        run: pwsh bin/Release/net10.0/playwright.ps1 install --with-deps
+        working-directory: ./src/Bicep.Playground.E2ETests
+
+      - name: Run E2E Tests
+        run: dotnet test --configuration Release --no-build --nologo
+        working-directory: ./src/Bicep.Playground.E2ETests
+
+  build-highlight-libs:
+    name: Build Highlight Libraries
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -588,7 +634,7 @@ jobs:
           - os: macos-latest
             rid: osx-x64
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -597,12 +643,12 @@ jobs:
         uses: actions/setup-dotnet@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: bicep-release-${{ matrix.runtime.rid }}
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
@@ -655,7 +701,7 @@ jobs:
             os: macos-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -667,42 +713,12 @@ jobs:
         run: dotnet test --configuration release -- --filter '${{ matrix.config.filter }}' --report-trx --results-directory ${{ github.workspace }}/TestResults
 
       - name: Upload Test Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: TestResults-${{ matrix.config.name }}-${{ matrix.os }}
           path: ./TestResults/*.trx
           if-no-files-found: error
-
-  comment-test-summary:
-    name: "PR Comment: Dotnet Tests Summary"
-    needs: test-dotnet
-    runs-on: ubuntu-latest
-    permissions:
-      checks: write
-      pull-requests: write
-    if: always()
-
-    steps:
-      - name: Merge Test Results into Single Artifact (fewer artifacts to deal with in build)
-        uses: actions/upload-artifact/merge@v4
-        with:
-          name: TestResults
-          pattern: TestResults-*
-          delete-merged: true
-
-      - name: Download Test Results Artifact
-        uses: actions/download-artifact@v5
-        with:
-          pattern: TestResults
-          path: TestResults
-          merge-multiple: true
-
-      - name: Publish Dotnet Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        with:
-          check_name: Dotnet Test Results
-          files: "TestResults/**/*.trx"
 
   comment-preview-links:
     name: "PR Comment: Preview Links"
@@ -776,13 +792,13 @@ jobs:
     if: needs.can-run-live-tests.outputs.access_verified == 'true'
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
 
@@ -790,7 +806,7 @@ jobs:
         uses: actions/setup-dotnet@v5
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: bicep-release-${{ matrix.runtime.rid }}
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
@@ -839,14 +855,14 @@ jobs:
     if: needs.can-run-live-tests.outputs.access_verified == 'true'
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      # Cannot use actions/setup-node@v4 for linux-musl-x64
+      # Cannot use actions/setup-node@v6 for linux-musl-x64
       - name: Setup Node.js
         run: apk add --update nodejs npm
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v7
         with:
           name: bicep-release-linux-musl-x64
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli

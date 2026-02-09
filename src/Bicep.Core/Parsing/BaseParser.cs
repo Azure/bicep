@@ -1044,19 +1044,6 @@ namespace Bicep.Core.Parsing
             return current;
         }
 
-        private SyntaxBase MultilineString()
-        {
-            var token = reader.Read();
-            var stringValue = Lexer.TryGetMultilineStringValue(token);
-
-            if (stringValue is null)
-            {
-                return new SkippedTriviaSyntax(token.Span, token.AsEnumerable());
-            }
-
-            return new StringSyntax(token.AsEnumerable(), [], stringValue.AsEnumerable());
-        }
-
         protected Token NewLine()
         {
             return Expect(TokenType.NewLine, b => b.ExpectedNewLine());
@@ -1291,9 +1278,6 @@ namespace Bicep.Core.Parsing
                 case TokenType.StringLeftPiece:
                     return this.InterpolableString();
 
-                case TokenType.MultilineString:
-                    return this.MultilineString();
-
                 case TokenType.LeftBrace when HasExpressionFlag(expressionFlags, ExpressionFlags.AllowComplexLiterals):
                     return this.Object(expressionFlags);
 
@@ -1332,9 +1316,6 @@ namespace Bicep.Core.Parsing
                 case TokenType.StringComplete:
                 case TokenType.StringLeftPiece:
                     return AsStringTypeLiteral(this.InterpolableString());
-
-                case TokenType.MultilineString:
-                    return AsStringTypeLiteral(this.MultilineString());
 
                 case TokenType.LeftBrace:
                     return this.ObjectType();
@@ -1756,6 +1737,15 @@ namespace Bicep.Core.Parsing
         private WildcardImportSyntax WildcardImport() => new(Expect(TokenType.Asterisk, b => b.ExpectedCharacter("*")),
             new AliasAsClauseSyntax(ExpectKeyword(LanguageConstants.AsKeyword),
                 Identifier(b => b.ExpectedNamespaceIdentifier())));
+
+        protected SyntaxBase FunctionDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var keyword = ExpectKeyword(LanguageConstants.FunctionKeyword);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
+            var lambda = this.WithRecovery(() => this.TypedLambda(), GetSuppressionFlag(name), TokenType.NewLine);
+
+            return new FunctionDeclarationSyntax(leadingNodes, keyword, name, lambda);
+        }
 
         private CompileTimeImportFromClauseSyntax CompileTimeImportFromClause()
         {

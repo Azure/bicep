@@ -10,6 +10,8 @@ The `console` command provides an interactive Read-Eval-Print Loop (REPL) enviro
 - **Syntax Highlighting**: Real-time syntax highlighting for input and output
 
 ## Usage
+To launch the REPL, run the following Bicep command:
+
 ```sh
 bicep console
 ```
@@ -53,6 +55,7 @@ true
 ```
 
 ### Complex Expressions
+#### Lambdas
 ```bicep
 > var users = [
   { name: 'Alice', age: 30 }
@@ -69,13 +72,64 @@ true
   }
 ]
 ```
+#### User-defined types and functions
+```bicep
+> type PersonType = {
+  name: string
+  age: int
+}
+> func sayHi(person PersonType) string => 'Hello ${person.name}, you are ${person.age} years old!'
+> var alice = {
+  name: 'Alice'
+  age: 30
+}
+> [ sayHi(alice), sayHi({ name: 'Bob', age: 25 })]
+[
+  'Hello Alice, you are 30 years old!'
+  'Hello Bob, you are 25 years old!'
+]
+```
+
+### Loading content from files
+- Bicep console also supports the [`load*()` functions](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-functions-files). Note: The directory from which the `bicep console` command is run is used as the _current directory_ when evaluating the `load*()` functions
+
+
+### Piping and standard input/output redirection
+The console command supports evaluating expressions provided through piping or redirected standard input, i.e.:
+
+**Powershell**:
+```pwsh
+# piped input
+"parseCidr('10.144.0.0/20')" | bicep console
+```
+
+**Bash**:
+```sh
+# piped input
+echo "parseCidr('10.144.0.0/20')" | bicep console
+# stdin redirection from file content
+bicep console < test.txt
+```
+
+Multi-line input is also supported, i.e:
+```pwsh
+"{
+> foo: 'bar'
+> }.foo" | bicep console
+# Output: bar
+```
+
+Output redirection is also supported:
+```sh
+"toObject([{name:'Evie', age:4},{name:'Casper', age:3}], x => x.name)" | bicep console > output.json
+```
 
 ## Limitations
 - No support for expressions requiring Azure context, e.g. `resourceGroup()`
-- No file system access or external dependencies
-- Limited to expression evaluation and variable declarations
+- No support for for-loop expressions, e.g. `[for i in range(0, x): i]`
 - No persistent state between console sessions
 - No completions support
 
 ## Raising bugs or feature requests
-Please raise bug reports or feature requests under [Bicep REPL issue](https://github.com/Azure/bicep/issues/11963).
+
+Please raise bug reports or feature requests under [Bicep Issues](https://github.com/Azure/bicep/issues) as usual.

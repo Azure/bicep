@@ -36,9 +36,6 @@ namespace Bicep.Core.Emit
                 model.Root.ImportedSymbols.Any() ||
                 // there are any wildcard compile-time imports
                 model.Root.WildcardImports.Any() ||
-                // there are any existing resources with explicit dependencies
-                model.Root.ResourceDeclarations.Any(r => r.DeclaringResource.IsExistingResource() &&
-                    r.DeclaringResource.TryGetBody()?.TryGetPropertyByName(LanguageConstants.ResourceDependsOnPropertyName) is not null) ||
                 // there are secure outputs
                 model.Outputs.Any(output => output.IsSecure) ||
                 // there are secure outputs in modules
@@ -58,7 +55,12 @@ namespace Bicep.Core.Emit
                     continuationFunction: (result, syntax) => !result) ||
                 // there are optional module names
                 model.Root.ModuleDeclarations.Any(module => module.TryGetBodyProperty(LanguageConstants.ModuleNamePropertyName) is null) ||
-                model.Root.ResourceDeclarations.Any(resource => resource.TryGetDecorator(model, SystemNamespaceType.BuiltInName, LanguageConstants.OnlyIfNotExistsPropertyName) is not null);
+                SyntaxAggregator.Aggregate(model.SourceFile.ProgramSyntax,
+                    seed: false,
+                    function: (found, syntax) => found ||
+                        (syntax is ResourceDeclarationSyntax rds && ResourceRequiresSymbolicNames(model, rds)),
+                    resultSelector: result => result,
+                    continuationFunction: (result, syntax) => !result);
         }
 
         /// <summary>
@@ -72,5 +74,27 @@ namespace Bicep.Core.Emit
         public bool UseExperimentalTemplateLanguageVersion { get; }
 
         public BicepSourceFileKind FileKind { get; }
+
+        private static bool ResourceRequiresSymbolicNames(SemanticModel model, ResourceDeclarationSyntax resourceSyntax)
+        {
+            if (resourceSyntax.IsExistingResource() &&
+                resourceSyntax.TryGetBody()?.TryGetPropertyByName(LanguageConstants.ResourceDependsOnPropertyName) is not null)
+            {
+                // Existing resources with explicit dependencies require symbolic names
+                return true;
+            }
+
+            if (SemanticModelHelper.TryGetDecoratorInNamespace(
+                model,
+                resourceSyntax,
+                SystemNamespaceType.BuiltInName,
+                LanguageConstants.OnlyIfNotExistsPropertyName) is not null)
+            {
+                // Resources with the 'onlyIfNotExists' decorator require symbolic names
+                return true;
+            }
+
+            return false;
+        }
     }
 }

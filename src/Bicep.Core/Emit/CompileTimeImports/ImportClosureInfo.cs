@@ -97,7 +97,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
                 case BicepSymbolicReference bicepRef:
                     var migrator = new ImportedSymbolDeclarationMigrator(bicepRef.SourceBicepModel,
                         importedBicepSymbolNames,
-                        synthesizedVariableNames.TryGetValue(bicepRef.SourceBicepModel, out var dict) ? dict : ImmutableDictionary<string, string>.Empty,
+                        synthesizedVariableNames.TryGetValue(bicepRef.SourceBicepModel, out var dict) ? dict : [],
                         closure.SymbolsInImportClosure[bicepRef]);
                     ExpressionBuilder expressionBuilder = new(closure.EmitterContexts.GetOrAdd(bicepRef.SourceBicepModel, m => new(m)));
                     switch (bicepRef.Symbol)
@@ -141,10 +141,12 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
         ConcurrentDictionary<ArmTemplateFile, ArmReferenceCollector> armReferenceCollectors = new();
         ConcurrentDictionary<SemanticModel, EmitterContext> bicepEmitterContexts = new();
 
-        Queue<SearchQueueItem> searchQueue = new(model.Root.ImportedSymbols
+        var initialSearchItems = model.Root.ImportedSymbols
             .Select(importedSymbol => new SearchQueueItem(importedSymbol.DeclaringSyntax, new BicepImportedSymbolReference(importedSymbol, model, GetImportReference(importedSymbol))))
             .Concat(model.Root.WildcardImports
-                .Select(wildcardImport => new SearchQueueItem(wildcardImport.DeclaringSyntax, new BicepWildcardImportSymbolicReference(wildcardImport, model, GetImportReference(wildcardImport))))));
+                .Select(wildcardImport => new SearchQueueItem(wildcardImport.DeclaringSyntax, new BicepWildcardImportSymbolicReference(wildcardImport, model, GetImportReference(wildcardImport)))));
+
+        Queue<SearchQueueItem> searchQueue = new(initialSearchItems.Concat(GetImportsFromExtendedFiles(model)));
 
         while (searchQueue.Count > 0)
         {
@@ -266,6 +268,70 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
         }
 
         throw new InvalidOperationException("Unable to load module reference for import statement");
+    }
+
+    private static IEnumerable<SearchQueueItem> GetImportsFromExtendedFiles(SemanticModel model)
+    {
+        // Only parameter files can have extends declarations
+        if (model.SourceFile is not BicepParamFile)
+        {
+            yield break;
+        }
+
+        var extendsDeclarations = model.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>();
+        var visitedModels = new HashSet<ISemanticModel>();
+        var modelsToProcess = new Queue<ISemanticModel>();
+
+        // Add all directly extended models to the queue
+        foreach (var extendsDeclaration in extendsDeclarations)
+        {
+            if (model.TryGetReferencedModel(extendsDeclaration).IsSuccess(out var extendedModel))
+            {
+                if (visitedModels.Add(extendedModel))
+                {
+                    modelsToProcess.Enqueue(extendedModel);
+                }
+            }
+        }
+
+        // Process extended models recursively
+        while (modelsToProcess.TryDequeue(out var extendedModel))
+        {
+            // Only process Bicep semantic models (not ARM templates)
+            if (extendedModel is not SemanticModel extendedSemanticModel)
+            {
+                continue;
+            }
+
+            // Return all imported symbols from this extended model
+            foreach (var importedSymbol in extendedSemanticModel.Root.ImportedSymbols)
+            {
+                yield return new SearchQueueItem(
+                    importedSymbol.DeclaringSyntax,
+                    new BicepImportedSymbolReference(importedSymbol, extendedSemanticModel, GetImportReference(importedSymbol)));
+            }
+
+            // Return all wildcard imports from this extended model
+            foreach (var wildcardImport in extendedSemanticModel.Root.WildcardImports)
+            {
+                yield return new SearchQueueItem(
+                    wildcardImport.DeclaringSyntax,
+                    new BicepWildcardImportSymbolicReference(wildcardImport, extendedSemanticModel, GetImportReference(wildcardImport)));
+            }
+
+            // Check if this extended model also has extends declarations (transitive extends)
+            var nestedExtendsDeclarations = extendedSemanticModel.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>();
+            foreach (var nestedExtendsDeclaration in nestedExtendsDeclarations)
+            {
+                if (extendedSemanticModel.TryGetReferencedModel(nestedExtendsDeclaration).IsSuccess(out var nestedExtendedModel))
+                {
+                    if (visitedModels.Add(nestedExtendedModel))
+                    {
+                        modelsToProcess.Enqueue(nestedExtendedModel);
+                    }
+                }
+            }
+        }
     }
 
     private static IEnumerable<SymbolicReference> CollectReferences(BicepSymbolicReference typeReference)

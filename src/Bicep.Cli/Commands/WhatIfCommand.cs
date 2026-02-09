@@ -8,7 +8,6 @@ using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers.Deploy;
-using Bicep.Cli.Helpers.Snapshot;
 using Bicep.Cli.Helpers.WhatIf;
 using Bicep.Cli.Logging;
 using Bicep.Core;
@@ -18,6 +17,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
+using Bicep.Core.Utils.Snapshots;
 using Bicep.Local.Deploy.Extensibility;
 using Json.More;
 using Microsoft.Extensions.Logging;
@@ -130,7 +130,7 @@ public class WhatIfCommand : DeploymentsCommandsBase<WhatIfArguments>
             var changes = definition.Properties.Changes.Where(x => x.ChangeType != DeploymentWhatIfChangeType.Ignore);
 
             logger.LogInformation($"WhatIf results for Stack {symbolicName} - {sourceUri}:");
-            await io.Output.WriteAsync(WhatIfOperationResultFormatter.Format([.. changes]));
+            await io.Output.Writer.WriteAsync(WhatIfOperationResultFormatter.Format([.. changes]));
         }
 
         return hasFailures ? 1 : 0;
@@ -142,6 +142,6 @@ public class WhatIfCommand : DeploymentsCommandsBase<WhatIfArguments>
 
         var changes = result.Properties.Changes.Where(x => x.ChangeType != DeploymentWhatIfChangeType.Ignore);
 
-        await io.Output.WriteAsync(WhatIfOperationResultFormatter.Format([.. changes]));
+        await io.Output.Writer.WriteAsync(WhatIfOperationResultFormatter.Format([.. changes]));
     }
 }

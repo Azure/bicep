@@ -20,10 +20,8 @@ namespace Bicep.Core.TypeSystem
 
         ResourceGroup = 1 << 5,
 
-        DesiredStateConfiguration = 1 << 6,
+        Local = 1 << 6,
 
-        Local = 1 << 7,
-
-        Orchestrator = 1 << 8,
+        Orchestrator = 1 << 7,
     }
 }

@@ -56,7 +56,7 @@ public static class ArmTemplateTypeLoader
             TemplateParameterType.Array => GetArrayType(context, withResolvedRefs),
             TemplateParameterType.Object => GetObjectType(context, withResolvedRefs, flags),
             TemplateParameterType.SecureObject => GetObjectType(context, withResolvedRefs, flags | TypeSymbolValidationFlags.IsSecure),
-            _ => ErrorType.Empty(),
+            _ => LanguageConstants.Any,
         };
     }
 

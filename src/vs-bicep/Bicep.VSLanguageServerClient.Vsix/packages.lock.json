@@ -4,9 +4,9 @@
     ".NETFramework,Version=v4.7.2": {
       "Azure.Deployments.Internal.GenerateNotice": {
         "type": "Direct",
-        "requested": "[0.1.45, )",
-        "resolved": "0.1.45",
-        "contentHash": "q2beLPQVvqyTU0hzQrW1b9rO0nlOiTN18c5xpr/HycmGdLXfaFleayi9gDAzGQHD5cOnrLISlwyUxJIa4HC+fQ=="
+        "requested": "[0.1.60, )",
+        "resolved": "0.1.60",
+        "contentHash": "ch0VK1plp+emOnZW26mbk+Z92RCBX6bASFsmEFEUpbE5SX1hKBApy8GWYCRNu8p87pR4ebsHD99ZX0e/Onr8aA=="
       },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
         "type": "Direct",
@@ -1883,6 +1883,12 @@
           "Microsoft.Visualstudio.Telemetry": "[17.12.48, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.9, )",
           "System.Text.Json": "[9.0.1, )"
+        }
+      },
+      "bicep.vslanguageserverclient.itemtemplate": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.VisualStudio.CoreUtility": "[17.12.215, )"
         }
       }
     },

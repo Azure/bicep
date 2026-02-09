@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <EnvironmentVariables>
+      <PlaygroundPort>5173</PlaygroundPort>
+    </EnvironmentVariables>
+  </RunConfiguration>
+  <Playwright>
+    <ExpectTimeout>5000</ExpectTimeout>
+    <LaunchOptions>
+        <Headless>false</Headless>
+        <Timeout>5000</Timeout>
+    </LaunchOptions>
+  </Playwright>
+</RunSettings>

@@ -1,6 +1,6 @@
 var vmProperties = {
 //@    "vmProperties": {
-//@    }
+//@    },
   diagnosticsProfile: {
 //@      "diagnosticsProfile": {
 //@      },
@@ -54,4 +54,30 @@ param storageAccount5 string = 'testStorageAccount'
 //@    "storageAccount5": {
 //@      "type": "string",
 //@      "defaultValue": "testStorageAccount"
+//@    },
+
+#disable-diagnostics                 no-unused-params                      no-unused-vars
+param storageAccount4 string = 'testStorageAccount'
+//@    "storageAccount4": {
+//@      "type": "string",
+//@      "defaultValue": "testStorageAccount"
+//@    },
+var unusedVar1 = 'This is an unused variable'
+//@    "unusedVar1": "This is an unused variable",
+var unusedVar2 = 'This is another unused variable'
+//@    "unusedVar2": "This is another unused variable",
+#restore-diagnostics   no-unused-vars
+param storageAccount6 string = 'testStorageAccount'
+//@    "storageAccount6": {
+//@      "type": "string",
+//@      "defaultValue": "testStorageAccount"
+//@    },
+var unusedVar3 = 'This is yet another unused variable'
+//@    "unusedVar3": "This is yet another unused variable"
+#restore-diagnostics    no-unused-params
+param storageAccount7 string = 'testStorageAccount'
+//@    "storageAccount7": {
+//@      "type": "string",
+//@      "defaultValue": "testStorageAccount"
 //@    }
+

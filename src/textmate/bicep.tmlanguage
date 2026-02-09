@@ -133,7 +133,15 @@
           </dict>
           <dict>
             <key>include</key>
-            <string>#string-verbatim</string>
+            <string>#multiline-string</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#multiline-string-1-interp</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#multiline-string-2-interp</string>
           </dict>
           <dict>
             <key>include</key>
@@ -254,6 +262,121 @@
         <key>match</key>
         <string>//.*(?=$)</string>
       </dict>
+      <key>multiline-1-string-subst</key>
+      <dict>
+        <key>name</key>
+        <string>meta.multiline-1-string-subst.bicep</string>
+        <key>begin</key>
+        <string>(\${)</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>punctuation.definition.template-expression.begin.bicep</string>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>(})</string>
+        <key>endCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>punctuation.definition.template-expression.end.bicep</string>
+          </dict>
+        </dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#comments</string>
+          </dict>
+        </array>
+      </dict>
+      <key>multiline-2-string-subst</key>
+      <dict>
+        <key>name</key>
+        <string>meta.multiline-2-string-subst.bicep</string>
+        <key>begin</key>
+        <string>(\$\${)</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>punctuation.definition.template-expression.begin.bicep</string>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>(})</string>
+        <key>endCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>punctuation.definition.template-expression.end.bicep</string>
+          </dict>
+        </dict>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#expression</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#comments</string>
+          </dict>
+        </array>
+      </dict>
+      <key>multiline-string</key>
+      <dict>
+        <key>name</key>
+        <string>string.quoted.multi.bicep</string>
+        <key>begin</key>
+        <string>'''</string>
+        <key>end</key>
+        <string>'''(?!')</string>
+        <key>patterns</key>
+        <array/>
+      </dict>
+      <key>multiline-string-1-interp</key>
+      <dict>
+        <key>name</key>
+        <string>string.quoted.multi.bicep</string>
+        <key>begin</key>
+        <string>(?&lt;!\$)\$'''</string>
+        <key>end</key>
+        <string>'''(?!')</string>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#multiline-1-string-subst</string>
+          </dict>
+        </array>
+      </dict>
+      <key>multiline-string-2-interp</key>
+      <dict>
+        <key>name</key>
+        <string>string.quoted.multi.bicep</string>
+        <key>begin</key>
+        <string>\$\$'''</string>
+        <key>end</key>
+        <string>'''(?!')</string>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#multiline-2-string-subst</string>
+          </dict>
+        </array>
+      </dict>
       <key>named-literal</key>
       <dict>
         <key>name</key>
@@ -315,14 +438,14 @@
           </dict>
           <dict>
             <key>include</key>
-            <string>#string-literal-subst</string>
+            <string>#string-subst</string>
           </dict>
         </array>
       </dict>
-      <key>string-literal-subst</key>
+      <key>string-subst</key>
       <dict>
         <key>name</key>
-        <string>meta.string-literal-subst.bicep</string>
+        <string>meta.string-subst.bicep</string>
         <key>begin</key>
         <string>(?&lt;!\\)(\${)</string>
         <key>beginCaptures</key>
@@ -354,17 +477,6 @@
             <string>#comments</string>
           </dict>
         </array>
-      </dict>
-      <key>string-verbatim</key>
-      <dict>
-        <key>name</key>
-        <string>string.quoted.multi.bicep</string>
-        <key>begin</key>
-        <string>'''</string>
-        <key>end</key>
-        <string>'''(?!')</string>
-        <key>patterns</key>
-        <array/>
       </dict>
     </dict>
   </dict>

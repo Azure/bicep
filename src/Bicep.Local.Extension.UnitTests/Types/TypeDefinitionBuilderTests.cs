@@ -1,21 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+using System.Collections.Frozen;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text.Json;
-using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
-using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
+using Bicep.Core.Resources;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Providers.Extensibility;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Local.Extension.Builder.Models;
 using Bicep.Local.Extension.Types;
+using Bicep.Local.Extension.Types.Attributes;
 using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using static Microsoft.WindowsAzure.ResourceStack.Common.Utilities.FastActivator;
 
 namespace Bicep.Local.Extension.UnitTests.TypesTests;
 
@@ -26,92 +24,30 @@ public class TypeDefinitionBuilderTests
 
     private record SimpleResource(string Name = "", string AnotherString = "");
 
-    private static TypeSettings CreateTypeSettings() =>
-        new(name: "TestSettings", version: "2025-01-01", isSingleton: true, configurationType: new Azure.Bicep.Types.CrossFileTypeReference("index.json", 0));
-
-    private TypeFactory CreateTypeFactory() => new([]);
-
-    #region Constructor Tests
-    [TestMethod]
-    public void Constructor_Throws_On_Empty_TypeToTypeBaseMap()
-    {
-        var settings = CreateTypeSettings();
-        var typeFactory = CreateTypeFactory();
-        var typeProvider = StrictMock.Of<ITypeProvider>().Object;
-        var emptyMap = new Dictionary<Type, Func<TypeBase>>();
-
-        Action act = () => new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, typeFactory, typeProvider, emptyMap);
-        act.Should().Throw<ArgumentException>();
-    }
-
-    [TestMethod]
-    public void Constructor_Succeeds_With_Valid_Arguments()
-    {
-        var factory = new TypeFactory([]);
-        var typeProvider = new Mock<ITypeProvider>(MockBehavior.Strict).Object;
-        var map = ImmutableDictionary<Type, Func<TypeBase>>.Empty.Add(typeof(string), () => new StringType());
-
-        var generator = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProvider, map);
-
-        generator.Should().NotBeNull();
-    }
-
-    #endregion Constructor Tests
-
+    private static readonly ExtensionInfo extensionInfo = new("TestSettings", "2025-01-01", true);
 
     [TestMethod]
     public void GenerateTypeDefinition_Returns_Empty_When_TypeProvider_Has_No_Types()
     {
-        var settings = CreateTypeSettings();
-        var factory = CreateTypeFactory();
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([]);
+        typeProviderMock.SetupGet(tp => tp.ConfigurationType).Returns(() => null!);
+        typeProviderMock.SetupGet(tp => tp.FallbackType).Returns(() => null!);
 
-        var map = new Dictionary<Type, Func<TypeBase>> { { typeof(string), () => new StringType() } };
-
-        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProviderMock.Object, map);
-
-        var result = builder.GenerateTypeDefinition();
-
-        result.Should().NotBeNull();
-        result.IndexFileContent.Should().NotBeNullOrEmpty();
-        result.TypeFileContents.Values.Single().Should().NotBeNullOrEmpty();
-        result.TypeFileContents.Values.Single().Should().Contain("[]", because: "the types JSON should be and empty array '[]' when no resource types are generated");
-    }
-
-    [TestMethod]
-    public void GenerateTypeDefinition_Emits_Resource_When_TypeProvider_Has_Types()
-    {
-        var settings = CreateTypeSettings();
-        var factory = CreateTypeFactory();
-        var typeProviderMock = StrictMock.Of<ITypeProvider>();
-        typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(typeof(SimpleResource), new("SimpleResource"))]);
-        var map = new Dictionary<Type, Func<TypeBase>> { { typeof(string), () => new StringType() } };
-
-        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProviderMock.Object, map);
-
-        var result = builder.GenerateTypeDefinition();
-
-        result.Should().NotBeNull();
-        result.IndexFileContent.Should().Contain("SimpleResource");
-        result.TypeFileContents.Values.Single().Should().Contain("SimpleResource");
-        result.TypeFileContents.Values.Single().Should().Contain("name", because: "the property should be present in the resource type definition");
+        var builder = new TypeDefinitionBuilder(extensionInfo, typeProviderMock.Object);
+        var result = GenerateTypes(builder);
+        result.GetAvailableTypes().Should().BeEmpty();
     }
 
     [TestMethod]
     public void GenerateTypeDefinition_Throws_On_Unsupported_Property_Type()
     {
-        var map = new Dictionary<Type, Func<TypeBase>>
-        {
-            { typeof(string), () => new StringType() }
-        }.ToImmutableDictionary();
-
-        var settings = CreateTypeSettings();
-        var factory = CreateTypeFactory();
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
         typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(typeof(TestUnsupportedProperty), new("TestUnsupportedProperty"))]);
+        typeProviderMock.SetupGet(tp => tp.ConfigurationType).Returns(() => null!);
+        typeProviderMock.SetupGet(tp => tp.FallbackType).Returns(() => null!);
 
-        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProviderMock.Object, map);
+        var builder = new TypeDefinitionBuilder(extensionInfo, typeProviderMock.Object);
 
         Action act = () => builder.GenerateTypeDefinition();
         act.Should().Throw<NotImplementedException>();
@@ -121,39 +57,322 @@ public class TypeDefinitionBuilderTests
 
     private record EnumerableResource(IEnumerable<string> Items);
 
+    private record ArrayLikeResource(
+        ImmutableArray<string> ImmutableItems,
+        HashSet<string> HashSetItems);
+
+    public enum SampleEnum
+    {
+        First,
+        Second,
+        Third
+    }
+
+    private record EnumResource(
+        SampleEnum NonNullableEnum,
+        SampleEnum? NullableEnum);
+
+    private record DictionaryResource(
+        Dictionary<string, string> Dict,
+        ImmutableDictionary<string, string> ImmutableDict);
+
+    private record PrimitiveResource
+    {
+        public int IntProp { get; init; }
+        public string StringProp { get; init; } = "";
+        public bool BoolProp { get; init; }
+        public int? NullableIntProp { get; init; }
+        public bool? NullableBoolProp { get; init; }
+        [TypeProperty("Secure string", isSecure: true)]
+        public string SecureStringProp { get; init; } = "";
+    }
+
+    private static IResourceTypeLoader GenerateTypes(TypeDefinitionBuilder builder)
+    {
+        var result = builder.GenerateTypeDefinition();
+        var types = new Dictionary<string, string>(result.TypeFileContents);
+        types["index.json"] = result.IndexFileContent;
+
+        var typeLoader = new ArchivedTypeLoader(types.ToFrozenDictionary(x => x.Key, x => BinaryData.FromString(x.Value)));
+
+        return new ExtensionResourceTypeLoader(typeLoader);
+    }
+
+    private static ResourceTypeComponents CreateResourceType(Type type, string typeName, string? apiVersion = null)
+    {
+        var typeProviderMock = StrictMock.Of<ITypeProvider>();
+        typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(type, new(typeName, apiVersion))]);
+        typeProviderMock.SetupGet(tp => tp.ConfigurationType).Returns(() => null!);
+        typeProviderMock.SetupGet(tp => tp.FallbackType).Returns(() => null!);
+
+        var builder = new TypeDefinitionBuilder(extensionInfo, typeProviderMock.Object);
+        var typeLoader = GenerateTypes(builder);
+        var resourceType = typeLoader.LoadType(typeLoader.GetAvailableTypes().Single());
+
+        resourceType.TypeReference.Name.Should().Be(typeName);
+        resourceType.TypeReference.ApiVersion.Should().Be(apiVersion);
+
+        return resourceType;
+    }
+
+    [TestMethod]
+    public void GenerateTypeDefinition_Emits_Resource_When_TypeProvider_Has_Types()
+    {
+        var resourceType = CreateResourceType(typeof(SimpleResource), nameof(SimpleResource));
+        var typeProviderMock = StrictMock.Of<ITypeProvider>();
+        typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(typeof(SimpleResource), new("SimpleResource"))]);
+        typeProviderMock.SetupGet(tp => tp.ConfigurationType).Returns(() => null!);
+        typeProviderMock.SetupGet(tp => tp.FallbackType).Returns(() => null!);
+
+        var body = resourceType.Body.Type.Should().BeOfType<ObjectType>().Subject;
+        body.Properties["name"].TypeReference.Type.Should().BeOfType<StringType>();
+        body.Properties["anotherString"].TypeReference.Type.Should().BeOfType<StringType>();
+    }
+
     [TestMethod]
     public void GenerateTypeDefinition_Emits_ArrayType_For_ArrayProperty()
     {
-        var settings = CreateTypeSettings();
-        var factory = CreateTypeFactory();
-        var typeProviderMock = StrictMock.Of<ITypeProvider>();
-        typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(typeof(ArrayResource), new("ArrayResource"))]);
-        var map = new Dictionary<Type, Func<TypeBase>> { { typeof(string), () => new StringType() } };
+        var resourceType = CreateResourceType(typeof(ArrayResource), nameof(ArrayResource));
 
-        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProviderMock.Object, map);
-
-        var result = builder.GenerateTypeDefinition();
-
-        result.Should().NotBeNull();
-        result.TypeFileContents.Values.Single().Should().Contain("ArrayResource");
-        result.TypeFileContents.Values.Single().Should().Contain("items", because: "the array property should be present in the resource type definition");
+        var body = resourceType.Body.Type.Should().BeOfType<ObjectType>().Subject;
+        body.Properties["items"].TypeReference.Type.Should().BeOfType<TypedArrayType>()
+            .Which.Item.Type.Should().BeOfType<StringType>();
     }
 
     [TestMethod]
     public void GenerateTypeDefinition_Emits_ArrayType_For_IEnumerableProperty()
     {
-        var settings = CreateTypeSettings();
-        var factory = CreateTypeFactory();
+        var resourceType = CreateResourceType(typeof(EnumerableResource), nameof(EnumerableResource));
+
+        var body = resourceType.Body.Type.Should().BeOfType<ObjectType>().Subject;
+        body.Properties["items"].TypeReference.Type.Should().BeOfType<TypedArrayType>()
+            .Which.Item.Type.Should().BeOfType<StringType>();
+    }
+
+    [TestMethod]
+    public void GenerateTypeDefinition_handles_collection_types()
+    {
+        var resourceType = CreateResourceType(typeof(ArrayLikeResource), nameof(ArrayLikeResource));
+
+        var body = resourceType.Body.Type.Should().BeOfType<ObjectType>().Subject;
+        body.Properties["immutableItems"].TypeReference.Type.Should().BeOfType<TypedArrayType>()
+            .Which.Item.Type.Should().BeOfType<StringType>();
+        body.Properties["hashSetItems"].TypeReference.Type.Should().BeOfType<TypedArrayType>()
+            .Which.Item.Type.Should().BeOfType<StringType>();
+    }
+
+    [TestMethod]
+    public void GenerateTypeDefinition_handles_enum_types()
+    {
+        var resourceType = CreateResourceType(typeof(EnumResource), nameof(EnumResource));
+
+        var body = resourceType.Body.Type.Should().BeOfType<ObjectType>().Subject;
+        body.Properties["nonNullableEnum"].TypeReference.Type.Should().BeOfType<UnionType>()
+            .Which.Members.Select(m => m.Type).Should().AllBeOfType<StringLiteralType>()
+            .Which.Should().SatisfyRespectively(
+                x => x.RawStringValue.Should().Be("First"),
+                x => x.RawStringValue.Should().Be("Second"),
+                x => x.RawStringValue.Should().Be("Third"));
+        body.Properties["nullableEnum"].TypeReference.Type.Should().BeOfType<UnionType>()
+            .Which.Members.Select(m => m.Type).Should().SatisfyRespectively(
+                x => x.Should().BeOfType<StringLiteralType>().Which.RawStringValue.Should().Be("First"),
+                x => x.Should().BeOfType<StringLiteralType>().Which.RawStringValue.Should().Be("Second"),
+                x => x.Should().BeOfType<StringLiteralType>().Which.RawStringValue.Should().Be("Third"),
+                x => x.Should().BeOfType<NullType>());
+    }
+
+    [TestMethod]
+    public void GenerateTypeDefinition_handles_dictionary_types()
+    {
+        var resourceType = CreateResourceType(typeof(DictionaryResource), nameof(DictionaryResource));
+
+        var body = resourceType.Body.Type.Should().BeOfType<ObjectType>().Subject;
+        var dictType = body.Properties["dict"].TypeReference.Type.Should().BeOfType<ObjectType>().Subject;
+        dictType.Properties.Should().BeEmpty();
+        dictType.AdditionalProperties!.TypeReference.Type.Should().BeOfType<StringType>();
+        var immutableDictType = body.Properties["immutableDict"].TypeReference.Type.Should().BeOfType<ObjectType>().Subject;
+        immutableDictType.Properties.Should().BeEmpty();
+        immutableDictType.AdditionalProperties!.TypeReference.Type.Should().BeOfType<StringType>();
+    }
+
+    [TestMethod]
+    public void GenerateTypeDefinition_handles_primitive_types()
+    {
+        var resourceType = CreateResourceType(typeof(PrimitiveResource), nameof(PrimitiveResource));
+
+        var body = resourceType.Body.Type.Should().BeOfType<ObjectType>().Subject;
+        body.Properties["intProp"].TypeReference.Type.Should().BeOfType<IntegerType>();
+        body.Properties["stringProp"].TypeReference.Type.Should().BeOfType<StringType>();
+        body.Properties["boolProp"].TypeReference.Type.Should().BeOfType<BooleanType>();
+        body.Properties["nullableIntProp"].TypeReference.Type.Should().BeOfType<UnionType>()
+            .Which.Members.Should().SatisfyRespectively(
+                x => x.Type.Should().BeOfType<IntegerType>(),
+                x => x.Type.Should().BeOfType<NullType>());
+        body.Properties["nullableBoolProp"].TypeReference.Type.Should().BeOfType<UnionType>()
+            .Which.Members.Should().SatisfyRespectively(
+                x => x.Type.Should().BeOfType<BooleanType>(),
+                x => x.Type.Should().BeOfType<NullType>());
+        body.Properties["secureStringProp"].TypeReference.Type.Should().BeOfType<StringType>()
+            .Which.ValidationFlags.Should().HaveFlag(TypeSymbolValidationFlags.IsSecure);
+    }
+
+    #region JSON Structure Validation Tests
+
+    // Dedicated resource types for JSON structure tests - isolated from other tests
+    private record JsonTestResource1(string Property1 = "");
+    private record JsonTestResource2(int Property2 = 0);
+    private record JsonTestResource3(bool Property3 = false);
+
+    [TestMethod]
+    public void GenerateTypeDefinition_IndexFile_Contains_Resources_Block()
+    {
+        // Arrange
         var typeProviderMock = StrictMock.Of<ITypeProvider>();
-        typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([(typeof(EnumerableResource), new("EnumerableResource"))]);
-        var map = new Dictionary<Type, Func<TypeBase>> { { typeof(string), () => new StringType() } };
+        typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
+            (typeof(JsonTestResource1), new ResourceTypeAttribute("TestResource", "v1"))
+        ]);
+        typeProviderMock.SetupGet(tp => tp.ConfigurationType).Returns(() => null!);
+        typeProviderMock.SetupGet(tp => tp.FallbackType).Returns(() => null!);
 
-        var builder = new TypeDefinitionBuilder("TestSettings", "2025-01-01", true, null, factory, typeProviderMock.Object, map);
+        var builder = new TypeDefinitionBuilder(extensionInfo, typeProviderMock.Object);
 
+        // Act
         var result = builder.GenerateTypeDefinition();
 
-        result.Should().NotBeNull();
-        result.TypeFileContents.Values.Single().Should().Contain("EnumerableResource");
-        result.TypeFileContents.Values.Single().Should().Contain("items", because: "the enumerable property should be present in the resource type definition");
+        // Assert
+        result.IndexFileContent.Should().NotBeNullOrEmpty("index file must be generated");
+
+        var indexJson = System.Text.Json.JsonDocument.Parse(result.IndexFileContent);
+        var root = indexJson.RootElement;
+
+        // Verify resources block exists
+        var hasResources = root.TryGetProperty("resources", out var resourcesElement);
+        hasResources.Should().BeTrue("index.json must contain 'resources' block");
+
+        resourcesElement.ValueKind.Should().Be(System.Text.Json.JsonValueKind.Object,
+            "resources must be an object");
     }
+
+    [TestMethod]
+    public void GenerateTypeDefinition_Resources_Block_Contains_Expected_Resource()
+    {
+        // Arrange
+        var typeProviderMock = StrictMock.Of<ITypeProvider>();
+        typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
+            (typeof(JsonTestResource1), new ResourceTypeAttribute("TestResource", "v1"))
+        ]);
+        typeProviderMock.SetupGet(tp => tp.ConfigurationType).Returns(() => null!);
+        typeProviderMock.SetupGet(tp => tp.FallbackType).Returns(() => null!);
+
+        var builder = new TypeDefinitionBuilder(extensionInfo, typeProviderMock.Object);
+
+        // Act
+        var result = builder.GenerateTypeDefinition();
+
+        // Assert
+        var indexJson = System.Text.Json.JsonDocument.Parse(result.IndexFileContent);
+        var resourcesElement = indexJson.RootElement.GetProperty("resources");
+
+        // Should contain the resource key
+        var hasResourceEntry = resourcesElement.TryGetProperty("TestResource@v1", out var resourceEntry);
+        hasResourceEntry.Should().BeTrue("resources block should contain entry for 'TestResource@v1'");
+
+        // Should have $ref property
+        var hasRef = resourceEntry.TryGetProperty("$ref", out var refElement);
+        hasRef.Should().BeTrue("resource entry must have '$ref' property");
+
+        refElement.GetString().Should().StartWith("types.json#/",
+            "resource should reference types.json");
+    }
+
+    [TestMethod]
+    public void GenerateTypeDefinition_IndexFile_Has_All_Required_Top_Level_Properties()
+    {
+        // Arrange
+        var typeProviderMock = StrictMock.Of<ITypeProvider>();
+        typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
+            (typeof(JsonTestResource1), new ResourceTypeAttribute("TestResource"))
+        ]);
+        typeProviderMock.SetupGet(tp => tp.ConfigurationType).Returns(() => null!);
+        typeProviderMock.SetupGet(tp => tp.FallbackType).Returns(() => null!);
+
+        var builder = new TypeDefinitionBuilder(extensionInfo, typeProviderMock.Object);
+
+        // Act
+        var result = builder.GenerateTypeDefinition();
+
+        // Assert
+        var indexJson = System.Text.Json.JsonDocument.Parse(result.IndexFileContent);
+        var root = indexJson.RootElement;
+
+        // Verify all required top-level properties exist
+        root.TryGetProperty("resources", out _).Should().BeTrue(
+            "index.json must contain 'resources' property");
+
+        root.TryGetProperty("resourceFunctions", out _).Should().BeTrue(
+            "index.json must contain 'resourceFunctions' property");
+
+        root.TryGetProperty("settings", out _).Should().BeTrue(
+            "index.json must contain 'settings' property");
+    }
+
+    [TestMethod]
+    public void GenerateTypeDefinition_ResourceType_Entry_Has_Required_Properties()
+    {
+        // Arrange
+        var typeProviderMock = StrictMock.Of<ITypeProvider>();
+        typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([
+            (typeof(JsonTestResource1), new ResourceTypeAttribute("TestResource", "v1"))
+        ]);
+        typeProviderMock.SetupGet(tp => tp.ConfigurationType).Returns(() => null!);
+        typeProviderMock.SetupGet(tp => tp.FallbackType).Returns(() => null!);
+
+        var builder = new TypeDefinitionBuilder(extensionInfo, typeProviderMock.Object);
+
+        // Act
+        var result = builder.GenerateTypeDefinition();
+
+        // Assert
+        var typesJson = System.Text.Json.JsonDocument.Parse(result.TypeFileContents["types.json"]);
+        var resourceType = typesJson.RootElement.EnumerateArray()
+            .FirstOrDefault(t => t.TryGetProperty("$type", out var tp) && tp.GetString() == "ResourceType");
+
+        resourceType.ValueKind.Should().NotBe(System.Text.Json.JsonValueKind.Undefined,
+            "ResourceType entry should exist");
+
+        var hasName = resourceType.TryGetProperty("name", out _);
+        hasName.Should().BeTrue("ResourceType must have 'name' property");
+
+        var hasBody = resourceType.TryGetProperty("body", out var bodyProperty);
+        hasBody.Should().BeTrue("ResourceType must have 'body' property");
+
+        var hasRef = bodyProperty.TryGetProperty("$ref", out _);
+        hasRef.Should().BeTrue("ResourceType body must have '$ref' property");
+    }
+
+    [TestMethod]
+    public void GenerateTypeDefinition_Settings_Contains_Extension_Info()
+    {
+        // Arrange
+        var customExtensionInfo = new ExtensionInfo("TestExtension", "2025-01-01", true);
+        var typeProviderMock = StrictMock.Of<ITypeProvider>();
+        typeProviderMock.Setup(tp => tp.GetResourceTypes(true)).Returns([]);
+        typeProviderMock.SetupGet(tp => tp.ConfigurationType).Returns(() => null!);
+        typeProviderMock.SetupGet(tp => tp.FallbackType).Returns(() => null!);
+
+        var builder = new TypeDefinitionBuilder(customExtensionInfo, typeProviderMock.Object);
+
+        // Act
+        var result = builder.GenerateTypeDefinition();
+
+        // Assert
+        var indexJson = System.Text.Json.JsonDocument.Parse(result.IndexFileContent);
+        var settings = indexJson.RootElement.GetProperty("settings");
+
+        settings.GetProperty("name").GetString().Should().Be("TestExtension");
+        settings.GetProperty("version").GetString().Should().Be("2025-01-01");
+        settings.GetProperty("isSingleton").GetBoolean().Should().BeTrue();
+    }
+
+    #endregion
 }

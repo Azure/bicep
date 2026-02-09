@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12432572088371158198"
+      "templateHash": "17926772908573703179"
     }
   },
   "parameters": {
@@ -27,7 +27,7 @@
     {
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('accountName'))]",
+      "scope": "[resourceId('Microsoft.Storage/storageAccounts', parameters('accountName'))]",
       "name": "DontDelete",
       "properties": {
         "level": "CanNotDelete"

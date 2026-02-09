@@ -94,7 +94,6 @@ namespace Bicep.Core
         public const string TargetScopeTypeManagementGroup = "managementGroup";
         public const string TargetScopeTypeSubscription = "subscription";
         public const string TargetScopeTypeResourceGroup = "resourceGroup";
-        public const string TargetScopeTypeDesiredStateConfiguration = "desiredStateConfiguration";
         public const string TargetScopeTypeLocal = "local";
         public const string TargetScopeTypeOrchestrator = "orchestrator";
 
@@ -104,6 +103,8 @@ namespace Bicep.Core
         public const string BicepConfigurationFileName = "bicepconfig.json";
 
         public const string DisableNextLineDiagnosticsKeyword = "disable-next-line";
+        public const string DisableDiagnosticsKeyword = "disable-diagnostics";
+        public const string RestoreDiagnosticsKeyword = "restore-diagnostics";
 
         public static readonly Regex ArmTemplateSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[a-zA-Z]*[dD]eploymentTemplate\.json)#?");
         public static readonly Regex ArmParametersSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[dD]eploymentParameters\.json)#?");
@@ -345,10 +346,6 @@ namespace Bicep.Core
             if (resourceScope.HasFlag(ResourceScope.ResourceGroup))
             {
                 yield return "resourceGroup";
-            }
-            if (resourceScope.HasFlag(ResourceScope.DesiredStateConfiguration))
-            {
-                yield return "desiredStateConfiguration";
             }
             if (resourceScope.HasFlag(ResourceScope.Local))
             {

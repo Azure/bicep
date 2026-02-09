@@ -4,7 +4,6 @@
 using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Runtime;
-using Azure.Deployments.Engine.Workers;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
@@ -24,8 +23,19 @@ using Spectre.Console;
 namespace Bicep.Cli
 {
     public record IOContext(
-        TextWriter Output,
-        TextWriter Error);
+        InputContext Input,
+        OutputContext Output,
+        ErrorContext Error);
+
+    public record InputContext(
+        TextReader Reader,
+        bool IsRedirected);
+    public record OutputContext(
+        TextWriter Writer,
+        bool IsRedirected);
+    public record ErrorContext(
+        TextWriter Writer,
+        bool IsRedirected);
 
     public class Program
     {
@@ -55,7 +65,10 @@ namespace Bicep.Cli
                 // this event listener picks up SDK events and writes them to Trace.WriteLine()
                 using (FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
                 {
-                    var program = new Program(new(Output: Console.Out, Error: Console.Error));
+                    var program = new Program(new(
+                        Input: new(Console.In, Console.IsInputRedirected),
+                        Output: new(Console.Out, Console.IsOutputRedirected),
+                        Error: new(Console.Error, Console.IsErrorRedirected)));
 
                     // this must be awaited so dispose of the listener occurs in the continuation
                     // rather than the sync part at the beginning of RunAsync()
@@ -65,7 +78,8 @@ namespace Bicep.Cli
 
         public async Task<int> RunAsync(string[] args, CancellationToken cancellationToken)
         {
-            Trace.WriteLine($"Bicep version: {ThisAssembly.AssemblyInformationalVersion}, CLI arguments: \"{string.Join(' ', args)}\"");
+            var environment = services.GetRequiredService<IEnvironment>();
+            Trace.WriteLine($"Bicep version: {environment.GetVersionString()}, OS: {environment.CurrentPlatform?.ToString() ?? "unknown"}, Architecture: {environment.CurrentArchitecture}, CLI arguments: \"{string.Join(' ', args)}\"");
 
             try
             {
@@ -129,13 +143,13 @@ namespace Bicep.Cli
                         return services.GetRequiredService<RootCommand>().Run(rootArguments);
 
                     default:
-                        await io.Error.WriteLineAsync(string.Format(CliResources.UnrecognizedArgumentsFormat, string.Join(' ', args), ThisAssembly.AssemblyName)); // should probably print help here??
+                        await io.Error.Writer.WriteLineAsync(string.Format(CliResources.UnrecognizedArgumentsFormat, string.Join(' ', args), ThisAssembly.AssemblyName)); // should probably print help here??
                         return 1;
                 }
             }
             catch (BicepException exception)
             {
-                await io.Error.WriteLineAsync(exception.Message);
+                await io.Error.Writer.WriteLineAsync(exception.Message);
                 return 1;
             }
         }
@@ -145,7 +159,7 @@ namespace Bicep.Cli
             // apparently logging requires a factory factory 🤦‍
             return LoggerFactory.Create(builder =>
             {
-                builder.AddProvider(new BicepLoggerProvider(new BicepLoggerOptions(true, ConsoleColor.Red, ConsoleColor.DarkYellow, io.Error)));
+                builder.AddProvider(new BicepLoggerProvider(new BicepLoggerOptions(true, ConsoleColor.Red, ConsoleColor.DarkYellow, io.Error.Writer)));
             });
         }
 
@@ -179,7 +193,7 @@ namespace Bicep.Cli
             => new ServiceCollection()
                 .AddBicepCore()
                 .AddBicepDecompiler()
-                .AddLocalDeploy()
+                .AddBicepLocalDeploy()
                 .AddCommands()
                 .AddSingleton(CreateLoggerFactory(io).CreateLogger("bicep"))
                 .AddSingleton<InputOutputArgumentsResolver>()
@@ -193,7 +207,7 @@ namespace Bicep.Cli
                     Ansi = AnsiSupport.Detect,
                     ColorSystem = ColorSystemSupport.Detect,
                     Interactive = InteractionSupport.Detect,
-                    Out = new AnsiConsoleOutput(io.Output),
+                    Out = new AnsiConsoleOutput(io.Output.Writer),
                 }))
                 .AddSingleton<IDeploymentProcessor, DeploymentProcessor>()
                 .AddSingleton<DeploymentRenderer>();

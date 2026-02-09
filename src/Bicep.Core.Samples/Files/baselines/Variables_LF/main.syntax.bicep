@@ -2885,7 +2885,7 @@ var multilineString = '''
 //@[004:0019) | | └─Token(Identifier) |multilineString|
 //@[020:0021) | ├─Token(Assignment) |=|
 //@[022:0036) | └─StringSyntax
-//@[022:0036) |   └─Token(MultilineString) |'''\nHELLO!\n'''|
+//@[022:0036) |   └─Token(StringComplete) |'''\nHELLO!\n'''|
 HELLO!
 '''
 //@[003:0005) ├─Token(NewLine) |\n\n|
@@ -2897,7 +2897,7 @@ var multilineEmpty = ''''''
 //@[004:0018) | | └─Token(Identifier) |multilineEmpty|
 //@[019:0020) | ├─Token(Assignment) |=|
 //@[021:0027) | └─StringSyntax
-//@[021:0027) |   └─Token(MultilineString) |''''''|
+//@[021:0027) |   └─Token(StringComplete) |''''''|
 //@[027:0028) ├─Token(NewLine) |\n|
 var multilineEmptyNewline = '''
 //@[000:0035) ├─VariableDeclarationSyntax
@@ -2906,7 +2906,7 @@ var multilineEmptyNewline = '''
 //@[004:0025) | | └─Token(Identifier) |multilineEmptyNewline|
 //@[026:0027) | ├─Token(Assignment) |=|
 //@[028:0035) | └─StringSyntax
-//@[028:0035) |   └─Token(MultilineString) |'''\n'''|
+//@[028:0035) |   └─Token(StringComplete) |'''\n'''|
 '''
 //@[003:0005) ├─Token(NewLine) |\n\n|
 
@@ -2919,7 +2919,7 @@ var multilineExtraQuotes = ''''abc''''
 //@[004:0024) | | └─Token(Identifier) |multilineExtraQuotes|
 //@[025:0026) | ├─Token(Assignment) |=|
 //@[027:0038) | └─StringSyntax
-//@[027:0038) |   └─Token(MultilineString) |''''abc''''|
+//@[027:0038) |   └─Token(StringComplete) |''''abc''''|
 //@[038:0040) ├─Token(NewLine) |\n\n|
 
 // evaluates to '\'\nabc\n\''
@@ -2931,7 +2931,7 @@ var multilineExtraQuotesNewlines = ''''
 //@[004:0032) | | └─Token(Identifier) |multilineExtraQuotesNewlines|
 //@[033:0034) | ├─Token(Assignment) |=|
 //@[035:0048) | └─StringSyntax
-//@[035:0048) |   └─Token(MultilineString) |''''\nabc\n''''|
+//@[035:0048) |   └─Token(StringComplete) |''''\nabc\n''''|
 abc
 ''''
 //@[004:0006) ├─Token(NewLine) |\n\n|
@@ -2943,7 +2943,7 @@ var multilineSingleLine = '''hello!'''
 //@[004:0023) | | └─Token(Identifier) |multilineSingleLine|
 //@[024:0025) | ├─Token(Assignment) |=|
 //@[026:0038) | └─StringSyntax
-//@[026:0038) |   └─Token(MultilineString) |'''hello!'''|
+//@[026:0038) |   └─Token(StringComplete) |'''hello!'''|
 //@[038:0040) ├─Token(NewLine) |\n\n|
 
 var multilineFormatted = format('''
@@ -2958,7 +2958,7 @@ var multilineFormatted = format('''
 //@[031:0032) |   ├─Token(LeftParen) |(|
 //@[032:0061) |   ├─FunctionArgumentSyntax
 //@[032:0061) |   | └─StringSyntax
-//@[032:0061) |   |   └─Token(MultilineString) |'''\nHello,\nmy\nname is\n{0}\n'''|
+//@[032:0061) |   |   └─Token(StringComplete) |'''\nHello,\nmy\nname is\n{0}\n'''|
 Hello,
 my
 name is
@@ -2978,7 +2978,7 @@ var multilineJavaScript = '''
 //@[004:0023) | | └─Token(Identifier) |multilineJavaScript|
 //@[024:0025) | ├─Token(Assignment) |=|
 //@[026:0586) | └─StringSyntax
-//@[026:0586) |   └─Token(MultilineString) |'''\n// NOT RECOMMENDED PATTERN\nconst fs = require('fs');\n\nmodule.exports = function (context) {\n    fs.readFile('./hello.txt', (err, data) => {\n        if (err) {\n            context.log.error('ERROR', err);\n            // BUG #1: This will result in an uncaught exception that crashes the entire process\n            throw err;\n        }\n        context.log(`Data from file: ${data}`);\n        // context.done() should be called here\n    });\n    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends\n    context.done();\n}\n'''|
+//@[026:0586) |   └─Token(StringComplete) |'''\n// NOT RECOMMENDED PATTERN\nconst fs = require('fs');\n\nmodule.exports = function (context) {\n    fs.readFile('./hello.txt', (err, data) => {\n        if (err) {\n            context.log.error('ERROR', err);\n            // BUG #1: This will result in an uncaught exception that crashes the entire process\n            throw err;\n        }\n        context.log(`Data from file: ${data}`);\n        // context.done() should be called here\n    });\n    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends\n    context.done();\n}\n'''|
 // NOT RECOMMENDED PATTERN
 const fs = require('fs');
 

@@ -12,6 +12,7 @@ Some examples of experimental extensions that have been created:
 * [Http](https://github.com/anthony-c-martin/bicep-ext-http): Make HTTP requests.
 * [KeyVault data plane](https://github.com/anthony-c-martin/bicep-ext-keyvault): Manage KeyVault data plane operations (secrets, certificates etc).
 * [Kubernetes](https://github.com/anthony-c-martin/bicep-ext-kubernetes): Manage Kubernetes resources directly.
+* [Desired State Configuration v3](https://github.com/microsoft/bicep-types-dsc): Manage DSCv3 resources directly.
 
 These extensions can be combined as you wish - for example, you could:
 * Read kubernetes config using a bash script and deploy Kubernetes resources with the kubernetes extension
@@ -36,8 +37,18 @@ To try out a particular extension, follow the README instructions from one of sa
 ### Via CLI
 1. Run:
     ```sh
-    bicep local-deploy <path_to_bicepparam_file>
+    bicep local-deploy <path_to_bicepparam_file> [arguments]
     ```
+
+#### Arguments
+
+The `bicep local-deploy` command takes the following arguments:
+
+| Argument            | Description                                                                                                                 |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `<path_to_bicepparam_file>`     | **Required**. The path to the `.bicepparam` file to be deployed locally.                                                    |
+| `--no-restore`      | Skips the automatic restoration of external modules or extensions before the deployment starts.                             |
+| `--format <format>` | Specifies the output format of the deployment results. Supported values are **Default** (interactive/tabular) and **Json**. |
 
 ## Building your own extension
 ### Quickstart
@@ -50,13 +61,19 @@ A local extension consists of the following components:
 
 All extension binaries are expected to meet the following requirements:
 1. Accept all of the following CLI arguments:
-    * `--socket <socket_name>`: The path to the domain socket to connect on
-    * `--pipe <pipe_name>`: The named pipe to connect on
-    * `--wait-for-debugger`: Signals that you want to debug the extension, and that execution should pause until you are ready.
+    * `--socket <socket_name>`: The path to the domain socket to connect on, used on Linux and macOS
+    * `--pipe <pipe_name>`: The named pipe to connect on, used on Windows
+    * `--wait-for-debugger`: Signals that you want to debug the extension, and that execution should pause until you are ready. (Note that this feature is not yet implemented.)
 1. Once started (either via domain socket or named pipe), exposes a gRPC endpoint over the relevant channel, adhereing to the [extension gRPC contract](../../src/Bicep.Local.Rpc/extension.proto).
 1. Responds to SIGTERM to request a graceful shutdown.
 
 For .NET applications, there is a [NuGet package](https://www.nuget.org/packages/Azure.Bicep.Local.Extension) available which abstracts most of the above implementation.
+
+### Debugging
+Use [the debugging guide](./local-deploy-dotnet-debugging-guide.md) for helpful tips on debugging your extension during development using Visual Studio or VS Code.
+
+### Unit testing
+Use the [unit testing guide](./local-deploy-dotnet-unittesting-guide.md) for some tips on how to unit test your extension.
 
 ### Publishing
 Extensions can be published using the `bicep publish-extension` CLI command group. They can either be published to the local file system, or to an ACR instance.

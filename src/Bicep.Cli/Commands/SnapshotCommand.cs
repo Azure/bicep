@@ -17,7 +17,7 @@ using Azure.Deployments.Templates.Exceptions;
 using Azure.Deployments.Templates.ParsedEntities;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
-using Bicep.Cli.Helpers.Snapshot;
+using Bicep.Cli.Helpers.Snapshots;
 using Bicep.Cli.Helpers.WhatIf;
 using Bicep.Cli.Logging;
 using Bicep.Core;
@@ -28,6 +28,7 @@ using Bicep.Core.Json;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
+using Bicep.Core.Utils.Snapshots;
 using Bicep.IO.Abstraction;
 using Bicep.Local.Deploy.Extensibility;
 using Json.More;
@@ -126,7 +127,7 @@ public class SnapshotCommand(
                                 logger.LogWarning($"Snapshot {stackOutputUri} validation failed. Expected no changes, but found the following:");
                             }
 
-                            await io.Output.WriteAsync(WhatIfOperationResultFormatter.Format(changes));
+                            await io.Output.Writer.WriteAsync(WhatIfOperationResultFormatter.Format(changes));
                             break;
                         }
                     default:
@@ -157,7 +158,7 @@ public class SnapshotCommand(
                         logger.LogWarning("Snapshot validation failed. Expected no changes, but found the following:");
                     }
 
-                    await io.Output.WriteAsync(WhatIfOperationResultFormatter.Format(changes));
+                    await io.Output.Writer.WriteAsync(WhatIfOperationResultFormatter.Format(changes));
                     return changes.Any() ? 1 : 0;
                 }
             default:
