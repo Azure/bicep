@@ -7,7 +7,9 @@ import type { NodeKind } from "./features/graph-engine/atoms";
 import { PanZoomProvider } from "@vscode-bicep-ui/components";
 import { getDefaultStore, useSetAtom } from "jotai";
 import { useEffect } from "react";
-import { styled } from "styled-components";
+import { styled, ThemeProvider } from "styled-components";
+import { GlobalStyle } from "./GlobalStyle";
+import { useTheme } from "./theming/useTheme";
 import { GraphControlBar } from "./features/design-view/components/GraphControlBar";
 import { ModuleDeclaration } from "./features/design-view/components/ModuleDeclaration";
 import { ResourceDeclaration } from "./features/design-view/components/ResourceDeclaration";
@@ -72,14 +74,19 @@ export function App() {
     };
   }, [addCompoundNode, addAtomicNode, addEdge, setNodesAtom, setEdgesAtom]);
 
+  const theme = useTheme();
+
   return (
-    <PanZoomProvider>
-      <$ControlBarContainer>
-        <GraphControlBar />
-      </$ControlBarContainer>
-      <Canvas>
-        <Graph />
-      </Canvas>
-    </PanZoomProvider>
+    <ThemeProvider theme={theme}>
+      <GlobalStyle />
+      <PanZoomProvider>
+        <$ControlBarContainer>
+          <GraphControlBar />
+        </$ControlBarContainer>
+        <Canvas>
+          <Graph />
+        </Canvas>
+      </PanZoomProvider>
+    </ThemeProvider>
   );
 }

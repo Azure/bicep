@@ -12,8 +12,8 @@ const $GraphControlBar = styled.div`
   flex-direction: column;
   gap: 2px;
   padding: 4px;
-  background-color: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: ${({ theme }) => theme.controlBar.background};
+  border: 1px solid ${({ theme }) => theme.controlBar.border};
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(8px);
@@ -29,28 +29,24 @@ const $ControlButton = styled.button`
   border: none;
   border-radius: 4px;
   background-color: transparent;
-  color: #4a5568;
+  color: ${({ theme }) => theme.controlBar.icon};
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background-color: rgba(74, 85, 104, 0.1);
-    color: #2d3748;
+    background-color: ${({ theme }) => theme.controlBar.hoverBackground};
   }
 
   &:active {
-    background-color: rgba(74, 85, 104, 0.2);
+    background-color: ${({ theme }) => theme.controlBar.activeBackground};
     transform: scale(0.95);
   }
 
-  &:focus {
-    outline: 2px solid #3182ce;
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.focusBorder};
     outline-offset: 1px;
   }
 
-  &:focus:not(:focus-visible) {
-    outline: none;
-  }
 `;
 
 export function GraphControlBar() {

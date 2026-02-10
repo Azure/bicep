@@ -21,9 +21,9 @@ const $ResourceDelcarton = styled.div`
   padding: 12px 16px;
   margin: 4px;
   box-sizing: border-box;
-  border: 2px solid #333638;
+  border: 2px solid ${({ theme }) => theme.node.border};
   border-radius: 4px;
-  background-color: #f9fafa;
+  background-color: ${({ theme }) => theme.node.background};
   height: 70px;
   min-width: 200px;
 `;
@@ -41,13 +41,13 @@ const $TextContainer = styled.div`
 const $SymbolicNameContainer = styled.div`
   font-size: 18px;
   font-weight: 500;
-  color: #242424;
+  color: ${({ theme }) => theme.text.primary};
 `;
 
 const $ResourceTypeContainer = styled.div`
   font-size: 12px;
   font-weight: 500;
-  color: #898e96;
+  color: ${({ theme }) => theme.text.secondary};
   text-transform: uppercase;
 `;
 
