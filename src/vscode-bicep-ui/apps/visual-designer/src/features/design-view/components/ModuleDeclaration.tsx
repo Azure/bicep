@@ -16,9 +16,9 @@ const $ModuleDelcarton = styled.div`
   flex: 1;
   margin: 4px;
   box-sizing: border-box;
-  border: 2px solid #333638;
+  border: 2px solid ${({ theme }) => theme.node.border};
   border-radius: 4px;
-  background: #f9fafa;
+  background: ${({ theme }) => theme.node.background};
 `;
 
 const $DeclarationInfo = styled.div`
@@ -31,7 +31,7 @@ const $DeclarationInfo = styled.div`
 
 const $SymbolicNameContainer = styled.div`
   font-size: 14px;
-  color: #242424;
+  color: ${({ theme }) => theme.text.primary};
   margin-bottom: 2px;
   margin-left: 8px;
 `;

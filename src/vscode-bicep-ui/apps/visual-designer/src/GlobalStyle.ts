@@ -10,7 +10,9 @@ export const GlobalStyle = createGlobalStyle`
     padding: 0;
     display: flex;
     overflow: hidden;
-    font-family: var(--vscode-font-family);
+    font-family: var(--vscode-font-family, sans-serif);
+    background-color: ${({ theme }) => theme.canvas.background};
+    color: ${({ theme }) => theme.text.primary};
   }
 
   #root {
