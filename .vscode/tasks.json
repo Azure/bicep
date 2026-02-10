@@ -66,10 +66,29 @@
                 "cwd": "${workspaceFolder}/src/vscode-bicep"
             },
             "dependsOn": [
+                "Install VSCode Extension Dependencies",
                 "Build Language Server for VSIX",
                 "Build MCP Server for VSIX",
                 "Build VSCode UI"
             ]
+        },
+        {
+            "label": "Install VSCode Extension Dependencies",
+            "command": "npm",
+            "args": ["install"],
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/src/vscode-bicep"
+            }
+        },
+        {
+            "label": "Install VSCode UI Dependencies",
+            "command": "npm",
+            "args": ["install"],
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceFolder}/src/vscode-bicep-ui"
+            }
         },
         {
             "label": "Build VSCode UI",
@@ -79,7 +98,10 @@
             "problemMatcher": "$tsc-watch",
             "options": {
                 "cwd": "${workspaceFolder}/src/vscode-bicep-ui"
-            }
+            },
+            "dependsOn": [
+                "Install VSCode UI Dependencies"
+            ]
         },
         {
             "label": "Build WASM for Playground",
