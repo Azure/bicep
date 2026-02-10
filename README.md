@@ -116,9 +116,9 @@ When using the Bicep VS Code extension, VS Code collects usage data and sends it
 
 ## License
 
-All files except for the [Azure Architecture SVG Icons](./src/vscode-bicep/src/visualizer/app/assets/icons/azure) in the repository are subject to the [MIT license](./LICENSE).
+All files except for the Azure Architecture SVG Icons ([here](./src/vscode-bicep/src/visualizer/app/assets/icons/azure) and [here](./src/vscode-bicep-ui/packages/components/assets/azure-architecture-icons)) in the repository are subject to the [MIT license](./LICENSE).
 
-The [Azure Architecture SVG Icons](./src/vscode-bicep/src/visualizer/app/assets/icons/azure) used in the Bicep VS Code extension are subject to the [Terms of Use](https://learn.microsoft.com/azure/architecture/icons/#terms).
+The Azure Architecture SVG Icons ([here](./src/vscode-bicep/src/visualizer/app/assets/icons/azure) and [here](./src/vscode-bicep-ui/packages/components/assets/azure-architecture-icons)) used in the Bicep VS Code extension are subject to the [Terms of Use](https://learn.microsoft.com/azure/architecture/icons/#terms).
 
 ## Contributing
 
