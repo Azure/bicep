@@ -782,7 +782,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 yield return new FunctionOverloadBuilder("like")
                     .WithReturnResultBuilder(TryDeriveLiteralReturnType("like", LanguageConstants.Bool), LanguageConstants.Bool)
-                    .WithGenericDescription("Performs pattern based matching and returns true if input string matches the pattern and supports '*' as a wildcard.The comparison is case-insensitive.")
+                    .WithGenericDescription("Performs pattern based matching and returns true if input string matches the pattern and supports '*' as a wildcard. The comparison is case-insensitive.")
                     .WithRequiredParameter("input", LanguageConstants.String, "The string to evaluate.")
                     .WithRequiredParameter("pattern", LanguageConstants.String, "The value to match.")
                     .Build();
