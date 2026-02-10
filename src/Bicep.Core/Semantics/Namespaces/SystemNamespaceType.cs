@@ -780,6 +780,13 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
                     .Build();
 
+                yield return new FunctionOverloadBuilder("like")
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("like", LanguageConstants.Bool), LanguageConstants.Bool)
+                    .WithGenericDescription("Performs pattern based matching and returns true if input string matches the pattern and supports '*' as a wildcard.The comparison is case-insensitive.")
+                    .WithRequiredParameter("input", LanguageConstants.String, "The string to evaluate.")
+                    .WithRequiredParameter("pattern", LanguageConstants.String, "The value to match.")
+                    .Build();
+
                 static long? MinOf(TypeSymbol type) => type switch
                 {
                     IntegerType @int => @int.MinValue,
