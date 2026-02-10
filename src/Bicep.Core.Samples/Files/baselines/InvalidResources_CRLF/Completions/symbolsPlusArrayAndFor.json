@@ -3235,6 +3235,27 @@
     }
   },
   {
+    "label": "like",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nlike(input: string, pattern: string): bool\n\n```  \nPerforms pattern based matching and returns true if input string matches the pattern and supports '*' as a wildcard.The comparison is case-insensitive.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_like",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "like($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "loadDirectoryFileInfo",
     "kind": "function",
     "documentation": {

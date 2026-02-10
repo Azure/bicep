@@ -1,5 +1,5 @@
 func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
-//@[000:1461) ProgramSyntax
+//@[000:1564) ProgramSyntax
 //@[000:0141) ├─FunctionDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |func|
 //@[005:0013) | ├─IdentifierSyntax
@@ -648,6 +648,51 @@ func buildUrlMultiLine(
 //@[079:0083) |     |   |   └─Token(Identifier) |path|
 //@[083:0085) |     |   └─Token(StringRightPiece) |}'|
 //@[085:0087) |     └─Token(StringRightPiece) |}'|
-//@[087:0088) ├─Token(NewLine) |\n|
+//@[087:0089) ├─Token(NewLine) |\n\n|
+
+output likeExactMatch bool =like('abc', 'abc')
+//@[000:0046) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0021) | ├─IdentifierSyntax
+//@[007:0021) | | └─Token(Identifier) |likeExactMatch|
+//@[022:0026) | ├─TypeVariableAccessSyntax
+//@[022:0026) | | └─IdentifierSyntax
+//@[022:0026) | |   └─Token(Identifier) |bool|
+//@[027:0028) | ├─Token(Assignment) |=|
+//@[028:0046) | └─FunctionCallSyntax
+//@[028:0032) |   ├─IdentifierSyntax
+//@[028:0032) |   | └─Token(Identifier) |like|
+//@[032:0033) |   ├─Token(LeftParen) |(|
+//@[033:0038) |   ├─FunctionArgumentSyntax
+//@[033:0038) |   | └─StringSyntax
+//@[033:0038) |   |   └─Token(StringComplete) |'abc'|
+//@[038:0039) |   ├─Token(Comma) |,|
+//@[040:0045) |   ├─FunctionArgumentSyntax
+//@[040:0045) |   | └─StringSyntax
+//@[040:0045) |   |   └─Token(StringComplete) |'abc'|
+//@[045:0046) |   └─Token(RightParen) |)|
+//@[046:0047) ├─Token(NewLine) |\n|
+output likeWildCardMatch bool= like ('abcdef', 'a*c*')
+//@[000:0054) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0024) | ├─IdentifierSyntax
+//@[007:0024) | | └─Token(Identifier) |likeWildCardMatch|
+//@[025:0029) | ├─TypeVariableAccessSyntax
+//@[025:0029) | | └─IdentifierSyntax
+//@[025:0029) | |   └─Token(Identifier) |bool|
+//@[029:0030) | ├─Token(Assignment) |=|
+//@[031:0054) | └─FunctionCallSyntax
+//@[031:0035) |   ├─IdentifierSyntax
+//@[031:0035) |   | └─Token(Identifier) |like|
+//@[036:0037) |   ├─Token(LeftParen) |(|
+//@[037:0045) |   ├─FunctionArgumentSyntax
+//@[037:0045) |   | └─StringSyntax
+//@[037:0045) |   |   └─Token(StringComplete) |'abcdef'|
+//@[045:0046) |   ├─Token(Comma) |,|
+//@[047:0053) |   ├─FunctionArgumentSyntax
+//@[047:0053) |   | └─StringSyntax
+//@[047:0053) |   |   └─Token(StringComplete) |'a*c*'|
+//@[053:0054) |   └─Token(RightParen) |)|
+//@[054:0055) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

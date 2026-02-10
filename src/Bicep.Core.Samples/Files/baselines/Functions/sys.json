@@ -932,6 +932,32 @@
     ]
   },
   {
+    "name": "like",
+    "description": "Performs pattern based matching and returns true if input string matches the pattern and supports '*' as a wildcard.The comparison is case-insensitive.",
+    "fixedParameters": [
+      {
+        "name": "input",
+        "description": "The string to evaluate.",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "pattern",
+        "description": "The value to match.",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(input: string, pattern: string): bool",
+    "parameterTypeSignatures": [
+      "input: string",
+      "pattern: string"
+    ]
+  },
+  {
     "name": "loadDirectoryFileInfo",
     "description": "Loads basic information about a directory's files as bicep object. File loading occurs during compilation, not at runtime.",
     "fixedParameters": [

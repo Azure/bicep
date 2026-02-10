@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2216132208843131284"
+      "templateHash": "4045265274184897325"
     }
   },
   "definitions": {
@@ -226,6 +226,14 @@
     "fooValue": {
       "type": "array",
       "value": "[__bicep.fooTest()]"
+    },
+    "likeExactMatch": {
+      "type": "bool",
+      "value": "[like('abc', 'abc')]"
+    },
+    "likeWildCardMatch": {
+      "type": "bool",
+      "value": "[like('abcdef', 'a*c*')]"
     }
   }
 }
