@@ -43,3 +43,6 @@ func b(longParameterName1 string, longParameterName2 string, longParameterName3 
 
 func buildUrlMultiLine(https bool, hostname string, path string) string =>
   '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
+
+output likeExactMatch bool = like('abc', 'abc')
+output likeWildCardMatch bool = like('abcdef', 'a*c*')

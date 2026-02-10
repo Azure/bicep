@@ -1,5 +1,5 @@
 func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
-//@[000:1461) ProgramExpression
+//@[000:1564) ProgramExpression
 //@[000:0141) ├─DeclaredFunctionExpression { Name = buildUrl }
 //@[013:0141) | └─LambdaExpression
 //@[020:0024) |   ├─AmbientTypeReferenceExpression { Name = bool }
@@ -116,9 +116,9 @@ func fooTest() array => map(barTest(), a => 'Hello ${a}!')
 //@[015:0020) |   └─AmbientTypeReferenceExpression { Name = array }
 
 output fooValue array = fooTest()
-//@[000:0033) └─DeclaredOutputExpression { Name = fooValue }
-//@[016:0021)   ├─AmbientTypeReferenceExpression { Name = array }
-//@[024:0033)   └─UserDefinedFunctionCallExpression { Name = fooTest }
+//@[000:0033) ├─DeclaredOutputExpression { Name = fooValue }
+//@[016:0021) | ├─AmbientTypeReferenceExpression { Name = array }
+//@[024:0033) | └─UserDefinedFunctionCallExpression { Name = fooTest }
 
 func test() object => loadJsonContent('./repro-data.json')
 //@[000:0058) ├─DeclaredFunctionExpression { Name = test }
@@ -179,4 +179,17 @@ func buildUrlMultiLine(
 //@[075:0085) |   |   └─InterpolatedStringExpression
 //@[079:0083) |   |     └─LambdaVariableReferenceExpression { Variable = path }
 //@[002:0008) |   └─AmbientTypeReferenceExpression { Name = string }
+
+output likeExactMatch bool =like('abc', 'abc')
+//@[000:0046) ├─DeclaredOutputExpression { Name = likeExactMatch }
+//@[022:0026) | ├─AmbientTypeReferenceExpression { Name = bool }
+//@[028:0046) | └─FunctionCallExpression { Name = like }
+//@[033:0038) |   ├─StringLiteralExpression { Value = abc }
+//@[040:0045) |   └─StringLiteralExpression { Value = abc }
+output likeWildCardMatch bool= like ('abcdef', 'a*c*')
+//@[000:0054) └─DeclaredOutputExpression { Name = likeWildCardMatch }
+//@[025:0029)   ├─AmbientTypeReferenceExpression { Name = bool }
+//@[031:0054)   └─FunctionCallExpression { Name = like }
+//@[037:0045)     ├─StringLiteralExpression { Value = abcdef }
+//@[047:0053)     └─StringLiteralExpression { Value = a*c* }
 

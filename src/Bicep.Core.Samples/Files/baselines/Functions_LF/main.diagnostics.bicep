@@ -53,3 +53,8 @@ func buildUrlMultiLine(
   path string
 ) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 
+output likeExactMatch bool =like('abc', 'abc')
+//@[33:45) [BCP234 (Warning)] The ARM function "like" failed when invoked on the value [abc, abc]: The template function 'like' is not valid. Please see https://aka.ms/arm-functions for usage details. (bicep https://aka.ms/bicep/core-diagnostics#BCP234) |'abc', 'abc'|
+output likeWildCardMatch bool= like ('abcdef', 'a*c*')
+//@[37:53) [BCP234 (Warning)] The ARM function "like" failed when invoked on the value [abcdef, a*c*]: The template function 'like' is not valid. Please see https://aka.ms/arm-functions for usage details. (bicep https://aka.ms/bicep/core-diagnostics#BCP234) |'abcdef', 'a*c*'|
+
