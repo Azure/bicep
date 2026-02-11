@@ -1092,7 +1092,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nlike(input: string, pattern: string): bool\n\n```  \nPerforms pattern based matching and returns true if input string matches the pattern and supports '*' as a wildcard.The comparison is case-insensitive.  \n"
+      "value": "```bicep\nlike(input: string, pattern: string): bool\n\n```  \nPerforms pattern based matching and returns true if input string matches the pattern and supports '*' as a wildcard. The comparison is case-insensitive.  \n"
     },
     "deprecated": false,
     "preselect": false,
