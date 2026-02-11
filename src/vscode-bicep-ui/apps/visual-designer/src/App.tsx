@@ -22,6 +22,7 @@ import {
   nodesAtom,
 } from "./features/graph-engine/atoms";
 import { Canvas, Graph } from "./features/graph-engine/components";
+import { runLayout } from "./features/graph-engine/layout/elk-layout";
 
 const store = getDefaultStore();
 const nodeConfig = store.get(nodeConfigAtom);
@@ -68,7 +69,20 @@ export function App() {
     addEdge("E->D", "E", "D");
     addEdge("C->B", "C", "B");
 
+    // Wait for DOM measurement (two frames) then run auto-layout
+    const frame1 = requestAnimationFrame(() => {
+      const frame2 = requestAnimationFrame(() => {
+        void runLayout(store);
+      });
+
+      cleanup = () => cancelAnimationFrame(frame2);
+    });
+
+    let cleanup: (() => void) | undefined;
+
     return () => {
+      cancelAnimationFrame(frame1);
+      cleanup?.();
       setEdgesAtom([]);
       setNodesAtom({});
     };

@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 import { Codicon, useGetPanZoomDimensions, usePanZoomControl } from "@vscode-bicep-ui/components";
+import { useStore } from "jotai";
 import { useAtomCallback } from "jotai/utils";
 import { useCallback } from "react";
 import { styled } from "styled-components";
 import { nodesAtom } from "../../graph-engine/atoms";
+import { runLayout } from "../../graph-engine/layout/elk-layout";
 
 const $GraphControlBar = styled.div`
   display: flex;
@@ -52,17 +54,11 @@ const $ControlButton = styled.button`
 export function GraphControlBar() {
   const getPanZoomDimensions = useGetPanZoomDimensions();
   const { zoomIn, zoomOut, transform } = usePanZoomControl();
+  const store = useStore();
 
-  const resetLayout = useAtomCallback(
-    useCallback((get, set) => {
-      const nodes = get(nodesAtom);
-      for (const node of Object.values(nodes)) {
-        if (node.kind === "atomic") {
-          set(node.originAtom, { ...get(node.originAtom) });
-        }
-      }
-    }, []),
-  );
+  const resetLayout = useCallback(async () => {
+    await runLayout(store);
+  }, [store]);
 
   const fitView = useAtomCallback(
     useCallback(

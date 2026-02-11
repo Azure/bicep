@@ -21,6 +21,7 @@
     "@react-hook/resize-observer": "^2.0.2",
     "@vscode-bicep-ui/components": "^0.0.0",
     "@vscode-bicep-ui/messaging": "^0.0.0",
+    "elkjs": "^0.11.0",
     "jotai": "^2.13.1",
     "motion": "^12.23.3",
     "react": "^18.3.1",
