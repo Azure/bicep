@@ -38,6 +38,8 @@ includes enhancements for Deployment stacks extensibility integration. This feat
 
 Enables the `@patch()` decorator for deploying resources using the PATCH HTTP method instead of PUT. This feature is restricted to Azure Policy DeployIfNotExists (DINE) scenarios, allowing policies to make incremental changes to existing resources without full redeployment.
 
+> **Note**: This feature is intended for internal Azure Policy scenarios and is not intended for general public use. It requires specific backend support that is only available in Policy-initiated deployments.
+
 ```bicep
 @patch()
 resource existingVm 'Microsoft.Compute/virtualMachines@2023-01-01' = {
