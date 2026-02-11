@@ -933,7 +933,7 @@
   },
   {
     "name": "like",
-    "description": "Performs pattern based matching and returns true if input string matches the pattern and supports '*' as a wildcard.The comparison is case-insensitive.",
+    "description": "Performs pattern based matching and returns true if input string matches the pattern and supports '*' as a wildcard. The comparison is case-insensitive.",
     "fixedParameters": [
       {
         "name": "input",
