@@ -49,7 +49,7 @@ Bicep has a [highlight.js](https://highlightjs.org/) plugin available at [bicep.
     ```
 
 ### Known uses
-* **MS Docs**: It's used to provide colorization for Bicep samples in [MS Docs](https://docs.microsoft.com/). This site is using a [fork](https://github.com/DuncanmaMSFT/highlight.js) of Highlight.js, so changes to the grammar must be compiled and submitted to [the fork repo](https://github.com/DuncanmaMSFT/highlight.js/blob/stable/src/languages/bicep.js) for integration.
+* **MS Docs**: It's used to provide colorization for Bicep samples in [MS Docs](https://docs.microsoft.com/).
 
 ### Notes
 To build it, run:
