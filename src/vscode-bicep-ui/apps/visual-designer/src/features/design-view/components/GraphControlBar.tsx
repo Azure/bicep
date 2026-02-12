@@ -6,7 +6,7 @@ import { useStore } from "jotai";
 import { useCallback, useRef } from "react";
 import { styled } from "styled-components";
 import { useFitView } from "../../../hooks/useFitView";
-import { applyLayout, computeFitViewTransform, computeLayout } from "../../graph-engine/layout/elk-layout";
+import { applyLayout, computeLayout } from "../../graph-engine/layout/elk-layout";
 
 const $GraphControlBar = styled.div`
   display: flex;
@@ -51,7 +51,7 @@ const $ControlButton = styled.button`
 `;
 
 export function GraphControlBar() {
-  const { zoomIn, zoomOut, transform: panZoomTransform } = usePanZoomControl();
+  const { zoomIn, zoomOut } = usePanZoomControl();
   const getPanZoomDimensions = useGetPanZoomDimensions();
   const store = useStore();
   const fitView = useFitView();
@@ -63,13 +63,11 @@ export function GraphControlBar() {
     try {
       const viewport = getPanZoomDimensions();
       const result = await computeLayout(store, viewport);
-      const { translateX, translateY, scale } = computeFitViewTransform(result, viewport.width, viewport.height);
-      panZoomTransform(translateX, translateY, scale);
       await applyLayout(store, result);
     } finally {
       layoutInFlight.current = false;
     }
-  }, [store, getPanZoomDimensions, panZoomTransform]);
+  }, [store, getPanZoomDimensions]);
 
   return (
     <$GraphControlBar>
