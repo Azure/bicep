@@ -81,6 +81,9 @@ namespace Bicep.Cli
             var environment = services.GetRequiredService<IEnvironment>();
             Trace.WriteLine($"Bicep version: {environment.GetVersionString()}, OS: {environment.CurrentPlatform?.ToString() ?? "unknown"}, Architecture: {environment.CurrentArchitecture}, CLI arguments: \"{string.Join(' ', args)}\"");
 
+            var shouldCheckVersion = ShouldCheckForNewerVersions(args);
+            services.GetRequiredService<VersionChecker>().CheckForNewerVersionsAsync(io.Error, shouldCheckVersion);
+
             try
             {
                 switch (ArgumentParser.TryParse(args, services.GetRequiredService<IFileSystem>()))
@@ -210,7 +213,8 @@ namespace Bicep.Cli
                     Out = new AnsiConsoleOutput(io.Output.Writer),
                 }))
                 .AddSingleton<IDeploymentProcessor, DeploymentProcessor>()
-                .AddSingleton<DeploymentRenderer>();
+                .AddSingleton<DeploymentRenderer>()
+                .AddSingleton<VersionChecker>();
 
         // This logic is duplicated in Bicep.Cli. We avoid placing it in Bicep.Core
         // to keep Bicep.Core free of System.IO dependencies. Consider moving this
@@ -222,6 +226,47 @@ namespace Bicep.Cli
             Directory.CreateDirectory(profilePath);
             ProfileOptimization.SetProfileRoot(profilePath);
             ProfileOptimization.StartProfile("bicep.profile");
+        }
+
+        /// <summary>
+        /// Determines whether to check for newer versions based on the command being run and output redirection.
+        /// </summary>
+        private static bool ShouldCheckForNewerVersions(string[] args)
+        {
+            // Skip if output is redirected (piped or not a terminal)
+            if (Console.IsOutputRedirected || Console.IsErrorRedirected)
+            {
+                return false;
+            }
+
+            if (args.Length == 0)
+            {
+                return false;
+            }
+
+            var command = args[0].ToLowerInvariant();
+
+            // Only check for "significant" commands that do real work
+            // Skip lightweight commands like --version, --help, etc.
+            return command switch
+            {
+                Constants.Command.Build => true,
+                Constants.Command.Test => true,
+                Constants.Command.BuildParams => true,
+                Constants.Command.Deploy => true,
+                Constants.Command.LocalDeploy => true,
+                Constants.Command.WhatIf => true,
+                Constants.Command.Teardown => true,
+                Constants.Command.Decompile => true,
+                Constants.Command.DecompileParams => true,
+                Constants.Command.Publish => true,
+                Constants.Command.PublishExtension => true,
+                Constants.Command.Restore => true,
+                Constants.Command.Lint => true,
+                Constants.Command.Format => true,
+                Constants.Command.GenerateParamsFile => true,
+                _ => false
+            };
         }
     }
 }
