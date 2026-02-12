@@ -4,13 +4,17 @@
 import { AzureIcon } from "@vscode-bicep-ui/components";
 import { styled } from "styled-components";
 import { camelCaseToWords } from "../../../utils/text";
+import type { Range } from "../../../messages";
 
 export interface ResourceDeclarationProps {
   id: string;
   data: {
     symbolicName: string;
     resourceType: string;
-    apiVersion: string;
+    isCollection?: boolean;
+    hasError?: boolean;
+    range?: Range;
+    filePath?: string;
   };
 }
 

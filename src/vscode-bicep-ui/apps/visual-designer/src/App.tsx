@@ -5,24 +5,28 @@ import type { ComponentType } from "react";
 import type { NodeKind } from "./features/graph-engine/atoms";
 
 import { PanZoomProvider } from "@vscode-bicep-ui/components";
-import { getDefaultStore, useSetAtom } from "jotai";
-import { useEffect } from "react";
+import { WebviewMessageChannelProvider, useWebviewMessageChannel, useWebviewNotification } from "@vscode-bicep-ui/messaging";
+import type { WebviewMessageChannel } from "@vscode-bicep-ui/messaging";
+import { getDefaultStore } from "jotai";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { styled, ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./GlobalStyle";
 import { useTheme } from "./theming/useTheme";
+import { DevToolbar } from "./dev/DevToolbar";
+import { FakeMessageChannel } from "./dev/FakeMessageChannel";
 import { GraphControlBar } from "./features/design-view/components/GraphControlBar";
 import { ModuleDeclaration } from "./features/design-view/components/ModuleDeclaration";
 import { ResourceDeclaration } from "./features/design-view/components/ResourceDeclaration";
-import {
-  addAtomicNodeAtom,
-  addCompoundNodeAtom,
-  addEdgeAtom,
-  edgesAtom,
-  nodeConfigAtom,
-  nodesAtom,
-} from "./features/graph-engine/atoms";
+import { nodeConfigAtom } from "./features/graph-engine/atoms";
 import { Canvas, Graph } from "./features/graph-engine/components";
 import { runLayout } from "./features/graph-engine/layout/elk-layout";
+import { useApplyDeploymentGraph } from "./hooks/useDeploymentGraph";
+import { useFitView } from "./hooks/useFitView";
+import {
+  DEPLOYMENT_GRAPH_NOTIFICATION,
+  READY_NOTIFICATION,
+  type DeploymentGraphPayload,
+} from "./messages";
 
 const store = getDefaultStore();
 const nodeConfig = store.get(nodeConfigAtom);
@@ -40,67 +44,99 @@ store.set(nodeConfigAtom, {
     ...nodeConfig.padding,
     top: 50,
   },
-  getContentComponent: (kind: NodeKind) =>
-    (kind === "atomic" ? ResourceDeclaration : ModuleDeclaration) as ComponentType<{ id: string; data: unknown }>,
+  getContentComponent: (kind: NodeKind, data: unknown) => {
+    if (kind === "compound") {
+      return ModuleDeclaration as ComponentType<{ id: string; data: unknown }>;
+    }
+    // An atomic node with a "path" field is a module demoted to leaf (no children).
+    const record = data as Record<string, unknown> | null;
+    if (record && "path" in record) {
+      return ModuleDeclaration as ComponentType<{ id: string; data: unknown }>;
+    }
+    return ResourceDeclaration as ComponentType<{ id: string; data: unknown }>;
+  },
 });
 
-export function App() {
-  const setNodesAtom = useSetAtom(nodesAtom);
-  const setEdgesAtom = useSetAtom(edgesAtom);
-  const addAtomicNode = useSetAtom(addAtomicNodeAtom);
-  const addCompoundNode = useSetAtom(addCompoundNodeAtom);
-  const addEdge = useSetAtom(addEdgeAtom);
+/**
+ * Inner component that lives inside PanZoomProvider so it can
+ * access both the messaging channel and the pan-zoom controls.
+ */
+function GraphContainer() {
+  const applyGraph = useApplyDeploymentGraph();
+  const messageChannel = useWebviewMessageChannel();
+  const fitView = useFitView();
+  const isFirstGraph = useRef(true);
 
+  // Send READY notification on mount
   useEffect(() => {
-    addAtomicNode(
-      "A",
-      { x: 200, y: 200 },
-      { symbolicName: "foobar", resourceType: "Microsoft.Compute/virtualMachines" },
-    );
-    addAtomicNode("B", { x: 500, y: 200 }, { symbolicName: "bar", resourceType: "Foo" });
-    addAtomicNode("C", { x: 800, y: 500 }, { symbolicName: "someRandomStorage", resourceType: "Foo" });
-    addAtomicNode("D", { x: 1200, y: 700 }, { symbolicName: "Tricep", resourceType: "Foo" });
-    addCompoundNode("E", ["A", "C"], {
-      symbolicName: "myMod",
-      path: "modules/foooooooooooooooooooooooooooooooooooooobar.bicep",
+    messageChannel.sendNotification({
+      method: READY_NOTIFICATION,
     });
+  }, [messageChannel]);
 
-    addEdge("A->B", "A", "B");
-    addEdge("E->D", "E", "D");
-    addEdge("C->B", "C", "B");
+  // Listen for deployment graph updates
+  useWebviewNotification(
+    DEPLOYMENT_GRAPH_NOTIFICATION,
+    useCallback(
+      (params: unknown) => {
+        const payload = params as DeploymentGraphPayload;
+        applyGraph(payload.deploymentGraph);
 
-    // Wait for DOM measurement (two frames) then run auto-layout
-    const frame1 = requestAnimationFrame(() => {
-      const frame2 = requestAnimationFrame(() => {
-        void runLayout(store);
-      });
+        // Schedule ELK layout after DOM measurement (two frames),
+        // then fit the view so the graph is centered in the viewport.
+        const frame1 = requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            void runLayout(store).then(() => {
+              // Always fit on the first graph; subsequent updates
+              // preserve the user's current pan/zoom.
+              if (isFirstGraph.current) {
+                isFirstGraph.current = false;
+                fitView();
+              }
+            });
+          });
+        });
 
-      cleanup = () => cancelAnimationFrame(frame2);
-    });
+        return () => cancelAnimationFrame(frame1);
+      },
+      [applyGraph, fitView],
+    ),
+  );
 
-    let cleanup: (() => void) | undefined;
+  return (
+    <>
+      <$ControlBarContainer>
+        <GraphControlBar />
+      </$ControlBarContainer>
+      <Canvas>
+        <Graph />
+      </Canvas>
+    </>
+  );
+}
 
-    return () => {
-      cancelAnimationFrame(frame1);
-      cleanup?.();
-      setEdgesAtom([]);
-      setNodesAtom({});
-    };
-  }, [addCompoundNode, addAtomicNode, addEdge, setNodesAtom, setEdgesAtom]);
-
+function VisualDesignerApp() {
   const theme = useTheme();
 
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
       <PanZoomProvider>
-        <$ControlBarContainer>
-          <GraphControlBar />
-        </$ControlBarContainer>
-        <Canvas>
-          <Graph />
-        </Canvas>
+        <GraphContainer />
       </PanZoomProvider>
     </ThemeProvider>
+  );
+}
+
+const isDev = typeof acquireVsCodeApi === "undefined";
+
+export function App() {
+  const fakeChannel = useMemo(() => (isDev ? new FakeMessageChannel() : undefined), []);
+
+  return (
+    <WebviewMessageChannelProvider messageChannel={fakeChannel as unknown as WebviewMessageChannel}>
+      <VisualDesignerApp />
+      {isDev && fakeChannel && <DevToolbar channel={fakeChannel} />}
+    </WebviewMessageChannelProvider>
   );
 }

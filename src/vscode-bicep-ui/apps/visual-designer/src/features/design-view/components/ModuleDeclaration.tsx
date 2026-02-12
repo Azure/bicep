@@ -3,12 +3,17 @@
 
 import { AzureIcon } from "@vscode-bicep-ui/components";
 import { styled } from "styled-components";
+import type { Range } from "../../../messages";
 
 export interface ModuleDeclarationProps {
   id: string;
   data: {
     symbolicName: string;
     path: string;
+    isCollection?: boolean;
+    hasError?: boolean;
+    range?: Range;
+    filePath?: string;
   };
 }
 
