@@ -29,6 +29,14 @@ export type NodeKind = NodeState["kind"];
 
 export const nodesAtom = atom<Record<string, NodeState>>({});
 
+/**
+ * Monotonically increasing version number, bumped each time
+ * the deployment graph is replaced.  Components can subscribe
+ * to this atom to re-run layout after the new graph is committed
+ * to the DOM.
+ */
+export const graphVersionAtom = atom(0);
+
 export const addAtomicNodeAtom = atom(null, (get, set, id: string, origin: Point, data: unknown) => {
   if (get(nodesAtom)[id] !== undefined) {
     throw new Error(`Cannot add atomic node ${id} because it already exists.`);

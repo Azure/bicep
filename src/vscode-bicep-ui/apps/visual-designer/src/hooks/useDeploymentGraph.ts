@@ -9,6 +9,7 @@ import {
   addAtomicNodeAtom,
   addCompoundNodeAtom,
   addEdgeAtom,
+  graphVersionAtom,
   nodesAtom,
   edgesAtom,
 } from "../features/graph-engine/atoms";
@@ -40,6 +41,7 @@ export function useApplyDeploymentGraph() {
   const addAtomicNode = useSetAtom(addAtomicNodeAtom);
   const addCompoundNode = useSetAtom(addCompoundNodeAtom);
   const addEdge = useSetAtom(addEdgeAtom);
+  const setGraphVersion = useSetAtom(graphVersionAtom);
 
   return useCallback(
     (graph: DeploymentGraph | null) => {
@@ -149,9 +151,10 @@ export function useApplyDeploymentGraph() {
         addEdge(`${edge.sourceId}>${edge.targetId}`, edge.sourceId, edge.targetId);
       }
 
-      // Phase 4: Schedule ELK layout (after DOM measurement)
-      // Layout will be triggered by the caller after this function returns
+      // Phase 4: Bump graph version so subscribers (e.g. useLayoutEffect
+      // in App) can trigger ELK layout after the DOM reflects the new graph.
+      setGraphVersion((v) => v + 1);
     },
-    [setNodesAtom, setEdgesAtom, addAtomicNode, addCompoundNode, addEdge],
+    [setNodesAtom, setEdgesAtom, addAtomicNode, addCompoundNode, addEdge, setGraphVersion],
   );
 }

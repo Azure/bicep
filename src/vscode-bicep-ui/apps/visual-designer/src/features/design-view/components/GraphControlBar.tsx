@@ -3,10 +3,10 @@
 
 import { Codicon, usePanZoomControl } from "@vscode-bicep-ui/components";
 import { useStore } from "jotai";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { styled } from "styled-components";
 import { useFitView } from "../../../hooks/useFitView";
-import { runLayout } from "../../graph-engine/layout/elk-layout";
+import { applyLayout, computeLayout } from "../../graph-engine/layout/elk-layout";
 
 const $GraphControlBar = styled.div`
   display: flex;
@@ -54,9 +54,17 @@ export function GraphControlBar() {
   const { zoomIn, zoomOut } = usePanZoomControl();
   const store = useStore();
   const fitView = useFitView();
+  const layoutInFlight = useRef(false);
 
   const resetLayout = useCallback(async () => {
-    await runLayout(store);
+    if (layoutInFlight.current) return;
+    layoutInFlight.current = true;
+    try {
+      const result = await computeLayout(store);
+      applyLayout(store, result);
+    } finally {
+      layoutInFlight.current = false;
+    }
   }, [store]);
 
   return (

@@ -154,24 +154,35 @@ function getElkBoundingBox(elkRoot: ElkNode): { minX: number; minY: number; maxX
 }
 
 /**
- * Run ELK layout on the current graph.
- * @param animate When false, nodes snap to their final positions immediately
- *                (useful for the initial render). Defaults to true.
- * @param viewport When provided on the first layout, computes the offset
- *                 needed to center the graph in the viewport. Subsequent
- *                 layouts reuse the same offset automatically.
+ * The result of an ELK layout computation, ready to be applied to the store.
  */
-export async function runLayout(
+export interface LayoutResult {
+  elkRoot: ElkNode;
+  offsetX: number;
+  offsetY: number;
+}
+
+/**
+ * Compute the ELK layout for the current graph without writing
+ * anything to the store.  The returned {@link LayoutResult} can
+ * be applied later via {@link applyLayout}, which allows the
+ * caller to check for staleness between the async computation
+ * and the synchronous store write.
+ *
+ * @param viewport When provided on the first layout, computes the
+ *                 offset needed to center the graph in the viewport.
+ *                 Subsequent layouts reuse the same offset automatically.
+ */
+export async function computeLayout(
   store: Store,
-  animate = true,
   viewport?: { width: number; height: number },
-): Promise<void> {
+): Promise<LayoutResult> {
   const elkGraph = buildElkGraph(store);
-  const layoutResult = await elk.layout(elkGraph);
+  const elkRoot = await elk.layout(elkGraph);
 
   // Compute or reuse the offset so the graph stays centered.
   if (graphOffset === null && viewport) {
-    const bbox = getElkBoundingBox(layoutResult);
+    const bbox = getElkBoundingBox(elkRoot);
     const graphCenterX = (bbox.minX + bbox.maxX) / 2;
     const graphCenterY = (bbox.minY + bbox.maxY) / 2;
     graphOffset = {
@@ -180,8 +191,19 @@ export async function runLayout(
     };
   }
 
-  const ox = graphOffset?.x ?? 0;
-  const oy = graphOffset?.y ?? 0;
+  return {
+    elkRoot,
+    offsetX: graphOffset?.x ?? 0,
+    offsetY: graphOffset?.y ?? 0,
+  };
+}
 
-  applyElkLayout(store, layoutResult, animate, ox, oy);
+/**
+ * Synchronously apply a previously computed layout to the store.
+ *
+ * @param animate When false, nodes snap to their final positions
+ *                immediately (useful for the initial render).
+ */
+export function applyLayout(store: Store, result: LayoutResult, animate = true): void {
+  applyElkLayout(store, result.elkRoot, animate, result.offsetX, result.offsetY);
 }

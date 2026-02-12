@@ -7,19 +7,18 @@ import type { NodeKind } from "./features/graph-engine/atoms";
 import { PanZoomProvider, useGetPanZoomDimensions } from "@vscode-bicep-ui/components";
 import { WebviewMessageChannelProvider, useWebviewMessageChannel, useWebviewNotification } from "@vscode-bicep-ui/messaging";
 import type { WebviewMessageChannel } from "@vscode-bicep-ui/messaging";
-import { getDefaultStore } from "jotai";
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { getDefaultStore, useAtomValue } from "jotai";
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { styled, ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./GlobalStyle";
 import { useTheme } from "./theming/useTheme";
 import { GraphControlBar } from "./features/design-view/components/GraphControlBar";
 import { ModuleDeclaration } from "./features/design-view/components/ModuleDeclaration";
 import { ResourceDeclaration } from "./features/design-view/components/ResourceDeclaration";
-import { nodeConfigAtom } from "./features/graph-engine/atoms";
+import { graphVersionAtom, nodeConfigAtom } from "./features/graph-engine/atoms";
 import { Canvas, Graph } from "./features/graph-engine/components";
-import { runLayout } from "./features/graph-engine/layout/elk-layout";
+import { applyLayout, computeLayout } from "./features/graph-engine/layout/elk-layout";
 import { useApplyDeploymentGraph } from "./hooks/useDeploymentGraph";
-import { useFitView } from "./hooks/useFitView";
 import {
   DEPLOYMENT_GRAPH_NOTIFICATION,
   READY_NOTIFICATION,
@@ -74,8 +73,8 @@ store.set(nodeConfigAtom, {
 function GraphContainer() {
   const applyGraph = useApplyDeploymentGraph();
   const messageChannel = useWebviewMessageChannel();
-  const fitView = useFitView();
   const getPanZoomDimensions = useGetPanZoomDimensions();
+  const graphVersion = useAtomValue(graphVersionAtom);
   const isFirstGraph = useRef(true);
 
   // Send READY notification on mount
@@ -92,29 +91,43 @@ function GraphContainer() {
       (params: unknown) => {
         const payload = params as DeploymentGraphPayload;
         applyGraph(payload.deploymentGraph);
-
-        // Schedule ELK layout after DOM measurement (two frames),
-        // then fit the view so the graph is centered in the viewport.
-        const frame1 = requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            const isFirst = isFirstGraph.current;
-            // On the first layout, pass viewport dimensions so runLayout
-            // can compute a centering offset.  Subsequent layouts reuse
-            // the same offset automatically.
-            const viewport = isFirst ? getPanZoomDimensions() : undefined;
-            void runLayout(store, /* animate */ true, viewport).then(() => {
-              if (isFirst) {
-                isFirstGraph.current = false;
-              }
-            });
-          });
-        });
-
-        return () => cancelAnimationFrame(frame1);
       },
-      [applyGraph, fitView, getPanZoomDimensions],
+      [applyGraph],
     ),
   );
+
+  // Run ELK layout after the DOM has been updated with the new graph.
+  // useLayoutEffect fires synchronously after React commits DOM changes,
+  // which is the reliable moment to measure and lay out.
+  //
+  // Guard against overlapping layouts: if a newer graph arrives while a
+  // previous layout is still in flight, the stale layout's completion
+  // is ignored (via the `cancelled` flag set in the cleanup function).
+  useLayoutEffect(() => {
+    if (graphVersion === 0) {
+      return;
+    }
+
+    let cancelled = false;
+    const isFirst = isFirstGraph.current;
+    // On the first layout, pass viewport dimensions so computeLayout
+    // can compute a centering offset.  Subsequent layouts reuse
+    // the same offset automatically.
+    const viewport = isFirst ? getPanZoomDimensions() : undefined;
+    void computeLayout(store, viewport).then((result) => {
+      if (cancelled) {
+        return;
+      }
+      applyLayout(store, result, /* animate */ true);
+      if (isFirst) {
+        isFirstGraph.current = false;
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [graphVersion, getPanZoomDimensions]);
 
   return (
     <>
