@@ -112,7 +112,7 @@ function GraphContainer() {
 
         return () => cancelAnimationFrame(frame1);
       },
-      [applyGraph, fitView],
+      [applyGraph, fitView, getPanZoomDimensions],
     ),
   );
 
