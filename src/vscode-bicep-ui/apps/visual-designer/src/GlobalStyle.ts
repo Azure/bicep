@@ -9,6 +9,7 @@ export const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     display: flex;
+    flex-direction: column;
     overflow: hidden;
     font-family: var(--vscode-font-family, sans-serif);
     background-color: ${({ theme }) => theme.canvas.background};
@@ -16,6 +17,7 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   #root {
+    position: relative;
     flex: 1 1 auto;
     overflow: hidden;
   }

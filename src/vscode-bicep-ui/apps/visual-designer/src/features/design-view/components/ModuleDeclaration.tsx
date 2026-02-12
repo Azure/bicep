@@ -17,11 +17,11 @@ export interface ModuleDeclarationProps {
   };
 }
 
-const $ModuleDelcarton = styled.div`
+const $ModuleDelcarton = styled.div<{ $hasError?: boolean }>`
   flex: 1;
   margin: 4px;
   box-sizing: border-box;
-  border: 2px solid ${({ theme }) => theme.node.border};
+  border: 2px solid ${({ $hasError, theme }) => ($hasError ? theme.error : theme.node.border)};
   border-radius: 4px;
   background: ${({ theme }) => theme.node.background};
 `;
@@ -42,10 +42,10 @@ const $SymbolicNameContainer = styled.div`
 `;
 
 export function ModuleDeclaration({ data }: ModuleDeclarationProps) {
-  const { symbolicName } = data;
+  const { symbolicName, hasError } = data;
 
   return (
-    <$ModuleDelcarton>
+    <$ModuleDelcarton $hasError={hasError}>
       <$DeclarationInfo>
         <AzureIcon resourceType={"folder"} size={24} />
         <$SymbolicNameContainer>{symbolicName}</$SymbolicNameContainer>

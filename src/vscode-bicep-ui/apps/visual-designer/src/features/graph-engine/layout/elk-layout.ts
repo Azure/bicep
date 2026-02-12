@@ -5,6 +5,7 @@ import type { ElkExtendedEdge, ElkNode } from "elkjs/lib/elk.bundled.js";
 
 import ELK from "elkjs/lib/elk.bundled.js";
 import { getDefaultStore } from "jotai";
+import { translateBox } from "../../../utils/math";
 import { nodesAtom, edgesAtom } from "../atoms";
 
 type Store = ReturnType<typeof getDefaultStore>;
@@ -90,7 +91,7 @@ function buildElkGraph(store: Store): ElkNode {
   };
 }
 
-function applyElkLayout(store: Store, elkRoot: ElkNode, offsetX = 0, offsetY = 0): void {
+function applyElkLayout(store: Store, elkRoot: ElkNode, animate: boolean, offsetX = 0, offsetY = 0): void {
   const nodes = store.get(nodesAtom);
 
   for (const elkNode of elkRoot.children ?? []) {
@@ -101,19 +102,34 @@ function applyElkLayout(store: Store, elkRoot: ElkNode, offsetX = 0, offsetY = 0
     const y = (elkNode.y ?? 0) + offsetY;
 
     if (node.kind === "atomic") {
-      // Setting originAtom triggers spring animation in AtomicNode
-      store.set(node.originAtom, { x, y });
+      if (animate) {
+        // Setting originAtom triggers spring animation in AtomicNode
+        store.set(node.originAtom, { x, y });
+      } else {
+        // Place the node at the exact position immediately (no animation).
+        // Set boxAtom first so min matches origin, then set originAtom.
+        const box = store.get(node.boxAtom);
+        const dx = x - box.min.x;
+        const dy = y - box.min.y;
+        store.set(node.boxAtom, translateBox(box, dx, dy));
+        store.set(node.originAtom, { x, y });
+      }
     } else if (node.kind === "compound") {
       // For compound nodes, position their children relative to
       // the compound node's position. ELK gives children positions
       // relative to their parent.
-      applyElkLayout(store, elkNode, x, y);
+      applyElkLayout(store, elkNode, animate, x, y);
     }
   }
 }
 
-export async function runLayout(store: Store): Promise<void> {
+/**
+ * Run ELK layout on the current graph.
+ * @param animate When false, nodes snap to their final positions immediately
+ *                (useful for the initial render). Defaults to true.
+ */
+export async function runLayout(store: Store, animate = true): Promise<void> {
   const elkGraph = buildElkGraph(store);
   const layoutResult = await elk.layout(elkGraph);
-  applyElkLayout(store, layoutResult);
+  applyElkLayout(store, layoutResult, animate);
 }

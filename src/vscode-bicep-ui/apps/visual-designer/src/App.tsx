@@ -86,7 +86,8 @@ function GraphContainer() {
         // then fit the view so the graph is centered in the viewport.
         const frame1 = requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            void runLayout(store).then(() => {
+            const animate = !isFirstGraph.current;
+            void runLayout(store, animate).then(() => {
               // Always fit on the first graph; subsequent updates
               // preserve the user's current pan/zoom.
               if (isFirstGraph.current) {

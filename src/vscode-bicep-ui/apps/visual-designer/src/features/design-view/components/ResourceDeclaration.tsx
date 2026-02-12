@@ -18,14 +18,14 @@ export interface ResourceDeclarationProps {
   };
 }
 
-const $ResourceDelcarton = styled.div`
+const $ResourceDelcarton = styled.div<{ $hasError?: boolean }>`
   flex: 1;
   display: flex;
   align-items: center;
   padding: 12px 16px;
   margin: 4px;
   box-sizing: border-box;
-  border: 2px solid ${({ theme }) => theme.node.border};
+  border: 2px solid ${({ $hasError, theme }) => ($hasError ? theme.error : theme.node.border)};
   border-radius: 4px;
   background-color: ${({ theme }) => theme.node.background};
   height: 70px;
@@ -53,14 +53,15 @@ const $ResourceTypeContainer = styled.div`
   font-weight: 500;
   color: ${({ theme }) => theme.text.secondary};
   text-transform: uppercase;
+  white-space: nowrap;
 `;
 
 export function ResourceDeclaration({ data }: ResourceDeclarationProps) {
-  const { symbolicName, resourceType } = data;
+  const { symbolicName, resourceType, hasError } = data;
   const resourceTypeDisplayName = camelCaseToWords(resourceType.split("/").pop());
 
   return (
-    <$ResourceDelcarton>
+    <$ResourceDelcarton $hasError={hasError}>
       <AzureIcon resourceType={resourceType} size={36} />
       <$TextContainer>
         <$SymbolicNameContainer>{symbolicName}</$SymbolicNameContainer>
