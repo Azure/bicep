@@ -19,6 +19,7 @@ import { graphVersionAtom, nodeConfigAtom } from "./features/graph-engine/atoms"
 import { Canvas, Graph } from "./features/graph-engine/components";
 import { applyLayout, computeLayout } from "./features/graph-engine/layout/elk-layout";
 import { useApplyDeploymentGraph } from "./hooks/useDeploymentGraph";
+import { useFitView } from "./hooks/useFitView";
 import {
   DEPLOYMENT_GRAPH_NOTIFICATION,
   READY_NOTIFICATION,
@@ -74,6 +75,7 @@ function GraphContainer() {
   const applyGraph = useApplyDeploymentGraph();
   const messageChannel = useWebviewMessageChannel();
   const getPanZoomDimensions = useGetPanZoomDimensions();
+  const fitView = useFitView();
   const graphVersion = useAtomValue(graphVersionAtom);
   const isFirstGraph = useRef(true);
 
@@ -114,20 +116,24 @@ function GraphContainer() {
     // can compute a centering offset.  Subsequent layouts reuse
     // the same offset automatically.
     const viewport = isFirst ? getPanZoomDimensions() : undefined;
-    void computeLayout(store, viewport).then((result) => {
+    void computeLayout(store, viewport).then(async (result) => {
       if (cancelled) {
         return;
       }
-      applyLayout(store, result, /* animate */ true);
+      await applyLayout(store, result, /* animate */ true);
+      if (cancelled) {
+        return;
+      }
       if (isFirst) {
         isFirstGraph.current = false;
       }
+      fitView();
     });
 
     return () => {
       cancelled = true;
     };
-  }, [graphVersion, getPanZoomDimensions]);
+  }, [graphVersion, getPanZoomDimensions, fitView]);
 
   return (
     <>

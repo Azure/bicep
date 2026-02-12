@@ -2,9 +2,13 @@
 // Licensed under the MIT License.
 
 import type { ElkExtendedEdge, ElkNode } from "elkjs/lib/elk.bundled.js";
+import type { AnimationPlaybackControlsWithThen } from "motion";
+import type { PrimitiveAtom } from "jotai";
+import type { Box } from "../../../utils/math/geometry";
 
 import ELK from "elkjs/lib/elk.bundled.js";
 import { getDefaultStore } from "jotai";
+import { animate, transform } from "motion";
 import { translateBox } from "../../../utils/math";
 import { nodesAtom, edgesAtom } from "../atoms";
 
@@ -91,7 +95,48 @@ function buildElkGraph(store: Store): ElkNode {
   };
 }
 
-function applyElkLayout(store: Store, elkRoot: ElkNode, animate: boolean, offsetX = 0, offsetY = 0): void {
+/** Duration (in seconds) of the spring animation when nodes move to new positions. */
+const ANIMATION_DURATION_S = 0.6;
+
+/**
+ * Animate a node's boxAtom from its current position to a target position
+ * using a spring animation.  Returns an awaitable animation control.
+ */
+function animateNodeTo(
+  store: Store,
+  boxAtom: PrimitiveAtom<Box>,
+  targetX: number,
+  targetY: number,
+) {
+  const box = store.get(boxAtom);
+  const fromX = box.min.x;
+  const fromY = box.min.y;
+
+  const from = 0;
+  const to = 100;
+  const opts = { clamp: false };
+  const xTransform = transform([from, to], [fromX, targetX], opts);
+  const yTransform = transform([from, to], [fromY, targetY], opts);
+
+  return animate(from, to, {
+    type: "spring",
+    duration: ANIMATION_DURATION_S,
+    onUpdate: (latest) => {
+      const x = xTransform(latest);
+      const y = yTransform(latest);
+      store.set(boxAtom, (b) => translateBox(b, x - b.min.x, y - b.min.y));
+    },
+  });
+}
+
+function applyElkLayout(
+  store: Store,
+  elkRoot: ElkNode,
+  shouldAnimate: boolean,
+  offsetX = 0,
+  offsetY = 0,
+  animations: AnimationPlaybackControlsWithThen[] = [],
+): AnimationPlaybackControlsWithThen[] {
   const nodes = store.get(nodesAtom);
 
   for (const elkNode of elkRoot.children ?? []) {
@@ -102,25 +147,26 @@ function applyElkLayout(store: Store, elkRoot: ElkNode, animate: boolean, offset
     const y = (elkNode.y ?? 0) + offsetY;
 
     if (node.kind === "atomic") {
-      if (animate) {
-        // Setting originAtom triggers spring animation in AtomicNode
-        store.set(node.originAtom, { x, y });
+      if (shouldAnimate) {
+        // Drive the spring animation directly on boxAtom and collect
+        // the completion promise so callers can await all animations.
+        animations.push(animateNodeTo(store, node.boxAtom, x, y));
       } else {
         // Place the node at the exact position immediately (no animation).
-        // Set boxAtom first so min matches origin, then set originAtom.
         const box = store.get(node.boxAtom);
         const dx = x - box.min.x;
         const dy = y - box.min.y;
         store.set(node.boxAtom, translateBox(box, dx, dy));
-        store.set(node.originAtom, { x, y });
       }
     } else if (node.kind === "compound") {
       // For compound nodes, position their children relative to
       // the compound node's position. ELK gives children positions
       // relative to their parent.
-      applyElkLayout(store, elkNode, animate, x, y);
+      applyElkLayout(store, elkNode, shouldAnimate, x, y, animations);
     }
   }
+
+  return animations;
 }
 
 /**
@@ -199,11 +245,13 @@ export async function computeLayout(
 }
 
 /**
- * Synchronously apply a previously computed layout to the store.
+ * Synchronously start applying a previously computed layout to the store.
+ * Returns a promise that resolves when all node animations have completed.
  *
  * @param animate When false, nodes snap to their final positions
  *                immediately (useful for the initial render).
  */
-export function applyLayout(store: Store, result: LayoutResult, animate = true): void {
-  applyElkLayout(store, result.elkRoot, animate, result.offsetX, result.offsetY);
+export async function applyLayout(store: Store, result: LayoutResult, animate = true): Promise<void> {
+  const animations = applyElkLayout(store, result.elkRoot, animate, result.offsetX, result.offsetY);
+  await Promise.all(animations);
 }

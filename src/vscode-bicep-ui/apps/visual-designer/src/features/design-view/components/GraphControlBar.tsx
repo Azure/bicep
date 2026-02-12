@@ -61,11 +61,12 @@ export function GraphControlBar() {
     layoutInFlight.current = true;
     try {
       const result = await computeLayout(store);
-      applyLayout(store, result);
+      await applyLayout(store, result);
+      fitView();
     } finally {
       layoutInFlight.current = false;
     }
-  }, [store]);
+  }, [store, fitView]);
 
   return (
     <$GraphControlBar>
