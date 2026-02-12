@@ -301,6 +301,12 @@ export const SAMPLE_GRAPHS: Record<string, DeploymentGraph | null> = {
 
 // ─── Graph mutations ─────────────────────────────────────────────────────────
 
+/** Returns the scope (parent prefix) of a node id, or "" for top-level nodes. */
+function getScope(id: string): string {
+  const idx = id.lastIndexOf("::");
+  return idx === -1 ? "" : id.slice(0, idx);
+}
+
 export interface GraphMutation {
   label: string;
   description: string;
@@ -310,12 +316,13 @@ export interface GraphMutation {
 /** All available mutations for testing incremental updates. */
 export const GRAPH_MUTATIONS: GraphMutation[] = [
   {
-    label: "+ Add node",
-    description: "Append a new resource node and an edge to the first existing node",
+    label: "+\u00a0Add node",
+    description: "Append a new top-level resource node and an edge to the first top-level node",
     apply: (graph) => {
       const index = graph.nodes.filter((n) => !n.hasChildren).length + 1;
       const newId = `addedResource${index}`;
-      const firstNodeId = graph.nodes[0]?.id;
+      // Only connect to a top-level node (same scope)
+      const firstTopLevel = graph.nodes.find((n) => getScope(n.id) === "");
       return {
         ...graph,
         nodes: [
@@ -330,8 +337,8 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
             filePath: FAKE_FILE_PATH,
           },
         ],
-        edges: firstNodeId
-          ? [...graph.edges, { sourceId: newId, targetId: firstNodeId }]
+        edges: firstTopLevel
+          ? [...graph.edges, { sourceId: newId, targetId: firstTopLevel.id }]
           : graph.edges,
       };
     },
@@ -474,18 +481,28 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
     },
   },
   {
-    label: "+ Add edge",
-    description: "Add an edge between two random unconnected atomic nodes",
+    label: "+\u00a0Add edge",
+    description: "Add an edge between two unconnected nodes in the same scope",
     apply: (graph) => {
-      const atomicIds = graph.nodes
+      // Group non-module nodes by scope
+      const nodeIds = graph.nodes
         .filter((n) => !n.hasChildren)
         .map((n) => n.id);
+      // Also include module nodes (they live in the top-level scope)
+      const moduleIds = graph.nodes
+        .filter((n) => n.hasChildren)
+        .map((n) => n.id);
+      const allIds = [...nodeIds, ...moduleIds];
       const existingEdgeKeys = new Set(
-        graph.edges.map((e) => `${e.sourceId}->${e.targetId}`),
+        graph.edges.flatMap((e) => [`${e.sourceId}->${e.targetId}`, `${e.targetId}->${e.sourceId}`]),
       );
-      for (const src of atomicIds) {
-        for (const tgt of atomicIds) {
-          if (src !== tgt && !existingEdgeKeys.has(`${src}->${tgt}`)) {
+      for (const src of allIds) {
+        for (const tgt of allIds) {
+          if (
+            src !== tgt &&
+            getScope(src) === getScope(tgt) &&
+            !existingEdgeKeys.has(`${src}->${tgt}`)
+          ) {
             return {
               ...graph,
               edges: [...graph.edges, { sourceId: src, targetId: tgt }],
