@@ -61,9 +61,9 @@ export function GraphControlBar() {
     if (layoutInFlight.current) return;
     layoutInFlight.current = true;
     try {
-      const result = await computeLayout(store);
-      const { width, height } = getPanZoomDimensions();
-      const { translateX, translateY, scale } = computeFitViewTransform(result, width, height);
+      const viewport = getPanZoomDimensions();
+      const result = await computeLayout(store, viewport);
+      const { translateX, translateY, scale } = computeFitViewTransform(result, viewport.width, viewport.height);
       panZoomTransform(translateX, translateY, scale);
       await applyLayout(store, result);
     } finally {
