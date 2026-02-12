@@ -8,12 +8,10 @@ import { PanZoomProvider, useGetPanZoomDimensions } from "@vscode-bicep-ui/compo
 import { WebviewMessageChannelProvider, useWebviewMessageChannel, useWebviewNotification } from "@vscode-bicep-ui/messaging";
 import type { WebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { getDefaultStore } from "jotai";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { styled, ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./GlobalStyle";
 import { useTheme } from "./theming/useTheme";
-import { DevToolbar } from "./dev/DevToolbar";
-import { FakeMessageChannel } from "./dev/FakeMessageChannel";
 import { GraphControlBar } from "./features/design-view/components/GraphControlBar";
 import { ModuleDeclaration } from "./features/design-view/components/ModuleDeclaration";
 import { ResourceDeclaration } from "./features/design-view/components/ResourceDeclaration";
@@ -27,6 +25,18 @@ import {
   READY_NOTIFICATION,
   type DeploymentGraphPayload,
 } from "./messages";
+
+const isDev = typeof acquireVsCodeApi === "undefined";
+
+// Lazy-load dev-only modules so they are code-split into a separate
+// chunk and never downloaded in production (where acquireVsCodeApi exists).
+const LazyDevToolbar = isDev
+  ? lazy(() => import("./dev/DevToolbar").then((m) => ({ default: m.DevToolbar })))
+  : undefined;
+
+const loadFakeMessageChannel = isDev
+  ? () => import("./dev/FakeMessageChannel").then((m) => new m.FakeMessageChannel())
+  : undefined;
 
 const store = getDefaultStore();
 const nodeConfig = store.get(nodeConfigAtom);
@@ -139,14 +149,29 @@ function VisualDesignerApp() {
   );
 }
 
-const isDev = typeof acquireVsCodeApi === "undefined";
-
 export function App() {
-  const fakeChannel = useMemo(() => (isDev ? new FakeMessageChannel() : undefined), []);
+  const [fakeChannel, setFakeChannel] = useState<WebviewMessageChannel | undefined>(undefined);
+  const fakeChannelRef = useRef<unknown>(undefined);
+
+  useEffect(() => {
+    if (!loadFakeMessageChannel || fakeChannelRef.current) return;
+    fakeChannelRef.current = true; // prevent double-loading in StrictMode
+    void loadFakeMessageChannel().then((ch) => {
+      fakeChannelRef.current = ch;
+      setFakeChannel(ch as unknown as WebviewMessageChannel);
+    });
+  }, []);
+
+  // In production, render immediately. In dev, wait for the fake channel to load.
+  if (isDev && !fakeChannel) return null;
 
   return (
     <WebviewMessageChannelProvider messageChannel={fakeChannel as unknown as WebviewMessageChannel}>
-      {isDev && fakeChannel && <DevToolbar channel={fakeChannel} />}
+      {isDev && LazyDevToolbar && (
+        <Suspense>
+          <LazyDevToolbar channel={fakeChannelRef.current as never} />
+        </Suspense>
+      )}
       <VisualDesignerApp />
     </WebviewMessageChannelProvider>
   );
