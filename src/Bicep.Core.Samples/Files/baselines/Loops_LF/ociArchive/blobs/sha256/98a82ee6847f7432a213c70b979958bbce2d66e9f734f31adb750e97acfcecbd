@@ -1,0 +1,700 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "5341716124628400919"
+    }
+  },
+  "parameters": {
+    "name": {
+      "type": "string"
+    },
+    "accounts": {
+      "type": "array"
+    },
+    "index": {
+      "type": "int"
+    }
+  },
+  "variables": {
+    "vnetConfigurations": [
+      {
+        "name": "one",
+        "location": "[resourceGroup().location]"
+      },
+      {
+        "name": "two",
+        "location": "westus"
+      }
+    ],
+    "moduleSetup": [
+      "one",
+      "two",
+      "three"
+    ],
+    "regions": [
+      "eastus",
+      "westus"
+    ]
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}single-resource-name', parameters('name'))]",
+      "location": "[resourceGroup().location]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      }
+    },
+    {
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2016-09-01",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name')))]",
+      "name": "single-resource-lock",
+      "properties": {
+        "level": "CanNotDelete"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}single-resource-name', parameters('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2016-09-01",
+      "scope": "[extensionResourceId(format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', 'single-resource-lock')]",
+      "name": "single-resource-cascade-extension",
+      "properties": {
+        "level": "CanNotDelete"
+      },
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', 'single-resource-lock')]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "storageAccounts",
+        "count": "[length(parameters('accounts'))]",
+        "mode": "serial",
+        "batchSize": 42
+      },
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}-collection-{1}', parameters('name'), parameters('accounts')[copyIndex()].name)]",
+      "location": "[parameters('accounts')[copyIndex()].location]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}single-resource-name', parameters('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2016-09-01",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mod(parameters('index'), 2)].name))]",
+      "name": "one-resource-collection-item-lock",
+      "properties": {
+        "level": "ReadOnly"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mod(parameters('index'), 2)].name))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "extensionCollection",
+        "count": "[length(range(0, 1))]"
+      },
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2016-09-01",
+      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name')))]",
+      "name": "[format('lock-{0}', range(0, 1)[copyIndex()])]",
+      "properties": {
+        "level": "[if(equals(range(0, 1)[copyIndex()], 0), 'CanNotDelete', 'ReadOnly')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}single-resource-name', parameters('name')))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "lockTheLocks",
+        "count": "[length(range(0, 1))]",
+        "mode": "serial",
+        "batchSize": 1
+      },
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2016-09-01",
+      "scope": "[extensionResourceId(format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', format('lock-{0}', range(0, 1)[range(0, 1)[copyIndex()]]))]",
+      "name": "[format('lock-the-lock-{0}', range(0, 1)[copyIndex()])]",
+      "properties": {
+        "level": "[if(equals(range(0, 1)[copyIndex()], 0), 'CanNotDelete', 'ReadOnly')]"
+      },
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', format('lock-{0}', range(0, 1)[range(0, 1)[copyIndex()]]))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "storageAccounts2",
+        "count": "[length(parameters('accounts'))]"
+      },
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}-collection-{1}', parameters('name'), parameters('accounts')[copyIndex()].name)]",
+      "location": "[parameters('accounts')[copyIndex()].location]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "dependsOn": [
+        "storageAccounts"
+      ]
+    },
+    {
+      "copy": {
+        "name": "firstSet",
+        "count": "[length(range(0, length(parameters('accounts'))))]"
+      },
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}-set1-{1}', parameters('name'), range(0, length(parameters('accounts')))[copyIndex()])]",
+      "location": "[resourceGroup().location]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      }
+    },
+    {
+      "copy": {
+        "name": "secondSet",
+        "count": "[length(range(0, length(parameters('accounts'))))]"
+      },
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}-set2-{1}', parameters('name'), range(0, length(parameters('accounts')))[copyIndex()])]",
+      "location": "[resourceGroup().location]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-set1-{1}', parameters('name'), range(0, length(parameters('accounts')))[range(0, length(parameters('accounts')))[copyIndex()]]))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}single-resource-name', parameters('name'))]",
+      "location": "[resourceGroup().location]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "dependsOn": [
+        "secondSet"
+      ]
+    },
+    {
+      "copy": {
+        "name": "vnets",
+        "count": "[length(variables('vnetConfigurations'))]"
+      },
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('vnetConfigurations')[copyIndex()].name]",
+      "location": "[variables('vnetConfigurations')[copyIndex()].location]"
+    },
+    {
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
+      "name": "test",
+      "location": "global",
+      "properties": {
+        "resolutionVirtualNetworks": [
+          {
+            "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetConfigurations')[add(parameters('index'), 1)].name)]"
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetConfigurations')[add(parameters('index'), 1)].name)]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
+      "name": "test2",
+      "location": "global",
+      "properties": {
+        "resolutionVirtualNetworks": [
+          {
+            "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetConfigurations')[sub(parameters('index'), 1)].name)]"
+          },
+          {
+            "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetConfigurations')[mul(parameters('index'), 2)].name)]"
+          }
+        ]
+      },
+      "dependsOn": [
+        "vnets"
+      ]
+    },
+    {
+      "copy": {
+        "name": "duplicatedNames",
+        "count": "[length(createArray())]"
+      },
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
+      "name": "no loop variable",
+      "location": "eastus"
+    },
+    {
+      "copy": {
+        "name": "referenceToDuplicateNames",
+        "count": "[length(createArray())]"
+      },
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
+      "name": "no loop variable 2",
+      "location": "eastus",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/dnsZones', 'no loop variable')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/frontDoors",
+      "apiVersion": "2020-05-01",
+      "name": "[parameters('name')]",
+      "location": "Global",
+      "properties": {
+        "backendPools": [
+          {
+            "name": "BackendAPIMs",
+            "properties": {
+              "copy": [
+                {
+                  "name": "backends",
+                  "count": "[length(range(0, length(variables('regions'))))]",
+                  "input": {
+                    "address": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex('backends')]], parameters('name'))), '2025-04-01').outputs.myOutput.value]",
+                    "backendHostHeader": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex('backends')]], parameters('name'))), '2025-04-01').outputs.myOutput.value]",
+                    "httpPort": 80,
+                    "httpsPort": 443,
+                    "priority": 1,
+                    "weight": 50
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "apim"
+      ]
+    },
+    {
+      "copy": {
+        "name": "indexedModuleCollectionDependency",
+        "count": "[length(range(0, length(variables('regions'))))]"
+      },
+      "type": "Microsoft.Network/frontDoors",
+      "apiVersion": "2020-05-01",
+      "name": "[format('{0}-{1}', parameters('name'), range(0, length(variables('regions')))[copyIndex()])]",
+      "location": "Global",
+      "properties": {
+        "backendPools": [
+          {
+            "name": "BackendAPIMs",
+            "properties": {
+              "backends": [
+                {
+                  "address": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex()]], parameters('name'))), '2025-04-01').outputs.myOutput.value]",
+                  "backendHostHeader": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex()]], parameters('name'))), '2025-04-01').outputs.myOutput.value]",
+                  "httpPort": 80,
+                  "httpsPort": 443,
+                  "priority": 1,
+                  "weight": 50
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex()]], parameters('name')))]",
+        "[resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex()]], parameters('name')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/frontDoors",
+      "apiVersion": "2020-05-01",
+      "name": "[parameters('name')]",
+      "location": "Global",
+      "properties": {
+        "backendPools": [
+          {
+            "name": "BackendAPIMs",
+            "properties": {
+              "copy": [
+                {
+                  "name": "backends",
+                  "count": "[length(range(0, length(parameters('accounts'))))]",
+                  "input": {
+                    "address": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex('backends')]].name)), '2019-06-01').primaryEndpoints.internetEndpoints.web]",
+                    "backendHostHeader": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex('backends')]].name)), '2019-06-01').primaryEndpoints.internetEndpoints.web]",
+                    "httpPort": 80,
+                    "httpsPort": 443,
+                    "priority": 1,
+                    "weight": 50
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "storageAccounts"
+      ]
+    },
+    {
+      "copy": {
+        "name": "indexedResourceCollectionDependency",
+        "count": "[length(range(0, length(parameters('accounts'))))]"
+      },
+      "type": "Microsoft.Network/frontDoors",
+      "apiVersion": "2020-05-01",
+      "name": "[format('{0}-{1}', parameters('name'), range(0, length(parameters('accounts')))[copyIndex()])]",
+      "location": "Global",
+      "properties": {
+        "backendPools": [
+          {
+            "name": "BackendAPIMs",
+            "properties": {
+              "backends": [
+                {
+                  "address": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex()]].name)), '2019-06-01').primaryEndpoints.internetEndpoints.web]",
+                  "backendHostHeader": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex()]].name)), '2019-06-01').primaryEndpoints.internetEndpoints.web]",
+                  "httpPort": 80,
+                  "httpsPort": 443,
+                  "priority": 1,
+                  "weight": 50
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex()]].name))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex()]].name))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "filteredZones",
+        "count": "[length(range(0, 10))]"
+      },
+      "condition": "[equals(mod(range(0, 10)[copyIndex()], 3), 0)]",
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
+      "name": "[format('zone{0}', range(0, 10)[copyIndex()])]",
+      "location": "[resourceGroup().location]"
+    },
+    {
+      "copy": {
+        "name": "filteredIndexedZones",
+        "count": "[length(parameters('accounts'))]"
+      },
+      "condition": "[parameters('accounts')[copyIndex()].enabled]",
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
+      "name": "[format('indexedZone-{0}-{1}', parameters('accounts')[copyIndex()].name, copyIndex())]",
+      "location": "[parameters('accounts')[copyIndex()].location]"
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "test",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "hello"
+          }
+        },
+        "templateLink": {
+          "relativePath": "460d1f345bd5f0b2acda498a01a0cfea9c0c9344b46d75d4e568c975e1fa8c3b"
+        }
+      }
+    },
+    {
+      "copy": {
+        "name": "moduleCollectionWithSingleDependency",
+        "count": "[length(variables('moduleSetup'))]",
+        "mode": "serial",
+        "batchSize": 3
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[variables('moduleSetup')[copyIndex()]]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "[format('in-{0}', variables('moduleSetup')[copyIndex()])]"
+          }
+        },
+        "templateLink": {
+          "relativePath": "460d1f345bd5f0b2acda498a01a0cfea9c0c9344b46d75d4e568c975e1fa8c3b"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'test')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}single-resource-name', parameters('name')))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "moduleCollectionWithCollectionDependencies",
+        "count": "[length(variables('moduleSetup'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[variables('moduleSetup')[copyIndex()]]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "[format('in-{0}', variables('moduleSetup')[copyIndex()])]"
+          }
+        },
+        "templateLink": {
+          "relativePath": "460d1f345bd5f0b2acda498a01a0cfea9c0c9344b46d75d4e568c975e1fa8c3b"
+        }
+      },
+      "dependsOn": [
+        "moduleCollectionWithSingleDependency",
+        "storageAccounts"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "hello",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "[concat(reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')]), '2025-04-01').outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name)), '2019-06-01').accessTier)]"
+          }
+        },
+        "templateLink": {
+          "relativePath": "460d1f345bd5f0b2acda498a01a0cfea9c0c9344b46d75d4e568c975e1fa8c3b"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')])]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[sub(parameters('index'), 10)].name))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "moduleCollectionWithIndexedDependencies",
+        "count": "[length(variables('moduleSetup'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[variables('moduleSetup')[copyIndex()]]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "[format('{0} - {1} - {2}', reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')]), '2025-04-01').outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name)), '2019-06-01').accessTier, variables('moduleSetup')[copyIndex()])]"
+          }
+        },
+        "templateLink": {
+          "relativePath": "460d1f345bd5f0b2acda498a01a0cfea9c0c9344b46d75d4e568c975e1fa8c3b"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')])]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[sub(parameters('index'), 9)].name))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "apim",
+        "count": "[length(variables('regions'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('apim-{0}-{1}', variables('regions')[copyIndex()], parameters('name'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "[variables('regions')[copyIndex()]]"
+          }
+        },
+        "templateLink": {
+          "relativePath": "460d1f345bd5f0b2acda498a01a0cfea9c0c9344b46d75d4e568c975e1fa8c3b"
+        }
+      }
+    },
+    {
+      "copy": {
+        "name": "filteredModules",
+        "count": "[length(range(0, 6))]"
+      },
+      "condition": "[equals(mod(range(0, 6)[copyIndex()], 2), 0)]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('stuff{0}', range(0, 6)[copyIndex()])]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "[format('script-{0}', range(0, 6)[copyIndex()])]"
+          }
+        },
+        "templateLink": {
+          "relativePath": "460d1f345bd5f0b2acda498a01a0cfea9c0c9344b46d75d4e568c975e1fa8c3b"
+        }
+      }
+    },
+    {
+      "copy": {
+        "name": "filteredIndexedModules",
+        "count": "[length(parameters('accounts'))]"
+      },
+      "condition": "[parameters('accounts')[copyIndex()].enabled]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('stuff-{0}', copyIndex())]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myInput": {
+            "value": "[format('script-{0}-{1}', parameters('accounts')[copyIndex()].name, copyIndex())]"
+          }
+        },
+        "templateLink": {
+          "relativePath": "460d1f345bd5f0b2acda498a01a0cfea9c0c9344b46d75d4e568c975e1fa8c3b"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "indexedCollectionBlobEndpoint": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[parameters('index')].name)), '2019-06-01').primaryEndpoints.blob]"
+    },
+    "indexedCollectionName": {
+      "type": "string",
+      "value": "[format('{0}-collection-{1}', parameters('name'), parameters('accounts')[parameters('index')].name)]"
+    },
+    "indexedCollectionId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[parameters('index')].name))]"
+    },
+    "indexedCollectionType": {
+      "type": "string",
+      "value": "Microsoft.Storage/storageAccounts"
+    },
+    "indexedCollectionVersion": {
+      "type": "string",
+      "value": "2019-06-01"
+    },
+    "indexedCollectionIdentity": {
+      "type": "object",
+      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[parameters('index')].name)), '2019-06-01', 'full').identity]"
+    },
+    "indexedEndpointPair": {
+      "type": "object",
+      "value": {
+        "primary": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[parameters('index')].name)), '2019-06-01').primaryEndpoints.blob]",
+        "secondary": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[add(parameters('index'), 1)].name)), '2019-06-01').secondaryEndpoints.blob]"
+      }
+    },
+    "indexViaReference": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[int(reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[parameters('index')].name)), '2019-06-01').creationTime)].name)), '2019-06-01').accessTier]"
+    },
+    "indexedModulesName": {
+      "type": "string",
+      "value": "[variables('moduleSetup')[parameters('index')]]"
+    },
+    "indexedModuleOutput": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[mul(parameters('index'), 1)]), '2025-04-01').outputs.myOutput.value]"
+    },
+    "existingIndexedResourceName": {
+      "type": "string",
+      "value": "[format('{0}-existing-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 0)].name)]"
+    },
+    "existingIndexedResourceId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-existing-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 1)].name))]"
+    },
+    "existingIndexedResourceType": {
+      "type": "string",
+      "value": "Microsoft.Storage/storageAccounts"
+    },
+    "existingIndexedResourceApiVersion": {
+      "type": "string",
+      "value": "2019-06-01"
+    },
+    "existingIndexedResourceLocation": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-existing-{1}', parameters('name'), parameters('accounts')[div(parameters('index'), 2)].name)), '2019-06-01', 'full').location]"
+    },
+    "existingIndexedResourceAccessTier": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-existing-{1}', parameters('name'), parameters('accounts')[mod(parameters('index'), 3)].name)), '2019-06-01').accessTier]"
+    },
+    "lastNameServers": {
+      "type": "array",
+      "value": "[reference(resourceId('Microsoft.Network/dnsZones', format('indexedZone-{0}-{1}', parameters('accounts')[sub(length(parameters('accounts')), 1)].name, sub(length(parameters('accounts')), 1))), '2018-05-01').nameServers]"
+    },
+    "lastModuleOutput": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('stuff-{0}', sub(length(parameters('accounts')), 1))), '2025-04-01').outputs.myOutput.value]"
+    }
+  }
+}
