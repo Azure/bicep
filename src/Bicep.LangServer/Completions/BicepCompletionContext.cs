@@ -70,6 +70,7 @@ namespace Bicep.LanguageServer.Completions
             ResourceAccessSyntax? resourceAccess,
             ArrayAccessSyntax? arrayAccess,
             TypeArrayAccessSyntax? typeArrayAccess,
+            ArrayTypeSyntax? arrayType,
             TargetScopeSyntax? targetScope,
             IndexedSyntaxContext<FunctionCallSyntaxBase>? functionArgument,
             IndexedSyntaxContext<ParameterizedTypeInstantiationSyntaxBase>? typeArgument,
@@ -89,6 +90,7 @@ namespace Bicep.LanguageServer.Completions
             this.ResourceAccess = resourceAccess;
             this.ArrayAccess = arrayAccess;
             this.TypeArrayAccess = typeArrayAccess;
+            this.ArrayType = arrayType;
             this.TargetScope = targetScope;
             this.FunctionArgument = functionArgument;
             this.TypeArgument = typeArgument;
@@ -118,6 +120,8 @@ namespace Bicep.LanguageServer.Completions
         public ArrayAccessSyntax? ArrayAccess { get; }
 
         public TypeArrayAccessSyntax? TypeArrayAccess { get; }
+
+        public ArrayTypeSyntax? ArrayType { get; }
 
         public TargetScopeSyntax? TargetScope { get; }
 
@@ -160,7 +164,7 @@ namespace Bicep.LanguageServer.Completions
 
                         if (previousTrivia is DiagnosticsPragmaSyntaxTrivia)
                         {
-                            return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                            return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
                         }
                     }
                     break;
@@ -168,18 +172,18 @@ namespace Bicep.LanguageServer.Completions
                     // This will handle the following case: #disable-next-line |
                     if (triviaMatchingOffset.Text.EndsWith(' '))
                     {
-                        return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                        return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
                     }
-                    return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                    return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
                 case SyntaxTriviaType.SingleLineComment when offset > triviaMatchingOffset.Span.Position:
                 case SyntaxTriviaType.MultiLineComment when offset > triviaMatchingOffset.Span.Position && offset < triviaMatchingOffset.Span.Position + triviaMatchingOffset.Span.Length:
                     // we're in a comment, no hints here
-                    return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                    return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
             }
 
             if (IsDisableNextLineDiagnosticsDirectiveStartContext(bicepFile, offset, matchingNodes))
             {
-                return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
             }
 
             var pattern = SyntaxPattern.Create(bicepFile.ProgramSyntax, offset);
@@ -194,6 +198,7 @@ namespace Bicep.LanguageServer.Completions
             var resourceAccessInfo = SyntaxMatcher.FindLastNodeOfType<ResourceAccessSyntax, ResourceAccessSyntax>(matchingNodes);
             var arrayAccessInfo = SyntaxMatcher.FindLastNodeOfType<ArrayAccessSyntax, ArrayAccessSyntax>(matchingNodes);
             var typeArrayAccessInfo = SyntaxMatcher.FindLastNodeOfType<TypeArrayAccessSyntax, TypeArrayAccessSyntax>(matchingNodes);
+            var arrayTypeInfo = SyntaxMatcher.FindLastNodeOfType<ArrayTypeSyntax, ArrayTypeSyntax>(matchingNodes);
             var targetScopeInfo = SyntaxMatcher.FindLastNodeOfType<TargetScopeSyntax, TargetScopeSyntax>(matchingNodes);
             var activeScopes = ActiveScopesVisitor.GetActiveScopes(compilation.GetEntrypointSemanticModel().Root, offset);
             var functionArgumentContext = TryGetFunctionArgumentContext(matchingNodes, offset);
@@ -233,6 +238,7 @@ namespace Bicep.LanguageServer.Completions
                 ConvertFlag(IsTypedLambdaOutputTypeContext(matchingNodes, offset), BicepCompletionContextKind.TypedLambdaOutputType) |
                 ConvertFlag(typeArgumentContext is not null, BicepCompletionContextKind.TypeArgument) |
                 ConvertFlag(IsTypeMemberAccessContext(matchingNodes, typePropertyAccessInfo, offset), BicepCompletionContextKind.TypeMemberAccess) |
+                ConvertFlag(IsTypeArrayIndexContext(matchingNodes, typeArrayAccessInfo, arrayTypeInfo), BicepCompletionContextKind.TypeArrayIndex) |
                 ConvertFlag(IsImportIdentifierContext(matchingNodes, offset), BicepCompletionContextKind.ImportIdentifier) |
                 ConvertFlag(IsImportedSymbolListItemContext(matchingNodes, offset), BicepCompletionContextKind.ImportedSymbolIdentifier) |
                 ConvertFlag(ExpectingContextualAsKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingExtensionAsKeyword) |
@@ -289,6 +295,7 @@ namespace Bicep.LanguageServer.Completions
                 resourceAccessInfo.node,
                 arrayAccessInfo.node,
                 typeArrayAccessInfo.node,
+                arrayTypeInfo.node,
                 targetScopeInfo.node,
                 functionArgumentContext,
                 typeArgumentContext,
@@ -588,6 +595,36 @@ namespace Bicep.LanguageServer.Completions
                     SyntaxMatcher.IsTailMatch<TypePropertyAccessSyntax>(
                         matchingNodes,
                         propertyAccess => offset > propertyAccess.Dot.Span.Position));
+        }
+
+        private static bool IsTypeArrayIndexContext(
+            List<SyntaxBase> matchingNodes,
+            (TypeArrayAccessSyntax? node, int index) typeArrayAccessInfo,
+            (ArrayTypeSyntax? node, int index) arrayTypeInfo)
+        {
+            // Check for TypeArrayAccessSyntax (when there's already an index expression like foo[0])
+            if (typeArrayAccessInfo.node != null &&
+                (SyntaxMatcher.IsTailMatch<TypeArrayAccessSyntax, Token>(
+                    matchingNodes,
+                    (typeArrayAccess, token) => token.Type == TokenType.LeftSquare && ReferenceEquals(typeArrayAccess.OpenSquare, token)) ||
+                 SyntaxMatcher.IsTailMatch<TypeArrayAccessSyntax, SkippedTriviaSyntax>(
+                    matchingNodes,
+                    (typeArrayAccess, skipped) => ReferenceEquals(typeArrayAccess.IndexExpression, skipped))))
+            {
+                return true;
+            }
+
+            // Check for ArrayTypeSyntax (when typing foo.items[] - the [] is parsed as array type syntax)
+            // To offer * completion when cursor is between [ and ]
+            if (arrayTypeInfo.node != null &&
+                SyntaxMatcher.IsTailMatch<ArrayTypeSyntax, Token>(
+                    matchingNodes,
+                    (arrayType, token) => token.Type == TokenType.LeftSquare && ReferenceEquals(arrayType.OpenBracket, token)))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private static bool IsResourceAccessContext(List<SyntaxBase> matchingNodes, (ResourceAccessSyntax? node, int index) resourceAccessInfo, int offset)
