@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { Codicon, usePanZoomControl } from "@vscode-bicep-ui/components";
+import { Codicon, useGetPanZoomDimensions, usePanZoomControl } from "@vscode-bicep-ui/components";
 import { useStore } from "jotai";
 import { useCallback, useRef } from "react";
 import { styled } from "styled-components";
 import { useFitView } from "../../../hooks/useFitView";
-import { applyLayout, computeLayout } from "../../graph-engine/layout/elk-layout";
+import { applyLayout, computeFitViewTransform, computeLayout } from "../../graph-engine/layout/elk-layout";
 
 const $GraphControlBar = styled.div`
   display: flex;
@@ -51,7 +51,8 @@ const $ControlButton = styled.button`
 `;
 
 export function GraphControlBar() {
-  const { zoomIn, zoomOut } = usePanZoomControl();
+  const { zoomIn, zoomOut, transform: panZoomTransform } = usePanZoomControl();
+  const getPanZoomDimensions = useGetPanZoomDimensions();
   const store = useStore();
   const fitView = useFitView();
   const layoutInFlight = useRef(false);
@@ -61,12 +62,14 @@ export function GraphControlBar() {
     layoutInFlight.current = true;
     try {
       const result = await computeLayout(store);
+      const { width, height } = getPanZoomDimensions();
+      const { translateX, translateY, scale } = computeFitViewTransform(result, width, height);
+      panZoomTransform(translateX, translateY, scale);
       await applyLayout(store, result);
-      fitView();
     } finally {
       layoutInFlight.current = false;
     }
-  }, [store, fitView]);
+  }, [store, getPanZoomDimensions, panZoomTransform]);
 
   return (
     <$GraphControlBar>

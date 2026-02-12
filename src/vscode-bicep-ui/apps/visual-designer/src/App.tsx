@@ -4,7 +4,7 @@
 import type { ComponentType } from "react";
 import type { NodeKind } from "./features/graph-engine/atoms";
 
-import { PanZoomProvider, useGetPanZoomDimensions } from "@vscode-bicep-ui/components";
+import { PanZoomProvider, useGetPanZoomDimensions, usePanZoomControl } from "@vscode-bicep-ui/components";
 import { WebviewMessageChannelProvider, useWebviewMessageChannel, useWebviewNotification } from "@vscode-bicep-ui/messaging";
 import type { WebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { getDefaultStore, useAtomValue } from "jotai";
@@ -17,9 +17,8 @@ import { ModuleDeclaration } from "./features/design-view/components/ModuleDecla
 import { ResourceDeclaration } from "./features/design-view/components/ResourceDeclaration";
 import { graphVersionAtom, nodeConfigAtom } from "./features/graph-engine/atoms";
 import { Canvas, Graph } from "./features/graph-engine/components";
-import { applyLayout, computeLayout } from "./features/graph-engine/layout/elk-layout";
+import { applyLayout, computeFitViewTransform, computeLayout } from "./features/graph-engine/layout/elk-layout";
 import { useApplyDeploymentGraph } from "./hooks/useDeploymentGraph";
-import { useFitView } from "./hooks/useFitView";
 import {
   DEPLOYMENT_GRAPH_NOTIFICATION,
   READY_NOTIFICATION,
@@ -75,7 +74,7 @@ function GraphContainer() {
   const applyGraph = useApplyDeploymentGraph();
   const messageChannel = useWebviewMessageChannel();
   const getPanZoomDimensions = useGetPanZoomDimensions();
-  const fitView = useFitView();
+  const { transform } = usePanZoomControl();
   const graphVersion = useAtomValue(graphVersionAtom);
   const isFirstGraph = useRef(true);
 
@@ -120,20 +119,24 @@ function GraphContainer() {
       if (cancelled) {
         return;
       }
+
+      // Compute and apply the fit-view transform immediately from the
+      // ELK result (final positions are known), so the viewport adjusts
+      // before the spring animations start.
+      const { width, height } = getPanZoomDimensions();
+      const { translateX, translateY, scale } = computeFitViewTransform(result, width, height);
+      transform(translateX, translateY, scale);
+
       await applyLayout(store, result, /* animate */ true);
-      if (cancelled) {
-        return;
-      }
       if (isFirst) {
         isFirstGraph.current = false;
       }
-      fitView();
     });
 
     return () => {
       cancelled = true;
     };
-  }, [graphVersion, getPanZoomDimensions, fitView]);
+  }, [graphVersion, getPanZoomDimensions, transform]);
 
   return (
     <>

@@ -255,3 +255,40 @@ export async function applyLayout(store: Store, result: LayoutResult, animate = 
   const animations = applyElkLayout(store, result.elkRoot, animate, result.offsetX, result.offsetY);
   await Promise.all(animations);
 }
+
+/**
+ * Compute the pan-zoom transform needed to fit the laid-out graph
+ * in the viewport.  This uses the ELK-computed bounding box (the
+ * final positions) so it can be called immediately — before or in
+ * parallel with the spring animations — rather than waiting for
+ * animations to settle.
+ *
+ * @returns `{ translateX, translateY, scale }` ready to pass to
+ *          `usePanZoomControl().transform()`.
+ */
+export function computeFitViewTransform(
+  result: LayoutResult,
+  viewportWidth: number,
+  viewportHeight: number,
+  padding = 100,
+): { translateX: number; translateY: number; scale: number } {
+  const bbox = getElkBoundingBox(result.elkRoot);
+  const graphMinX = bbox.minX + result.offsetX;
+  const graphMinY = bbox.minY + result.offsetY;
+  const graphMaxX = bbox.maxX + result.offsetX;
+  const graphMaxY = bbox.maxY + result.offsetY;
+
+  const graphWidth = graphMaxX - graphMinX;
+  const graphHeight = graphMaxY - graphMinY;
+  const graphCenterX = graphMinX + graphWidth / 2;
+  const graphCenterY = graphMinY + graphHeight / 2;
+
+  const scaleX = (viewportWidth - padding * 2) / graphWidth;
+  const scaleY = (viewportHeight - padding * 2) / graphHeight;
+  const scale = Math.min(scaleX, scaleY, 1); // Don't zoom in beyond 1:1
+
+  const translateX = viewportWidth / 2 - graphCenterX * scale;
+  const translateY = viewportHeight / 2 - graphCenterY * scale;
+
+  return { translateX, translateY, scale };
+}
