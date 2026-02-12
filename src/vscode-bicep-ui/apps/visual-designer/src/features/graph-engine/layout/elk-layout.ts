@@ -171,8 +171,8 @@ function applyElkLayout(
 
 /**
  * Persistent offset applied to all ELK-computed positions so the
- * graph appears centered in the viewport. Set on the first layout
- * and reused on subsequent layouts to keep the graph in place.
+ * graph appears centered in the viewport.  Recomputed on every
+ * layout so the graph stays centered even when its shape changes.
  */
 let graphOffset: { x: number; y: number } | null = null;
 
@@ -215,32 +215,32 @@ export interface LayoutResult {
  * caller to check for staleness between the async computation
  * and the synchronous store write.
  *
- * @param viewport When provided on the first layout, computes the
- *                 offset needed to center the graph in the viewport.
- *                 Subsequent layouts reuse the same offset automatically.
+ * @param viewport Viewport dimensions used to center the graph.
+ *                 The centering offset is recomputed on every
+ *                 layout so the graph always targets the center
+ *                 of the screen regardless of shape changes.
  */
 export async function computeLayout(
   store: Store,
-  viewport?: { width: number; height: number },
+  viewport: { width: number; height: number },
 ): Promise<LayoutResult> {
   const elkGraph = buildElkGraph(store);
   const elkRoot = await elk.layout(elkGraph);
 
-  // Compute or reuse the offset so the graph stays centered.
-  if (graphOffset === null && viewport) {
-    const bbox = getElkBoundingBox(elkRoot);
-    const graphCenterX = (bbox.minX + bbox.maxX) / 2;
-    const graphCenterY = (bbox.minY + bbox.maxY) / 2;
-    graphOffset = {
-      x: viewport.width / 2 - graphCenterX,
-      y: viewport.height / 2 - graphCenterY,
-    };
-  }
+  // Recompute the centering offset every time so the graph's
+  // final positions are always centered in the viewport.
+  const bbox = getElkBoundingBox(elkRoot);
+  const graphCenterX = (bbox.minX + bbox.maxX) / 2;
+  const graphCenterY = (bbox.minY + bbox.maxY) / 2;
+  graphOffset = {
+    x: viewport.width / 2 - graphCenterX,
+    y: viewport.height / 2 - graphCenterY,
+  };
 
   return {
     elkRoot,
-    offsetX: graphOffset?.x ?? 0,
-    offsetY: graphOffset?.y ?? 0,
+    offsetX: graphOffset.x,
+    offsetY: graphOffset.y,
   };
 }
 

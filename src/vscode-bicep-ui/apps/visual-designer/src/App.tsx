@@ -76,7 +76,6 @@ function GraphContainer() {
   const getPanZoomDimensions = useGetPanZoomDimensions();
   const { transform } = usePanZoomControl();
   const graphVersion = useAtomValue(graphVersionAtom);
-  const isFirstGraph = useRef(true);
 
   // Send READY notification on mount
   useEffect(() => {
@@ -110,11 +109,9 @@ function GraphContainer() {
     }
 
     let cancelled = false;
-    const isFirst = isFirstGraph.current;
-    // On the first layout, pass viewport dimensions so computeLayout
-    // can compute a centering offset.  Subsequent layouts reuse
-    // the same offset automatically.
-    const viewport = isFirst ? getPanZoomDimensions() : undefined;
+    // Always pass viewport dimensions so computeLayout can center
+    // the graph in the viewport on every layout.
+    const viewport = getPanZoomDimensions();
     void computeLayout(store, viewport).then(async (result) => {
       if (cancelled) {
         return;
@@ -123,14 +120,11 @@ function GraphContainer() {
       // Compute and apply the fit-view transform immediately from the
       // ELK result (final positions are known), so the viewport adjusts
       // before the spring animations start.
-      const { width, height } = getPanZoomDimensions();
+      const { width, height } = viewport;
       const { translateX, translateY, scale } = computeFitViewTransform(result, width, height);
       transform(translateX, translateY, scale);
 
       await applyLayout(store, result, /* animate */ true);
-      if (isFirst) {
-        isFirstGraph.current = false;
-      }
     });
 
     return () => {
