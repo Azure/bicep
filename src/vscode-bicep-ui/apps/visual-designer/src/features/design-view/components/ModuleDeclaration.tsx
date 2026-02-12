@@ -17,13 +17,36 @@ export interface ModuleDeclarationProps {
   };
 }
 
-const $ModuleDelcarton = styled.div<{ $hasError?: boolean }>`
+const STACK_OFFSET = 7;
+
+const $ModuleDelcarton = styled.div<{ $hasError?: boolean; $isCollection?: boolean }>`
+  position: relative;
   flex: 1;
   margin: 4px;
   box-sizing: border-box;
   border: 2px solid ${({ $hasError, theme }) => ($hasError ? theme.error : theme.node.border)};
   border-radius: 4px;
   background: ${({ theme }) => theme.node.background};
+
+  ${({ $isCollection, $hasError, theme }) =>
+    $isCollection
+      ? `
+    margin-right: ${4 + STACK_OFFSET}px;
+    margin-bottom: ${4 + STACK_OFFSET}px;
+    &::before {
+      content: '';
+      position: absolute;
+      top: ${STACK_OFFSET}px;
+      left: ${STACK_OFFSET}px;
+      right: -${STACK_OFFSET}px;
+      bottom: -${STACK_OFFSET}px;
+      border: 2px solid ${$hasError ? theme.error : theme.node.border};
+      border-radius: 4px;
+      background-color: ${theme.node.background};
+      z-index: -1;
+    }
+  `
+      : ''}
 `;
 
 const $DeclarationInfo = styled.div`
@@ -42,10 +65,10 @@ const $SymbolicNameContainer = styled.div`
 `;
 
 export function ModuleDeclaration({ data }: ModuleDeclarationProps) {
-  const { symbolicName, hasError } = data;
+  const { symbolicName, isCollection, hasError } = data;
 
   return (
-    <$ModuleDelcarton $hasError={hasError}>
+    <$ModuleDelcarton $hasError={hasError} $isCollection={isCollection}>
       <$DeclarationInfo>
         <AzureIcon resourceType={"folder"} size={24} />
         <$SymbolicNameContainer>{symbolicName}</$SymbolicNameContainer>
