@@ -4,6 +4,7 @@
 using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
+using Bicep.Core.ArmHelpers;
 using Microsoft.WindowsAzure.ResourceStack.Common.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

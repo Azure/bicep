@@ -3,7 +3,7 @@
 
 using Azure.Deployments.Expression.Expressions;
 
-namespace Bicep.Decompiler.ArmHelpers
+namespace Bicep.Core.ArmHelpers
 {
     public static class LanguageExpressionRewriter
     {
