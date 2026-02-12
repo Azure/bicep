@@ -20,5 +20,7 @@ export const GlobalStyle = createGlobalStyle`
     position: relative;
     flex: 1 1 auto;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 `;

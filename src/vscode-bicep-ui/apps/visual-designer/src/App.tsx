@@ -118,15 +118,23 @@ function GraphContainer() {
   );
 }
 
+const $AppContainer = styled.div`
+  flex: 1 1 auto;
+  position: relative;
+  overflow: hidden;
+`;
+
 function VisualDesignerApp() {
   const theme = useTheme();
 
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      <PanZoomProvider>
-        <GraphContainer />
-      </PanZoomProvider>
+      <$AppContainer>
+        <PanZoomProvider>
+          <GraphContainer />
+        </PanZoomProvider>
+      </$AppContainer>
     </ThemeProvider>
   );
 }
@@ -138,8 +146,8 @@ export function App() {
 
   return (
     <WebviewMessageChannelProvider messageChannel={fakeChannel as unknown as WebviewMessageChannel}>
-      <VisualDesignerApp />
       {isDev && fakeChannel && <DevToolbar channel={fakeChannel} />}
+      <VisualDesignerApp />
     </WebviewMessageChannelProvider>
   );
 }

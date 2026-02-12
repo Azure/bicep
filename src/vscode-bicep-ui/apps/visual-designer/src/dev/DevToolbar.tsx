@@ -9,22 +9,17 @@ interface DevToolbarProps {
 }
 
 const $Toolbar = styled.div`
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 9999;
+  flex: 0 0 auto;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 6px 8px;
   padding: 8px 12px;
   background: rgba(30, 30, 30, 0.92);
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   font-family: system-ui, sans-serif;
   font-size: 12px;
   color: #ccc;
-  backdrop-filter: blur(6px);
 `;
 
 const $Label = styled.span`
