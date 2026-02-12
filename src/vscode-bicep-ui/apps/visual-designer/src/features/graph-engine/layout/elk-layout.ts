@@ -19,13 +19,15 @@ const elk = new ELK();
 const ELK_OPTIONS: Record<string, string> = {
   "elk.algorithm": "layered",
   "elk.direction": "DOWN",
-  "elk.aspectRatio": "2.5",
+  "elk.aspectRatio": "2",
   "elk.layered.layering.strategy": "INTERACTIVE",
   "elk.layered.nodePlacement.bk.fixedAlignment": "BALANCED",
   "elk.layered.cycleBreaking.strategy": "DEPTH_FIRST",
-  "elk.spacing.nodeNode": "120",
-  "elk.layered.spacing.nodeNodeBetweenLayers": "80",
-  "elk.spacing.componentComponent": "100",
+  "elk.spacing.nodeNode": "100",
+  "elk.layered.spacing.nodeNodeBetweenLayers": "40",
+  "elk.spacing.componentComponent": "60",
+  "elk.spacing.baseValue": "100",
+
 };
 
 function buildElkGraph(store: Store): ElkNode {
