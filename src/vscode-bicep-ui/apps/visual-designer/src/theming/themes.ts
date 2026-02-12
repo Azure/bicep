@@ -46,19 +46,19 @@ export const lightTheme: DefaultTheme = {
 export const darkTheme: DefaultTheme = {
   name: "dark",
   canvas: {
-    background: "#191919",
+    background: "#101010",
     dotColor: "#333333",
   },
   node: {
     background: "#262626",
-    border: "#6b6b6b",
+    border: "#4e4e4e",
   },
   text: {
     primary: "#e8e8e8",
     secondary: "#a0a0a0",
   },
   edge: {
-    color: "#6b6b6b",
+    color: "#424242",
   },
   controlBar: {
     background: "rgba(38, 38, 38, 0.95)",

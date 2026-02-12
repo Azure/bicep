@@ -15,8 +15,8 @@ const $PanZoomTransformed = styled(PanZoomTransformed)`
 export function Graph() {
   return (
     <$PanZoomTransformed>
-      <NodeLayer />
       <EdgeLayer />
+      <NodeLayer />
     </$PanZoomTransformed>
   );
 }

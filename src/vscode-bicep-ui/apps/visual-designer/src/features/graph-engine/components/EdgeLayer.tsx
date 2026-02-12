@@ -11,6 +11,7 @@ const $Svg = styled.svg`
   overflow: visible;
   position: absolute;
   pointer-events: none;
+  z-index: 0;
 `;
 
 export function EdgeLayer() {

@@ -171,58 +171,108 @@ const ERROR_GRAPH: DeploymentGraph = {
   errorCount: 3,
 };
 
-/** Nested modules: outer → inner → leaf resource. */
-const NESTED_MODULE_GRAPH: DeploymentGraph = {
+/**
+ * Complex graph modeled after modules-vwan-to-vnet-s2s-with-fw Bicep sample.
+ * 2 resource groups, 13 modules with child resources, and rich inter-module dependencies.
+ */
+const COMPLEX_GRAPH: DeploymentGraph = {
   nodes: [
-    {
-      id: "outerModule",
-      type: "<module>",
-      isCollection: false,
-      range: ZERO_RANGE,
-      hasChildren: true,
-      hasError: false,
-      filePath: FAKE_FILE_PATH,
-    },
-    {
-      id: "outerModule::innerModule",
-      type: "<module>",
-      isCollection: false,
-      range: ZERO_RANGE,
-      hasChildren: true,
-      hasError: false,
-      filePath: FAKE_FILE_PATH,
-    },
-    {
-      id: "outerModule::innerModule::keyVault",
-      type: "Microsoft.KeyVault/vaults",
-      isCollection: false,
-      range: ZERO_RANGE,
-      hasChildren: false,
-      hasError: false,
-      filePath: FAKE_FILE_PATH,
-    },
-    {
-      id: "outerModule::cosmosDb",
-      type: "Microsoft.DocumentDB/databaseAccounts",
-      isCollection: false,
-      range: ZERO_RANGE,
-      hasChildren: false,
-      hasError: false,
-      filePath: FAKE_FILE_PATH,
-    },
-    {
-      id: "appService",
-      type: "Microsoft.Web/sites",
-      isCollection: false,
-      range: ZERO_RANGE,
-      hasChildren: false,
-      hasError: false,
-      filePath: FAKE_FILE_PATH,
-    },
+    // ── Top-level resources ──────────────────────────────────────────────
+    { id: "hubrg", type: "Microsoft.Resources/resourceGroups", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "vwanrg", type: "Microsoft.Resources/resourceGroups", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+
+    // ── vnet module (scope: hubrg) ───────────────────────────────────────
+    { id: "vnet", type: "<module>", isCollection: false, range: ZERO_RANGE, hasChildren: true, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "vnet::servernsg", type: "Microsoft.Network/networkSecurityGroups", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "vnet::bastionnsg", type: "Microsoft.Network/networkSecurityGroups", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "vnet::vnet", type: "Microsoft.Network/virtualNetworks", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+
+    // ── vpngw module (scope: hubrg, depends on: vnet) ────────────────────
+    { id: "vpngw", type: "<module>", isCollection: false, range: ZERO_RANGE, hasChildren: true, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "vpngw::vpngwpip", type: "Microsoft.Network/publicIPAddresses", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "vpngw::vpngw", type: "Microsoft.Network/virtualNetworkGateways", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+
+    // ── fwpolicy module (scope: hubrg) ───────────────────────────────────
+    { id: "fwpolicy", type: "<module>", isCollection: false, range: ZERO_RANGE, hasChildren: true, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "fwpolicy::policy", type: "Microsoft.Network/firewallPolicies", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "fwpolicy::platformrcgroup", type: "Microsoft.Network/firewallPolicies/ruleCollectionGroups", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+
+    // ── fwpip module (scope: hubrg) ──────────────────────────────────────
+    { id: "fwpip", type: "<module>", isCollection: false, range: ZERO_RANGE, hasChildren: true, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "fwpip::fwipprefix", type: "Microsoft.Network/publicIPPrefixes", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "fwpip::fwip", type: "Microsoft.Network/publicIPAddresses", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+
+    // ── fw module (scope: hubrg, depends on: fwpolicy, fwpip, vnet) ──────
+    { id: "fw", type: "<module>", isCollection: false, range: ZERO_RANGE, hasChildren: true, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "fw::firewall", type: "Microsoft.Network/azureFirewalls", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+
+    // ── vwan module (scope: vwanrg) ──────────────────────────────────────
+    { id: "vwan", type: "<module>", isCollection: false, range: ZERO_RANGE, hasChildren: true, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "vwan::wan", type: "Microsoft.Network/virtualWans", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+
+    // ── vhub module (scope: vwanrg, depends on: vwan) ────────────────────
+    { id: "vhub", type: "<module>", isCollection: false, range: ZERO_RANGE, hasChildren: true, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "vhub::hub", type: "Microsoft.Network/virtualHubs", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+
+    // ── vhubfwpolicy module (scope: vwanrg) ──────────────────────────────
+    { id: "vhubfwpolicy", type: "<module>", isCollection: false, range: ZERO_RANGE, hasChildren: true, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "vhubfwpolicy::policy", type: "Microsoft.Network/firewallPolicies", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "vhubfwpolicy::platformrcgroup", type: "Microsoft.Network/firewallPolicies/ruleCollectionGroups", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+
+    // ── vhubfw module (scope: vwanrg, depends on: vhub, vhubfwpolicy) ────
+    { id: "vhubfw", type: "<module>", isCollection: false, range: ZERO_RANGE, hasChildren: true, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "vhubfw::firewall", type: "Microsoft.Network/azureFirewalls", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+
+    // ── vhubvpngw module (scope: vwanrg, depends on: vhub) ──────────────
+    { id: "vhubvpngw", type: "<module>", isCollection: false, range: ZERO_RANGE, hasChildren: true, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "vhubvpngw::hubvpngw", type: "Microsoft.Network/vpnGateways", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+
+    // ── vwanvpnsite module (scope: vwanrg, depends on: vnet, vpngw, vwan)
+    { id: "vwanvpnsite", type: "<module>", isCollection: false, range: ZERO_RANGE, hasChildren: true, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "vwanvpnsite::vpnsite", type: "Microsoft.Network/vpnSites", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+
+    // ── vhubs2s module (scope: vwanrg, depends on: vhubvpngw, vwanvpnsite)
+    { id: "vhubs2s", type: "<module>", isCollection: false, range: ZERO_RANGE, hasChildren: true, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "vhubs2s::hubvpnconnection", type: "Microsoft.Network/vpnGateways/vpnConnections", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+
+    // ── vnets2s module (scope: hubrg, depends on: vhub, vhubvpngw, vpngw)
+    { id: "vnets2s", type: "<module>", isCollection: false, range: ZERO_RANGE, hasChildren: true, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "vnets2s::localnetworkgw", type: "Microsoft.Network/localNetworkGateways", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
+    { id: "vnets2s::s2sconnection", type: "Microsoft.Network/connections", isCollection: false, range: ZERO_RANGE, hasChildren: false, hasError: false, filePath: FAKE_FILE_PATH },
   ],
   edges: [
-    { sourceId: "appService", targetId: "outerModule::innerModule::keyVault" },
-    { sourceId: "appService", targetId: "outerModule::cosmosDb" },
+    // Module → resource group (scope dependencies)
+    { sourceId: "vnet", targetId: "hubrg" },
+    { sourceId: "vpngw", targetId: "hubrg" },
+    { sourceId: "fwpolicy", targetId: "hubrg" },
+    { sourceId: "fwpip", targetId: "hubrg" },
+    { sourceId: "fw", targetId: "hubrg" },
+    { sourceId: "vnets2s", targetId: "hubrg" },
+    { sourceId: "vwan", targetId: "vwanrg" },
+    { sourceId: "vhub", targetId: "vwanrg" },
+    { sourceId: "vhubfwpolicy", targetId: "vwanrg" },
+    { sourceId: "vhubfw", targetId: "vwanrg" },
+    { sourceId: "vhubvpngw", targetId: "vwanrg" },
+    { sourceId: "vwanvpnsite", targetId: "vwanrg" },
+    { sourceId: "vhubs2s", targetId: "vwanrg" },
+
+    // Inter-module dependencies
+    { sourceId: "vpngw", targetId: "vnet" },
+    { sourceId: "fw", targetId: "fwpolicy" },
+    { sourceId: "fw", targetId: "fwpip" },
+    { sourceId: "fw", targetId: "vnet" },
+    { sourceId: "vhub", targetId: "vwan" },
+    { sourceId: "vhubfw", targetId: "vhub" },
+    { sourceId: "vhubfw", targetId: "vhubfwpolicy" },
+    { sourceId: "vhubvpngw", targetId: "vhub" },
+    { sourceId: "vwanvpnsite", targetId: "vnet" },
+    { sourceId: "vwanvpnsite", targetId: "vpngw" },
+    { sourceId: "vwanvpnsite", targetId: "vwan" },
+    { sourceId: "vhubs2s", targetId: "vhubvpngw" },
+    { sourceId: "vhubs2s", targetId: "vwanvpnsite" },
+    { sourceId: "vnets2s", targetId: "vhub" },
+    { sourceId: "vnets2s", targetId: "vhubvpngw" },
+    { sourceId: "vnets2s", targetId: "vpngw" },
   ],
   errorCount: 0,
 };
@@ -234,7 +284,7 @@ export const SAMPLE_GRAPHS: Record<string, DeploymentGraph | null> = {
   "Module graph": MODULE_GRAPH,
   "Flat graph": FLAT_GRAPH,
   "Error graph": ERROR_GRAPH,
-  "Nested modules": NESTED_MODULE_GRAPH,
+  "Complex graph": COMPLEX_GRAPH,
   "Empty (null)": null,
 };
 
