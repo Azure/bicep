@@ -20,8 +20,8 @@ const ZERO_RANGE = {
 // ─── Sample graphs ───────────────────────────────────────────────────────────
 
 /**
- * A module with two child resources, plus two standalone resources
- * and cross-module edges.
+ * A module with two child resources, plus two standalone resources.
+ * Edges only connect nodes within the same scope (no cross-boundary edges).
  */
 const MODULE_GRAPH: DeploymentGraph = {
   nodes: [
@@ -72,9 +72,11 @@ const MODULE_GRAPH: DeploymentGraph = {
     },
   ],
   edges: [
-    { sourceId: "myModule::vmResource", targetId: "networkInterface" },
+    // Outer edges: module and resources at the same (top-level) scope
+    { sourceId: "myModule", targetId: "networkInterface" },
     { sourceId: "networkInterface", targetId: "publicIp" },
-    { sourceId: "myModule::storageAccount", targetId: "networkInterface" },
+    // Inner edge: resources within the same module scope
+    { sourceId: "myModule::vmResource", targetId: "myModule::storageAccount" },
   ],
   errorCount: 0,
 };
@@ -256,7 +258,7 @@ const COMPLEX_GRAPH: DeploymentGraph = {
     { sourceId: "vwanvpnsite", targetId: "vwanrg" },
     { sourceId: "vhubs2s", targetId: "vwanrg" },
 
-    // Inter-module dependencies
+    // Inter-module dependencies (same top-level scope)
     { sourceId: "vpngw", targetId: "vnet" },
     { sourceId: "fw", targetId: "fwpolicy" },
     { sourceId: "fw", targetId: "fwpip" },
@@ -273,6 +275,15 @@ const COMPLEX_GRAPH: DeploymentGraph = {
     { sourceId: "vnets2s", targetId: "vhub" },
     { sourceId: "vnets2s", targetId: "vhubvpngw" },
     { sourceId: "vnets2s", targetId: "vpngw" },
+
+    // Inner edges (resources within the same module scope)
+    { sourceId: "vnet::vnet", targetId: "vnet::servernsg" },
+    { sourceId: "vnet::vnet", targetId: "vnet::bastionnsg" },
+    { sourceId: "vpngw::vpngw", targetId: "vpngw::vpngwpip" },
+    { sourceId: "fwpolicy::platformrcgroup", targetId: "fwpolicy::policy" },
+    { sourceId: "fwpip::fwip", targetId: "fwpip::fwipprefix" },
+    { sourceId: "vhubfwpolicy::platformrcgroup", targetId: "vhubfwpolicy::policy" },
+    { sourceId: "vnets2s::s2sconnection", targetId: "vnets2s::localnetworkgw" },
   ],
   errorCount: 0,
 };

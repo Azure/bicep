@@ -3,7 +3,7 @@
 
 import { PanZoomTransformed } from "@vscode-bicep-ui/components";
 import { styled } from "styled-components";
-import { EdgeLayer } from "./EdgeLayer";
+import { OuterEdgeLayer, InnerEdgeLayer } from "./EdgeLayer";
 import { NodeLayer } from "./NodeLayer";
 
 const $PanZoomTransformed = styled(PanZoomTransformed)`
@@ -15,8 +15,9 @@ const $PanZoomTransformed = styled(PanZoomTransformed)`
 export function Graph() {
   return (
     <$PanZoomTransformed>
-      <EdgeLayer />
+      <OuterEdgeLayer />
       <NodeLayer />
+      <InnerEdgeLayer />
     </$PanZoomTransformed>
   );
 }
