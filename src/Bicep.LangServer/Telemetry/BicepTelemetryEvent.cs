@@ -350,6 +350,25 @@ namespace Bicep.LanguageServer.Telemetry
                 }
             );
 
+        public static BicepTelemetryEvent ExtractToModuleSuccess(int parameterCount, int resourceCount)
+            => new(
+                eventName: TelemetryConstants.EventNames.ExtractToModuleSuccess,
+                properties: new()
+                {
+                    ["parameterCount"] = parameterCount.ToString(),
+                    ["resourceCount"] = resourceCount.ToString(),
+                }
+            );
+
+        public static BicepTelemetryEvent ExtractToModuleFailure(string failureType)
+            => new(
+                eventName: TelemetryConstants.EventNames.ExtractToModuleFailure,
+                properties: new()
+                {
+                    ["failureType"] = failureType,
+                }
+            );
+
         public enum ExtractionKind
         {
             Variable,
