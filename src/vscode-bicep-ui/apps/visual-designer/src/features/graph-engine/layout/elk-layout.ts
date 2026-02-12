@@ -124,12 +124,64 @@ function applyElkLayout(store: Store, elkRoot: ElkNode, animate: boolean, offset
 }
 
 /**
+ * Persistent offset applied to all ELK-computed positions so the
+ * graph appears centered in the viewport. Set on the first layout
+ * and reused on subsequent layouts to keep the graph in place.
+ */
+let graphOffset: { x: number; y: number } | null = null;
+
+/**
+ * Compute the bounding box of top-level ELK nodes from the layout result.
+ */
+function getElkBoundingBox(elkRoot: ElkNode): { minX: number; minY: number; maxX: number; maxY: number } {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  for (const child of elkRoot.children ?? []) {
+    const x = child.x ?? 0;
+    const y = child.y ?? 0;
+    const w = child.width ?? 0;
+    const h = child.height ?? 0;
+    minX = Math.min(minX, x);
+    minY = Math.min(minY, y);
+    maxX = Math.max(maxX, x + w);
+    maxY = Math.max(maxY, y + h);
+  }
+
+  return { minX, minY, maxX, maxY };
+}
+
+/**
  * Run ELK layout on the current graph.
  * @param animate When false, nodes snap to their final positions immediately
  *                (useful for the initial render). Defaults to true.
+ * @param viewport When provided on the first layout, computes the offset
+ *                 needed to center the graph in the viewport. Subsequent
+ *                 layouts reuse the same offset automatically.
  */
-export async function runLayout(store: Store, animate = true): Promise<void> {
+export async function runLayout(
+  store: Store,
+  animate = true,
+  viewport?: { width: number; height: number },
+): Promise<void> {
   const elkGraph = buildElkGraph(store);
   const layoutResult = await elk.layout(elkGraph);
-  applyElkLayout(store, layoutResult, animate);
+
+  // Compute or reuse the offset so the graph stays centered.
+  if (graphOffset === null && viewport) {
+    const bbox = getElkBoundingBox(layoutResult);
+    const graphCenterX = (bbox.minX + bbox.maxX) / 2;
+    const graphCenterY = (bbox.minY + bbox.maxY) / 2;
+    graphOffset = {
+      x: viewport.width / 2 - graphCenterX,
+      y: viewport.height / 2 - graphCenterY,
+    };
+  }
+
+  const ox = graphOffset?.x ?? 0;
+  const oy = graphOffset?.y ?? 0;
+
+  applyElkLayout(store, layoutResult, animate, ox, oy);
 }

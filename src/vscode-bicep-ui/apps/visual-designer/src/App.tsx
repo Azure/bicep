@@ -4,7 +4,7 @@
 import type { ComponentType } from "react";
 import type { NodeKind } from "./features/graph-engine/atoms";
 
-import { PanZoomProvider } from "@vscode-bicep-ui/components";
+import { PanZoomProvider, useGetPanZoomDimensions } from "@vscode-bicep-ui/components";
 import { WebviewMessageChannelProvider, useWebviewMessageChannel, useWebviewNotification } from "@vscode-bicep-ui/messaging";
 import type { WebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { getDefaultStore } from "jotai";
@@ -65,6 +65,7 @@ function GraphContainer() {
   const applyGraph = useApplyDeploymentGraph();
   const messageChannel = useWebviewMessageChannel();
   const fitView = useFitView();
+  const getPanZoomDimensions = useGetPanZoomDimensions();
   const isFirstGraph = useRef(true);
 
   // Send READY notification on mount
@@ -86,13 +87,14 @@ function GraphContainer() {
         // then fit the view so the graph is centered in the viewport.
         const frame1 = requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            const animate = !isFirstGraph.current;
-            void runLayout(store, animate).then(() => {
-              // Always fit on the first graph; subsequent updates
-              // preserve the user's current pan/zoom.
-              if (isFirstGraph.current) {
+            const isFirst = isFirstGraph.current;
+            // On the first layout, pass viewport dimensions so runLayout
+            // can compute a centering offset.  Subsequent layouts reuse
+            // the same offset automatically.
+            const viewport = isFirst ? getPanZoomDimensions() : undefined;
+            void runLayout(store, /* animate */ true, viewport).then(() => {
+              if (isFirst) {
                 isFirstGraph.current = false;
-                fitView();
               }
             });
           });

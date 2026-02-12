@@ -88,13 +88,22 @@ export function useApplyDeploymentGraph() {
       }
 
       // Phase 1: Add all atomic nodes
-      // Use the previous position if the node existed before, otherwise (0,0).
-      // ELK layout will compute the final position and the spring animation
-      // in AtomicNode will smoothly transition from old → new.
+      // Use the previous position if the node existed before.
+      // For brand-new nodes, use the center of the previous graph
+      // (so they animate in from a natural location) or off-screen
+      // if there was no previous graph (first render).
+      const positions = [...previousPositions.values()];
+      const defaultOrigin =
+        positions.length > 0
+          ? {
+              x: positions.reduce((sum, p) => sum + p.x, 0) / positions.length,
+              y: positions.reduce((sum, p) => sum + p.y, 0) / positions.length,
+            }
+          : { x: -200, y: -200 };
       for (const node of graph.nodes) {
         if (!compoundNodeIds.has(node.id)) {
           const symbol = node.id.split("::").pop()!;
-          const origin = previousPositions.get(node.id) ?? { x: 0, y: 0 };
+          const origin = previousPositions.get(node.id) ?? defaultOrigin;
 
           if (node.type === "<module>") {
             // Module demoted to leaf (no children) — use module data shape
