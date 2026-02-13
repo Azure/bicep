@@ -46,26 +46,26 @@ export const lightTheme: DefaultTheme = {
 export const darkTheme: DefaultTheme = {
   name: "dark",
   canvas: {
-    background: "#1e1e1e",
-    dotColor: "#3f3f3f",
+    background: "#101010",
+    dotColor: "#333333",
   },
   node: {
-    background: "#2d2d2d",
-    border: "#555555",
+    background: "#262626",
+    border: "#4e4e4e",
   },
   text: {
-    primary: "#e0e0e0",
+    primary: "#e8e8e8",
     secondary: "#a0a0a0",
   },
   edge: {
-    color: "#555555",
+    color: "#424242",
   },
   controlBar: {
-    background: "rgba(45, 45, 45, 0.95)",
-    border: "rgba(255, 255, 255, 0.1)",
-    icon: "#b0b0b0",
+    background: "rgba(38, 38, 38, 0.95)",
+    border: "rgba(255, 255, 255, 0.12)",
+    icon: "#b8b8b8",
     hoverBackground: "rgba(255, 255, 255, 0.1)",
-    activeBackground: "rgba(255, 255, 255, 0.15)",
+    activeBackground: "rgba(255, 255, 255, 0.16)",
   },
   focusBorder: "#4d90fe",
   error: "#f14c4c",
