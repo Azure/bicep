@@ -13,6 +13,7 @@ import { styled, ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./GlobalStyle";
 import { useTheme } from "./theming/useTheme";
 import { GraphControlBar } from "./features/design-view/components/GraphControlBar";
+import { ExportOverlay } from "./features/export";
 import { ModuleDeclaration } from "./features/design-view/components/ModuleDeclaration";
 import { ResourceDeclaration } from "./features/design-view/components/ResourceDeclaration";
 import { graphVersionAtom, nodeConfigAtom } from "./features/graph-engine/atoms";
@@ -76,6 +77,16 @@ function GraphContainer() {
   const getPanZoomDimensions = useGetPanZoomDimensions();
   const { transform } = usePanZoomControl();
   const graphVersion = useAtomValue(graphVersionAtom);
+  const [isExporting, setIsExporting] = useState(false);
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+  const handleOpenExport = useCallback(() => {
+    setIsExporting(true);
+  }, []);
+
+  const handleCloseExport = useCallback(() => {
+    setIsExporting(false);
+  }, []);
 
   // Send READY notification on mount
   useEffect(() => {
@@ -135,11 +146,16 @@ function GraphContainer() {
   return (
     <>
       <$ControlBarContainer>
-        <GraphControlBar />
+        <GraphControlBar onExport={handleOpenExport} />
       </$ControlBarContainer>
-      <Canvas>
-        <Graph />
-      </Canvas>
+      {isExporting && (
+        <ExportOverlay canvasElement={canvasRef.current} onClose={handleCloseExport} />
+      )}
+      <div ref={canvasRef} style={{ position: "absolute", inset: 0 }}>
+        <Canvas>
+          <Graph />
+        </Canvas>
+      </div>
     </>
   );
 }

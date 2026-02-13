@@ -50,7 +50,17 @@ const $ControlButton = styled.button`
 
 `;
 
-export function GraphControlBar() {
+const $Divider = styled.div`
+  height: 1px;
+  margin: 2px 4px;
+  background-color: ${({ theme }) => theme.controlBar.border};
+`;
+
+export interface GraphControlBarProps {
+  onExport?: () => void;
+}
+
+export function GraphControlBar({ onExport }: GraphControlBarProps) {
   const { zoomIn, zoomOut } = usePanZoomControl();
   const getPanZoomDimensions = useGetPanZoomDimensions();
   const store = useStore();
@@ -83,6 +93,14 @@ export function GraphControlBar() {
       <$ControlButton onClick={resetLayout} title="Reset Layout" aria-label="Reset Layout">
         <Codicon name="type-hierarchy-sub" size={16} />
       </$ControlButton>
+      {onExport && (
+        <>
+          <$Divider />
+          <$ControlButton onClick={onExport} title="Export Graph" aria-label="Export Graph">
+            <Codicon name="desktop-download" size={16} />
+          </$ControlButton>
+        </>
+      )}
     </$GraphControlBar>
   );
 }
