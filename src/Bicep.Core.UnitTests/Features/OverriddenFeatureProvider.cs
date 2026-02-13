@@ -48,4 +48,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool DeployCommandsEnabled => overrides.DeployCommandsEnabled ?? features.DeployCommandsEnabled;
 
     public bool ThisNamespaceEnabled => overrides.ThisNamespaceEnabled ?? features.ThisNamespaceEnabled;
+
+    public bool PatchEnabled => overrides.PatchEnabled ?? features.PatchEnabled;
 }
