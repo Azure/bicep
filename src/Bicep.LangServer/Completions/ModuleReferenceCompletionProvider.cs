@@ -482,21 +482,29 @@ namespace Bicep.LanguageServer.Completions
 
                 string insertText = $"'{parts.WithModulePath(moduleName).ToNotation()}:$0'";
 
-                // Remove the base path prefix from the label if we're dealing with a module alias
-                var label = !string.IsNullOrWhiteSpace(parts.SpecifiedAlias) && !string.IsNullOrWhiteSpace(parts.ModulePathPrefix)
+                // Remove the base path prefix from the display path if we're dealing with a module alias
+                var displayPath = !string.IsNullOrWhiteSpace(parts.SpecifiedAlias) && !string.IsNullOrWhiteSpace(parts.ModulePathPrefix)
                     ? moduleName.Substring(parts.ModulePathPrefixWithSeparator.Length)
                     : moduleName;
 
-                var completionItem = CompletionItemBuilder.Create(
+                var (label, labelPrefix) = GetSuffixLabel(displayPath);
+
+                var completionItemBuilder = CompletionItemBuilder.Create(
                     CompletionItemKind.Snippet, label)
                         .WithSnippetEdit(context.ReplacementRange, insertText)
                         .WithFilterText(insertText)
-                        .WithSortText(GetSortText(moduleName))
+                        .WithSortText(GetSortText(GetModuleSortKey(label, displayPath)))
                         .WithResolveData(
                             ModuleResolutionKey,
                             new { Registry = module.Registry, Module = moduleName })
-                        .WithFollowupCompletion("module version completion")
-                        .Build();
+                        .WithFollowupCompletion("module version completion");
+
+                if (!string.IsNullOrWhiteSpace(labelPrefix))
+                {
+                    completionItemBuilder.WithLabelDetails(string.Empty, labelPrefix);
+                }
+
+                var completionItem = completionItemBuilder.Build();
 
                 completions.Add(completionItem);
 
@@ -722,6 +730,30 @@ namespace Bicep.LanguageServer.Completions
         {
             // We want all module completion priorities to come after other completions (e.g. local module paths), so we start with "9"
             return $"9{(int)priority}_{label}";
+        }
+
+        private static (string Label, string? Prefix) GetSuffixLabel(string displayPath)
+        {
+            if (string.IsNullOrWhiteSpace(displayPath))
+            {
+                return (displayPath, null);
+            }
+
+            var lastSlashIndex = displayPath.LastIndexOf('/');
+            if (lastSlashIndex < 0 || lastSlashIndex == displayPath.Length - 1)
+            {
+                return (displayPath, null);
+            }
+
+            var prefix = displayPath.Substring(0, lastSlashIndex + 1);
+            var label = displayPath.Substring(lastSlashIndex + 1);
+            return (label, prefix);
+        }
+
+        private static string GetModuleSortKey(string label, string displayPath)
+        {
+            // Prefer matches by suffix while keeping a stable, deterministic order.
+            return $"{label}|{displayPath}";
         }
     }
 }
