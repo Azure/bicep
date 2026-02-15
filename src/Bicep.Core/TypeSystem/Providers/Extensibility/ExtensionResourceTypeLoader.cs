@@ -32,8 +32,8 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             this.availableTypes = typeIndex.Resources.ToImmutableDictionary(x => ResourceTypeReference.Parse(x.Key), x => x.Value);
             this.typeSettings = typeIndex.Settings;
             this.fallbackResourceType = typeIndex.FallbackResourceType;
-            
-            this.namespaceFunctions = typeIndex.NamespaceFunctions is { } nsFuncs ? [..nsFuncs] : []; // already published types may not have namespace function property
+
+            this.namespaceFunctions = typeIndex.NamespaceFunctions is { } nsFuncs ? [.. nsFuncs] : []; // already published types may not have namespace function property
         }
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()

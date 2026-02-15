@@ -5,7 +5,7 @@ import type { ElkExtendedEdge, ElkNode } from "elkjs/lib/elk.bundled.js";
 
 import ELK from "elkjs/lib/elk.bundled.js";
 import { getDefaultStore } from "jotai";
-import { nodesAtom, edgesAtom } from "../atoms";
+import { edgesAtom, nodesAtom } from "../atoms";
 
 type Store = ReturnType<typeof getDefaultStore>;
 
