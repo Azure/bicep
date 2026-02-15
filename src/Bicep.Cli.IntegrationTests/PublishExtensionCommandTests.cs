@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Formats.Tar;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using System.IO.Compression;
 using Bicep.Cli.UnitTests.Assertions;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
@@ -13,6 +11,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
@@ -299,16 +298,9 @@ resource fooRes 'fooType@v1' = {
         fakeBlobClient.Should().HaveExtension(version, out var tgzStream);
 
         // Extract and verify the archive contains types.json
-        using var gzipStream = new GZipStream(tgzStream, CompressionMode.Decompress);
-        using var tarReader = new TarReader(gzipStream);
-        
-        var filesInArchive = new List<string>();
-        while (tarReader.GetNextEntry() is TarEntry entry)
-        {
-            filesInArchive.Add(entry.Name);
-        }
+        var filesInArchive = TgzFileExtractor.ExtractFromStream(tgzStream);
 
-        filesInArchive.Should().Contain("types.json", "the published extension should contain types.json when namespace functions are defined");
-        filesInArchive.Should().Contain("index.json", "the published extension should contain index.json");
+        filesInArchive.Keys.Should().Contain("types.json", "the published extension should contain types.json when namespace functions are defined");
+        filesInArchive.Keys.Should().Contain("index.json", "the published extension should contain index.json");
     }
 }
