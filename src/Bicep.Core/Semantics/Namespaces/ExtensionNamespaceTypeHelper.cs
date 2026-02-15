@@ -38,7 +38,7 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             return expression =>
             {
-                var evaluationContext = new ExpressionEvaluationContext (
+                var evaluationContext = new ExpressionEvaluationContext(
                 [
                     Azure.Deployments.Expression.Expressions.ExpressionBuiltInFunctions.Functions,
                     new NamespaceFunctionEvaluationScope(functionDefinition, expression),

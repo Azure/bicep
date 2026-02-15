@@ -8,8 +8,6 @@ import { PanZoomProvider } from "@vscode-bicep-ui/components";
 import { getDefaultStore, useSetAtom } from "jotai";
 import { useEffect } from "react";
 import { styled, ThemeProvider } from "styled-components";
-import { GlobalStyle } from "./GlobalStyle";
-import { useTheme } from "./theming/useTheme";
 import { GraphControlBar } from "./features/design-view/components/GraphControlBar";
 import { ModuleDeclaration } from "./features/design-view/components/ModuleDeclaration";
 import { ResourceDeclaration } from "./features/design-view/components/ResourceDeclaration";
@@ -23,6 +21,8 @@ import {
 } from "./features/graph-engine/atoms";
 import { Canvas, Graph } from "./features/graph-engine/components";
 import { runLayout } from "./features/graph-engine/layout/elk-layout";
+import { GlobalStyle } from "./GlobalStyle";
+import { useTheme } from "./theming/useTheme";
 
 const store = getDefaultStore();
 const nodeConfig = store.get(nodeConfigAtom);
