@@ -18,6 +18,7 @@ import * as lsp from "vscode-languageclient/node";
 import { AzureUiManager } from "./azure/AzureUiManager";
 import { BuildCommand } from "./commands/build";
 import { BuildParamsCommand } from "./commands/buildParams";
+import { SnapshotCommand } from "./commands/snapshot";
 import { CommandManager } from "./commands/commandManager";
 import { CreateBicepConfigurationFile } from "./commands/createConfigurationFile";
 import { DecompileCommand } from "./commands/decompile";
@@ -147,6 +148,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
             new BuildCommand(languageClient, outputChannelManager),
             new GenerateParamsCommand(languageClient, outputChannelManager),
             new BuildParamsCommand(languageClient, outputChannelManager),
+            new SnapshotCommand(languageClient, outputChannelManager),
             new CreateBicepConfigurationFile(languageClient),
             new DeployCommand(languageClient, outputChannelManager, azurePickers),
             new DecompileCommand(languageClient, outputChannelManager),

@@ -56,6 +56,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepBuildCommandHandler>()
                     .WithHandler<BicepGenerateParamsCommandHandler>()
                     .WithHandler<BicepBuildParamsCommandHandler>()
+                    .WithHandler<BicepSnapshotCommandHandler>()
                     .WithHandler<BicepDeploymentStartCommandHandler>()
                     // Base handler (ExecuteTypedResponseCommandHandlerBase) is serial. This blocks other commands on the client side.
                     // To avoid the above issue, we'll change the RequestProcessType to parallel
