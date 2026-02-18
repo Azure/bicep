@@ -2,9 +2,14 @@
 // Licensed under the MIT License.
 
 import type { ElkExtendedEdge, ElkNode } from "elkjs/lib/elk.bundled.js";
+import type { PrimitiveAtom } from "jotai";
+import type { AnimationPlaybackControlsWithThen } from "motion";
+import type { Box } from "../../../utils/math/geometry";
 
 import ELK from "elkjs/lib/elk.bundled.js";
 import { getDefaultStore } from "jotai";
+import { animate, transform } from "motion";
+import { translateBox } from "../../../utils/math";
 import { edgesAtom, nodesAtom } from "../atoms";
 
 type Store = ReturnType<typeof getDefaultStore>;
@@ -14,13 +19,14 @@ const elk = new ELK();
 const ELK_OPTIONS: Record<string, string> = {
   "elk.algorithm": "layered",
   "elk.direction": "DOWN",
-  "elk.aspectRatio": "2.5",
+  "elk.aspectRatio": "2",
   "elk.layered.layering.strategy": "INTERACTIVE",
   "elk.layered.nodePlacement.bk.fixedAlignment": "BALANCED",
   "elk.layered.cycleBreaking.strategy": "DEPTH_FIRST",
-  "elk.spacing.nodeNode": "120",
-  "elk.layered.spacing.nodeNodeBetweenLayers": "80",
-  "elk.spacing.componentComponent": "100",
+  "elk.spacing.nodeNode": "100",
+  "elk.layered.spacing.nodeNodeBetweenLayers": "40",
+  "elk.spacing.componentComponent": "60",
+  "elk.spacing.baseValue": "100",
 };
 
 function buildElkGraph(store: Store): ElkNode {
@@ -90,7 +96,43 @@ function buildElkGraph(store: Store): ElkNode {
   };
 }
 
-function applyElkLayout(store: Store, elkRoot: ElkNode, offsetX = 0, offsetY = 0): void {
+/** Duration (in seconds) of the spring animation when nodes move to new positions. */
+const ANIMATION_DURATION_S = 0.6;
+
+/**
+ * Animate a node's boxAtom from its current position to a target position
+ * using a spring animation.  Returns an awaitable animation control.
+ */
+function animateNodeTo(store: Store, boxAtom: PrimitiveAtom<Box>, targetX: number, targetY: number) {
+  const box = store.get(boxAtom);
+  const fromX = box.min.x;
+  const fromY = box.min.y;
+
+  const from = 0;
+  const to = 100;
+  const opts = { clamp: false };
+  const xTransform = transform([from, to], [fromX, targetX], opts);
+  const yTransform = transform([from, to], [fromY, targetY], opts);
+
+  return animate(from, to, {
+    type: "spring",
+    duration: ANIMATION_DURATION_S,
+    onUpdate: (latest) => {
+      const x = xTransform(latest);
+      const y = yTransform(latest);
+      store.set(boxAtom, (b) => translateBox(b, x - b.min.x, y - b.min.y));
+    },
+  });
+}
+
+function applyElkLayout(
+  store: Store,
+  elkRoot: ElkNode,
+  shouldAnimate: boolean,
+  offsetX = 0,
+  offsetY = 0,
+  animations: AnimationPlaybackControlsWithThen[] = [],
+): AnimationPlaybackControlsWithThen[] {
   const nodes = store.get(nodesAtom);
 
   for (const elkNode of elkRoot.children ?? []) {
@@ -101,19 +143,145 @@ function applyElkLayout(store: Store, elkRoot: ElkNode, offsetX = 0, offsetY = 0
     const y = (elkNode.y ?? 0) + offsetY;
 
     if (node.kind === "atomic") {
-      // Setting originAtom triggers spring animation in AtomicNode
-      store.set(node.originAtom, { x, y });
+      if (shouldAnimate) {
+        // Drive the spring animation directly on boxAtom and collect
+        // the completion promise so callers can await all animations.
+        animations.push(animateNodeTo(store, node.boxAtom, x, y));
+      } else {
+        // Place the node at the exact position immediately (no animation).
+        const box = store.get(node.boxAtom);
+        const dx = x - box.min.x;
+        const dy = y - box.min.y;
+        store.set(node.boxAtom, translateBox(box, dx, dy));
+      }
     } else if (node.kind === "compound") {
       // For compound nodes, position their children relative to
       // the compound node's position. ELK gives children positions
       // relative to their parent.
-      applyElkLayout(store, elkNode, x, y);
+      applyElkLayout(store, elkNode, shouldAnimate, x, y, animations);
     }
   }
+
+  return animations;
 }
 
-export async function runLayout(store: Store): Promise<void> {
+/**
+ * Persistent offset applied to all ELK-computed positions so the
+ * graph appears centered in the viewport.  Recomputed on every
+ * layout so the graph stays centered even when its shape changes.
+ */
+let graphOffset: { x: number; y: number } | null = null;
+
+/**
+ * Compute the bounding box of top-level ELK nodes from the layout result.
+ */
+function getElkBoundingBox(elkRoot: ElkNode): { minX: number; minY: number; maxX: number; maxY: number } {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  for (const child of elkRoot.children ?? []) {
+    const x = child.x ?? 0;
+    const y = child.y ?? 0;
+    const w = child.width ?? 0;
+    const h = child.height ?? 0;
+    minX = Math.min(minX, x);
+    minY = Math.min(minY, y);
+    maxX = Math.max(maxX, x + w);
+    maxY = Math.max(maxY, y + h);
+  }
+
+  return { minX, minY, maxX, maxY };
+}
+
+/**
+ * The result of an ELK layout computation, ready to be applied to the store.
+ */
+export interface LayoutResult {
+  elkRoot: ElkNode;
+  offsetX: number;
+  offsetY: number;
+}
+
+/**
+ * Compute the ELK layout for the current graph without writing
+ * anything to the store.  The returned {@link LayoutResult} can
+ * be applied later via {@link applyLayout}, which allows the
+ * caller to check for staleness between the async computation
+ * and the synchronous store write.
+ *
+ * @param viewport Viewport dimensions used to center the graph.
+ *                 The centering offset is recomputed on every
+ *                 layout so the graph always targets the center
+ *                 of the screen regardless of shape changes.
+ */
+export async function computeLayout(store: Store, viewport: { width: number; height: number }): Promise<LayoutResult> {
   const elkGraph = buildElkGraph(store);
-  const layoutResult = await elk.layout(elkGraph);
-  applyElkLayout(store, layoutResult);
+  const elkRoot = await elk.layout(elkGraph);
+
+  // Recompute the centering offset every time so the graph's
+  // final positions are always centered in the viewport.
+  const bbox = getElkBoundingBox(elkRoot);
+  const graphCenterX = (bbox.minX + bbox.maxX) / 2;
+  const graphCenterY = (bbox.minY + bbox.maxY) / 2;
+  graphOffset = {
+    x: viewport.width / 2 - graphCenterX,
+    y: viewport.height / 2 - graphCenterY,
+  };
+
+  return {
+    elkRoot,
+    offsetX: graphOffset.x,
+    offsetY: graphOffset.y,
+  };
+}
+
+/**
+ * Synchronously start applying a previously computed layout to the store.
+ * Returns a promise that resolves when all node animations have completed.
+ *
+ * @param animate When false, nodes snap to their final positions
+ *                immediately (useful for the initial render).
+ */
+export async function applyLayout(store: Store, result: LayoutResult, animate = true): Promise<void> {
+  const animations = applyElkLayout(store, result.elkRoot, animate, result.offsetX, result.offsetY);
+  await Promise.all(animations);
+}
+
+/**
+ * Compute the pan-zoom transform needed to fit the laid-out graph
+ * in the viewport.  This uses the ELK-computed bounding box (the
+ * final positions) so it can be called immediately — before or in
+ * parallel with the spring animations — rather than waiting for
+ * animations to settle.
+ *
+ * @returns `{ translateX, translateY, scale }` ready to pass to
+ *          `usePanZoomControl().transform()`.
+ */
+export function computeFitViewTransform(
+  result: LayoutResult,
+  viewportWidth: number,
+  viewportHeight: number,
+  padding = 100,
+): { translateX: number; translateY: number; scale: number } {
+  const bbox = getElkBoundingBox(result.elkRoot);
+  const graphMinX = bbox.minX + result.offsetX;
+  const graphMinY = bbox.minY + result.offsetY;
+  const graphMaxX = bbox.maxX + result.offsetX;
+  const graphMaxY = bbox.maxY + result.offsetY;
+
+  const graphWidth = graphMaxX - graphMinX;
+  const graphHeight = graphMaxY - graphMinY;
+  const graphCenterX = graphMinX + graphWidth / 2;
+  const graphCenterY = graphMinY + graphHeight / 2;
+
+  const scaleX = (viewportWidth - padding * 2) / graphWidth;
+  const scaleY = (viewportHeight - padding * 2) / graphHeight;
+  const scale = Math.min(scaleX, scaleY, 1); // Don't zoom in beyond 1:1
+
+  const translateX = viewportWidth / 2 - graphCenterX * scale;
+  const translateY = viewportHeight / 2 - graphCenterY * scale;
+
+  return { translateX, translateY, scale };
 }
