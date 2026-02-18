@@ -32,7 +32,7 @@
       "version": "lts",
       "nodeGypDependencies": true
     },
-    "ghcr.io/devcontainers/features/powershell:1": {
+    "ghcr.io/devcontainers/features/powershell:2": {
       "version": "latest"
     }
   }

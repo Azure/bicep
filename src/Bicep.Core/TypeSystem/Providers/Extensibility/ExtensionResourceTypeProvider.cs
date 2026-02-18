@@ -3,6 +3,8 @@
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Types;
 using NamedTypeProperties = System.Collections.Immutable.ImmutableSortedDictionary<string, Bicep.Core.TypeSystem.Types.NamedTypeProperty>;
 
@@ -194,6 +196,11 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                 TemplateExtensionVersion: namespaceConfiguration.Version);
 
             return MicrosoftGraphExtensionCompatibilityManager.PatchNamespaceSettings(namespaceSettings);
+        }
+
+        public IEnumerable<(FunctionOverload overload, BicepSourceFileKind? visibility)> GetFunctionOverloads()
+        {
+            return resourceTypeLoader.LoadNamespaceFunctions();
         }
 
         public bool HasDefinedType(ResourceTypeReference typeReference)
