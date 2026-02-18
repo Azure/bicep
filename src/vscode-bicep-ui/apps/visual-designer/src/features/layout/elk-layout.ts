@@ -1,20 +1,25 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { ElkExtendedEdge, ElkNode } from "elkjs/lib/elk.bundled.js";
-import type { PrimitiveAtom } from "jotai";
-import type { AnimationPlaybackControlsWithThen } from "motion";
-import type { Box } from "../../../utils/math/geometry";
+import type { ElkExtendedEdge, ElkNode } from "elkjs";
+import type { Getter, PrimitiveAtom, Setter } from "jotai";
+import type { Box } from "../../utils/math/geometry";
 
-import ELK from "elkjs/lib/elk.bundled.js";
-import { getDefaultStore } from "jotai";
-import { animate, transform } from "motion";
-import { translateBox } from "../../../utils/math";
-import { edgesAtom, nodesAtom } from "../atoms";
+import { atom } from "jotai";
+import { animate, transform, type AnimationPlaybackControlsWithThen } from "motion";
+import { translateBox } from "../../utils/math";
+import { nodesByIdAtom, edgesAtom } from "../graph-engine";
 
-type Store = ReturnType<typeof getDefaultStore>;
+import type { ELK } from "elkjs";
 
-const elk = new ELK();
+// Lazy-load the heavy ELK bundled engine (~1.5 MB) on first use.
+// This keeps it in a separate chunk that is fetched on demand,
+// without relying on Web Workers (which VS Code webviews block).
+let elkPromise: Promise<ELK> | undefined;
+function getElk() {
+  elkPromise ??= import("elkjs/lib/elk.bundled.js").then((m) => new m.default());
+  return elkPromise;
+}
 
 const ELK_OPTIONS: Record<string, string> = {
   "elk.algorithm": "layered",
@@ -29,15 +34,15 @@ const ELK_OPTIONS: Record<string, string> = {
   "elk.spacing.baseValue": "100",
 };
 
-function buildElkGraph(store: Store): ElkNode {
-  const nodes = store.get(nodesAtom);
-  const edges = store.get(edgesAtom);
+function buildElkGraph(get: Getter): ElkNode {
+  const nodes = get(nodesByIdAtom);
+  const edges = get(edgesAtom);
 
   // Build parent lookup: childId → parentId
   const childToParent = new Map<string, string>();
   for (const node of Object.values(nodes)) {
     if (node.kind === "compound") {
-      const childIds = store.get(node.childIdsAtom);
+      const childIds = get(node.childIdsAtom);
       for (const childId of childIds) {
         childToParent.set(childId, node.id);
       }
@@ -50,12 +55,12 @@ function buildElkGraph(store: Store): ElkNode {
       return { id: "unknown" };
     }
 
-    const box = store.get(node.boxAtom);
+    const box = get(node.boxAtom);
     const width = Math.max(box.max.x - box.min.x, 1);
     const height = Math.max(box.max.y - box.min.y, 1);
 
     if (node.kind === "compound") {
-      const childIds = store.get(node.childIdsAtom);
+      const childIds = get(node.childIdsAtom);
       const children = childIds
         .map((id) => nodes[id])
         .filter((child): child is NonNullable<typeof child> => child !== undefined)
@@ -103,8 +108,8 @@ const ANIMATION_DURATION_S = 0.6;
  * Animate a node's boxAtom from its current position to a target position
  * using a spring animation.  Returns an awaitable animation control.
  */
-function animateNodeTo(store: Store, boxAtom: PrimitiveAtom<Box>, targetX: number, targetY: number) {
-  const box = store.get(boxAtom);
+function animateNodeTo(get: Getter, set: Setter, boxAtom: PrimitiveAtom<Box>, targetX: number, targetY: number) {
+  const box = get(boxAtom);
   const fromX = box.min.x;
   const fromY = box.min.y;
 
@@ -120,20 +125,21 @@ function animateNodeTo(store: Store, boxAtom: PrimitiveAtom<Box>, targetX: numbe
     onUpdate: (latest) => {
       const x = xTransform(latest);
       const y = yTransform(latest);
-      store.set(boxAtom, (b) => translateBox(b, x - b.min.x, y - b.min.y));
+      set(boxAtom, (b) => translateBox(b, x - b.min.x, y - b.min.y));
     },
   });
 }
 
 function applyElkLayout(
-  store: Store,
+  get: Getter,
+  set: Setter,
   elkRoot: ElkNode,
   shouldAnimate: boolean,
   offsetX = 0,
   offsetY = 0,
   animations: AnimationPlaybackControlsWithThen[] = [],
 ): AnimationPlaybackControlsWithThen[] {
-  const nodes = store.get(nodesAtom);
+  const nodes = get(nodesByIdAtom);
 
   for (const elkNode of elkRoot.children ?? []) {
     const node = nodes[elkNode.id];
@@ -146,31 +152,24 @@ function applyElkLayout(
       if (shouldAnimate) {
         // Drive the spring animation directly on boxAtom and collect
         // the completion promise so callers can await all animations.
-        animations.push(animateNodeTo(store, node.boxAtom, x, y));
+        animations.push(animateNodeTo(get, set, node.boxAtom, x, y));
       } else {
         // Place the node at the exact position immediately (no animation).
-        const box = store.get(node.boxAtom);
+        const box = get(node.boxAtom);
         const dx = x - box.min.x;
         const dy = y - box.min.y;
-        store.set(node.boxAtom, translateBox(box, dx, dy));
+        set(node.boxAtom, translateBox(box, dx, dy));
       }
     } else if (node.kind === "compound") {
       // For compound nodes, position their children relative to
       // the compound node's position. ELK gives children positions
       // relative to their parent.
-      applyElkLayout(store, elkNode, shouldAnimate, x, y, animations);
+      applyElkLayout(get, set, elkNode, shouldAnimate, x, y, animations);
     }
   }
 
   return animations;
 }
-
-/**
- * Persistent offset applied to all ELK-computed positions so the
- * graph appears centered in the viewport.  Recomputed on every
- * layout so the graph stays centered even when its shape changes.
- */
-let graphOffset: { x: number; y: number } | null = null;
 
 /**
  * Compute the bounding box of top-level ELK nodes from the layout result.
@@ -206,18 +205,23 @@ export interface LayoutResult {
 
 /**
  * Compute the ELK layout for the current graph without writing
- * anything to the store.  The returned {@link LayoutResult} can
- * be applied later via {@link applyLayout}, which allows the
+ * anything to the store.  The returned {@link LayoutResult} can be
+ * applied later via {@link applyLayoutAtom}, which allows the
  * caller to check for staleness between the async computation
  * and the synchronous store write.
  *
+ * @param get    Jotai getter for reading graph atoms.
  * @param viewport Viewport dimensions used to center the graph.
  *                 The centering offset is recomputed on every
  *                 layout so the graph always targets the center
  *                 of the screen regardless of shape changes.
  */
-export async function computeLayout(store: Store, viewport: { width: number; height: number }): Promise<LayoutResult> {
-  const elkGraph = buildElkGraph(store);
+export async function computeLayout(
+  get: Getter,
+  viewport: { width: number; height: number },
+): Promise<LayoutResult> {
+  const elkGraph = buildElkGraph(get);
+  const elk = await getElk();
   const elkRoot = await elk.layout(elkGraph);
 
   // Recompute the centering offset every time so the graph's
@@ -225,29 +229,40 @@ export async function computeLayout(store: Store, viewport: { width: number; hei
   const bbox = getElkBoundingBox(elkRoot);
   const graphCenterX = (bbox.minX + bbox.maxX) / 2;
   const graphCenterY = (bbox.minY + bbox.maxY) / 2;
-  graphOffset = {
+  const offset = {
     x: viewport.width / 2 - graphCenterX,
     y: viewport.height / 2 - graphCenterY,
   };
 
   return {
     elkRoot,
-    offsetX: graphOffset.x,
-    offsetY: graphOffset.y,
+    offsetX: offset.x,
+    offsetY: offset.y,
   };
 }
 
 /**
- * Synchronously start applying a previously computed layout to the store.
- * Returns a promise that resolves when all node animations have completed.
+ * Write atom that synchronously starts applying a previously computed
+ * layout.  Returns a promise that resolves when all node animations
+ * have completed.
+ *
+ * Usage: `store.set(applyLayoutAtom, { result })` or
+ *        `store.set(applyLayoutAtom, { result, animate: false })`
  *
  * @param animate When false, nodes snap to their final positions
  *                immediately (useful for the initial render).
  */
-export async function applyLayout(store: Store, result: LayoutResult, animate = true): Promise<void> {
-  const animations = applyElkLayout(store, result.elkRoot, animate, result.offsetX, result.offsetY);
-  await Promise.all(animations);
-}
+export const applyLayoutAtom = atom(
+  null,
+  async (
+    get,
+    set,
+    { result, animate: shouldAnimate = true }: { result: LayoutResult; animate?: boolean },
+  ): Promise<void> => {
+    const animations = applyElkLayout(get, set, result.elkRoot, shouldAnimate, result.offsetX, result.offsetY);
+    await Promise.all(animations);
+  },
+);
 
 /**
  * Compute the pan-zoom transform needed to fit the laid-out graph

@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { DeploymentGraph } from "../messages";
-import type { Point } from "../utils/math/geometry";
+import type { Point } from "../../../utils/math/geometry";
 
 import { getDefaultStore, useSetAtom } from "jotai";
 import { useCallback } from "react";
@@ -12,8 +11,9 @@ import {
   addEdgeAtom,
   edgesAtom,
   graphVersionAtom,
-  nodesAtom,
-} from "../features/graph-engine/atoms";
+  nodesByIdAtom,
+} from "../../graph-engine";
+import type { DeploymentGraph } from "../../../messages";
 
 const store = getDefaultStore();
 
@@ -25,7 +25,7 @@ const store = getDefaultStore();
  */
 function snapshotNodePositions(): Map<string, Point> {
   const positions = new Map<string, Point>();
-  const nodes = store.get(nodesAtom);
+  const nodes = store.get(nodesByIdAtom);
 
   for (const [id, node] of Object.entries(nodes)) {
     const box = store.get(node.boxAtom);
@@ -36,7 +36,7 @@ function snapshotNodePositions(): Map<string, Point> {
 }
 
 export function useApplyDeploymentGraph() {
-  const setNodesAtom = useSetAtom(nodesAtom);
+  const setNodesByIdAtom = useSetAtom(nodesByIdAtom);
   const setEdgesAtom = useSetAtom(edgesAtom);
   const addAtomicNode = useSetAtom(addAtomicNodeAtom);
   const addCompoundNode = useSetAtom(addCompoundNodeAtom);
@@ -50,7 +50,7 @@ export function useApplyDeploymentGraph() {
       const previousPositions = snapshotNodePositions();
 
       // Clear existing state
-      setNodesAtom({});
+      setNodesByIdAtom({});
       setEdgesAtom([]);
 
       if (!graph || graph.nodes.length === 0) {
@@ -155,6 +155,6 @@ export function useApplyDeploymentGraph() {
       // in App) can trigger ELK layout after the DOM reflects the new graph.
       setGraphVersion((v) => v + 1);
     },
-    [setNodesAtom, setEdgesAtom, addAtomicNode, addCompoundNode, addEdge, setGraphVersion],
+    [setNodesByIdAtom, setEdgesAtom, addAtomicNode, addCompoundNode, addEdge, setGraphVersion],
   );
 }

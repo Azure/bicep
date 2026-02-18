@@ -26,22 +26,14 @@ export type NodeState = AtomicNodeState | CompoundNodeState;
 
 export type NodeKind = NodeState["kind"];
 
-export const nodesAtom = atom<Record<string, NodeState>>({});
-
-/**
- * Monotonically increasing version number, bumped each time
- * the deployment graph is replaced.  Components can subscribe
- * to this atom to re-run layout after the new graph is committed
- * to the DOM.
- */
-export const graphVersionAtom = atom(0);
+export const nodesByIdAtom = atom<Record<string, NodeState>>({});
 
 export const addAtomicNodeAtom = atom(null, (get, set, id: string, origin: Point, data: unknown) => {
-  if (get(nodesAtom)[id] !== undefined) {
+  if (get(nodesByIdAtom)[id] !== undefined) {
     throw new Error(`Cannot add atomic node ${id} because it already exists.`);
   }
 
-  set(nodesAtom, (nodes) => ({
+  set(nodesByIdAtom, (nodes) => ({
     ...nodes,
     [id]: {
       kind: "atomic",
@@ -55,7 +47,7 @@ export const addAtomicNodeAtom = atom(null, (get, set, id: string, origin: Point
 export const addCompoundNodeAtom = atom(null, (_, set, id: string, childIds: string[], data: unknown) => {
   const childIdsAtom = atom(childIds);
   const boxAtom = atom((get) => {
-    const nodes = get(nodesAtom);
+    const nodes = get(nodesByIdAtom);
     const { padding } = get(nodeConfigAtom);
     const childBoxes = get(childIdsAtom)
       .map((id) => nodes[id])
@@ -78,7 +70,7 @@ export const addCompoundNodeAtom = atom(null, (_, set, id: string, childIds: str
     };
   });
 
-  set(nodesAtom, (nodes) => ({
+  set(nodesByIdAtom, (nodes) => ({
     ...nodes,
     [id]: {
       kind: "compound",

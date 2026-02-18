@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 import type { WebviewNotificationCallback, WebviewNotificationMessage } from "@vscode-bicep-ui/messaging";
-import type { DeploymentGraph, DeploymentGraphPayload } from "../messages";
+import type { DeploymentGraph, DeploymentGraphPayload } from "../../messages";
 
-import { DEPLOYMENT_GRAPH_NOTIFICATION, READY_NOTIFICATION } from "../messages";
+import { DEPLOYMENT_GRAPH_NOTIFICATION, READY_NOTIFICATION } from "../../messages";
 
 const FAKE_FILE_PATH = "file:///main.bicep";
 
@@ -681,11 +681,9 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
     label: "− Remove module",
     description: "Remove the last module and all its children, plus any edges referencing them",
     apply: (graph) => {
-      // Find the last module node
       const modules = graph.nodes.filter((n) => n.type === "<module>");
       const target = modules[modules.length - 1];
       if (!target) return graph;
-      // Collect IDs to remove: the module itself + any node whose ID starts with "moduleId::"
       const removedIds = new Set(
         graph.nodes.filter((n) => n.id === target.id || n.id.startsWith(`${target.id}::`)).map((n) => n.id),
       );
@@ -742,9 +740,7 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
     label: "+\u00a0Add edge",
     description: "Add an edge between two unconnected nodes in the same scope",
     apply: (graph) => {
-      // Group non-module nodes by scope
       const nodeIds = graph.nodes.filter((n) => !n.hasChildren).map((n) => n.id);
-      // Also include module nodes (they live in the top-level scope)
       const moduleIds = graph.nodes.filter((n) => n.hasChildren).map((n) => n.id);
       const allIds = [...nodeIds, ...moduleIds];
       const existingEdgeKeys = new Set(

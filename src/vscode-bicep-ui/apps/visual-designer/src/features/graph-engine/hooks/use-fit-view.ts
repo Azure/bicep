@@ -4,10 +4,11 @@
 import { useGetPanZoomDimensions, usePanZoomControl } from "@vscode-bicep-ui/components";
 import { useAtomCallback } from "jotai/utils";
 import { useCallback } from "react";
-import { nodesAtom } from "../features/graph-engine/atoms";
+import { getBoxCenter, getBoxHeight, getBoxWidth } from "../../../utils/math/geometry";
+import { graphBoundsAtom } from "../atoms";
 
 /**
- * Returns a callback that computes the bounding box of all nodes
+ * Returns a callback that reads the graph bounding box
  * and applies a pan-zoom transform to center the graph in the viewport.
  */
 export function useFitView() {
@@ -17,24 +18,15 @@ export function useFitView() {
   return useAtomCallback(
     useCallback(
       (get) => {
-        const nodes = get(nodesAtom);
-        const nodeList = Object.values(nodes);
+        const bounds = get(graphBoundsAtom);
 
-        if (nodeList.length === 0) {
+        if (bounds === null) {
           return;
         }
 
-        // Calculate the bounding box of all nodes
-        const boxes = nodeList.map((node) => get(node.boxAtom));
-        const graphMinX = Math.min(...boxes.map((box) => box.min.x));
-        const graphMinY = Math.min(...boxes.map((box) => box.min.y));
-        const graphMaxX = Math.max(...boxes.map((box) => box.max.x));
-        const graphMaxY = Math.max(...boxes.map((box) => box.max.y));
-
-        const graphWidth = graphMaxX - graphMinX;
-        const graphHeight = graphMaxY - graphMinY;
-        const graphCenterX = graphMinX + graphWidth / 2;
-        const graphCenterY = graphMinY + graphHeight / 2;
+        const graphWidth = getBoxWidth(bounds);
+        const graphHeight = getBoxHeight(bounds);
+        const { x: graphCenterX, y: graphCenterY } = getBoxCenter(bounds);
 
         const { width: viewportWidth, height: viewportHeight } = getPanZoomDimensions();
 

@@ -7,7 +7,7 @@ import { atom, useStore } from "jotai";
 import { useEffect, useMemo, useRef } from "react";
 import { useTheme } from "styled-components";
 import { boxesOverlap, getBoxCenter, getBoxCenterSegmentIntersection } from "../../../utils/math";
-import { nodesAtom } from "../atoms";
+import { nodesByIdAtom } from "../atoms";
 
 export function StraightEdge({ fromId, toId }: EdgeAtomValue) {
   const theme = useTheme();
@@ -16,8 +16,8 @@ export function StraightEdge({ fromId, toId }: EdgeAtomValue) {
   const edgeSegmentAtom = useMemo(
     () =>
       atom((get) => {
-        const fromNode = get(nodesAtom)[fromId];
-        const toNode = get(nodesAtom)[toId];
+        const fromNode = get(nodesByIdAtom)[fromId];
+        const toNode = get(nodesByIdAtom)[toId];
 
         if (!fromNode || !toNode) {
           return {};
