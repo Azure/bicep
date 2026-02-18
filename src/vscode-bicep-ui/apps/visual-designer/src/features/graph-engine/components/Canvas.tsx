@@ -23,13 +23,18 @@ const $PanZoom = styled(PanZoom)<{ $grabCursorUrl: string }>`
   }
 `;
 
-export function Canvas({ children }: PropsWithChildren) {
+export interface CanvasProps extends PropsWithChildren {
+  /** When false the dot-pattern background is hidden. Defaults to true. */
+  showBackground?: boolean;
+}
+
+export function Canvas({ children, showBackground = true }: CanvasProps) {
   const theme = useTheme();
   const grabCursorUrl = buildGrabCursor(theme.grabCursor.fill, theme.grabCursor.opacity);
 
   return (
     <$PanZoom $grabCursorUrl={grabCursorUrl}>
-      <CanvasBackground />
+      {showBackground && <CanvasBackground />}
       {children}
     </$PanZoom>
   );
