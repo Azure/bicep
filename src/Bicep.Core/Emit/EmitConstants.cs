@@ -14,4 +14,8 @@ public static class EmitConstants
 
     public static readonly FrozenSet<string> ResourceInfoProperties
         = new[] { "id", "name", "type", "apiVersion" }.ToFrozenSet();
+
+    internal const string LocalFilesArchivePrefix = "local";
+
+    internal const string RestoredFilesArchivePrefix = "restored";
 }

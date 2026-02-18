@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14234608298281212658"
+    },
+    "description": "passthrough port description"
+  },
+  "parameters": {
+    "port": {
+      "type": "string"
+    }
+  },
+  "resources": [],
+  "outputs": {
+    "port": {
+      "type": "string",
+      "value": "[parameters('port')]"
+    }
+  }
+}

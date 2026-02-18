@@ -1,0 +1,67 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "2886350771477281090"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "myTenantMod",
+      "scope": "/",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "templateLink": {
+          "relativePath": "34674d8992a9583ad304a9450c8c4b08b7aa3ccbaf31341389c1060e5c2fe508"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "myManagementGroupMod",
+      "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup2')]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "templateLink": {
+          "relativePath": "a5c8fd39c1d2f47114234d19dd5211a727df8d93f98b7655d8526f051e1a11de"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "mySubscriptionMod",
+      "subscriptionId": "1ad827ac-2669-4c2f-9970-282b93c3c550",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "templateLink": {
+          "relativePath": "4cf396b707c8e6b5523fda34e120b7bf46de87a8c212650a20eb04b246727e54"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "myOutput": {
+      "type": "string",
+      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2025-04-01').outputs.myOutput.value]"
+    }
+  }
+}

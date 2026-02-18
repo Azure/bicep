@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "2.0",
+  "mediaType": "application/vnd.oci.image.manifest.v1+json",
+  "artifactType": "application/vnd.ms.bicep.module.artifact",
+  "config": {
+    "mediaType": "application/vnd.ms.bicep.module.config.v1+json",
+    "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "size": 2,
+    "annotations": {}
+  },
+  "layers": [
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:34674d8992a9583ad304a9450c8c4b08b7aa3ccbaf31341389c1060e5c2fe508",
+      "size": 385,
+      "annotations": {
+        "org.opencontainers.image.title": "local/modules/tenant.bicep"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:393c0b6d1587d757ea5f64fd95d5f41e341496eac1441716f03ded0808d5fb6d",
+      "size": 2866,
+      "annotations": {
+        "org.opencontainers.image.title": "local/modules/subscription.bicep"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:4cf396b707c8e6b5523fda34e120b7bf46de87a8c212650a20eb04b246727e54",
+      "size": 298,
+      "annotations": {
+        "org.opencontainers.image.title": "local/modules/subscription_empty.bicep"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:5bbe3843607acc582efe2a87a063e1edb6279c9c46e6ca23735880885e7ef00d",
+      "size": 2015,
+      "annotations": {
+        "org.opencontainers.image.title": "local/modules/managementgroup.bicep"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:9a4fcb1ff913163316bbf2d7ba7b5a7e629db6952c8ea7bc86512ef5e8575256",
+      "size": 2781,
+      "annotations": {
+        "org.opencontainers.image.title": "local/modules/resourcegroup.bicep"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:a5c8fd39c1d2f47114234d19dd5211a727df8d93f98b7655d8526f051e1a11de",
+      "size": 301,
+      "annotations": {
+        "org.opencontainers.image.title": "local/modules/managementgroup_empty.bicep"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:b58ca077629646b66f3fed2250f76eb2ff47b00eca829bd00fee05c9cd5a235f",
+      "size": 378,
+      "annotations": {
+        "org.opencontainers.image.title": "local/modules/resourcegroup_other.bicep"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:e979b399d08574c7d7e4be22b9d6c3f2d120b7d8e4180134a2a4f5f788aeab32",
+      "size": 3521,
+      "annotations": {
+        "org.opencontainers.image.title": "local/main.bicep",
+        "ms.azure.deployments.entryPoint": "true"
+      }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "2.0",
+  "mediaType": "application/vnd.oci.image.manifest.v1+json",
+  "artifactType": "application/vnd.ms.bicep.module.artifact",
+  "config": {
+    "mediaType": "application/vnd.ms.bicep.module.config.v1+json",
+    "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "size": 2,
+    "annotations": {}
+  },
+  "layers": [
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:0fe741189b4942f94adae2bb9361ce55309654e4a29ac0f265dd3653d106e14e",
+      "size": 3025,
+      "annotations": {
+        "org.opencontainers.image.title": "local/main.bicep",
+        "ms.azure.deployments.entryPoint": "true"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:4ccd9abf1af9c9e1ee010ffbfe3679bbf6e5585996028d3243603f629b1e46ab",
+      "size": 1756,
+      "annotations": {
+        "org.opencontainers.image.title": "local/modules/mod.bicep"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:8caa62de1d916bc6f18c52a2d864b1d246e598ff2781e72d6dd819732d4ad423",
+      "size": 612,
+      "annotations": {
+        "org.opencontainers.image.title": "local/modules/mod2.bicep"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:e37563fca42f93b6263ae30124ff48df2d2df66a45b4aa328a21bf7e93306e0f",
+      "size": 1046,
+      "annotations": {
+        "org.opencontainers.image.title": "local/modules/mod.json"
+      }
+    }
+  ]
+}

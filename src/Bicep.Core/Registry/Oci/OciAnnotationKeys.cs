@@ -17,6 +17,8 @@ namespace Bicep.Core.Registry.Oci
         public const string OciOpenContainerImageTitleAnnotation = "org.opencontainers.image.title";
 
         public const string BicepSerializationFormatAnnotation = "bicep.serialization.format";
+
+        public const string DeploymentsEntryPointAnnotation = "ms.azure.deployments.entryPoint";
     }
 }
 

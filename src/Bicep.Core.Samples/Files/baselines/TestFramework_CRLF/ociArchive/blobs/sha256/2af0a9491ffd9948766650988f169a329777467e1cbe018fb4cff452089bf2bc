@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "2.0",
+  "mediaType": "application/vnd.oci.image.manifest.v1+json",
+  "artifactType": "application/vnd.ms.bicep.module.artifact",
+  "config": {
+    "mediaType": "application/vnd.ms.bicep.module.config.v1+json",
+    "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "size": 2,
+    "annotations": {}
+  },
+  "layers": [
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:1790af0b870cdb5971061ab28df60b8120e8805a9c115dbc468f9368884a3720",
+      "size": 1373,
+      "annotations": {
+        "org.opencontainers.image.title": "local/samples/AccessResources.bicep"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:348e5e196f9d4d8332d3b0470818c7822b192ce541a62a592ee6823520fb06de",
+      "size": 735,
+      "annotations": {
+        "org.opencontainers.image.title": "local/main.bicep",
+        "ms.azure.deployments.entryPoint": "true"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:c9be010ac5c9510f5b4ed3e597c9799e4244f5e1084af92ea039c5b8b9cb806a",
+      "size": 1322,
+      "annotations": {
+        "org.opencontainers.image.title": "local/samples/development.bicep"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:ca6e2a5af7ccbec8b5e25fb2a835628d3312393643036cb4055b5fe0fabf1bfd",
+      "size": 911,
+      "annotations": {
+        "org.opencontainers.image.title": "local/samples/sample1.bicep"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:cf946a3a0c9393e110ceb80dfaf2b60da481103e8ca4c3ac279946c76f5ae3e0",
+      "size": 1590,
+      "annotations": {
+        "org.opencontainers.image.title": "local/samples/main.bicep"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:ec0df5290e5ed5c4c98f1c3cfec589cec14d33372c2e2ad583c2cb1f9ecbf193",
+      "size": 801,
+      "annotations": {
+        "org.opencontainers.image.title": "local/samples/runtime.bicep"
+      }
+    }
+  ]
+}

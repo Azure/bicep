@@ -1,0 +1,122 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.0",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "15431641634443336340"
+    }
+  },
+  "functions": [
+    {
+      "namespace": "__bicep",
+      "members": {
+        "isEven": {
+          "parameters": [
+            {
+              "type": "int",
+              "name": "i"
+            }
+          ],
+          "output": {
+            "type": "bool",
+            "value": "[equals(mod(parameters('i'), 2), 0)]"
+          }
+        }
+      }
+    }
+  ],
+  "variables": {
+    "copy": [
+      {
+        "name": "itemForLoop",
+        "count": "[length(range(0, 10))]",
+        "input": "[range(0, 10)[copyIndex('itemForLoop')]]"
+      }
+    ],
+    "doggos": [
+      "Evie",
+      "Casper",
+      "Indy",
+      "Kira"
+    ],
+    "numbers": "[range(0, 4)]",
+    "sayHello": "[map(variables('doggos'), lambda('i', format('Hello {0}!', lambdaVariables('i'))))]",
+    "sayHello2": "[map(variables('doggos'), lambda('dog', 'i', format('{0} {1}!', if(__bicep.isEven(lambdaVariables('i')), 'Hi', 'Ahoy'), lambdaVariables('dog'))))]",
+    "evenNumbers": "[filter(variables('numbers'), lambda('i', __bicep.isEven(lambdaVariables('i'))))]",
+    "evenEntries": "[filter(createArray('a', 'b', 'c', 'd'), lambda('item', 'i', __bicep.isEven(lambdaVariables('i'))))]",
+    "evenDoggosNestedLambdas": "[map(filter(variables('numbers'), lambda('i', contains(filter(variables('numbers'), lambda('j', equals(0, mod(lambdaVariables('j'), 2)))), lambdaVariables('i')))), lambda('x', variables('doggos')[lambdaVariables('x')]))]",
+    "flattenedArrayOfArrays": "[flatten(createArray(createArray(0, 1), createArray(2, 3), createArray(4, 5)))]",
+    "flattenedEmptyArray": "[flatten(createArray())]",
+    "mapSayHi": "[map(createArray('abc', 'def', 'ghi'), lambda('foo', format('Hi {0}!', lambdaVariables('foo'))))]",
+    "mapEmpty": "[map(createArray(), lambda('foo', format('Hi {0}!', lambdaVariables('foo'))))]",
+    "mapObject": "[map(range(0, length(variables('doggos'))), lambda('i', createObject('i', lambdaVariables('i'), 'doggo', variables('doggos')[lambdaVariables('i')], 'greeting', format('Ahoy, {0}!', variables('doggos')[lambdaVariables('i')]))))]",
+    "mapArray": "[flatten(map(range(1, 3), lambda('i', createArray(mul(lambdaVariables('i'), 2), add(mul(lambdaVariables('i'), 2), 1)))))]",
+    "mapMultiLineArray": "[flatten(map(range(1, 3), lambda('i', createArray(mul(lambdaVariables('i'), 3), add(mul(lambdaVariables('i'), 3), 1), add(mul(lambdaVariables('i'), 3), 2)))))]",
+    "filterEqualityCheck": "[filter(createArray('abc', 'def', 'ghi'), lambda('foo', equals('def', lambdaVariables('foo'))))]",
+    "filterEmpty": "[filter(createArray(), lambda('foo', equals('def', lambdaVariables('foo'))))]",
+    "sortNumeric": "[sort(createArray(8, 3, 10, -13, 5), lambda('x', 'y', less(lambdaVariables('x'), lambdaVariables('y'))))]",
+    "sortAlpha": "[sort(createArray('ghi', 'abc', 'def'), lambda('x', 'y', less(lambdaVariables('x'), lambdaVariables('y'))))]",
+    "sortAlphaReverse": "[sort(createArray('ghi', 'abc', 'def'), lambda('x', 'y', greater(lambdaVariables('x'), lambdaVariables('y'))))]",
+    "sortByObjectKey": "[sort(createArray(createObject('key', 124, 'name', 'Second'), createObject('key', 298, 'name', 'Third'), createObject('key', 24, 'name', 'First'), createObject('key', 1232, 'name', 'Fourth')), lambda('x', 'y', less(int(lambdaVariables('x').key), int(lambdaVariables('y').key))))]",
+    "sortEmpty": "[sort(createArray(), lambda('x', 'y', less(int(lambdaVariables('x')), int(lambdaVariables('y')))))]",
+    "reduceStringConcat": "[reduce(createArray('abc', 'def', 'ghi'), '', lambda('cur', 'next', concat(lambdaVariables('cur'), lambdaVariables('next'))))]",
+    "reduceStringConcatEven": "[reduce(createArray('abc', 'def', 'ghi'), '', lambda('cur', 'next', 'i', if(__bicep.isEven(lambdaVariables('i')), concat(lambdaVariables('cur'), lambdaVariables('next')), lambdaVariables('cur'))))]",
+    "reduceFactorial": "[reduce(range(1, 5), 1, lambda('cur', 'next', mul(lambdaVariables('cur'), lambdaVariables('next'))))]",
+    "reduceObjectUnion": "[reduce(createArray(createObject('foo', 123), createObject('bar', 456), createObject('baz', 789)), createObject(), lambda('cur', 'next', union(lambdaVariables('cur'), lambdaVariables('next'))))]",
+    "reduceEmpty": "[reduce(createArray(), 0, lambda('cur', 'next', lambdaVariables('cur')))]",
+    "filteredLoop": "[filter(variables('itemForLoop'), lambda('i', greater(lambdaVariables('i'), 5)))]",
+    "parentheses": "[map(createArray(123), lambda('i', format('{0}', lambdaVariables('i'))))]",
+    "objectMap": "[toObject(createArray(123, 456, 789), lambda('i', format('{0}', div(lambdaVariables('i'), 100))))]",
+    "objectMap2": "[toObject(range(0, 10), lambda('i', format('{0}', lambdaVariables('i'))), lambda('i', createObject('isEven', equals(mod(lambdaVariables('i'), 2), 0), 'isGreaterThan4', greater(lambdaVariables('i'), 4))))]",
+    "objectMap3": "[toObject(variables('sortByObjectKey'), lambda('x', lambdaVariables('x').name))]",
+    "objectMap4": "[toObject(variables('sortByObjectKey'), lambda('x', lambdaVariables('x').name))]",
+    "objectMap5": "[toObject(variables('sortByObjectKey'), lambda('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', lambdaVariables('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx').name))]",
+    "objectMap6": "[toObject(range(0, 10), lambda('i', format('{0}', lambdaVariables('i'))), lambda('i', createObject('isEven', equals(mod(lambdaVariables('i'), 2), 0), 'isGreaterThan4', greater(lambdaVariables('i'), 4))))]",
+    "multiLine": "[reduce(createArray('abc', 'def', 'ghi'), '', lambda('cur', 'next', concat(lambdaVariables('cur'), lambdaVariables('next'))))]",
+    "multiLineWithComment": "[reduce(createArray('abc', 'def', 'ghi'), '', lambda('cur', 'next', concat(lambdaVariables('cur'), lambdaVariables('next'))))]",
+    "mapVals": "[mapValues(createObject('a', 123, 'b', 456), lambda('val', mul(lambdaVariables('val'), 2)))]",
+    "objectKeysTest": "[objectKeys(createObject('a', 123, 'b', 456))]",
+    "shallowMergeTest": "[shallowMerge(createArray(createObject('a', 123), createObject('b', 456)))]",
+    "groupByTest": "[groupBy(createArray(createObject('type', 'a', 'value', 123), createObject('type', 'b', 'value', 456), createObject('type', 'a', 'value', 789)), lambda('arg', lambdaVariables('arg').type))]",
+    "groupByWithValMapTest": "[groupBy(createArray(createObject('type', 'a', 'value', 123), createObject('type', 'b', 'value', 456), createObject('type', 'a', 'value', 789)), lambda('arg', lambdaVariables('arg').type), lambda('arg', lambdaVariables('arg').value))]"
+  },
+  "resources": {
+    "storageAcc": {
+      "existing": true,
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-09-01",
+      "name": "asdfsadf"
+    },
+    "myMod": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "asdfsadf",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "outputThis": {
+            "value": "[map(variables('mapObject'), lambda('obj', lambdaVariables('obj').doggo))]"
+          }
+        },
+        "templateLink": {
+          "relativePath": "test.bicep"
+        }
+      }
+    }
+  },
+  "outputs": {
+    "doggoGreetings": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('mapObject'))]",
+        "input": "[variables('mapObject')[copyIndex()].greeting]"
+      }
+    }
+  }
+}

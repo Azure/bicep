@@ -1,0 +1,738 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "3313850547374953435"
+    }
+  },
+  "parameters": {
+    "applicationName": {
+      "type": "string",
+      "defaultValue": "[format('to-do-app{0}', uniqueString(resourceGroup().id))]"
+    },
+    "appServicePlanTier": {
+      "type": "string"
+    },
+    "appServicePlanInstances": {
+      "type": "int"
+    },
+    "webSiteName": {
+      "type": "string"
+    },
+    "cosmosDb": {
+      "type": "object"
+    },
+    "shouldDeployVm": {
+      "type": "bool",
+      "defaultValue": true
+    }
+  },
+  "variables": {
+    "hostingPlanName": "[parameters('applicationName')]",
+    "location": "[resourceGroup().location]",
+    "cosmosDbResourceId": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDb').account)]",
+    "_siteApiVersion": "2019-08-01",
+    "_siteType": "Microsoft.Web/sites",
+    "resourceCRef": {
+      "id": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/resourceC', 'resourceA'), '/')[0], split(format('{0}/resourceC', 'resourceA'), '/')[1])]"
+    },
+    "setResourceCRef": true,
+    "myInterpKey": "abc",
+    "storageAccounts": [
+      {
+        "name": "one",
+        "location": "eastus2"
+      },
+      {
+        "name": "two",
+        "location": "westus"
+      }
+    ],
+    "canHaveDuplicatesAcrossScopes": "hello",
+    "duplicatesEverywhere": "hello",
+    "dbs": [
+      "db1",
+      "db2",
+      "db3"
+    ],
+    "sqlConfig": {
+      "westus": {},
+      "server-name": {}
+    }
+  },
+  "resources": [
+    {
+      "copy": {
+        "name": "sqlServer::sqlDatabases",
+        "count": "[length(variables('dbs'))]",
+        "mode": "serial",
+        "batchSize": 1
+      },
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2021-11-01",
+      "name": "[format('{0}/{1}', 'sql-server-name', variables('dbs')[copyIndex()])]",
+      "location": "polandcentral",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', 'sql-server-name')]"
+      ],
+      "metadata": {
+        "description": "Sql Databases"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2021-11-01",
+      "name": "[format('{0}/{1}', 'sql-server-name', 'primary-db')]",
+      "location": "polandcentral",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', 'sql-server-name')]"
+      ],
+      "metadata": {
+        "description": "Primary Sql Database"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "basicblobs",
+      "location": "westus",
+      "kind": "BlobStorage",
+      "sku": {
+        "name": "Standard_GRS"
+      },
+      "metadata": {
+        "description": "this is basicStorage"
+      }
+    },
+    {
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
+      "name": "myZone",
+      "location": "global",
+      "metadata": {
+        "description": "this is dnsZone"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2017-10-01",
+      "name": "myencryptedone",
+      "location": "eastus2",
+      "properties": {
+        "supportsHttpsTrafficOnly": true,
+        "accessTier": "Hot",
+        "encryption": {
+          "keySource": "Microsoft.Storage",
+          "services": {
+            "blob": {
+              "enabled": true
+            },
+            "file": {
+              "enabled": true
+            }
+          }
+        }
+      },
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2017-10-01",
+      "name": "myencryptedone2",
+      "location": "eastus2",
+      "properties": {
+        "supportsHttpsTrafficOnly": "[not(false())]",
+        "accessTier": "[if(true(), 'Hot', 'Cold')]",
+        "encryption": {
+          "keySource": "Microsoft.Storage",
+          "services": {
+            "blob": {
+              "enabled": "[or(true(), false())]"
+            },
+            "file": {
+              "enabled": true
+            }
+          }
+        }
+      },
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', 'myencryptedone')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2019-08-01",
+      "name": "[variables('hostingPlanName')]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "[parameters('appServicePlanTier')]",
+        "capacity": "[parameters('appServicePlanInstances')]"
+      },
+      "properties": {
+        "name": "[variables('hostingPlanName')]"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2019-08-01",
+      "name": "[parameters('webSiteName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "CosmosDb:Account",
+              "value": "[reference(variables('cosmosDbResourceId')).documentEndpoint]"
+            },
+            {
+              "name": "CosmosDb:Key",
+              "value": "[listKeys(variables('cosmosDbResourceId'), '2020-04-01').primaryMasterKey]"
+            },
+            {
+              "name": "CosmosDb:DatabaseName",
+              "value": "[parameters('cosmosDb').databaseName]"
+            },
+            {
+              "name": "CosmosDb:ContainerName",
+              "value": "[parameters('cosmosDb').containerName]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "nestedTemplate1",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Foo/foos",
+      "apiVersion": "2019-10-01",
+      "name": "nestedTemplate1",
+      "properties": {
+        "otherId": "[resourceId('Microsoft.Resources/deployments', 'nestedTemplate1')]",
+        "otherName": "nestedTemplate1",
+        "otherVersion": "2019-10-01",
+        "otherType": "Microsoft.Resources/deployments",
+        "otherThings": "[reference(resourceId('Microsoft.Resources/deployments', 'nestedTemplate1'), '2019-10-01').mode]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'nestedTemplate1')]"
+      ]
+    },
+    {
+      "type": "My.Rp/typeA",
+      "apiVersion": "2020-01-01",
+      "name": "resourceA"
+    },
+    {
+      "type": "My.Rp/typeA/typeB",
+      "apiVersion": "2020-01-01",
+      "name": "[format('{0}/resourceB', 'resourceA')]",
+      "dependsOn": [
+        "[resourceId('My.Rp/typeA', 'resourceA')]"
+      ]
+    },
+    {
+      "type": "My.Rp/typeA/typeB",
+      "apiVersion": "2020-01-01",
+      "name": "[format('{0}/resourceC', 'resourceA')]",
+      "properties": {
+        "aId": "[resourceId('My.Rp/typeA', 'resourceA')]",
+        "aType": "My.Rp/typeA",
+        "aName": "resourceA",
+        "aApiVersion": "2020-01-01",
+        "bProperties": "[reference(resourceId('My.Rp/typeA/typeB', split(format('{0}/resourceB', 'resourceA'), '/')[0], split(format('{0}/resourceB', 'resourceA'), '/')[1]), '2020-01-01')]"
+      },
+      "dependsOn": [
+        "[resourceId('My.Rp/typeA', 'resourceA')]",
+        "[resourceId('My.Rp/typeA/typeB', split(format('{0}/resourceB', 'resourceA'), '/')[0], split(format('{0}/resourceB', 'resourceA'), '/')[1])]"
+      ]
+    },
+    {
+      "type": "My.Rp/typeD",
+      "apiVersion": "2020-01-01",
+      "name": "constant",
+      "properties": {
+        "runtime": [
+          {
+            "bId": "[resourceId('My.Rp/typeA/typeB', split(format('{0}/resourceB', 'resourceA'), '/')[0], split(format('{0}/resourceB', 'resourceA'), '/')[1])]",
+            "bType": "My.Rp/typeA/typeB",
+            "bName": "[format('{0}/resourceB', 'resourceA')]",
+            "bApiVersion": "2020-01-01",
+            "aKind": "[reference(resourceId('My.Rp/typeA', 'resourceA'), '2020-01-01', 'full').kind]"
+          }
+        ],
+        "repro316": "[if(variables('setResourceCRef'), variables('resourceCRef'), null())]"
+      },
+      "dependsOn": [
+        "[resourceId('My.Rp/typeA', 'resourceA')]",
+        "[resourceId('My.Rp/typeA/typeB', split(format('{0}/resourceB', 'resourceA'), '/')[0], split(format('{0}/resourceB', 'resourceA'), '/')[1])]",
+        "[resourceId('My.Rp/typeA/typeB', split(format('{0}/resourceC', 'resourceA'), '/')[0], split(format('{0}/resourceC', 'resourceA'), '/')[1])]"
+      ]
+    },
+    {
+      "type": "My.Rp/interp",
+      "apiVersion": "2020-01-01",
+      "name": "interpTest",
+      "properties": {
+        "[format('{0}', variables('myInterpKey'))]": 1,
+        "[format('abc{0}def', variables('myInterpKey'))]": 2,
+        "[format('{0}abc{1}', variables('myInterpKey'), variables('myInterpKey'))]": 3
+      }
+    },
+    {
+      "type": "My.Rp/mockResource",
+      "apiVersion": "2020-01-01",
+      "name": "test",
+      "properties": {
+        "[[resourceGroup().location]": "[[resourceGroup().location]"
+      }
+    },
+    {
+      "condition": "[parameters('shouldDeployVm')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "vmName",
+      "location": "westus",
+      "properties": {
+        "osProfile": {
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": true
+          }
+        }
+      },
+      "metadata": {
+        "description": "this is vmWithCondition"
+      }
+    },
+    {
+      "condition": "[parameters('shouldDeployVm')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "vmName2",
+      "location": "westus",
+      "properties": {
+        "osProfile": {
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": true
+          }
+        }
+      },
+      "metadata": {
+        "description": "this is another vmWithCondition"
+      }
+    },
+    {
+      "type": "My.Rp/extensionResource",
+      "apiVersion": "2020-12-01",
+      "scope": "[format('Microsoft.Compute/virtualMachines/{0}', 'vmName')]",
+      "name": "extension",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', 'vmName')]"
+      ]
+    },
+    {
+      "type": "My.Rp/extensionResource",
+      "apiVersion": "2020-12-01",
+      "scope": "[extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
+      "name": "extension",
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]"
+      ]
+    },
+    {
+      "type": "My.Rp/mockResource",
+      "apiVersion": "2020-01-01",
+      "name": "extensionDependencies",
+      "properties": {
+        "res1": "[resourceId('Microsoft.Compute/virtualMachines', 'vmName')]",
+        "res1runtime": "[reference(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), '2020-06-01').something]",
+        "res2": "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
+        "res2runtime": "[reference(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension'), '2020-12-01').something]",
+        "res3": "[extensionResourceId(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'My.Rp/extensionResource', 'extension')]",
+        "res3runtime": "[reference(extensionResourceId(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'My.Rp/extensionResource', 'extension'), '2020-12-01').something]"
+      },
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
+        "[extensionResourceId(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'My.Rp/extensionResource', 'extension')]",
+        "[resourceId('Microsoft.Compute/virtualMachines', 'vmName')]"
+      ]
+    },
+    {
+      "type": "My.Rp/extensionResource",
+      "apiVersion": "2020-12-01",
+      "scope": "[extensionResourceId(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'Mock.Rp/existingExtensionResource', 'existing1')]",
+      "name": "extension3",
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "storageResources",
+        "count": "[length(variables('storageAccounts'))]"
+      },
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[variables('storageAccounts')[copyIndex()].name]",
+      "location": "[variables('storageAccounts')[copyIndex()].location]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "metadata": {
+        "description": "this is just a storage account loop"
+      }
+    },
+    {
+      "copy": {
+        "name": "storageResourcesWithIndex",
+        "count": "[length(variables('storageAccounts'))]"
+      },
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}{1}', variables('storageAccounts')[copyIndex()].name, copyIndex())]",
+      "location": "[variables('storageAccounts')[copyIndex()].location]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "metadata": {
+        "description": "this is just a storage account loop with index"
+      }
+    },
+    {
+      "copy": {
+        "name": "vnet",
+        "count": "[length(range(0, 3))]"
+      },
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('vnet-{0}', range(0, 3)[copyIndex()])]",
+      "properties": {
+        "copy": [
+          {
+            "name": "subnets",
+            "count": "[length(range(0, 4))]",
+            "input": {
+              "name": "[format('subnet-{0}-{1}', range(0, 3)[copyIndex()], range(0, 4)[copyIndex('subnets')])]"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "description": "this is just a basic nested loop"
+      }
+    },
+    {
+      "copy": {
+        "name": "duplicateIdentifiersWithinLoop",
+        "count": "[length(range(0, 3))]"
+      },
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('vnet-{0}', range(0, 3)[copyIndex()])]",
+      "properties": {
+        "copy": [
+          {
+            "name": "subnets",
+            "count": "[length(range(0, 4))]",
+            "input": {
+              "name": "[format('subnet-{0}-{1}', range(0, 4)[copyIndex('subnets')], range(0, 4)[copyIndex('subnets')])]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "copy": {
+        "name": "duplicateInGlobalAndOneLoop",
+        "count": "[length(range(0, 3))]"
+      },
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('vnet-{0}', range(0, 3)[copyIndex()])]",
+      "properties": {
+        "copy": [
+          {
+            "name": "subnets",
+            "count": "[length(range(0, 4))]",
+            "input": {
+              "name": "[format('subnet-{0}-{1}', range(0, 4)[copyIndex('subnets')], range(0, 4)[copyIndex('subnets')])]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "copy": {
+        "name": "duplicateInGlobalAndTwoLoops",
+        "count": "[length(range(0, 3))]"
+      },
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('vnet-{0}', range(0, 3)[copyIndex()])]",
+      "properties": {
+        "copy": [
+          {
+            "name": "subnets",
+            "count": "[length(range(0, 4))]",
+            "input": {
+              "name": "[format('subnet-{0}', range(0, 4)[copyIndex('subnets')])]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "copy": {
+        "name": "dnsZones",
+        "count": "[length(range(0, 4))]"
+      },
+      "type": "Microsoft.Network/dnsZones",
+      "apiVersion": "2018-05-01",
+      "name": "[format('zone{0}', range(0, 4)[copyIndex()])]",
+      "location": "global"
+    },
+    {
+      "copy": {
+        "name": "locksOnZones",
+        "count": "[length(range(0, 2))]"
+      },
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2016-09-01",
+      "scope": "[format('Microsoft.Network/dnsZones/{0}', format('zone{0}', range(0, 4)[range(0, 2)[copyIndex()]]))]",
+      "name": "[format('lock{0}', range(0, 2)[copyIndex()])]",
+      "properties": {
+        "level": "CanNotDelete"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/dnsZones', format('zone{0}', range(0, 4)[range(0, 2)[copyIndex()]]))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "moreLocksOnZones",
+        "count": "[length(range(0, 3))]"
+      },
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2016-09-01",
+      "scope": "[format('Microsoft.Network/dnsZones/{0}', format('zone{0}', range(0, 4)[copyIndex()]))]",
+      "name": "[format('another{0}', copyIndex())]",
+      "properties": {
+        "level": "ReadOnly"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/dnsZones', format('zone{0}', range(0, 4)[copyIndex()]))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2016-09-01",
+      "scope": "[format('Microsoft.Network/dnsZones/{0}', format('zone{0}', range(0, 4)[0]))]",
+      "name": "single-lock",
+      "properties": {
+        "level": "ReadOnly"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/dnsZones', format('zone{0}', range(0, 4)[0]))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "myVnet",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/20"
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'myVnet', 'subnet1')]",
+      "properties": {
+        "addressPrefix": "10.0.0.0/24"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'myVnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'myVnet', 'subnet2')]",
+      "properties": {
+        "addressPrefix": "10.0.1.0/24"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', 'myVnet')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Rp1/resource1",
+      "apiVersion": "2020-06-01",
+      "name": "p2res1"
+    },
+    {
+      "type": "Microsoft.Rp1/resource1/child1",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'p2res1', 'child1')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Rp1/resource1', 'p2res1')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Rp2/resource2",
+      "apiVersion": "2020-06-01",
+      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'p2res1', 'child1')]",
+      "name": "res2",
+      "dependsOn": [
+        "[resourceId('Microsoft.Rp1/resource1/child1', 'p2res1', 'child1')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Rp2/resource2/child2",
+      "apiVersion": "2020-06-01",
+      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'p2res1', 'child1')]",
+      "name": "[format('{0}/{1}', 'res2', 'child2')]",
+      "dependsOn": [
+        "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'p2res1', 'child1'), 'Microsoft.Rp2/resource2', 'res2')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Rp1/resource1/child1",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'p3res1', 'child1')]"
+    },
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2021-11-01",
+      "name": "sql-server-name",
+      "location": "polandcentral"
+    },
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2021-11-01",
+      "name": "[format('sql-server-nameof-{0}', 'server-name')]",
+      "location": "westus"
+    }
+  ],
+  "outputs": {
+    "siteApiVersion": {
+      "type": "string",
+      "value": "2019-08-01"
+    },
+    "siteType": {
+      "type": "string",
+      "value": "Microsoft.Web/sites"
+    },
+    "p1_subnet1prefix": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks/subnets', 'myVnet', 'subnet1'), '2020-06-01').addressPrefix]"
+    },
+    "p1_subnet1name": {
+      "type": "string",
+      "value": "subnet1"
+    },
+    "p1_subnet1type": {
+      "type": "string",
+      "value": "Microsoft.Network/virtualNetworks/subnets"
+    },
+    "p1_subnet1id": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'myVnet', 'subnet1')]"
+    },
+    "p2_res2childprop": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'p2res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2'), '2020-06-01').someProp]"
+    },
+    "p2_res2childname": {
+      "type": "string",
+      "value": "child2"
+    },
+    "p2_res2childtype": {
+      "type": "string",
+      "value": "Microsoft.Rp2/resource2/child2"
+    },
+    "p2_res2childid": {
+      "type": "string",
+      "value": "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'p2res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2')]"
+    },
+    "p3_res1childprop": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Rp1/resource1/child1', 'p3res1', 'child1'), '2020-06-01').someProp]"
+    },
+    "p3_res1childname": {
+      "type": "string",
+      "value": "child1"
+    },
+    "p3_res1childtype": {
+      "type": "string",
+      "value": "Microsoft.Rp1/resource1/child1"
+    },
+    "p3_res1childid": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Rp1/resource1/child1', 'p3res1', 'child1')]"
+    },
+    "p4_res1childprop": {
+      "type": "string",
+      "value": "[reference(tenantResourceId('Microsoft.Rp1/resource1/child1', 'p4res1', 'child1'), '2020-06-01').someProp]"
+    },
+    "p4_res1childname": {
+      "type": "string",
+      "value": "child1"
+    },
+    "p4_res1childtype": {
+      "type": "string",
+      "value": "Microsoft.Rp1/resource1/child1"
+    },
+    "p4_res1childid": {
+      "type": "string",
+      "value": "[tenantResourceId('Microsoft.Rp1/resource1/child1', 'p4res1', 'child1')]"
+    },
+    "nameof_sqlServer": {
+      "type": "string",
+      "value": "sqlServer"
+    },
+    "nameof_location": {
+      "type": "string",
+      "value": "location"
+    },
+    "nameof_minCapacity": {
+      "type": "string",
+      "value": "minCapacity"
+    },
+    "nameof_creationTime": {
+      "type": "string",
+      "value": "creationTime"
+    },
+    "nameof_id": {
+      "type": "string",
+      "value": "id"
+    }
+  }
+}
