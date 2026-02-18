@@ -484,7 +484,9 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ResourceTypesUnavailable(ResourceTypeReference resourceTypeReference) => CoreWarning(
                 "BCP081",
-                $"Resource type \"{resourceTypeReference.FormatName()}\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed.");
+                $"Bicep does not have type definitions available for resource type \"{resourceTypeReference.FormatName()}\". " +
+                "Property type validations and code completions are not available for this resource type, but the resource update operation will still be attempted if this file is deployed.");
+
 
             public Diagnostic SymbolicNameDoesNotExistWithSuggestion(string name, string suggestedName) => CoreError(
                 "BCP082",
