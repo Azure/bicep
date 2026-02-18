@@ -11,7 +11,7 @@ export const GlobalStyle = createGlobalStyle`
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    font-family: var(--vscode-font-family, sans-serif);
+    font-family: var(--vscode-font-family, "Segoe WPC", "Segoe UI", system-ui, "Ubuntu", "Droid Sans", sans-serif);
     background-color: ${({ theme }) => theme.canvas.background};
     color: ${({ theme }) => theme.text.primary};
   }
