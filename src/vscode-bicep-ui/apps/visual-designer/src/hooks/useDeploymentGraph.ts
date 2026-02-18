@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { DeploymentGraph } from "../messages";
 import type { Point } from "../utils/math/geometry";
 
 import { getDefaultStore, useSetAtom } from "jotai";
@@ -9,11 +10,10 @@ import {
   addAtomicNodeAtom,
   addCompoundNodeAtom,
   addEdgeAtom,
+  edgesAtom,
   graphVersionAtom,
   nodesAtom,
-  edgesAtom,
 } from "../features/graph-engine/atoms";
-import type { DeploymentGraph } from "../messages";
 
 const store = getDefaultStore();
 

@@ -47,7 +47,6 @@ const $ControlButton = styled.button`
     outline: 2px solid ${({ theme }) => theme.focusBorder};
     outline-offset: 1px;
   }
-
 `;
 
 export function GraphControlBar() {

@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { Range } from "../../../messages";
+
 import { AzureIcon } from "@vscode-bicep-ui/components";
 import { styled } from "styled-components";
-import type { Range } from "../../../messages";
 
 export interface ModuleDeclarationProps {
   id: string;
@@ -46,7 +47,7 @@ const $ModuleDelcarton = styled.div<{ $hasError?: boolean; $isCollection?: boole
       z-index: -1;
     }
   `
-      : ''}
+      : ""}
 `;
 
 const $DeclarationInfo = styled.div`

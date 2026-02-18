@@ -2,15 +2,15 @@
 // Licensed under the MIT License.
 
 import type { ElkExtendedEdge, ElkNode } from "elkjs/lib/elk.bundled.js";
-import type { AnimationPlaybackControlsWithThen } from "motion";
 import type { PrimitiveAtom } from "jotai";
+import type { AnimationPlaybackControlsWithThen } from "motion";
 import type { Box } from "../../../utils/math/geometry";
 
 import ELK from "elkjs/lib/elk.bundled.js";
 import { getDefaultStore } from "jotai";
 import { animate, transform } from "motion";
 import { translateBox } from "../../../utils/math";
-import { nodesAtom, edgesAtom } from "../atoms";
+import { edgesAtom, nodesAtom } from "../atoms";
 
 type Store = ReturnType<typeof getDefaultStore>;
 
@@ -27,7 +27,6 @@ const ELK_OPTIONS: Record<string, string> = {
   "elk.layered.spacing.nodeNodeBetweenLayers": "40",
   "elk.spacing.componentComponent": "60",
   "elk.spacing.baseValue": "100",
-
 };
 
 function buildElkGraph(store: Store): ElkNode {
@@ -104,12 +103,7 @@ const ANIMATION_DURATION_S = 0.6;
  * Animate a node's boxAtom from its current position to a target position
  * using a spring animation.  Returns an awaitable animation control.
  */
-function animateNodeTo(
-  store: Store,
-  boxAtom: PrimitiveAtom<Box>,
-  targetX: number,
-  targetY: number,
-) {
+function animateNodeTo(store: Store, boxAtom: PrimitiveAtom<Box>, targetX: number, targetY: number) {
   const box = store.get(boxAtom);
   const fromX = box.min.x;
   const fromY = box.min.y;
@@ -222,10 +216,7 @@ export interface LayoutResult {
  *                 layout so the graph always targets the center
  *                 of the screen regardless of shape changes.
  */
-export async function computeLayout(
-  store: Store,
-  viewport: { width: number; height: number },
-): Promise<LayoutResult> {
+export async function computeLayout(store: Store, viewport: { width: number; height: number }): Promise<LayoutResult> {
   const elkGraph = buildElkGraph(store);
   const elkRoot = await elk.layout(elkGraph);
 

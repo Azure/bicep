@@ -1,29 +1,30 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { WebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import type { ComponentType } from "react";
 import type { NodeKind } from "./features/graph-engine/atoms";
+import type { DeploymentGraphPayload } from "./messages";
 
 import { PanZoomProvider, useGetPanZoomDimensions, usePanZoomControl } from "@vscode-bicep-ui/components";
-import { WebviewMessageChannelProvider, useWebviewMessageChannel, useWebviewNotification } from "@vscode-bicep-ui/messaging";
-import type { WebviewMessageChannel } from "@vscode-bicep-ui/messaging";
+import {
+  useWebviewMessageChannel,
+  useWebviewNotification,
+  WebviewMessageChannelProvider,
+} from "@vscode-bicep-ui/messaging";
 import { getDefaultStore, useAtomValue } from "jotai";
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { styled, ThemeProvider } from "styled-components";
-import { GlobalStyle } from "./GlobalStyle";
-import { useTheme } from "./theming/useTheme";
 import { GraphControlBar } from "./features/design-view/components/GraphControlBar";
 import { ModuleDeclaration } from "./features/design-view/components/ModuleDeclaration";
 import { ResourceDeclaration } from "./features/design-view/components/ResourceDeclaration";
 import { graphVersionAtom, nodeConfigAtom } from "./features/graph-engine/atoms";
 import { Canvas, Graph } from "./features/graph-engine/components";
 import { applyLayout, computeFitViewTransform, computeLayout } from "./features/graph-engine/layout/elk-layout";
+import { GlobalStyle } from "./GlobalStyle";
 import { useApplyDeploymentGraph } from "./hooks/useDeploymentGraph";
-import {
-  DEPLOYMENT_GRAPH_NOTIFICATION,
-  READY_NOTIFICATION,
-  type DeploymentGraphPayload,
-} from "./messages";
+import { DEPLOYMENT_GRAPH_NOTIFICATION, READY_NOTIFICATION } from "./messages";
+import { useTheme } from "./theming/useTheme";
 
 const isDev = typeof acquireVsCodeApi === "undefined";
 

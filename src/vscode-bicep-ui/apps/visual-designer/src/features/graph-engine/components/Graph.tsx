@@ -3,7 +3,7 @@
 
 import { PanZoomTransformed } from "@vscode-bicep-ui/components";
 import { styled } from "styled-components";
-import { OuterEdgeLayer, InnerEdgeLayer } from "./EdgeLayer";
+import { InnerEdgeLayer, OuterEdgeLayer } from "./EdgeLayer";
 import { NodeLayer } from "./NodeLayer";
 
 const $PanZoomTransformed = styled(PanZoomTransformed)`

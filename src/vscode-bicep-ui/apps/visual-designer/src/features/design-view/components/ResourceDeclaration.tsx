@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { Range } from "../../../messages";
+
 import { AzureIcon } from "@vscode-bicep-ui/components";
 import { styled } from "styled-components";
 import { camelCaseToWords } from "../../../utils/text";
-import type { Range } from "../../../messages";
 
 export interface ResourceDeclarationProps {
   id: string;
@@ -52,7 +53,7 @@ const $ResourceDelcarton = styled.div<{ $hasError?: boolean; $isCollection?: boo
       z-index: -1;
     }
   `
-      : ''}
+      : ""}
 `;
 
 const $TextContainer = styled.div`
