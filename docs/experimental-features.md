@@ -34,6 +34,24 @@ Enables Bicep to run deployments locally, so that you can run Bicep extensions w
 Moves defining extension configurations to the module level rather than from within a template. The feature also
 includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use.
 
+### `patch`
+
+Enables the `@patch()` decorator for deploying resources using the PATCH HTTP method instead of PUT. This feature is restricted to Azure Policy DeployIfNotExists (DINE) scenarios, allowing policies to make incremental changes to existing resources without full redeployment.
+
+> **Note**: This feature is intended for internal Azure Policy scenarios and is not intended for general public use. It requires specific backend support that is only available in Policy-initiated deployments.
+
+```bicep
+@patch()
+resource existingVm 'Microsoft.Compute/virtualMachines@2023-01-01' = {
+  name: 'my-existing-vm'
+  properties: {
+    hardwareProfile: {
+      vmSize: 'Standard_D4s_v3'  // Only this property will be patched
+    }
+  }
+}
+```
+
 ### `resourceInfoCodegen`
 
 Enables the 'resourceInfo' function for simplified code generation.
