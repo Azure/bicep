@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
+using Azure.Deployments.Expression.Engines;
+using Azure.Deployments.Expression.Expressions;
+using Bicep.Core.ArmHelpers;
+using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
-using Microsoft.Identity.Client;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
@@ -57,7 +59,7 @@ public class ParametersJsonWriter
                     {
                         // The backend is always expecting an expression string, so we must always ensure we emit
                         // a top-level expression, even if we could simplify by emitting a top-level object.
-                        emitter.EmitProperty("expression", () => emitter.EmitLanguageExpression(expression));
+                        emitter.EmitPropertyWithTransform("expression", expression, RewriteExternalInputReferences);
                     }
                     else
                     {
@@ -67,9 +69,9 @@ public class ParametersJsonWriter
             }
         });
 
-        if (this.Context.ExternalInputReferences.ExternalInputIndexMap.Count > 0)
+        if (this.Context.SemanticModel.EmitLimitationInfo.ExternalInputDefinitions is { } externalInputDefinitions)
         {
-            WriteExternalInputDefinitions(emitter, this.Context.ExternalInputReferences.ExternalInputIndexMap);
+            WriteExternalInputDefinitions(emitter, jsonWriter, externalInputDefinitions);
         }
 
         if (this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
@@ -93,7 +95,7 @@ public class ParametersJsonWriter
                 {
                     // The backend is always expecting an expression string, so we must always ensure we emit
                     // a top-level expression, even if we could simplify by emitting a top-level object.
-                    emitter.EmitProperty("expression", () => emitter.EmitLanguageExpression(expression));
+                    emitter.EmitPropertyWithTransform("expression", expression, RewriteExternalInputReferences);
                 }
                 else
                 {
@@ -108,21 +110,21 @@ public class ParametersJsonWriter
         return content.FromJson<JToken>();
     }
 
-    private void WriteExternalInputDefinitions(ExpressionEmitter emitter, IDictionary<FunctionCallSyntaxBase, string> externalInputIndexMap)
+    private void WriteExternalInputDefinitions(
+        ExpressionEmitter emitter,
+        PositionTrackingJsonTextWriter writer,
+        IEnumerable<ExternalInputDefinition> externalInputDefinitions)
     {
         emitter.EmitObjectProperty("externalInputDefinitions", () =>
         {
-            // Sort the external input references by name for deterministic ordering
-            foreach (var reference in externalInputIndexMap.OrderBy(x => x.Value))
+            foreach (var externalInputDefinition in externalInputDefinitions)
             {
-                var expression = (FunctionCallExpression)ExpressionBuilder.Convert(reference.Key);
-
-                emitter.EmitObjectProperty(reference.Value, () =>
+                emitter.EmitObjectProperty(externalInputDefinition.Key, () =>
                 {
-                    emitter.EmitProperty("kind", expression.Parameters[0]);
-                    if (expression.Parameters.Length > 1)
+                    emitter.EmitProperty("kind", externalInputDefinition.Kind);
+                    if (externalInputDefinition.Config is { } config)
                     {
-                        emitter.EmitProperty("config", expression.Parameters[1]);
+                        emitter.EmitProperty("config", () => config.WriteTo(writer));
                     }
                 });
             }
@@ -180,4 +182,18 @@ public class ParametersJsonWriter
                 }
             });
     }
+
+    private LanguageExpression RewriteExternalInputReferences(LanguageExpression expression) =>
+        LanguageExpressionRewriter.Rewrite(expression, exp =>
+        {
+            if (exp is not FunctionExpression function || !function.NameEquals(LanguageConstants.ExternalInputBicepFunctionName))
+            {
+                return exp;
+            }
+
+            var serialized = ExpressionsEngine.SerializeExpression(function);
+            return !this.Context.SemanticModel.ExternalInputReferences.InfoBySerializedExpression.TryGetValue(serialized, out var info)
+                ? exp
+                : new FunctionExpression(LanguageConstants.ExternalInputsArmFunctionName, [new JTokenExpression(info.DefinitionKey)], []);
+        });
 }

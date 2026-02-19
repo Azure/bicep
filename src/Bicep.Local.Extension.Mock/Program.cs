@@ -4,6 +4,7 @@
 using Bicep.Local.Extension.Host.Extensions;
 using Bicep.Local.Extension.Mock;
 using Bicep.Local.Extension.Mock.Handlers;
+using Bicep.Local.Extension.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,12 +13,10 @@ var builder = WebApplication.CreateBuilder();
 builder.AddBicepExtensionHost(args);
 
 builder.Services
-    .AddBicepExtension(
-        name: "MockExtension",
-        version: "0.0.1",
-        isSingleton: true,
-        typeAssembly: typeof(Program).Assembly,
-        configurationType: typeof(Configuration))
+    .AddBicepExtension()
+    .WithDefaults("Extension.Mock", "1.0.0", isSingleton: true)
+    .WithConfigurationType<Configuration>()
+    //.WithTypeAssembly(typeof(Program).Assembly)
     .WithResourceHandler<EchoResourceHandler>();
 
 var app = builder.Build();

@@ -12,6 +12,7 @@ using Azure.Bicep.Types;
 using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
 using Azure.Bicep.Types.Serialization;
+using Bicep.Local.Extension.Builder.Models;
 using Bicep.Local.Extension.Types.Attributes;
 using static Google.Protobuf.Reflection.GeneratedCodeInfo.Types;
 
@@ -40,11 +41,10 @@ public class TypeDefinitionBuilder : ITypeDefinitionBuilder
     private record SecureStringReferenceType();
 
     private readonly Dictionary<Type, ITypeReference> typeCache;
-    private readonly string name;
-    private readonly string version;
-    private readonly bool isSingleton;
-    private readonly Type? configurationType;
+    private readonly ExtensionInfo extensionInfo;
     private readonly TypeFactory factory;
+
+    private const string typesJsonPath = "types.json";
 
     /// <summary>
     /// Provides functionality to generate Bicep resource type definitions from .NET types.
@@ -62,16 +62,10 @@ public class TypeDefinitionBuilder : ITypeDefinitionBuilder
     /// </para>
     /// </remarks>
     public TypeDefinitionBuilder(
-        string name,
-        string version,
-        bool isSingleton,
-        Type? configurationType,
+        ExtensionInfo extensionInfo,
         ITypeProvider typeProvider)
     {
-        this.name = name;
-        this.version = version;
-        this.isSingleton = isSingleton;
-        this.configurationType = configurationType;
+        this.extensionInfo = extensionInfo;
         this.factory = new([]);
         this.typeProvider = typeProvider;
         this.typeCache = [];
@@ -91,25 +85,21 @@ public class TypeDefinitionBuilder : ITypeDefinitionBuilder
     /// </remarks>
     public virtual TypeDefinition GenerateTypeDefinition()
     {
-        var typesJsonPath = "types.json";
         var resourceTypes = typeProvider.GetResourceTypes()
             .Select(x => GenerateResource(x.type, x.attribute))
             .Select(x => x.Type as ResourceType)
             .OfType<ResourceType>()
             .ToDictionary(rt => rt.Name, rt => new CrossFileTypeReference(typesJsonPath, factory.GetIndex(rt)));
 
-        CrossFileTypeReference? config = null;
-        if (configurationType is not null)
-        {
-            var configReference = GenerateForRecord(configurationType);
-            config = new CrossFileTypeReference(typesJsonPath, factory.GetIndex(configReference.Type));
-        }
+        var config = CreateCrossFileTypeReference(typeProvider.ConfigurationType);
+        var fallback = CreateCrossFileTypeReference(typeProvider.FallbackType);
 
         var index = new TypeIndex(
-            resourceTypes,
-            new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
-            new TypeSettings(name: name, version: version, isSingleton: isSingleton, configurationType: config!),
-            null);
+                resources: resourceTypes,
+                resourceFunctions: new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+                [],
+                settings: new TypeSettings(name: extensionInfo.Name, version: extensionInfo.Version, isSingleton: extensionInfo.IsSingleton, configurationType: config),
+                fallbackResourceType: fallback);
 
         return new(
             IndexFileContent: GetString(stream => TypeSerializer.SerializeIndex(stream, index)),
@@ -117,6 +107,17 @@ public class TypeDefinitionBuilder : ITypeDefinitionBuilder
             {
                 [typesJsonPath] = GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes())),
             }.ToImmutableDictionary());
+    }
+
+    private CrossFileTypeReference? CreateCrossFileTypeReference(Type? type)
+    {
+        if (type is not null)
+        {
+            var configReference = GenerateForRecord(type);
+            return new CrossFileTypeReference(typesJsonPath, factory.GetIndex(configReference.Type));
+        }
+
+        return null;
     }
 
     private ITypeReference GenerateResource(Type type, ResourceTypeAttribute attribute)
@@ -157,12 +158,12 @@ public class TypeDefinitionBuilder : ITypeDefinitionBuilder
 
         if (type.IsGenericType &&
             type.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-            type.GetGenericArguments()[0] is {} innerType)
+            type.GetGenericArguments()[0] is { } innerType)
         {
-            if (GenerateForType(typeof(NullReferenceType), null) is {} nullType &&
-                GenerateForType(innerType, annotation) is {} innerBicepType)
+            if (GenerateForType(typeof(NullReferenceType), null) is { } nullType &&
+                GenerateForType(innerType, annotation) is { } innerBicepType)
             {
-                return AddType(type, new UnionType([ nullType, innerBicepType ]));
+                return AddType(type, new UnionType([nullType, innerBicepType]));
             }
 
             return null;
@@ -179,20 +180,20 @@ public class TypeDefinitionBuilder : ITypeDefinitionBuilder
                 valueType = type.GetGenericArguments()[1];
             }
             else if (type.GetInterfaces()
-                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IDictionary<,>)) is {} dictType)
+                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IDictionary<,>)) is { } dictType)
             {
                 keyType = dictType.GetGenericArguments()[0];
                 valueType = dictType.GetGenericArguments()[1];
             }
 
-            if (keyType is null || 
+            if (keyType is null ||
                 valueType is null ||
                 keyType != typeof(string) ||
-                GenerateForType(valueType, null) is not {} valueTypeReference)
+                GenerateForType(valueType, null) is not { } valueTypeReference)
             {
                 throw new NotImplementedException($"Unsupported dictionary type: '{type}'");
             }
-            
+
             return AddType(type, new ObjectType(
                 $"Dictionary<string, {valueType.Name}>",
                 properties: ImmutableDictionary<string, ObjectTypeProperty>.Empty,
@@ -212,7 +213,7 @@ public class TypeDefinitionBuilder : ITypeDefinitionBuilder
                 elementType = type.GetGenericArguments()[0];
             }
             else if (type.GetInterfaces()
-                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>)) is {} enumerableType)
+                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEnumerable<>)) is { } enumerableType)
             {
                 elementType = enumerableType.GetGenericArguments()[0];
             }
@@ -222,7 +223,7 @@ public class TypeDefinitionBuilder : ITypeDefinitionBuilder
                 throw new NotImplementedException($"Unsupported collection type: '{type}'");
             }
 
-            if (GenerateForType(elementType, annotation) is not {} elementTypeReference)
+            if (GenerateForType(elementType, annotation) is not { } elementTypeReference)
             {
                 throw new NotImplementedException($"Unsupported element type: '{elementType}'");
             }
@@ -257,7 +258,7 @@ public class TypeDefinitionBuilder : ITypeDefinitionBuilder
             var annotation = property.GetCustomAttributes<TypePropertyAttribute>(true).FirstOrDefault();
             var propertyType = property.PropertyType;
 
-            if (GenerateForType(propertyType, annotation) is not {} typeReference)
+            if (GenerateForType(propertyType, annotation) is not { } typeReference)
             {
                 throw new NotImplementedException($"Property '{property.Name}' references unsupported type: '{propertyType}'");
             }

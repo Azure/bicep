@@ -47,7 +47,7 @@ public class DiagnosticLogger
                 LogDefaultDiagnostics(this.logger, diagnosticsByBicepFile);
                 break;
             case DiagnosticsFormat.Sarif:
-                var writer = options.SarifToStdout ? this.ioContext.Output : this.ioContext.Error;
+                var writer = options.SarifToStdout ? this.ioContext.Output.Writer : this.ioContext.Error.Writer;
                 LogSarifDiagnostics(writer, diagnosticsByBicepFile);
                 break;
             default:

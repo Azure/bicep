@@ -1280,34 +1280,28 @@ namespace Bicep.Core.Semantics.Namespaces
                 {
                     yield return new FunctionOverloadBuilder(LanguageConstants.ReadEnvVarBicepFunctionName)
                         .WithGenericDescription($"Reads the specified environment variable as bicep string.")
-                        .WithRequiredParameter("variableName", LanguageConstants.String, "The name of the environment variable.")
-                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, [new StringLiteralExpression(null, "sys.envVar"), .. exp.Parameters]))
+                        .WithRequiredParameter("variableName", LanguageConstants.String, "The name of the environment variable.", flags: FunctionParameterFlags.Constant)
+                        .WithFlags(FunctionFlags.RequiresExternalInput)
+                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputBicepFunctionName, [new StringLiteralExpression(null, "sys.envVar"), .. exp.Parameters]))
                         .WithReturnType(LanguageConstants.String)
                         .Build();
 
                     yield return new FunctionOverloadBuilder(LanguageConstants.ReadCliArgBicepFunctionName)
                         .WithGenericDescription($"Reads the specified CLI argument as bicep string.")
-                        .WithRequiredParameter("argumentName", LanguageConstants.String, "The name of the CLI argument.")
-                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, [new StringLiteralExpression(null, "sys.cliArg"), .. exp.Parameters]))
+                        .WithRequiredParameter("argumentName", LanguageConstants.String, "The name of the CLI argument.", flags: FunctionParameterFlags.Constant)
+                        .WithFlags(FunctionFlags.RequiresExternalInput)
+                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputBicepFunctionName, [new StringLiteralExpression(null, "sys.cliArg"), .. exp.Parameters]))
                         .WithReturnType(LanguageConstants.String)
                         .Build();
                 }
 
                 yield return new FunctionOverloadBuilder(LanguageConstants.ExternalInputBicepFunctionName)
                     .WithGenericDescription("Resolves input from an external source. The input value is resolved during deployment, not at compile time.")
-                    .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.")
-                    .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.")
-                    .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, exp.Parameters))
-                    .WithReturnResultBuilder((model, diagnostics, functionCall, argumentTypes) =>
-                    {
-                        var visitor = new CompileTimeConstantVisitor(diagnostics);
-                        foreach (var arg in functionCall.Arguments)
-                        {
-                            arg.Accept(visitor);
-                        }
-
-                        return new(LanguageConstants.Any);
-                    }, LanguageConstants.Any)
+                    .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.", flags: FunctionParameterFlags.Constant)
+                    .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.", flags: FunctionParameterFlags.Constant)
+                    .WithFlags(FunctionFlags.RequiresExternalInput)
+                    .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputBicepFunctionName, exp.Parameters))
+                    .WithReturnType(LanguageConstants.Any)
                     .Build();
             }
 
@@ -1431,7 +1425,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             if (TryLoadTextContentFromFile(model, diagnostics, (arguments[0], argumentTypes[0]), arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null, characterLimit)
                 .IsSuccess(out var result, out var errorDiagnostic) &&
-                objectParser.TryExtractFromObject(result.Content, tokenSelectorPath, positionables, out errorDiagnostic, out var token))
+                objectParser.TryExtractFromObject(result.Content, tokenSelectorPath, positionables).IsSuccess(out var token, out errorDiagnostic))
             {
                 return new(ConvertJsonToBicepType(token), ConvertJsonToExpression(token));
             }

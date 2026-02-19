@@ -892,10 +892,6 @@
           "type": "boolean",
           "description": "Enables the 'resourceInfo' function for simplified code generation. See https://aka.ms/bicep/experimental-features#resourceinfocodegen"
         },
-        "desiredStateConfiguration": {
-          "type": "boolean",
-          "description": "Allows you to author Desired State Configuration documents using the target scope 'dsc'. See https://aka.ms/bicep/experimental-features#desiredstateconfiguration"
-        },
         "userDefinedConstraints": {
           "type": "boolean",
           "description": "Allows you to use the `@validate()` decorator on types and parameters with a custom validation predicate. See https://aka.ms/bicep/experimental-features#userdefinedconstraints"

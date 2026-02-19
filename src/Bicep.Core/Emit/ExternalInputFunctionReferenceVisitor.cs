@@ -2,29 +2,35 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
+using Azure.Deployments.Core.Exceptions;
+using Azure.Deployments.Expression.Engines;
+using Azure.Deployments.Expression.Expressions;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem.Types;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Emit;
 
 public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 {
     private readonly SemanticModel semanticModel;
-    private ParameterAssignmentSymbol? targetParameterAssignment;
-    private VariableSymbol? targetVariableDeclaration;
-    private readonly ImmutableHashSet<ParameterAssignmentSymbol>.Builder parametersContainingExternalInput;
-    private readonly ImmutableHashSet<VariableSymbol>.Builder variablesContainingExternalInput;
-    private readonly ImmutableDictionary<FunctionCallSyntaxBase, string>.Builder externalInputReferences;
-    private ExternalInputFunctionReferenceVisitor(SemanticModel semanticModel)
+
+    private readonly IDiagnosticWriter diagnosticWriter;
+
+    // a FunctionSyntax can request multiple external inputs, hence the array as value
+    private readonly ImmutableDictionary<FunctionCallSyntaxBase, ImmutableArray<ExternalInputInfo>>.Builder infoBySyntax;
+    private readonly ImmutableDictionary<string, ExternalInputInfo>.Builder infoBySerializedExpression;
+    private readonly ExpressionConverter expressionConverter;
+    private ExternalInputFunctionReferenceVisitor(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
     {
         this.semanticModel = semanticModel;
-        this.externalInputReferences = ImmutableDictionary.CreateBuilder<FunctionCallSyntaxBase, string>();
-        this.parametersContainingExternalInput = ImmutableHashSet.CreateBuilder<ParameterAssignmentSymbol>();
-        this.variablesContainingExternalInput = ImmutableHashSet.CreateBuilder<VariableSymbol>();
+        this.diagnosticWriter = diagnosticWriter;
+        this.expressionConverter = new ExpressionConverter(new EmitterContext(semanticModel));
+        this.infoBySyntax = ImmutableDictionary.CreateBuilder<FunctionCallSyntaxBase, ImmutableArray<ExternalInputInfo>>();
+        this.infoBySerializedExpression = ImmutableDictionary.CreateBuilder<string, ExternalInputInfo>();
     }
 
     public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
@@ -39,9 +45,9 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
         base.VisitInstanceFunctionCallSyntax(syntax);
     }
 
-    public static ExternalInputReferences CollectExternalInputReferences(SemanticModel model)
+    public static ExternalInputReferences CollectExternalInputReferences(SemanticModel model, IDiagnosticWriter diagnosticWriter)
     {
-        void ProcessDirectReferences(
+        static void ProcessReferences(
             ExternalInputFunctionReferenceVisitor visitor,
             IEnumerable<DeclaredSymbol> declaredSymbols)
         {
@@ -50,55 +56,20 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
                 switch (symbol)
                 {
                     case ParameterAssignmentSymbol parameterAssignment:
-                        visitor.targetParameterAssignment = parameterAssignment;
                         parameterAssignment.DeclaringParameterAssignment.Accept(visitor);
-                        visitor.targetParameterAssignment = null;
                         break;
 
                     case VariableSymbol variableDeclaration:
-                        visitor.targetVariableDeclaration = variableDeclaration;
                         variableDeclaration.DeclaringVariable.Accept(visitor);
-                        visitor.targetVariableDeclaration = null;
                         break;
                 }
             }
         }
 
-        void ProcessSymbolClosures(
-            ExternalInputFunctionReferenceVisitor visitor,
-            IEnumerable<DeclaredSymbol> declaredSymbols)
-        {
-            foreach (var symbol in declaredSymbols)
-            {
-                var symbolClosure = model.Binder.GetReferencedSymbolClosureFor(symbol);
-                if (symbolClosure.Overlaps(visitor.parametersContainingExternalInput) ||
-                    symbolClosure.Overlaps(visitor.variablesContainingExternalInput))
-                {
-                    switch (symbol)
-                    {
-                        case ParameterAssignmentSymbol parameterAssignment:
-                            visitor.parametersContainingExternalInput.Add(parameterAssignment);
-                            break;
+        var visitor = new ExternalInputFunctionReferenceVisitor(model, diagnosticWriter);
 
-                        case VariableSymbol variableDeclaration:
-                            visitor.variablesContainingExternalInput.Add(variableDeclaration);
-                            break;
-                    }
-                }
-            }
-        }
-
-        var visitor = new ExternalInputFunctionReferenceVisitor(model);
-
-        // Process the parameter assignments and variable declarations to find any direct references
-        // to the external input function.
-        ProcessDirectReferences(visitor, model.Root.ParameterAssignments);
-        ProcessDirectReferences(visitor, model.Root.VariableDeclarations);
-
-        // Process the symbol closures to find any external input references
-        // that are not directly referenced in the parameter or variable declarations.
-        ProcessSymbolClosures(visitor, model.Root.ParameterAssignments);
-        ProcessSymbolClosures(visitor, model.Root.VariableDeclarations);
+        ProcessReferences(visitor, model.Root.ParameterAssignments);
+        ProcessReferences(visitor, model.Root.VariableDeclarations);
 
         if (model.Root.UsingDeclarationSyntax?.Config is { } config)
         {
@@ -107,72 +78,96 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
         }
 
         return new ExternalInputReferences(
-            ParametersReferences: visitor.parametersContainingExternalInput.ToImmutable(),
-            VariablesReferences: visitor.variablesContainingExternalInput.ToImmutable(),
-            ExternalInputIndexMap: visitor.externalInputReferences.ToImmutable()
+            InfoBySyntax: visitor.infoBySyntax.ToImmutable(),
+            InfoBySerializedExpression: visitor.infoBySerializedExpression.ToImmutable()
         );
     }
 
     private void VisitFunctionCallSyntaxInternal(FunctionCallSyntaxBase functionCallSyntax)
     {
-        if (SemanticModelHelper.TryGetFunctionInNamespace(semanticModel, SystemNamespaceType.BuiltInName, functionCallSyntax) is not { } functionCall)
+        if (semanticModel.GetSymbolInfo(functionCallSyntax) is not FunctionSymbol functionSymbol ||
+            !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresExternalInput))
         {
             return;
         }
 
-        var index = this.externalInputReferences.Count;
-        string definitionKey;
+        try
+        {
+            var intermediate = expressionConverter.ConvertExpression(functionCallSyntax);
+            if (intermediate is FunctionExpression functionExpression)
+            {
+                // it's possible the function syntax maps to multiple external inputs, e.g. concat(externalInput('input1'), externalInput('input2'))
+                // therefore we need to collect all external inputs found within the reduced expression
+                CollectExternalInputs(functionCallSyntax, functionExpression);
+            }
+        }
+        catch (ExpressionException ex) // expected if NamespaceFunctionType.EvaluatedLanguageExpression could not be evaluated
+        {
+            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(functionCallSyntax.Span)
+                .FailedToEvaluateSubject("function", functionCallSyntax.ToString(), ex.Message));
+        }
+    }
 
-        if (functionCall.Name.NameEquals(LanguageConstants.ExternalInputBicepFunctionName) &&
-            functionCallSyntax.Arguments.Length >= 1 &&
-            semanticModel.GetTypeInfo(functionCallSyntax.Arguments[0]) is StringLiteralType stringLiteral)
+    private void CollectExternalInputs(FunctionCallSyntaxBase sourceSyntax, FunctionExpression functionExpression)
+    {
+        if (!functionExpression.NameEquals(LanguageConstants.ExternalInputBicepFunctionName))
         {
-            definitionKey = GetExternalInputDefinitionName(stringLiteral.RawStringValue, index);
+            foreach (var parameter in functionExpression.Parameters)
+            {
+                if (parameter is FunctionExpression nestedFunc)
+                {
+                    CollectExternalInputs(sourceSyntax, nestedFunc);
+                }
+            }
+            foreach (var property in functionExpression.Properties)
+            {
+                if (property is FunctionExpression nestedFunc)
+                {
+                    CollectExternalInputs(sourceSyntax, nestedFunc);
+                }
+            }
+            return;
         }
-        else if (functionCall.Name.NameEquals(LanguageConstants.ReadCliArgBicepFunctionName))
-        {
-            definitionKey = GetExternalInputDefinitionName($"sys.cliArg", index);
-        }
-        else if (functionCall.Name.NameEquals(LanguageConstants.ReadEnvVarBicepFunctionName))
-        {
-            definitionKey = GetExternalInputDefinitionName($"sys.envVar", index);
-        }
-        else
+
+        if (functionExpression.Parameters.Length < 1 ||
+            functionExpression.Parameters[0] is not JTokenExpression kindExpression)
         {
             return;
         }
 
-        this.externalInputReferences.TryAdd(functionCall, definitionKey);
+        var configExpression = functionExpression.Parameters.Length > 1 ? functionExpression.Parameters[1] : null;
 
-        if (this.targetParameterAssignment is not null)
+        // externalInput invocations with the same 'kind' and 'config' parameters should map to the same ExternalInputInfo
+        var serializedExpr = ExpressionsEngine.SerializeExpression(functionExpression);
+        if (infoBySerializedExpression.ContainsKey(serializedExpr))
         {
-            this.parametersContainingExternalInput.Add(this.targetParameterAssignment);
+            return;
         }
 
-        if (this.targetVariableDeclaration is not null)
-        {
-            this.variablesContainingExternalInput.Add(this.targetVariableDeclaration);
-        }
+        var index = infoBySerializedExpression.Count;
+        var definitionKey = GetExternalInputDefinitionName(kindExpression.Value.ToString(), index);
+        var externalInputInfo = new ExternalInputInfo(kindExpression, configExpression, definitionKey);
+
+        infoBySerializedExpression.Add(serializedExpr, externalInputInfo);
+        infoBySyntax.TryAdd(sourceSyntax, []);
+        infoBySyntax[sourceSyntax] = infoBySyntax[sourceSyntax].Add(externalInputInfo);
     }
 
     private static string GetExternalInputDefinitionName(string kind, int index)
     {
         // The name of the external input definition is a combination of the kind and the index.
         // e.g. 'sys.cli' becomes 'sys_cli_0'
-        var nonAlphanumericPattern = NonAlphanumericPattern();
-        var sanitizedKind = nonAlphanumericPattern.Replace(kind, "_");
+        var sanitizedKind = NonAlphanumericPattern().Replace(kind, "_");
         return $"{sanitizedKind}_{index}";
     }
 
-    [GeneratedRegex(@"\W", RegexOptions.Compiled)]
+    [GeneratedRegex(@"\W")]
     private static partial Regex NonAlphanumericPattern();
 }
 
+public record ExternalInputInfo(LanguageExpression Kind, LanguageExpression? Config, string DefinitionKey);
+
 public record ExternalInputReferences(
-    // parameters that contain external input function calls
-    ImmutableHashSet<ParameterAssignmentSymbol> ParametersReferences,
-    // variables that contain external input function calls
-    ImmutableHashSet<VariableSymbol> VariablesReferences,
-    // map of external input function calls to unique keys to be used to construct externalInput definition in parameters.json
-    ImmutableDictionary<FunctionCallSyntaxBase, string> ExternalInputIndexMap
+    ImmutableDictionary<FunctionCallSyntaxBase, ImmutableArray<ExternalInputInfo>> InfoBySyntax,
+    ImmutableDictionary<string, ExternalInputInfo> InfoBySerializedExpression
 );

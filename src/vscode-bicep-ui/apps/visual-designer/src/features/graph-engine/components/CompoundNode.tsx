@@ -7,7 +7,7 @@ import { useStore } from "jotai";
 import { frame } from "motion/react";
 import { useRef } from "react";
 import { translateBox } from "../../../utils/math";
-import { nodesAtom } from "../atoms";
+import { nodesByIdAtom } from "../atoms";
 import { useBoxUpdate, useDragListener } from "../hooks";
 import { BaseNode } from "./BaseNode";
 import { NodeContent } from "./NodeContent";
@@ -19,7 +19,7 @@ export function CompoundNode({ id, childIdsAtom, boxAtom, dataAtom }: CompoundNo
   useDragListener(ref, (dx: number, dy: number) => {
     const translateChildren = (childIds: string[]) => {
       for (const childId of childIds) {
-        const child = store.get(nodesAtom)[childId];
+        const child = store.get(nodesByIdAtom)[childId];
 
         if (!child) {
           return;

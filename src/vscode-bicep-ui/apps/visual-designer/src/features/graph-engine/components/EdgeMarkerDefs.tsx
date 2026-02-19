@@ -1,7 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { useTheme } from "styled-components";
+
 export function EdgeMarkerDefs() {
+  const theme = useTheme();
+
   return (
     <defs>
       <marker
@@ -18,7 +22,7 @@ export function EdgeMarkerDefs() {
           points="2,2 5,5 2,8"
           fill="none"
           strokeWidth="1"
-          stroke="#cecccc"
+          stroke={theme.edge.color}
           strokeLinecap="round"
           strokeLinejoin="round"
         />

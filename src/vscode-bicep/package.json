@@ -750,7 +750,7 @@
     "test:update-snapshot": "jest --config jest.config.snapshot.js --updateSnapshot",
     "testlocal:e2e": "(export BICEP_LANGUAGE_SERVER_PATH=${INIT_CWD}/../Bicep.LangServer/bin/Debug/net10.0/Bicep.LangServer.dll || set BICEP_LANGUAGE_SERVER_PATH=%INIT_CWD%/../Bicep.LangServer/bin/Debug/net10.0/Bicep.LangServer.dll) && npm run build && npm run build:e2e && npm run test:e2e",
     "clean": "rimraf ./out ./coverage",
-    "package": "npm run clean && nbgv-setversion && vsce package --no-dependencies --githubBranch main --out ./vscode-bicep.vsix && nbgv-setversion --reset",
+    "package": "npm run clean && nbgv-setversion && vsce package --no-dependencies --githubBranch main --out ./vscode-bicep.vsix && nbgv-setversion --reset && vsce generate-manifest -i ./vscode-bicep.vsix -o ./vscode-bicep.manifest",
     "package:local": "rimraf ./bicepLanguageServer && cp -r ../Bicep.LangServer/bin/Debug/net10.0 ./bicepLanguageServer && rimraf ./bicepMcpServer && cp -r ../Bicep.McpServer/bin/Debug/net10.0 ./bicepMcpServer && npm run package"
   },
   "devDependencies": {
@@ -772,11 +772,11 @@
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.35.0",
     "@vscode/test-electron": "^2.5.2",
-    "@vscode/vsce": "^3.2.1",
-    "copy-webpack-plugin": "^13.0.0",
+    "@vscode/vsce": "^3.7.1",
+    "copy-webpack-plugin": "^13.0.1",
     "css-loader": "^7.1.2",
     "esbuild-loader": "^4.3.0",
-    "eslint": "^9.29.0",
+    "eslint": "^9.39.2",
     "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-notice": "^1.0.0",
     "eslint-plugin-react": "^7.37.5",
@@ -794,10 +794,10 @@
     "style-loader": "^4.0.0",
     "svg-inline-loader": "^0.8.2",
     "terser-webpack-plugin": "5.3.14",
-    "ts-jest": "^29.4.0",
+    "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
-    "webpack": "^5.98.0",
+    "webpack": "^5.105.0",
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {

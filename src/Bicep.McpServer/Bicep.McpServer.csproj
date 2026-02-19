@@ -4,9 +4,19 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>Azure.Bicep.McpServer</AssemblyName>
+    <RootNamespace>Bicep.McpServer</RootNamespace>
     <Nullable>enable</Nullable>
-    <!-- generates a NOTICE file in the publish output using our custom targets -->
-    <EnableNoticeInPublishOutput>true</EnableNoticeInPublishOutput>
+    <EnableNuget>true</EnableNuget>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <PackageTags>Azure;ResourceManager;ARM;Deployments;Templates;Bicep</PackageTags>
+    <Description>
+      Bicep MCP Server
+    </Description>
+
+    <!-- Set up the NuGet package to be an MCP server -->
+    <PackAsTool>true</PackAsTool>
+    <PackageType>McpServer</PackageType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +31,12 @@
 
   <ItemGroup>
     <ProjectReference Include="../Bicep.Core/Bicep.Core.csproj" />
+    <ProjectReference Include="../Bicep.Decompiler/Bicep.Decompiler.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Nerdbank.GitVersioning automatically takes care of replacing 0.0.0-placeholder in this file with the correct version -->
+    <None Include=".mcp\server.json" Pack="true" PackagePath="/.mcp/" />
   </ItemGroup>
 
 </Project>

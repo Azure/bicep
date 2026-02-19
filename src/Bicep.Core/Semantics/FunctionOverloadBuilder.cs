@@ -45,6 +45,8 @@ public class FunctionOverloadBuilder
 
     protected FunctionOverload.EvaluatorDelegate? Evaluator { get; private set; }
 
+    protected FunctionOverload.ArmExpressionEvaluatorDelegate? ArmExpressionEvaluator { get; private set; }
+
     protected FunctionFlags Flags { get; private set; }
 
     public FunctionOverload Build()
@@ -63,6 +65,7 @@ public class FunctionOverloadBuilder
             FixedParameters.ToImmutable(),
             VariableParameter,
             Evaluator,
+            ArmExpressionEvaluator,
             Flags);
 
     public FunctionOverloadBuilder WithGenericDescription(string genericDescription)
@@ -123,6 +126,12 @@ public class FunctionOverloadBuilder
     public FunctionOverloadBuilder WithEvaluator(FunctionOverload.EvaluatorDelegate evaluator)
     {
         Evaluator = evaluator;
+        return this;
+    }
+
+    public FunctionOverloadBuilder WithArmExpressionEvaluator(FunctionOverload.ArmExpressionEvaluatorDelegate armExpressionEvaluator)
+    {
+        ArmExpressionEvaluator = armExpressionEvaluator;
         return this;
     }
 

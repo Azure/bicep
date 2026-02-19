@@ -1,0 +1,23 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+  "description": "Bicep MCP Server",
+  "name": "io.github.Azure/bicep",
+  "version": "0.0.0-placeholder",
+  "packages": [
+    {
+      "registryType": "nuget",
+      "registryBaseUrl": "https://api.nuget.org/v3/index.json",
+      "identifier": "Azure.Bicep.McpServer",
+      "version": "0.0.0-placeholder",
+      "runtimeHint": "dnx",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": []
+    }
+  ],
+  "repository": {
+    "url": "https://github.com/Azure/bicep",
+    "source": "github"
+  }
+}

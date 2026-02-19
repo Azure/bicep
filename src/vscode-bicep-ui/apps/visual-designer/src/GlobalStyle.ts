@@ -9,12 +9,18 @@ export const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     display: flex;
+    flex-direction: column;
     overflow: hidden;
-    font-family: var(--vscode-font-family);
+    font-family: var(--vscode-font-family, "Segoe WPC", "Segoe UI", system-ui, "Ubuntu", "Droid Sans", sans-serif);
+    background-color: ${({ theme }) => theme.canvas.background};
+    color: ${({ theme }) => theme.text.primary};
   }
 
   #root {
+    position: relative;
     flex: 1 1 auto;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 `;

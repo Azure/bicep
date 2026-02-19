@@ -5,17 +5,19 @@ import type { EdgeAtomValue } from "../atoms/edges";
 
 import { atom, useStore } from "jotai";
 import { useEffect, useMemo, useRef } from "react";
+import { useTheme } from "styled-components";
 import { boxesOverlap, getBoxCenter, getBoxCenterSegmentIntersection } from "../../../utils/math";
-import { nodesAtom } from "../atoms";
+import { nodesByIdAtom } from "../atoms";
 
 export function StraightEdge({ fromId, toId }: EdgeAtomValue) {
+  const theme = useTheme();
   const ref = useRef<SVGPathElement>(null);
   const store = useStore();
   const edgeSegmentAtom = useMemo(
     () =>
       atom((get) => {
-        const fromNode = get(nodesAtom)[fromId];
-        const toNode = get(nodesAtom)[toId];
+        const fromNode = get(nodesByIdAtom)[fromId];
+        const toNode = get(nodesByIdAtom)[toId];
 
         if (!fromNode || !toNode) {
           return {};
@@ -65,7 +67,7 @@ export function StraightEdge({ fromId, toId }: EdgeAtomValue) {
     <path
       ref={ref}
       fill="none"
-      stroke="#cecccc"
+      stroke={theme.edge.color}
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth={2}

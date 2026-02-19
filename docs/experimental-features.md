@@ -17,10 +17,6 @@ Should be enabled in tandem with `testFramework` experimental feature flag for e
 
 Enables `deploy`, `what-if` and `teardown` command groups, as well as the `with` syntax in a `.bicepparam` file. For more information, see [Using the Deploy Commands](./experimental/deploy-commands.md).
 
-### `desiredStateConfiguration`
-
-Allows you to author configuration documents for [Microsoft's Desired State Configuration platform](https://github.com/PowerShell/DSC) using `targetScope = 'desiredStateConfiguration'`. If enabled, the file must only contain DSC resource instances. The built file is a valid configuration document to be used with the CLI. For example, `dsc.exe config test --file example.json`. This feature is in early development.
-
 ### `existingNullIfNotFound`
 
 Enables the use of the `@nullIfNotFound()` decorator for existing resources. When applied to an existing resource, the resource will return `null` if it doesn't exist at deployment time instead of failing. This allows you to gracefully handle cases where the resource may not exist. (Note: This feature will not work until the backend service support has been deployed)
