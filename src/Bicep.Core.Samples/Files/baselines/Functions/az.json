@@ -446,6 +446,25 @@
     ]
   },
   {
+    "name": "roleDefinitions",
+    "description": "Returns information about the specified role definition including id and roleDefinitionId.",
+    "fixedParameters": [
+      {
+        "name": "roleName",
+        "description": "The display name of the role definition",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(roleName: string): roleDefinition",
+    "parameterTypeSignatures": [
+      "roleName: string"
+    ]
+  },
+  {
     "name": "subscription",
     "description": "Returns the subscription scope for the current deployment.",
     "fixedParameters": [],

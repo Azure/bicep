@@ -137,6 +137,23 @@ namespace Bicep.Core.Semantics.Namespaces
             }));
         }
 
+        private static ObjectType GetRoleDefinitionReturnType()
+        {
+            // Return type matches the ARM implementation where we expect id and roleDefinitionId
+            return new ObjectType("roleDefinition", TypeSymbolValidationFlags.Default, new[]
+            {
+                new NamedTypeProperty("id", LanguageConstants.String),
+                new NamedTypeProperty("roleDefinitionId", LanguageConstants.String),
+            }, null);
+        }
+
+        private static FunctionResult GetRoleDefinitionReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            // The actual role definition will be populated at runtime based on the role name
+            // No need to validate the role name at compile time since Azure manages the role definitions
+            return new(GetRoleDefinitionReturnType());
+        }
+
         private static ObjectType GetProvidersSingleResourceReturnType()
         {
             // from https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions-resource?tabs=json#providers
@@ -478,6 +495,14 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("managementGroupId", LanguageConstants.String, "The management group ID")
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                     .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                    .Build();
+
+                // Add roleDefinition function
+                yield return new FunctionOverloadBuilder("roleDefinitions")
+                    .WithReturnResultBuilder(GetRoleDefinitionReturnResult, GetRoleDefinitionReturnType())
+                    .WithGenericDescription("Gets a role definition that can be used in role assignments.")
+                    .WithDescription("Returns information about the specified role definition including id and roleDefinitionId.")
+                    .WithRequiredParameter("roleName", LanguageConstants.String, "The display name of the role definition")
                     .Build();
 
                 const string providersDescription = "Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.";
