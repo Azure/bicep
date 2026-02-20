@@ -44,6 +44,6 @@ The migration is split into 7 incremental PRs, each self-contained and shippable
 2. ~~**[Add Theming Support](./step-2-theming.md)** — Theme the visual designer using styled-components ThemeProvider~~ ✅
 3. ~~**[Integrate ELK.js Auto-Layout](./step-3-elk-layout.md)** — Add automatic graph layout to the new engine~~ ✅
 4. ~~**[Wire Up LSP Data Source](./step-4-data-source.md)** — Connect to `textDocument/deploymentGraph` via shared messaging~~ ✅
-5. **[Integrate into VS Code Extension](./step-5-extension-integration.md)** — Load the visual designer in a webview panel
+5. ~~**[Integrate into VS Code Extension](./step-5-extension-integration.md)** — Load the visual designer in a webview panel~~ ✅
 6. **[Achieve Full Feature Parity](./step-6-feature-parity.md)** — Double-click navigation, status bar, error indicators, etc.
 7. **[Remove Old Visualizer](./step-7-cleanup.md)** — Delete Cytoscape.js code and dependencies
