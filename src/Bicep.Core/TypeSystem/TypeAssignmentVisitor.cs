@@ -2063,6 +2063,13 @@ namespace Bicep.Core.TypeSystem
 
         private bool? IsResourceEnabled(ResourceSymbol resource)
         {
+            // Resources with @nullIfNotFound() decorator may not exist at deployment time
+            if (resource.DeclaringResource.IsExistingResource() &&
+                SemanticModelHelper.TryGetDecoratorInNamespace(model, resource.DeclaringResource, SystemNamespaceType.BuiltInName, LanguageConstants.NullIfNotFoundDecoratorName) is not null)
+            {
+                return null;
+            }
+
             if (resource.DeclaringResource.TryGetCondition() is { } condition)
             {
                 switch (GetTypeInfo(condition))

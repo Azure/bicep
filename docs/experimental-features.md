@@ -17,6 +17,20 @@ Should be enabled in tandem with `testFramework` experimental feature flag for e
 
 Enables `deploy`, `what-if` and `teardown` command groups, as well as the `with` syntax in a `.bicepparam` file. For more information, see [Using the Deploy Commands](./experimental/deploy-commands.md).
 
+### `existingNullIfNotFound`
+
+Enables the use of the `@nullIfNotFound()` decorator for existing resources. When applied to an existing resource, the resource will return `null` if it doesn't exist at deployment time instead of failing. This allows you to gracefully handle cases where the resource may not exist. (Note: This feature will not work until the backend service support has been deployed)
+
+```bicep
+@nullIfNotFound()
+resource exampleResource 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: 'test'
+}
+
+// Access with safe navigation since the resource may be null
+output accessTier string = exampleResource.?properties.accessTier ?? ''
+```
+
 ### `extendableParamFiles`
 
 Enables the ability to extend bicepparam files from other bicepparam files. For more information, see [Extendable Bicep Params Files](./experimental/extendable-param-files.md).
