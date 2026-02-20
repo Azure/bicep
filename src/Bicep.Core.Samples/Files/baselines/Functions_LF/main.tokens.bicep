@@ -348,6 +348,31 @@ func buildUrlMultiLine(
 //@[079:083) Identifier |path|
 //@[083:085) StringRightPiece |}'|
 //@[085:087) StringRightPiece |}'|
-//@[087:088) NewLine |\n|
+//@[087:089) NewLine |\n\n|
+
+output likeExactMatch bool =like('abc', 'abc')
+//@[000:006) Identifier |output|
+//@[007:021) Identifier |likeExactMatch|
+//@[022:026) Identifier |bool|
+//@[027:028) Assignment |=|
+//@[028:032) Identifier |like|
+//@[032:033) LeftParen |(|
+//@[033:038) StringComplete |'abc'|
+//@[038:039) Comma |,|
+//@[040:045) StringComplete |'abc'|
+//@[045:046) RightParen |)|
+//@[046:047) NewLine |\n|
+output likeWildCardMatch bool= like ('abcdef', 'a*c*')
+//@[000:006) Identifier |output|
+//@[007:024) Identifier |likeWildCardMatch|
+//@[025:029) Identifier |bool|
+//@[029:030) Assignment |=|
+//@[031:035) Identifier |like|
+//@[036:037) LeftParen |(|
+//@[037:045) StringComplete |'abcdef'|
+//@[045:046) Comma |,|
+//@[047:053) StringComplete |'a*c*'|
+//@[053:054) RightParen |)|
+//@[054:055) NewLine |\n|
 
 //@[000:000) EndOfFile ||

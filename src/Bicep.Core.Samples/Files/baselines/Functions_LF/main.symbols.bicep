@@ -81,3 +81,8 @@ func buildUrlMultiLine(
 //@[02:006) Local path. Type: string. Declaration start char: 2, length: 11
 ) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 
+output likeExactMatch bool =like('abc', 'abc')
+//@[07:021) Output likeExactMatch. Type: bool. Declaration start char: 0, length: 46
+output likeWildCardMatch bool= like ('abcdef', 'a*c*')
+//@[07:024) Output likeWildCardMatch. Type: bool. Declaration start char: 0, length: 54
+

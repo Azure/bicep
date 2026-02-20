@@ -49,3 +49,9 @@ func multiLineTrailingCommas(
 func lineBeforeComma(
   a string
   ,b string) string => 'foo'
+
+
+output likeWrongArgcount bool =like('abc')
+output likeWrongArgcount2 bool =like('abcdef','a*','abcd*')
+output likeWrongType bool =like(123,'a*')
+output likeWrongReturnType string=like('abcd','a*')
