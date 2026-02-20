@@ -84,7 +84,7 @@
     <PackageVersion Include="NuGet.CommandLine" Version="6.6.2" />
     <PackageVersion Include="OmniSharp.Extensions.LanguageClient" Version="0.19.9" />
     <PackageVersion Include="OmniSharp.Extensions.LanguageServer" Version="0.19.9" />
-    <PackageVersion Include="PublicApiGenerator" Version="11.4.6" />
+    <PackageVersion Include="PublicApiGenerator" Version="11.5.4" />
     <PackageVersion Include="RichardSzalay.MockHttp" Version="7.0.0" />
     <PackageVersion Include="Sarif.Sdk" Version="4.5.4" />
     <PackageVersion Include="Semver" Version="3.0.0" />
