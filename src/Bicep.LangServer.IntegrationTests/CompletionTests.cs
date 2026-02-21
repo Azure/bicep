@@ -4384,15 +4384,15 @@ var file = " + functionName + @"(templ|)
         }
 
         [TestMethod]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/abc/foo|'", "bicep/abc/foo/bar", "'br:mcr.microsoft.com/bicep/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/abc/foo|", "bicep/abc/foo/bar", "'br:mcr.microsoft.com/bicep/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br/public:abc/foo|'", "abc/foo/bar", "'br/public:abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br/public:abc/foo|", "abc/foo/bar", "'br/public:abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
-        [DataRow("using 'br:mcr.microsoft.com/bicep/abc/foo|'", "bicep/abc/foo/bar", "'br:mcr.microsoft.com/bicep/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
-        [DataRow("using 'br:mcr.microsoft.com/bicep/abc/foo|", "bicep/abc/foo/bar", "'br:mcr.microsoft.com/bicep/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
-        [DataRow("using 'br/public:abc/foo|'", "abc/foo/bar", "'br/public:abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
-        [DataRow("using 'br/public:abc/foo|", "abc/foo/bar", "'br/public:abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
-        public async Task Public_registry_module_completions_support_prefix_matching(string text, string expectedLabelForFoo, string expectedInsertTextForFoo, BicepSourceFileKind kind)
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/abc/foo|'", "bar", "bicep/abc/foo/", "'br:mcr.microsoft.com/bicep/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/abc/foo|", "bar", "bicep/abc/foo/", "'br:mcr.microsoft.com/bicep/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/public:abc/foo|'", "bar", "abc/foo/", "'br/public:abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/public:abc/foo|", "bar", "abc/foo/", "'br/public:abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("using 'br:mcr.microsoft.com/bicep/abc/foo|'", "bar", "bicep/abc/foo/", "'br:mcr.microsoft.com/bicep/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br:mcr.microsoft.com/bicep/abc/foo|", "bar", "bicep/abc/foo/", "'br:mcr.microsoft.com/bicep/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br/public:abc/foo|'", "bar", "abc/foo/", "'br/public:abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br/public:abc/foo|", "bar", "abc/foo/", "'br/public:abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
+        public async Task Public_registry_module_completions_support_prefix_matching(string text, string expectedLabelForFoo, string expectedLabelDescriptionForFoo, string expectedInsertTextForFoo, BicepSourceFileKind kind)
         {
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
@@ -4402,7 +4402,7 @@ var file = " + functionName + @"(templ|)
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var publicModuleMetadataProvider = RegistryCatalogMocks.MockPublicMetadataProvider([
-                   ("bicep/abc/foo/bar", "d1", "contoso.com/help1", []),
+                ("bicep/abc/foo/bar", "d1", "contoso.com/help1", []),
                 ("bicep/abc/food/bar", "d2", "contoso.com/help2", []),
                 ("bicep/abc/bar/bar", "d3", "contoso.com/help3", []),
             ]);
@@ -4417,28 +4417,32 @@ var file = " + functionName + @"(templ|)
             var completions = await file.RequestAndResolveCompletions(cursor);
 
             completions.Count().Should().Be(2);
-            completions.Select(x => (Label: x.Label, InsertText: x.TextEdit!.TextEdit!.NewText)).Should().SatisfyRespectively(
+            completions.Select(x => (Label: x.Label, LabelDetails: x.LabelDetails, InsertText: x.TextEdit!.TextEdit!.NewText)).Should().SatisfyRespectively(
                 c =>
                 {
                     c.Label.Should().Be(expectedLabelForFoo);
+                c.LabelDetails.Should().NotBeNull();
+                c.LabelDetails!.Description.Should().Be(expectedLabelDescriptionForFoo);
                     c.InsertText.Should().Be(expectedInsertTextForFoo);
                 },
                 c =>
                 {
                     c.Label.Should().Be(expectedLabelForFoo.Replace("foo/", "food/"));
+                c.LabelDetails.Should().NotBeNull();
+                c.LabelDetails!.Description.Should().Be(expectedLabelDescriptionForFoo.Replace("foo/", "food/"));
                     c.InsertText.Should().Be(expectedInsertTextForFoo.Replace("foo/", "food/"));
                 }
             );
         }
 
         [TestMethod]
-        [DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br/myRegistry:abc/foo|'", "abc/foo/bar", "'br/myRegistry:abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br/myRegistry_noPath:bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
-        [DataRow("module test 'br/myRegistry_noPath:bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
-        public async Task Private_registry_completions_support_prefix_matching(string text, string expectedLabelForFoo, string expectedInsertTextForFoo, BicepSourceFileKind kind)
+        [DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|'", "bar", "bicep/whatever/abc/foo/", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|", "bar", "bicep/whatever/abc/foo/", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/myRegistry:abc/foo|'", "bar", "abc/foo/", "'br/myRegistry:abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/myRegistry_noPath:bicep/whatever/abc/foo|", "bar", "bicep/whatever/abc/foo/", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|'", "bar", "bicep/whatever/abc/foo/", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("module test 'br/myRegistry_noPath:bicep/whatever/abc/foo|", "bar", "bicep/whatever/abc/foo/", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
+        public async Task Private_registry_completions_support_prefix_matching(string text, string expectedLabelForFoo, string expectedLabelDescriptionForFoo, string expectedInsertTextForFoo, BicepSourceFileKind kind)
         {
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
@@ -4491,25 +4495,29 @@ var file = " + functionName + @"(templ|)
             var completions = await file.RequestAndResolveCompletions(cursor);
 
             completions.Count().Should().Be(2);
-            completions.Select(x => (Label: x.Label, InsertText: x.TextEdit!.TextEdit!.NewText)).Should().SatisfyRespectively(
+            completions.Select(x => (Label: x.Label, LabelDetails: x.LabelDetails, InsertText: x.TextEdit!.TextEdit!.NewText)).Should().SatisfyRespectively(
                 c =>
                 {
                     c.Label.Should().Be(expectedLabelForFoo);
+                c.LabelDetails.Should().NotBeNull();
+                c.LabelDetails!.Description.Should().Be(expectedLabelDescriptionForFoo);
                     c.InsertText.Should().Be(expectedInsertTextForFoo);
                 },
                 c =>
                 {
                     c.Label.Should().Be(expectedLabelForFoo.Replace("foo/", "food/"));
+                c.LabelDetails.Should().NotBeNull();
+                c.LabelDetails!.Description.Should().Be(expectedLabelDescriptionForFoo.Replace("foo/", "food/"));
                     c.InsertText.Should().Be(expectedInsertTextForFoo.Replace("foo/", "food/"));
                 }
             );
         }
 
         [TestMethod]
-        [DataRow("module test 'br/ms:bicep/app/|'", "bicep/app/dapr-containerapp", "'br/ms:bicep/app/dapr-containerapp:$0'")]
-        [DataRow("module test 'br/ms_empty:bicep/app/|'", "bicep/app/dapr-containerapp", "'br/ms_empty:bicep/app/dapr-containerapp:$0'")]
-        [DataRow("module test 'br/ms_bicep:app/|'", "app/dapr-containerapp", "'br/ms_bicep:app/dapr-containerapp:$0'")]
-        public async Task Public_registry_via_alias_supports_completions(string text, string expectedLabel, string expectedInsertText)
+        [DataRow("module test 'br/ms:bicep/app/|'", "dapr-containerapp", "bicep/app/", "'br/ms:bicep/app/dapr-containerapp:$0'")]
+        [DataRow("module test 'br/ms_empty:bicep/app/|'", "dapr-containerapp", "bicep/app/", "'br/ms_empty:bicep/app/dapr-containerapp:$0'")]
+        [DataRow("module test 'br/ms_bicep:app/|'", "dapr-containerapp", "app/", "'br/ms_bicep:app/dapr-containerapp:$0'")]
+        public async Task Public_registry_via_alias_supports_completions(string text, string expectedLabel, string expectedLabelDescription, string expectedInsertText)
         {
             var (fileText, cursor) = ParserHelper.GetFileWithSingleCursor(text, '|');
             var baseFolder = $"{Guid.NewGuid():D}";
@@ -4561,10 +4569,12 @@ var file = " + functionName + @"(templ|)
             var completions = await file.RequestAndResolveCompletions(cursor);
 
             completions.Count().Should().Be(1);
-            completions.Select(x => (Label: x.Label, InsertText: x.TextEdit!.TextEdit!.NewText)).Should().SatisfyRespectively(
+            completions.Select(x => (Label: x.Label, LabelDetails: x.LabelDetails, InsertText: x.TextEdit!.TextEdit!.NewText)).Should().SatisfyRespectively(
                 c =>
                 {
                     c.Label.Should().Be(expectedLabel);
+                c.LabelDetails.Should().NotBeNull();
+                c.LabelDetails!.Description.Should().Be(expectedLabelDescription);
                     c.InsertText.Should().Be(expectedInsertText);
                 }
             );
