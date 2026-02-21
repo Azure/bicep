@@ -46,4 +46,5 @@ The migration is split into 7 incremental PRs, each self-contained and shippable
 4. ~~**[Wire Up LSP Data Source](./step-4-data-source.md)** — Connect to `textDocument/deploymentGraph` via shared messaging~~ ✅
 5. ~~**[Integrate into VS Code Extension](./step-5-extension-integration.md)** — Load the visual designer in a webview panel~~ ✅
 6. ~~**[Achieve Full Feature Parity](./step-6-feature-parity.md)** — Diagnostic reporting bar, click-to-reveal ranges~~ ✅
+6.5. **[Visual Polish & Interaction Refinements](./step-6.5-polish.md)** — Focus system, z-index, module transparency, cursor, clickable status bar
 7. **[Remove Old Visualizer](./step-7-cleanup.md)** — Delete Cytoscape.js code and dependencies
