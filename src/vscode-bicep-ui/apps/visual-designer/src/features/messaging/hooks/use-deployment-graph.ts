@@ -10,7 +10,9 @@ import {
   addCompoundNodeAtom,
   addEdgeAtom,
   edgesAtom,
+  errorCountAtom,
   graphVersionAtom,
+  hasNodesAtom,
   nodesByIdAtom,
 } from "../../graph-engine";
 import type { DeploymentGraph } from "../../../messages";
@@ -47,6 +49,10 @@ export function useApplyDeploymentGraph() {
 
   return useCallback(
     (graph: DeploymentGraph | null) => {
+      // Update status bar atoms
+      store.set(errorCountAtom, graph?.errorCount ?? 0);
+      store.set(hasNodesAtom, (graph?.nodes.length ?? 0) > 0);
+
       // If the graph topology hasn't changed (only ranges differ due
       // to trivial edits like adding blank lines), update ranges on
       // existing nodes in-place without tearing down and re-laying out.

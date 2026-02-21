@@ -2,10 +2,13 @@
 // Licensed under the MIT License.
 
 import type { CompoundNodeState } from "../atoms/nodes";
+import type { Range } from "../../../messages";
 
+import { useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { useStore } from "jotai";
 import { frame } from "motion/react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+import { REVEAL_FILE_RANGE_NOTIFICATION } from "../../../messages";
 import { translateBox } from "../../../utils/math";
 import { nodesByIdAtom } from "../atoms";
 import { useBoxUpdate, useDragListener } from "../hooks";
@@ -15,6 +18,31 @@ import { NodeContent } from "./NodeContent";
 export function CompoundNode({ id, childIdsAtom, boxAtom, dataAtom }: CompoundNodeState) {
   const ref = useRef<HTMLDivElement>(null);
   const store = useStore();
+  const messageChannel = useWebviewMessageChannel();
+
+  // Use a native dblclick listener so we can call stopPropagation()
+  // before d3-zoom's handler (on the PanZoom ancestor) fires.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) {
+      return;
+    }
+
+    const handler = (e: MouseEvent) => {
+      e.stopPropagation();
+
+      const data = store.get(dataAtom) as { range?: Range; filePath?: string };
+      if (data?.range && data?.filePath) {
+        messageChannel.sendNotification({
+          method: REVEAL_FILE_RANGE_NOTIFICATION,
+          params: { filePath: data.filePath, range: data.range },
+        });
+      }
+    };
+
+    el.addEventListener("dblclick", handler);
+    return () => el.removeEventListener("dblclick", handler);
+  }, [store, dataAtom, messageChannel]);
 
   useDragListener(ref, (dx: number, dy: number) => {
     const translateChildren = (childIds: string[]) => {

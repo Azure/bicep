@@ -15,6 +15,18 @@ import { nodesByIdAtom } from "./nodes";
 export const graphVersionAtom = atom(0);
 
 /**
+ * The number of diagnostics errors in the file.
+ * Updated by the deployment graph notification handler.
+ */
+export const errorCountAtom = atom(0);
+
+/**
+ * Whether the current deployment graph has any nodes.
+ * Updated by the deployment graph notification handler.
+ */
+export const hasNodesAtom = atom(false);
+
+/**
  * Derived atom that computes the axis-aligned bounding box enclosing
  * every node in the graph.  Returns `null` when the graph is empty.
  */

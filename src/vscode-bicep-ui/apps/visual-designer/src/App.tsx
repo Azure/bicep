@@ -12,6 +12,7 @@ import { styled, ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./GlobalStyle";
 import { useTheme } from "./theming/use-theme";
 import { GraphControlBar } from "./components/GraphControlBar";
+import { StatusBar } from "./components/StatusBar";
 import { ModuleDeclaration, ResourceDeclaration } from "./features/visualization";
 import { nodeConfigAtom, Canvas, Graph } from "./features/graph-engine";
 import { loadDevAppShell } from "./features/devtools";
@@ -111,6 +112,7 @@ function AppCore() {
         <PanZoomProvider>
           <GraphContainer />
         </PanZoomProvider>
+        <StatusBar />
       </$AppContainer>
     </ThemeProvider>
   );

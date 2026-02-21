@@ -4,7 +4,7 @@
 import type { WebviewNotificationCallback, WebviewNotificationMessage } from "@vscode-bicep-ui/messaging";
 import type { DeploymentGraph, DeploymentGraphPayload } from "../../messages";
 
-import { DEPLOYMENT_GRAPH_NOTIFICATION, READY_NOTIFICATION } from "../../messages";
+import { DEPLOYMENT_GRAPH_NOTIFICATION, READY_NOTIFICATION, REVEAL_FILE_RANGE_NOTIFICATION } from "../../messages";
 
 const FAKE_FILE_PATH = "file:///main.bicep";
 
@@ -803,6 +803,8 @@ export class FakeMessageChannel {
       setTimeout(() => {
         this.pushGraph(MODULE_GRAPH);
       }, 50);
+    } else if (notificationMessage.method === REVEAL_FILE_RANGE_NOTIFICATION) {
+      console.log("[FakeMessageChannel] revealFileRange:", notificationMessage.params);
     }
   }
 
