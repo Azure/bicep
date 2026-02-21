@@ -665,7 +665,7 @@ namespace Bicep.LanguageServer.Completions
                 {
                     Detail = metadata.Details.Description,
                 })
-                .WithDocumentation(MarkdownHelper.GetDocumentationLink(metadata.Details.DocumentationUri));
+                .WithDocumentation(GetVersionCompletionDocumentation(completionItem.Label, modulePath, version, metadata.Details));
             }
 
             return completionItem;
@@ -687,7 +687,7 @@ namespace Bicep.LanguageServer.Completions
                 return (completionItem with
                 {
                     Detail = details.Description,
-                }).WithDocumentation(MarkdownHelper.GetDocumentationLink(details.DocumentationUri));
+                }).WithDocumentation(GetModuleCompletionDocumentation(completionItem.Label, modulePath, details));
             }
 
             return completionItem;
@@ -754,6 +754,49 @@ namespace Bicep.LanguageServer.Completions
         {
             // Prefer matches by suffix while keeping a stable, deterministic order.
             return $"{label}|{displayPath}";
+        }
+
+        private static string GetModuleCompletionDocumentation(string displayName, string modulePath, RegistryMetadataDetails details)
+        {
+            var sections = new List<string>
+            {
+                $"**Display name:** {displayName}",
+                $"**Full module path:** {modulePath}",
+                $"**Description:** {details.Description ?? "N/A"}",
+            };
+
+            if (MarkdownHelper.GetDocumentationLink(details.DocumentationUri) is { } docLink)
+            {
+                sections.Add(docLink);
+            }
+            else
+            {
+                sections.Add("**Documentation:** N/A");
+            }
+
+            return MarkdownHelper.JoinWithNewlines(sections);
+        }
+
+        private static string GetVersionCompletionDocumentation(string displayName, string modulePath, string version, RegistryMetadataDetails details)
+        {
+            var sections = new List<string>
+            {
+                $"**Display name:** {displayName}",
+                $"**Full module path:** {modulePath}",
+                $"**Version:** {version}",
+                $"**Description:** {details.Description ?? "N/A"}",
+            };
+
+            if (MarkdownHelper.GetDocumentationLink(details.DocumentationUri) is { } docLink)
+            {
+                sections.Add(docLink);
+            }
+            else
+            {
+                sections.Add("**Documentation:** N/A");
+            }
+
+            return MarkdownHelper.JoinWithNewlines(sections);
         }
     }
 }

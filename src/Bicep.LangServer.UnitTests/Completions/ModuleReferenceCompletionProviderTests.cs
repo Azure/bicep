@@ -492,10 +492,10 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", "bicep/app/dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "bicep/app/dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 41)]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/|", "bicep/app/dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "bicep/app/dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 40)]
-        [DataRow("module test 'br/public:|'", "app/dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 24)]
-        [DataRow("module test 'br/public:|", "app/dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 23)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", "dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 41)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/|", "dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 40)]
+        [DataRow("module test 'br/public:|'", "dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 24)]
+        [DataRow("module test 'br/public:|", "dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 23)]
         public async Task GetFilteredCompletions_WithPublicMcrModuleRegistryCompletionContext_ReturnsCompletionItems(
             string inputWithCursors,
             string expectedLabel1,
@@ -527,7 +527,10 @@ namespace Bicep.LangServer.UnitTests.Completions
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().BeNull();
-                    c.Documentation.Should().BeNull();
+                    c.Documentation!.MarkupContent!.Value.Should().Contain($"**Display name:** {expectedLabel1}");
+                    c.Documentation.MarkupContent.Value.Should().Contain("**Full module path:** bicep/app/dapr-cntrapp1");
+                    c.Documentation.MarkupContent.Value.Should().Contain("**Description:** N/A");
+                    c.Documentation.MarkupContent.Value.Should().Contain("**Documentation:** N/A");
                     c.TextEdit!.TextEdit!.NewText.Should().Be(expectedCompletionText1);
                     c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
                     c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
@@ -541,7 +544,10 @@ namespace Bicep.LangServer.UnitTests.Completions
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().Be("description2");
-                    c.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help2)");
+                    c.Documentation!.MarkupContent!.Value.Should().Contain($"**Display name:** {expectedLabel2}");
+                    c.Documentation.MarkupContent.Value.Should().Contain("**Full module path:** bicep/app/dapr-cntrapp2");
+                    c.Documentation.MarkupContent.Value.Should().Contain("**Description:** description2");
+                    c.Documentation.MarkupContent.Value.Should().Contain("[View Documentation](contoso.com/help2)");
                     c.TextEdit!.TextEdit!.NewText.Should().Be(expectedCompletionText2);
                     c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
                     c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
@@ -654,7 +660,10 @@ namespace Bicep.LangServer.UnitTests.Completions
                     c.LabelDetails!.Description.Should().Be(expectedLabelDescription);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.Detail.Should().Be("d1");
-                    c.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help1)");
+                    c.Documentation!.MarkupContent!.Value.Should().Contain("**Display name:** bar");
+                    c.Documentation.MarkupContent.Value.Should().Contain("**Full module path:** bicep/whatever/abc/foo/bar");
+                    c.Documentation.MarkupContent.Value.Should().Contain("**Description:** d1");
+                    c.Documentation.MarkupContent.Value.Should().Contain("[View Documentation](contoso.com/help1)");
                     c.TextEdit!.TextEdit!.NewText.Should().Be(expectedCompletionText);
                 });
         }
@@ -762,7 +771,11 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.InsertText == null &&
                 x.SortText == expectedSortText1 &&
                 x.Detail == null &&
-                x.Documentation == null &&
+                x.Documentation!.MarkupContent!.Value.Contains("**Display name:** 1.0.2") &&
+                x.Documentation.MarkupContent.Value.Contains("**Full module path:** bicep/app/dapr-containerapp") &&
+                x.Documentation.MarkupContent.Value.Contains("**Version:** 1.0.2") &&
+                x.Documentation.MarkupContent.Value.Contains("**Description:** N/A") &&
+                x.Documentation.MarkupContent.Value.Contains("**Documentation:** N/A") &&
                 x.TextEdit!.TextEdit!.NewText == expectedCompletionText1 &&
                 x.TextEdit!.TextEdit!.Range.Start.Line == 0 &&
                 x.TextEdit!.TextEdit!.Range.Start.Character == 12 &&
@@ -775,7 +788,11 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.InsertText == null &&
                 x.SortText == expectedSortText2 &&
                 x.Detail == "d2" &&
-                x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help%20page.html)" &&
+                x.Documentation!.MarkupContent!.Value.Contains("**Display name:** 1.0.1") &&
+                x.Documentation.MarkupContent.Value.Contains("**Full module path:** bicep/app/dapr-containerapp") &&
+                x.Documentation.MarkupContent.Value.Contains("**Version:** 1.0.1") &&
+                x.Documentation.MarkupContent.Value.Contains("**Description:** d2") &&
+                x.Documentation.MarkupContent.Value.Contains("[View Documentation](contoso.com/help%20page.html)") &&
                 x.TextEdit!.TextEdit!.NewText == expectedCompletionText2 &&
                 x.TextEdit!.TextEdit!.Range.Start.Line == 0 &&
                 x.TextEdit!.TextEdit!.Range.Start.Character == 12 &&
@@ -856,8 +873,8 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataTestMethod]
         [DataRow("module test 'br/test1:|'", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 23)]
         [DataRow("module test 'br/test1:|", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 22)]
-        [DataRow("module test 'br/test2:|'", "bicep/app/dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 23)]
-        [DataRow("module test 'br/test2:|", "bicep/app/dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 22)]
+        [DataRow("module test 'br/test2:|'", "dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 23)]
+        [DataRow("module test 'br/test2:|", "dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 22)]
         public async Task GetFilteredCompletions_WithAliasForMCRInBicepConfigAndModulePath_ReturnsCompletionItems(
             string inputWithCursors,
             string expectedLabel,
@@ -902,7 +919,10 @@ namespace Bicep.LangServer.UnitTests.Completions
                     x.Kind.Should().Be(CompletionItemKind.Snippet);
                     x.InsertText.Should().BeNull();
                     x.Detail.Should().Be("dapr description");
-                    x.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help)");
+                    x.Documentation!.MarkupContent!.Value.Should().Contain("**Display name:** dapr-containerapp");
+                    x.Documentation.MarkupContent.Value.Should().Contain("**Full module path:** bicep/app/dapr-containerapp");
+                    x.Documentation.MarkupContent.Value.Should().Contain("**Description:** dapr description");
+                    x.Documentation.MarkupContent.Value.Should().Contain("[View Documentation](contoso.com/help)");
 
                     var actualTextEdit = x.TextEdit!.TextEdit;
                     actualTextEdit.Should().NotBeNull();
