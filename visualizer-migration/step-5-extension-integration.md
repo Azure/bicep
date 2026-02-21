@@ -50,7 +50,7 @@ Add a configuration setting in `src/vscode-bicep/package.json` under `contribute
 
 ```json
 {
-  "bicep.experimental.visualDesigner": {
+  "bicep.experimental.visualizerV2": {
     "type": "boolean",
     "default": false,
     "description": "Use the new React-based visual designer instead of the Cytoscape.js visualizer."
@@ -289,7 +289,7 @@ async function showVisualizer(
 
   const useNewVisualizer = vscode.workspace
     .getConfiguration("bicep.experimental")
-    .get<boolean>("visualDesigner", false);
+    .get<boolean>("visualizerV2", false);
 
   if (useNewVisualizer) {
     await viewManagerV2.openView(documentUri, viewColumn);
@@ -400,7 +400,7 @@ src/vscode-bicep/src/
 
 1. **Build**: Run "Build VSIX" task — should succeed without errors.
 2. **Feature flag off** (default): Run `Bicep: Show Visualizer` — old Cytoscape visualizer opens.
-3. **Feature flag on**: Set `"bicep.experimental.visualDesigner": true` in VS Code settings, run `Bicep: Show Visualizer` — new visual designer opens.
+3. **Feature flag on**: Set `"bicep.experimental.visualizerV2": true` in VS Code settings, run `Bicep: Show Visualizer` — new visual designer opens.
 4. **New visualizer functionality**:
    - Opens with correct title: `Visualize <filename>.bicep`
    - Shows the graph for the current file

@@ -4,7 +4,7 @@
 import type { Point } from "../../../utils/math/geometry";
 
 import { getDefaultStore, useSetAtom } from "jotai";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import {
   addAtomicNodeAtom,
   addCompoundNodeAtom,
@@ -14,6 +14,7 @@ import {
   nodesByIdAtom,
 } from "../../graph-engine";
 import type { DeploymentGraph } from "../../../messages";
+import { isDeploymentGraphEqual } from "../../../utils/deployment-graph-equality";
 
 const store = getDefaultStore();
 
@@ -42,9 +43,32 @@ export function useApplyDeploymentGraph() {
   const addCompoundNode = useSetAtom(addCompoundNodeAtom);
   const addEdge = useSetAtom(addEdgeAtom);
   const setGraphVersion = useSetAtom(graphVersionAtom);
+  const previousGraphRef = useRef<DeploymentGraph | null>(null);
 
   return useCallback(
     (graph: DeploymentGraph | null) => {
+      // If the graph topology hasn't changed (only ranges differ due
+      // to trivial edits like adding blank lines), update ranges on
+      // existing nodes in-place without tearing down and re-laying out.
+      if (isDeploymentGraphEqual(previousGraphRef.current, graph)) {
+        if (graph) {
+          const nodes = store.get(nodesByIdAtom);
+          for (const node of graph.nodes) {
+            const existing = nodes[node.id];
+            if (existing) {
+              store.set(existing.dataAtom, (prev: Record<string, unknown>) => ({
+                ...prev,
+                range: node.range,
+                filePath: node.filePath,
+              }));
+            }
+          }
+        }
+        previousGraphRef.current = graph;
+        return;
+      }
+      previousGraphRef.current = graph;
+
       // Snapshot positions before clearing so surviving nodes
       // can animate from their current location.
       const previousPositions = snapshotNodePositions();

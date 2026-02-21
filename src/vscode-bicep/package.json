@@ -39,6 +39,7 @@
   "homepage": "https://github.com/Azure/bicep/blob/main/README.md",
   "activationEvents": [
     "onWebviewPanel:bicep.visualizer",
+    "onWebviewPanel:bicep.visualDesigner",
     "onWebviewPanel:bicep.deployPane"
   ],
   "main": "./out/extension",
@@ -105,6 +106,11 @@
           "default": "Off",
           "description": "Configure tracing of messages sent to the Bicep language server.",
           "scope": "window"
+        },
+        "bicep.experimental.visualizerV2": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use the new React-based visualizer instead of the Cytoscape.js visualizer. This is a WIP feature and may be unstable."
         }
       }
     },
