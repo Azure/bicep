@@ -17,8 +17,12 @@ export const lightTheme: DefaultTheme = {
     dotColor: "#c4c4c4",
   },
   node: {
-    background: "#f9fafa",
+    background: "#fcfcfc",
+    compoundBackground: "#fcfcfc",
     border: "#333638",
+    hoverBorder: "#333638",
+    hoverShadow: "0 4px 8px rgba(0, 0, 0, 0.20)",
+    hoverErrorShadow: "0 4px 8px rgba(0, 0, 0, 0.20)",
   },
   text: {
     primary: "#242424",
@@ -46,19 +50,23 @@ export const lightTheme: DefaultTheme = {
 export const darkTheme: DefaultTheme = {
   name: "dark",
   canvas: {
-    background: "#101010",
+    background: "#181818",
     dotColor: "#333333",
   },
   node: {
-    background: "#262626",
-    border: "#4e4e4e",
+    background: "#181818",
+    compoundBackground: "#181818",
+    border: "#606060",
+    hoverBorder: "#888888",
+    hoverShadow: "none",
+    hoverErrorShadow: "none",
   },
   text: {
     primary: "#e8e8e8",
     secondary: "#a0a0a0",
   },
   edge: {
-    color: "#424242",
+    color: "#484848",
   },
   controlBar: {
     background: "rgba(38, 38, 38, 0.95)",
@@ -84,7 +92,11 @@ export const highContrastTheme: DefaultTheme = {
   },
   node: {
     background: "#0a0a0a",
+    compoundBackground: "#0a0a0a",
     border: "#ffd700",
+    hoverBorder: "#ffffff",
+    hoverShadow: "0 0 0 1px #ffffff",
+    hoverErrorShadow: "0 0 0 1px #ff00ff",
   },
   text: {
     primary: "#ffffff",
@@ -117,7 +129,11 @@ export const highContrastLightTheme: DefaultTheme = {
   },
   node: {
     background: "#ffffff",
+    compoundBackground: "#ffffff",
     border: "#000000",
+    hoverBorder: "#0000cd",
+    hoverShadow: "0 0 0 1px #0000cd",
+    hoverErrorShadow: "0 0 0 1px #ff0000",
   },
   text: {
     primary: "#000000",

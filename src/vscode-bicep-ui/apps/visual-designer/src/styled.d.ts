@@ -12,7 +12,11 @@ declare module "styled-components" {
     };
     node: {
       background: string;
+      compoundBackground: string;
       border: string;
+      hoverBorder: string;
+      hoverShadow: string;
+      hoverErrorShadow: string;
     };
     text: {
       primary: string;

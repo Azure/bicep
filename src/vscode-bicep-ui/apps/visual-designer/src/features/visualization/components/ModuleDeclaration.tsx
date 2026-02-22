@@ -27,7 +27,13 @@ const $ModuleDelcarton = styled.div<{ $hasError?: boolean; $isCollection?: boole
   box-sizing: border-box;
   border: 2px solid ${({ $hasError, theme }) => ($hasError ? theme.error : theme.node.border)};
   border-radius: 4px;
-  background: ${({ theme }) => theme.node.background};
+  background: ${({ theme }) => theme.node.compoundBackground};
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: ${({ $hasError, theme }) => ($hasError ? theme.error : theme.node.hoverBorder)};
+    box-shadow: ${({ $hasError, theme }) => ($hasError ? theme.node.hoverErrorShadow : theme.node.hoverShadow)};
+  }
 
   ${({ $isCollection, $hasError, theme }) =>
     $isCollection
@@ -45,6 +51,11 @@ const $ModuleDelcarton = styled.div<{ $hasError?: boolean; $isCollection?: boole
       border-radius: 4px;
       background-color: ${theme.node.background};
       z-index: -1;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    &:hover::before {
+      border-color: ${$hasError ? theme.error : theme.node.hoverBorder};
+      box-shadow: ${$hasError ? theme.node.hoverErrorShadow : theme.node.hoverShadow};
     }
   `
       : ""}

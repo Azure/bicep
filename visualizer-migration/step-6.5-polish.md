@@ -6,21 +6,21 @@ Add interactive feedback, visual depth, and polish to the visual designer before
 
 ## Tasks
 
-### 6.5.1 — Focus System (Hover + Click States)
+### 6.5.1 — Hover Border Accent ✅
 
-**Current state:** Nodes have no visual feedback on hover or click. `BaseNode` sets `cursor: default` and has no `:hover` or `:active` styles. `GraphControlBar` is the only component with proper interactive states.
+**Current state:** Nodes have no visual feedback on hover. `BaseNode` sets `cursor: default` and has no `:hover` styles.
 
 **Changes:**
-- Add `:hover` styles to `BaseNode` — subtle border color change or light shadow.
-- Add `:active` / pressed styles — slightly darker shadow or inset effect.
-- Add `cursor: pointer` to indicate nodes are clickable (double-click to reveal).
-- Add `outline` or `box-shadow` on `:focus-visible` for keyboard accessibility.
+- Add `:hover` style to `BaseNode` — change border color to an accent blue.
+- Keep `cursor: default` — do not change cursor on hover or click.
+- No `:active`, `:focus-visible`, or shadow effects.
 
-**Theme integration:** Use existing theme tokens (`theme.border`, `theme.shadow`, or add new ones like `theme.hoverBorder`, `theme.focusOutline`) in `styled.d.ts` and all four theme variants.
+**Theme integration:** Add a `theme.node.hoverBorder` token in `styled.d.ts` and populate it across all four theme variants with an appropriate accent blue.
 
 **Files:**
-- `src/vscode-bicep-ui/apps/visual-designer/src/features/graph-engine/components/BaseNode.tsx`
-- `src/vscode-bicep-ui/apps/visual-designer/src/themes.ts`
+- `src/vscode-bicep-ui/apps/visual-designer/src/features/visualization/components/ResourceDeclaration.tsx`
+- `src/vscode-bicep-ui/apps/visual-designer/src/features/visualization/components/ModuleDeclaration.tsx`
+- `src/vscode-bicep-ui/apps/visual-designer/src/theming/themes.ts`
 - `src/vscode-bicep-ui/apps/visual-designer/src/styled.d.ts`
 
 ---

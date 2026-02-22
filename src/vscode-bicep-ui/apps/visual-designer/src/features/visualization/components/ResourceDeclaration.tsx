@@ -34,6 +34,12 @@ const $ResourceDelcarton = styled.div<{ $hasError?: boolean; $isCollection?: boo
   background-color: ${({ theme }) => theme.node.background};
   height: 70px;
   min-width: 200px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: ${({ $hasError, theme }) => ($hasError ? theme.error : theme.node.hoverBorder)};
+    box-shadow: ${({ $hasError, theme }) => ($hasError ? theme.node.hoverErrorShadow : theme.node.hoverShadow)};
+  }
 
   ${({ $isCollection, $hasError, theme }) =>
     $isCollection
@@ -51,6 +57,11 @@ const $ResourceDelcarton = styled.div<{ $hasError?: boolean; $isCollection?: boo
       border-radius: 4px;
       background-color: ${theme.node.background};
       z-index: -1;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    &:hover::before {
+      border-color: ${$hasError ? theme.error : theme.node.hoverBorder};
+      box-shadow: ${$hasError ? theme.node.hoverErrorShadow : theme.node.hoverShadow};
     }
   `
       : ""}
