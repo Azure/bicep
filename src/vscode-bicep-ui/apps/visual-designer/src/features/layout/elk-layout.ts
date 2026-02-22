@@ -1,16 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { ElkExtendedEdge, ElkNode } from "elkjs";
+import type { ELK, ElkExtendedEdge, ElkNode } from "elkjs";
 import type { Getter, PrimitiveAtom, Setter } from "jotai";
+import type { AnimationPlaybackControlsWithThen } from "motion";
 import type { Box } from "../../utils/math/geometry";
 
 import { atom } from "jotai";
-import { animate, transform, type AnimationPlaybackControlsWithThen } from "motion";
+import { animate, transform } from "motion";
 import { translateBox } from "../../utils/math";
-import { nodesByIdAtom, edgesAtom } from "../graph-engine";
-
-import type { ELK } from "elkjs";
+import { edgesAtom, nodesByIdAtom } from "../graph-engine";
 
 // Lazy-load the heavy ELK bundled engine (~1.5 MB) on first use.
 // This keeps it in a separate chunk that is fetched on demand,
@@ -216,10 +215,7 @@ export interface LayoutResult {
  *                 layout so the graph always targets the center
  *                 of the screen regardless of shape changes.
  */
-export async function computeLayout(
-  get: Getter,
-  viewport: { width: number; height: number },
-): Promise<LayoutResult> {
+export async function computeLayout(get: Getter, viewport: { width: number; height: number }): Promise<LayoutResult> {
   const elkGraph = buildElkGraph(get);
   const elk = await getElk();
   const elkRoot = await elk.layout(elkGraph);

@@ -3,25 +3,26 @@
 
 import type { ComponentType } from "react";
 import type { NodeKind } from "./features/graph-engine";
+import type { DeploymentGraphPayload } from "./messages";
 
 import { PanZoomProvider } from "@vscode-bicep-ui/components";
-import { WebviewMessageChannelProvider, useWebviewMessageChannel, useWebviewNotification } from "@vscode-bicep-ui/messaging";
+import {
+  useWebviewMessageChannel,
+  useWebviewNotification,
+  WebviewMessageChannelProvider,
+} from "@vscode-bicep-ui/messaging";
 import { getDefaultStore } from "jotai";
 import { Suspense, useCallback, useEffect } from "react";
 import { styled, ThemeProvider } from "styled-components";
-import { GlobalStyle } from "./GlobalStyle";
-import { useTheme } from "./theming/use-theme";
 import { GraphControlBar } from "./components/GraphControlBar";
-import { ModuleDeclaration, ResourceDeclaration } from "./features/visualization";
-import { nodeConfigAtom, Canvas, Graph } from "./features/graph-engine";
 import { loadDevAppShell } from "./features/devtools";
+import { Canvas, Graph, nodeConfigAtom } from "./features/graph-engine";
 import { useAutoLayout } from "./features/layout";
 import { useApplyDeploymentGraph } from "./features/messaging";
-import {
-  DEPLOYMENT_GRAPH_NOTIFICATION,
-  READY_NOTIFICATION,
-  type DeploymentGraphPayload,
-} from "./messages";
+import { ModuleDeclaration, ResourceDeclaration } from "./features/visualization";
+import { GlobalStyle } from "./GlobalStyle";
+import { DEPLOYMENT_GRAPH_NOTIFICATION, READY_NOTIFICATION } from "./messages";
+import { useTheme } from "./theming/use-theme";
 
 const DevAppShell = loadDevAppShell();
 
