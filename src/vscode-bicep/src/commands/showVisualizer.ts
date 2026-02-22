@@ -20,9 +20,7 @@ async function showVisualizer(
     ? vscode.ViewColumn.Beside
     : (vscode.window.activeTextEditor?.viewColumn ?? vscode.ViewColumn.One);
 
-  const useNewVisualizer = vscode.workspace
-    .getConfiguration("bicep.experimental")
-    .get<boolean>("visualizerV2", false);
+  const useNewVisualizer = vscode.workspace.getConfiguration("bicep.experimental").get<boolean>("visualizerV2", false);
 
   if (useNewVisualizer) {
     await viewManagerV2.openView(documentUri, viewColumn);

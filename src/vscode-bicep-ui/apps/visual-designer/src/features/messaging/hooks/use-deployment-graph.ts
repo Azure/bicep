@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { DeploymentGraph } from "../../../messages";
 import type { Point } from "../../../utils/math/geometry";
 
 import { getDefaultStore, useSetAtom } from "jotai";
 import { useCallback, useRef } from "react";
+import { isDeploymentGraphEqual } from "../../../utils/deployment-graph-equality";
 import {
   addAtomicNodeAtom,
   addCompoundNodeAtom,
@@ -13,8 +15,6 @@ import {
   graphVersionAtom,
   nodesByIdAtom,
 } from "../../graph-engine";
-import type { DeploymentGraph } from "../../../messages";
-import { isDeploymentGraphEqual } from "../../../utils/deployment-graph-equality";
 
 const store = getDefaultStore();
 

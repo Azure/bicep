@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import type { LayoutResult } from "../elk-layout";
 
 import { useGetPanZoomDimensions } from "@vscode-bicep-ui/components";
 import { useAtomCallback } from "jotai/utils";
 import { useCallback } from "react";
-import { computeLayout, type LayoutResult } from "../elk-layout";
+import { computeLayout } from "../elk-layout";
 
 export interface ComputeLayoutResult {
   layout: LayoutResult;
