@@ -1487,7 +1487,7 @@ param objParam object
 
             var result = await Bicep(CreateDefaultSettings(), "build-params", childPath, "--stdout");
             result.Should().Fail();
-            result.Stderr.Should().Contain("Error BCP338: Failed to evaluate parameter \"objParam\"");
+            result.Stderr.Should().Contain("Error BCP402: The spread operator \"...\" can only be used in this context for an expression assignable to type \"object\".");
         }
 
         [TestMethod]
