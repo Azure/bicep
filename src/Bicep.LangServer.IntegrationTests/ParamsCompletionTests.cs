@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
@@ -519,7 +520,330 @@ param customParam customType[]
             completions.Any(x => x.Label == "required-properties");
         }
 
-        private async Task<IEnumerable<CompletionItem>> RunCompletionScenario(string paramTextWithCursors, ImmutableDictionary<DocumentUri, string> fileTextsByUri, char cursorInsertionMarker)
+        [TestMethod]
+        public async Task Base_symbol_completion_is_offered_for_params_file_with_extends()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+extends './shared.bicepparam'
+param one = 'param one'
+param two = b|";
+
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+",
+                ["/path/to/shared.bicepparam"] = @"
+using none
+param three = 'param three'
+"
+            };
+
+            var completions = await RunCompletionScenario(
+                paramTextWithCursor,
+                fileTextsByUri.ToImmutableDictionary(),
+                '|',
+                featureOverrides: new(ExtendableParamFilesEnabled: true));
+
+            completions.Should().ContainSingle(x => x.Label == "base" && x.Kind == CompletionItemKind.Variable);
+        }
+
+        [TestMethod]
+        public async Task Base_member_access_completion_is_offered_for_params_file_with_extends()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+extends './shared.bicepparam'
+param one = 'param one'
+param two = base.|";
+
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+",
+                ["/path/to/shared.bicepparam"] = @"
+using none
+param three = 'param three'
+"
+            };
+
+            var completions = await RunCompletionScenario(
+                paramTextWithCursor,
+                fileTextsByUri.ToImmutableDictionary(),
+                '|',
+                featureOverrides: new(ExtendableParamFilesEnabled: true));
+
+            completions.Should().ContainSingle(x => x.Label == "three" && x.Kind == CompletionItemKind.Property);
+        }
+
+        [TestMethod]
+        public async Task Base_member_access_completion_with_prefix_filters_to_parent_assignment()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+extends './shared.bicepparam'
+param one = 'param one'
+param two = base.t|";
+
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+",
+                ["/path/to/shared.bicepparam"] = @"
+using none
+param three = 'param three'
+"
+            };
+
+            var completions = await RunCompletionScenario(
+                paramTextWithCursor,
+                fileTextsByUri.ToImmutableDictionary(),
+                '|',
+                featureOverrides: new(ExtendableParamFilesEnabled: true));
+
+            completions.Should().ContainSingle(x => x.Label == "three" && x.Kind == CompletionItemKind.Property);
+        }
+
+        [TestMethod]
+        public async Task Base_symbol_completion_is_not_offered_when_no_extends_is_present()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+param one = 'param one'
+param two = b|";
+
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+"
+            };
+
+            var completions = await RunCompletionScenario(
+                paramTextWithCursor,
+                fileTextsByUri.ToImmutableDictionary(),
+                '|',
+                featureOverrides: new(ExtendableParamFilesEnabled: true));
+
+            completions.Should().NotContain(x => x.Label == "base");
+        }
+
+        [TestMethod]
+        public async Task Unqualified_inherited_assignment_completion_still_works_with_extends()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+extends './shared.bicepparam'
+param one = 'param one'
+param two = t|";
+
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+",
+                ["/path/to/shared.bicepparam"] = @"
+using none
+param three = 'param three'
+"
+            };
+
+            var completions = await RunCompletionScenario(
+                paramTextWithCursor,
+                fileTextsByUri.ToImmutableDictionary(),
+                '|',
+                featureOverrides: new(ExtendableParamFilesEnabled: true));
+
+            completions.Should().ContainSingle(x => x.Label == "three");
+        }
+
+        [TestMethod]
+        public async Task Base_member_access_returns_all_parent_assignments_in_extends_chain()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+extends './shared.bicepparam'
+param one = 'param one'
+param two = base.|";
+
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+param four string = ''
+",
+                ["/path/to/shared.bicepparam"] = @"
+using none
+param three = 'param three'
+param four = 'param four'
+"
+            };
+
+            var completions = await RunCompletionScenario(
+                paramTextWithCursor,
+                fileTextsByUri.ToImmutableDictionary(),
+                '|',
+                featureOverrides: new(ExtendableParamFilesEnabled: true));
+
+            completions.Should().Contain(x => x.Label == "three" && x.Kind == CompletionItemKind.Property);
+            completions.Should().Contain(x => x.Label == "four" && x.Kind == CompletionItemKind.Property);
+        }
+
+                [TestMethod]
+                public async Task Base_member_access_includes_object_and_array_parent_assignments()
+                {
+                        var paramTextWithCursor = @"
+using './main.bicep'
+extends './shared.bicepparam'
+param one = 'param one'
+param two = base.|";
+
+                        var fileTextsByUri = new Dictionary<DocumentUri, string>
+                        {
+                                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+param four object = {
+    name: 'four'
+    value: 'four'
+}
+param five array = [
+    {
+        name: 'five'
+        value: 'five'
+    }
+]
+",
+                                ["/path/to/shared.bicepparam"] = @"
+using none
+param three = 'param three'
+param four = {
+    name: 'param four'
+}
+param five = [
+    {
+        name: 'param five'
+    }
+]
+"
+                        };
+
+                        var completions = await RunCompletionScenario(
+                                paramTextWithCursor,
+                                fileTextsByUri.ToImmutableDictionary(),
+                                '|',
+                                featureOverrides: new(ExtendableParamFilesEnabled: true));
+
+                        completions.Should().Contain(x => x.Label == "three" && x.Kind == CompletionItemKind.Property);
+                        completions.Should().Contain(x => x.Label == "four" && x.Kind == CompletionItemKind.Property);
+                        completions.Should().Contain(x => x.Label == "five" && x.Kind == CompletionItemKind.Property);
+                }
+
+                [TestMethod]
+                public async Task Base_object_member_access_returns_object_property_completions()
+                {
+                        var paramTextWithCursor = @"
+using './main.bicep'
+extends './shared.bicepparam'
+param one = 'param one'
+param two = base.three
+param four = base.four.|";
+
+                        var fileTextsByUri = new Dictionary<DocumentUri, string>
+                        {
+                                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+param four object = {
+    name: 'four'
+    value: 'four'
+}
+",
+                                ["/path/to/shared.bicepparam"] = @"
+using none
+param three = 'param three'
+param four = {
+    name: 'param four'
+}
+"
+                        };
+
+                        var completions = await RunCompletionScenario(
+                                paramTextWithCursor,
+                                fileTextsByUri.ToImmutableDictionary(),
+                                '|',
+                                featureOverrides: new(ExtendableParamFilesEnabled: true));
+
+                        completions.Should().Contain(x => x.Label == "name" && x.Kind == CompletionItemKind.Property);
+                }
+
+                [TestMethod]
+                public async Task Base_array_item_member_access_returns_item_property_completions()
+                {
+                        var paramTextWithCursor = @"
+using './main.bicep'
+extends './shared.bicepparam'
+param one = 'param one'
+param two = base.three
+param five = [
+    base.five[0].|
+]";
+
+                        var fileTextsByUri = new Dictionary<DocumentUri, string>
+                        {
+                                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+param five array = [
+    {
+        name: 'five'
+        value: 'five'
+    }
+]
+",
+                                ["/path/to/shared.bicepparam"] = @"
+using none
+param three = 'param three'
+param five = [
+    {
+        name: 'param five'
+    }
+]
+"
+                        };
+
+                        var completions = await RunCompletionScenario(
+                                paramTextWithCursor,
+                                fileTextsByUri.ToImmutableDictionary(),
+                                '|',
+                                featureOverrides: new(ExtendableParamFilesEnabled: true));
+
+                        completions.Should().Contain(x => x.Label == "name" && x.Kind == CompletionItemKind.Property);
+                }
+
+        private async Task<IEnumerable<CompletionItem>> RunCompletionScenario(
+            string paramTextWithCursors,
+            ImmutableDictionary<DocumentUri, string> fileTextsByUri,
+            char cursorInsertionMarker,
+            FeatureProviderOverrides? featureOverrides = null)
         {
             var paramUri = InMemoryFileResolver.GetFileUri("/path/to/param.bicepparam");
             var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramTextWithCursors, cursorInsertionMarker);
@@ -530,7 +854,15 @@ param customParam customType[]
                 TestContext,
                 fileTextsByUri,
                 paramUri,
-                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
+                services =>
+                {
+                    services.WithNamespaceProvider(BuiltInTestTypes.Create());
+
+                    if (featureOverrides is { } overrides)
+                    {
+                        services.WithFeatureOverrides(overrides);
+                    }
+                });
 
             var paramFile = new LanguageClientFile(paramUri, paramFileTextNoCursor);
             var file = new FileRequestHelper(helper.Client, paramFile);
