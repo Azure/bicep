@@ -36,9 +36,10 @@ declare module "styled-components" {
     error: string;
     success: string;
     grabCursor: {
-      /** URL-encoded fill color for inline SVG data URI (e.g. `%23000000`). */
-      fill: string;
-      opacity: number;
+      /** Semi-transparent background color for the cursor overlay (CSS color value). */
+      background: string;
+      /** Backdrop-filter blur radius in pixels. */
+      blur: number;
     };
   }
 }

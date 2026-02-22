@@ -42,8 +42,8 @@ export const lightTheme: DefaultTheme = {
   error: "#e53e3e",
   success: "#38a169",
   grabCursor: {
-    fill: "%23000000",
-    opacity: 0.6,
+    background: "rgba(0, 0, 0, 0.25)",
+    blur: 3,
   },
 };
 
@@ -79,8 +79,8 @@ export const darkTheme: DefaultTheme = {
   error: "#f14c4c",
   success: "#89d185",
   grabCursor: {
-    fill: "%23ffffff",
-    opacity: 0.6,
+    background: "rgba(255, 255, 255, 0.25)",
+    blur: 3,
   },
 };
 
@@ -116,8 +116,8 @@ export const highContrastTheme: DefaultTheme = {
   error: "#ff00ff",
   success: "#00ffff",
   grabCursor: {
-    fill: "%23ffffff",
-    opacity: 1.0,
+    background: "rgba(255, 255, 255, 0.75)",
+    blur: 3,
   },
 };
 
@@ -153,8 +153,8 @@ export const highContrastLightTheme: DefaultTheme = {
   error: "#ff0000",
   success: "#008000",
   grabCursor: {
-    fill: "%23000000",
-    opacity: 1.0,
+    background: "rgba(0, 0, 0, 0.75)",
+    blur: 3,
   },
 };
 
