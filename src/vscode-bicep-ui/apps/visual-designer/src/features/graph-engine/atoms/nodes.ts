@@ -28,6 +28,91 @@ export type NodeKind = NodeState["kind"];
 
 export const nodesByIdAtom = atom<Record<string, NodeState>>({});
 
+/**
+ * The ID of the currently focused node, or `null` if nothing is focused.
+ * Set on mousedown; cleared when clicking the canvas background.
+ */
+export const focusedNodeIdAtom = atom<string | null>(null);
+
+/**
+ * Extracts the parent node ID from a composite `::` delimited ID.
+ * Returns `null` for top-level nodes.
+ */
+export function getParentId(nodeId: string): string | null {
+  const lastSep = nodeId.lastIndexOf("::");
+  return lastSep >= 0 ? nodeId.slice(0, lastSep) : null;
+}
+
+/**
+ * Computes how closely related `nodeId` is to `focusedId`.
+ *
+ * Tier values (lower = closer):
+ *  - 0: the focused node itself, or a descendant of the focused node
+ *  - 1: a sibling of the focused node, or a descendant of such a sibling
+ *  - 2: the parent of the focused node
+ *  - 3: a sibling of the parent (or descendant thereof)
+ *  - 4: the grandparent
+ *  - …and so on recursively
+ *  - -1: unrelated (should not happen for valid graph IDs)
+ */
+export function computeFocusTier(nodeId: string, focusedId: string): number {
+  // Self.
+  if (nodeId === focusedId) return 0;
+
+  // Descendant of the focused node (e.g. children inside a focused module).
+  if (nodeId.startsWith(focusedId + "::")) return 0;
+
+  // Walk up the focused node's ancestor chain.
+  let ancestorId: string | null = focusedId;
+  let tier = 0;
+
+  while (ancestorId !== null) {
+    if (nodeId === ancestorId) return tier;
+
+    const parentOfAncestor = getParentId(ancestorId);
+
+    // Sibling: same parent as this ancestor.
+    if (getParentId(nodeId) === parentOfAncestor) {
+      return tier + 1;
+    }
+
+    // Descendant of a sibling of this ancestor.
+    if (parentOfAncestor !== null && nodeId.startsWith(parentOfAncestor + "::")) {
+      return tier + 1;
+    }
+
+    // Reached the root — every remaining node is a top-level peer.
+    if (parentOfAncestor === null) {
+      return tier + 1;
+    }
+
+    ancestorId = parentOfAncestor;
+    tier += 2;
+  }
+
+  return -1;
+}
+
+/**
+ * Returns the effective z-index for a node given the current focus state.
+ *
+ * Without focus every compound sits at 0 and every atomic at 2.
+ * With focus the focused group is boosted highest, siblings next, then
+ * parent, and so on up the ancestor chain.
+ */
+export function getNodeZIndex(nodeId: string, nodeKind: NodeKind, focusedId: string | null): number {
+  const baseZ = nodeKind === "atomic" ? 2 : 0;
+
+  if (focusedId === null) return baseZ;
+
+  const tier = computeFocusTier(nodeId, focusedId);
+  if (tier < 0) return baseZ;
+
+  // Decrease boost as the relationship becomes more distant.
+  const boost = Math.max(10, 100 - tier * 15);
+  return baseZ + boost;
+}
+
 export const addAtomicNodeAtom = atom(null, (get, set, id: string, origin: Point, data: unknown) => {
   if (get(nodesByIdAtom)[id] !== undefined) {
     throw new Error(`Cannot add atomic node ${id} because it already exists.`);

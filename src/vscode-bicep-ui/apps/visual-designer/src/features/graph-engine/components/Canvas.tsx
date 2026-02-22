@@ -4,8 +4,10 @@
 import type { PropsWithChildren } from "react";
 
 import { PanZoom } from "@vscode-bicep-ui/components";
+import { useStore } from "jotai";
 import { useEffect, useRef } from "react";
 import styled, { useTheme } from "styled-components";
+import { focusedNodeIdAtom } from "../atoms/nodes";
 import { CanvasBackground } from "./CanvasBackground";
 
 const CURSOR_SIZE = 22;
@@ -45,6 +47,7 @@ export interface CanvasProps extends PropsWithChildren {
 
 export function Canvas({ children, showBackground = true }: CanvasProps) {
   const theme = useTheme();
+  const store = useStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
 
@@ -55,8 +58,16 @@ export function Canvas({ children, showBackground = true }: CanvasProps) {
 
     let isActive = false;
     let cachedRect: DOMRect | null = null;
+    let didDrag = false;
+    let pendingFocusId: string | null | undefined;
 
     const onPointerDown = (e: PointerEvent) => {
+      // Remember the intended focus target but defer applying it
+      // until pointerup so that a pan-drag doesn't clear focus.
+      const nodeEl = (e.target as HTMLElement).closest<HTMLElement>("[data-node-id]");
+      pendingFocusId = nodeEl?.dataset.nodeId ?? null;
+      didDrag = false;
+
       isActive = true;
       cachedRect = container.getBoundingClientRect();
       cursor.style.display = "block";
@@ -65,15 +76,35 @@ export function Canvas({ children, showBackground = true }: CanvasProps) {
       container.style.cursor = "none";
     };
 
+    const DRAG_THRESHOLD = 4;
+
     const onPointerMove = (e: PointerEvent) => {
       if (!isActive || !cachedRect) return;
+
+      if (!didDrag) {
+        const dx = e.movementX;
+        const dy = e.movementY;
+        if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
+          didDrag = true;
+        }
+      }
+
       cursor.style.left = `${e.clientX - cachedRect.left}px`;
       cursor.style.top = `${e.clientY - cachedRect.top}px`;
     };
 
     const onPointerUp = () => {
+      // Apply focus only on click (no drag). Clicking a node focuses
+      // it; clicking empty canvas clears focus. Drags leave focus
+      // unchanged.
+      if (!didDrag && pendingFocusId !== undefined) {
+        store.set(focusedNodeIdAtom, pendingFocusId);
+      }
+
       isActive = false;
       cachedRect = null;
+      didDrag = false;
+      pendingFocusId = undefined;
       cursor.style.display = "none";
       container.style.cursor = "";
     };
@@ -89,7 +120,7 @@ export function Canvas({ children, showBackground = true }: CanvasProps) {
       window.removeEventListener("pointerup", onPointerUp);
       window.removeEventListener("pointercancel", onPointerUp);
     };
-  }, []);
+  }, [store]);
 
   return (
     <$Container ref={containerRef}>

@@ -5,11 +5,12 @@ import type { CompoundNodeState } from "../atoms/nodes";
 import type { Range } from "../../../messages";
 
 import { useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
-import { useStore } from "jotai";
+import { useAtomValue, useStore } from "jotai";
 import { frame } from "motion/react";
 import { useEffect, useRef } from "react";
 import { REVEAL_FILE_RANGE_NOTIFICATION } from "../../../messages";
 import { translateBox } from "../../../utils/math";
+import { focusedNodeIdAtom, getNodeZIndex } from "../atoms/nodes";
 import { nodesByIdAtom } from "../atoms";
 import { useBoxUpdate, useDragListener } from "../hooks";
 import { BaseNode } from "./BaseNode";
@@ -19,6 +20,8 @@ export function CompoundNode({ id, childIdsAtom, boxAtom, dataAtom }: CompoundNo
   const ref = useRef<HTMLDivElement>(null);
   const store = useStore();
   const messageChannel = useWebviewMessageChannel();
+  const focusedNodeId = useAtomValue(focusedNodeIdAtom);
+  const zIndex = getNodeZIndex(id, "compound", focusedNodeId);
 
   // Use a native dblclick listener so we can call stopPropagation()
   // before d3-zoom's handler (on the PanZoom ancestor) fires.
@@ -75,7 +78,7 @@ export function CompoundNode({ id, childIdsAtom, boxAtom, dataAtom }: CompoundNo
   });
 
   return (
-    <BaseNode ref={ref} zIndex={0}>
+    <BaseNode ref={ref} id={id} zIndex={zIndex}>
       <NodeContent id={id} kind="compound" dataAtom={dataAtom} />
     </BaseNode>
   );

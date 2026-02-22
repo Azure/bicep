@@ -23,6 +23,7 @@ export const lightTheme: DefaultTheme = {
     hoverBorder: "#333638",
     hoverShadow: "0 4px 8px rgba(0, 0, 0, 0.20)",
     hoverErrorShadow: "0 4px 8px rgba(0, 0, 0, 0.20)",
+    focusBorder: "#333638",
   },
   text: {
     primary: "#242424",
@@ -60,6 +61,7 @@ export const darkTheme: DefaultTheme = {
     hoverBorder: "#888888",
     hoverShadow: "none",
     hoverErrorShadow: "none",
+    focusBorder: "#a0a0a0",
   },
   text: {
     primary: "#e8e8e8",
@@ -97,6 +99,7 @@ export const highContrastTheme: DefaultTheme = {
     hoverBorder: "#ffffff",
     hoverShadow: "0 0 0 1px #ffffff",
     hoverErrorShadow: "0 0 0 1px #ff00ff",
+    focusBorder: "#ffffff",
   },
   text: {
     primary: "#ffffff",
@@ -134,6 +137,7 @@ export const highContrastLightTheme: DefaultTheme = {
     hoverBorder: "#0000cd",
     hoverShadow: "0 0 0 1px #0000cd",
     hoverErrorShadow: "0 0 0 1px #ff0000",
+    focusBorder: "#000000",
   },
   text: {
     primary: "#000000",

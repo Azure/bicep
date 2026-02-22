@@ -17,6 +17,7 @@ declare module "styled-components" {
       hoverBorder: string;
       hoverShadow: string;
       hoverErrorShadow: string;
+      focusBorder: string;
     };
     text: {
       primary: string;

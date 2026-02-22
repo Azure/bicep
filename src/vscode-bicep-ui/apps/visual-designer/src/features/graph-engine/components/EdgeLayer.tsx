@@ -5,6 +5,7 @@ import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { styled } from "styled-components";
 import { edgesAtom } from "../atoms/edges";
+import { focusedNodeIdAtom, getNodeZIndex } from "../atoms/nodes";
 import { EdgeMarkerDefs } from "./EdgeMarkerDefs";
 import { StraightEdge } from "./StraightEdge";
 
@@ -17,40 +18,78 @@ const $Svg = styled.svg<{ $zIndex: number }>`
 
 /**
  * Outer edges sit below all nodes (z-index: -1).
- * Inner edges sit above compound nodes but below atomic nodes (z-index: 1).
+ * Inner edges sit above their parent compound but below its atomic children,
+ * with a per-group z-index that tracks the compound's focus elevation.
  */
 export function OuterEdgeLayer() {
-  return <FilteredEdgeLayer zIndex={-1} inner={false} />;
-}
-
-export function InnerEdgeLayer() {
-  return <FilteredEdgeLayer zIndex={1} inner={true} />;
-}
-
-function FilteredEdgeLayer({ zIndex, inner }: { zIndex: number; inner: boolean }) {
   const edges = useAtomValue(edgesAtom);
 
   const filtered = useMemo(() => {
-    // Use the :: id convention: an edge is "inner" if both endpoints
-    // share the same compound parent prefix.
     return edges.filter((edge) => {
       const fromParent = edge.fromId.includes("::") ? edge.fromId.split("::").slice(0, -1).join("::") : null;
       const toParent = edge.toId.includes("::") ? edge.toId.split("::").slice(0, -1).join("::") : null;
-      const isInner = fromParent !== null && toParent !== null && fromParent === toParent;
-      return inner ? isInner : !isInner;
+      return !(fromParent !== null && toParent !== null && fromParent === toParent);
     });
-  }, [edges, inner]);
+  }, [edges]);
 
   if (filtered.length === 0) {
     return null;
   }
 
   return (
-    <$Svg $zIndex={zIndex}>
+    <$Svg $zIndex={-1}>
       <EdgeMarkerDefs />
       {filtered.map((edge) => (
         <StraightEdge key={edge.id} {...edge} />
       ))}
     </$Svg>
+  );
+}
+
+export function InnerEdgeLayer() {
+  const edges = useAtomValue(edgesAtom);
+  const focusedNodeId = useAtomValue(focusedNodeIdAtom);
+
+  // Group inner edges by their shared parent compound ID so each
+  // group can be rendered at the correct z-index relative to its
+  // parent compound (which may be elevated due to focus).
+  const groups = useMemo(() => {
+    const map = new Map<string, typeof edges>();
+
+    for (const edge of edges) {
+      const fromParent = edge.fromId.includes("::") ? edge.fromId.split("::").slice(0, -1).join("::") : null;
+      const toParent = edge.toId.includes("::") ? edge.toId.split("::").slice(0, -1).join("::") : null;
+
+      if (fromParent !== null && toParent !== null && fromParent === toParent) {
+        let group = map.get(fromParent);
+        if (!group) {
+          group = [];
+          map.set(fromParent, group);
+        }
+        group.push(edge);
+      }
+    }
+
+    return map;
+  }, [edges]);
+
+  if (groups.size === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      {[...groups.entries()].map(([parentId, groupEdges]) => {
+        const parentZ = getNodeZIndex(parentId, "compound", focusedNodeId);
+        return (
+          <$Svg key={parentId} $zIndex={parentZ + 1}>
+            <EdgeMarkerDefs />
+            {groupEdges.map((edge) => (
+              <StraightEdge key={edge.id} {...edge} />
+            ))}
+          </$Svg>
+        );
+      })}
+    </>
   );
 }
