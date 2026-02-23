@@ -51,5 +51,9 @@ export interface RevealFileRangePayload {
 }
 
 // ── Notification: Webview → Extension ──
+// Sent when the user clicks "Show errors" to open the VS Code Problems panel
+export const SHOW_PROBLEMS_PANEL_NOTIFICATION = "showProblemsPanel";
+
+// ── Notification: Webview → Extension ──
 // Sent when the webview has initialized and is ready to receive data
 export const READY_NOTIFICATION = "ready";

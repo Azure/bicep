@@ -55,7 +55,7 @@ Add interactive feedback, visual depth, and polish to the visual designer before
 
 ---
 
-### 6.5.3 — Clickable Status Bar Error Text
+### 6.5.3 — Clickable Status Bar Error Text ✅
 
 **Current state:** The `StatusBar` shows error count + "Show errors" text, but clicking does nothing.
 
