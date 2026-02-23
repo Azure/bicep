@@ -9,7 +9,7 @@ For all you need to know about the Bicep language, check out our [Bicep document
 
 ## What is Bicep?
 
-Bicep is a infrastructure-as-code (IaC) programming language that uses declarative syntax to deploy Azure resources. In a Bicep file, you define the infrastructure you want to deploy to Azure and then use that file throughout the development lifecycle to repeatedly deploy that infrastructure. Your resources are deployed in a consistent manner.
+Bicep is an infrastructure-as-code (IaC) programming language that uses declarative syntax to deploy Azure resources. In a Bicep file, you define the infrastructure you want to deploy to Azure and then use that file throughout the development lifecycle to repeatedly deploy that infrastructure. Your resources are deployed in a consistent manner.
 
 Learn more about the language and benefits of using Bicep in the [What is Bicep documentation](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview?tabs=bicep).
 
@@ -50,7 +50,7 @@ az deployment group create -f ./main.bicep -g my-rg
 ### Non-goals
 
 1. Build a general purpose language to meet any need. This will not replace general purpose languages and you may still need to do pre or post-Bicep execution tasks in a script or high-level programming language.
-1. Provide a first-class provider model for non-Azure related tasks. While we have introducted an [extensibility model](https://github.com/Azure/bicep-extensibility) with current support for [Microsoft Graph](https://learn.microsoft.com/en-us/graph/templates/bicep/overview-bicep-templates-for-graph), official extension points are intended to be focused on Azure infra or application deployment related tasks.
+1. Provide a first-class provider model for non-Azure related tasks. While we have introduced an [extensibility model](https://github.com/Azure/bicep-extensibility) with current support for [Microsoft Graph](https://learn.microsoft.com/en-us/graph/templates/bicep/overview-bicep-templates-for-graph), official extension points are intended to be focused on Azure infra or application deployment related tasks.
 
 ## FAQ
 
