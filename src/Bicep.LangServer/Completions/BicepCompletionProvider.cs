@@ -60,6 +60,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetObjectPropertyNameCompletions(model, context))
                 .Concat(GetMemberAccessCompletions(compilation, context))
                 .Concat(GetTypeMemberAccessCompletions(compilation, context))
+                .Concat(GetTypeArrayIndexCompletions(compilation, context))
                 .Concat(GetResourceAccessCompletions(compilation, context))
                 .Concat(GetArrayIndexCompletions(compilation, context))
                 .Concat(GetPropertyValueCompletions(model, context))
@@ -1229,6 +1230,59 @@ namespace Bicep.LanguageServer.Completions
             }
 
             return completions;
+        }
+
+        private static IEnumerable<CompletionItem> GetTypeArrayIndexCompletions(Compilation compilation, BicepCompletionContext context)
+        {
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.TypeArrayIndex))
+            {
+                return [];
+            }
+
+            SyntaxBase? baseExpression = null;
+
+            // Handle TypeArrayAccessSyntax (when there's already an index like foo[0])
+            if (context.TypeArrayAccess is not null)
+            {
+                baseExpression = context.TypeArrayAccess.BaseExpression;
+            }
+            // Handle ArrayTypeSyntax (when typing foo[] - the [] is parsed as array type syntax)
+            else if (context.ArrayType is not null)
+            {
+                baseExpression = context.ArrayType.Item.Value;
+            }
+
+            if (baseExpression is null)
+            {
+                return [];
+            }
+
+            var declaredType = compilation.GetEntrypointSemanticModel().GetDeclaredType(baseExpression);
+
+            if (declaredType is not null && TypeHelper.TryRemoveNullability(declaredType) is TypeSymbol nonNullable)
+            {
+                declaredType = nonNullable;
+            }
+
+            if (declaredType is TypeType typeType)
+            {
+                declaredType = typeType.Unwrapped;
+            }
+
+            // If the base type is an array, offer '*' as a completion to access array item type
+            if (declaredType is ArrayType)
+            {
+                return
+                [
+                    CompletionItemBuilder.Create(CompletionItemKind.Property, "*")
+                        .WithPlainTextEdit(context.ReplacementRange, "*")
+                        .WithDetail("Access array item type")
+                        .WithSortText(GetSortText("*", CompletionPriority.High))
+                        .Build()
+                ];
+            }
+
+            return [];
         }
 
         private static IEnumerable<CompletionItem> GetResourceAccessCompletions(Compilation compilation, BicepCompletionContext context)
