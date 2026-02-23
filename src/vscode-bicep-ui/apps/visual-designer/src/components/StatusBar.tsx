@@ -17,26 +17,31 @@ const $StatusBarContainer = styled.div`
   flex-direction: row;
   align-items: center;
   z-index: 100;
-  font-size: 13px;
-  color: ${({ theme }) => theme.text.primary};
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: ${({ theme }) => theme.text.secondary};
   user-select: none;
   cursor: default;
 `;
 
 const $StatusCircle = styled.div<{ $hasErrors: boolean }>`
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   background-color: ${({ $hasErrors, theme }) => ($hasErrors ? theme.error : theme.success)};
   border-radius: 50%;
   margin-right: 8px;
+  flex-shrink: 0;
 `;
 
 const $ErrorLink = styled.span`
   cursor: pointer;
   color: ${({ theme }) => theme.error};
+  font-weight: 600;
   text-decoration: underline;
   text-decoration-color: transparent;
-  transition: text-decoration-color 0.15s ease;
+  text-underline-offset: 2px;
+  transition: text-decoration-color 150ms ease;
 
   &:hover {
     text-decoration-color: ${({ theme }) => theme.error};

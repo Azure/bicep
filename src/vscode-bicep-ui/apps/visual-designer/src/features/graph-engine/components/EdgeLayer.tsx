@@ -6,7 +6,6 @@ import { useMemo } from "react";
 import { styled } from "styled-components";
 import { edgesAtom } from "../atoms/edges";
 import { focusedNodeIdAtom, getNodeZIndex } from "../atoms/nodes";
-import { EdgeMarkerDefs } from "./EdgeMarkerDefs";
 import { StraightEdge } from "./StraightEdge";
 
 const $Svg = styled.svg<{ $zIndex: number }>`
@@ -38,7 +37,6 @@ export function OuterEdgeLayer() {
 
   return (
     <$Svg $zIndex={-1}>
-      <EdgeMarkerDefs />
       {filtered.map((edge) => (
         <StraightEdge key={edge.id} {...edge} />
       ))}
@@ -83,7 +81,6 @@ export function InnerEdgeLayer() {
         const parentZ = getNodeZIndex(parentId, "compound", focusedNodeId);
         return (
           <$Svg key={parentId} $zIndex={parentZ + 1}>
-            <EdgeMarkerDefs />
             {groupEdges.map((edge) => (
               <StraightEdge key={edge.id} {...edge} />
             ))}

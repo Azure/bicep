@@ -21,61 +21,60 @@ export interface ResourceDeclarationProps {
   };
 }
 
-const STACK_OFFSET = 8;
-
 const $ResourceDelcarton = styled.div<{ $hasError?: boolean; $isCollection?: boolean; $isFocused?: boolean }>`
   position: relative;
   flex: 1;
   display: flex;
   align-items: center;
-  padding: 12px 16px;
+  padding: 14px 20px;
   margin: 4px;
   box-sizing: border-box;
-  border: 2px solid
+  border: ${({ $hasError, theme }) => ($hasError ? theme.node.errorBorderWidth : theme.node.borderWidth)} solid
     ${({ $hasError, $isFocused, theme }) =>
       $hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.border};
-  border-radius: 4px;
+  border-radius: 8px;
   background-color: ${({ theme }) => theme.node.background};
-  height: 70px;
-  min-width: 200px;
+  height: 76px;
+  min-width: 220px;
   box-shadow: ${({ $isFocused, $hasError, theme }) =>
-    $isFocused ? `inset 0 0 0 1px ${$hasError ? theme.error : theme.node.focusBorder}` : "none"};
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    $isFocused ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 
   &:hover {
     border-color: ${({ $hasError, $isFocused, theme }) =>
       $hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.hoverBorder};
     box-shadow: ${({ $isFocused, $hasError, theme }) => {
-      const focusShadow = $isFocused ? `inset 0 0 0 1px ${$hasError ? theme.error : theme.node.focusBorder}` : null;
-      const hoverShadow = $hasError ? theme.node.hoverErrorShadow : theme.node.hoverShadow;
-      return [focusShadow, hoverShadow !== "none" ? hoverShadow : null].filter(Boolean).join(", ") || "none";
+      if ($isFocused) return $hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow;
+      return $hasError ? theme.node.hoverErrorShadow : theme.node.hoverShadow;
     }};
   }
 
-  ${({ $isCollection, $hasError, $isFocused, theme }) =>
-    $isCollection
+  ${({ $isCollection, $hasError, $isFocused, theme }) => {
+    const offset = theme.node.collectionOffset;
+    return $isCollection
       ? `
-    margin-right: ${4 + STACK_OFFSET}px;
-    margin-bottom: ${4 + STACK_OFFSET}px;
+    margin-right: ${4 + offset}px;
+    margin-bottom: ${4 + offset}px;
     &::before {
       content: '';
       position: absolute;
-      top: ${STACK_OFFSET}px;
-      left: ${STACK_OFFSET}px;
-      right: -${STACK_OFFSET}px;
-      bottom: -${STACK_OFFSET}px;
-      border: 2px solid ${$hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.border};
-      border-radius: 4px;
+      top: ${offset}px;
+      left: ${offset}px;
+      right: -${offset}px;
+      bottom: -${offset}px;
+      border: ${$hasError ? theme.node.errorBorderWidth : theme.node.borderWidth} solid ${$hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.border};
+      border-radius: 10px;
       background-color: ${theme.node.background};
       z-index: -1;
-      box-shadow: ${$isFocused ? `inset 0 0 0 1px ${$hasError ? theme.error : theme.node.focusBorder}` : "none"};
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: ${$isFocused ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
+      transition: border-color 180ms ease, box-shadow 180ms ease;
     }
     &:hover::before {
       border-color: ${$hasError ? theme.error : $isFocused ? theme.node.focusBorder : theme.node.hoverBorder};
     }
   `
-      : ""}
+      : "";
+  }}
 `;
 
 const $TextContainer = styled.div`
@@ -83,23 +82,31 @@ const $TextContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   margin-left: 12px;
-  margin-right: 2px;
-  margin-bottom: 4px;
+  margin-right: 4px;
+  gap: 2px;
   height: 100%;
+  overflow: hidden;
 `;
 
 const $SymbolicNameContainer = styled.div`
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 600;
   color: ${({ theme }) => theme.text.primary};
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const $ResourceTypeContainer = styled.div`
   font-size: 12px;
   font-weight: 500;
   color: ${({ theme }) => theme.text.secondary};
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 export function ResourceDeclaration({ id, data }: ResourceDeclarationProps) {

@@ -139,9 +139,57 @@ Also removed the duplicate-ID throw in `addAtomicNodeAtom` since the diff logic 
 
 ---
 
+### 6.5.5 — Visual Styling Refinement ✅
+
+**Current state:** Node cards use a flat 2px solid border with 4px border-radius, no shadows, and hard-coded styling. Edges are 2px thick with tight-angle arrowheads. The overall look feels more like a wireframe than a production-quality developer tool.
+
+**Changes:**
+
+**Theme system expansion:** Added new tokens to `styled.d.ts` and all four theme variants in `themes.ts`:
+- `borderWidth` / `errorBorderWidth` — 1px default, 1.5px for error nodes in light/dark; 2px for both in HC themes.
+- `shadow` / `hoverShadow` / `hoverErrorShadow` — subtle elevation shadows (light/dark), `none` for HC.
+- `selectedShadow` / `selectedErrorShadow` — accent-colored focus ring (blue for normal, error-colored for error nodes).
+- `accentBorder` / `moduleAccent` — accent colors for resource and module nodes.
+- `collectionOffset` — pixel offset for collection stack pseudo-element (6px light/dark, 10px HC).
+
+**Node card restyling:**
+- Border-radius from 4px → 8px; collection pseudo-element border-radius 10px for smooth wrapping.
+- Resource nodes: height 70→76px, padding 12/16→14/20px, icon 32→36px, name font 18px/500→15px/600, type label 12px/500 uppercase with letter-spacing.
+- Module nodes: padding 12px→12/16px, icon 20→24px, name font 14px→15px/600.
+- Error nodes get thicker borders (`errorBorderWidth`) and error-colored focus rings (`selectedErrorShadow`).
+- Shadows for depth in light/dark themes; clean border-only in HC.
+
+**Edge refinement:**
+- Stroke width from 2→1.5px with `transition: stroke 180ms ease`.
+- Arrowhead widened: chevron points changed to `"1.5,1 5,5 1.5,9"` in a 6×10 viewBox.
+- Shared `<EdgeMarkerDefs>` rendered once in `Graph.tsx` instead of per edge layer (prevents duplicate marker IDs).
+
+**Global & control styling:**
+- `GlobalStyle`: added `-webkit-font-smoothing: antialiased`, `line-height: 1.5`, `box-sizing: border-box` reset.
+- `GraphControlBar`: border-radius 6→8px, softer shadow, blur 8→12px, button radius 4→6px, transition refined.
+- `StatusBar`: font-size 13→12px, weight 500, secondary color, status circle 8→7px, error link underline-offset.
+
+**Theme palette refresh:** All four themes (light, dark, high-contrast, high-contrast-light) received curated colors targeting a calm, low-contrast SaaS aesthetic for light/dark and full accessibility compliance for HC variants.
+
+**Files:**
+- `src/vscode-bicep-ui/apps/visual-designer/src/styled.d.ts`
+- `src/vscode-bicep-ui/apps/visual-designer/src/theming/themes.ts`
+- `src/vscode-bicep-ui/apps/visual-designer/src/GlobalStyle.ts`
+- `src/vscode-bicep-ui/apps/visual-designer/src/features/visualization/components/ResourceDeclaration.tsx`
+- `src/vscode-bicep-ui/apps/visual-designer/src/features/visualization/components/ModuleDeclaration.tsx`
+- `src/vscode-bicep-ui/apps/visual-designer/src/features/graph-engine/components/EdgeMarkerDefs.tsx`
+- `src/vscode-bicep-ui/apps/visual-designer/src/features/graph-engine/components/StraightEdge.tsx`
+- `src/vscode-bicep-ui/apps/visual-designer/src/features/graph-engine/components/Graph.tsx`
+- `src/vscode-bicep-ui/apps/visual-designer/src/features/graph-engine/components/EdgeLayer.tsx`
+- `src/vscode-bicep-ui/apps/visual-designer/src/components/GraphControlBar.tsx`
+- `src/vscode-bicep-ui/apps/visual-designer/src/components/StatusBar.tsx`
+
+---
+
 ## Priority Order
 
 1. **6.5.1** Hover Border Accent — highest impact, foundational for all other interactive polish
 2. **6.5.2** Node Focus & Z-Index Elevation — builds on hover system, adds selection model
 3. **6.5.3** Clickable Status Bar — functional improvement
 4. **6.5.4** Smooth Graph Initialization & Flicker-Free Updates — Problem A is trivial (one-line fix); Problem B is medium effort but only impacts structural edits
+5. **6.5.5** Visual Styling Refinement — comprehensive theme/styling polish pass

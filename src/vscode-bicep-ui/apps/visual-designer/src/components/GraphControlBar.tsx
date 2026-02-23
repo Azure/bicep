@@ -9,13 +9,13 @@ import { useResetLayout } from "../features/layout";
 const $GraphControlBar = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   padding: 4px;
   background-color: ${({ theme }) => theme.controlBar.background};
   border: 1px solid ${({ theme }) => theme.controlBar.border};
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(8px);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(12px);
 `;
 
 const $ControlButton = styled.button`
@@ -26,11 +26,11 @@ const $ControlButton = styled.button`
   height: 28px;
   padding: 0;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   background-color: transparent;
   color: ${({ theme }) => theme.controlBar.icon};
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color 150ms ease, transform 150ms ease;
 
   &:hover {
     background-color: ${({ theme }) => theme.controlBar.hoverBackground};

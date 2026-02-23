@@ -14,10 +14,26 @@ declare module "styled-components" {
       background: string;
       compoundBackground: string;
       border: string;
+      /** Border width for node cards. Thicker in high-contrast themes. */
+      borderWidth: string;
+      /** Border width for error nodes. Slightly thicker than default in normal themes. */
+      errorBorderWidth: string;
+      /** Resting box-shadow for default node elevation. */
+      shadow: string;
       hoverBorder: string;
       hoverShadow: string;
       hoverErrorShadow: string;
       focusBorder: string;
+      /** Box-shadow applied when a node is focused/selected. */
+      selectedShadow: string;
+      /** Box-shadow applied when an error node is focused/selected. Uses error color. */
+      selectedErrorShadow: string;
+      /** Subtle accent color used for the left-edge indicator on resource nodes. */
+      accentBorder: string;
+      /** Accent color for module (compound) nodes. */
+      moduleAccent: string;
+      /** Pixel offset for collection stack pseudo-element. Larger in high-contrast. */
+      collectionOffset: number;
     };
     text: {
       primary: string;
