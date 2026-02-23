@@ -4,7 +4,7 @@
 import type { ComponentType } from "react";
 import type { NodeKind } from "./features/graph-engine";
 
-import { PanZoomProvider } from "@vscode-bicep-ui/components";
+import { PanZoomProvider, useGetPanZoomDimensions } from "@vscode-bicep-ui/components";
 import { WebviewMessageChannelProvider, useWebviewMessageChannel, useWebviewNotification } from "@vscode-bicep-ui/messaging";
 import { getDefaultStore } from "jotai";
 import { Suspense, useCallback, useEffect } from "react";
@@ -60,7 +60,12 @@ store.set(nodeConfigAtom, {
  * access both the messaging channel and the pan-zoom controls.
  */
 function GraphContainer() {
-  const applyGraph = useApplyDeploymentGraph();
+  const getPanZoomDimensions = useGetPanZoomDimensions();
+  const getViewportCenter = useCallback(() => {
+    const { width, height } = getPanZoomDimensions();
+    return { x: width / 2, y: height / 2 };
+  }, [getPanZoomDimensions]);
+  const applyGraph = useApplyDeploymentGraph(getViewportCenter);
   const messageChannel = useWebviewMessageChannel();
 
   // Send READY notification on mount

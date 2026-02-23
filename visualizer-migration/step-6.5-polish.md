@@ -73,8 +73,75 @@ Add interactive feedback, visual depth, and polish to the visual designer before
 
 ---
 
+### 6.5.4 — Smooth Graph Initialization & Flicker-Free Updates ✅
+
+#### Problem A: First-render nodes flash at the top-left corner
+
+**Current state:** When the visual-designer app launches and the first `DeploymentGraph` message arrives, every node's `boxAtom` is initialized at a default origin. After ELK layout completes (async — lazy-loads ~1.5 MB ELK engine + computes layout), `computeFitViewTransform` adjusts the viewport and `applyLayout` spring-animates nodes to their final positions. Because the pan-zoom viewport starts with an identity transform (`translate(0,0) scale(1)`), any node position maps directly to screen coordinates — so nodes at `(0, 0)` appear at the **top-left corner** of the screen for several frames before the async layout completes.
+
+**Root cause:** The real issue is not the origin coordinates but the **timing gap** between DOM rendering (immediate) and ELK layout (async). Nodes are rendered and visible in the DOM before the viewport transform is computed, so there is always a flash frame regardless of what initial position is used.
+
+**Fix — viewport-center origin + visibility gate:**
+
+The fix is generic for all empty→non-empty transitions (first render, switching from the Empty graph, etc.):
+
+1. **`useApplyDeploymentGraph` accepts a `getViewportCenter` callback.** When the graph was previously empty (no existing node positions), the default origin for all new nodes is `getViewportCenter()` — i.e. `{ x: viewportWidth/2, y: viewportHeight/2 }`. This means nodes are created at the center of the canvas in graph coordinates. When the graph already has nodes, the centroid of existing positions is used (unchanged).
+
+2. **`layoutReadyAtom` visibility gate.** The `Graph` component renders with `opacity: 0` while `layoutReadyAtom` is `false`. When the graph becomes empty, `layoutReadyAtom` is reset to `false` — so the next non-empty graph will go through the reveal sequence again.
+
+3. **`useAutoLayout` reveal sequence.** When `layoutReadyAtom` is `false` (empty→non-empty transition):
+   - Compute ELK layout (async).
+   - Apply `computeFitViewTransform` viewport transform (so the graph center maps to screen center).
+   - Wait one `requestAnimationFrame` for the DOM to paint the centered positions + viewport transform.
+   - Set `layoutReadyAtom = true` — graph becomes instantly visible with all nodes stacked at the center.
+   - Spring-animate nodes from center outward to their final ELK positions (600ms).
+
+4. **`App.tsx` / `GraphContainer`** creates the `getViewportCenter` callback from `useGetPanZoomDimensions` and passes it to `useApplyDeploymentGraph`.
+
+**Files:**
+- `src/vscode-bicep-ui/apps/visual-designer/src/features/graph-engine/atoms/graph.ts` — added `layoutReadyAtom`
+- `src/vscode-bicep-ui/apps/visual-designer/src/features/layout/hooks/use-auto-layout.ts` — generic reveal for any empty→non-empty transition
+- `src/vscode-bicep-ui/apps/visual-designer/src/features/graph-engine/components/Graph.tsx` — read `layoutReadyAtom`, control `opacity`
+- `src/vscode-bicep-ui/apps/visual-designer/src/features/messaging/hooks/use-deployment-graph.ts` — accept `getViewportCenter`, use as default origin, reset `layoutReadyAtom` on empty
+- `src/vscode-bicep-ui/apps/visual-designer/src/App.tsx` — pass `getViewportCenter` to `useApplyDeploymentGraph`
+
+---
+
+#### Problem B: Flickering on full graph rebuild (structural changes)
+
+**Current state:** When the Bicep file undergoes a structural change (resources added/removed), `useApplyDeploymentGraph` previously tore down and rebuilt the entire atom graph:
+
+```ts
+setNodesByIdAtom({});   // ← cleared all nodes
+setEdgesAtom([]);       // ← cleared all edges
+```
+
+Then it re-added nodes one by one. The `NodeLayer` component (which subscribes to `nodesByIdAtom`) could briefly render with an empty record before the new nodes were added back, causing a visible flicker.
+
+**Note:** Trivial edits (blank lines, range-only changes) already bypass this path via the `isDeploymentGraphEqual` short-circuit that updates `dataAtom` values in-place. The flicker only affected structural changes.
+
+**Fix — diff-and-patch instead of clear-and-rebuild:**
+
+Replaced the clear-then-rebuild with a 6-phase diff-and-patch that preserves surviving node/edge atoms:
+
+1. **Remove deleted nodes** — compute the set difference between current and incoming node IDs, then remove stale nodes via `removeNodesAtom` (new write atom added to `nodes.ts`).
+2. **Compute default origin** for brand-new nodes — centroid of previous positions (or `(0, 0)` on first render).
+3. **Update surviving atomic nodes in-place** — update `dataAtom` with new metadata. If a node's kind changed (compound → atomic), remove and re-add it.
+4. **Update surviving compound nodes in-place** — update `childIdsAtom` and `dataAtom`. If kind changed (atomic → compound), remove and re-add.
+5. **Diff edges** — compare edge IDs; only rebuild the edge list if the set actually changed.
+6. **Bump `graphVersionAtom`** — unchanged, triggers ELK layout.
+
+Also removed the duplicate-ID throw in `addAtomicNodeAtom` since the diff logic now prevents duplicate additions.
+
+**Files:**
+- `src/vscode-bicep-ui/apps/visual-designer/src/features/messaging/hooks/use-deployment-graph.ts` — replaced clear-and-rebuild with diff-and-patch
+- `src/vscode-bicep-ui/apps/visual-designer/src/features/graph-engine/atoms/nodes.ts` — added `removeNodesAtom`, removed duplicate-ID throw
+
+---
+
 ## Priority Order
 
 1. **6.5.1** Hover Border Accent — highest impact, foundational for all other interactive polish
 2. **6.5.2** Node Focus & Z-Index Elevation — builds on hover system, adds selection model
 3. **6.5.3** Clickable Status Bar — functional improvement
+4. **6.5.4** Smooth Graph Initialization & Flicker-Free Updates — Problem A is trivial (one-line fix); Problem B is medium effort but only impacts structural edits
