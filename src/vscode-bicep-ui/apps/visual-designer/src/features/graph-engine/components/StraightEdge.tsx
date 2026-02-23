@@ -70,8 +70,9 @@ export function StraightEdge({ fromId, toId }: EdgeAtomValue) {
       stroke={theme.edge.color}
       strokeLinecap="round"
       strokeLinejoin="round"
-      strokeWidth={2}
+      strokeWidth={1.5}
       markerEnd="url(#line-arrow)"
+      style={{ transition: "stroke 180ms ease" }}
     />
   );
 }

@@ -12,8 +12,11 @@ export const GlobalStyle = createGlobalStyle`
     flex-direction: column;
     overflow: hidden;
     font-family: var(--vscode-font-family, "Segoe WPC", "Segoe UI", system-ui, "Ubuntu", "Droid Sans", sans-serif);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     background-color: ${({ theme }) => theme.canvas.background};
     color: ${({ theme }) => theme.text.primary};
+    line-height: 1.5;
   }
 
   #root {
@@ -22,5 +25,9 @@ export const GlobalStyle = createGlobalStyle`
     overflow: hidden;
     display: flex;
     flex-direction: column;
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
   }
 `;

@@ -6,7 +6,7 @@ import type { PropsWithChildren } from "react";
 import { forwardRef } from "react";
 import { styled } from "styled-components";
 
-export type BaseNodeProps = PropsWithChildren<{ zIndex: number }>;
+export type BaseNodeProps = PropsWithChildren<{ id: string; zIndex: number }>;
 
 const $BaseNode = styled.div<{ $zIndex: number }>`
   display: flex;
@@ -17,9 +17,9 @@ const $BaseNode = styled.div<{ $zIndex: number }>`
   z-index: ${({ $zIndex }) => $zIndex};
 `;
 
-export const BaseNode = forwardRef<HTMLDivElement, BaseNodeProps>(({ zIndex, children }, ref) => {
+export const BaseNode = forwardRef<HTMLDivElement, BaseNodeProps>(({ id, zIndex, children }, ref) => {
   return (
-    <$BaseNode ref={ref} $zIndex={zIndex}>
+    <$BaseNode ref={ref} $zIndex={zIndex} data-node-id={id}>
       {children}
     </$BaseNode>
   );

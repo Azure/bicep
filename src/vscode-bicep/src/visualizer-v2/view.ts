@@ -154,6 +154,10 @@ export class VisualDesignerView extends Disposable {
           this.revealFileRange(payload.filePath, payload.range);
           return;
         }
+
+        case "showProblemsPanel":
+          vscode.commands.executeCommand("workbench.actions.view.problems");
+          return;
       }
     }
 

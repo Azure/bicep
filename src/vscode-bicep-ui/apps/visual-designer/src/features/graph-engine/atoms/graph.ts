@@ -15,6 +15,27 @@ import { nodesByIdAtom } from "./nodes";
 export const graphVersionAtom = atom(0);
 
 /**
+ * Whether the first ELK layout has completed and nodes are in
+ * their final positions.  The graph layer uses this to stay
+ * invisible (`opacity: 0`) until layout is ready, preventing
+ * a flash of nodes at position (0,0) before the viewport
+ * transform is applied.
+ */
+export const layoutReadyAtom = atom(false);
+
+/**
+ * The number of diagnostics errors in the file.
+ * Updated by the deployment graph notification handler.
+ */
+export const errorCountAtom = atom(0);
+
+/**
+ * Whether the current deployment graph has any nodes.
+ * Updated by the deployment graph notification handler.
+ */
+export const hasNodesAtom = atom(false);
+
+/**
  * Derived atom that computes the axis-aligned bounding box enclosing
  * every node in the graph.  Returns `null` when the graph is empty.
  */
