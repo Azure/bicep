@@ -301,4 +301,67 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
             }
             """));
     }
+
+    [TestMethod]
+    public async Task Snapshot_command_handles_extension_resources_correctly()
+    {
+        // https://github.com/Azure/bicep/issues/18822
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var bicepparamPath = FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicepparam",
+            """
+            using './main.bicep'
+            """,
+            testOutputPath: outputPath);
+
+        FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicep",
+            """
+            extension 'br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0'
+
+            resource clientAppWorking 'Microsoft.Graph/applications@v1.0' = {
+              displayName: 'clientAppWorking'
+              uniqueName: 'clientAppWorking'
+              signInAudience: 'AzureADMyOrg'
+            }
+
+            resource clientAppWorkingSp 'Microsoft.Graph/servicePrincipals@v1.0' = {
+              appId: clientAppWorking.appId
+              appRoleAssignmentRequired: true
+            }
+            """,
+            testOutputPath: outputPath);
+
+        var outputFilePath = FileHelper.GetResultFilePath(TestContext, "main.snapshot.json", testOutputPath: outputPath);
+
+        var result = await Bicep("snapshot", bicepparamPath, "--mode", "overwrite");
+
+        result.Should().Succeed();
+
+        var snapshotContents = File.ReadAllText(outputFilePath).FromJson<JToken>();
+        snapshotContents.Should().DeepEqual(JObject.Parse("""
+        {
+          "predictedResources": [
+            {
+              "properties": {
+                "displayName": "clientAppWorking",
+                "uniqueName": "clientAppWorking",
+                "signInAudience": "AzureADMyOrg"
+              },
+              "type": "Microsoft.Graph/applications@v1.0"
+            },
+            {
+              "properties": {
+                "appId": "[reference('clientAppWorking').appId]",
+                "appRoleAssignmentRequired": true
+              },
+              "type": "Microsoft.Graph/servicePrincipals@v1.0"
+            }
+          ],
+          "diagnostics": []
+        }
+        """));
+    }
 }
