@@ -669,7 +669,7 @@ jobs:
         uses: docker://mcr.microsoft.com/azure-cli:2.63.0
         with:
           entrypoint: sh
-          args: -c "echo https://dl-cdn.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories && echo https://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories && apk update && apk add --no-cache nodejs-current=24.* npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
+          args: -c "echo https://dl-cdn.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories && echo https://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories && apk update && apk add --no-cache nodejs-current~24 npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
         env:
           BICEP_CLI_DOTNET_RID: ${{ matrix.runtime.rid }}
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
@@ -863,7 +863,7 @@ jobs:
           echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories
           echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
           apk update
-          apk add --no-cache nodejs-current=24.* npm
+          apk add --no-cache nodejs-current~24 npm
           node -v
           npm -v
 
