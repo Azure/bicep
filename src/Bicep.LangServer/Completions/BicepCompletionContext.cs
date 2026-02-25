@@ -172,7 +172,7 @@ namespace Bicep.LanguageServer.Completions
                                 _ => BicepCompletionContextKind.None,
                             };
 
-                            return new BicepCompletionContext(bicepFile, contextKind, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                            return new BicepCompletionContext(bicepFile, contextKind, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
                         }
                     }
                     break;
@@ -187,7 +187,7 @@ namespace Bicep.LanguageServer.Completions
                             DiagnosticsPragmaSyntaxTrivia { PragmaType: DiagnosticsPragmaType.Restore } => BicepCompletionContextKind.RestoreDiagnosticsCodes,
                             _ => BicepCompletionContextKind.None,
                         };
-                        return new BicepCompletionContext(bicepFile, contextKind, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                        return new BicepCompletionContext(bicepFile, contextKind, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
                     }
                     return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
                 case SyntaxTriviaType.SingleLineComment when offset > triviaMatchingOffset.Span.Position:
@@ -198,7 +198,7 @@ namespace Bicep.LanguageServer.Completions
 
             if (IsDisableNextLineDiagnosticsDirectiveStartContext(bicepFile, offset, matchingNodes))
             {
-                return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DirectiveStart, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DirectiveStart, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
             }
 
             var pattern = SyntaxPattern.Create(bicepFile.ProgramSyntax, offset);
