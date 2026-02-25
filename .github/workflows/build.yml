@@ -103,7 +103,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v5
@@ -173,7 +173,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Check npm version
         run: npm -v
@@ -222,7 +222,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v5
@@ -424,7 +424,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Check npm version
         run: npm -v
@@ -503,7 +503,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 23
+          node-version: 24
 
       - name: Check npm version
         run: npm -v
@@ -543,7 +543,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 23
+          node-version: 24
     
       - name: Install wasm tools workload
         run: dotnet workload install wasm-tools
@@ -589,7 +589,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Check npm version
         run: npm -v
@@ -645,7 +645,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Download Bicep CLI
         uses: actions/download-artifact@v7
@@ -669,7 +669,7 @@ jobs:
         uses: docker://mcr.microsoft.com/azure-cli:2.63.0
         with:
           entrypoint: sh
-          args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
+          args: -c "echo https://dl-cdn.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories && echo https://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories && apk update && apk add --no-cache nodejs-current~24 npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
         env:
           BICEP_CLI_DOTNET_RID: ${{ matrix.runtime.rid }}
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
@@ -800,7 +800,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v5
@@ -858,8 +858,14 @@ jobs:
       - uses: actions/checkout@v6
 
       # Cannot use actions/setup-node@v6 for linux-musl-x64
-      - name: Setup Node.js
-        run: apk add --update nodejs npm
+      - name: Setup Node.js 24
+        run: |
+          echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories
+          echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
+          apk update
+          apk add --no-cache nodejs-current~24 npm
+          node -v
+          npm -v
 
       - name: Download Bicep CLI
         uses: actions/download-artifact@v7
