@@ -862,12 +862,13 @@ public class ParameterAssignmentEvaluator
         public override Expression ReplaceFunctionCallExpression(FunctionCallExpression expression)
         {
             if (expression.SourceSyntax is FunctionCallSyntaxBase functionCallSyntax &&
-                externalInputReferences.ExternalInputInfoBySyntax.TryGetValue(functionCallSyntax, out var info))
+                externalInputReferences.InfoBySyntax.TryGetValue(functionCallSyntax, out var info) &&
+                info.Length > 0)
             {
                 return new FunctionCallExpression(
                     functionCallSyntax,
                     LanguageConstants.ExternalInputsArmFunctionName,
-                    [ExpressionFactory.CreateStringLiteral(info.DefinitionKey)]
+                    [ExpressionFactory.CreateStringLiteral(info[0].DefinitionKey)]
                 );
             }
 
