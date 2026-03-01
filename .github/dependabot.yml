@@ -21,6 +21,9 @@ updates:
     ignore:
       - dependency-name: "Moq"
       - dependency-name: "FluentAssertions"
+      - dependency-name: "JsonPatch.Net"
+      - dependency-name: "JsonPath.Net"
+      - dependency-name: "JsonSchema.Net"
   - package-ecosystem: "nuget"
     directory: "/src/vs-bicep"
     schedule:
@@ -31,6 +34,9 @@ updates:
       - dependency-name: "FluentAssertions"
       # This causes problems with the mirror build because it tends to pull in Roslyn versions that are incompatible (ADO seems to lag behind the versions used in github actions)
       - dependency-name: "Microsoft.CodeAnalysis.CSharp.CodeStyle"
+      - dependency-name: "JsonPatch.Net"
+      - dependency-name: "JsonPath.Net"
+      - dependency-name: "JsonSchema.Net"
     labels:
       - vs-bicep-dependencies
       - dependencies

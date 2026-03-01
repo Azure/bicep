@@ -3,11 +3,11 @@
 
 import { usePanZoomTransformListener } from "@vscode-bicep-ui/components";
 import { useRef } from "react";
-import { styled } from "styled-components";
+import { styled, useTheme } from "styled-components";
 
 const $Svg = styled.svg`
   overflow: visible;
-  background-color: #f5f5f5;
+  background-color: ${({ theme }) => theme.canvas.background};
   position: absolute;
   pointer-events: none;
 `;
@@ -27,6 +27,7 @@ function getEffectiveScale(actualScale: number): number {
 }
 
 export function CanvasBackground() {
+  const theme = useTheme();
   const patternRef = useRef<SVGPatternElement | null>(null);
   const circleRef = useRef<SVGCircleElement | null>(null);
 
@@ -60,7 +61,7 @@ export function CanvasBackground() {
   });
 
   return (
-    <$Svg width="100%" height="100%">
+    <$Svg width="100%" height="100%" style={{ color: theme.canvas.dotColor }}>
       <defs>
         <pattern
           ref={patternRef}
@@ -72,7 +73,7 @@ export function CanvasBackground() {
           patternUnits="userSpaceOnUse"
           patternTransform={`translate(-${defaultSpacing / 2},-${defaultSpacing / 2})`}
         >
-          <circle ref={circleRef} cx="1" cy="1" r="1" fill="#c4c4c4" />
+          <circle ref={circleRef} cx="1" cy="1" r="1" fill="currentColor" />
         </pattern>
       </defs>
       <rect x="0" y="0" width="100%" height="100%" fill="url(#figma-like-dots)" />

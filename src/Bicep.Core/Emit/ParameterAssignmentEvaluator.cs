@@ -426,8 +426,7 @@ public class ParameterAssignmentEvaluator
 
                 if (semanticModel.SymbolsToInline.ParameterAssignmentsToInline.Contains(parameter))
                 {
-                    var rewritten = ExternalInputExpressionRewriter.Rewrite(intermediate, semanticModel.ExternalInputReferences);
-                    return Result.For(rewritten);
+                    return Result.For(intermediate);
                 }
 
                 if (intermediate is ParameterKeyVaultReferenceExpression keyVaultReferenceExpression)
@@ -454,10 +453,7 @@ public class ParameterAssignmentEvaluator
         }
 
         var intermediate = converter.ConvertToIntermediateExpression(config);
-
-        var rewrittenExpression = ExternalInputExpressionRewriter.Rewrite(intermediate, semanticModel.ExternalInputReferences);
-
-        return Result.For(rewrittenExpression);
+        return Result.For(intermediate);
     }
 
     public ImmutableDictionary<string, Result> EvaluateExtensionConfigAssignment(ExtensionConfigAssignmentSymbol inputExtConfigAssignment)
@@ -514,8 +510,8 @@ public class ParameterAssignmentEvaluator
 
     public ImmutableArray<ExternalInputDefinition>? TryGetExternalInputDefinitions()
     {
-        var externalInputInfoBySyntax = semanticModel.ExternalInputReferences.ExternalInputInfoBySyntax;
-        if (externalInputInfoBySyntax.Count == 0)
+        var externalInputInfo = semanticModel.ExternalInputReferences.InfoBySerializedExpression;
+        if (externalInputInfo.Count == 0)
         {
             return null;
         }
@@ -526,17 +522,12 @@ public class ParameterAssignmentEvaluator
             var resultBuilder = ImmutableArray.CreateBuilder<ExternalInputDefinition>();
 
             // Sort by definition key for deterministic ordering
-            foreach (var (_, externalInputInfo) in externalInputInfoBySyntax.OrderBy(x => x.Value.DefinitionKey))
+            foreach (var info in externalInputInfo.Select(x => x.Value).OrderBy(x => x.DefinitionKey))
             {
-                var kind = converter.ConvertExpression(externalInputInfo.Kind).EvaluateExpression(context).ToString();
+                var kind = info.Kind.EvaluateExpression(context).ToString();
+                var config = info.Config?.EvaluateExpression(context);
 
-                JToken? config = null;
-                if (externalInputInfo.Config is { } configExpression)
-                {
-                    config = converter.ConvertExpression(configExpression).EvaluateExpression(context);
-                }
-
-                resultBuilder.Add(new ExternalInputDefinition(externalInputInfo.DefinitionKey, kind, config));
+                resultBuilder.Add(new ExternalInputDefinition(info.DefinitionKey, kind, config));
             }
 
             return resultBuilder.ToImmutable();
