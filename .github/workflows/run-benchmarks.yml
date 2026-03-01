@@ -27,7 +27,7 @@ jobs:
         run: dotnet run --configuration Release --project src/Bicep.Tools.Benchmark -- --filter '*' --profiler EP
 
       - name: Upload Benchmarks
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: BenchmarkDotNet.Artifacts
           path: ./BenchmarkDotNet.Artifacts
