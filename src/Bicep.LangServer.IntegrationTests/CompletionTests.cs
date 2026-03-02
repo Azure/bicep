@@ -4460,7 +4460,7 @@ var file = " + functionName + @"(templ|)
                     first.SortText.Should().Be("0000");
                     first.Kind.Should().Be(CompletionItemKind.Snippet);
                     first.Detail.Should().Be("d1");
-                    first.Documentation!.MarkupContent!.Value.Should().Be("**Display name:** 1.0.2  \n**Full module path:** bicep/app/dapr-containerapp  \n**Version:** 1.0.2  \n**Description:** d1  \n[View Documentation](contoso.com/help1)");
+                    first.Documentation!.MarkupContent!.Value.Should().Be("**Full module path:** app/dapr-containerapp  \n**Version:** 1.0.2  \n**Description:** d1  \n[View Documentation](contoso.com/help1)");
                 },
                 second =>
                 {
@@ -4468,7 +4468,7 @@ var file = " + functionName + @"(templ|)
                     second.SortText.Should().Be("0001");
                     second.Kind.Should().Be(CompletionItemKind.Snippet);
                     second.Detail.Should().BeNull();
-                    second.Documentation!.MarkupContent!.Value.Should().Be("**Display name:** 1.0.1  \n**Full module path:** bicep/app/dapr-containerapp  \n**Version:** 1.0.1  \n**Description:** N/A  \n**Documentation:** N/A");
+                    second.Documentation!.MarkupContent!.Value.Should().Be("**Full module path:** app/dapr-containerapp  \n**Version:** 1.0.1  \n**Description:** N/A  \n**Documentation:** N/A");
                 }
             );
         }
@@ -4533,7 +4533,7 @@ var file = " + functionName + @"(templ|)
                     first.SortText.Should().Be("0000");
                     first.Kind.Should().Be(CompletionItemKind.Snippet);
                     first.Detail.Should().Be("d101");
-                    first.Documentation!.MarkupContent!.Value.Should().Be("**Display name:** v101  \n**Full module path:** app/private-app  \n**Version:** v101  \n**Description:** d101  \n[View Documentation](contoso.com/help/d101.html)");
+                    first.Documentation!.MarkupContent!.Value.Should().Be("**Full module path:** app/private-app  \n**Version:** v101  \n**Description:** d101  \n[View Documentation](contoso.com/help/d101.html)");
                 },
                 second =>
                 {
@@ -4541,7 +4541,7 @@ var file = " + functionName + @"(templ|)
                     second.SortText.Should().Be("0001");
                     second.Kind.Should().Be(CompletionItemKind.Snippet);
                     second.Detail.Should().Be("d100");
-                    second.Documentation!.MarkupContent!.Value.Should().Be("**Display name:** v100  \n**Full module path:** app/private-app  \n**Version:** v100  \n**Description:** d100  \n[View Documentation](contoso.com/help/d100.html)");
+                    second.Documentation!.MarkupContent!.Value.Should().Be("**Full module path:** app/private-app  \n**Version:** v100  \n**Description:** d100  \n[View Documentation](contoso.com/help/d100.html)");
                 }
             );
         }
