@@ -99,7 +99,7 @@
     <PackageVersion Include="System.CommandLine.Hosting" Version="0.4.0-alpha.22272.1" />
     <PackageVersion Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta4.22272.1" />
     <PackageVersion Include="System.CommandLine.Rendering" Version="0.4.0-alpha.22272.1" />
-    <PackageVersion Include="System.Collections.Immutable" Version="9.0.9" />
+    <PackageVersion Include="System.Collections.Immutable" Version="10.0.3" />
     <PackageVersion Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.15" />
     <PackageVersion Include="TestableIO.System.IO.Abstractions.TestingHelpers" Version="22.0.15" />
     <PackageVersion Include="System.Memory.Data" Version="10.0.0" />
