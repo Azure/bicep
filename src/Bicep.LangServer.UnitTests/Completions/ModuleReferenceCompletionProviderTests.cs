@@ -492,10 +492,10 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", "dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 41)]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/|", "dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 40)]
-        [DataRow("module test 'br/public:|'", "dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 24)]
-        [DataRow("module test 'br/public:|", "dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 23)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", "bicep/app/dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "bicep/app/dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 41)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/|", "bicep/app/dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "bicep/app/dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 40)]
+        [DataRow("module test 'br/public:|'", "app/dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 24)]
+        [DataRow("module test 'br/public:|", "app/dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 23)]
         public async Task GetFilteredCompletions_WithPublicMcrModuleRegistryCompletionContext_ReturnsCompletionItems(
             string inputWithCursors,
             string expectedLabel1,
@@ -556,66 +556,14 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [TestMethod]
-        public async Task GetFilteredCompletions_WithAvmModulePath_UsesSuffixLabelAndPrefixDescription()
-        {
-            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
-                RegistryCatalogMocks.MockPublicMetadataProvider([
-                    new("bicep/avm/ptn/ai-ml/ai-foundry", null, null, []),
-                    new("bicep/avm/ptn/ai-ml/ai-platform", null, null, []),
-                ])
-            );
-
-            var (completionContext, sourceFile) = GetBicepCompletionContext("module test 'br/public:|'");
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
-                azureContainerRegistriesProvider,
-                catalog,
-                settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
-            var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
-
-            completions.Should().Contain(
-                c => c.Label == "ai-foundry" &&
-                c.LabelDetails != null &&
-                c.LabelDetails.Description == "avm/ptn/ai-ml/" &&
-                c.TextEdit!.TextEdit!.NewText == "'br/public:avm/ptn/ai-ml/ai-foundry:$0'");
-        }
-
-        [TestMethod]
-        public async Task GetFilteredCompletions_WithAvmPathPrefix_ReturnsMatchingCompletion()
-        {
-            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
-                RegistryCatalogMocks.MockPublicMetadataProvider([
-                    new("bicep/avm/ptn/ai-ml/ai-foundry", null, null, []),
-                    new("bicep/avm/ptn/ai-ml/ai-platform", null, null, []),
-                    new("bicep/avm/ptn/ai-platform/baseline", null, null, []),
-                ])
-            );
-
-            var (completionContext, sourceFile) = GetBicepCompletionContext("module test 'br/public:avm/ptn/ai-ml/|'");
-            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
-                azureContainerRegistriesProvider,
-                catalog,
-                settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
-            var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
-
-            completions.Should().Contain(
-                c => c.Label == "ai-foundry" &&
-                c.TextEdit!.TextEdit!.NewText == "'br/public:avm/ptn/ai-ml/ai-foundry:$0'");
-            completions.Should().NotContain(
-                c => c.TextEdit!.TextEdit!.NewText == "'br/public:avm/ptn/ai-platform/baseline:$0'");
-        }
-
         [DataTestMethod]
-        [DataRow("module test 'br:registry.contoso.io/bicep/|'", "bar", "bicep/whatever/abc/foo/", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
-        [DataRow("module test 'br:registry.contoso.io/bicep/|", "bar", "bicep/whatever/abc/foo/", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
-        [DataRow("module test 'br/myRegistry:|'", "bar", "abc/foo/", "'br/myRegistry:abc/foo/bar:$0'")]
-        [DataRow("module test 'br/myRegistry_noPath:|'", "bar", "bicep/whatever/abc/foo/", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'")]
+        [DataRow("module test 'br:registry.contoso.io/bicep/|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
+        [DataRow("module test 'br:registry.contoso.io/bicep/|", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
+        [DataRow("module test 'br/myRegistry:|'", "abc/foo/bar", "'br/myRegistry:abc/foo/bar:$0'")]
+        [DataRow("module test 'br/myRegistry_noPath:|'", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'")]
         public async Task GetFilteredCompletions_WithPrivateModulePathCompletions_ReturnsCompletionItems(
             string inputWithCursors,
             string expectedLabel,
-            string expectedLabelDescription,
             string expectedCompletionText)
         {
             var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
@@ -656,11 +604,9 @@ namespace Bicep.LangServer.UnitTests.Completions
                 c =>
                 {
                     c.Label.Should().Be(expectedLabel);
-                    c.LabelDetails.Should().NotBeNull();
-                    c.LabelDetails!.Description.Should().Be(expectedLabelDescription);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.Detail.Should().Be("d1");
-                    c.Documentation!.MarkupContent!.Value.Should().Contain("**Display name:** bar");
+                    c.Documentation!.MarkupContent!.Value.Should().Contain($"**Display name:** {expectedLabel}");
                     c.Documentation.MarkupContent.Value.Should().Contain("**Full module path:** bicep/whatever/abc/foo/bar");
                     c.Documentation.MarkupContent.Value.Should().Contain("**Description:** d1");
                     c.Documentation.MarkupContent.Value.Should().Contain("[View Documentation](contoso.com/help1)");
@@ -873,8 +819,8 @@ namespace Bicep.LangServer.UnitTests.Completions
         [DataTestMethod]
         [DataRow("module test 'br/test1:|'", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 23)]
         [DataRow("module test 'br/test1:|", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 22)]
-        [DataRow("module test 'br/test2:|'", "dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 23)]
-        [DataRow("module test 'br/test2:|", "dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 22)]
+        [DataRow("module test 'br/test2:|'", "bicep/app/dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 23)]
+        [DataRow("module test 'br/test2:|", "bicep/app/dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 22)]
         public async Task GetFilteredCompletions_WithAliasForMCRInBicepConfigAndModulePath_ReturnsCompletionItems(
             string inputWithCursors,
             string expectedLabel,
@@ -919,7 +865,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                     x.Kind.Should().Be(CompletionItemKind.Snippet);
                     x.InsertText.Should().BeNull();
                     x.Detail.Should().Be("dapr description");
-                    x.Documentation!.MarkupContent!.Value.Should().Contain("**Display name:** dapr-containerapp");
+                    x.Documentation!.MarkupContent!.Value.Should().Contain($"**Display name:** {expectedLabel}");
                     x.Documentation.MarkupContent.Value.Should().Contain("**Full module path:** bicep/app/dapr-containerapp");
                     x.Documentation.MarkupContent.Value.Should().Contain("**Description:** dapr description");
                     x.Documentation.MarkupContent.Value.Should().Contain("[View Documentation](contoso.com/help)");
