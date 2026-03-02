@@ -39,6 +39,7 @@ namespace Bicep.LanguageServer.Completions
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
         private readonly RegistryConfiguration registryConfiguration;
+        private readonly IAvmModuleDisplayNameProvider avmModuleDisplayNameProvider;
 
         private enum ModuleCompletionPriority
         {
@@ -146,13 +147,15 @@ namespace Bicep.LanguageServer.Completions
             IRegistryModuleCatalog registryModuleCatalog,
             ISettingsProvider settingsProvider,
             ITelemetryProvider telemetryProvider,
-            RegistryConfiguration registryConfiguration)
+            RegistryConfiguration registryConfiguration,
+            IAvmModuleDisplayNameProvider? avmModuleDisplayNameProvider = null)
         {
             this.azureContainerRegistriesProvider = azureContainerRegistriesProvider;
             this.registryModuleCatalog = registryModuleCatalog;
             this.settingsProvider = settingsProvider;
             this.telemetryProvider = telemetryProvider;
             this.registryConfiguration = registryConfiguration;
+            this.avmModuleDisplayNameProvider = avmModuleDisplayNameProvider ?? NullAvmModuleDisplayNameProvider.Instance;
         }
 
         public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(BicepSourceFile sourceFile, BicepCompletionContext context, CancellationToken cancellationToken)
@@ -670,9 +673,9 @@ namespace Bicep.LanguageServer.Completions
 
                 return (completionItem with
                 {
-                    Detail = metadata.Details.Description,
+                    Detail = GetCompletionTitle(registry, modulePath, metadata.Details.Description),
                 })
-                .WithDocumentation(GetVersionCompletionDocumentation(completionItem.Label, modulePath, version, metadata.Details));
+                .WithDocumentation(GetVersionCompletionDocumentation(modulePath, version, metadata.Details));
             }
 
             return completionItem;
@@ -693,8 +696,8 @@ namespace Bicep.LanguageServer.Completions
 
                 return (completionItem with
                 {
-                    Detail = details.Description,
-                }).WithDocumentation(GetModuleCompletionDocumentation(completionItem.Label, modulePath, details));
+                    Detail = GetCompletionTitle(registry, modulePath, details.Description),
+                }).WithDocumentation(GetModuleCompletionDocumentation(modulePath, details));
             }
 
             return completionItem;
@@ -739,12 +742,24 @@ namespace Bicep.LanguageServer.Completions
             return $"9{(int)priority}_{label}";
         }
 
-        private static string GetModuleCompletionDocumentation(string displayName, string modulePath, RegistryMetadataDetails details)
+        private string? GetCompletionTitle(string registry, string modulePath, string? defaultTitle)
         {
+            if (registry.Equals(LanguageConstants.BicepPublicMcrRegistry, StringComparison.Ordinal)
+                && avmModuleDisplayNameProvider.TryGetModuleDisplayName(modulePath, out var moduleDisplayName))
+            {
+                return moduleDisplayName;
+            }
+
+            return defaultTitle;
+        }
+
+        private static string GetModuleCompletionDocumentation(string modulePath, RegistryMetadataDetails details)
+        {
+            var displayModulePath = GetDisplayModulePath(modulePath);
+
             var sections = new List<string>
             {
-                $"**Display name:** {displayName}",
-                $"**Full module path:** {modulePath}",
+                $"**Full module path:** {displayModulePath}",
                 $"**Description:** {details.Description ?? "N/A"}",
             };
 
@@ -760,12 +775,13 @@ namespace Bicep.LanguageServer.Completions
             return MarkdownHelper.JoinWithNewlines(sections);
         }
 
-        private static string GetVersionCompletionDocumentation(string displayName, string modulePath, string version, RegistryMetadataDetails details)
+        private static string GetVersionCompletionDocumentation(string modulePath, string version, RegistryMetadataDetails details)
         {
+            var displayModulePath = GetDisplayModulePath(modulePath);
+
             var sections = new List<string>
             {
-                $"**Display name:** {displayName}",
-                $"**Full module path:** {modulePath}",
+                $"**Full module path:** {displayModulePath}",
                 $"**Version:** {version}",
                 $"**Description:** {details.Description ?? "N/A"}",
             };
@@ -780,6 +796,15 @@ namespace Bicep.LanguageServer.Completions
             }
 
             return MarkdownHelper.JoinWithNewlines(sections);
+        }
+
+        private static string GetDisplayModulePath(string modulePath)
+        {
+            const string publicRegistryPrefix = LanguageConstants.BicepPublicMcrPathPrefix;
+
+            return modulePath.StartsWith(publicRegistryPrefix, StringComparison.Ordinal)
+                ? modulePath[publicRegistryPrefix.Length..]
+                : modulePath;
         }
     }
 }
