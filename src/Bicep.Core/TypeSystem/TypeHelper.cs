@@ -931,5 +931,11 @@ namespace Bicep.Core.TypeSystem
                 mUniqueTypes.Count == 1 => mUniqueTypes.Single(),
             _ => null,
         };
+
+        /// <summary>
+        /// Returns null if the type is an error or any type, otherwise returns the type unchanged.
+        /// Useful for filtering out unhelpful types when inferring declarations.
+        /// </summary>
+        public static TypeSymbol? NullIfErrorOrAny(TypeSymbol? type) => type is ErrorType or AnyType ? null : type;
     }
 }
