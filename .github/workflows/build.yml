@@ -669,7 +669,7 @@ jobs:
         uses: docker://mcr.microsoft.com/azure-cli:2.63.0
         with:
           entrypoint: sh
-          args: -c "echo https://dl-cdn.alpinelinux.org/alpine/edge/main >> /etc/apk/repositories && echo https://dl-cdn.alpinelinux.org/alpine/edge/community >> /etc/apk/repositories && apk update && apk add --no-cache nodejs-current~24 npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
+          args: -c "set -eu && apk add --no-cache xz && NODE_VERSION=$(wget -qO- https://nodejs.org/dist/latest-v24.x/SHASUMS256.txt | awk '/linux-x64-musl.tar.xz$/ { filename=$2; sub(/^node-v/, \"\", filename); sub(/-linux-x64-musl.tar.xz$/, \"\", filename); print filename; exit }') && wget -qO /tmp/node.tar.xz https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64-musl.tar.xz && tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 && rm /tmp/node.tar.xz && node -v && npm -v && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
         env:
           BICEP_CLI_DOTNET_RID: ${{ matrix.runtime.rid }}
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
@@ -860,10 +860,12 @@ jobs:
       # Cannot use actions/setup-node@v6 for linux-musl-x64
       - name: Setup Node.js 24
         run: |
-          echo "https://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories
-          echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
-          apk update
-          apk add --no-cache nodejs-current~24 npm
+          set -eu
+          apk add --no-cache xz
+          NODE_VERSION="$(wget -qO- https://nodejs.org/dist/latest-v24.x/SHASUMS256.txt | awk '/linux-x64-musl.tar.xz$/ { filename=$2; sub(/^node-v/, "", filename); sub(/-linux-x64-musl.tar.xz$/, "", filename); print filename; exit }')"
+          wget -qO /tmp/node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64-musl.tar.xz"
+          tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1
+          rm /tmp/node.tar.xz
           node -v
           npm -v
 
