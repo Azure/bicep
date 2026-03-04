@@ -4296,8 +4296,8 @@ var file = " + functionName + @"(templ|)
                     first.Label.Should().Be("1.0.2");
                     first.SortText.Should().Be("0000");
                     first.Kind.Should().Be(CompletionItemKind.Snippet);
-                    first.Detail.Should().Be("d1");
-                    first.Documentation!.MarkupContent!.Value.Should().Be("**Version:** 1.0.2  \n**Full module path:** app/dapr-containerapp  \n**Description:** d1  \n[View Documentation](contoso.com/help1)");
+                    first.Detail.Should().BeNull();
+                    first.Documentation!.MarkupContent!.Value.Should().Be("### d1  \n**Version:** 1.0.2  \n**Full module path:** app/dapr-containerapp  \n**Description:** d1  \n[View Documentation](contoso.com/help1)");
                 },
                 second =>
                 {
@@ -4369,16 +4369,16 @@ var file = " + functionName + @"(templ|)
                     first.Label.Should().Be("v101");
                     first.SortText.Should().Be("0000");
                     first.Kind.Should().Be(CompletionItemKind.Snippet);
-                    first.Detail.Should().Be("d101");
-                    first.Documentation!.MarkupContent!.Value.Should().Be("**Version:** v101  \n**Full module path:** app/private-app  \n**Description:** d101  \n[View Documentation](contoso.com/help/d101.html)");
+                    first.Detail.Should().BeNull();
+                    first.Documentation!.MarkupContent!.Value.Should().Be("### d101  \n**Version:** v101  \n**Full module path:** app/private-app  \n**Description:** d101  \n[View Documentation](contoso.com/help/d101.html)");
                 },
                 second =>
                 {
                     second.Label.Should().Be("v100");
                     second.SortText.Should().Be("0001");
                     second.Kind.Should().Be(CompletionItemKind.Snippet);
-                    second.Detail.Should().Be("d100");
-                    second.Documentation!.MarkupContent!.Value.Should().Be("**Version:** v100  \n**Full module path:** app/private-app  \n**Description:** d100  \n[View Documentation](contoso.com/help/d100.html)");
+                    second.Detail.Should().BeNull();
+                    second.Documentation!.MarkupContent!.Value.Should().Be("### d100  \n**Version:** v100  \n**Full module path:** app/private-app  \n**Description:** d100  \n[View Documentation](contoso.com/help/d100.html)");
                 }
             );
         }

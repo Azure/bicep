@@ -656,11 +656,10 @@ namespace Bicep.LanguageServer.Completions
                     telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryResolution(ModuleRegistryResolutionType.AcrVersion));
                 }
 
-                return (completionItem with
-                {
-                    Detail = GetCompletionTitle(registry, modulePath, metadata.Details.Description),
-                })
-                .WithDocumentation(GetVersionCompletionDocumentation(modulePath, version, metadata.Details));
+                var title = GetCompletionTitle(registry, modulePath, metadata.Details.Description);
+
+                return completionItem
+                    .WithDocumentation(GetVersionCompletionDocumentation(title, modulePath, version, metadata.Details));
             }
 
             return completionItem;
@@ -679,10 +678,10 @@ namespace Bicep.LanguageServer.Completions
                     telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryResolution(ModuleRegistryResolutionType.AcrModulePath));
                 }
 
-                return (completionItem with
-                {
-                    Detail = GetCompletionTitle(registry, modulePath, details.Description),
-                }).WithDocumentation(GetModuleCompletionDocumentation(modulePath, details));
+                var title = GetCompletionTitle(registry, modulePath, details.Description);
+
+                return completionItem
+                    .WithDocumentation(GetModuleCompletionDocumentation(title, modulePath, details));
             }
 
             return completionItem;
@@ -738,15 +737,19 @@ namespace Bicep.LanguageServer.Completions
             return defaultTitle;
         }
 
-        private static string GetModuleCompletionDocumentation(string modulePath, RegistryMetadataDetails details)
+        private static string GetModuleCompletionDocumentation(string? title, string modulePath, RegistryMetadataDetails details)
         {
             var displayModulePath = GetDisplayModulePath(modulePath);
 
-            var sections = new List<string>
+            var sections = new List<string>();
+
+            if (title is not null)
             {
-                $"**Full module path:** {displayModulePath}",
-                $"**Description:** {details.Description ?? "N/A"}",
-            };
+                sections.Add($"### {title}");
+            }
+
+            sections.Add($"**Full module path:** {displayModulePath}");
+            sections.Add($"**Description:** {details.Description ?? "N/A"}");
 
             if (MarkdownHelper.GetDocumentationLink(details.DocumentationUri) is { } docLink)
             {
@@ -760,16 +763,20 @@ namespace Bicep.LanguageServer.Completions
             return MarkdownHelper.JoinWithNewlines(sections);
         }
 
-        private static string GetVersionCompletionDocumentation(string modulePath, string version, RegistryMetadataDetails details)
+        private static string GetVersionCompletionDocumentation(string? title, string modulePath, string version, RegistryMetadataDetails details)
         {
             var displayModulePath = GetDisplayModulePath(modulePath);
 
-            var sections = new List<string>
+            var sections = new List<string>();
+
+            if (title is not null)
             {
-                $"**Version:** {version}",
-                $"**Full module path:** {displayModulePath}",
-                $"**Description:** {details.Description ?? "N/A"}",
-            };
+                sections.Add($"### {title}");
+            }
+
+            sections.Add($"**Version:** {version}");
+            sections.Add($"**Full module path:** {displayModulePath}");
+            sections.Add($"**Description:** {details.Description ?? "N/A"}");
 
             if (MarkdownHelper.GetDocumentationLink(details.DocumentationUri) is { } docLink)
             {
