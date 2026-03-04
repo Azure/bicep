@@ -674,7 +674,7 @@ namespace Bicep.LanguageServer.Completions
                 var title = GetCompletionTitle(registry, modulePath, metadata.Details.Description);
 
                 return completionItem
-                    .WithDocumentation(GetVersionCompletionDocumentation(title, modulePath, version, metadata.Details));
+                    .WithDocumentation(GetCompletionDocumentation(title, modulePath, metadata.Details, version));
             }
 
             return completionItem;
@@ -696,7 +696,7 @@ namespace Bicep.LanguageServer.Completions
                 var title = GetCompletionTitle(registry, modulePath, details.Description);
 
                 return completionItem
-                    .WithDocumentation(GetModuleCompletionDocumentation(title, modulePath, details));
+                    .WithDocumentation(GetCompletionDocumentation(title, modulePath, details));
             }
 
             return completionItem;
@@ -752,7 +752,7 @@ namespace Bicep.LanguageServer.Completions
             return defaultTitle;
         }
 
-        private static string GetModuleCompletionDocumentation(string? title, string modulePath, RegistryMetadataDetails details)
+        private static string GetCompletionDocumentation(string? title, string modulePath, RegistryMetadataDetails details, string? version = null)
         {
             var displayModulePath = GetDisplayModulePath(modulePath);
 
@@ -763,33 +763,11 @@ namespace Bicep.LanguageServer.Completions
                 sections.Add($"### {title}");
             }
 
-            sections.Add($"**Full module path:** {displayModulePath}");
-            sections.Add($"**Description:** {details.Description ?? "N/A"}");
-
-            if (MarkdownHelper.GetDocumentationLink(details.DocumentationUri) is { } docLink)
+            if (version is not null)
             {
-                sections.Add(docLink);
-            }
-            else
-            {
-                sections.Add("**Documentation:** N/A");
+                sections.Add($"**Version:** {version}");
             }
 
-            return MarkdownHelper.JoinWithNewlines(sections);
-        }
-
-        private static string GetVersionCompletionDocumentation(string? title, string modulePath, string version, RegistryMetadataDetails details)
-        {
-            var displayModulePath = GetDisplayModulePath(modulePath);
-
-            var sections = new List<string>();
-
-            if (title is not null)
-            {
-                sections.Add($"### {title}");
-            }
-
-            sections.Add($"**Version:** {version}");
             sections.Add($"**Full module path:** {displayModulePath}");
             sections.Add($"**Description:** {details.Description ?? "N/A"}");
 
