@@ -766,8 +766,8 @@ namespace Bicep.LanguageServer.Completions
 
             var sections = new List<string>
             {
-                $"**Full module path:** {displayModulePath}",
                 $"**Version:** {version}",
+                $"**Full module path:** {displayModulePath}",
                 $"**Description:** {details.Description ?? "N/A"}",
             };
 

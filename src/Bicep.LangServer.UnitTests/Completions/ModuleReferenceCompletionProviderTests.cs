@@ -755,8 +755,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.SortText == expectedSortText1 &&
                 x.Detail == null &&
                 !x.Documentation!.MarkupContent!.Value.Contains("**Display name:**") &&
-                x.Documentation.MarkupContent.Value.Contains("**Full module path:** app/dapr-containerapp") &&
                 x.Documentation.MarkupContent.Value.Contains("**Version:** 1.0.2") &&
+                x.Documentation.MarkupContent.Value.Contains("**Full module path:** app/dapr-containerapp") &&
                 x.Documentation.MarkupContent.Value.Contains("**Description:** N/A") &&
                 x.Documentation.MarkupContent.Value.Contains("**Documentation:** N/A") &&
                 x.TextEdit!.TextEdit!.NewText == expectedCompletionText1 &&
@@ -772,8 +772,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.SortText == expectedSortText2 &&
                 x.Detail == "d2" &&
                 !x.Documentation!.MarkupContent!.Value.Contains("**Display name:**") &&
-                x.Documentation.MarkupContent.Value.Contains("**Full module path:** app/dapr-containerapp") &&
                 x.Documentation.MarkupContent.Value.Contains("**Version:** 1.0.1") &&
+                x.Documentation.MarkupContent.Value.Contains("**Full module path:** app/dapr-containerapp") &&
                 x.Documentation.MarkupContent.Value.Contains("**Description:** d2") &&
                 x.Documentation.MarkupContent.Value.Contains("[View Documentation](contoso.com/help%20page.html)") &&
                 x.TextEdit!.TextEdit!.NewText == expectedCompletionText2 &&
