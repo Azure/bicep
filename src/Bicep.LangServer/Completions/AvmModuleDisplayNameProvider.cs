@@ -14,6 +14,8 @@ namespace Bicep.LanguageServer.Completions
         void StartCache();
 
         bool TryGetModuleDisplayName(string modulePath, [NotNullWhen(true)] out string? displayName);
+
+        bool TryGetModuleStatus(string modulePath, [NotNullWhen(true)] out string? moduleStatus);
     }
 
     public class AvmModuleDisplayNameProvider : IAvmModuleDisplayNameProvider
@@ -22,12 +24,12 @@ namespace Bicep.LanguageServer.Completions
         private static readonly Uri PatternModulesCsvUri = new("https://azure.github.io/Azure-Verified-Modules/module-indexes/BicepPatternModules.csv");
         private static readonly Uri ResourceModulesCsvUri = new("https://azure.github.io/Azure-Verified-Modules/module-indexes/BicepResourceModules.csv");
 
-        private static readonly AvmDisplayNameLookup EmptyLookup = new([], [], []);
+        private static readonly AvmModuleInfoLookup EmptyLookup = new([], [], []);
 
         private readonly IAvmModuleCsvIndexHttpClient client;
         private readonly object startLock = new();
 
-        private volatile AvmDisplayNameLookup lookup = EmptyLookup;
+        private volatile AvmModuleInfoLookup lookup = EmptyLookup;
         private Task? loadTask;
 
         public AvmModuleDisplayNameProvider(IAvmModuleCsvIndexHttpClient client)
@@ -47,28 +49,52 @@ namespace Bicep.LanguageServer.Completions
         {
             displayName = null;
 
+            if (TryGetModuleInfo(modulePath) is { } info)
+            {
+                displayName = info.DisplayName;
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool TryGetModuleStatus(string modulePath, [NotNullWhen(true)] out string? moduleStatus)
+        {
+            moduleStatus = null;
+
+            if (TryGetModuleInfo(modulePath) is { } info && info.ModuleStatus is not null)
+            {
+                moduleStatus = info.ModuleStatus;
+                return true;
+            }
+
+            return false;
+        }
+
+        private AvmModuleInfo? TryGetModuleInfo(string modulePath)
+        {
             if (TryGetNormalizedModuleName(modulePath) is not { } normalizedModuleName)
             {
-                return false;
+                return null;
             }
 
             var currentLookup = lookup;
             if (normalizedModuleName.StartsWith("avm/utl/", StringComparison.Ordinal))
             {
-                return currentLookup.Utility.TryGetValue(normalizedModuleName, out displayName);
+                return currentLookup.Utility.TryGetValue(normalizedModuleName, out var info) ? info : null;
             }
 
             if (normalizedModuleName.StartsWith("avm/ptn/", StringComparison.Ordinal))
             {
-                return currentLookup.Pattern.TryGetValue(normalizedModuleName, out displayName);
+                return currentLookup.Pattern.TryGetValue(normalizedModuleName, out var info) ? info : null;
             }
 
             if (normalizedModuleName.StartsWith("avm/res/", StringComparison.Ordinal))
             {
-                return currentLookup.Resource.TryGetValue(normalizedModuleName, out displayName);
+                return currentLookup.Resource.TryGetValue(normalizedModuleName, out var info) ? info : null;
             }
 
-            return false;
+            return null;
         }
 
         private async Task LoadAsync()
@@ -87,7 +113,7 @@ namespace Bicep.LanguageServer.Completions
                 var pattern = await patternTask;
                 var resource = await resourceTask;
 
-                lookup = new AvmDisplayNameLookup(
+                lookup = new AvmModuleInfoLookup(
                     Utility: utility,
                     Pattern: pattern,
                     Resource: resource);
@@ -114,7 +140,7 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private async Task<ImmutableDictionary<string, string>> LoadCsvAsync(Uri csvUri, CancellationToken cancellationToken)
+        private async Task<ImmutableDictionary<string, AvmModuleInfo>> LoadCsvAsync(Uri csvUri, CancellationToken cancellationToken)
         {
             var csvContent = await client.GetCsvAsync(csvUri, cancellationToken);
             using var reader = new StringReader(csvContent);
@@ -140,12 +166,13 @@ namespace Bicep.LanguageServer.Completions
 
             var moduleNameIndex = Array.FindIndex(headers, x => string.Equals(x, "ModuleName", StringComparison.Ordinal));
             var moduleDisplayNameIndex = Array.FindIndex(headers, x => string.Equals(x, "ModuleDisplayName", StringComparison.Ordinal));
+            var moduleStatusIndex = Array.FindIndex(headers, x => string.Equals(x, "ModuleStatus", StringComparison.Ordinal));
             if (moduleNameIndex == -1 || moduleDisplayNameIndex == -1)
             {
                 return [];
             }
 
-            var entries = new Dictionary<string, string>(StringComparer.Ordinal);
+            var entries = new Dictionary<string, AvmModuleInfo>(StringComparer.Ordinal);
             while (!parser.EndOfData)
             {
                 var fields = parser.ReadFields();
@@ -167,7 +194,17 @@ namespace Bicep.LanguageServer.Completions
                     continue;
                 }
 
-                entries.TryAdd(normalizedModuleName, moduleDisplayName);
+                string? moduleStatus = null;
+                if (moduleStatusIndex != -1 && moduleStatusIndex < fields.Length)
+                {
+                    var statusValue = fields[moduleStatusIndex]?.Trim();
+                    if (!string.IsNullOrWhiteSpace(statusValue))
+                    {
+                        moduleStatus = statusValue;
+                    }
+                }
+
+                entries.TryAdd(normalizedModuleName, new AvmModuleInfo(moduleDisplayName, moduleStatus));
             }
 
             return entries.ToImmutableDictionary(StringComparer.Ordinal);
@@ -189,10 +226,12 @@ namespace Bicep.LanguageServer.Completions
             return normalized;
         }
 
-        private sealed record AvmDisplayNameLookup(
-            ImmutableDictionary<string, string> Utility,
-            ImmutableDictionary<string, string> Pattern,
-            ImmutableDictionary<string, string> Resource);
+        private sealed record AvmModuleInfo(string DisplayName, string? ModuleStatus);
+
+        private sealed record AvmModuleInfoLookup(
+            ImmutableDictionary<string, AvmModuleInfo> Utility,
+            ImmutableDictionary<string, AvmModuleInfo> Pattern,
+            ImmutableDictionary<string, AvmModuleInfo> Resource);
     }
 
     public interface IAvmModuleCsvIndexHttpClient
@@ -230,6 +269,12 @@ namespace Bicep.LanguageServer.Completions
         public bool TryGetModuleDisplayName(string modulePath, [NotNullWhen(true)] out string? displayName)
         {
             displayName = null;
+            return false;
+        }
+
+        public bool TryGetModuleStatus(string modulePath, [NotNullWhen(true)] out string? moduleStatus)
+        {
+            moduleStatus = null;
             return false;
         }
     }

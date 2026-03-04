@@ -657,9 +657,10 @@ namespace Bicep.LanguageServer.Completions
                 }
 
                 var title = GetCompletionTitle(registry, modulePath, metadata.Details.Description);
+                var status = GetModuleStatus(registry, modulePath);
 
                 return completionItem
-                    .WithDocumentation(GetCompletionDocumentation(title, modulePath, metadata.Details, version));
+                    .WithDocumentation(GetCompletionDocumentation(title, modulePath, metadata.Details, status, version));
             }
 
             return completionItem;
@@ -679,9 +680,10 @@ namespace Bicep.LanguageServer.Completions
                 }
 
                 var title = GetCompletionTitle(registry, modulePath, details.Description);
+                var status = GetModuleStatus(registry, modulePath);
 
                 return completionItem
-                    .WithDocumentation(GetCompletionDocumentation(title, modulePath, details));
+                    .WithDocumentation(GetCompletionDocumentation(title, modulePath, details, status));
             }
 
             return completionItem;
@@ -737,7 +739,18 @@ namespace Bicep.LanguageServer.Completions
             return defaultTitle;
         }
 
-        private static string GetCompletionDocumentation(string? title, string modulePath, RegistryMetadataDetails details, string? version = null)
+        private string? GetModuleStatus(string registry, string modulePath)
+        {
+            if (registry.Equals(LanguageConstants.BicepPublicMcrRegistry, StringComparison.Ordinal)
+                && avmModuleDisplayNameProvider.TryGetModuleStatus(modulePath, out var moduleStatus))
+            {
+                return moduleStatus;
+            }
+
+            return null;
+        }
+
+        private static string GetCompletionDocumentation(string? title, string modulePath, RegistryMetadataDetails details, string? status = null, string? version = null)
         {
             var displayModulePath = GetDisplayModulePath(modulePath);
 
@@ -754,6 +767,23 @@ namespace Bicep.LanguageServer.Completions
             }
 
             sections.Add($"**Full module path:** {displayModulePath}");
+
+            if (status is not null)
+            {
+                var emoji = status switch
+                {
+                    "Proposed" => "⚪",
+                    "Available" => "🟢",
+                    "Orphaned" => "🟡",
+                    "Deprecated" => "🔴",
+                    _ => null,
+                };
+
+                sections.Add(emoji is not null
+                    ? $"**Status:** {emoji} {status}"
+                    : $"**Status:** {status}");
+            }
+
             sections.Add($"**Description:** {details.Description ?? "N/A"}");
 
             if (MarkdownHelper.GetDocumentationLink(details.DocumentationUri) is { } docLink)

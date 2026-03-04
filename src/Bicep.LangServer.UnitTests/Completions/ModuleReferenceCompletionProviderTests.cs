@@ -572,6 +572,10 @@ namespace Bicep.LangServer.UnitTests.Completions
             avmDisplayNameProviderMock
                 .Setup(x => x.TryGetModuleDisplayName("bicep/avm/ptn/ai-platform/baseline", out moduleDisplayName))
                 .Returns(true);
+            string? moduleStatus = "Available";
+            avmDisplayNameProviderMock
+                .Setup(x => x.TryGetModuleStatus("bicep/avm/ptn/ai-platform/baseline", out moduleStatus))
+                .Returns(true);
 
             var (completionContext, sourceFile) = GetBicepCompletionContext("module test 'br/public:avm/ptn/ai-platform/|'");
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
@@ -590,6 +594,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                     x.Documentation!.MarkupContent!.Value.Should().NotContain("**Display name:**");
                     x.Documentation.MarkupContent.Value.Should().Contain("### AI platform baseline");
                     x.Documentation.MarkupContent.Value.Should().Contain("**Full module path:** avm/ptn/ai-platform/baseline");
+                    x.Documentation.MarkupContent.Value.Should().Contain("**Status:** \uD83D\uDFE2 Available");
                     x.Documentation.MarkupContent.Value.Should().Contain("**Description:** module description");
                 });
 
