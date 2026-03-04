@@ -1,0 +1,85 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "7073737674999620234"
+    }
+  },
+  "parameters": {
+    "ownerPrincipalId": {
+      "type": "string"
+    },
+    "contributorPrincipals": {
+      "type": "array"
+    },
+    "readerPrincipals": {
+      "type": "array"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid('owner', parameters('ownerPrincipalId'))]",
+      "properties": {
+        "principalId": "[parameters('ownerPrincipalId')]",
+        "roleDefinitionId": "8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+      }
+    },
+    {
+      "copy": {
+        "name": "contributors",
+        "count": "[length(parameters('contributorPrincipals'))]"
+      },
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid('contributor', parameters('contributorPrincipals')[copyIndex()])]",
+      "properties": {
+        "principalId": "[parameters('contributorPrincipals')[copyIndex()]]",
+        "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c"
+      },
+      "dependsOn": [
+        "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/roleAssignments', guid('owner', parameters('ownerPrincipalId')))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "readers",
+        "count": "[length(parameters('readerPrincipals'))]"
+      },
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid('reader', parameters('readerPrincipals')[copyIndex()])]",
+      "properties": {
+        "principalId": "[parameters('readerPrincipals')[copyIndex()]]",
+        "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c"
+      },
+      "dependsOn": [
+        "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/roleAssignments', guid('contributor', parameters('contributorPrincipals')[0]))]",
+        "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/roleAssignments', guid('owner', parameters('ownerPrincipalId')))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Management/managementGroups",
+      "apiVersion": "2020-05-01",
+      "scope": "/",
+      "name": "one-mg"
+    },
+    {
+      "type": "Microsoft.Blueprint/blueprints",
+      "apiVersion": "2018-11-01-preview",
+      "scope": "/",
+      "name": "tenant-blueprint",
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Blueprint/blueprints",
+      "apiVersion": "2018-11-01-preview",
+      "name": "mg-blueprint",
+      "properties": {}
+    }
+  ]
+}
