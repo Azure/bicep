@@ -38,6 +38,7 @@ namespace Bicep.LanguageServer.Completions
         private readonly IRegistryModuleCatalog registryModuleCatalog;
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
+        private readonly IAvmModuleDisplayNameProvider avmModuleDisplayNameProvider;
 
         private enum ModuleCompletionPriority
         {
@@ -144,12 +145,14 @@ namespace Bicep.LanguageServer.Completions
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
             IRegistryModuleCatalog registryModuleCatalog,
             ISettingsProvider settingsProvider,
-            ITelemetryProvider telemetryProvider)
+            ITelemetryProvider telemetryProvider,
+            IAvmModuleDisplayNameProvider? avmModuleDisplayNameProvider = null)
         {
             this.azureContainerRegistriesProvider = azureContainerRegistriesProvider;
             this.registryModuleCatalog = registryModuleCatalog;
             this.settingsProvider = settingsProvider;
             this.telemetryProvider = telemetryProvider;
+            this.avmModuleDisplayNameProvider = avmModuleDisplayNameProvider ?? NullAvmModuleDisplayNameProvider.Instance;
         }
 
         public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(BicepSourceFile sourceFile, BicepCompletionContext context, CancellationToken cancellationToken)
@@ -655,9 +658,9 @@ namespace Bicep.LanguageServer.Completions
 
                 return (completionItem with
                 {
-                    Detail = metadata.Details.Description,
+                    Detail = GetCompletionTitle(registry, modulePath, metadata.Details.Description),
                 })
-                .WithDocumentation(MarkdownHelper.GetDocumentationLink(metadata.Details.DocumentationUri));
+                .WithDocumentation(GetVersionCompletionDocumentation(modulePath, version, metadata.Details));
             }
 
             return completionItem;
@@ -678,8 +681,8 @@ namespace Bicep.LanguageServer.Completions
 
                 return (completionItem with
                 {
-                    Detail = details.Description,
-                }).WithDocumentation(MarkdownHelper.GetDocumentationLink(details.DocumentationUri));
+                    Detail = GetCompletionTitle(registry, modulePath, details.Description),
+                }).WithDocumentation(GetModuleCompletionDocumentation(modulePath, details));
             }
 
             return completionItem;
@@ -722,6 +725,71 @@ namespace Bicep.LanguageServer.Completions
         {
             // We want all module completion priorities to come after other completions (e.g. local module paths), so we start with "9"
             return $"9{(int)priority}_{label}";
+        }
+
+        private string? GetCompletionTitle(string registry, string modulePath, string? defaultTitle)
+        {
+            if (registry.Equals(LanguageConstants.BicepPublicMcrRegistry, StringComparison.Ordinal)
+                && avmModuleDisplayNameProvider.TryGetModuleDisplayName(modulePath, out var moduleDisplayName))
+            {
+                return moduleDisplayName;
+            }
+
+            return defaultTitle;
+        }
+
+        private static string GetModuleCompletionDocumentation(string modulePath, RegistryMetadataDetails details)
+        {
+            var displayModulePath = GetDisplayModulePath(modulePath);
+
+            var sections = new List<string>
+            {
+                $"**Full module path:** {displayModulePath}",
+                $"**Description:** {details.Description ?? "N/A"}",
+            };
+
+            if (MarkdownHelper.GetDocumentationLink(details.DocumentationUri) is { } docLink)
+            {
+                sections.Add(docLink);
+            }
+            else
+            {
+                sections.Add("**Documentation:** N/A");
+            }
+
+            return MarkdownHelper.JoinWithNewlines(sections);
+        }
+
+        private static string GetVersionCompletionDocumentation(string modulePath, string version, RegistryMetadataDetails details)
+        {
+            var displayModulePath = GetDisplayModulePath(modulePath);
+
+            var sections = new List<string>
+            {
+                $"**Full module path:** {displayModulePath}",
+                $"**Version:** {version}",
+                $"**Description:** {details.Description ?? "N/A"}",
+            };
+
+            if (MarkdownHelper.GetDocumentationLink(details.DocumentationUri) is { } docLink)
+            {
+                sections.Add(docLink);
+            }
+            else
+            {
+                sections.Add("**Documentation:** N/A");
+            }
+
+            return MarkdownHelper.JoinWithNewlines(sections);
+        }
+
+        private static string GetDisplayModulePath(string modulePath)
+        {
+            const string publicRegistryPrefix = LanguageConstants.BicepPublicMcrPathPrefix;
+
+            return modulePath.StartsWith(publicRegistryPrefix, StringComparison.Ordinal)
+                ? modulePath[publicRegistryPrefix.Length..]
+                : modulePath;
         }
     }
 }
