@@ -12,6 +12,7 @@ namespace Bicep.LanguageServer
         public const string DecompileSaveCommand = "decompileSave";
         public const string GenerateParamsCommand = "generateParams";
         public const string BuildParamsCommand = "buildParams";
+        public const string SnapshotCommand = "snapshot";
         public const string DeployCompleteMethod = "deploymentComplete";
         public const string DeployStartCommand = "deploy/start";
         public const string DeployWaitForCompletionCommand = "deploy/waitForCompletion";
