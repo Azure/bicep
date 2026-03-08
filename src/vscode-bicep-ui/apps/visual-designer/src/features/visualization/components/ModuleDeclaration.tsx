@@ -32,7 +32,9 @@ const $ModuleDelcarton = styled.div<{ $hasError?: boolean; $isCollection?: boole
   background: ${({ theme }) => theme.node.compoundBackground};
   box-shadow: ${({ $isFocused, $hasError, theme }) =>
     $isFocused ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
-  transition: border-color 180ms ease, box-shadow 180ms ease;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
 
   &:hover {
     border-color: ${({ $hasError, $isFocused, theme }) =>

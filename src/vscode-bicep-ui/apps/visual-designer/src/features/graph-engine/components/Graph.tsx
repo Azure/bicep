@@ -5,8 +5,8 @@ import { PanZoomTransformed } from "@vscode-bicep-ui/components";
 import { useAtomValue } from "jotai";
 import { styled } from "styled-components";
 import { layoutReadyAtom } from "../atoms";
-import { EdgeMarkerDefs } from "./EdgeMarkerDefs";
 import { InnerEdgeLayer, OuterEdgeLayer } from "./EdgeLayer";
+import { EdgeMarkerDefs } from "./EdgeMarkerDefs";
 import { NodeLayer } from "./NodeLayer";
 
 const $PanZoomTransformed = styled(PanZoomTransformed)<{ $visible: boolean }>`
