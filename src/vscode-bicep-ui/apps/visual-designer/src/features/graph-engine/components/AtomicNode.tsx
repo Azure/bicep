@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { AtomicNodeState } from "../atoms/nodes";
 import type { Range } from "../../../messages";
+import type { AtomicNodeState } from "../atoms/nodes";
 
 import useResizeObserver from "@react-hook/resize-observer";
 import { useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";

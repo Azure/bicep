@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { styled } from "styled-components";
-import { FakeMessageChannel, SAMPLE_GRAPHS, GRAPH_MUTATIONS } from "../fake-message-channel";
+import { FakeMessageChannel, GRAPH_MUTATIONS, SAMPLE_GRAPHS } from "../fake-message-channel";
 
 interface DevToolbarProps {
   channel: FakeMessageChannel;
@@ -69,7 +69,9 @@ const $Button = styled.button`
  * sending `deploymentGraph` notifications.
  */
 export function DevToolbar({ channel }: DevToolbarProps) {
-  const applyMutation = (apply: (graph: import("../../../messages").DeploymentGraph) => import("../../../messages").DeploymentGraph) => {
+  const applyMutation = (
+    apply: (graph: import("../../../messages").DeploymentGraph) => import("../../../messages").DeploymentGraph,
+  ) => {
     const current = channel.getCurrentGraph();
     if (!current) return;
     channel.pushGraph(apply(current));

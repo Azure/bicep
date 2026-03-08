@@ -71,9 +71,7 @@ export function StatusBar() {
           in the file. The rendered graph may not be accurate.
         </span>
       )}
-      {errorCount === 0 && !hasNodes && (
-        <span>There are no resources or modules in the file. Nothing to display.</span>
-      )}
+      {errorCount === 0 && !hasNodes && <span>There are no resources or modules in the file. Nothing to display.</span>}
     </$StatusBarContainer>
   );
 }
