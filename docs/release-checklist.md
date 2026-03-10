@@ -6,7 +6,7 @@
     1. Create a PR [here](https://github.com/Azure/bicep-types-az/compare/main...autogenerate), get it approved, and then merge it.
     1. Follow the "Release Process" instructions [here](https://msazure.visualstudio.com/One/_git/BicepMirror-Types-Az) to build and publish the Bicep.Types.Az NuGet package.
     1. Submit a Bicep PR to use the new Bicep.Types.Az NuGet package version.
-        1. Update the version [here](https://github.com/Azure/bicep/blob/main/src/Bicep.Core/Bicep.Core.csproj) and run `dotnet restore`.
+        1. Update the version [here](https://github.com/Azure/bicep/blob/main/src/Directory.Packages.props) and run `dotnet restore`.
         1. Submit a PR. If CI tests fail, you may need to update baselines (run `./scripts/UpdateBaselines.ps1` in the Bicep repo) and push the changes.
 1. Verify the latest build on the `main` branch is green: [![Build](https://github.com/Azure/bicep/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/Azure/bicep/actions/workflows/build.yml?query=branch%3Amain).
 1. (**end-of-month releases only**) Submit a PR to increment the minor version number in [this file](https://github.com/Azure/bicep/blob/main/version.json) (example [here](https://github.com/Azure/bicep/pull/9698))
@@ -14,10 +14,10 @@
 1. Push the version tag for the commit used to generate the official build.
     1. Obtain the version number from official build. This should be of format `vXX.YY.ZZ` - e.g `v0.14.85`.
         1. Look at either the official build artifacts or
-        2. Look at random logs of the the build from [here](https://msazure.visualstudio.com/One/_build?definitionId=182734&_a=summary). One example might be bicep_windows -> Copy Bicep registry module tool package to output (windows_build_container)
+        2. Look at random logs of the build from [here](https://msazure.visualstudio.com/One/_build?definitionId=182734&_a=summary). One example might be bicep_windows -> Copy Bicep registry module tool package to output (windows_build_container)
     1. In the Bicep repo, run `git tag v<new_release_number> <commit_hash>`, where `<commit_hash>` is the git commit hash used for the official build (ex: `git tag v0.15.31 3ba6e06a8d412febd182e607d0f5fe607ec90274`).
     1. Run `git push origin v<new_release_number>` to push the tag (ex: `git push origin v0.15.31`).
-1. [Create a draft release](https://github.com/Azure/bicep/releases/new) for the new tag and set release title to the tag name. Use the "Save draft" button to save the changes without publishing it.
+1. [Create a draft release](https://github.com/Azure/bicep/releases/new) by **choosing the new tag from the tag dropdown**, and setting the release title to the new tag name. Use the "Save draft" button to save the changes without publishing it.
 1. Run `./scripts/CreateReleaseNotes -FromTag <previous tag> -ToTag <new tag>` in the Bicep repo, and copy the output into the GitHub release description.
 1. Send a link to the draft release to the PM team, and ask them to clean up the release notes and update the draft release.
 1. Run `./scripts/UploadSignedReleaseArtifacts.ps1` in the BicepMirror repo to add official artifacts to the release.
@@ -40,7 +40,7 @@
     1. Upload the new vs-bicep.VSIX file at the top. This should update the Version number automatically for you. Verify that it does.
     1. Scroll to the bottom and hit Save and Upload.
 1. Upload NuGet packages to nuget.org by running `./scripts/UploadPackages.ps1` in the BicepMirror repo. This is an almost identical process to publishing the BicepMirror-Types-Az nuget packages so look at that previous step above. (Make sure to include CLI packages.) This can be done one of two ways:
-    1. Easiest is to use the `__assets` directory created by the `UploadSignedReleaseArtifacts.ps1` script. This will be in the temporary folder you created before. (Example command: `.\scripts\UploadPackages.ps1 -PackageDirectory .\temporary\__assets\ -NuGetPath C:\NugetTool\`)
+    1. Easiest is to use the `__assets` directory created by the `UploadSignedReleaseArtifacts.ps1` script. This will be in the temporary folder you created before. (Example command: `.\scripts\UploadPackages.ps1 -PackageDirectory .\temporary\__assets\`)
     2. You can also download all the files from the published release into a separate folder and run the script using that folder. (The script looks for files ending in *.nupkg)
 1. Update homebrew:
     1. Go [here](https://github.com/Azure/homebrew-bicep/actions/workflows/update-homebrew.yml), click `Run workflow`, and wait for it to complete successfully.

@@ -3341,6 +3341,100 @@ resource test";
         }
 
         [TestMethod]
+        public async Task Disable_directive_code_completions_should_include_subsequent_warnings()
+        {
+            var fileWithCursors = """
+                #disable-diagnostics |
+                var foo = 'bar'
+                output foo string = foo
+
+                param fizz string
+                var buzz = 'buzz'
+                param pop int
+                """;
+
+            await RunCompletionScenarioTest(
+                this.TestContext,
+                ServerWithNamespaceProvider,
+                fileWithCursors,
+                completionLists => completionLists.Should().SatisfyRespectively(
+                    completions => completions.Should().SatisfyRespectively(
+                        x => x.Label.Should().Be("no-unused-params"),
+                        x => x.Label.Should().Be("no-unused-vars"))),
+                '|');
+        }
+
+        [TestMethod]
+        public async Task Disable_directive_code_completions_should_not_include_preceding_warnings()
+        {
+            var fileWithCursors = """
+                #disable-diagnostics |
+                param fizz string
+                var buzz = 'buzz'
+
+                #disable-diagnostics |
+                var foo = 'bar'
+                output foo string = foo
+                """;
+
+            await RunCompletionScenarioTest(
+                this.TestContext,
+                ServerWithNamespaceProvider,
+                fileWithCursors,
+                completionLists => completionLists.Should().SatisfyRespectively(
+                    completions => completions.Should().HaveCount(2),
+                    completions => completions.Should().BeEmpty()),
+                '|');
+        }
+
+        [TestMethod]
+        public async Task Restore_directive_code_completions_should_include_disabled_codes()
+        {
+            var fileWithCursors = """
+                #disable-diagnostics no-unused-params no-unused-vars
+                param fizz string
+                #restore-diagnostics |
+                var buzz = 'buzz'
+                #restore-diagnostics no-unused-vars |
+                param pop int
+                #restore-diagnostics no-unused-params |
+                """;
+
+            await RunCompletionScenarioTest(
+                this.TestContext,
+                ServerWithNamespaceProvider,
+                fileWithCursors,
+                completionLists => completionLists.Should().SatisfyRespectively(
+                    completions => completions.Should().SatisfyRespectively(
+                        x => x.Label.Should().Be("no-unused-params"),
+                        x => x.Label.Should().Be("no-unused-vars")),
+                    completions => completions.Should().SatisfyRespectively(
+                        x => x.Label.Should().Be("no-unused-params")),
+                    completions => completions.Should().BeEmpty()),
+                '|');
+        }
+
+        [TestMethod]
+        public async Task Restore_directive_code_completions_should_not_include_disable_next_line_codes()
+        {
+            var fileWithCursors = """
+                #disable-diagnostics no-unused-params no-unused-vars
+                #disable-next-line foo
+                #restore-diagnostics |
+                """;
+
+            await RunCompletionScenarioTest(
+                this.TestContext,
+                ServerWithNamespaceProvider,
+                fileWithCursors,
+                completionLists => completionLists.Should().SatisfyRespectively(
+                    completions => completions.Should().SatisfyRespectively(
+                        x => x.Label.Should().Be("no-unused-params"),
+                        x => x.Label.Should().Be("no-unused-vars"))),
+                '|');
+        }
+
+        [TestMethod]
         public async Task Descriptions_for_function_completions()
         {
             var fileWithCursors = @"
