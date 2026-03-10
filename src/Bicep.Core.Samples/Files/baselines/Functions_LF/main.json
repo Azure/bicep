@@ -234,6 +234,18 @@
     "likeWildCardMatch": {
       "type": "bool",
       "value": "[like('abcdef', 'a*c*')]"
+    },
+    "distinctTest": {
+      "type": "array",
+      "value": "[distinct(createArray('a', 'b', 'a', 'c', 'b'))]"
+    },
+    "distinctTest2": {
+      "type": "array",
+      "value": "[distinct(createArray(1, 2, 3, 1, 2, 4))]"
+    },
+    "distinctTest3": {
+      "type": "array",
+      "value": "[distinct(createArray(createObject('a', 1), createObject('a', 1), createObject('b', 2)))]"
     }
   }
 }

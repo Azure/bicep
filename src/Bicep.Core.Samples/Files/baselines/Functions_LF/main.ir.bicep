@@ -192,4 +192,42 @@ output likeWildCardMatch bool= like ('abcdef', 'a*c*')
 //@[031:0054)   └─FunctionCallExpression { Name = like }
 //@[037:0045)     ├─StringLiteralExpression { Value = abcdef }
 //@[047:0053)     └─StringLiteralExpression { Value = a*c* }
+output distinctTest array = distinct(['a','b','a','c','b'])
+//@[000:0059) ├─DeclaredOutputExpression { Name = distinctTest }
+//@[020:0025) | ├─AmbientTypeReferenceExpression { Name = array }
+//@[028:0059) | └─FunctionCallExpression { Name = distinct }
+//@[037:0058) |   └─ArrayExpression
+//@[038:0041) |     ├─StringLiteralExpression { Value = a }
+//@[042:0045) |     ├─StringLiteralExpression { Value = b }
+//@[046:0049) |     ├─StringLiteralExpression { Value = a }
+//@[050:0053) |     ├─StringLiteralExpression { Value = c }
+//@[054:0057) |     └─StringLiteralExpression { Value = b }
+output distinctTest2 array = distinct([1,2,3,1,2,4])
+//@[000:0052) ├─DeclaredOutputExpression { Name = distinctTest2 }
+//@[021:0026) | ├─AmbientTypeReferenceExpression { Name = array }
+//@[029:0052) | └─FunctionCallExpression { Name = distinct }
+//@[038:0051) |   └─ArrayExpression
+//@[039:0040) |     ├─IntegerLiteralExpression { Value = 1 }
+//@[041:0042) |     ├─IntegerLiteralExpression { Value = 2 }
+//@[043:0044) |     ├─IntegerLiteralExpression { Value = 3 }
+//@[045:0046) |     ├─IntegerLiteralExpression { Value = 1 }
+//@[047:0048) |     ├─IntegerLiteralExpression { Value = 2 }
+//@[049:0050) |     └─IntegerLiteralExpression { Value = 4 }
+output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])
+//@[000:0060) └─DeclaredOutputExpression { Name = distinctTest3 }
+//@[021:0026)   ├─AmbientTypeReferenceExpression { Name = array }
+//@[029:0060)   └─FunctionCallExpression { Name = distinct }
+//@[038:0059)     └─ArrayExpression
+//@[039:0044)       ├─ObjectExpression
+//@[040:0043)       | └─ObjectPropertyExpression
+//@[040:0041)       |   ├─StringLiteralExpression { Value = a }
+//@[042:0043)       |   └─IntegerLiteralExpression { Value = 1 }
+//@[046:0051)       ├─ObjectExpression
+//@[047:0050)       | └─ObjectPropertyExpression
+//@[047:0048)       |   ├─StringLiteralExpression { Value = a }
+//@[049:0050)       |   └─IntegerLiteralExpression { Value = 1 }
+//@[053:0058)       └─ObjectExpression
+//@[054:0057)         └─ObjectPropertyExpression
+//@[054:0055)           ├─StringLiteralExpression { Value = b }
+//@[056:0057)           └─IntegerLiteralExpression { Value = 2 }
 
