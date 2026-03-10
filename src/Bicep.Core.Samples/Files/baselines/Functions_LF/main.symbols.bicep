@@ -81,3 +81,10 @@ func buildUrlMultiLine(
 //@[02:006) Local path. Type: string. Declaration start char: 2, length: 11
 ) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 
+output distinctTest array = distinct(['a','b','a','c','b'])
+//@[07:019) Output distinctTest. Type: array. Declaration start char: 0, length: 59
+output distinctTest2 array = distinct([1,2,3,1,2,4])
+//@[07:020) Output distinctTest2. Type: array. Declaration start char: 0, length: 52
+output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])
+//@[07:020) Output distinctTest3. Type: array. Declaration start char: 0, length: 60
+
