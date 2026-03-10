@@ -526,7 +526,7 @@ jobs:
           name: playground
           path: ./src/playground/dist/*
           if-no-files-found: error
-          
+
   test-playground:
     name: Test Playground
     runs-on: ubuntu-latest
@@ -544,7 +544,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 24
-    
+
       - name: Install wasm tools workload
         run: dotnet workload install wasm-tools
         working-directory: ./src/playground
@@ -560,7 +560,7 @@ jobs:
       - name: Run playground locally
         run: npm run preview &
         working-directory: ./src/playground
-        
+
       - name: Build E2E Tests
         run: dotnet build --configuration Release
         working-directory: ./src/Bicep.Playground.E2ETests
@@ -669,7 +669,7 @@ jobs:
         uses: docker://mcr.microsoft.com/azure-cli:2.63.0
         with:
           entrypoint: sh
-          args: -c "set -eu && apk add --no-cache xz && NODE_VERSION=$(wget -qO- https://nodejs.org/dist/latest-v24.x/SHASUMS256.txt | awk '/linux-x64-musl.tar.xz$/ { filename=$2; sub(/^node-v/, \"\", filename); sub(/-linux-x64-musl.tar.xz$/, \"\", filename); print filename; exit }') && wget -qO /tmp/node.tar.xz https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64-musl.tar.xz && tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 && rm /tmp/node.tar.xz && node -v && npm -v && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
+          args: -c "set -eu && apk add --no-cache nodejs npm && node -v && npm -v && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
         env:
           BICEP_CLI_DOTNET_RID: ${{ matrix.runtime.rid }}
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
@@ -858,14 +858,10 @@ jobs:
       - uses: actions/checkout@v6
 
       # Cannot use actions/setup-node@v6 for linux-musl-x64
-      - name: Setup Node.js 24
+      - name: Setup Node.js
         run: |
           set -eu
-          apk add --no-cache xz
-          NODE_VERSION="$(wget -qO- https://nodejs.org/dist/latest-v24.x/SHASUMS256.txt | awk '/linux-x64-musl.tar.xz$/ { filename=$2; sub(/^node-v/, "", filename); sub(/-linux-x64-musl.tar.xz$/, "", filename); print filename; exit }')"
-          wget -qO /tmp/node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64-musl.tar.xz"
-          tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1
-          rm /tmp/node.tar.xz
+          apk add --no-cache nodejs npm
           node -v
           npm -v
 
