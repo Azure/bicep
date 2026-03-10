@@ -374,5 +374,80 @@ output likeWildCardMatch bool= like ('abcdef', 'a*c*')
 //@[047:053) StringComplete |'a*c*'|
 //@[053:054) RightParen |)|
 //@[054:055) NewLine |\n|
+output distinctTest array = distinct(['a','b','a','c','b'])
+//@[000:006) Identifier |output|
+//@[007:019) Identifier |distinctTest|
+//@[020:025) Identifier |array|
+//@[026:027) Assignment |=|
+//@[028:036) Identifier |distinct|
+//@[036:037) LeftParen |(|
+//@[037:038) LeftSquare |[|
+//@[038:041) StringComplete |'a'|
+//@[041:042) Comma |,|
+//@[042:045) StringComplete |'b'|
+//@[045:046) Comma |,|
+//@[046:049) StringComplete |'a'|
+//@[049:050) Comma |,|
+//@[050:053) StringComplete |'c'|
+//@[053:054) Comma |,|
+//@[054:057) StringComplete |'b'|
+//@[057:058) RightSquare |]|
+//@[058:059) RightParen |)|
+//@[059:060) NewLine |\n|
+output distinctTest2 array = distinct([1,2,3,1,2,4])
+//@[000:006) Identifier |output|
+//@[007:020) Identifier |distinctTest2|
+//@[021:026) Identifier |array|
+//@[027:028) Assignment |=|
+//@[029:037) Identifier |distinct|
+//@[037:038) LeftParen |(|
+//@[038:039) LeftSquare |[|
+//@[039:040) Integer |1|
+//@[040:041) Comma |,|
+//@[041:042) Integer |2|
+//@[042:043) Comma |,|
+//@[043:044) Integer |3|
+//@[044:045) Comma |,|
+//@[045:046) Integer |1|
+//@[046:047) Comma |,|
+//@[047:048) Integer |2|
+//@[048:049) Comma |,|
+//@[049:050) Integer |4|
+//@[050:051) RightSquare |]|
+//@[051:052) RightParen |)|
+//@[052:053) NewLine |\n|
+output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])
+//@[000:006) Identifier |output|
+//@[007:020) Identifier |distinctTest3|
+//@[021:026) Identifier |array|
+//@[027:028) Assignment |=|
+//@[029:037) Identifier |distinct|
+//@[037:038) LeftParen |(|
+//@[038:039) LeftSquare |[|
+//@[039:040) LeftBrace |{|
+//@[040:041) Identifier |a|
+//@[041:042) Colon |:|
+//@[042:043) Integer |1|
+//@[043:044) RightBrace |}|
+//@[044:045) Comma |,|
+//@[046:047) LeftBrace |{|
+//@[047:048) Identifier |a|
+//@[048:049) Colon |:|
+//@[049:050) Integer |1|
+//@[050:051) RightBrace |}|
+//@[051:052) Comma |,|
+//@[053:054) LeftBrace |{|
+//@[054:055) Identifier |b|
+//@[055:056) Colon |:|
+//@[056:057) Integer |2|
+//@[057:058) RightBrace |}|
+//@[058:059) RightSquare |]|
+//@[059:060) RightParen |)|
+//@[060:066) NewLine |\n\n\n\n\n\n|
+
+
+
+
+
 
 //@[000:000) EndOfFile ||

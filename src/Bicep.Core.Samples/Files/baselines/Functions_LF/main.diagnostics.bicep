@@ -57,4 +57,18 @@ output likeExactMatch bool =like('abc', 'abc')
 //@[33:45) [BCP234 (Warning)] The ARM function "like" failed when invoked on the value [abc, abc]: The template function 'like' is not valid. Please see https://aka.ms/arm-functions for usage details. (bicep https://aka.ms/bicep/core-diagnostics#BCP234) |'abc', 'abc'|
 output likeWildCardMatch bool= like ('abcdef', 'a*c*')
 //@[37:53) [BCP234 (Warning)] The ARM function "like" failed when invoked on the value [abcdef, a*c*]: The template function 'like' is not valid. Please see https://aka.ms/arm-functions for usage details. (bicep https://aka.ms/bicep/core-diagnostics#BCP234) |'abcdef', 'a*c*'|
+output distinctTest array = distinct(['a','b','a','c','b'])
+//@[20:25) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
+//@[37:58) [BCP234 (Warning)] The ARM function "distinct" failed when invoked on the value [[\r\n  "a",\r\n  "b",\r\n  "a",\r\n  "c",\r\n  "b"\r\n]]: The template function 'distinct' is not valid. Please see https://aka.ms/arm-functions for usage details. (bicep https://aka.ms/bicep/core-diagnostics#BCP234) |['a','b','a','c','b']|
+output distinctTest2 array = distinct([1,2,3,1,2,4])
+//@[21:26) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
+//@[38:51) [BCP234 (Warning)] The ARM function "distinct" failed when invoked on the value [[\r\n  1,\r\n  2,\r\n  3,\r\n  1,\r\n  2,\r\n  4\r\n]]: The template function 'distinct' is not valid. Please see https://aka.ms/arm-functions for usage details. (bicep https://aka.ms/bicep/core-diagnostics#BCP234) |[1,2,3,1,2,4]|
+output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])
+//@[21:26) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
+//@[38:59) [BCP234 (Warning)] The ARM function "distinct" failed when invoked on the value [[\r\n  {\r\n    "a": 1\r\n  },\r\n  {\r\n    "a": 1\r\n  },\r\n  {\r\n    "b": 2\r\n  }\r\n]]: The template function 'distinct' is not valid. Please see https://aka.ms/arm-functions for usage details. (bicep https://aka.ms/bicep/core-diagnostics#BCP234) |[{a:1}, {a:1}, {b:2}]|
+
+
+
+
+
 

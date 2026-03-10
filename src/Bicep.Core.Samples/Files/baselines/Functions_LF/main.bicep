@@ -46,3 +46,11 @@ func buildUrlMultiLine(
 
 output likeExactMatch bool =like('abc', 'abc')
 output likeWildCardMatch bool= like ('abcdef', 'a*c*')
+output distinctTest array = distinct(['a','b','a','c','b'])
+output distinctTest2 array = distinct([1,2,3,1,2,4])
+output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])
+
+
+
+
+

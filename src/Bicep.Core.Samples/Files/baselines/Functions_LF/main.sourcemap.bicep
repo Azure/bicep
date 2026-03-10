@@ -260,5 +260,25 @@ output likeWildCardMatch bool= like ('abcdef', 'a*c*')
 //@    "likeWildCardMatch": {
 //@      "type": "bool",
 //@      "value": "[like('abcdef', 'a*c*')]"
+//@    },
+output distinctTest array = distinct(['a','b','a','c','b'])
+//@    "distinctTest": {
+//@      "type": "array",
+//@      "value": "[distinct(createArray('a', 'b', 'a', 'c', 'b'))]"
+//@    },
+output distinctTest2 array = distinct([1,2,3,1,2,4])
+//@    "distinctTest2": {
+//@      "type": "array",
+//@      "value": "[distinct(createArray(1, 2, 3, 1, 2, 4))]"
+//@    },
+output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])
+//@    "distinctTest3": {
+//@      "type": "array",
+//@      "value": "[distinct(createArray(createObject('a', 1), createObject('a', 1), createObject('b', 2)))]"
 //@    }
+
+
+
+
+
 

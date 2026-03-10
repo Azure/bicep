@@ -787,6 +787,12 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("pattern", LanguageConstants.String, "The value to match.")
                     .Build();
 
+                yield return new FunctionOverloadBuilder("distinct")
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("distinct", LanguageConstants.Array), LanguageConstants.Array)
+                    .WithGenericDescription("Returns a new array with duplicate values removed, preserving order.")
+                    .WithRequiredParameter("array", LanguageConstants.Array, "The array to process.")
+                    .Build();
+
                 static long? MinOf(TypeSymbol type) => type switch
                 {
                     IntegerType @int => @int.MinValue,
