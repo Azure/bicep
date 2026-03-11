@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2216132208843131284"
+      "templateHash": "12833356642630054320"
     }
   },
   "definitions": {
@@ -226,6 +226,18 @@
     "fooValue": {
       "type": "array",
       "value": "[__bicep.fooTest()]"
+    },
+    "distinctTest": {
+      "type": "array",
+      "value": "[distinct(createArray('a', 'b', 'a', 'c', 'b'))]"
+    },
+    "distinctTest2": {
+      "type": "array",
+      "value": "[distinct(createArray(1, 2, 3, 1, 2, 4))]"
+    },
+    "distinctTest3": {
+      "type": "array",
+      "value": "[distinct(createArray(createObject('a', 1), createObject('a', 1), createObject('b', 2)))]"
     }
   }
 }

@@ -150,7 +150,7 @@ output fooValue array = fooTest()
 //@    "fooValue": {
 //@      "type": "array",
 //@      "value": "[__bicep.fooTest()]"
-//@    }
+//@    },
 
 func test() object => loadJsonContent('./repro-data.json')
 //@        "test": {
@@ -250,4 +250,20 @@ func buildUrlMultiLine(
 ) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 //@            "type": "string",
 //@            "value": "[format('{0}://{1}{2}', if(parameters('https'), 'https', 'http'), parameters('hostname'), if(empty(parameters('path')), '', format('/{0}', parameters('path'))))]"
+
+output distinctTest array = distinct(['a','b','a','c','b'])
+//@    "distinctTest": {
+//@      "type": "array",
+//@      "value": "[distinct(createArray('a', 'b', 'a', 'c', 'b'))]"
+//@    },
+output distinctTest2 array = distinct([1,2,3,1,2,4])
+//@    "distinctTest2": {
+//@      "type": "array",
+//@      "value": "[distinct(createArray(1, 2, 3, 1, 2, 4))]"
+//@    },
+output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])
+//@    "distinctTest3": {
+//@      "type": "array",
+//@      "value": "[distinct(createArray(createObject('a', 1), createObject('a', 1), createObject('b', 2)))]"
+//@    }
 

@@ -43,3 +43,7 @@ func buildUrlMultiLine(
   hostname string,
   path string
 ) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
+
+output distinctTest array = distinct(['a','b','a','c','b'])
+output distinctTest2 array = distinct([1,2,3,1,2,4])
+output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])

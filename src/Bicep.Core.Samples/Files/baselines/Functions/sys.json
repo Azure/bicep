@@ -413,6 +413,25 @@
     ]
   },
   {
+    "name": "distinct",
+    "description": "Returns a new array with duplicate values removed, preserving order.",
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array to process.",
+        "type": "array",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(array: array): array",
+    "parameterTypeSignatures": [
+      "array: array"
+    ]
+  },
+  {
     "name": "empty",
     "description": "Determines if an array, object, or string is empty.",
     "fixedParameters": [
