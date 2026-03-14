@@ -2118,6 +2118,52 @@ output stringOutput |
         }
 
         [TestMethod]
+        public async Task InlineTypePropertyDecoratorsShouldAlignWithPropertyType()
+        {
+            var fileWithCursors = """
+                param clusterSettings {
+                  @|
+                  name: string
+                }
+                """;
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+            var completions = await file.RequestAndResolveCompletions(cursor);
+
+            completions.Should().Contain(x => x.Label == "description");
+            completions.Should().Contain(x => x.Label == "metadata");
+            completions.Should().Contain(x => x.Label == "minLength");
+            completions.Should().Contain(x => x.Label == "maxLength");
+
+            completions.Should().NotContain(x => x.Label == "allowed");
+            completions.Should().NotContain(x => x.Label == "sealed");
+            completions.Should().NotContain(x => x.Label == "discriminator");
+        }
+
+        [TestMethod]
+        public async Task QualifiedInlineTypePropertyDecoratorsShouldAlignWithPropertyType()
+        {
+            var fileWithCursors = """
+                param clusterSettings {
+                  @sys.|
+                  name: string
+                }
+                """;
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+            var completions = await file.RequestAndResolveCompletions(cursor);
+
+            completions.Should().Contain(x => x.Label == "description");
+            completions.Should().Contain(x => x.Label == "metadata");
+            completions.Should().Contain(x => x.Label == "minLength");
+            completions.Should().Contain(x => x.Label == "maxLength");
+
+            completions.Should().NotContain(x => x.Label == "allowed");
+            completions.Should().NotContain(x => x.Label == "sealed");
+            completions.Should().NotContain(x => x.Label == "discriminator");
+        }
+
+        [TestMethod]
         public async Task ModuleCompletionsShouldNotBeUrlEscaped()
         {
             var fileWithCursors = @"
