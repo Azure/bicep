@@ -25,6 +25,24 @@ namespace Bicep.Core.Emit;
 
 public class ParameterAssignmentEvaluator
 {
+    private sealed class ForLoopIndexRewriter : ExpressionRewriteVisitor
+    {
+        private readonly long index;
+
+        private ForLoopIndexRewriter(long index)
+        {
+            this.index = index;
+        }
+
+        public static Expression Rewrite(Expression expression, long index)
+        {
+            return new ForLoopIndexRewriter(index).Replace(expression);
+        }
+
+        public override Expression ReplaceCopyIndexExpression(CopyIndexExpression expression) => new IntegerLiteralExpression(expression.SourceSyntax, index);
+
+        public override Expression ReplaceForLoopExpression(ForLoopExpression expression) => expression;
+    }
     private class ParameterAssignmentEvaluationContext : IEvaluationContext
     {
         private readonly TemplateExpressionEvaluationHelper evaluationHelper;
@@ -418,7 +436,7 @@ public class ParameterAssignmentEvaluator
 
                 try
                 {
-                    return Result.For(parameterConverter.ConvertExpression(intermediate).EvaluateExpression(context));
+                    return Result.For(EvaluateExpression(parameterConverter, intermediate, context));
                 }
                 catch (Exception ex)
                 {
@@ -474,7 +492,7 @@ public class ParameterAssignmentEvaluator
                     {
                         try
                         {
-                            propertyResult = Result.For(converter.ConvertExpression(intermediate).EvaluateExpression(context));
+                            propertyResult = Result.For(EvaluateExpression(converter, intermediate, context));
                         }
                         catch (Exception ex)
                         {
@@ -533,7 +551,7 @@ public class ParameterAssignmentEvaluator
                     var variableConverter = GetConverterForVariable(variable);
                     var intermediate = variableConverter.ConvertToIntermediateExpression(variable.DeclaringVariable.Value);
 
-                    return Result.For(variableConverter.ConvertExpression(intermediate).EvaluateExpression(context));
+                    return Result.For(EvaluateExpression(variableConverter, intermediate, context));
                 }
                 catch (Exception ex)
                 {
@@ -551,7 +569,7 @@ public class ParameterAssignmentEvaluator
                 {
                     var evalContext = GetExpressionEvaluationContextForModel(model);
                     var exprConverter = converterCache.GetOrAdd(model, m => new ExpressionConverter(new EmitterContext(m)));
-                    return Result.For(exprConverter.ConvertExpression(expression).EvaluateExpression(evalContext));
+                    return Result.For(EvaluateExpression(exprConverter, expression, evalContext));
                 }
                 catch (Exception e)
                 {
@@ -781,13 +799,80 @@ public class ParameterAssignmentEvaluator
         {
             var context = GetExpressionEvaluationContext();
             var intermediate = converter.ConvertToIntermediateExpression(expressionSyntax);
-            var result = converter.ConvertExpression(intermediate).EvaluateExpression(context);
+            var result = EvaluateExpression(converter, intermediate, context);
             return ExpressionEvaluationResult.For(result);
         }
         catch (Exception ex)
         {
             return ExpressionEvaluationResult.For([DiagnosticBuilder.ForPosition(expressionSyntax)
                 .FailedToEvaluateSubject("expression", expressionSyntax.ToString(), ex.Message)]);
+        }
+    }
+
+    private JToken EvaluateExpression(ExpressionConverter expressionConverter, Expression expression, ParameterAssignmentEvaluationContext context)
+    {
+        if (expression is ForLoopExpression forLoop)
+        {
+            return EvaluateForLoopExpression(expressionConverter, forLoop, context);
+        }
+
+        return expressionConverter.ConvertExpression(expression).EvaluateExpression(context);
+    }
+
+    private JToken EvaluateForLoopExpression(ExpressionConverter expressionConverter, ForLoopExpression forLoop, ParameterAssignmentEvaluationContext context)
+    {
+        var source = EvaluateExpression(expressionConverter, forLoop.Expression, context);
+        if (source is not JArray sourceArray)
+        {
+            throw new InvalidOperationException("For-expression source must be an array.");
+        }
+
+        var results = new JArray();
+        for (var i = 0; i < sourceArray.Count; i++)
+        {
+            results.Add(EvaluateExpression(expressionConverter, ForLoopIndexRewriter.Rewrite(forLoop.Body, i), context));
+        }
+
+        return results;
+    }
+
+    /// <summary>
+    /// Rewrites the external input function calls to use the externalInputs function with the index of the external input.
+    /// e.g. externalInput('sys.cli', 'foo') becomes externalInputs('0')
+    /// </summary>
+    private class ExternalInputExpressionRewriter : ExpressionRewriteVisitor
+    {
+        private readonly ExternalInputReferences externalInputReferences;
+
+        private ExternalInputExpressionRewriter(
+            ExternalInputReferences externalInputReferences)
+        {
+            this.externalInputReferences = externalInputReferences;
+        }
+
+        public static Expression Rewrite(
+            Expression expression,
+            ExternalInputReferences externalInputReferences)
+        {
+            var visitor = new ExternalInputExpressionRewriter(externalInputReferences);
+            var rewritten = visitor.Replace(expression);
+            return rewritten;
+        }
+
+        public override Expression ReplaceFunctionCallExpression(FunctionCallExpression expression)
+        {
+            if (expression.SourceSyntax is FunctionCallSyntaxBase functionCallSyntax &&
+                externalInputReferences.InfoBySyntax.TryGetValue(functionCallSyntax, out var info) &&
+                info.Length > 0)
+            {
+                return new FunctionCallExpression(
+                    functionCallSyntax,
+                    LanguageConstants.ExternalInputsArmFunctionName,
+                    [ExpressionFactory.CreateStringLiteral(info[0].DefinitionKey)]
+                );
+            }
+
+            return base.ReplaceFunctionCallExpression(expression);
         }
     }
 }
