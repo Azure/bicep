@@ -93,10 +93,10 @@ param myParam string
         [DataRow(@"
 using 'main.bicep'
 param myParam = getSecret(
-  externalInput('subId'), 
-  externalInput('rgName'), 
-  externalInput('kvName'), 
-  externalInput('secretName'), 
+  externalInput('subId'),
+  externalInput('rgName'),
+  externalInput('kvName'),
+  externalInput('secretName'),
   externalInput('secretVersion'))", @"
 {
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
@@ -105,10 +105,28 @@ param myParam = getSecret(
     ""myParam"": {
       ""reference"": {
         ""keyVault"": {
-          ""id"": ""/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/<keyVaultName>""
+          ""id"": ""[resourceId(externalInputs('subId_0'), externalInputs('rgName_1'), 'Microsoft.KeyVault', 'vaults', externalInputs('kvName_2'))]""
         },
-        ""secretName"": ""<secretName>""
+        ""secretName"": ""[externalInputs('secretName_3')]"",
+        ""secretVersion"": ""[externalInputs('secretVersion_4')]""
       }
+    }
+  },
+  ""externalInputDefinitions"": {
+    ""kvName_2"": {
+      ""kind"": ""kvName""
+    },
+    ""rgName_1"": {
+      ""kind"": ""rgName""
+    },
+    ""secretName_3"": {
+      ""kind"": ""secretName""
+    },
+    ""secretVersion_4"": {
+      ""kind"": ""secretVersion""
+    },
+    ""subId_0"": {
+      ""kind"": ""subId""
     }
   }
 }", @"

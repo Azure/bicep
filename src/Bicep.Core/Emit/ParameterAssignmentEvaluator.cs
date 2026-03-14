@@ -430,6 +430,11 @@ public class ParameterAssignmentEvaluator
                     return Result.For(keyVaultReferenceExpression);
                 }
 
+                if (semanticModel.SymbolsToInline.ParameterAssignmentsToInline.Contains(parameter))
+                {
+                    return Result.For(intermediate);
+                }
+
                 try
                 {
                     return Result.For(parameterConverter.ConvertExpression(intermediate).EvaluateExpression(context));
