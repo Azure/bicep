@@ -1055,7 +1055,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ExpectedExtensionSpecification() => CoreError(
                 "BCP201",
-                "Expected an extension specification string. This should either be a relative path, or a valid OCI artifact specification.");
+                "Expected an extension specification string. This should be a relative path to an extension archive, a valid OCI artifact specification, or an exec: path to a local binary executable.");
 
             public Diagnostic ExpectedExtensionAliasName() => CoreError(
                 "BCP202",
