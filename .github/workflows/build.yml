@@ -729,7 +729,7 @@ jobs:
     if: always() && !github.event.pull_request.head.repo.fork
 
     steps:
-      - uses: mshick/add-pr-comment@v2
+      - uses: mshick/add-pr-comment@v3
         with:
           message: |
             Test this change out locally with the following install scripts (Action run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}))
