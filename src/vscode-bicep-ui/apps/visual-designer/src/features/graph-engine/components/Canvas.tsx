@@ -128,11 +128,7 @@ export function Canvas({ children, showBackground = true }: CanvasProps) {
         {showBackground && <CanvasBackground />}
         {children}
       </$PanZoom>
-      <$GrabCursor
-        ref={cursorRef}
-        $background={theme.grabCursor.background}
-        $blur={theme.grabCursor.blur}
-      />
+      <$GrabCursor ref={cursorRef} $background={theme.grabCursor.background} $blur={theme.grabCursor.blur} />
     </$Container>
   );
 }

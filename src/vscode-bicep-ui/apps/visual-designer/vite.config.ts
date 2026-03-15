@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import type { Plugin } from "vite";
 
 import fs from "fs";
 import path from "path";
 import react from "@vitejs/plugin-react";
-import { defineConfig, type Plugin } from "vite";
+import { defineConfig } from "vite";
 
 /**
  * Inject a fake `acquireVsCodeApi` with sample graph data only
