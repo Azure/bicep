@@ -361,6 +361,9 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads()
             {
+                var kvResourceNamespace = "Microsoft.KeyVault";
+                var kvResourceType = "vaults";
+
                 yield return new FunctionOverloadBuilder(GetSecretFunctionName)
                     .WithReturnType(LanguageConstants.SecureString)
                     .WithGenericDescription("Retrieve a value from an Azure Key Vault at the start of a deployment.")
@@ -385,8 +388,8 @@ namespace Bicep.Core.Semantics.Namespaces
                         var kvResourceId = ResourceGroupLevelResourceId.Create(
                             subType.RawStringValue,
                             rgType.RawStringValue,
-                            "Microsoft.KeyVault",
-                            ["vaults"],
+                            kvResourceNamespace,
+                            [kvResourceType],
                             [kvNameType.RawStringValue]);
                         var secretVersion = func.Arguments.Length > 4 ? (argumentTypes[4] as StringLiteralType)?.RawStringValue : null;
 
@@ -411,8 +414,8 @@ namespace Bicep.Core.Semantics.Namespaces
                         var keyVaultId = new FunctionCallExpression(exp.SourceSyntax, ResourceIdFunctionName, [
                             subscriptionId,
                             resourceGroupName,
-                            new StringLiteralExpression(null, "Microsoft.KeyVault"),
-                            new StringLiteralExpression(null, "vaults"),
+                            new StringLiteralExpression(null, kvResourceNamespace),
+                            new StringLiteralExpression(null, kvResourceType),
                             keyVaultName]);
 
                         return new ParameterKeyVaultReferenceExpression(exp.SourceSyntax, keyVaultId, secretName, secretVersion);
