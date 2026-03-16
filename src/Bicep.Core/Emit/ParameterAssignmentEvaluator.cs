@@ -407,6 +407,13 @@ public class ParameterAssignmentEvaluator
                 var parameterConverter = GetConverterForParameter(parameter);
                 var intermediate = parameterConverter.ConvertToIntermediateExpression(declaringParam.Value);
 
+                // handle KV reference before paramstoinline check since KV references may contain externalInput references
+                // and we don't want to inline getSecret calls as expressions in the parameters JSON file
+                if (intermediate is ParameterKeyVaultReferenceExpression keyVaultReferenceExpression)
+                {
+                    return Result.For(keyVaultReferenceExpression);
+                }
+
                 if (semanticModel.SymbolsToInline.ParameterAssignmentsToInline.Contains(parameter))
                 {
                     try
@@ -423,11 +430,6 @@ public class ParameterAssignmentEvaluator
                         return Result.For(DiagnosticBuilder.ForPosition(declaringParam.Value)
                             .FailedToEvaluateSubject("parameter", parameter.Name, ex.Message));
                     }
-                }
-
-                if (intermediate is ParameterKeyVaultReferenceExpression keyVaultReferenceExpression)
-                {
-                    return Result.For(keyVaultReferenceExpression);
                 }
 
                 if (semanticModel.SymbolsToInline.ParameterAssignmentsToInline.Contains(parameter))

@@ -76,7 +76,6 @@ THis
       multiline
         string!
 '''
-
 param kvSecret = az.getSecret('subId', 'rgName', 'kvName', 'secretName', 'secretVersion')
 param kvSecretExpression = az.getSecret(
   externalInput('subId'), 
