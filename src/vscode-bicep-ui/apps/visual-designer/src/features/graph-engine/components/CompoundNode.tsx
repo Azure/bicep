@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { CompoundNodeState } from "../atoms/nodes";
 import type { Range } from "../../../messages";
+import type { CompoundNodeState } from "../atoms/nodes";
 
 import { useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { useAtomValue, useStore } from "jotai";
@@ -10,8 +10,8 @@ import { frame } from "motion/react";
 import { useEffect, useRef } from "react";
 import { REVEAL_FILE_RANGE_NOTIFICATION } from "../../../messages";
 import { translateBox } from "../../../utils/math";
-import { focusedNodeIdAtom, getNodeZIndex } from "../atoms/nodes";
 import { nodesByIdAtom } from "../atoms";
+import { focusedNodeIdAtom, getNodeZIndex } from "../atoms/nodes";
 import { useBoxUpdate, useDragListener } from "../hooks";
 import { BaseNode } from "./BaseNode";
 import { NodeContent } from "./NodeContent";

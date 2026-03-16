@@ -14,7 +14,9 @@ const $GraphControlBar = styled.div`
   background-color: ${({ theme }) => theme.controlBar.background};
   border: 1px solid ${({ theme }) => theme.controlBar.border};
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.06);
   backdrop-filter: blur(12px);
 `;
 
@@ -30,7 +32,9 @@ const $ControlButton = styled.button`
   background-color: transparent;
   color: ${({ theme }) => theme.controlBar.icon};
   cursor: pointer;
-  transition: background-color 150ms ease, transform 150ms ease;
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
 
   &:hover {
     background-color: ${({ theme }) => theme.controlBar.hoverBackground};

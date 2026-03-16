@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { DeploymentGraph } from "../../../messages";
 import type { Point } from "../../../utils/math/geometry";
 
 import { getDefaultStore, useSetAtom } from "jotai";
 import { useCallback, useRef } from "react";
+import { isDeploymentGraphEqual } from "../../../utils/deployment-graph-equality";
 import {
   addAtomicNodeAtom,
   addCompoundNodeAtom,
@@ -17,8 +19,6 @@ import {
   nodesByIdAtom,
   removeNodesAtom,
 } from "../../graph-engine";
-import type { DeploymentGraph } from "../../../messages";
-import { isDeploymentGraphEqual } from "../../../utils/deployment-graph-equality";
 
 const store = getDefaultStore();
 
@@ -278,6 +278,15 @@ export function useApplyDeploymentGraph(getViewportCenter: () => Point) {
       // in App) can trigger ELK layout after the DOM reflects the new graph.
       setGraphVersion((v) => v + 1);
     },
-    [setEdgesAtom, addAtomicNode, addCompoundNode, addEdge, removeNodes, setGraphVersion, setLayoutReady, getViewportCenter],
+    [
+      setEdgesAtom,
+      addAtomicNode,
+      addCompoundNode,
+      addEdge,
+      removeNodes,
+      setGraphVersion,
+      setLayoutReady,
+      getViewportCenter,
+    ],
   );
 }
