@@ -722,6 +722,12 @@
                           "type": "integer",
                           "default": 730,
                           "minimum": 0
+                        },
+                        "newVersionGracePeriodDays": {
+                          "description": "Number of days to wait after an API version is published before recommending it, to allow time for regional deployment (default is 90 days)",
+                          "type": "integer",
+                          "default": 90,
+                          "minimum": 0
                         }
                       }
                     },
