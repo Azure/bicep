@@ -33,7 +33,7 @@ internal class BicepClient : IBicepClient
     /// <summary>
     /// Initializes the Bicep CLI by starting the process and establishing a JSON-RPC connection.
     /// </summary>
-    public static async Task<IBicepClient> Initialize(string bicepCliPath, CancellationToken cancellationToken)
+    public static async Task<IBicepClient> Initialize(string bicepCliPath, TimeSpan connectionTimeout, CancellationToken cancellationToken)
     {
         if (!File.Exists(bicepCliPath))
         {
@@ -56,11 +56,34 @@ internal class BicepClient : IBicepClient
         var cliProcess = Process.Start(psi)
             ?? throw new InvalidOperationException("Failed to start Bicep CLI process");
 
-        await pipeStream.WaitForConnectionAsync(cancellationToken).ConfigureAwait(false);
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        var client = new JsonRpcClient(PipeReader.Create(pipeStream), PipeWriter.Create(pipeStream));
+        try
+        {
+            await WaitForPipeConnection(pipeStream, connectionTimeout, cancellationToken).ConfigureAwait(false);
 
-        return new BicepClient(pipeStream, cliProcess, client, cts);
+            var clientCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            var client = new JsonRpcClient(PipeReader.Create(pipeStream), PipeWriter.Create(pipeStream));
+
+            return new BicepClient(pipeStream, cliProcess, client, clientCts);
+        }
+        catch
+        {
+            cliProcess.Kill();
+            throw;
+        }
+    }
+
+    internal static async Task WaitForPipeConnection(NamedPipeServerStream pipeStream, TimeSpan connectionTimeout, CancellationToken cancellationToken)
+    {
+        var timeoutCts = new CancellationTokenSource(connectionTimeout);
+        using var connectionCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+        try
+        {
+            await pipeStream.WaitForConnectionAsync(connectionCts.Token).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested)
+        {
+            throw new TimeoutException($"Timed out waiting for the Bicep CLI process to connect after {connectionTimeout.TotalSeconds:0} seconds.");
+        }
     }
 
     /// <inheritdoc/>

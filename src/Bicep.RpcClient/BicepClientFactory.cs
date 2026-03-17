@@ -13,30 +13,33 @@ using Bicep.RpcClient.Helpers;
 
 namespace Bicep.RpcClient;
 
-public class BicepClientFactory(HttpClient httpClient) : IBicepClientFactory
+public class BicepClientFactory(HttpClient? httpClient = null) : IBicepClientFactory
 {
-    private static readonly Regex VersionRegex = new(@"^\d+\.\d+\.\d+$");
     private static readonly string DefaultInstallPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".bicep", "bin");
     private static readonly OSPlatform CurrentOsPlatform = BicepInstaller.DetectCurrentOSPlatform();
     private static readonly Architecture CurrentArchitecture = RuntimeInformation.OSArchitecture;
+    private readonly HttpClient httpClient = httpClient ?? new();
 
-    public async Task<IBicepClient> DownloadAndInitialize(BicepClientConfiguration configuration, CancellationToken cancellationToken)
+    /// <inheritdoc/>
+    public async Task<IBicepClient> Initialize(BicepClientConfiguration configuration, CancellationToken cancellationToken)
     {
-        var bicepCliPath = await Download(configuration, cancellationToken).ConfigureAwait(false);
+        BicepClientConfiguration.Validate(configuration);
 
-        return await InitializeFromPath(bicepCliPath, cancellationToken).ConfigureAwait(false);
+        if (configuration.ExistingCliPath is not { } bicepCliPath)
+        {
+            bicepCliPath = await Download(configuration, cancellationToken).ConfigureAwait(false);
+        }
+
+        return await BicepClient.Initialize(bicepCliPath, configuration.ConnectionTimeout, cancellationToken).ConfigureAwait(false);
     }
 
     internal async Task<string> Download(BicepClientConfiguration configuration, CancellationToken cancellationToken)
     {
-        if (configuration.BicepVersion is { } version && !VersionRegex.IsMatch(version))
-        {
-            throw new ArgumentException($"Invalid Bicep version format '{version}'. Expected format: 'x.y.z' where x, y, and z are integers.");
-        }
-
         var osPlatform = configuration.OsPlatform ?? CurrentOsPlatform;
         var architecture = configuration.Architecture ?? CurrentArchitecture;
-        var baseDownloadPath = configuration.InstallPath ?? DefaultInstallPath;
+#pragma warning disable CS0618 // Type or member is obsolete
+        var baseDownloadPath = configuration.InstallBasePath ?? configuration.InstallPath ?? DefaultInstallPath;
+#pragma warning restore CS0618 // Type or member is obsolete
         var versionTag = configuration.BicepVersion is { } ?
             $"v{configuration.BicepVersion}" :
             await BicepInstaller.GetLatestBicepVersion(httpClient, cancellationToken).ConfigureAwait(false);
@@ -59,8 +62,11 @@ public class BicepClientFactory(HttpClient httpClient) : IBicepClientFactory
         return bicepCliPath;
     }
 
-    public async Task<IBicepClient> InitializeFromPath(string bicepCliPath, CancellationToken cancellationToken)
-    {
-        return await BicepClient.Initialize(bicepCliPath, cancellationToken).ConfigureAwait(false);
-    }
+    [Obsolete($"Use {nameof(Initialize)} with a {nameof(BicepClientConfiguration)} that has {nameof(BicepClientConfiguration.ExistingCliPath)} set instead.")]
+    public Task<IBicepClient> InitializeFromPath(string bicepCliPath, CancellationToken cancellationToken = default)
+        => Initialize(new() { ExistingCliPath = bicepCliPath }, cancellationToken);
+
+    [Obsolete($"Use {nameof(Initialize)} instead.")]
+    public Task<IBicepClient> DownloadAndInitialize(BicepClientConfiguration configuration, CancellationToken cancellationToken = default)
+        => Initialize(configuration, cancellationToken);
 }

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Pipes;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
@@ -22,12 +23,12 @@ public class BicepClientTests
     [TestInitialize]
     public async Task TestInitialize()
     {
-        var clientFactory = new BicepClientFactory(new());
+        var clientFactory = new BicepClientFactory();
         var cliName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "bicep.exe" : "bicep";
         var cliPath = Path.GetFullPath(Path.Combine(typeof(BicepClientTests).Assembly.Location, $"../{cliName}"));
 
-        Bicep = await clientFactory.InitializeFromPath(
-            cliPath,
+        Bicep = await clientFactory.Initialize(
+            new() { ExistingCliPath = cliPath },
             TestContext.CancellationTokenSource.Token);
     }
 
@@ -82,7 +83,7 @@ public class BicepClientTests
 
         var bicepCliPath = await clientFactory.Download(new()
         {
-            InstallPath = outputDir,
+            InstallBasePath = outputDir,
             OsPlatform = osPlatform,
             Architecture = architecture,
         }, TestContext.CancellationTokenSource.Token);
@@ -93,20 +94,78 @@ public class BicepClientTests
     }
 
     [TestMethod]
-    public async Task DownloadAndInitialize_validates_version_number_format()
+    public async Task Initialize_validates_version_number_format()
     {
-        var clientFactory = new BicepClientFactory(new());
-        await FluentActions.Invoking(() => clientFactory.DownloadAndInitialize(new() { BicepVersion = "v0.1.1" }, default))
+        var clientFactory = new BicepClientFactory();
+        await FluentActions.Invoking(() => clientFactory.Initialize(new() { BicepVersion = "v0.1.1" }, default))
             .Should().ThrowAsync<ArgumentException>().WithMessage("Invalid Bicep version format 'v0.1.1'. Expected format: 'x.y.z' where x, y, and z are integers.");
     }
 
+    [DataTestMethod]
+    [DataRow("1.2", "Invalid Bicep version format '1.2'. Expected format: 'x.y.z' where x, y, and z are integers.")]
+    [DataRow("v1.2.3", "Invalid Bicep version format 'v1.2.3'. Expected format: 'x.y.z' where x, y, and z are integers.")]
+    [DataRow("1.2.3.4", "Invalid Bicep version format '1.2.3.4'. Expected format: 'x.y.z' where x, y, and z are integers.")]
+    [DataRow("latest", "Invalid Bicep version format 'latest'. Expected format: 'x.y.z' where x, y, and z are integers.")]
+    public void Validate_throws_for_invalid_BicepVersion(string version, string expectedMessage)
+    {
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { BicepVersion = version }))
+            .Should().Throw<ArgumentException>().WithMessage(expectedMessage);
+    }
+
+    [DataTestMethod]
+    [DataRow("1.2.3")]
+    [DataRow("0.0.0")]
+    [DataRow("100.200.300")]
+    public void Validate_accepts_valid_BicepVersion(string version)
+    {
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { BicepVersion = version }))
+            .Should().NotThrow();
+    }
+
     [TestMethod]
-    public async Task DownloadAndInitialize_validates_path_existence()
+    public void Validate_throws_when_ExistingCliPath_combined_with_InstallBasePath()
+    {
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ExistingCliPath = "/some/path", InstallBasePath = "/some/base" }))
+            .Should().Throw<ArgumentException>().WithMessage("*ExistingCliPath*InstallBasePath*");
+    }
+
+    [TestMethod]
+    public void Validate_throws_when_ExistingCliPath_combined_with_BicepVersion()
+    {
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ExistingCliPath = "/some/path", BicepVersion = "1.0.0" }))
+            .Should().Throw<ArgumentException>().WithMessage("*ExistingCliPath*BicepVersion*");
+    }
+
+    [TestMethod]
+    public void Validate_throws_when_ExistingCliPath_combined_with_OsPlatform()
+    {
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ExistingCliPath = "/some/path", OsPlatform = OSPlatform.Linux }))
+            .Should().Throw<ArgumentException>().WithMessage("*ExistingCliPath*OsPlatform*");
+    }
+
+    [TestMethod]
+    public void Validate_throws_when_ExistingCliPath_combined_with_Architecture()
+    {
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ExistingCliPath = "/some/path", Architecture = Architecture.X64 }))
+            .Should().Throw<ArgumentException>().WithMessage("*ExistingCliPath*Architecture*");
+    }
+
+    [TestMethod]
+    public async Task Initialize_validates_path_existence()
     {
         var nonExistentPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-        var clientFactory = new BicepClientFactory(new());
-        await FluentActions.Invoking(() => clientFactory.InitializeFromPath(nonExistentPath, default))
+        var clientFactory = new BicepClientFactory();
+        await FluentActions.Invoking(() => clientFactory.Initialize(new() { ExistingCliPath = nonExistentPath }, default))
             .Should().ThrowAsync<FileNotFoundException>().WithMessage($"The specified Bicep CLI path does not exist: '{nonExistentPath}'.");
+    }
+
+    [TestMethod]
+    public async Task WaitForPipeConnection_throws_timeout_exception_when_connection_times_out()
+    {
+        using var pipeStream = new NamedPipeServerStream(Guid.NewGuid().ToString(), PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+
+        await FluentActions.Invoking(() => BicepClient.WaitForPipeConnection(pipeStream, TimeSpan.FromMilliseconds(500), CancellationToken.None))
+            .Should().ThrowAsync<TimeoutException>().WithMessage("Timed out waiting for the Bicep CLI process to connect after * seconds.");
     }
 
     [TestMethod]
