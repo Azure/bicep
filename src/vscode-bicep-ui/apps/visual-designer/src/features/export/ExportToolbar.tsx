@@ -6,8 +6,20 @@ import type { ExportFormat } from "./types";
 
 import { Codicon } from "@vscode-bicep-ui/components";
 import { VscodeOption, VscodeSingleSelect } from "@vscode-elements/react-elements";
+import { useAtomValue, useSetAtom, useStore } from "jotai";
 import { useCallback, useEffect, useState } from "react";
 import { styled } from "styled-components";
+import {
+  closeExportOverlayAtom,
+  exportBackgroundColorAtom,
+  exportCanvasElementAtom,
+  exportFileStemAtom,
+  exportFormatAtom,
+  exportPaddingAtom,
+  exportThemeOverrideAtom,
+  isExportInProgressAtom,
+} from "./atoms";
+import { captureGraphElement, saveDataUrl } from "./capture-element";
 
 /* ------------------------------------------------------------------ */
 /*  Styled components                                                  */
@@ -203,47 +215,53 @@ const STEP = 10;
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
-export interface ExportToolbarProps {
-  onExport: (format: ExportFormat) => void;
-  onClose: () => void;
-  padding: number;
-  onPaddingChange: (padding: number) => void;
-  onFormatChange?: (format: ExportFormat) => void;
-  onThemeChange?: (themeName: DefaultTheme["name"] | null) => void;
-  exporting?: boolean;
-}
+export function ExportToolbar() {
+  const store = useStore();
+  const canvasElement = useAtomValue(exportCanvasElementAtom);
+  const format = useAtomValue(exportFormatAtom);
+  const padding = useAtomValue(exportPaddingAtom);
+  const exportThemeName = useAtomValue(exportThemeOverrideAtom);
+  const exportFileStem = useAtomValue(exportFileStemAtom);
+  const exportBackgroundColor = useAtomValue(exportBackgroundColorAtom);
+  const exporting = useAtomValue(isExportInProgressAtom);
+  const setFormat = useSetAtom(exportFormatAtom);
+  const setTheme = useSetAtom(exportThemeOverrideAtom);
+  const setPadding = useSetAtom(exportPaddingAtom);
+  const setExportInProgress = useSetAtom(isExportInProgressAtom);
+  const closeExportOverlay = useSetAtom(closeExportOverlayAtom);
 
-export function ExportToolbar({
-  onExport,
-  onClose,
-  padding,
-  onPaddingChange,
-  onFormatChange,
-  onThemeChange,
-  exporting,
-}: ExportToolbarProps) {
-  const [format, setFormatInternal] = useState<ExportFormat>("png");
-  const [exportThemeName, setExportThemeName] = useState<DefaultTheme["name"] | null>(null);
+  const handleExport = useCallback(async () => {
+    if (!canvasElement || exporting) {
+      return;
+    }
 
-  const setFormat = useCallback(
-    (f: ExportFormat) => {
-      setFormatInternal(f);
-      onFormatChange?.(f);
-    },
-    [onFormatChange],
-  );
+    setExportInProgress(true);
 
-  const setTheme = useCallback(
-    (name: DefaultTheme["name"] | null) => {
-      setExportThemeName(name);
-      onThemeChange?.(name);
-    },
-    [onThemeChange],
-  );
-
-  const handleExport = useCallback(() => {
-    onExport(format);
-  }, [onExport, format]);
+    try {
+      const dataUrl = await captureGraphElement(
+        canvasElement,
+        store,
+        format,
+        padding,
+        exportBackgroundColor,
+      );
+      const fileStem = exportFileStem.trim() || "bicep-graph";
+      await saveDataUrl(dataUrl, `${fileStem}.${format}`, format);
+    } catch (error) {
+      console.error("Export failed:", error);
+    } finally {
+      setExportInProgress(false);
+    }
+  }, [
+    canvasElement,
+    exporting,
+    setExportInProgress,
+    store,
+    format,
+    padding,
+    exportBackgroundColor,
+    exportFileStem,
+  ]);
 
   const [paddingText, setPaddingText] = useState(String(padding));
 
@@ -258,26 +276,26 @@ export function ExportToolbar({
       setPaddingText(raw);
       const value = parseInt(raw, 10);
       if (!isNaN(value) && value >= 0) {
-        onPaddingChange(value);
+        setPadding(value);
       }
     },
-    [onPaddingChange],
+    [setPadding],
   );
 
   const handlePaddingBlur = useCallback(() => {
     const value = parseInt(paddingText, 10);
     const clamped = isNaN(value) || value < 0 ? 0 : value;
-    onPaddingChange(clamped);
+    setPadding(clamped);
     setPaddingText(String(clamped));
-  }, [paddingText, onPaddingChange]);
+  }, [paddingText, setPadding]);
 
   const stepPadding = useCallback(
     (delta: number) => {
       const next = Math.max(0, padding + delta);
-      onPaddingChange(next);
+      setPadding(next);
       setPaddingText(String(next));
     },
-    [padding, onPaddingChange],
+    [padding, setPadding],
   );
 
   const handleFormatSelect = useCallback(
@@ -354,7 +372,7 @@ export function ExportToolbar({
           <Codicon name="desktop-download" size={13} />
           {exporting ? "Saving\u2026" : "Save As"}
         </$ExportButton>
-        <$IconButton onClick={onClose} title="Close" aria-label="Close export toolbar">
+        <$IconButton onClick={() => closeExportOverlay()} title="Close" aria-label="Close export toolbar">
           <Codicon name="close" size={14} />
         </$IconButton>
       </$Group>

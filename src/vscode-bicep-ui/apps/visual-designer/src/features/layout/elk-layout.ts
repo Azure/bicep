@@ -3,12 +3,12 @@
 
 import type { ElkExtendedEdge, ElkNode } from "elkjs";
 import type { Getter, PrimitiveAtom, Setter } from "jotai";
-import type { Box } from "../../utils/math/geometry";
+import type { Box } from "../../lib/utils";
 
 import { atom } from "jotai";
 import { animate, transform, type AnimationPlaybackControlsWithThen } from "motion";
-import { translateBox } from "../../utils/math";
-import { nodesByIdAtom, edgesAtom } from "../graph-engine";
+import { translateBox } from "../../lib/utils";
+import { nodesByIdAtom, edgesAtom } from "../../lib/graph";
 
 import type { ELK } from "elkjs";
 

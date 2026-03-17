@@ -2,30 +2,37 @@
 // Licensed under the MIT License.
 
 import type { ComponentType } from "react";
-import type { DefaultTheme } from "styled-components";
-import type { NodeKind } from "./features/graph-engine";
+import type { NodeKind } from "./lib/graph";
 
 import { PanZoomProvider, useGetPanZoomDimensions } from "@vscode-bicep-ui/components";
 import { WebviewMessageChannelProvider, useWebviewMessageChannel, useWebviewNotification } from "@vscode-bicep-ui/messaging";
-import { getDefaultStore } from "jotai";
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { getDefaultStore, useAtomValue, useSetAtom } from "jotai";
+import { Suspense, useCallback, useEffect } from "react";
 import { styled, ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./GlobalStyle";
-import { useTheme } from "./theming/use-theme";
-import { GraphControlBar } from "./components/GraphControlBar";
-import { StatusBar } from "./components/StatusBar";
-import { ExportAreaCover, ExportAreaPreview, ExportOverlay, type ExportFormat } from "./features/export";
-import { getThemeByName } from "./theming/themes";
+import { useTheme } from "./lib/theming";
+import { GraphControlBar } from "./features/control";
+import { StatusBar } from "./features/status";
+import {
+  ExportAreaCover,
+  ExportAreaPreview,
+  ExportOverlay,
+  effectiveExportThemeAtom,
+  exportCanvasElementAtom,
+  exportFileStemAtom,
+  isExportCanvasCoverVisibleAtom,
+  isExportPreviewVisibleAtom,
+} from "./features/export";
 import { ModuleDeclaration, ResourceDeclaration } from "./features/visualization";
-import { nodeConfigAtom, Canvas, Graph } from "./features/graph-engine";
+import { nodeConfigAtom, Canvas, Graph } from "./lib/graph";
 import { loadDevAppShell } from "./features/devtools";
 import { useAutoLayout } from "./features/layout";
-import { useApplyDeploymentGraph } from "./features/messaging";
+import { useApplyDeploymentGraph } from "./lib/messaging";
 import {
   DEPLOYMENT_GRAPH_NOTIFICATION,
   READY_NOTIFICATION,
   type DeploymentGraphPayload,
-} from "./messages";
+} from "./lib/messaging";
 
 const DevAppShell = loadDevAppShell();
 
@@ -77,12 +84,9 @@ function GraphContainer() {
   }, [getPanZoomDimensions]);
   const applyGraph = useApplyDeploymentGraph(getViewportCenter);
   const messageChannel = useWebviewMessageChannel();
-  const [isExporting, setIsExporting] = useState(false);
-  const [exportPadding, setExportPadding] = useState(40);
-  const [exportFormat, setExportFormat] = useState<ExportFormat>("png");
-  const [exportThemeName, setExportThemeName] = useState<DefaultTheme["name"] | null>(null);
-  const [exportFileStem, setExportFileStem] = useState("bicep-graph");
-  const canvasRef = useRef<HTMLDivElement>(null);
+  const exportTheme = useAtomValue(effectiveExportThemeAtom);
+  const setExportFileStem = useSetAtom(exportFileStemAtom);
+  const setExportCanvasElement = useSetAtom(exportCanvasElementAtom);
 
   // Send READY notification on mount
   useEffect(() => {
@@ -100,51 +104,62 @@ function GraphContainer() {
         applyGraph(payload.deploymentGraph);
         setExportFileStem(deriveExportFileStem(payload.documentPath, payload.documentFileName));
       },
-      [applyGraph],
+      [applyGraph, setExportFileStem],
     ),
   );
 
   useAutoLayout();
 
-  const handleOpenExport = useCallback(() => {
-    setIsExporting(true);
-  }, []);
+  const canvasTheme = exportTheme;
 
-  const handleCloseExport = useCallback(() => {
-    setIsExporting(false);
-    setExportThemeName(null);
-  }, []);
-
-  const currentTheme = useTheme();
-  const exportTheme = exportThemeName ? getThemeByName(exportThemeName) : null;
-  const canvasTheme = exportTheme ?? currentTheme;
+  const handleCanvasRef = useCallback(
+    (element: HTMLDivElement | null) => {
+      setExportCanvasElement(element);
+    },
+    [setExportCanvasElement],
+  );
 
   return (
     <>
       <$ControlBarContainer>
-        <GraphControlBar onExport={handleOpenExport} />
+        <GraphControlBar />
       </$ControlBarContainer>
-      {isExporting && (
-        <ExportOverlay
-          canvasElement={canvasRef.current}
-          exportFileStem={exportFileStem}
-          onClose={handleCloseExport}
-          onPaddingChange={setExportPadding}
-          onFormatChange={setExportFormat}
-          onThemeChange={setExportThemeName}
-        />
-      )}
+      <ExportUiLayer />
       <ThemeProvider theme={canvasTheme}>
-        <div ref={canvasRef} style={{ position: "absolute", inset: 0 }}>
+        <div ref={handleCanvasRef} style={{ position: "absolute", inset: 0 }}>
           <Canvas>
-            {isExporting && exportFormat === "jpeg" && <ExportAreaCover padding={exportPadding} />}
+            <ExportCanvasCoverLayer />
             <Graph />
           </Canvas>
         </div>
       </ThemeProvider>
-      {isExporting && <ExportAreaPreview padding={exportPadding} />}
     </>
   );
+}
+
+function ExportUiLayer() {
+  const isExportPreviewVisible = useAtomValue(isExportPreviewVisibleAtom);
+
+  if (!isExportPreviewVisible) {
+    return null;
+  }
+
+  return (
+    <>
+      <ExportOverlay />
+      <ExportAreaPreview />
+    </>
+  );
+}
+
+function ExportCanvasCoverLayer() {
+  const isExportCanvasCoverVisible = useAtomValue(isExportCanvasCoverVisibleAtom);
+
+  if (!isExportCanvasCoverVisible) {
+    return null;
+  }
+
+  return <ExportAreaCover />;
 }
 
 const $AppContainer = styled.div`

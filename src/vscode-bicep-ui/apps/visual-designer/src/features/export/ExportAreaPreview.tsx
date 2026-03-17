@@ -5,7 +5,8 @@ import { usePanZoomTransform } from "@vscode-bicep-ui/components";
 import { VscodeBadge } from "@vscode-elements/react-elements";
 import { useAtomValue } from "jotai";
 import { styled, useTheme } from "styled-components";
-import { graphBoundsAtom } from "../graph-engine/atoms/graph";
+import { exportPaddingAtom } from "./atoms";
+import { graphBoundsAtom } from "../../lib/graph";
 
 const $Overlay = styled.div`
   position: absolute;
@@ -20,8 +21,9 @@ const $Overlay = styled.div`
  * around it when the export toolbar is active.  Follows pan-zoom so
  * the user always sees what will be in the exported image.
  */
-export function ExportAreaPreview({ padding }: { padding: number }) {
+export function ExportAreaPreview() {
   const theme = useTheme();
+  const padding = useAtomValue(exportPaddingAtom);
   const graphBounds = useAtomValue(graphBoundsAtom);
   const { x: tx, y: ty, scale } = usePanZoomTransform();
 

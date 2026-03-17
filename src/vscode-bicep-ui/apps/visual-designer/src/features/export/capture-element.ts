@@ -13,7 +13,7 @@ declare global {
 
 import { getDefaultStore } from "jotai";
 import { toSvg, toPng, toJpeg } from "html-to-image";
-import { nodesByIdAtom } from "../graph-engine/atoms/nodes";
+import { nodesByIdAtom } from "../../lib/graph";
 
 type Store = ReturnType<typeof getDefaultStore>;
 

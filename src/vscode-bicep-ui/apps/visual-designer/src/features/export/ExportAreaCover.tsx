@@ -3,15 +3,17 @@
 
 import { useAtomValue } from "jotai";
 import { useTheme } from "styled-components";
-import { graphBoundsAtom } from "../graph-engine/atoms/graph";
+import { exportPaddingAtom } from "./atoms";
+import { graphBoundsAtom } from "../../lib/graph";
 
 /**
  * Solid background rectangle rendered inside PanZoom (graph-space)
  * between CanvasBackground and Graph.  Covers the dot pattern within
  * the export boundary so the user previews the actual JPEG output.
  */
-export function ExportAreaCover({ padding }: { padding: number }) {
+export function ExportAreaCover() {
   const theme = useTheme();
+  const padding = useAtomValue(exportPaddingAtom);
   const graphBounds = useAtomValue(graphBoundsAtom);
 
   if (!graphBounds) return null;
