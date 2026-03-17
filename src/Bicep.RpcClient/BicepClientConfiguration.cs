@@ -87,6 +87,11 @@ public record BicepClientConfiguration
             {
                 throw new ArgumentException($"The {nameof(ExistingCliPath)} property cannot be used in conjunction with {nameof(Architecture)}.");
             }
+
+            if (!File.Exists(config.ExistingCliPath))
+            {
+                throw new FileNotFoundException($"The specified Bicep CLI path does not exist: '{config.ExistingCliPath}'.");
+            }
         }
     }
 }

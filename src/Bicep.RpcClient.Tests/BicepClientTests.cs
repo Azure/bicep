@@ -167,7 +167,8 @@ public class BicepClientTests
     [TestMethod]
     public void Validate_accepts_Stdio_with_ExistingCliPath()
     {
-        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ConnectionMode = BicepConnectionMode.Stdio, ExistingCliPath = "/some/path" }))
+        var existingPath = typeof(BicepClientTests).Assembly.Location;
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ConnectionMode = BicepConnectionMode.Stdio, ExistingCliPath = existingPath }))
             .Should().NotThrow();
     }
 
@@ -178,6 +179,25 @@ public class BicepClientTests
         var clientFactory = new BicepClientFactory();
         await FluentActions.Invoking(() => clientFactory.Initialize(new() { ExistingCliPath = nonExistentPath }, default))
             .Should().ThrowAsync<FileNotFoundException>().WithMessage($"The specified Bicep CLI path does not exist: '{nonExistentPath}'.");
+    }
+
+    [TestMethod]
+    public void Validate_throws_when_ExistingCliPath_does_not_exist()
+    {
+        var nonExistentPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ExistingCliPath = nonExistentPath }))
+            .Should().Throw<FileNotFoundException>().WithMessage($"The specified Bicep CLI path does not exist: '{nonExistentPath}'.");
+    }
+
+    [TestMethod]
+    public async Task Initialize_throws_NotSupportedException_for_unsupported_ConnectionMode()
+    {
+        var existingPath = typeof(BicepClientTests).Assembly.Location;
+        var clientFactory = new BicepClientFactory();
+        // Cast an unknown value to exercise the default branch in the factory's switch expression.
+        var unknownMode = (BicepConnectionMode)99;
+        await FluentActions.Invoking(() => clientFactory.Initialize(new() { ExistingCliPath = existingPath, ConnectionMode = unknownMode }, default))
+            .Should().ThrowAsync<NotSupportedException>();
     }
 
     [TestMethod]

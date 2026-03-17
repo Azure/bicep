@@ -30,7 +30,12 @@ public class BicepClientFactory(HttpClient? httpClient = null) : IBicepClientFac
             bicepCliPath = await Download(configuration, cancellationToken).ConfigureAwait(false);
         }
 
-        return await BicepClient.Initialize(bicepCliPath, configuration.ConnectionMode == BicepConnectionMode.Stdio, configuration.ConnectionTimeout, cancellationToken).ConfigureAwait(false);
+        return configuration.ConnectionMode switch
+        {
+            BicepConnectionMode.NamedPipe => await BicepClient.InitializeWithNamedPipe(bicepCliPath, configuration.ConnectionTimeout, cancellationToken).ConfigureAwait(false),
+            BicepConnectionMode.Stdio => BicepClient.InitializeWithStdio(bicepCliPath, cancellationToken),
+            _ => throw new NotSupportedException($"Unsupported connection mode: {configuration.ConnectionMode}")
+        };
     }
 
     internal async Task<string> Download(BicepClientConfiguration configuration, CancellationToken cancellationToken)
