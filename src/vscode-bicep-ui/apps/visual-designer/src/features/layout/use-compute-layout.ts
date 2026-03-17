@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import type { LayoutResult } from "./elk-layout";
 
 import { useGetPanZoomDimensions } from "@vscode-bicep-ui/components";

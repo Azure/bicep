@@ -4,15 +4,30 @@
 import type { ExportFormat } from "./types";
 
 import { toJpeg, toPng, toSvg } from "html-to-image";
-/* eslint-enable @typescript-eslint/no-explicit-any */
 
 import { getDefaultStore } from "jotai";
 import { nodesByIdAtom } from "../../lib/graph";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+interface SaveFilePickerOptions {
+  suggestedName?: string;
+  types?: Array<{
+    description?: string;
+    accept: Record<string, string[]>;
+  }>;
+}
+
+interface FileSystemWritableFileStream extends WritableStream {
+  write(data: Blob | BufferSource | string): Promise<void>;
+  close(): Promise<void>;
+}
+
+interface FileSystemFileHandle {
+  createWritable(): Promise<FileSystemWritableFileStream>;
+}
+
 declare global {
   interface Window {
-    showSaveFilePicker?: (options?: any) => Promise<any>;
+    showSaveFilePicker?: (options?: SaveFilePickerOptions) => Promise<FileSystemFileHandle>;
   }
 }
 
