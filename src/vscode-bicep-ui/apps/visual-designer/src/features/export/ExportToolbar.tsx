@@ -70,7 +70,9 @@ const $ExportButton = styled.button`
   font-family: inherit;
   font-weight: 600;
   white-space: nowrap;
-  transition: opacity 0.15s ease, transform 0.1s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.1s ease;
 
   &:hover {
     opacity: 0.9;
@@ -238,13 +240,7 @@ export function ExportToolbar() {
     setExportInProgress(true);
 
     try {
-      const dataUrl = await captureGraphElement(
-        canvasElement,
-        store,
-        format,
-        padding,
-        exportBackgroundColor,
-      );
+      const dataUrl = await captureGraphElement(canvasElement, store, format, padding, exportBackgroundColor);
       const fileStem = exportFileStem.trim() || "bicep-graph";
       await saveDataUrl(dataUrl, `${fileStem}.${format}`, format);
     } catch (error) {
@@ -252,16 +248,7 @@ export function ExportToolbar() {
     } finally {
       setExportInProgress(false);
     }
-  }, [
-    canvasElement,
-    exporting,
-    setExportInProgress,
-    store,
-    format,
-    padding,
-    exportBackgroundColor,
-    exportFileStem,
-  ]);
+  }, [canvasElement, exporting, setExportInProgress, store, format, padding, exportBackgroundColor, exportFileStem]);
 
   const [paddingText, setPaddingText] = useState(String(padding));
 

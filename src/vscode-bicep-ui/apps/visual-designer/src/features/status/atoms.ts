@@ -15,10 +15,7 @@ export const errorCountAtom = atom(0);
  */
 export const hasNodesAtom = atom(false);
 
-export type GraphStatus =
-  | { kind: "errors"; errorCount: number }
-  | { kind: "empty" }
-  | { kind: "ready" };
+export type GraphStatus = { kind: "errors"; errorCount: number } | { kind: "empty" } | { kind: "ready" };
 
 /**
  * Semantic status of the current graph used by the status bar.

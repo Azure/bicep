@@ -24,21 +24,25 @@ User-facing feature slices live under `src/features/` (`control/`, `export/`, `l
 ## Patterns in this app
 
 1. Export flow:
+
 - Source of truth in `features/export/atoms.ts`.
 - UI visibility via derived atoms.
 - Export execution reads atoms directly in toolbar.
 
 2. Theming:
+
 - VS Code body theme is observed once via `theming/atoms.ts` (`activeThemeAtom.onMount`).
 - Consumers use `useTheme()` backed by the shared atom.
 
 3. Status (`features/status/`):
+
 - Owns graph metadata atoms (`errorCountAtom`, `hasNodesAtom`) written by the messaging layer.
 - `graphStatusAtom` derives semantic status (`errors | empty | ready`).
 - `StatusBar` component lives here as it renders diagnostic status.
 - Kept separate from `graph/`, which only handles rendering and geometry.
 
 4. Control (`features/control/`):
+
 - `graphControlAvailabilityAtom` derives which controls are actionable from `hasNodesAtom`.
 - `GraphControlBar` component lives here as it orchestrates graph interactions.
 - Depends on `status` (availability), `export` (open overlay), `graph/` (fit view), `layout` (reset).

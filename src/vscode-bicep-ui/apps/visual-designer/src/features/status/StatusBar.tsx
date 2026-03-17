@@ -5,8 +5,8 @@ import { useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { useAtomValue } from "jotai";
 import { useCallback } from "react";
 import { styled } from "styled-components";
-import { graphStatusAtom } from "./atoms";
 import { SHOW_PROBLEMS_PANEL_NOTIFICATION } from "../../lib/messaging";
+import { graphStatusAtom } from "./atoms";
 
 const $StatusBarContainer = styled.div`
   position: absolute;
@@ -70,9 +70,7 @@ export function StatusBar() {
           in the file. The rendered graph may not be accurate.
         </span>
       )}
-      {graphStatus.kind === "empty" && (
-        <span>There are no resources or modules in the file. Nothing to display.</span>
-      )}
+      {graphStatus.kind === "empty" && <span>There are no resources or modules in the file. Nothing to display.</span>}
     </$StatusBarContainer>
   );
 }

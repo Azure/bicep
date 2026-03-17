@@ -4,9 +4,7 @@
 import { useSetAtom } from "jotai";
 import { useCallback, useLayoutEffect } from "react";
 import { styled } from "styled-components";
-import {
-  closeExportOverlayAtom,
-} from "./atoms";
+import { closeExportOverlayAtom } from "./atoms";
 import { ExportToolbar } from "./ExportToolbar";
 
 const $OverlayContainer = styled.div`

@@ -3,8 +3,8 @@
 
 import { useAtomValue } from "jotai";
 import { useTheme } from "styled-components";
-import { exportPaddingAtom } from "./atoms";
 import { graphBoundsAtom } from "../../lib/graph";
+import { exportPaddingAtom } from "./atoms";
 
 /**
  * Solid background rectangle rendered inside PanZoom (graph-space)

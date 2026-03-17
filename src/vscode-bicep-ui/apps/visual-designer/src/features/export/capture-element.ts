@@ -3,17 +3,18 @@
 
 import type { ExportFormat } from "./types";
 
+import { toJpeg, toPng, toSvg } from "html-to-image";
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+import { getDefaultStore } from "jotai";
+import { nodesByIdAtom } from "../../lib/graph";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 declare global {
   interface Window {
     showSaveFilePicker?: (options?: any) => Promise<any>;
   }
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
-
-import { getDefaultStore } from "jotai";
-import { toSvg, toPng, toJpeg } from "html-to-image";
-import { nodesByIdAtom } from "../../lib/graph";
 
 type Store = ReturnType<typeof getDefaultStore>;
 
@@ -71,29 +72,69 @@ function computeCssDefaults(): Map<string, string> {
  * Properties that never affect the visual output of a static SVG export.
  */
 const NON_VISUAL_PROPS = new Set([
-  "cursor", "caret-color", "pointer-events", "user-select",
-  "-webkit-user-select", "touch-action", "resize",
-  "outline", "outline-color", "outline-offset", "outline-style", "outline-width",
-  "orphans", "widows", "page",
-  "page-break-after", "page-break-before", "page-break-inside",
-  "break-after", "break-before", "break-inside",
-  "accent-color", "appearance", "backface-visibility", "buffered-rendering",
-  "contain", "container", "container-name", "container-type",
-  "content-visibility", "forced-color-adjust", "image-orientation", "image-rendering",
-  "interpolate-size", "isolation",
-  "math-depth", "math-shift", "math-style",
+  "cursor",
+  "caret-color",
+  "pointer-events",
+  "user-select",
+  "-webkit-user-select",
+  "touch-action",
+  "resize",
+  "outline",
+  "outline-color",
+  "outline-offset",
+  "outline-style",
+  "outline-width",
+  "orphans",
+  "widows",
+  "page",
+  "page-break-after",
+  "page-break-before",
+  "page-break-inside",
+  "break-after",
+  "break-before",
+  "break-inside",
+  "accent-color",
+  "appearance",
+  "backface-visibility",
+  "buffered-rendering",
+  "contain",
+  "container",
+  "container-name",
+  "container-type",
+  "content-visibility",
+  "forced-color-adjust",
+  "image-orientation",
+  "image-rendering",
+  "interpolate-size",
+  "isolation",
+  "math-depth",
+  "math-shift",
+  "math-style",
   "mix-blend-mode",
-  "object-fit", "object-position", "object-view-box",
-  "perspective", "perspective-origin",
+  "object-fit",
+  "object-position",
+  "object-view-box",
+  "perspective",
+  "perspective-origin",
   "print-color-adjust",
-  "ruby-align", "ruby-position",
-  "shape-image-threshold", "shape-margin", "shape-outside",
-  "speak", "table-layout",
-  "text-combine-upright", "text-orientation",
+  "ruby-align",
+  "ruby-position",
+  "shape-image-threshold",
+  "shape-margin",
+  "shape-outside",
+  "speak",
+  "table-layout",
+  "text-combine-upright",
+  "text-orientation",
   "text-size-adjust",
-  "timeline-scope", "unicode-bidi",
-  "will-change", "writing-mode",
-  "counter-increment", "counter-reset", "counter-set", "content",
+  "timeline-scope",
+  "unicode-bidi",
+  "will-change",
+  "writing-mode",
+  "counter-increment",
+  "counter-reset",
+  "counter-set",
+  "content",
 ]);
 
 /** Prefix families that are entirely non-visual for a static export. */
@@ -122,26 +163,46 @@ function isNonVisualProperty(prop: string): boolean {
  * browser default, because a standalone SVG has no parent to inherit from.
  */
 const INHERITABLE_PROPS = new Set([
-  "color", "direction", "font", "font-family", "font-size", "font-style",
-  "font-variant", "font-weight", "font-stretch", "font-size-adjust",
-  "letter-spacing", "line-height", "text-align", "text-indent",
-  "text-transform", "white-space-collapse", "word-spacing", "word-break",
-  "visibility", "cursor",
-  "-webkit-text-fill-color", "-webkit-text-stroke",
-  "fill", "fill-opacity", "fill-rule",
-  "stroke", "stroke-dasharray", "stroke-dashoffset",
-  "stroke-linecap", "stroke-linejoin", "stroke-miterlimit",
-  "stroke-opacity", "stroke-width",
+  "color",
+  "direction",
+  "font",
+  "font-family",
+  "font-size",
+  "font-style",
+  "font-variant",
+  "font-weight",
+  "font-stretch",
+  "font-size-adjust",
+  "letter-spacing",
+  "line-height",
+  "text-align",
+  "text-indent",
+  "text-transform",
+  "white-space-collapse",
+  "word-spacing",
+  "word-break",
+  "visibility",
+  "cursor",
+  "-webkit-text-fill-color",
+  "-webkit-text-stroke",
+  "fill",
+  "fill-opacity",
+  "fill-rule",
+  "stroke",
+  "stroke-dasharray",
+  "stroke-dashoffset",
+  "stroke-linecap",
+  "stroke-linejoin",
+  "stroke-miterlimit",
+  "stroke-opacity",
+  "stroke-width",
 ]);
 
 /**
  * Remove custom properties, known non-visual declarations,
  * and declarations whose values match the browser default.
  */
-function stripBloatedDeclarations(
-  style: string,
-  cssDefaults: Map<string, string>,
-): string {
+function stripBloatedDeclarations(style: string, cssDefaults: Map<string, string>): string {
   return style
     .split(";")
     .filter((decl) => {
@@ -164,10 +225,7 @@ function stripBloatedDeclarations(
 /**
  * Strip bloat from the SVG data URL produced by html-to-image.
  */
-function cleanSvgDataUrl(
-  dataUrl: string,
-  cssDefaults: Map<string, string>,
-): string {
+function cleanSvgDataUrl(dataUrl: string, cssDefaults: Map<string, string>): string {
   const prefix = "data:image/svg+xml;charset=utf-8,";
   if (!dataUrl.startsWith(prefix)) return dataUrl;
 
@@ -245,14 +303,8 @@ function cleanSvgDataUrl(
 
       const defs =
         root.querySelector("defs") ??
-        root.insertBefore(
-          doc.createElementNS("http://www.w3.org/2000/svg", "defs"),
-          root.firstChild,
-        );
-      const styleEl = doc.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "style",
-      );
+        root.insertBefore(doc.createElementNS("http://www.w3.org/2000/svg", "defs"), root.firstChild);
+      const styleEl = doc.createElementNS("http://www.w3.org/2000/svg", "style");
       styleEl.textContent = css;
       defs.appendChild(styleEl);
     }
@@ -310,9 +362,7 @@ export async function captureGraphElement(
 
   try {
     // Fix overflow on the PanZoom container inside the clone.
-    const panZoomContainer = clone.querySelector(
-      '[data-testid="pan-zoom"]',
-    ) as HTMLElement | null;
+    const panZoomContainer = clone.querySelector('[data-testid="pan-zoom"]') as HTMLElement | null;
     if (panZoomContainer) {
       panZoomContainer.style.overflow = "visible";
     }
@@ -403,11 +453,7 @@ function dataUrlToBlob(dataUrl: string): Blob {
  * Falls back to a direct download if the File System Access API
  * is not available (e.g. non-Chromium browsers).
  */
-export async function saveDataUrl(
-  dataUrl: string,
-  defaultName: string,
-  format: ExportFormat,
-): Promise<void> {
+export async function saveDataUrl(dataUrl: string, defaultName: string, format: ExportFormat): Promise<void> {
   const blob = dataUrlToBlob(dataUrl);
 
   // Try the File System Access API (Chromium-based browsers).

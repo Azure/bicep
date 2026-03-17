@@ -38,7 +38,10 @@ const $ResourceDelcarton = styled.div<{ $hasError?: boolean; $isCollection?: boo
   min-width: 220px;
   box-shadow: ${({ $isFocused, $hasError, theme }) =>
     $isFocused ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
-  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
 
   &:hover {
     border-color: ${({ $hasError, $isFocused, theme }) =>

@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { ReactNode } from "react";
 import type { WebviewMessageChannel } from "@vscode-bicep-ui/messaging";
+import type { ReactNode } from "react";
 
 import { WebviewMessageChannelProvider } from "@vscode-bicep-ui/messaging";
-import { useDevChannel } from "./use-dev-channel";
 import { DevToolbar } from "./DevToolbar";
+import { useDevChannel } from "./use-dev-channel";
 
 interface DevAppShellProps {
   children: ReactNode;

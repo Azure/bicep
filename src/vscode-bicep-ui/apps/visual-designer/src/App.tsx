@@ -3,36 +3,36 @@
 
 import type { ComponentType } from "react";
 import type { NodeKind } from "./lib/graph";
+import type { DeploymentGraphPayload } from "./lib/messaging";
 
 import { PanZoomProvider, useGetPanZoomDimensions } from "@vscode-bicep-ui/components";
-import { WebviewMessageChannelProvider, useWebviewMessageChannel, useWebviewNotification } from "@vscode-bicep-ui/messaging";
+import {
+  useWebviewMessageChannel,
+  useWebviewNotification,
+  WebviewMessageChannelProvider,
+} from "@vscode-bicep-ui/messaging";
 import { getDefaultStore, useAtomValue, useSetAtom } from "jotai";
 import { Suspense, useCallback, useEffect } from "react";
 import { styled, ThemeProvider } from "styled-components";
-import { GlobalStyle } from "./GlobalStyle";
-import { useTheme } from "./lib/theming";
 import { GraphControlBar } from "./features/control";
-import { StatusBar } from "./features/status";
+import { loadDevAppShell } from "./features/devtools";
 import {
+  effectiveExportThemeAtom,
   ExportAreaCover,
   ExportAreaPreview,
-  ExportOverlay,
-  effectiveExportThemeAtom,
   exportCanvasElementAtom,
   exportFileStemAtom,
+  ExportOverlay,
   isExportCanvasCoverVisibleAtom,
   isExportPreviewVisibleAtom,
 } from "./features/export";
-import { ModuleDeclaration, ResourceDeclaration } from "./features/visualization";
-import { nodeConfigAtom, Canvas, Graph } from "./lib/graph";
-import { loadDevAppShell } from "./features/devtools";
 import { useAutoLayout } from "./features/layout";
-import { useApplyDeploymentGraph } from "./lib/messaging";
-import {
-  DEPLOYMENT_GRAPH_NOTIFICATION,
-  READY_NOTIFICATION,
-  type DeploymentGraphPayload,
-} from "./lib/messaging";
+import { StatusBar } from "./features/status";
+import { ModuleDeclaration, ResourceDeclaration } from "./features/visualization";
+import { GlobalStyle } from "./GlobalStyle";
+import { Canvas, Graph, nodeConfigAtom } from "./lib/graph";
+import { DEPLOYMENT_GRAPH_NOTIFICATION, READY_NOTIFICATION, useApplyDeploymentGraph } from "./lib/messaging";
+import { useTheme } from "./lib/theming";
 
 const DevAppShell = loadDevAppShell();
 
