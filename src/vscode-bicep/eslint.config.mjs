@@ -1,66 +1,50 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import notice from "eslint-plugin-notice";
-import typescriptEslint from "@typescript-eslint/eslint-plugin";
-import tsParser from "@typescript-eslint/parser";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
+import jest from "eslint-plugin-jest";
+import notice from "eslint-plugin-notice";
+import react from "eslint-plugin-react";
+import tseslint from "typescript-eslint";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all
-});
-
-export default [{
-    ignores: [
-        "out/**/*",
-        "**/.eslintrc.cjs",
-        "**/webpack.config.ts",
-        "**/jest.config.*.js",
-    ],
-}, ...compat.extends(
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:react/recommended",
-    "plugin:react/jsx-runtime",
-    "plugin:jest/recommended",
-    "plugin:jest/style",
-), {
-    files: ["**/*.ts", "**/*.tsx"],
-    
-    plugins: {
-        notice,
-        "@typescript-eslint": typescriptEslint,
+export default tseslint.config(
+    {
+        ignores: [
+            "out/**/*",
+            "**/.eslintrc.cjs",
+            "**/webpack.config.ts",
+            "**/jest.config.*.js",
+        ],
     },
+    js.configs.recommended,
+    ...tseslint.configs.recommended,
+    {
+        ...react.configs.flat.recommended,
+        settings: { react: { version: "detect" } },
+    },
+    react.configs.flat["jsx-runtime"],
+    jest.configs["flat/recommended"],
+    jest.configs["flat/style"],
+    {
+        files: ["**/*.ts", "**/*.tsx"],
 
-    languageOptions: {
-        parser: tsParser,
-        ecmaVersion: 5,
-        sourceType: "script",
+        plugins: {
+            notice,
+        },
 
-        parserOptions: {
-            project: true,
+        languageOptions: {
+            parserOptions: {
+                project: true,
+            },
+        },
+
+        rules: {
+            "notice/notice": [
+                2,
+                {
+                    templateFile: "../copyright-template.js",
+                },
+            ],
         },
     },
-
-    rules: {
-        "notice/notice": [
-            2,
-            {
-                "templateFile": "../copyright-template.js",
-            }
-        ]
-    },
-
-    settings: {
-        react: {
-            version: "detect",
-        },
-    },
-}];
+);
