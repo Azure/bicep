@@ -33,7 +33,7 @@ public class BicepClientFactory(HttpClient? httpClient = null) : IBicepClientFac
         return configuration.ConnectionMode switch
         {
             BicepConnectionMode.NamedPipe => await BicepClient.InitializeWithNamedPipe(bicepCliPath, configuration.ConnectionTimeout, cancellationToken).ConfigureAwait(false),
-            BicepConnectionMode.Stdio => BicepClient.InitializeWithStdio(bicepCliPath, cancellationToken),
+            BicepConnectionMode.Stdio => await BicepClient.InitializeWithStdio(bicepCliPath, cancellationToken).ConfigureAwait(false),
             _ => throw new NotSupportedException($"Unsupported connection mode: {configuration.ConnectionMode}")
         };
     }
