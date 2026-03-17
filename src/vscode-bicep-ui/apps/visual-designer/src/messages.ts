@@ -7,6 +7,8 @@ export const DEPLOYMENT_GRAPH_NOTIFICATION = "deploymentGraph";
 
 export interface DeploymentGraphPayload {
   documentPath: string;
+  /** Optional basename provided by the host (for robust naming across environments). */
+  documentFileName?: string;
   deploymentGraph: DeploymentGraph | null;
 }
 

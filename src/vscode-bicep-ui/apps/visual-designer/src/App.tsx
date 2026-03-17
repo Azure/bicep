@@ -2,17 +2,20 @@
 // Licensed under the MIT License.
 
 import type { ComponentType } from "react";
+import type { DefaultTheme } from "styled-components";
 import type { NodeKind } from "./features/graph-engine";
 
 import { PanZoomProvider, useGetPanZoomDimensions } from "@vscode-bicep-ui/components";
 import { WebviewMessageChannelProvider, useWebviewMessageChannel, useWebviewNotification } from "@vscode-bicep-ui/messaging";
 import { getDefaultStore } from "jotai";
-import { Suspense, useCallback, useEffect } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { styled, ThemeProvider } from "styled-components";
 import { GlobalStyle } from "./GlobalStyle";
 import { useTheme } from "./theming/use-theme";
 import { GraphControlBar } from "./components/GraphControlBar";
 import { StatusBar } from "./components/StatusBar";
+import { ExportAreaCover, ExportAreaPreview, ExportOverlay, type ExportFormat } from "./features/export";
+import { getThemeByName } from "./theming/themes";
 import { ModuleDeclaration, ResourceDeclaration } from "./features/visualization";
 import { nodeConfigAtom, Canvas, Graph } from "./features/graph-engine";
 import { loadDevAppShell } from "./features/devtools";
@@ -35,6 +38,13 @@ const $ControlBarContainer = styled.div`
   right: 16px;
   z-index: 100;
 `;
+
+function deriveExportFileStem(documentPath?: string, documentFileName?: string): string {
+  const fileName = (documentFileName || documentPath || "").split(/[\\/]/).pop() ?? "";
+  const stem = fileName.replace(/\.[^.]+$/, "").trim();
+
+  return stem || "bicep-graph";
+}
 
 store.set(nodeConfigAtom, {
   ...nodeConfig,
@@ -67,6 +77,12 @@ function GraphContainer() {
   }, [getPanZoomDimensions]);
   const applyGraph = useApplyDeploymentGraph(getViewportCenter);
   const messageChannel = useWebviewMessageChannel();
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportPadding, setExportPadding] = useState(40);
+  const [exportFormat, setExportFormat] = useState<ExportFormat>("png");
+  const [exportThemeName, setExportThemeName] = useState<DefaultTheme["name"] | null>(null);
+  const [exportFileStem, setExportFileStem] = useState("bicep-graph");
+  const canvasRef = useRef<HTMLDivElement>(null);
 
   // Send READY notification on mount
   useEffect(() => {
@@ -82,6 +98,7 @@ function GraphContainer() {
       (params: unknown) => {
         const payload = params as DeploymentGraphPayload;
         applyGraph(payload.deploymentGraph);
+        setExportFileStem(deriveExportFileStem(payload.documentPath, payload.documentFileName));
       },
       [applyGraph],
     ),
@@ -89,14 +106,43 @@ function GraphContainer() {
 
   useAutoLayout();
 
+  const handleOpenExport = useCallback(() => {
+    setIsExporting(true);
+  }, []);
+
+  const handleCloseExport = useCallback(() => {
+    setIsExporting(false);
+    setExportThemeName(null);
+  }, []);
+
+  const currentTheme = useTheme();
+  const exportTheme = exportThemeName ? getThemeByName(exportThemeName) : null;
+  const canvasTheme = exportTheme ?? currentTheme;
+
   return (
     <>
       <$ControlBarContainer>
-        <GraphControlBar />
+        <GraphControlBar onExport={handleOpenExport} />
       </$ControlBarContainer>
-      <Canvas>
-        <Graph />
-      </Canvas>
+      {isExporting && (
+        <ExportOverlay
+          canvasElement={canvasRef.current}
+          exportFileStem={exportFileStem}
+          onClose={handleCloseExport}
+          onPaddingChange={setExportPadding}
+          onFormatChange={setExportFormat}
+          onThemeChange={setExportThemeName}
+        />
+      )}
+      <ThemeProvider theme={canvasTheme}>
+        <div ref={canvasRef} style={{ position: "absolute", inset: 0 }}>
+          <Canvas>
+            {isExporting && exportFormat === "jpeg" && <ExportAreaCover padding={exportPadding} />}
+            <Graph />
+          </Canvas>
+        </div>
+      </ThemeProvider>
+      {isExporting && <ExportAreaPreview padding={exportPadding} />}
     </>
   );
 }

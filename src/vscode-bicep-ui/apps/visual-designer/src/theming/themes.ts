@@ -212,3 +212,16 @@ export function getThemeFromBody(): DefaultTheme {
       return lightTheme;
   }
 }
+
+export function getThemeByName(name: DefaultTheme["name"]): DefaultTheme {
+  switch (name) {
+    case "dark":
+      return darkTheme;
+    case "high-contrast":
+      return highContrastTheme;
+    case "high-contrast-light":
+      return highContrastLightTheme;
+    default:
+      return lightTheme;
+  }
+}
