@@ -22,22 +22,33 @@ internal class BicepClient : IBicepClient
     private readonly CancellationTokenSource cts;
     private string? cachedVersion;
 
-    private BicepClient(NamedPipeServerStream pipeStream, Process cliProcess, JsonRpcClient jsonRpcClient, CancellationTokenSource cts)
+    private BicepClient(Action onComplete, Process cliProcess, JsonRpcClient jsonRpcClient, CancellationTokenSource cts)
     {
         this.cliProcess = cliProcess;
         this.jsonRpcClient = jsonRpcClient;
-        this.backgroundTask = jsonRpcClient.Listen(onComplete: pipeStream.Dispose, cts.Token);
+        this.backgroundTask = jsonRpcClient.Listen(onComplete: onComplete, cts.Token);
         this.cts = cts;
     }
 
     /// <summary>
     /// Initializes the Bicep CLI by starting the process and establishing a JSON-RPC connection.
     /// </summary>
-    public static async Task<IBicepClient> Initialize(string bicepCliPath, TimeSpan connectionTimeout, CancellationToken cancellationToken)
+    public static Task<IBicepClient> Initialize(string bicepCliPath, TimeSpan connectionTimeout, CancellationToken cancellationToken)
+        => Initialize(bicepCliPath, useStdio: false, connectionTimeout, cancellationToken);
+
+    /// <summary>
+    /// Initializes the Bicep CLI by starting the process and establishing a JSON-RPC connection.
+    /// </summary>
+    public static async Task<IBicepClient> Initialize(string bicepCliPath, bool useStdio, TimeSpan connectionTimeout, CancellationToken cancellationToken)
     {
         if (!File.Exists(bicepCliPath))
         {
             throw new FileNotFoundException($"The specified Bicep CLI path does not exist: '{bicepCliPath}'.");
+        }
+
+        if (useStdio)
+        {
+            return InitializeWithStdio(bicepCliPath, cancellationToken);
         }
 
         var pipeName = Guid.NewGuid().ToString();
@@ -63,13 +74,37 @@ internal class BicepClient : IBicepClient
             var clientCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var client = new JsonRpcClient(PipeReader.Create(pipeStream), PipeWriter.Create(pipeStream));
 
-            return new BicepClient(pipeStream, cliProcess, client, clientCts);
+            return new BicepClient(pipeStream.Dispose, cliProcess, client, clientCts);
         }
         catch
         {
             cliProcess.Kill();
             throw;
         }
+    }
+
+    private static IBicepClient InitializeWithStdio(string bicepCliPath, CancellationToken cancellationToken)
+    {
+        var psi = new ProcessStartInfo
+        {
+            FileName = bicepCliPath,
+            Arguments = "jsonrpc --stdio",
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            RedirectStandardError = true,
+            RedirectStandardInput = true,
+            RedirectStandardOutput = true
+        };
+
+        var cliProcess = Process.Start(psi)
+            ?? throw new InvalidOperationException("Failed to start Bicep CLI process");
+
+        var clientCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var reader = PipeReader.Create(cliProcess.StandardOutput.BaseStream);
+        var writer = PipeWriter.Create(cliProcess.StandardInput.BaseStream);
+        var client = new JsonRpcClient(reader, writer);
+
+        return new BicepClient(onComplete: () => { }, cliProcess, client, clientCts);
     }
 
     internal static async Task WaitForPipeConnection(NamedPipeServerStream pipeStream, TimeSpan connectionTimeout, CancellationToken cancellationToken)

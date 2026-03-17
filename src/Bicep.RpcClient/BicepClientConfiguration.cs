@@ -10,6 +10,7 @@ namespace Bicep.RpcClient;
 public record BicepClientConfiguration
 {
     private static readonly Regex VersionRegex = new(@"^\d+\.\d+\.\d+$");
+    private static readonly TimeSpan DefaultConnectionTimeout = TimeSpan.FromSeconds(30);
 
     [Obsolete($"Use the {nameof(InstallBasePath)} property instead. This property will be removed in a future release.")]
     public string? InstallPath { get; init; }
@@ -41,8 +42,14 @@ public record BicepClientConfiguration
 
     /// <summary>
     /// The maximum time to wait for the Bicep CLI process to connect via the named pipe. Defaults to 30 seconds.
+    /// Not applicable when <see cref="ConnectionMode"/> is <see cref="BicepConnectionMode.Stdio"/>.
     /// </summary>
-    public TimeSpan ConnectionTimeout { get; init; } = TimeSpan.FromSeconds(30);
+    public TimeSpan ConnectionTimeout { get; init; } = DefaultConnectionTimeout;
+
+    /// <summary>
+    /// The transport used to communicate with the Bicep CLI process. Defaults to <see cref="BicepConnectionMode.NamedPipe"/>.
+    /// </summary>
+    public BicepConnectionMode ConnectionMode { get; init; } = BicepConnectionMode.NamedPipe;
 
     public static BicepClientConfiguration Default
         => new();
@@ -52,6 +59,11 @@ public record BicepClientConfiguration
         if (config.BicepVersion is { } version && !VersionRegex.IsMatch(version))
         {
             throw new ArgumentException($"Invalid Bicep version format '{version}'. Expected format: 'x.y.z' where x, y, and z are integers.");
+        }
+
+        if (config.ConnectionMode == BicepConnectionMode.Stdio && config.ConnectionTimeout != DefaultConnectionTimeout)
+        {
+            throw new ArgumentException($"The {nameof(ConnectionTimeout)} property cannot be used when {nameof(ConnectionMode)} is {nameof(BicepConnectionMode.Stdio)}.");
         }
 
         if (config.ExistingCliPath is { })

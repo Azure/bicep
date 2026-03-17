@@ -30,7 +30,7 @@ public class BicepClientFactory(HttpClient? httpClient = null) : IBicepClientFac
             bicepCliPath = await Download(configuration, cancellationToken).ConfigureAwait(false);
         }
 
-        return await BicepClient.Initialize(bicepCliPath, configuration.ConnectionTimeout, cancellationToken).ConfigureAwait(false);
+        return await BicepClient.Initialize(bicepCliPath, configuration.ConnectionMode == BicepConnectionMode.Stdio, configuration.ConnectionTimeout, cancellationToken).ConfigureAwait(false);
     }
 
     internal async Task<string> Download(BicepClientConfiguration configuration, CancellationToken cancellationToken)
@@ -63,10 +63,10 @@ public class BicepClientFactory(HttpClient? httpClient = null) : IBicepClientFac
     }
 
     [Obsolete($"Use {nameof(Initialize)} with a {nameof(BicepClientConfiguration)} that has {nameof(BicepClientConfiguration.ExistingCliPath)} set instead.")]
-    public Task<IBicepClient> InitializeFromPath(string bicepCliPath, CancellationToken cancellationToken = default)
+    public Task<IBicepClient> InitializeFromPath(string bicepCliPath, CancellationToken cancellationToken)
         => Initialize(new() { ExistingCliPath = bicepCliPath }, cancellationToken);
 
     [Obsolete($"Use {nameof(Initialize)} instead.")]
-    public Task<IBicepClient> DownloadAndInitialize(BicepClientConfiguration configuration, CancellationToken cancellationToken = default)
+    public Task<IBicepClient> DownloadAndInitialize(BicepClientConfiguration configuration, CancellationToken cancellationToken)
         => Initialize(configuration, cancellationToken);
 }

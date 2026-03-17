@@ -151,6 +151,27 @@ public class BicepClientTests
     }
 
     [TestMethod]
+    public void Validate_throws_when_Stdio_combined_with_ConnectionTimeout()
+    {
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ConnectionMode = BicepConnectionMode.Stdio, ConnectionTimeout = TimeSpan.FromSeconds(10) }))
+            .Should().Throw<ArgumentException>().WithMessage("*ConnectionTimeout*Stdio*");
+    }
+
+    [TestMethod]
+    public void Validate_accepts_Stdio_without_ConnectionTimeout()
+    {
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ConnectionMode = BicepConnectionMode.Stdio }))
+            .Should().NotThrow();
+    }
+
+    [TestMethod]
+    public void Validate_accepts_Stdio_with_ExistingCliPath()
+    {
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ConnectionMode = BicepConnectionMode.Stdio, ExistingCliPath = "/some/path" }))
+            .Should().NotThrow();
+    }
+
+    [TestMethod]
     public async Task Initialize_validates_path_existence()
     {
         var nonExistentPath = FileHelper.GetUniqueTestOutputPath(TestContext);
@@ -191,6 +212,28 @@ public class BicepClientTests
         """);
 
         var result = await Bicep.Compile(new(bicepFile));
+
+        result.Success.Should().BeTrue();
+        result.Contents.Should().NotBeNullOrEmpty();
+        result.Diagnostics.Should().Contain(x => x.Code == "no-unused-params");
+    }
+
+    [TestMethod]
+    public async Task Compile_runs_successfully_with_stdio()
+    {
+        var clientFactory = new BicepClientFactory();
+        var cliName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "bicep.exe" : "bicep";
+        var cliPath = Path.GetFullPath(Path.Combine(typeof(BicepClientTests).Assembly.Location, $"../{cliName}"));
+
+        using var bicep = await clientFactory.Initialize(
+            new() { ExistingCliPath = cliPath, ConnectionMode = BicepConnectionMode.Stdio },
+            TestContext.CancellationTokenSource.Token);
+
+        var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", """
+        param location string
+        """);
+
+        var result = await bicep.Compile(new(bicepFile));
 
         result.Success.Should().BeTrue();
         result.Contents.Should().NotBeNullOrEmpty();
