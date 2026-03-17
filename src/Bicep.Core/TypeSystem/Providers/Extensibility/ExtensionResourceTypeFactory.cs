@@ -104,7 +104,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             {
                 if (value.Type.Type is not Azure.Bicep.Types.Concrete.FunctionType functionType)
                 {
-                    throw new ArgumentException();
+                    throw new ArgumentException($"Expected a FunctionType for function '{key}', but got '{value.Type.Type?.GetType().Name}'.");
                 }
 
                 var builder = new FunctionOverloadBuilder(key);
@@ -234,7 +234,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Array => LanguageConstants.Array,
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.ResourceRef => LanguageConstants.ResourceRef,
 #pragma warning restore 618
-                        _ => throw new ArgumentException(),
+                        _ => throw new ArgumentException($"Unhandled BuiltInTypeKind '{builtInType.Kind}'."),
                     };
                 case Azure.Bicep.Types.Concrete.ObjectType objectType:
                     {
@@ -260,7 +260,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                         return new DiscriminatedObjectType(discriminatedObjectType.Name, GetValidationFlags(isResourceBodyType, isSensitive: false), discriminatedObjectType.Discriminator, elementReferences);
                     }
                 default:
-                    throw new ArgumentException();
+                    throw new ArgumentException($"Unsupported type: {typeBase.GetType().FullName}");
             }
         }
 
@@ -268,7 +268,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
         {
             if (!(extendedType.Type is Azure.Bicep.Types.Concrete.ObjectType objectType))
             {
-                throw new ArgumentException();
+                throw new ArgumentException($"Expected an ObjectType for the extended type in '{name}', but got '{extendedType.Type?.GetType().Name}'.");
             }
 
             var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties, isResourceBodyType) : null;
