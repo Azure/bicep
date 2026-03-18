@@ -38,7 +38,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }
         }
 
-        private static void CompileAndTestWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors, int? maxAgeInDays = null)
+        private static void CompileAndTestWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors, int? maxAgeInDays = null, int? gracePeriodInDays = null)
         {
             VerifyAllTypesAndDatesAreFake(bicep, string.Join(", ", resourceTypes), fakeToday, string.Join(", ", expectedMessagesForCode));
 
@@ -48,7 +48,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 new Options(
                     OnCompileErrors: onCompileErrors,
                     IncludePosition.LineNumber,
-                    ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays),
+                    ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays, gracePeriodInDays),
                     // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
                     // Note: The compiler does not know about these fake types, only the linter.
                     AzResourceTypeLoader: resourceTypes.Any() ? FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes).Object : null));
@@ -98,7 +98,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     AzResourceTypeLoader: FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes).Object));
         }
 
-        private static RootConfiguration CreateConfigurationWithFakeToday(RootConfiguration original, string today, int? maxAgeInDays = null)
+        private static RootConfiguration CreateConfigurationWithFakeToday(RootConfiguration original, string today, int? maxAgeInDays = null, int? gracePeriodInDays = null)
         {
             VerifyAllTypesAndDatesAreFake(today);
 
@@ -118,13 +118,15 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                                         "test-today": "<TESTING_TODAY_DATE>",
                                         "test-warn-not-found": true
                                         <MAX_AGE_PROP>
+                                        <GRACE_PERIOD_PROP>
                                     }
                                 }
                             }
                         }
                         """
                             .Replace("<TESTING_TODAY_DATE>", today)
-                            .Replace("<MAX_AGE_PROP>", maxAgeInDays.HasValue ? $", \"maxAgeInDays\": {maxAgeInDays}" : ""))),
+                            .Replace("<MAX_AGE_PROP>", maxAgeInDays.HasValue ? $", \"maxAgeInDays\": {maxAgeInDays}" : "")
+                            .Replace("<GRACE_PERIOD_PROP>", gracePeriodInDays.HasValue ? $", \"gracePeriodInDays\": {gracePeriodInDays}" : ""))),
                 original.CacheRootDirectory,
                 original.ExperimentalFeaturesWarning,
                 original.ExperimentalFeaturesEnabled with
@@ -139,7 +141,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestClass]
         public class GetAcceptableApiVersionsTests
         {
-            private static void TestGetAcceptableApiVersions(string fullyQualifiedResourceType, ResourceScope scope, string resourceTypes, string today, string[] expectedApiVersions, int maxAgeInDays = UseRecentApiVersionRule.DefaultMaxAgeInDays)
+            private static void TestGetAcceptableApiVersions(string fullyQualifiedResourceType, ResourceScope scope, string resourceTypes, string today, string[] expectedApiVersions, int maxAgeInDays = UseRecentApiVersionRule.DefaultMaxAgeInDays, int gracePeriodInDays = UseRecentApiVersionRule.DefaultGracePeriodInDays)
             {
                 VerifyAllTypesAndDatesAreFake(fullyQualifiedResourceType, today);
                 VerifyAllTypesAndDatesAreFake(resourceTypes);
@@ -147,7 +149,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 var apiVersionProvider = new ApiVersionProvider(BicepTestConstants.Features, []);
                 apiVersionProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
-                var (_, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(apiVersionProvider, AzureResourceApiVersion.Parse(today).Date, maxAgeInDays, scope, fullyQualifiedResourceType);
+                var (_, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(apiVersionProvider, AzureResourceApiVersion.Parse(today).Date, maxAgeInDays, scope, fullyQualifiedResourceType, gracePeriodInDays);
                 var allowedVersionsStrings = allowedVersions.Select(v => v.ToString()).ToArray();
                 allowedVersionsStrings.Should().BeEquivalentTo(expectedApiVersions, options => options.WithStrictOrdering());
             }
@@ -712,6 +714,65 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         "2421-02-01", // No previews older than this allowed, even if < 2 years old
                     ]);
             }
+
+            // Grace period tests
+
+            [TestMethod]
+            public void GracePeriod_FiltersOutTooNewVersions()
+            {
+                // Only the version older than the grace period should be returned
+                TestGetAcceptableApiVersions(
+                    "Fake.Kusto/clusters",
+                    ResourceScope.ResourceGroup,
+                    @"
+                        Fake.Kusto/clusters@2421-04-01
+                        Fake.Kusto/clusters@2421-06-07
+                    ",
+                    "2421-07-07",
+                    [
+                        "2421-04-01", // 96 days old, outside 60-day grace period
+                        // 2421-06-07 is 30 days old, within 60-day grace period - excluded
+                    ],
+                    gracePeriodInDays: 60);
+            }
+
+            [TestMethod]
+            public void GracePeriod_FallsBackWhenAllVersionsWithinGracePeriod()
+            {
+                // When all versions are within the grace period, fall back to including all
+                TestGetAcceptableApiVersions(
+                    "Fake.Kusto/clusters",
+                    ResourceScope.ResourceGroup,
+                    @"
+                        Fake.Kusto/clusters@2421-06-07
+                        Fake.Kusto/clusters@2421-07-01
+                    ",
+                    "2421-07-07",
+                    [
+                        "2421-07-01", // All are within 60-day grace period, so fall back to all versions
+                        "2421-06-07",
+                    ],
+                    gracePeriodInDays: 60);
+            }
+
+            [TestMethod]
+            public void GracePeriod_ZeroGracePeriod_IncludesAllVersions()
+            {
+                // Zero grace period should include all versions (default behavior)
+                TestGetAcceptableApiVersions(
+                    "Fake.Kusto/clusters",
+                    ResourceScope.ResourceGroup,
+                    @"
+                        Fake.Kusto/clusters@2421-04-01
+                        Fake.Kusto/clusters@2421-06-07
+                    ",
+                    "2421-07-07",
+                    [
+                        "2421-06-07", // Both included, most recent is recommended
+                        "2421-04-01",
+                    ],
+                    gracePeriodInDays: 0);
+            }
         }
 
         [TestClass]
@@ -913,7 +974,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 DateOnly[] gaVersionDates,
                 DateOnly[] previewVersionDates,
                 (string message, string acceptableVersions, string replacement)? expectedFix,
-                int maxAllowedAgeInDays = 730)
+                int maxAllowedAgeInDays = 730,
+                int gracePeriodInDays = 0)
             {
                 string[] gaVersions = gaVersionDates.Select(d => "Whoever.whatever/whichever@" + CreateApiVersion(d)).ToArray();
                 string[] previewVersions = previewVersionDates.Select(d => "Whoever.whatever/whichever@" + CreateApiVersion(d) + "-preview").ToArray();
@@ -929,7 +991,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     "Whoever.whatever/whichever",
                     CreateApiVersion(currentVersionDate, currentVersionSuffix),
-                    returnNotFoundDiagnostics: true);
+                    returnNotFoundDiagnostics: true,
+                    gracePeriodInDays: gracePeriodInDays);
 
                 if (expectedFix == null)
                 {
@@ -1166,6 +1229,86 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 Test(currentVersionDate, "-preview", [], [recentPreviewVersionDate, currentVersionDate],
                     null);
+            }
+
+            // Grace period tests
+
+            [TestMethod]
+            public void GracePeriod_WhenNewerVersionIsWithinGracePeriod_ShouldNotRecommendIt()
+            {
+                // The newest GA version is within the grace period (too new to be recommended)
+                // The current version is outside the grace period but is the most recent eligible version
+                // so it should not be flagged
+                DateOnly currentVersionDate = GetToday().AddDays(-3 * 365);
+                string currentVersion = CreateApiVersion(currentVersionDate);
+
+                DateOnly newVersionDate = GetToday().AddDays(-30); // 30 days old, within 60-day grace period
+
+                // Without grace period, the new version would be recommended and the current would be flagged
+                // With grace period, the current version should be acceptable since it's the most recent eligible version
+                Test(currentVersionDate, "", [currentVersionDate, newVersionDate], [], null, gracePeriodInDays: 60);
+            }
+
+            [TestMethod]
+            public void GracePeriod_WhenCurrentVersionIsWithinGracePeriod_ShouldNotAddDiagnostics()
+            {
+                // Current version is within the grace period (too new to warn about)
+                DateOnly currentVersionDate = GetToday().AddDays(-30); // 30 days old, within 60-day grace period
+                DateOnly olderVersionDate = GetToday().AddDays(-2 * 365);
+
+                // Even though there's an older version that would be in the acceptable list,
+                // the current version is within the grace period so it should not be flagged
+                Test(currentVersionDate, "", [olderVersionDate, currentVersionDate], [], null, gracePeriodInDays: 60);
+            }
+
+            [TestMethod]
+            public void GracePeriod_WhenAllVersionsWithinGracePeriod_ShouldNotAddDiagnostics()
+            {
+                // All versions are within the grace period
+                DateOnly currentVersionDate = GetToday().AddDays(-20);
+                DateOnly newerVersionDate = GetToday().AddDays(-10);
+
+                Test(currentVersionDate, "", [currentVersionDate, newerVersionDate], [], null, gracePeriodInDays: 60);
+            }
+
+            [TestMethod]
+            public void GracePeriod_WhenNewerVersionIsJustOutsideGracePeriod_ShouldRecommendIt()
+            {
+                // The newer version is just outside the grace period (61 days old, > 60-day grace period)
+                // The current version is much older (flagged)
+                DateOnly currentVersionDate = GetToday().AddDays(-3 * 365);
+                string currentVersion = CreateApiVersion(currentVersionDate);
+
+                DateOnly newerVersionDate = GetToday().AddDays(-61); // 61 days old, just outside 60-day grace period
+                string newerVersion = CreateApiVersion(newerVersionDate);
+
+                Test(currentVersionDate, "", [currentVersionDate, newerVersionDate], [],
+                    (
+                        $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {3 * 365} days old, should be no more than 730 days old, or the most recent.",
+                        acceptableVersions: newerVersion,
+                        replacement: newerVersion
+                    ),
+                    gracePeriodInDays: 60);
+            }
+
+            [TestMethod]
+            public void GracePeriod_ZeroGracePeriod_BehavesLikeDefault()
+            {
+                // Zero grace period should have no effect (backward compat)
+                DateOnly currentVersionDate = GetToday().AddDays(-3 * 365);
+                string currentVersion = CreateApiVersion(currentVersionDate);
+
+                DateOnly newerVersionDate = GetToday().AddDays(-30);
+                string newerVersion = CreateApiVersion(newerVersionDate);
+
+                // Without grace period (default), the new version would be recommended
+                Test(currentVersionDate, "", [currentVersionDate, newerVersionDate], [],
+                    (
+                        $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {3 * 365} days old, should be no more than 730 days old, or the most recent.",
+                        acceptableVersions: newerVersion,
+                        replacement: newerVersion
+                    ),
+                    gracePeriodInDays: 0);
             }
         }
 
