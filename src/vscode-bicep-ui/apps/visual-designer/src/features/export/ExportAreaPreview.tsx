@@ -16,6 +16,11 @@ const $Overlay = styled.div`
   overflow: hidden;
 `;
 
+const $OverlaySvg = styled.svg`
+  position: absolute;
+  inset: 0;
+`;
+
 /**
  * Renders a dim overlay outside the export boundary and a dashed border
  * around it when the export toolbar is active.  Follows pan-zoom so
@@ -44,7 +49,7 @@ export function ExportAreaPreview() {
 
   return (
     <$Overlay>
-      <svg width="100%" height="100%" style={{ position: "absolute", inset: 0 }}>
+      <$OverlaySvg width="100%" height="100%">
         <defs>
           <mask id="export-area-mask">
             {/* White = visible (dimmed area), black = hidden (export area) */}
@@ -66,7 +71,7 @@ export function ExportAreaPreview() {
           strokeWidth={1.5}
           strokeDasharray="8 5"
         />
-      </svg>
+      </$OverlaySvg>
       {/* Size badge above top-left corner */}
       <VscodeBadge
         style={{

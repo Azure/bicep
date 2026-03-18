@@ -41,10 +41,10 @@ User-facing feature slices live under `src/features/` (`control/`, `export/`, `l
 - `StatusBar` component lives here as it renders diagnostic status.
 - Kept separate from `graph/`, which only handles rendering and geometry.
 
-4. Control (`features/control/`):
+4. Control (`features/controls/`):
 
 - `graphControlAvailabilityAtom` derives which controls are actionable from `hasNodesAtom`.
-- `GraphControlBar` component lives here as it orchestrates graph interactions.
+- `ControlBar` component lives here as it orchestrates graph interactions.
 - Depends on `status` (availability), `export` (open overlay), `graph/` (fit view), `layout` (reset).
 
 ## When NOT to use atoms

@@ -14,7 +14,7 @@ import {
 import { getDefaultStore, useAtomValue, useSetAtom } from "jotai";
 import { Suspense, useCallback, useEffect } from "react";
 import { styled, ThemeProvider } from "styled-components";
-import { GraphControlBar } from "./features/control";
+import { ControlBar } from "./features/controls";
 import { loadDevAppShell } from "./features/devtools";
 import {
   effectiveExportThemeAtom,
@@ -44,6 +44,11 @@ const $ControlBarContainer = styled.div`
   top: 16px;
   right: 16px;
   z-index: 100;
+`;
+
+const $CanvasWrapper = styled.div`
+  position: absolute;
+  inset: 0;
 `;
 
 function deriveExportFileStem(documentPath?: string, documentFileName?: string): string {
@@ -122,22 +127,22 @@ function GraphContainer() {
   return (
     <>
       <$ControlBarContainer>
-        <GraphControlBar />
+        <ControlBar />
       </$ControlBarContainer>
-      <ExportUiLayer />
+      <ExportUILayer />
       <ThemeProvider theme={canvasTheme}>
-        <div ref={handleCanvasRef} style={{ position: "absolute", inset: 0 }}>
+        <$CanvasWrapper ref={handleCanvasRef}>
           <Canvas>
             <ExportCanvasCoverLayer />
             <Graph />
           </Canvas>
-        </div>
+        </$CanvasWrapper>
       </ThemeProvider>
     </>
   );
 }
 
-function ExportUiLayer() {
+function ExportUILayer() {
   const isExportPreviewVisible = useAtomValue(isExportPreviewVisibleAtom);
 
   if (!isExportPreviewVisible) {

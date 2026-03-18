@@ -9,7 +9,7 @@ import { openExportOverlayAtom } from "../export";
 import { useResetLayout } from "../layout";
 import { graphControlAvailabilityAtom } from "./atoms";
 
-const $GraphControlBar = styled.div`
+const $ControlBar = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -72,7 +72,7 @@ const $Divider = styled.div`
   background-color: ${({ theme }) => theme.controlBar.border};
 `;
 
-export function GraphControlBar() {
+export function ControlBar() {
   const { zoomIn, zoomOut } = usePanZoomControl();
   const fitView = useFitView();
   const resetLayout = useResetLayout();
@@ -80,7 +80,7 @@ export function GraphControlBar() {
   const openExportOverlay = useSetAtom(openExportOverlayAtom);
 
   return (
-    <$GraphControlBar>
+    <$ControlBar>
       <$ControlButton onClick={() => zoomIn(1.5)} title="Zoom In" aria-label="Zoom In">
         <Codicon name="zoom-in" size={16} />
       </$ControlButton>
@@ -107,6 +107,6 @@ export function GraphControlBar() {
       >
         <Codicon name="desktop-download" size={16} />
       </$ControlButton>
-    </$GraphControlBar>
+    </$ControlBar>
   );
 }

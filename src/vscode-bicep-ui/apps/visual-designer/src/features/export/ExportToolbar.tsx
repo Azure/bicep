@@ -46,6 +46,18 @@ const $Group = styled.div`
   flex-shrink: 0;
 `;
 
+const $ActionsGroup = styled($Group)`
+  margin-left: auto;
+`;
+
+const $FormatSelect = styled(VscodeSingleSelect)`
+  width: 62px;
+`;
+
+const $ThemeSelect = styled(VscodeSingleSelect)`
+  width: 140px;
+`;
+
 const $Separator = styled.div`
   width: 1px;
   align-self: stretch;
@@ -305,13 +317,13 @@ export function ExportToolbar() {
       {/* Format */}
       <$Group>
         <$Label>Format</$Label>
-        <VscodeSingleSelect style={{ width: "62px" }} onChange={handleFormatSelect}>
+        <$FormatSelect onChange={handleFormatSelect}>
           {FORMATS.map((f) => (
             <VscodeOption key={f} value={f} selected={f === format}>
               {f.toUpperCase()}
             </VscodeOption>
           ))}
-        </VscodeSingleSelect>
+        </$FormatSelect>
       </$Group>
 
       <$Separator />
@@ -319,13 +331,13 @@ export function ExportToolbar() {
       {/* Theme */}
       <$Group>
         <$Label>Theme</$Label>
-        <VscodeSingleSelect style={{ width: "140px" }} onChange={handleThemeSelect}>
+        <$ThemeSelect onChange={handleThemeSelect}>
           {THEME_OPTIONS.map((t) => (
             <VscodeOption key={t.label} value={t.value ?? ""} selected={t.value === exportThemeName}>
               {t.label}
             </VscodeOption>
           ))}
-        </VscodeSingleSelect>
+        </$ThemeSelect>
       </$Group>
 
       <$Separator />
@@ -354,7 +366,7 @@ export function ExportToolbar() {
         </$StepperGroup>
       </$Group>
 
-      <$Group style={{ marginLeft: "auto" }}>
+      <$ActionsGroup>
         <$ExportButton onClick={handleExport} disabled={exporting}>
           <Codicon name="desktop-download" size={13} />
           {exporting ? "Saving\u2026" : "Save As"}
@@ -362,7 +374,7 @@ export function ExportToolbar() {
         <$IconButton onClick={() => closeExportOverlay()} title="Close" aria-label="Close export toolbar">
           <Codicon name="close" size={14} />
         </$IconButton>
-      </$Group>
+      </$ActionsGroup>
     </$Toolbar>
   );
 }

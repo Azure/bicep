@@ -1,5 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-export { GraphControlBar } from "./GraphControlBar";
+export { ControlBar } from "./ControlBar";
 export * from "./atoms";
