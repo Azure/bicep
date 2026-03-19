@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { EdgeAtomValue } from "../atoms/edges";
+import type { EdgeAtomValue } from "@/lib/graph/atoms/edges";
 
 import { atom, useStore } from "jotai";
 import { useEffect, useMemo, useRef } from "react";
 import { styled, useTheme } from "styled-components";
-import { boxesOverlap, getBoxCenter, getBoxCenterSegmentIntersection } from "../../utils/math";
-import { nodesByIdAtom } from "../atoms";
+import { nodesByIdAtom } from "@/lib/graph/atoms";
+import { boxesOverlap, getBoxCenter, getBoxCenterSegmentIntersection } from "@/lib/utils/math";
 
 const $EdgePath = styled.path`
   transition: stroke 180ms ease;

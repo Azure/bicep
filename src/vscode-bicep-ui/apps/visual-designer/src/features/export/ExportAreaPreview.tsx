@@ -5,7 +5,7 @@ import { usePanZoomTransform } from "@vscode-bicep-ui/components";
 import { VscodeBadge } from "@vscode-elements/react-elements";
 import { useAtomValue } from "jotai";
 import { styled, useTheme } from "styled-components";
-import { graphBoundsAtom } from "../../lib/graph";
+import { graphBoundsAtom } from "@/lib/graph";
 import { exportPaddingAtom } from "./atoms";
 
 const $Overlay = styled.div`

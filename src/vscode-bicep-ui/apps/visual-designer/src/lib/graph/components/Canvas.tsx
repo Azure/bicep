@@ -7,7 +7,7 @@ import { PanZoom } from "@vscode-bicep-ui/components";
 import { useStore } from "jotai";
 import { useEffect, useRef } from "react";
 import styled, { useTheme } from "styled-components";
-import { focusedNodeIdAtom } from "../atoms/nodes";
+import { focusedNodeIdAtom } from "@/lib/graph/atoms/nodes";
 import { CanvasBackground } from "./CanvasBackground";
 
 const CURSOR_SIZE = 22;

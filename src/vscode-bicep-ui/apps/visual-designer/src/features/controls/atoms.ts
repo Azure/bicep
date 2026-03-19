@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { atom } from "jotai";
-import { hasNodesAtom } from "../status";
+import { hasNodesAtom } from "@/features/status";
 
 export interface GraphControlAvailability {
   canFitView: boolean;

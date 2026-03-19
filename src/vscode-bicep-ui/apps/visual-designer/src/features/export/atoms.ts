@@ -5,7 +5,7 @@ import type { DefaultTheme } from "styled-components";
 import type { ExportFormat } from "./types";
 
 import { atom } from "jotai";
-import { activeThemeAtom, getThemeByName } from "../../lib/theming";
+import { activeThemeAtom, getThemeByName } from "@/lib/theming";
 
 export const DEFAULT_EXPORT_FILE_STEM = "bicep-graph";
 export const DEFAULT_EXPORT_PADDING = 40;

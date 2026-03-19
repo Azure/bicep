@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { equal } from "../comparison";
+import { equal } from "@/lib/utils/math/comparison";
 
 export interface Point {
   x: number;

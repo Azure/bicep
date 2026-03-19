@@ -4,7 +4,7 @@
 import { PanZoomTransformed } from "@vscode-bicep-ui/components";
 import { useAtomValue } from "jotai";
 import { styled } from "styled-components";
-import { layoutReadyAtom } from "../atoms";
+import { layoutReadyAtom } from "@/lib/graph/atoms";
 import { InnerEdgeLayer, OuterEdgeLayer } from "./EdgeLayer";
 import { EdgeMarkerDefs } from "./EdgeMarkerDefs";
 import { NodeLayer } from "./NodeLayer";

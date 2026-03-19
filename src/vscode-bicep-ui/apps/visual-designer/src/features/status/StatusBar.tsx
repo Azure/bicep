@@ -5,7 +5,7 @@ import { useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { useAtomValue } from "jotai";
 import { useCallback } from "react";
 import { styled } from "styled-components";
-import { SHOW_PROBLEMS_PANEL_NOTIFICATION } from "../../lib/messaging";
+import { SHOW_PROBLEMS_PANEL_NOTIFICATION } from "@/lib/messaging";
 import { graphStatusAtom } from "./atoms";
 
 const $StatusBarContainer = styled.div`

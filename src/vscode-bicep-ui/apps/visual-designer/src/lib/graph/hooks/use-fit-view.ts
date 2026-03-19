@@ -4,8 +4,8 @@
 import { useGetPanZoomDimensions, usePanZoomControl } from "@vscode-bicep-ui/components";
 import { useAtomCallback } from "jotai/utils";
 import { useCallback } from "react";
-import { getBoxCenter, getBoxHeight, getBoxWidth } from "../../utils/math/geometry";
-import { graphBoundsAtom } from "../atoms";
+import { graphBoundsAtom } from "@/lib/graph/atoms";
+import { getBoxCenter, getBoxHeight, getBoxWidth } from "@/lib/utils/math/geometry";
 
 /**
  * Returns a callback that reads the graph bounding box

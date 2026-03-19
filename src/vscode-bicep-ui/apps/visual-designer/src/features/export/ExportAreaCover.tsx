@@ -3,7 +3,7 @@
 
 import { useAtomValue } from "jotai";
 import { useTheme } from "styled-components";
-import { graphBoundsAtom } from "../../lib/graph";
+import { graphBoundsAtom } from "@/lib/graph";
 import { exportPaddingAtom } from "./atoms";
 
 /**

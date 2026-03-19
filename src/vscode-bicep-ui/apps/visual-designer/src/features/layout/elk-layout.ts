@@ -4,12 +4,12 @@
 import type { ELK, ElkExtendedEdge, ElkNode } from "elkjs";
 import type { Getter, PrimitiveAtom, Setter } from "jotai";
 import type { AnimationPlaybackControlsWithThen } from "motion";
-import type { Box } from "../../lib/utils";
+import type { Box } from "@/lib/utils";
 
 import { atom } from "jotai";
 import { animate, transform } from "motion";
-import { edgesAtom, nodesByIdAtom } from "../../lib/graph";
-import { translateBox } from "../../lib/utils";
+import { edgesAtom, nodesByIdAtom } from "@/lib/graph";
+import { translateBox } from "@/lib/utils";
 
 // Lazy-load the heavy ELK bundled engine (~1.5 MB) on first use.
 // This keeps it in a separate chunk that is fetched on demand,

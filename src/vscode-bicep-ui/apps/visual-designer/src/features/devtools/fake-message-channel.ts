@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 import type { WebviewNotificationCallback, WebviewNotificationMessage } from "@vscode-bicep-ui/messaging";
-import type { DeploymentGraph, DeploymentGraphPayload } from "../../lib/messaging";
+import type { DeploymentGraph, DeploymentGraphPayload } from "@/lib/messaging";
 
 import {
   DEPLOYMENT_GRAPH_NOTIFICATION,
   READY_NOTIFICATION,
   REVEAL_FILE_RANGE_NOTIFICATION,
   SHOW_PROBLEMS_PANEL_NOTIFICATION,
-} from "../../lib/messaging/messages";
+} from "@/lib/messaging/messages";
 
 const FAKE_FILE_PATH = "file:///main.bicep";
 

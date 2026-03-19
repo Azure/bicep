@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { Box } from "../../utils/math";
+import type { Box } from "@/lib/utils/math";
 
 import { atom } from "jotai";
 import { nodesByIdAtom } from "./nodes";

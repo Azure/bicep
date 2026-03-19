@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { Range } from "../../lib/messaging";
+import type { Range } from "@/lib/messaging";
 
 import { AzureIcon } from "@vscode-bicep-ui/components";
 import { useAtomValue } from "jotai";
 import { styled } from "styled-components";
-import { focusedNodeIdAtom } from "../../lib/graph";
+import { focusedNodeIdAtom } from "@/lib/graph";
 
 export interface ModuleDeclarationProps {
   id: string;

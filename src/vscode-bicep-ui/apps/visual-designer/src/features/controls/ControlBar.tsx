@@ -4,9 +4,9 @@
 import { Codicon, usePanZoomControl } from "@vscode-bicep-ui/components";
 import { useAtomValue, useSetAtom } from "jotai";
 import { styled } from "styled-components";
-import { useFitView } from "../../lib/graph";
-import { openExportOverlayAtom } from "../export";
-import { useResetLayout } from "../layout";
+import { openExportOverlayAtom } from "@/features/export";
+import { useResetLayout } from "@/features/layout";
+import { useFitView } from "@/lib/graph";
 import { graphControlAvailabilityAtom } from "./atoms";
 
 const $ControlBar = styled.div`

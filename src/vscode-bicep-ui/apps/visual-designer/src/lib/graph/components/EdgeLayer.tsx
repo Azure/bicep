@@ -4,8 +4,8 @@
 import { useAtomValue } from "jotai";
 import { useMemo } from "react";
 import { styled } from "styled-components";
-import { edgesAtom } from "../atoms/edges";
-import { focusedNodeIdAtom, getNodeZIndex } from "../atoms/nodes";
+import { edgesAtom } from "@/lib/graph/atoms/edges";
+import { focusedNodeIdAtom, getNodeZIndex } from "@/lib/graph/atoms/nodes";
 import { StraightEdge } from "./StraightEdge";
 
 const $Svg = styled.svg<{ $zIndex: number }>`

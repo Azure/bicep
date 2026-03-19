@@ -4,7 +4,7 @@
 import { usePanZoomControl } from "@vscode-bicep-ui/components";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useLayoutEffect } from "react";
-import { graphVersionAtom, layoutReadyAtom } from "../../lib/graph";
+import { graphVersionAtom, layoutReadyAtom } from "@/lib/graph";
 import { applyLayoutAtom, computeFitViewTransform } from "./elk-layout";
 import { useComputeLayout } from "./use-compute-layout";
 

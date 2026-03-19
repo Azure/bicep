@@ -1,18 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { Range } from "../../messaging/messages";
-import type { AtomicNodeState } from "../atoms/nodes";
+import type { AtomicNodeState } from "@/lib/graph/atoms/nodes";
+import type { Range } from "@/lib/messaging/messages";
 
 import useResizeObserver from "@react-hook/resize-observer";
 import { useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { useAtomValue, useStore } from "jotai";
 import { frame } from "motion/react";
 import { useEffect, useLayoutEffect, useRef } from "react";
-import { REVEAL_FILE_RANGE_NOTIFICATION } from "../../messaging/messages";
-import { translateBox } from "../../utils/math";
-import { focusedNodeIdAtom, getNodeZIndex } from "../atoms/nodes";
-import { useBoxUpdate, useDragListener } from "../hooks";
+import { focusedNodeIdAtom, getNodeZIndex } from "@/lib/graph/atoms/nodes";
+import { useBoxUpdate, useDragListener } from "@/lib/graph/hooks";
+import { REVEAL_FILE_RANGE_NOTIFICATION } from "@/lib/messaging/messages";
+import { translateBox } from "@/lib/utils/math";
 import { BaseNode } from "./BaseNode";
 import { NodeContent } from "./NodeContent";
 

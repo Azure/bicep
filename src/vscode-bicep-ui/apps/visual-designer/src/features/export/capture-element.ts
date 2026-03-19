@@ -4,9 +4,8 @@
 import type { ExportFormat } from "./types";
 
 import { toJpeg, toPng, toSvg } from "html-to-image";
-
 import { getDefaultStore } from "jotai";
-import { nodesByIdAtom } from "../../lib/graph";
+import { nodesByIdAtom } from "@/lib/graph";
 
 interface SaveFilePickerOptions {
   suggestedName?: string;
