@@ -1,5 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+/* eslint-disable vitest/no-standalone-expect -- test utility class that wraps expect calls */
+
 import * as fs from "fs";
 import { SpawnSyncReturns } from "node:child_process";
 import * as path from "path";

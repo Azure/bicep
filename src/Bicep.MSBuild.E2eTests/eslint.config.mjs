@@ -5,6 +5,7 @@
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import vitest from "@vitest/eslint-plugin";
+import { fixupPluginRules } from "@eslint/compat";
 import notice from "eslint-plugin-notice";
 
 export default tseslint.config({
@@ -16,7 +17,7 @@ export default tseslint.config({
       ...vitest.environments.env.globals,
     },
   },
-  plugins: { notice, vitest },
+  plugins: { notice: fixupPluginRules(notice), vitest },
   rules: {
     "notice/notice": [
       "error",

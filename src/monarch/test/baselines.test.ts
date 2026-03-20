@@ -3,6 +3,12 @@
 
 declare const window: Record<string, unknown>;
 
+// Polyfill CSS.escape for jsdom (used by monaco-editor-core).
+// eslint-disable-next-line jest/require-hook
+if (typeof (globalThis as unknown as Record<string, unknown>).CSS === 'undefined') {
+  (globalThis as unknown as Record<string, unknown>).CSS = { escape: (value: string) => value.replace(/([^\w-])/g, '\\$1') };
+}
+
 // See https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom.
 // eslint-disable-next-line jest/require-hook
 Object.defineProperty(window, 'matchMedia', {
