@@ -20,7 +20,7 @@
     "jest": "^30.3.0",
     "onigasm": "^2.2.5",
     "plist": "^3.1.0",
-    "tmlanguage-generator": "^0.6.7",
+    "tmlanguage-generator": "^0.6.8",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
