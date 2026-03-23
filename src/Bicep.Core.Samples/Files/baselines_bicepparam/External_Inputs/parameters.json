@@ -18,7 +18,7 @@
       "expression": "[externalInputs('custom_binding_2')]"
     },
     "varRef": {
-      "expression": "[bool(externalInputs('sys_cli_10'))]"
+      "expression": "[bool(externalInputs('sys_cli_11'))]"
     },
     "objectConfig": {
       "expression": "[externalInputs('custom_tool_3')]"
@@ -52,6 +52,21 @@
     },
     "objectBody": {
       "expression": "[createObject('foo', externalInputs('custom_binding_8'), 'bar', externalInputs('custom_binding_9'), 'baz', 'blah')]"
+    },
+    "retriever": {
+      "value": "golden"
+    },
+    "concat": {
+      "expression": "[format('{0}-{1}-{2}', 'toy', 'golden', externalInputs('sys_cli_0'))]"
+    },
+    "principalIds": {
+      "expression": "[externalInputs('sys_cli_10')]"
+    },
+    "varPeople": {
+      "expression": "[flatten(createArray(map(externalInputs('sys_cli_10'), lambda('id', createObject('objectId', lambdaVariables('id')))), createArray(createObject('name', 'Alice', 'age', 42), createObject('name', 'John', 'age', 21), createObject('name', 'Bob', 'age', 30), createObject('name', 'John Doe', 'age', 0), externalInputs('custom_binding_8'))))]"
+    },
+    "infraParam": {
+      "expression": "[createObject('storage', createObject('name', 'beefyStorage', 'sku', 'Standard_ZRS'), 'vm', createObject('name', 'beefyVM', 'size', 'Standard_D2s_v7'), 'tag', externalInputs('custom_binding_9'))]"
     }
   },
   "externalInputDefinitions": {
@@ -86,6 +101,10 @@
       "config": "foo"
     },
     "sys_cli_10": {
+      "kind": "sys.cli",
+      "config": "principalIds"
+    },
+    "sys_cli_11": {
       "kind": "sys.cli",
       "config": "myVar"
     },

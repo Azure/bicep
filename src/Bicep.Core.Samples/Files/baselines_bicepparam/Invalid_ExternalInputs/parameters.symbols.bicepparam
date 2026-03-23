@@ -43,3 +43,10 @@ param p7 = externalInput(p6)
 param p8 = externalInput('custom', externalInput('custom', 'foo'))
 //@[6:08) ParameterAssignment p8. Type: any. Declaration start char: 0, length: 66
 
+param p9 = externalInput('custom',)
+//@[6:08) ParameterAssignment p9. Type: any. Declaration start char: 0, length: 35
+param p10 = externalInput(, 'test')
+//@[6:09) ParameterAssignment p10. Type: any. Declaration start char: 0, length: 35
+param p11 = externalInput('custom',foo')
+//@[6:09) ParameterAssignment p11. Type: error. Declaration start char: 0, length: 40
+

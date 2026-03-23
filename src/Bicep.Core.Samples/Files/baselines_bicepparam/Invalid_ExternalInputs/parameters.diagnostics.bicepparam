@@ -36,3 +36,14 @@ param p7 = externalInput(p6)
 param p8 = externalInput('custom', externalInput('custom', 'foo'))
 //@[35:65) [BCP032 (Error)] The value must be a compile-time constant. (bicep https://aka.ms/bicep/core-diagnostics#BCP032) |externalInput('custom', 'foo')|
 
+param p9 = externalInput('custom',)
+//@[34:35) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) |)|
+param p10 = externalInput(, 'test')
+//@[26:27) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP009) |,|
+param p11 = externalInput('custom',foo')
+//@[25:40) [BCP071 (Error)] Expected 1 to 2 arguments, but got 3. (bicep https://aka.ms/bicep/core-diagnostics#BCP071) |('custom',foo')|
+//@[35:38) [BCP057 (Error)] The name "foo" does not exist in the current context. (bicep https://aka.ms/bicep/core-diagnostics#BCP057) |foo|
+//@[38:38) [BCP236 (Error)] Expected a new line or comma character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP236) ||
+//@[38:40) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (bicep https://aka.ms/bicep/core-diagnostics#BCP004) |')|
+//@[40:40) [BCP018 (Error)] Expected the ")" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
+

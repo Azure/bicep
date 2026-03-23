@@ -24,11 +24,16 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
     private readonly ImmutableDictionary<FunctionCallSyntaxBase, ImmutableArray<ExternalInputInfo>>.Builder infoBySyntax;
     private readonly ImmutableDictionary<string, ExternalInputInfo>.Builder infoBySerializedExpression;
     private readonly ExpressionConverter expressionConverter;
+    private readonly ParameterAssignmentEvaluator.InlinedParameterRewriter parameterRewriter;
     private ExternalInputFunctionReferenceVisitor(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
     {
         this.semanticModel = semanticModel;
         this.diagnosticWriter = diagnosticWriter;
         this.expressionConverter = new ExpressionConverter(new EmitterContext(semanticModel));
+        this.parameterRewriter = new ParameterAssignmentEvaluator.InlinedParameterRewriter(
+            semanticModel,
+            new ParameterAssignmentEvaluator(semanticModel),
+            this.expressionConverter);
         this.infoBySyntax = ImmutableDictionary.CreateBuilder<FunctionCallSyntaxBase, ImmutableArray<ExternalInputInfo>>();
         this.infoBySerializedExpression = ImmutableDictionary.CreateBuilder<string, ExternalInputInfo>();
     }
@@ -85,6 +90,12 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 
     private void VisitFunctionCallSyntaxInternal(FunctionCallSyntaxBase functionCallSyntax)
     {
+        if (semanticModel.HasParsingErrors())
+        {
+            // skip analysis if there are already parsing errors in the semantic model, as we may not be able to reliably determine the function being called or its arguments
+            return;
+        }
+
         if (semanticModel.GetSymbolInfo(functionCallSyntax) is not FunctionSymbol functionSymbol ||
             !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresExternalInput))
         {
@@ -93,8 +104,9 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 
         try
         {
-            var intermediate = expressionConverter.ConvertExpression(functionCallSyntax);
-            if (intermediate is FunctionExpression functionExpression)
+            var intermediate = expressionConverter.ConvertToIntermediateExpression(functionCallSyntax);
+            var expression = expressionConverter.ConvertExpression(parameterRewriter.Rewrite(intermediate));
+            if (expression is FunctionExpression functionExpression)
             {
                 // it's possible the function syntax maps to multiple external inputs, e.g. concat(externalInput('input1'), externalInput('input2'))
                 // therefore we need to collect all external inputs found within the reduced expression

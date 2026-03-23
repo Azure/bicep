@@ -27,3 +27,7 @@ param p6 = externalInput('custom', 'test')
 param p7 = externalInput(p6)
 
 param p8 = externalInput('custom', externalInput('custom', 'foo'))
+
+param p9 = externalInput('custom',)
+param p10 = externalInput(, 'test')
+param p11 = externalInput('custom',foo')

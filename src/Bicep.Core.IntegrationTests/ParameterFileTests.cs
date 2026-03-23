@@ -345,6 +345,94 @@ param foo3 = foo2
     }
 
     [TestMethod]
+    public void ExternalInput_parameter_with_non_external_input_variable_references_compiles_successfully()
+    {
+        var result = CompilationHelper.CompileParams(
+("parameters.bicepparam", @"
+using none
+var foo = 'foo'
+param foo2 = '${foo}-${externalInput('sys.cli', 'foo2')}'
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo2"].Value.Should().BeNull();
+        parameters["foo2"].Expression.Should().DeepEqual("""[format('{0}-{1}', 'foo', externalInputs('sys_cli_0'))]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "foo2",
+        });
+    }
+
+    [TestMethod]
+    public void ExternalInput_parameter_with_unevaluable_imported_variable_references_returns_diagnostic()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", @"
+    using none
+    import { foo } from 'main.bicep'
+    param foo2 = '${foo}-${externalInput('sys.cli', 'foo2')}'
+    "),
+            ("main.bicep", @"
+    @export()
+    var foo = resourceGroup().location // cannot be evaluated in bicepparam file
+    "));
+        result.Should().OnlyContainDiagnostic(
+            "BCP338",
+            DiagnosticLevel.Error,
+            "Failed to evaluate parameter \"foo2\": Failed to evaluate variable \"foo\": The template function 'RESOURCEGROUP' is not expected at this location. Please see https://aka.ms/arm-functions for usage details.");
+    }
+
+    [TestMethod]
+    public void ExternalInput_parameter_with_imported_function_compiles_successfully()
+    {
+        var result = CompilationHelper.CompileParams(
+("parameters.bicepparam", @"
+    using none
+    import { foo } from 'main.bicep'
+    param foo2 = '${foo()}-${externalInput('sys.cli', 'foo2')}'
+    "),
+("main.bicep", @"
+    @export()
+    func foo() string => 'Hello foo'
+    "));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo2"].Value.Should().BeNull();
+        parameters["foo2"].Expression.Should().DeepEqual("""[format('{0}-{1}', 'Hello foo', externalInputs('sys_cli_0'))]""");
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["sys_cli_0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "sys.cli",
+            ["config"] = "foo2",
+        });
+    }
+
+    [TestMethod]
+    public void ExternalInput_parameter_with_unevaluable_imported_function_returns_diagnostics()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", @"
+    using none
+    import { foo } from 'main.bicep'
+    param foo2 = '${foo()}-${externalInput('sys.cli', 'foo2')}'
+    "),
+            ("main.bicep", @"
+    @export()
+    func foo() string => resourceGroup().location // cannot be evaluated in bicepparam file
+    "));
+        result.Should().OnlyContainDiagnostic(
+            "BCP338",
+            DiagnosticLevel.Error,
+            "Failed to evaluate parameter \"foo2\": The template function 'RESOURCEGROUP' is not expected at this location. Please see https://aka.ms/arm-functions for usage details.");
+    }
+
+    [TestMethod]
     public void ExternalInput_parameter_with_param_references_compiles_successfully()
     {
         var result = CompilationHelper.CompileParams(

@@ -408,7 +408,20 @@ public class ParameterAssignmentEvaluator
 
                 if (semanticModel.SymbolsToInline.ParameterAssignmentsToInline.Contains(parameter))
                 {
-                    return Result.For(intermediate);
+                    try
+                    {
+                        // we need to inline fully-evaluable variables, parameters or UDFs
+                        // since we can't have 'variables' or 'parameters' or UDF function invocations in JSON parameter files
+                        // TODO: Look into whether we can use ITemplateLanguageExpression for ParameterAssignmentEvaluator to simplify partial evaluation
+                        // cases like this.
+                        var rewriter = new InlinedParameterRewriter(parameterModel, this, parameterConverter);
+                        return Result.For(rewriter.Rewrite(intermediate));
+                    }
+                    catch (Exception ex)
+                    {
+                        return Result.For(DiagnosticBuilder.ForPosition(declaringParam.Value)
+                            .FailedToEvaluateSubject("parameter", parameter.Name, ex.Message));
+                    }
                 }
 
                 if (intermediate is ParameterKeyVaultReferenceExpression keyVaultReferenceExpression)
@@ -789,5 +802,70 @@ public class ParameterAssignmentEvaluator
             return ExpressionEvaluationResult.For([DiagnosticBuilder.ForPosition(expressionSyntax)
                 .FailedToEvaluateSubject("expression", expressionSyntax.ToString(), ex.Message)]);
         }
+    }
+
+    // TODO: Should look into using ITemplateLanguageExpression for ParameterAssignmentEvaluator
+    // which would probably simplify a lot of this logic.
+    /// <summary>
+    /// Rewrites intermediate expressions by replacing variable references, parameter assignment references,
+    /// and user-defined function calls with their evaluated literal values. This is used for parameter
+    /// assignments that must be inlined (e.g., those containing <c>externalInput</c> calls), where the
+    /// emitted JSON parameter file cannot reference ARM template variables, parameters, or user-defined
+    /// functions.
+    /// </summary>
+    public class InlinedParameterRewriter(
+        SemanticModel model,
+        ParameterAssignmentEvaluator evaluator,
+        ExpressionConverter converter) : ExpressionRewriteVisitor
+    {
+        public Expression Rewrite(Expression expression) => Replace(expression);
+
+        public override Expression ReplaceVariableReferenceExpression(VariableReferenceExpression expression)
+            => ResultToExpression(evaluator.EvaluateVariable(expression.Variable), expression);
+
+        public override Expression ReplaceParametersAssignmentReferenceExpression(ParametersAssignmentReferenceExpression expression)
+            => ResultToExpression(evaluator.EvaluateParameter(expression.Parameter), expression);
+
+        public override Expression ReplaceImportedVariableReferenceExpression(ImportedVariableReferenceExpression expression)
+            => ResultToExpression(evaluator.EvaluateImport(expression.Variable), expression);
+
+        public override Expression ReplaceWildcardImportVariablePropertyReferenceExpression(WildcardImportVariablePropertyReferenceExpression expression)
+            => ResultToExpression(evaluator.EvaluateWildcardImportPropertyAsVariable(new WildcardImportPropertyReference(expression.ImportSymbol, expression.PropertyName)), expression);
+
+        public override Expression ReplaceUserDefinedFunctionCallExpression(UserDefinedFunctionCallExpression expression)
+            => EvaluateToJToken(base.ReplaceUserDefinedFunctionCallExpression(expression));
+
+        public override Expression ReplaceImportedUserDefinedFunctionCallExpression(ImportedUserDefinedFunctionCallExpression expression)
+            => EvaluateToJToken(base.ReplaceImportedUserDefinedFunctionCallExpression(expression));
+
+        public override Expression ReplaceWildcardImportInstanceFunctionCallExpression(WildcardImportInstanceFunctionCallExpression expression)
+            => EvaluateToJToken(base.ReplaceWildcardImportInstanceFunctionCallExpression(expression));
+
+        private static Expression ResultToExpression(Result result, Expression expression)
+            => result.Value is { } value
+                ? JTokenToExpression(value, expression.SourceSyntax)
+                : throw new InvalidOperationException(result.Diagnostic?.Message ?? "Failed to evaluate expression.");
+
+        private Expression EvaluateToJToken(Expression expression)
+        {
+            var context = evaluator.GetExpressionEvaluationContextForModel(model);
+            return JTokenToExpression(converter.ConvertExpression(expression).EvaluateExpression(context), expression.SourceSyntax);
+        }
+
+        private static Expression JTokenToExpression(JToken token, SyntaxBase? syntax) => token switch
+        {
+            JObject obj => ExpressionFactory.CreateObject(obj.Properties().Select(p => ExpressionFactory.CreateObjectProperty(p.Name, JTokenToExpression(p.Value, syntax), syntax)), syntax),
+            JArray arr => ExpressionFactory.CreateArray(arr.Select(item => JTokenToExpression(item, syntax)), syntax),
+            JValue jValue => jValue.Value switch
+            {
+                string @string => ExpressionFactory.CreateStringLiteral(@string, syntax),
+                int @int => ExpressionFactory.CreateIntegerLiteral(@int, syntax),
+                long @long => ExpressionFactory.CreateIntegerLiteral(@long, syntax),
+                bool @bool => ExpressionFactory.CreateBooleanLiteral(@bool, syntax),
+                null => new NullLiteralExpression(syntax),
+                _ => throw new InvalidOperationException($"Unrecognized JValue value of type {jValue.Value?.GetType().Name}"),
+            },
+            _ => throw new InvalidOperationException($"Unsupported JToken type: {token.Type}"),
+        };
     }
 }
