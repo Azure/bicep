@@ -113,7 +113,7 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
                 CollectExternalInputs(functionCallSyntax, functionExpression);
             }
         }
-        catch (ExpressionException ex) // expected if NamespaceFunctionType.EvaluatedLanguageExpression could not be evaluated
+        catch (ExpressionException ex) // expected if NamespaceFunctionType.EvaluatedLanguageExpression could not be evaluated or error occurred when rewriting parameter assignments
         {
             this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(functionCallSyntax.Span)
                 .FailedToEvaluateSubject("function", functionCallSyntax.ToString(), ex.Message));

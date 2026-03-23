@@ -3,6 +3,35 @@ using none
 //@[06:10) Identifier |none|
 //@[10:14) NewLine |\r\n\r\n|
 
+import { exportedVariable, helperFunction } from 'main.bicep'
+//@[00:06) Identifier |import|
+//@[07:08) LeftBrace |{|
+//@[09:25) Identifier |exportedVariable|
+//@[25:26) Comma |,|
+//@[27:41) Identifier |helperFunction|
+//@[42:43) RightBrace |}|
+//@[44:48) Identifier |from|
+//@[49:61) StringComplete |'main.bicep'|
+//@[61:65) NewLine |\r\n\r\n|
+
+param p12 = '${exportedVariable}-${externalInput('custom', helperFunction())}'
+//@[00:05) Identifier |param|
+//@[06:09) Identifier |p12|
+//@[10:11) Assignment |=|
+//@[12:15) StringLeftPiece |'${|
+//@[15:31) Identifier |exportedVariable|
+//@[31:35) StringMiddlePiece |}-${|
+//@[35:48) Identifier |externalInput|
+//@[48:49) LeftParen |(|
+//@[49:57) StringComplete |'custom'|
+//@[57:58) Comma |,|
+//@[59:73) Identifier |helperFunction|
+//@[73:74) LeftParen |(|
+//@[74:75) RightParen |)|
+//@[75:76) RightParen |)|
+//@[76:78) StringRightPiece |}'|
+//@[78:82) NewLine |\r\n\r\n|
+
 var myVar = 1 + 2
 //@[00:03) Identifier |var|
 //@[04:09) Identifier |myVar|

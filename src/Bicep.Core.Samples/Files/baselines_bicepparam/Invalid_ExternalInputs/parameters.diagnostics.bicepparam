@@ -1,5 +1,13 @@
 using none
 
+import { exportedVariable, helperFunction } from 'main.bicep'
+//@[09:25) [BCP360 (Error)] The 'exportedVariable' symbol was not found in (or was not exported by) the imported template. (bicep https://aka.ms/bicep/core-diagnostics#BCP360) |exportedVariable|
+//@[27:41) [BCP360 (Error)] The 'helperFunction' symbol was not found in (or was not exported by) the imported template. (bicep https://aka.ms/bicep/core-diagnostics#BCP360) |helperFunction|
+
+param p12 = '${exportedVariable}-${externalInput('custom', helperFunction())}'
+//@[15:31) [BCP063 (Error)] The name "exportedVariable" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |exportedVariable|
+//@[59:73) [BCP059 (Error)] The name "helperFunction" is not a function. (bicep https://aka.ms/bicep/core-diagnostics#BCP059) |helperFunction|
+
 var myVar = 1 + 2
 param p = externalInput('sys.envVar', myVar)
 //@[38:43) [BCP032 (Error)] The value must be a compile-time constant. (bicep https://aka.ms/bicep/core-diagnostics#BCP032) |myVar|
