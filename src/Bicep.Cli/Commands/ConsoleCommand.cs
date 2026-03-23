@@ -18,7 +18,7 @@ using Spectre.Console;
 namespace Bicep.Cli.Commands;
 
 /// <summary>
-/// Minimal interactive console (experimental).
+/// Minimal interactive console
 /// Supports multi-line input: enter expressions or variable declarations.
 /// Input is submitted automatically when structurally complete, or by entering a blank line once complete.
 /// </summary>
@@ -54,8 +54,6 @@ public class ConsoleCommand(
 
     public async Task<int> RunAsync(ConsoleArguments args)
     {
-        logger.LogWarning($"WARNING: The '{args.CommandName}' CLI command is an experimental feature. Experimental features should be used for testing purposes only, as there are no guarantees about the quality or stability of these features.");
-
         if (io.Input.IsRedirected)
         {
             // Read all input from stdin if redirected (via pipe or file redirection)
