@@ -38,7 +38,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }
         }
 
-        private static void CompileAndTestWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors, int? maxAgeInDays = null, int? newVersionGracePeriodInDays = null)
+        private static void CompileAndTestWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors, int? maxAgeInDays = null, int? gracePeriodInDays = null)
         {
             VerifyAllTypesAndDatesAreFake(bicep, string.Join(", ", resourceTypes), fakeToday, string.Join(", ", expectedMessagesForCode));
 
@@ -48,13 +48,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 new Options(
                     OnCompileErrors: onCompileErrors,
                     IncludePosition.LineNumber,
-                    ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays, newVersionGracePeriodInDays),
+                    ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays, gracePeriodInDays),
                     // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
                     // Note: The compiler does not know about these fake types, only the linter.
                     AzResourceTypeLoader: resourceTypes.Any() ? FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes).Object : null));
         }
 
-        private static void CompileAndTestFixWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, DiagnosticAndFixes[] expectedDiagnostics, int? maxAgeInDays = null, int? newVersionGracePeriodInDays = null)
+        private static void CompileAndTestFixWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, DiagnosticAndFixes[] expectedDiagnostics, int? maxAgeInDays = null, int? gracePeriodInDays = null)
         {
             VerifyAllTypesAndDatesAreFake(bicep);
             VerifyAllTypesAndDatesAreFake(resourceTypes);
@@ -92,13 +92,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 new Options(
                     OnCompileErrors.IncludeErrors,
                     IncludePosition.LineNumber,
-                    ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays, newVersionGracePeriodInDays),
+                    ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays, gracePeriodInDays),
                     // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
                     // Note: The compiler does not know about these fake types, only the linter.
                     AzResourceTypeLoader: FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes).Object));
         }
 
-        private static RootConfiguration CreateConfigurationWithFakeToday(RootConfiguration original, string today, int? maxAgeInDays = null, int? newVersionGracePeriodInDays = null)
+        private static RootConfiguration CreateConfigurationWithFakeToday(RootConfiguration original, string today, int? maxAgeInDays = null, int? gracePeriodInDays = null)
         {
             VerifyAllTypesAndDatesAreFake(today);
 
@@ -126,7 +126,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         """
                             .Replace("<TESTING_TODAY_DATE>", today)
                             .Replace("<MAX_AGE_PROP>", maxAgeInDays.HasValue ? $", \"maxAgeInDays\": {maxAgeInDays}" : "")
-                            .Replace("<GRACE_PERIOD_PROP>", newVersionGracePeriodInDays.HasValue ? $", \"newVersionGracePeriodInDays\": {newVersionGracePeriodInDays}" : ""))),
+                            .Replace("<GRACE_PERIOD_PROP>", gracePeriodInDays.HasValue ? $", \"gracePeriodInDays\": {gracePeriodInDays}" : ""))),
                 original.CacheRootDirectory,
                 original.ExperimentalFeaturesWarning,
                 original.ExperimentalFeaturesEnabled with
@@ -141,7 +141,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestClass]
         public class GetAcceptableApiVersionsTests
         {
-            private static void TestGetAcceptableApiVersions(string fullyQualifiedResourceType, ResourceScope scope, string resourceTypes, string today, string[] expectedApiVersions, int maxAgeInDays = UseRecentApiVersionRule.DefaultMaxAgeInDays, int newVersionGracePeriodInDays = 0)
+            private static void TestGetAcceptableApiVersions(string fullyQualifiedResourceType, ResourceScope scope, string resourceTypes, string today, string[] expectedApiVersions, int maxAgeInDays = UseRecentApiVersionRule.DefaultMaxAgeInDays, int gracePeriodInDays = 0)
             {
                 VerifyAllTypesAndDatesAreFake(fullyQualifiedResourceType, today);
                 VerifyAllTypesAndDatesAreFake(resourceTypes);
@@ -149,7 +149,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 var apiVersionProvider = new ApiVersionProvider(BicepTestConstants.Features, []);
                 apiVersionProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
-                var (_, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(apiVersionProvider, AzureResourceApiVersion.Parse(today).Date, maxAgeInDays, newVersionGracePeriodInDays, scope, fullyQualifiedResourceType);
+                var (_, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(apiVersionProvider, AzureResourceApiVersion.Parse(today).Date, maxAgeInDays, gracePeriodInDays, scope, fullyQualifiedResourceType);
                 var allowedVersionsStrings = allowedVersions.Select(v => v.ToString()).ToArray();
                 allowedVersionsStrings.Should().BeEquivalentTo(expectedApiVersions, options => options.WithStrictOrdering());
             }
@@ -737,7 +737,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         "2421-04-01",
                         "2421-03-01",
                     ],
-                    newVersionGracePeriodInDays: 90);
+                    gracePeriodInDays: 90);
             }
 
             [TestMethod]
@@ -760,7 +760,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         "2421-04-01",
                         "2421-03-01",
                     ],
-                    newVersionGracePeriodInDays: 0);
+                    gracePeriodInDays: 0);
             }
 
             [TestMethod]
@@ -783,7 +783,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         "2421-02-01-preview",
                         "2421-01-01", // Stable version
                     ],
-                    newVersionGracePeriodInDays: 90);
+                    gracePeriodInDays: 90);
             }
 
             [TestMethod]
@@ -805,7 +805,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         "2421-04-01", // Most recent stable outside grace period (90 days from 2421-07-07 = before 2421-04-09)
                         "2421-01-01",
                     ],
-                    newVersionGracePeriodInDays: 90);
+                    gracePeriodInDays: 90);
             }
 
             [TestMethod]
@@ -832,7 +832,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         "2421-03-01", // Most recent stable outside grace period
                         "2421-01-01", // Older stable
                     ],
-                    newVersionGracePeriodInDays: 90);
+                    gracePeriodInDays: 90);
             }
 
             [TestMethod]
@@ -856,7 +856,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         "2421-06-15",
                         "2421-06-01",
                     ],
-                    newVersionGracePeriodInDays: 90);
+                    gracePeriodInDays: 90);
             }
 
             [TestMethod]
@@ -881,7 +881,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         "2421-05-01", // Older stable
                         // Note: 2421-06-01-preview is not included because it's not newer than the most recent stable (2421-06-15)
                     ],
-                    newVersionGracePeriodInDays: 90);
+                    gracePeriodInDays: 90);
             }
         }
 
@@ -992,7 +992,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             [DynamicData(nameof(GetTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(TestData), DynamicDataDisplayName = nameof(TestData.GetDisplayName))]
             public void InvariantsTest(TestData data)
             {
-                var (allVersions, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(RealApiVersionProvider, data.Today, data.MaxAgeInDays, UseRecentApiVersionRule.DefaultNewVersionGracePeriodInDays, data.ResourceScope, data.FullyQualifiedResourceType);
+                var (allVersions, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(RealApiVersionProvider, data.Today, data.MaxAgeInDays, UseRecentApiVersionRule.DefaultGracePeriodInDays, data.ResourceScope, data.FullyQualifiedResourceType);
 
                 allVersions.Should().NotBeNull();
                 allowedVersions.Should().NotBeNull();
@@ -1095,7 +1095,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     apiVersionProvider,
                     GetToday(),
                     maxAllowedAgeInDays,
-                    UseRecentApiVersionRule.DefaultNewVersionGracePeriodInDays,
+                    UseRecentApiVersionRule.DefaultGracePeriodInDays,
                     new TextSpan(17, 47),
                     new TextSpan(17, 47),
                     ResourceScope.ResourceGroup,
