@@ -23,7 +23,6 @@ namespace Bicep.Cli.Commands;
 /// Input is submitted automatically when structurally complete, or by entering a blank line once complete.
 /// </summary>
 public class ConsoleCommand(
-    ILogger logger,
     IOContext io,
     IEnvironment environment,
     ReplEnvironment replEnvironment) : ICommand
