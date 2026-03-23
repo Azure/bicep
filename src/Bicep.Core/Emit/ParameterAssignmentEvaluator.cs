@@ -408,9 +408,20 @@ public class ParameterAssignmentEvaluator
 
                 if (semanticModel.SymbolsToInline.ParameterAssignmentsToInline.Contains(parameter))
                 {
-                    var rewriter = new InlinedParameterRewriter(parameterModel, this, parameterConverter);
-                    intermediate = rewriter.Rewrite(intermediate);
-                    return Result.For(intermediate);
+                    try
+                    {
+                        // we need to inline fully-evaluable variables, parameters or UDFs
+                        // since we can't have 'variables' or 'parameters' or UDF function invocations in JSON parameter files
+                        // TODO: Look into whether we can use ITemplateLanguageExpression for ParameterAssignmentEvaluator to simplify partial evaluation
+                        // cases like this.
+                        var rewriter = new InlinedParameterRewriter(parameterModel, this, parameterConverter);
+                        return Result.For(rewriter.Rewrite(intermediate));
+                    }
+                    catch (Exception ex)
+                    {
+                        return Result.For(DiagnosticBuilder.ForPosition(declaringParam.Value)
+                            .FailedToEvaluateSubject("parameter", parameter.Name, ex.Message));
+                    }
                 }
 
                 if (intermediate is ParameterKeyVaultReferenceExpression keyVaultReferenceExpression)
@@ -793,6 +804,15 @@ public class ParameterAssignmentEvaluator
         }
     }
 
+    // TODO: Should look into using ITemplateLanguageExpression for ParameterAssignmentEvaluator
+    // which would probably simplify a lot of this logic.
+    /// <summary>
+    /// Rewrites intermediate expressions by replacing variable references, parameter assignment references,
+    /// and user-defined function calls with their evaluated literal values. This is used for parameter
+    /// assignments that must be inlined (e.g., those containing <c>externalInput</c> calls), where the
+    /// emitted JSON parameter file cannot reference ARM template variables, parameters, or user-defined
+    /// functions.
+    /// </summary>
     public class InlinedParameterRewriter(
         SemanticModel model,
         ParameterAssignmentEvaluator evaluator,
@@ -801,36 +821,32 @@ public class ParameterAssignmentEvaluator
         public Expression Rewrite(Expression expression) => Replace(expression);
 
         public override Expression ReplaceVariableReferenceExpression(VariableReferenceExpression expression)
-        {
-            var result = evaluator.EvaluateVariable(expression.Variable);
-            if (result.Value is { } value)
-            {
-                return JTokenToExpression(value, expression.SourceSyntax);
-            }
+            => ResultToExpression(evaluator.EvaluateVariable(expression.Variable), expression);
 
-            throw new InvalidOperationException($"Variable {expression.Variable.Name} could not be evaluated");
-        }
         public override Expression ReplaceParametersAssignmentReferenceExpression(ParametersAssignmentReferenceExpression expression)
-        {
-            var result = evaluator.EvaluateParameter(expression.Parameter);
-            if (result.Value is { } value)
-            {
-                return JTokenToExpression(value, expression.SourceSyntax);
-            }
+            => ResultToExpression(evaluator.EvaluateParameter(expression.Parameter), expression);
 
-            throw new InvalidOperationException($"Parameter {expression.Parameter.Name} could not be evaluated");
-        }
+        public override Expression ReplaceImportedVariableReferenceExpression(ImportedVariableReferenceExpression expression)
+            => ResultToExpression(evaluator.EvaluateImport(expression.Variable), expression);
 
+        public override Expression ReplaceWildcardImportVariablePropertyReferenceExpression(WildcardImportVariablePropertyReferenceExpression expression)
+            => ResultToExpression(evaluator.EvaluateWildcardImportPropertyAsVariable(new WildcardImportPropertyReference(expression.ImportSymbol, expression.PropertyName)), expression);
 
         public override Expression ReplaceUserDefinedFunctionCallExpression(UserDefinedFunctionCallExpression expression)
-            => ConvertAndEvaluate(base.ReplaceUserDefinedFunctionCallExpression(expression));
+            => EvaluateToJToken(base.ReplaceUserDefinedFunctionCallExpression(expression));
 
         public override Expression ReplaceImportedUserDefinedFunctionCallExpression(ImportedUserDefinedFunctionCallExpression expression)
-            => ConvertAndEvaluate(base.ReplaceImportedUserDefinedFunctionCallExpression(expression));
+            => EvaluateToJToken(base.ReplaceImportedUserDefinedFunctionCallExpression(expression));
 
         public override Expression ReplaceWildcardImportInstanceFunctionCallExpression(WildcardImportInstanceFunctionCallExpression expression)
-            => ConvertAndEvaluate(base.ReplaceWildcardImportInstanceFunctionCallExpression(expression));
-        private Expression ConvertAndEvaluate(Expression expression)
+            => EvaluateToJToken(base.ReplaceWildcardImportInstanceFunctionCallExpression(expression));
+
+        private static Expression ResultToExpression(Result result, Expression expression)
+            => result.Value is { } value
+                ? JTokenToExpression(value, expression.SourceSyntax)
+                : throw new InvalidOperationException(result.Diagnostic?.Message ?? "Failed to evaluate expression.");
+
+        private Expression EvaluateToJToken(Expression expression)
         {
             var context = evaluator.GetExpressionEvaluationContextForModel(model);
             return JTokenToExpression(converter.ConvertExpression(expression).EvaluateExpression(context), expression.SourceSyntax);
@@ -843,6 +859,7 @@ public class ParameterAssignmentEvaluator
             JValue jValue => jValue.Value switch
             {
                 string @string => ExpressionFactory.CreateStringLiteral(@string, syntax),
+                int @int => ExpressionFactory.CreateIntegerLiteral(@int, syntax),
                 long @long => ExpressionFactory.CreateIntegerLiteral(@long, syntax),
                 bool @bool => ExpressionFactory.CreateBooleanLiteral(@bool, syntax),
                 null => new NullLiteralExpression(syntax),

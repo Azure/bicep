@@ -1,5 +1,5 @@
 using none
-//@[00:573) ProgramSyntax
+//@[00:691) ProgramSyntax
 //@[00:010) ├─UsingDeclarationSyntax
 //@[00:005) | ├─Token(Identifier) |using|
 //@[06:010) | ├─NoneLiteralSyntax
@@ -282,6 +282,67 @@ param p8 = externalInput('custom', externalInput('custom', 'foo'))
 //@[59:064) |   |   |   └─Token(StringComplete) |'foo'|
 //@[64:065) |   |   └─Token(RightParen) |)|
 //@[65:066) |   └─Token(RightParen) |)|
-//@[66:068) ├─Token(NewLine) |\r\n|
+//@[66:070) ├─Token(NewLine) |\r\n\r\n|
+
+param p9 = externalInput('custom',)
+//@[00:035) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:008) | ├─IdentifierSyntax
+//@[06:008) | | └─Token(Identifier) |p9|
+//@[09:010) | ├─Token(Assignment) |=|
+//@[11:035) | └─FunctionCallSyntax
+//@[11:024) |   ├─IdentifierSyntax
+//@[11:024) |   | └─Token(Identifier) |externalInput|
+//@[24:025) |   ├─Token(LeftParen) |(|
+//@[25:033) |   ├─FunctionArgumentSyntax
+//@[25:033) |   | └─StringSyntax
+//@[25:033) |   |   └─Token(StringComplete) |'custom'|
+//@[33:034) |   ├─Token(Comma) |,|
+//@[34:034) |   ├─FunctionArgumentSyntax
+//@[34:034) |   | └─SkippedTriviaSyntax
+//@[34:035) |   └─Token(RightParen) |)|
+//@[35:037) ├─Token(NewLine) |\r\n|
+param p10 = externalInput(, 'test')
+//@[00:035) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:009) | ├─IdentifierSyntax
+//@[06:009) | | └─Token(Identifier) |p10|
+//@[10:011) | ├─Token(Assignment) |=|
+//@[12:035) | └─FunctionCallSyntax
+//@[12:025) |   ├─IdentifierSyntax
+//@[12:025) |   | └─Token(Identifier) |externalInput|
+//@[25:026) |   ├─Token(LeftParen) |(|
+//@[26:026) |   ├─FunctionArgumentSyntax
+//@[26:026) |   | └─SkippedTriviaSyntax
+//@[26:027) |   ├─Token(Comma) |,|
+//@[28:034) |   ├─FunctionArgumentSyntax
+//@[28:034) |   | └─StringSyntax
+//@[28:034) |   |   └─Token(StringComplete) |'test'|
+//@[34:035) |   └─Token(RightParen) |)|
+//@[35:037) ├─Token(NewLine) |\r\n|
+param p11 = externalInput('custom',foo')
+//@[00:040) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:009) | ├─IdentifierSyntax
+//@[06:009) | | └─Token(Identifier) |p11|
+//@[10:011) | ├─Token(Assignment) |=|
+//@[12:040) | └─FunctionCallSyntax
+//@[12:025) |   ├─IdentifierSyntax
+//@[12:025) |   | └─Token(Identifier) |externalInput|
+//@[25:026) |   ├─Token(LeftParen) |(|
+//@[26:034) |   ├─FunctionArgumentSyntax
+//@[26:034) |   | └─StringSyntax
+//@[26:034) |   |   └─Token(StringComplete) |'custom'|
+//@[34:035) |   ├─Token(Comma) |,|
+//@[35:038) |   ├─FunctionArgumentSyntax
+//@[35:038) |   | └─VariableAccessSyntax
+//@[35:038) |   |   └─IdentifierSyntax
+//@[35:038) |   |     └─Token(Identifier) |foo|
+//@[38:038) |   ├─SkippedTriviaSyntax
+//@[38:040) |   ├─FunctionArgumentSyntax
+//@[38:040) |   | └─SkippedTriviaSyntax
+//@[38:040) |   |   └─Token(StringComplete) |')|
+//@[40:040) |   └─SkippedTriviaSyntax
+//@[40:042) ├─Token(NewLine) |\r\n|
 
 //@[00:000) └─Token(EndOfFile) ||

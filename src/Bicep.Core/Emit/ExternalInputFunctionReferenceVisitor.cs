@@ -90,6 +90,12 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
 
     private void VisitFunctionCallSyntaxInternal(FunctionCallSyntaxBase functionCallSyntax)
     {
+        if (semanticModel.HasParsingErrors())
+        {
+            // skip analysis if there are already parsing errors in the semantic model, as we may not be able to reliably determine the function being called or its arguments
+            return;
+        }
+
         if (semanticModel.GetSymbolInfo(functionCallSyntax) is not FunctionSymbol functionSymbol ||
             !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresExternalInput))
         {
@@ -99,8 +105,7 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
         try
         {
             var intermediate = expressionConverter.ConvertToIntermediateExpression(functionCallSyntax);
-            intermediate = parameterRewriter.Rewrite(intermediate);
-            var expression = expressionConverter.ConvertExpression(intermediate);
+            var expression = expressionConverter.ConvertExpression(parameterRewriter.Rewrite(intermediate));
             if (expression is FunctionExpression functionExpression)
             {
                 // it's possible the function syntax maps to multiple external inputs, e.g. concat(externalInput('input1'), externalInput('input2'))

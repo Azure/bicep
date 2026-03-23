@@ -169,6 +169,38 @@ param p8 = externalInput('custom', externalInput('custom', 'foo'))
 //@[59:64) StringComplete |'foo'|
 //@[64:65) RightParen |)|
 //@[65:66) RightParen |)|
-//@[66:68) NewLine |\r\n|
+//@[66:70) NewLine |\r\n\r\n|
+
+param p9 = externalInput('custom',)
+//@[00:05) Identifier |param|
+//@[06:08) Identifier |p9|
+//@[09:10) Assignment |=|
+//@[11:24) Identifier |externalInput|
+//@[24:25) LeftParen |(|
+//@[25:33) StringComplete |'custom'|
+//@[33:34) Comma |,|
+//@[34:35) RightParen |)|
+//@[35:37) NewLine |\r\n|
+param p10 = externalInput(, 'test')
+//@[00:05) Identifier |param|
+//@[06:09) Identifier |p10|
+//@[10:11) Assignment |=|
+//@[12:25) Identifier |externalInput|
+//@[25:26) LeftParen |(|
+//@[26:27) Comma |,|
+//@[28:34) StringComplete |'test'|
+//@[34:35) RightParen |)|
+//@[35:37) NewLine |\r\n|
+param p11 = externalInput('custom',foo')
+//@[00:05) Identifier |param|
+//@[06:09) Identifier |p11|
+//@[10:11) Assignment |=|
+//@[12:25) Identifier |externalInput|
+//@[25:26) LeftParen |(|
+//@[26:34) StringComplete |'custom'|
+//@[34:35) Comma |,|
+//@[35:38) Identifier |foo|
+//@[38:40) StringComplete |')|
+//@[40:42) NewLine |\r\n|
 
 //@[00:00) EndOfFile ||
