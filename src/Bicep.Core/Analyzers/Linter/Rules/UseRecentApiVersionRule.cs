@@ -395,6 +395,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return null;
             }
 
+            // Check if version is within grace period - if so, accept it without warning
+            // Grace period is for RECOMMENDATIONS (don't suggest it), not VALIDATION (it's still valid to use)
+            if (newVersionGracePeriodDays > 0 && IsWithinGracePeriod(actualApiVersion, today, newVersionGracePeriodDays))
+            {
+                // Version exists and is too new to recommend to others, but valid for current use - pass
+                return null;
+            }
+
             // At this point, the rule has failed. Just need to determine reason for failure, for the message.
             string? failureReason = null;
 
@@ -565,6 +573,18 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return apiVersion.Date >= today.AddDays(-maxAgeInDays);
         }
 
+        // Check if an API version is within the grace period (too new to recommend)
+        private static bool IsWithinGracePeriod(AzureResourceApiVersion apiVersion, DateOnly today, int gracePeriodDays)
+        {
+            if (gracePeriodDays == 0)
+            {
+                return false; // No grace period
+            }
+
+            var gracePeriodThreshold = today.AddDays(-gracePeriodDays);
+            return apiVersion.Date > gracePeriodThreshold;
+        }
+
         // Recent meaning < maxAgeInDays old
         private static IEnumerable<AzureResourceApiVersion> FilterRecent(IEnumerable<AzureResourceApiVersion> apiVersions, DateOnly today, int maxAgeInDays)
         {
@@ -593,8 +613,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return apiVersions; // No grace period
             }
 
-            var gracePeriodThreshold = today.AddDays(-newVersionGracePeriodDays);
-            return apiVersions.Where(v => v.Date <= gracePeriodThreshold);
+            return apiVersions.Where(v => !IsWithinGracePeriod(v, today, newVersionGracePeriodDays));
         }
     }
 }
