@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.ErrorResponses;
+using Azure.Deployments.Core.Exceptions;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Templates.Expressions;
 using Azure.Deployments.Templates.Extensions;
@@ -844,7 +845,7 @@ public class ParameterAssignmentEvaluator
         private static Expression ResultToExpression(Result result, Expression expression)
             => result.Value is { } value
                 ? JTokenToExpression(value, expression.SourceSyntax)
-                : throw new InvalidOperationException(result.Diagnostic?.Message ?? "Failed to evaluate expression.");
+                : throw new ExpressionException(result.Diagnostic?.Message ?? "Failed to evaluate expression.");
 
         private Expression EvaluateToJToken(Expression expression)
         {
@@ -863,9 +864,9 @@ public class ParameterAssignmentEvaluator
                 long @long => ExpressionFactory.CreateIntegerLiteral(@long, syntax),
                 bool @bool => ExpressionFactory.CreateBooleanLiteral(@bool, syntax),
                 null => new NullLiteralExpression(syntax),
-                _ => throw new InvalidOperationException($"Unrecognized JValue value of type {jValue.Value?.GetType().Name}"),
+                _ => throw new ExpressionException($"Unrecognized JValue value of type {jValue.Value?.GetType().Name}"),
             },
-            _ => throw new InvalidOperationException($"Unsupported JToken type: {token.Type}"),
+            _ => throw new ExpressionException($"Unsupported JToken type: {token.Type}"),
         };
     }
 }

@@ -368,6 +368,31 @@ param foo2 = '${foo}-${externalInput('sys.cli', 'foo2')}'
     }
 
     [TestMethod]
+    public void ExternalInput_parameter_with_non_existent_symbol_reference_should_return_diagnostics()
+    {
+        var result = CompilationHelper.CompileParams(
+("main.bicep", @"
+"),
+("parameters.bicepparam", @"
+using none
+import { foo } from 'main.bicep' // foo doesn't exist in main.bicep
+param bar = '${foo}-${externalInput('test')}'
+var baz = foo('test')
+param qux = externalInput('kind', baz)
+"));
+
+        result.Should().HaveDiagnostics(
+            [
+                ("BCP360", DiagnosticLevel.Error, "The 'foo' symbol was not found in (or was not exported by) the imported template."),
+                ("BCP063", DiagnosticLevel.Error, "The name \"foo\" is not a parameter, variable, resource or module."),
+                ("BCP059", DiagnosticLevel.Error, "The name \"foo\" is not a function."),
+                ("BCP338", DiagnosticLevel.Error, "Failed to evaluate function \"externalInput('kind', baz)\": Failed to evaluate variable \"baz\": The template function 'foo' is not valid. Please see https://aka.ms/arm-functions for usage details."),
+                ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"baz\" is not valid."),
+            ]);
+
+    }
+
+    [TestMethod]
     public void ExternalInput_parameter_with_unevaluable_imported_variable_references_returns_diagnostic()
     {
         var result = CompilationHelper.CompileParams(
