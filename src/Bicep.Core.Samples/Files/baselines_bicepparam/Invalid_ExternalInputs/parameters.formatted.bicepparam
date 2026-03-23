@@ -1,5 +1,9 @@
 using none
 
+import { exportedVariable, helperFunction } from 'main.bicep'
+
+param p12 = '${exportedVariable}-${externalInput('custom', helperFunction())}'
+
 var myVar = 1 + 2
 param p = externalInput('sys.envVar', myVar)
 
