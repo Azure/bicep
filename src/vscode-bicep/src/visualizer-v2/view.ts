@@ -123,6 +123,7 @@ export class VisualDesignerView extends Disposable {
         method: "deploymentGraph",
         params: {
           documentPath: this.documentUri.fsPath,
+          documentFileName: path.basename(this.documentUri.fsPath),
           deploymentGraph,
         },
       });

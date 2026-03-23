@@ -2,27 +2,37 @@
 // Licensed under the MIT License.
 
 import type { ComponentType } from "react";
-import type { NodeKind } from "./features/graph-engine";
+import type { NodeKind } from "./lib/graph";
+import type { DeploymentGraphPayload } from "./lib/messaging";
 
 import { PanZoomProvider, useGetPanZoomDimensions } from "@vscode-bicep-ui/components";
-import { WebviewMessageChannelProvider, useWebviewMessageChannel, useWebviewNotification } from "@vscode-bicep-ui/messaging";
-import { getDefaultStore } from "jotai";
+import {
+  useWebviewMessageChannel,
+  useWebviewNotification,
+  WebviewMessageChannelProvider,
+} from "@vscode-bicep-ui/messaging";
+import { getDefaultStore, useAtomValue, useSetAtom } from "jotai";
 import { Suspense, useCallback, useEffect } from "react";
 import { styled, ThemeProvider } from "styled-components";
-import { GlobalStyle } from "./GlobalStyle";
-import { useTheme } from "./theming/use-theme";
-import { GraphControlBar } from "./components/GraphControlBar";
-import { StatusBar } from "./components/StatusBar";
-import { ModuleDeclaration, ResourceDeclaration } from "./features/visualization";
-import { nodeConfigAtom, Canvas, Graph } from "./features/graph-engine";
+import { ControlBar } from "./features/controls";
 import { loadDevAppShell } from "./features/devtools";
-import { useAutoLayout } from "./features/layout";
-import { useApplyDeploymentGraph } from "./features/messaging";
 import {
-  DEPLOYMENT_GRAPH_NOTIFICATION,
-  READY_NOTIFICATION,
-  type DeploymentGraphPayload,
-} from "./messages";
+  effectiveExportThemeAtom,
+  ExportAreaCover,
+  ExportAreaPreview,
+  exportCanvasElementAtom,
+  exportFileStemAtom,
+  ExportOverlay,
+  isExportCanvasCoverVisibleAtom,
+  isExportPreviewVisibleAtom,
+} from "./features/export";
+import { useAutoLayout } from "./features/layout";
+import { StatusBar } from "./features/status";
+import { ModuleDeclaration, ResourceDeclaration } from "./features/visualization";
+import { GlobalStyle } from "./GlobalStyle";
+import { Canvas, Graph, nodeConfigAtom } from "./lib/graph";
+import { DEPLOYMENT_GRAPH_NOTIFICATION, READY_NOTIFICATION, useApplyDeploymentGraph } from "./lib/messaging";
+import { useTheme } from "./lib/theming";
 
 const DevAppShell = loadDevAppShell();
 
@@ -35,6 +45,18 @@ const $ControlBarContainer = styled.div`
   right: 16px;
   z-index: 100;
 `;
+
+const $CanvasWrapper = styled.div`
+  position: absolute;
+  inset: 0;
+`;
+
+function deriveExportFileStem(documentPath?: string, documentFileName?: string): string {
+  const fileName = (documentFileName || documentPath || "").split(/[\\/]/).pop() ?? "";
+  const stem = fileName.replace(/\.[^.]+$/, "").trim();
+
+  return stem || "bicep-graph";
+}
 
 store.set(nodeConfigAtom, {
   ...nodeConfig,
@@ -67,6 +89,9 @@ function GraphContainer() {
   }, [getPanZoomDimensions]);
   const applyGraph = useApplyDeploymentGraph(getViewportCenter);
   const messageChannel = useWebviewMessageChannel();
+  const exportTheme = useAtomValue(effectiveExportThemeAtom);
+  const setExportFileStem = useSetAtom(exportFileStemAtom);
+  const setExportCanvasElement = useSetAtom(exportCanvasElementAtom);
 
   // Send READY notification on mount
   useEffect(() => {
@@ -82,23 +107,64 @@ function GraphContainer() {
       (params: unknown) => {
         const payload = params as DeploymentGraphPayload;
         applyGraph(payload.deploymentGraph);
+        setExportFileStem(deriveExportFileStem(payload.documentPath, payload.documentFileName));
       },
-      [applyGraph],
+      [applyGraph, setExportFileStem],
     ),
   );
 
   useAutoLayout();
 
+  const canvasTheme = exportTheme;
+
+  const handleCanvasRef = useCallback(
+    (element: HTMLDivElement | null) => {
+      setExportCanvasElement(element);
+    },
+    [setExportCanvasElement],
+  );
+
   return (
     <>
       <$ControlBarContainer>
-        <GraphControlBar />
+        <ControlBar />
       </$ControlBarContainer>
-      <Canvas>
-        <Graph />
-      </Canvas>
+      <ExportUILayer />
+      <ThemeProvider theme={canvasTheme}>
+        <$CanvasWrapper ref={handleCanvasRef}>
+          <Canvas>
+            <ExportCanvasCoverLayer />
+            <Graph />
+          </Canvas>
+        </$CanvasWrapper>
+      </ThemeProvider>
     </>
   );
+}
+
+function ExportUILayer() {
+  const isExportPreviewVisible = useAtomValue(isExportPreviewVisibleAtom);
+
+  if (!isExportPreviewVisible) {
+    return null;
+  }
+
+  return (
+    <>
+      <ExportOverlay />
+      <ExportAreaPreview />
+    </>
+  );
+}
+
+function ExportCanvasCoverLayer() {
+  const isExportCanvasCoverVisible = useAtomValue(isExportCanvasCoverVisibleAtom);
+
+  if (!isExportCanvasCoverVisible) {
+    return null;
+  }
+
+  return <ExportAreaCover />;
 }
 
 const $AppContainer = styled.div`

@@ -1,5 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-export * from "./ModuleDeclaration";
-export * from "./ResourceDeclaration";
+export * from "./atoms";
+export { StatusBar } from "./StatusBar";
