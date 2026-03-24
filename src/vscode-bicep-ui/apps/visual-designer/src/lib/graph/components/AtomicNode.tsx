@@ -59,9 +59,7 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
       // placed at the spawn origin. Shift min so the node's center
       // aligns with the origin instead of its top-left corner.
       const isInitial = box.min.x === box.max.x && box.min.y === box.max.y;
-      const min = isInitial
-        ? { x: box.min.x - offsetWidth / 2, y: box.min.y - offsetHeight / 2 }
-        : box.min;
+      const min = isInitial ? { x: box.min.x - offsetWidth / 2, y: box.min.y - offsetHeight / 2 } : box.min;
 
       return {
         min,

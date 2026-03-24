@@ -115,12 +115,16 @@ const $ResourceTypeContainer = styled.div`
 export function ResourceDeclaration({ id, data }: ResourceDeclarationProps) {
   const { symbolicName, resourceType, isCollection, hasError } = data;
   const resourceTypeDisplayName = camelCaseToWords(resourceType.split("/").pop());
+  // Modules demoted to atomic (no children) render here with
+  // resourceType "<module>".  Use the folder icon to match the
+  // compound module styling.
+  const iconType = resourceType === "<module>" ? "folder" : resourceType;
   const focusedNodeId = useAtomValue(focusedNodeIdAtom);
   const isFocused = focusedNodeId === id;
 
   return (
     <$ResourceDelcarton $hasError={hasError} $isCollection={isCollection} $isFocused={isFocused}>
-      <AzureIcon resourceType={resourceType} size={36} />
+      <AzureIcon resourceType={iconType} size={36} />
       <$TextContainer>
         <$SymbolicNameContainer>{symbolicName}</$SymbolicNameContainer>
         <$ResourceTypeContainer>{resourceTypeDisplayName}</$ResourceTypeContainer>
