@@ -121,7 +121,6 @@ function animateNodeTo(get: Getter, set: Setter, boxAtom: PrimitiveAtom<Box>, ta
   return animate(from, to, {
     type: "spring",
     duration: ANIMATION_DURATION_S,
-    bounce: 0,
     onUpdate: (latest) => {
       const x = xTransform(latest);
       const y = yTransform(latest);
