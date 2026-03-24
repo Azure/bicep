@@ -379,6 +379,7 @@ import { foo } from 'main.bicep' // foo doesn't exist in main.bicep
 param bar = '${foo}-${externalInput('test')}'
 var baz = foo('test')
 param qux = externalInput('kind', baz)
+param bar2 = externalInput('kind', foo)
 "));
 
         result.Should().HaveDiagnostics(
@@ -386,8 +387,8 @@ param qux = externalInput('kind', baz)
                 ("BCP360", DiagnosticLevel.Error, "The 'foo' symbol was not found in (or was not exported by) the imported template."),
                 ("BCP063", DiagnosticLevel.Error, "The name \"foo\" is not a parameter, variable, resource or module."),
                 ("BCP059", DiagnosticLevel.Error, "The name \"foo\" is not a function."),
-                ("BCP338", DiagnosticLevel.Error, "Failed to evaluate function \"externalInput('kind', baz)\": Failed to evaluate variable \"baz\": The template function 'foo' is not valid. Please see https://aka.ms/arm-functions for usage details."),
                 ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"baz\" is not valid."),
+                ("BCP063", DiagnosticLevel.Error, "The name \"foo\" is not a parameter, variable, resource or module."),
             ]);
 
     }

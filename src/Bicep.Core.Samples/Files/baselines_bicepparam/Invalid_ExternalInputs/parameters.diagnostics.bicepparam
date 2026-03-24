@@ -8,6 +8,10 @@ param p12 = '${exportedVariable}-${externalInput('custom', helperFunction())}'
 //@[15:31) [BCP063 (Error)] The name "exportedVariable" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |exportedVariable|
 //@[59:73) [BCP059 (Error)] The name "helperFunction" is not a function. (bicep https://aka.ms/bicep/core-diagnostics#BCP059) |helperFunction|
 
+param p13 = '${exportedVariable}-${externalInput('custom', exportedVariable)}'
+//@[15:31) [BCP063 (Error)] The name "exportedVariable" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |exportedVariable|
+//@[59:75) [BCP063 (Error)] The name "exportedVariable" is not a parameter, variable, resource or module. (bicep https://aka.ms/bicep/core-diagnostics#BCP063) |exportedVariable|
+
 var myVar = 1 + 2
 param p = externalInput('sys.envVar', myVar)
 //@[38:43) [BCP032 (Error)] The value must be a compile-time constant. (bicep https://aka.ms/bicep/core-diagnostics#BCP032) |myVar|

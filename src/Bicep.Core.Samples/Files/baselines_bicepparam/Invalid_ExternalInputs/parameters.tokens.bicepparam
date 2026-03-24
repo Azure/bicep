@@ -32,6 +32,22 @@ param p12 = '${exportedVariable}-${externalInput('custom', helperFunction())}'
 //@[76:78) StringRightPiece |}'|
 //@[78:82) NewLine |\r\n\r\n|
 
+param p13 = '${exportedVariable}-${externalInput('custom', exportedVariable)}'
+//@[00:05) Identifier |param|
+//@[06:09) Identifier |p13|
+//@[10:11) Assignment |=|
+//@[12:15) StringLeftPiece |'${|
+//@[15:31) Identifier |exportedVariable|
+//@[31:35) StringMiddlePiece |}-${|
+//@[35:48) Identifier |externalInput|
+//@[48:49) LeftParen |(|
+//@[49:57) StringComplete |'custom'|
+//@[57:58) Comma |,|
+//@[59:75) Identifier |exportedVariable|
+//@[75:76) RightParen |)|
+//@[76:78) StringRightPiece |}'|
+//@[78:82) NewLine |\r\n\r\n|
+
 var myVar = 1 + 2
 //@[00:03) Identifier |var|
 //@[04:09) Identifier |myVar|

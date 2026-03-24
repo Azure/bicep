@@ -4,6 +4,8 @@ import { exportedVariable, helperFunction } from 'main.bicep'
 
 param p12 = '${exportedVariable}-${externalInput('custom', helperFunction())}'
 
+param p13 = '${exportedVariable}-${externalInput('custom', exportedVariable)}'
+
 var myVar = 1 + 2
 param p = externalInput('sys.envVar', myVar)
 
