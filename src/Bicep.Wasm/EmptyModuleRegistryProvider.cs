@@ -9,7 +9,7 @@ namespace Bicep.Wasm
     public class EmptyModuleRegistryProvider : ArtifactRegistryProvider
     {
         public EmptyModuleRegistryProvider()
-            : base(Array.Empty<IArtifactRegistry>())
+            : base([new LocalModuleRegistry()])
         {
         }
     }
