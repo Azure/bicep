@@ -10,7 +10,7 @@ import styled, { useTheme } from "styled-components";
 import { focusedNodeIdAtom } from "@/lib/graph/atoms/nodes";
 import { CanvasBackground } from "./CanvasBackground";
 
-const CURSOR_SIZE = 22;
+const CURSOR_SIZE = 32;
 
 const $Container = styled.div`
   position: absolute;
@@ -19,6 +19,11 @@ const $Container = styled.div`
   right: 0;
   bottom: 0;
   overflow: hidden;
+
+  &.grabbing,
+  &.grabbing * {
+    cursor: none !important;
+  }
 `;
 
 const $PanZoom = styled(PanZoom)`
@@ -73,7 +78,7 @@ export function Canvas({ children, showBackground = true }: CanvasProps) {
       cursor.style.display = "block";
       cursor.style.left = `${e.clientX - cachedRect.left}px`;
       cursor.style.top = `${e.clientY - cachedRect.top}px`;
-      container.style.cursor = "none";
+      container.classList.add("grabbing");
     };
 
     const DRAG_THRESHOLD = 4;
@@ -106,7 +111,7 @@ export function Canvas({ children, showBackground = true }: CanvasProps) {
       didDrag = false;
       pendingFocusId = undefined;
       cursor.style.display = "none";
-      container.style.cursor = "";
+      container.classList.remove("grabbing");
     };
 
     container.addEventListener("pointerdown", onPointerDown);
