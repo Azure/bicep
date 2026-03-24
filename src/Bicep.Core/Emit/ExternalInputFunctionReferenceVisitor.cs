@@ -102,6 +102,11 @@ public sealed partial class ExternalInputFunctionReferenceVisitor : AstVisitor
             return;
         }
 
+        if (functionCallSyntax.Arguments.Any(arg => semanticModel.GetTypeInfo(arg.Expression).IsError()))
+        {
+            return;
+        }
+
         try
         {
             var intermediate = expressionConverter.ConvertToIntermediateExpression(functionCallSyntax);

@@ -7,6 +7,9 @@ import { exportedVariable, helperFunction } from 'main.bicep'
 param p12 = '${exportedVariable}-${externalInput('custom', helperFunction())}'
 //@[06:09) ParameterAssignment p12. Type: error. Declaration start char: 0, length: 78
 
+param p13 = '${exportedVariable}-${externalInput('custom', exportedVariable)}'
+//@[06:09) ParameterAssignment p13. Type: error. Declaration start char: 0, length: 78
+
 var myVar = 1 + 2
 //@[04:09) Variable myVar. Type: 3. Declaration start char: 0, length: 17
 param p = externalInput('sys.envVar', myVar)

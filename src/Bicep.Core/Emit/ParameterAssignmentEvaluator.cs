@@ -506,14 +506,14 @@ public class ParameterAssignmentEvaluator
 
     public ImmutableArray<ExternalInputDefinition>? TryGetExternalInputDefinitions()
     {
-        var externalInputInfo = semanticModel.ExternalInputReferences.InfoBySerializedExpression;
-        if (externalInputInfo.Count == 0)
-        {
-            return null;
-        }
-
         try
         {
+            var externalInputInfo = semanticModel.ExternalInputReferences.InfoBySerializedExpression;
+            if (externalInputInfo.Count == 0)
+            {
+                return null;
+            }
+
             var context = GetExpressionEvaluationContext();
             var resultBuilder = ImmutableArray.CreateBuilder<ExternalInputDefinition>();
 

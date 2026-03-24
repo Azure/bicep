@@ -1,5 +1,5 @@
 using none
-//@[00:838) ProgramSyntax
+//@[00:920) ProgramSyntax
 //@[00:010) ├─UsingDeclarationSyntax
 //@[00:005) | ├─Token(Identifier) |using|
 //@[06:010) | ├─NoneLiteralSyntax
@@ -52,6 +52,34 @@ param p12 = '${exportedVariable}-${externalInput('custom', helperFunction())}'
 //@[59:073) |   | |   | └─Token(Identifier) |helperFunction|
 //@[73:074) |   | |   ├─Token(LeftParen) |(|
 //@[74:075) |   | |   └─Token(RightParen) |)|
+//@[75:076) |   | └─Token(RightParen) |)|
+//@[76:078) |   └─Token(StringRightPiece) |}'|
+//@[78:082) ├─Token(NewLine) |\r\n\r\n|
+
+param p13 = '${exportedVariable}-${externalInput('custom', exportedVariable)}'
+//@[00:078) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:009) | ├─IdentifierSyntax
+//@[06:009) | | └─Token(Identifier) |p13|
+//@[10:011) | ├─Token(Assignment) |=|
+//@[12:078) | └─StringSyntax
+//@[12:015) |   ├─Token(StringLeftPiece) |'${|
+//@[15:031) |   ├─VariableAccessSyntax
+//@[15:031) |   | └─IdentifierSyntax
+//@[15:031) |   |   └─Token(Identifier) |exportedVariable|
+//@[31:035) |   ├─Token(StringMiddlePiece) |}-${|
+//@[35:076) |   ├─FunctionCallSyntax
+//@[35:048) |   | ├─IdentifierSyntax
+//@[35:048) |   | | └─Token(Identifier) |externalInput|
+//@[48:049) |   | ├─Token(LeftParen) |(|
+//@[49:057) |   | ├─FunctionArgumentSyntax
+//@[49:057) |   | | └─StringSyntax
+//@[49:057) |   | |   └─Token(StringComplete) |'custom'|
+//@[57:058) |   | ├─Token(Comma) |,|
+//@[59:075) |   | ├─FunctionArgumentSyntax
+//@[59:075) |   | | └─VariableAccessSyntax
+//@[59:075) |   | |   └─IdentifierSyntax
+//@[59:075) |   | |     └─Token(Identifier) |exportedVariable|
 //@[75:076) |   | └─Token(RightParen) |)|
 //@[76:078) |   └─Token(StringRightPiece) |}'|
 //@[78:082) ├─Token(NewLine) |\r\n\r\n|
