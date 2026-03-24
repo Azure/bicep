@@ -86,6 +86,13 @@ public class PlaygroundPage(IPage page)
         content.Should().BeEquivalentTo(ReplaceLineEndings(IgnoreGeneratorField(expectedContent)));
     }
 
+    public async Task ExpectingArmEditorContentToContain(string expectedContent)
+    {
+        var content = await GetEditorContent(ArmEditorPane);
+        content = IgnoreGeneratorField(content);
+        content.Should().Contain(ReplaceLineEndings(IgnoreGeneratorField(expectedContent)));
+    }
+
     private string IgnoreGeneratorField(string content)
     {
         var pattern = "\"_generator\"\\s*:\\s*\\{[^}]*\\}";

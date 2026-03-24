@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { editor, languages } from "monaco-editor";
+import { getQuickstartsLink } from "./examples";
 
 type DecompileResult = {
   bicepFile?: string;
@@ -15,7 +16,7 @@ type CompileResult = {
 export interface DotnetInterop {
   getSemanticTokensLegend(): languages.SemanticTokensLegend;
   getSemanticTokens(content: string): Promise<languages.SemanticTokens>;
-  compileAndEmitDiagnostics(content: string): Promise<CompileResult>;
+  compileAndEmitDiagnostics(content: string, sourcePath?: string): Promise<CompileResult>;
   decompile(jsonContent: string): Promise<DecompileResult>;
 }
 
@@ -26,8 +27,8 @@ function getDotnetInterop(interop: any): DotnetInterop {
       interop.invokeMethod("GetSemanticTokensLegend"),
     getSemanticTokens: (content) =>
       interop.invokeMethodAsync("GetSemanticTokens", content),
-    compileAndEmitDiagnostics: (content) =>
-      interop.invokeMethodAsync("CompileAndEmitDiagnostics", content),
+    compileAndEmitDiagnostics: (content, sourcePath) =>
+      interop.invokeMethodAsync("CompileAndEmitDiagnostics", content, sourcePath),
     decompile: (content) => interop.invokeMethodAsync("Decompile", content),
   };
 }
@@ -35,6 +36,16 @@ function getDotnetInterop(interop: any): DotnetInterop {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function initializeInterop(self: any) {
   return new Promise<DotnetInterop>((resolve) => {
+    self["LoadQuickstartsFile"] = async (filePath: string) => {
+      const response = await fetch(getQuickstartsLink(filePath));
+
+      if (!response.ok) {
+        return null;
+      }
+
+      return await response.text();
+    };
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     self["InteropInitialize"] = (newInterop: any) => {
       resolve(getDotnetInterop(newInterop));

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.IO.Abstractions;
+using System.Text.RegularExpressions;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
@@ -17,6 +18,9 @@ namespace Bicep.Wasm
 {
     public class Interop
     {
+        private const string QuickstartsRootPath = "/quickstarts/";
+        private static readonly Regex ModulePathRegex = new(@"^\s*module\s+\w+\s+['\"](?<path>[^'\"]+)['\"]", RegexOptions.Compiled | RegexOptions.Multiline);
+
         public record DecompileResult(string? bicepFile, string? error);
 
         public record CompileResult(string template, object diagnostics);
@@ -31,11 +35,11 @@ namespace Bicep.Wasm
         }
 
         [JSInvokable]
-        public async Task<CompileResult> CompileAndEmitDiagnostics(string content)
+        public async Task<CompileResult> CompileAndEmitDiagnostics(string content, string? sourcePath)
         {
             try
             {
-                var compilation = await GetCompilation(content);
+                var compilation = await GetCompilation(content, sourcePath);
                 var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
                 var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
@@ -129,17 +133,59 @@ namespace Bicep.Wasm
             };
         }
 
-        private async Task<Compilation> GetCompilation(string fileContents)
+        private async Task<Compilation> GetCompilation(string fileContents, string? sourcePath = null)
         {
             using var serviceScope = serviceProvider.CreateScope();
             var compiler = serviceScope.ServiceProvider.GetRequiredService<BicepCompiler>();
             var fileSystem = serviceScope.ServiceProvider.GetRequiredService<IFileSystem>();
 
-            var fileUri = new Uri("file:///main.bicep");
+            var fileUri = string.IsNullOrEmpty(sourcePath)
+                ? new Uri("file:///main.bicep")
+                : new Uri($"file://{QuickstartsRootPath}{sourcePath.TrimStart('/')}");
+
             await fileSystem.File.WriteAllTextAsync(fileUri.LocalPath, fileContents);
+
+            if (!string.IsNullOrEmpty(sourcePath))
+            {
+                await WriteModuleFilesRecursively(fileSystem, fileUri, fileContents, [fileUri.LocalPath]);
+            }
 
             return await compiler.CreateCompilation(fileUri.ToIOUri());
         }
+
+        private async Task WriteModuleFilesRecursively(IFileSystem fileSystem, Uri sourceFileUri, string sourceContent, HashSet<string> loadedPaths)
+        {
+            foreach (var modulePath in GetLocalModulePaths(sourceContent))
+            {
+                var moduleUri = new Uri(sourceFileUri, modulePath);
+
+                if (!moduleUri.LocalPath.StartsWith(QuickstartsRootPath, StringComparison.Ordinal) ||
+                    !loadedPaths.Add(moduleUri.LocalPath))
+                {
+                    continue;
+                }
+
+                var quickstartsPath = moduleUri.LocalPath[QuickstartsRootPath.Length..];
+                var moduleContents = await jsRuntime.InvokeAsync<string?>("LoadQuickstartsFile", quickstartsPath);
+
+                if (moduleContents is null)
+                {
+                    continue;
+                }
+
+                await fileSystem.File.WriteAllTextAsync(moduleUri.LocalPath, moduleContents);
+                await WriteModuleFilesRecursively(fileSystem, moduleUri, moduleContents, loadedPaths);
+            }
+        }
+
+        private static IEnumerable<string> GetLocalModulePaths(string sourceContent)
+            => ModulePathRegex.Matches(sourceContent)
+                .Select(match => match.Groups["path"].Value)
+                .Where(path => !string.IsNullOrWhiteSpace(path))
+                .Where(path => !path.StartsWith("br:", StringComparison.OrdinalIgnoreCase))
+                .Where(path => !path.StartsWith("ts:", StringComparison.OrdinalIgnoreCase))
+                .Where(path => !path.StartsWith("az:", StringComparison.OrdinalIgnoreCase))
+                .Where(path => !Uri.TryCreate(path, UriKind.Absolute, out _));
 
         private static object ToMonacoDiagnostic(IDiagnostic diagnostic, IReadOnlyList<int> lineStarts)
         {

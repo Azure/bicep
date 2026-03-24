@@ -22,6 +22,7 @@ export const App : React.FC<Props> = (props) => {
   const [jsonContent, setJsonContent] = useState('');
   const [bicepContent, setBicepContent] = useState('');
   const [initialContent, setInitialContent] = useState('');
+  const [sourcePath, setSourcePath] = useState<string | undefined>(undefined);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [filterText, setFilterText] = useState('');
@@ -47,6 +48,7 @@ export const App : React.FC<Props> = (props) => {
       insights.trackEvent({ name: 'loadExample' }, { path: filePath });
       const bicepText = await response.text();
       setInitialContent(bicepText);
+      setSourcePath(filePath);
     });
   }
 
@@ -55,6 +57,7 @@ export const App : React.FC<Props> = (props) => {
   useEffect(() => {
     window.addEventListener('hashchange', () => handleShareLink(content => {
       if (content !== null) {
+        setSourcePath(undefined);
         setInitialContent(content);
       }
     }));
@@ -62,8 +65,10 @@ export const App : React.FC<Props> = (props) => {
     handleShareLink(content => {
       if (content !== null) {
         insights.trackEvent({ name: 'openSharedLink' });
+        setSourcePath(undefined);
         setInitialContent(content);
       } else {
+        setSourcePath(undefined);
         setInitialContent('');
       }
     });
@@ -92,6 +97,7 @@ export const App : React.FC<Props> = (props) => {
         const jsonContents = e.target!.result!.toString();
         const { bicepFile, error } = await interop.decompile(jsonContents);
         if (bicepFile) {
+          setSourcePath(undefined);
           setInitialContent(bicepFile);
         } else {
           alert(error);
@@ -153,7 +159,7 @@ export const App : React.FC<Props> = (props) => {
       </Container> :
       <>
         <div className="playground-editorpane">
-          <BicepEditor interop={interop} onBicepChange={setBicepContent} onJsonChange={setJsonContent} initialContent={initialContent} />
+          <BicepEditor interop={interop} onBicepChange={setBicepContent} onJsonChange={setJsonContent} initialContent={initialContent} sourcePath={sourcePath} />
         </div>
         <div className="playground-editorpane">
           <JsonEditor content={jsonContent} />
