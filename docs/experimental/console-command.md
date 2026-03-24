@@ -1,4 +1,4 @@
-# Using the `console` command (Experimental!)
+# Using the `console` command
 
 ## What is it?
 The `console` command provides an interactive Read-Eval-Print Loop (REPL) environment for Bicep expressions. It allows you to experiment with Bicep functions and expressions in an interactive console session.
