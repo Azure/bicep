@@ -290,7 +290,7 @@ jobs:
 
   build-vs-ext:
     name: Build Visual Studio Extension
-    runs-on: windows-latest
+    runs-on: windows-2025-vs2026
 
     steps:
       - uses: actions/checkout@v6
@@ -304,6 +304,8 @@ jobs:
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v3
+        with:
+          vs-version: '[18.0,)'
 
       - name: Build Bicep.sln
         run: dotnet build --configuration release
