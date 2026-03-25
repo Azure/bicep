@@ -35,7 +35,7 @@ import { PostExtractionCommand } from "./commands/PostExtractionCommand";
 import { ShowDeployPaneCommand, ShowDeployPaneToSideCommand } from "./commands/showDeployPane";
 import { ShowModuleSourceFileCommand } from "./commands/ShowModuleSourceFileCommand";
 import { ShowSourceFromVisualizerCommand } from "./commands/showSourceFromVisualizer";
-import { ShowVisualizerCommand, ShowVisualizerToSideCommand } from "./commands/showVisualizer";
+import { ShowVisualizerCommand, ShowVisualizerToSideCommand, ShowVisualDesignerCommand, ShowVisualDesignerToSideCommand } from "./commands/showVisualizer";
 import { SuppressedWarningsManager } from "./commands/SuppressedWarningsManager";
 import * as surveys from "./feedback/surveys";
 import { setGlobalStateKeysToSyncBetweenMachines } from "./globalState";
@@ -158,8 +158,10 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
             pasteAsBicepCommand,
             new ShowDeployPaneCommand(deployPaneViewManager),
             new ShowDeployPaneToSideCommand(deployPaneViewManager),
-            new ShowVisualizerCommand(viewManager, viewManagerV2),
-            new ShowVisualizerToSideCommand(viewManager, viewManagerV2),
+            new ShowVisualizerCommand(viewManager),
+            new ShowVisualizerToSideCommand(viewManager),
+            new ShowVisualDesignerCommand(viewManagerV2),
+            new ShowVisualDesignerToSideCommand(viewManagerV2),
             new ShowSourceFromVisualizerCommand(viewManager, viewManagerV2),
             new WalkthroughCopyToClipboardCommand(),
             new WalkthroughCreateBicepFileCommand(),

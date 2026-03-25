@@ -54,13 +54,18 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
 
     const { offsetWidth, offsetHeight } = ref.current;
 
-    store.set(boxAtom, (box) => ({
-      ...box,
-      max: {
-        x: box.min.x + offsetWidth,
-        y: box.min.y + offsetHeight,
-      },
-    }));
+    store.set(boxAtom, (box) => {
+      // On first measurement the box is a zero-size point (min === max)
+      // placed at the spawn origin. Shift min so the node's center
+      // aligns with the origin instead of its top-left corner.
+      const isInitial = box.min.x === box.max.x && box.min.y === box.max.y;
+      const min = isInitial ? { x: box.min.x - offsetWidth / 2, y: box.min.y - offsetHeight / 2 } : box.min;
+
+      return {
+        min,
+        max: { x: min.x + offsetWidth, y: min.y + offsetHeight },
+      };
+    });
   }, [boxAtom, store]);
 
   useResizeObserver(ref, (entry) => {

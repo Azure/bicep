@@ -15,7 +15,7 @@ export interface Padding {
 
 export interface NodeConfig {
   padding: Padding;
-  getContentComponent: (kind: NodeState["kind"], data: unknown) => ComponentType<{ id: string; data: unknown }>;
+  getContentComponent: (kind: NodeState["kind"]) => ComponentType<{ id: string; data: unknown }>;
 }
 
 export const nodeConfigAtom = atom<NodeConfig>({

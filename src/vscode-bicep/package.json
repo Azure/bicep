@@ -106,11 +106,6 @@
           "default": "Off",
           "description": "Configure tracing of messages sent to the Bicep language server.",
           "scope": "window"
-        },
-        "bicep.experimental.visualizerV2": {
-          "type": "boolean",
-          "default": false,
-          "description": "Use the new React-based visualizer instead of the Cytoscape.js visualizer. This is a WIP feature and may be unstable."
         }
       }
     },
@@ -202,6 +197,18 @@
       {
         "command": "bicep.showVisualizerToSide",
         "title": "Open Bicep Visualizer to the Side",
+        "category": "Bicep",
+        "icon": "$(type-hierarchy-sub)"
+      },
+      {
+        "command": "bicep.showVisualDesigner",
+        "title": "Open Bicep Visual Designer (Experimental)",
+        "category": "Bicep",
+        "icon": "$(type-hierarchy-sub)"
+      },
+      {
+        "command": "bicep.showVisualDesignerToSide",
+        "title": "Open Bicep Visual Designer to the Side (Experimental)",
         "category": "Bicep",
         "icon": "$(type-hierarchy-sub)"
       },
@@ -422,6 +429,16 @@
           "group": "2_bicep_3_visualize"
         },
         {
+          "command": "bicep.showVisualDesigner",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
+        },
+        {
+          "command": "bicep.showVisualDesignerToSide",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
+        },
+        {
           "command": "bicep.decompile",
           "when": "resourceLangId == json || resourceLangId == jsonc || resourceLangId == arm-template",
           "group": "9_bicep_in_json"
@@ -480,6 +497,16 @@
         },
         {
           "command": "bicep.showVisualizerToSide",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
+        },
+        {
+          "command": "bicep.showVisualDesigner",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
+        },
+        {
+          "command": "bicep.showVisualDesignerToSide",
           "when": "resourceLangId == bicep",
           "group": "2_bicep_3_visualize"
         },
@@ -551,6 +578,16 @@
           "group": "2_bicep_3_visualize"
         },
         {
+          "command": "bicep.showVisualDesigner",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
+        },
+        {
+          "command": "bicep.showVisualDesignerToSide",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
+        },
+        {
           "command": "bicep.decompile",
           "when": "resourceLangId == json || resourceLangId == jsonc || resourceLangId == arm-template",
           "group": "9_bicep_in_json"
@@ -601,6 +638,14 @@
         },
         {
           "command": "bicep.showVisualizerToSide",
+          "group": "0_bicep"
+        },
+        {
+          "command": "bicep.showVisualDesigner",
+          "group": "0_bicep"
+        },
+        {
+          "command": "bicep.showVisualDesignerToSide",
           "group": "0_bicep"
         },
         {

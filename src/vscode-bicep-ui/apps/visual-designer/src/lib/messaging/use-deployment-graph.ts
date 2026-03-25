@@ -33,7 +33,12 @@ function snapshotNodePositions(): Map<string, Point> {
 
   for (const [id, node] of Object.entries(nodes)) {
     const box = store.get(node.boxAtom);
-    positions.set(id, { x: box.min.x, y: box.min.y });
+    // Use the node's center so the centroid of existing positions
+    // matches the visual center of the graph, not the top-left bias.
+    positions.set(id, {
+      x: (box.min.x + box.max.x) / 2,
+      y: (box.min.y + box.max.y) / 2,
+    });
   }
 
   return positions;
@@ -140,6 +145,16 @@ export function useApplyDeploymentGraph(getViewportCenter: () => Point) {
         removeNodes(idsToRemove);
       }
 
+      // Hide the graph layer when most of the topology is being replaced
+      // so the user doesn't see new nodes piled at the spawn origin while
+      // ELK computes.  Incremental edits (adding/removing a few nodes)
+      // keep the graph visible for smooth in-place animation.
+      const survivingCount = currentNodeIds.size - idsToRemove.size;
+      const survivalRatio = graph.nodes.length > 0 ? survivingCount / graph.nodes.length : 0;
+      if (survivalRatio < 0.5) {
+        setLayoutReady(false);
+      }
+
       // Phase 2: Default origin for brand-new nodes.
       // When the graph was previously empty (no existing positions),
       // use the viewport center so nodes spawn at the center of the
@@ -176,6 +191,7 @@ export function useApplyDeploymentGraph(getViewportCenter: () => Point) {
               node.type === "<module>"
                 ? {
                     symbolicName: symbol,
+                    resourceType: node.type,
                     path: node.filePath,
                     isCollection: node.isCollection,
                     hasError: node.hasError,
@@ -200,6 +216,7 @@ export function useApplyDeploymentGraph(getViewportCenter: () => Point) {
         if (node.type === "<module>") {
           addAtomicNode(node.id, origin, {
             symbolicName: symbol,
+            resourceType: node.type,
             path: node.filePath,
             isCollection: node.isCollection,
             hasError: node.hasError,

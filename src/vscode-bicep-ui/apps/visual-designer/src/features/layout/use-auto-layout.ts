@@ -44,6 +44,10 @@ export function useAutoLayout() {
     let cancelled = false;
     // Capture whether the graph layer is currently hidden.  When it
     // is, we need to reveal after positioning + one rAF paint.
+    // layoutReadyAtom is set to false by useApplyDeploymentGraph on
+    // major topology changes (e.g. empty→non-empty or full graph
+    // replacement).  Incremental edits leave it true so the graph
+    // stays visible and nodes animate in place.
     const needsReveal = !isLayoutReady;
 
     async function runLayout() {

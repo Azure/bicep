@@ -4,9 +4,9 @@
 import type { DefaultTheme } from "styled-components";
 
 import { atom } from "jotai";
-import { getThemeFromBody, lightTheme } from "./themes";
+import { getThemeFromBody } from "./themes";
 
-export const activeThemeAtom = atom<DefaultTheme>(lightTheme);
+export const activeThemeAtom = atom<DefaultTheme>(getThemeFromBody());
 
 activeThemeAtom.onMount = (setTheme) => {
   const updateTheme = () => {

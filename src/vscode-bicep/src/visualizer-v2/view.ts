@@ -183,13 +183,27 @@ export class VisualDesignerView extends Disposable {
       }
     }
 
+    const targetColumn = this.getTextEditorViewColumn() ?? vscode.ViewColumn.Beside;
+
     vscode.workspace
       .openTextDocument(filePath)
-      .then(vscode.window.showTextDocument)
+      .then((doc) => vscode.window.showTextDocument(doc, targetColumn))
       .then(
         (editor) => this.revealEditorRange(editor, range),
         (err) => vscode.window.showErrorMessage(`Could not open "${filePath}": ${parseError(err).message}`),
       );
+  }
+
+  private getTextEditorViewColumn(): vscode.ViewColumn | undefined {
+    const webviewColumn = this.webviewPanel.viewColumn;
+
+    for (const editor of vscode.window.visibleTextEditors) {
+      if (editor.viewColumn !== undefined && editor.viewColumn !== webviewColumn) {
+        return editor.viewColumn;
+      }
+    }
+
+    return undefined;
   }
 
   private revealEditorRange(editor: vscode.TextEditor, range: vscode.Range) {

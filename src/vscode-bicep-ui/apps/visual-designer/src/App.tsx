@@ -64,13 +64,8 @@ store.set(nodeConfigAtom, {
     ...nodeConfig.padding,
     top: 50,
   },
-  getContentComponent: (kind: NodeKind, data: unknown) => {
+  getContentComponent: (kind: NodeKind) => {
     if (kind === "compound") {
-      return ModuleDeclaration as ComponentType<{ id: string; data: unknown }>;
-    }
-    // An atomic node with a "path" field is a module demoted to leaf (no children).
-    const record = data as Record<string, unknown> | null;
-    if (record && "path" in record) {
       return ModuleDeclaration as ComponentType<{ id: string; data: unknown }>;
     }
     return ResourceDeclaration as ComponentType<{ id: string; data: unknown }>;
