@@ -57,7 +57,7 @@ public class PlaygroundSpecs : PageTest
 
         await _page.SelectSampleTemplate("microsoft.desktopvirtualization/azure-virtual-desktop-with-fslogix/main.bicep");
 
-        await _page.ExpectingArmEditorContentToContain("\"Microsoft.DesktopVirtualization/applicationgroups\"");
+        await _page.ExpectingArmEditorContentToContain("\"Microsoft.DesktopVirtualization/applicationGroups\"");
     }
 
     [Fact]

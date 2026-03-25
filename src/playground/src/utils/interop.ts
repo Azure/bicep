@@ -16,7 +16,10 @@ type CompileResult = {
 export interface DotnetInterop {
   getSemanticTokensLegend(): languages.SemanticTokensLegend;
   getSemanticTokens(content: string): Promise<languages.SemanticTokens>;
-  compileAndEmitDiagnostics(content: string, sourcePath?: string): Promise<CompileResult>;
+  compileAndEmitDiagnostics(
+    content: string,
+    sourcePath?: string,
+  ): Promise<CompileResult>;
   decompile(jsonContent: string): Promise<DecompileResult>;
 }
 
@@ -28,7 +31,11 @@ function getDotnetInterop(interop: any): DotnetInterop {
     getSemanticTokens: (content) =>
       interop.invokeMethodAsync("GetSemanticTokens", content),
     compileAndEmitDiagnostics: (content, sourcePath) =>
-      interop.invokeMethodAsync("CompileAndEmitDiagnostics", content, sourcePath),
+      interop.invokeMethodAsync(
+        "CompileAndEmitDiagnostics",
+        content,
+        sourcePath,
+      ),
     decompile: (content) => interop.invokeMethodAsync("Decompile", content),
   };
 }
