@@ -17,10 +17,9 @@ using Microsoft.JSInterop;
 
 namespace Bicep.Wasm
 {
-    public class Interop
+    public partial class Interop
     {
         private const string QuickstartsRootPath = "/quickstarts/";
-        private static readonly Regex ModulePathRegex = new("^\\s*module\\s+\\w+\\s+['\"](?<path>[^'\"]+)['\"]", RegexOptions.Compiled | RegexOptions.Multiline);
 
         public record DecompileResult(string? bicepFile, string? error);
 
@@ -169,16 +168,26 @@ namespace Bicep.Wasm
                     continue;
                 }
 
-                var quickstartsPath = moduleUri.LocalPath[QuickstartsRootPath.Length..];
-                var moduleContents = await jsRuntime.InvokeAsync<string?>("LoadQuickstartsFile", quickstartsPath);
+                string? moduleContents;
 
-                if (moduleContents is null)
+                if (fileSystem.File.Exists(moduleUri.LocalPath))
                 {
-                    continue;
+                    moduleContents = await fileSystem.File.ReadAllTextAsync(moduleUri.LocalPath);
+                }
+                else
+                {
+                    var quickstartsPath = moduleUri.LocalPath[QuickstartsRootPath.Length..];
+                    moduleContents = await jsRuntime.InvokeAsync<string?>("LoadQuickstartsFile", quickstartsPath);
+
+                    if (moduleContents is null)
+                    {
+                        continue;
+                    }
+
+                    EnsureParentDirectoryExists(fileSystem, moduleUri.LocalPath);
+                    await fileSystem.File.WriteAllTextAsync(moduleUri.LocalPath, moduleContents);
                 }
 
-                EnsureParentDirectoryExists(fileSystem, moduleUri.LocalPath);
-                await fileSystem.File.WriteAllTextAsync(moduleUri.LocalPath, moduleContents);
                 await WriteModuleFilesRecursively(fileSystem, moduleUri, moduleContents, loadedPaths);
             }
         }
@@ -194,13 +203,16 @@ namespace Bicep.Wasm
         }
 
         private static IEnumerable<string> GetLocalModulePaths(string sourceContent)
-            => ModulePathRegex.Matches(sourceContent)
+            => GetModulePathRegex().Matches(sourceContent)
                 .Select(match => match.Groups["path"].Value)
                 .Where(path => !string.IsNullOrWhiteSpace(path))
                 .Where(path => !path.StartsWith("br:", StringComparison.OrdinalIgnoreCase))
                 .Where(path => !path.StartsWith("ts:", StringComparison.OrdinalIgnoreCase))
                 .Where(path => !path.StartsWith("az:", StringComparison.OrdinalIgnoreCase))
                 .Where(path => !Uri.TryCreate(path, UriKind.Absolute, out _));
+
+        [GeneratedRegex("^\\s*module\\s+\\w+\\s+'(?<path>[^']+)'", RegexOptions.Multiline)]
+        private static partial Regex GetModulePathRegex();
 
         private static object ToMonacoDiagnostic(IDiagnostic diagnostic, SourceFileGrouping sourceFileGrouping)
         {

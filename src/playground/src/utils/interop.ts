@@ -44,13 +44,17 @@ function getDotnetInterop(interop: any): DotnetInterop {
 export function initializeInterop(self: any) {
   return new Promise<DotnetInterop>((resolve) => {
     self["LoadQuickstartsFile"] = async (filePath: string) => {
-      const response = await fetch(getQuickstartsLink(filePath));
+      try {
+        const response = await fetch(getQuickstartsLink(filePath));
 
-      if (!response.ok) {
+        if (!response.ok) {
+          return null;
+        }
+
+        return await response.text();
+      } catch {
         return null;
       }
-
-      return await response.text();
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
