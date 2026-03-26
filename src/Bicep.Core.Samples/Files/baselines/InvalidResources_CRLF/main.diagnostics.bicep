@@ -6,14 +6,11 @@ bad
 // incomplete #completionTest(9) -> empty
 resource 
 //@[009:009) [BCP017 (Error)] Expected a resource identifier at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP017) ||
-//@[009:009) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) ||
 resource foo
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |foo|
 //@[012:012) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP068) ||
-//@[012:012) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) ||
 resource fo/o
 //@[011:012) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP068) |/|
-//@[011:013) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |/o|
 //@[013:013) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 resource foo 'ddd'
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (bicep https://aka.ms/bicep/core-diagnostics#BCP028) |foo|
@@ -23,7 +20,6 @@ resource foo 'ddd'
 // #completionTest(23) -> resourceTypes
 resource trailingSpace  
 //@[024:024) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP068) ||
-//@[024:024) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) ||
 
 // #completionTest(19,20) -> resourceObject
 resource foo 'ddd'= 
@@ -1067,7 +1063,6 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
 // #completionTest(21) -> resourceTypes
 resource missingType 
 //@[021:021) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP068) ||
-//@[021:021) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) ||
 
 // #completionTest(37,38,39,40,41,42,43,44) -> resourceTypes
 resource startedTypingTypeWithQuotes 'virma'
@@ -1077,7 +1072,6 @@ resource startedTypingTypeWithQuotes 'virma'
 // #completionTest(40,41,42,43,44,45) -> resourceTypes
 resource startedTypingTypeWithoutQuotes virma
 //@[040:045) [BCP068 (Error)] Expected a resource type string. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP068) |virma|
-//@[040:045) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<type-name>@<apiVersion>". (bicep https://aka.ms/bicep/core-diagnostics#BCP029) |virma|
 //@[045:045) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
