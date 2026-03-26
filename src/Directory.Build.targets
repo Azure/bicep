@@ -49,6 +49,7 @@
   <PropertyGroup>
     <!-- WASM projects don't need runtime identifiers and the mono runtime package is missing for win-arm64 -->
     <RuntimeIdentifiers Condition=" $(UsingMicrosoftNETSdkBlazorWebAssembly) != 'true' and '$(PackAsTool)' != 'true' ">win-x64;linux-x64;linux-musl-x64;osx-x64;win-arm64;linux-arm64;osx-arm64</RuntimeIdentifiers>
+    <RuntimeIdentifiers Condition="'$(MSBuildProjectName)' == 'Bicep.VSLanguageServerClient.UnitTests' or '$(MSBuildProjectName)' == 'Bicep.VSLanguageServerClient.IntegrationTests'">$(RuntimeIdentifiers);win-x86</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(EnableNuget)' == 'true'">

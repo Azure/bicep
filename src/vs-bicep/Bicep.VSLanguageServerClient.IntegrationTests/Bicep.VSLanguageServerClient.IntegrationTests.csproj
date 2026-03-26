@@ -4,7 +4,6 @@
 		<TargetFramework>net472</TargetFramework>
 		<Nullable>enable</Nullable>
 		<OutputType>Exe</OutputType>
-		<RuntimeIdentifiers>$(RuntimeIdentifiers);win-x86</RuntimeIdentifiers>
 	</PropertyGroup>
 
 	<ItemGroup>
