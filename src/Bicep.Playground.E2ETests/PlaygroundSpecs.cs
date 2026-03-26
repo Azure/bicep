@@ -51,6 +51,16 @@ public class PlaygroundSpecs : PageTest
     }
 
     [Fact]
+    public async Task WhenSelectingQuickStarterTemplateWithLocalModules_ThenShouldCompileToArm()
+    {
+        await _page.OpenPlayground();
+
+        await _page.SelectSampleTemplate("microsoft.desktopvirtualization/azure-virtual-desktop-with-fslogix/main.bicep");
+
+        await _page.ExpectingArmEditorContentToContain("\"Microsoft.DesktopVirtualization/applicationGroups\"");
+    }
+
+    [Fact]
     public async Task WhenCopyLink_ThenContentShouldBeSameAfterOpenLink()
     {
         await _page.OpenPlayground();
