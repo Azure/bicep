@@ -30,6 +30,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageLicenseUrl><!-- Don't set this field (deprecated) --></PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile Condition="Exists('PACKAGE.md')">PACKAGE.md</PackageReadmeFile>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <PackageTags>Azure;Bicep;$(PackageTags)</PackageTags>
     <PackageIconUrl><!-- Don't set this field (deprecated) --></PackageIconUrl>
@@ -53,6 +54,7 @@
 
   <ItemGroup Condition="'$(EnableNuget)' == 'true'">
     <None Include="$(MSBuildThisFileDirectory)\icons\bicep-logo-256.png" Pack="true" PackagePath="" Visible="false" />
+    <None Condition="Exists('PACKAGE.md')" Include="PACKAGE.md" Pack="true" PackagePath="" Visible="false" />
   </ItemGroup>
 
   <ItemGroup>
