@@ -30,12 +30,13 @@ const $Toolbar = styled.div`
   align-items: center;
   gap: 6px;
   padding: 6px 8px;
+  flex-shrink: 0;
+  margin: 0 auto;
   background-color: ${({ theme }) => theme.controlBar.background};
   border: 1px solid ${({ theme }) => theme.controlBar.border};
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(8px);
-  white-space: nowrap;
 `;
 
 /** Logical group of related controls. */
