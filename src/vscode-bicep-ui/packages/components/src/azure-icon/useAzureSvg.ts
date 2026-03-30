@@ -207,7 +207,7 @@ async function importAzureSvg(resourceType: string): Promise<SvgComponent | unde
 }
 
 export function useAzureSvg(resourceType: string) {
-  const svgRef = useRef<SvgComponent>();
+  const svgRef = useRef<SvgComponent | undefined>(undefined);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
