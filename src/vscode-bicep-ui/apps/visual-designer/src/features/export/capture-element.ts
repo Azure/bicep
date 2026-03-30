@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { ExportFormat } from "./types";
-
-import { toJpeg, toPng } from "html-to-image";
+import { toPng } from "html-to-image";
 import { getDefaultStore } from "jotai";
 import { nodesByIdAtom } from "@/lib/graph";
 
@@ -76,9 +74,8 @@ function findTransformedElement(root: HTMLElement): HTMLElement | null {
 export async function captureGraphElement(
   canvasElement: HTMLElement,
   store: Store,
-  format: ExportFormat,
   padding: number,
-  backgroundColor: string,
+  backgroundColor: string | undefined,
 ): Promise<string> {
   const bounds = computeGraphBounds(store);
   if (!bounds) throw new Error("No graph nodes to export");
@@ -131,7 +128,8 @@ export async function captureGraphElement(
     const options = {
       width: captureWidth,
       height: captureHeight,
-      backgroundColor: format === "jpeg" ? backgroundColor : undefined,
+      backgroundColor,
+      pixelRatio: 2,
       filter: (node: HTMLElement) => {
         // Exclude the dot-pattern background SVGs from the export.
         if (node.tagName === "svg" && node.querySelector?.("pattern")) {
@@ -141,32 +139,11 @@ export async function captureGraphElement(
       },
     };
 
-    switch (format) {
-      case "png":
-        return await toPng(clone, { ...options, pixelRatio: 2 });
-      case "jpeg":
-        return await toJpeg(clone, {
-          ...options,
-          quality: 0.95,
-          backgroundColor,
-        });
-    }
+    return await toPng(clone, options);
   } finally {
     document.body.removeChild(wrapper);
   }
 }
-
-/** MIME types for each export format. */
-const FORMAT_MIME: Record<ExportFormat, string> = {
-  png: "image/png",
-  jpeg: "image/jpeg",
-};
-
-/** File extension descriptions for the Save dialog. */
-const FORMAT_DESC: Record<ExportFormat, string> = {
-  png: "PNG Image",
-  jpeg: "JPEG Image",
-};
 
 /**
  * Convert a data-URL to a Blob.
@@ -194,7 +171,7 @@ function dataUrlToBlob(dataUrl: string): Blob {
  * Falls back to a direct download if the File System Access API
  * is not available (e.g. non-Chromium browsers).
  */
-export async function saveDataUrl(dataUrl: string, defaultName: string, format: ExportFormat): Promise<void> {
+export async function saveDataUrl(dataUrl: string, defaultName: string): Promise<void> {
   const blob = dataUrlToBlob(dataUrl);
 
   // Try the File System Access API (Chromium-based browsers).
@@ -204,8 +181,8 @@ export async function saveDataUrl(dataUrl: string, defaultName: string, format: 
         suggestedName: defaultName,
         types: [
           {
-            description: FORMAT_DESC[format],
-            accept: { [FORMAT_MIME[format]]: [`.${format}`] },
+            description: "PNG Image",
+            accept: { "image/png": [".png"] },
           },
         ],
       });
