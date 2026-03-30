@@ -213,7 +213,7 @@ const $PaddingInput = styled.input`
 /*  Constants                                                          */
 /* ------------------------------------------------------------------ */
 
-const FORMATS: ExportFormat[] = ["svg", "png", "jpeg"];
+const FORMATS: ExportFormat[] = ["png", "jpeg"];
 
 const THEME_OPTIONS: { label: string; value: DefaultTheme["name"] | null }[] = [
   { label: "Current", value: null },
