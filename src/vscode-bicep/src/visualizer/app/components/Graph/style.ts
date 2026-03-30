@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { Stylesheet } from "cytoscape";
+import cytoscape, { StylesheetStyle } from "cytoscape";
 import { DefaultTheme } from "styled-components";
 import { importResourceIconInline } from "../../assets/icons/azure";
 import moduleIcon from "../../assets/icons/azure/general/10802-icon-service-Folder-Blank.svg";
@@ -92,7 +92,7 @@ export function createContainerNodeBackgroundUri(symbol: string, isCollection: b
   return createDataUri(backgroundSvg);
 }
 
-export function createStylesheet(theme: DefaultTheme): Stylesheet[] {
+export function createStylesheet(theme: DefaultTheme): StylesheetStyle[] {
   const {
     common: { errorIndicatorColor },
     graph: { childlessNode, containerNode, edge },
@@ -108,7 +108,7 @@ export function createStylesheet(theme: DefaultTheme): Stylesheet[] {
         "background-color": childlessNode.backgroundColor,
         "background-image": "data(backgroundDataUri)",
         "border-width": childlessNode.borderWidth,
-        "border-color": (node) => (node.data("hasError") === true ? errorIndicatorColor : childlessNode.borderColor),
+        "border-color": (node: cytoscape.NodeSingular) => (node.data("hasError") === true ? errorIndicatorColor : childlessNode.borderColor),
         "border-opacity": childlessNode.borderOpacity,
       },
     },
@@ -121,7 +121,7 @@ export function createStylesheet(theme: DefaultTheme): Stylesheet[] {
         "background-position-x": 12,
         "background-position-y": 8,
         "border-width": containerNode.borderWidth,
-        "border-color": (node) => (node.data("hasError") === true ? errorIndicatorColor : containerNode.borderColor),
+        "border-color": (node: cytoscape.NodeSingular) => (node.data("hasError") === true ? errorIndicatorColor : containerNode.borderColor),
         "border-opacity": containerNode.borderOpacity,
         "background-opacity": containerNode.backgroundOpacity,
         "padding-top": "40px",

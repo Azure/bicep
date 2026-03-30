@@ -208,6 +208,7 @@ namespace Bicep.Core.UnitTests
                   {
                     "resources": {},
                     "resourceFunctions": {},
+                    "namespaceFunctions": [],
                     "settings": {
                       "name": "MicrosoftGraph{{(isBeta ? "Beta" : "V1.0")}}",
                       "version": "{{version}}",

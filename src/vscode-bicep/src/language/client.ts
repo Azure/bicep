@@ -12,7 +12,7 @@ import { bicepLanguageId } from "./constants";
 
 const dotnetRuntimeVersion = "10.0";
 const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
-const packagedMcpServerPath = "bicepMcpServer/Bicep.McpServer.dll";
+const packagedMcpServerPath = "bicepMcpServer/Azure.Bicep.McpServer.dll";
 const extensionId = "ms-azuretools.vscode-bicep";
 const dotnetAcquisitionExtensionSetting = "dotnetAcquisitionExtension";
 const existingDotnetPathSetting = "existingDotnetPath";

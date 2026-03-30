@@ -11,6 +11,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
@@ -218,5 +219,88 @@ resource fooRes 'fooType@v1' = {
 
         var result = await Bicep(InvocationSettings.Default, "publish-extension", indexPath, "--target", $"br:example.com/test/extension:0.0.1");
         result.Should().Fail().And.HaveStderrMatch("*Extension package creation failed: Index was outside the bounds of the array.*");
+    }
+
+    [TestMethod]
+    public async Task Publish_extension_with_namespace_functions_should_include_types_json()
+    {
+        var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+        
+        // Create index.json with namespace functions
+        var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", """
+            {
+              "resources": {},
+              "resourceFunctions": {},
+              "namespaceFunctions": [
+                {
+                  "$ref": "types.json#/0"
+                }
+              ],
+              "settings": {
+                "name": "testExtension",
+                "version": "1.0.0",
+                "isSingleton": false
+              }
+            }
+            """, outputDirectory);
+
+        // Create types.json with function definitions
+        FileHelper.SaveResultFile(TestContext, "types.json", """
+            [
+              {
+                "$type": "NamespaceFunctionType",
+                "name": "combine",
+                "description": "Concatenates strings",
+                "parameters": [
+                  {
+                    "name": "value1",
+                    "description": "First value",
+                    "type": {
+                      "$ref": "#/2"
+                    },
+                    "flags": "Required"
+                  },
+                  {
+                    "name": "value2",
+                    "description": "Second value",
+                    "type": {
+                      "$ref": "#/2"
+                    },
+                    "flags": "Required"
+                  }
+                ],
+                "output": {
+                  "$ref": "#/2"
+                }
+              },
+              {
+                "$type": "StringType"
+              }
+            ]
+            """, outputDirectory);
+
+        var registryStr = "example.com";
+        var registryUri = new Uri($"https://{registryStr}");
+        var repository = $"test/extension-with-functions";
+        var version = "1.0.0";
+
+        var clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor(registryStr, repository, ["tag"]));
+        var fakeBlobClient = (FakeRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, registryUri, repository);
+
+        var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+
+        var result = await Bicep(settings, "publish-extension", indexPath, "--target", $"br:{registryStr}/{repository}:{version}");
+        
+        result.Should().Succeed().And.NotHaveStdout();
+        result.Stderr.Should().Match("WARNING: The 'publish-extension' CLI command group is an experimental feature.*");
+
+        // Verify the extension was published and contains types.json
+        fakeBlobClient.Should().HaveExtension(version, out var tgzStream);
+
+        // Extract and verify the archive contains types.json
+        var filesInArchive = TgzFileExtractor.ExtractFromStream(tgzStream);
+
+        filesInArchive.Keys.Should().Contain("types.json", "the published extension should contain types.json when namespace functions are defined");
+        filesInArchive.Keys.Should().Contain("index.json", "the published extension should contain index.json");
     }
 }

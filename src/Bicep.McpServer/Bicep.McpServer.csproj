@@ -4,6 +4,8 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>Azure.Bicep.McpServer</AssemblyName>
+    <RootNamespace>Bicep.McpServer</RootNamespace>
     <Nullable>enable</Nullable>
     <EnableNuget>true</EnableNuget>
     <InvariantGlobalization>true</InvariantGlobalization>
@@ -30,6 +32,11 @@
   <ItemGroup>
     <ProjectReference Include="../Bicep.Core/Bicep.Core.csproj" />
     <ProjectReference Include="../Bicep.Decompiler/Bicep.Decompiler.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Nerdbank.GitVersioning automatically takes care of replacing 0.0.0-placeholder in this file with the correct version -->
+    <None Include=".mcp\server.json" Pack="true" PackagePath="/.mcp/" />
   </ItemGroup>
 
 </Project>

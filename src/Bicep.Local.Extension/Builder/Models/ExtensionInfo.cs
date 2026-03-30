@@ -14,13 +14,13 @@ public class ExtensionInfo
     public string Name { get; }
     public string Version { get; }
     public bool IsSingleton { get; }
-    
+
     public ExtensionInfo(string name, string version, bool isSingleton)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(name);
         ArgumentNullException.ThrowIfNullOrWhiteSpace(version);
         Name = name;
         Version = version;
-        IsSingleton = isSingleton;    
+        IsSingleton = isSingleton;
     }
 }

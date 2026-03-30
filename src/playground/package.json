@@ -13,30 +13,29 @@
   "private": true,
   "devDependencies": {
     "@eslint/js": "9.39.2",
-    "@types/node": "25.0.9",
+    "@types/node": "25.3.0",
     "@types/pako": "2.0.4",
-    "@types/react": "19.2.8",
+    "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "5.1.2",
+    "@vitejs/plugin-react": "5.1.4",
     "eslint": "9.39.2",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-notice": "1.0.0",
     "eslint-plugin-prettier": "5.5.5",
     "nerdbank-gitversioning": "3.9.50",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.52.0",
+    "typescript-eslint": "8.56.1",
     "vite": "7.3.1",
     "vite-plugin-ejs": "1.7.0",
-    "vite-plugin-monaco-editor-esm": "2.0.2",
-    "vite-plugin-static-copy": "3.1.4"
+    "vite-plugin-static-copy": "3.2.0"
   },
   "dependencies": {
     "@microsoft/applicationinsights-web": "3.3.11",
     "bootstrap": "5.3.8",
-    "monaco-editor": "0.54.0",
+    "monaco-editor": "0.55.1",
     "pako": "2.1.0",
-    "react": "19.2.3",
+    "react": "19.2.4",
     "react-bootstrap": "2.10.10",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.4"
   }
 }

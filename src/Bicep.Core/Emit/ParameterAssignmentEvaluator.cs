@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.ErrorResponses;
+using Azure.Deployments.Core.Exceptions;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Templates.Expressions;
 using Azure.Deployments.Templates.Extensions;
@@ -408,8 +409,20 @@ public class ParameterAssignmentEvaluator
 
                 if (semanticModel.SymbolsToInline.ParameterAssignmentsToInline.Contains(parameter))
                 {
-                    var rewritten = ExternalInputExpressionRewriter.Rewrite(intermediate, semanticModel.ExternalInputReferences);
-                    return Result.For(rewritten);
+                    try
+                    {
+                        // we need to inline fully-evaluable variables, parameters or UDFs
+                        // since we can't have 'variables' or 'parameters' or UDF function invocations in JSON parameter files
+                        // TODO: Look into whether we can use ITemplateLanguageExpression for ParameterAssignmentEvaluator to simplify partial evaluation
+                        // cases like this.
+                        var rewriter = new InlinedParameterRewriter(parameterModel, this, parameterConverter);
+                        return Result.For(rewriter.Rewrite(intermediate));
+                    }
+                    catch (Exception ex)
+                    {
+                        return Result.For(DiagnosticBuilder.ForPosition(declaringParam.Value)
+                            .FailedToEvaluateSubject("parameter", parameter.Name, ex.Message));
+                    }
                 }
 
                 if (intermediate is ParameterKeyVaultReferenceExpression keyVaultReferenceExpression)
@@ -436,10 +449,7 @@ public class ParameterAssignmentEvaluator
         }
 
         var intermediate = converter.ConvertToIntermediateExpression(config);
-
-        var rewrittenExpression = ExternalInputExpressionRewriter.Rewrite(intermediate, semanticModel.ExternalInputReferences);
-
-        return Result.For(rewrittenExpression);
+        return Result.For(intermediate);
     }
 
     public ImmutableDictionary<string, Result> EvaluateExtensionConfigAssignment(ExtensionConfigAssignmentSymbol inputExtConfigAssignment)
@@ -496,29 +506,24 @@ public class ParameterAssignmentEvaluator
 
     public ImmutableArray<ExternalInputDefinition>? TryGetExternalInputDefinitions()
     {
-        var externalInputInfoBySyntax = semanticModel.ExternalInputReferences.ExternalInputInfoBySyntax;
-        if (externalInputInfoBySyntax.Count == 0)
-        {
-            return null;
-        }
-
         try
         {
+            var externalInputInfo = semanticModel.ExternalInputReferences.InfoBySerializedExpression;
+            if (externalInputInfo.Count == 0)
+            {
+                return null;
+            }
+
             var context = GetExpressionEvaluationContext();
             var resultBuilder = ImmutableArray.CreateBuilder<ExternalInputDefinition>();
 
             // Sort by definition key for deterministic ordering
-            foreach (var (_, externalInputInfo) in externalInputInfoBySyntax.OrderBy(x => x.Value.DefinitionKey))
+            foreach (var info in externalInputInfo.Select(x => x.Value).OrderBy(x => x.DefinitionKey))
             {
-                var kind = converter.ConvertExpression(externalInputInfo.Kind).EvaluateExpression(context).ToString();
+                var kind = info.Kind.EvaluateExpression(context).ToString();
+                var config = info.Config?.EvaluateExpression(context);
 
-                JToken? config = null;
-                if (externalInputInfo.Config is { } configExpression)
-                {
-                    config = converter.ConvertExpression(configExpression).EvaluateExpression(context);
-                }
-
-                resultBuilder.Add(new ExternalInputDefinition(externalInputInfo.DefinitionKey, kind, config));
+                resultBuilder.Add(new ExternalInputDefinition(info.DefinitionKey, kind, config));
             }
 
             return resultBuilder.ToImmutable();
@@ -800,42 +805,68 @@ public class ParameterAssignmentEvaluator
         }
     }
 
+    // TODO: Should look into using ITemplateLanguageExpression for ParameterAssignmentEvaluator
+    // which would probably simplify a lot of this logic.
     /// <summary>
-    /// Rewrites the external input function calls to use the externalInputs function with the index of the external input.
-    /// e.g. externalInput('sys.cli', 'foo') becomes externalInputs('0')
+    /// Rewrites intermediate expressions by replacing variable references, parameter assignment references,
+    /// and user-defined function calls with their evaluated literal values. This is used for parameter
+    /// assignments that must be inlined (e.g., those containing <c>externalInput</c> calls), where the
+    /// emitted JSON parameter file cannot reference ARM template variables, parameters, or user-defined
+    /// functions.
     /// </summary>
-    private class ExternalInputExpressionRewriter : ExpressionRewriteVisitor
+    public class InlinedParameterRewriter(
+        SemanticModel model,
+        ParameterAssignmentEvaluator evaluator,
+        ExpressionConverter converter) : ExpressionRewriteVisitor
     {
-        private readonly ExternalInputReferences externalInputReferences;
+        public Expression Rewrite(Expression expression) => Replace(expression);
 
-        private ExternalInputExpressionRewriter(
-            ExternalInputReferences externalInputReferences)
+        public override Expression ReplaceVariableReferenceExpression(VariableReferenceExpression expression)
+            => ResultToExpression(evaluator.EvaluateVariable(expression.Variable), expression);
+
+        public override Expression ReplaceParametersAssignmentReferenceExpression(ParametersAssignmentReferenceExpression expression)
+            => ResultToExpression(evaluator.EvaluateParameter(expression.Parameter), expression);
+
+        public override Expression ReplaceImportedVariableReferenceExpression(ImportedVariableReferenceExpression expression)
+            => ResultToExpression(evaluator.EvaluateImport(expression.Variable), expression);
+
+        public override Expression ReplaceWildcardImportVariablePropertyReferenceExpression(WildcardImportVariablePropertyReferenceExpression expression)
+            => ResultToExpression(evaluator.EvaluateWildcardImportPropertyAsVariable(new WildcardImportPropertyReference(expression.ImportSymbol, expression.PropertyName)), expression);
+
+        public override Expression ReplaceUserDefinedFunctionCallExpression(UserDefinedFunctionCallExpression expression)
+            => EvaluateToJToken(base.ReplaceUserDefinedFunctionCallExpression(expression));
+
+        public override Expression ReplaceImportedUserDefinedFunctionCallExpression(ImportedUserDefinedFunctionCallExpression expression)
+            => EvaluateToJToken(base.ReplaceImportedUserDefinedFunctionCallExpression(expression));
+
+        public override Expression ReplaceWildcardImportInstanceFunctionCallExpression(WildcardImportInstanceFunctionCallExpression expression)
+            => EvaluateToJToken(base.ReplaceWildcardImportInstanceFunctionCallExpression(expression));
+
+        private static Expression ResultToExpression(Result result, Expression expression)
+            => result.Value is { } value
+                ? JTokenToExpression(value, expression.SourceSyntax)
+                : throw new ExpressionException(result.Diagnostic?.Message ?? "Failed to evaluate expression.");
+
+        private Expression EvaluateToJToken(Expression expression)
         {
-            this.externalInputReferences = externalInputReferences;
+            var context = evaluator.GetExpressionEvaluationContextForModel(model);
+            return JTokenToExpression(converter.ConvertExpression(expression).EvaluateExpression(context), expression.SourceSyntax);
         }
 
-        public static Expression Rewrite(
-            Expression expression,
-            ExternalInputReferences externalInputReferences)
+        private static Expression JTokenToExpression(JToken token, SyntaxBase? syntax) => token switch
         {
-            var visitor = new ExternalInputExpressionRewriter(externalInputReferences);
-            var rewritten = visitor.Replace(expression);
-            return rewritten;
-        }
-
-        public override Expression ReplaceFunctionCallExpression(FunctionCallExpression expression)
-        {
-            if (expression.SourceSyntax is FunctionCallSyntaxBase functionCallSyntax &&
-                externalInputReferences.ExternalInputInfoBySyntax.TryGetValue(functionCallSyntax, out var info))
+            JObject obj => ExpressionFactory.CreateObject(obj.Properties().Select(p => ExpressionFactory.CreateObjectProperty(p.Name, JTokenToExpression(p.Value, syntax), syntax)), syntax),
+            JArray arr => ExpressionFactory.CreateArray(arr.Select(item => JTokenToExpression(item, syntax)), syntax),
+            JValue jValue => jValue.Value switch
             {
-                return new FunctionCallExpression(
-                    functionCallSyntax,
-                    LanguageConstants.ExternalInputsArmFunctionName,
-                    [ExpressionFactory.CreateStringLiteral(info.DefinitionKey)]
-                );
-            }
-
-            return base.ReplaceFunctionCallExpression(expression);
-        }
+                string @string => ExpressionFactory.CreateStringLiteral(@string, syntax),
+                int @int => ExpressionFactory.CreateIntegerLiteral(@int, syntax),
+                long @long => ExpressionFactory.CreateIntegerLiteral(@long, syntax),
+                bool @bool => ExpressionFactory.CreateBooleanLiteral(@bool, syntax),
+                null => new NullLiteralExpression(syntax),
+                _ => throw new ExpressionException($"Unrecognized JValue value of type {jValue.Value?.GetType().Name}"),
+            },
+            _ => throw new ExpressionException($"Unsupported JToken type: {token.Type}"),
+        };
     }
 }

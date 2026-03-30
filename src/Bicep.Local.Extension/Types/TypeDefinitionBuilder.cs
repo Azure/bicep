@@ -84,7 +84,7 @@ public class TypeDefinitionBuilder : ITypeDefinitionBuilder
     /// to a supported Bicep type (e.g., unsupported primitives or collections).
     /// </remarks>
     public virtual TypeDefinition GenerateTypeDefinition()
-    {        
+    {
         var resourceTypes = typeProvider.GetResourceTypes()
             .Select(x => GenerateResource(x.type, x.attribute))
             .Select(x => x.Type as ResourceType)

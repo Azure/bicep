@@ -10,6 +10,8 @@ namespace Bicep.Playground.E2ETests;
 public class PlaygroundPage(IPage page)
 {
     private const string EditorsSelector = ".playground-editorpane";
+    private static readonly TimeSpan AssertionTimeout = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan AssertionPollInterval = TimeSpan.FromMilliseconds(250);
     private ILocator BicepEditorPane => page.Locator(EditorsSelector).First;
 
     private ILocator ArmEditorPane => page.Locator(EditorsSelector).Last;
@@ -69,8 +71,9 @@ public class PlaygroundPage(IPage page)
 
     public async Task ExpectingBicepEditorContentToContain(string expectedContent)
     {
-        var content = await GetEditorContent(BicepEditorPane);
-        content.Should().Contain(ReplaceLineEndings(expectedContent));
+        var expected = ReplaceLineEndings(expectedContent);
+        var content = await WaitForEditorContent(BicepEditorPane, c => c.Contains(expected), expected);
+        content.Should().Contain(expected);
     }
 
     public async Task ExpectingBicepEditorContentToBeEquivalentTo(string expectedContent)
@@ -84,6 +87,44 @@ public class PlaygroundPage(IPage page)
         var content = await GetEditorContent(ArmEditorPane);
         content = IgnoreGeneratorField(content);
         content.Should().BeEquivalentTo(ReplaceLineEndings(IgnoreGeneratorField(expectedContent)));
+    }
+
+    public async Task ExpectingArmEditorContentToContain(string expectedContent)
+    {
+        var expected = ReplaceLineEndings(IgnoreGeneratorField(expectedContent));
+        var content = await WaitForEditorContent(
+            ArmEditorPane,
+            c => IgnoreGeneratorField(c).Contains(expected),
+            expected,
+            ignoreGeneratorField: true);
+
+        IgnoreGeneratorField(content).Should().Contain(expected);
+    }
+
+    private async Task<string> WaitForEditorContent(
+        ILocator editorPane,
+        Func<string, bool> predicate,
+        string expectedSnippet,
+        bool ignoreGeneratorField = false)
+    {
+        var start = DateTime.UtcNow;
+        string lastObserved = string.Empty;
+
+        while (DateTime.UtcNow - start < AssertionTimeout)
+        {
+            lastObserved = await GetEditorContent(editorPane);
+
+            if (predicate(lastObserved))
+            {
+                return lastObserved;
+            }
+
+            await Task.Delay(AssertionPollInterval);
+        }
+
+        var observed = ignoreGeneratorField ? IgnoreGeneratorField(lastObserved) : lastObserved;
+        observed.Should().Contain(expectedSnippet);
+        return lastObserved;
     }
 
     private string IgnoreGeneratorField(string content)

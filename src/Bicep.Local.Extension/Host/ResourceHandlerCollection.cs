@@ -15,7 +15,7 @@ public class ResourceHandlerCollection : IResourceHandlerCollection
 
     public ResourceHandlerCollection(IEnumerable<IResourceHandler> handlers)
     {
-        
+
 
         IResourceHandler? genericHandler = null;
         var typedHandlers = new Dictionary<HandlerKey, IResourceHandler>();

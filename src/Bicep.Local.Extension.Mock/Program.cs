@@ -14,7 +14,7 @@ builder.AddBicepExtensionHost(args);
 
 builder.Services
     .AddBicepExtension()
-    .WithDefaults("Extension.Mock", "1.0.0", isSingleton: true)    
+    .WithDefaults("Extension.Mock", "1.0.0", isSingleton: true)
     .WithConfigurationType<Configuration>()
     //.WithTypeAssembly(typeof(Program).Assembly)
     .WithResourceHandler<EchoResourceHandler>();

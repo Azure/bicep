@@ -2739,7 +2739,7 @@ func foo(innerVar string) string => '${outerVar|}'
         [TestMethod]
         public async Task Func_definition_lambda_completions_suggest_imported_variables()
         {
-            var exportContent = """              
+            var exportContent = """
 @export()
 var whatsup = 'Whatsup?'
 """;
@@ -3338,6 +3338,100 @@ resource test";
 
             var completions = await file.RequestAndResolveCompletions(cursor);
             completions.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task Disable_directive_code_completions_should_include_subsequent_warnings()
+        {
+            var fileWithCursors = """
+                #disable-diagnostics |
+                var foo = 'bar'
+                output foo string = foo
+
+                param fizz string
+                var buzz = 'buzz'
+                param pop int
+                """;
+
+            await RunCompletionScenarioTest(
+                this.TestContext,
+                ServerWithNamespaceProvider,
+                fileWithCursors,
+                completionLists => completionLists.Should().SatisfyRespectively(
+                    completions => completions.Should().SatisfyRespectively(
+                        x => x.Label.Should().Be("no-unused-params"),
+                        x => x.Label.Should().Be("no-unused-vars"))),
+                '|');
+        }
+
+        [TestMethod]
+        public async Task Disable_directive_code_completions_should_not_include_preceding_warnings()
+        {
+            var fileWithCursors = """
+                #disable-diagnostics |
+                param fizz string
+                var buzz = 'buzz'
+
+                #disable-diagnostics |
+                var foo = 'bar'
+                output foo string = foo
+                """;
+
+            await RunCompletionScenarioTest(
+                this.TestContext,
+                ServerWithNamespaceProvider,
+                fileWithCursors,
+                completionLists => completionLists.Should().SatisfyRespectively(
+                    completions => completions.Should().HaveCount(2),
+                    completions => completions.Should().BeEmpty()),
+                '|');
+        }
+
+        [TestMethod]
+        public async Task Restore_directive_code_completions_should_include_disabled_codes()
+        {
+            var fileWithCursors = """
+                #disable-diagnostics no-unused-params no-unused-vars
+                param fizz string
+                #restore-diagnostics |
+                var buzz = 'buzz'
+                #restore-diagnostics no-unused-vars |
+                param pop int
+                #restore-diagnostics no-unused-params |
+                """;
+
+            await RunCompletionScenarioTest(
+                this.TestContext,
+                ServerWithNamespaceProvider,
+                fileWithCursors,
+                completionLists => completionLists.Should().SatisfyRespectively(
+                    completions => completions.Should().SatisfyRespectively(
+                        x => x.Label.Should().Be("no-unused-params"),
+                        x => x.Label.Should().Be("no-unused-vars")),
+                    completions => completions.Should().SatisfyRespectively(
+                        x => x.Label.Should().Be("no-unused-params")),
+                    completions => completions.Should().BeEmpty()),
+                '|');
+        }
+
+        [TestMethod]
+        public async Task Restore_directive_code_completions_should_not_include_disable_next_line_codes()
+        {
+            var fileWithCursors = """
+                #disable-diagnostics no-unused-params no-unused-vars
+                #disable-next-line foo
+                #restore-diagnostics |
+                """;
+
+            await RunCompletionScenarioTest(
+                this.TestContext,
+                ServerWithNamespaceProvider,
+                fileWithCursors,
+                completionLists => completionLists.Should().SatisfyRespectively(
+                    completions => completions.Should().SatisfyRespectively(
+                        x => x.Label.Should().Be("no-unused-params"),
+                        x => x.Label.Should().Be("no-unused-vars"))),
+                '|');
         }
 
         [TestMethod]
@@ -5412,6 +5506,192 @@ When a wildcard is used, that needs to be the only value.  " + @"
         }
 
         [TestMethod]
+        public async Task Splat_completion_is_offered_for_array_types_in_type_clause()
+        {
+            var fileWithCursors = """
+              type foo = {
+                items: string[]
+              }
+
+              type completeMe = foo.items[|]
+              """;
+
+            await RunCompletionScenarioTest(TestContext, ServerWithNamespaceProvider, fileWithCursors, completionLists =>
+            {
+                completionLists.Count().Should().Be(1);
+
+                var completionList = completionLists.First();
+                completionList.Should().Contain(i => i.Label == "*");
+            });
+        }
+
+        [TestMethod]
+        public async Task Chained_type_completions_offered_for_properties_dot_tags_dot_star()
+        {
+            var fileWithCursors = """
+              type simulatedResource = {
+                properties: {
+                  tags: {
+                    *: string
+                  }
+                  name: string
+                }
+              }
+
+              type step1 = simulatedResource.|
+              type step2 = simulatedResource.properties.|
+              type step3 = simulatedResource.properties.tags.|
+              """;
+
+            await RunCompletionScenarioTest(TestContext, ServerWithNamespaceProvider, fileWithCursors, completionLists =>
+            {
+                completionLists.Count().Should().Be(3);
+
+                // After simulatedResource. - should offer 'properties'
+                var completionList = completionLists.First();
+                completionList.Should().Contain(i => i.Label == "properties");
+
+                // After simulatedResource.properties. - should offer 'tags' and 'name'
+                completionList = completionLists.Skip(1).First();
+                completionList.Should().Contain(i => i.Label == "tags");
+                completionList.Should().Contain(i => i.Label == "name");
+
+                // After simulatedResource.properties.tags. - should offer '*' for additional properties
+                completionList = completionLists.Skip(2).First();
+                completionList.Should().Contain(i => i.Label == "*");
+            });
+        }
+
+        [TestMethod]
+        public async Task Chained_type_completions_offered_for_containers_splat_probes()
+        {
+            // Tests completion at each position in a chain like: resourceInput<'...'>.properties.template.containers[*].probes
+            var fileWithCursors = """
+              type probe = {
+                path: string
+                port: int
+              }
+
+              type container = {
+                name: string
+                probes: probe[]
+              }
+
+              type simulatedResource = {
+                properties: {
+                  template: {
+                    containers: container[]
+                  }
+                }
+              }
+
+              type step1 = simulatedResource.|
+              type step2 = simulatedResource.properties.|
+              type step3 = simulatedResource.properties.template.|
+              type step4 = simulatedResource.properties.template.containers[|]
+              type step5 = simulatedResource.properties.template.containers[*].|
+              type step6 = simulatedResource.properties.template.containers[*].probes[|]
+              type step7 = simulatedResource.properties.template.containers[*].probes[*].|
+              """;
+
+            await RunCompletionScenarioTest(TestContext, ServerWithNamespaceProvider, fileWithCursors, completionLists =>
+            {
+                completionLists.Count().Should().Be(7);
+
+                // After simulatedResource. - should offer 'properties'
+                var completionList = completionLists.First();
+                completionList.Should().Contain(i => i.Label == "properties");
+
+                // After simulatedResource.properties. - should offer 'template'
+                completionList = completionLists.Skip(1).First();
+                completionList.Should().Contain(i => i.Label == "template");
+
+                // After simulatedResource.properties.template. - should offer 'containers'
+                completionList = completionLists.Skip(2).First();
+                completionList.Should().Contain(i => i.Label == "containers");
+
+                // Inside containers[ - should offer '*' for array item access
+                completionList = completionLists.Skip(3).First();
+                completionList.Should().Contain(i => i.Label == "*");
+
+                // After containers[*]. - should offer container properties 'name' and 'probes'
+                completionList = completionLists.Skip(4).First();
+                completionList.Should().Contain(i => i.Label == "name");
+                completionList.Should().Contain(i => i.Label == "probes");
+
+                // Inside probes[ - should offer '*' for array item access
+                completionList = completionLists.Skip(5).First();
+                completionList.Should().Contain(i => i.Label == "*");
+
+                // After probes[*]. - should offer probe properties 'path' and 'port'
+                completionList = completionLists.Skip(6).First();
+                completionList.Should().Contain(i => i.Label == "path");
+                completionList.Should().Contain(i => i.Label == "port");
+            });
+        }
+
+        [TestMethod]
+        public async Task Splat_completion_offered_for_containerApps_containers_probes()
+        {
+            // Tests completion for: param foo resourceInput<'Microsoft.App/containerApps@2025-01-01'>.properties.template.containers[*].probes
+            var fileWithCursors = """
+              param step1 resourceInput<'Microsoft.App/containerApps@2024-03-01'>.properties.|
+              param step2 resourceInput<'Microsoft.App/containerApps@2024-03-01'>.properties.template.|
+              param step3 resourceInput<'Microsoft.App/containerApps@2024-03-01'>.properties.template.containers[|]
+              param step4 resourceInput<'Microsoft.App/containerApps@2024-03-01'>.properties.template.containers[*].|
+              param step5 resourceInput<'Microsoft.App/containerApps@2024-03-01'>.properties.template.containers[*].probes[|]
+              """;
+
+            await RunCompletionScenarioTest(TestContext, ServerWithNamespaceProvider, fileWithCursors, completionLists =>
+            {
+                completionLists.Count().Should().Be(5);
+
+                // After .properties. - should offer 'template'
+                var completionList = completionLists.First();
+                completionList.Should().Contain(i => i.Label == "template");
+
+                // After .properties.template. - should offer 'containers'
+                completionList = completionLists.Skip(1).First();
+                completionList.Should().Contain(i => i.Label == "containers");
+
+                // Inside containers[ - should offer '*' for array item access
+                completionList = completionLists.Skip(2).First();
+                completionList.Should().Contain(i => i.Label == "*");
+
+                // After containers[*]. - should offer container properties including 'probes'
+                completionList = completionLists.Skip(3).First();
+                completionList.Should().Contain(i => i.Label == "probes");
+
+                // Inside probes[ - should offer '*' for array item access
+                completionList = completionLists.Skip(4).First();
+                completionList.Should().Contain(i => i.Label == "*");
+            });
+        }
+
+        [TestMethod]
+        public async Task Splat_completion_offered_for_tags_additional_properties()
+        {
+            // Tests completion for: param bar resourceInput<'Microsoft.Resources/tags@2024-07-01'>.properties.tags.*
+            var fileWithCursors = """
+              param step1 resourceInput<'Microsoft.Resources/tags@2024-07-01'>.properties.|
+              param step2 resourceInput<'Microsoft.Resources/tags@2024-07-01'>.properties.tags.|
+              """;
+
+            await RunCompletionScenarioTest(TestContext, ServerWithNamespaceProvider, fileWithCursors, completionLists =>
+            {
+                completionLists.Count().Should().Be(2);
+
+                // After .properties. - should offer 'tags'
+                var completionList = completionLists.First();
+                completionList.Should().Contain(i => i.Label == "tags");
+
+                // After .properties.tags. - should offer '*' for additional properties
+                completionList = completionLists.Skip(1).First();
+                completionList.Should().Contain(i => i.Label == "*");
+            });
+        }
+
+        [TestMethod]
         public async Task Strings_in_required_property_completions_are_correctly_escaped()
         {
             var fileWithCursors = """
@@ -5833,7 +6113,7 @@ output people Person[] = [{
               name: 'foo'
               |
             }
-            
+
             output readOnlyRequired string = myRes.readOnlyRequired
             """);
 
@@ -6095,6 +6375,30 @@ param foo string = 'bar'
               mode: 'stack'|
             }
             """);
+        }
+
+        [TestMethod]
+        public async Task Decorator_completion_should_include_nullIfNotFound_for_existing_resources_when_feature_enabled()
+        {
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(
+                TestContext,
+                s => s.WithFeatureOverrides(new(ExistingNullIfNotFoundEnabled: true))
+                    .WithNamespaceProvider(BuiltInTestTypes.Create()));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            // Test that @nullIfNotFound is offered for existing resources
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+            @|
+            resource testRes 'Test.Rp/readWriteTests@2020-01-01' existing = {
+              name: 'test'
+            }
+            """);
+
+            var bicepFile = await helper.OpenFile("/path/to/main.bicep", text);
+            var completions = await bicepFile.RequestAndResolveCompletions(cursor);
+
+            // Should have 'nullIfNotFound' completion for existing resource
+            completions.Should().Contain(c => c.Label == "nullIfNotFound", "nullIfNotFound decorator should be offered for existing resources");
         }
     }
 }

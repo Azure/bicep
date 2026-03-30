@@ -33,13 +33,13 @@ public class TypeProvider : ITypeProvider
 
         ConfigurationType = configurationTypeContainer?.Type;
 
-        if(fallbackTypeContainer?.Type != null)
+        if (fallbackTypeContainer?.Type != null)
         { // validate fallback type is annotated with ResourceTypeAttribute and is visible (public)
             FallbackType = fallbackTypeContainer.Type.GetCustomAttribute<ResourceTypeAttribute>(true) is not null && fallbackTypeContainer.Type.IsVisible
                 ? fallbackTypeContainer.Type
                 : throw new InvalidOperationException("Fallback type must be decorated with ResourceTypeAttribute.");
         }
-        
+
         // lazily cache resource types to improve performance on repeated calls
         this.lazyResourceTypes = new Lazy<ImmutableArray<(Type type, ResourceTypeAttribute attribute)>>(() =>
             this.assemblies
@@ -85,9 +85,9 @@ public class TypeProvider : ITypeProvider
                 .Select(Assembly.Load)
                 .Append(executingAssembly);
 
-        if(entryAssembly is not null)
+        if (entryAssembly is not null)
         {
-           assemblies = assemblies.Append(entryAssembly);
+            assemblies = assemblies.Append(entryAssembly);
         }
 
         return assemblies.Distinct();

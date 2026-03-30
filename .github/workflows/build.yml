@@ -52,14 +52,14 @@ jobs:
         run: dotnet publish --configuration release --self-contained true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
 
       - name: Upload Bicep
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli/bin/release/net10.0/${{ matrix.rid }}/publish/*
           if-no-files-found: error
 
       - name: Upload Bicep project assets file
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: bicep-project-assets-${{ matrix.rid }}
           path: ./src/Bicep.Cli/obj/project.assets.json
@@ -82,7 +82,7 @@ jobs:
         run: dotnet pack --configuration release
 
       - name: Upload Packages
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: bicep-nupkg-any
           path: out/*
@@ -103,7 +103,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v5
@@ -146,7 +146,7 @@ jobs:
         working-directory: ./src/vscode-bicep
 
       - name: Upload VSIX
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: vscode-bicep.vsix
           path: ./src/vscode-bicep/vscode-bicep.vsix
@@ -173,7 +173,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Check npm version
         run: npm -v
@@ -222,7 +222,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v5
@@ -290,7 +290,7 @@ jobs:
 
   build-vs-ext:
     name: Build Visual Studio Extension
-    runs-on: windows-latest
+    runs-on: windows-2025-vs2026
 
     steps:
       - uses: actions/checkout@v6
@@ -303,7 +303,9 @@ jobs:
         uses: actions/setup-dotnet@v5
 
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
+        with:
+          vs-version: '[18.0,)'
 
       - name: Build Bicep.sln
         run: dotnet build --configuration release
@@ -313,14 +315,14 @@ jobs:
 
       - name: Upload BicepInVisualStudio.sln build binlog
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: build-binlog-files
           path: ./src/binlog/bicep_in_visual_studio_build.binlog
           if-no-files-found: error
 
       - name: Upload BicepLanguageServerClient VSIX
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: Bicep.VSLanguageServerClient.Vsix.vsix
           path: ./src/vs-bicep/Bicep.VSLanguageServerClient.Vsix/bin/Release/vs-bicep.vsix
@@ -359,13 +361,13 @@ jobs:
         uses: actions/setup-dotnet@v5
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: bicep-release-win-x64
           path: ./src/installer-win/bicep
 
       - name: Download Bicep CLI project assets file
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: bicep-project-assets-win-x64
           path: ./src/installer-win/bicep
@@ -374,7 +376,7 @@ jobs:
         run: dotnet build --configuration release ./src/installer-win/installer.proj
 
       - name: Upload Windows Installer
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: bicep-setup-win-x64
           path: ./src/installer-win/bin/release/net10.0/bicep-setup-win-x64.exe
@@ -424,7 +426,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Check npm version
         run: npm -v
@@ -440,19 +442,19 @@ jobs:
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/tools
 
       - name: Download Bicep CLI project assets file
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: bicep-project-assets-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/tools
 
       - name: Download .Net Packages
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: bicep-nupkg-any
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
@@ -469,7 +471,7 @@ jobs:
         run: dotnet build --configuration Release /p:RuntimeSuffix=${{ matrix.rid }} ./src/Bicep.Cli.Nuget/nuget.proj
 
       - name: Upload CLI Package
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: bicep-nupkg-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/*.nupkg
@@ -477,7 +479,7 @@ jobs:
 
       - name: Download CLI Package
         if: matrix.runTests
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: bicep-nupkg-${{ matrix.rid }}
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
@@ -503,7 +505,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 23
+          node-version: 24
 
       - name: Check npm version
         run: npm -v
@@ -521,12 +523,12 @@ jobs:
         working-directory: ./src/playground
 
       - name: Upload
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: playground
           path: ./src/playground/dist/*
           if-no-files-found: error
-          
+
   test-playground:
     name: Test Playground
     runs-on: ubuntu-latest
@@ -543,8 +545,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 23
-    
+          node-version: 24
+
       - name: Install wasm tools workload
         run: dotnet workload install wasm-tools
         working-directory: ./src/playground
@@ -560,7 +562,7 @@ jobs:
       - name: Run playground locally
         run: npm run preview &
         working-directory: ./src/playground
-        
+
       - name: Build E2E Tests
         run: dotnet build --configuration Release
         working-directory: ./src/Bicep.Playground.E2ETests
@@ -589,7 +591,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Check npm version
         run: npm -v
@@ -645,10 +647,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: bicep-release-${{ matrix.runtime.rid }}
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
@@ -669,7 +671,7 @@ jobs:
         uses: docker://mcr.microsoft.com/azure-cli:2.63.0
         with:
           entrypoint: sh
-          args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
+          args: -c "set -eu && apk add --no-cache nodejs npm && node -v && npm -v && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
         env:
           BICEP_CLI_DOTNET_RID: ${{ matrix.runtime.rid }}
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
@@ -713,7 +715,7 @@ jobs:
         run: dotnet test --configuration release -- --filter '${{ matrix.config.filter }}' --report-trx --results-directory ${{ github.workspace }}/TestResults
 
       - name: Upload Test Results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: TestResults-${{ matrix.config.name }}-${{ matrix.os }}
@@ -729,7 +731,7 @@ jobs:
     if: always() && !github.event.pull_request.head.repo.fork
 
     steps:
-      - uses: mshick/add-pr-comment@v2
+      - uses: mshick/add-pr-comment@v3
         with:
           message: |
             Test this change out locally with the following install scripts (Action run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}))
@@ -800,13 +802,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 24
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v5
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: bicep-release-${{ matrix.runtime.rid }}
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
@@ -859,10 +861,14 @@ jobs:
 
       # Cannot use actions/setup-node@v6 for linux-musl-x64
       - name: Setup Node.js
-        run: apk add --update nodejs npm
+        run: |
+          set -eu
+          apk add --no-cache nodejs npm
+          node -v
+          npm -v
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: bicep-release-linux-musl-x64
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli

@@ -70,13 +70,13 @@ public static class BicepExtensionServiceCollectionExtensions
                        .WithDefaults(name, version, isSingleton)
                        .WithTypeAssemblies([typeAssembly]);
 
-        if(configurationType is not null)
+        if (configurationType is not null)
         {
             builder.WithConfigurationType(configurationType);
         }
 
         return builder;
-    }        
+    }
 
 
 }

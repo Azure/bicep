@@ -616,6 +616,114 @@ param stringParam =  /*TODO*/
         }
 
         [TestMethod]
+        public void Nested_extends_object_spread_with_base_should_succeed()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("bicepconfig.json", @"
+                {
+                    ""experimentalFeaturesEnabled"": {
+                        ""extendableParamFiles"": true
+                    }
+                }
+              "),
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'middle.bicepparam'
+                param tags = {
+                  ...base.tags
+                  tagC: 'valueC'
+                }
+              "),
+              ("middle.bicepparam", @"
+                using none
+                extends 'base.bicepparam'
+                param tags = {
+                  ...base.tags
+                  tagB: 'valueB'
+                }
+              "),
+              ("base.bicepparam", @"
+                using none
+                param tags = {
+                  tagA: 'valueA'
+                }
+              "),
+              ("main.bicep", @"
+                param tags object
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Parameters.Should().DeepEqual(JToken.Parse(@"{
+                ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+                ""contentVersion"": ""1.0.0.0"",
+                ""parameters"": {
+                    ""tags"": {
+                        ""value"": {
+                            ""tagA"": ""valueA"",
+                            ""tagB"": ""valueB"",
+                            ""tagC"": ""valueC""
+                        }
+                    }
+                }
+            }"));
+        }
+
+        [TestMethod]
+        public void Nested_extends_array_spread_with_base_should_succeed()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("bicepconfig.json", @"
+                {
+                    ""experimentalFeaturesEnabled"": {
+                        ""extendableParamFiles"": true
+                    }
+                }
+              "),
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'middle.bicepparam'
+                param values = [
+                  ...base.values
+                  'valueC'
+                ]
+              "),
+              ("middle.bicepparam", @"
+                using none
+                extends 'base.bicepparam'
+                param values = [
+                  ...base.values
+                  'valueB'
+                ]
+              "),
+              ("base.bicepparam", @"
+                using none
+                param values = [
+                  'valueA'
+                ]
+              "),
+              ("main.bicep", @"
+                param values array
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Parameters.Should().DeepEqual(JToken.Parse(@"{
+                ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+                ""contentVersion"": ""1.0.0.0"",
+                ""parameters"": {
+                    ""values"": {
+                        ""value"": [
+                            ""valueA"",
+                            ""valueB"",
+                            ""valueC""
+                        ]
+                    }
+                }
+            }"));
+        }
+
+        [TestMethod]
         public void Decorators_on_using_param_and_extends_statements_should_raise_errors()
         {
             var result = CompilationHelper.CompileParams(

@@ -27,6 +27,7 @@ namespace Bicep.Core.IntegrationTests
 {
   "resources": {},
   "resourceFunctions": {},
+  "namespaceFunctions": [],
   "settings": {
     "name": "AzureResourceManager",
     "version": "1.2.3",
