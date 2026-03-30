@@ -20,7 +20,6 @@
     "@vitejs/plugin-react": "5.1.4",
     "eslint": "10.1.0",
     "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-notice": "1.0.0",
     "eslint-plugin-prettier": "5.5.5",
     "nerdbank-gitversioning": "3.9.50",
     "typescript": "5.9.3",
