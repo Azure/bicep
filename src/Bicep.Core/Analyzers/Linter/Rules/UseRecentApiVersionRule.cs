@@ -29,6 +29,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public const int DefaultMaxAgeInDays = 365 * 2;
         private const int MinimumValidMaxAgeInDays = 0; // Zero means all apiVersions must be the most recent possible
 
+        private const string GracePeriodInDaysKey = "gracePeriodInDays";
+        public const int DefaultGracePeriodInDays = 90;
+        private const int MinimumValidGracePeriodInDays = 0;
+
         private static readonly Regex resourceTypeRegex = new(
             "^ [a-z]+\\.[a-z]+ (\\/ [a-z]+)+ $",
             RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
@@ -79,6 +83,18 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 maxAgeInDays = DefaultMaxAgeInDays;
             }
 
+            int gracePeriodInDays = GetConfigurationValue(model.Configuration.Analyzers, GracePeriodInDaysKey, DefaultGracePeriodInDays);
+            if (gracePeriodInDays < MinimumValidGracePeriodInDays)
+            {
+                yield return CreateDiagnosticForSpan(
+                    diagnosticLevel,
+                    new TextSpan(),
+                    $"{Code}: Configuration value for {GracePeriodInDaysKey} is not valid: {gracePeriodInDays}",
+                    Array.Empty<AzureResourceApiVersion>());
+
+                gracePeriodInDays = DefaultGracePeriodInDays;
+            }
+
             var today = DateOnly.FromDateTime(DateTime.Today);
             // Today's date can be changed to enable testing/debug scenarios
             if (GetConfigurationValue<string?>(model.Configuration.Analyzers, "test-today", null) is string testToday)
@@ -90,7 +106,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var resource in model.DeclaredResources.Where(r => r.IsAzResource))
             {
-                if (AnalyzeResource(model, today, maxAgeInDays, resource.Symbol, warnIfNotFound: warnIfNotFound) is Failure failure)
+                if (AnalyzeResource(model, today, maxAgeInDays, gracePeriodInDays, resource.Symbol, warnIfNotFound: warnIfNotFound) is Failure failure)
                 {
                     yield return CreateFixableDiagnosticForSpan(
                         diagnosticLevel,
@@ -103,7 +119,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var callInfo in GetFunctionCallInfos(model))
             {
-                if (AnalyzeFunctionCall(model, today, maxAgeInDays, callInfo) is Failure failure)
+                if (AnalyzeFunctionCall(model, today, maxAgeInDays, gracePeriodInDays, callInfo) is Failure failure)
                 {
                     yield return CreateFixableDiagnosticForSpan(
                         diagnosticLevel,
@@ -115,7 +131,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private static Failure? AnalyzeFunctionCall(SemanticModel model, DateOnly today, int maxAgeInDays, FunctionCallInfo functionCallInfo)
+        private static Failure? AnalyzeFunctionCall(SemanticModel model, DateOnly today, int maxAgeInDays, int gracePeriodInDays, FunctionCallInfo functionCallInfo)
         {
             if (functionCallInfo.ApiVersion.HasValue && functionCallInfo.ResourceType is not null)
             {
@@ -123,6 +139,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     model.ApiVersionProvider,
                     today,
                     maxAgeInDays,
+                    gracePeriodInDays,
                     errorSpan: functionCallInfo.FunctionCallSyntax.Span,
                     replacementSpan: TextSpan.Nil,
                     model.TargetScope,
@@ -308,7 +325,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return mostRecentValid;
         }
 
-        private static Failure? AnalyzeResource(SemanticModel model, DateOnly today, int maxAgeInDays, ResourceSymbol resourceSymbol, bool warnIfNotFound)
+        private static Failure? AnalyzeResource(SemanticModel model, DateOnly today, int maxAgeInDays, int gracePeriodInDays, ResourceSymbol resourceSymbol, bool warnIfNotFound)
         {
             if (resourceSymbol.TryGetResourceTypeReference() is ResourceTypeReference resourceTypeReference &&
                 resourceTypeReference.ApiVersion is string apiVersionString &&
@@ -321,6 +338,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         model.ApiVersionProvider,
                         today,
                         maxAgeInDays,
+                        gracePeriodInDays,
                         replacementSpan,
                         replacementSpan,
                         model.TargetScope,
@@ -333,9 +351,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return null;
         }
 
-        public static Failure? AnalyzeApiVersion(IApiVersionProvider apiVersionProvider, DateOnly today, int maxAgeInDays, TextSpan errorSpan, TextSpan replacementSpan, ResourceScope scope, string fullyQualifiedResourceType, AzureResourceApiVersion actualApiVersion, bool returnNotFoundDiagnostics)
+        public static Failure? AnalyzeApiVersion(IApiVersionProvider apiVersionProvider, DateOnly today, int maxAgeInDays, int gracePeriodInDays, TextSpan errorSpan, TextSpan replacementSpan, ResourceScope scope, string fullyQualifiedResourceType, AzureResourceApiVersion actualApiVersion, bool returnNotFoundDiagnostics)
         {
-            var (allApiVersions, acceptableApiVersions) = GetAcceptableApiVersions(apiVersionProvider, today, maxAgeInDays, scope, fullyQualifiedResourceType);
+            var (allApiVersions, acceptableApiVersions) = GetAcceptableApiVersions(apiVersionProvider, today, maxAgeInDays, gracePeriodInDays, scope, fullyQualifiedResourceType);
             if (!allApiVersions.Any())
             {
                 // Resource type not recognized
@@ -377,6 +395,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return null;
             }
 
+            // Check if version is within grace period - if so, accept it without warning
+            // Grace period is for RECOMMENDATIONS (don't suggest it), not VALIDATION (it's still valid to use)
+            if (gracePeriodInDays > 0 && IsWithinGracePeriod(actualApiVersion, today, gracePeriodInDays))
+            {
+                // Version exists and is too new to recommend to others, but valid for current use - pass
+                return null;
+            }
+
             // At this point, the rule has failed. Just need to determine reason for failure, for the message.
             string? failureReason = null;
 
@@ -414,7 +440,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 acceptableApiVersions);
         }
 
-        public static (AzureResourceApiVersion[] allApiVersions, AzureResourceApiVersion[] acceptableVersions) GetAcceptableApiVersions(IApiVersionProvider apiVersionProvider, DateOnly today, int maxAgeInDays, ResourceScope scope, string fullyQualifiedResourceType)
+        public static (AzureResourceApiVersion[] allApiVersions, AzureResourceApiVersion[] acceptableVersions) GetAcceptableApiVersions(IApiVersionProvider apiVersionProvider, DateOnly today, int maxAgeInDays, int gracePeriodInDays, ResourceScope scope, string fullyQualifiedResourceType)
         {
             var allVersions = apiVersionProvider.GetApiVersions(scope, fullyQualifiedResourceType).ToArray();
             if (!allVersions.Any())
@@ -423,38 +449,50 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return (allVersions, Array.Empty<AzureResourceApiVersion>());
             }
 
-            var stableVersionsSorted = FilterStable(allVersions).OrderBy(v => v.Date).ToArray();
-            var previewVersionsSorted = FilterPreview(allVersions).OrderBy(v => v.Date).ToArray();
+            // Filter out versions that are too new (within grace period)
+            var allVersionsExcludingGracePeriod = FilterExcludingGracePeriod(allVersions, today, gracePeriodInDays).ToArray();
 
-            var recentStableVersionsSorted = FilterRecent(stableVersionsSorted, today, maxAgeInDays).ToArray();
-            var recentPreviewVersionsSorted = FilterRecent(previewVersionsSorted, today, maxAgeInDays).ToArray();
+            // Use filtered versions for the rest of the logic to avoid recommending versions within the grace period
+            var stableVersions = FilterStable(allVersionsExcludingGracePeriod).ToArray();
+            var previewVersions = FilterPreview(allVersionsExcludingGracePeriod).ToArray();
+
+            // If grace period filtering removed everything, fall back to using all versions
+            // (This is an edge case where the grace period is too aggressive)
+            if (!stableVersions.Any() && !previewVersions.Any())
+            {
+                stableVersions = FilterStable(allVersions).ToArray();
+                previewVersions = FilterPreview(allVersions).ToArray();
+            }
+
+            var recentStableVersions = FilterRecent(stableVersions, today, maxAgeInDays).ToArray();
+            var recentPreviewVersions = FilterRecent(previewVersions, today, maxAgeInDays).ToArray();
 
             // Start with all recent stable versions
-            List<AzureResourceApiVersion> acceptableVersions = [.. recentStableVersionsSorted];
+            List<AzureResourceApiVersion> acceptableVersions = [.. recentStableVersions];
 
             // If no recent stable versions, add the most recent stable version, if any
             if (!acceptableVersions.Any())
             {
-                acceptableVersions.AddRange(FilterMostRecentApiVersion(stableVersionsSorted));
+                acceptableVersions.AddRange(FilterMostRecentApiVersion(stableVersions));
             }
 
             // Add any recent (not old) preview versions that are newer than the newest stable version
-            var mostRecentStableDate = GetNewestDateOrNull(stableVersionsSorted);
+            var mostRecentStableDate = GetNewestDateOrNull(stableVersions);
             if (mostRecentStableDate != null)
             {
-                Debug.Assert(stableVersionsSorted.Any(), "There should have been at least one stable version since mostRecentStableDate != null");
-                var previewsNewerThanMostRecentStable = recentPreviewVersionsSorted.Where(v => IsMoreRecentThan(v.Date, mostRecentStableDate.Value));
+                Debug.Assert(stableVersions.Any(), "There should have been at least one stable version since mostRecentStableDate != null");
+                var previewsNewerThanMostRecentStable = recentPreviewVersions.Where(v => IsMoreRecentThan(v.Date, mostRecentStableDate.Value));
                 acceptableVersions.AddRange(previewsNewerThanMostRecentStable);
             }
             else
             {
                 // There are no stable versions available at all - add all preview versions that are recent enough
-                acceptableVersions.AddRange(recentPreviewVersionsSorted);
+                acceptableVersions.AddRange(recentPreviewVersions);
 
                 // If there are no recent preview versions, add the newest preview only
                 if (!acceptableVersions.Any())
                 {
-                    acceptableVersions.AddRange(FilterMostRecentApiVersion(previewVersionsSorted));
+                    acceptableVersions.AddRange(FilterMostRecentApiVersion(previewVersions));
                     Debug.Assert(acceptableVersions.Any(), "There should have been at least one preview version available to add");
                 }
             }
@@ -535,6 +573,18 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return apiVersion.Date >= today.AddDays(-maxAgeInDays);
         }
 
+        // Check if an API version is within the grace period (too new to recommend)
+        private static bool IsWithinGracePeriod(AzureResourceApiVersion apiVersion, DateOnly today, int gracePeriodDays)
+        {
+            if (gracePeriodDays == 0)
+            {
+                return false; // No grace period
+            }
+
+            var gracePeriodThreshold = today.AddDays(-gracePeriodDays);
+            return apiVersion.Date > gracePeriodThreshold;
+        }
+
         // Recent meaning < maxAgeInDays old
         private static IEnumerable<AzureResourceApiVersion> FilterRecent(IEnumerable<AzureResourceApiVersion> apiVersions, DateOnly today, int maxAgeInDays)
         {
@@ -554,6 +604,16 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private static bool IsMoreRecentThan(DateOnly date, DateOnly other)
         {
             return date.CompareTo(other) > 0;
+        }
+
+        private static IEnumerable<AzureResourceApiVersion> FilterExcludingGracePeriod(IEnumerable<AzureResourceApiVersion> apiVersions, DateOnly today, int gracePeriodInDays)
+        {
+            if (gracePeriodInDays == 0)
+            {
+                return apiVersions; // No grace period
+            }
+
+            return apiVersions.Where(v => !IsWithinGracePeriod(v, today, gracePeriodInDays));
         }
     }
 }
