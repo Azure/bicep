@@ -10,7 +10,15 @@ import { fileURLToPath } from "url";
 import { resolve, dirname } from "path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const copyrightTemplate = readFileSync(resolve(__dirname, "../copyright-template.js"), "utf8").trimEnd();
+
+let copyrightTemplate;
+try {
+  copyrightTemplate = readFileSync(resolve(__dirname, "../copyright-template.js"), "utf8")
+    .replace(/\r\n/g, "\n")
+    .trimEnd();
+} catch (err) {
+  throw new Error(`Failed to read copyright template file: ${err.message}`);
+}
 
 const copyrightNoticeRule = {
   meta: {
@@ -24,7 +32,7 @@ const copyrightNoticeRule = {
     return {
       Program(node) {
         const sourceCode = context.sourceCode;
-        const text = sourceCode.getText();
+        const text = sourceCode.getText().replace(/\r\n/g, "\n");
         if (!text.startsWith(copyrightTemplate)) {
           context.report({
             node,
