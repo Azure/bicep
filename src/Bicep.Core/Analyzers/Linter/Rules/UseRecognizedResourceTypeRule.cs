@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
@@ -14,10 +13,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules;
 public sealed class UseRecognizedResourceTypeRule : LinterRuleBase
 {
     public new const string Code = "use-recognized-resource-type";
-
-    private static readonly Regex ResourceTypeRegex = new(
-        "^ [a-z]+\\.[a-z]+ (\\/ [a-z]+)+ $",
-        RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
 
     public UseRecognizedResourceTypeRule() : base(
         code: Code,
@@ -93,7 +88,7 @@ public sealed class UseRecognizedResourceTypeRule : LinterRuleBase
 
         // Handle string literal resource type like 'Microsoft.Storage/storageAccounts'
         if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, expression)
-            is (string literalValue, _, _) && ResourceTypeRegex.IsMatch(literalValue))
+            is (string literalValue, _, _) && LinterResourceTypePatterns.ResourceTypeRegex.IsMatch(literalValue))
         {
             return literalValue;
         }
@@ -115,7 +110,7 @@ public sealed class UseRecognizedResourceTypeRule : LinterRuleBase
             if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, arg.Expression) is (string argLiteral, _, _))
             {
                 argLiteral = argLiteral.TrimEnd('/');
-                if (ResourceTypeRegex.IsMatch(argLiteral))
+                if (LinterResourceTypePatterns.ResourceTypeRegex.IsMatch(argLiteral))
                 {
                     return argLiteral;
                 }
