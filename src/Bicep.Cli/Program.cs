@@ -3,6 +3,7 @@
 
 using System.CommandLine;
 using System.CommandLine.Help;
+using System.CommandLine.Invocation;
 using System.Diagnostics;
 using System.Runtime;
 using Bicep.Cli.Arguments;
@@ -23,6 +24,14 @@ using Spectre.Console;
 
 // Avoid naming conflict with Bicep.Cli.Commands.RootCommand
 using SclRootCommand = System.CommandLine.RootCommand;
+
+public class HelpExamplesAction : SynchronousCommandLineAction
+{
+    public override int Invoke(ParseResult parseResult)
+    {
+        throw new NotImplementedException();
+    }
+}
 
 namespace Bicep.Cli
 {
@@ -100,9 +109,7 @@ namespace Bicep.Cli
         {
             var rootCommand = new SclRootCommand("Bicep CLI")
             {
-                // Collect unknown tokens so we can produce a custom error message that matches
-                // the format of the original CLI instead of letting System.CommandLine error out.
-                TreatUnmatchedTokensAsErrors = false,
+                TreatUnmatchedTokensAsErrors = true,
             };
 
             // System.CommandLine adds --version and --help to RootCommand by default.
@@ -113,18 +120,12 @@ namespace Bicep.Cli
             {
                 rootCommand.Options.Remove(builtInVersion);
             }
-            var builtInHelp = rootCommand.Options.OfType<HelpOption>().FirstOrDefault();
-            if (builtInHelp is not null)
-            {
-                rootCommand.Options.Remove(builtInHelp);
-            }
 
-            var helpOption = new Option<bool>("--help", "-?", "-h") { Description = "Show help and usage information." };
             var versionOption = new Option<bool>("--version", "-v") { Description = "Show version information." };
             var licenseOption = new Option<bool>("--license") { Description = "Print license information." };
             var thirdPartyNoticesOption = new Option<bool>("--third-party-notices") { Description = "Print third-party notice information." };
 
-            rootCommand.Add(helpOption);
+            // rootCommand.Add(helpOption);
             rootCommand.Add(versionOption);
             rootCommand.Add(licenseOption);
             rootCommand.Add(thirdPartyNoticesOption);
@@ -134,13 +135,6 @@ namespace Bicep.Cli
                 var bicepRootCommand = services.GetRequiredService<Commands.RootCommand>();
 
                 var unmatched = pr.UnmatchedTokens;
-
-                // Show help when explicitly requested or when called with no arguments at all.
-                if (pr.GetValue(helpOption) || unmatched.Count == 0)
-                {
-                    bicepRootCommand.PrintHelp();
-                    return 0;
-                }
 
                 if (pr.GetValue(versionOption))
                 {
@@ -222,10 +216,7 @@ namespace Bicep.Cli
                 "Lints a .bicep file.",
                 args => services.GetRequiredService<LintCommand>().RunAsync(new LintArguments(args))));
 
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.JsonRpc,
-                "Starts the Bicep JSON-RPC server.",
-                args => services.GetRequiredService<JsonRpcCommand>().RunAsync(new JsonRpcArguments(args), cancellationToken)));
+            rootCommand.Add(CreateJsonRpcCommand());
 
             rootCommand.Add(LegacyCommand(
                 Constants.Command.LocalDeploy,
@@ -260,6 +251,54 @@ namespace Bicep.Cli
             return rootCommand;
         }
 
+        private Command CreateJsonRpcCommand()
+        {
+            var command = new Command(Constants.Command.JsonRpc, "Starts the Bicep JSON-RPC server.");
+
+            var pipeOption = new Option<string?>("--pipe")
+            {
+                Description = "Connect via a named pipe with the given name.",
+            };
+            var socketOption = new Option<int?>("--socket")
+            {
+                Description = "Connect via a TCP socket on the specified port.",
+            };
+            var stdioOption = new Option<bool>("--stdio")
+            {
+                Description = "Use standard input/output for communication (default when no transport is specified).",
+            };
+
+            command.Add(pipeOption);
+            command.Add(socketOption);
+            command.Add(stdioOption);
+
+            command.Validators.Add(result =>
+            {
+                var hasPipe = result.GetResult(pipeOption) is { Implicit: false };
+                var hasSocket = result.GetResult(socketOption) is { Implicit: false };
+                var hasStdio = result.GetResult(stdioOption)  is { Implicit: false };
+
+                if ((hasPipe ? 1 : 0) + (hasSocket ? 1 : 0) + (hasStdio ? 1 : 0) > 1)
+                {
+                    result.AddError("Only one of --pipe, --socket, or --stdio may be specified.");
+                }
+            });
+
+            command.SetAction(async (result, cancellationToken) =>
+            {
+                JsonRpcArguments args = new()
+                {
+                    Pipe = result.GetValue(pipeOption),
+                    Socket = result.GetValue(socketOption),
+                    Stdio = result.GetValue(stdioOption)
+                };
+
+                return await services.GetRequiredService<JsonRpcCommand>().RunAsync(args, cancellationToken);
+            });
+
+            return command;
+        }
+
         /// <summary>
         /// Creates a pass-through command stub that forwards all unrecognized tokens to an
         /// existing argument class and command handler. System.CommandLine's built-in options
@@ -277,17 +316,6 @@ namespace Bicep.Cli
             {
                 TreatUnmatchedTokensAsErrors = false,
             };
-
-            // Remove the built-in HelpOption so that --help output goes through io.Output.Writer
-            // (not Console.Out) and shows the custom Bicep help text.
-            var builtInHelp = command.Options.OfType<HelpOption>().FirstOrDefault();
-            if (builtInHelp is not null)
-            {
-                command.Options.Remove(builtInHelp);
-            }
-
-            var helpOption = new Option<bool>("--help", "-?", "-h") { Description = "Show help and usage information." };
-            command.Add(helpOption);
 
             command.SetAction(async (ParseResult pr, CancellationToken ct) =>
             {
