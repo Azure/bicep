@@ -18,6 +18,9 @@ import { resolveExamplePath } from "./examples";
 
 const extensionLogPath = path.join(__dirname, `../../../${e2eLogName}`);
 
+// Each test opens a document (2s sleep) and waits up to 20s for the visualizer to be ready.
+jest.setTimeout(30000);
+
 describe("visualizer", (): void => {
   afterEach(executeCloseAllEditors);
 
@@ -32,6 +35,7 @@ describe("visualizer", (): void => {
     const viewColumn = await executeShowVisualizerCommand(document.uri);
     await until(() => visualizerIsReady(document.uri), {
       interval: 100,
+      timeoutMs: 20000,
     });
     if (!visualizerIsReady(document.uri)) {
       throw new Error(`Expected visualizer to be ready for ${document.uri.toString()}`);
@@ -50,6 +54,7 @@ describe("visualizer", (): void => {
     const viewColumn = await executeShowVisualizerToSideCommand(document.uri);
     await until(() => visualizerIsReady(document.uri), {
       interval: 100,
+      timeoutMs: 20000,
     });
     if (!visualizerIsReady(document.uri)) {
       throw new Error(`Expected visualizer to be ready for ${document.uri.toString()}`);
@@ -68,6 +73,7 @@ describe("visualizer", (): void => {
 
     await until(() => visualizerIsReady(document.uri), {
       interval: 100,
+      timeoutMs: 20000,
     });
 
     if (!visualizerIsReady(document.uri)) {
