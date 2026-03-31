@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import type { DefaultTheme } from "styled-components";
-import type { ExportFormat } from "./types";
+import type { ExportBackgroundMode } from "./types";
 
 import { Codicon } from "@vscode-bicep-ui/components";
 import { VscodeOption, VscodeSingleSelect } from "@vscode-elements/react-elements";
@@ -12,9 +12,9 @@ import { styled } from "styled-components";
 import {
   closeExportOverlayAtom,
   exportBackgroundColorAtom,
+  exportBackgroundModeAtom,
   exportCanvasElementAtom,
   exportFileStemAtom,
-  exportFormatAtom,
   exportPaddingAtom,
   exportThemeOverrideAtom,
   isExportInProgressAtom,
@@ -50,12 +50,12 @@ const $ActionsGroup = styled($Group)`
   margin-left: auto;
 `;
 
-const $FormatSelect = styled(VscodeSingleSelect)`
-  width: 62px;
+const $BackgroundSelect = styled(VscodeSingleSelect)`
+  width: 100px;
 `;
 
 const $ThemeSelect = styled(VscodeSingleSelect)`
-  width: 140px;
+  width: 100px;
 `;
 
 const $Separator = styled.div`
@@ -144,6 +144,10 @@ const $Label = styled.label`
   white-space: nowrap;
 `;
 
+const $BackgroundLabel = styled($Label)`
+  margin-left: 4px;
+`;
+
 /* ---- Padding stepper -------------------------------------------- */
 
 const $StepperGroup = styled.div`
@@ -213,14 +217,17 @@ const $PaddingInput = styled.input`
 /*  Constants                                                          */
 /* ------------------------------------------------------------------ */
 
-const FORMATS: ExportFormat[] = ["svg", "png", "jpeg"];
+const BACKGROUND_OPTIONS: { label: string; value: ExportBackgroundMode }[] = [
+  { label: "Transparent", value: "transparent" },
+  { label: "Solid", value: "solid" },
+];
 
 const THEME_OPTIONS: { label: string; value: DefaultTheme["name"] | null }[] = [
   { label: "Current", value: null },
   { label: "Light", value: "light" },
   { label: "Dark", value: "dark" },
-  { label: "High Contrast", value: "high-contrast" },
-  { label: "High Contrast Light", value: "high-contrast-light" },
+  { label: "Dark HC", value: "high-contrast" },
+  { label: "Light HC", value: "high-contrast-light" },
 ];
 
 const STEP = 10;
@@ -232,13 +239,13 @@ const STEP = 10;
 export function ExportToolbar() {
   const store = useStore();
   const canvasElement = useAtomValue(exportCanvasElementAtom);
-  const format = useAtomValue(exportFormatAtom);
+  const backgroundMode = useAtomValue(exportBackgroundModeAtom);
   const padding = useAtomValue(exportPaddingAtom);
   const exportThemeName = useAtomValue(exportThemeOverrideAtom);
   const exportFileStem = useAtomValue(exportFileStemAtom);
   const exportBackgroundColor = useAtomValue(exportBackgroundColorAtom);
   const exporting = useAtomValue(isExportInProgressAtom);
-  const setFormat = useSetAtom(exportFormatAtom);
+  const setBackgroundMode = useSetAtom(exportBackgroundModeAtom);
   const setTheme = useSetAtom(exportThemeOverrideAtom);
   const setPadding = useSetAtom(exportPaddingAtom);
   const setExportInProgress = useSetAtom(isExportInProgressAtom);
@@ -252,15 +259,16 @@ export function ExportToolbar() {
     setExportInProgress(true);
 
     try {
-      const dataUrl = await captureGraphElement(canvasElement, store, format, padding, exportBackgroundColor);
+      const backgroundColor = backgroundMode === "solid" ? exportBackgroundColor : undefined;
+      const dataUrl = await captureGraphElement(canvasElement, store, padding, backgroundColor);
       const fileStem = exportFileStem.trim() || "bicep-graph";
-      await saveDataUrl(dataUrl, `${fileStem}.${format}`, format);
+      await saveDataUrl(dataUrl, `${fileStem}.png`);
     } catch (error) {
       console.error("Export failed:", error);
     } finally {
       setExportInProgress(false);
     }
-  }, [canvasElement, exporting, setExportInProgress, store, format, padding, exportBackgroundColor, exportFileStem]);
+  }, [canvasElement, exporting, setExportInProgress, store, backgroundMode, padding, exportBackgroundColor, exportFileStem]);
 
   const [paddingText, setPaddingText] = useState(String(padding));
 
@@ -297,11 +305,11 @@ export function ExportToolbar() {
     [padding, setPadding],
   );
 
-  const handleFormatSelect = useCallback(
+  const handleBackgroundSelect = useCallback(
     (e: Event) => {
-      setFormat((e.currentTarget as HTMLSelectElement).value as ExportFormat);
+      setBackgroundMode((e.currentTarget as HTMLSelectElement).value as ExportBackgroundMode);
     },
-    [setFormat],
+    [setBackgroundMode],
   );
 
   const handleThemeSelect = useCallback(
@@ -314,16 +322,16 @@ export function ExportToolbar() {
 
   return (
     <$Toolbar role="toolbar" aria-label="Export settings">
-      {/* Format */}
+      {/* Background */}
       <$Group>
-        <$Label>Format</$Label>
-        <$FormatSelect onChange={handleFormatSelect}>
-          {FORMATS.map((f) => (
-            <VscodeOption key={f} value={f} selected={f === format}>
-              {f.toUpperCase()}
+        <$BackgroundLabel>Background</$BackgroundLabel>
+        <$BackgroundSelect onChange={handleBackgroundSelect}>
+          {BACKGROUND_OPTIONS.map((bg) => (
+            <VscodeOption key={bg.value} value={bg.value} selected={bg.value === backgroundMode}>
+              {bg.label}
             </VscodeOption>
           ))}
-        </$FormatSelect>
+        </$BackgroundSelect>
       </$Group>
 
       <$Separator />
@@ -368,8 +376,7 @@ export function ExportToolbar() {
 
       <$ActionsGroup>
         <$ExportButton onClick={handleExport} disabled={exporting}>
-          <Codicon name="desktop-download" size={13} />
-          {exporting ? "Saving\u2026" : "Save As"}
+          {exporting ? "Exporting\u2026" : "Export"}
         </$ExportButton>
         <$IconButton onClick={() => closeExportOverlay()} title="Close" aria-label="Close export toolbar">
           <Codicon name="close" size={14} />
