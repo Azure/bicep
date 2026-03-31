@@ -16,6 +16,7 @@ using Bicep.Cli.Services;
 using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Emit.Options;
+using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
 using Bicep.Core.Tracing;
@@ -24,7 +25,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
 
-// Avoid naming conflict with Bicep.Cli.Commands.RootCommand
 using SclRootCommand = System.CommandLine.RootCommand;
 
 public class HelpExamplesAction : SynchronousCommandLineAction
@@ -100,13 +100,6 @@ namespace Bicep.Cli
             return await rootCommand.Parse(args).InvokeAsync(cancellationToken: cancellationToken);
         }
 
-        /// <summary>
-        /// Builds the System.CommandLine command hierarchy. Each existing subcommand is currently
-        /// registered as a legacy pass-through stub via <see cref="LegacyCommand"/>. To migrate a
-        /// command, replace its <c>LegacyCommand</c> call with a <see cref="Command"/> that
-        /// declares its own <see cref="Option{T}"/> and <see cref="Argument{T}"/> members and
-        /// invokes the command handler directly.
-        /// </summary>
         private SclRootCommand BuildCommandLine(CancellationToken cancellationToken)
         {
             var rootCommand = new SclRootCommand("Bicep CLI")
@@ -134,23 +127,25 @@ namespace Bicep.Cli
 
             rootCommand.SetAction(async (ParseResult pr, CancellationToken ct) =>
             {
-                var bicepRootCommand = services.GetRequiredService<Commands.RootCommand>();
-
+                var environment = services.GetRequiredService<IEnvironment>();
                 var unmatched = pr.UnmatchedTokens;
 
                 if (pr.GetValue(versionOption))
                 {
-                    return bicepRootCommand.Run(new RootArguments("--version", Constants.Command.Root));
+                    Commands.CliInfoPrinter.PrintVersion(io, environment);
+                    return 0;
                 }
 
                 if (pr.GetValue(licenseOption))
                 {
-                    return bicepRootCommand.Run(new RootArguments("--license", Constants.Command.Root));
+                    Commands.CliInfoPrinter.PrintLicense(io);
+                    return 0;
                 }
 
                 if (pr.GetValue(thirdPartyNoticesOption))
                 {
-                    return bicepRootCommand.Run(new RootArguments("--third-party-notices", Constants.Command.Root));
+                    Commands.CliInfoPrinter.PrintThirdPartyNotices(io);
+                    return 0;
                 }
 
                 await io.Error.Writer.WriteLineAsync(
@@ -158,21 +153,13 @@ namespace Bicep.Cli
                 return 1;
             });
 
-            // Each subcommand below is a legacy pass-through stub. Arguments not recognized by
-            // System.CommandLine are collected in ParseResult.UnmatchedTokens and forwarded to
-            // the existing argument class for parsing. Once a command is fully migrated, replace
-            // the LegacyCommand call with a Command that has explicit Option<T>/Argument<T>
-            // members and calls the command handler with the bound values directly.
             rootCommand.Add(CreateBuildCommand());
 
             rootCommand.Add(CreateTestCommand());
 
             rootCommand.Add(CreateBuildParamsCommand());
 
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.Format,
-                "Formats a .bicep file.",
-                args => Task.FromResult(services.GetRequiredService<FormatCommand>().Run(new FormatArguments(args)))));
+            rootCommand.Add(CreateFormatCommand());
 
             rootCommand.Add(CreateGenerateParamsFileCommand());
 
@@ -180,25 +167,13 @@ namespace Bicep.Cli
 
             rootCommand.Add(CreateDecompileParamsCommand());
 
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.Publish,
-                "Publishes a .bicep file to a registry.",
-                args => services.GetRequiredService<PublishCommand>().RunAsync(new PublishArguments(args))));
+            rootCommand.Add(CreatePublishCommand());
 
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.PublishExtension,
-                "Publishes a Bicep extension to a registry.",
-                args => services.GetRequiredService<PublishExtensionCommand>().RunAsync(new PublishExtensionArguments(args), cancellationToken)));
+            rootCommand.Add(CreatePublishExtensionCommand());
 
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.Restore,
-                "Restores external modules for a .bicep file.",
-                args => services.GetRequiredService<RestoreCommand>().RunAsync(new RestoreArguments(args))));
+            rootCommand.Add(CreateRestoreCommand());
 
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.Lint,
-                "Lints a .bicep file.",
-                args => services.GetRequiredService<LintCommand>().RunAsync(new LintArguments(args))));
+            rootCommand.Add(CreateLintCommand());
 
             rootCommand.Add(CreateJsonRpcCommand());
 
@@ -549,6 +524,265 @@ namespace Bicep.Cli
             return command;
         }
 
+        private Command CreateFormatCommand()
+        {
+            var command = new Command(Constants.Command.Format, "Formats a .bicep file.");
+
+            var inputFileArgument = new Argument<string?>("input-file")
+            {
+                Description = "The path to the input .bicep file.",
+                Arity = ArgumentArity.ZeroOrOne,
+            };
+            var stdoutOption = new Option<bool>("--stdout")
+            {
+                Description = "Print output to stdout.",
+            };
+            var outDirOption = new Option<string?>("--outdir")
+            {
+                Description = "Save output to the specified directory.",
+            };
+            var outFileOption = new Option<string?>("--outfile")
+            {
+                Description = "Save output to the specified file path.",
+            };
+            var filePatternOption = new Option<string?>("--pattern")
+            {
+                Description = "Format all files matching the specified pattern.",
+            };
+            var newlineKindOption = new Option<NewlineKind?>("--newline-kind")
+            {
+                Description = "Set the newline kind (Auto, LF, CRLF, CR).",
+            };
+            var indentKindOption = new Option<IndentKind?>("--indent-kind")
+            {
+                Description = "Set the indent kind (Space, Tab).",
+            };
+            var indentSizeOption = new Option<int?>("--indent-size")
+            {
+                Description = "Set the indent size (number of spaces).",
+            };
+            var insertFinalNewlineOption = new Option<bool?>("--insert-final-newline")
+            {
+                Description = "Insert a final newline.",
+            };
+
+            command.Add(inputFileArgument);
+            command.Add(stdoutOption);
+            command.Add(outDirOption);
+            command.Add(outFileOption);
+            command.Add(filePatternOption);
+            command.Add(newlineKindOption);
+            command.Add(indentKindOption);
+            command.Add(indentSizeOption);
+            command.Add(insertFinalNewlineOption);
+
+            command.SetAction((result, ct) => RunCommandAsync(() =>
+            {
+                var args = new FormatArguments(
+                    result.GetValue(stdoutOption),
+                    result.GetValue(inputFileArgument),
+                    result.GetValue(outDirOption),
+                    result.GetValue(outFileOption),
+                    result.GetValue(filePatternOption),
+                    result.GetValue(newlineKindOption),
+                    result.GetValue(indentKindOption),
+                    result.GetValue(indentSizeOption),
+                    result.GetValue(insertFinalNewlineOption));
+
+                return Task.FromResult(services.GetRequiredService<FormatCommand>().Run(args));
+            }));
+
+            return command;
+        }
+
+        private Command CreatePublishCommand()
+        {
+            var command = new Command(Constants.Command.Publish, "Publishes a .bicep file to a registry.");
+
+            var inputFileArgument = new Argument<string>("input-file")
+            {
+                Description = "The path to the .bicep file to publish.",
+            };
+            var targetOption = new Option<string>("--target")
+            {
+                Description = "The target module reference.",
+            };
+            var documentationUriOption = new Option<string?>("--documentation-uri")
+            {
+                Description = "The documentation URI.",
+            };
+            var noRestoreOption = new Option<bool>("--no-restore")
+            {
+                Description = "Do not restore modules prior to publishing.",
+            };
+            var forceOption = new Option<bool>("--force")
+            {
+                Description = "Force publish even if the module already exists.",
+            };
+            var withSourceOption = new Option<bool>("--with-source")
+            {
+                Description = "Publish with source code.",
+            };
+
+            command.Add(inputFileArgument);
+            command.Add(targetOption);
+            command.Add(documentationUriOption);
+            command.Add(noRestoreOption);
+            command.Add(forceOption);
+            command.Add(withSourceOption);
+
+            command.SetAction((result, ct) => RunCommandAsync(async () =>
+            {
+                var target = result.GetValue(targetOption)
+                    ?? throw new CommandLineException("The target module was not specified.");
+                var args = new PublishArguments(
+                    result.GetRequiredValue(inputFileArgument),
+                    target,
+                    result.GetValue(documentationUriOption),
+                    result.GetValue(noRestoreOption),
+                    result.GetValue(forceOption),
+                    result.GetValue(withSourceOption));
+
+                return await services.GetRequiredService<PublishCommand>().RunAsync(args);
+            }));
+
+            return command;
+        }
+
+        private Command CreatePublishExtensionCommand()
+        {
+            var command = new Command(Constants.Command.PublishExtension, "Publishes a Bicep extension to a registry.");
+
+            var indexFileArgument = new Argument<string?>("index-file")
+            {
+                Description = "The path to the index file.",
+                Arity = ArgumentArity.ZeroOrOne,
+            };
+            var targetOption = new Option<string?>("--target")
+            {
+                Description = "The target extension reference.",
+            };
+            var forceOption = new Option<bool>("--force")
+            {
+                Description = "Force publish even if the extension already exists.",
+            };
+            // Per-architecture binary options.
+            var binLinuxX64Option = new Option<string?>("--bin-linux-x64") { Description = "Path to the linux-x64 binary." };
+            var binLinuxArm64Option = new Option<string?>("--bin-linux-arm64") { Description = "Path to the linux-arm64 binary." };
+            var binOsxX64Option = new Option<string?>("--bin-osx-x64") { Description = "Path to the osx-x64 binary." };
+            var binOsxArm64Option = new Option<string?>("--bin-osx-arm64") { Description = "Path to the osx-arm64 binary." };
+            var binWinX64Option = new Option<string?>("--bin-win-x64") { Description = "Path to the win-x64 binary." };
+            var binWinArm64Option = new Option<string?>("--bin-win-arm64") { Description = "Path to the win-arm64 binary." };
+
+            command.Add(indexFileArgument);
+            command.Add(targetOption);
+            command.Add(forceOption);
+            command.Add(binLinuxX64Option);
+            command.Add(binLinuxArm64Option);
+            command.Add(binOsxX64Option);
+            command.Add(binOsxArm64Option);
+            command.Add(binWinX64Option);
+            command.Add(binWinArm64Option);
+
+            command.SetAction((result, ct) => RunCommandAsync(async () =>
+            {
+                var binaries = new Dictionary<string, string>();
+                if (result.GetValue(binLinuxX64Option) is { } p1) { binaries["linux-x64"] = p1; }
+                if (result.GetValue(binLinuxArm64Option) is { } p2) { binaries["linux-arm64"] = p2; }
+                if (result.GetValue(binOsxX64Option) is { } p3) { binaries["osx-x64"] = p3; }
+                if (result.GetValue(binOsxArm64Option) is { } p4) { binaries["osx-arm64"] = p4; }
+                if (result.GetValue(binWinX64Option) is { } p5) { binaries["win-x64"] = p5; }
+                if (result.GetValue(binWinArm64Option) is { } p6) { binaries["win-arm64"] = p6; }
+
+                var args = new PublishExtensionArguments(
+                    result.GetValue(indexFileArgument),
+                    result.GetValue(targetOption),
+                    binaries,
+                    result.GetValue(forceOption));
+
+                return await services.GetRequiredService<PublishExtensionCommand>().RunAsync(args, ct);
+            }));
+
+            return command;
+        }
+
+        private Command CreateRestoreCommand()
+        {
+            var command = new Command(Constants.Command.Restore, "Restores external modules for a .bicep file.");
+
+            var inputFileArgument = new Argument<string?>("input-file")
+            {
+                Description = "The path to the .bicep file.",
+                Arity = ArgumentArity.ZeroOrOne,
+            };
+            var filePatternOption = new Option<string?>("--pattern")
+            {
+                Description = "Restore all files matching the specified pattern.",
+            };
+            var forceOption = new Option<bool>("--force")
+            {
+                Description = "Force restore even if modules are already cached.",
+            };
+
+            command.Add(inputFileArgument);
+            command.Add(filePatternOption);
+            command.Add(forceOption);
+
+            command.SetAction((result, ct) => RunCommandAsync(async () =>
+            {
+                var args = new RestoreArguments(
+                    result.GetValue(inputFileArgument),
+                    result.GetValue(filePatternOption),
+                    result.GetValue(forceOption));
+
+                return await services.GetRequiredService<RestoreCommand>().RunAsync(args);
+            }));
+
+            return command;
+        }
+
+        private Command CreateLintCommand()
+        {
+            var command = new Command(Constants.Command.Lint, "Lints a .bicep file.");
+
+            var inputFileArgument = new Argument<string?>("input-file")
+            {
+                Description = "The path to the .bicep file.",
+                Arity = ArgumentArity.ZeroOrOne,
+            };
+            var filePatternOption = new Option<string?>("--pattern")
+            {
+                Description = "Lint all files matching the specified pattern.",
+            };
+            var noRestoreOption = new Option<bool>("--no-restore")
+            {
+                Description = "Do not restore modules prior to linting.",
+            };
+            var diagnosticsFormatOption = new Option<DiagnosticsFormat?>("--diagnostics-format")
+            {
+                Description = "Set the format of diagnostics (Default, SARIF).",
+            };
+
+            command.Add(inputFileArgument);
+            command.Add(filePatternOption);
+            command.Add(noRestoreOption);
+            command.Add(diagnosticsFormatOption);
+
+            command.SetAction((result, ct) => RunCommandAsync(async () =>
+            {
+                var diagnosticsFormat = result.GetValue(diagnosticsFormatOption) ?? Arguments.DiagnosticsFormat.Default;
+                var args = new LintArguments(
+                    result.GetValue(inputFileArgument),
+                    result.GetValue(filePatternOption),
+                    diagnosticsFormat,
+                    result.GetValue(noRestoreOption));
+
+                return await services.GetRequiredService<LintCommand>().RunAsync(args);
+            }));
+
+            return command;
+        }
+
         private Command CreateJsonRpcCommand()
         {
             var command = new Command(Constants.Command.JsonRpc, "Starts the Bicep JSON-RPC server.");
@@ -841,30 +1075,6 @@ namespace Bicep.Cli
             }
 
             return additionalArguments.ToImmutableDictionary();
-        }
-
-        /// <summary>
-        /// Creates a pass-through command stub that forwards all unrecognized tokens to an
-        /// existing argument class and command handler. System.CommandLine's built-in options
-        /// (e.g. <c>--help</c>) are still handled; everything else lands in
-        /// <see cref="ParseResult.UnmatchedTokens"/> and is passed to <paramref name="handler"/>
-        /// as a plain <c>string[]</c>.
-        /// <para>
-        /// Once a command is fully migrated, replace this stub with a <see cref="Command"/> that
-        /// declares its own <see cref="Option{T}"/> and <see cref="Argument{T}"/> members.
-        /// </para>
-        /// </summary>
-        private Command LegacyCommand(string name, string description, Func<string[], Task<int>> handler)
-        {
-            var command = new Command(name, description)
-            {
-                TreatUnmatchedTokensAsErrors = false,
-            };
-
-            command.SetAction((ParseResult pr, CancellationToken ct) =>
-                RunCommandAsync(() => handler(pr.UnmatchedTokens.ToArray())));
-
-            return command;
         }
 
         private static ILoggerFactory CreateLoggerFactory(IOContext io)

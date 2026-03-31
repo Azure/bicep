@@ -49,7 +49,11 @@ namespace Bicep.Cli.Commands
                 throw new CommandLineException($"The input file path was not specified.");
             }
 
-            logger.LogWarning($"WARNING: The '{args.CommandName}' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
+            logger.LogWarning($"WARNING: The '{Constants.Command.PublishExtension}' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
+            if (args.TargetExtensionReference is null)
+            {
+                throw new CommandLineException("The target extension was not specified.");
+            }
             var reference = ValidateReference(args.TargetExtensionReference);
             var overwriteIfExists = args.Force;
 
