@@ -767,6 +767,16 @@
                     }
                   ]
                 },
+                "use-recognized-resource-type": {
+                  "allOf": [
+                    {
+                      "description": "Warn if a 'reference' or 'list*' function call uses an unrecognized resource type. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#use-recognized-resource-type"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "use-secure-value-for-secure-inputs": {
                   "allOf": [
                     {
