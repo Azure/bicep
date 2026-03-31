@@ -26,6 +26,7 @@ using Microsoft.Extensions.Logging;
 using Spectre.Console;
 
 using SclRootCommand = System.CommandLine.RootCommand;
+using System.CommandLine.Parsing;
 
 public class HelpExamplesAction : SynchronousCommandLineAction
 {
@@ -97,28 +98,30 @@ namespace Bicep.Cli
             Trace.WriteLine($"Bicep version: {environment.GetVersionString()}, OS: {environment.CurrentPlatform?.ToString() ?? "unknown"}, Architecture: {environment.CurrentArchitecture}, CLI arguments: \"{string.Join(' ', args)}\"");
 
             var rootCommand = BuildCommandLine(cancellationToken);
-            return await rootCommand.Parse(args).InvokeAsync(cancellationToken: cancellationToken);
+            var invocationConfig = new InvocationConfiguration
+            {
+                Output = io.Output.Writer,
+                Error = io.Error.Writer,
+            };
+            return await rootCommand.Parse(args).InvokeAsync(invocationConfig, cancellationToken);
         }
 
         private SclRootCommand BuildCommandLine(CancellationToken cancellationToken)
         {
-            var rootCommand = new SclRootCommand("Bicep CLI")
-            {
-                TreatUnmatchedTokensAsErrors = true,
-            };
+            var rootCommand = new SclRootCommand("Bicep CLI");
 
             // System.CommandLine adds --version and --help to RootCommand by default.
             // Replace both with custom options so their output goes through io.Output.Writer
             // (not Console.Out) and --version prints the Bicep-specific version string.
-            var builtInVersion = rootCommand.Options.FirstOrDefault(o => o.Name == "--version");
+            var builtInVersion = rootCommand.Options.FirstOrDefault(o => o.Name == Constants.Option.Version);
             if (builtInVersion is not null)
             {
                 rootCommand.Options.Remove(builtInVersion);
             }
 
-            var versionOption = new Option<bool>("--version", "-v") { Description = "Show version information." };
-            var licenseOption = new Option<bool>("--license") { Description = "Print license information." };
-            var thirdPartyNoticesOption = new Option<bool>("--third-party-notices") { Description = "Print third-party notice information." };
+            var versionOption = new Option<bool>(Constants.Option.Version, Constants.Option.VersionShort) { Description = "Shows bicep version information." };
+            var licenseOption = new Option<bool>(Constants.Option.License) { Description = "Prints license information." };
+            var thirdPartyNoticesOption = new Option<bool>(Constants.Option.ThirdPartyNotices) { Description = "Prints third-party notices." };
 
             // rootCommand.Add(helpOption);
             rootCommand.Add(versionOption);
@@ -132,19 +135,19 @@ namespace Bicep.Cli
 
                 if (pr.GetValue(versionOption))
                 {
-                    Commands.CliInfoPrinter.PrintVersion(io, environment);
+                    CliInfoPrinter.PrintVersion(io, environment);
                     return 0;
                 }
 
                 if (pr.GetValue(licenseOption))
                 {
-                    Commands.CliInfoPrinter.PrintLicense(io);
+                    CliInfoPrinter.PrintLicense(io);
                     return 0;
                 }
 
                 if (pr.GetValue(thirdPartyNoticesOption))
                 {
-                    Commands.CliInfoPrinter.PrintThirdPartyNotices(io);
+                    CliInfoPrinter.PrintThirdPartyNotices(io);
                     return 0;
                 }
 
@@ -199,34 +202,34 @@ namespace Bicep.Cli
                 TreatUnmatchedTokensAsErrors = true,
             };
 
-            var inputFileArgument = new Argument<string?>("input-file")
+            var inputFileArgument = new Argument<string?>(Constants.Argument.InputFile)
             {
                 Description = "The path to the input .bicep file.",
                 Arity = ArgumentArity.ZeroOrOne,
             };
-            var stdoutOption = new Option<bool>("--stdout")
+            var stdoutOption = new Option<bool>(Constants.Option.Stdout)
             {
-                Description = "Print output to stdout.",
+                Description = "Prints the output to stdout.",
             };
-            var noRestoreOption = new Option<bool>("--no-restore")
+            var noRestoreOption = new Option<bool>(Constants.Option.NoRestore)
             {
-                Description = "Do not restore modules prior to building.",
+                Description = "Builds the bicep file without restoring external modules.",
             };
-            var outDirOption = new Option<string?>("--outdir")
+            var outDirOption = new Option<string?>(Constants.Option.OutDir)
             {
-                Description = "Save output to the specified directory.",
+                Description = "Saves the output at the specified directory.",
             };
-            var outFileOption = new Option<string?>("--outfile")
+            var outFileOption = new Option<string?>(Constants.Option.OutFile)
             {
-                Description = "Save output to the specified file path.",
+                Description = "Saves the output as the specified file path.",
             };
-            var filePatternOption = new Option<string?>("--pattern")
+            var filePatternOption = new Option<string?>(Constants.Option.Pattern)
             {
-                Description = "Build all files matching the specified pattern.",
+                Description = "Builds all files matching the specified glob pattern.",
             };
-            var diagnosticsFormatOption = new Option<DiagnosticsFormat?>("--diagnostics-format")
+            var diagnosticsFormatOption = new Option<DiagnosticsFormat?>(Constants.Option.DiagnosticsFormat)
             {
-                Description = "Set the format of diagnostics (Default, SARIF).",
+                Description = "Sets the diagnostics format. Valid values are (Default, SARIF).",
             };
 
             command.Add(inputFileArgument);
@@ -236,16 +239,24 @@ namespace Bicep.Cli
             command.Add(outFileOption);
             command.Add(filePatternOption);
             command.Add(diagnosticsFormatOption);
+            command.Validators.Add(result => ValidatePositionalArgument(result, inputFileArgument));
 
             command.SetAction((result, ct) => RunCommandAsync(async () =>
             {
+                var outputToStdOut = result.GetValue(stdoutOption);
+                var outputDir = result.GetValue(outDirOption);
+                var outputFile = result.GetValue(outFileOption);
+                var filePattern = result.GetValue(filePatternOption);
+
+                ArgumentHelper.ValidateOutputOptions(outputToStdOut, outputDir, outputFile, filePattern);
+
                 var args = new BuildArguments(
                     result.GetValue(inputFileArgument),
-                    result.GetValue(stdoutOption),
+                    outputToStdOut,
                     result.GetValue(noRestoreOption),
-                    result.GetValue(outDirOption),
-                    result.GetValue(outFileOption),
-                    result.GetValue(filePatternOption),
+                    outputDir,
+                    outputFile,
+                    filePattern,
                     result.GetValue(diagnosticsFormatOption));
 
                 return await services.GetRequiredService<BuildCommand>().RunAsync(args);
@@ -261,15 +272,16 @@ namespace Bicep.Cli
                 TreatUnmatchedTokensAsErrors = true,
             };
 
-            var inputFileArgument = new Argument<string>("input-file")
+            var inputFileArgument = new Argument<string?>(Constants.Argument.InputFile)
             {
                 Description = "The path to the input .bicep file.",
+                Arity = ArgumentArity.ZeroOrOne,
             };
-            var noRestoreOption = new Option<bool>("--no-restore")
+            var noRestoreOption = new Option<bool>(Constants.Option.NoRestore)
             {
                 Description = "Do not restore modules prior to running tests.",
             };
-            var diagnosticsFormatOption = new Option<DiagnosticsFormat?>("--diagnostics-format")
+            var diagnosticsFormatOption = new Option<DiagnosticsFormat?>(Constants.Option.DiagnosticsFormat)
             {
                 Description = "Set the format of diagnostics (Default, SARIF).",
             };
@@ -277,11 +289,14 @@ namespace Bicep.Cli
             command.Add(inputFileArgument);
             command.Add(noRestoreOption);
             command.Add(diagnosticsFormatOption);
+            command.Validators.Add(result => ValidatePositionalArgument(result, inputFileArgument));
 
             command.SetAction((result, ct) => RunCommandAsync(async () =>
             {
+                var inputFile = result.GetValue(inputFileArgument)
+                    ?? throw new CommandLineException("The input file path was not specified");
                 var args = new TestArguments(
-                    result.GetRequiredValue(inputFileArgument),
+                    inputFile,
                     result.GetValue(noRestoreOption),
                     result.GetValue(diagnosticsFormatOption));
 
@@ -293,43 +308,43 @@ namespace Bicep.Cli
 
         private Command CreateBuildParamsCommand()
         {
-            var command = new Command(Constants.Command.BuildParams, "Builds a .bicepparam file.")
+            var command = new Command(Constants.Command.BuildParams, "Builds a .json file from a .bicepparam file.")
             {
                 TreatUnmatchedTokensAsErrors = true,
             };
 
-            var inputFileArgument = new Argument<string?>("input-file")
+            var inputFileArgument = new Argument<string?>(Constants.Argument.InputFile)
             {
                 Description = "The path to the input .bicepparam file.",
                 Arity = ArgumentArity.ZeroOrOne,
             };
-            var stdoutOption = new Option<bool>("--stdout")
+            var stdoutOption = new Option<bool>(Constants.Option.Stdout)
             {
-                Description = "Print output to stdout.",
+                Description = "Prints the output of building both the parameter file (.bicepparam) and the template it points to (.bicep) as json to stdout.",
             };
-            var noRestoreOption = new Option<bool>("--no-restore")
+            var noRestoreOption = new Option<bool>(Constants.Option.NoRestore)
             {
-                Description = "Do not restore modules prior to building.",
+                Description = "Builds the bicep file (referenced in using declaration) without restoring external modules.",
             };
-            var outDirOption = new Option<string?>("--outdir")
+            var outDirOption = new Option<string?>(Constants.Option.OutDir)
             {
-                Description = "Save output to the specified directory.",
+                Description = "Saves the output of building the parameter file only (.bicepparam) as json to the specified directory.",
             };
-            var outFileOption = new Option<string?>("--outfile")
+            var outFileOption = new Option<string?>(Constants.Option.OutFile)
             {
-                Description = "Save output to the specified file path.",
+                Description = "Saves the output of building the parameter file only (.bicepparam) as json to the specified file path.",
             };
-            var filePatternOption = new Option<string?>("--pattern")
+            var filePatternOption = new Option<string?>(Constants.Option.Pattern)
             {
-                Description = "Build all files matching the specified pattern.",
+                Description = "Builds all files matching the specified glob pattern.",
             };
-            var bicepFileOption = new Option<string?>("--bicep-file")
+            var bicepFileOption = new Option<string?>(Constants.Option.BicepFile)
             {
-                Description = "Path to the .bicep template file that will be used to validate the .bicepparam file.",
+                Description = "Verifies if the specified bicep file path matches the one provided in the params file using declaration.",
             };
-            var diagnosticsFormatOption = new Option<DiagnosticsFormat?>("--diagnostics-format")
+            var diagnosticsFormatOption = new Option<DiagnosticsFormat?>(Constants.Option.DiagnosticsFormat)
             {
-                Description = "Set the format of diagnostics (Default, SARIF).",
+                Description = "Sets the diagnostics format. Valid values are (Default, SARIF).",
             };
 
             command.Add(inputFileArgument);
@@ -340,17 +355,30 @@ namespace Bicep.Cli
             command.Add(filePatternOption);
             command.Add(bicepFileOption);
             command.Add(diagnosticsFormatOption);
+            command.Validators.Add(result => ValidatePositionalArgument(result, inputFileArgument));
 
             command.SetAction((result, ct) => RunCommandAsync(async () =>
             {
+                var outputToStdOut = result.GetValue(stdoutOption);
+                var outputDir = result.GetValue(outDirOption);
+                var outputFile = result.GetValue(outFileOption);
+                var filePattern = result.GetValue(filePatternOption);
+                var bicepFile = result.GetValue(bicepFileOption);
+
+                if (filePattern is not null && bicepFile is not null)
+                {
+                    throw new CommandLineException("The --bicep-file parameter cannot be used with the --pattern parameter");
+                }
+                ArgumentHelper.ValidateOutputOptions(outputToStdOut, outputDir, outputFile, filePattern);
+
                 var args = new BuildParamsArguments(
                     result.GetValue(inputFileArgument),
-                    result.GetValue(stdoutOption),
+                    outputToStdOut,
                     result.GetValue(noRestoreOption),
-                    result.GetValue(outDirOption),
-                    result.GetValue(outFileOption),
-                    result.GetValue(filePatternOption),
-                    result.GetValue(bicepFileOption),
+                    outputDir,
+                    outputFile,
+                    filePattern,
+                    bicepFile,
                     result.GetValue(diagnosticsFormatOption));
 
                 return await services.GetRequiredService<BuildParamsCommand>().RunAsync(args);
@@ -361,38 +389,39 @@ namespace Bicep.Cli
 
         private Command CreateGenerateParamsFileCommand()
         {
-            var command = new Command(Constants.Command.GenerateParamsFile, "Generates a parameters file for a .bicep file.")
+            var command = new Command(Constants.Command.GenerateParamsFile, "Builds parameters file from the given bicep file, updates if there is an existing parameters file.")
             {
                 TreatUnmatchedTokensAsErrors = true,
             };
 
-            var inputFileArgument = new Argument<string>("input-file")
+            var inputFileArgument = new Argument<string?>(Constants.Argument.InputFile)
             {
                 Description = "The path to the input .bicep file.",
+                Arity = ArgumentArity.ZeroOrOne,
             };
-            var stdoutOption = new Option<bool>("--stdout")
+            var stdoutOption = new Option<bool>(Constants.Option.Stdout)
             {
-                Description = "Print output to stdout.",
+                Description = "Prints the output to stdout.",
             };
-            var noRestoreOption = new Option<bool>("--no-restore")
+            var noRestoreOption = new Option<bool>(Constants.Option.NoRestore)
             {
-                Description = "Do not restore modules prior to generating.",
+                Description = "Generates the parameters file without restoring external modules.",
             };
-            var outDirOption = new Option<string?>("--outdir")
+            var outDirOption = new Option<string?>(Constants.Option.OutDir)
             {
-                Description = "Save output to the specified directory.",
+                Description = "Saves the output at the specified directory.",
             };
-            var outFileOption = new Option<string?>("--outfile")
+            var outFileOption = new Option<string?>(Constants.Option.OutFile)
             {
-                Description = "Save output to the specified file path.",
+                Description = "Saves the output as the specified file path.",
             };
-            var outputFormatOption = new Option<OutputFormatOption>("--output-format")
+            var outputFormatOption = new Option<OutputFormatOption>(Constants.Option.OutputFormat)
             {
-                Description = "Output format (Json, BicepParam).",
+                Description = "Selects the output format (json, bicepparam).",
             };
-            var includeParamsOption = new Option<IncludeParamsOption>("--include-params")
+            var includeParamsOption = new Option<IncludeParamsOption>(Constants.Option.IncludeParams)
             {
-                Description = "Which parameters to include (RequiredOnly, All).",
+                Description = "Selects which parameters to include into output (requiredonly, all).",
             };
 
             command.Add(inputFileArgument);
@@ -402,15 +431,24 @@ namespace Bicep.Cli
             command.Add(outFileOption);
             command.Add(outputFormatOption);
             command.Add(includeParamsOption);
+            command.Validators.Add(result => ValidatePositionalArgument(result, inputFileArgument));
 
             command.SetAction((result, ct) => RunCommandAsync(async () =>
             {
+                var outputToStdOut = result.GetValue(stdoutOption);
+                var outputDir = result.GetValue(outDirOption);
+                var outputFile = result.GetValue(outFileOption);
+
+                ArgumentHelper.ValidateOutputOptions(outputToStdOut, outputDir, outputFile);
+
+                var inputFile = result.GetValue(inputFileArgument)
+                    ?? throw new CommandLineException("The input file path was not specified");
                 var args = new GenerateParametersFileArguments(
-                    result.GetRequiredValue(inputFileArgument),
-                    result.GetValue(stdoutOption),
+                    inputFile,
+                    outputToStdOut,
                     result.GetValue(noRestoreOption),
-                    result.GetValue(outDirOption),
-                    result.GetValue(outFileOption),
+                    outputDir,
+                    outputFile,
                     result.GetValue(outputFormatOption),
                     result.GetValue(includeParamsOption));
 
@@ -427,25 +465,26 @@ namespace Bicep.Cli
                 TreatUnmatchedTokensAsErrors = true,
             };
 
-            var inputFileArgument = new Argument<string>("input-file")
+            var inputFileArgument = new Argument<string?>(Constants.Argument.InputFile)
             {
                 Description = "The path to the ARM template .json file.",
+                Arity = ArgumentArity.ZeroOrOne,
             };
-            var stdoutOption = new Option<bool>("--stdout")
+            var stdoutOption = new Option<bool>(Constants.Option.Stdout)
             {
-                Description = "Print output to stdout.",
+                Description = "Prints the output to stdout.",
             };
-            var forceOption = new Option<bool>("--force")
+            var forceOption = new Option<bool>(Constants.Option.Force)
             {
-                Description = "Allow overwriting existing files.",
+                Description = "Allows overwriting the output file if it exists (applies only to 'bicep decompile' or 'bicep decompile-params').",
             };
-            var outDirOption = new Option<string?>("--outdir")
+            var outDirOption = new Option<string?>(Constants.Option.OutDir)
             {
-                Description = "Save output to the specified directory.",
+                Description = "Saves the output at the specified directory.",
             };
-            var outFileOption = new Option<string?>("--outfile")
+            var outFileOption = new Option<string?>(Constants.Option.OutFile)
             {
-                Description = "Save output to the specified file path.",
+                Description = "Saves the output as the specified file path.",
             };
 
             command.Add(inputFileArgument);
@@ -453,15 +492,24 @@ namespace Bicep.Cli
             command.Add(forceOption);
             command.Add(outDirOption);
             command.Add(outFileOption);
+            command.Validators.Add(result => ValidatePositionalArgument(result, inputFileArgument));
 
             command.SetAction((result, ct) => RunCommandAsync(async () =>
             {
+                var outputToStdOut = result.GetValue(stdoutOption);
+                var outputDir = result.GetValue(outDirOption);
+                var outputFile = result.GetValue(outFileOption);
+
+                ArgumentHelper.ValidateOutputOptions(outputToStdOut, outputDir, outputFile);
+
+                var inputFile = result.GetValue(inputFileArgument)
+                    ?? throw new CommandLineException("The input file path was not specified");
                 var args = new DecompileArguments(
-                    result.GetRequiredValue(inputFileArgument),
-                    result.GetValue(stdoutOption),
+                    inputFile,
+                    outputToStdOut,
                     result.GetValue(forceOption),
-                    result.GetValue(outDirOption),
-                    result.GetValue(outFileOption));
+                    outputDir,
+                    outputFile);
 
                 return await services.GetRequiredService<DecompileCommand>().RunAsync(args);
             }));
@@ -476,29 +524,29 @@ namespace Bicep.Cli
                 TreatUnmatchedTokensAsErrors = true,
             };
 
-            var inputFileArgument = new Argument<string>("input-file")
+            var inputFileArgument = new Argument<string>(Constants.Argument.InputFile)
             {
                 Description = "The path to the parameters .json file.",
             };
-            var stdoutOption = new Option<bool>("--stdout")
+            var stdoutOption = new Option<bool>(Constants.Option.Stdout)
             {
-                Description = "Print output to stdout.",
+                Description = "Prints the output to stdout.",
             };
-            var forceOption = new Option<bool>("--force")
+            var forceOption = new Option<bool>(Constants.Option.Force)
             {
-                Description = "Allow overwriting existing files.",
+                Description = "Allows overwriting the output file if it exists (applies only to 'bicep decompile' or 'bicep decompile-params').",
             };
-            var outDirOption = new Option<string?>("--outdir")
+            var outDirOption = new Option<string?>(Constants.Option.OutDir)
             {
-                Description = "Save output to the specified directory.",
+                Description = "Saves the output at the specified directory.",
             };
-            var outFileOption = new Option<string?>("--outfile")
+            var outFileOption = new Option<string?>(Constants.Option.OutFile)
             {
-                Description = "Save output to the specified file path.",
+                Description = "Saves the output as the specified file path.",
             };
-            var bicepFileOption = new Option<string?>("--bicep-file")
+            var bicepFileOption = new Option<string?>(Constants.Option.BicepFile)
             {
-                Description = "Path to the .bicep template file associated with the parameters file.",
+                Description = "Path to the bicep template file that will be referenced in the using declaration.",
             };
 
             command.Add(inputFileArgument);
@@ -507,15 +555,22 @@ namespace Bicep.Cli
             command.Add(outDirOption);
             command.Add(outFileOption);
             command.Add(bicepFileOption);
+            command.Validators.Add(result => ValidateRequiredPositionalArgument(result, inputFileArgument));
 
             command.SetAction((result, ct) => RunCommandAsync(async () =>
             {
+                var outputToStdOut = result.GetValue(stdoutOption);
+                var outputDir = result.GetValue(outDirOption);
+                var outputFile = result.GetValue(outFileOption);
+
+                ArgumentHelper.ValidateOutputOptions(outputToStdOut, outputDir, outputFile);
+
                 var args = new DecompileParamsArguments(
                     result.GetRequiredValue(inputFileArgument),
-                    result.GetValue(stdoutOption),
+                    outputToStdOut,
                     result.GetValue(forceOption),
-                    result.GetValue(outDirOption),
-                    result.GetValue(outFileOption),
+                    outputDir,
+                    outputFile,
                     result.GetValue(bicepFileOption));
 
                 return await Task.FromResult(services.GetRequiredService<DecompileParamsCommand>().Run(args));
@@ -528,40 +583,40 @@ namespace Bicep.Cli
         {
             var command = new Command(Constants.Command.Format, "Formats a .bicep file.");
 
-            var inputFileArgument = new Argument<string?>("input-file")
+            var inputFileArgument = new Argument<string?>(Constants.Argument.InputFile)
             {
                 Description = "The path to the input .bicep file.",
                 Arity = ArgumentArity.ZeroOrOne,
             };
-            var stdoutOption = new Option<bool>("--stdout")
+            var stdoutOption = new Option<bool>(Constants.Option.Stdout)
             {
-                Description = "Print output to stdout.",
+                Description = "Prints the output to stdout.",
             };
-            var outDirOption = new Option<string?>("--outdir")
+            var outDirOption = new Option<string?>(Constants.Option.OutDir)
             {
-                Description = "Save output to the specified directory.",
+                Description = "Saves the output at the specified directory.",
             };
-            var outFileOption = new Option<string?>("--outfile")
+            var outFileOption = new Option<string?>(Constants.Option.OutFile)
             {
-                Description = "Save output to the specified file path.",
+                Description = "Saves the output as the specified file path.",
             };
-            var filePatternOption = new Option<string?>("--pattern")
+            var filePatternOption = new Option<string?>(Constants.Option.Pattern)
             {
-                Description = "Format all files matching the specified pattern.",
+                Description = "Formats all files matching the specified glob pattern.",
             };
-            var newlineKindOption = new Option<NewlineKind?>("--newline-kind")
+            var newlineKindOption = new Option<NewlineKind?>(Constants.Option.NewlineKind)
             {
-                Description = "Set the newline kind (Auto, LF, CRLF, CR).",
+                Description = "Set newline char. Valid values are (Auto, LF, CRLF, CR).",
             };
-            var indentKindOption = new Option<IndentKind?>("--indent-kind")
+            var indentKindOption = new Option<IndentKind?>(Constants.Option.IndentKind)
             {
-                Description = "Set the indent kind (Space, Tab).",
+                Description = "Set indentation kind. Valid values are (Space, Tab).",
             };
-            var indentSizeOption = new Option<int?>("--indent-size")
+            var indentSizeOption = new Option<int?>(Constants.Option.IndentSize)
             {
-                Description = "Set the indent size (number of spaces).",
+                Description = "Number of spaces to indent with (only valid with --indent-kind set to Space).",
             };
-            var insertFinalNewlineOption = new Option<bool?>("--insert-final-newline")
+            var insertFinalNewlineOption = new Option<bool?>(Constants.Option.InsertFinalNewline)
             {
                 Description = "Insert a final newline.",
             };
@@ -575,6 +630,7 @@ namespace Bicep.Cli
             command.Add(indentKindOption);
             command.Add(indentSizeOption);
             command.Add(insertFinalNewlineOption);
+            command.Validators.Add(result => ValidatePositionalArgument(result, inputFileArgument));
 
             command.SetAction((result, ct) => RunCommandAsync(() =>
             {
@@ -597,31 +653,33 @@ namespace Bicep.Cli
 
         private Command CreatePublishCommand()
         {
-            var command = new Command(Constants.Command.Publish, "Publishes a .bicep file to a registry.");
+            var command = new Command(Constants.Command.Publish, "Publishes the .bicep file to the module registry.");
 
-            var inputFileArgument = new Argument<string>("input-file")
+            var inputFileArgument = new Argument<string?>(Constants.Argument.InputFile)
             {
                 Description = "The path to the .bicep file to publish.",
+                Arity = ArgumentArity.ZeroOrOne,
             };
-            var targetOption = new Option<string>("--target")
+            var targetOption = new Option<string>(Constants.Option.Target)
             {
                 Description = "The target module reference.",
             };
-            var documentationUriOption = new Option<string?>("--documentation-uri")
+            var documentationUriOption = new Option<string[]>(Constants.Option.DocumentationUri)
             {
-                Description = "The documentation URI.",
+                Description = "Module documentation URI.",
+                Arity = ArgumentArity.ZeroOrMore,
             };
-            var noRestoreOption = new Option<bool>("--no-restore")
+            var noRestoreOption = new Option<bool>(Constants.Option.NoRestore)
             {
                 Description = "Do not restore modules prior to publishing.",
             };
-            var forceOption = new Option<bool>("--force")
+            var forceOption = new Option<bool>(Constants.Option.Force)
             {
-                Description = "Force publish even if the module already exists.",
+                Description = "Overwrite existing published module or file.",
             };
-            var withSourceOption = new Option<bool>("--with-source")
+            var withSourceOption = new Option<bool>(Constants.Option.WithSource)
             {
-                Description = "Publish with source code.",
+                Description = "[Experimental] Publish source code with the module.",
             };
 
             command.Add(inputFileArgument);
@@ -630,15 +688,35 @@ namespace Bicep.Cli
             command.Add(noRestoreOption);
             command.Add(forceOption);
             command.Add(withSourceOption);
+            command.Validators.Add(result => ValidatePositionalArgument(result, inputFileArgument));
 
             command.SetAction((result, ct) => RunCommandAsync(async () =>
             {
+                var inputFile = result.GetValue(inputFileArgument)
+                    ?? throw new CommandLineException("The input file path was not specified");
                 var target = result.GetValue(targetOption)
                     ?? throw new CommandLineException("The target module was not specified.");
+                var docUriResult = result.GetResult(documentationUriOption);
+                if (docUriResult is not null)
+                {
+                    if (docUriResult.Tokens.Count == 0)
+                    {
+                        throw new CommandLineException("The --documentation-uri parameter expects an argument.");
+                    }
+                    if (docUriResult.Tokens.Count > 1)
+                    {
+                        throw new CommandLineException("The --documentation-uri parameter cannot be specified more than once.");
+                    }
+                }
+                var documentationUri = docUriResult?.Tokens.Count == 1 ? docUriResult.Tokens[0].Value : null;
+                if (documentationUri is not null && !Uri.IsWellFormedUriString(documentationUri, UriKind.Absolute))
+                {
+                    throw new CommandLineException("The --documentation-uri should be a well formed uri string.");
+                }
                 var args = new PublishArguments(
-                    result.GetRequiredValue(inputFileArgument),
+                    inputFile,
                     target,
-                    result.GetValue(documentationUriOption),
+                    documentationUri,
                     result.GetValue(noRestoreOption),
                     result.GetValue(forceOption),
                     result.GetValue(withSourceOption));
@@ -651,28 +729,28 @@ namespace Bicep.Cli
 
         private Command CreatePublishExtensionCommand()
         {
-            var command = new Command(Constants.Command.PublishExtension, "Publishes a Bicep extension to a registry.");
+            var command = new Command(Constants.Command.PublishExtension, "[Experimental] Publishes a Bicep extension to a registry.");
 
-            var indexFileArgument = new Argument<string?>("index-file")
+            var indexFileArgument = new Argument<string?>(Constants.Argument.IndexFile)
             {
                 Description = "The path to the index file.",
                 Arity = ArgumentArity.ZeroOrOne,
             };
-            var targetOption = new Option<string?>("--target")
+            var targetOption = new Option<string?>(Constants.Option.Target)
             {
                 Description = "The target extension reference.",
             };
-            var forceOption = new Option<bool>("--force")
+            var forceOption = new Option<bool>(Constants.Option.Force)
             {
                 Description = "Force publish even if the extension already exists.",
             };
             // Per-architecture binary options.
-            var binLinuxX64Option = new Option<string?>("--bin-linux-x64") { Description = "Path to the linux-x64 binary." };
-            var binLinuxArm64Option = new Option<string?>("--bin-linux-arm64") { Description = "Path to the linux-arm64 binary." };
-            var binOsxX64Option = new Option<string?>("--bin-osx-x64") { Description = "Path to the osx-x64 binary." };
-            var binOsxArm64Option = new Option<string?>("--bin-osx-arm64") { Description = "Path to the osx-arm64 binary." };
-            var binWinX64Option = new Option<string?>("--bin-win-x64") { Description = "Path to the win-x64 binary." };
-            var binWinArm64Option = new Option<string?>("--bin-win-arm64") { Description = "Path to the win-arm64 binary." };
+            var binLinuxX64Option = new Option<string?>(Constants.Option.BinLinuxX64) { Description = "Path to the linux-x64 binary." };
+            var binLinuxArm64Option = new Option<string?>(Constants.Option.BinLinuxArm64) { Description = "Path to the linux-arm64 binary." };
+            var binOsxX64Option = new Option<string?>(Constants.Option.BinOsxX64) { Description = "Path to the osx-x64 binary." };
+            var binOsxArm64Option = new Option<string?>(Constants.Option.BinOsxArm64) { Description = "Path to the osx-arm64 binary." };
+            var binWinX64Option = new Option<string?>(Constants.Option.BinWinX64) { Description = "Path to the win-x64 binary." };
+            var binWinArm64Option = new Option<string?>(Constants.Option.BinWinArm64) { Description = "Path to the win-arm64 binary." };
 
             command.Add(indexFileArgument);
             command.Add(targetOption);
@@ -683,6 +761,7 @@ namespace Bicep.Cli
             command.Add(binOsxArm64Option);
             command.Add(binWinX64Option);
             command.Add(binWinArm64Option);
+            command.Validators.Add(result => ValidatePositionalArgument(result, indexFileArgument));
 
             command.SetAction((result, ct) => RunCommandAsync(async () =>
             {
@@ -708,18 +787,18 @@ namespace Bicep.Cli
 
         private Command CreateRestoreCommand()
         {
-            var command = new Command(Constants.Command.Restore, "Restores external modules for a .bicep file.");
+            var command = new Command(Constants.Command.Restore, "Restores external modules from the specified Bicep file to the local module cache.");
 
-            var inputFileArgument = new Argument<string?>("input-file")
+            var inputFileArgument = new Argument<string?>(Constants.Argument.InputFile)
             {
                 Description = "The path to the .bicep file.",
                 Arity = ArgumentArity.ZeroOrOne,
             };
-            var filePatternOption = new Option<string?>("--pattern")
+            var filePatternOption = new Option<string?>(Constants.Option.Pattern)
             {
-                Description = "Restore all files matching the specified pattern.",
+                Description = "Restores all files matching the specified glob pattern.",
             };
-            var forceOption = new Option<bool>("--force")
+            var forceOption = new Option<bool>(Constants.Option.Force)
             {
                 Description = "Force restore even if modules are already cached.",
             };
@@ -727,6 +806,7 @@ namespace Bicep.Cli
             command.Add(inputFileArgument);
             command.Add(filePatternOption);
             command.Add(forceOption);
+            command.Validators.Add(result => ValidatePositionalArgument(result, inputFileArgument));
 
             command.SetAction((result, ct) => RunCommandAsync(async () =>
             {
@@ -745,28 +825,29 @@ namespace Bicep.Cli
         {
             var command = new Command(Constants.Command.Lint, "Lints a .bicep file.");
 
-            var inputFileArgument = new Argument<string?>("input-file")
+            var inputFileArgument = new Argument<string?>(Constants.Argument.InputFile)
             {
                 Description = "The path to the .bicep file.",
                 Arity = ArgumentArity.ZeroOrOne,
             };
-            var filePatternOption = new Option<string?>("--pattern")
+            var filePatternOption = new Option<string?>(Constants.Option.Pattern)
             {
-                Description = "Lint all files matching the specified pattern.",
+                Description = "Lints all files matching the specified glob pattern.",
             };
-            var noRestoreOption = new Option<bool>("--no-restore")
+            var noRestoreOption = new Option<bool>(Constants.Option.NoRestore)
             {
-                Description = "Do not restore modules prior to linting.",
+                Description = "Skips restoring external modules.",
             };
-            var diagnosticsFormatOption = new Option<DiagnosticsFormat?>("--diagnostics-format")
+            var diagnosticsFormatOption = new Option<DiagnosticsFormat?>(Constants.Option.DiagnosticsFormat)
             {
-                Description = "Set the format of diagnostics (Default, SARIF).",
+                Description = "Sets the diagnostics format. Valid values are (Default, SARIF).",
             };
 
             command.Add(inputFileArgument);
             command.Add(filePatternOption);
             command.Add(noRestoreOption);
             command.Add(diagnosticsFormatOption);
+            command.Validators.Add(result => ValidatePositionalArgument(result, inputFileArgument));
 
             command.SetAction((result, ct) => RunCommandAsync(async () =>
             {
@@ -785,19 +866,19 @@ namespace Bicep.Cli
 
         private Command CreateJsonRpcCommand()
         {
-            var command = new Command(Constants.Command.JsonRpc, "Starts the Bicep JSON-RPC server.");
+            var command = new Command(Constants.Command.JsonRpc, "Starts the Bicep CLI listening for JSONRPC messages, for programatically interacting with Bicep.");
 
-            var pipeOption = new Option<string?>("--pipe")
+            var pipeOption = new Option<string?>(Constants.Option.Pipe)
             {
-                Description = "Connect via a named pipe with the given name.",
+                Description = "Bicep CLI will connect to the supplied named pipe as a client, and start listening for JSONRPC requests.",
             };
-            var socketOption = new Option<int?>("--socket")
+            var socketOption = new Option<int?>(Constants.Option.Socket)
             {
-                Description = "Connect via a TCP socket on the specified port.",
+                Description = "Bicep CLI will connect to the supplied TCP port on the loopback interface as a client, and start listening for JSONRPC requests.",
             };
-            var stdioOption = new Option<bool>("--stdio")
+            var stdioOption = new Option<bool>(Constants.Option.Stdio)
             {
-                Description = "Use standard input/output for communication (default when no transport is specified).",
+                Description = "Bicep CLI will use stdin/stdout for JSONRPC requests.",
             };
 
             command.Add(pipeOption);
@@ -831,33 +912,34 @@ namespace Bicep.Cli
 
         private Command CreateDeployCommand()
         {
-            var command = new Command(Constants.Command.Deploy, "Deploys infrastructure using a .bicepparam file.")
+            var command = new Command(Constants.Command.Deploy, "[Experimental] Deploys infrastructure using a .bicepparam file.")
             {
                 TreatUnmatchedTokensAsErrors = false,
             };
 
-            var parametersFileArgument = new Argument<string>("parameters-file")
+            var inputFileArgument = new Argument<string>(Constants.Argument.ParametersFile)
             {
                 Description = "The path to the .bicepparam file.",
             };
-            var noRestoreOption = new Option<bool>("--no-restore")
+            var noRestoreOption = new Option<bool>(Constants.Option.NoRestore)
             {
                 Description = "Do not restore modules prior to deploying.",
             };
-            var formatOption = new Option<DeploymentOutputFormat?>("--format")
+            var formatOption = new Option<DeploymentOutputFormat?>(Constants.Option.Format)
             {
                 Description = "Output format for deployment results (Default, Json).",
             };
 
-            command.Add(parametersFileArgument);
+            command.Add(inputFileArgument);
             command.Add(noRestoreOption);
             command.Add(formatOption);
+            command.Validators.Add(result => ValidateRequiredPositionalArgument(result, inputFileArgument));
 
             command.SetAction((result, ct) => RunCommandAsync(async () =>
             {
                 var additionalArguments = ParseAdditionalArguments(result.UnmatchedTokens);
                 var args = new DeployArguments(
-                    result.GetRequiredValue(parametersFileArgument),
+                    result.GetRequiredValue(inputFileArgument),
                     result.GetValue(noRestoreOption),
                     additionalArguments,
                     result.GetValue(formatOption));
@@ -870,28 +952,29 @@ namespace Bicep.Cli
 
         private Command CreateWhatIfCommand()
         {
-            var command = new Command(Constants.Command.WhatIf, "Previews the changes a deployment would make.")
+            var command = new Command(Constants.Command.WhatIf, "[Experimental] Previews the changes a deployment would make.")
             {
                 TreatUnmatchedTokensAsErrors = false,
             };
 
-            var parametersFileArgument = new Argument<string>("parameters-file")
+            var inputFileArgument = new Argument<string>(Constants.Argument.ParametersFile)
             {
                 Description = "The path to the .bicepparam file.",
             };
-            var noRestoreOption = new Option<bool>("--no-restore")
+            var noRestoreOption = new Option<bool>(Constants.Option.NoRestore)
             {
                 Description = "Do not restore modules prior to running what-if.",
             };
 
-            command.Add(parametersFileArgument);
+            command.Add(inputFileArgument);
             command.Add(noRestoreOption);
+            command.Validators.Add(result => ValidateRequiredPositionalArgument(result, inputFileArgument));
 
             command.SetAction((result, ct) => RunCommandAsync(async () =>
             {
                 var additionalArguments = ParseAdditionalArguments(result.UnmatchedTokens);
                 var args = new WhatIfArguments(
-                    result.GetRequiredValue(parametersFileArgument),
+                    result.GetRequiredValue(inputFileArgument),
                     result.GetValue(noRestoreOption),
                     additionalArguments);
 
@@ -903,28 +986,29 @@ namespace Bicep.Cli
 
         private Command CreateTeardownCommand()
         {
-            var command = new Command(Constants.Command.Teardown, "Tears down resources deployed by a .bicepparam file.")
+            var command = new Command(Constants.Command.Teardown, "[Experimental] Tears down resources deployed by a .bicepparam file.")
             {
                 TreatUnmatchedTokensAsErrors = false,
             };
 
-            var parametersFileArgument = new Argument<string>("parameters-file")
+            var inputFileArgument = new Argument<string>(Constants.Argument.ParametersFile)
             {
                 Description = "The path to the .bicepparam file.",
             };
-            var noRestoreOption = new Option<bool>("--no-restore")
+            var noRestoreOption = new Option<bool>(Constants.Option.NoRestore)
             {
                 Description = "Do not restore modules prior to tearing down.",
             };
 
-            command.Add(parametersFileArgument);
+            command.Add(inputFileArgument);
             command.Add(noRestoreOption);
+            command.Validators.Add(result => ValidateRequiredPositionalArgument(result, inputFileArgument));
 
             command.SetAction((result, ct) => RunCommandAsync(async () =>
             {
                 var additionalArguments = ParseAdditionalArguments(result.UnmatchedTokens);
                 var args = new TeardownArguments(
-                    result.GetRequiredValue(parametersFileArgument),
+                    result.GetRequiredValue(inputFileArgument),
                     result.GetValue(noRestoreOption),
                     additionalArguments);
 
@@ -936,29 +1020,30 @@ namespace Bicep.Cli
 
         private Command CreateLocalDeployCommand()
         {
-            var command = new Command(Constants.Command.LocalDeploy, "Performs a local deployment.");
+            var command = new Command(Constants.Command.LocalDeploy, "[Experimental] Performs a local deployment.");
 
-            var paramsFileArgument = new Argument<string>("parameters-file")
+            var inputFileArgument = new Argument<string>(Constants.Argument.ParametersFile)
             {
                 Description = "The path to the .bicepparam file.",
             };
-            var noRestoreOption = new Option<bool>("--no-restore")
+            var noRestoreOption = new Option<bool>(Constants.Option.NoRestore)
             {
                 Description = "Do not restore modules prior to deploying.",
             };
-            var formatOption = new Option<DeploymentOutputFormat?>("--format")
+            var formatOption = new Option<DeploymentOutputFormat?>(Constants.Option.Format)
             {
                 Description = "Output format for deployment results (Default, Json).",
             };
 
-            command.Add(paramsFileArgument);
+            command.Add(inputFileArgument);
             command.Add(noRestoreOption);
             command.Add(formatOption);
+            command.Validators.Add(result => ValidateRequiredPositionalArgument(result, inputFileArgument));
 
             command.SetAction((result, ct) => RunCommandAsync(async () =>
             {
                 var args = new LocalDeployArguments(
-                    result.GetRequiredValue(paramsFileArgument),
+                    result.GetRequiredValue(inputFileArgument),
                     result.GetValue(noRestoreOption),
                     result.GetValue(formatOption));
 
@@ -970,35 +1055,35 @@ namespace Bicep.Cli
 
         private Command CreateSnapshotCommand()
         {
-            var command = new Command(Constants.Command.Snapshot, "Creates an extension snapshot.");
+            var command = new Command(Constants.Command.Snapshot, "Generates or validates a deployment snapshot from a .bicepparam file.");
 
-            var inputFileArgument = new Argument<string>("input-file")
+            var inputFileArgument = new Argument<string>(Constants.Argument.ParametersFile)
             {
                 Description = "The path to the .bicepparam file.",
             };
-            var modeOption = new Option<SnapshotArguments.SnapshotMode?>("--mode")
+            var modeOption = new Option<SnapshotArguments.SnapshotMode?>(Constants.Option.Mode)
             {
-                Description = "Snapshot mode (Overwrite, Validate).",
+                Description = "Sets the snapshot mode. Valid values are (overwrite, validate).",
             };
-            var tenantIdOption = new Option<string?>("--tenant-id")
+            var tenantIdOption = new Option<string?>(Constants.Option.TenantId)
             {
-                Description = "The tenant ID.",
+                Description = "The tenant ID to use for the deployment.",
             };
-            var subscriptionIdOption = new Option<string?>("--subscription-id")
+            var subscriptionIdOption = new Option<string?>(Constants.Option.SubscriptionId)
             {
-                Description = "The subscription ID.",
+                Description = "The subscription ID to use for the deployment.",
             };
-            var locationOption = new Option<string?>("--location")
+            var locationOption = new Option<string?>(Constants.Option.Location)
             {
-                Description = "The location.",
+                Description = "The location to use for the deployment.",
             };
-            var resourceGroupOption = new Option<string?>("--resource-group")
+            var resourceGroupOption = new Option<string?>(Constants.Option.ResourceGroup)
             {
-                Description = "The resource group.",
+                Description = "The resource group name to use for the deployment.",
             };
-            var deploymentNameOption = new Option<string?>("--deployment-name")
+            var deploymentNameOption = new Option<string?>(Constants.Option.DeploymentName)
             {
-                Description = "The deployment name.",
+                Description = "The deployment name to use.",
             };
 
             command.Add(inputFileArgument);
@@ -1008,6 +1093,7 @@ namespace Bicep.Cli
             command.Add(locationOption);
             command.Add(resourceGroupOption);
             command.Add(deploymentNameOption);
+            command.Validators.Add(result => ValidateRequiredPositionalArgument(result, inputFileArgument));
 
             command.SetAction((result, ct) => RunCommandAsync(async () =>
             {
@@ -1034,6 +1120,22 @@ namespace Bicep.Cli
                 () => services.GetRequiredService<ConsoleCommand>().RunAsync(new ConsoleArguments())));
 
             return command;
+        }
+        
+        private static void ValidatePositionalArgument(CommandResult result, Argument<string?> argument)
+        {
+            if (result.GetValue(argument) is {} inputValue && inputValue.StartsWith("--", StringComparison.Ordinal))
+            {
+                result.AddError($"Unrecognized parameter \"{inputValue}\"");
+            }
+        }
+        
+        private static void ValidateRequiredPositionalArgument(CommandResult result, Argument<string> argument)
+        {
+            if (result.GetRequiredValue(argument) is {} inputValue && inputValue.StartsWith("--", StringComparison.Ordinal))
+            {
+                result.AddError($"Unrecognized parameter \"{inputValue}\"");
+            }
         }
 
         private async Task<int> RunCommandAsync(Func<Task<int>> action)

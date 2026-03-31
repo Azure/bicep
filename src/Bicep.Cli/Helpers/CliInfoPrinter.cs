@@ -5,7 +5,7 @@ using System.IO.Compression;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Utils;
 
-namespace Bicep.Cli.Commands
+namespace Bicep.Cli.Helpers
 {
     public static class CliInfoPrinter
     {
