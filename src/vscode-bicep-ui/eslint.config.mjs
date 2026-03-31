@@ -12,6 +12,9 @@ const copyrightNoticeRule = {
   meta: {
     type: "suggestion",
     fixable: "code",
+    docs: {
+      description: "Enforce Microsoft copyright and license notice at the top of TypeScript files.",
+    },
     messages: {
       missing: "Missing or incorrect copyright notice header.",
     },
@@ -26,7 +29,22 @@ const copyrightNoticeRule = {
             node,
             messageId: "missing",
             fix(fixer) {
-              return fixer.replaceTextRange([0, 0], copyrightNoticeTemplate);
+              // Determine how many characters of an existing (incorrect) header to replace.
+              // Replace any leading comment lines (starting with "//") so we don't produce duplicates.
+              let replaceEnd = 0;
+              if (text.startsWith("//")) {
+                const lines = text.split("\n");
+                let i = 0;
+                while (i < lines.length && lines[i].startsWith("//")) {
+                  i++;
+                }
+                // Also consume one blank line after the header comments if present
+                if (i < lines.length && lines[i] === "") {
+                  i++;
+                }
+                replaceEnd = lines.slice(0, i).join("\n").length + (i < lines.length ? 1 : 0);
+              }
+              return fixer.replaceTextRange([0, replaceEnd], copyrightNoticeTemplate);
             },
           });
         }
