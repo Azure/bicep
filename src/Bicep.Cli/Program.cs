@@ -219,15 +219,9 @@ namespace Bicep.Cli
 
             rootCommand.Add(CreateJsonRpcCommand());
 
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.LocalDeploy,
-                "Performs a local deployment.",
-                args => services.GetRequiredService<LocalDeployCommand>().RunAsync(new LocalDeployArguments(args), cancellationToken)));
+            rootCommand.Add(CreateLocalDeployCommand());
 
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.Snapshot,
-                "Creates an extension snapshot.",
-                args => services.GetRequiredService<SnapshotCommand>().RunAsync(new SnapshotArguments(args), cancellationToken)));
+            rootCommand.Add(CreateSnapshotCommand());
 
             rootCommand.Add(CreateDeployCommand());
 
@@ -235,10 +229,7 @@ namespace Bicep.Cli
 
             rootCommand.Add(CreateTeardownCommand());
 
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.Console,
-                "Opens an interactive Bicep console.",
-                args => services.GetRequiredService<ConsoleCommand>().RunAsync(new ConsoleArguments(args))));
+            rootCommand.Add(CreateConsoleCommand());
 
             return rootCommand;
         }
@@ -317,7 +308,7 @@ namespace Bicep.Cli
             {
                 var additionalArguments = ParseAdditionalArguments(result.UnmatchedTokens);
                 var args = new DeployArguments(
-                    result.GetValue(parametersFileArgument)!,
+                    result.GetRequiredValue(parametersFileArgument),
                     result.GetValue(noRestoreOption),
                     additionalArguments,
                     result.GetValue(formatOption));
@@ -351,7 +342,7 @@ namespace Bicep.Cli
             {
                 var additionalArguments = ParseAdditionalArguments(result.UnmatchedTokens);
                 var args = new WhatIfArguments(
-                    result.GetValue(parametersFileArgument)!,
+                    result.GetRequiredValue(parametersFileArgument),
                     result.GetValue(noRestoreOption),
                     additionalArguments);
 
@@ -384,12 +375,114 @@ namespace Bicep.Cli
             {
                 var additionalArguments = ParseAdditionalArguments(result.UnmatchedTokens);
                 var args = new TeardownArguments(
-                    result.GetValue(parametersFileArgument)!,
+                    result.GetRequiredValue(parametersFileArgument),
                     result.GetValue(noRestoreOption),
                     additionalArguments);
 
                 return await services.GetRequiredService<TeardownCommand>().RunAsync(args, ct);
             }));
+
+            return command;
+        }
+
+        private Command CreateLocalDeployCommand()
+        {
+            var command = new Command(Constants.Command.LocalDeploy, "Performs a local deployment.");
+
+            var paramsFileArgument = new Argument<string>("parameters-file")
+            {
+                Description = "The path to the .bicepparam file.",
+            };
+            var noRestoreOption = new Option<bool>("--no-restore")
+            {
+                Description = "Do not restore modules prior to deploying.",
+            };
+            var formatOption = new Option<DeploymentOutputFormat?>("--format")
+            {
+                Description = "Output format for deployment results (Default, Json).",
+            };
+
+            command.Add(paramsFileArgument);
+            command.Add(noRestoreOption);
+            command.Add(formatOption);
+
+            command.SetAction((result, ct) => RunCommandAsync(async () =>
+            {
+                var args = new LocalDeployArguments(
+                    result.GetRequiredValue(paramsFileArgument),
+                    result.GetValue(noRestoreOption),
+                    result.GetValue(formatOption));
+
+                return await services.GetRequiredService<LocalDeployCommand>().RunAsync(args, ct);
+            }));
+
+            return command;
+        }
+
+        private Command CreateSnapshotCommand()
+        {
+            var command = new Command(Constants.Command.Snapshot, "Creates an extension snapshot.");
+
+            var inputFileArgument = new Argument<string>("input-file")
+            {
+                Description = "The path to the .bicepparam file.",
+            };
+            var modeOption = new Option<SnapshotArguments.SnapshotMode?>("--mode")
+            {
+                Description = "Snapshot mode (Overwrite, Validate).",
+            };
+            var tenantIdOption = new Option<string?>("--tenant-id")
+            {
+                Description = "The tenant ID.",
+            };
+            var subscriptionIdOption = new Option<string?>("--subscription-id")
+            {
+                Description = "The subscription ID.",
+            };
+            var locationOption = new Option<string?>("--location")
+            {
+                Description = "The location.",
+            };
+            var resourceGroupOption = new Option<string?>("--resource-group")
+            {
+                Description = "The resource group.",
+            };
+            var deploymentNameOption = new Option<string?>("--deployment-name")
+            {
+                Description = "The deployment name.",
+            };
+
+            command.Add(inputFileArgument);
+            command.Add(modeOption);
+            command.Add(tenantIdOption);
+            command.Add(subscriptionIdOption);
+            command.Add(locationOption);
+            command.Add(resourceGroupOption);
+            command.Add(deploymentNameOption);
+
+            command.SetAction((result, ct) => RunCommandAsync(async () =>
+            {
+                var args = new SnapshotArguments(
+                    result.GetRequiredValue(inputFileArgument),
+                    result.GetValue(modeOption),
+                    result.GetValue(tenantIdOption),
+                    result.GetValue(subscriptionIdOption),
+                    result.GetValue(locationOption),
+                    result.GetValue(resourceGroupOption),
+                    result.GetValue(deploymentNameOption));
+
+                return await services.GetRequiredService<SnapshotCommand>().RunAsync(args, ct);
+            }));
+
+            return command;
+        }
+
+        private Command CreateConsoleCommand()
+        {
+            var command = new Command(Constants.Command.Console, "Opens an interactive Bicep console.");
+
+            command.SetAction((result, ct) => RunCommandAsync(
+                () => services.GetRequiredService<ConsoleCommand>().RunAsync(new ConsoleArguments())));
 
             return command;
         }
