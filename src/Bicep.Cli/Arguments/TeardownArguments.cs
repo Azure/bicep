@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
+
 namespace Bicep.Cli.Arguments;
 
-public class TeardownArguments : DeployArgumentsBase
-{
-    public TeardownArguments(string[] args) : base(args, Constants.Command.Teardown)
-    {
-    }
-}
+public record TeardownArguments(
+    string InputFile,
+    bool NoRestore,
+    ImmutableDictionary<string, string> AdditionalArguments) : DeployArgumentsBase(InputFile, NoRestore, AdditionalArguments);

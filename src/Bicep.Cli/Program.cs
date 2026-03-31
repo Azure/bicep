@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.CommandLine;
 using System.CommandLine.Help;
 using System.CommandLine.Invocation;
@@ -228,20 +229,11 @@ namespace Bicep.Cli
                 "Creates an extension snapshot.",
                 args => services.GetRequiredService<SnapshotCommand>().RunAsync(new SnapshotArguments(args), cancellationToken)));
 
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.Deploy,
-                "Deploys infrastructure using a .bicepparam file.",
-                args => services.GetRequiredService<DeployCommand>().RunAsync(new DeployArguments(args), cancellationToken)));
+            rootCommand.Add(CreateDeployCommand());
 
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.WhatIf,
-                "Previews the changes a deployment would make.",
-                args => services.GetRequiredService<WhatIfCommand>().RunAsync(new WhatIfArguments(args), cancellationToken)));
+            rootCommand.Add(CreateWhatIfCommand());
 
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.Teardown,
-                "Tears down resources deployed by a .bicepparam file.",
-                args => services.GetRequiredService<TeardownCommand>().RunAsync(new TeardownArguments(args), cancellationToken)));
+            rootCommand.Add(CreateTeardownCommand());
 
             rootCommand.Add(LegacyCommand(
                 Constants.Command.Console,
@@ -286,17 +278,161 @@ namespace Bicep.Cli
 
             command.SetAction(async (result, cancellationToken) =>
             {
-                JsonRpcArguments args = new()
-                {
-                    Pipe = result.GetValue(pipeOption),
-                    Socket = result.GetValue(socketOption),
-                    Stdio = result.GetValue(stdioOption)
-                };
+                JsonRpcArguments args = new(
+                    Pipe: result.GetValue(pipeOption),
+                    Socket: result.GetValue(socketOption),
+                    Stdio: result.GetValue(stdioOption));
 
                 return await services.GetRequiredService<JsonRpcCommand>().RunAsync(args, cancellationToken);
             });
 
             return command;
+        }
+
+        private Command CreateDeployCommand()
+        {
+            var command = new Command(Constants.Command.Deploy, "Deploys infrastructure using a .bicepparam file.")
+            {
+                TreatUnmatchedTokensAsErrors = false,
+            };
+
+            var parametersFileArgument = new Argument<string>("parameters-file")
+            {
+                Description = "The path to the .bicepparam file.",
+            };
+            var noRestoreOption = new Option<bool>("--no-restore")
+            {
+                Description = "Do not restore modules prior to deploying.",
+            };
+            var formatOption = new Option<DeploymentOutputFormat?>("--format")
+            {
+                Description = "Output format for deployment results (Default, Json).",
+            };
+
+            command.Add(parametersFileArgument);
+            command.Add(noRestoreOption);
+            command.Add(formatOption);
+
+            command.SetAction((result, ct) => RunCommandAsync(async () =>
+            {
+                var additionalArguments = ParseAdditionalArguments(result.UnmatchedTokens);
+                var args = new DeployArguments(
+                    result.GetValue(parametersFileArgument)!,
+                    result.GetValue(noRestoreOption),
+                    additionalArguments,
+                    result.GetValue(formatOption));
+
+                return await services.GetRequiredService<DeployCommand>().RunAsync(args, ct);
+            }));
+
+            return command;
+        }
+
+        private Command CreateWhatIfCommand()
+        {
+            var command = new Command(Constants.Command.WhatIf, "Previews the changes a deployment would make.")
+            {
+                TreatUnmatchedTokensAsErrors = false,
+            };
+
+            var parametersFileArgument = new Argument<string>("parameters-file")
+            {
+                Description = "The path to the .bicepparam file.",
+            };
+            var noRestoreOption = new Option<bool>("--no-restore")
+            {
+                Description = "Do not restore modules prior to running what-if.",
+            };
+
+            command.Add(parametersFileArgument);
+            command.Add(noRestoreOption);
+
+            command.SetAction((result, ct) => RunCommandAsync(async () =>
+            {
+                var additionalArguments = ParseAdditionalArguments(result.UnmatchedTokens);
+                var args = new WhatIfArguments(
+                    result.GetValue(parametersFileArgument)!,
+                    result.GetValue(noRestoreOption),
+                    additionalArguments);
+
+                return await services.GetRequiredService<WhatIfCommand>().RunAsync(args, ct);
+            }));
+
+            return command;
+        }
+
+        private Command CreateTeardownCommand()
+        {
+            var command = new Command(Constants.Command.Teardown, "Tears down resources deployed by a .bicepparam file.")
+            {
+                TreatUnmatchedTokensAsErrors = false,
+            };
+
+            var parametersFileArgument = new Argument<string>("parameters-file")
+            {
+                Description = "The path to the .bicepparam file.",
+            };
+            var noRestoreOption = new Option<bool>("--no-restore")
+            {
+                Description = "Do not restore modules prior to tearing down.",
+            };
+
+            command.Add(parametersFileArgument);
+            command.Add(noRestoreOption);
+
+            command.SetAction((result, ct) => RunCommandAsync(async () =>
+            {
+                var additionalArguments = ParseAdditionalArguments(result.UnmatchedTokens);
+                var args = new TeardownArguments(
+                    result.GetValue(parametersFileArgument)!,
+                    result.GetValue(noRestoreOption),
+                    additionalArguments);
+
+                return await services.GetRequiredService<TeardownCommand>().RunAsync(args, ct);
+            }));
+
+            return command;
+        }
+
+        private async Task<int> RunCommandAsync(Func<Task<int>> action)
+        {
+            try
+            {
+                return await action();
+            }
+            catch (BicepException exception)
+            {
+                await io.Error.Writer.WriteLineAsync(exception.Message);
+                return 1;
+            }
+        }
+
+        private static ImmutableDictionary<string, string> ParseAdditionalArguments(IReadOnlyList<string> unmatchedTokens)
+        {
+            var additionalArguments = new Dictionary<string, string>();
+            for (var i = 0; i < unmatchedTokens.Count; i++)
+            {
+                var token = unmatchedTokens[i];
+                if (token.StartsWith(ArgumentConstants.CliArgPrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    var key = token[ArgumentConstants.CliArgPrefix.Length..];
+                    if (additionalArguments.ContainsKey(key))
+                    {
+                        throw new CommandLineException($"Parameter \"{token}\" cannot be specified multiple times.");
+                    }
+                    if (i + 1 >= unmatchedTokens.Count)
+                    {
+                        throw new CommandLineException($"Parameter \"{token}\" requires a value.");
+                    }
+                    additionalArguments[key] = unmatchedTokens[++i];
+                }
+                else
+                {
+                    throw new CommandLineException($"Unrecognized parameter \"{token}\"");
+                }
+            }
+
+            return additionalArguments.ToImmutableDictionary();
         }
 
         /// <summary>
@@ -317,18 +453,8 @@ namespace Bicep.Cli
                 TreatUnmatchedTokensAsErrors = false,
             };
 
-            command.SetAction(async (ParseResult pr, CancellationToken ct) =>
-            {
-                try
-                {
-                    return await handler(pr.UnmatchedTokens.ToArray());
-                }
-                catch (BicepException exception)
-                {
-                    await io.Error.Writer.WriteLineAsync(exception.Message);
-                    return 1;
-                }
-            });
+            command.SetAction((ParseResult pr, CancellationToken ct) =>
+                RunCommandAsync(() => handler(pr.UnmatchedTokens.ToArray())));
 
             return command;
         }
