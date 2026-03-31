@@ -4,7 +4,6 @@
 using System.Data;
 using System.Diagnostics;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.CodeAction;
@@ -32,10 +31,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private const string GracePeriodInDaysKey = "gracePeriodInDays";
         public const int DefaultGracePeriodInDays = 90;
         private const int MinimumValidGracePeriodInDays = 0;
-
-        private static readonly Regex resourceTypeRegex = new(
-            "^ [a-z]+\\.[a-z]+ (\\/ [a-z]+)+ $",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
 
         public record Failure(
             TextSpan Span,
@@ -233,7 +228,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 {
                     argLiteral = argLiteral.TrimEnd('/');
 
-                    if (resourceTypeRegex.IsMatch(argLiteral))
+                    if (LinterResourceTypePatterns.ResourceTypeRegex.IsMatch(argLiteral))
                     {
                         // Now folder any following arguments that are also literals into this string separated by "/", e.g.:
                         //   (..., 'Microsoft.Compute/virtualMachineScaleSets', 'virtualMachines/runCommands', 'name', <non-string-literal-arg>, ...)
@@ -265,7 +260,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, expression)
                 is (string resourceIdResTypeString, _, _))
             {
-                if (resourceTypeRegex.IsMatch(resourceIdResTypeString))
+                if (LinterResourceTypePatterns.ResourceTypeRegex.IsMatch(resourceIdResTypeString))
                 {
                     return resourceIdResTypeString;
                 }
@@ -308,7 +303,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             var resourceType = resourceId;
             var mostRecentValid = resourceId;
-            while (resourceTypeRegex.IsMatch(resourceType))
+            while (LinterResourceTypePatterns.ResourceTypeRegex.IsMatch(resourceType))
             {
                 if (model.ApiVersionProvider.GetApiVersions(model.TargetScope, resourceType).Any())
                 {
