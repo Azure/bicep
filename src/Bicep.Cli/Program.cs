@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.CommandLine;
+using System.CommandLine.Help;
 using System.Diagnostics;
-using System.IO.Abstractions;
 using System.Runtime;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Commands;
@@ -19,6 +20,9 @@ using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
+
+// Avoid naming conflict with Bicep.Cli.Commands.RootCommand
+using SclRootCommand = System.CommandLine.RootCommand;
 
 namespace Bicep.Cli
 {
@@ -81,77 +85,224 @@ namespace Bicep.Cli
             var environment = services.GetRequiredService<IEnvironment>();
             Trace.WriteLine($"Bicep version: {environment.GetVersionString()}, OS: {environment.CurrentPlatform?.ToString() ?? "unknown"}, Architecture: {environment.CurrentArchitecture}, CLI arguments: \"{string.Join(' ', args)}\"");
 
-            try
+            var rootCommand = BuildCommandLine(cancellationToken);
+            return await rootCommand.Parse(args).InvokeAsync(cancellationToken: cancellationToken);
+        }
+
+        /// <summary>
+        /// Builds the System.CommandLine command hierarchy. Each existing subcommand is currently
+        /// registered as a legacy pass-through stub via <see cref="LegacyCommand"/>. To migrate a
+        /// command, replace its <c>LegacyCommand</c> call with a <see cref="Command"/> that
+        /// declares its own <see cref="Option{T}"/> and <see cref="Argument{T}"/> members and
+        /// invokes the command handler directly.
+        /// </summary>
+        private SclRootCommand BuildCommandLine(CancellationToken cancellationToken)
+        {
+            var rootCommand = new SclRootCommand("Bicep CLI")
             {
-                switch (ArgumentParser.TryParse(args, services.GetRequiredService<IFileSystem>()))
+                // Collect unknown tokens so we can produce a custom error message that matches
+                // the format of the original CLI instead of letting System.CommandLine error out.
+                TreatUnmatchedTokensAsErrors = false,
+            };
+
+            // System.CommandLine adds --version and --help to RootCommand by default.
+            // Replace both with custom options so their output goes through io.Output.Writer
+            // (not Console.Out) and --version prints the Bicep-specific version string.
+            var builtInVersion = rootCommand.Options.FirstOrDefault(o => o.Name == "--version");
+            if (builtInVersion is not null)
+            {
+                rootCommand.Options.Remove(builtInVersion);
+            }
+            var builtInHelp = rootCommand.Options.OfType<HelpOption>().FirstOrDefault();
+            if (builtInHelp is not null)
+            {
+                rootCommand.Options.Remove(builtInHelp);
+            }
+
+            var helpOption = new Option<bool>("--help", "-?", "-h") { Description = "Show help and usage information." };
+            var versionOption = new Option<bool>("--version", "-v") { Description = "Show version information." };
+            var licenseOption = new Option<bool>("--license") { Description = "Print license information." };
+            var thirdPartyNoticesOption = new Option<bool>("--third-party-notices") { Description = "Print third-party notice information." };
+
+            rootCommand.Add(helpOption);
+            rootCommand.Add(versionOption);
+            rootCommand.Add(licenseOption);
+            rootCommand.Add(thirdPartyNoticesOption);
+
+            rootCommand.SetAction(async (ParseResult pr, CancellationToken ct) =>
+            {
+                var bicepRootCommand = services.GetRequiredService<Commands.RootCommand>();
+
+                var unmatched = pr.UnmatchedTokens;
+
+                // Show help when explicitly requested or when called with no arguments at all.
+                if (pr.GetValue(helpOption) || unmatched.Count == 0)
                 {
-                    case BuildArguments buildArguments when buildArguments.CommandName == Constants.Command.Build: // bicep build [options]
-                        return await services.GetRequiredService<BuildCommand>().RunAsync(buildArguments);
-
-                    case TestArguments testArguments when testArguments.CommandName == Constants.Command.Test: // bicep test [options]
-                        return await services.GetRequiredService<TestCommand>().RunAsync(testArguments);
-
-                    case BuildParamsArguments buildParamsArguments when buildParamsArguments.CommandName == Constants.Command.BuildParams: // bicep build-params [options]
-                        return await services.GetRequiredService<BuildParamsCommand>().RunAsync(buildParamsArguments);
-
-                    case FormatArguments formatArguments when formatArguments.CommandName == Constants.Command.Format: // bicep format [options]
-                        return services.GetRequiredService<FormatCommand>().Run(formatArguments);
-
-                    case GenerateParametersFileArguments generateParametersFileArguments when generateParametersFileArguments.CommandName == Constants.Command.GenerateParamsFile: // bicep generate-params [options]
-                        return await services.GetRequiredService<GenerateParametersFileCommand>().RunAsync(generateParametersFileArguments);
-
-                    case DecompileArguments decompileArguments when decompileArguments.CommandName == Constants.Command.Decompile: // bicep decompile [options]
-                        return await services.GetRequiredService<DecompileCommand>().RunAsync(decompileArguments);
-
-                    case DecompileParamsArguments decompileParamsArguments when decompileParamsArguments.CommandName == Constants.Command.DecompileParams:
-                        return services.GetRequiredService<DecompileParamsCommand>().Run(decompileParamsArguments);
-
-                    case PublishArguments publishArguments when publishArguments.CommandName == Constants.Command.Publish: // bicep publish [options]
-                        return await services.GetRequiredService<PublishCommand>().RunAsync(publishArguments);
-
-                    case PublishExtensionArguments publishProviderArguments when publishProviderArguments.CommandName == Constants.Command.PublishExtension: // bicep publish-extension [options]
-                        return await services.GetRequiredService<PublishExtensionCommand>().RunAsync(publishProviderArguments, cancellationToken);
-
-                    case RestoreArguments restoreArguments when restoreArguments.CommandName == Constants.Command.Restore: // bicep restore
-                        return await services.GetRequiredService<RestoreCommand>().RunAsync(restoreArguments);
-
-                    case LintArguments lintArguments when lintArguments.CommandName == Constants.Command.Lint: // bicep lint [options]
-                        return await services.GetRequiredService<LintCommand>().RunAsync(lintArguments);
-
-                    case JsonRpcArguments jsonRpcArguments when jsonRpcArguments.CommandName == Constants.Command.JsonRpc: // bicep jsonrpc [options]
-                        return await services.GetRequiredService<JsonRpcCommand>().RunAsync(jsonRpcArguments, cancellationToken);
-
-                    case LocalDeployArguments localDeployArguments when localDeployArguments.CommandName == Constants.Command.LocalDeploy: // bicep local-deploy [options]
-                        return await services.GetRequiredService<LocalDeployCommand>().RunAsync(localDeployArguments, cancellationToken);
-
-                    case SnapshotArguments snapshotArguments when snapshotArguments.CommandName == Constants.Command.Snapshot: // bicep snapshot [options]
-                        return await services.GetRequiredService<SnapshotCommand>().RunAsync(snapshotArguments, cancellationToken);
-
-                    case DeployArguments deployArguments when deployArguments.CommandName == Constants.Command.Deploy: // bicep deploy [options]
-                        return await services.GetRequiredService<DeployCommand>().RunAsync(deployArguments, cancellationToken);
-
-                    case WhatIfArguments whatIfArguments when whatIfArguments.CommandName == Constants.Command.WhatIf: // bicep what-if [options]
-                        return await services.GetRequiredService<WhatIfCommand>().RunAsync(whatIfArguments, cancellationToken);
-
-                    case TeardownArguments teardownArguments when teardownArguments.CommandName == Constants.Command.Teardown: // bicep teardown [options]
-                        return await services.GetRequiredService<TeardownCommand>().RunAsync(teardownArguments, cancellationToken);
-
-                    case ConsoleArguments consoleArguments when consoleArguments.CommandName == Constants.Command.Console: // bicep console
-                        return await services.GetRequiredService<ConsoleCommand>().RunAsync(consoleArguments);
-
-                    case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
-                        return services.GetRequiredService<RootCommand>().Run(rootArguments);
-
-                    default:
-                        await io.Error.Writer.WriteLineAsync(string.Format(CliResources.UnrecognizedArgumentsFormat, string.Join(' ', args), ThisAssembly.AssemblyName)); // should probably print help here??
-                        return 1;
+                    bicepRootCommand.PrintHelp();
+                    return 0;
                 }
-            }
-            catch (BicepException exception)
-            {
-                await io.Error.Writer.WriteLineAsync(exception.Message);
+
+                if (pr.GetValue(versionOption))
+                {
+                    return bicepRootCommand.Run(new RootArguments("--version", Constants.Command.Root));
+                }
+
+                if (pr.GetValue(licenseOption))
+                {
+                    return bicepRootCommand.Run(new RootArguments("--license", Constants.Command.Root));
+                }
+
+                if (pr.GetValue(thirdPartyNoticesOption))
+                {
+                    return bicepRootCommand.Run(new RootArguments("--third-party-notices", Constants.Command.Root));
+                }
+
+                await io.Error.Writer.WriteLineAsync(
+                    string.Format(CliResources.UnrecognizedArgumentsFormat, string.Join(' ', unmatched), ThisAssembly.AssemblyName));
                 return 1;
+            });
+
+            // Each subcommand below is a legacy pass-through stub. Arguments not recognized by
+            // System.CommandLine are collected in ParseResult.UnmatchedTokens and forwarded to
+            // the existing argument class for parsing. Once a command is fully migrated, replace
+            // the LegacyCommand call with a Command that has explicit Option<T>/Argument<T>
+            // members and calls the command handler with the bound values directly.
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.Build,
+                "Builds a .bicep file.",
+                args => services.GetRequiredService<BuildCommand>().RunAsync(new BuildArguments(args))));
+
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.Test,
+                "Runs tests in a .bicep file.",
+                args => services.GetRequiredService<TestCommand>().RunAsync(new TestArguments(args))));
+
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.BuildParams,
+                "Builds a .bicepparam file.",
+                args => services.GetRequiredService<BuildParamsCommand>().RunAsync(new BuildParamsArguments(args))));
+
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.Format,
+                "Formats a .bicep file.",
+                args => Task.FromResult(services.GetRequiredService<FormatCommand>().Run(new FormatArguments(args)))));
+
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.GenerateParamsFile,
+                "Generates a parameters file for a .bicep file.",
+                args => services.GetRequiredService<GenerateParametersFileCommand>().RunAsync(new GenerateParametersFileArguments(args))));
+
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.Decompile,
+                "Attempts to decompile a template .json file to .bicep.",
+                args => services.GetRequiredService<DecompileCommand>().RunAsync(new DecompileArguments(args))));
+
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.DecompileParams,
+                "Attempts to decompile a parameters .json file to .bicepparam.",
+                args => Task.FromResult(services.GetRequiredService<DecompileParamsCommand>().Run(new DecompileParamsArguments(args)))));
+
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.Publish,
+                "Publishes a .bicep file to a registry.",
+                args => services.GetRequiredService<PublishCommand>().RunAsync(new PublishArguments(args))));
+
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.PublishExtension,
+                "Publishes a Bicep extension to a registry.",
+                args => services.GetRequiredService<PublishExtensionCommand>().RunAsync(new PublishExtensionArguments(args), cancellationToken)));
+
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.Restore,
+                "Restores external modules for a .bicep file.",
+                args => services.GetRequiredService<RestoreCommand>().RunAsync(new RestoreArguments(args))));
+
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.Lint,
+                "Lints a .bicep file.",
+                args => services.GetRequiredService<LintCommand>().RunAsync(new LintArguments(args))));
+
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.JsonRpc,
+                "Starts the Bicep JSON-RPC server.",
+                args => services.GetRequiredService<JsonRpcCommand>().RunAsync(new JsonRpcArguments(args), cancellationToken)));
+
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.LocalDeploy,
+                "Performs a local deployment.",
+                args => services.GetRequiredService<LocalDeployCommand>().RunAsync(new LocalDeployArguments(args), cancellationToken)));
+
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.Snapshot,
+                "Creates an extension snapshot.",
+                args => services.GetRequiredService<SnapshotCommand>().RunAsync(new SnapshotArguments(args), cancellationToken)));
+
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.Deploy,
+                "Deploys infrastructure using a .bicepparam file.",
+                args => services.GetRequiredService<DeployCommand>().RunAsync(new DeployArguments(args), cancellationToken)));
+
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.WhatIf,
+                "Previews the changes a deployment would make.",
+                args => services.GetRequiredService<WhatIfCommand>().RunAsync(new WhatIfArguments(args), cancellationToken)));
+
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.Teardown,
+                "Tears down resources deployed by a .bicepparam file.",
+                args => services.GetRequiredService<TeardownCommand>().RunAsync(new TeardownArguments(args), cancellationToken)));
+
+            rootCommand.Add(LegacyCommand(
+                Constants.Command.Console,
+                "Opens an interactive Bicep console.",
+                args => services.GetRequiredService<ConsoleCommand>().RunAsync(new ConsoleArguments(args))));
+
+            return rootCommand;
+        }
+
+        /// <summary>
+        /// Creates a pass-through command stub that forwards all unrecognized tokens to an
+        /// existing argument class and command handler. System.CommandLine's built-in options
+        /// (e.g. <c>--help</c>) are still handled; everything else lands in
+        /// <see cref="ParseResult.UnmatchedTokens"/> and is passed to <paramref name="handler"/>
+        /// as a plain <c>string[]</c>.
+        /// <para>
+        /// Once a command is fully migrated, replace this stub with a <see cref="Command"/> that
+        /// declares its own <see cref="Option{T}"/> and <see cref="Argument{T}"/> members.
+        /// </para>
+        /// </summary>
+        private Command LegacyCommand(string name, string description, Func<string[], Task<int>> handler)
+        {
+            var command = new Command(name, description)
+            {
+                TreatUnmatchedTokensAsErrors = false,
+            };
+
+            // Remove the built-in HelpOption so that --help output goes through io.Output.Writer
+            // (not Console.Out) and shows the custom Bicep help text.
+            var builtInHelp = command.Options.OfType<HelpOption>().FirstOrDefault();
+            if (builtInHelp is not null)
+            {
+                command.Options.Remove(builtInHelp);
             }
+
+            var helpOption = new Option<bool>("--help", "-?", "-h") { Description = "Show help and usage information." };
+            command.Add(helpOption);
+
+            command.SetAction(async (ParseResult pr, CancellationToken ct) =>
+            {
+                try
+                {
+                    return await handler(pr.UnmatchedTokens.ToArray());
+                }
+                catch (BicepException exception)
+                {
+                    await io.Error.Writer.WriteLineAsync(exception.Message);
+                    return 1;
+                }
+            });
+
+            return command;
         }
 
         private static ILoggerFactory CreateLoggerFactory(IOContext io)

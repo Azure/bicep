@@ -41,7 +41,7 @@ namespace Bicep.Cli.Commands
             return 1;
         }
 
-        private void PrintHelp()
+        internal void PrintHelp()
         {
             var exeName = ThisAssembly.AssemblyName;
             var versionString = environment.GetVersionString();

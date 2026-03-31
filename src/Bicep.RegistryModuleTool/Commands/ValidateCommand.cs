@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using Bicep.Core;
 using Bicep.RegistryModuleTool.Exceptions;
@@ -30,39 +29,39 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.compiler = compiler;
             }
 
-            protected override async Task<int> InvokeInternalAsync(InvocationContext context)
+            protected override async Task<int> InvokeInternalAsync(IConsole console, CancellationToken cancellationToken)
             {
                 var valid = true;
 
                 this.Logger.LogInformation("Validating main Bicep file...");
 
-                var mainBicepFile = await MainBicepFile.OpenAsync(this.FileSystem, this.compiler, context.Console);
+                var mainBicepFile = await MainBicepFile.OpenAsync(this.FileSystem, this.compiler, console);
                 var descriptionsValidator = new DescriptionsValidator(this.Logger);
                 var metadataValidator = new BicepMetadataValidator(this.Logger);
-                valid &= await ValidateFileAsync(context.Console, () => mainBicepFile.ValidatedByAsync(descriptionsValidator, metadataValidator));
+                valid &= await ValidateFileAsync(console, () => mainBicepFile.ValidatedByAsync(descriptionsValidator, metadataValidator));
 
                 this.Logger.LogInformation("Validating main Bicep test file...");
 
                 var mainBicepTestFile = MainBicepTestFile.Open(this.FileSystem);
-                var testValidator = new TestValidator(this.Logger, context.Console, this.compiler, mainBicepFile);
-                valid &= await ValidateFileAsync(context.Console, () => mainBicepTestFile.ValidatedByAsync(testValidator));
+                var testValidator = new TestValidator(this.Logger, console, this.compiler, mainBicepFile);
+                valid &= await ValidateFileAsync(console, () => mainBicepTestFile.ValidatedByAsync(testValidator));
 
                 this.Logger.LogInformation("Validating main ARM template file...");
 
                 var diffValidator = new DiffValidator(this.FileSystem, this.Logger, mainBicepFile);
                 var mainArmTemplateFile = await MainArmTemplateFile.OpenAsync(this.FileSystem);
-                valid &= await ValidateFileAsync(context.Console, () => mainArmTemplateFile.ValidatedByAsync(diffValidator));
+                valid &= await ValidateFileAsync(console, () => mainArmTemplateFile.ValidatedByAsync(diffValidator));
 
                 this.Logger.LogInformation("Validating README file...");
 
                 var readmeFile = await ReadmeFile.OpenAsync(this.FileSystem);
-                valid &= await ValidateFileAsync(context.Console, () => readmeFile.ValidatedByAsync(diffValidator));
+                valid &= await ValidateFileAsync(console, () => readmeFile.ValidatedByAsync(diffValidator));
 
                 this.Logger.LogInformation("Validating version file...");
 
                 var versionFile = await VersionFile.OpenAsync(this.FileSystem);
                 var jsonSchemaValidator = new JsonSchemaValidator(this.Logger);
-                valid &= await ValidateFileAsync(context.Console, () => versionFile.ValidatedByAsync(jsonSchemaValidator, diffValidator));
+                valid &= await ValidateFileAsync(console, () => versionFile.ValidatedByAsync(jsonSchemaValidator, diffValidator));
 
                 return valid ? 0 : 1;
             }
