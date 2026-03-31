@@ -15,6 +15,7 @@ using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core;
 using Bicep.Core.Emit;
+using Bicep.Core.Emit.Options;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
 using Bicep.Core.Tracing;
@@ -162,40 +163,22 @@ namespace Bicep.Cli
             // the existing argument class for parsing. Once a command is fully migrated, replace
             // the LegacyCommand call with a Command that has explicit Option<T>/Argument<T>
             // members and calls the command handler with the bound values directly.
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.Build,
-                "Builds a .bicep file.",
-                args => services.GetRequiredService<BuildCommand>().RunAsync(new BuildArguments(args))));
+            rootCommand.Add(CreateBuildCommand());
 
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.Test,
-                "Runs tests in a .bicep file.",
-                args => services.GetRequiredService<TestCommand>().RunAsync(new TestArguments(args))));
+            rootCommand.Add(CreateTestCommand());
 
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.BuildParams,
-                "Builds a .bicepparam file.",
-                args => services.GetRequiredService<BuildParamsCommand>().RunAsync(new BuildParamsArguments(args))));
+            rootCommand.Add(CreateBuildParamsCommand());
 
             rootCommand.Add(LegacyCommand(
                 Constants.Command.Format,
                 "Formats a .bicep file.",
                 args => Task.FromResult(services.GetRequiredService<FormatCommand>().Run(new FormatArguments(args)))));
 
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.GenerateParamsFile,
-                "Generates a parameters file for a .bicep file.",
-                args => services.GetRequiredService<GenerateParametersFileCommand>().RunAsync(new GenerateParametersFileArguments(args))));
+            rootCommand.Add(CreateGenerateParamsFileCommand());
 
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.Decompile,
-                "Attempts to decompile a template .json file to .bicep.",
-                args => services.GetRequiredService<DecompileCommand>().RunAsync(new DecompileArguments(args))));
+            rootCommand.Add(CreateDecompileCommand());
 
-            rootCommand.Add(LegacyCommand(
-                Constants.Command.DecompileParams,
-                "Attempts to decompile a parameters .json file to .bicepparam.",
-                args => Task.FromResult(services.GetRequiredService<DecompileParamsCommand>().Run(new DecompileParamsArguments(args)))));
+            rootCommand.Add(CreateDecompileParamsCommand());
 
             rootCommand.Add(LegacyCommand(
                 Constants.Command.Publish,
@@ -232,6 +215,338 @@ namespace Bicep.Cli
             rootCommand.Add(CreateConsoleCommand());
 
             return rootCommand;
+        }
+
+        private Command CreateBuildCommand()
+        {
+            var command = new Command(Constants.Command.Build, "Builds a .bicep file.")
+            {
+                TreatUnmatchedTokensAsErrors = true,
+            };
+
+            var inputFileArgument = new Argument<string?>("input-file")
+            {
+                Description = "The path to the input .bicep file.",
+                Arity = ArgumentArity.ZeroOrOne,
+            };
+            var stdoutOption = new Option<bool>("--stdout")
+            {
+                Description = "Print output to stdout.",
+            };
+            var noRestoreOption = new Option<bool>("--no-restore")
+            {
+                Description = "Do not restore modules prior to building.",
+            };
+            var outDirOption = new Option<string?>("--outdir")
+            {
+                Description = "Save output to the specified directory.",
+            };
+            var outFileOption = new Option<string?>("--outfile")
+            {
+                Description = "Save output to the specified file path.",
+            };
+            var filePatternOption = new Option<string?>("--pattern")
+            {
+                Description = "Build all files matching the specified pattern.",
+            };
+            var diagnosticsFormatOption = new Option<DiagnosticsFormat?>("--diagnostics-format")
+            {
+                Description = "Set the format of diagnostics (Default, SARIF).",
+            };
+
+            command.Add(inputFileArgument);
+            command.Add(stdoutOption);
+            command.Add(noRestoreOption);
+            command.Add(outDirOption);
+            command.Add(outFileOption);
+            command.Add(filePatternOption);
+            command.Add(diagnosticsFormatOption);
+
+            command.SetAction((result, ct) => RunCommandAsync(async () =>
+            {
+                var args = new BuildArguments(
+                    result.GetValue(inputFileArgument),
+                    result.GetValue(stdoutOption),
+                    result.GetValue(noRestoreOption),
+                    result.GetValue(outDirOption),
+                    result.GetValue(outFileOption),
+                    result.GetValue(filePatternOption),
+                    result.GetValue(diagnosticsFormatOption));
+
+                return await services.GetRequiredService<BuildCommand>().RunAsync(args);
+            }));
+
+            return command;
+        }
+
+        private Command CreateTestCommand()
+        {
+            var command = new Command(Constants.Command.Test, "Runs tests in a .bicep file.")
+            {
+                TreatUnmatchedTokensAsErrors = true,
+            };
+
+            var inputFileArgument = new Argument<string>("input-file")
+            {
+                Description = "The path to the input .bicep file.",
+            };
+            var noRestoreOption = new Option<bool>("--no-restore")
+            {
+                Description = "Do not restore modules prior to running tests.",
+            };
+            var diagnosticsFormatOption = new Option<DiagnosticsFormat?>("--diagnostics-format")
+            {
+                Description = "Set the format of diagnostics (Default, SARIF).",
+            };
+
+            command.Add(inputFileArgument);
+            command.Add(noRestoreOption);
+            command.Add(diagnosticsFormatOption);
+
+            command.SetAction((result, ct) => RunCommandAsync(async () =>
+            {
+                var args = new TestArguments(
+                    result.GetRequiredValue(inputFileArgument),
+                    result.GetValue(noRestoreOption),
+                    result.GetValue(diagnosticsFormatOption));
+
+                return await services.GetRequiredService<TestCommand>().RunAsync(args);
+            }));
+
+            return command;
+        }
+
+        private Command CreateBuildParamsCommand()
+        {
+            var command = new Command(Constants.Command.BuildParams, "Builds a .bicepparam file.")
+            {
+                TreatUnmatchedTokensAsErrors = true,
+            };
+
+            var inputFileArgument = new Argument<string?>("input-file")
+            {
+                Description = "The path to the input .bicepparam file.",
+                Arity = ArgumentArity.ZeroOrOne,
+            };
+            var stdoutOption = new Option<bool>("--stdout")
+            {
+                Description = "Print output to stdout.",
+            };
+            var noRestoreOption = new Option<bool>("--no-restore")
+            {
+                Description = "Do not restore modules prior to building.",
+            };
+            var outDirOption = new Option<string?>("--outdir")
+            {
+                Description = "Save output to the specified directory.",
+            };
+            var outFileOption = new Option<string?>("--outfile")
+            {
+                Description = "Save output to the specified file path.",
+            };
+            var filePatternOption = new Option<string?>("--pattern")
+            {
+                Description = "Build all files matching the specified pattern.",
+            };
+            var bicepFileOption = new Option<string?>("--bicep-file")
+            {
+                Description = "Path to the .bicep template file that will be used to validate the .bicepparam file.",
+            };
+            var diagnosticsFormatOption = new Option<DiagnosticsFormat?>("--diagnostics-format")
+            {
+                Description = "Set the format of diagnostics (Default, SARIF).",
+            };
+
+            command.Add(inputFileArgument);
+            command.Add(stdoutOption);
+            command.Add(noRestoreOption);
+            command.Add(outDirOption);
+            command.Add(outFileOption);
+            command.Add(filePatternOption);
+            command.Add(bicepFileOption);
+            command.Add(diagnosticsFormatOption);
+
+            command.SetAction((result, ct) => RunCommandAsync(async () =>
+            {
+                var args = new BuildParamsArguments(
+                    result.GetValue(inputFileArgument),
+                    result.GetValue(stdoutOption),
+                    result.GetValue(noRestoreOption),
+                    result.GetValue(outDirOption),
+                    result.GetValue(outFileOption),
+                    result.GetValue(filePatternOption),
+                    result.GetValue(bicepFileOption),
+                    result.GetValue(diagnosticsFormatOption));
+
+                return await services.GetRequiredService<BuildParamsCommand>().RunAsync(args);
+            }));
+
+            return command;
+        }
+
+        private Command CreateGenerateParamsFileCommand()
+        {
+            var command = new Command(Constants.Command.GenerateParamsFile, "Generates a parameters file for a .bicep file.")
+            {
+                TreatUnmatchedTokensAsErrors = true,
+            };
+
+            var inputFileArgument = new Argument<string>("input-file")
+            {
+                Description = "The path to the input .bicep file.",
+            };
+            var stdoutOption = new Option<bool>("--stdout")
+            {
+                Description = "Print output to stdout.",
+            };
+            var noRestoreOption = new Option<bool>("--no-restore")
+            {
+                Description = "Do not restore modules prior to generating.",
+            };
+            var outDirOption = new Option<string?>("--outdir")
+            {
+                Description = "Save output to the specified directory.",
+            };
+            var outFileOption = new Option<string?>("--outfile")
+            {
+                Description = "Save output to the specified file path.",
+            };
+            var outputFormatOption = new Option<OutputFormatOption>("--output-format")
+            {
+                Description = "Output format (Json, BicepParam).",
+            };
+            var includeParamsOption = new Option<IncludeParamsOption>("--include-params")
+            {
+                Description = "Which parameters to include (RequiredOnly, All).",
+            };
+
+            command.Add(inputFileArgument);
+            command.Add(stdoutOption);
+            command.Add(noRestoreOption);
+            command.Add(outDirOption);
+            command.Add(outFileOption);
+            command.Add(outputFormatOption);
+            command.Add(includeParamsOption);
+
+            command.SetAction((result, ct) => RunCommandAsync(async () =>
+            {
+                var args = new GenerateParametersFileArguments(
+                    result.GetRequiredValue(inputFileArgument),
+                    result.GetValue(stdoutOption),
+                    result.GetValue(noRestoreOption),
+                    result.GetValue(outDirOption),
+                    result.GetValue(outFileOption),
+                    result.GetValue(outputFormatOption),
+                    result.GetValue(includeParamsOption));
+
+                return await services.GetRequiredService<GenerateParametersFileCommand>().RunAsync(args);
+            }));
+
+            return command;
+        }
+
+        private Command CreateDecompileCommand()
+        {
+            var command = new Command(Constants.Command.Decompile, "Attempts to decompile a template .json file to .bicep.")
+            {
+                TreatUnmatchedTokensAsErrors = true,
+            };
+
+            var inputFileArgument = new Argument<string>("input-file")
+            {
+                Description = "The path to the ARM template .json file.",
+            };
+            var stdoutOption = new Option<bool>("--stdout")
+            {
+                Description = "Print output to stdout.",
+            };
+            var forceOption = new Option<bool>("--force")
+            {
+                Description = "Allow overwriting existing files.",
+            };
+            var outDirOption = new Option<string?>("--outdir")
+            {
+                Description = "Save output to the specified directory.",
+            };
+            var outFileOption = new Option<string?>("--outfile")
+            {
+                Description = "Save output to the specified file path.",
+            };
+
+            command.Add(inputFileArgument);
+            command.Add(stdoutOption);
+            command.Add(forceOption);
+            command.Add(outDirOption);
+            command.Add(outFileOption);
+
+            command.SetAction((result, ct) => RunCommandAsync(async () =>
+            {
+                var args = new DecompileArguments(
+                    result.GetRequiredValue(inputFileArgument),
+                    result.GetValue(stdoutOption),
+                    result.GetValue(forceOption),
+                    result.GetValue(outDirOption),
+                    result.GetValue(outFileOption));
+
+                return await services.GetRequiredService<DecompileCommand>().RunAsync(args);
+            }));
+
+            return command;
+        }
+
+        private Command CreateDecompileParamsCommand()
+        {
+            var command = new Command(Constants.Command.DecompileParams, "Attempts to decompile a parameters .json file to .bicepparam.")
+            {
+                TreatUnmatchedTokensAsErrors = true,
+            };
+
+            var inputFileArgument = new Argument<string>("input-file")
+            {
+                Description = "The path to the parameters .json file.",
+            };
+            var stdoutOption = new Option<bool>("--stdout")
+            {
+                Description = "Print output to stdout.",
+            };
+            var forceOption = new Option<bool>("--force")
+            {
+                Description = "Allow overwriting existing files.",
+            };
+            var outDirOption = new Option<string?>("--outdir")
+            {
+                Description = "Save output to the specified directory.",
+            };
+            var outFileOption = new Option<string?>("--outfile")
+            {
+                Description = "Save output to the specified file path.",
+            };
+            var bicepFileOption = new Option<string?>("--bicep-file")
+            {
+                Description = "Path to the .bicep template file associated with the parameters file.",
+            };
+
+            command.Add(inputFileArgument);
+            command.Add(stdoutOption);
+            command.Add(forceOption);
+            command.Add(outDirOption);
+            command.Add(outFileOption);
+            command.Add(bicepFileOption);
+
+            command.SetAction((result, ct) => RunCommandAsync(async () =>
+            {
+                var args = new DecompileParamsArguments(
+                    result.GetRequiredValue(inputFileArgument),
+                    result.GetValue(stdoutOption),
+                    result.GetValue(forceOption),
+                    result.GetValue(outDirOption),
+                    result.GetValue(outFileOption),
+                    result.GetValue(bicepFileOption));
+
+                return await Task.FromResult(services.GetRequiredService<DecompileParamsCommand>().Run(args));
+            }));
+
+            return command;
         }
 
         private Command CreateJsonRpcCommand()
