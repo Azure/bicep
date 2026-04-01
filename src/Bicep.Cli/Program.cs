@@ -90,6 +90,9 @@ namespace Bicep.Cli
 
         public async Task<int> RunAsync(string[] args, CancellationToken cancellationToken)
         {
+            // Strip --oci-enabled flag before argument parsing (it's handled via env var or DI overrides)
+            args = ProcessExperimentalFeatureArguments(args, out _);
+
             var environment = services.GetRequiredService<IEnvironment>();
             Trace.WriteLine($"Bicep version: {environment.GetVersionString()}, OS: {environment.CurrentPlatform?.ToString() ?? "unknown"}, Architecture: {environment.CurrentArchitecture}, CLI arguments: \"{string.Join(' ', args)}\"");
 

@@ -9,7 +9,7 @@ import { drag } from "d3-drag";
 import { select } from "d3-selection";
 import { useEffect } from "react";
 
-export function useDragListener(ref: RefObject<HTMLDivElement>, onDrag: (dx: number, dy: number) => void) {
+export function useDragListener(ref: RefObject<HTMLDivElement | null>, onDrag: (dx: number, dy: number) => void) {
   const getPanZoomTransform = useGetPanZoomTransform();
 
   useEffect(() => {

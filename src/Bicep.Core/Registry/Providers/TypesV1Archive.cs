@@ -42,9 +42,12 @@ public static class TypesV1Archive
             throw new InvalidOperationException($"Extension type index \"{typeIndexPath}\" could not be parsed: {exception.Message}", exception);
         }
 
-        if (typeIndex.Resources is null || typeIndex.Resources.Count == 0)
+        var hasResources = typeIndex.Resources is not null && typeIndex.Resources.Count > 0;
+        var hasNamespaceFunctions = typeIndex.NamespaceFunctions is not null && typeIndex.NamespaceFunctions.Count > 0;
+
+        if (!hasResources && !hasNamespaceFunctions)
         {
-            throw new InvalidOperationException($"Extension type index \"{typeIndexPath}\" must define at least one entry in the \"resources\" object.");
+            throw new InvalidOperationException($"Extension type index \"{typeIndexPath}\" must define at least one entry in the \"resources\" or \"namespaceFunctions\" object.");
         }
 
         using var stream = new MemoryStream();
@@ -68,7 +71,7 @@ public static class TypesV1Archive
 
     private static IEnumerable<string> EnumerateDistinctTypeReferences(TypeIndex index)
     {
-        var allTypeReferences = index.Resources.Values
+        var allTypeReferences = (index.Resources?.Values ?? [])
             .Concat(index.FallbackResourceType is { } fallbackType ? [fallbackType] : [])
             .Concat(index.Settings?.ConfigurationType is { } configType ? [configType] : [])
             .Concat(index.NamespaceFunctions is { } namespaceFunctions ? namespaceFunctions : []);

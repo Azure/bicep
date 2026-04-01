@@ -44,23 +44,10 @@ namespace Bicep.Core.UnitTests.Registry
         }
 
         [TestMethod]
-        public void TryParseArtifactReference_ShouldFailForNonAzureRegistryWhenFeatureDisabled()
+        public void TryParseArtifactReference_ShouldSucceedForNonAzureRegistry()
         {
             var (registry, _) = OciRegistryHelper.CreateModuleRegistry();
             var referencingFile = BicepTestConstants.CreateDummyBicepFile(featureOverrides: new FeatureProviderOverrides(OciEnabled: false));
-
-            var result = registry.TryParseArtifactReference(referencingFile, ArtifactType.Module, aliasName: null, reference: "ghcr.io/contoso/app:v1");
-
-            result.IsSuccess(out _, out var failureBuilder).Should().BeFalse();
-            var diagnostic = failureBuilder!(ForDocumentStart());
-            diagnostic.Code.Should().Be("BCP446");
-        }
-
-        [TestMethod]
-        public void TryParseArtifactReference_ShouldSucceedForNonAzureRegistryWhenFeatureEnabled()
-        {
-            var (registry, _) = OciRegistryHelper.CreateModuleRegistry();
-            var referencingFile = BicepTestConstants.CreateDummyBicepFile(featureOverrides: new FeatureProviderOverrides(OciEnabled: true));
 
             var result = registry.TryParseArtifactReference(referencingFile, ArtifactType.Module, aliasName: null, reference: "ghcr.io/contoso/app:v1");
 

@@ -41,7 +41,7 @@ public static class RegistryHelper
 {
     private static ServiceBuilder ConfigureServiceBuilder(ServiceBuilder serviceBuilder)
         => serviceBuilder
-            .WithFeaturesOverridden(f => f with { RegistryEnabled = true, OciEnabled = true })
+            .WithFeaturesOverridden(f => f with { RegistryEnabled = true })
             .WithRegistration(services =>
             {
                 services.AddSingleton<RegistryProviderFactory>(sp =>
@@ -159,8 +159,7 @@ public static class RegistryHelper
     {
         var fileExplorer = new FileSystemFileExplorer(fileSystem);
         var configurationManager = new ConfigurationManager(fileExplorer);
-        var ociOverrides = new FeatureProviderOverrides(OciEnabled: true);
-        var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, fileExplorer), ociOverrides);
+        var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, fileExplorer), BicepTestConstants.FeatureOverrides);
 
         serviceBuilder = ConfigureServiceBuilder(serviceBuilder)
             .WithDisabledAnalyzersConfiguration()
@@ -299,7 +298,7 @@ public static class RegistryHelper
 
         var bicepFile = bicepFileUri is not null
             ? sourceFileFactory.CreateBicepFile(bicepFileUri.ToIOUri(), "")
-            : BicepTestConstants.CreateDummyBicepFile(featureOverrides: new FeatureProviderOverrides(OciEnabled: true));
+            : BicepTestConstants.DummyBicepFile;
 
         if (!dispatcher.TryGetArtifactReference(bicepFile, ArtifactType.Extension, target).IsSuccess(out var targetReference, out var errorBuilder))
         {

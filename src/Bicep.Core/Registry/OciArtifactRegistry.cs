@@ -70,11 +70,6 @@ namespace Bicep.Core.Registry
                 return new(failureBuilder);
             }
 
-            if (!referencingFile.Features.OciEnabled && !OciRegistryTransportFactory.IsAzureHost(@ref.Registry))
-            {
-                return new(x => x.NonAzureOciRegistryRequiresExperimentalFeature(@ref.Registry));
-            }
-
             return new(@ref);
         }
 
