@@ -23,10 +23,10 @@ jobs:
     steps:
       - name: Bot Details
         id: bot-details
-        uses: raven-actions/bot-details@v1
+        uses: raven-actions/bot-details@ee8966a9ff6e7e42cbfc4a56b4ddb60a9d1b40a6 # v1
 
         # Obtain the name of the branch that is linked to the pull request for the triggering comment.
-      - uses: xt0rted/pull-request-comment-branch@v3
+      - uses: xt0rted/pull-request-comment-branch@e8b8daa837e8ea7331c0003c9c316a64c6d8b0b1 # v3
         id: comment-branch
 
       - name: Dump comment context
@@ -35,7 +35,7 @@ jobs:
         run: echo "$COMMENT_CONTEXT"
 
       - name: Dispatch slash command
-        uses: peter-evans/slash-command-dispatch@v5
+        uses: peter-evans/slash-command-dispatch@9bdcd7914ec1b75590b790b844aa3b8eee7c683a # v5
         id: slash-command
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
