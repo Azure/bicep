@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { ExportFormat } from "./types";
-
-import { toJpeg, toPng, toSvg } from "html-to-image";
+import { toPng } from "html-to-image";
 import { getDefaultStore } from "jotai";
 import { nodesByIdAtom } from "@/lib/graph";
 
@@ -66,272 +64,6 @@ function findTransformedElement(root: HTMLElement): HTMLElement | null {
 }
 
 /**
- * Snapshot the computed style of a blank detached <div> to learn
- * every default property value.
- */
-function computeCssDefaults(): Map<string, string> {
-  const el = document.createElement("div");
-  document.body.appendChild(el);
-  const cs = getComputedStyle(el);
-  const defaults = new Map<string, string>();
-  for (let i = 0; i < cs.length; i++) {
-    const prop = cs[i]!;
-    defaults.set(prop, cs.getPropertyValue(prop));
-  }
-  document.body.removeChild(el);
-  return defaults;
-}
-
-/**
- * Properties that never affect the visual output of a static SVG export.
- */
-const NON_VISUAL_PROPS = new Set([
-  "cursor",
-  "caret-color",
-  "pointer-events",
-  "user-select",
-  "-webkit-user-select",
-  "touch-action",
-  "resize",
-  "outline",
-  "outline-color",
-  "outline-offset",
-  "outline-style",
-  "outline-width",
-  "orphans",
-  "widows",
-  "page",
-  "page-break-after",
-  "page-break-before",
-  "page-break-inside",
-  "break-after",
-  "break-before",
-  "break-inside",
-  "accent-color",
-  "appearance",
-  "backface-visibility",
-  "buffered-rendering",
-  "contain",
-  "container",
-  "container-name",
-  "container-type",
-  "content-visibility",
-  "forced-color-adjust",
-  "image-orientation",
-  "image-rendering",
-  "interpolate-size",
-  "isolation",
-  "math-depth",
-  "math-shift",
-  "math-style",
-  "mix-blend-mode",
-  "object-fit",
-  "object-position",
-  "object-view-box",
-  "perspective",
-  "perspective-origin",
-  "print-color-adjust",
-  "ruby-align",
-  "ruby-position",
-  "shape-image-threshold",
-  "shape-margin",
-  "shape-outside",
-  "speak",
-  "table-layout",
-  "text-combine-upright",
-  "text-orientation",
-  "text-size-adjust",
-  "timeline-scope",
-  "unicode-bidi",
-  "will-change",
-  "writing-mode",
-  "counter-increment",
-  "counter-reset",
-  "counter-set",
-  "content",
-]);
-
-/** Prefix families that are entirely non-visual for a static export. */
-const NON_VISUAL_PREFIXES = [
-  "animation",
-  "transition",
-  "scroll-",
-  "scrollbar-",
-  "overscroll-",
-  "contain-intrinsic-",
-  "view-transition-",
-  "view-timeline-",
-  "scroll-timeline-",
-  "anchor-",
-  "app-region",
-];
-
-function isNonVisualProperty(prop: string): boolean {
-  if (prop.startsWith("--")) return true;
-  if (NON_VISUAL_PROPS.has(prop)) return true;
-  return NON_VISUAL_PREFIXES.some((pfx) => prop.startsWith(pfx));
-}
-
-/**
- * Inheritable properties must be preserved even when they match the
- * browser default, because a standalone SVG has no parent to inherit from.
- */
-const INHERITABLE_PROPS = new Set([
-  "color",
-  "direction",
-  "font",
-  "font-family",
-  "font-size",
-  "font-style",
-  "font-variant",
-  "font-weight",
-  "font-stretch",
-  "font-size-adjust",
-  "letter-spacing",
-  "line-height",
-  "text-align",
-  "text-indent",
-  "text-transform",
-  "white-space-collapse",
-  "word-spacing",
-  "word-break",
-  "visibility",
-  "cursor",
-  "-webkit-text-fill-color",
-  "-webkit-text-stroke",
-  "fill",
-  "fill-opacity",
-  "fill-rule",
-  "stroke",
-  "stroke-dasharray",
-  "stroke-dashoffset",
-  "stroke-linecap",
-  "stroke-linejoin",
-  "stroke-miterlimit",
-  "stroke-opacity",
-  "stroke-width",
-]);
-
-/**
- * Remove custom properties, known non-visual declarations,
- * and declarations whose values match the browser default.
- */
-function stripBloatedDeclarations(style: string, cssDefaults: Map<string, string>): string {
-  return style
-    .split(";")
-    .filter((decl) => {
-      const trimmed = decl.trim();
-      if (!trimmed) return false;
-      const colonIdx = trimmed.indexOf(":");
-      if (colonIdx === -1) return false;
-      const prop = trimmed.substring(0, colonIdx).trim().toLowerCase();
-      if (isNonVisualProperty(prop)) return false;
-      if (INHERITABLE_PROPS.has(prop)) return true;
-      const val = trimmed.substring(colonIdx + 1).trim();
-      const defaultVal = cssDefaults.get(prop);
-      if (defaultVal !== undefined && val === defaultVal) return false;
-      return true;
-    })
-    .map((d) => d.trim())
-    .join("; ");
-}
-
-/**
- * Strip bloat from the SVG data URL produced by html-to-image.
- */
-function cleanSvgDataUrl(dataUrl: string, cssDefaults: Map<string, string>): string {
-  const prefix = "data:image/svg+xml;charset=utf-8,";
-  if (!dataUrl.startsWith(prefix)) return dataUrl;
-
-  try {
-    const svgText = decodeURIComponent(dataUrl.slice(prefix.length));
-    const doc = new DOMParser().parseFromString(svgText, "image/svg+xml");
-
-    if (doc.querySelector("parsererror")) {
-      console.warn("SVG parse error, returning original");
-      return dataUrl;
-    }
-
-    const root = doc.documentElement;
-    const elements: Element[] = [root];
-    const tw = doc.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
-    let n: Node | null;
-    while ((n = tw.nextNode())) elements.push(n as Element);
-
-    for (const el of elements) {
-      if (el.localName === "style") {
-        el.parentNode?.removeChild(el);
-        continue;
-      }
-
-      el.removeAttribute("class");
-      el.removeAttribute("data-testid");
-
-      const raw = el.getAttribute("style");
-      if (raw) {
-        const cleaned = stripBloatedDeclarations(raw, cssDefaults);
-        if (cleaned) {
-          el.setAttribute("style", cleaned);
-        } else {
-          el.removeAttribute("style");
-        }
-      }
-    }
-
-    // --- Pass 2: deduplicate inline styles into shared CSS classes ---
-    const remaining: Element[] = [];
-    const tw2 = doc.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
-    let n2: Node | null = root;
-    while (n2) {
-      remaining.push(n2 as Element);
-      n2 = tw2.nextNode();
-    }
-
-    const styleCounts = new Map<string, number>();
-    for (const el of remaining) {
-      const s = el.getAttribute("style");
-      if (s) styleCounts.set(s, (styleCounts.get(s) ?? 0) + 1);
-    }
-
-    const styleToClass = new Map<string, string>();
-    let classIdx = 0;
-    for (const [style, count] of styleCounts) {
-      if (count >= 2) {
-        styleToClass.set(style, `s${classIdx++}`);
-      }
-    }
-
-    if (styleToClass.size > 0) {
-      for (const el of remaining) {
-        const s = el.getAttribute("style");
-        if (s && styleToClass.has(s)) {
-          el.removeAttribute("style");
-          el.setAttribute("class", styleToClass.get(s)!);
-        }
-      }
-
-      let css = "";
-      for (const [style, cls] of styleToClass) {
-        css += `.${cls} { ${style} }\n`;
-      }
-
-      const defs =
-        root.querySelector("defs") ??
-        root.insertBefore(doc.createElementNS("http://www.w3.org/2000/svg", "defs"), root.firstChild);
-      const styleEl = doc.createElementNS("http://www.w3.org/2000/svg", "style");
-      styleEl.textContent = css;
-      defs.appendChild(styleEl);
-    }
-
-    const out = new XMLSerializer().serializeToString(root);
-    return prefix + encodeURIComponent(out);
-  } catch (error) {
-    console.warn("SVG cleanup failed, returning original:", error);
-    return dataUrl;
-  }
-}
-
-/**
  * Capture the graph by cloning the canvas into an off-screen element.
  *
  * This avoids touching the live canvas at all — no flicker, no
@@ -342,9 +74,8 @@ function cleanSvgDataUrl(dataUrl: string, cssDefaults: Map<string, string>): str
 export async function captureGraphElement(
   canvasElement: HTMLElement,
   store: Store,
-  format: ExportFormat,
   padding: number,
-  backgroundColor: string,
+  backgroundColor: string | undefined,
 ): Promise<string> {
   const bounds = computeGraphBounds(store);
   if (!bounds) throw new Error("No graph nodes to export");
@@ -397,7 +128,8 @@ export async function captureGraphElement(
     const options = {
       width: captureWidth,
       height: captureHeight,
-      backgroundColor: format === "jpeg" ? backgroundColor : undefined,
+      backgroundColor,
+      pixelRatio: 2,
       filter: (node: HTMLElement) => {
         // Exclude the dot-pattern background SVGs from the export.
         if (node.tagName === "svg" && node.querySelector?.("pattern")) {
@@ -407,39 +139,11 @@ export async function captureGraphElement(
       },
     };
 
-    // Snapshot CSS defaults while we have live DOM access.
-    const cssDefaults = computeCssDefaults();
-
-    switch (format) {
-      case "svg":
-        return cleanSvgDataUrl(await toSvg(clone, options), cssDefaults);
-      case "png":
-        return await toPng(clone, { ...options, pixelRatio: 2 });
-      case "jpeg":
-        return await toJpeg(clone, {
-          ...options,
-          quality: 0.95,
-          backgroundColor,
-        });
-    }
+    return await toPng(clone, options);
   } finally {
     document.body.removeChild(wrapper);
   }
 }
-
-/** MIME types for each export format. */
-const FORMAT_MIME: Record<ExportFormat, string> = {
-  svg: "image/svg+xml",
-  png: "image/png",
-  jpeg: "image/jpeg",
-};
-
-/** File extension descriptions for the Save dialog. */
-const FORMAT_DESC: Record<ExportFormat, string> = {
-  svg: "SVG Image",
-  png: "PNG Image",
-  jpeg: "JPEG Image",
-};
 
 /**
  * Convert a data-URL to a Blob.
@@ -454,7 +158,7 @@ function dataUrlToBlob(dataUrl: string): Blob {
     for (let i = 0; i < bytes.length; i++) buf[i] = bytes.charCodeAt(i);
     return new Blob([buf], { type: mime });
   }
-  // charset=utf-8, URI-encoded (SVG path)
+  // Fallback: URI-encoded data URL.
   const commaIdx = dataUrl.indexOf(",");
   const meta = dataUrl.substring(0, commaIdx);
   const mime = meta.split(":")[1]?.split(";")[0] ?? "application/octet-stream";
@@ -467,7 +171,7 @@ function dataUrlToBlob(dataUrl: string): Blob {
  * Falls back to a direct download if the File System Access API
  * is not available (e.g. non-Chromium browsers).
  */
-export async function saveDataUrl(dataUrl: string, defaultName: string, format: ExportFormat): Promise<void> {
+export async function saveDataUrl(dataUrl: string, defaultName: string): Promise<void> {
   const blob = dataUrlToBlob(dataUrl);
 
   // Try the File System Access API (Chromium-based browsers).
@@ -477,8 +181,8 @@ export async function saveDataUrl(dataUrl: string, defaultName: string, format: 
         suggestedName: defaultName,
         types: [
           {
-            description: FORMAT_DESC[format],
-            accept: { [FORMAT_MIME[format]]: [`.${format}`] },
+            description: "PNG Image",
+            accept: { "image/png": [".png"] },
           },
         ],
       });

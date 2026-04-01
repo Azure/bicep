@@ -2,18 +2,17 @@
   "version": "1.0.0",
   "private": true,
   "devDependencies": {
-    "@eslint/js": "^9.30.0",
+    "@eslint/js": "^10.0.1",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "@types/cross-spawn": "^6.0.6",
     "@types/eslint__js": "^8.42.3",
     "@types/uuid": "^11.0.0",
-    "@vitest/eslint-plugin": "^1.4.3",
+    "@vitest/eslint-plugin": "^1.6.13",
     "cross-spawn": "^7.0.6",
-    "eslint": "^9.39.2",
-    "eslint-plugin-notice": "^1.0.0",
+    "eslint": "^10.0.0",
     "prettier": "^3.8.1",
-    "typescript": "~5.9.3",
-    "typescript-eslint": "^8.57.1",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.58.0",
     "vitest": "^2.1.9"
   },
   "scripts": {

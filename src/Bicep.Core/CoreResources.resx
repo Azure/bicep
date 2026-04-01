@@ -553,4 +553,15 @@
   <data name="NoExplicitAnyRule_Description" xml:space="preserve">
     <value>Avoid using an explicit 'any' type whenever possible.</value>
   </data>
+  <data name="UseRecognizedResourceTypeRule_Description" xml:space="preserve">
+    <value>Warn if a 'reference' or 'list*' function call uses an unrecognized resource type.</value>
+  </data>
+  <data name="UseRecognizedResourceTypeRule_MessageFormat" xml:space="preserve">
+    <value>Resource type "{0}" is not recognized in function "{1}". If this resource type does exist, the API version must be specified as a function argument.</value>
+    <comment>{0} = resource type, {1} = function name</comment>
+  </data>
+  <data name="UseRecognizedResourceTypeRule_MessageFormatWithSuggestion" xml:space="preserve">
+    <value>Resource type "{0}" is not recognized in function "{1}". Did you mean "{2}"? If this resource type does exist, the API version must be specified as a function argument.</value>
+    <comment>{0} = resource type, {1} = function name, {2} = suggested resource type</comment>
+  </data>
 </root>
