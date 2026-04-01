@@ -56,6 +56,9 @@
     <ProjectReference Include="..\Bicep.IO\Bicep.IO.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="OrasProject.Oras" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Update="CoreResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>

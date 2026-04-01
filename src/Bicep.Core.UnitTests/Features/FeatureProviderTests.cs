@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Configuration;
@@ -64,5 +65,31 @@ public class FeatureProviderTests
         mainDirFeatures.SymbolicNameCodegenEnabled.Should().BeFalse();
         var subDirFeatures = fpm.GetFeatureProvider(fileSet.GetUri("repo/subdir/module.bicep"));
         subDirFeatures.SymbolicNameCodegenEnabled.Should().BeTrue();
+    }
+
+    [TestMethod]
+    public void OciEnabled_ShouldHonorEnvironmentVariable()
+    {
+        var original = Environment.GetEnvironmentVariable("BICEP_EXPERIMENTAL_OCI");
+
+        try
+        {
+            Environment.SetEnvironmentVariable("BICEP_EXPERIMENTAL_OCI", "1");
+
+            var fileSet = InMemoryTestFileSet.Create(("repo/bicepconfig.json", """
+                {
+                  "experimentalFeaturesEnabled": {}
+                }
+                """));
+
+            var configManager = new ConfigurationManager(fileSet.FileExplorer);
+            var featureProvider = new FeatureProvider(configManager.GetConfiguration(fileSet.GetUri("repo/main.bicep")), fileSet.FileExplorer);
+
+            featureProvider.OciEnabled.Should().BeTrue();
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("BICEP_EXPERIMENTAL_OCI", original);
+        }
     }
 }

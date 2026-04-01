@@ -1,19 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog;
+using Bicep.Core.Registry.Auth;
+using Bicep.Core.Registry.Azure;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Registry.Sessions;
+using Bicep.Core.Registry.Providers;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Memory;
 using Moq;
@@ -77,7 +82,17 @@ namespace Bicep.Core.UnitTests.Utils
                 .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
                 .Returns(blobClient);
 
-            var registry = new OciArtifactRegistry(clientFactory.Object, StrictMock.Of<IPublicModuleMetadataProvider>().Object);
+            var azureTransport = new AzureContainerRegistryManager(clientFactory.Object);
+            var providerFactory = new RegistryProviderFactory(new IRegistryProvider[]
+            {
+                new StaticRegistryProvider(azureTransport),
+            });
+            var transportFactory = new OciRegistryTransportFactory(providerFactory);
+            var registry = new OciArtifactRegistry(
+                transportFactory,
+                StrictMock.Of<IPublicModuleMetadataProvider>().Object,
+                StrictMock.Of<ICredentialChain>().Object,
+                NullLogger<OciArtifactRegistry>.Instance);
 
             return (registry, blobClient);
         }
@@ -106,7 +121,28 @@ namespace Bicep.Core.UnitTests.Utils
             );
 
             return (client, clientFactory);
-        }
-
     }
+
+}
+
+internal sealed class StaticRegistryProvider : IRegistryProvider
+{
+    private readonly AzureContainerRegistryManager transport;
+
+    public StaticRegistryProvider(AzureContainerRegistryManager transport)
+    {
+        this.transport = transport;
+    }
+
+    public string Name => WellKnownRegistryProviders.Acr;
+
+    public int Priority => int.MaxValue;
+
+    public bool CanHandle(string registry) => true;
+
+    public IOciRegistryTransport GetTransport(string registry) => transport;
+
+    public IRegistrySession CreateSession(RegistryRef reference, RegistryProviderContext context)
+        => new AcrRegistrySession(transport, context.Cloud);
+}
 }

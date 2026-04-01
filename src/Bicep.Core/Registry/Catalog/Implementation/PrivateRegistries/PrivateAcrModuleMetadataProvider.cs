@@ -24,16 +24,16 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
     private const int MaxReturnedModules = 10000;
 
     private readonly CloudConfiguration cloud;
-    private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
+    private readonly IOciRegistryTransportFactory transportFactory;
 
     public PrivateAcrModuleMetadataProvider(
         CloudConfiguration cloud,
         string registry,
-        IContainerRegistryClientFactory containerRegistryClientFactory
+        IOciRegistryTransportFactory transportFactory
     ) : base(registry)
     {
         this.cloud = cloud;
-        this.containerRegistryClientFactory = containerRegistryClientFactory;
+        this.transportFactory = transportFactory;
     }
 
     protected override async Task<ImmutableArray<RegistryModuleVersionMetadata>> GetLiveModuleVersionsAsync(string modulePath)
@@ -41,10 +41,10 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
         var registry = Registry;
         var repository = modulePath;
 
-        AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
+        var transport = transportFactory.GetTransport(registry);
 
         // For this part we want to throw on errors
-        var tags = await acrManager.GetRepositoryTagsAsync(cloud, registry, repository);
+        var tags = await transport.GetRepositoryTagsAsync(cloud, registry, repository);
 
         // For the rest, we'll be resilient
         return [.. await Task.WhenAll(
@@ -56,8 +56,8 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
     {
         try
         {
-            AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
-            var artifactResult = await acrManager.PullArtifactAsync(cloud, new OciArtifactAddressComponents(Registry, modulePath, version, null));
+            var transport = transportFactory.GetTransport(Registry);
+            var artifactResult = await transport.PullArtifactAsync(cloud, new OciArtifactAddressComponents(Registry, modulePath, version, null));
             var manifest = artifactResult.Manifest;
 
             if (manifest.ArtifactType != BicepMediaTypes.BicepModuleArtifactType)
@@ -94,8 +94,8 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
     {
         Trace.WriteLine($"Retrieving catalog for registry {Registry}...");
 
-        AzureContainerRegistryManager acrManager = new(containerRegistryClientFactory);
-        var catalog = await acrManager.GetRepositoryNamesAsync(cloud, Registry, MaxReturnedModules);
+        var transport = transportFactory.GetTransport(Registry);
+        var catalog = await transport.GetRepositoryNamesAsync(cloud, Registry, MaxReturnedModules);
 
         Trace.WriteLine($"Found {catalog.Length} repositories");
 

@@ -48,6 +48,10 @@ Enables Bicep to run deployments locally, so that you can run Bicep extensions w
 Moves defining extension configurations to the module level rather than from within a template. The feature also
 includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use.
 
+### `ociEnabled`
+
+Enables publishing and restoring Bicep modules and extensions from non-Azure OCI-compliant registries (e.g. GHCR, Docker Hub) using the ORAS transport. Can also be enabled via the `--oci-enabled` CLI flag or the `BICEP_EXPERIMENTAL_OCI=1` environment variable.
+
 ### `resourceInfoCodegen`
 
 Enables the 'resourceInfo' function for simplified code generation.

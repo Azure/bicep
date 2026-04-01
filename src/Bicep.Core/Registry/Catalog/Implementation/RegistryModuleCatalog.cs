@@ -3,6 +3,7 @@
 
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
+using Bicep.Core.Registry.Oci;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry.Catalog.Implementation;
@@ -13,7 +14,7 @@ namespace Bicep.Core.Registry.Catalog.Implementation;
 public class RegistryModuleCatalog : IRegistryModuleCatalog
 {
     private readonly IPrivateAcrModuleMetadataProviderFactory providerFactory;
-    private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
+    private readonly IOciRegistryTransportFactory transportFactory;
     private readonly IConfigurationManager configurationManager;
     private readonly object lockObject = new();
 
@@ -22,12 +23,12 @@ public class RegistryModuleCatalog : IRegistryModuleCatalog
     public RegistryModuleCatalog(
         IPublicModuleMetadataProvider publicModuleMetadataProvider,
         IPrivateAcrModuleMetadataProviderFactory privateProviderFactory,
-        IContainerRegistryClientFactory containerRegistryClientFactory,
+        IOciRegistryTransportFactory transportFactory,
         IConfigurationManager configurationManager
     )
     {
         providerFactory = privateProviderFactory;
-        this.containerRegistryClientFactory = containerRegistryClientFactory;
+        this.transportFactory = transportFactory;
         this.configurationManager = configurationManager;
 
         registryProviders["mcr.microsoft.com"] = publicModuleMetadataProvider;
@@ -42,7 +43,7 @@ public class RegistryModuleCatalog : IRegistryModuleCatalog
                 return provider;
             }
 
-            provider = providerFactory.Create(cloud, registry, containerRegistryClientFactory);
+            provider = providerFactory.Create(cloud, registry, transportFactory);
             registryProviders[registry] = provider;
 
             return provider;

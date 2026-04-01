@@ -13,6 +13,8 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Registry.Sessions;
+using Bicep.Core.Registry.Providers;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
@@ -81,8 +83,16 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 
-        public static IArtifactRegistryProvider CreateRegistryProvider(IServiceProvider services) =>
-            new DefaultArtifactRegistryProvider(services, ClientFactory, TemplateSpecRepositoryFactory);
+        public static IArtifactRegistryProvider CreateRegistryProvider(IServiceProvider services)
+        {
+            var transport = new AzureContainerRegistryManager(ClientFactory);
+            var providerFactory = new RegistryProviderFactory(new IRegistryProvider[]
+            {
+                new StaticRegistryProvider(transport),
+            });
+            var transportFactory = new OciRegistryTransportFactory(providerFactory);
+            return new DefaultArtifactRegistryProvider(services, transportFactory, TemplateSpecRepositoryFactory);
+        }
 
         public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) => new ModuleDispatcher(CreateRegistryProvider(services));
 

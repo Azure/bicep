@@ -178,6 +178,15 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to OCI registry support.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_OciEnabled {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_OciEnabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Resource info code generation.
         /// </summary>
         internal static string ExperimentalFeatureNames_ResourceInfoCodegen {
