@@ -11,6 +11,8 @@ configuration:
       - description: Approve PRs submitted by dependabot with the "dependencies" label
         if:
           - payloadType: Pull_Request
+          - isAction:
+              action: Opened
           - hasLabel:
               label: dependencies
           - isActivitySender:
