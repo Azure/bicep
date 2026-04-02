@@ -675,7 +675,7 @@ jobs:
         uses: docker://mcr.microsoft.com/azure-cli:2.63.0
         with:
           entrypoint: sh
-          args: -c "set -eu && apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.21/main nodejs npm sqlite-libs && node -v && npm -v && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
+          args: -c "set -eu && apk add --no-cache --upgrade --repository https://dl-cdn.alpinelinux.org/alpine/v3.21/main nodejs npm sqlite-libs && node -v && npm -v && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
         env:
           BICEP_CLI_DOTNET_RID: ${{ matrix.runtime.rid }}
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
@@ -867,7 +867,7 @@ jobs:
       - name: Setup Node.js
         run: |
           set -eu
-          apk add --no-cache --repository https://dl-cdn.alpinelinux.org/alpine/v3.21/main nodejs npm sqlite-libs
+          apk add --no-cache --upgrade --repository https://dl-cdn.alpinelinux.org/alpine/v3.21/main nodejs npm sqlite-libs
           node -v
           npm -v
 
