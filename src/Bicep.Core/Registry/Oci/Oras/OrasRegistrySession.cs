@@ -174,7 +174,7 @@ internal sealed class OrasRegistrySession : IRegistrySession
             return IPAddress.IsLoopback(address);
         }
 
-        return registry.Contains("localhost", StringComparison.OrdinalIgnoreCase);
+        return string.Equals(uri?.Host, "localhost", StringComparison.OrdinalIgnoreCase);
     }
 
     private static OciDescriptor CreateDescriptor(OciArtifactLayer layer) =>

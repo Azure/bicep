@@ -60,6 +60,10 @@ public class OrasOciRegistryTransport : IOciRegistryTransport
                 }
             }
         }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
         catch (Exception exception)
         {
             throw new ExternalArtifactException(exception.Message, exception);
@@ -80,6 +84,10 @@ public class OrasOciRegistryTransport : IOciRegistryTransport
                 cancellationToken.ThrowIfCancellationRequested();
                 tags.Add(tag);
             }
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception exception)
         {
@@ -126,6 +134,10 @@ public class OrasOciRegistryTransport : IOciRegistryTransport
             throw;
         }
         catch (ExternalArtifactException)
+        {
+            throw;
+        }
+        catch (OperationCanceledException)
         {
             throw;
         }
@@ -180,7 +192,12 @@ public class OrasOciRegistryTransport : IOciRegistryTransport
             };
 
             await using var manifestStreamContent = manifestBinaryData.ToStream();
-            await repository.PushAsync(manifestDescriptor, manifestStreamContent, artifactReference.Tag ?? artifactReference.Digest!, cancellationToken).ConfigureAwait(false);
+            var reference = artifactReference.Tag ?? artifactReference.Digest ?? throw new InvalidOperationException("Artifact reference must have a tag or digest.");
+            await repository.PushAsync(manifestDescriptor, manifestStreamContent, reference, cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
         }
         catch (Exception exception)
         {
@@ -217,7 +234,7 @@ public class OrasOciRegistryTransport : IOciRegistryTransport
             return IPAddress.IsLoopback(address);
         }
 
-        return registry.Contains("localhost", StringComparison.OrdinalIgnoreCase);
+        return string.Equals(uri?.Host, "localhost", StringComparison.OrdinalIgnoreCase);
     }
 
     private static async Task<OciArtifactLayer> FetchLayerAsync(OrasRepositoryClient repository, OciDescriptor descriptor, CancellationToken cancellationToken)

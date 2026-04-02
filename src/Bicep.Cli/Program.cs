@@ -53,9 +53,7 @@ namespace Bicep.Cli
 
         public static async Task<int> Main(string[] args)
         {
-            var normalizedArgs = ProcessExperimentalFeatureArguments(args, out var ociEnabled);
-
-            if (ociEnabled)
+            if (args.Any(a => string.Equals(a, "--oci-enabled", StringComparison.OrdinalIgnoreCase)))
             {
                 System.Environment.SetEnvironmentVariable("BICEP_EXPERIMENTAL_OCI", "1");
             }
@@ -83,15 +81,14 @@ namespace Bicep.Cli
 
                     // this must be awaited so dispose of the listener occurs in the continuation
                     // rather than the sync part at the beginning of RunAsync()
-                    return await program.RunAsync(normalizedArgs, cancellationToken);
+                    return await program.RunAsync(args, cancellationToken);
                 }
             });
         }
 
         public async Task<int> RunAsync(string[] args, CancellationToken cancellationToken)
         {
-            // Strip --oci-enabled flag before argument parsing (it's handled via env var or DI overrides)
-            args = ProcessExperimentalFeatureArguments(args, out _);
+            args = ProcessExperimentalFeatureArguments(args);
 
             var environment = services.GetRequiredService<IEnvironment>();
             Trace.WriteLine($"Bicep version: {environment.GetVersionString()}, OS: {environment.CurrentPlatform?.ToString() ?? "unknown"}, Architecture: {environment.CurrentArchitecture}, CLI arguments: \"{string.Join(' ', args)}\"");
@@ -227,10 +224,8 @@ namespace Bicep.Cli
                 .AddSingleton<IDeploymentProcessor, DeploymentProcessor>()
                 .AddSingleton<DeploymentRenderer>();
 
-        private static string[] ProcessExperimentalFeatureArguments(string[] args, out bool ociEnabled)
+        private static string[] ProcessExperimentalFeatureArguments(string[] args)
         {
-            ociEnabled = false;
-
             if (args.Length == 0)
             {
                 return args;
@@ -242,7 +237,6 @@ namespace Bicep.Cli
             {
                 if (string.Equals(arg, "--oci-enabled", StringComparison.OrdinalIgnoreCase))
                 {
-                    ociEnabled = true;
                     continue;
                 }
 

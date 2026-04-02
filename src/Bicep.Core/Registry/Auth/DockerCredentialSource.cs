@@ -36,7 +36,7 @@ public class DockerCredentialSource : ICredentialSource
 
         if (!string.IsNullOrEmpty(credential.Username) && credential.Password is not null)
         {
-            return new RegistryCredential(AuthScheme.Basic, credential.Username!, credential.Password, null);
+            return new RegistryCredential(AuthScheme.Basic, credential.Username, credential.Password, null);
         }
 
         return null;

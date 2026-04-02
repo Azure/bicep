@@ -27,6 +27,12 @@ internal sealed class ProcessDockerCredentialHelperInvoker : IDockerCredentialHe
             return null;
         }
 
+        if (!IsValidHelperName(helperName))
+        {
+            Trace.WriteLine($"DockerCredentialHelperInvoker: Invalid credential helper name '{helperName}'.");
+            return null;
+        }
+
         var executableName = GetExecutableName(helperName);
 
         try
@@ -112,6 +118,9 @@ internal sealed class ProcessDockerCredentialHelperInvoker : IDockerCredentialHe
         var executable = $"docker-credential-{helperName}";
         return OperatingSystem.IsWindows() ? $"{executable}.exe" : executable;
     }
+
+    private static bool IsValidHelperName(string helperName) =>
+        System.Text.RegularExpressions.Regex.IsMatch(helperName, "^[a-zA-Z0-9._-]+$");
 }
 
 /// <summary>
@@ -199,7 +208,7 @@ public class DockerCredentialProvider : ICredentialProvider
                         continue;
                     }
 
-                    var helperCredential = await helperInvoker.InvokeAsync(helperName!, property.Name, cancellationToken).ConfigureAwait(false);
+                    var helperCredential = await helperInvoker.InvokeAsync(helperName, property.Name, cancellationToken).ConfigureAwait(false);
                     if (helperCredential.HasValue && !helperCredential.Value.IsEmpty())
                     {
                         return helperCredential.Value;
@@ -212,7 +221,7 @@ public class DockerCredentialProvider : ICredentialProvider
                 var helperName = credsStoreElement.GetString();
                 if (!string.IsNullOrWhiteSpace(helperName))
                 {
-                    var helperCredential = await helperInvoker.InvokeAsync(helperName!, hostname, cancellationToken).ConfigureAwait(false);
+                    var helperCredential = await helperInvoker.InvokeAsync(helperName, hostname, cancellationToken).ConfigureAwait(false);
                     if (helperCredential.HasValue && !helperCredential.Value.IsEmpty())
                     {
                         return helperCredential.Value;
@@ -220,21 +229,21 @@ public class DockerCredentialProvider : ICredentialProvider
                 }
             }
         }
-        catch (IOException)
+        catch (IOException ex)
         {
-            // Ignore IO issues and fall back to other providers.
+            Trace.WriteLine($"DockerCredentialProvider: IO error reading Docker config: {ex.Message}");
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
-            // Ignore invalid docker config formats.
+            Trace.WriteLine($"DockerCredentialProvider: Invalid Docker config format: {ex.Message}");
         }
-        catch (UnauthorizedAccessException)
+        catch (UnauthorizedAccessException ex)
         {
-            // Ignore permission issues.
+            Trace.WriteLine($"DockerCredentialProvider: Permission denied reading Docker config: {ex.Message}");
         }
-        catch (FormatException)
+        catch (FormatException ex)
         {
-            // Ignore invalid base64 entries.
+            Trace.WriteLine($"DockerCredentialProvider: Invalid base64 entry in Docker config: {ex.Message}");
         }
 
         return null;
