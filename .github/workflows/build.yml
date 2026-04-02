@@ -666,18 +666,26 @@ jobs:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
 
-      - name: Run Bicep E2E Tests (linux-musl-x64)
+      # azure-cli 2.64.0+ uses Azure Linux 3.0 (glibc). We download the linux-x64 (glibc)
+      # binary to test in the azure-cli container instead of linux-musl-x64 (musl).
+      - name: Download Bicep CLI (linux-x64 for azure-cli container)
+        if: matrix.runtime.rid == 'linux-musl-x64'
+        uses: actions/download-artifact@v8
+        with:
+          name: bicep-release-linux-x64
+          path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
+
+      - name: Run Bicep E2E Tests (azure-cli container)
         if: matrix.runtime.rid == 'linux-musl-x64'
         # DO NOT change this image - we use the azure-cli image intentionally to ensure
-        # that Bicep CLI works correctly when installed via Azure CLI. The azure-cli image
-        # is based on Alpine Linux (musl libc) and already includes the ICU libraries
-        # required by the .NET Bicep CLI binary.
-        uses: docker://mcr.microsoft.com/azure-cli:2.63.0
+        # that Bicep CLI works correctly when installed via Azure CLI.
+        # azure-cli 2.84.0 is the latest image; it is based on Azure Linux 3.0 (glibc).
+        uses: docker://mcr.microsoft.com/azure-cli:2.84.0
         with:
           entrypoint: sh
-          args: -c "set -eu && apk add --no-cache --upgrade --repository https://dl-cdn.alpinelinux.org/alpine/v3.21/main nodejs npm sqlite-libs && node -v && npm -v && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
+          args: -c "set -eu && chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep && tdnf install -y nodejs22 npm && node -v && npm -v && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
         env:
-          BICEP_CLI_DOTNET_RID: ${{ matrix.runtime.rid }}
+          BICEP_CLI_DOTNET_RID: linux-x64
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
 
   test-dotnet:
@@ -853,8 +861,8 @@ jobs:
         environment: [prod] # [prod, ff] - re-add ff once the environment has been re-enabled
     runs-on: ubuntu-latest
     container:
-      # The azure-cli image is based on Alpine linux which uses musl libc.
-      image: mcr.microsoft.com/azure-cli:2.63.0
+      # azure-cli 2.84.0 is the latest image; it is based on Azure Linux 3.0 (glibc).
+      image: mcr.microsoft.com/azure-cli:2.84.0
     needs:
       - build-cli
       - can-run-live-tests
@@ -863,18 +871,18 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      # Cannot use actions/setup-node@v6 for linux-musl-x64
+      # Cannot use actions/setup-node@v6 for Azure Linux containers
       - name: Setup Node.js
         run: |
           set -eu
-          apk add --no-cache --upgrade --repository https://dl-cdn.alpinelinux.org/alpine/v3.21/main nodejs npm sqlite-libs
+          tdnf install -y nodejs22 npm
           node -v
           npm -v
 
       - name: Download Bicep CLI
         uses: actions/download-artifact@v8
         with:
-          name: bicep-release-linux-musl-x64
+          name: bicep-release-linux-x64
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
 
       - name: Make Bicep CLI executable
@@ -893,7 +901,7 @@ jobs:
         continue-on-error: true
         run: npm ci && npm run test:live:${{ matrix.environment }}
         env:
-          BICEP_CLI_DOTNET_RID: linux-musl-x64
+          BICEP_CLI_DOTNET_RID: linux-x64
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
 
@@ -903,6 +911,6 @@ jobs:
           echo "::warning::The initial run of Bicep Live E2E Tests failed. Retrying..."
           npm ci && npm run test:live:${{ matrix.environment }}
         env:
-          BICEP_CLI_DOTNET_RID: linux-musl-x64
+          BICEP_CLI_DOTNET_RID: linux-x64
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
