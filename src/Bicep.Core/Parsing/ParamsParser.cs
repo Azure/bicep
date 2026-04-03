@@ -2,8 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.Syntax;
+using Bicep.Core.Utils;
+
+using SyntaxResult = Bicep.Core.Utils.Result<Bicep.Core.Syntax.SyntaxBase, Bicep.Core.Diagnostics.Diagnostic>;
 
 namespace Bicep.Core.Parsing
 {
@@ -64,14 +68,14 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.ExtendsKeyword => this.ExtendsDeclaration(leadingNodes),
                             LanguageConstants.ParameterKeyword => this.ParameterAssignment(leadingNodes),
                             LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
-                            LanguageConstants.ImportKeyword => this.CompileTimeImportDeclaration(ExpectKeyword(LanguageConstants.ImportKeyword), leadingNodes),
+                            LanguageConstants.ImportKeyword => this.CompileTimeImportDeclaration(reader.Read(), leadingNodes).Transform(x => (SyntaxBase)x),
                             LanguageConstants.ExtensionConfigKeyword => this.ExtensionConfigAssignment(leadingNodes),
-                            LanguageConstants.ExtensionKeyword => this.ExtensionDeclaration(ExpectKeyword(current.Text), leadingNodes),
+                            LanguageConstants.ExtensionKeyword => this.ExtensionDeclaration(reader.Read(), leadingNodes),
                             LanguageConstants.TypeKeyword => this.TypeDeclaration(leadingNodes),
-                            _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration(featureProvider.ModuleExtensionConfigsEnabled)),
+                            _ => Fail<SyntaxBase>(current, b => b.UnrecognizedParamsFileDeclaration(featureProvider.ModuleExtensionConfigsEnabled)),
                         },
-                        TokenType.NewLine => this.NewLine(),
-                        _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration(featureProvider.ModuleExtensionConfigsEnabled)),
+                        TokenType.NewLine => this.NewLine().Transform(x => (SyntaxBase)x),
+                        _ => Fail<SyntaxBase>(current, b => b.UnrecognizedParamsFileDeclaration(featureProvider.ModuleExtensionConfigsEnabled)),
                     };
 
                     string? ValidateKeyword(string keyword) =>
@@ -80,14 +84,20 @@ namespace Bicep.Core.Parsing
                 RecoveryFlags.None,
                 TokenType.NewLine);
 
-        private UsingDeclarationSyntax UsingDeclaration(ImmutableArray<SyntaxBase> leadingNodes)
+        private SyntaxResult UsingDeclaration(ImmutableArray<SyntaxBase> leadingNodes)
         {
-            var keyword = ExpectKeyword(LanguageConstants.UsingKeyword);
+            if (!ExpectKeyword(LanguageConstants.UsingKeyword).IsSuccess(out var keyword, out var err))
+            {
+                return SyntaxResult.Failure(err);
+            }
 
             SyntaxBase expression = reader.Peek().Type switch
             {
-                TokenType.Identifier => new NoneLiteralSyntax(ExpectKeyword(LanguageConstants.NoneKeyword)),
-                TokenType.StringComplete => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedFilePathString()),
+                TokenType.Identifier => new NoneLiteralSyntax(reader.Read()), // 'none' keyword - pre-checked
+                TokenType.StringComplete => this.WithRecovery(
+                    () => FailIfSkipped(this.InterpolableString, b => b.ExpectedFilePathString()),
+                    RecoveryFlags.None,
+                    TokenType.NewLine),
                 _ => SkipEmpty(b => b.ExpectedSymbolListOrWildcard()),
             };
 
@@ -99,53 +109,73 @@ namespace Bicep.Core.Parsing
                 _ => this.WithRecovery(this.UsingWithClause, GetSuppressionFlag(expression), TokenType.NewLine),
             };
 
-            return new(leadingNodes, keyword, expression, withClause);
+            return SyntaxResult.Success(new UsingDeclarationSyntax(leadingNodes, keyword, expression, withClause));
         }
 
-        private ExtendsDeclarationSyntax ExtendsDeclaration(ImmutableArray<SyntaxBase> leadingNodes)
+        private SyntaxResult ExtendsDeclaration(ImmutableArray<SyntaxBase> leadingNodes)
         {
-            var keyword = ExpectKeyword(LanguageConstants.ExtendsKeyword);
+            if (!ExpectKeyword(LanguageConstants.ExtendsKeyword).IsSuccess(out var keyword, out var err))
+            {
+                return SyntaxResult.Failure(err);
+            }
+
             var path = this.WithRecovery(
-                () => ThrowIfSkipped(this.InterpolableString, b => b.ExtendsPathHasNotBeenSpecified()),
+                () => FailIfSkipped(this.InterpolableString, b => b.ExtendsPathHasNotBeenSpecified()),
                 GetSuppressionFlag(keyword),
                 TokenType.NewLine);
 
-            return new ExtendsDeclarationSyntax(leadingNodes, keyword, path);
+            return SyntaxResult.Success(new ExtendsDeclarationSyntax(leadingNodes, keyword, path));
         }
 
-        private SyntaxBase ParameterAssignment(ImmutableArray<SyntaxBase> leadingNodes)
+        private SyntaxResult ParameterAssignment(ImmutableArray<SyntaxBase> leadingNodes)
         {
-            var keyword = ExpectKeyword(LanguageConstants.ParameterKeyword);
+            if (!ExpectKeyword(LanguageConstants.ParameterKeyword).IsSuccess(out var keyword, out var err))
+            {
+                return SyntaxResult.Failure(err);
+            }
+
             var name = this.IdentifierWithRecovery(b => b.ExpectedParameterIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
             var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
 
-            return new ParameterAssignmentSyntax(leadingNodes, keyword, name, assignment, value);
+            return SyntaxResult.Success(new ParameterAssignmentSyntax(leadingNodes, keyword, name, assignment, value));
         }
 
-        private ExtensionConfigAssignmentSyntax ExtensionConfigAssignment(IEnumerable<SyntaxBase> leadingNodes)
+        private SyntaxResult ExtensionConfigAssignment(IEnumerable<SyntaxBase> leadingNodes)
         {
-            var extKeyword = ExpectKeyword(LanguageConstants.ExtensionConfigKeyword);
+            if (!ExpectKeyword(LanguageConstants.ExtensionConfigKeyword).IsSuccess(out var extKeyword, out var err))
+            {
+                return SyntaxResult.Failure(err);
+            }
+
             var aliasSyntax = this.IdentifierWithRecovery(b => b.ExpectedExtensionAliasName(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
             var withClause = this.WithRecovery(this.ExtensionWithClause, GetSuppressionFlag(aliasSyntax), TokenType.NewLine);
 
-            return new(leadingNodes, extKeyword, aliasSyntax, withClause);
+            return SyntaxResult.Success(new ExtensionConfigAssignmentSyntax(leadingNodes, extKeyword, aliasSyntax, withClause));
         }
 
-        private ExtensionWithClauseSyntax ExtensionWithClause()
+        private Result<ExtensionWithClauseSyntax, Diagnostic> ExtensionWithClause()
         {
-            var keyword = this.ExpectKeyword(LanguageConstants.WithKeyword);
+            if (!ExpectKeyword(LanguageConstants.WithKeyword).IsSuccess(out var keyword, out var err))
+            {
+                return Result<ExtensionWithClauseSyntax, Diagnostic>.Failure(err);
+            }
+
             var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine);
 
-            return new(keyword, config);
+            return Result<ExtensionWithClauseSyntax, Diagnostic>.Success(new ExtensionWithClauseSyntax(keyword, config));
         }
 
-        private UsingWithClauseSyntax UsingWithClause()
+        private Result<UsingWithClauseSyntax, Diagnostic> UsingWithClause()
         {
-            var keyword = this.ExpectKeyword(LanguageConstants.WithKeyword, b => b.ExpectedWithKeywordOrNewLine());
+            if (!ExpectKeyword(LanguageConstants.WithKeyword, b => b.ExpectedWithKeywordOrNewLine()).IsSuccess(out var keyword, out var err))
+            {
+                return Result<UsingWithClauseSyntax, Diagnostic>.Failure(err);
+            }
+
             var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine);
 
-            return new(keyword, config);
+            return Result<UsingWithClauseSyntax, Diagnostic>.Success(new UsingWithClauseSyntax(keyword, config));
         }
     }
 }

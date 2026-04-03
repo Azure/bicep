@@ -58,7 +58,15 @@ namespace Bicep.Core.UnitTests.Utils
             return program;
         }
 
-        public static SyntaxBase ParseExpression(string text, ExpressionFlags expressionFlags = ExpressionFlags.AllowComplexLiterals) => new Parser(text).Expression(expressionFlags);
+        public static SyntaxBase ParseExpression(string text, ExpressionFlags expressionFlags = ExpressionFlags.AllowComplexLiterals)
+        {
+            if (!new Parser(text).Expression(expressionFlags).IsSuccess(out var syntax, out var err))
+            {
+                throw new InvalidOperationException($"Failed to parse expression: {err.Message}");
+            }
+
+            return syntax;
+        }
 
         public static (string file, IReadOnlyList<int> cursors) GetFileWithCursors(string fileWithCursors, char cursor = '|', string escapedCursor = "||")
             => GetFileWithCursors(fileWithCursors, cursor.ToString(), escapedCursor);
