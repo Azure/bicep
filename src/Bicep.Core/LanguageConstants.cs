@@ -415,6 +415,8 @@ namespace Bicep.Core
                 new(ModuleNamePropertyName, TypeFactory.CreateStringType(minLength: 1, maxLength: 64, pattern: @"^[-\w._()]+$"), optionalPropFlags, nameDescription),
                 // TODO model this properly as a scope, rather than a string
                 new(ResourceScopePropertyName, LanguageConstants.String, requiredPropFlags),
+                // TODO avoid exposing on resource group scoped deployments
+                new(ResourceLocationPropertyName, LanguageConstants.String, optionalPropFlags),
             ];
 
             var deployment = new ObjectType("DeploymentConfig", TypeSymbolValidationFlags.Default, [
