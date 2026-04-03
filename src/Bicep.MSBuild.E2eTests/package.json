@@ -9,11 +9,11 @@
     "@types/uuid": "^11.0.0",
     "@vitest/eslint-plugin": "^1.6.13",
     "cross-spawn": "^7.0.6",
-    "eslint": "^10.0.0",
+    "eslint": "^10.1.0",
     "prettier": "^3.8.1",
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.0",
-    "vitest": "^2.1.9"
+    "vitest": "^4.1.2"
   },
   "scripts": {
     "check-types": "tsc --noEmit",

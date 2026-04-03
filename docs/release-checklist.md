@@ -31,9 +31,11 @@
 1. Publish the release on GitHub.
 1. Upload vscode-bicep.VSIX to the VS marketplace (INSTRUCTIONS NOT TESTED FOR THIS STEP - UPDATE WIKI AS NEEDED)
     1. Navigate to the official build drop (Published artifacts). (If you can't see it Ctrl+F for "published".)
+    1. Generate a PAT token for the "Marketplace - Manage" scope in ADO. This is a very short lived token so there's no need to stash it in a password manager. Just keep the tab open until you publish the extension.
     1. Download the drop_build_vscode_vsix/vscode-bicep folder to your machine. The folder should contain the files: `vscode-bicep.vsix`, `vscode-bicep.manifest`, and `vscode-bicep.signature.p7s`.
     1. In the Bicep GitHub repo, go to `src/vscode-bicep` directory and run `npm i` or `npm ci`.
     1. Run `npx vsce publish -i <path to vsix> --manifestPath <path to manifest> --signaturePath <path to signature.p7s>`. You may need access permissions, request help in the team channel.
+    1. If the operation succeeds, close the browser tab with the PAT token. The token will expire in a few days but you can optionally revoke it.
 1. Upload vs-bicep.VSIX to VS marketplace
     1. ⚠️ **[READ THIS BEFORE PROCEED] Copy/paste the text from the current version of [src\vs-bicep\README.md](https://github.com/Azure/bicep/blob/main/src/vs-bicep/README.md) over the existing text in the "Overview" field for the next step of uploading vs-bicep.vsix to the VS marketplace (this can only be changed on the marketplace when publishing a new version)**
     1. Go [here](https://marketplace.visualstudio.com/manage), click on the ... for Bicep for Visual Studio, then Edit.
