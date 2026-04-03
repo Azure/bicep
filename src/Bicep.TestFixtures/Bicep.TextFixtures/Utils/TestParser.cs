@@ -59,6 +59,13 @@ namespace Bicep.TextFixtures.Utils
             return program;
         }
 
-        public static SyntaxBase ParseExpression(string text, ExpressionFlags expressionFlags = ExpressionFlags.AllowComplexLiterals) => new Parser(text).Expression(expressionFlags);
+        public static SyntaxBase ParseExpression(string text, ExpressionFlags expressionFlags = ExpressionFlags.AllowComplexLiterals)
+        {
+            if (!new Parser(text).Expression(expressionFlags).IsSuccess(out var syntax, out var err))
+            {
+                throw new InvalidOperationException($"Failed to parse expression: {err!.Message}");
+            }
+            return syntax;
+        }
     }
 }

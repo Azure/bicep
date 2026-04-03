@@ -8,6 +8,7 @@ using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Parsing;
 
@@ -64,10 +65,10 @@ public class ReplParser(string text) : BaseParser(text)
                         LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
                         LanguageConstants.TypeKeyword => this.TypeDeclaration(leadingNodes),
                         LanguageConstants.FunctionKeyword => this.FunctionDeclaration(leadingNodes),
-                        _ => WithRecovery(() => Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.ConsumeTerminator),
+                        _ => new(WithRecovery(() => Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.ConsumeTerminator)),
                     },
-                    TokenType.NewLine => this.NewLine(),
-                    _ => WithRecovery(() => Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.ConsumeTerminator),
+                    TokenType.NewLine => this.NewLine().Transform(x => (SyntaxBase)x),
+                    _ => new(WithRecovery(() => Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.ConsumeTerminator)),
                 };
             },
             RecoveryFlags.None,

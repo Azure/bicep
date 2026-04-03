@@ -32,10 +32,13 @@ public class Result<TSuccess, TError>
         return isSuccess;
     }
 
-
     public bool IsSuccess() => IsSuccess(out _, out _);
 
     public bool IsSuccess([NotNullWhen(true)] out TSuccess? success) => IsSuccess(out success, out _);
+
+    public static Result<TSuccess, TError> Failure(TError error) => new(error);
+
+    public static Result<TSuccess, TError> Success(TSuccess value) => new(value);
 
     /// <summary>
     /// Returns the successful result, assuming success. Throws an exception if not.
