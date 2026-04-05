@@ -18,7 +18,7 @@
     "globals": "^17.4.0",
     "highlight.js": "^11.11.1",
     "jest": "^30.3.0",
-    "ts-jest": "^29.4.6",
+    "ts-jest": "^29.4.9",
     "ts-loader": "^9.5.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
