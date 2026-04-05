@@ -916,43 +916,4 @@ public class ParameterAssignmentEvaluator
         };
     }
 
-    /// <summary>
-    /// Rewrites the external input function calls to use the externalInputs function with the index of the external input.
-    /// e.g. externalInput('sys.cli', 'foo') becomes externalInputs('0')
-    /// </summary>
-    private class ExternalInputExpressionRewriter : ExpressionRewriteVisitor
-    {
-        private readonly ExternalInputReferences externalInputReferences;
-
-        private ExternalInputExpressionRewriter(
-            ExternalInputReferences externalInputReferences)
-        {
-            this.externalInputReferences = externalInputReferences;
-        }
-
-        public static Expression Rewrite(
-            Expression expression,
-            ExternalInputReferences externalInputReferences)
-        {
-            var visitor = new ExternalInputExpressionRewriter(externalInputReferences);
-            var rewritten = visitor.Replace(expression);
-            return rewritten;
-        }
-
-        public override Expression ReplaceFunctionCallExpression(FunctionCallExpression expression)
-        {
-            if (expression.SourceSyntax is FunctionCallSyntaxBase functionCallSyntax &&
-                externalInputReferences.InfoBySyntax.TryGetValue(functionCallSyntax, out var info) &&
-                info.Length > 0)
-            {
-                return new FunctionCallExpression(
-                    functionCallSyntax,
-                    LanguageConstants.ExternalInputsArmFunctionName,
-                    [ExpressionFactory.CreateStringLiteral(info[0].DefinitionKey)]
-                );
-            }
-
-            return base.ReplaceFunctionCallExpression(expression);
-        }
-    }
 }
