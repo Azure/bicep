@@ -102,7 +102,7 @@
     <PackageVersion Include="System.Collections.Immutable" Version="10.0.5" />
     <PackageVersion Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.15" />
     <PackageVersion Include="TestableIO.System.IO.Abstractions.TestingHelpers" Version="22.0.15" />
-    <PackageVersion Include="System.Memory.Data" Version="10.0.3" />
+    <PackageVersion Include="System.Memory.Data" Version="10.0.5" />
     <!-- force an upgrade of this dependency as it seems to cause build flakiness for unknown reasons -->
     <PackageVersion Include="System.Private.Uri" Version="4.3.2" />
     <PackageVersion Include="System.Text.Json" Version="10.0.3" />
