@@ -176,8 +176,8 @@ public class ResourceVisitor
                     BodyType = WriteComplexType(resourceType.Body.Type),
                     // Resource is ReadOnly if there are no writable scopes (matches legacy ReadOnly behavior)
                     Flags = (resourceType.WritableScopes == Azure.Bicep.Types.Concrete.ScopeType.None ? "ReadOnly" : "None"),
-                    ReadableScopes = ExpandScopeFlags(resourceType.ReadableScopes),
-                    WritableScopes = ExpandScopeFlags(resourceType.WritableScopes),
+                    ReadableScopes = resourceType.ReadableScopes.ToString(),
+                    WritableScopes = resourceType.WritableScopes.ToString(),
                 };
                 return rtEntity;
             case ResourceFunctionType resourceFunctionType:
