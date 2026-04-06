@@ -20,7 +20,9 @@ public sealed class BicepDeploymentTools(
         [Description("The predicted resources in the deployment snapshot")]
         ImmutableArray<JsonElement> PredictedResources,
         [Description("The diagnostics produced during snapshot generation")]
-        ImmutableArray<string> Diagnostics);
+        ImmutableArray<string> Diagnostics,
+        [Description("The predicted outputs in the deployment snapshot")]
+        ImmutableDictionary<string, JsonElement> Outputs);
 
     [McpServerTool(Title = "Get deployment snapshot", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
@@ -81,6 +83,7 @@ public sealed class BicepDeploymentTools(
 
         return new(
              PredictedResources: snapshot.PredictedResources,
-             Diagnostics: snapshot.Diagnostics);
+             Diagnostics: snapshot.Diagnostics,
+             Outputs: snapshot.Outputs);
     }
 }

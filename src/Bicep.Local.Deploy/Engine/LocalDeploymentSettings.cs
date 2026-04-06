@@ -286,6 +286,8 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
 
     public TimeSpan AcquirePolicyTokenMaxRetryDuration => TimeSpan.Zero;
 
+    public bool RetryOnCosmosDbEtagMismatchEnabled => false;
+
     public IReadOnlyDictionary<string, IEnumerable<string>> DisabledApplicationDictionary => throw new NotImplementedException();
 
     public int ExtendedDeploymentLimit => 2500;
