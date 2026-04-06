@@ -337,6 +337,7 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                 var response = await client.GetSnapshot(new("/main.bicepparam", new(
                     TenantId: null,
                     SubscriptionId: "11068ed9-6c31-4a47-8183-4eca6d84bb32",
+                    ManagementGroupId: null,
                     ResourceGroup: "myRg",
                     Location: null,
                     DeploymentName: null),
@@ -410,6 +411,7 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                 var response = await client.GetSnapshot(new("/main.bicepparam", new(
                     TenantId: null,
                     SubscriptionId: "11068ed9-6c31-4a47-8183-4eca6d84bb32",
+                    ManagementGroupId: null,
                     ResourceGroup: "myRg",
                     Location: null,
                     DeploymentName: null),

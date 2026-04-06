@@ -63,6 +63,7 @@ public record GetSnapshotRequest(
     public record MetadataDefinition(
         string? TenantId,
         string? SubscriptionId,
+        string? ManagementGroupId,
         string? ResourceGroup,
         string? Location,
         string? DeploymentName);
