@@ -21,6 +21,8 @@ public class PlaygroundPage(IPage page)
         await page.Context.GrantPermissionsAsync(["clipboard-read", "clipboard-write"]);
         var port = Environment.GetEnvironmentVariable("PlaygroundPort") ?? "4173";
         await page.GotoAsync($"http://localhost:{port}/");
+        await page.WaitForSelectorAsync(EditorsSelector,
+            new PageWaitForSelectorOptions { State = WaitForSelectorState.Visible });
     }
 
     public async Task CopyLinkToCurrentExample()
