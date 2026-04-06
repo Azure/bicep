@@ -358,7 +358,8 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                           "properties": {}
                         }
                       ],
-                      "diagnostics": []
+                      "diagnostics": [],
+                      "outputs": {}
                     }
                     """));
             });
@@ -430,7 +431,8 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                           "properties": {}
                         }
                       ],
-                      "diagnostics": []
+                      "diagnostics": [],
+                      "outputs": {}
                     }
                     """));
             });

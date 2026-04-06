@@ -92,7 +92,8 @@ resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' = {
       "properties": {}
     }
   ],
-  "diagnostics": []
+  "diagnostics": [],
+  "outputs": {}
 }
 """));
         }
@@ -192,7 +193,8 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
                   "location": "westeurope"
                 }
               ],
-              "diagnostics": []
+              "diagnostics": [],
+              "outputs": {}
             }
             """));
     }
@@ -295,7 +297,8 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
                   "apiVersion": "2024-07-01"
                 }
               ],
-              "diagnostics": []
+              "diagnostics": [],
+              "outputs": {}
             }
             """));
     }
@@ -369,7 +372,8 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
               "type": "fooType@v1"
             }
           ],
-          "diagnostics": []
+          "diagnostics": [],
+          "outputs": {}
         }
         """));
     }
