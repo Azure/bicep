@@ -27,7 +27,7 @@
     "typescript-eslint": "8.58.0",
     "vite": "8.0.3",
     "vite-plugin-ejs": "1.7.0",
-    "vite-plugin-static-copy": "4.0.1"
+    "vite-plugin-static-copy": "3.4.0"
   },
   "dependencies": {
     "@microsoft/applicationinsights-web": "3.3.11",
