@@ -297,11 +297,16 @@
           "items": {
             "type": "string"
           }
+        },
+        "outputs": {
+          "description": "The predicted outputs in the deployment snapshot",
+          "type": "object"
         }
       },
       "required": [
         "predictedResources",
-        "diagnostics"
+        "diagnostics",
+        "outputs"
       ]
     }
   },
