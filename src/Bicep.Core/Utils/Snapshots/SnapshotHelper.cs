@@ -78,7 +78,8 @@ public static class SnapshotHelper
             ],
             [
                 .. expansionResult.diagnostics.Select(d => $"{d.Target} {d.Level} {d.Code}: {d.Message}")
-            ]);
+            ],
+            (expansionResult.outputs ?? []).ToImmutableDictionary(kvp => kvp.Key, kvp => JsonElementFactory.CreateElement(JsonExtensions.ToJson(ConvertToJToken(kvp.Value)))));
     }
 
     private static JToken? TryGetExternalInputValue(DeploymentExternalInputDefinition externalInputDefinition, ImmutableArray<ExternalInputValue> externalInputs)
@@ -274,4 +275,19 @@ public static class SnapshotHelper
 
     public static string Serialize(Snapshot newSnapshot)
         => JsonSerializer.Serialize(newSnapshot, SnapshotSerializationContext.FileSerializer.Snapshot);
+
+    private static JToken? ConvertToJToken(TemplateOutputParameterWithParsedExpressions output)
+    {
+        if (output.Value is null)
+        {
+            return null;
+        }
+
+        if (output.Value.IsLiteralValue())
+        {
+            return output.Value.SerializeToJToken();
+        }
+
+        return output.Value.SerializeToString();
+    }
 }

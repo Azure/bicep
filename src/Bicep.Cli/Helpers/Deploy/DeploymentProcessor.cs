@@ -5,7 +5,6 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text.Json.Nodes;
 using Azure.Core;
-using Azure.Deployments.ClientTools;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Expression.Intermediate;
 using Azure.Deployments.Expression.Intermediate.Extensions;
@@ -22,6 +21,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
+using Bicep.Core.Utils.Deployments;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
