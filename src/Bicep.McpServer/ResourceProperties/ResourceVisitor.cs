@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Numerics;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.Az;
 using Azure.Bicep.Types.Concrete;
@@ -175,8 +176,8 @@ public class ResourceVisitor
                     BodyType = WriteComplexType(resourceType.Body.Type),
                     // Resource is ReadOnly if there are no writable scopes (matches legacy ReadOnly behavior)
                     Flags = (resourceType.WritableScopes == Azure.Bicep.Types.Concrete.ScopeType.None ? "ReadOnly" : "None"),
-                    ReadableScopes = resourceType.ReadableScopes.ToString(),
-                    WritableScopes = resourceType.WritableScopes.ToString(),
+                    ReadableScopes = ExpandScopeFlags(resourceType.ReadableScopes),
+                    WritableScopes = ExpandScopeFlags(resourceType.WritableScopes),
                 };
                 return rtEntity;
             case ResourceFunctionType resourceFunctionType:
@@ -294,5 +295,23 @@ public class ResourceVisitor
             DiscriminatedObjectType => true,
             _ => false,
         };
+    }
+
+    /// <summary>
+    /// Expands a ScopeType flags enum into a comma-separated list of individual scope names,
+    /// filtering out composite values like All so that new scopes are automatically included.
+    /// </summary>
+    private static string ExpandScopeFlags(ScopeType scope)
+    {
+        if (scope == ScopeType.None)
+        {
+            return "None";
+        }
+
+        var individualFlags = Enum.GetValues<ScopeType>()
+            .Where(v => v != ScopeType.None && BitOperations.IsPow2((int)v) && scope.HasFlag(v))
+            .Select(v => v.ToString());
+
+        return string.Join(", ", individualFlags);
     }
 }

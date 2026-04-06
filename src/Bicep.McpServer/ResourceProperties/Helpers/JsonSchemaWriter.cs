@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Bicep.McpServer.ResourceProperties.Entities;
@@ -12,6 +13,10 @@ public static class JsonSchemaWriter
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
         WriteIndented = true,
+        // UnsafeRelaxedJsonEscaping avoids unnecessary Unicode escapes (e.g., \u0027 for ' and \u002B for +)
+        // while still escaping structurally significant characters (double quotes, backslashes, control chars).
+        // Safe here because the input is Azure type definitions, not arbitrary user input.
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
     public static string Write(TypesDefinitionResult typesDefinition)

@@ -1,0 +1,1909 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Microsoft.Storage/storageAccounts@2025-08-01",
+  "description": "Bicep resource schema for Microsoft.Storage/storageAccounts@2025-08-01",
+  "x-bicep-resource-flags": "None",
+  "x-bicep-resource-readable-scopes": "ResourceGroup",
+  "x-bicep-resource-writable-scopes": "ResourceGroup",
+  "x-bicep-resource-functions": [
+    {
+      "name": "listAccountSas",
+      "apiVersion": "2025-08-01",
+      "input": {
+        "$ref": "#/$defs/AccountSasParameters"
+      },
+      "output": {
+        "$ref": "#/$defs/ListAccountSasResponse"
+      }
+    },
+    {
+      "name": "listKeys",
+      "apiVersion": "2025-08-01",
+      "output": {
+        "$ref": "#/$defs/StorageAccountListKeysResult"
+      }
+    },
+    {
+      "name": "listKeys",
+      "apiVersion": "2025-08-01",
+      "output": {
+        "$ref": "#/$defs/LocalUserKeys"
+      }
+    },
+    {
+      "name": "listServiceSas",
+      "apiVersion": "2025-08-01",
+      "input": {
+        "$ref": "#/$defs/ServiceSasParameters"
+      },
+      "output": {
+        "$ref": "#/$defs/ListServiceSasResponse"
+      }
+    }
+  ],
+  "type": "object",
+  "properties": {
+    "apiVersion": {
+      "const": "2025-08-01",
+      "description": "The resource api version",
+      "readOnly": true,
+      "x-bicep-deploy-time-constant": true
+    },
+    "extendedLocation": {
+      "$ref": "#/$defs/ExtendedLocation",
+      "description": "Optional. Set the extended location of the resource. If not set, the storage account will be created in Azure main region. Otherwise it will be created in the specified extended location"
+    },
+    "id": {
+      "type": "string",
+      "description": "The resource id",
+      "readOnly": true,
+      "x-bicep-deploy-time-constant": true
+    },
+    "identity": {
+      "$ref": "#/$defs/Identity",
+      "description": "The identity of the resource."
+    },
+    "kind": {
+      "anyOf": [
+        {
+          "enum": [
+            "Storage",
+            "StorageV2",
+            "BlobStorage",
+            "FileStorage",
+            "BlockBlobStorage"
+          ]
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "description": "Required. Indicates the type of storage account."
+    },
+    "location": {
+      "type": "string",
+      "description": "Required. Gets or sets the location of the resource. This will be one of the supported and registered Azure Geo Regions (e.g. West US, East US, Southeast Asia, etc.). The geo region of a resource cannot be changed once it is created, but if an identical geo region is specified on update, the request will succeed."
+    },
+    "name": {
+      "type": "string",
+      "description": "The resource name",
+      "x-bicep-deploy-time-constant": true,
+      "minLength": 3,
+      "maxLength": 24,
+      "pattern": "^[a-z0-9]+$"
+    },
+    "placement": {
+      "$ref": "#/$defs/Placement",
+      "description": "Optional. Gets or sets the zonal placement details for the storage account."
+    },
+    "properties": {
+      "$ref": "#/$defs/StorageAccountPropertiesCreateParametersOrStorageAccountProperties",
+      "description": "The parameters used to create the storage account."
+    },
+    "sku": {
+      "$ref": "#/$defs/Sku",
+      "description": "Required. Gets or sets the SKU name."
+    },
+    "systemData": {
+      "$ref": "#/$defs/SystemData",
+      "description": "Azure Resource Manager metadata containing createdBy and modifiedBy information.",
+      "readOnly": true
+    },
+    "tags": {
+      "$ref": "#/$defs/StorageAccountCreateParametersTags",
+      "description": "Gets or sets a list of key value pairs that describe the resource. These tags can be used for viewing and grouping this resource (across resource groups). A maximum of 15 tags can be provided for a resource. Each tag must have a key with a length no greater than 128 characters and a value with a length no greater than 256 characters."
+    },
+    "type": {
+      "const": "Microsoft.Storage/storageAccounts",
+      "description": "The resource type",
+      "readOnly": true,
+      "x-bicep-deploy-time-constant": true
+    },
+    "zones": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Optional. Gets or sets the pinned logical availability zone for the storage account."
+    }
+  },
+  "required": [
+    "kind",
+    "location",
+    "name",
+    "sku"
+  ],
+  "$defs": {
+    "AccountImmutabilityPolicyProperties": {
+      "type": "object",
+      "properties": {
+        "allowProtectedAppendWrites": {
+          "type": "boolean",
+          "description": "This property can only be changed for disabled and unlocked time-based retention policies. When enabled, new blocks can be written to an append blob while maintaining immutability protection and compliance. Only new blocks can be added and any existing blocks cannot be modified or deleted."
+        },
+        "immutabilityPeriodSinceCreationInDays": {
+          "type": "integer",
+          "description": "The immutability period for the blobs in the container since the policy creation, in days.",
+          "minimum": 1,
+          "maximum": 146000
+        },
+        "state": {
+          "anyOf": [
+            {
+              "enum": [
+                "Unlocked",
+                "Locked",
+                "Disabled"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The ImmutabilityPolicy state defines the mode of the policy. Disabled state disables the policy, Unlocked state allows increase and decrease of immutability retention time and also allows toggling allowProtectedAppendWrites property, Locked state only allows the increase of the immutability retention time. A policy can only be created in a Disabled or Unlocked state and can be toggled between the two states. Only a policy in an Unlocked state can transition to a Locked state which cannot be reverted."
+        }
+      }
+    },
+    "AccountSasParameters": {
+      "type": "object",
+      "properties": {
+        "keyToSign": {
+          "type": "string",
+          "description": "The key to sign the account SAS token with."
+        },
+        "signedExpiry": {
+          "type": "string",
+          "description": "The time at which the shared access signature becomes invalid."
+        },
+        "signedIp": {
+          "type": "string",
+          "description": "An IP address or a range of IP addresses from which to accept requests."
+        },
+        "signedPermission": {
+          "anyOf": [
+            {
+              "enum": [
+                "r",
+                "d",
+                "w",
+                "l",
+                "a",
+                "c",
+                "u",
+                "p"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The signed permissions for the account SAS. Possible values include: Read (r), Write (w), Delete (d), List (l), Add (a), Create (c), Update (u) and Process (p)."
+        },
+        "signedProtocol": {
+          "enum": [
+            "https,http",
+            "https"
+          ],
+          "description": "The protocol permitted for a request made with the account SAS."
+        },
+        "signedResourceTypes": {
+          "anyOf": [
+            {
+              "enum": [
+                "s",
+                "c",
+                "o"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The signed resource types that are accessible with the account SAS. Service (s): Access to service-level APIs; Container (c): Access to container-level APIs; Object (o): Access to object-level APIs for blobs, queue messages, table entities, and files."
+        },
+        "signedServices": {
+          "anyOf": [
+            {
+              "enum": [
+                "b",
+                "q",
+                "t",
+                "f"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The signed services accessible with the account SAS. Possible values include: Blob (b), Queue (q), Table (t), File (f)."
+        },
+        "signedStart": {
+          "type": "string",
+          "description": "The time at which the SAS becomes valid."
+        }
+      },
+      "required": [
+        "signedExpiry",
+        "signedPermission",
+        "signedResourceTypes",
+        "signedServices"
+      ]
+    },
+    "ActiveDirectoryProperties": {
+      "type": "object",
+      "properties": {
+        "accountType": {
+          "anyOf": [
+            {
+              "enum": [
+                "User",
+                "Computer"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Specifies the Active Directory account type for Azure Storage. If directoryServiceOptions is set to AD (AD DS authentication), this property is optional. If provided, samAccountName should also be provided. For directoryServiceOptions AADDS (Entra DS authentication) or AADKERB (Entra authentication), this property can be omitted."
+        },
+        "azureStorageSid": {
+          "type": "string",
+          "description": "Specifies the security identifier (SID) for Azure Storage. If directoryServiceOptions is set to AD (AD DS authentication), this property is required. Otherwise, it can be omitted."
+        },
+        "domainGuid": {
+          "type": "string",
+          "description": "Specifies the domain GUID. If directoryServiceOptions is set to AD (AD DS authentication), this property is required. If directoryServiceOptions is set to AADDS (Entra DS authentication), this property can be omitted. If directoryServiceOptions is set to AADKERB (Entra authentication), this property is optional; it is needed to support configuration of directory- and file-level permissions via Windows File Explorer, but is not required for authentication."
+        },
+        "domainName": {
+          "type": "string",
+          "description": "Specifies the primary domain that the AD DNS server is authoritative for. This property is required if directoryServiceOptions is set to AD (AD DS authentication). If directoryServiceOptions is set to AADDS (Entra DS authentication), providing this property is optional, as it will be inferred automatically if omitted. If directoryServiceOptions is set to AADKERB (Entra authentication), this property is optional; it is needed to support configuration of directory- and file-level permissions via Windows File Explorer, but is not required for authentication."
+        },
+        "domainSid": {
+          "type": "string",
+          "description": "Specifies the security identifier (SID) of the AD domain. If directoryServiceOptions is set to AD (AD DS authentication), this property is required. Otherwise, it can be omitted."
+        },
+        "forestName": {
+          "type": "string",
+          "description": "Specifies the Active Directory forest to get. If directoryServiceOptions is set to AD (AD DS authentication), this property is required. Otherwise, it can be omitted."
+        },
+        "netBiosDomainName": {
+          "type": "string",
+          "description": "Specifies the NetBIOS domain name. If directoryServiceOptions is set to AD (AD DS authentication), this property is required. Otherwise, it can be omitted."
+        },
+        "samAccountName": {
+          "type": "string",
+          "description": "Specifies the Active Directory SAMAccountName for Azure Storage. If directoryServiceOptions is set to AD (AD DS authentication), this property is optional. If provided, accountType should also be provided. For directoryServiceOptions AADDS (Entra DS authentication) or AADKERB (Entra authentication), this property can be omitted."
+        }
+      }
+    },
+    "AzureFilesIdentityBasedAuthentication": {
+      "type": "object",
+      "properties": {
+        "activeDirectoryProperties": {
+          "$ref": "#/$defs/ActiveDirectoryProperties",
+          "description": "Additional information about the directory service. Required if directoryServiceOptions is AD (AD DS authentication). Optional for directoryServiceOptions AADDS (Entra DS authentication) and AADKERB (Entra authentication)."
+        },
+        "defaultSharePermission": {
+          "anyOf": [
+            {
+              "enum": [
+                "None",
+                "StorageFileDataSmbShareReader",
+                "StorageFileDataSmbShareContributor",
+                "StorageFileDataSmbShareElevatedContributor"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Default share permission for users using Kerberos authentication if RBAC role is not assigned."
+        },
+        "directoryServiceOptions": {
+          "anyOf": [
+            {
+              "enum": [
+                "None",
+                "AADDS",
+                "AD",
+                "AADKERB"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Indicates the directory service used. Note that this enum may be extended in the future."
+        },
+        "smbOAuthSettings": {
+          "$ref": "#/$defs/SmbOAuthSettings",
+          "description": "Required for Managed Identities access using OAuth over SMB."
+        }
+      },
+      "required": [
+        "directoryServiceOptions"
+      ]
+    },
+    "BlobRestoreParameters": {
+      "type": "object",
+      "properties": {
+        "blobRanges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BlobRestoreRange"
+          },
+          "description": "Blob ranges to restore."
+        },
+        "timeToRestore": {
+          "type": "string",
+          "description": "Restore blob to the specified time."
+        }
+      },
+      "required": [
+        "blobRanges",
+        "timeToRestore"
+      ]
+    },
+    "BlobRestoreRange": {
+      "type": "object",
+      "properties": {
+        "endRange": {
+          "type": "string",
+          "description": "Blob end range. This is exclusive. Empty means account end."
+        },
+        "startRange": {
+          "type": "string",
+          "description": "Blob start range. This is inclusive. Empty means account start."
+        }
+      },
+      "required": [
+        "endRange",
+        "startRange"
+      ]
+    },
+    "BlobRestoreStatus": {
+      "type": "object",
+      "properties": {
+        "failureReason": {
+          "type": "string",
+          "description": "Failure reason when blob restore is failed.",
+          "readOnly": true
+        },
+        "parameters": {
+          "$ref": "#/$defs/BlobRestoreParameters",
+          "description": "Blob restore request parameters.",
+          "readOnly": true
+        },
+        "restoreId": {
+          "type": "string",
+          "description": "Id for tracking blob restore request.",
+          "readOnly": true
+        },
+        "status": {
+          "anyOf": [
+            {
+              "enum": [
+                "InProgress",
+                "Complete",
+                "Failed"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The status of blob restore progress. Possible values are: - InProgress: Indicates that blob restore is ongoing. - Complete: Indicates that blob restore has been completed successfully. - Failed: Indicates that blob restore is failed.",
+          "readOnly": true
+        }
+      }
+    },
+    "CustomDomain": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Gets or sets the custom domain name assigned to the storage account. Name is the CNAME source."
+        },
+        "useSubDomainName": {
+          "type": "boolean",
+          "description": "Indicates whether indirect CName validation is enabled. Default value is false. This should only be set on updates."
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "DualStackEndpointPreference": {
+      "type": "object",
+      "properties": {
+        "publishIpv6Endpoint": {
+          "type": "boolean",
+          "description": "A boolean flag which indicates whether IPv6 storage endpoints are to be published."
+        }
+      }
+    },
+    "Encryption": {
+      "type": "object",
+      "properties": {
+        "identity": {
+          "$ref": "#/$defs/EncryptionIdentity",
+          "description": "The identity to be used with service-side encryption at rest."
+        },
+        "keySource": {
+          "anyOf": [
+            {
+              "enum": [
+                "Microsoft.Storage",
+                "Microsoft.Keyvault"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The encryption keySource (provider). Possible values (case-insensitive):  Microsoft.Storage, Microsoft.Keyvault"
+        },
+        "keyvaultproperties": {
+          "$ref": "#/$defs/KeyVaultProperties",
+          "description": "Properties provided by key vault."
+        },
+        "requireInfrastructureEncryption": {
+          "type": "boolean",
+          "description": "A boolean indicating whether or not the service applies a secondary layer of encryption with platform managed keys for data at rest."
+        },
+        "services": {
+          "$ref": "#/$defs/EncryptionServices",
+          "description": "List of services which support encryption."
+        }
+      }
+    },
+    "EncryptionIdentity": {
+      "type": "object",
+      "properties": {
+        "federatedIdentityClientId": {
+          "type": "string",
+          "description": "ClientId of the multi-tenant application to be used in conjunction with the user-assigned identity for cross-tenant customer-managed-keys server-side encryption on the storage account."
+        },
+        "userAssignedIdentity": {
+          "type": "string",
+          "description": "Resource identifier of the UserAssigned identity to be associated with server-side encryption on the storage account."
+        }
+      }
+    },
+    "EncryptionService": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "A boolean indicating whether or not the service encrypts the data as it is stored. Encryption at rest is enabled by default today and cannot be disabled."
+        },
+        "keyType": {
+          "anyOf": [
+            {
+              "enum": [
+                "Service",
+                "Account"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Encryption key type to be used for the encryption service. 'Account' key type implies that an account-scoped encryption key will be used. 'Service' key type implies that a default service key is used."
+        },
+        "lastEnabledTime": {
+          "type": "string",
+          "description": "Gets a rough estimate of the date/time when the encryption was last enabled by the user. Data is encrypted at rest by default today and cannot be disabled.",
+          "readOnly": true
+        }
+      }
+    },
+    "EncryptionServices": {
+      "type": "object",
+      "properties": {
+        "blob": {
+          "$ref": "#/$defs/EncryptionService",
+          "description": "The encryption function of the blob storage service."
+        },
+        "file": {
+          "$ref": "#/$defs/EncryptionService",
+          "description": "The encryption function of the file storage service."
+        },
+        "queue": {
+          "$ref": "#/$defs/EncryptionService",
+          "description": "The encryption function of the queue storage service."
+        },
+        "table": {
+          "$ref": "#/$defs/EncryptionService",
+          "description": "The encryption function of the table storage service."
+        }
+      }
+    },
+    "Endpoints": {
+      "type": "object",
+      "properties": {
+        "blob": {
+          "type": "string",
+          "description": "Gets the blob endpoint.",
+          "readOnly": true
+        },
+        "dfs": {
+          "type": "string",
+          "description": "Gets the dfs endpoint.",
+          "readOnly": true
+        },
+        "file": {
+          "type": "string",
+          "description": "Gets the file endpoint.",
+          "readOnly": true
+        },
+        "internetEndpoints": {
+          "$ref": "#/$defs/StorageAccountInternetEndpoints",
+          "description": "Gets the internet routing storage endpoints"
+        },
+        "ipv6Endpoints": {
+          "$ref": "#/$defs/StorageAccountIpv6Endpoints",
+          "description": "Gets the IPv6 storage endpoints."
+        },
+        "microsoftEndpoints": {
+          "$ref": "#/$defs/StorageAccountMicrosoftEndpoints",
+          "description": "Gets the microsoft routing storage endpoints."
+        },
+        "queue": {
+          "type": "string",
+          "description": "Gets the queue endpoint.",
+          "readOnly": true
+        },
+        "table": {
+          "type": "string",
+          "description": "Gets the table endpoint.",
+          "readOnly": true
+        },
+        "web": {
+          "type": "string",
+          "description": "Gets the web endpoint.",
+          "readOnly": true
+        }
+      }
+    },
+    "ExtendedLocation": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the extended location."
+        },
+        "type": {
+          "anyOf": [
+            {
+              "enum": [
+                "EdgeZone"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The type of the extended location."
+        }
+      }
+    },
+    "GeoPriorityReplicationStatus": {
+      "type": "object",
+      "properties": {
+        "isBlobEnabled": {
+          "type": "boolean",
+          "description": "Indicates whether Blob Geo Priority Replication is enabled for the storage account."
+        }
+      }
+    },
+    "GeoReplicationStats": {
+      "type": "object",
+      "properties": {
+        "canFailover": {
+          "type": "boolean",
+          "description": "A boolean flag which indicates whether or not account failover is supported for the account.",
+          "readOnly": true
+        },
+        "canPlannedFailover": {
+          "type": "boolean",
+          "description": "A boolean flag which indicates whether or not planned account failover is supported for the account.",
+          "readOnly": true
+        },
+        "lastSyncTime": {
+          "type": "string",
+          "description": "All primary writes preceding this UTC date/time value are guaranteed to be available for read operations. Primary writes following this point in time may or may not be available for reads. Element may be default value if value of LastSyncTime is not available, this can happen if secondary is offline or we are in bootstrap.",
+          "readOnly": true
+        },
+        "postFailoverRedundancy": {
+          "anyOf": [
+            {
+              "enum": [
+                "Standard_LRS",
+                "Standard_ZRS"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The redundancy type of the account after an account failover is performed.",
+          "readOnly": true
+        },
+        "postPlannedFailoverRedundancy": {
+          "anyOf": [
+            {
+              "enum": [
+                "Standard_GRS",
+                "Standard_GZRS",
+                "Standard_RAGRS",
+                "Standard_RAGZRS"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The redundancy type of the account after a planned account failover is performed.",
+          "readOnly": true
+        },
+        "status": {
+          "anyOf": [
+            {
+              "enum": [
+                "Live",
+                "Bootstrap",
+                "Unavailable"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The status of the secondary location. Possible values are: - Live: Indicates that the secondary location is active and operational. - Bootstrap: Indicates initial synchronization from the primary location to the secondary location is in progress.This typically occurs when replication is first enabled. - Unavailable: Indicates that the secondary location is temporarily unavailable.",
+          "readOnly": true
+        }
+      }
+    },
+    "Identity": {
+      "type": "object",
+      "properties": {
+        "principalId": {
+          "type": "string",
+          "description": "The principal ID of resource identity.",
+          "readOnly": true
+        },
+        "tenantId": {
+          "type": "string",
+          "description": "The tenant ID of resource.",
+          "readOnly": true
+        },
+        "type": {
+          "anyOf": [
+            {
+              "enum": [
+                "None",
+                "SystemAssigned",
+                "UserAssigned",
+                "SystemAssigned,UserAssigned"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The identity type."
+        },
+        "userAssignedIdentities": {
+          "$ref": "#/$defs/IdentityUserAssignedIdentities",
+          "description": "Gets or sets a list of key value pairs that describe the set of User Assigned identities that will be used with this storage account. The key is the ARM resource identifier of the identity. Only 1 User Assigned identity is permitted here."
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "IdentityUserAssignedIdentities": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "$ref": "#/$defs/UserAssignedIdentity"
+      }
+    },
+    "ImmutableStorageAccount": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "A boolean flag which enables account-level immutability. All the containers under such an account have object-level immutability enabled by default."
+        },
+        "immutabilityPolicy": {
+          "$ref": "#/$defs/AccountImmutabilityPolicyProperties",
+          "description": "Specifies the default account-level immutability policy which is inherited and applied to objects that do not possess an explicit immutability policy at the object level. The object-level immutability policy has higher precedence than the container-level immutability policy, which has a higher precedence than the account-level immutability policy."
+        }
+      }
+    },
+    "IPRule": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "Allow",
+          "description": "The action of IP ACL rule."
+        },
+        "value": {
+          "type": "string",
+          "description": "Specifies the IP or IP range in CIDR format."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    },
+    "KeyCreationTime": {
+      "type": "object",
+      "properties": {
+        "key1": {
+          "type": "string"
+        },
+        "key2": {
+          "type": "string"
+        }
+      }
+    },
+    "KeyPolicy": {
+      "type": "object",
+      "properties": {
+        "keyExpirationPeriodInDays": {
+          "type": "integer",
+          "description": "The key expiration period in days."
+        }
+      },
+      "required": [
+        "keyExpirationPeriodInDays"
+      ]
+    },
+    "KeyVaultProperties": {
+      "type": "object",
+      "properties": {
+        "currentVersionedKeyExpirationTimestamp": {
+          "type": "string",
+          "description": "This is a read only property that represents the expiration time of the current version of the customer managed key used for encryption.",
+          "readOnly": true
+        },
+        "currentVersionedKeyIdentifier": {
+          "type": "string",
+          "description": "The object identifier of the current versioned Key Vault Key in use.",
+          "readOnly": true
+        },
+        "keyname": {
+          "type": "string",
+          "description": "The name of KeyVault key."
+        },
+        "keyvaulturi": {
+          "type": "string",
+          "description": "The Uri of KeyVault."
+        },
+        "keyversion": {
+          "type": "string",
+          "description": "The version of KeyVault key."
+        },
+        "lastKeyRotationTimestamp": {
+          "type": "string",
+          "description": "Timestamp of last rotation of the Key Vault Key.",
+          "readOnly": true
+        }
+      }
+    },
+    "ListAccountSasResponse": {
+      "type": "object",
+      "properties": {
+        "accountSasToken": {
+          "type": "string",
+          "description": "List SAS credentials of storage account.",
+          "readOnly": true
+        }
+      }
+    },
+    "ListServiceSasResponse": {
+      "type": "object",
+      "properties": {
+        "serviceSasToken": {
+          "type": "string",
+          "description": "List service SAS credentials of specific resource.",
+          "readOnly": true
+        }
+      }
+    },
+    "LocalUserKeys": {
+      "type": "object",
+      "properties": {
+        "sharedKey": {
+          "type": "string",
+          "description": "Auto generated by the server for SMB authentication.",
+          "readOnly": true,
+          "x-bicep-sensitive": true
+        },
+        "sshAuthorizedKeys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SshPublicKey"
+          },
+          "description": "Optional, local user ssh authorized keys for SFTP."
+        }
+      }
+    },
+    "NetworkRuleSet": {
+      "type": "object",
+      "properties": {
+        "bypass": {
+          "anyOf": [
+            {
+              "enum": [
+                "None",
+                "Logging",
+                "Metrics",
+                "AzureServices"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Specifies whether traffic is bypassed for Logging/Metrics/AzureServices. Possible values are any combination of Logging|Metrics|AzureServices (For example, \"Logging, Metrics\"), or None to bypass none of those traffics."
+        },
+        "defaultAction": {
+          "enum": [
+            "Allow",
+            "Deny"
+          ],
+          "description": "Specifies the default action of allow or deny when no other rules match."
+        },
+        "ipRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/IPRule"
+          },
+          "description": "Sets the IP ACL rules"
+        },
+        "ipv6Rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/IPRule"
+          },
+          "description": "Sets the IPv6 ACL rules."
+        },
+        "resourceAccessRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ResourceAccessRule"
+          },
+          "description": "Sets the resource access rules"
+        },
+        "virtualNetworkRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VirtualNetworkRule"
+          },
+          "description": "Sets the virtual network rules"
+        }
+      },
+      "required": [
+        "defaultAction"
+      ]
+    },
+    "Placement": {
+      "type": "object",
+      "properties": {
+        "zonePlacementPolicy": {
+          "anyOf": [
+            {
+              "enum": [
+                "Any",
+                "None"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The availability zone pinning policy for the storage account."
+        }
+      }
+    },
+    "PrivateEndpoint": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The ARM identifier for Private Endpoint",
+          "readOnly": true
+        }
+      }
+    },
+    "PrivateEndpointConnection": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Fully qualified resource ID for the resource. E.g. \"/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}\"",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the resource",
+          "readOnly": true
+        },
+        "properties": {
+          "$ref": "#/$defs/PrivateEndpointConnectionProperties",
+          "description": "Resource properties."
+        },
+        "systemData": {
+          "$ref": "#/$defs/SystemData",
+          "description": "Azure Resource Manager metadata containing createdBy and modifiedBy information.",
+          "readOnly": true
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of the resource. E.g. \"Microsoft.Compute/virtualMachines\" or \"Microsoft.Storage/storageAccounts\"",
+          "readOnly": true
+        }
+      }
+    },
+    "PrivateEndpointConnectionProperties": {
+      "type": "object",
+      "properties": {
+        "privateEndpoint": {
+          "$ref": "#/$defs/PrivateEndpoint",
+          "description": "The resource of private end point."
+        },
+        "privateLinkServiceConnectionState": {
+          "$ref": "#/$defs/PrivateLinkServiceConnectionState",
+          "description": "A collection of information about the state of the connection between service consumer and provider."
+        },
+        "provisioningState": {
+          "anyOf": [
+            {
+              "enum": [
+                "Succeeded",
+                "Creating",
+                "Deleting",
+                "Failed"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The provisioning state of the private endpoint connection resource.",
+          "readOnly": true
+        }
+      },
+      "required": [
+        "privateLinkServiceConnectionState"
+      ]
+    },
+    "PrivateLinkServiceConnectionState": {
+      "type": "object",
+      "properties": {
+        "actionRequired": {
+          "type": "string",
+          "description": "A message indicating if changes on the service provider require any updates on the consumer."
+        },
+        "description": {
+          "type": "string",
+          "description": "The reason for approval/rejection of the connection."
+        },
+        "status": {
+          "anyOf": [
+            {
+              "enum": [
+                "Pending",
+                "Approved",
+                "Rejected"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Indicates whether the connection has been Approved/Rejected/Removed by the owner of the service."
+        }
+      }
+    },
+    "ResourceAccessRule": {
+      "type": "object",
+      "properties": {
+        "resourceId": {
+          "type": "string",
+          "description": "Resource Id"
+        },
+        "tenantId": {
+          "type": "string",
+          "description": "Tenant Id"
+        }
+      }
+    },
+    "RoutingPreference": {
+      "type": "object",
+      "properties": {
+        "publishInternetEndpoints": {
+          "type": "boolean",
+          "description": "A boolean flag which indicates whether internet routing storage endpoints are to be published"
+        },
+        "publishMicrosoftEndpoints": {
+          "type": "boolean",
+          "description": "A boolean flag which indicates whether microsoft routing storage endpoints are to be published"
+        },
+        "routingChoice": {
+          "anyOf": [
+            {
+              "enum": [
+                "MicrosoftRouting",
+                "InternetRouting"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Routing Choice defines the kind of network routing opted by the user."
+        }
+      }
+    },
+    "SasPolicy": {
+      "type": "object",
+      "properties": {
+        "expirationAction": {
+          "anyOf": [
+            {
+              "enum": [
+                "Log",
+                "Block"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The SAS Expiration Action defines the action to be performed when sasPolicy.sasExpirationPeriod is violated. The 'Log' action can be used for audit purposes and the 'Block' action can be used to block and deny the usage of SAS tokens that do not adhere to the sas policy expiration period."
+        },
+        "sasExpirationPeriod": {
+          "type": "string",
+          "description": "The SAS expiration period, DD.HH:MM:SS."
+        }
+      },
+      "required": [
+        "expirationAction",
+        "sasExpirationPeriod"
+      ]
+    },
+    "ServiceSasParameters": {
+      "type": "object",
+      "properties": {
+        "canonicalizedResource": {
+          "type": "string",
+          "description": "The canonical path to the signed resource."
+        },
+        "endPk": {
+          "type": "string",
+          "description": "The end of partition key."
+        },
+        "endRk": {
+          "type": "string",
+          "description": "The end of row key."
+        },
+        "keyToSign": {
+          "type": "string",
+          "description": "The key to sign the account SAS token with."
+        },
+        "rscc": {
+          "type": "string",
+          "description": "The response header override for cache control."
+        },
+        "rscd": {
+          "type": "string",
+          "description": "The response header override for content disposition."
+        },
+        "rsce": {
+          "type": "string",
+          "description": "The response header override for content encoding."
+        },
+        "rscl": {
+          "type": "string",
+          "description": "The response header override for content language."
+        },
+        "rsct": {
+          "type": "string",
+          "description": "The response header override for content type."
+        },
+        "signedExpiry": {
+          "type": "string",
+          "description": "The time at which the shared access signature becomes invalid."
+        },
+        "signedIdentifier": {
+          "type": "string",
+          "description": "A unique value up to 64 characters in length that correlates to an access policy specified for the container, queue, or table.",
+          "maxLength": 64
+        },
+        "signedIp": {
+          "type": "string",
+          "description": "An IP address or a range of IP addresses from which to accept requests."
+        },
+        "signedPermission": {
+          "anyOf": [
+            {
+              "enum": [
+                "r",
+                "d",
+                "w",
+                "l",
+                "a",
+                "c",
+                "u",
+                "p"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The signed permissions for the service SAS. Possible values include: Read (r), Write (w), Delete (d), List (l), Add (a), Create (c), Update (u) and Process (p)."
+        },
+        "signedProtocol": {
+          "enum": [
+            "https,http",
+            "https"
+          ],
+          "description": "The protocol permitted for a request made with the account SAS."
+        },
+        "signedResource": {
+          "anyOf": [
+            {
+              "enum": [
+                "b",
+                "c",
+                "f",
+                "s"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The signed services accessible with the service SAS. Possible values include: Blob (b), Container (c), File (f), Share (s)."
+        },
+        "signedStart": {
+          "type": "string",
+          "description": "The time at which the SAS becomes valid."
+        },
+        "startPk": {
+          "type": "string",
+          "description": "The start of partition key."
+        },
+        "startRk": {
+          "type": "string",
+          "description": "The start of row key."
+        }
+      },
+      "required": [
+        "canonicalizedResource"
+      ]
+    },
+    "ServiceSharedKeyAccessProperties": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Indicates whether shared key access is enabled for the service."
+        }
+      }
+    },
+    "Sku": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "enum": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Standard_RAGRS",
+                "Standard_ZRS",
+                "Premium_LRS",
+                "Premium_ZRS",
+                "Standard_GZRS",
+                "Standard_RAGZRS",
+                "StandardV2_LRS",
+                "StandardV2_GRS",
+                "StandardV2_ZRS",
+                "StandardV2_GZRS",
+                "PremiumV2_LRS",
+                "PremiumV2_ZRS"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The SKU name. Required for account creation; optional for update. Note that in older versions, SKU name was called accountType."
+        },
+        "tier": {
+          "enum": [
+            "Standard",
+            "Premium"
+          ],
+          "description": "The SKU tier. This is based on the SKU name.",
+          "readOnly": true
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "SmbOAuthSettings": {
+      "type": "object",
+      "properties": {
+        "isSmbOAuthEnabled": {
+          "type": "boolean",
+          "description": "Specifies if managed identities can access SMB shares using OAuth. The default interpretation is false for this property."
+        }
+      }
+    },
+    "SshPublicKey": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Optional. It is used to store the function/usage of the key"
+        },
+        "key": {
+          "type": "string",
+          "description": "Ssh public key base64 encoded. The format should be: '<keyType> <keyData>', e.g. ssh-rsa AAAABBBB"
+        }
+      }
+    },
+    "StorageAccountCreateParametersTags": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "StorageAccountInternetEndpoints": {
+      "type": "object",
+      "properties": {
+        "blob": {
+          "type": "string",
+          "description": "Gets the blob endpoint.",
+          "readOnly": true
+        },
+        "dfs": {
+          "type": "string",
+          "description": "Gets the dfs endpoint.",
+          "readOnly": true
+        },
+        "file": {
+          "type": "string",
+          "description": "Gets the file endpoint.",
+          "readOnly": true
+        },
+        "web": {
+          "type": "string",
+          "description": "Gets the web endpoint.",
+          "readOnly": true
+        }
+      }
+    },
+    "StorageAccountIpv6Endpoints": {
+      "type": "object",
+      "properties": {
+        "blob": {
+          "type": "string",
+          "description": "Gets the blob endpoint.",
+          "readOnly": true
+        },
+        "dfs": {
+          "type": "string",
+          "description": "Gets the dfs endpoint.",
+          "readOnly": true
+        },
+        "file": {
+          "type": "string",
+          "description": "Gets the file endpoint.",
+          "readOnly": true
+        },
+        "internetEndpoints": {
+          "$ref": "#/$defs/StorageAccountInternetEndpoints",
+          "description": "Gets the internet routing storage endpoints"
+        },
+        "microsoftEndpoints": {
+          "$ref": "#/$defs/StorageAccountMicrosoftEndpoints",
+          "description": "Gets the microsoft routing storage endpoints."
+        },
+        "queue": {
+          "type": "string",
+          "description": "Gets the queue endpoint.",
+          "readOnly": true
+        },
+        "table": {
+          "type": "string",
+          "description": "Gets the table endpoint.",
+          "readOnly": true
+        },
+        "web": {
+          "type": "string",
+          "description": "Gets the web endpoint.",
+          "readOnly": true
+        }
+      }
+    },
+    "StorageAccountKey": {
+      "type": "object",
+      "properties": {
+        "creationTime": {
+          "type": "string",
+          "description": "Creation time of the key, in round trip date format.",
+          "readOnly": true
+        },
+        "keyName": {
+          "type": "string",
+          "description": "Name of the key.",
+          "readOnly": true
+        },
+        "permissions": {
+          "enum": [
+            "Read",
+            "Full"
+          ],
+          "description": "Permissions for the key -- read-only or full permissions.",
+          "readOnly": true
+        },
+        "value": {
+          "type": "string",
+          "description": "Base 64-encoded value of the key.",
+          "readOnly": true
+        }
+      }
+    },
+    "StorageAccountListKeysResult": {
+      "type": "object",
+      "properties": {
+        "keys": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StorageAccountKey"
+          },
+          "description": "Gets the list of storage account keys and their properties for the specified storage account.",
+          "readOnly": true
+        }
+      }
+    },
+    "StorageAccountMicrosoftEndpoints": {
+      "type": "object",
+      "properties": {
+        "blob": {
+          "type": "string",
+          "description": "Gets the blob endpoint.",
+          "readOnly": true
+        },
+        "dfs": {
+          "type": "string",
+          "description": "Gets the dfs endpoint.",
+          "readOnly": true
+        },
+        "file": {
+          "type": "string",
+          "description": "Gets the file endpoint.",
+          "readOnly": true
+        },
+        "queue": {
+          "type": "string",
+          "description": "Gets the queue endpoint.",
+          "readOnly": true
+        },
+        "table": {
+          "type": "string",
+          "description": "Gets the table endpoint.",
+          "readOnly": true
+        },
+        "web": {
+          "type": "string",
+          "description": "Gets the web endpoint.",
+          "readOnly": true
+        }
+      }
+    },
+    "StorageAccountPropertiesCreateParametersOrStorageAccountProperties": {
+      "type": "object",
+      "properties": {
+        "accessTier": {
+          "enum": [
+            "Hot",
+            "Cool",
+            "Premium",
+            "Cold",
+            "Smart"
+          ],
+          "description": "Required for storage accounts where kind = BlobStorage. The access tier is used for billing. The 'Premium' access tier is the default value for premium block blobs storage account type and it cannot be changed for the premium block blobs storage account type."
+        },
+        "accountMigrationInProgress": {
+          "type": "boolean",
+          "description": "If customer initiated account migration is in progress, the value will be true else it will be null.",
+          "readOnly": true
+        },
+        "allowBlobPublicAccess": {
+          "type": "boolean",
+          "description": "Allow or disallow public access to all blobs or containers in the storage account. The default interpretation is false for this property."
+        },
+        "allowCrossTenantReplication": {
+          "type": "boolean",
+          "description": "Allow or disallow cross AAD tenant object replication. Set this property to true for new or existing accounts only if object replication policies will involve storage accounts in different AAD tenants. The default interpretation is false for new accounts to follow best security practices by default."
+        },
+        "allowedCopyScope": {
+          "anyOf": [
+            {
+              "enum": [
+                "PrivateLink",
+                "AAD",
+                "All"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Restrict copy to and from Storage Accounts within an AAD tenant or with Private Links to the same VNet."
+        },
+        "allowSharedKeyAccess": {
+          "type": "boolean",
+          "description": "Indicates whether the storage account permits requests to be authorized with the account access key via Shared Key. If false, then all requests, including shared access signatures, must be authorized with Azure Active Directory (Azure AD). The default value is null, which is equivalent to true."
+        },
+        "allowSharedKeyAccessForServices": {
+          "$ref": "#/$defs/StorageAccountSharedKeyAccessProperties",
+          "description": "Indicate shared key access properties at service level"
+        },
+        "azureFilesIdentityBasedAuthentication": {
+          "$ref": "#/$defs/AzureFilesIdentityBasedAuthentication",
+          "description": "Provides the identity based authentication settings for Azure Files."
+        },
+        "blobRestoreStatus": {
+          "$ref": "#/$defs/BlobRestoreStatus",
+          "description": "Blob restore status",
+          "readOnly": true
+        },
+        "creationTime": {
+          "type": "string",
+          "description": "Gets the creation date and time of the storage account in UTC.",
+          "readOnly": true
+        },
+        "customDomain": {
+          "$ref": "#/$defs/CustomDomain",
+          "description": "User domain assigned to the storage account. Name is the CNAME source. Only one custom domain is supported per storage account at this time. To clear the existing custom domain, use an empty string for the custom domain name property."
+        },
+        "dataCollaborationPolicyProperties": {
+          "$ref": "#/$defs/StorageDataCollaborationPolicyProperties",
+          "description": "Data Collaboration policy for the storage account."
+        },
+        "defaultToOAuthAuthentication": {
+          "type": "boolean",
+          "description": "A boolean flag which indicates whether the default authentication is OAuth or not. The default interpretation is false for this property."
+        },
+        "dnsEndpointType": {
+          "anyOf": [
+            {
+              "enum": [
+                "Standard",
+                "AzureDnsZone"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Allows you to specify the type of endpoint. Set this to AzureDNSZone to create a large number of accounts in a single subscription, which creates accounts in an Azure DNS Zone and the endpoint URL will have an alphanumeric DNS Zone identifier."
+        },
+        "dualStackEndpointPreference": {
+          "$ref": "#/$defs/DualStackEndpointPreference",
+          "description": "Maintains information about the Internet protocol opted by the user."
+        },
+        "enableExtendedGroups": {
+          "type": "boolean",
+          "description": "Enables extended group support with local users feature, if set to true"
+        },
+        "encryption": {
+          "$ref": "#/$defs/Encryption",
+          "description": "Encryption settings to be used for server-side encryption for the storage account."
+        },
+        "failoverInProgress": {
+          "type": "boolean",
+          "description": "If the failover is in progress, the value will be true, otherwise, it will be null.",
+          "readOnly": true
+        },
+        "geoPriorityReplicationStatus": {
+          "$ref": "#/$defs/GeoPriorityReplicationStatus",
+          "description": "Status indicating whether Geo Priority Replication is enabled for the account."
+        },
+        "geoReplicationStats": {
+          "$ref": "#/$defs/GeoReplicationStats",
+          "description": "Geo Replication Stats",
+          "readOnly": true
+        },
+        "immutableStorageWithVersioning": {
+          "$ref": "#/$defs/ImmutableStorageAccount",
+          "description": "The property is immutable and can only be set to true at the account creation time. When set to true, it enables object level immutability for all the new containers in the account by default."
+        },
+        "isHnsEnabled": {
+          "type": "boolean",
+          "description": "Account HierarchicalNamespace enabled if sets to true."
+        },
+        "isLocalUserEnabled": {
+          "type": "boolean",
+          "description": "Enables local users feature, if set to true"
+        },
+        "isNfsV3Enabled": {
+          "type": "boolean",
+          "description": "NFS 3.0 protocol support enabled if set to true."
+        },
+        "isSftpEnabled": {
+          "type": "boolean",
+          "description": "Enables Secure File Transfer Protocol, if set to true"
+        },
+        "isSkuConversionBlocked": {
+          "type": "boolean",
+          "description": "This property will be set to true or false on an event of ongoing migration. Default value is null.",
+          "readOnly": true
+        },
+        "keyCreationTime": {
+          "$ref": "#/$defs/KeyCreationTime",
+          "description": "Storage account keys creation time.",
+          "readOnly": true
+        },
+        "keyPolicy": {
+          "$ref": "#/$defs/KeyPolicy",
+          "description": "KeyPolicy assigned to the storage account."
+        },
+        "largeFileSharesState": {
+          "anyOf": [
+            {
+              "enum": [
+                "Disabled",
+                "Enabled"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Allow large file shares if sets to Enabled. It cannot be disabled once it is enabled."
+        },
+        "lastGeoFailoverTime": {
+          "type": "string",
+          "description": "Gets the timestamp of the most recent instance of a failover to the secondary location. Only the most recent timestamp is retained. This element is not returned if there has never been a failover instance. Only available if the accountType is Standard_GRS or Standard_RAGRS.",
+          "readOnly": true
+        },
+        "minimumTlsVersion": {
+          "anyOf": [
+            {
+              "enum": [
+                "TLS1_0",
+                "TLS1_1",
+                "TLS1_2",
+                "TLS1_3"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Set the minimum TLS version to be permitted on requests to storage. The default interpretation is TLS 1.0 for this property."
+        },
+        "networkAcls": {
+          "$ref": "#/$defs/NetworkRuleSet",
+          "description": "Network rule set"
+        },
+        "primaryEndpoints": {
+          "$ref": "#/$defs/Endpoints",
+          "description": "Gets the URLs that are used to perform a retrieval of a public blob, queue, or table object. Note that Standard_ZRS and Premium_LRS accounts only return the blob endpoint.",
+          "readOnly": true
+        },
+        "primaryLocation": {
+          "type": "string",
+          "description": "Gets the location of the primary data center for the storage account.",
+          "readOnly": true
+        },
+        "privateEndpointConnections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PrivateEndpointConnection"
+          },
+          "description": "List of private endpoint connection associated with the specified storage account",
+          "readOnly": true
+        },
+        "provisioningState": {
+          "enum": [
+            "Creating",
+            "ResolvingDNS",
+            "Succeeded"
+          ],
+          "description": "Gets the status of the storage account at the time the operation was called.",
+          "readOnly": true
+        },
+        "publicNetworkAccess": {
+          "anyOf": [
+            {
+              "enum": [
+                "Enabled",
+                "Disabled",
+                "SecuredByPerimeter"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Allow, disallow, or let Network Security Perimeter configuration to evaluate public network access to Storage Account. Value is optional but if passed in, must be 'Enabled', 'Disabled' or 'SecuredByPerimeter'."
+        },
+        "routingPreference": {
+          "$ref": "#/$defs/RoutingPreference",
+          "description": "Maintains information about the network routing choice opted by the user for data transfer"
+        },
+        "sasPolicy": {
+          "$ref": "#/$defs/SasPolicy",
+          "description": "SasPolicy assigned to the storage account."
+        },
+        "secondaryEndpoints": {
+          "$ref": "#/$defs/Endpoints",
+          "description": "Gets the URLs that are used to perform a retrieval of a public blob, queue, or table object from the secondary location of the storage account. Only available if the SKU name is Standard_RAGRS.",
+          "readOnly": true
+        },
+        "secondaryLocation": {
+          "type": "string",
+          "description": "Gets the location of the geo-replicated secondary for the storage account. Only available if the accountType is Standard_GRS or Standard_RAGRS.",
+          "readOnly": true
+        },
+        "statusOfPrimary": {
+          "enum": [
+            "available",
+            "unavailable"
+          ],
+          "description": "Gets the status indicating whether the primary location of the storage account is available or unavailable.",
+          "readOnly": true
+        },
+        "statusOfSecondary": {
+          "enum": [
+            "available",
+            "unavailable"
+          ],
+          "description": "Gets the status indicating whether the secondary location of the storage account is available or unavailable. Only available if the SKU name is Standard_GRS or Standard_RAGRS.",
+          "readOnly": true
+        },
+        "storageAccountSkuConversionStatus": {
+          "$ref": "#/$defs/StorageAccountSkuConversionStatus",
+          "description": "This property is readOnly and is set by server during asynchronous storage account sku conversion operations.",
+          "readOnly": true
+        },
+        "supportsHttpsTrafficOnly": {
+          "type": "boolean",
+          "description": "Allows https traffic only to storage service if sets to true. The default value is true since API version 2019-04-01."
+        }
+      }
+    },
+    "StorageAccountSharedKeyAccessProperties": {
+      "type": "object",
+      "properties": {
+        "blob": {
+          "$ref": "#/$defs/ServiceSharedKeyAccessProperties",
+          "description": "Shared key access settings for Blob service."
+        },
+        "file": {
+          "$ref": "#/$defs/ServiceSharedKeyAccessProperties",
+          "description": "Shared key access settings for File service."
+        },
+        "queue": {
+          "$ref": "#/$defs/ServiceSharedKeyAccessProperties",
+          "description": "Shared key access settings for Queue service."
+        },
+        "table": {
+          "$ref": "#/$defs/ServiceSharedKeyAccessProperties",
+          "description": "Shared key access settings for Table service."
+        }
+      }
+    },
+    "StorageAccountSkuConversionStatus": {
+      "type": "object",
+      "properties": {
+        "endTime": {
+          "type": "string",
+          "description": "This property represents the sku conversion end time.",
+          "readOnly": true
+        },
+        "skuConversionStatus": {
+          "anyOf": [
+            {
+              "enum": [
+                "InProgress",
+                "Succeeded",
+                "Failed"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "This property indicates the current sku conversion status.",
+          "readOnly": true
+        },
+        "startTime": {
+          "type": "string",
+          "description": "This property represents the sku conversion start time.",
+          "readOnly": true
+        },
+        "targetSkuName": {
+          "anyOf": [
+            {
+              "enum": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Standard_RAGRS",
+                "Standard_ZRS",
+                "Premium_LRS",
+                "Premium_ZRS",
+                "Standard_GZRS",
+                "Standard_RAGZRS",
+                "StandardV2_LRS",
+                "StandardV2_GRS",
+                "StandardV2_ZRS",
+                "StandardV2_GZRS",
+                "PremiumV2_LRS",
+                "PremiumV2_ZRS"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "This property represents the target sku name to which the account sku is being converted asynchronously."
+        }
+      }
+    },
+    "StorageDataCollaborationPolicyProperties": {
+      "type": "object",
+      "properties": {
+        "allowCrossTenantDataSharing": {
+          "type": "boolean",
+          "description": "Indicates whether cross-entra tenant data sharing is allowed on the storage account."
+        },
+        "allowStorageConnectors": {
+          "type": "boolean",
+          "description": "Indicates whether storage connectors are allowed to created or managed on the storage account."
+        },
+        "allowStorageDataShares": {
+          "type": "boolean",
+          "description": "Indicates whether data shares are allowed to be created or managed on the storage account."
+        }
+      }
+    },
+    "SystemData": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "description": "The timestamp of resource creation (UTC)."
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "The identity that created the resource."
+        },
+        "createdByType": {
+          "anyOf": [
+            {
+              "enum": [
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The type of identity that created the resource."
+        },
+        "lastModifiedAt": {
+          "type": "string",
+          "description": "The timestamp of resource last modification (UTC)"
+        },
+        "lastModifiedBy": {
+          "type": "string",
+          "description": "The identity that last modified the resource."
+        },
+        "lastModifiedByType": {
+          "anyOf": [
+            {
+              "enum": [
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The type of identity that last modified the resource."
+        }
+      }
+    },
+    "UserAssignedIdentity": {
+      "type": "object",
+      "properties": {
+        "clientId": {
+          "type": "string",
+          "description": "The client ID of the identity.",
+          "readOnly": true
+        },
+        "principalId": {
+          "type": "string",
+          "description": "The principal ID of the identity.",
+          "readOnly": true
+        }
+      }
+    },
+    "VirtualNetworkRule": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "Allow",
+          "description": "The action of virtual network rule."
+        },
+        "id": {
+          "type": "string",
+          "description": "Resource ID of a subnet, for example: /subscriptions/{subscriptionId}/resourceGroups/{groupName}/providers/Microsoft.Network/virtualNetworks/{vnetName}/subnets/{subnetName}."
+        },
+        "state": {
+          "anyOf": [
+            {
+              "enum": [
+                "Provisioning",
+                "Deprovisioning",
+                "Succeeded",
+                "Failed",
+                "NetworkSourceDeleted"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Gets the state of virtual network rule.",
+          "readOnly": true
+        }
+      },
+      "required": [
+        "id"
+      ]
+    }
+  }
+}
