@@ -243,6 +243,11 @@
           "type": "string",
           "default": null
         },
+        "managementGroupId": {
+          "description": "Optional Azure management group ID to use as deployment metadata",
+          "type": "string",
+          "default": null
+        },
         "subscriptionId": {
           "description": "Optional Azure subscription ID to use as deployment metadata",
           "type": "string",

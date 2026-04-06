@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Text.Json;
+using Azure.Deployments.Core.Entities;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Utils.Snapshots;
@@ -48,6 +49,7 @@ public sealed class BicepDeploymentTools(
     public async Task<SnapshotResult> GetDeploymentSnapshot(
         [Description("The absolute path to the .bicepparam file")] string filePath,
         [Description("Optional Azure tenant ID to use as deployment metadata")] string? tenantId = null,
+        [Description("Optional Azure management group ID to use as deployment metadata")] string? managementGroupId = null,
         [Description("Optional Azure subscription ID to use as deployment metadata")] string? subscriptionId = null,
         [Description("Optional Azure resource group name to use as deployment metadata")] string? resourceGroup = null,
         [Description("Optional Azure location to use as deployment metadata")] string? location = null,
@@ -74,6 +76,7 @@ public sealed class BicepDeploymentTools(
             templateContent: templateContent,
             parametersContent: parametersContent,
             tenantId: tenantId,
+            managementGroupId: managementGroupId,
             subscriptionId: subscriptionId,
             resourceGroup: resourceGroup,
             location: location,
