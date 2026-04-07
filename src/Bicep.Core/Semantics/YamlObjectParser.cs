@@ -4,7 +4,7 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Text;
 using Newtonsoft.Json.Linq;
-using SharpYaml.Serialization;
+using SharpYaml;
 
 namespace Bicep.Core.Semantics;
 
@@ -24,7 +24,7 @@ public class YamlObjectParser : ObjectParser
     {
         try
         {
-            return new Serializer().Deserialize(fileContent);
+            return YamlSerializer.Deserialize<object>(fileContent, YamlSerializerOptions.Default);
         }
         catch
         {

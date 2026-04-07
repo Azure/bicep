@@ -16,7 +16,7 @@ using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using SharpYaml;
-using SharpYaml.Serialization;
+using SharpYaml.Model;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -79,10 +79,9 @@ namespace Bicep.LanguageServer.Handlers
             try
             {
                 var reader = new StringReader(manifestContents);
-                var yamlStream = new YamlStream();
-                yamlStream.Load(reader);
+                var yamlStream = YamlStream.Load(reader, null);
 
-                foreach (var yamlDocument in yamlStream.Documents)
+                foreach (var yamlDocument in yamlStream)
                 {
                     var syntax = ProcessResourceYaml(yamlDocument, telemetryHelper);
 
@@ -111,27 +110,27 @@ namespace Bicep.LanguageServer.Handlers
 
         private static ResourceDeclarationSyntax ProcessResourceYaml(YamlDocument yamlDocument, TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> telemetryHelper)
         {
-            if (yamlDocument.RootNode is not YamlMappingNode rootNode)
+            if (yamlDocument.Contents is not YamlMapping rootNode)
             {
-                throw new YamlException(yamlDocument.RootNode.Start, yamlDocument.RootNode.End, $"Expected dictionary node.");
+                throw new YamlException($"Expected dictionary node.");
             }
 
-            var kindKey = rootNode.Children.Keys.FirstOrDefault(x => x is YamlScalarNode scalar && scalar.Value == "kind");
-            var apiVersionKey = rootNode.Children.Keys.FirstOrDefault(x => x is YamlScalarNode scalar && scalar.Value == "apiVersion");
+            var kindKey = rootNode.Keys.FirstOrDefault(x => x is YamlValue scalar && scalar.Value == "kind");
+            var apiVersionKey = rootNode.Keys.FirstOrDefault(x => x is YamlValue scalar && scalar.Value == "apiVersion");
 
             if (kindKey is null || apiVersionKey is null)
             {
-                throw new YamlException(rootNode.Start, rootNode.End, $"Failed to find 'kind' and 'apiVersion' keys for resource declaration.");
+                throw new YamlException($"Failed to find 'kind' and 'apiVersion' keys for resource declaration.");
             }
 
-            if (rootNode.Children[kindKey] is not YamlScalarNode kindNode)
+            if (rootNode[kindKey] is not YamlValue kindNode)
             {
-                throw new YamlException(kindKey.Start, kindKey.End, "Unable to process 'kind' for resource declaration.");
+                throw new YamlException("Unable to process 'kind' for resource declaration.");
             }
 
-            if (rootNode.Children[apiVersionKey] is not YamlScalarNode apiVersionNode)
+            if (rootNode[apiVersionKey] is not YamlValue apiVersionNode)
             {
-                throw new YamlException(apiVersionKey.Start, apiVersionKey.End, "Unable to process 'apiVersion' for resource declaration.");
+                throw new YamlException("Unable to process 'apiVersion' for resource declaration.");
             }
 
             var (type, apiVersion) = apiVersionNode.Value.LastIndexOf('/') switch
@@ -140,7 +139,7 @@ namespace Bicep.LanguageServer.Handlers
                 int x => ($"{apiVersionNode.Value.Substring(0, x)}/{kindNode.Value}", apiVersionNode.Value.Substring(x + 1)),
             };
 
-            var filteredChildren = rootNode.Children.Where(x => x.Key != kindKey && x.Key != apiVersionKey);
+            var filteredChildren = rootNode.Where(x => x.Key != kindKey && x.Key != apiVersionKey);
 
             var resourceBody = ConvertObjectChildren(filteredChildren);
             var symbolName = GetResourceSymbolName(type, resourceBody);
@@ -193,17 +192,17 @@ namespace Bicep.LanguageServer.Handlers
             return identifierBuilder.ToString();
         }
 
-        private static SyntaxBase ConvertValue(YamlNode value)
+        private static SyntaxBase ConvertValue(YamlElement value)
         {
             switch (value)
             {
-                case YamlMappingNode dictValue:
-                    return ConvertObjectChildren(dictValue.Children);
-                case YamlSequenceNode listValue:
-                    var items = listValue.Children.Select(ConvertValue);
+                case YamlMapping dictValue:
+                    return ConvertObjectChildren(dictValue);
+                case YamlSequence listValue:
+                    var items = listValue.Select(ConvertValue);
                     return SyntaxFactory.CreateArray(items);
-                case YamlScalarNode scalarNode:
-                    if (scalarNode.Style == SharpYaml.ScalarStyle.Plain)
+                case YamlValue scalarNode:
+                    if (scalarNode.Style == ScalarStyle.Plain)
                     {
                         // If the user hasn't provided quotes, there's no way to differentiate between strings, ints & bools. We have to guess...
                         if (bool.TryParse(scalarNode.Value, out var boolVal))
@@ -223,14 +222,20 @@ namespace Bicep.LanguageServer.Handlers
             }
         }
 
-        private static ObjectSyntax ConvertObjectChildren(IEnumerable<KeyValuePair<YamlNode, YamlNode>> children)
+        private static ObjectSyntax ConvertObjectChildren(IEnumerable<KeyValuePair<YamlElement, YamlElement?>> children)
         {
             var objectProperties = new List<ObjectPropertySyntax>();
             foreach (var kvp in children)
             {
-                if (kvp.Key is not YamlScalarNode keyNode)
+                if (kvp.Key is not YamlValue keyNode)
                 {
                     throw new InvalidOperationException($"Unsupported object key {kvp.Key.GetType()}");
+                }
+
+                if (kvp.Value is null)
+                {
+                    // YAML allows keys with no value (e.g. "key:" with nothing following); skip such entries.
+                    continue;
                 }
 
                 var objectProperty = SyntaxFactory.CreateObjectProperty(keyNode.Value, ConvertValue(kvp.Value));
