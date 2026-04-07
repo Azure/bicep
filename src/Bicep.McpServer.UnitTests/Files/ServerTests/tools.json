@@ -240,7 +240,18 @@
         },
         "tenantId": {
           "description": "Optional Azure tenant ID to use as deployment metadata",
-          "type": "string",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "managementGroupId": {
+          "description": "Optional Azure management group ID to use as deployment metadata",
+          "type": [
+            "string",
+            "null"
+          ],
           "default": null
         },
         "subscriptionId": {
