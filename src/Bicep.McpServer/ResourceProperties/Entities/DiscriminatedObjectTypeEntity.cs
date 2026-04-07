@@ -1,17 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Text.Json.Serialization;
-
 namespace Bicep.McpServer.ResourceProperties.Entities;
 
 public class DiscriminatedObjectTypeEntity : ComplexType
 {
-    [JsonPropertyName("baseProperties")]
     public List<PropertyInfo> BaseProperties { get; init; } = [];
 
-
-    [JsonPropertyName("elements")]
     public List<ComplexType> Elements { get; init; } = [];
 
     public override bool Equals(object? obj) =>
