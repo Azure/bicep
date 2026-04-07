@@ -1,0 +1,1024 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Microsoft.Resources/deployments@2025-04-01",
+  "description": "Bicep resource schema for Microsoft.Resources/deployments@2025-04-01",
+  "x-bicep-resource-flags": "None",
+  "x-bicep-resource-readable-scopes": "Tenant, ManagementGroup, Subscription, ResourceGroup, Extension",
+  "x-bicep-resource-writable-scopes": "Tenant, ManagementGroup, Subscription, ResourceGroup, Extension",
+  "type": "object",
+  "properties": {
+    "apiVersion": {
+      "const": "2025-04-01",
+      "description": "The resource api version",
+      "readOnly": true,
+      "x-bicep-deploy-time-constant": true
+    },
+    "id": {
+      "type": "string",
+      "description": "The resource id",
+      "readOnly": true,
+      "x-bicep-deploy-time-constant": true
+    },
+    "identity": {
+      "$ref": "#/$defs/DeploymentIdentity",
+      "description": "The Managed Identity configuration for a deployment.",
+      "writeOnly": true
+    },
+    "location": {
+      "type": "string",
+      "description": "The location to store the deployment data."
+    },
+    "name": {
+      "type": "string",
+      "description": "The resource name",
+      "x-bicep-deploy-time-constant": true,
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[-\\w\\._\\(\\)]+$"
+    },
+    "properties": {
+      "$ref": "#/$defs/DeploymentPropertiesOrDeploymentPropertiesExtended",
+      "description": "The deployment properties."
+    },
+    "tags": {
+      "$ref": "#/$defs/DeploymentTags",
+      "description": "Deployment tags"
+    },
+    "type": {
+      "const": "Microsoft.Resources/deployments",
+      "description": "The resource type",
+      "readOnly": true,
+      "x-bicep-deploy-time-constant": true
+    }
+  },
+  "required": [
+    "name",
+    "properties"
+  ],
+  "$defs": {
+    "Alias": {
+      "type": "object",
+      "properties": {
+        "defaultMetadata": {
+          "$ref": "#/$defs/AliasPathMetadata",
+          "description": "The default alias path metadata. Applies to the default path and to any alias path that doesn't have metadata",
+          "readOnly": true
+        },
+        "defaultPath": {
+          "type": "string",
+          "description": "The default path for an alias."
+        },
+        "defaultPattern": {
+          "$ref": "#/$defs/AliasPattern",
+          "description": "The default pattern for an alias."
+        },
+        "name": {
+          "type": "string",
+          "description": "The alias name."
+        },
+        "paths": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AliasPath"
+          },
+          "description": "The paths for an alias."
+        },
+        "type": {
+          "enum": [
+            "NotSpecified",
+            "PlainText",
+            "Mask"
+          ],
+          "description": "The type of the alias."
+        }
+      }
+    },
+    "AliasPath": {
+      "type": "object",
+      "properties": {
+        "apiVersions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The API versions."
+        },
+        "metadata": {
+          "$ref": "#/$defs/AliasPathMetadata",
+          "description": "The metadata of the alias path. If missing, fall back to the default metadata of the alias.",
+          "readOnly": true
+        },
+        "path": {
+          "type": "string",
+          "description": "The path of an alias."
+        },
+        "pattern": {
+          "$ref": "#/$defs/AliasPattern",
+          "description": "The pattern for an alias path."
+        }
+      }
+    },
+    "AliasPathMetadata": {
+      "type": "object",
+      "properties": {
+        "attributes": {
+          "anyOf": [
+            {
+              "enum": [
+                "None",
+                "Modifiable"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The attributes of the token that the alias path is referring to.",
+          "readOnly": true
+        },
+        "type": {
+          "anyOf": [
+            {
+              "enum": [
+                "NotSpecified",
+                "Any",
+                "String",
+                "Object",
+                "Array",
+                "Integer",
+                "Number",
+                "Boolean"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The type of the token that the alias path is referring to.",
+          "readOnly": true
+        }
+      }
+    },
+    "AliasPattern": {
+      "type": "object",
+      "properties": {
+        "phrase": {
+          "type": "string",
+          "description": "The alias pattern phrase."
+        },
+        "type": {
+          "enum": [
+            "NotSpecified",
+            "Extract"
+          ],
+          "description": "The type of alias pattern"
+        },
+        "variable": {
+          "type": "string",
+          "description": "The alias pattern variable."
+        }
+      }
+    },
+    "ApiProfile": {
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string",
+          "description": "The API version.",
+          "readOnly": true
+        },
+        "profileVersion": {
+          "type": "string",
+          "description": "The profile version.",
+          "readOnly": true
+        }
+      }
+    },
+    "BasicDependency": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The ID of the dependency."
+        },
+        "resourceName": {
+          "type": "string",
+          "description": "The dependency resource name."
+        },
+        "resourceType": {
+          "type": "string",
+          "description": "The dependency resource type."
+        }
+      }
+    },
+    "DebugSetting": {
+      "type": "object",
+      "properties": {
+        "detailLevel": {
+          "type": "string",
+          "description": "Specifies the type of information to log for debugging. The permitted values are none, requestContent, responseContent, or both requestContent and responseContent separated by a comma. The default is none. When setting this value, carefully consider the type of information you are passing in during deployment. By logging information about the request or response, you could potentially expose sensitive data that is retrieved through the deployment operations."
+        }
+      }
+    },
+    "Dependency": {
+      "type": "object",
+      "properties": {
+        "dependsOn": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BasicDependency"
+          },
+          "description": "The list of dependencies."
+        },
+        "id": {
+          "type": "string",
+          "description": "The ID of the dependency."
+        },
+        "resourceName": {
+          "type": "string",
+          "description": "The dependency resource name."
+        },
+        "resourceType": {
+          "type": "string",
+          "description": "The dependency resource type."
+        }
+      }
+    },
+    "DeploymentDiagnosticsDefinition": {
+      "type": "object",
+      "properties": {
+        "additionalInfo": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ErrorAdditionalInfo"
+          },
+          "description": "The error additional info.",
+          "readOnly": true
+        },
+        "code": {
+          "type": "string",
+          "description": "The error code.",
+          "readOnly": true
+        },
+        "level": {
+          "anyOf": [
+            {
+              "enum": [
+                "Warning",
+                "Info",
+                "Error"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Denotes the additional response level.",
+          "readOnly": true
+        },
+        "message": {
+          "type": "string",
+          "description": "The error message.",
+          "readOnly": true
+        },
+        "target": {
+          "type": "string",
+          "description": "The error target.",
+          "readOnly": true
+        }
+      },
+      "required": [
+        "code",
+        "level",
+        "message"
+      ]
+    },
+    "DeploymentExtensionConfig": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "$ref": "#/$defs/DeploymentExtensionConfigItem"
+      }
+    },
+    "DeploymentExtensionConfigItem": {
+      "type": "object",
+      "properties": {
+        "keyVaultReference": {
+          "$ref": "#/$defs/KeyVaultParameterReference",
+          "description": "The Azure Key Vault reference used to retrieve the secret value of the extension config property."
+        },
+        "type": {
+          "anyOf": [
+            {
+              "enum": [
+                "String",
+                "Int",
+                "Bool",
+                "Array",
+                "Object",
+                "SecureString",
+                "SecureObject"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The value type of the extension config property.",
+          "readOnly": true
+        },
+        "value": {
+          "description": "The value of the extension config property."
+        }
+      }
+    },
+    "DeploymentExtensionDefinition": {
+      "type": "object",
+      "properties": {
+        "alias": {
+          "type": "string",
+          "description": "The alias of the extension as defined in the deployment template.",
+          "readOnly": true
+        },
+        "config": {
+          "$ref": "#/$defs/DeploymentExtensionConfig",
+          "description": "The extension configuration.",
+          "readOnly": true
+        },
+        "configId": {
+          "type": "string",
+          "description": "The extension configuration ID. It uniquely identifies a deployment control plane within an extension.",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string",
+          "description": "The extension name.",
+          "readOnly": true
+        },
+        "version": {
+          "type": "string",
+          "description": "The extension version.",
+          "readOnly": true
+        }
+      }
+    },
+    "DeploymentExternalInput": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "description": "External input value."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    },
+    "DeploymentExternalInputDefinition": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "description": "Configuration for the external input."
+        },
+        "kind": {
+          "type": "string",
+          "description": "The kind of external input."
+        }
+      },
+      "required": [
+        "kind"
+      ]
+    },
+    "DeploymentIdentity": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "anyOf": [
+            {
+              "enum": [
+                "None",
+                "UserAssigned"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The identity type."
+        },
+        "userAssignedIdentities": {
+          "$ref": "#/$defs/DeploymentIdentityUserAssignedIdentities",
+          "description": "The set of user assigned identities associated with the resource."
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "DeploymentIdentityUserAssignedIdentities": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "$ref": "#/$defs/UserAssignedIdentity"
+      }
+    },
+    "DeploymentParameter": {
+      "type": "object",
+      "properties": {
+        "expression": {
+          "type": "string",
+          "description": "Input expression to the parameter.",
+          "writeOnly": true
+        },
+        "reference": {
+          "$ref": "#/$defs/KeyVaultParameterReference",
+          "description": "Azure Key Vault parameter reference."
+        },
+        "value": {
+          "description": "Input value to the parameter ."
+        }
+      }
+    },
+    "DeploymentPropertiesExtensionConfigs": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "$ref": "#/$defs/DeploymentExtensionConfig"
+      }
+    },
+    "DeploymentPropertiesExternalInputDefinitions": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "$ref": "#/$defs/DeploymentExternalInputDefinition"
+      }
+    },
+    "DeploymentPropertiesExternalInputs": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "$ref": "#/$defs/DeploymentExternalInput"
+      }
+    },
+    "DeploymentPropertiesOrDeploymentPropertiesExtended": {
+      "type": "object",
+      "properties": {
+        "correlationId": {
+          "type": "string",
+          "description": "The correlation ID of the deployment.",
+          "readOnly": true
+        },
+        "debugSetting": {
+          "$ref": "#/$defs/DebugSetting",
+          "description": "The debug setting of the deployment."
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Dependency"
+          },
+          "description": "The list of deployment dependencies.",
+          "readOnly": true
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DeploymentDiagnosticsDefinition"
+          },
+          "description": "Contains diagnostic information collected during validation process.",
+          "readOnly": true
+        },
+        "duration": {
+          "type": "string",
+          "description": "The duration of the template deployment.",
+          "readOnly": true
+        },
+        "error": {
+          "$ref": "#/$defs/ErrorResponse",
+          "description": "The deployment error.",
+          "readOnly": true
+        },
+        "expressionEvaluationOptions": {
+          "$ref": "#/$defs/ExpressionEvaluationOptions",
+          "description": "Specifies whether template expressions are evaluated within the scope of the parent template or nested template. Only applicable to nested templates. If not specified, default value is outer.",
+          "writeOnly": true
+        },
+        "extensionConfigs": {
+          "$ref": "#/$defs/DeploymentPropertiesExtensionConfigs",
+          "description": "The configurations to use for deployment extensions. The keys of this object are deployment extension aliases as defined in the deployment template.",
+          "writeOnly": true
+        },
+        "extensions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DeploymentExtensionDefinition"
+          },
+          "description": "The extensions used in this deployment.",
+          "readOnly": true
+        },
+        "externalInputDefinitions": {
+          "$ref": "#/$defs/DeploymentPropertiesExternalInputDefinitions",
+          "description": "External input definitions, used by external tooling to define expected external input values.",
+          "writeOnly": true
+        },
+        "externalInputs": {
+          "$ref": "#/$defs/DeploymentPropertiesExternalInputs",
+          "description": "External input values, used by external tooling for parameter evaluation.",
+          "writeOnly": true
+        },
+        "mode": {
+          "enum": [
+            "Incremental",
+            "Complete"
+          ],
+          "description": "The mode that is used to deploy resources. This value can be either Incremental or Complete. In Incremental mode, resources are deployed without deleting existing resources that are not included in the template. In Complete mode, resources are deployed and existing resources in the resource group that are not included in the template are deleted. Be careful when using Complete mode as you may unintentionally delete resources."
+        },
+        "onErrorDeployment": {
+          "$ref": "#/$defs/OnErrorDeploymentOrOnErrorDeploymentExtended",
+          "description": "The deployment on error behavior."
+        },
+        "outputResources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ResourceReference"
+          },
+          "description": "Array of provisioned resources.",
+          "readOnly": true
+        },
+        "outputs": {
+          "description": "Key/value pairs that represent deployment output.",
+          "readOnly": true
+        },
+        "parameters": {
+          "$ref": "#/$defs/DeploymentPropertiesParameters",
+          "description": "Name and value pairs that define the deployment parameters for the template. You use this element when you want to provide the parameter values directly in the request rather than link to an existing parameter file. Use either the parametersLink property or the parameters property, but not both. It can be a JObject or a well formed JSON string."
+        },
+        "parametersLink": {
+          "$ref": "#/$defs/ParametersLink",
+          "description": "The URI of parameters file. You use this element to link to an existing parameters file. Use either the parametersLink property or the parameters property, but not both."
+        },
+        "providers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Provider"
+          },
+          "description": "The list of resource providers needed for the deployment.",
+          "readOnly": true
+        },
+        "provisioningState": {
+          "anyOf": [
+            {
+              "enum": [
+                "NotSpecified",
+                "Accepted",
+                "Running",
+                "Ready",
+                "Creating",
+                "Created",
+                "Deleting",
+                "Deleted",
+                "Canceled",
+                "Failed",
+                "Succeeded",
+                "Updating"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Denotes the state of provisioning.",
+          "readOnly": true
+        },
+        "template": {
+          "description": "The template content. You use this element when you want to pass the template syntax directly in the request rather than link to an existing template. It can be a JObject or well-formed JSON string. Use either the templateLink property or the template property, but not both.",
+          "writeOnly": true
+        },
+        "templateHash": {
+          "type": "string",
+          "description": "The hash produced for the template.",
+          "readOnly": true
+        },
+        "templateLink": {
+          "$ref": "#/$defs/TemplateLink",
+          "description": "The URI of the template. Use either the templateLink property or the template property, but not both."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "The timestamp of the template deployment.",
+          "readOnly": true
+        },
+        "validatedResources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ResourceReference"
+          },
+          "description": "Array of validated resources.",
+          "readOnly": true
+        },
+        "validationLevel": {
+          "anyOf": [
+            {
+              "enum": [
+                "Template",
+                "ProviderNoRbac"
+              ]
+            },
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Provider"
+            }
+          ],
+          "description": "The validation level of the deployment"
+        }
+      },
+      "required": [
+        "mode"
+      ]
+    },
+    "DeploymentPropertiesParameters": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "$ref": "#/$defs/DeploymentParameter"
+      }
+    },
+    "DeploymentTags": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "ErrorAdditionalInfo": {
+      "type": "object",
+      "properties": {
+        "info": {
+          "description": "The additional info.",
+          "readOnly": true
+        },
+        "type": {
+          "type": "string",
+          "description": "The additional info type.",
+          "readOnly": true
+        }
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "additionalInfo": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ErrorAdditionalInfo"
+          },
+          "description": "The error additional info.",
+          "readOnly": true
+        },
+        "code": {
+          "type": "string",
+          "description": "The error code.",
+          "readOnly": true
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ErrorResponse"
+          },
+          "description": "The error details.",
+          "readOnly": true
+        },
+        "message": {
+          "type": "string",
+          "description": "The error message.",
+          "readOnly": true
+        },
+        "target": {
+          "type": "string",
+          "description": "The error target.",
+          "readOnly": true
+        }
+      }
+    },
+    "ExpressionEvaluationOptions": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "anyOf": [
+            {
+              "enum": [
+                "NotSpecified",
+                "Outer",
+                "Inner"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The scope to be used for evaluation of parameters, variables and functions in a nested template."
+        }
+      }
+    },
+    "KeyVaultParameterReference": {
+      "type": "object",
+      "properties": {
+        "keyVault": {
+          "$ref": "#/$defs/KeyVaultReference",
+          "description": "Azure Key Vault reference."
+        },
+        "secretName": {
+          "type": "string",
+          "description": "Azure Key Vault secret name."
+        },
+        "secretVersion": {
+          "type": "string",
+          "description": "Azure Key Vault secret version."
+        }
+      },
+      "required": [
+        "keyVault",
+        "secretName"
+      ]
+    },
+    "KeyVaultReference": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Azure Key Vault resource id."
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "OnErrorDeploymentOrOnErrorDeploymentExtended": {
+      "type": "object",
+      "properties": {
+        "deploymentName": {
+          "type": "string",
+          "description": "The deployment to be used on error case."
+        },
+        "provisioningState": {
+          "type": "string",
+          "description": "The state of the provisioning for the on error deployment.",
+          "readOnly": true
+        },
+        "type": {
+          "enum": [
+            "LastSuccessful",
+            "SpecificDeployment"
+          ],
+          "description": "The deployment on error behavior type. Possible values are LastSuccessful and SpecificDeployment."
+        }
+      }
+    },
+    "ParametersLink": {
+      "type": "object",
+      "properties": {
+        "contentVersion": {
+          "type": "string",
+          "description": "If included, must match the ContentVersion in the template."
+        },
+        "uri": {
+          "type": "string",
+          "description": "The URI of the parameters file."
+        }
+      },
+      "required": [
+        "uri"
+      ]
+    },
+    "Provider": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The provider ID.",
+          "readOnly": true
+        },
+        "namespace": {
+          "type": "string",
+          "description": "The namespace of the resource provider."
+        },
+        "providerAuthorizationConsentState": {
+          "anyOf": [
+            {
+              "enum": [
+                "NotSpecified",
+                "Required",
+                "NotRequired",
+                "Consented"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The provider authorization consent state."
+        },
+        "registrationPolicy": {
+          "type": "string",
+          "description": "The registration policy of the resource provider.",
+          "readOnly": true
+        },
+        "registrationState": {
+          "type": "string",
+          "description": "The registration state of the resource provider.",
+          "readOnly": true
+        },
+        "resourceTypes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProviderResourceType"
+          },
+          "description": "The collection of provider resource types.",
+          "readOnly": true
+        }
+      }
+    },
+    "ProviderExtendedLocation": {
+      "type": "object",
+      "properties": {
+        "extendedLocations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The extended locations for the azure location."
+        },
+        "location": {
+          "type": "string",
+          "description": "The azure location."
+        },
+        "type": {
+          "type": "string",
+          "description": "The extended location type."
+        }
+      }
+    },
+    "ProviderResourceType": {
+      "type": "object",
+      "properties": {
+        "aliases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Alias"
+          },
+          "description": "The aliases that are supported by this resource type."
+        },
+        "apiProfiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ApiProfile"
+          },
+          "description": "The API profiles for the resource provider.",
+          "readOnly": true
+        },
+        "apiVersions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The API version."
+        },
+        "capabilities": {
+          "type": "string",
+          "description": "The additional capabilities offered by this resource type."
+        },
+        "defaultApiVersion": {
+          "type": "string",
+          "description": "The default API version.",
+          "readOnly": true
+        },
+        "locationMappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProviderExtendedLocation"
+          },
+          "description": "The location mappings that are supported by this resource type."
+        },
+        "locations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The collection of locations where this resource type can be created."
+        },
+        "properties": {
+          "$ref": "#/$defs/ProviderResourceTypeProperties",
+          "description": "The properties."
+        },
+        "resourceType": {
+          "type": "string",
+          "description": "The resource type."
+        },
+        "zoneMappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ZoneMapping"
+          }
+        }
+      }
+    },
+    "ProviderResourceTypeProperties": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "ResourceReference": {
+      "type": "object",
+      "properties": {
+        "apiVersion": {
+          "type": "string",
+          "description": "The API version the resource was deployed with.",
+          "readOnly": true
+        },
+        "extension": {
+          "$ref": "#/$defs/DeploymentExtensionDefinition",
+          "description": "The extension the resource was deployed with.",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "description": "The fully qualified Azure resource ID.",
+          "readOnly": true
+        },
+        "identifiers": {
+          "description": "The extensible resource identifiers.",
+          "readOnly": true
+        },
+        "resourceType": {
+          "type": "string",
+          "description": "The resource type.",
+          "readOnly": true
+        }
+      }
+    },
+    "TemplateLink": {
+      "type": "object",
+      "properties": {
+        "contentVersion": {
+          "type": "string",
+          "description": "If included, must match the ContentVersion in the template."
+        },
+        "id": {
+          "type": "string",
+          "description": "The resource id of a Template Spec. Use either the id or uri property, but not both."
+        },
+        "queryString": {
+          "type": "string",
+          "description": "The query string (for example, a SAS token) to be used with the templateLink URI."
+        },
+        "relativePath": {
+          "type": "string",
+          "description": "The relativePath property can be used to deploy a linked template at a location relative to the parent. If the parent template was linked with a TemplateSpec, this will reference an artifact in the TemplateSpec.  If the parent was linked with a URI, the child deployment will be a combination of the parent and relativePath URIs"
+        },
+        "uri": {
+          "type": "string",
+          "description": "The URI of the template to deploy. Use either the uri or id property, but not both."
+        }
+      }
+    },
+    "UserAssignedIdentity": {
+      "type": "object",
+      "properties": {
+        "clientId": {
+          "type": "string",
+          "description": "The client ID of the assigned identity.",
+          "readOnly": true,
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+        },
+        "principalId": {
+          "type": "string",
+          "description": "The principal ID of the assigned identity.",
+          "readOnly": true,
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+        }
+      }
+    },
+    "ZoneMapping": {
+      "type": "object",
+      "properties": {
+        "location": {
+          "type": "string",
+          "description": "The location of the zone mapping."
+        },
+        "zones": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
