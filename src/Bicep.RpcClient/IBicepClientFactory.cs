@@ -17,7 +17,7 @@ public interface IBicepClientFactory
 
     [Obsolete($"Use {nameof(Initialize)} with a {nameof(BicepClientConfiguration)} that has {nameof(BicepClientConfiguration.ExistingCliPath)} set instead.")]
     Task<IBicepClient> InitializeFromPath(string bicepCliPath, CancellationToken cancellationToken = default);
-    
+
     [Obsolete($"Use {nameof(Initialize)} instead.")]
     Task<IBicepClient> DownloadAndInitialize(BicepClientConfiguration configuration, CancellationToken cancellationToken = default);
 }

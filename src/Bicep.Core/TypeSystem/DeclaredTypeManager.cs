@@ -2099,6 +2099,13 @@ namespace Bicep.Core.TypeSystem
         private TypeSymbol GetDeclaredResourceType(ResourceDeclarationSyntax resource)
         {
             // NOTE: this is closely related to the logic in the other overload. Keep them in sync.
+            if (resource.Type.IsSkipped)
+            {
+                // Parser diagnostics already describe missing or malformed type syntax here.
+                // Short-circuit to avoid emitting a second generic invalid resource type diagnostic.
+                return ErrorType.Empty();
+            }
+
             var stringSyntax = resource.TypeString;
 
             if (stringSyntax != null && stringSyntax.IsInterpolated())

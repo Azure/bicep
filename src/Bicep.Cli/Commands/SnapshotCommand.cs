@@ -108,6 +108,7 @@ public class SnapshotCommand(
                 templateContent: templateContent,
                 parametersContent: parametersContent,
                 tenantId: arguments.TenantId,
+                managementGroupId: arguments.ManagementGroupId,
                 subscriptionId: arguments.SubscriptionId,
                 resourceGroup: arguments.ResourceGroup,
                 location: arguments.Location,

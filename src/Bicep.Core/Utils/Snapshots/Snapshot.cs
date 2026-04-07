@@ -24,4 +24,5 @@ public partial class SnapshotSerializationContext : JsonSerializerContext
 
 public record Snapshot(
     ImmutableArray<JsonElement> PredictedResources,
-    ImmutableArray<string> Diagnostics);
+    ImmutableArray<string> Diagnostics,
+    ImmutableDictionary<string, JsonElement> Outputs);
