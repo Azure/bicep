@@ -19,7 +19,7 @@
   "dependencies": {
     "@vscode-bicep-ui/components": "^0.0.0",
     "@vscode-bicep-ui/messaging": "^0.0.0",
-    "motion": "^12.36.0",
+    "motion": "^12.38.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "styled-components": "^6.3.11"
