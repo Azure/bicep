@@ -243,6 +243,11 @@
           "type": "string",
           "default": null
         },
+        "managementGroupId": {
+          "description": "Optional Azure management group ID to use as deployment metadata",
+          "type": "string",
+          "default": null
+        },
         "subscriptionId": {
           "description": "Optional Azure subscription ID to use as deployment metadata",
           "type": "string",
@@ -282,11 +287,16 @@
           "items": {
             "type": "string"
           }
+        },
+        "outputs": {
+          "description": "The predicted outputs in the deployment snapshot",
+          "type": "object"
         }
       },
       "required": [
         "predictedResources",
-        "diagnostics"
+        "diagnostics",
+        "outputs"
       ]
     }
   },
