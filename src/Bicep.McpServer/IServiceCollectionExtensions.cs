@@ -39,7 +39,7 @@ public static class IServiceCollectionExtensions
         .WithTools<BicepCompilerTools>()
         .WithTools<BicepDecompilerTools>()
         .WithTools<BicepDeploymentTools>()
-        .AddCallToolFilter((next) => async (request, cancellationToken) =>
+        .WithRequestFilters(filters => filters.AddCallToolFilter((next) => async (request, cancellationToken) =>
         {
             try
             {
@@ -53,6 +53,6 @@ public static class IServiceCollectionExtensions
                     IsError = true
                 };
             }
-        });
+        }));
     }
 }

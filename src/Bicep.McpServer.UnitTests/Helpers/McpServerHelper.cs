@@ -52,7 +52,9 @@ public sealed class McpServerHelper : IAsyncDisposable
         var client = await McpClient.CreateAsync(
             clientTransport: new StreamClientTransport(
                 serverInput: serverPipe.Writer.AsStream(),
-                serverOutput: clientPipe.Reader.AsStream()),
+                serverOutput: clientPipe.Reader.AsStream(),
+                loggerFactory: loggerFactory),
+            clientOptions: null,
             loggerFactory: loggerFactory,
             cancellationToken: CancellationToken.None);
 
