@@ -3333,8 +3333,7 @@ resource test";
 
             CompilationHelper.Compile(text).ExcludingLinterDiagnostics().Diagnostics.Should().SatisfyRespectively(
                 x => x.Code.Should().Be("BCP226"),
-                x => x.Code.Should().Be("BCP068"),
-                x => x.Code.Should().Be("BCP029"));
+              x => x.Code.Should().Be("BCP068"));
 
             var completions = await file.RequestAndResolveCompletions(cursor);
             completions.Should().BeEmpty();

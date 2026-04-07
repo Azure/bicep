@@ -92,7 +92,8 @@ resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' = {
       "properties": {}
     }
   ],
-  "diagnostics": []
+  "diagnostics": [],
+  "outputs": {}
 }
 """));
         }
@@ -192,7 +193,8 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
                   "location": "westeurope"
                 }
               ],
-              "diagnostics": []
+              "diagnostics": [],
+              "outputs": {}
             }
             """));
     }
@@ -295,7 +297,8 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
                   "apiVersion": "2024-07-01"
                 }
               ],
-              "diagnostics": []
+              "diagnostics": [],
+              "outputs": {}
             }
             """));
     }
@@ -369,8 +372,69 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
               "type": "fooType@v1"
             }
           ],
-          "diagnostics": []
+          "diagnostics": [],
+          "outputs": {}
         }
         """));
+    }
+
+    [TestMethod]
+    public async Task Snapshot_command_supports_managementGroup_scope()
+    {
+        // https://github.com/Azure/bicep/issues/19319
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var bicepparamPath = FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicepparam",
+            """
+                using './main.bicep'
+
+                param policyAssignmentName = 'myAssignment'
+                """,
+            testOutputPath: outputPath);
+
+        FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicep",
+            """
+                targetScope = 'managementGroup'
+
+                param policyAssignmentName string
+
+                resource policyAssignment 'Microsoft.Authorization/policyAssignments@2022-06-01' = {
+                  name: policyAssignmentName
+                  properties: {
+                    policyDefinitionId: '/providers/Microsoft.Management/managementGroups/${managementGroup().name}/providers/Microsoft.Authorization/policyDefinitions/00000000-0000-0000-0000-000000000000'
+                  }
+                }
+                """,
+            testOutputPath: outputPath);
+
+        var outputFilePath = FileHelper.GetResultFilePath(TestContext, "main.snapshot.json", testOutputPath: outputPath);
+
+        var managementGroupId = "myManagementGroup";
+
+        var result = await Bicep("snapshot", bicepparamPath, "--mode", "overwrite", "--management-group-id", managementGroupId, "--location", "westeurope");
+
+        result.Should().Succeed();
+        result.Stderr.Should().BeEmpty();
+
+        var snapshotContents = File.ReadAllText(outputFilePath).FromJson<JToken>();
+        snapshotContents.Should().DeepEqual(JObject.Parse("""
+            {
+              "predictedResources": [
+                {
+                  "id": "/providers/Microsoft.Management/managementGroups/myManagementGroup/providers/Microsoft.Authorization/policyAssignments/myAssignment",
+                  "type": "Microsoft.Authorization/policyAssignments",
+                  "name": "myAssignment",
+                  "apiVersion": "2022-06-01",
+                  "properties": {
+                    "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/myManagementGroup/providers/Microsoft.Authorization/policyDefinitions/00000000-0000-0000-0000-000000000000"
+                  }
+                }
+              ],
+              "diagnostics": []
+            }
+            """));
     }
 }
