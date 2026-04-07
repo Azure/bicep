@@ -3,14 +3,11 @@
 
 using System.Collections.Immutable;
 using System.ComponentModel;
-using System.Reflection;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.McpServer.ResourceProperties;
 using Bicep.McpServer.ResourceProperties.Entities;
+using Bicep.McpServer.ResourceProperties.Helpers;
 using ModelContextProtocol.Server;
 
 namespace Bicep.McpServer;
@@ -51,12 +48,6 @@ public sealed class BicepTools(
         BinaryData.FromStream(
             typeof(BicepTools).Assembly.GetManifestResourceStream("Files/bestpractices.md") ??
             throw new InvalidOperationException("Could not find embedded resource 'Files/bestpractices.md'")));
-
-    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
-    {
-        WriteIndented = true,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
-    };
 
     [McpServerTool(Title = "List available Azure resource types", Destructive = false, Idempotent = true, OpenWorld = false, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
@@ -102,12 +93,7 @@ public sealed class BicepTools(
     {
         TypesDefinitionResult typesDefinition = resourceVisitor.LoadSingleResourceType(azResourceType, apiVersion);
 
-        var allComplexTypes = new List<ComplexType>();
-        allComplexTypes.AddRange(typesDefinition.ResourceTypeEntities);
-        allComplexTypes.AddRange(typesDefinition.ResourceFunctionTypeEntities);
-        allComplexTypes.AddRange(typesDefinition.OtherComplexTypeEntities);
-
-        return new ResourceTypeSchemaResult(JsonSerializer.Serialize(allComplexTypes, JsonSerializerOptions));
+        return new ResourceTypeSchemaResult(JsonSchemaWriter.Write(typesDefinition));
     }
 
     [McpServerTool(Title = "Get Bicep best-practices", Destructive = false, Idempotent = true, OpenWorld = false, ReadOnly = true, UseStructuredContent = true)]
