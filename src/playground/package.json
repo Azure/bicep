@@ -22,7 +22,7 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.5",
     "nerdbank-gitversioning": "3.9.50",
-    "typescript": "5.9.3",
+    "typescript": "6.0.2",
     "typescript-eslint": "8.58.0",
     "vite": "8.0.5",
     "vite-plugin-ejs": "1.7.0",
