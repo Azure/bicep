@@ -39,11 +39,17 @@ Then configure your MCP client to connect to `http://localhost:8080/`.
 You can self-host the Bicep MCP Server as a container using the published NuGet tool package. Create a `Dockerfile` with the following contents:
 
 ```dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:10.0
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS install
 
 RUN dotnet tool install --global Azure.Bicep.McpServer
 
-ENV PATH="$PATH:/root/.dotnet/tools"
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+
+COPY --from=install /root/.dotnet/tools /opt/tools
+
+ENV PATH="$PATH:/opt/tools"
+
+USER $APP_UID
 
 EXPOSE 8080
 
