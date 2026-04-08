@@ -240,32 +240,50 @@
         },
         "tenantId": {
           "description": "Optional Azure tenant ID to use as deployment metadata",
-          "type": "string",
+          "type": [
+            "string",
+            "null"
+          ],
           "default": null
         },
         "managementGroupId": {
           "description": "Optional Azure management group ID to use as deployment metadata",
-          "type": "string",
+          "type": [
+            "string",
+            "null"
+          ],
           "default": null
         },
         "subscriptionId": {
           "description": "Optional Azure subscription ID to use as deployment metadata",
-          "type": "string",
+          "type": [
+            "string",
+            "null"
+          ],
           "default": null
         },
         "resourceGroup": {
           "description": "Optional Azure resource group name to use as deployment metadata",
-          "type": "string",
+          "type": [
+            "string",
+            "null"
+          ],
           "default": null
         },
         "location": {
           "description": "Optional Azure location to use as deployment metadata",
-          "type": "string",
+          "type": [
+            "string",
+            "null"
+          ],
           "default": null
         },
         "deploymentName": {
           "description": "Optional deployment name to use as deployment metadata",
-          "type": "string",
+          "type": [
+            "string",
+            "null"
+          ],
           "default": null
         }
       },
