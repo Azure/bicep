@@ -3,6 +3,7 @@
 
 using Bicep.McpServer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -14,6 +15,8 @@ var transportArg = args
 if (transportArg.Equals("http", StringComparison.OrdinalIgnoreCase))
 {
     var builder = WebApplication.CreateBuilder(args);
+
+    builder.WebHost.UseUrls("http://*:8080");
 
     builder.Services
         .AddBicepMcpServer()
