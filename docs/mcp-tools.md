@@ -10,8 +10,29 @@ We have built a Bicep MCP server with agentic tools to support Bicep code genera
 - `list_az_resource_types_for_provider`: Lists all available Azure resource types for a specific provider. The return value is a newline-separated list of resource types including their API version, e.g. `Microsoft.KeyVault/vaults@2024-11-01`. Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs.
 - `get_az_resource_type_schema`: Gets the schema for a specific Azure resource type and API version. Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs.
 - `list_avm_metadata`: Lists up-to-date metadata for all Azure Verified Modules (AVM). The return value is a newline-separated list of AVM metadata. Each line includes the module name, description, versions, and documentation URI for a specific module.
+- `get_bicep_file_diagnostics`: Analyzes a Bicep file (`.bicep`) or Bicep parameters file (`.bicepparam`) and returns all compilation diagnostics including errors, warnings, and informational messages.
+- `format_bicep_file`: Formats a Bicep file (`.bicep`) or Bicep parameters file (`.bicepparam`) according to official Bicep formatting standards, respecting `bicepconfig.json` settings.
+- `get_file_references`: Analyzes a Bicep or Bicep parameters file and returns a list of all files it references, including modules, parameter files, and other dependencies.
+- `decompile_arm_template_file`: Converts an ARM template JSON file into Bicep syntax (`.bicep`). Accepts files with `.json`, `.jsonc`, or `.arm` extensions.
+- `decompile_arm_parameters_file`: Converts an ARM template parameters JSON file into Bicep parameters syntax (`.bicepparam`). Accepts files with `.json`, `.jsonc`, or `.arm` extensions.
+- `get_deployment_snapshot`: Creates a deployment snapshot from a Bicep parameters file (`.bicepparam`) by compiling and pre-expanding the ARM template, allowing you to preview predicted resources without running a deployment.
 
 Please see below on how to contribute to the Bicep best practices tool.
+
+## Transports
+
+The Bicep MCP Server supports two transports:
+
+- **stdio** (default): Used when the server is launched locally by a client process (e.g., VS Code, Claude Desktop). This is the default behavior.
+- **HTTP** (Streamable HTTP): Used for remote hosting scenarios. Start the server with the `--transport http` flag to enable HTTP transport on port 8080.
+
+To run the server locally with HTTP transport:
+
+```
+dnx Azure.Bicep.McpServer --transport http
+```
+
+Then configure your MCP client to connect to `http://localhost:8080/`.
 
 ## Where can I use it?
 
