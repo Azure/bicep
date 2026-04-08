@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 // Mock cytoscape to avoid canvas/DOM requirements in snapshot tests.
-const cytoscape = jest.fn(() => ({
+const cytoscapeMock = jest.fn(() => ({
   on: jest.fn(),
   addListener: jest.fn(),
   removeListener: jest.fn(),
@@ -17,6 +17,6 @@ const cytoscape = jest.fn(() => ({
   minZoom: jest.fn(),
 }));
 
-(cytoscape as jest.Mock & { use: jest.Mock }).use = jest.fn();
+(cytoscapeMock as jest.Mock & { use: jest.Mock }).use = jest.fn();
 
-module.exports = cytoscape;
+module.exports = cytoscapeMock;
