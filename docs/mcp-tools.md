@@ -34,6 +34,32 @@ dnx Azure.Bicep.McpServer --transport http
 
 Then configure your MCP client to connect to `http://localhost:8080/`.
 
+## Self-hosting with Docker
+
+You can self-host the Bicep MCP Server as a container using the published NuGet tool package. Create a `Dockerfile` with the following contents:
+
+```dockerfile
+FROM mcr.microsoft.com/dotnet/sdk:10.0
+
+RUN dotnet tool install --global Azure.Bicep.McpServer
+
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+EXPOSE 8080
+
+ENTRYPOINT ["Azure.Bicep.McpServer", "--transport", "http"]
+```
+
+Build and run the container:
+
+```bash
+docker build -t bicep-mcp-server .
+docker run -p 8080:8080 bicep-mcp-server
+```
+
+> [!NOTE]
+> No authentication is included. If hosting on a network or in the cloud, secure the endpoint using a reverse proxy, VNet integration, or other infrastructure-level controls.
+
 ## Where can I use it?
 
 The Bicep MCP Server can be used directly in VS Code (preferred), but can also be run locally with other AI services such as Claude Desktop and Code, OpenAI Codex CLI, LMStudio, and other MCP-compatible services. 
