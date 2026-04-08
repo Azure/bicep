@@ -500,7 +500,7 @@ export class DeployCommand implements Command {
 
     for (const deploymentParameter of bicepDeploymentParametersResponse.deploymentParameters) {
       const paramName = deploymentParameter.name;
-      let paramValue = undefined;
+      let paramValue: string | undefined;
       if (deploymentParameter.isMissingParam) {
         paramValue = await _context.ui.showInputBox({
           title: `Parameter: ${paramName}`,
@@ -545,7 +545,7 @@ export class DeployCommand implements Command {
     parametersFileName: string,
   ) {
     let placeholder: string;
-    let parametersFileUpdateOptionString = "None";
+    let parametersFileUpdateOptionString: string;
     let parametersFileUpdateOption: ParametersFileUpdateOption;
     if (parametersFileExists) {
       parametersFileUpdateOptionString = "Update";
