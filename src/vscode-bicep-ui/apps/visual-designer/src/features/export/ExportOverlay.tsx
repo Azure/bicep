@@ -10,9 +10,17 @@ import { ExportToolbar } from "./ExportToolbar";
 const $OverlayContainer = styled.div`
   position: absolute;
   top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 16px;
+  right: 60px;
+  display: flex;
+  justify-content: flex-end;
+  overflow: hidden;
   z-index: 200;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
 `;
 
 /**

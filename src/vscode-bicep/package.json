@@ -362,6 +362,12 @@
           "group": "navigation"
         },
         {
+          "command": "bicep.showVisualDesignerToSide",
+          "when": "editorLangId == bicep",
+          "alt": "bicep.showVisualDesigner",
+          "group": "navigation"
+        },
+        {
           "command": "bicep.showSourceFromVisualizer",
           "when": "bicepVisualizerFocus",
           "group": "navigation"
