@@ -1,22 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Text.Json.Serialization;
-
 namespace Bicep.McpServer.ResourceProperties.Entities;
 
 public class ResourceFunctionTypeEntity : ComplexType
 {
-    [JsonPropertyName("resourceType")]
     public required string ResourceType { get; init; }
 
-    [JsonPropertyName("apiVersion")]
     public required string ApiVersion { get; init; }
 
-    [JsonPropertyName("inputType")]
     public string? InputType { get; init; }
 
-    [JsonPropertyName("onputType")]
     public required string OutputType { get; init; }
 
     public override bool Equals(object? obj) =>

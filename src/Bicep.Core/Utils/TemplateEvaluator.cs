@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core;
+using Azure.Deployments.Core.Components;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Definitions.Extensibility;
@@ -18,6 +19,7 @@ using Azure.Deployments.Expression.Intermediate.Extensions;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Expressions;
 using Azure.Deployments.Templates.Expressions.PartialEvaluation;
+using Azure.Deployments.Templates.Interfaces;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
@@ -55,7 +57,13 @@ namespace Bicep.Core.Utils
 
             public static TemplateEvaluationContext Create(Template template, OrdinalInsensitiveDictionary<TemplateResource> resourceLookup, EvaluationConfiguration config)
             {
-                var context = TemplateEngine.GetExpressionEvaluationContext(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, NoOpTemplateMetricRecorder.Instance);
+                var context = TemplateEngine.GetExpressionEvaluationContext(
+                    config.ManagementGroup,
+                    config.SubscriptionId,
+                    config.ResourceGroup,
+                    template,
+                    NoOpTemplateMetricRecorder.Instance,
+                    onGetExtension: static (_, _) => null);
 
                 return new TemplateEvaluationContext(context, context.Scope, resourceLookup, config);
             }
@@ -228,6 +236,7 @@ namespace Bicep.Core.Utils
                 metadata["resourceGroup"] = new JObject
                 {
                     ["id"] = $"/subscriptions/{config.SubscriptionId}/resourceGroups/{config.ResourceGroup}",
+                    ["name"] = config.ResourceGroup,
                     ["location"] = config.RgLocation,
                 };
             }
@@ -266,7 +275,11 @@ namespace Bicep.Core.Utils
                     apiVersion: expectedApiVersion,
                     inputParameters: new(parameters),
                     metadata: metadata,
-                    extensionConfigs: extensionConfigs,
+                    templateExtResolver: new TemplateExtensionPreprocessingResolver(
+                        template,
+                        extensionConfigs,
+                        new DeploymentParametersDefinition(),
+                        new FactBasedExtensionConfigSchemaDirectoryFactory().GetOrCreateDirectory()),
                     metricsRecorder: new TemplateMetricsRecorder());
 
                 ProcessTemplateLanguageExpressions(template, config, deploymentScope);
@@ -317,11 +330,9 @@ namespace Bicep.Core.Utils
             });
         }
 
-        private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, DeploymentExtensionConfigItem>> ConvertExtensionConfigs(JToken? parametersJToken) =>
+        private static OrdinalDictionary<OrdinalDictionary<DeploymentExtensionConfigItem>> ConvertExtensionConfigs(JToken? parametersJToken) =>
             parametersJToken?["extensionConfigs"] is JObject extensionConfigs
-                ? extensionConfigs
-                    .FromDeploymentsJToken<OrdinalDictionary<OrdinalDictionary<DeploymentExtensionConfigItem>>>()
-                    .ToOrdinalDictionary(kvp => kvp.Key, IReadOnlyDictionary<string, DeploymentExtensionConfigItem> (kvp) => kvp.Value)
+                ? extensionConfigs.FromDeploymentsJToken<OrdinalDictionary<OrdinalDictionary<DeploymentExtensionConfigItem>>>()
                 : [];
 
         private static TemplateDeploymentScope GetDeploymentScope(string templateSchema)

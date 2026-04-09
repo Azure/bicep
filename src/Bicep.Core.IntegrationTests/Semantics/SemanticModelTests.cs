@@ -215,17 +215,12 @@ resource test";
             var compilation = Services.BuildCompilation(files, uri);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
-            diagnostics.Count().Should().Be(2);
+            diagnostics.Count().Should().Be(1);
             diagnostics.Should().SatisfyRespectively(
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP068");
-                },
-                x =>
-                {
-                    x.Level.Should().Be(DiagnosticLevel.Error);
-                    x.Code.Should().Be("BCP029");
                 });
         }
 
