@@ -40,6 +40,12 @@ jobs:
           - osx-arm64
 
     steps:
+      # Moving to immutable SHAs prevents supply chain attacks which silently change
+      # mutable versions of GH actions.
+      # Dependabot is smart enough to update these when versions change.
+      # See: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions
+      # for more details, though these are "built-in" actions supplied by github it still makes sense to pin
+      # them for defense in depth.
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
