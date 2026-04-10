@@ -30,6 +30,7 @@ namespace Bicep.Cli.Helpers.Deploy;
 public record UsingConfig(
     string? Name,
     string Scope,
+    string? Location,
     ResourceScope ScopeType,
     StacksConfig? StacksConfig);
 
@@ -143,6 +144,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
         UsingConfig config = new(
             Name: usingConfig.GetProperty("name")?.Value<string>(),
             Scope: usingConfig.GetProperty("scope")?.Value<string>() ?? throw new UnreachableException(),
+            Location: usingConfig.GetProperty("location")?.Value<string>(),
             ScopeType: scopeType,
             StacksConfig: stacksConfig);
 
@@ -193,6 +195,11 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
                     Template = BinaryData.FromString(template),
                 };
 
+                if (usingConfig.Location is {} location)
+                {
+                    stacksData.Location = location;
+                }
+
                 foreach (var kvp in paramsDefinition.Parameters ?? [])
                 {
                     stacksData.Parameters[kvp.Key] = new DeploymentParameter()
@@ -229,6 +236,10 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
                 }
 
                 var armDeploymentContent = new ArmDeploymentContent(deploymentProperties);
+                if (usingConfig.Location is {} location)
+                {
+                    armDeploymentContent.Location = location;
+                }
 
                 await deploymentsClient.CreateOrUpdateAsync(Azure.WaitUntil.Started, deploymentName, armDeploymentContent, cancellationToken);
                 entrypointDeploymentId = $"{usingConfig.Scope}/providers/Microsoft.Resources/deployments/{deploymentName}";
