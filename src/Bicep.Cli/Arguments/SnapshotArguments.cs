@@ -8,6 +8,7 @@ public record SnapshotArguments(
     SnapshotArguments.SnapshotMode? Mode,
     string? TenantId,
     string? SubscriptionId,
+    string? ManagementGroupId,
     string? Location,
     string? ResourceGroup,
     string? DeploymentName) : IInputArguments

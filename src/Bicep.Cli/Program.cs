@@ -1081,6 +1081,10 @@ namespace Bicep.Cli
             {
                 Description = "The resource group name to use for the deployment.",
             };
+            var managementGroupIdOption = new Option<string?>(Constants.Option.ManagementGroupId)
+            {
+                Description = "The management group ID to use for the deployment.",
+            };
             var deploymentNameOption = new Option<string?>(Constants.Option.DeploymentName)
             {
                 Description = "The deployment name to use.",
@@ -1090,6 +1094,7 @@ namespace Bicep.Cli
             command.Add(modeOption);
             command.Add(tenantIdOption);
             command.Add(subscriptionIdOption);
+            command.Add(managementGroupIdOption);
             command.Add(locationOption);
             command.Add(resourceGroupOption);
             command.Add(deploymentNameOption);
@@ -1102,6 +1107,7 @@ namespace Bicep.Cli
                     result.GetValue(modeOption),
                     result.GetValue(tenantIdOption),
                     result.GetValue(subscriptionIdOption),
+                    result.GetValue(managementGroupIdOption),
                     result.GetValue(locationOption),
                     result.GetValue(resourceGroupOption),
                     result.GetValue(deploymentNameOption));

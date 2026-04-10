@@ -88,6 +88,7 @@ namespace Bicep.Cli.Constants
         public const string Mode = "--mode";
         public const string TenantId = "--tenant-id";
         public const string SubscriptionId = "--subscription-id";
+        public const string ManagementGroupId = "--management-group-id";
         public const string Location = "--location";
         public const string ResourceGroup = "--resource-group";
         public const string DeploymentName = "--deployment-name";

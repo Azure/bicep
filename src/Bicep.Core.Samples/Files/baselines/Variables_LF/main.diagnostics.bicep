@@ -148,6 +148,7 @@ var myPropertyName = '${singleQuote}foo${singleQuote}'
 //@[04:18) [no-unused-vars (Warning)] Variable "myPropertyName" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |myPropertyName|
 
 var unusedIntermediate = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01')
+//@[25:84) [use-recognized-resource-type (Warning)] Resource type "Mock.RP/type" is not recognized in function "listKeys". If this resource type does exist, the API version must be specified as a function argument. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-recognized-resource-type) |listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01')|
 var unusedIntermediateRef = unusedIntermediate.secondaryKey
 //@[04:25) [no-unused-vars (Warning)] Variable "unusedIntermediateRef" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |unusedIntermediateRef|
 

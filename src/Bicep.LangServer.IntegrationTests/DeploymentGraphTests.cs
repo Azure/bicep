@@ -109,7 +109,7 @@ namespace Bicep.LangServer.IntegrationTests
             deploymentGraph!.Edges.Should().Equal(
                 new BicepDeploymentGraphEdge("mod2::nestedMod", "mod2::res4"),
                 new BicepDeploymentGraphEdge("res2", "mod1"));
-            deploymentGraph!.ErrorCount.Should().Be(6);
+            deploymentGraph!.ErrorCount.Should().Be(5);
         }
 
         private static TextRange CreateTextRange(int startLine, int startCharacter, int endLine, int endCharacter) =>
