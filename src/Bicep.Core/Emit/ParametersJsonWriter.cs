@@ -167,18 +167,18 @@ public class ParametersJsonWriter
             });
     }
 
-    private static void WriteKeyVaultReference(ExpressionEmitter emitter, ParameterKeyVaultReferenceExpression keyVaultReference, string referencePropertyName)
+    private void WriteKeyVaultReference(ExpressionEmitter emitter, ParameterKeyVaultReferenceExpression keyVaultReference, string referencePropertyName)
     {
         emitter.EmitObjectProperty(
             referencePropertyName, () =>
             {
-                emitter.EmitObjectProperty("keyVault", () => emitter.EmitProperty("id", keyVaultReference.KeyVaultId));
+                emitter.EmitObjectProperty("keyVault", () => emitter.EmitPropertyWithTransform("id", keyVaultReference.KeyVaultId, RewriteExternalInputReferences));
 
-                emitter.EmitProperty("secretName", keyVaultReference.SecretName);
+                emitter.EmitPropertyWithTransform("secretName", keyVaultReference.SecretName, RewriteExternalInputReferences);
 
                 if (keyVaultReference.SecretVersion is { } secretVersion)
                 {
-                    emitter.EmitProperty("secretVersion", secretVersion);
+                    emitter.EmitPropertyWithTransform("secretVersion", secretVersion, RewriteExternalInputReferences);
                 }
             });
     }
