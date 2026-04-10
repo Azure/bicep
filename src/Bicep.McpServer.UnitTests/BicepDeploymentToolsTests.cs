@@ -82,7 +82,8 @@ public class BicepDeploymentToolsTests
               "properties": {}
             }
           ],
-          "Diagnostics": []
+          "Diagnostics": [],
+          "Outputs": {}
         }
         """);
     }

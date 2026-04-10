@@ -150,7 +150,7 @@ output fooValue array = fooTest()
 //@    "fooValue": {
 //@      "type": "array",
 //@      "value": "[__bicep.fooTest()]"
-//@    }
+//@    },
 
 func test() object => loadJsonContent('./repro-data.json')
 //@        "test": {
@@ -250,4 +250,15 @@ func buildUrlMultiLine(
 ) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 //@            "type": "string",
 //@            "value": "[format('{0}://{1}{2}', if(parameters('https'), 'https', 'http'), parameters('hostname'), if(empty(parameters('path')), '', format('/{0}', parameters('path'))))]"
+
+output likeExactMatch bool =like('abc', 'abc')
+//@    "likeExactMatch": {
+//@      "type": "bool",
+//@      "value": "[like('abc', 'abc')]"
+//@    },
+output likeWildCardMatch bool= like ('abcdef', 'a*c*')
+//@    "likeWildCardMatch": {
+//@      "type": "bool",
+//@      "value": "[like('abcdef', 'a*c*')]"
+//@    }
 

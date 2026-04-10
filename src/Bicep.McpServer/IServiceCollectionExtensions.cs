@@ -39,20 +39,23 @@ public static class IServiceCollectionExtensions
         .WithTools<BicepCompilerTools>()
         .WithTools<BicepDecompilerTools>()
         .WithTools<BicepDeploymentTools>()
-        .AddCallToolFilter((next) => async (request, cancellationToken) =>
+        .WithRequestFilters(filters =>
         {
-            try
+            filters.AddCallToolFilter(next => async (context, cancellationToken) =>
             {
-                return await next(request, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                return new CallToolResult
+                try
                 {
-                    Content = [new TextContentBlock { Text = $"Error: {ex.Message}" }],
-                    IsError = true
-                };
-            }
+                    return await next(context, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    return new CallToolResult
+                    {
+                        Content = [new TextContentBlock { Text = $"Error: {ex.Message}" }],
+                        IsError = true
+                    };
+                }
+            });
         });
     }
 }
