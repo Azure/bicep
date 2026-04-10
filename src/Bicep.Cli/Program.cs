@@ -1138,7 +1138,7 @@ namespace Bicep.Cli
         
         private static void ValidateRequiredPositionalArgument(CommandResult result, Argument<string> argument)
         {
-            if (result.GetRequiredValue(argument) is {} inputValue && inputValue.StartsWith("--", StringComparison.Ordinal))
+            if (result.GetValue(argument) is {} inputValue && inputValue.StartsWith("--", StringComparison.Ordinal))
             {
                 result.AddError($"Unrecognized parameter \"{inputValue}\"");
             }

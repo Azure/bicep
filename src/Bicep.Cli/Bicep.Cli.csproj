@@ -27,7 +27,6 @@
     <PackageReference Include="Sarif.Sdk" />
     <PackageReference Include="Spectre.Console" />
     <PackageReference Include="StreamJsonRpc" />
-    <PackageReference Include="Azure.Deployments.ClientTools" />
     <PackageReference Include="System.CommandLine" />
   </ItemGroup>
 
