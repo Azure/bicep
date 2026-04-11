@@ -109,42 +109,42 @@ public class SecurityConfigurationTests
     [TestMethod]
     public void IsRegistryTrusted_UserExactEntry_ReturnsTrue()
     {
-        var config = Bind("""{{"trustedRegistries":["registry.example.com"]}}""");
+        var config = Bind("""{"trustedRegistries":["registry.example.com"]}""");
         config.IsRegistryTrusted("registry.example.com").Should().BeTrue();
     }
 
     [TestMethod]
     public void IsRegistryTrusted_UserExactEntry_SubdomainNotMatched()
     {
-        var config = Bind("""{{"trustedRegistries":["registry.example.com"]}}""");
+        var config = Bind("""{"trustedRegistries":["registry.example.com"]}""");
         config.IsRegistryTrusted("sub.registry.example.com").Should().BeFalse();
     }
 
     [TestMethod]
     public void IsRegistryTrusted_UserWildcardEntry_SingleSubdomain()
     {
-        var config = Bind("""{{"trustedRegistries":["*.example.com"]}}""");
+        var config = Bind("""{"trustedRegistries":["*.example.com"]}""");
         config.IsRegistryTrusted("a.example.com").Should().BeTrue();
     }
 
     [TestMethod]
     public void IsRegistryTrusted_UserWildcardEntry_MultiLabelSubdomain()
     {
-        var config = Bind("""{{"trustedRegistries":["*.example.com"]}}""");
+        var config = Bind("""{"trustedRegistries":["*.example.com"]}""");
         config.IsRegistryTrusted("a.b.example.com").Should().BeTrue();
     }
 
     [TestMethod]
     public void IsRegistryTrusted_UserWildcardEntry_BaseNotMatched()
     {
-        var config = Bind("""{{"trustedRegistries":["*.example.com"]}}""");
+        var config = Bind("""{"trustedRegistries":["*.example.com"]}""");
         config.IsRegistryTrusted("example.com").Should().BeFalse();
     }
 
     [TestMethod]
     public void IsRegistryTrusted_UserWildcardEntry_BypassAttempt()
     {
-        var config = Bind("""{{"trustedRegistries":["*.example.com"]}}""");
+        var config = Bind("""{"trustedRegistries":["*.example.com"]}""");
         config.IsRegistryTrusted("evilexample.com").Should().BeFalse();
     }
 
@@ -280,7 +280,7 @@ public class SecurityConfigurationTests
     [TestMethod]
     public void ValidateRegistryPattern_IPv6Loopback_Trusted()
     {
-        var config = Bind("""{{"trustedRegistries":["[::1]"]}}""");
+        var config = Bind("""{"trustedRegistries":["[::1]"]}""");
         config.IsRegistryTrusted("[::1]").Should().BeTrue();
         config.IsRegistryTrusted("[::1]:5000").Should().BeTrue();
     }
@@ -288,21 +288,21 @@ public class SecurityConfigurationTests
     [TestMethod]
     public void IsRegistryTrusted_IPv6WithPort_StripsPortAndMatches()
     {
-        var config = Bind("""{{"trustedRegistries":["[::1]"]}}""");
+        var config = Bind("""{"trustedRegistries":["[::1]"]}""");
         config.IsRegistryTrusted("[::1]:5000").Should().BeTrue();
     }
 
     [TestMethod]
     public void IsRegistryTrusted_IPv6Bare_Matches()
     {
-        var config = Bind("""{{"trustedRegistries":["[::1]"]}}""");
+        var config = Bind("""{"trustedRegistries":["[::1]"]}""");
         config.IsRegistryTrusted("[::1]").Should().BeTrue();
     }
 
     [TestMethod]
     public void IsRegistryTrusted_IPv6DifferentAddress_DoesNotMatch()
     {
-        var config = Bind("""{{"trustedRegistries":["[::1]"]}}""");
+        var config = Bind("""{"trustedRegistries":["[::1]"]}""");
         config.IsRegistryTrusted("[::2]").Should().BeFalse();
     }
 

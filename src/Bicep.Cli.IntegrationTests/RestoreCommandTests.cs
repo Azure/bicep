@@ -129,7 +129,9 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
                     .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot, RegistryEnabled: true))
                     .WithContainerRegistryClientFactory(clientFactory)
                     .WithFileSystem(fileSystem)
-                    .WithFileExplorer(fileExplorer),
+                    .WithFileExplorer(fileExplorer)
+                    .WithConfigurationPatch(c => c.With(security: SecurityConfiguration.Bind(
+                        System.Text.Json.JsonDocument.Parse("""{"trustedRegistries":["mockregistry.io"]}""").RootElement))),
                 ["restore",
                     "--pattern",
                     useRootPath ? $"{outputPath}/file*.bicep" : "file*.bicep"]);
@@ -261,7 +263,8 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             restoredFile.Write(bicep);
 
             var restoredFilePath = restoredFile.Uri.GetFilePath();
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory)
+                .TrustingRegistries(registry);
 
             var (output, error, result) = await Bicep(settings, "restore", restoredFilePath);
             using (new AssertionScope())
@@ -342,7 +345,8 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var restoredFilePath = restoredFile.Uri.GetFilePath();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory)
+                .TrustingRegistries(registry);
 
             var (output, error, result) = await Bicep(settings, "restore", restoredFilePath);
             using (new AssertionScope())
@@ -378,7 +382,8 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory)
+                .TrustingRegistries(registry);
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -499,7 +504,8 @@ output o1 string = '${p1}${p2}'");
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory)
+                .TrustingRegistries(registry);
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -587,7 +593,8 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object)
+                .TrustingRegistries("fake");
             var (output, error, result) = await Bicep(settings, "restore", compiledFilePath);
             using (new AssertionScope())
             {
@@ -619,7 +626,8 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object)
+                .TrustingRegistries("fake");
             var (output, error, result) = await Bicep(settings, "restore", compiledFilePath);
             using (new AssertionScope())
             {
@@ -648,7 +656,8 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object)
+                .TrustingRegistries("mockregistry.io");
             var result = await Bicep(settings, "restore", baselineFolder.EntryFile.OutputFilePath);
 
             result.Should().Fail().And.NotHaveStdout();

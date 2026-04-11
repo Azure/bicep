@@ -87,6 +87,8 @@ param foo: string
                 services = services
                     .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot))
                     .WithContainerRegistryClientFactory(clientFactory)
+                    .WithConfigurationPatch(c => c.With(security: Core.Configuration.SecurityConfiguration.Bind(
+                        System.Text.Json.JsonDocument.Parse("""{"trustedRegistries":["mockregistry.io"]}""").RootElement)))
                     .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
 
                 // Using a mock IPublicModuleIndexHttpClient since this test doesn't require public registry modules. 

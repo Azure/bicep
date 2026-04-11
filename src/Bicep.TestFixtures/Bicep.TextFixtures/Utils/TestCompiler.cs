@@ -3,6 +3,7 @@
 
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.IO.InMemory;
 using Bicep.TextFixtures.IO;
@@ -117,11 +118,16 @@ namespace Bicep.TextFixtures.Utils
             {
                 this.compiler = compiler;
                 this.compiler.FileSet.Clear().AddFiles(files);
+                // Purge the configuration lookup cache so stale "no config found" entries from a
+                // previous scope don't prevent a bicepconfig.json added in this scope from being found.
+                this.compiler.services.Get<IConfigurationManager>().PurgeLookupCache();
             }
 
             public void Dispose()
             {
                 this.compiler.FileSet.Clear();
+                // Purge on dispose so the next scope starts with a clean cache.
+                this.compiler.services.Get<IConfigurationManager>().PurgeLookupCache();
             }
         }
 

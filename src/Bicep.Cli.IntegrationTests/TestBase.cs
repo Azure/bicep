@@ -3,6 +3,7 @@
 
 using Bicep.Cli.UnitTests;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -53,19 +54,25 @@ namespace Bicep.Cli.IntegrationTests
             public ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory { get; init; }
             public IEnvironment? Environment { get; init; }
             public IPublicModuleIndexHttpClient ModuleMetadataClient { get; init; }
+            /// <summary>
+            /// Additional registries to trust for OCI artifact restore in this test invocation.
+            /// Use this when the test writes files that reference non-built-in registries.
+            /// </summary>
+            public IEnumerable<string>? TrustedRegistries { get; init; }
 
             public InvocationSettings(
                 FeatureProviderOverrides? FeatureOverrides = null,
                 IContainerRegistryClientFactory? ClientFactory = null,
                 ITemplateSpecRepositoryFactory? TemplateSpecRepositoryFactory = null,
                 IEnvironment? Environment = null,
-                IPublicModuleIndexHttpClient? ModuleMetadataClient = null)
+                IPublicModuleIndexHttpClient? ModuleMetadataClient = null,
+                IEnumerable<string>? TrustedRegistries = null)
             {
                 this.FeatureOverrides = FeatureOverrides;
                 this.ClientFactory = ClientFactory ?? Repository.Create<IContainerRegistryClientFactory>().Object;
                 this.TemplateSpecRepositoryFactory = TemplateSpecRepositoryFactory ?? Repository.Create<ITemplateSpecRepositoryFactory>().Object;
                 this.Environment = Environment;
-
+                this.TrustedRegistries = TrustedRegistries;
                 this.ModuleMetadataClient = ModuleMetadataClient ?? new MockPublicModuleIndexHttpClient(new());
             }
 
@@ -76,6 +83,9 @@ namespace Bicep.Cli.IntegrationTests
                     ClientFactory = artifactManager.ContainerRegistryClientFactory,
                     TemplateSpecRepositoryFactory = artifactManager.TemplateSpecRepositoryFactory
                 };
+
+            public InvocationSettings TrustingRegistries(params string[] registries) =>
+                this with { TrustedRegistries = (TrustedRegistries ?? []).Concat(registries) };
         }
 
         protected static Task<CliResult> Bicep(InvocationSettings settings, Action<IServiceCollection>? registerAction, CancellationToken cancellationToken, params string?[] args /*null args are ignored*/)
@@ -142,7 +152,8 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         protected async Task<InvocationSettings> CreateDefaultSettingsWithDefaultMockRegistry()
-            => CreateDefaultSettings().WithArtifactManager(await CreateDefaultExternalArtifactManager(), TestContext);
+            => CreateDefaultSettings().WithArtifactManager(await CreateDefaultExternalArtifactManager(), TestContext)
+                .TrustingRegistries("mockregistry.io");
 
         protected InvocationSettings CreateDefaultSettings(Func<FeatureProviderOverrides, FeatureProviderOverrides>? featureOverrides = null) =>
             new()
@@ -183,6 +194,14 @@ namespace Bicep.Cli.IntegrationTests
                         if (settings.FeatureOverrides is { })
                         {
                             services.WithFeatureOverrides(settings.FeatureOverrides);
+                        }
+
+                        if (settings.TrustedRegistries is { } trustedRegistries)
+                        {
+                            var trustedList = trustedRegistries.ToArray();
+                            var securityJson = System.Text.Json.JsonDocument.Parse(
+                                $"{{\"trustedRegistries\":[{string.Join(",", trustedList.Select(r => $"\"{r}\""))}]}}").RootElement;
+                            services.WithConfigurationPatch(c => c.With(security: SecurityConfiguration.Bind(securityJson)));
                         }
 
                         IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, settings.ModuleMetadataClient);
