@@ -15,5 +15,14 @@
         "modulePath": "demo"
       }
     }
+  },
+  "security": {
+    "trustedRegistries": [
+      "mock-registry-one.invalid",
+      "mock-registry-two.invalid",
+      "localhost",
+      "127.0.0.1",
+      "[::1]"
+    ]
   }
 }

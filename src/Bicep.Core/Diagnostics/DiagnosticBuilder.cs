@@ -2026,6 +2026,20 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic NullIfNotFoundOnlyValidOnExistingResources() => CoreError(
                 "BCP445",
                 $@"The ""@{LanguageConstants.NullIfNotFoundDecoratorName}()"" decorator can only be used on existing resources.");
+
+            public Diagnostic ArtifactRestoreBlockedByRegistry(string registryHostname) => CoreError(
+                "BCP446",
+                $"Restore from registry \"{registryHostname}\" is blocked because it is not in the trusted registries list. " +
+                $"To allow this registry, add it to the \"security.trustedRegistries\" array in your bicepconfig.json. " +
+                $"Only add registries you trust, as restoring from an untrusted registry can expose your credentials. " +
+                $"See https://aka.ms/bicep-registry-trust for details.");
+
+            public Diagnostic InvalidTrustedRegistryPattern(string pattern) => CoreError(
+                "BCP447",
+                $"The trusted registry pattern \"{pattern}\" in \"security.trustedRegistries\" is invalid. " +
+                $"Patterns must be a bare hostname (e.g. \"myregistry.azurecr.io\") or a wildcard subdomain (e.g. \"*.azurecr.io\"). " +
+                $"All OCI artifact restore is blocked until this is corrected. " +
+                $"See https://aka.ms/bicep-registry-trust for details.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

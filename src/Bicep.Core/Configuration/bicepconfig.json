@@ -62,5 +62,8 @@
   },
   "experimentalFeaturesWarning": true,
   "experimentalFeaturesEnabled": {},
-  "formatting": {}
+  "formatting": {},
+  "security": {
+    "trustedRegistries": []
+  }
 }
