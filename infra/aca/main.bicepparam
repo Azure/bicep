@@ -10,7 +10,7 @@ param useSystemAssignedIdentity = true
 param extensionStoragePath = '/app/extensions'
 param cpuCores = '0.5'
 param memory = '1Gi'
-param minReplicas = 1
+param minReplicas = 0
 param maxReplicas = 3
 
 // Extensions configuration - JSON array of extension configs

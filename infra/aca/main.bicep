@@ -37,7 +37,7 @@ param memory string = '1Gi'
 @description('Minimum number of replicas')
 @minValue(0)
 @maxValue(25)
-param minReplicas int = 1
+param minReplicas int = 0
 
 @description('Maximum number of replicas')
 @minValue(1)

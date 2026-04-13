@@ -55,9 +55,9 @@ az deployment group create `
 
 | Aspect | Value |
 |--------|-------|
-| **Scaling** | 1-3 replicas (HTTP-based autoscaling) |
+| **Scaling** | 0-3 replicas (HTTP-based autoscaling, scales to zero) |
 | **Cost** | Pay per use (consumption plan) |
-| **Cold Start** | Possible if scaled to 0 |
+| **Cold Start** | Expected when scaled to 0 |
 | **Networking** | Public endpoint with HTTPS |
 | **Complexity** | Low |
 
