@@ -1,5 +1,5 @@
 func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
-//@[000:1564) ProgramExpression
+//@[000:1738) ProgramExpression
 //@[000:0141) ├─DeclaredFunctionExpression { Name = buildUrl }
 //@[013:0141) | └─LambdaExpression
 //@[020:0024) |   ├─AmbientTypeReferenceExpression { Name = bool }
@@ -187,11 +187,11 @@ output likeExactMatch bool =like('abc', 'abc')
 //@[033:0038) |   ├─StringLiteralExpression { Value = abc }
 //@[040:0045) |   └─StringLiteralExpression { Value = abc }
 output likeWildCardMatch bool= like ('abcdef', 'a*c*')
-//@[000:0054) └─DeclaredOutputExpression { Name = likeWildCardMatch }
-//@[025:0029)   ├─AmbientTypeReferenceExpression { Name = bool }
-//@[031:0054)   └─FunctionCallExpression { Name = like }
-//@[037:0045)     ├─StringLiteralExpression { Value = abcdef }
-//@[047:0053)     └─StringLiteralExpression { Value = a*c* }
+//@[000:0054) ├─DeclaredOutputExpression { Name = likeWildCardMatch }
+//@[025:0029) | ├─AmbientTypeReferenceExpression { Name = bool }
+//@[031:0054) | └─FunctionCallExpression { Name = like }
+//@[037:0045) |   ├─StringLiteralExpression { Value = abcdef }
+//@[047:0053) |   └─StringLiteralExpression { Value = a*c* }
 output distinctTest array = distinct(['a','b','a','c','b'])
 //@[000:0059) ├─DeclaredOutputExpression { Name = distinctTest }
 //@[020:0025) | ├─AmbientTypeReferenceExpression { Name = array }
