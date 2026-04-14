@@ -866,7 +866,7 @@
       "properties": {
         "ociEnabled": {
           "type": "boolean",
-          "description": "Enables publishing and restoring modules from non-Azure OCI registries using the generic ORAS transport. Equivalent to passing --oci-enabled on the CLI or setting BICEP_EXPERIMENTAL_OCI=1. See https://aka.ms/bicep/experimental-features#ocienabled"
+          "description": "Enables publishing and restoring modules from non-Azure OCI registries using the generic ORAS transport. See https://aka.ms/bicep/experimental-features#ocienabled"
         },
         "extendableParamFiles": {
           "type": "boolean",

@@ -79,19 +79,6 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public async Task OciFlag_PrecedingCommand_ShouldBeAccepted()
-        {
-            var (output, error, result) = await Bicep("--oci-enabled", "--help");
-
-            using (new AssertionScope())
-            {
-                result.Should().Be(0);
-                error.Should().BeEmpty();
-                output.Should().Contain("build");
-            }
-        }
-
-        [TestMethod]
         public async Task BicepLicenseShouldPrintLicense()
         {
             var (output, error, result) = await Bicep("--license");

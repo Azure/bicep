@@ -53,11 +53,6 @@ namespace Bicep.Cli
 
         public static async Task<int> Main(string[] args)
         {
-            if (args.Any(a => string.Equals(a, "--oci-enabled", StringComparison.OrdinalIgnoreCase)))
-            {
-                System.Environment.SetEnvironmentVariable("BICEP_EXPERIMENTAL_OCI", "1");
-            }
-
             return await RunWithCancellationAsync(async cancellationToken =>
             {
                 StartProfile();
@@ -88,8 +83,6 @@ namespace Bicep.Cli
 
         public async Task<int> RunAsync(string[] args, CancellationToken cancellationToken)
         {
-            args = ProcessExperimentalFeatureArguments(args);
-
             var environment = services.GetRequiredService<IEnvironment>();
             Trace.WriteLine($"Bicep version: {environment.GetVersionString()}, OS: {environment.CurrentPlatform?.ToString() ?? "unknown"}, Architecture: {environment.CurrentArchitecture}, CLI arguments: \"{string.Join(' ', args)}\"");
 
@@ -223,28 +216,6 @@ namespace Bicep.Cli
                 }))
                 .AddSingleton<IDeploymentProcessor, DeploymentProcessor>()
                 .AddSingleton<DeploymentRenderer>();
-
-        private static string[] ProcessExperimentalFeatureArguments(string[] args)
-        {
-            if (args.Length == 0)
-            {
-                return args;
-            }
-
-            var sanitized = new List<string>(args.Length);
-
-            foreach (var arg in args)
-            {
-                if (string.Equals(arg, "--oci-enabled", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                sanitized.Add(arg);
-            }
-
-            return sanitized.ToArray();
-        }
 
         // This logic is duplicated in Bicep.Cli. We avoid placing it in Bicep.Core
         // to keep Bicep.Core free of System.IO dependencies. Consider moving this

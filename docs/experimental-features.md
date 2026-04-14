@@ -50,7 +50,7 @@ includes enhancements for Deployment stacks extensibility integration. This feat
 
 ### `ociEnabled`
 
-Enables publishing and restoring Bicep modules and extensions from non-Azure OCI-compliant registries (e.g. GHCR, Docker Hub) using the ORAS transport. Can also be enabled via the `--oci-enabled` CLI flag or the `BICEP_EXPERIMENTAL_OCI=1` environment variable.
+Enables publishing and restoring Bicep modules and extensions from non-Azure OCI-compliant registries (e.g. GHCR, Docker Hub) using the ORAS transport.
 
 ### `resourceInfoCodegen`
 
