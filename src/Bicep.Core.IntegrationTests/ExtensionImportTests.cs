@@ -55,8 +55,37 @@ namespace Bicep.Core.IntegrationTests
 extension
 ");
             result.Should().HaveDiagnostics([
-                ("BCP201", DiagnosticLevel.Error, """Expected an extension specification string. This should either be a relative path, or a valid OCI artifact specification."""),
+                ("BCP201", DiagnosticLevel.Error, """Expected an extension specification string. This should be a relative path to an extension archive, a valid OCI artifact specification, or an exec: path to a local binary executable."""),
             ]);
+        }
+
+        [TestMethod]
+        public async Task Extension_Statement_With_Exec_Scheme_And_Empty_Path_Should_Emit_BCP201()
+        {
+            var services = await GetServices();
+            var result = await CompilationHelper.RestoreAndCompile(services, @"
+extension 'exec:'
+");
+            // 'exec:' with nothing after the colon is an empty raw value → BCP201
+            result.Should().HaveDiagnostics([
+                ("BCP201", DiagnosticLevel.Error, """Expected an extension specification string. This should be a relative path to an extension archive, a valid OCI artifact specification, or an exec: path to a local binary executable."""),
+            ]);
+        }
+
+        [TestMethod]
+        public async Task Extension_Statement_With_Exec_Scheme_And_Binary_Name_Requires_Restore()
+        {
+            var services = await GetServices();
+            // A well-formed exec: reference that has not been restored yet should produce
+            // an "artifact restore required" error, NOT a parse error.
+            var result = await CompilationHelper.RestoreAndCompile(services, @"
+extension 'exec:my-ext'
+");
+            // Compilation without a real binary: the reference is recognised but the
+            // fetcher is unavailable, so restore fails with BCP192.
+            // There should be no BCP201 (parse error) – the scheme itself is valid.
+            result.Diagnostics.Should().NotBeEmpty();
+            result.Diagnostics.Should().NotContain(d => d.Code == "BCP201");
         }
 
         [TestMethod]

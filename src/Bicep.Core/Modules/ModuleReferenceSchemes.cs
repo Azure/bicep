@@ -12,5 +12,7 @@ namespace Bicep.Core.Modules
         public const string Oci = OciArtifactReferenceFacts.Scheme;
 
         public const string TemplateSpecs = "ts";
+
+        public const string Exec = "exec";
     }
 }
