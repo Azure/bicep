@@ -30,12 +30,16 @@ namespace Bicep.Core.Registry
 
         private readonly IPublicModuleMetadataProvider publicModuleMetadataProvider;
 
+        private readonly IFileExplorer fileExplorer;
+
         public OciArtifactRegistry(
             IContainerRegistryClientFactory clientFactory,
-            IPublicModuleMetadataProvider publicModuleMetadataProvider)
+            IPublicModuleMetadataProvider publicModuleMetadataProvider,
+            IFileExplorer fileExplorer)
         {
             this.containerRegistryManager = new AzureContainerRegistryManager(clientFactory);
             this.publicModuleMetadataProvider = publicModuleMetadataProvider;
+            this.fileExplorer = fileExplorer;
         }
 
         public override string Scheme => ArtifactReferenceSchemes.Oci;
@@ -48,6 +52,35 @@ namespace Bicep.Core.Registry
 
         public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference)
         {
+            // Check if the alias resolves to a filesystem-based alias.
+            if (aliasName is not null)
+            {
+                if (!referencingFile.Configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName).IsSuccess(out var alias, out var aliasFailureBuilder))
+                {
+                    return new(aliasFailureBuilder);
+                }
+
+                if (alias.FileSystem is not null)
+                {
+                    if (artifactType != ArtifactType.Module)
+                    {
+                        return new(x => x.OciArtifactModuleAliasFileSystemOnlySupportsModules(aliasName));
+                    }
+
+                    if (!OciArtifactEmulatedReference.TryParse(
+                        referencingFile,
+                        alias.FileSystem,
+                        referencingFile.Configuration.ConfigFileUri,
+                        reference,
+                        this.fileExplorer).IsSuccess(out var emulatedRef, out var emulatedFailureBuilder))
+                    {
+                        return new(emulatedFailureBuilder);
+                    }
+
+                    return new(emulatedRef);
+                }
+            }
+
             if (!OciArtifactReference.TryParse(referencingFile, artifactType, aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
             {
                 return new(failureBuilder);
