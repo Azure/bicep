@@ -200,6 +200,7 @@ namespace Bicep.LanguageServer.Completions
                             yield return CreateKeywordCompletion(LanguageConstants.UsingKeyword, "Using keyword", context.ReplacementRange);
                         }
 
+                        yield return CreateKeywordCompletion(LanguageConstants.ExtensionKeyword, "Extension keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter assignment keyword", context.ReplacementRange);
 

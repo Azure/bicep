@@ -347,6 +347,12 @@ using './nested1/|'
                 },
                 x =>
                 {
+                    x.Label.Should().Be("extension");
+                    x.Detail.Should().Be("Extension keyword");
+                    x.Kind.Should().Be(CompletionItemKind.Keyword);
+                },
+                x =>
+                {
                     x.Label.Should().Be("import");
                     x.Detail.Should().Be("Import keyword");
                     x.Kind.Should().Be(CompletionItemKind.Keyword);
@@ -380,6 +386,12 @@ using 'bar.bicep'
                 {
                     x.Label.Should().Be("extends");
                     x.Detail.Should().Be("Extends keyword");
+                    x.Kind.Should().Be(CompletionItemKind.Keyword);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("extension");
+                    x.Detail.Should().Be("Extension keyword");
                     x.Kind.Should().Be(CompletionItemKind.Keyword);
                 },
                 x =>
