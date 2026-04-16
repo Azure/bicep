@@ -117,11 +117,11 @@ public sealed class BicepTools(
     For Azure resources, data is sourced from Azure Resource Provider APIs.
     For extension resources (e.g., Microsoft Graph), specify the extensionName and extensionVersion parameters.
     Use ListPublishedExtensions to discover available extensions and their versions.
-    Specify the resource type (e.g., Microsoft.KeyVault/vaults or Microsoft.Graph/applications) and API version (e.g., 2024-11-01 or beta).
+    Specify the resource type (e.g., Microsoft.KeyVault/vaults or Microsoft.Graph/applications) and API version (e.g., 2024-11-01 or v1.0).
     """)]
     public async Task<ResourceTypeSchemaResult> GetResourceTypeSchema(
         [Description("The resource type; e.g. Microsoft.KeyVault/vaults or Microsoft.Graph/applications")] string resourceType,
-        [Description("The API version of the resource type; e.g. 2024-11-01 or beta")] string apiVersion,
+        [Description("The API version of the resource type; e.g. 2024-11-01 or v1.0")] string apiVersion,
         [Description("The extension name for non-Azure resources (e.g., microsoftgraph/v1.0). Omit for Azure resources. Use ListPublishedExtensions to discover available extensions.")] string? extensionName = null,
         [Description("The extension version/tag (e.g., 1.0.0). Required when extensionName is provided.")] string? extensionVersion = null)
     {
