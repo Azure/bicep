@@ -20,7 +20,7 @@ public static class IServiceCollectionExtensions
     public static IMcpServerBuilder AddBicepMcpServer(this IServiceCollection services)
     {
         services
-            .AddSingleton<ILogger<ResourceVisitor>>(NullLoggerFactory.Instance.CreateLogger<ResourceVisitor>())
+            .AddSingleton(NullLoggerFactory.Instance.CreateLogger<ResourceVisitor>())
             .AddSingleton<AzResourceTypeLoader>(provider => new(new AzTypeLoader()))
             .AddSingleton<ResourceVisitor>()
             .AddSingleton<ExtensionTypeLoaderProvider>()

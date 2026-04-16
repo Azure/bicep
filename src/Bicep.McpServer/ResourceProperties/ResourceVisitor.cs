@@ -15,11 +15,11 @@ namespace Bicep.McpServer.ResourceProperties;
 
 public class ResourceVisitor
 {
-    private readonly ILogger<ResourceVisitor> _logger;
+    private readonly ILogger<ResourceVisitor> logger;
 
     public ResourceVisitor(ILogger<ResourceVisitor> logger)
     {
-        _logger = logger;
+        this.logger = logger;
     }
 
     public TypesDefinitionResult LoadSingleResourceType(string fullyQualifiedResourceType, string apiVersion)
@@ -43,8 +43,8 @@ public class ResourceVisitor
             ? new InsensitiveDictionary<IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(rf.ToDictionary())
             : new InsensitiveDictionary<IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>();
 
-        _logger.LogInformation("Total Resources: {ResourceCount}", resources.Count);
-        _logger.LogInformation("Total Resource Functions: {ResourceFunctionCount}", resourceFunctions.Count);
+        logger.LogInformation("Total Resources: {ResourceCount}", resources.Count);
+        logger.LogInformation("Total Resource Functions: {ResourceFunctionCount}", resourceFunctions.Count);
 
         var typesToWrite = new List<TypeBase>();
         CrossFileTypeReference resourceReference = resources.FirstOrDefault(r => r.Key.EqualsOrdinalInsensitively($"{fullyQualifiedResourceType}@{apiVersion}")).Value
@@ -119,10 +119,10 @@ public class ResourceVisitor
 
         result.OtherComplexTypeEntities.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase));
 
-        _logger.LogInformation("Total Complex Types: {OtherComplexTypeEntityCount}", result.OtherComplexTypeEntities.Count);
+        logger.LogInformation("Total Complex Types: {OtherComplexTypeEntityCount}", result.OtherComplexTypeEntities.Count);
 
         stopwatch.Stop();
-        _logger.LogInformation("LoadSingleResourceType took {ElapsedMilliseconds} ms", stopwatch.ElapsedMilliseconds);
+        logger.LogInformation("LoadSingleResourceType took {ElapsedMilliseconds} ms", stopwatch.ElapsedMilliseconds);
 
         return result;
     }
