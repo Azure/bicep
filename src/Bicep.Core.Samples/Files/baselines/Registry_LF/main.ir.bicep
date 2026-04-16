@@ -1,7 +1,11 @@
 targetScope = 'subscription'
-//@[000:2463) ProgramExpression
+//@[000:2747) ProgramExpression
 //@[000:0000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) |   └─ResourceReferenceExpression [UNPARENTED]
+//@[000:0000) | └─ResourceDependencyExpression [UNPARENTED]
+//@[000:0000) |   └─ResourceReferenceExpression [UNPARENTED]
+//@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
+//@[000:0000) | | └─ModuleReferenceExpression [UNPARENTED]
 //@[000:0000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
@@ -153,6 +157,49 @@ module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
 //@[056:0064) | | |     └─VariableReferenceExpression { Variable = websites }
 //@[056:0064) | |       └─VariableReferenceExpression { Variable = websites }
   name: '${site.name}siteDeploy2'
+//@[002:0033) | |   └─ObjectPropertyExpression
+//@[002:0006) | |     ├─StringLiteralExpression { Value = name }
+//@[008:0033) | |     └─InterpolatedStringExpression
+//@[011:0020) | |       └─PropertyAccessExpression { PropertyName = name }
+//@[011:0015) | |         └─ArrayAccessExpression
+//@[011:0015) | |           ├─CopyIndexExpression
+  scope: rg
+  params: {
+//@[010:0150) | ├─ObjectExpression
+    appPlanId: appPlanDeploy.outputs.planId
+//@[004:0043) | | ├─ObjectPropertyExpression
+//@[004:0013) | | | ├─StringLiteralExpression { Value = appPlanId }
+//@[015:0043) | | | └─ModuleOutputPropertyAccessExpression { PropertyName = planId }
+//@[015:0036) | | |   └─PropertyAccessExpression { PropertyName = outputs }
+//@[015:0028) | | |     └─ModuleReferenceExpression
+    namePrefix: site.name
+//@[004:0025) | | ├─ObjectPropertyExpression
+//@[004:0014) | | | ├─StringLiteralExpression { Value = namePrefix }
+//@[016:0025) | | | └─PropertyAccessExpression { PropertyName = name }
+//@[016:0020) | | |   └─ArrayAccessExpression
+//@[016:0020) | | |     ├─CopyIndexExpression
+    dockerImage: 'nginxdemos/hello'
+//@[004:0035) | | ├─ObjectPropertyExpression
+//@[004:0015) | | | ├─StringLiteralExpression { Value = dockerImage }
+//@[017:0035) | | | └─StringLiteralExpression { Value = nginxdemos/hello }
+    dockerImageTag: site.tag
+//@[004:0028) | | └─ObjectPropertyExpression
+//@[004:0018) | |   ├─StringLiteralExpression { Value = dockerImageTag }
+//@[020:0028) | |   └─PropertyAccessExpression { PropertyName = tag }
+//@[020:0024) | |     └─ArrayAccessExpression
+//@[020:0024) | |       ├─CopyIndexExpression
+  }
+}]
+
+module siteDeploy3 'br/mock-registry-emulated:site:v3' = [for site in websites: {
+//@[000:0281) ├─DeclaredModuleExpression
+//@[057:0281) | ├─ForLoopExpression
+//@[070:0078) | | ├─VariableReferenceExpression { Variable = websites }
+//@[080:0280) | | └─ObjectExpression
+//@[070:0078) | |           └─VariableReferenceExpression { Variable = websites }
+//@[070:0078) | | |     └─VariableReferenceExpression { Variable = websites }
+//@[070:0078) | |       └─VariableReferenceExpression { Variable = websites }
+  name: '${site.name}siteDeploy3'
 //@[002:0033) | |   └─ObjectPropertyExpression
 //@[002:0006) | |     ├─StringLiteralExpression { Value = name }
 //@[008:0033) | |     └─InterpolatedStringExpression
@@ -374,3 +421,4 @@ module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
 //@[014:0020) | |   └─StringLiteralExpression { Value = test }
   }
 }
+

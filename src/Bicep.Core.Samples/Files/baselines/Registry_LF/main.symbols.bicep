@@ -62,6 +62,19 @@ module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
   }
 }]
 
+module siteDeploy3 'br/mock-registry-emulated:site:v3' = [for site in websites: {
+//@[62:66) Local site. Type: object | object. Declaration start char: 62, length: 4
+//@[07:18) Module siteDeploy3. Type: module[]. Declaration start char: 0, length: 281
+  name: '${site.name}siteDeploy3'
+  scope: rg
+  params: {
+    appPlanId: appPlanDeploy.outputs.planId
+    namePrefix: site.name
+    dockerImage: 'nginxdemos/hello'
+    dockerImageTag: site.tag
+  }
+}]
+
 module storageDeploy 'ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0' = {
 //@[07:20) Module storageDeploy. Type: module. Declaration start char: 0, length: 168
   name: 'storageDeploy'
@@ -152,3 +165,4 @@ module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
     ipv6port: 'test'
   }
 }
+

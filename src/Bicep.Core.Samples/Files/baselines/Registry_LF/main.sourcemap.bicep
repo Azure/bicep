@@ -394,6 +394,118 @@ module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
   }
 }]
 
+module siteDeploy3 'br/mock-registry-emulated:site:v3' = [for site in websites: {
+//@    {
+//@      "copy": {
+//@        "name": "siteDeploy3",
+//@        "count": "[length(variables('websites'))]"
+//@      },
+//@      "type": "Microsoft.Resources/deployments",
+//@      "apiVersion": "2025-04-01",
+//@      "resourceGroup": "adotfrank-rg",
+//@      "properties": {
+//@        "expressionEvaluationOptions": {
+//@          "scope": "inner"
+//@        },
+//@        "mode": "Incremental",
+//@        "template": {
+//@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "contentVersion": "1.0.0.0",
+//@          "metadata": {
+//@            "_generator": {
+//@              "name": "bicep",
+//@              "version": "dev",
+//@              "templateHash": "15188988612540889945"
+//@            }
+//@          },
+//@          "parameters": {
+//@            "namePrefix": {
+//@              "type": "string"
+//@            },
+//@            "location": {
+//@              "type": "string",
+//@              "defaultValue": "[resourceGroup().location]"
+//@            },
+//@            "dockerImage": {
+//@              "type": "string"
+//@            },
+//@            "dockerImageTag": {
+//@              "type": "string"
+//@            },
+//@            "appPlanId": {
+//@              "type": "string"
+//@            }
+//@          },
+//@          "resources": [
+//@            {
+//@              "type": "Microsoft.Web/sites",
+//@              "apiVersion": "2020-06-01",
+//@              "name": "[format('{0}site', parameters('namePrefix'))]",
+//@              "location": "[parameters('location')]",
+//@              "properties": {
+//@                "siteConfig": {
+//@                  "appSettings": [
+//@                    {
+//@                      "name": "DOCKER_REGISTRY_SERVER_URL",
+//@                      "value": "https://index.docker.io"
+//@                    },
+//@                    {
+//@                      "name": "DOCKER_REGISTRY_SERVER_USERNAME",
+//@                      "value": ""
+//@                    },
+//@                    {
+//@                      "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
+//@                      "value": ""
+//@                    },
+//@                    {
+//@                      "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+//@                      "value": "false"
+//@                    }
+//@                  ],
+//@                  "linuxFxVersion": "[format('DOCKER|{0}:{1}', parameters('dockerImage'), parameters('dockerImageTag'))]"
+//@                },
+//@                "serverFarmId": "[parameters('appPlanId')]"
+//@              }
+//@            }
+//@          ],
+//@          "outputs": {
+//@            "siteUrl": {
+//@              "type": "string",
+//@              "value": "[reference(resourceId('Microsoft.Web/sites', format('{0}site', parameters('namePrefix'))), '2020-06-01').hostNames[0]]"
+//@            }
+//@          }
+//@        }
+//@      },
+//@      "dependsOn": [
+//@        "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy')]",
+//@        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'adotfrank-rg')]"
+//@      ]
+//@    },
+  name: '${site.name}siteDeploy3'
+//@      "name": "[format('{0}siteDeploy3', variables('websites')[copyIndex()].name)]",
+  scope: rg
+  params: {
+//@        "parameters": {
+//@        },
+    appPlanId: appPlanDeploy.outputs.planId
+//@          "appPlanId": {
+//@            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy'), '2025-04-01').outputs.planId.value]"
+//@          },
+    namePrefix: site.name
+//@          "namePrefix": {
+//@            "value": "[variables('websites')[copyIndex()].name]"
+//@          },
+    dockerImage: 'nginxdemos/hello'
+//@          "dockerImage": {
+//@            "value": "nginxdemos/hello"
+//@          },
+    dockerImageTag: site.tag
+//@          "dockerImageTag": {
+//@            "value": "[variables('websites')[copyIndex()].tag]"
+//@          }
+  }
+}]
+
 module storageDeploy 'ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
@@ -780,3 +892,4 @@ module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
 //@          }
   }
 }
+

@@ -1,5 +1,5 @@
 targetScope = 'subscription'
-//@[000:2463) ProgramSyntax
+//@[000:2747) ProgramSyntax
 //@[000:0028) ├─TargetScopeSyntax
 //@[000:0011) | ├─Token(Identifier) |targetScope|
 //@[012:0013) | ├─Token(Assignment) |=|
@@ -359,6 +359,120 @@ module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
 //@[016:0020) |   | |   | └─IdentifierSyntax
 //@[016:0020) |   | |   |   └─Token(Identifier) |name|
 //@[020:0033) |   | |   └─Token(StringRightPiece) |}siteDeploy2'|
+//@[033:0034) |   | ├─Token(NewLine) |\n|
+  scope: rg
+//@[002:0011) |   | ├─ObjectPropertySyntax
+//@[002:0007) |   | | ├─IdentifierSyntax
+//@[002:0007) |   | | | └─Token(Identifier) |scope|
+//@[007:0008) |   | | ├─Token(Colon) |:|
+//@[009:0011) |   | | └─VariableAccessSyntax
+//@[009:0011) |   | |   └─IdentifierSyntax
+//@[009:0011) |   | |     └─Token(Identifier) |rg|
+//@[011:0012) |   | ├─Token(NewLine) |\n|
+  params: {
+//@[002:0150) |   | ├─ObjectPropertySyntax
+//@[002:0008) |   | | ├─IdentifierSyntax
+//@[002:0008) |   | | | └─Token(Identifier) |params|
+//@[008:0009) |   | | ├─Token(Colon) |:|
+//@[010:0150) |   | | └─ObjectSyntax
+//@[010:0011) |   | |   ├─Token(LeftBrace) |{|
+//@[011:0012) |   | |   ├─Token(NewLine) |\n|
+    appPlanId: appPlanDeploy.outputs.planId
+//@[004:0043) |   | |   ├─ObjectPropertySyntax
+//@[004:0013) |   | |   | ├─IdentifierSyntax
+//@[004:0013) |   | |   | | └─Token(Identifier) |appPlanId|
+//@[013:0014) |   | |   | ├─Token(Colon) |:|
+//@[015:0043) |   | |   | └─PropertyAccessSyntax
+//@[015:0036) |   | |   |   ├─PropertyAccessSyntax
+//@[015:0028) |   | |   |   | ├─VariableAccessSyntax
+//@[015:0028) |   | |   |   | | └─IdentifierSyntax
+//@[015:0028) |   | |   |   | |   └─Token(Identifier) |appPlanDeploy|
+//@[028:0029) |   | |   |   | ├─Token(Dot) |.|
+//@[029:0036) |   | |   |   | └─IdentifierSyntax
+//@[029:0036) |   | |   |   |   └─Token(Identifier) |outputs|
+//@[036:0037) |   | |   |   ├─Token(Dot) |.|
+//@[037:0043) |   | |   |   └─IdentifierSyntax
+//@[037:0043) |   | |   |     └─Token(Identifier) |planId|
+//@[043:0044) |   | |   ├─Token(NewLine) |\n|
+    namePrefix: site.name
+//@[004:0025) |   | |   ├─ObjectPropertySyntax
+//@[004:0014) |   | |   | ├─IdentifierSyntax
+//@[004:0014) |   | |   | | └─Token(Identifier) |namePrefix|
+//@[014:0015) |   | |   | ├─Token(Colon) |:|
+//@[016:0025) |   | |   | └─PropertyAccessSyntax
+//@[016:0020) |   | |   |   ├─VariableAccessSyntax
+//@[016:0020) |   | |   |   | └─IdentifierSyntax
+//@[016:0020) |   | |   |   |   └─Token(Identifier) |site|
+//@[020:0021) |   | |   |   ├─Token(Dot) |.|
+//@[021:0025) |   | |   |   └─IdentifierSyntax
+//@[021:0025) |   | |   |     └─Token(Identifier) |name|
+//@[025:0026) |   | |   ├─Token(NewLine) |\n|
+    dockerImage: 'nginxdemos/hello'
+//@[004:0035) |   | |   ├─ObjectPropertySyntax
+//@[004:0015) |   | |   | ├─IdentifierSyntax
+//@[004:0015) |   | |   | | └─Token(Identifier) |dockerImage|
+//@[015:0016) |   | |   | ├─Token(Colon) |:|
+//@[017:0035) |   | |   | └─StringSyntax
+//@[017:0035) |   | |   |   └─Token(StringComplete) |'nginxdemos/hello'|
+//@[035:0036) |   | |   ├─Token(NewLine) |\n|
+    dockerImageTag: site.tag
+//@[004:0028) |   | |   ├─ObjectPropertySyntax
+//@[004:0018) |   | |   | ├─IdentifierSyntax
+//@[004:0018) |   | |   | | └─Token(Identifier) |dockerImageTag|
+//@[018:0019) |   | |   | ├─Token(Colon) |:|
+//@[020:0028) |   | |   | └─PropertyAccessSyntax
+//@[020:0024) |   | |   |   ├─VariableAccessSyntax
+//@[020:0024) |   | |   |   | └─IdentifierSyntax
+//@[020:0024) |   | |   |   |   └─Token(Identifier) |site|
+//@[024:0025) |   | |   |   ├─Token(Dot) |.|
+//@[025:0028) |   | |   |   └─IdentifierSyntax
+//@[025:0028) |   | |   |     └─Token(Identifier) |tag|
+//@[028:0029) |   | |   ├─Token(NewLine) |\n|
+  }
+//@[002:0003) |   | |   └─Token(RightBrace) |}|
+//@[003:0004) |   | ├─Token(NewLine) |\n|
+}]
+//@[000:0001) |   | └─Token(RightBrace) |}|
+//@[001:0002) |   └─Token(RightSquare) |]|
+//@[002:0004) ├─Token(NewLine) |\n\n|
+
+module siteDeploy3 'br/mock-registry-emulated:site:v3' = [for site in websites: {
+//@[000:0281) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0018) | ├─IdentifierSyntax
+//@[007:0018) | | └─Token(Identifier) |siteDeploy3|
+//@[019:0054) | ├─StringSyntax
+//@[019:0054) | | └─Token(StringComplete) |'br/mock-registry-emulated:site:v3'|
+//@[055:0056) | ├─Token(Assignment) |=|
+//@[057:0281) | └─ForSyntax
+//@[057:0058) |   ├─Token(LeftSquare) |[|
+//@[058:0061) |   ├─Token(Identifier) |for|
+//@[062:0066) |   ├─LocalVariableSyntax
+//@[062:0066) |   | └─IdentifierSyntax
+//@[062:0066) |   |   └─Token(Identifier) |site|
+//@[067:0069) |   ├─Token(Identifier) |in|
+//@[070:0078) |   ├─VariableAccessSyntax
+//@[070:0078) |   | └─IdentifierSyntax
+//@[070:0078) |   |   └─Token(Identifier) |websites|
+//@[078:0079) |   ├─Token(Colon) |:|
+//@[080:0280) |   ├─ObjectSyntax
+//@[080:0081) |   | ├─Token(LeftBrace) |{|
+//@[081:0082) |   | ├─Token(NewLine) |\n|
+  name: '${site.name}siteDeploy3'
+//@[002:0033) |   | ├─ObjectPropertySyntax
+//@[002:0006) |   | | ├─IdentifierSyntax
+//@[002:0006) |   | | | └─Token(Identifier) |name|
+//@[006:0007) |   | | ├─Token(Colon) |:|
+//@[008:0033) |   | | └─StringSyntax
+//@[008:0011) |   | |   ├─Token(StringLeftPiece) |'${|
+//@[011:0020) |   | |   ├─PropertyAccessSyntax
+//@[011:0015) |   | |   | ├─VariableAccessSyntax
+//@[011:0015) |   | |   | | └─IdentifierSyntax
+//@[011:0015) |   | |   | |   └─Token(Identifier) |site|
+//@[015:0016) |   | |   | ├─Token(Dot) |.|
+//@[016:0020) |   | |   | └─IdentifierSyntax
+//@[016:0020) |   | |   |   └─Token(Identifier) |name|
+//@[020:0033) |   | |   └─Token(StringRightPiece) |}siteDeploy3'|
 //@[033:0034) |   | ├─Token(NewLine) |\n|
   scope: rg
 //@[002:0011) |   | ├─ObjectPropertySyntax
@@ -988,4 +1102,6 @@ module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
 //@[003:0004) |   ├─Token(NewLine) |\n|
 }
 //@[000:0001) |   └─Token(RightBrace) |}|
-//@[001:0001) └─Token(EndOfFile) ||
+//@[001:0002) ├─Token(NewLine) |\n|
+
+//@[000:0000) └─Token(EndOfFile) ||

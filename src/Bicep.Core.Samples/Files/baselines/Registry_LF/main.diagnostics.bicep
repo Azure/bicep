@@ -54,6 +54,17 @@ module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
   }
 }]
 
+module siteDeploy3 'br/mock-registry-emulated:site:v3' = [for site in websites: {
+  name: '${site.name}siteDeploy3'
+  scope: rg
+  params: {
+    appPlanId: appPlanDeploy.outputs.planId
+    namePrefix: site.name
+    dockerImage: 'nginxdemos/hello'
+    dockerImageTag: site.tag
+  }
+}]
+
 module storageDeploy 'ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0' = {
   name: 'storageDeploy'
   scope: rg
@@ -132,3 +143,4 @@ module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
     ipv6port: 'test'
   }
 }
+
