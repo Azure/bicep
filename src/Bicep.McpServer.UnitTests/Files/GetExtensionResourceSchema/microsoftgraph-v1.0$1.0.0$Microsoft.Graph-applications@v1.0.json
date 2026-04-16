@@ -1,0 +1,807 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Microsoft.Graph/applications@v1.0",
+  "description": "Bicep resource schema for Microsoft.Graph/applications@v1.0",
+  "x-bicep-resource-flags": "None",
+  "x-bicep-resource-readable-scopes": "Tenant, ManagementGroup, Subscription, ResourceGroup, Extension",
+  "x-bicep-resource-writable-scopes": "Tenant, ManagementGroup, Subscription, ResourceGroup, Extension",
+  "type": "object",
+  "properties": {
+    "addIns": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MicrosoftGraphAddIn"
+      },
+      "description": "Defines custom behavior that a consuming service can use to call an app in specific contexts. For example, applications that can render file streams can set the addIns property for its 'FileHandler' functionality. This lets services like Microsoft 365 call the application in the context of a document the user is working on."
+    },
+    "api": {
+      "$ref": "#/$defs/MicrosoftGraphApiApplication",
+      "description": "Specifies settings for an application that implements a web API."
+    },
+    "apiVersion": {
+      "const": "v1.0",
+      "description": "The resource api version",
+      "readOnly": true,
+      "x-bicep-deploy-time-constant": true
+    },
+    "appId": {
+      "type": "string",
+      "description": "The unique identifier for the application that is assigned to an application by Microsoft Entra ID. Not nullable. Read-only. Alternate key.",
+      "readOnly": true
+    },
+    "applicationTemplateId": {
+      "type": "string",
+      "description": "Unique identifier of the applicationTemplate. Read-only. null if the app wasn't created from an application template.",
+      "readOnly": true
+    },
+    "appRoles": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MicrosoftGraphAppRole"
+      },
+      "description": "The collection of roles defined for the application. With app role assignments, these roles can be assigned to users, groups, or service principals associated with other applications. Not nullable."
+    },
+    "authenticationBehaviors": {
+      "$ref": "#/$defs/MicrosoftGraphAuthenticationBehaviors"
+    },
+    "certification": {
+      "$ref": "#/$defs/MicrosoftGraphCertification",
+      "description": "Specifies the certification status of the application.",
+      "readOnly": true
+    },
+    "createdDateTime": {
+      "type": "string",
+      "description": "The date and time the application was registered. The DateTimeOffset type represents date and time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Read-only.",
+      "readOnly": true
+    },
+    "defaultRedirectUri": {
+      "type": "string"
+    },
+    "deletedDateTime": {
+      "type": "string",
+      "description": "Date and time when this object was deleted. Always null when the object hasn't been deleted.",
+      "readOnly": true
+    },
+    "description": {
+      "type": "string",
+      "description": "Free text field to provide a description of the application object to end users. The maximum allowed size is 1,024 characters."
+    },
+    "disabledByMicrosoftStatus": {
+      "type": "string",
+      "description": "Specifies whether Microsoft has disabled the registered application. Possible values are: null (default value), NotDisabled, and DisabledDueToViolationOfServicesAgreement (reasons include suspicious, abusive, or malicious activity, or a violation of the Microsoft Services Agreement)."
+    },
+    "displayName": {
+      "type": "string",
+      "description": "The display name for the application. Maximum length is 256 characters."
+    },
+    "groupMembershipClaims": {
+      "type": "string",
+      "description": "Configures the groups claim issued in a user or OAuth 2.0 access token that the application expects. To set this attribute, use one of the following valid string values: None, SecurityGroup (for security groups and Microsoft Entra roles), All (this gets all of the security groups, distribution groups, and Microsoft Entra directory roles that the signed-in user is a member of)."
+    },
+    "id": {
+      "type": "string",
+      "description": "The unique identifier for an entity. Read-only.",
+      "readOnly": true
+    },
+    "identifierUris": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Also known as App ID URI, this value is set when an application is used as a resource app. The identifierUris acts as the prefix for the scopes you reference in your API's code, and it must be globally unique across Microsoft Entra ID. For more information on valid identifierUris patterns and best practices, see Microsoft Entra application registration security best practices. Not nullable."
+    },
+    "info": {
+      "$ref": "#/$defs/MicrosoftGraphInformationalUrl",
+      "description": "Basic profile information of the application such as  app's marketing, support, terms of service and privacy statement URLs. The terms of service and privacy statement are surfaced to users through the user consent experience. For more info, see How to: Add Terms of service and privacy statement for registered Microsoft Entra apps."
+    },
+    "isDeviceOnlyAuthSupported": {
+      "type": "boolean",
+      "description": "Specifies whether this application supports device authentication without a user. The default is false."
+    },
+    "isFallbackPublicClient": {
+      "type": "boolean",
+      "description": "Specifies the fallback application type as public client, such as an installed application running on a mobile device. The default value is false, which means the fallback application type is confidential client such as a web app. There are certain scenarios where Microsoft Entra ID can't determine the client application type. For example, the ROPC flow where it's configured without specifying a redirect URI. In those cases, Microsoft Entra ID interprets the application type based on the value of this property."
+    },
+    "keyCredentials": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MicrosoftGraphKeyCredential"
+      },
+      "description": "The collection of key credentials associated with the application. Not nullable."
+    },
+    "logo": {
+      "type": "string",
+      "description": "The main logo for the application. Not nullable."
+    },
+    "nativeAuthenticationApisEnabled": {
+      "anyOf": [
+        {
+          "enum": [
+            "none",
+            "all"
+          ]
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "description": "Specifies whether the Native Authentication APIs are enabled for the application. The possible values are: none and all. Default is none. For more information, see Native Authentication."
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes relevant for the management of the application."
+    },
+    "optionalClaims": {
+      "$ref": "#/$defs/MicrosoftGraphOptionalClaims",
+      "description": "Application developers can configure optional claims in their Microsoft Entra applications to specify the claims that are sent to their application by the Microsoft security token service. For more information, see How to: Provide optional claims to your app."
+    },
+    "owners": {
+      "$ref": "#/$defs/MicrosoftGraphRelationship",
+      "description": "Directory objects that are owners of this application. The owners are a set of nonadmin users or service principals who are allowed to modify this object."
+    },
+    "parentalControlSettings": {
+      "$ref": "#/$defs/MicrosoftGraphParentalControlSettings",
+      "description": "Specifies parental control settings for an application."
+    },
+    "passwordCredentials": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MicrosoftGraphPasswordCredential"
+      },
+      "description": "The collection of password credentials associated with the application. Not nullable."
+    },
+    "publicClient": {
+      "$ref": "#/$defs/MicrosoftGraphPublicClientApplication",
+      "description": "Specifies settings for installed clients such as desktop or mobile devices."
+    },
+    "publisherDomain": {
+      "type": "string",
+      "description": "The verified publisher domain for the application. Read-only. For more information, see How to: Configure an application's publisher domain.",
+      "readOnly": true
+    },
+    "requestSignatureVerification": {
+      "$ref": "#/$defs/MicrosoftGraphRequestSignatureVerification",
+      "description": "Specifies whether this application requires Microsoft Entra ID to verify the signed authentication requests."
+    },
+    "requiredResourceAccess": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MicrosoftGraphRequiredResourceAccess"
+      },
+      "description": "Specifies the resources that the application needs to access. This property also specifies the set of delegated permissions and application roles that it needs for each of those resources. This configuration of access to the required resources drives the consent experience. No more than 50 resource services (APIs) can be configured. Beginning mid-October 2021, the total number of required permissions must not exceed 400. For more information, see Limits on requested permissions per app. Not nullable."
+    },
+    "samlMetadataUrl": {
+      "type": "string",
+      "description": "The URL where the service exposes SAML metadata for federation. This property is valid only for single-tenant applications. Nullable."
+    },
+    "serviceManagementReference": {
+      "type": "string",
+      "description": "References application or service contact information from a Service or Asset Management database. Nullable."
+    },
+    "servicePrincipalLockConfiguration": {
+      "$ref": "#/$defs/MicrosoftGraphServicePrincipalLockConfiguration",
+      "description": "Specifies whether sensitive properties of a multitenant application should be locked for editing after the application is provisioned in a tenant. Nullable. null by default."
+    },
+    "signInAudience": {
+      "type": "string",
+      "description": "Specifies the Microsoft accounts that are supported for the current application. The possible values are: AzureADMyOrg (default), AzureADMultipleOrgs, AzureADandPersonalMicrosoftAccount, and PersonalMicrosoftAccount. See more in the table. The value of this object also limits the number of permissions an app can request. For more information, see Limits on requested permissions per app. The value for this property has implications on other app object properties. As a result, if you change this property, you might need to change other properties first."
+    },
+    "spa": {
+      "$ref": "#/$defs/MicrosoftGraphSpaApplication",
+      "description": "Specifies settings for a single-page application, including sign out URLs and redirect URIs for authorization codes and access tokens."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Custom strings that can be used to categorize and identify the application. Not nullable."
+    },
+    "tokenEncryptionKeyId": {
+      "type": "string",
+      "description": "Specifies the keyId of a public key from the keyCredentials collection. When configured, Microsoft Entra ID encrypts all the tokens it emits by using the key this property points to. The application code that receives the encrypted token must use the matching private key to decrypt the token before it can be used for the signed-in user.",
+      "minLength": 36,
+      "maxLength": 36,
+      "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+    },
+    "type": {
+      "const": "Microsoft.Graph/applications",
+      "description": "The resource type",
+      "readOnly": true,
+      "x-bicep-deploy-time-constant": true
+    },
+    "uniqueName": {
+      "type": "string",
+      "description": "The unique identifier that can be assigned to an application and used as an alternate key. Immutable.",
+      "x-bicep-deploy-time-constant": true
+    },
+    "verifiedPublisher": {
+      "$ref": "#/$defs/MicrosoftGraphVerifiedPublisher",
+      "description": "Specifies the verified publisher of the application. For more information about how publisher verification helps support application security, trustworthiness, and compliance, see Publisher verification."
+    },
+    "web": {
+      "$ref": "#/$defs/MicrosoftGraphWebApplication",
+      "description": "Specifies settings for a web application."
+    }
+  },
+  "required": [
+    "displayName",
+    "uniqueName"
+  ],
+  "$defs": {
+    "MicrosoftGraphAddIn": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique identifier for the addIn object.",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+        },
+        "properties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MicrosoftGraphKeyValue"
+          },
+          "description": "The collection of key-value pairs that define parameters that the consuming service can use or call. You must specify this property when performing a POST or a PATCH operation on the addIns collection. Required."
+        },
+        "type": {
+          "type": "string",
+          "description": "The unique name for the functionality exposed by the app."
+        }
+      }
+    },
+    "MicrosoftGraphApiApplication": {
+      "type": "object",
+      "properties": {
+        "acceptMappedClaims": {
+          "type": "boolean",
+          "description": "When true, allows an application to use claims mapping without specifying a custom signing key."
+        },
+        "knownClientApplications": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Used for bundling consent if you have a solution that contains two parts: a client app and a custom web API app. If you set the appID of the client app to this value, the user only consents once to the client app. Microsoft Entra ID knows that consenting to the client means implicitly consenting to the web API and automatically provisions service principals for both APIs at the same time. Both the client and the web API app must be registered in the same tenant."
+        },
+        "oauth2PermissionScopes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MicrosoftGraphPermissionScope"
+          },
+          "description": "The definition of the delegated permissions exposed by the web API represented by this application registration. These delegated permissions may be requested by a client application, and may be granted by users or administrators during consent. Delegated permissions are sometimes referred to as OAuth 2.0 scopes."
+        },
+        "preAuthorizedApplications": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MicrosoftGraphPreAuthorizedApplication"
+          },
+          "description": "Lists the client applications that are preauthorized with the specified delegated permissions to access this application's APIs. Users aren't required to consent to any preauthorized application (for the permissions specified). However, any other permissions not listed in preAuthorizedApplications (requested through incremental consent for example) will require user consent."
+        },
+        "requestedAccessTokenVersion": {
+          "type": "integer",
+          "description": "Specifies the access token version expected by this resource. This changes the version and format of the JWT produced independent of the endpoint or client used to request the access token. The endpoint used, v1.0 or v2.0, is chosen by the client and only impacts the version of id_tokens. Resources need to explicitly configure requestedAccessTokenVersion to indicate the supported access token format. Possible values for requestedAccessTokenVersion are 1, 2, or null. If the value is null, this defaults to 1, which corresponds to the v1.0 endpoint. If signInAudience on the application is configured as AzureADandPersonalMicrosoftAccount or PersonalMicrosoftAccount, the value for this property must be 2."
+        }
+      }
+    },
+    "MicrosoftGraphAppRole": {
+      "type": "object",
+      "properties": {
+        "allowedMemberTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specifies whether this app role can be assigned to users and groups (by setting to ['User']), to other application's (by setting to ['Application'], or both (by setting to ['User', 'Application']). App roles supporting assignment to other applications' service principals are also known as application permissions. The 'Application' value is only supported for app roles defined on application entities."
+        },
+        "description": {
+          "type": "string",
+          "description": "The description for the app role. This is displayed when the app role is being assigned and, if the app role functions as an application permission, during  consent experiences."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name for the permission that appears in the app role assignment and consent experiences."
+        },
+        "id": {
+          "type": "string",
+          "description": "Unique role identifier inside the appRoles collection. When creating a new app role, a new GUID identifier must be provided.",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+        },
+        "isEnabled": {
+          "type": "boolean",
+          "description": "When creating or updating an app role, this must be set to true (which is the default). To delete a role, this must first be set to false. At that point, in a subsequent call, this role may be removed."
+        },
+        "origin": {
+          "type": "string",
+          "description": "Specifies if the app role is defined on the application object or on the servicePrincipal entity. Must not be included in any POST or PATCH requests. Read-only.",
+          "readOnly": true
+        },
+        "value": {
+          "type": "string",
+          "description": "Specifies the value to include in the roles claim in ID tokens and access tokens authenticating an assigned user or service principal. Must not exceed 120 characters in length. Allowed characters are : ! # $ % & ' ( ) * + , -. / : ;  =  ? @ [ ] ^ + _  {  } ~, and characters in the ranges 0-9, A-Z and a-z. Any other character, including the space character, aren't allowed. May not begin with .."
+        }
+      }
+    },
+    "MicrosoftGraphAuthenticationBehaviors": {
+      "type": "object",
+      "properties": {
+        "blockAzureADGraphAccess": {
+          "type": "boolean"
+        },
+        "removeUnverifiedEmailClaim": {
+          "type": "boolean"
+        },
+        "requireClientServicePrincipal": {
+          "type": "boolean"
+        }
+      }
+    },
+    "MicrosoftGraphCertification": {
+      "type": "object",
+      "properties": {
+        "certificationDetailsUrl": {
+          "type": "string",
+          "description": "URL that shows certification details for the application."
+        },
+        "certificationExpirationDateTime": {
+          "type": "string",
+          "description": "The timestamp when the current certification for the application expires."
+        },
+        "isCertifiedByMicrosoft": {
+          "type": "boolean",
+          "description": "Indicates whether the application is certified by Microsoft."
+        },
+        "isPublisherAttested": {
+          "type": "boolean",
+          "description": "Indicates whether the application developer or publisher completed Publisher Attestation."
+        },
+        "lastCertificationDateTime": {
+          "type": "string",
+          "description": "The timestamp when the certification for the application was most recently added or updated."
+        }
+      }
+    },
+    "MicrosoftGraphImplicitGrantSettings": {
+      "type": "object",
+      "properties": {
+        "enableAccessTokenIssuance": {
+          "type": "boolean",
+          "description": "Specifies whether this web application can request an access token using the OAuth 2.0 implicit flow."
+        },
+        "enableIdTokenIssuance": {
+          "type": "boolean",
+          "description": "Specifies whether this web application can request an ID token using the OAuth 2.0 implicit flow."
+        }
+      }
+    },
+    "MicrosoftGraphInformationalUrl": {
+      "type": "object",
+      "properties": {
+        "logoUrl": {
+          "type": "string",
+          "description": "CDN URL to the application's logo, Read-only.",
+          "readOnly": true
+        },
+        "marketingUrl": {
+          "type": "string",
+          "description": "Link to the application's marketing page. For example, https:/www.contoso.com/app/marketing."
+        },
+        "privacyStatementUrl": {
+          "type": "string",
+          "description": "Link to the application's privacy statement. For example, https:/www.contoso.com/app/privacy."
+        },
+        "supportUrl": {
+          "type": "string",
+          "description": "Link to the application's support page. For example, https:/www.contoso.com/app/support."
+        },
+        "termsOfServiceUrl": {
+          "type": "string",
+          "description": "Link to the application's terms of service statement. For example, https:/www.contoso.com/app/termsofservice."
+        }
+      }
+    },
+    "MicrosoftGraphKeyCredential": {
+      "type": "object",
+      "properties": {
+        "customKeyIdentifier": {
+          "type": "string",
+          "description": "A 40-character binary type that can be used to identify the credential. Optional. When not provided in the payload, defaults to the thumbprint of the certificate."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The friendly name for the key, with a maximum length of 90 characters. Longer values are accepted but shortened. Optional."
+        },
+        "endDateTime": {
+          "type": "string",
+          "description": "The date and time at which the credential expires. The DateTimeOffset type represents date and time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z."
+        },
+        "key": {
+          "type": "string",
+          "description": "The certificate's raw data in byte array converted to Base64 string. From a .cer certificate, you can read the key using the Convert.ToBase64String() method. For more information, see Get the certificate key."
+        },
+        "keyId": {
+          "type": "string",
+          "description": "The unique identifier (GUID) for the key.",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+        },
+        "startDateTime": {
+          "type": "string",
+          "description": "The date and time at which the credential becomes valid.The Timestamp type represents date and time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of key credential; for example, Symmetric, AsymmetricX509Cert."
+        },
+        "usage": {
+          "type": "string",
+          "description": "A string that describes the purpose for which the key can be used; for example, Verify."
+        }
+      }
+    },
+    "MicrosoftGraphKeyValue": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "Key for the key-value pair."
+        },
+        "value": {
+          "type": "string",
+          "description": "Value for the key-value pair."
+        }
+      }
+    },
+    "MicrosoftGraphOptionalClaim": {
+      "type": "object",
+      "properties": {
+        "additionalProperties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Additional properties of the claim. If a property exists in this collection, it modifies the behavior of the optional claim specified in the name property."
+        },
+        "essential": {
+          "type": "boolean",
+          "description": "If the value is true, the claim specified by the client is necessary to ensure a smooth authorization experience for the specific task requested by the end user. The default value is false."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the optional claim."
+        },
+        "source": {
+          "type": "string",
+          "description": "The source (directory object) of the claim. There are predefined claims and user-defined claims from extension properties. If the source value is null, the claim is a predefined optional claim. If the source value is user, the value in the name property is the extension property from the user object."
+        }
+      }
+    },
+    "MicrosoftGraphOptionalClaims": {
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MicrosoftGraphOptionalClaim"
+          },
+          "description": "The optional claims returned in the JWT access token."
+        },
+        "idToken": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MicrosoftGraphOptionalClaim"
+          },
+          "description": "The optional claims returned in the JWT ID token."
+        },
+        "saml2Token": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MicrosoftGraphOptionalClaim"
+          },
+          "description": "The optional claims returned in the SAML token."
+        }
+      }
+    },
+    "MicrosoftGraphParentalControlSettings": {
+      "type": "object",
+      "properties": {
+        "countriesBlockedForMinors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specifies the two-letter ISO country codes. Access to the application will be blocked for minors from the countries specified in this list."
+        },
+        "legalAgeGroupRule": {
+          "type": "string",
+          "description": "Specifies the legal age group rule that applies to users of the app. Can be set to one of the following values: ValueDescriptionAllowDefault. Enforces the legal minimum. This means parental consent is required for minors in the European Union and Korea.RequireConsentForPrivacyServicesEnforces the user to specify date of birth to comply with COPPA rules. RequireConsentForMinorsRequires parental consent for ages below 18, regardless of country/region minor rules.RequireConsentForKidsRequires parental consent for ages below 14, regardless of country/region minor rules.BlockMinorsBlocks minors from using the app."
+        }
+      }
+    },
+    "MicrosoftGraphPasswordCredential": {
+      "type": "object",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "Friendly name for the password. Optional."
+        },
+        "endDateTime": {
+          "type": "string",
+          "description": "The date and time at which the password expires represented using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Optional."
+        },
+        "hint": {
+          "type": "string",
+          "description": "Contains the first three characters of the password. Read-only.",
+          "readOnly": true
+        },
+        "keyId": {
+          "type": "string",
+          "description": "The unique identifier for the password.",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+        },
+        "secretText": {
+          "type": "string",
+          "description": "Read-only; Contains the strong passwords generated by Microsoft Entra ID that are 16-64 characters in length. The generated password value is only returned during the initial POST request to addPassword. There is no way to retrieve this password in the future.",
+          "readOnly": true
+        },
+        "startDateTime": {
+          "type": "string",
+          "description": "The date and time at which the password becomes valid. The Timestamp type represents date and time information using ISO 8601 format and is always in UTC time. For example, midnight UTC on Jan 1, 2014 is 2014-01-01T00:00:00Z. Optional."
+        }
+      }
+    },
+    "MicrosoftGraphPermissionScope": {
+      "type": "object",
+      "properties": {
+        "adminConsentDescription": {
+          "type": "string",
+          "description": "A description of the delegated permissions, intended to be read by an administrator granting the permission on behalf of all users. This text appears in tenant-wide admin consent experiences."
+        },
+        "adminConsentDisplayName": {
+          "type": "string",
+          "description": "The permission's title, intended to be read by an administrator granting the permission on behalf of all users."
+        },
+        "id": {
+          "type": "string",
+          "description": "Unique delegated permission identifier inside the collection of delegated permissions defined for a resource application.",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+        },
+        "isEnabled": {
+          "type": "boolean",
+          "description": "When you create or update a permission, this property must be set to true (which is the default). To delete a permission, this property must first be set to false. At that point, in a subsequent call, the permission may be removed."
+        },
+        "type": {
+          "type": "string",
+          "description": "The possible values are: User and Admin. Specifies whether this delegated permission should be considered safe for non-admin users to consent to on behalf of themselves, or whether an administrator consent should always be required. While Microsoft Graph defines the default consent requirement for each permission, the tenant administrator may override the behavior in their organization (by allowing, restricting, or limiting user consent to this delegated permission). For more information, see Configure how users consent to applications."
+        },
+        "userConsentDescription": {
+          "type": "string",
+          "description": "A description of the delegated permissions, intended to be read by a user granting the permission on their own behalf. This text appears in consent experiences where the user is consenting only on behalf of themselves."
+        },
+        "userConsentDisplayName": {
+          "type": "string",
+          "description": "A title for the permission, intended to be read by a user granting the permission on their own behalf. This text appears in consent experiences where the user is consenting only on behalf of themselves."
+        },
+        "value": {
+          "type": "string",
+          "description": "Specifies the value to include in the scp (scope) claim in access tokens. Must not exceed 120 characters in length. Allowed characters are : ! # $ % & ' ( ) * + , -. / : ;  =  ? @ [ ] ^ + _  {  } ~, and characters in the ranges 0-9, A-Z and a-z. Any other character, including the space character, aren't allowed. May not begin with .."
+        }
+      }
+    },
+    "MicrosoftGraphPreAuthorizedApplication": {
+      "type": "object",
+      "properties": {
+        "appId": {
+          "type": "string",
+          "description": "The unique identifier for the application."
+        },
+        "delegatedPermissionIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The unique identifier for the oauth2PermissionScopes the application requires."
+        }
+      }
+    },
+    "MicrosoftGraphPublicClientApplication": {
+      "type": "object",
+      "properties": {
+        "redirectUris": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specifies the URLs where user tokens are sent for sign-in, or the redirect URIs where OAuth 2.0 authorization codes and access tokens are sent. For iOS and macOS apps, specify the value following the syntax msauth.{BUNDLEID}:/auth, replacing '{BUNDLEID}'. For example, if the bundle ID is com.microsoft.identitysample.MSALiOS, the URI is msauth.com.microsoft.identitysample.MSALiOS:/auth."
+        }
+      }
+    },
+    "MicrosoftGraphRedirectUriSettings": {
+      "type": "object",
+      "properties": {
+        "index": {
+          "type": "integer"
+        },
+        "uri": {
+          "type": "string"
+        }
+      }
+    },
+    "MicrosoftGraphRelationship": {
+      "type": "object",
+      "properties": {
+        "relationships": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The list of object ids to be included in the relationship."
+        },
+        "relationshipSemantics": {
+          "anyOf": [
+            {
+              "enum": [
+                "append",
+                "replace"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Specifies the semantics used by the Microsoft Graph Bicep extension to process the relationships. The 'append' semantics means that the relationship items in the template are added to the existing list. The 'replace' semantics means that the relationship items in the template will replace all existing items in the Entra resource. The default value (if not set) is 'append'"
+        }
+      },
+      "required": [
+        "relationships"
+      ]
+    },
+    "MicrosoftGraphRequestSignatureVerification": {
+      "type": "object",
+      "properties": {
+        "allowedWeakAlgorithms": {
+          "anyOf": [
+            {
+              "enum": [
+                "rsaSha1"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Specifies which weak algorithms are allowed. The possible values are: rsaSha1, unknownFutureValue."
+        },
+        "isSignedRequestRequired": {
+          "type": "boolean",
+          "description": "Specifies whether signed authentication requests for this application should be required."
+        }
+      }
+    },
+    "MicrosoftGraphRequiredResourceAccess": {
+      "type": "object",
+      "properties": {
+        "resourceAccess": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MicrosoftGraphResourceAccess"
+          },
+          "description": "The list of OAuth2.0 permission scopes and app roles that the application requires from the specified resource."
+        },
+        "resourceAppId": {
+          "type": "string",
+          "description": "The unique identifier for the resource that the application requires access to. This should be equal to the appId declared on the target resource application."
+        }
+      }
+    },
+    "MicrosoftGraphResourceAccess": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique identifier of an app role or delegated permission exposed by the resource application. For delegated permissions, this should match the id property of one of the delegated permissions in the oauth2PermissionScopes collection of the resource application's service principal. For app roles (application permissions), this should match the id property of an app role in the appRoles collection of the resource application's service principal.",
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+        },
+        "type": {
+          "type": "string",
+          "description": "Specifies whether the id property references a delegated permission or an app role (application permission). The possible values are: Scope (for delegated permissions) or Role (for app roles)."
+        }
+      }
+    },
+    "MicrosoftGraphServicePrincipalLockConfiguration": {
+      "type": "object",
+      "properties": {
+        "allProperties": {
+          "type": "boolean",
+          "description": "Enables locking all sensitive properties. The sensitive properties are keyCredentials, passwordCredentials, and tokenEncryptionKeyId."
+        },
+        "credentialsWithUsageSign": {
+          "type": "boolean",
+          "description": "Locks the keyCredentials and passwordCredentials properties for modification where credential usage type is Sign."
+        },
+        "credentialsWithUsageVerify": {
+          "type": "boolean",
+          "description": "Locks the keyCredentials and passwordCredentials properties for modification where credential usage type is Verify. This locks OAuth service principals."
+        },
+        "isEnabled": {
+          "type": "boolean",
+          "description": "Enables or disables service principal lock configuration. To allow the sensitive properties to be updated, update this property to false to disable the lock on the service principal."
+        },
+        "tokenEncryptionKeyId": {
+          "type": "boolean",
+          "description": "Locks the tokenEncryptionKeyId property for modification on the service principal."
+        }
+      }
+    },
+    "MicrosoftGraphSpaApplication": {
+      "type": "object",
+      "properties": {
+        "redirectUris": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specifies the URLs where user tokens are sent for sign-in, or the redirect URIs where OAuth 2.0 authorization codes and access tokens are sent."
+        }
+      }
+    },
+    "MicrosoftGraphVerifiedPublisher": {
+      "type": "object",
+      "properties": {
+        "addedDateTime": {
+          "type": "string",
+          "description": "The timestamp when the verified publisher was first added or most recently updated."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The verified publisher name from the app publisher's Partner Center account."
+        },
+        "verifiedPublisherId": {
+          "type": "string",
+          "description": "The ID of the verified publisher from the app publisher's Partner Center account."
+        }
+      }
+    },
+    "MicrosoftGraphWebApplication": {
+      "type": "object",
+      "properties": {
+        "homePageUrl": {
+          "type": "string",
+          "description": "Home page or landing page of the application."
+        },
+        "implicitGrantSettings": {
+          "$ref": "#/$defs/MicrosoftGraphImplicitGrantSettings",
+          "description": "Specifies whether this web application can request tokens using the OAuth 2.0 implicit flow."
+        },
+        "logoutUrl": {
+          "type": "string",
+          "description": "Specifies the URL that is used by Microsoft's authorization service to log out a user using front-channel, back-channel or SAML logout protocols."
+        },
+        "redirectUris": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specifies the URLs where user tokens are sent for sign-in, or the redirect URIs where OAuth 2.0 authorization codes and access tokens are sent."
+        },
+        "redirectUriSettings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MicrosoftGraphRedirectUriSettings"
+          }
+        }
+      }
+    }
+  }
+}

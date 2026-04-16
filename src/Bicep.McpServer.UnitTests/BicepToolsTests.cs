@@ -46,6 +46,13 @@ public class BicepToolsTests
     }
 
     [TestMethod]
+    public async Task ListResourceTypes_with_extension_returns_empty_for_invalid_provider()
+    {
+        var response = await tools.ListResourceTypes("Invalid.Provider", "microsoftgraph/v1.0", "1.0.0");
+        response.ResourceTypes.Should().BeEmpty();
+    }
+
+    [TestMethod]
     [EmbeddedFilesTestData(@"Files/GetAzResourceSchema/.*\.json")]
     [TestCategory(BaselineHelper.BaselineTestCategory)]
     public async Task GetResourceTypeSchema_returns_resource_schema(EmbeddedFile jsonFile)
@@ -59,6 +66,65 @@ public class BicepToolsTests
 
         baselineFile.WriteToOutputFolder(response.Schema);
         baselineFile.ShouldHaveExpectedJsonValue();
+    }
+
+    [TestMethod]
+    [EmbeddedFilesTestData(@"Files/GetExtensionResourceSchema/.*\.json")]
+    [TestCategory(BaselineHelper.BaselineTestCategory)]
+    public async Task GetResourceTypeSchema_with_extension_returns_resource_schema(EmbeddedFile jsonFile)
+    {
+        var baselineFile = BaselineFolder.BuildOutputFolder(TestContext, jsonFile).EntryFile;
+        var fileName = Path.GetFileNameWithoutExtension(jsonFile.FileName);
+
+        // File name format: {extensionName}${extensionVersion}${resourceType}@{apiVersion}
+        // e.g., microsoftgraph-v1.0$1.1.0-preview$Microsoft.Graph-applications@v1.0
+        var parts = fileName.Split('$');
+        var extensionName = parts[0].Replace("-", "/");
+        var extensionVersion = parts[1];
+        var resourcePart = parts[2];
+
+        var atIndex = resourcePart.LastIndexOf('@');
+        var resourceType = resourcePart[..atIndex].Replace("-", "/");
+        var apiVersion = resourcePart[(atIndex + 1)..];
+
+        var response = await tools.GetResourceTypeSchema(resourceType, apiVersion, extensionName, extensionVersion);
+
+        baselineFile.WriteToOutputFolder(response.Schema);
+        baselineFile.ShouldHaveExpectedJsonValue();
+    }
+
+    [TestMethod]
+    public async Task ListPublishedExtensions_returns_extensions()
+    {
+        var response = await tools.ListPublishedExtensions();
+        var extensions = response.Extensions;
+
+        extensions.Should().NotBeEmpty();
+        extensions.Should().Contain(e => e.Name == "microsoftgraph/beta");
+        extensions.Should().Contain(e => e.Name == "microsoftgraph/v1.0");
+
+        extensions.Should().AllSatisfy(ext =>
+        {
+            ext.Name.Should().NotBeNullOrWhiteSpace();
+            ext.Description.Should().NotBeNullOrWhiteSpace();
+        });
+    }
+
+    [TestMethod]
+    public async Task ListResourceTypes_with_extension_returns_graph_resource_types()
+    {
+        var response = await tools.ListResourceTypes("Microsoft.Graph", "microsoftgraph/v1.0", "1.0.0");
+        var result = response.ResourceTypes;
+
+        result.Should().BeEquivalentTo([
+            "Microsoft.Graph/applications@v1.0",
+            "Microsoft.Graph/applications/federatedIdentityCredentials@v1.0",
+            "Microsoft.Graph/appRoleAssignedTo@v1.0",
+            "Microsoft.Graph/groups@v1.0",
+            "Microsoft.Graph/oauth2PermissionGrants@v1.0",
+            "Microsoft.Graph/servicePrincipals@v1.0",
+            "Microsoft.Graph/users@v1.0",
+        ]);
     }
 
     [TestMethod]
