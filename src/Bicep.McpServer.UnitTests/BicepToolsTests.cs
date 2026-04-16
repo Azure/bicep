@@ -28,9 +28,9 @@ public class BicepToolsTests
     private readonly BicepTools tools = GetServiceProvider().GetRequiredService<BicepTools>();
 
     [TestMethod]
-    public void ListAzResourceTypesForProvider_returns_list_of_resource_types()
+    public async Task ListResourceTypes_returns_list_of_resource_types()
     {
-        var response = tools.ListAzResourceTypesForProvider("Microsoft.Compute");
+        var response = await tools.ListResourceTypes("Microsoft.Compute");
         var result = response.ResourceTypes;
 
         result.Should().HaveCountGreaterThan(700);
@@ -39,23 +39,23 @@ public class BicepToolsTests
     }
 
     [TestMethod]
-    public void ListAzResourceTypesForProvider_returns_empty_array_for_invalid_provider()
+    public async Task ListResourceTypes_returns_empty_array_for_invalid_provider()
     {
-        var response = tools.ListAzResourceTypesForProvider("Invalid.Provider");
+        var response = await tools.ListResourceTypes("Invalid.Provider");
         response.ResourceTypes.Should().BeEmpty();
     }
 
     [TestMethod]
     [EmbeddedFilesTestData(@"Files/GetAzResourceSchema/.*\.json")]
     [TestCategory(BaselineHelper.BaselineTestCategory)]
-    public void GetAzResourceTypeSchema_returns_resource_schema(EmbeddedFile jsonFile)
+    public async Task GetResourceTypeSchema_returns_resource_schema(EmbeddedFile jsonFile)
     {
         var baselineFile = BaselineFolder.BuildOutputFolder(TestContext, jsonFile).EntryFile;
         var split = Path.GetFileNameWithoutExtension(jsonFile.FileName).Split("@");
         var resourceType = split[0].Replace("-", "/");
         var apiVersion = split[1];
 
-        var response = tools.GetAzResourceTypeSchema(resourceType, apiVersion);
+        var response = await tools.GetResourceTypeSchema(resourceType, apiVersion);
 
         baselineFile.WriteToOutputFolder(response.Schema);
         baselineFile.ShouldHaveExpectedJsonValue();

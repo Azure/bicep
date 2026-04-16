@@ -24,9 +24,14 @@ public class ResourceVisitor
 
     public TypesDefinitionResult LoadSingleResourceType(string fullyQualifiedResourceType, string apiVersion)
     {
+        var loader = new AzTypeLoader();
+        return LoadSingleResourceType(loader, fullyQualifiedResourceType, apiVersion);
+    }
+
+    public TypesDefinitionResult LoadSingleResourceType(ITypeLoader loader, string fullyQualifiedResourceType, string apiVersion)
+    {
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-        var loader = new AzTypeLoader();
         TypeIndex typeIndex = loader.LoadTypeIndex();
 
         // Sample key of a resource: "Microsoft.App/containerApps/authConfigs@2024-03-01"
@@ -34,7 +39,9 @@ public class ResourceVisitor
 
         // Sample key of a resource function: "microsoft.app/containerapps"
         // Sample value of a resource function: { "2024-03-01": [ function1, function2 ], "2024-08-02-preview": [ function1, function2] }
-        var resourceFunctions = new InsensitiveDictionary<IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(typeIndex.ResourceFunctions.ToDictionary());
+        var resourceFunctions = typeIndex.ResourceFunctions is { } rf
+            ? new InsensitiveDictionary<IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(rf.ToDictionary())
+            : new InsensitiveDictionary<IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>();
 
         _logger.LogInformation("Total Resources: {ResourceCount}", resources.Count);
         _logger.LogInformation("Total Resource Functions: {ResourceFunctionCount}", resourceFunctions.Count);

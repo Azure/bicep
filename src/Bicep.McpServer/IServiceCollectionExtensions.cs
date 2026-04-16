@@ -6,6 +6,7 @@ using Azure.Bicep.Types.Az;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.McpServer.Extensions;
 using Bicep.McpServer.ResourceProperties;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -22,6 +23,7 @@ public static class IServiceCollectionExtensions
             .AddSingleton<ILogger<ResourceVisitor>>(NullLoggerFactory.Instance.CreateLogger<ResourceVisitor>())
             .AddSingleton<AzResourceTypeLoader>(provider => new(new AzTypeLoader()))
             .AddSingleton<ResourceVisitor>()
+            .AddSingleton<ExtensionTypeLoaderProvider>()
             .AddBicepCore()
             .AddBicepDecompiler();
 
