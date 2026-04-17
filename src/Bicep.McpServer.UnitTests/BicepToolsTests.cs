@@ -107,6 +107,7 @@ public class BicepToolsTests
         {
             ext.Name.Should().NotBeNullOrWhiteSpace();
             ext.Description.Should().NotBeNullOrWhiteSpace();
+            ext.AvailableTags.Should().NotBeEmpty($"extension '{ext.Name}' should have at least one available tag");
         });
     }
 

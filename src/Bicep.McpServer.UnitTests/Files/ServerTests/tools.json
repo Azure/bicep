@@ -319,7 +319,7 @@
   },
   {
     "name": "get_resource_type_schema",
-    "description": "Retrieves the complete JSON schema definition for a specific resource type and API version, including all properties, nested types, and constraints.\n\nUse this tool to:\n- Understand what properties are available on a resource\n- Learn about required vs optional properties, their types, and allowed values\n- Discover nested resource types and their schemas\n- Find available resource functions and their signatures\n- Generate accurate Bicep code with proper property names and types\n\nThe returned JSON schema includes resource type definitions, nested complex types, resource function signatures (like list* operations), and property constraints.\nFor Azure resources, data is sourced from Azure Resource Provider APIs.\nFor extension resources (e.g., Microsoft Graph), specify the extensionName and extensionVersion parameters.\nUse ListPublishedExtensions to discover available extensions and their versions.\nSpecify the resource type (e.g., Microsoft.KeyVault/vaults or Microsoft.Graph/applications) and API version (e.g., 2024-11-01 or beta).",
+    "description": "Retrieves the complete JSON schema definition for a specific resource type and API version, including all properties, nested types, and constraints.\n\nUse this tool to:\n- Understand what properties are available on a resource\n- Learn about required vs optional properties, their types, and allowed values\n- Discover nested resource types and their schemas\n- Find available resource functions and their signatures\n- Generate accurate Bicep code with proper property names and types\n\nThe returned JSON schema includes resource type definitions, nested complex types, resource function signatures (like list* operations), and property constraints.\nFor Azure resources, data is sourced from Azure Resource Provider APIs.\nFor extension resources (e.g., Microsoft Graph), specify the extensionName and extensionVersion parameters.\nUse ListPublishedExtensions to discover available extensions and their versions.\nSpecify the resource type (e.g., Microsoft.KeyVault/vaults or Microsoft.Graph/applications) and API version (e.g., 2024-11-01 or v1.0).",
     "jsonSchema": {
       "type": "object",
       "properties": {
@@ -328,7 +328,7 @@
           "type": "string"
         },
         "apiVersion": {
-          "description": "The API version of the resource type; e.g. 2024-11-01 or beta",
+          "description": "The API version of the resource type; e.g. 2024-11-01 or v1.0",
           "type": "string"
         },
         "extensionName": {

@@ -47,13 +47,25 @@ public class ExtensionTypeLoaderProvider
         var extension = PublishedExtension.TryGet(extensionName)
             ?? throw new ArgumentException($"Unknown extension '{extensionName}'. Published extensions: {string.Join(", ", PublishedExtension.All.Select(e => e.Name))}");
 
-        var cloud = GetCloudConfiguration();
-        var acrManager = new AzureContainerRegistryManager(clientFactory);
-        var tags = await acrManager.GetRepositoryTagsAsync(cloud, extension.Registry, extension.Repository);
-        var result = tags.ToList();
+        var tags = await GetRepositoryTagsViaOciAsync(extension.Registry, extension.Repository);
 
-        tagCache.TryAdd(extensionName, result);
-        return result;
+        tagCache.TryAdd(extensionName, tags);
+        return tags;
+    }
+
+    /// <summary>
+    /// Lists tags for a repository using the standard OCI Distribution /v2/{repo}/tags/list endpoint.
+    /// The Azure SDK uses ACR-specific APIs that MCR doesn't support, so we call the standard endpoint directly.
+    /// </summary>
+    private static async Task<IReadOnlyList<string>> GetRepositoryTagsViaOciAsync(string registry, string repository)
+    {
+        using var httpClient = new HttpClient();
+        var url = $"https://{registry}/v2/{repository}/tags/list";
+        var response = await httpClient.GetStringAsync(url);
+        var tagsResponse = System.Text.Json.JsonDocument.Parse(response);
+        return [.. tagsResponse.RootElement.GetProperty("tags")
+            .EnumerateArray()
+            .Select(t => t.GetString()!)];
     }
 
     /// <summary>
