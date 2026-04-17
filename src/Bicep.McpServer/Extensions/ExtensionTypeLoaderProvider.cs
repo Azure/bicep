@@ -73,7 +73,7 @@ public class ExtensionTypeLoaderProvider
         using var httpClient = new HttpClient();
         var url = $"https://{registry}/v2/{repository}/tags/list";
         var response = await httpClient.GetStringAsync(url);
-        var tagsResponse = System.Text.Json.JsonDocument.Parse(response);
+        using var tagsResponse = System.Text.Json.JsonDocument.Parse(response);
         return [.. tagsResponse.RootElement.GetProperty("tags")
             .EnumerateArray()
             .Select(t => t.GetString()!)];
@@ -122,19 +122,27 @@ public class ExtensionTypeLoaderProvider
 
     private ArchivedTypeLoader? TryLoadFromFileSystemCache(WellKnownExtension extension, string tag)
     {
-        var cacheDir = GetCacheDirectory(extension, tag);
-        if (cacheDir is null)
+        try
         {
+            var cacheDir = GetCacheDirectory(extension, tag);
+            if (cacheDir is null)
+            {
+                return null;
+            }
+
+            var typesTgzFile = cacheDir.GetFile("types.tgz");
+            if (typesTgzFile.Exists())
+            {
+                return ArchivedTypeLoader.FromFileHandle(typesTgzFile);
+            }
+
             return null;
         }
-
-        var typesTgzFile = cacheDir.GetFile("types.tgz");
-        if (typesTgzFile.Exists())
+        catch
         {
-            return ArchivedTypeLoader.FromFileHandle(typesTgzFile);
+            // If the cached file is corrupted or inaccessible, fall through to MCR pull
+            return null;
         }
-
-        return null;
     }
 
     /// <summary>
