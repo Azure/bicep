@@ -319,7 +319,7 @@
   },
   {
     "name": "get_resource_type_schema",
-    "description": "Retrieves the complete JSON schema definition for a specific resource type and API version, including all properties, nested types, and constraints.\n\nUse this tool to:\n- Understand what properties are available on a resource\n- Learn about required vs optional properties, their types, and allowed values\n- Discover nested resource types and their schemas\n- Find available resource functions and their signatures\n- Generate accurate Bicep code with proper property names and types\n\nThe returned JSON schema includes resource type definitions, nested complex types, resource function signatures (like list* operations), and property constraints.\nFor Azure resources, data is sourced from Azure Resource Provider APIs.\nFor extension resources (e.g., Microsoft Graph), specify the extensionName and extensionVersion parameters.\nUse ListPublishedExtensions to discover available extensions and their versions.\nSpecify the resource type (e.g., Microsoft.KeyVault/vaults or Microsoft.Graph/applications) and API version (e.g., 2024-11-01 or v1.0).",
+    "description": "Retrieves the complete JSON schema definition for a specific resource type and API version, including all properties, nested types, and constraints.\n\nUse this tool to:\n- Understand what properties are available on a resource\n- Learn about required vs optional properties, their types, and allowed values\n- Discover nested resource types and their schemas\n- Find available resource functions and their signatures\n- Generate accurate Bicep code with proper property names and types\n\nThe returned JSON schema includes resource type definitions, nested complex types, resource function signatures (like list* operations), and property constraints.\nFor Azure resources, data is sourced from Azure Resource Provider APIs.\nFor extension resources (e.g., Microsoft Graph), specify the extensionName and extensionVersion parameters.\nUse ListWellKnownExtensions to discover available extensions and their versions.\nSpecify the resource type (e.g., Microsoft.KeyVault/vaults or Microsoft.Graph/applications) and API version (e.g., 2024-11-01 or v1.0).",
     "jsonSchema": {
       "type": "object",
       "properties": {
@@ -332,7 +332,7 @@
           "type": "string"
         },
         "extensionName": {
-          "description": "The extension name for non-Azure resources (e.g., microsoftgraph/v1.0). Omit for Azure resources. Use ListPublishedExtensions to discover available extensions.",
+          "description": "The extension name for non-Azure resources (e.g., microsoftgraph/v1.0). Omit for Azure resources. Use ListWellKnownExtensions to discover available extensions.",
           "type": [
             "string",
             "null"
@@ -423,53 +423,8 @@
     }
   },
   {
-    "name": "list_published_extensions",
-    "description": "Lists published Bicep extensions (e.g., Microsoft Graph) with their available versions.\n\nUse this tool to:\n- Discover available Bicep extensions beyond Azure (az) resources\n- Find available versions for Microsoft Graph and other extensions\n- Get extension names and versions to use with ListResourceTypes and GetResourceTypeSchema\n\nExtensions provide resource types for non-Azure providers like Microsoft Graph.\nUse the returned extension name and version with other tools to explore extension resource types.",
-    "jsonSchema": {
-      "type": "object",
-      "properties": {}
-    },
-    "returnJsonSchema": {
-      "type": "object",
-      "properties": {
-        "extensions": {
-          "description": "List of published Bicep extensions with their available versions",
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "description": "Extension name (e.g., microsoftgraph/v1.0)",
-                "type": "string"
-              },
-              "description": {
-                "description": "Human-readable description of the extension",
-                "type": "string"
-              },
-              "availableTags": {
-                "description": "Available versions (tags) of the extension",
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            },
-            "required": [
-              "name",
-              "description",
-              "availableTags"
-            ]
-          }
-        }
-      },
-      "required": [
-        "extensions"
-      ]
-    }
-  },
-  {
     "name": "list_resource_types",
-    "description": "Lists all available resource types and their API versions for a specific resource provider namespace.\n\nUse this tool to:\n- Discover what resource types are available in a provider (e.g., what can be created under Microsoft.Storage or Microsoft.Graph)\n- Find the latest API versions for resources\n- Explore the complete resource type catalog for a given provider\n\nFor Azure (az) resources, data is sourced from Azure Resource Provider APIs.\nFor extension resources (e.g., Microsoft Graph), specify the extensionName and extensionVersion parameters.\nUse ListPublishedExtensions to discover available extensions and their versions.\n\nExample provider namespaces: Microsoft.Compute, Microsoft.Storage, Microsoft.Network, Microsoft.Web, Microsoft.KeyVault, Microsoft.Graph",
+    "description": "Lists all available resource types and their API versions for a specific resource provider namespace.\n\nUse this tool to:\n- Discover what resource types are available in a provider (e.g., what can be created under Microsoft.Storage or Microsoft.Graph)\n- Find the latest API versions for resources\n- Explore the complete resource type catalog for a given provider\n\nFor Azure (az) resources, data is sourced from Azure Resource Provider APIs.\nFor extension resources (e.g., Microsoft Graph), specify the extensionName and extensionVersion parameters.\nUse ListWellKnownExtensions to discover available extensions and their versions.\n\nExample provider namespaces: Microsoft.Compute, Microsoft.Storage, Microsoft.Network, Microsoft.Web, Microsoft.KeyVault, Microsoft.Graph",
     "jsonSchema": {
       "type": "object",
       "properties": {
@@ -478,7 +433,7 @@
           "type": "string"
         },
         "extensionName": {
-          "description": "The extension name for non-Azure resources (e.g., microsoftgraph/v1.0). Omit for Azure resources. Use ListPublishedExtensions to discover available extensions.",
+          "description": "The extension name for non-Azure resources (e.g., microsoftgraph/v1.0). Omit for Azure resources. Use ListWellKnownExtensions to discover available extensions.",
           "type": [
             "string",
             "null"
@@ -511,6 +466,51 @@
       },
       "required": [
         "resourceTypes"
+      ]
+    }
+  },
+  {
+    "name": "list_well_known_extensions",
+    "description": "Lists well-known Bicep extensions (e.g., Microsoft Graph) with their available versions.\nThis is not an exhaustive list of all possible extensions; other extensions may exist beyond what is listed here.\n\nUse this tool to:\n- Discover available Bicep extensions beyond Azure (az) resources\n- Find available versions for Microsoft Graph and other extensions\n- Get extension names and versions to use with ListResourceTypes and GetResourceTypeSchema\n\nExtensions provide resource types for non-Azure providers like Microsoft Graph.\nUse the returned extension name and version with other tools to explore extension resource types.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {}
+    },
+    "returnJsonSchema": {
+      "type": "object",
+      "properties": {
+        "extensions": {
+          "description": "List of well-known Bicep extensions with their available versions. This is not an exhaustive list; other extensions may exist.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "Extension name (e.g., microsoftgraph/v1.0)",
+                "type": "string"
+              },
+              "description": {
+                "description": "Human-readable description of the extension",
+                "type": "string"
+              },
+              "availableTags": {
+                "description": "Available versions (tags) of the extension",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "name",
+              "description",
+              "availableTags"
+            ]
+          }
+        }
+      },
+      "required": [
+        "extensions"
       ]
     }
   }

@@ -6,14 +6,14 @@ using Bicep.Core;
 
 namespace Bicep.McpServer.Extensions;
 
-public record PublishedExtension(string Name, string Description, string Registry, string Repository)
+public record WellKnownExtension(string Name, string Description, string Registry, string Repository)
 {
-    public static ImmutableArray<PublishedExtension> All { get; } =
+    public static ImmutableArray<WellKnownExtension> All { get; } =
     [
         new("microsoftgraph/beta", "Microsoft Graph extension (beta)", LanguageConstants.BicepPublicMcrRegistry, "bicep/extensions/microsoftgraph/beta"),
         new("microsoftgraph/v1.0", "Microsoft Graph extension (v1.0)", LanguageConstants.BicepPublicMcrRegistry, "bicep/extensions/microsoftgraph/v1.0"),
     ];
 
-    public static PublishedExtension? TryGet(string extensionName) =>
+    public static WellKnownExtension? TryGet(string extensionName) =>
         All.FirstOrDefault(e => e.Name.Equals(extensionName, StringComparison.OrdinalIgnoreCase));
 }

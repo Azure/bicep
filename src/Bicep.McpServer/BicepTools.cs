@@ -55,8 +55,8 @@ public sealed class BicepTools(
         [Description("Available versions (tags) of the extension")]
         ImmutableArray<string> AvailableTags);
 
-    public record PublishedExtensionsResult(
-        [Description("List of published Bicep extensions with their available versions")]
+    public record WellKnownExtensionsResult(
+        [Description("List of well-known Bicep extensions with their available versions. This is not an exhaustive list; other extensions may exist.")]
         ImmutableArray<ExtensionInfo> Extensions);
 
     private static Lazy<BinaryData> BestPracticesMarkdownLazy { get; } = new(() =>
@@ -75,13 +75,13 @@ public sealed class BicepTools(
     
     For Azure (az) resources, data is sourced from Azure Resource Provider APIs.
     For extension resources (e.g., Microsoft Graph), specify the extensionName and extensionVersion parameters.
-    Use ListPublishedExtensions to discover available extensions and their versions.
+    Use ListWellKnownExtensions to discover available extensions and their versions.
     
     Example provider namespaces: Microsoft.Compute, Microsoft.Storage, Microsoft.Network, Microsoft.Web, Microsoft.KeyVault, Microsoft.Graph
     """)]
     public async Task<ResourceTypeListResult> ListResourceTypes(
         [Description("The resource provider (or namespace) of the resource; e.g. Microsoft.KeyVault or Microsoft.Graph")] string providerNamespace,
-        [Description("The extension name for non-Azure resources (e.g., microsoftgraph/v1.0). Omit for Azure resources. Use ListPublishedExtensions to discover available extensions.")] string? extensionName = null,
+        [Description("The extension name for non-Azure resources (e.g., microsoftgraph/v1.0). Omit for Azure resources. Use ListWellKnownExtensions to discover available extensions.")] string? extensionName = null,
         [Description("The extension version/tag (e.g., 1.0.0). Required when extensionName is provided.")] string? extensionVersion = null)
     {
         if (!string.IsNullOrEmpty(extensionName) && !string.IsNullOrEmpty(extensionVersion))
@@ -116,13 +116,13 @@ public sealed class BicepTools(
     The returned JSON schema includes resource type definitions, nested complex types, resource function signatures (like list* operations), and property constraints.
     For Azure resources, data is sourced from Azure Resource Provider APIs.
     For extension resources (e.g., Microsoft Graph), specify the extensionName and extensionVersion parameters.
-    Use ListPublishedExtensions to discover available extensions and their versions.
+    Use ListWellKnownExtensions to discover available extensions and their versions.
     Specify the resource type (e.g., Microsoft.KeyVault/vaults or Microsoft.Graph/applications) and API version (e.g., 2024-11-01 or v1.0).
     """)]
     public async Task<ResourceTypeSchemaResult> GetResourceTypeSchema(
         [Description("The resource type; e.g. Microsoft.KeyVault/vaults or Microsoft.Graph/applications")] string resourceType,
         [Description("The API version of the resource type; e.g. 2024-11-01 or v1.0")] string apiVersion,
-        [Description("The extension name for non-Azure resources (e.g., microsoftgraph/v1.0). Omit for Azure resources. Use ListPublishedExtensions to discover available extensions.")] string? extensionName = null,
+        [Description("The extension name for non-Azure resources (e.g., microsoftgraph/v1.0). Omit for Azure resources. Use ListWellKnownExtensions to discover available extensions.")] string? extensionName = null,
         [Description("The extension version/tag (e.g., 1.0.0). Required when extensionName is provided.")] string? extensionVersion = null)
     {
         TypesDefinitionResult typesDefinition;
@@ -186,9 +186,10 @@ public sealed class BicepTools(
         return new AvmMetadataResult(modules);
     }
 
-    [McpServerTool(Title = "List published Bicep extensions", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
+    [McpServerTool(Title = "List well-known Bicep extensions", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
-    Lists published Bicep extensions (e.g., Microsoft Graph) with their available versions.
+    Lists well-known Bicep extensions (e.g., Microsoft Graph) with their available versions.
+    This is not an exhaustive list of all possible extensions; other extensions may exist beyond what is listed here.
     
     Use this tool to:
     - Discover available Bicep extensions beyond Azure (az) resources
@@ -198,11 +199,11 @@ public sealed class BicepTools(
     Extensions provide resource types for non-Azure providers like Microsoft Graph.
     Use the returned extension name and version with other tools to explore extension resource types.
     """)]
-    public async Task<PublishedExtensionsResult> ListPublishedExtensions()
+    public async Task<WellKnownExtensionsResult> ListWellKnownExtensions()
     {
         var extensions = new List<ExtensionInfo>();
 
-        foreach (var extension in PublishedExtension.All)
+        foreach (var extension in WellKnownExtension.All)
         {
             try
             {
@@ -215,6 +216,6 @@ public sealed class BicepTools(
             }
         }
 
-        return new PublishedExtensionsResult([.. extensions]);
+        return new WellKnownExtensionsResult([.. extensions]);
     }
 }

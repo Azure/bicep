@@ -94,9 +94,9 @@ public class BicepToolsTests
     }
 
     [TestMethod]
-    public async Task ListPublishedExtensions_returns_extensions()
+    public async Task ListWellKnownExtensions_returns_extensions()
     {
-        var response = await tools.ListPublishedExtensions();
+        var response = await tools.ListWellKnownExtensions();
         var extensions = response.Extensions;
 
         extensions.Should().NotBeEmpty();

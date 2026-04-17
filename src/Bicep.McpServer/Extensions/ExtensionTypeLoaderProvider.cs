@@ -33,10 +33,10 @@ public class ExtensionTypeLoaderProvider
     }
 
     /// <summary>
-    /// Lists available tags (versions) for a published extension by querying MCR. Results are cached.
+    /// Lists available tags (versions) for a well-known extension by querying MCR. Results are cached.
     /// </summary>
-    /// <param name="extensionName">The extension name (e.g., "microsoftgraph/beta"). Must match a <see cref="PublishedExtension"/>.</param>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="extensionName"/> is not a published extension.</exception>
+    /// <param name="extensionName">The extension name (e.g., "microsoftgraph/beta"). Must match a <see cref="WellKnownExtension"/>.</param>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="extensionName"/> is not a well-known extension.</exception>
     public async Task<IReadOnlyList<string>> GetAvailableTagsAsync(string extensionName)
     {
         if (tagCache.TryGetValue(extensionName, out var cached))
@@ -44,8 +44,8 @@ public class ExtensionTypeLoaderProvider
             return cached;
         }
 
-        var extension = PublishedExtension.TryGet(extensionName)
-            ?? throw new ArgumentException($"Unknown extension '{extensionName}'. Published extensions: {string.Join(", ", PublishedExtension.All.Select(e => e.Name))}");
+        var extension = WellKnownExtension.TryGet(extensionName)
+            ?? throw new ArgumentException($"Unknown extension '{extensionName}'. Well-known extensions: {string.Join(", ", WellKnownExtension.All.Select(e => e.Name))}");
 
         var tags = await GetRepositoryTagsViaOciAsync(extension.Registry, extension.Repository);
 
@@ -72,13 +72,13 @@ public class ExtensionTypeLoaderProvider
     /// Gets an <see cref="ITypeLoader"/> for a specific extension and tag.
     /// Uses a three-tier cache: in-memory, file-system (~/.bicep/br/...), then MCR pull.
     /// </summary>
-    /// <param name="extensionName">The extension name (e.g., "microsoftgraph/beta"). Must match a <see cref="PublishedExtension"/>.</param>
+    /// <param name="extensionName">The extension name (e.g., "microsoftgraph/beta"). Must match a <see cref="WellKnownExtension"/>.</param>
     /// <param name="tag">The version tag (e.g., "1.0.0").</param>
-    /// <exception cref="ArgumentException">Thrown if <paramref name="extensionName"/> is not a published extension.</exception>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="extensionName"/> is not a well-known extension.</exception>
     public async Task<ITypeLoader> GetTypeLoaderAsync(string extensionName, string tag)
     {
-        var extension = PublishedExtension.TryGet(extensionName)
-            ?? throw new ArgumentException($"Unknown extension '{extensionName}'. Published extensions: {string.Join(", ", PublishedExtension.All.Select(e => e.Name))}");
+        var extension = WellKnownExtension.TryGet(extensionName)
+            ?? throw new ArgumentException($"Unknown extension '{extensionName}'. Well-known extensions: {string.Join(", ", WellKnownExtension.All.Select(e => e.Name))}");
 
         var cacheKey = $"{extensionName}:{tag}";
 
@@ -94,7 +94,7 @@ public class ExtensionTypeLoaderProvider
         return typeLoader;
     }
 
-    private async Task<ArchivedTypeLoader> PullAndCacheAsync(PublishedExtension extension, string tag)
+    private async Task<ArchivedTypeLoader> PullAndCacheAsync(WellKnownExtension extension, string tag)
     {
         var cloud = GetCloudConfiguration();
         var acrManager = new AzureContainerRegistryManager(clientFactory);
@@ -109,7 +109,7 @@ public class ExtensionTypeLoaderProvider
         return ArchivedTypeLoader.FromStream(mainLayer.Data.ToStream());
     }
 
-    private static ArchivedTypeLoader? TryLoadFromFileSystemCache(PublishedExtension extension, string tag)
+    private static ArchivedTypeLoader? TryLoadFromFileSystemCache(WellKnownExtension extension, string tag)
     {
         var cachePath = GetFileSystemCachePath(extension, tag);
         if (cachePath is null)
@@ -128,7 +128,7 @@ public class ExtensionTypeLoaderProvider
         return null;
     }
 
-    private static void WriteToFileSystemCache(PublishedExtension extension, string tag, BinaryData data)
+    private static void WriteToFileSystemCache(WellKnownExtension extension, string tag, BinaryData data)
     {
         try
         {
@@ -148,7 +148,7 @@ public class ExtensionTypeLoaderProvider
         }
     }
 
-    private static string? GetFileSystemCachePath(PublishedExtension extension, string tag)
+    private static string? GetFileSystemCachePath(WellKnownExtension extension, string tag)
     {
         // Match the compiler's cache path convention:
         // ~/.bicep/br/{registry with : replaced by $, lowered}/{repo with / replaced by $}/{tag}
