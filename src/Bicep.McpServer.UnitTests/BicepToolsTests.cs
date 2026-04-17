@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
 using FluentAssertions;
@@ -28,9 +29,9 @@ public class BicepToolsTests
     private readonly BicepTools tools = GetServiceProvider().GetRequiredService<BicepTools>();
 
     [TestMethod]
-    public async Task ListResourceTypes_returns_list_of_resource_types()
+    public void ListAzureResourceTypes_returns_list_of_resource_types()
     {
-        var response = await tools.ListResourceTypes("Microsoft.Compute");
+        var response = tools.ListAzureResourceTypes("Microsoft.Compute");
         var result = response.ResourceTypes;
 
         result.Should().HaveCountGreaterThan(700);
@@ -39,58 +40,82 @@ public class BicepToolsTests
     }
 
     [TestMethod]
-    public async Task ListResourceTypes_returns_empty_array_for_invalid_provider()
+    public void ListAzureResourceTypes_returns_empty_array_for_invalid_provider()
     {
-        var response = await tools.ListResourceTypes("Invalid.Provider");
-        response.ResourceTypes.Should().BeEmpty();
-    }
-
-    [TestMethod]
-    public async Task ListResourceTypes_with_extension_returns_empty_for_invalid_provider()
-    {
-        var response = await tools.ListResourceTypes("Invalid.Provider", "MicrosoftGraph", "1.0.0");
+        var response = tools.ListAzureResourceTypes("Invalid.Provider");
         response.ResourceTypes.Should().BeEmpty();
     }
 
     [TestMethod]
     [EmbeddedFilesTestData(@"Files/GetAzResourceSchema/.*\.json")]
     [TestCategory(BaselineHelper.BaselineTestCategory)]
-    public async Task GetResourceTypeSchema_returns_resource_schema(EmbeddedFile jsonFile)
+    public void GetAzureResourceTypeSchema_returns_resource_schema(EmbeddedFile jsonFile)
     {
         var baselineFile = BaselineFolder.BuildOutputFolder(TestContext, jsonFile).EntryFile;
         var split = Path.GetFileNameWithoutExtension(jsonFile.FileName).Split("@");
         var resourceType = split[0].Replace("-", "/");
         var apiVersion = split[1];
 
-        var response = await tools.GetResourceTypeSchema(resourceType, apiVersion);
+        var response = tools.GetAzureResourceTypeSchema(resourceType, apiVersion);
 
         baselineFile.WriteToOutputFolder(response.Schema);
         baselineFile.ShouldHaveExpectedJsonValue();
     }
 
     [TestMethod]
+    public async Task ListExtensionResourceTypes_returns_graph_resource_types()
+    {
+        var response = await tools.ListExtensionResourceTypes("br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0");
+        var result = response.ResourceTypes;
+
+        result.Should().BeEquivalentTo([
+            "Microsoft.Graph/applications@v1.0",
+            "Microsoft.Graph/applications/federatedIdentityCredentials@v1.0",
+            "Microsoft.Graph/appRoleAssignedTo@v1.0",
+            "Microsoft.Graph/groups@v1.0",
+            "Microsoft.Graph/oauth2PermissionGrants@v1.0",
+            "Microsoft.Graph/servicePrincipals@v1.0",
+            "Microsoft.Graph/users@v1.0",
+        ]);
+    }
+
+    [TestMethod]
     [EmbeddedFilesTestData(@"Files/GetExtensionResourceSchema/.*\.json")]
     [TestCategory(BaselineHelper.BaselineTestCategory)]
-    public async Task GetResourceTypeSchema_with_extension_returns_resource_schema(EmbeddedFile jsonFile)
+    public async Task GetExtensionResourceTypeSchema_returns_resource_schema(EmbeddedFile jsonFile)
     {
         var baselineFile = BaselineFolder.BuildOutputFolder(TestContext, jsonFile).EntryFile;
         var fileName = Path.GetFileNameWithoutExtension(jsonFile.FileName);
 
-        // File name format: {extensionName}${extensionVersion}${resourceType}@{apiVersion}
-        // e.g., MicrosoftGraph$1.0.0$Microsoft.Graph-applications@v1.0
-        var parts = fileName.Split('$');
-        var extensionName = parts[0];
-        var extensionVersion = parts[1];
+        // File name format: {repoPath}#{tag}#{resourceType}@{apiVersion}
+        // e.g., microsoftgraph-v1.0#1.0.0#Microsoft.Graph-applications@v1.0
+        var parts = fileName.Split('#');
+        var repoPath = "bicep/extensions/" + parts[0].Replace("-", "/");
+        var tag = parts[1];
         var resourcePart = parts[2];
+
+        var extensionReference = $"br:{LanguageConstants.BicepPublicMcrRegistry}/{repoPath}:{tag}";
 
         var atIndex = resourcePart.LastIndexOf('@');
         var resourceType = resourcePart[..atIndex].Replace("-", "/");
         var apiVersion = resourcePart[(atIndex + 1)..];
 
-        var response = await tools.GetResourceTypeSchema(resourceType, apiVersion, extensionName, extensionVersion);
+        var response = await tools.GetExtensionResourceTypeSchema(extensionReference, resourceType, apiVersion);
 
         baselineFile.WriteToOutputFolder(response.Schema);
         baselineFile.ShouldHaveExpectedJsonValue();
+    }
+
+    [TestMethod]
+    public void GetBicepBestPractices_returns_best_practices_markdown()
+    {
+        var response = tools.GetBicepBestPractices();
+
+        var expectedBestPractices = BinaryData.FromStream(typeof(BicepTools).Assembly.GetManifestResourceStream("Files/bestpractices.md")!).ToString();
+        response.Content.Should().Be(expectedBestPractices);
+
+        // Update this if the file content changes - it's just here as a sanity check to make sure we're decoding the content correctly
+        expectedBestPractices.Should().StartWith("# Bicep best-practices");
     }
 
     [TestMethod]
@@ -107,37 +132,9 @@ public class BicepToolsTests
         {
             ext.Name.Should().NotBeNullOrWhiteSpace();
             ext.Description.Should().NotBeNullOrWhiteSpace();
+            ext.OciReference.Should().StartWith("br:");
             ext.AvailableTags.Should().NotBeEmpty($"extension '{ext.Name}' should have at least one available tag");
         });
-    }
-
-    [TestMethod]
-    public async Task ListResourceTypes_with_extension_returns_graph_resource_types()
-    {
-        var response = await tools.ListResourceTypes("Microsoft.Graph", "MicrosoftGraph", "1.0.0");
-        var result = response.ResourceTypes;
-
-        result.Should().BeEquivalentTo([
-            "Microsoft.Graph/applications@v1.0",
-            "Microsoft.Graph/applications/federatedIdentityCredentials@v1.0",
-            "Microsoft.Graph/appRoleAssignedTo@v1.0",
-            "Microsoft.Graph/groups@v1.0",
-            "Microsoft.Graph/oauth2PermissionGrants@v1.0",
-            "Microsoft.Graph/servicePrincipals@v1.0",
-            "Microsoft.Graph/users@v1.0",
-        ]);
-    }
-
-    [TestMethod]
-    public void GetBicepBestPractices_returns_best_practices_markdown()
-    {
-        var response = tools.GetBicepBestPractices();
-
-        var expectedBestPractices = BinaryData.FromStream(typeof(BicepTools).Assembly.GetManifestResourceStream("Files/bestpractices.md")!).ToString();
-        response.Content.Should().Be(expectedBestPractices);
-
-        // Update this if the file content changes - it's just here as a sanity check to make sure we're decoding the content correctly
-        expectedBestPractices.Should().StartWith("# Bicep best-practices");
     }
 
     [TestMethod]

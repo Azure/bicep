@@ -102,6 +102,39 @@
     }
   },
   {
+    "name": "get_azure_resource_type_schema",
+    "description": "Retrieves the complete JSON schema definition for a specific Azure resource type and API version, including all properties, nested types, and constraints.\n\nUse this tool to:\n- Understand what properties are available on an Azure resource\n- Learn about required vs optional properties, their types, and allowed values\n- Discover nested resource types and their schemas\n- Find available resource functions and their signatures\n- Generate accurate Bicep code with proper property names and types\n\nThe returned JSON schema includes resource type definitions, nested complex types, resource function signatures (like list* operations), and property constraints.\nData is sourced directly from Azure Resource Provider APIs, ensuring the most accurate and up-to-date schema information.\nSpecify the resource type (e.g., Microsoft.KeyVault/vaults) and API version (e.g., 2024-11-01 or 2024-12-01-preview).",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "resourceType": {
+          "description": "The resource type of the Azure resource; e.g. Microsoft.KeyVault/vaults",
+          "type": "string"
+        },
+        "apiVersion": {
+          "description": "The API version of the resource type; e.g. 2024-11-01 or 2024-12-01-preview",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resourceType",
+        "apiVersion"
+      ]
+    },
+    "returnJsonSchema": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "description": "JSON schema definition for the resource type including all properties, nested types, and constraints",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema"
+      ]
+    }
+  },
+  {
     "name": "get_bicep_best_practices",
     "description": "Retrieves comprehensive, up-to-date best practices and coding standards for authoring Bicep templates.\n\nUse this tool when:\n- Generating new Bicep code to ensure it follows current best practices\n- Reviewing existing Bicep code for quality improvements\n- Learning recommended patterns for common scenarios\n- Understanding security, maintainability, and reliability guidelines\n\nCovers naming conventions, code organization, parameter usage, resource declarations, module composition, security recommendations, performance optimization, and testing approaches.\nThe practices are maintained by the Bicep team and reflect current recommended approaches.",
     "jsonSchema": {
@@ -286,6 +319,44 @@
     }
   },
   {
+    "name": "get_extension_resource_type_schema",
+    "description": "Retrieves the complete JSON schema definition for a specific extension resource type and API version, including all properties, nested types, and constraints.\n\nUse this tool to:\n- Understand what properties are available on an extension resource\n- Learn about required vs optional properties, their types, and allowed values\n- Generate accurate Bicep code with proper property names and types\n\nThe extensionReference must be a canonical OCI artifact reference in the format \"br:<registry>/<repository>:<tag>\"\n(e.g., \"br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0\").\nUse list_well_known_extensions to discover available extensions and their versions.\nSpecify the resource type (e.g., Microsoft.Graph/applications) and API version (e.g., v1.0 or beta).",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "extensionReference": {
+          "description": "The OCI artifact reference for the extension; e.g. br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0",
+          "type": "string"
+        },
+        "resourceType": {
+          "description": "The resource type; e.g. Microsoft.Graph/applications",
+          "type": "string"
+        },
+        "apiVersion": {
+          "description": "The API version of the resource type; e.g. v1.0 or beta",
+          "type": "string"
+        }
+      },
+      "required": [
+        "extensionReference",
+        "resourceType",
+        "apiVersion"
+      ]
+    },
+    "returnJsonSchema": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "description": "JSON schema definition for the resource type including all properties, nested types, and constraints",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema"
+      ]
+    }
+  },
+  {
     "name": "get_file_references",
     "description": "Analyzes a Bicep file (.bicep) or Bicep parameters file (.bicepparam) and returns a list of all files referenced by the entry file, including modules, parameter files, and any other dependencies.\n\nUse this tool to:\n- Identify all files that a Bicep or Bicep parameters file depends on\n- Perform dependency or impact analysis before making changes\n- Understand the structure and external links of a Bicep deployment\n\nThe result is a list of absolute URIs for each referenced file. The file path must be absolute. Only direct references are included; transitive references require additional calls.",
     "jsonSchema": {
@@ -314,55 +385,6 @@
       },
       "required": [
         "fileUris"
-      ]
-    }
-  },
-  {
-    "name": "get_resource_type_schema",
-    "description": "Retrieves the complete JSON schema definition for a specific resource type and API version, including all properties, nested types, and constraints.\n\nUse this tool to:\n- Understand what properties are available on a resource\n- Learn about required vs optional properties, their types, and allowed values\n- Discover nested resource types and their schemas\n- Find available resource functions and their signatures\n- Generate accurate Bicep code with proper property names and types\n\nThe returned JSON schema includes resource type definitions, nested complex types, resource function signatures (like list* operations), and property constraints.\nFor Azure resources, data is sourced from Azure Resource Provider APIs.\nFor extension resources (e.g., Microsoft Graph), specify the extensionName and extensionVersion parameters.\nUse list_well_known_extensions to discover available extensions and their versions.\nSpecify the resource type (e.g., Microsoft.KeyVault/vaults or Microsoft.Graph/applications) and API version (e.g., 2024-11-01 or v1.0).",
-    "jsonSchema": {
-      "type": "object",
-      "properties": {
-        "resourceType": {
-          "description": "The resource type; e.g. Microsoft.KeyVault/vaults or Microsoft.Graph/applications",
-          "type": "string"
-        },
-        "apiVersion": {
-          "description": "The API version of the resource type; e.g. 2024-11-01 or v1.0",
-          "type": "string"
-        },
-        "extensionName": {
-          "description": "The extension name for non-Azure resources (e.g., MicrosoftGraph). Omit for Azure resources. Use list_well_known_extensions to discover available extensions.",
-          "type": [
-            "string",
-            "null"
-          ],
-          "default": null
-        },
-        "extensionVersion": {
-          "description": "The extension version/tag (e.g., 1.0.0). Required when extensionName is provided.",
-          "type": [
-            "string",
-            "null"
-          ],
-          "default": null
-        }
-      },
-      "required": [
-        "resourceType",
-        "apiVersion"
-      ]
-    },
-    "returnJsonSchema": {
-      "type": "object",
-      "properties": {
-        "schema": {
-          "description": "JSON schema definition for the resource type including all properties, nested types, and constraints",
-          "type": "string"
-        }
-      },
-      "required": [
-        "schema"
       ]
     }
   },
@@ -423,30 +445,14 @@
     }
   },
   {
-    "name": "list_resource_types",
-    "description": "Lists all available resource types and their API versions for a specific resource provider namespace.\n\nUse this tool to:\n- Discover what resource types are available in a provider (e.g., what can be created under Microsoft.Storage or Microsoft.Graph)\n- Find the latest API versions for resources\n- Explore the complete resource type catalog for a given provider\n\nFor Azure (az) resources, data is sourced from Azure Resource Provider APIs.\nFor extension resources (e.g., Microsoft Graph), specify the extensionName and extensionVersion parameters.\nUse list_well_known_extensions to discover available extensions and their versions.\n\nExample provider namespaces: Microsoft.Compute, Microsoft.Storage, Microsoft.Network, Microsoft.Web, Microsoft.KeyVault, Microsoft.Graph",
+    "name": "list_azure_resource_types",
+    "description": "Lists all available Azure resource types and their API versions for a specific Azure resource provider namespace.\n\nUse this tool to:\n- Discover what resource types are available in a provider (e.g., what can be created under Microsoft.Storage)\n- Find the latest API versions for Azure resources\n- Explore the complete resource type catalog for a given provider\n\nData is sourced directly from Azure Resource Provider APIs, ensuring accuracy and currency.\n\nExample provider namespaces: Microsoft.Compute, Microsoft.Storage, Microsoft.Network, Microsoft.Web, Microsoft.KeyVault",
     "jsonSchema": {
       "type": "object",
       "properties": {
         "providerNamespace": {
-          "description": "The resource provider (or namespace) of the resource; e.g. Microsoft.KeyVault or Microsoft.Graph",
+          "description": "The resource provider (or namespace) of the Azure resource; e.g. Microsoft.KeyVault",
           "type": "string"
-        },
-        "extensionName": {
-          "description": "The extension name for non-Azure resources (e.g., MicrosoftGraph). Omit for Azure resources. Use list_well_known_extensions to discover available extensions.",
-          "type": [
-            "string",
-            "null"
-          ],
-          "default": null
-        },
-        "extensionVersion": {
-          "description": "The extension version/tag (e.g., 1.0.0). Required when extensionName is provided.",
-          "type": [
-            "string",
-            "null"
-          ],
-          "default": null
         }
       },
       "required": [
@@ -470,8 +476,39 @@
     }
   },
   {
+    "name": "list_extension_resource_types",
+    "description": "Lists all available resource types and their API versions for a Bicep extension.\n\nUse this tool to:\n- Discover what resource types are available in an extension (e.g., Microsoft Graph)\n- Find the API versions for extension resources\n\nThe extensionReference must be a canonical OCI artifact reference in the format \"br:<registry>/<repository>:<tag>\"\n(e.g., \"br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0\").\nUse list_well_known_extensions to discover available extensions and their versions.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "extensionReference": {
+          "description": "The OCI artifact reference for the extension; e.g. br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0",
+          "type": "string"
+        }
+      },
+      "required": [
+        "extensionReference"
+      ]
+    },
+    "returnJsonSchema": {
+      "type": "object",
+      "properties": {
+        "resourceTypes": {
+          "description": "Array of resource types with API versions (e.g., Microsoft.KeyVault/vaults@2024-11-01 or Microsoft.Graph/applications@v1.0)",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "resourceTypes"
+      ]
+    }
+  },
+  {
     "name": "list_well_known_extensions",
-    "description": "Lists well-known Bicep extensions (e.g., Microsoft Graph) with their available versions.\nThis is not an exhaustive list of all possible extensions; other extensions may exist beyond what is listed here.\n\nUse this tool to:\n- Discover available Bicep extensions beyond Azure (az) resources\n- Find available versions for Microsoft Graph and other extensions\n- Get extension names and versions to use with list_resource_types and get_resource_type_schema\n\nExtensions provide resource types for non-Azure providers like Microsoft Graph.\nUse the returned extension name and version with other tools to explore extension resource types.",
+    "description": "Lists well-known Bicep extensions (e.g., Microsoft Graph) with their available versions.\nThis is not an exhaustive list of all possible extensions; other extensions may exist beyond what is listed here.\n\nUse this tool to:\n- Discover available Bicep extensions beyond Azure (az) resources\n- Find available versions for Microsoft Graph and other extensions\n- Get extension names and versions to use with list_extension_resource_types and get_extension_resource_type_schema\n\nExtensions provide resource types for non-Azure providers like Microsoft Graph.\nUse the returned extension name and version with other tools to explore extension resource types.",
     "jsonSchema": {
       "type": "object",
       "properties": {}
