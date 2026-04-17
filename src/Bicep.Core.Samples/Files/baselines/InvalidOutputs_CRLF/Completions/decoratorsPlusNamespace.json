@@ -227,7 +227,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nretryOn(errors: array, maxRetries: int): any\n\n```  \n  \n"
+      "value": "```bicep\nretryOn(exceptionCodes: string[], [retryCount: int]): any\n\n```  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -237,6 +237,10 @@
     "textEdit": {
       "range": {},
       "newText": "retryOn($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {
