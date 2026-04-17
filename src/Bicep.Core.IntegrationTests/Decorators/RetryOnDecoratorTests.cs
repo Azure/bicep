@@ -222,7 +222,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
             using (new AssertionScope())
             {
                 diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
-
+                template.Should().NotBeNull().And.HaveValueAtPath("$.languageVersion", "2.0");
                 template.Should().NotBeNull()
                     .And.HaveValueAtPath("$.resources['sqlServer'].@options.retryOn", retryOnJObject);
             }
