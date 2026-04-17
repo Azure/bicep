@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Text.Json;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Modules;
@@ -46,7 +47,7 @@ public class ExtensionTypeLoaderProvider
     /// <summary>
     /// Lists available tags (versions) for a well-known extension by querying MCR. Results are cached.
     /// </summary>
-    /// <param name="extensionName">The extension name (e.g., "microsoftgraph/beta"). Must match a <see cref="WellKnownExtension"/>.</param>
+    /// <param name="extensionName">The extension name (e.g., "MicrosoftGraphBeta"). Must match a <see cref="WellKnownExtension"/>.</param>
     /// <exception cref="ArgumentException">Thrown if <paramref name="extensionName"/> is not a well-known extension.</exception>
     public async Task<IReadOnlyList<string>> GetAvailableTagsAsync(string extensionName)
     {
@@ -73,7 +74,7 @@ public class ExtensionTypeLoaderProvider
         using var httpClient = new HttpClient();
         var url = $"https://{registry}/v2/{repository}/tags/list";
         var response = await httpClient.GetStringAsync(url);
-        using var tagsResponse = System.Text.Json.JsonDocument.Parse(response);
+        using var tagsResponse = JsonDocument.Parse(response);
         return [.. tagsResponse.RootElement.GetProperty("tags")
             .EnumerateArray()
             .Select(t => t.GetString()!)];
@@ -83,7 +84,7 @@ public class ExtensionTypeLoaderProvider
     /// Gets an <see cref="ITypeLoader"/> for a specific extension and tag.
     /// Uses a three-tier cache: in-memory, file-system (~/.bicep/br/...), then MCR pull.
     /// </summary>
-    /// <param name="extensionName">The extension name (e.g., "microsoftgraph/beta"). Must match a <see cref="WellKnownExtension"/>.</param>
+    /// <param name="extensionName">The extension name (e.g., "MicrosoftGraphBeta"). Must match a <see cref="WellKnownExtension"/>.</param>
     /// <param name="tag">The version tag (e.g., "1.0.0").</param>
     /// <exception cref="ArgumentException">Thrown if <paramref name="extensionName"/> is not a well-known extension.</exception>
     public async Task<ITypeLoader> GetTypeLoaderAsync(string extensionName, string tag)

@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.ComponentModel;
+using System.Diagnostics;
 using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Providers.Extensibility;
@@ -77,13 +78,13 @@ public sealed class BicepTools(
     
     For Azure (az) resources, data is sourced from Azure Resource Provider APIs.
     For extension resources (e.g., Microsoft Graph), specify the extensionName and extensionVersion parameters.
-    Use ListWellKnownExtensions to discover available extensions and their versions.
+    Use list_well_known_extensions to discover available extensions and their versions.
     
     Example provider namespaces: Microsoft.Compute, Microsoft.Storage, Microsoft.Network, Microsoft.Web, Microsoft.KeyVault, Microsoft.Graph
     """)]
     public async Task<ResourceTypeListResult> ListResourceTypes(
         [Description("The resource provider (or namespace) of the resource; e.g. Microsoft.KeyVault or Microsoft.Graph")] string providerNamespace,
-        [Description("The extension name for non-Azure resources (e.g., MicrosoftGraph). Omit for Azure resources. Use ListWellKnownExtensions to discover available extensions.")] string? extensionName = null,
+        [Description("The extension name for non-Azure resources (e.g., MicrosoftGraph). Omit for Azure resources. Use list_well_known_extensions to discover available extensions.")] string? extensionName = null,
         [Description("The extension version/tag (e.g., 1.0.0). Required when extensionName is provided.")] string? extensionVersion = null)
     {
         if (!string.IsNullOrEmpty(extensionName) && !string.IsNullOrEmpty(extensionVersion))
@@ -118,13 +119,13 @@ public sealed class BicepTools(
     The returned JSON schema includes resource type definitions, nested complex types, resource function signatures (like list* operations), and property constraints.
     For Azure resources, data is sourced from Azure Resource Provider APIs.
     For extension resources (e.g., Microsoft Graph), specify the extensionName and extensionVersion parameters.
-    Use ListWellKnownExtensions to discover available extensions and their versions.
+    Use list_well_known_extensions to discover available extensions and their versions.
     Specify the resource type (e.g., Microsoft.KeyVault/vaults or Microsoft.Graph/applications) and API version (e.g., 2024-11-01 or v1.0).
     """)]
     public async Task<ResourceTypeSchemaResult> GetResourceTypeSchema(
         [Description("The resource type; e.g. Microsoft.KeyVault/vaults or Microsoft.Graph/applications")] string resourceType,
         [Description("The API version of the resource type; e.g. 2024-11-01 or v1.0")] string apiVersion,
-        [Description("The extension name for non-Azure resources (e.g., MicrosoftGraph). Omit for Azure resources. Use ListWellKnownExtensions to discover available extensions.")] string? extensionName = null,
+        [Description("The extension name for non-Azure resources (e.g., MicrosoftGraph). Omit for Azure resources. Use list_well_known_extensions to discover available extensions.")] string? extensionName = null,
         [Description("The extension version/tag (e.g., 1.0.0). Required when extensionName is provided.")] string? extensionVersion = null)
     {
         TypesDefinitionResult typesDefinition;
@@ -196,7 +197,7 @@ public sealed class BicepTools(
     Use this tool to:
     - Discover available Bicep extensions beyond Azure (az) resources
     - Find available versions for Microsoft Graph and other extensions
-    - Get extension names and versions to use with ListResourceTypes and GetResourceTypeSchema
+    - Get extension names and versions to use with list_resource_types and get_resource_type_schema
     
     Extensions provide resource types for non-Azure providers like Microsoft Graph.
     Use the returned extension name and version with other tools to explore extension resource types.
@@ -212,8 +213,9 @@ public sealed class BicepTools(
                 var tags = await extensionTypeLoaderProvider.GetAvailableTagsAsync(extension.Name);
                 extensions.Add(new ExtensionInfo(extension.Name, extension.Description, extension.OciReference, [.. tags]));
             }
-            catch
+            catch (Exception ex)
             {
+                Trace.WriteLine($"Failed to get tags for extension '{extension.Name}': {ex.Message}");
                 extensions.Add(new ExtensionInfo(extension.Name, extension.Description, extension.OciReference, []));
             }
         }
