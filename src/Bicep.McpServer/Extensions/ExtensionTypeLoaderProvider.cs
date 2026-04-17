@@ -3,11 +3,15 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
+using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Extensibility;
+using Bicep.IO.Abstraction;
 using Azure.Bicep.Types;
 
 namespace Bicep.McpServer.Extensions;
@@ -21,15 +25,22 @@ public class ExtensionTypeLoaderProvider
             : $"{Registry}/{Repository}@{Digest}";
     }
 
+    // Matches ExternalArtifactRegistry timeout/retry for file-system locking
+    private static readonly TimeSpan CacheContentionTimeout = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan CacheContentionRetryInterval = TimeSpan.FromMilliseconds(300);
+
     private readonly IContainerRegistryClientFactory clientFactory;
+    private readonly IFileExplorer fileExplorer;
 
     private readonly ConcurrentDictionary<string, ITypeLoader> loaderCache = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, IReadOnlyList<string>> tagCache = new(StringComparer.OrdinalIgnoreCase);
 
     public ExtensionTypeLoaderProvider(
-        IContainerRegistryClientFactory clientFactory)
+        IContainerRegistryClientFactory clientFactory,
+        IFileExplorer fileExplorer)
     {
         this.clientFactory = clientFactory;
+        this.fileExplorer = fileExplorer;
     }
 
     /// <summary>
@@ -103,44 +114,69 @@ public class ExtensionTypeLoaderProvider
         var result = await acrManager.PullArtifactAsync(cloud, address);
         var mainLayer = result.GetMainLayer();
 
-        // Write to file-system cache
-        WriteToFileSystemCache(extension, tag, mainLayer.Data);
+        // Write to file-system cache using the same locking pattern as OciArtifactRegistry/ExternalArtifactRegistry
+        await WriteToCacheWithLockAsync(extension, tag, mainLayer.Data);
 
         return ArchivedTypeLoader.FromStream(mainLayer.Data.ToStream());
     }
 
-    private static ArchivedTypeLoader? TryLoadFromFileSystemCache(WellKnownExtension extension, string tag)
+    private ArchivedTypeLoader? TryLoadFromFileSystemCache(WellKnownExtension extension, string tag)
     {
-        var cachePath = GetFileSystemCachePath(extension, tag);
-        if (cachePath is null)
+        var cacheDir = GetCacheDirectory(extension, tag);
+        if (cacheDir is null)
         {
             return null;
         }
 
-        var typesTgzPath = Path.Combine(cachePath, "types.tgz");
-
-        if (File.Exists(typesTgzPath))
+        var typesTgzFile = cacheDir.GetFile("types.tgz");
+        if (typesTgzFile.Exists())
         {
-            using var stream = File.OpenRead(typesTgzPath);
-            return ArchivedTypeLoader.FromStream(stream);
+            return ArchivedTypeLoader.FromFileHandle(typesTgzFile);
         }
 
         return null;
     }
 
-    private static void WriteToFileSystemCache(WellKnownExtension extension, string tag, BinaryData data)
+    /// <summary>
+    /// Writes the extension artifact to the file-system cache using file-based locking,
+    /// matching the concurrency pattern from ExternalArtifactRegistry.
+    /// </summary>
+    private async Task WriteToCacheWithLockAsync(WellKnownExtension extension, string tag, BinaryData data)
     {
         try
         {
-            var cachePath = GetFileSystemCachePath(extension, tag);
-            if (cachePath is null)
+            var cacheDir = GetCacheDirectory(extension, tag);
+            if (cacheDir is null)
             {
                 return;
             }
 
-            Directory.CreateDirectory(cachePath);
-            var typesTgzPath = Path.Combine(cachePath, "types.tgz");
-            File.WriteAllBytes(typesTgzPath, data.ToArray());
+            cacheDir.EnsureExists();
+            var lockFile = cacheDir.GetFile("lock");
+            var typesTgzFile = cacheDir.GetFile("types.tgz");
+            var stopwatch = Stopwatch.StartNew();
+
+            while (stopwatch.Elapsed < CacheContentionTimeout)
+            {
+                using (var @lock = lockFile.TryLock())
+                {
+                    if (@lock is not null)
+                    {
+                        // Double-check: another process may have already written
+                        if (typesTgzFile.Exists())
+                        {
+                            return;
+                        }
+
+                        typesTgzFile.Write(data);
+                        return;
+                    }
+                }
+
+                await Task.Delay(CacheContentionRetryInterval);
+            }
+
+            // Timeout exceeded — best-effort, don't fail the operation
         }
         catch
         {
@@ -148,10 +184,12 @@ public class ExtensionTypeLoaderProvider
         }
     }
 
-    private static string? GetFileSystemCachePath(WellKnownExtension extension, string tag)
+    /// <summary>
+    /// Gets the cache directory for an extension artifact, matching the compiler's cache path convention.
+    /// Uses the same path encoding as OciArtifactRegistry (TagEncoder, registry/repo char replacement).
+    /// </summary>
+    private IDirectoryHandle? GetCacheDirectory(WellKnownExtension extension, string tag)
     {
-        // Match the compiler's cache path convention:
-        // ~/.bicep/br/{registry with : replaced by $, lowered}/{repo with / replaced by $}/{tag}
         var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         if (string.IsNullOrEmpty(userProfile))
         {
@@ -159,9 +197,16 @@ public class ExtensionTypeLoaderProvider
             return null;
         }
 
+        // Match the compiler's cache path convention from OciArtifactRegistry.GetArtifactDirectory:
+        // ~/.bicep/br/{registry with : replaced by $, lowered}/{repo with / replaced by $}/{TagEncoder.Encode(tag)}
         var registry = extension.Registry.Replace(':', '$').ToLowerInvariant();
         var repository = extension.Repository.Replace('/', '$');
-        return Path.Combine(userProfile, ".bicep", "br", registry, repository, tag);
+        var encodedTag = TagEncoder.Encode(tag);
+
+        var cacheRoot = fileExplorer.GetDirectory(IOUri.FromFilePath(
+            Path.Combine(userProfile, ".bicep", ArtifactReferenceSchemes.Oci)));
+
+        return cacheRoot.GetDirectory($"{registry}/{repository}/{encodedTag}");
     }
 
     private static CloudConfiguration GetCloudConfiguration()

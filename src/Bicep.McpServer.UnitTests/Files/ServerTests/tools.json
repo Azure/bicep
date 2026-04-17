@@ -332,7 +332,7 @@
           "type": "string"
         },
         "extensionName": {
-          "description": "The extension name for non-Azure resources (e.g., microsoftgraph/v1.0). Omit for Azure resources. Use ListWellKnownExtensions to discover available extensions.",
+          "description": "The extension name for non-Azure resources (e.g., MicrosoftGraph). Omit for Azure resources. Use ListWellKnownExtensions to discover available extensions.",
           "type": [
             "string",
             "null"
@@ -433,7 +433,7 @@
           "type": "string"
         },
         "extensionName": {
-          "description": "The extension name for non-Azure resources (e.g., microsoftgraph/v1.0). Omit for Azure resources. Use ListWellKnownExtensions to discover available extensions.",
+          "description": "The extension name for non-Azure resources (e.g., MicrosoftGraph). Omit for Azure resources. Use ListWellKnownExtensions to discover available extensions.",
           "type": [
             "string",
             "null"
@@ -486,11 +486,15 @@
             "type": "object",
             "properties": {
               "name": {
-                "description": "Extension name (e.g., microsoftgraph/v1.0)",
+                "description": "Extension name (e.g., MicrosoftGraph)",
                 "type": "string"
               },
               "description": {
                 "description": "Human-readable description of the extension",
+                "type": "string"
+              },
+              "ociReference": {
+                "description": "OCI artifact reference path (e.g., br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0)",
                 "type": "string"
               },
               "availableTags": {
@@ -504,6 +508,7 @@
             "required": [
               "name",
               "description",
+              "ociReference",
               "availableTags"
             ]
           }

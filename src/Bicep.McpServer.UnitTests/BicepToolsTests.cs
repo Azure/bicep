@@ -48,7 +48,7 @@ public class BicepToolsTests
     [TestMethod]
     public async Task ListResourceTypes_with_extension_returns_empty_for_invalid_provider()
     {
-        var response = await tools.ListResourceTypes("Invalid.Provider", "microsoftgraph/v1.0", "1.0.0");
+        var response = await tools.ListResourceTypes("Invalid.Provider", "MicrosoftGraph", "1.0.0");
         response.ResourceTypes.Should().BeEmpty();
     }
 
@@ -77,9 +77,9 @@ public class BicepToolsTests
         var fileName = Path.GetFileNameWithoutExtension(jsonFile.FileName);
 
         // File name format: {extensionName}${extensionVersion}${resourceType}@{apiVersion}
-        // e.g., microsoftgraph-v1.0$1.1.0-preview$Microsoft.Graph-applications@v1.0
+        // e.g., MicrosoftGraph$1.0.0$Microsoft.Graph-applications@v1.0
         var parts = fileName.Split('$');
-        var extensionName = parts[0].Replace("-", "/");
+        var extensionName = parts[0];
         var extensionVersion = parts[1];
         var resourcePart = parts[2];
 
@@ -100,8 +100,8 @@ public class BicepToolsTests
         var extensions = response.Extensions;
 
         extensions.Should().NotBeEmpty();
-        extensions.Should().Contain(e => e.Name == "microsoftgraph/beta");
-        extensions.Should().Contain(e => e.Name == "microsoftgraph/v1.0");
+        extensions.Should().Contain(e => e.Name == "MicrosoftGraphBeta");
+        extensions.Should().Contain(e => e.Name == "MicrosoftGraph");
 
         extensions.Should().AllSatisfy(ext =>
         {
@@ -114,7 +114,7 @@ public class BicepToolsTests
     [TestMethod]
     public async Task ListResourceTypes_with_extension_returns_graph_resource_types()
     {
-        var response = await tools.ListResourceTypes("Microsoft.Graph", "microsoftgraph/v1.0", "1.0.0");
+        var response = await tools.ListResourceTypes("Microsoft.Graph", "MicrosoftGraph", "1.0.0");
         var result = response.ResourceTypes;
 
         result.Should().BeEquivalentTo([

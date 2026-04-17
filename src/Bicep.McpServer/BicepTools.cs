@@ -48,10 +48,12 @@ public sealed class BicepTools(
         ImmutableArray<AvmModuleMetadata> Modules);
 
     public record ExtensionInfo(
-        [Description("Extension name (e.g., microsoftgraph/v1.0)")]
+        [Description("Extension name (e.g., MicrosoftGraph)")]
         string Name,
         [Description("Human-readable description of the extension")]
         string Description,
+        [Description("OCI artifact reference path (e.g., br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0)")]
+        string OciReference,
         [Description("Available versions (tags) of the extension")]
         ImmutableArray<string> AvailableTags);
 
@@ -81,7 +83,7 @@ public sealed class BicepTools(
     """)]
     public async Task<ResourceTypeListResult> ListResourceTypes(
         [Description("The resource provider (or namespace) of the resource; e.g. Microsoft.KeyVault or Microsoft.Graph")] string providerNamespace,
-        [Description("The extension name for non-Azure resources (e.g., microsoftgraph/v1.0). Omit for Azure resources. Use ListWellKnownExtensions to discover available extensions.")] string? extensionName = null,
+        [Description("The extension name for non-Azure resources (e.g., MicrosoftGraph). Omit for Azure resources. Use ListWellKnownExtensions to discover available extensions.")] string? extensionName = null,
         [Description("The extension version/tag (e.g., 1.0.0). Required when extensionName is provided.")] string? extensionVersion = null)
     {
         if (!string.IsNullOrEmpty(extensionName) && !string.IsNullOrEmpty(extensionVersion))
@@ -122,7 +124,7 @@ public sealed class BicepTools(
     public async Task<ResourceTypeSchemaResult> GetResourceTypeSchema(
         [Description("The resource type; e.g. Microsoft.KeyVault/vaults or Microsoft.Graph/applications")] string resourceType,
         [Description("The API version of the resource type; e.g. 2024-11-01 or v1.0")] string apiVersion,
-        [Description("The extension name for non-Azure resources (e.g., microsoftgraph/v1.0). Omit for Azure resources. Use ListWellKnownExtensions to discover available extensions.")] string? extensionName = null,
+        [Description("The extension name for non-Azure resources (e.g., MicrosoftGraph). Omit for Azure resources. Use ListWellKnownExtensions to discover available extensions.")] string? extensionName = null,
         [Description("The extension version/tag (e.g., 1.0.0). Required when extensionName is provided.")] string? extensionVersion = null)
     {
         TypesDefinitionResult typesDefinition;
@@ -208,11 +210,11 @@ public sealed class BicepTools(
             try
             {
                 var tags = await extensionTypeLoaderProvider.GetAvailableTagsAsync(extension.Name);
-                extensions.Add(new ExtensionInfo(extension.Name, extension.Description, [.. tags]));
+                extensions.Add(new ExtensionInfo(extension.Name, extension.Description, extension.OciReference, [.. tags]));
             }
             catch
             {
-                extensions.Add(new ExtensionInfo(extension.Name, extension.Description, []));
+                extensions.Add(new ExtensionInfo(extension.Name, extension.Description, extension.OciReference, []));
             }
         }
 
