@@ -223,6 +223,23 @@
     }
   },
   {
+    "label": "retryOn",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nretryOn(errors: array, maxRetries: int): any\n\n```  \n  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_retryOn",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "retryOn($0)"
+    }
+  },
+  {
     "label": "sealed",
     "kind": "function",
     "documentation": {

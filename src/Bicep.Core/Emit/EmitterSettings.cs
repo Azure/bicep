@@ -60,7 +60,8 @@ namespace Bicep.Core.Emit
                     function: (found, syntax) => found ||
                         (syntax is ResourceDeclarationSyntax rds && ResourceRequiresSymbolicNames(model, rds)),
                     resultSelector: result => result,
-                    continuationFunction: (result, syntax) => !result);
+                    continuationFunction: (result, syntax) => !result) || 
+                model.Root.ResourceDeclarations.Any(resource => resource.TryGetDecorator(model, SystemNamespaceType.BuiltInName, LanguageConstants.RetryOnPropertyName) is not null);
         }
 
         /// <summary>
