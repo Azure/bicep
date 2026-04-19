@@ -72,7 +72,8 @@ namespace Bicep.Core.Registry
                         alias.FileSystem,
                         referencingFile.Configuration.ConfigFileUri,
                         reference,
-                        this.fileExplorer).IsSuccess(out var emulatedRef, out var emulatedFailureBuilder))
+                        this.fileExplorer,
+                        aliasName).IsSuccess(out var emulatedRef, out var emulatedFailureBuilder))
                     {
                         return new(emulatedFailureBuilder);
                     }

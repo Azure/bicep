@@ -64,18 +64,29 @@ namespace Bicep.Core.Registry.Oci
         // configFileUri is the URI of the bicepconfig.json file, used to resolve relative paths
         // unqualifiedReference is the unqualified reference string (e.g., "keyvault:1.0.0")
         // fileExplorer is the file explorer used to create file handles
+        // aliasName is the name of the module alias, used in diagnostics
         public static ResultWithDiagnosticBuilder<OciArtifactEmulatedReference> TryParse(
             BicepSourceFile referencingFile,
             string fileSystemPath,
             IOUri? configFileUri,
             string unqualifiedReference,
-            IFileExplorer fileExplorer)
+            IFileExplorer fileExplorer,
+            string? aliasName = null)
         {
             var modulePath = ExtractModulePath(unqualifiedReference);
 
             if (string.IsNullOrEmpty(modulePath))
             {
                 return new(x => x.ModulePathHasNotBeenSpecified());
+            }
+
+            var segments = modulePath.Split('/');
+            foreach (var segment in segments)
+            {
+                if (!OciArtifactReferenceFacts.IsOciNamespaceSegment(segment))
+                {
+                    return new(x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, unqualifiedReference, segment));
+                }
             }
 
             // Resolve the filesystem base directory relative to bicepconfig.json

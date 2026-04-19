@@ -238,5 +238,32 @@ namespace Bicep.Core.UnitTests.Registry.Oci
             alias!.Registry.Should().Be("example.azurecr.io");
             alias.FileSystem.Should().BeNull();
         }
+
+        [TestMethod]
+        [DataRow("../escape:1.0.0", "..")]
+        [DataRow("valid/../escape:1.0.0", "..")]
+        [DataRow(".:1.0.0", ".")]
+        [DataRow("UPPERCASE:1.0.0", "UPPERCASE")]
+        [DataRow("has spaces/module:1.0.0", "has spaces")]
+        [DataRow("valid/bad!segment:1.0.0", "bad!segment")]
+        public void TryParse_InvalidPathSegment_ShouldFail(string unqualifiedReference, string expectedBadSegment)
+        {
+            var fileExplorer = new FileSystemFileExplorer(new MockFileSystem());
+            var referencingFile = BicepTestConstants.CreateDummyBicepFile();
+            var configFileUri = new IOUri("file", "", "/repo/bicepconfig.json");
+
+            var result = OciArtifactEmulatedReference.TryParse(
+                referencingFile,
+                "./modules",
+                configFileUri,
+                unqualifiedReference,
+                fileExplorer,
+                "myAlias");
+
+            result.IsSuccess(out _, out var failureBuilder).Should().BeFalse();
+            var diagnostic = failureBuilder!(DiagnosticBuilder.ForDocumentStart());
+            diagnostic.Code.Should().Be("BCP195");
+            diagnostic.Message.Should().Contain(expectedBadSegment);
+        }
     }
 }
