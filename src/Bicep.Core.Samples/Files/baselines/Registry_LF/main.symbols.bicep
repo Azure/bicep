@@ -24,6 +24,15 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
   }
 }
 
+module appPlanDeploy3 'br/mock-registry-emulated:plan:v2' = {
+//@[07:21) Module appPlanDeploy3. Type: module. Declaration start char: 0, length: 137
+  name: 'planDeploy3'
+  scope: rg
+  params: {
+    namePrefix: 'hello'
+  }
+}
+
 var websites = [
 //@[04:12) Variable websites. Type: [object, object]. Declaration start char: 0, length: 110
   {
@@ -53,19 +62,6 @@ module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
 //@[48:52) Local site. Type: object | object. Declaration start char: 48, length: 4
 //@[07:18) Module siteDeploy2. Type: module[]. Declaration start char: 0, length: 267
   name: '${site.name}siteDeploy2'
-  scope: rg
-  params: {
-    appPlanId: appPlanDeploy.outputs.planId
-    namePrefix: site.name
-    dockerImage: 'nginxdemos/hello'
-    dockerImageTag: site.tag
-  }
-}]
-
-module siteDeploy3 'br/mock-registry-emulated:site:v3' = [for site in websites: {
-//@[62:66) Local site. Type: object | object. Declaration start char: 62, length: 4
-//@[07:18) Module siteDeploy3. Type: module[]. Declaration start char: 0, length: 281
-  name: '${site.name}siteDeploy3'
   scope: rg
   params: {
     appPlanId: appPlanDeploy.outputs.planId

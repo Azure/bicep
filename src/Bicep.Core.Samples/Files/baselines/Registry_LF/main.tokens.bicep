@@ -97,6 +97,40 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
+module appPlanDeploy3 'br/mock-registry-emulated:plan:v2' = {
+//@[000:006) Identifier |module|
+//@[007:021) Identifier |appPlanDeploy3|
+//@[022:057) StringComplete |'br/mock-registry-emulated:plan:v2'|
+//@[058:059) Assignment |=|
+//@[060:061) LeftBrace |{|
+//@[061:062) NewLine |\n|
+  name: 'planDeploy3'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:021) StringComplete |'planDeploy3'|
+//@[021:022) NewLine |\n|
+  scope: rg
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:011) Identifier |rg|
+//@[011:012) NewLine |\n|
+  params: {
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
+    namePrefix: 'hello'
+//@[004:014) Identifier |namePrefix|
+//@[014:015) Colon |:|
+//@[016:023) StringComplete |'hello'|
+//@[023:024) NewLine |\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
 var websites = [
 //@[000:003) Identifier |var|
 //@[004:012) Identifier |websites|
@@ -228,74 +262,6 @@ module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
 //@[015:016) Dot |.|
 //@[016:020) Identifier |name|
 //@[020:033) StringRightPiece |}siteDeploy2'|
-//@[033:034) NewLine |\n|
-  scope: rg
-//@[002:007) Identifier |scope|
-//@[007:008) Colon |:|
-//@[009:011) Identifier |rg|
-//@[011:012) NewLine |\n|
-  params: {
-//@[002:008) Identifier |params|
-//@[008:009) Colon |:|
-//@[010:011) LeftBrace |{|
-//@[011:012) NewLine |\n|
-    appPlanId: appPlanDeploy.outputs.planId
-//@[004:013) Identifier |appPlanId|
-//@[013:014) Colon |:|
-//@[015:028) Identifier |appPlanDeploy|
-//@[028:029) Dot |.|
-//@[029:036) Identifier |outputs|
-//@[036:037) Dot |.|
-//@[037:043) Identifier |planId|
-//@[043:044) NewLine |\n|
-    namePrefix: site.name
-//@[004:014) Identifier |namePrefix|
-//@[014:015) Colon |:|
-//@[016:020) Identifier |site|
-//@[020:021) Dot |.|
-//@[021:025) Identifier |name|
-//@[025:026) NewLine |\n|
-    dockerImage: 'nginxdemos/hello'
-//@[004:015) Identifier |dockerImage|
-//@[015:016) Colon |:|
-//@[017:035) StringComplete |'nginxdemos/hello'|
-//@[035:036) NewLine |\n|
-    dockerImageTag: site.tag
-//@[004:018) Identifier |dockerImageTag|
-//@[018:019) Colon |:|
-//@[020:024) Identifier |site|
-//@[024:025) Dot |.|
-//@[025:028) Identifier |tag|
-//@[028:029) NewLine |\n|
-  }
-//@[002:003) RightBrace |}|
-//@[003:004) NewLine |\n|
-}]
-//@[000:001) RightBrace |}|
-//@[001:002) RightSquare |]|
-//@[002:004) NewLine |\n\n|
-
-module siteDeploy3 'br/mock-registry-emulated:site:v3' = [for site in websites: {
-//@[000:006) Identifier |module|
-//@[007:018) Identifier |siteDeploy3|
-//@[019:054) StringComplete |'br/mock-registry-emulated:site:v3'|
-//@[055:056) Assignment |=|
-//@[057:058) LeftSquare |[|
-//@[058:061) Identifier |for|
-//@[062:066) Identifier |site|
-//@[067:069) Identifier |in|
-//@[070:078) Identifier |websites|
-//@[078:079) Colon |:|
-//@[080:081) LeftBrace |{|
-//@[081:082) NewLine |\n|
-  name: '${site.name}siteDeploy3'
-//@[002:006) Identifier |name|
-//@[006:007) Colon |:|
-//@[008:011) StringLeftPiece |'${|
-//@[011:015) Identifier |site|
-//@[015:016) Dot |.|
-//@[016:020) Identifier |name|
-//@[020:033) StringRightPiece |}siteDeploy3'|
 //@[033:034) NewLine |\n|
   scope: rg
 //@[002:007) Identifier |scope|

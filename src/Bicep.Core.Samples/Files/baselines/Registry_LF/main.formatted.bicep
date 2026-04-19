@@ -21,6 +21,14 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
   }
 }
 
+module appPlanDeploy3 'br/mock-registry-emulated:plan:v2' = {
+  name: 'planDeploy3'
+  scope: rg
+  params: {
+    namePrefix: 'hello'
+  }
+}
+
 var websites = [
   {
     name: 'fancy'
@@ -48,19 +56,6 @@ module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [
 module siteDeploy2 'br/demo-two:site:v3' = [
   for site in websites: {
     name: '${site.name}siteDeploy2'
-    scope: rg
-    params: {
-      appPlanId: appPlanDeploy.outputs.planId
-      namePrefix: site.name
-      dockerImage: 'nginxdemos/hello'
-      dockerImageTag: site.tag
-    }
-  }
-]
-
-module siteDeploy3 'br/mock-registry-emulated:site:v3' = [
-  for site in websites: {
-    name: '${site.name}siteDeploy3'
     scope: rg
     params: {
       appPlanId: appPlanDeploy.outputs.planId
