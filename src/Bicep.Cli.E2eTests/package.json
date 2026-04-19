@@ -11,7 +11,7 @@
     "@vitest/eslint-plugin": "^1.6.15",
     "cross-env": "^10.1.0",
     "cross-spawn": "^7.0.6",
-    "eslint": "^10.2.0",
+    "eslint": "^10.2.1",
     "eslint-plugin-notice": "^1.0.0",
     "prettier": "^3.8.2",
     "rimraf": "^6.1.3",
