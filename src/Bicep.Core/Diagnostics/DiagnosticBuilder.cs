@@ -2034,6 +2034,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic OciArtifactModuleAliasFileSystemOnlySupportsModules(string aliasName) => CoreError(
                 "BCP447",
                 $"The OCI artifact module alias \"{aliasName}\" has a \"fileSystem\" property which is only supported for modules, not extensions.");
+            
+            public Diagnostic ModuleReferenceSchemeBrFsNotSupported() => CoreError(
+                "BCP448",
+                "The 'br-fs' module reference scheme is for internal use only. Use a 'br/<alias>:' reference with a configured 'fileSystem' alias instead.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

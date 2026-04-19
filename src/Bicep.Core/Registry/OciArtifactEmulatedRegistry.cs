@@ -10,7 +10,7 @@ using Bicep.Core.SourceLink;
 
 namespace Bicep.Core.Registry
 {
-    public class FileSystemModuleRegistry : ArtifactRegistry<OciArtifactEmulatedReference>
+    public class OciArtifactEmulatedRegistry : ArtifactRegistry<OciArtifactEmulatedReference>
     {
         public override string Scheme => ArtifactReferenceSchemes.OciEmulated;
 
@@ -18,7 +18,7 @@ namespace Bicep.Core.Registry
             => RegistryCapabilities.Default;
 
         public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference)
-            => throw new NotSupportedException("Parsing is handled by OciArtifactRegistry.");
+           => new(x => x.ModuleReferenceSchemeBrFsNotSupported());
 
         public override bool IsArtifactRestoreRequired(OciArtifactEmulatedReference reference) => false;
 
