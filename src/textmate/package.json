@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "private": true,
   "devDependencies": {
-    "@eslint/compat": "^2.0.4",
+    "@eslint/compat": "^2.0.5",
     "@eslint/eslintrc": "^3.3.4",
     "@eslint/js": "^10.0.1",
     "@types/html-escaper": "^3.0.4",
