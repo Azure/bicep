@@ -3,7 +3,6 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Text.Json;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
@@ -25,10 +24,6 @@ public class ExtensionTypeLoaderProvider
             ? $"{Registry}/{Repository}:{Tag}"
             : $"{Registry}/{Repository}@{Digest}";
     }
-
-    // Matches ExternalArtifactRegistry timeout/retry for file-system locking
-    private static readonly TimeSpan CacheContentionTimeout = TimeSpan.FromSeconds(5);
-    private static readonly TimeSpan CacheContentionRetryInterval = TimeSpan.FromMilliseconds(300);
 
     private readonly IContainerRegistryClientFactory clientFactory;
     private readonly IFileExplorer fileExplorer;
@@ -139,8 +134,8 @@ public class ExtensionTypeLoaderProvider
     }
 
     /// <summary>
-    /// Writes the extension artifact to the file-system cache using file-based locking,
-    /// matching the concurrency pattern from ExternalArtifactRegistry.
+    /// Writes the extension artifact to the file-system cache using file-based locking
+    /// via <see cref="ArtifactCacheHelper"/>, ensuring consistent concurrency handling with the Bicep compiler.
     /// </summary>
     private async Task WriteToCacheWithLockAsync(WellKnownExtension extension, string tag, BinaryData data)
     {
@@ -155,29 +150,11 @@ public class ExtensionTypeLoaderProvider
             cacheDir.EnsureExists();
             var lockFile = cacheDir.GetFile("lock");
             var typesTgzFile = cacheDir.GetFile("types.tgz");
-            var stopwatch = Stopwatch.StartNew();
 
-            while (stopwatch.Elapsed < CacheContentionTimeout)
-            {
-                using (var @lock = lockFile.TryLock())
-                {
-                    if (@lock is not null)
-                    {
-                        // Double-check: another process may have already written
-                        if (typesTgzFile.Exists())
-                        {
-                            return;
-                        }
-
-                        typesTgzFile.Write(data);
-                        return;
-                    }
-                }
-
-                await Task.Delay(CacheContentionRetryInterval);
-            }
-
-            // Timeout exceeded — best-effort, don't fail the operation
+            await ArtifactCacheHelper.WriteWithLockAsync(
+                lockFile,
+                isWriteRequired: () => !typesTgzFile.Exists(),
+                writeContent: () => typesTgzFile.Write(data));
         }
         catch
         {
@@ -187,7 +164,7 @@ public class ExtensionTypeLoaderProvider
 
     /// <summary>
     /// Gets the cache directory for an extension artifact, matching the compiler's cache path convention.
-    /// Uses the same path encoding as OciArtifactRegistry (TagEncoder, registry/repo char replacement).
+    /// Uses <see cref="ArtifactCacheHelper.EncodeCachePathSegments"/> for consistent path encoding with OciArtifactRegistry.
     /// </summary>
     private IDirectoryHandle? GetCacheDirectory(WellKnownExtension extension, string tag)
     {
@@ -198,16 +175,13 @@ public class ExtensionTypeLoaderProvider
             return null;
         }
 
-        // Match the compiler's cache path convention from OciArtifactRegistry.GetArtifactDirectory:
-        // ~/.bicep/br/{registry with : replaced by $, lowered}/{repo with / replaced by $}/{TagEncoder.Encode(tag)}
-        var registry = extension.Registry.Replace(':', '$').ToLowerInvariant();
-        var repository = extension.Repository.Replace('/', '$');
-        var encodedTag = TagEncoder.Encode(tag);
+        var relativePath = ArtifactCacheHelper.EncodeCachePathSegments(
+            extension.Registry, extension.Repository, tag, digest: null);
 
         var cacheRoot = fileExplorer.GetDirectory(IOUri.FromFilePath(
             Path.Combine(userProfile, ".bicep", ArtifactReferenceSchemes.Oci)));
 
-        return cacheRoot.GetDirectory($"{registry}/{repository}/{encodedTag}");
+        return cacheRoot.GetDirectory(relativePath);
     }
 
     private static CloudConfiguration GetCloudConfiguration()

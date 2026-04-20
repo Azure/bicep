@@ -12,12 +12,6 @@ namespace Bicep.Core.Registry
     public abstract class ExternalArtifactRegistry<TArtifactReference, TArtifactEntity> : ArtifactRegistry<TArtifactReference>
         where TArtifactReference : ArtifactReference
     {
-        // if we're unable to acquire a lock on the artifact directory in the cache, we will retry until this timeout is reached
-        private static readonly TimeSpan ArtifactDirectoryContentionTimeout = TimeSpan.FromSeconds(5);
-
-        // interval at which we will retry acquiring the lock on the artifact directory in the cache
-        private static readonly TimeSpan ArtifactDirectoryContentionRetryInterval = TimeSpan.FromMilliseconds(300);
-
         protected abstract void WriteArtifactContentToCache(TArtifactReference reference, TArtifactEntity entity);
 
         protected abstract IDirectoryHandle GetArtifactDirectory(TArtifactReference reference);
@@ -41,36 +35,10 @@ namespace Bicep.Core.Registry
              */
 
             var lockFile = this.GetArtifactLockFile(reference);
-            var stopwatch = Stopwatch.StartNew();
-
-            while (stopwatch.Elapsed < ArtifactDirectoryContentionTimeout)
-            {
-                using (var @lock = lockFile.TryLock())
-                {
-                    // the placement of "if" inside "using" guarantees that even an exception thrown by the condition results in the lock being released
-                    // (current condition can't throw, but this potentially avoids future regression)
-                    if (@lock is not null)
-                    {
-                        // we have acquired the lock
-                        if (!this.IsArtifactRestoreRequired(reference))
-                        {
-                            // the other instance has already written out the content to disk - we can discard the content we downloaded
-                            return;
-                        }
-
-                        // write the contents to disk
-                        this.WriteArtifactContentToCache(reference, entity);
-                        return;
-                    }
-                }
-
-                // we have not acquired the lock - let's give the instance that has the lock some time to finish writing the content to the directory
-                // (the operation involves only writing the already downloaded content to disk, so it "should" complete fairly quickly)
-                await Task.Delay(ArtifactDirectoryContentionRetryInterval);
-            }
-
-            // we have exceeded the timeout
-            throw new ExternalArtifactException($"Exceeded the timeout of \"{ArtifactDirectoryContentionTimeout}\" to acquire the lock on file \"{lockFile.Uri}\".");
+            await ArtifactCacheHelper.WriteWithLockAsync(
+                lockFile,
+                isWriteRequired: () => this.IsArtifactRestoreRequired(reference),
+                writeContent: () => this.WriteArtifactContentToCache(reference, entity));
         }
 
         private void CreateArtifactDirectory(IDirectoryHandle artifactDirectory)
@@ -111,7 +79,7 @@ namespace Bicep.Core.Registry
             var lockFile = this.GetArtifactLockFile(reference);
             var stopwatch = Stopwatch.StartNew();
 
-            while (stopwatch.Elapsed < ArtifactDirectoryContentionTimeout)
+            while (stopwatch.Elapsed < ArtifactCacheHelper.DefaultTimeout)
             {
                 if (!lockFile.Exists())
                 {
@@ -138,11 +106,11 @@ namespace Bicep.Core.Registry
 
                 // lock is still present - let's give the instance that has the lock some time to finish writing the content to the directory
                 // (the operation involves only writing the already downloaded content to disk, so it "should" complete fairly quickly)
-                await Task.Delay(ArtifactDirectoryContentionRetryInterval);
+                await Task.Delay(ArtifactCacheHelper.DefaultRetryInterval);
             }
 
             // we have exceeded the timeout
-            throw new ExternalArtifactException($"Exceeded the timeout of \"{ArtifactDirectoryContentionTimeout}\" for the lock on file \"{lockFile.Uri}\" to be released.");
+            throw new ExternalArtifactException($"Exceeded the timeout of \"{ArtifactCacheHelper.DefaultTimeout}\" for the lock on file \"{lockFile.Uri}\" to be released.");
         }
 
         // base implementation for cache invalidation that should fit all external registries
