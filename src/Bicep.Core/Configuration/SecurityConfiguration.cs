@@ -28,7 +28,7 @@ namespace Bicep.Core.Configuration
 
         private SecurityConfiguration(
             ImmutableArray<string> trustedRegistries,
-            ImmutableArray<string> invalidRegistryPatterns)
+            ImmutableArray<(string Pattern, string Reason)> invalidRegistryPatterns)
         {
             TrustedRegistries = trustedRegistries;
             InvalidRegistryPatterns = invalidRegistryPatterns;
@@ -40,12 +40,15 @@ namespace Bicep.Core.Configuration
         public ImmutableArray<string> TrustedRegistries { get; }
 
         /// <summary>
-        /// Invalid registry patterns found in user config. If non-empty, all OCI restore must be blocked.
+        /// Invalid registry patterns found in user config, along with the validation reason.
+        /// If non-empty, a BCP447 warning is emitted for each (up to a cap)
+        /// but restore proceeds for modules whose registry matches a valid trusted entry.
         /// </summary>
-        public ImmutableArray<string> InvalidRegistryPatterns { get; }
+        public ImmutableArray<(string Pattern, string Reason)> InvalidRegistryPatterns { get; }
 
         /// <summary>
-        /// True if any invalid registry patterns were found; all OCI restore must be blocked (BCP447).
+        /// True if any invalid registry patterns were found. A BCP447 warning is emitted for each,
+        /// but restore is not blocked for modules whose registry matches a valid trusted entry.
         /// </summary>
         public bool HasInvalidRegistryPatterns => !InvalidRegistryPatterns.IsEmpty;
 
@@ -68,7 +71,7 @@ namespace Bicep.Core.Configuration
             }
 
             var valid = ImmutableArray.CreateBuilder<string>();
-            var invalid = ImmutableArray.CreateBuilder<string>();
+            var invalid = ImmutableArray.CreateBuilder<(string Pattern, string Reason)>();
 
             foreach (var entry in registriesElement.EnumerateArray())
             {
@@ -85,7 +88,7 @@ namespace Bicep.Core.Configuration
                 }
                 else
                 {
-                    invalid.Add(pattern);
+                    invalid.Add((pattern, error));
                 }
             }
 

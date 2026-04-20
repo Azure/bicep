@@ -70,10 +70,10 @@ namespace Bicep.Core.Registry
              * when we need to invalidate the cache, the module directory (or even a single file) should be deleted from the cache
              */
 
-            // Security-first: if the registry is untrusted or config is invalid, always mark restore as
-            // required so that RestoreArtifacts() will be called and can emit the appropriate diagnostic.
+            // Security-first: if the registry is untrusted, always mark restore as required so that
+            // RestoreArtifacts() will be called and can emit the appropriate diagnostic (BCP446).
             var security = reference.ReferencingFile.Configuration.Security;
-            if (security.HasInvalidRegistryPatterns || !security.IsRegistryTrusted(reference.Registry))
+            if (!security.IsRegistryTrusted(reference.Registry))
             {
                 return true;
             }
@@ -217,19 +217,9 @@ namespace Bicep.Core.Registry
             {
                 var security = reference.ReferencingFile.Configuration.Security;
 
-                // Block restore if the configuration contains invalid trusted-registry patterns (BCP447).
-                // This must be checked before the trust check so the user gets actionable feedback.
-                if (security.HasInvalidRegistryPatterns)
-                {
-                    // Report all invalid patterns per reference so the user knows exactly what to fix.
-                    foreach (var pattern in security.InvalidRegistryPatterns)
-                    {
-                        failures[reference] = x => x.InvalidTrustedRegistryPattern(pattern);
-                    }
-                    continue;
-                }
-
                 // Block restore if the registry is not in the trusted list (BCP446).
+                // Invalid patterns in config are handled as warnings at config-load time (BCP447 via RootConfiguration)
+                // and are simply not included in the valid TrustedRegistries list, so they won't match here.
                 if (!security.IsRegistryTrusted(reference.Registry))
                 {
                     failures[reference] = x => x.ArtifactRestoreBlockedByRegistry(reference.Registry);

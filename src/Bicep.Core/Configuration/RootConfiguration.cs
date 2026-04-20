@@ -59,9 +59,17 @@ namespace Bicep.Core.Configuration
             this.ConfigFileUri = configFileUri;
             this.Security = security ?? SecurityConfiguration.Default;
 
-            // Merge any BCP447 diagnostics from invalid security config patterns
-            var securityDiagnostics = this.Security.InvalidRegistryPatterns
-                .Select(p => DiagnosticBuilder.ForDocumentStart().InvalidTrustedRegistryPattern(p))
+            // Merge BCP447 warnings from invalid security config patterns (cap at 5 detailed)
+            const int maxDetailedWarnings = 5;
+            var invalidPatterns = this.Security.InvalidRegistryPatterns;
+            var overflowCount = Math.Max(0, invalidPatterns.Length - maxDetailedWarnings);
+            var patternsToReport = invalidPatterns.Take(maxDetailedWarnings).ToArray();
+            var securityDiagnostics = patternsToReport
+                .Select((p, i) => DiagnosticBuilder.ForDocumentStart().InvalidTrustedRegistryPattern(
+                    p.Pattern,
+                    p.Reason,
+                    // Attach overflow count to the last detailed warning only
+                    i == patternsToReport.Length - 1 ? overflowCount : 0))
                 .Cast<IDiagnostic>();
             this.Diagnostics = (diagnostics ?? [])
                 .Concat(securityDiagnostics)

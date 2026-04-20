@@ -2034,11 +2034,13 @@ namespace Bicep.Core.Diagnostics
                 $"Only add registries you trust, as restoring from an untrusted registry can expose your credentials. " +
                 $"See https://aka.ms/bicep-registry-trust for details.");
 
-            public Diagnostic InvalidTrustedRegistryPattern(string pattern) => CoreError(
+            public Diagnostic InvalidTrustedRegistryPattern(string pattern, string reason, int additionalCount = 0) => CoreWarning(
                 "BCP447",
-                $"The trusted registry pattern \"{pattern}\" in \"security.trustedRegistries\" is invalid. " +
-                $"Patterns must be a bare hostname (e.g. \"myregistry.azurecr.io\") or a wildcard subdomain (e.g. \"*.azurecr.io\"). " +
-                $"All OCI artifact restore is blocked until this is corrected. " +
+                $"The trusted registry pattern \"{pattern}\" in \"security.trustedRegistries\" is invalid and will be ignored. " +
+                $"Reason: {reason} " +
+                (additionalCount > 0
+                    ? $"{additionalCount} additional invalid pattern(s) were also found. Fix the above patterns to see details for the rest. "
+                    : "") +
                 $"See https://aka.ms/bicep-registry-trust for details.");
         }
 
