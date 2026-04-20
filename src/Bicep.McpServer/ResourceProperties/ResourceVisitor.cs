@@ -3,7 +3,6 @@
 
 using System.Numerics;
 using Azure.Bicep.Types;
-using Azure.Bicep.Types.Az;
 using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
 using Bicep.McpServer.ResourceProperties.Entities;
@@ -16,16 +15,17 @@ namespace Bicep.McpServer.ResourceProperties;
 public class ResourceVisitor
 {
     private readonly ILogger<ResourceVisitor> logger;
+    private readonly ITypeLoader azTypeLoader;
 
-    public ResourceVisitor(ILogger<ResourceVisitor> logger)
+    public ResourceVisitor(ILogger<ResourceVisitor> logger, ITypeLoader azTypeLoader)
     {
         this.logger = logger;
+        this.azTypeLoader = azTypeLoader;
     }
 
     public TypesDefinitionResult LoadSingleResourceType(string fullyQualifiedResourceType, string apiVersion)
     {
-        var loader = new AzTypeLoader();
-        return LoadSingleResourceType(loader, fullyQualifiedResourceType, apiVersion);
+        return LoadSingleResourceType(azTypeLoader, fullyQualifiedResourceType, apiVersion);
     }
 
     public TypesDefinitionResult LoadSingleResourceType(ITypeLoader loader, string fullyQualifiedResourceType, string apiVersion)

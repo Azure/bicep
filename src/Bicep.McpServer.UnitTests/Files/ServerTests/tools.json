@@ -535,11 +535,19 @@
                 "type": "string"
               },
               "availableTags": {
-                "description": "Available versions (tags) of the extension",
+                "description": "Available versions (tags) of the extension. Empty if tag discovery failed — check the Error field.",
                 "type": "array",
                 "items": {
                   "type": "string"
                 }
+              },
+              "error": {
+                "description": "Error message if tag discovery failed, or null on success",
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "default": null
               }
             },
             "required": [

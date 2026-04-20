@@ -55,8 +55,10 @@ public sealed class BicepTools(
         string Description,
         [Description("OCI artifact reference path (e.g., br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0)")]
         string OciReference,
-        [Description("Available versions (tags) of the extension")]
-        ImmutableArray<string> AvailableTags);
+        [Description("Available versions (tags) of the extension. Empty if tag discovery failed — check the Error field.")]
+        ImmutableArray<string> AvailableTags,
+        [Description("Error message if tag discovery failed, or null on success")]
+        string? Error = null);
 
     public record WellKnownExtensionsResult(
         [Description("List of well-known Bicep extensions with their available versions. This is not an exhaustive list; other extensions may exist.")]
@@ -114,7 +116,7 @@ public sealed class BicepTools(
         return new ResourceTypeSchemaResult(JsonSchemaWriter.Write(typesDefinition));
     }
 
-    [McpServerTool(Title = "List extension resource types", Destructive = false, Idempotent = true, OpenWorld = false, ReadOnly = true, UseStructuredContent = true)]
+    [McpServerTool(Title = "List extension resource types", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
     Lists all available resource types and their API versions for a Bicep extension.
     
@@ -132,13 +134,13 @@ public sealed class BicepTools(
         var (Extension, Tag) = WellKnownExtension.TryParseExtensionReference(extensionReference)
             ?? throw new ArgumentException($"Invalid or unsupported extension reference '{extensionReference}'. Use list_well_known_extensions to discover available extensions.");
 
-        var typeLoader = await extensionTypeLoaderProvider.GetTypeLoaderAsync(Extension.Name, Tag);
+        var typeLoader = await extensionTypeLoaderProvider.GetTypeLoaderAsync(Extension, Tag);
         var loader = new ExtensionResourceTypeLoader(typeLoader);
 
         return new([.. loader.GetAvailableTypes().Select(x => x.Name).Distinct(StringComparer.OrdinalIgnoreCase)]);
     }
 
-    [McpServerTool(Title = "Get extension resource type schema", Destructive = false, Idempotent = true, OpenWorld = false, ReadOnly = true, UseStructuredContent = true)]
+    [McpServerTool(Title = "Get extension resource type schema", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
     Retrieves the complete JSON schema definition for a specific extension resource type and API version, including all properties, nested types, and constraints.
     
@@ -160,7 +162,7 @@ public sealed class BicepTools(
         var (Extension, Tag) = WellKnownExtension.TryParseExtensionReference(extensionReference)
             ?? throw new ArgumentException($"Invalid or unsupported extension reference '{extensionReference}'. Use list_well_known_extensions to discover available extensions.");
 
-        var typeLoader = await extensionTypeLoaderProvider.GetTypeLoaderAsync(Extension.Name, Tag);
+        var typeLoader = await extensionTypeLoaderProvider.GetTypeLoaderAsync(Extension, Tag);
         TypesDefinitionResult typesDefinition = resourceVisitor.LoadSingleResourceType(typeLoader, resourceType, apiVersion);
 
         return new ResourceTypeSchemaResult(JsonSchemaWriter.Write(typesDefinition));
@@ -233,13 +235,13 @@ public sealed class BicepTools(
         {
             try
             {
-                var tags = await extensionTypeLoaderProvider.GetAvailableTagsAsync(extension.Name);
+                var tags = await extensionTypeLoaderProvider.GetAvailableTagsAsync(extension);
                 extensions.Add(new ExtensionInfo(extension.Name, extension.Description, extension.OciReference, [.. tags]));
             }
             catch (Exception ex)
             {
                 Trace.WriteLine($"Failed to get tags for extension '{extension.Name}': {ex.Message}");
-                extensions.Add(new ExtensionInfo(extension.Name, extension.Description, extension.OciReference, []));
+                extensions.Add(new ExtensionInfo(extension.Name, extension.Description, extension.OciReference, [], ex.Message));
             }
         }
 

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Net;
+using Azure.Bicep.Types;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
@@ -21,7 +22,8 @@ public static class IServiceCollectionExtensions
     {
         services
             .AddSingleton(NullLoggerFactory.Instance.CreateLogger<ResourceVisitor>())
-            .AddSingleton<AzResourceTypeLoader>(provider => new(new AzTypeLoader()))
+            .AddSingleton<ITypeLoader>(new AzTypeLoader())
+            .AddSingleton<AzResourceTypeLoader>(provider => new(provider.GetRequiredService<ITypeLoader>()))
             .AddSingleton<ResourceVisitor>()
             .AddSingleton<ExtensionTypeLoaderProvider>()
             .AddBicepCore()
