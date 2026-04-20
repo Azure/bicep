@@ -9,7 +9,6 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Containers.ContainerRegistry;
-using Bicep.Core.Registry.Auth;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Sessions;
 using OrasProject.Oras.Content;
@@ -29,9 +28,8 @@ internal sealed class OrasRegistrySession : IRegistrySession
     public OrasRegistrySession(
         string registry,
         string repository,
-        ICredentialChain credentialChain)
+        ICredentialProvider credentialProvider)
     {
-        var credentialProvider = new CredentialChainCredentialProvider(credentialChain);
         var client = new Client(httpClient: null, credentialProvider: credentialProvider);
         client.SetUserAgent($"bicep/{ThisAssembly.AssemblyFileVersion}");
 

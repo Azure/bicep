@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Immutable;
+using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Providers;
 using Bicep.Core.Registry.Sessions;
 
@@ -10,7 +11,7 @@ namespace Bicep.Core.Registry.Oci;
 
 public class OciRegistryTransportFactory : IOciRegistryTransportFactory
 {
-    private static readonly ImmutableArray<string> AzureRegistrySuffixes =
+    private static readonly ImmutableArray<string> AcrHostSuffixes =
     [
         ".azurecr.io",
         ".azurecr.cn",
@@ -19,7 +20,8 @@ public class OciRegistryTransportFactory : IOciRegistryTransportFactory
         ".azurecr.gov"
     ];
 
-    private static readonly ImmutableHashSet<string> AzureRegistryHosts =
+    // Hosts that, while not ACRs, are served by Microsoft and supported by the Azure SDK auth path.
+    private static readonly ImmutableHashSet<string> MicrosoftManagedHosts =
         ImmutableHashSet.Create(StringComparer.OrdinalIgnoreCase, "mcr.microsoft.com");
 
     private readonly RegistryProviderFactory providerFactory;
@@ -39,22 +41,26 @@ public class OciRegistryTransportFactory : IOciRegistryTransportFactory
         return provider.GetTransport(registry);
     }
 
-    public IRegistrySession CreateSession(RegistryRef reference, RegistryProviderContext context)
-        => providerFactory.CreateSession(reference, context);
+    public IRegistrySession CreateSession(RegistryRef reference, CloudConfiguration cloud)
+        => providerFactory.CreateSession(reference, cloud);
 
-    internal static bool IsAzureHost(string registry)
+    /// <summary>
+    /// Returns true for hosts that should be routed through the Azure SDK transport: ACR registries
+    /// and other Microsoft-managed hosts (e.g. mcr.microsoft.com) that the Azure SDK can authenticate to.
+    /// </summary>
+    internal static bool IsAzureSdkHost(string registry)
     {
         if (!TryNormalizeHost(registry, out var host))
         {
             return false;
         }
 
-        if (AzureRegistryHosts.Contains(host))
+        if (MicrosoftManagedHosts.Contains(host))
         {
             return true;
         }
 
-        foreach (var suffix in AzureRegistrySuffixes)
+        foreach (var suffix in AcrHostSuffixes)
         {
             if (host.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
             {

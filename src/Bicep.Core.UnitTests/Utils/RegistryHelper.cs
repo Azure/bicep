@@ -13,7 +13,6 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Auth;
 using Bicep.Core.Registry.Azure;
 using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Registry.Oci;
@@ -389,7 +388,7 @@ public static class RegistryHelper
 
         public IOciRegistryTransport GetTransport(string registry) => azureTransport;
 
-        public IRegistrySession CreateSession(RegistryRef reference, RegistryProviderContext context)
-            => new AcrRegistrySession(azureTransport, context.Cloud);
+        public IRegistrySession CreateSession(RegistryRef reference, CloudConfiguration cloud)
+            => new AcrRegistrySession(azureTransport, cloud);
     }
 }

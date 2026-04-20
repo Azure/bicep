@@ -62,8 +62,6 @@ namespace Bicep.Core.Registry
                         break;
                     }
 
-                    cancellationToken.ThrowIfCancellationRequested();
-
                     catalog.Add(repository);
                 }
 
@@ -74,25 +72,25 @@ namespace Bicep.Core.Registry
             {
                 // Try authenticated client first.
                 Trace.WriteLine($"Attempt to list catalog for registry {registryUri} using authentication.");
-                return await GetCatalogInternalAsync(anonymousAccess: false, cancellationToken).ConfigureAwait(false);
+                return await GetCatalogInternalAsync(anonymousAccess: false, cancellationToken);
             }
             catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
             {
                 // Fall back to anonymous client.
                 Trace.WriteLine($"Authenticated attempt to list catalog for registry {registryUri} failed, received code {exception.Status}. Falling back to anonymous.");
-                return await GetCatalogInternalAsync(anonymousAccess: true, cancellationToken).ConfigureAwait(false);
+                return await GetCatalogInternalAsync(anonymousAccess: true, cancellationToken);
             }
             catch (CredentialUnavailableException)
             {
                 // Fall back to anonymous client.
                 Trace.WriteLine($"Authenticated attempt to pull catalog for registry {registryUri} failed due to missing login step. Falling back to anonymous.");
-                return await GetCatalogInternalAsync(anonymousAccess: true, cancellationToken).ConfigureAwait(false);
+                return await GetCatalogInternalAsync(anonymousAccess: true, cancellationToken);
             }
 
             async Task<string[]> GetCatalogInternalAsync(bool anonymousAccess, CancellationToken cancellationToken)
             {
                 var client = CreateContainerClient(cloud, registryUri, anonymousAccess);
-                return await GetCatalogAsync(client, maxResults, cancellationToken).ConfigureAwait(false);
+                return await GetCatalogAsync(client, maxResults, cancellationToken);
             }
         }
 
@@ -108,19 +106,19 @@ namespace Bicep.Core.Registry
             {
                 // Try authenticated client first.
                 Trace.WriteLine($"Attempting to list repository tags for module {registryUri}/{repository} using authentication.");
-                return await GetTagsInternalAsync(anonymousAccess: false, cancellationToken).ConfigureAwait(false);
+                return await GetTagsInternalAsync(anonymousAccess: false, cancellationToken);
             }
             catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
             {
                 // Fall back to anonymous client.
                 Trace.WriteLine($"Authenticated attempt to list repository tags for module {registryUri}/{repository} failed, received code {exception.Status}. Falling back to anonymous.");
-                return await GetTagsInternalAsync(anonymousAccess: true, cancellationToken).ConfigureAwait(false);
+                return await GetTagsInternalAsync(anonymousAccess: true, cancellationToken);
             }
             catch (CredentialUnavailableException)
             {
                 // Fall back to anonymous client.
                 Trace.WriteLine($"Authenticated attempt to list repository tags for module {registryUri}/{repository} failed due to missing login step. Falling back to anonymous.");
-                return await GetTagsInternalAsync(anonymousAccess: true, cancellationToken).ConfigureAwait(false);
+                return await GetTagsInternalAsync(anonymousAccess: true, cancellationToken);
             }
 
             async Task<IReadOnlyList<string>> GetTagsInternalAsync(bool anonymousAccess, CancellationToken cancellationToken)
@@ -132,7 +130,6 @@ namespace Bicep.Core.Registry
                 {
                     foreach (var tag in manifestProps.Tags)
                     {
-                        cancellationToken.ThrowIfCancellationRequested();
                         tags.Add(tag);
                     }
                 }
@@ -149,14 +146,14 @@ namespace Bicep.Core.Registry
             async Task<OciArtifactResult> DownloadManifestInternalAsync(bool anonymousAccess, CancellationToken cancellationToken)
             {
                 var client = CreateBlobClient(cloud, artifactReference, anonymousAccess);
-                return await DownloadManifestAndLayersAsync(artifactReference, client, cancellationToken).ConfigureAwait(false);
+                return await DownloadManifestAndLayersAsync(artifactReference, client, cancellationToken);
             }
 
             try
             {
                 // Try anonymous auth first.
                 Trace.WriteLine($"Attempting to pull artifact for module {artifactReference.ArtifactId} with anonymous authentication.");
-                return await DownloadManifestInternalAsync(anonymousAccess: true, cancellationToken).ConfigureAwait(false);
+                return await DownloadManifestInternalAsync(anonymousAccess: true, cancellationToken);
             }
             catch (InvalidArtifactException invalidArtifactException)
             {
@@ -173,7 +170,7 @@ namespace Bicep.Core.Registry
             }
 
             // Fall back to authenticated client.
-            return await DownloadManifestInternalAsync(anonymousAccess: false, cancellationToken).ConfigureAwait(false);
+            return await DownloadManifestInternalAsync(anonymousAccess: false, cancellationToken);
         }
 
         public async Task PushArtifactAsync(
@@ -189,13 +186,13 @@ namespace Bicep.Core.Registry
             // push is not supported anonymously
             var blobClient = this.CreateBlobClient(cloud, artifactReference, anonymousAccess: false);
 
-            _ = await blobClient.UploadBlobAsync(config.Data, cancellationToken).ConfigureAwait(false);
+            _ = await blobClient.UploadBlobAsync(config.Data, cancellationToken);
 
             var layerDescriptors = layers.ToImmutableArray();
             foreach (var layer in layerDescriptors)
             {
                 layerDescriptors.Add(layer);
-                _ = await blobClient.UploadBlobAsync(layer.Data, cancellationToken).ConfigureAwait(false);
+                _ = await blobClient.UploadBlobAsync(layer.Data, cancellationToken);
             }
 
             /* Sample artifact manifest:
@@ -226,7 +223,7 @@ namespace Bicep.Core.Registry
 #pragma warning disable IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
             var manifestBinaryData = BinaryData.FromObjectAsJson(manifest, OciManifestSerializationContext.Default.Options);
 #pragma warning restore IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
-            _ = await blobClient.SetManifestAsync(manifestBinaryData, artifactReference.Tag, mediaType: ManifestMediaType.OciImageManifest, cancellationToken: cancellationToken).ConfigureAwait(false);
+            _ = await blobClient.SetManifestAsync(manifestBinaryData, artifactReference.Tag, mediaType: ManifestMediaType.OciImageManifest, cancellationToken: cancellationToken);
         }
 
         private static Uri GetRegistryUri(IOciArtifactAddressComponents artifactReference) => GetRegistryUri(artifactReference.Registry);

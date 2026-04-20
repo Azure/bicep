@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Sessions;
 
@@ -35,5 +36,5 @@ public interface IRegistryProvider
     /// <summary>
     /// Creates a registry session capable of performing push/pull operations for the specified reference.
     /// </summary>
-    IRegistrySession CreateSession(RegistryRef reference, RegistryProviderContext context);
+    IRegistrySession CreateSession(RegistryRef reference, CloudConfiguration cloud);
 }

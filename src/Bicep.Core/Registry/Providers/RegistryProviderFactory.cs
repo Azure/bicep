@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
+using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Sessions;
 
@@ -52,12 +50,12 @@ public class RegistryProviderFactory
         return Resolve(reference.Registry);
     }
 
-    public IRegistrySession CreateSession(RegistryRef reference, RegistryProviderContext context)
+    public IRegistrySession CreateSession(RegistryRef reference, CloudConfiguration cloud)
     {
         ArgumentNullException.ThrowIfNull(reference);
-        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(cloud);
 
         var provider = Resolve(reference.Host);
-        return provider.CreateSession(reference, context);
+        return provider.CreateSession(reference, cloud);
     }
 }

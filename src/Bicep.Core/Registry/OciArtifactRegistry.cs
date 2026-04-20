@@ -15,7 +15,6 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
-using Bicep.Core.Registry.Auth;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Sessions;
@@ -39,19 +38,15 @@ namespace Bicep.Core.Registry
 
         private readonly IPublicModuleMetadataProvider publicModuleMetadataProvider;
 
-        private readonly ICredentialChain credentialChain;
-
         private readonly ILogger<OciArtifactRegistry> logger;
 
         public OciArtifactRegistry(
             IOciRegistryTransportFactory transportFactory,
             IPublicModuleMetadataProvider publicModuleMetadataProvider,
-            ICredentialChain credentialChain,
             ILogger<OciArtifactRegistry> logger)
         {
             this.transportFactory = transportFactory;
             this.publicModuleMetadataProvider = publicModuleMetadataProvider;
-            this.credentialChain = credentialChain;
             this.logger = logger;
         }
 
@@ -624,19 +619,11 @@ namespace Bicep.Core.Registry
         private RegistryRef CreateRegistryRef(OciArtifactReference reference) =>
             new(reference.Registry, reference.Repository, reference.Tag, reference.Digest);
 
-        private IRegistrySession? TryCreateSession(OciArtifactReference reference, CancellationToken cancellationToken = default)
+        private IRegistrySession? TryCreateSession(OciArtifactReference reference)
         {
             try
             {
-                var context = new RegistryProviderContext
-                {
-                    Logger = logger,
-                    CredentialChain = credentialChain,
-                    Cloud = reference.ReferencingFile.Configuration.Cloud,
-                    CancellationToken = cancellationToken,
-                };
-
-                return transportFactory.CreateSession(CreateRegistryRef(reference), context);
+                return transportFactory.CreateSession(CreateRegistryRef(reference), reference.ReferencingFile.Configuration.Cloud);
             }
             catch (NotSupportedException)
             {

@@ -67,7 +67,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
 
             public IOciRegistryTransport GetTransport(string registry) => transport;
 
-            public IRegistrySession CreateSession(RegistryRef reference, RegistryProviderContext context) =>
+            public IRegistrySession CreateSession(RegistryRef reference, CloudConfiguration cloud) =>
                 throw new NotSupportedException();
         }
 

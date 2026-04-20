@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Globalization;
 using Bicep.Core.Configuration;
 using Bicep.IO.Abstraction;
 
@@ -62,33 +61,7 @@ namespace Bicep.Core.Features
         public bool ExistingNullIfNotFoundEnabled => configuration.ExperimentalFeaturesEnabled.ExistingNullIfNotFound;
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
-        {
-            var value = Environment.GetEnvironmentVariable(envVar);
-            if (value is null)
-            {
-                return defaultValue;
-            }
-
-            if (bool.TryParse(value, out var boolValue))
-            {
-                return boolValue;
-            }
-
-            if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var intValue))
-            {
-                if (intValue == 1)
-                {
-                    return true;
-                }
-
-                if (intValue == 0)
-                {
-                    return false;
-                }
-            }
-
-            return defaultValue;
-        }
+            => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;
 
         public static string ReadEnvVar(string envVar, string defaultValue)
             => Environment.GetEnvironmentVariable(envVar) ?? defaultValue;

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Azure;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Oci.Oras;
@@ -11,10 +12,12 @@ namespace Bicep.Core.Registry.Providers;
 public class GenericOciRegistryProvider : IRegistryProvider
 {
     private readonly AzureContainerRegistryManager azureTransport;
+    private readonly DockerCredentialProvider credentialProvider;
 
-    public GenericOciRegistryProvider(AzureContainerRegistryManager azureTransport)
+    public GenericOciRegistryProvider(AzureContainerRegistryManager azureTransport, DockerCredentialProvider credentialProvider)
     {
         this.azureTransport = azureTransport;
+        this.credentialProvider = credentialProvider;
     }
 
     public string Name => WellKnownRegistryProviders.Generic;
@@ -27,11 +30,10 @@ public class GenericOciRegistryProvider : IRegistryProvider
     // for backward compatibility. The session-based path (OciEnabled=true) uses ORAS via CreateSession.
     public IOciRegistryTransport GetTransport(string registry) => azureTransport;
 
-    public IRegistrySession CreateSession(RegistryRef reference, RegistryProviderContext context)
+    public IRegistrySession CreateSession(RegistryRef reference, CloudConfiguration cloud)
     {
         ArgumentNullException.ThrowIfNull(reference);
-        ArgumentNullException.ThrowIfNull(context);
 
-        return new OrasRegistrySession(reference.Host, reference.Repository, context.CredentialChain);
+        return new OrasRegistrySession(reference.Host, reference.Repository, credentialProvider);
     }
 }

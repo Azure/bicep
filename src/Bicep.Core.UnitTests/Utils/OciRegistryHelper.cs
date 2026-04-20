@@ -6,7 +6,6 @@ using Bicep.Core.Features;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog;
-using Bicep.Core.Registry.Auth;
 using Bicep.Core.Registry.Azure;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Sessions;
@@ -91,7 +90,6 @@ namespace Bicep.Core.UnitTests.Utils
             var registry = new OciArtifactRegistry(
                 transportFactory,
                 StrictMock.Of<IPublicModuleMetadataProvider>().Object,
-                StrictMock.Of<ICredentialChain>().Object,
                 NullLogger<OciArtifactRegistry>.Instance);
 
             return (registry, blobClient);
@@ -142,7 +140,7 @@ internal sealed class StaticRegistryProvider : IRegistryProvider
 
     public IOciRegistryTransport GetTransport(string registry) => transport;
 
-    public IRegistrySession CreateSession(RegistryRef reference, RegistryProviderContext context)
-        => new AcrRegistrySession(transport, context.Cloud);
+    public IRegistrySession CreateSession(RegistryRef reference, CloudConfiguration cloud)
+        => new AcrRegistrySession(transport, cloud);
 }
 }

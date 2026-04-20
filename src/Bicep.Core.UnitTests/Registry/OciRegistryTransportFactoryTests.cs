@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Providers;
 using Bicep.Core.Registry.Sessions;
@@ -53,9 +54,9 @@ public class OciRegistryTransportFactoryTests
         azureProvider.SetupGet(p => p.Name).Returns(WellKnownRegistryProviders.Acr);
         azureProvider.SetupGet(p => p.Priority).Returns(100);
         azureProvider.Setup(p => p.CanHandle(It.IsAny<string>()))
-            .Returns<string>(registry => OciRegistryTransportFactory.IsAzureHost(registry));
+            .Returns<string>(registry => OciRegistryTransportFactory.IsAzureSdkHost(registry));
         azureProvider.Setup(p => p.GetTransport(It.IsAny<string>())).Returns(azureTransport);
-        azureProvider.Setup(p => p.CreateSession(It.IsAny<RegistryRef>(), It.IsAny<RegistryProviderContext>()))
+        azureProvider.Setup(p => p.CreateSession(It.IsAny<RegistryRef>(), It.IsAny<CloudConfiguration>()))
             .Throws<NotSupportedException>();
 
         var genericProvider = new Mock<IRegistryProvider>(MockBehavior.Strict);
@@ -63,7 +64,7 @@ public class OciRegistryTransportFactoryTests
         genericProvider.SetupGet(p => p.Priority).Returns(0);
         genericProvider.Setup(p => p.CanHandle(It.IsAny<string>())).Returns(true);
         genericProvider.Setup(p => p.GetTransport(It.IsAny<string>())).Returns(genericTransport);
-        genericProvider.Setup(p => p.CreateSession(It.IsAny<RegistryRef>(), It.IsAny<RegistryProviderContext>()))
+        genericProvider.Setup(p => p.CreateSession(It.IsAny<RegistryRef>(), It.IsAny<CloudConfiguration>()))
             .Returns(Moq.Mock.Of<IRegistrySession>());
 
         var providerFactory = new RegistryProviderFactory(new[]

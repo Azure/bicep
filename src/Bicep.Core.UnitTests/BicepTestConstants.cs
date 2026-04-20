@@ -12,6 +12,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Sessions;
 using Bicep.Core.Registry.Providers;
@@ -91,7 +92,9 @@ namespace Bicep.Core.UnitTests
                 new StaticRegistryProvider(transport),
             });
             var transportFactory = new OciRegistryTransportFactory(providerFactory);
-            return new DefaultArtifactRegistryProvider(services, transportFactory, TemplateSpecRepositoryFactory);
+            var publicMetadataProvider = (services.GetService(typeof(IPublicModuleMetadataProvider)) as IPublicModuleMetadataProvider)
+                ?? StrictMock.Of<IPublicModuleMetadataProvider>().Object;
+            return new DefaultArtifactRegistryProvider(transportFactory, TemplateSpecRepositoryFactory, publicMetadataProvider);
         }
 
         public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) => new ModuleDispatcher(CreateRegistryProvider(services));

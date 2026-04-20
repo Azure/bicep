@@ -22,15 +22,15 @@ public class AcrRegistryProvider : IRegistryProvider
 
     public int Priority => 100;
 
-    public bool CanHandle(string registry) => OciRegistryTransportFactory.IsAzureHost(registry);
+    public bool CanHandle(string registry) => OciRegistryTransportFactory.IsAzureSdkHost(registry);
 
     public IOciRegistryTransport GetTransport(string registry) => azureTransport;
 
-    public IRegistrySession CreateSession(RegistryRef reference, RegistryProviderContext context)
+    public IRegistrySession CreateSession(RegistryRef reference, CloudConfiguration cloud)
     {
         ArgumentNullException.ThrowIfNull(reference);
-        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(cloud);
 
-        return new AcrRegistrySession(azureTransport, context.Cloud);
+        return new AcrRegistrySession(azureTransport, cloud);
     }
 }

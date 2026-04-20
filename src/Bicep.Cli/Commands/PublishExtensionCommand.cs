@@ -53,11 +53,7 @@ namespace Bicep.Cli.Commands
             var reference = ValidateReference(args.TargetExtensionReference);
             var overwriteIfExists = args.Force;
 
-            logger.LogInformation("Preparing to publish extension \"{Reference}\" (force={Force}, indexFile={IndexFile}, binariesSpecified={BinaryCount}).",
-                reference.FullyQualifiedReference,
-                overwriteIfExists,
-                args.IndexFile ?? "<none>",
-                args.Binaries.Count);
+            Trace.WriteLine($"Preparing to publish extension \"{reference.FullyQualifiedReference}\" (force={overwriteIfExists}, indexFile={args.IndexFile ?? "<none>"}, binariesSpecified={args.Binaries.Count}).");
 
             var binaries = SupportedArchitectures.All.Select(TryGetBinary).WhereNotNull().ToImmutableArray();
             var tarPayload = await GetTypesTarPayload(args, binaries, cancellationToken);

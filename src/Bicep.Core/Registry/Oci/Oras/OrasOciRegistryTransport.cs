@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
 using Bicep.Core.Modules;
-using Bicep.Core.Registry.Auth;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Utils;
 using OrasProject.Oras.Content;
@@ -30,10 +29,10 @@ public class OrasOciRegistryTransport : IOciRegistryTransport
 
     private readonly ICredentialProvider credentialProvider;
 
-    public OrasOciRegistryTransport(ICredentialChain credentialChain)
+    public OrasOciRegistryTransport(DockerCredentialProvider credentialProvider)
     {
-        ArgumentNullException.ThrowIfNull(credentialChain);
-        this.credentialProvider = new CredentialChainCredentialProvider(credentialChain);
+        ArgumentNullException.ThrowIfNull(credentialProvider);
+        this.credentialProvider = credentialProvider;
     }
 
     public async Task<string[]> GetRepositoryNamesAsync(CloudConfiguration cloud, string registry, int maxResults, CancellationToken cancellationToken = default)
