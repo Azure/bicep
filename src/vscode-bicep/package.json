@@ -285,6 +285,12 @@
         "icon": "$(output)"
       },
       {
+        "command": "bicep.snapshot",
+        "title": "Generate Snapshot",
+        "category": "Bicep",
+        "icon": "$(file-code)"
+      },
+      {
         "command": "bicep.internal.showModuleSourceFile",
         "title": "(Show a source file from a module)",
         "category": "Bicep Internal"
@@ -449,6 +455,11 @@
           "group": "2_bicep_1_edit"
         },
         {
+          "command": "bicep.snapshot",
+          "when": "resourceLangId == bicep-params",
+          "group": "2_bicep_1_edit"
+        },
+        {
           "command": "bicep.decompileParams",
           "when": "resourceLangId == json || resourceLangId == jsonc",
           "group": "9_bicep_in_json"
@@ -517,6 +528,11 @@
         },
         {
           "command": "bicep.buildParams",
+          "when": "resourceLangId == bicep-params",
+          "group": "2_bicep_1_edit"
+        },
+        {
+          "command": "bicep.snapshot",
           "when": "resourceLangId == bicep-params",
           "group": "2_bicep_1_edit"
         },
@@ -598,6 +614,11 @@
           "group": "2_bicep_1_edit"
         },
         {
+          "command": "bicep.snapshot",
+          "when": "resourceLangId == bicep-params",
+          "group": "2_bicep_1_edit"
+        },
+        {
           "command": "bicep.decompileParams",
           "when": "resourceLangId == json || resourceLangId == jsonc",
           "group": "9_bicep_in_json"
@@ -669,6 +690,10 @@
         },
         {
           "command": "bicep.buildParams",
+          "group": "0_bicep"
+        },
+        {
+          "command": "bicep.snapshot",
           "group": "0_bicep"
         },
         {
