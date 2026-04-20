@@ -423,7 +423,7 @@ public class SecurityConfigurationTests
             "The trusted registry pattern \"*.org\" in \"security.trustedRegistries\" is invalid and will be ignored. " +
             "Reason: Pattern '*.org' is too broad. Wildcards over a top-level domain suffix");
         lastDiagnostic.Message.Should().Contain(
-            "2 additional invalid pattern(s) were also found and will be ignored. Fix the above patterns to see details for the rest.");
+            "2 additional invalid pattern(s) were also found. Fix the above patterns to see details for the rest.");
     }
 
     [TestMethod]
