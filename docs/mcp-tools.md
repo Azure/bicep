@@ -23,37 +23,33 @@ Please see below on how to contribute to the Bicep best practices tool.
 
 The Bicep MCP Server supports two transports:
 
-- **stdio** (default): Used when the server is launched locally by a client process (e.g., VS Code, Claude Desktop). This is the default behavior.
-- **HTTP** (Streamable HTTP): Used for remote hosting scenarios. Start the server with the `--transport http` flag to enable HTTP transport on port 8080.
+- **stdio** (default): Used when the server is launched locally by a client process (e.g., VS Code, Claude Desktop). This is the default behavior and is provided by the `Bicep.McpServer` project.
+- **HTTP** (Streamable HTTP): Used for remote hosting scenarios. This is provided by the separate `Bicep.McpServer.Http` project, which runs the MCP server as an HTTP endpoint on port 8080.
 
-To run the server locally with HTTP transport:
+To run the HTTP server locally:
 
-```
-dnx Azure.Bicep.McpServer --transport http
+```bash
+dotnet run --project src/Bicep.McpServer.Http/
 ```
 
 Then configure your MCP client to connect to `http://localhost:8080/`.
 
 ## Self-hosting with Docker
 
-You can self-host the Bicep MCP Server as a container using the published NuGet tool package. Create a `Dockerfile` with the following contents:
+You can self-host the Bicep MCP Server as a container. Create a `Dockerfile` that builds from source:
 
 ```dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS install
-
-RUN dotnet tool install --global Azure.Bicep.McpServer
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /repo
+COPY . .
+RUN dotnet publish src/Bicep.McpServer.Http/Bicep.McpServer.Http.csproj -c Release -o /app
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
-
-COPY --from=install /root/.dotnet/tools /opt/tools
-
-ENV PATH="$PATH:/opt/tools"
-
+WORKDIR /app
+COPY --from=build /app .
 USER $APP_UID
-
 EXPOSE 8080
-
-ENTRYPOINT ["Azure.Bicep.McpServer", "--transport", "http"]
+ENTRYPOINT ["dotnet", "Azure.Bicep.McpServer.Http.dll"]
 ```
 
 Build and run the container:
