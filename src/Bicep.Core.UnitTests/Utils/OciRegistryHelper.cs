@@ -8,9 +8,11 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Azure;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Registry.Oci.Oras;
 using Bicep.Core.Registry.Sessions;
-using Bicep.Core.Registry.Providers;
 using Bicep.Core.SourceGraph;
+using Bicep.Core.Utils;
+using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.IO.Abstraction;
@@ -82,11 +84,8 @@ namespace Bicep.Core.UnitTests.Utils
                 .Returns(blobClient);
 
             var azureTransport = new AzureContainerRegistryManager(clientFactory.Object);
-            var providerFactory = new RegistryProviderFactory(new IRegistryProvider[]
-            {
-                new StaticRegistryProvider(azureTransport),
-            });
-            var transportFactory = new OciRegistryTransportFactory(providerFactory);
+            var dockerCredentials = new DockerCredentialProvider(TestEnvironment.Default, new MockFileSystem());
+            var transportFactory = new OciRegistryTransportFactory(azureTransport, dockerCredentials);
             var registry = new OciArtifactRegistry(
                 transportFactory,
                 StrictMock.Of<IPublicModuleMetadataProvider>().Object,
@@ -121,26 +120,5 @@ namespace Bicep.Core.UnitTests.Utils
             return (client, clientFactory);
     }
 
-}
-
-internal sealed class StaticRegistryProvider : IRegistryProvider
-{
-    private readonly AzureContainerRegistryManager transport;
-
-    public StaticRegistryProvider(AzureContainerRegistryManager transport)
-    {
-        this.transport = transport;
-    }
-
-    public string Name => WellKnownRegistryProviders.Acr;
-
-    public int Priority => int.MaxValue;
-
-    public bool CanHandle(string registry) => true;
-
-    public IOciRegistryTransport GetTransport(string registry) => transport;
-
-    public IRegistrySession CreateSession(RegistryRef reference, CloudConfiguration cloud)
-        => new AcrRegistrySession(transport, cloud);
 }
 }

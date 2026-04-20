@@ -15,7 +15,7 @@ using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.Providers;
+using Bicep.Core.Registry.Oci.Oras;
 using Bicep.Core.Registry.Sessions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
@@ -42,33 +42,8 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
         private static IOciRegistryTransportFactory CreateTransportFactory(IContainerRegistryClientFactory clientFactory)
         {
             var transport = new AzureContainerRegistryManager(clientFactory);
-            var providerFactory = new RegistryProviderFactory(new IRegistryProvider[]
-            {
-                new TestRegistryProvider(transport),
-            });
-
-            return new OciRegistryTransportFactory(providerFactory);
-        }
-
-        private sealed class TestRegistryProvider : IRegistryProvider
-        {
-            private readonly IOciRegistryTransport transport;
-
-            public TestRegistryProvider(IOciRegistryTransport transport)
-            {
-                this.transport = transport;
-            }
-
-            public string Name => WellKnownRegistryProviders.Generic;
-
-            public int Priority => int.MaxValue;
-
-            public bool CanHandle(string registry) => true;
-
-            public IOciRegistryTransport GetTransport(string registry) => transport;
-
-            public IRegistrySession CreateSession(RegistryRef reference, CloudConfiguration cloud) =>
-                throw new NotSupportedException();
+            var dockerCredentials = new DockerCredentialProvider(TestEnvironment.Default, new MockFileSystem());
+            return new OciRegistryTransportFactory(transport, dockerCredentials);
         }
 
         [TestMethod]

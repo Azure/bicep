@@ -17,7 +17,6 @@ using OrasProject.Oras.Registry.Remote;
 using OrasProject.Oras.Registry.Remote.Auth;
 using OrasRepositoryClient = OrasProject.Oras.Registry.Remote.Repository;
 using OrasReference = OrasProject.Oras.Registry.Reference;
-using SessionRegistryArtifact = Bicep.Core.Registry.Sessions.RegistryArtifact;
 
 namespace Bicep.Core.Registry.Oci.Oras;
 
@@ -43,20 +42,30 @@ internal sealed class OrasRegistrySession : IRegistrySession
 
     public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
-    public async Task PushAsync(RegistryRef target, SessionRegistryArtifact artifact, CancellationToken cancellationToken)
+    public async Task PushAsync(
+        IOciArtifactReference target,
+        string? mediaType,
+        string? artifactType,
+        OciDescriptor config,
+        IEnumerable<OciDescriptor> layers,
+        OciManifestAnnotationsBuilder annotations,
+        CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(target.Tag))
         {
             throw new InvalidOperationException("Push operations require a tag.");
         }
 
+        var layersArray = layers.ToImmutableArray();
+        var builtAnnotations = annotations.Build();
+
         var manifest = new OciManifest(
             schemaVersion: 2,
-            mediaType: artifact.MediaType,
-            artifactType: artifact.ArtifactType,
-            config: artifact.Config,
-            layers: artifact.Layers,
-            annotations: artifact.Annotations);
+            mediaType: mediaType,
+            artifactType: artifactType,
+            config: config,
+            layers: layersArray,
+            annotations: builtAnnotations);
 
 #pragma warning disable IL2026
         var manifestBinaryData = BinaryData.FromObjectAsJson(manifest, OciManifestSerializationContext.Default.Options);
@@ -68,78 +77,61 @@ internal sealed class OrasRegistrySession : IRegistrySession
             Digest = manifestDigest,
             MediaType = ManifestMediaType.OciImageManifest.ToString(),
             Size = manifestBytes.Length,
-            Annotations = artifact.Annotations.Any() ? artifact.Annotations.ToDictionary(kvp => kvp.Key, kvp => kvp.Value) : null,
+            Annotations = builtAnnotations.Any() ? builtAnnotations.ToDictionary(kvp => kvp.Key, kvp => kvp.Value) : null,
         };
 
-        await PushDescriptorAsync(artifact.Config, cancellationToken).ConfigureAwait(false);
-        foreach (var layer in artifact.Layers)
+        await PushDescriptorAsync(config, cancellationToken);
+        foreach (var layer in layersArray)
         {
-            await PushDescriptorAsync(layer, cancellationToken).ConfigureAwait(false);
+            await PushDescriptorAsync(layer, cancellationToken);
         }
 
         await using var stream = manifestBinaryData.ToStream();
-        await repositoryClient.PushAsync(manifestDescriptor, stream, target.Tag, cancellationToken).ConfigureAwait(false);
+        await repositoryClient.PushAsync(manifestDescriptor, stream, target.Tag, cancellationToken);
     }
 
-    public async Task<SessionRegistryArtifact> PullAsync(RegistryRef reference, CancellationToken cancellationToken)
+    public async Task<OciArtifactResult> PullAsync(IOciArtifactReference reference, CancellationToken cancellationToken)
     {
-        var manifest = await ResolveManifestAsync(reference, cancellationToken).ConfigureAwait(false);
-        var layers = await FetchLayersAsync(manifest.Manifest, cancellationToken).ConfigureAwait(false);
+        var (manifestData, manifestDigest, manifest) = await ResolveManifestAsync(reference, cancellationToken);
+        var layers = await FetchLayersAsync(manifest, cancellationToken);
 
         OciArtifactLayer? configLayer = null;
-        if (!manifest.Manifest.Config.IsEmpty())
+        if (!manifest.Config.IsEmpty())
         {
-            configLayer = await FetchLayerAsync(manifest.Manifest.Config, cancellationToken).ConfigureAwait(false);
+            configLayer = await FetchLayerAsync(manifest.Config, cancellationToken);
         }
 
-        var annotations = manifest.Manifest.Annotations ?? [];
-
-        var configDescriptor = configLayer is null
-            ? manifest.Manifest.Config
-            : CreateDescriptor(configLayer);
-
-        var layerDescriptors = layers.Select(CreateDescriptor).ToImmutableArray();
-
-        return new SessionRegistryArtifact(
-            manifest.Manifest.MediaType,
-            manifest.Manifest.ArtifactType,
-            configDescriptor,
-            layerDescriptors,
-            annotations);
+        return OciArtifactResultFactory.Create(manifest, manifestData, manifestDigest, [.. layers], configLayer);
     }
 
-    public async Task<RegistryManifestInfo> ResolveAsync(RegistryRef reference, CancellationToken cancellationToken)
+    public async Task<(string Digest, OciManifest Manifest)> ResolveAsync(IOciArtifactReference reference, CancellationToken cancellationToken)
     {
-        var manifest = await ResolveManifestAsync(reference, cancellationToken).ConfigureAwait(false);
-        return new RegistryManifestInfo(
-            manifest.Descriptor.Digest,
-            manifest.Manifest.MediaType,
-            manifest.Manifest.ArtifactType,
-            manifest.Manifest.Annotations ?? []);
+        var (_, digest, manifest) = await ResolveManifestAsync(reference, cancellationToken);
+        return (digest, manifest);
     }
 
-    private async Task<(Descriptor Descriptor, OciManifest Manifest)> ResolveManifestAsync(RegistryRef reference, CancellationToken cancellationToken)
+    private async Task<(BinaryData ManifestData, string Digest, OciManifest Manifest)> ResolveManifestAsync(IOciArtifactReference reference, CancellationToken cancellationToken)
     {
         var tagOrDigest = reference.Tag ?? reference.Digest ?? throw new InvalidOperationException("Reference must contain a tag or digest.");
-        var (descriptor, stream) = await repositoryClient.FetchAsync(tagOrDigest, cancellationToken).ConfigureAwait(false);
+        var (descriptor, stream) = await repositoryClient.FetchAsync(tagOrDigest, cancellationToken);
         await using var manifestContent = stream;
-        var manifestBytes = await manifestContent.ReadAllAsync(descriptor, cancellationToken).ConfigureAwait(false);
+        var manifestBytes = await manifestContent.ReadAllAsync(descriptor, cancellationToken);
         var manifestBinaryData = BinaryData.FromBytes(manifestBytes);
         var manifest = OciManifest.FromBinaryData(manifestBinaryData) ?? throw new InvalidArtifactException("Unable to deserialize OCI manifest");
-        return (descriptor, manifest);
+        return (manifestBinaryData, descriptor.Digest, manifest);
     }
 
     private async Task<IReadOnlyList<OciArtifactLayer>> FetchLayersAsync(OciManifest manifest, CancellationToken cancellationToken)
     {
         var tasks = manifest.Layers.Select(layer => FetchLayerAsync(layer, cancellationToken));
-        return await Task.WhenAll(tasks).ConfigureAwait(false);
+        return await Task.WhenAll(tasks);
     }
 
     private async Task<OciArtifactLayer> FetchLayerAsync(OciDescriptor descriptor, CancellationToken cancellationToken)
     {
-        var (fetchedDescriptor, stream) = await repositoryClient.Blobs.FetchAsync(descriptor.Digest, cancellationToken).ConfigureAwait(false);
+        var (fetchedDescriptor, stream) = await repositoryClient.Blobs.FetchAsync(descriptor.Digest, cancellationToken);
         await using var content = stream;
-        var bytes = await content.ReadAllAsync(fetchedDescriptor, cancellationToken).ConfigureAwait(false);
+        var bytes = await content.ReadAllAsync(fetchedDescriptor, cancellationToken);
         return new OciArtifactLayer(descriptor.Digest, descriptor.MediaType, BinaryData.FromBytes(bytes));
     }
 
@@ -161,7 +153,7 @@ internal sealed class OrasRegistrySession : IRegistrySession
         };
 
         await using var stream = descriptor.Data.ToStream();
-        await repositoryClient.Blobs.PushAsync(orasDescriptor, stream, cancellationToken).ConfigureAwait(false);
+        await repositoryClient.Blobs.PushAsync(orasDescriptor, stream, cancellationToken);
     }
 
     private static bool UsePlainHttp(string registry)
@@ -174,7 +166,4 @@ internal sealed class OrasRegistrySession : IRegistrySession
 
         return string.Equals(uri?.Host, "localhost", StringComparison.OrdinalIgnoreCase);
     }
-
-    private static OciDescriptor CreateDescriptor(OciArtifactLayer layer) =>
-        new(layer.Data, layer.MediaType);
 }

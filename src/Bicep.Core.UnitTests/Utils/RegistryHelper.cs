@@ -16,8 +16,8 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Azure;
 using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Registry.Oci.Oras;
 using Bicep.Core.Registry.Sessions;
-using Bicep.Core.Registry.Providers;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
@@ -43,21 +43,11 @@ public static class RegistryHelper
             .WithFeaturesOverridden(f => f with { RegistryEnabled = true })
             .WithRegistration(services =>
             {
-                services.AddSingleton<RegistryProviderFactory>(sp =>
-                {
-                    var azureTransport = sp.GetRequiredService<AzureContainerRegistryManager>();
-                    IRegistryProvider[] providers =
-                    [
-                        new StaticRegistryProvider(azureTransport),
-                    ];
-
-                    return new RegistryProviderFactory(providers);
-                });
-
                 services.AddSingleton<IOciRegistryTransportFactory>(sp =>
                 {
-                    var providerFactory = sp.GetRequiredService<RegistryProviderFactory>();
-                    return new OciRegistryTransportFactory(providerFactory);
+                    var azureTransport = sp.GetRequiredService<AzureContainerRegistryManager>();
+                    var dockerCredentials = sp.GetRequiredService<DockerCredentialProvider>();
+                    return new OciRegistryTransportFactory(azureTransport, dockerCredentials);
                 });
             });
 
@@ -370,25 +360,4 @@ public static class RegistryHelper
             new RepoDescriptor(LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/beta", ["tag"]),
             new RepoDescriptor(LanguageConstants.BicepPublicMcrRegistry, $"bicep/extensions/microsoftgraph/v1", ["tag"])
             );
-
-    private sealed class StaticRegistryProvider : IRegistryProvider
-    {
-        private readonly AzureContainerRegistryManager azureTransport;
-
-        public StaticRegistryProvider(AzureContainerRegistryManager azureTransport)
-        {
-            this.azureTransport = azureTransport;
-        }
-
-        public string Name => WellKnownRegistryProviders.Acr;
-
-        public int Priority => int.MaxValue;
-
-        public bool CanHandle(string registry) => true;
-
-        public IOciRegistryTransport GetTransport(string registry) => azureTransport;
-
-        public IRegistrySession CreateSession(RegistryRef reference, CloudConfiguration cloud)
-            => new AcrRegistrySession(azureTransport, cloud);
-    }
 }

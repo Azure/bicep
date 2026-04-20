@@ -16,7 +16,6 @@ using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
 using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Oci.Oras;
-using Bicep.Core.Registry.Providers;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
@@ -40,9 +39,6 @@ public static class BicepCoreServiceCollectionExtensions
         services.TryAddSingleton<AzureContainerRegistryManager>();
         services.TryAddSingleton<DockerCredentialProvider>();
         services.TryAddSingleton<OrasOciRegistryTransport>();
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IRegistryProvider, AcrRegistryProvider>());
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IRegistryProvider, GenericOciRegistryProvider>());
-        services.TryAddSingleton<RegistryProviderFactory>();
         services.TryAddSingleton<IOciRegistryTransportFactory, OciRegistryTransportFactory>();
         services.TryAddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
         services.TryAddSingleton<IArmClientProvider, ArmClientProvider>();

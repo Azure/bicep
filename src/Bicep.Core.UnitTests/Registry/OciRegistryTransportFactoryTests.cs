@@ -1,78 +1,79 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Configuration;
+using System.IO.Abstractions.TestingHelpers;
+using Bicep.Core.Registry;
+using Bicep.Core.Registry.Azure;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.Providers;
-using Bicep.Core.Registry.Sessions;
+using Bicep.Core.Registry.Oci.Oras;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
 namespace Bicep.Core.UnitTests.Registry;
 
 [TestClass]
 public class OciRegistryTransportFactoryTests
 {
-    [TestMethod]
-    public void GetTransport_ShouldReturnAzureTransport_ForKnownAzureHosts()
+    [DataTestMethod]
+    [DataRow("example.azurecr.io")]
+    [DataRow("example.azurecr.cn")]
+    [DataRow("example.azurecr.us")]
+    [DataRow("mcr.microsoft.com")]
+    public void IsAzureSdkHost_ReturnsTrue_ForKnownAzureHosts(string host)
     {
-        var azureTransport = new Mock<IOciRegistryTransport>(MockBehavior.Strict).Object;
-        var genericTransport = new Mock<IOciRegistryTransport>(MockBehavior.Strict).Object;
-        var factory = CreateFactory(azureTransport, genericTransport);
+        OciRegistryTransportFactory.IsAzureSdkHost(host).Should().BeTrue();
+    }
 
-        var azureReference = OciRegistryHelper.CreateModuleReference("example.azurecr.io", "modules/foo", "v1", null);
-        var sovereignReference = OciRegistryHelper.CreateModuleReference("example.azurecr.cn", "modules/foo", "v1", null);
-        var mcrReference = OciRegistryHelper.CreateModuleReference("mcr.microsoft.com", "bicep/extensions/az", "v1", null);
-
-        factory.GetTransport(azureReference).Should().BeSameAs(azureTransport);
-        factory.GetTransport(sovereignReference).Should().BeSameAs(azureTransport);
-        factory.GetTransport(mcrReference).Should().BeSameAs(azureTransport);
-
-        factory.GetTransport(azureReference.Registry).Should().BeSameAs(azureTransport);
+    [DataTestMethod]
+    [DataRow("ghcr.io")]
+    [DataRow("localhost:5000")]
+    [DataRow("docker.io")]
+    public void IsAzureSdkHost_ReturnsFalse_ForNonAzureHosts(string host)
+    {
+        OciRegistryTransportFactory.IsAzureSdkHost(host).Should().BeFalse();
     }
 
     [TestMethod]
-    public void GetTransport_ShouldReturnGenericTransport_ForNonAzureHosts()
+    public void GetTransport_AlwaysReturnsAzureTransport()
     {
-        var azureTransport = new Mock<IOciRegistryTransport>(MockBehavior.Strict).Object;
-        var genericTransport = new Mock<IOciRegistryTransport>(MockBehavior.Strict).Object;
-        var factory = CreateFactory(azureTransport, genericTransport);
+        var (factory, azureTransport) = CreateFactory();
 
-        var ghcrReference = OciRegistryHelper.CreateModuleReference("ghcr.io", "contoso/bicep/modules/app", "v1", null);
-        var localhostReference = OciRegistryHelper.CreateModuleReference("localhost:5000", "demo/app", "latest", null);
+        factory.GetTransport("example.azurecr.io").Should().BeSameAs(azureTransport);
+        factory.GetTransport("ghcr.io").Should().BeSameAs(azureTransport);
 
-        factory.GetTransport(ghcrReference).Should().BeSameAs(genericTransport);
-        factory.GetTransport(localhostReference).Should().BeSameAs(genericTransport);
-        factory.GetTransport(ghcrReference.Registry).Should().BeSameAs(genericTransport);
-        factory.GetTransport(localhostReference.Registry).Should().BeSameAs(genericTransport);
+        var reference = OciRegistryHelper.CreateModuleReference("ghcr.io", "contoso/bicep/modules/app", "v1", null);
+        factory.GetTransport(reference).Should().BeSameAs(azureTransport);
     }
-    private static OciRegistryTransportFactory CreateFactory(IOciRegistryTransport azureTransport, IOciRegistryTransport genericTransport)
+
+    [TestMethod]
+    public void CreateSession_AzureHost_ReturnsAcrSession()
     {
-        var azureProvider = new Mock<IRegistryProvider>(MockBehavior.Strict);
-        azureProvider.SetupGet(p => p.Name).Returns(WellKnownRegistryProviders.Acr);
-        azureProvider.SetupGet(p => p.Priority).Returns(100);
-        azureProvider.Setup(p => p.CanHandle(It.IsAny<string>()))
-            .Returns<string>(registry => OciRegistryTransportFactory.IsAzureSdkHost(registry));
-        azureProvider.Setup(p => p.GetTransport(It.IsAny<string>())).Returns(azureTransport);
-        azureProvider.Setup(p => p.CreateSession(It.IsAny<RegistryRef>(), It.IsAny<CloudConfiguration>()))
-            .Throws<NotSupportedException>();
+        var (factory, _) = CreateFactory();
+        var reference = OciRegistryHelper.CreateModuleReference("example.azurecr.io", "modules/foo", "v1", null);
 
-        var genericProvider = new Mock<IRegistryProvider>(MockBehavior.Strict);
-        genericProvider.SetupGet(p => p.Name).Returns(WellKnownRegistryProviders.Generic);
-        genericProvider.SetupGet(p => p.Priority).Returns(0);
-        genericProvider.Setup(p => p.CanHandle(It.IsAny<string>())).Returns(true);
-        genericProvider.Setup(p => p.GetTransport(It.IsAny<string>())).Returns(genericTransport);
-        genericProvider.Setup(p => p.CreateSession(It.IsAny<RegistryRef>(), It.IsAny<CloudConfiguration>()))
-            .Returns(Moq.Mock.Of<IRegistrySession>());
+        var session = factory.CreateSession(reference, BicepTestConstants.BuiltInConfiguration.Cloud);
 
-        var providerFactory = new RegistryProviderFactory(new[]
-        {
-            azureProvider.Object,
-            genericProvider.Object,
-        });
+        session.Should().BeOfType<AcrRegistrySession>();
+    }
 
-        return new OciRegistryTransportFactory(providerFactory);
+    [TestMethod]
+    public void CreateSession_NonAzureHost_OciDisabled_FallsBackToAcrSession()
+    {
+        var (factory, _) = CreateFactory();
+        var reference = OciRegistryHelper.CreateModuleReference("ghcr.io", "contoso/modules/app", "v1", null);
+
+        var session = factory.CreateSession(reference, BicepTestConstants.BuiltInConfiguration.Cloud);
+
+        session.Should().BeOfType<AcrRegistrySession>();
+    }
+
+    private static (OciRegistryTransportFactory factory, AzureContainerRegistryManager azure) CreateFactory()
+    {
+        var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
+        var azure = new AzureContainerRegistryManager(clientFactory);
+        var docker = new DockerCredentialProvider(TestEnvironment.Default, new MockFileSystem());
+        return (new OciRegistryTransportFactory(azure, docker), azure);
     }
 }
