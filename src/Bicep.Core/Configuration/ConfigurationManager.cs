@@ -60,7 +60,7 @@ namespace Bicep.Core.Configuration
             loadedConfigCache.Clear();
         }
 
-        public void PurgeLookupCache() => configFileLookupCache.Clear();
+        private void PurgeLookupCache() => configFileLookupCache.Clear();
 
         public (RootConfiguration prevConfiguration, RootConfiguration newConfiguration)? RefreshConfigCacheEntry(IOUri configFileIdentifier)
         {

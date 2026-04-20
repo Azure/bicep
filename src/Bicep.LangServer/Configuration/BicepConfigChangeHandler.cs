@@ -48,7 +48,7 @@ namespace Bicep.LanguageServer.Configuration
             HandleBicepConfigOpenOrChangeEvent(documentUri);
             // The change may have rendered a config file invalid, or the event itself may have represented a file creation or deletion.
             // In either case, the lookup cache would be stale.
-            configurationManager.PurgeLookupCache();
+            configurationManager.PurgeCache();
         }
 
         private void HandleBicepConfigOpenOrChangeEvent(DocumentUri documentUri)

@@ -21,13 +21,6 @@ namespace Bicep.Core.Configuration
         RootConfiguration GetConfiguration(IOUri sourceFileUri);
 
         /// <summary>
-        /// Purges the configuration file lookup cache so that subsequent calls to
-        /// <see cref="GetConfiguration"/> re-scan the file system. Useful in tests where the
-        /// virtual file system is modified between compilation runs.
-        /// </summary>
-        void PurgeLookupCache() { }
-
-        /// <summary>
         /// Gets the built-in configuration.
         /// </summary>
         /// <returns>The built-in configuration.</returns>

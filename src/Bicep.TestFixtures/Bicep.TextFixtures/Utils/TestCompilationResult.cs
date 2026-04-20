@@ -10,11 +10,11 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.TextFixtures.Utils
 {
-    public record TestCompilationResult(JToken? Template, ImmutableArray<IDiagnostic> Diagnostics, Compilation Compilation)
+    public record TestCompilationResult(JToken? Template, ImmutableArray<IDiagnostic> Diagnostics, Compilation Compilation, string ScopePrefix)
     {
         public BicepFile EntryPointFile => (BicepFile)Compilation.SourceFileGrouping.EntryPoint;
 
-        public static TestCompilationResult FromCompilation(Compilation compilation)
+        public static TestCompilationResult FromCompilation(Compilation compilation, string scopePrefix)
         {
             var templateResult = compilation.Emitter.Template();
             var semanticModel = compilation.GetEntrypointSemanticModel();
@@ -33,7 +33,7 @@ namespace Bicep.TextFixtures.Utils
                 }
             }
 
-            return new(template, diagnostics, compilation);
+            return new(template, diagnostics, compilation, scopePrefix);
         }
     }
 }

@@ -18,6 +18,4 @@ public class PatchingConfigurationManager : IConfigurationManager
     }
 
     public RootConfiguration GetConfiguration(IOUri sourceFileUri) => patchFunc(configurationManager.GetConfiguration(sourceFileUri));
-
-    public void PurgeLookupCache() => configurationManager.PurgeLookupCache();
 }
