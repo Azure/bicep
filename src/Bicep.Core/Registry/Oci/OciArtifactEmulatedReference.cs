@@ -68,7 +68,7 @@ namespace Bicep.Core.Registry.Oci
         public static ResultWithDiagnosticBuilder<OciArtifactEmulatedReference> TryParse(
             BicepSourceFile referencingFile,
             string fileSystemPath,
-            IOUri? configFileUri,
+            IOUri configFileUri,
             string unqualifiedReference,
             IFileExplorer fileExplorer,
             string? aliasName = null)
@@ -89,20 +89,13 @@ namespace Bicep.Core.Registry.Oci
                 }
             }
 
-            // Resolve the filesystem base directory relative to bicepconfig.json
             IOUri baseUri;
-            if (configFileUri is not null)
-            {
-                // Ensure the fileSystem path ends with '/' so it's treated as a directory
-                var directoryPath = fileSystemPath.EndsWith('/') || fileSystemPath.EndsWith('\\')
-                    ? fileSystemPath
-                    : fileSystemPath + "/";
-                baseUri = configFileUri.Resolve(directoryPath);
-            }
-            else
-            {
-                baseUri = IOUri.FromFilePath(fileSystemPath);
-            }
+            // Resolve the filesystem base directory relative to bicepconfig.json
+            // Ensure the fileSystem path ends with '/' so it's treated as a directory
+            var directoryPath = fileSystemPath.EndsWith('/') || fileSystemPath.EndsWith('\\')
+                ? fileSystemPath
+                : fileSystemPath + "/";
+            baseUri = configFileUri.Resolve(directoryPath);
 
             // Construct the file URI by appending the module path with a .bicep extension.
             var moduleFileName = modulePath + ".bicep";

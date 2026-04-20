@@ -67,6 +67,11 @@ namespace Bicep.Core.Registry
                         return new(x => x.OciArtifactModuleAliasFileSystemOnlySupportsModules(aliasName));
                     }
 
+                    if (referencingFile.Configuration.ConfigFileUri is null) 
+                    {
+                        return new(x => x.ConfigurationFileNotFound("OciEmulatedModuleAliases"));
+                    }
+
                     if (!OciArtifactEmulatedReference.TryParse(
                         referencingFile,
                         alias.FileSystem,

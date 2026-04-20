@@ -2038,6 +2038,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic ModuleReferenceSchemeBrFsNotSupported() => CoreError(
                 "BCP448",
                 "The 'br-fs' module reference scheme is for internal use only. Use a 'br/<alias>:' reference with a configured 'fileSystem' alias instead.");
+            
+            public Diagnostic ConfigurationFileNotFound(string featureName) => CoreError(
+                "BCP449",
+                $"Configuration file is not found. Feature \"{featureName}\" requires a configuration file.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
