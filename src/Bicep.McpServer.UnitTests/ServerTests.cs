@@ -72,4 +72,20 @@ public class ServerTests
             .Which.Should().BeOfType<TextContentBlock>()
             .Which.Text.Should().Be("Error: File path must be absolute.");
     }
+
+    [TestMethod]
+    public void McpServer_does_not_require_aspnetcore_runtime()
+    {
+        // The local MCP server is launched by the VS Code extension via "dotnet Azure.Bicep.McpServer.dll",
+        // which only provides the base .NET runtime (not ASP.NET Core). Adding a FrameworkReference
+        // to Microsoft.AspNetCore.App would cause a startup failure (exit code 150).
+        var mcpServerAssembly = typeof(IServiceCollectionExtensions).Assembly;
+        var runtimeConfigPath = Path.ChangeExtension(mcpServerAssembly.Location, ".runtimeconfig.json");
+
+        File.Exists(runtimeConfigPath).Should().BeTrue($"runtimeconfig.json should exist at {runtimeConfigPath}");
+
+        var runtimeConfig = File.ReadAllText(runtimeConfigPath);
+        runtimeConfig.Should().NotContain("Microsoft.AspNetCore.App",
+            "the local MCP server must not depend on the ASP.NET Core runtime to avoid breaking VS Code extension users who only have the base .NET runtime");
+    }
 }
