@@ -136,8 +136,17 @@
     "bicepRegistryModuleAlias": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "registry"
+      "oneOf": [
+        {
+          "required": [
+            "registry"
+          ]
+        },
+        {
+          "required": [
+            "fileSystem"
+          ]
+        }
       ],
       "properties": {
         "registry": {
@@ -146,6 +155,12 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 255
+        },
+        "fileSystem": {
+          "title": "File System",
+          "description": "The path relative to bicepconfig.json used to emulate a registry alias",
+          "type": "string",
+          "minLength": 1
         },
         "modulePath": {
           "title": "Module Path",
