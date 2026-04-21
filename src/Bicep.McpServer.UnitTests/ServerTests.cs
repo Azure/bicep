@@ -38,7 +38,7 @@ public class ServerTests
         var toolDefinitions = tools.Select(x => new
         {
             x.Name,
-            x.Description,
+            Description = x.Description?.ReplaceLineEndings("\n"),
             x.JsonSchema,
             x.ReturnJsonSchema,
         })
