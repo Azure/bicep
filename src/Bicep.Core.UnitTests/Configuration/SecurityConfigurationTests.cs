@@ -394,13 +394,13 @@ public class SecurityConfigurationTests
     }
 
     [TestMethod]
-    public void RootConfiguration_MoreThanFiveInvalidPatterns_EmitsFiveBcp447_LastOneHasOverflowCount()
+    public void RootConfiguration_ManyInvalidPatterns_EmitsOneBcp447PerPattern()
     {
-        // 7 invalid patterns (>5) → 5 BCP447 (the last one includes "2 additional" overflow text)
+        // 7 invalid patterns → 7 individual BCP447 warnings (no cap, no overflow)
         var security = Bind("""{"trustedRegistries":["*","*.com","*.io","*.net","*.org","*.xyz","*.info"]}""");
         var diagnostics = BuildDiagnosticsFromSecurity(security);
 
-        diagnostics.Should().HaveCount(5);
+        diagnostics.Should().HaveCount(7);
         diagnostics.Should().AllSatisfy(d =>
         {
             d.Code.Should().Be("BCP447");
@@ -410,20 +410,15 @@ public class SecurityConfigurationTests
             d.Message.Should().Contain("https://aka.ms/bicep-registry-trust");
         });
 
-        // The 6th and 7th patterns (*.xyz, *.info) are NOT reported individually
-        diagnostics.Should().NotContain(d => d.Message.Contains("*.xyz"));
-        diagnostics.Should().NotContain(d => d.Message.Contains("*.info"));
+        // All 7 patterns are reported individually
+        var expectedPatterns = new[] { "*", "*.com", "*.io", "*.net", "*.org", "*.xyz", "*.info" };
+        for (var i = 0; i < expectedPatterns.Length; i++)
+        {
+            diagnostics[i].Message.Should().Contain($"\"{expectedPatterns[i]}\"");
+        }
 
-        // First 4 do NOT have overflow text
-        diagnostics.Take(4).Should().NotContain(d => d.Message.Contains("additional invalid pattern"));
-
-        // The 5th (last) warning includes the overflow count
-        var lastDiagnostic = diagnostics.Last();
-        lastDiagnostic.Message.Should().Contain(
-            "The trusted registry pattern \"*.org\" in \"security.trustedRegistries\" is invalid and will be ignored. " +
-            "Reason: Pattern '*.org' is too broad. Wildcards over a top-level domain suffix");
-        lastDiagnostic.Message.Should().Contain(
-            "2 additional invalid pattern(s) were also found. Fix the above patterns to see details for the rest.");
+        // No overflow text in any diagnostic
+        diagnostics.Should().NotContain(d => d.Message.Contains("additional invalid pattern"));
     }
 
     [TestMethod]
@@ -444,21 +439,14 @@ public class SecurityConfigurationTests
     }
 
     /// <summary>
-    /// Builds the security-related diagnostics that RootConfiguration would emit,
-    /// replicating its cap-at-5 logic without constructing a full RootConfiguration.
+    /// Builds the security-related diagnostics that RootConfiguration would emit.
     /// </summary>
     private static IDiagnostic[] BuildDiagnosticsFromSecurity(SecurityConfiguration security)
     {
-        const int maxDetailedWarnings = 5;
-        var invalidPatterns = security.InvalidRegistryPatterns;
-        var overflowCount = Math.Max(0, invalidPatterns.Length - maxDetailedWarnings);
-        var patternsToReport = invalidPatterns.Take(maxDetailedWarnings).ToArray();
-        var result = patternsToReport
-            .Select((p, i) => (IDiagnostic)DiagnosticBuilder.ForDocumentStart().InvalidTrustedRegistryPattern(
+        return security.InvalidRegistryPatterns
+            .Select(p => (IDiagnostic)DiagnosticBuilder.ForDocumentStart().InvalidTrustedRegistryPattern(
                 p.Pattern,
-                p.Reason,
-                i == patternsToReport.Length - 1 ? overflowCount : 0))
-            .ToList();
-        return [.. result];
+                p.Reason))
+            .ToArray();
     }
 }

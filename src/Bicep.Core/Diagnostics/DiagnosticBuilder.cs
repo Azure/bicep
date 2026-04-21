@@ -2032,16 +2032,13 @@ namespace Bicep.Core.Diagnostics
                 $"Restore from registry \"{registryHostname}\" is blocked because it is not in the trusted registries list. " +
                 $"To allow this registry, add it to the \"security.trustedRegistries\" array in your bicepconfig.json. " +
                 $"Only add registries you trust, as restoring from an untrusted registry can expose your credentials. " +
-                $"See https://aka.ms/bicep-registry-trust for details.");
+                $"See https://aka.ms/bicep/registry-trust for details.");
 
-            public Diagnostic InvalidTrustedRegistryPattern(string pattern, string reason, int additionalCount = 0) => CoreWarning(
+            public Diagnostic InvalidTrustedRegistryPattern(string pattern, string reason) => CoreWarning(
                 "BCP447",
                 $"The trusted registry pattern \"{pattern}\" in \"security.trustedRegistries\" is invalid and will be ignored. " +
                 $"Reason: {reason} " +
-                (additionalCount > 0
-                    ? $"{additionalCount} additional invalid pattern(s) were also found. Fix the above patterns to see details for the rest. "
-                    : "") +
-                $"See https://aka.ms/bicep-registry-trust for details.");
+                $"See https://aka.ms/bicep/registry-trust for details.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
