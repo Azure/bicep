@@ -1,7 +1,7 @@
 [
   {
     "name": "decompile_arm_parameters_file",
-    "description": "Converts an ARM template parameters JSON file into Bicep parameters syntax (.bicepparam).\n\nUse this tool to:\n- Migrate ARM JSON parameter files to Bicep parameters format\n- Convert deployment parameter files when modernizing to Bicep\n- Generate .bicepparam files from existing ARM deployments\n\nAccepts files with .json, .jsonc, or .arm extensions. The file path must be absolute.\n\nThe generated .bicepparam file includes a 'using' statement placeholder that must be completed, all parameters with their values preserved, and KeyVault references converted to az.getSecret() function calls if present.",
+    "description": "Converts an ARM template parameters JSON file into Bicep parameters syntax (.bicepparam).\r\n\r\nUse this tool to:\r\n- Migrate ARM JSON parameter files to Bicep parameters format\r\n- Convert deployment parameter files when modernizing to Bicep\r\n- Generate .bicepparam files from existing ARM deployments\r\n\r\nAccepts files with .json, .jsonc, or .arm extensions. The file path must be absolute.\r\n\r\nThe generated .bicepparam file includes a 'using' statement placeholder that must be completed, all parameters with their values preserved, and KeyVault references converted to az.getSecret() function calls if present.",
     "jsonSchema": {
       "type": "object",
       "properties": {
@@ -38,7 +38,7 @@
   },
   {
     "name": "decompile_arm_template_file",
-    "description": "Converts an Azure Resource Manager (ARM) template JSON file into modern Bicep syntax (.bicep).\n\nUse this tool to:\n- Migrate existing ARM JSON templates to the more readable and maintainable Bicep language\n- Learn Bicep syntax by seeing how JSON templates translate to Bicep\n- Modernize legacy infrastructure-as-code\n\nAccepts files with .json, .jsonc, or .arm extensions. The file path must be absolute.\nThe result includes the entrypoint URI and all generated Bicep files (which may include additional modules for nested/linked templates).\n\nNote: Decompilation is a best-effort process. Some ARM template features may require manual adjustment in the generated Bicep code. Review the output for any TODO comments or warnings.",
+    "description": "Converts an Azure Resource Manager (ARM) template JSON file into modern Bicep syntax (.bicep).\r\n\r\nUse this tool to:\r\n- Migrate existing ARM JSON templates to the more readable and maintainable Bicep language\r\n- Learn Bicep syntax by seeing how JSON templates translate to Bicep\r\n- Modernize legacy infrastructure-as-code\r\n\r\nAccepts files with .json, .jsonc, or .arm extensions. The file path must be absolute.\r\nThe result includes the entrypoint URI and all generated Bicep files (which may include additional modules for nested/linked templates).\r\n\r\nNote: Decompilation is a best-effort process. Some ARM template features may require manual adjustment in the generated Bicep code. Review the output for any TODO comments or warnings.",
     "jsonSchema": {
       "type": "object",
       "properties": {
@@ -75,7 +75,7 @@
   },
   {
     "name": "format_bicep_file",
-    "description": "Formats a Bicep file (.bicep) or Bicep parameters file (.bicepparam) according to official Bicep formatting standards.\n\nUse this tool to:\n- Apply consistent code formatting (indentation, spacing, line breaks) to Bicep files\n- Clean up manually edited or generated Bicep code before saving\n- Ensure code follows team formatting conventions\n\nThe formatter respects configuration settings from bicepconfig.json if present in the file's directory hierarchy, including:\n- Indentation style (spaces vs tabs) and size\n- Newline character (LF, CRLF, CR)\n- Whether to insert a final newline\n\nThe file path must be absolute. Formatting preserves semantic meaning and only changes whitespace and layout. Files with syntax errors will still be formatted to the extent possible.",
+    "description": "Formats a Bicep file (.bicep) or Bicep parameters file (.bicepparam) according to official Bicep formatting standards.\r\n\r\nUse this tool to:\r\n- Apply consistent code formatting (indentation, spacing, line breaks) to Bicep files\r\n- Clean up manually edited or generated Bicep code before saving\r\n- Ensure code follows team formatting conventions\r\n\r\nThe formatter respects configuration settings from bicepconfig.json if present in the file's directory hierarchy, including:\r\n- Indentation style (spaces vs tabs) and size\r\n- Newline character (LF, CRLF, CR)\r\n- Whether to insert a final newline\r\n\r\nThe file path must be absolute. Formatting preserves semantic meaning and only changes whitespace and layout. Files with syntax errors will still be formatted to the extent possible.",
     "jsonSchema": {
       "type": "object",
       "properties": {
@@ -103,7 +103,7 @@
   },
   {
     "name": "get_az_resource_type_schema",
-    "description": "Retrieves the complete JSON schema definition for a specific Azure resource type and API version, including all properties, nested types, and constraints.\n\nUse this tool to:\n- Understand what properties are available on an Azure resource\n- Learn about required vs optional properties, their types, and allowed values\n- Discover nested resource types and their schemas\n- Find available resource functions and their signatures\n- Generate accurate Bicep code with proper property names and types\n\nThe returned JSON schema includes resource type definitions, nested complex types, resource function signatures (like list* operations), and property constraints.\nData is sourced directly from Azure Resource Provider APIs, ensuring the most accurate and up-to-date schema information.\nSpecify the resource type (e.g., Microsoft.KeyVault/vaults) and API version (e.g., 2024-11-01 or 2024-12-01-preview).",
+    "description": "Retrieves the complete JSON schema definition for a specific Azure resource type and API version, including all properties, nested types, and constraints.\r\n\r\nUse this tool to:\r\n- Understand what properties are available on an Azure resource\r\n- Learn about required vs optional properties, their types, and allowed values\r\n- Discover nested resource types and their schemas\r\n- Find available resource functions and their signatures\r\n- Generate accurate Bicep code with proper property names and types\r\n\r\nThe returned JSON schema includes resource type definitions, nested complex types, resource function signatures (like list* operations), and property constraints.\r\nData is sourced directly from Azure Resource Provider APIs, ensuring the most accurate and up-to-date schema information.\r\nSpecify the resource type (e.g., Microsoft.KeyVault/vaults) and API version (e.g., 2024-11-01 or 2024-12-01-preview).",
     "jsonSchema": {
       "type": "object",
       "properties": {
@@ -136,7 +136,7 @@
   },
   {
     "name": "get_bicep_best_practices",
-    "description": "Retrieves comprehensive, up-to-date best practices and coding standards for authoring Bicep templates.\n\nUse this tool when:\n- Generating new Bicep code to ensure it follows current best practices\n- Reviewing existing Bicep code for quality improvements\n- Learning recommended patterns for common scenarios\n- Understanding security, maintainability, and reliability guidelines\n\nCovers naming conventions, code organization, parameter usage, resource declarations, module composition, security recommendations, performance optimization, and testing approaches.\nThe practices are maintained by the Bicep team and reflect current recommended approaches.",
+    "description": "Retrieves comprehensive, up-to-date best practices and coding standards for authoring Bicep templates.\r\n\r\nUse this tool when:\r\n- Generating new Bicep code to ensure it follows current best practices\r\n- Reviewing existing Bicep code for quality improvements\r\n- Learning recommended patterns for common scenarios\r\n- Understanding security, maintainability, and reliability guidelines\r\n\r\nCovers naming conventions, code organization, parameter usage, resource declarations, module composition, security recommendations, performance optimization, and testing approaches.\r\nThe practices are maintained by the Bicep team and reflect current recommended approaches.",
     "jsonSchema": {
       "type": "object",
       "properties": {}
@@ -156,7 +156,7 @@
   },
   {
     "name": "get_bicep_file_diagnostics",
-    "description": "Analyzes a Bicep file (.bicep) or Bicep parameters file (.bicepparam) and returns all compilation diagnostics including errors, warnings, and informational messages.\n\nUse this tool to:\n- Validate Bicep syntax and identify compilation errors before deployment\n- Check for warnings about deprecated features, security issues, or best practice violations\n- Troubleshoot why a Bicep file isn't compiling\n- Understand the severity and location of issues in the code\n\nEach diagnostic includes the error code (e.g., BCP033), severity level (Error/Warning/Info), descriptive message, exact position in the file, and a link to documentation for more details.\nThe file path must be absolute. Diagnostics are returned for the specified file and any modules it references.",
+    "description": "Analyzes a Bicep file (.bicep) or Bicep parameters file (.bicepparam) and returns all compilation diagnostics including errors, warnings, and informational messages.\r\n\r\nUse this tool to:\r\n- Validate Bicep syntax and identify compilation errors before deployment\r\n- Check for warnings about deprecated features, security issues, or best practice violations\r\n- Troubleshoot why a Bicep file isn't compiling\r\n- Understand the severity and location of issues in the code\r\n\r\nEach diagnostic includes the error code (e.g., BCP033), severity level (Error/Warning/Info), descriptive message, exact position in the file, and a link to documentation for more details.\r\nThe file path must be absolute. Diagnostics are returned for the specified file and any modules it references.",
     "jsonSchema": {
       "type": "object",
       "properties": {
@@ -230,7 +230,7 @@
   },
   {
     "name": "get_deployment_snapshot",
-    "description": "Creates a deployment snapshot from a Bicep parameters file (.bicepparam) by compiling it and pre-expanding the resulting ARM template.\nThe snapshot contains the predicted resources (as they would appear in a deployment) and any diagnostics produced during preflight.\n\nUse this tool to:\n- Preview what resources a deployment would create without running a deployment\n- Validate that parameters resolve as expected\n- Troubleshoot why a deployment would produce unexpected resource IDs, names, or locations\n- Inspect preflight diagnostics produced by template expansion\n\nThis tool can also be used to perform a semantic diff between two Bicep implementations:\n- Generate a snapshot for each version (using the same parameter values and metadata)\n- Compare the resulting predicted resources and diagnostics to verify both produce the same deployment outcome\n\nThis is especially useful for automated refactoring, where text-level diffs are noisy but the intended deployment result should remain unchanged.\n\nThe file path must be absolute and must point to a .bicepparam file.\nThe optional tenant/subscription/resource group/location/deployment name values are used as deployment metadata during snapshot generation.\nIf a value is omitted, the snapshot may contain unresolved placeholder expressions for the corresponding metadata.",
+    "description": "Creates a deployment snapshot from a Bicep parameters file (.bicepparam) by compiling it and pre-expanding the resulting ARM template.\r\nThe snapshot contains the predicted resources (as they would appear in a deployment) and any diagnostics produced during preflight.\r\n\r\nUse this tool to:\r\n- Preview what resources a deployment would create without running a deployment\r\n- Validate that parameters resolve as expected\r\n- Troubleshoot why a deployment would produce unexpected resource IDs, names, or locations\r\n- Inspect preflight diagnostics produced by template expansion\r\n\r\nThis tool can also be used to perform a semantic diff between two Bicep implementations:\r\n- Generate a snapshot for each version (using the same parameter values and metadata)\r\n- Compare the resulting predicted resources and diagnostics to verify both produce the same deployment outcome\r\n\r\nThis is especially useful for automated refactoring, where text-level diffs are noisy but the intended deployment result should remain unchanged.\r\n\r\nThe file path must be absolute and must point to a .bicepparam file.\r\nThe optional tenant/subscription/resource group/location/deployment name values are used as deployment metadata during snapshot generation.\r\nIf a value is omitted, the snapshot may contain unresolved placeholder expressions for the corresponding metadata.",
     "jsonSchema": {
       "type": "object",
       "properties": {
@@ -320,7 +320,7 @@
   },
   {
     "name": "get_file_references",
-    "description": "Analyzes a Bicep file (.bicep) or Bicep parameters file (.bicepparam) and returns a list of all files referenced by the entry file, including modules, parameter files, and any other dependencies.\n\nUse this tool to:\n- Identify all files that a Bicep or Bicep parameters file depends on\n- Perform dependency or impact analysis before making changes\n- Understand the structure and external links of a Bicep deployment\n\nThe result is a list of absolute URIs for each referenced file. The file path must be absolute. Only direct references are included; transitive references require additional calls.",
+    "description": "Analyzes a Bicep file (.bicep) or Bicep parameters file (.bicepparam) and returns a list of all files referenced by the entry file, including modules, parameter files, and any other dependencies.\r\n\r\nUse this tool to:\r\n- Identify all files that a Bicep or Bicep parameters file depends on\r\n- Perform dependency or impact analysis before making changes\r\n- Understand the structure and external links of a Bicep deployment\r\n\r\nThe result is a list of absolute URIs for each referenced file. The file path must be absolute. Only direct references are included; transitive references require additional calls.",
     "jsonSchema": {
       "type": "object",
       "properties": {
@@ -352,7 +352,7 @@
   },
   {
     "name": "list_avm_metadata",
-    "description": "Lists metadata for all Azure Verified Modules (AVM) - Microsoft's official, pre-built, tested, and maintained Bicep modules for common Azure resource patterns.\n\nUse this tool to:\n- Discover reusable, production-ready Bicep modules for common scenarios\n- Find officially supported modules instead of writing resources from scratch\n- Check available versions and documentation for AVM modules\n- Accelerate Bicep development by leveraging tested, best-practice implementations\n\nAzure Verified Modules provide:\n- Pre-configured resource deployments following Microsoft best practices\n- Built-in security, reliability, and compliance features\n- Regular updates and maintenance by Microsoft\n- Comprehensive documentation and examples\n\nUse these modules in your Bicep files to reduce code and improve quality.",
+    "description": "Lists metadata for all Azure Verified Modules (AVM) - Microsoft's official, pre-built, tested, and maintained Bicep modules for common Azure resource patterns.\r\n\r\nUse this tool to:\r\n- Discover reusable, production-ready Bicep modules for common scenarios\r\n- Find officially supported modules instead of writing resources from scratch\r\n- Check available versions and documentation for AVM modules\r\n- Accelerate Bicep development by leveraging tested, best-practice implementations\r\n\r\nAzure Verified Modules provide:\r\n- Pre-configured resource deployments following Microsoft best practices\r\n- Built-in security, reliability, and compliance features\r\n- Regular updates and maintenance by Microsoft\r\n- Comprehensive documentation and examples\r\n\r\nUse these modules in your Bicep files to reduce code and improve quality.",
     "jsonSchema": {
       "type": "object",
       "properties": {}
@@ -408,7 +408,7 @@
   },
   {
     "name": "list_az_resource_types_for_provider",
-    "description": "Lists all available Azure resource types and their API versions for a specific Azure resource provider namespace.\n\nUse this tool to:\n- Discover what resource types are available in a provider (e.g., what can be created under Microsoft.Storage)\n- Find the latest API versions for Azure resources\n- Explore the complete resource type catalog for a given provider\n\nData is sourced directly from Azure Resource Provider APIs, ensuring accuracy and currency.\n\nExample provider namespaces: Microsoft.Compute, Microsoft.Storage, Microsoft.Network, Microsoft.Web, Microsoft.KeyVault",
+    "description": "Lists all available Azure resource types and their API versions for a specific Azure resource provider namespace.\r\n\r\nUse this tool to:\r\n- Discover what resource types are available in a provider (e.g., what can be created under Microsoft.Storage)\r\n- Find the latest API versions for Azure resources\r\n- Explore the complete resource type catalog for a given provider\r\n\r\nData is sourced directly from Azure Resource Provider APIs, ensuring accuracy and currency.\r\n\r\nExample provider namespaces: Microsoft.Compute, Microsoft.Storage, Microsoft.Network, Microsoft.Web, Microsoft.KeyVault",
     "jsonSchema": {
       "type": "object",
       "properties": {

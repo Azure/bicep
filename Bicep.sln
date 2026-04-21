@@ -119,7 +119,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.RpcClient.Tests", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.MSBuild.UnitTests", "src\Bicep.MSBuild.UnitTests\Bicep.MSBuild.UnitTests.csproj", "{64F80A63-FF29-4B66-89EB-3F94A0F33E3B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.McpServer.Http", "src\Bicep.McpServer.Http\Bicep.McpServer.Http.csproj", "{AAAC063A-C133-47AF-885D-8F6EBA608EC8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.McpServer.Core", "src\Bicep.McpServer.Core\Bicep.McpServer.Core.csproj", "{AAAC063A-C133-47AF-885D-8F6EBA608EC8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

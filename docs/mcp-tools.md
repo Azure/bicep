@@ -23,38 +23,43 @@ Please see below on how to contribute to the Bicep best practices tool.
 
 The Bicep MCP Server supports two transports:
 
-- **stdio** (default): Used when the server is launched locally by a client process (e.g., VS Code, Claude Desktop). This is the default behavior and is provided by the `Bicep.McpServer` project.
-- **HTTP** (Streamable HTTP): Used for remote hosting scenarios. This is provided by the separate `Bicep.McpServer.Http` project, which runs the MCP server as an HTTP endpoint on port 8080.
+- **stdio** (default): Used when the server is launched locally by a client process (e.g., VS Code, Claude Desktop). This is provided by the `Azure.Bicep.McpServer` NuGet tool.
+- **HTTP** (Streamable HTTP): Used for remote hosting scenarios. Build your own HTTP server using the `Azure.Bicep.McpServer.Core` NuGet library (see below).
 
-To run the HTTP server locally:
+## Building a Remote MCP Server
 
-```bash
-dotnet run --project src/Bicep.McpServer.Http/
+The `Azure.Bicep.McpServer.Core` NuGet library provides the `AddBicepMcpServer()` extension method and all Bicep tool definitions. Use it to build your own HTTP MCP server:
+
+```xml
+<PackageReference Include="Azure.Bicep.McpServer.Core" Version="x.y.z" />
+<PackageReference Include="ModelContextProtocol.AspNetCore" Version="1.2.0" />
 ```
 
-Then configure your MCP client to connect to `http://localhost:8080/`.
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+builder.Services
+    .AddBicepMcpServer()
+    .WithHttpTransport(options => options.Stateless = true);
+var app = builder.Build();
+app.MapMcp();
+await app.RunAsync();
+```
 
-## Self-hosting with Docker
+### Self-hosting with Docker
 
-You can self-host the Bicep MCP Server as a container. Create a `Dockerfile` that builds from source:
+Create a `Dockerfile` to containerize your server:
 
 ```dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
-WORKDIR /repo
-COPY . .
-RUN dotnet publish src/Bicep.McpServer.Http/Bicep.McpServer.Http.csproj -c Release -o /app
-
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
-COPY --from=build /app .
+COPY publish/ .
 USER $APP_UID
 EXPOSE 8080
-ENTRYPOINT ["dotnet", "Azure.Bicep.McpServer.Http.dll"]
+ENTRYPOINT ["dotnet", "MyBicepMcpServer.dll"]
 ```
 
-Build and run the container:
-
 ```bash
+dotnet publish -c Release -o ./publish
 docker build -t bicep-mcp-server .
 docker run -p 8080:8080 bicep-mcp-server
 ```

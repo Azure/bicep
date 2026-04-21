@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.McpServer;
+namespace Bicep.McpServer.Core;
 
 public static class Constants
 {

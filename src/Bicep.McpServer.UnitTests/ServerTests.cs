@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
+using Bicep.McpServer.Core;
 using Bicep.McpServer.UnitTests.Helpers;
 using FluentAssertions;
 using Humanizer;
@@ -79,8 +80,9 @@ public class ServerTests
         // The local MCP server is launched by the VS Code extension via "dotnet Azure.Bicep.McpServer.dll",
         // which only provides the base .NET runtime (not ASP.NET Core). Adding a FrameworkReference
         // to Microsoft.AspNetCore.App would cause a startup failure (exit code 150).
-        var mcpServerAssembly = typeof(IServiceCollectionExtensions).Assembly;
-        var runtimeConfigPath = Path.ChangeExtension(mcpServerAssembly.Location, ".runtimeconfig.json");
+        // We check the McpServer executable's runtimeconfig (not Core, which is a library without a runtimeconfig).
+        var mcpServerAssemblyDir = Path.GetDirectoryName(typeof(IServiceCollectionExtensions).Assembly.Location)!;
+        var runtimeConfigPath = Path.Combine(mcpServerAssemblyDir, "Azure.Bicep.McpServer.runtimeconfig.json");
 
         File.Exists(runtimeConfigPath).Should().BeTrue($"runtimeconfig.json should exist at {runtimeConfigPath}");
 
