@@ -358,7 +358,7 @@ public class SecurityConfigurationTests
             d.Level.Should().Be(DiagnosticLevel.Warning);
             d.Message.Should().Contain("is invalid and will be ignored");
             d.Message.Should().Contain("Reason:");
-            d.Message.Should().Contain("https://aka.ms/bicep-registry-trust");
+            d.Message.Should().Contain("https://aka.ms/bicep/registry-trust");
         });
         // No overflow text since count <= 5
         diagnostics.Should().NotContain(d => d.Message.Contains("additional invalid pattern"));
@@ -407,7 +407,7 @@ public class SecurityConfigurationTests
             d.Level.Should().Be(DiagnosticLevel.Warning);
             d.Message.Should().Contain("is invalid and will be ignored");
             d.Message.Should().Contain("Reason:");
-            d.Message.Should().Contain("https://aka.ms/bicep-registry-trust");
+            d.Message.Should().Contain("https://aka.ms/bicep/registry-trust");
         });
 
         // All 7 patterns are reported individually
