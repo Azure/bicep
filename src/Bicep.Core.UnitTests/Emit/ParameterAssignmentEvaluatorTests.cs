@@ -12,6 +12,24 @@ namespace Bicep.Core.UnitTests.Emit;
 public class ParameterAssignmentEvaluatorTests
 {
     [TestMethod]
+    public void BuildParams_ForExpressionParameter_EvaluatesToValue()
+    {
+        var services = new ServiceBuilder().WithEmptyAzResources();
+
+        var result = CompilationHelper.CompileParams(
+            services,
+            ("main.bicep", "param p int[]"),
+            ("parameters.bicepparam", """
+            using 'main.bicep'
+
+            param p = [for item in range(0, 4): item * 2]
+            """));
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Parameters.Should().HaveValueAtPath("parameters.p.value", JToken.Parse("[0, 2, 4, 6]"));
+    }
+
+    [TestMethod]
     public void BuildParams_ForExpressionVariable_EvaluatesToValue()
     {
         var services = new ServiceBuilder().WithEmptyAzResources();

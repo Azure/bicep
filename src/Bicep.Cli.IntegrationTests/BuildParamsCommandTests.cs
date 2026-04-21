@@ -328,6 +328,36 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
+        public async Task Build_params_inline_for_expression_parameter_should_succeed()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            _ = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                "param p int[]",
+                outputPath);
+
+            var paramsPath = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+
+                param p = [for item in range(0, 4): item * 2]
+                """,
+                outputPath);
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", paramsPath, "--stdout");
+
+            result.Should().Succeed();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            paramsObject.Should().HaveValueAtPath("parameters.p.value", JToken.Parse("[0, 2, 4, 6]"));
+        }
+
+        [TestMethod]
         public async Task Build_params_for_expression_variable_should_succeed()
         {
             var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
