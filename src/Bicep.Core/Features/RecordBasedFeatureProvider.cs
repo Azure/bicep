@@ -18,7 +18,7 @@ namespace Bicep.Core.Features
         public bool LegacyFormatterEnabled => features.LegacyFormatter;
         public bool TestFrameworkEnabled => features.TestFramework;
         public bool AssertsEnabled => features.Assertions;
-        public bool WaitAndRetryEnabled => features.WaitAndRetry;
+        public bool WaitUntilEnabled => features.WaitUntil;
         public bool LocalDeployEnabled => features.LocalDeploy;
         public bool ExtendableParamFilesEnabled => features.ExtendableParamFiles;
         public bool ResourceInfoCodegenEnabled => features.ResourceInfoCodegen;
@@ -27,5 +27,6 @@ namespace Bicep.Core.Features
         public bool DeployCommandsEnabled => features.DeployCommands;
         public bool ThisNamespaceEnabled => features.ThisNamespace;
         public bool PatchEnabled => features.Patch;
+        public bool ExistingNullIfNotFoundEnabled => features.ExistingNullIfNotFound;
     }
 }

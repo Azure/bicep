@@ -26,6 +26,6 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// Generating a definition for a syntactically nested resource. Do not use this flag for resources that need the "parent" property.
         /// </summary>
-        NestedResource = 1 << 2
+        NestedResource = 1 << 2,
     }
 }

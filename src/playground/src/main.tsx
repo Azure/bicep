@@ -6,6 +6,7 @@ import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { aiKey } from '../package.json';
 import './index.css';
+import './monacoEnvironment';
 import { initializeInterop } from './utils/interop';
 import { App } from './App';
 import { getColorMode } from './utils/colorModes';

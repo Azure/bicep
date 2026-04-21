@@ -97,7 +97,7 @@ namespace Bicep.Core.Emit
                     jsonWriter.WritePropertyName(parameterSymbol.Name);
                     jsonWriter.WriteStartObject();
 
-                    EmitValue(parameterSymbol.Type);
+                    EmitValue(parameterSymbol);
 
                     jsonWriter.WriteEndObject();
                 }
@@ -109,8 +109,14 @@ namespace Bicep.Core.Emit
             var content = stringWriter.ToString();
             return content.FromJson<JToken>();
 
-            void EmitValue(TypeSymbol type)
+            void EmitValue(ParameterSymbol parameterSymbol)
             {
+                if (TryEmitDefaultValue(parameterSymbol))
+                {
+                    return;
+                }
+
+                var type = parameterSymbol.Type;
                 if (!TryEmitPrimitive(type.Name))
                 {
                     if (type is ObjectType objType && objType.Properties.Count > 0)
@@ -126,6 +132,103 @@ namespace Bicep.Core.Emit
                             jsonWriter.WriteEndObject();
                         });
                     }
+                }
+            }
+
+            bool TryEmitDefaultValue(ParameterSymbol parameterSymbol)
+            {
+                if (parameterSymbol.DeclaringParameter.Modifier is not ParameterDefaultValueSyntax defaultValueSyntax)
+                {
+                    return false;
+                }
+
+                if (!TryConvertSyntaxToJToken(defaultValueSyntax.DefaultValue, out var defaultValue))
+                {
+                    return false;
+                }
+
+                emitter.EmitProperty("value", () => defaultValue.WriteTo(jsonWriter));
+                return true;
+            }
+
+            bool TryConvertSyntaxToJToken(SyntaxBase syntax, out JToken token)
+            {
+                switch (syntax)
+                {
+                    case ParenthesizedExpressionSyntax parenthesized:
+                        return TryConvertSyntaxToJToken(parenthesized.Expression, out token);
+
+                    case StringSyntax stringSyntax when stringSyntax.TryGetLiteralValue() is string stringValue:
+                        token = new JValue(stringValue);
+                        return true;
+
+                    case IntegerLiteralSyntax integerLiteral:
+                        token = new JValue(integerLiteral.Value);
+                        return true;
+
+                    case UnaryOperationSyntax { Operator: UnaryOperator.Minus, Expression: IntegerLiteralSyntax integerLiteral }:
+                        if (integerLiteral.Value <= (ulong)long.MaxValue)
+                        {
+                            token = new JValue(-(long)integerLiteral.Value);
+                            return true;
+                        }
+
+                        if (integerLiteral.Value == (ulong)long.MaxValue + 1)
+                        {
+                            token = new JValue(long.MinValue);
+                            return true;
+                        }
+
+                        token = JValue.CreateNull();
+                        return false;
+
+                    case BooleanLiteralSyntax booleanLiteral:
+                        token = new JValue(booleanLiteral.Value);
+                        return true;
+
+                    case NullLiteralSyntax:
+                        token = JValue.CreateNull();
+                        return true;
+
+                    case ArraySyntax arraySyntax:
+                        {
+                            var array = new JArray();
+                            foreach (var item in arraySyntax.Items)
+                            {
+                                if (!TryConvertSyntaxToJToken(item.Value, out var itemToken))
+                                {
+                                    token = JValue.CreateNull();
+                                    return false;
+                                }
+
+                                array.Add(itemToken);
+                            }
+
+                            token = array;
+                            return true;
+                        }
+
+                    case ObjectSyntax objectSyntax:
+                        {
+                            var obj = new JObject();
+                            foreach (var property in objectSyntax.Properties)
+                            {
+                                if (property.TryGetKeyText() is not string key || !TryConvertSyntaxToJToken(property.Value, out var propertyValue))
+                                {
+                                    token = JValue.CreateNull();
+                                    return false;
+                                }
+
+                                obj.Add(key, propertyValue);
+                            }
+
+                            token = obj;
+                            return true;
+                        }
+
+                    default:
+                        token = JValue.CreateNull();
+                        return false;
                 }
             }
 

@@ -59,7 +59,7 @@ export class GenerateParamsCommand implements Command {
       const doc = await vscode.workspace.openTextDocument(openPath);
       await vscode.window.showTextDocument(doc);
     } catch (err) {
-      throw new Error(`Generating parameters failed: ${parseError(err).message}`);
+      throw new Error(`Generating parameters failed: ${parseError(err).message}`, { cause: err });
     }
   }
 }

@@ -5,6 +5,15 @@ declare const window: Record<string, unknown>;
 
 // See https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom.
 // eslint-disable-next-line jest/require-hook
+Object.defineProperty(window, 'CSS', {
+  writable: true,
+  value: {
+    escape: (value: string) => value.replace(/[^a-zA-Z0-9_\-]/g, (c) => `\\${c}`),
+    supports: () => false,
+  },
+});
+
+// eslint-disable-next-line jest/require-hook
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation(query => ({

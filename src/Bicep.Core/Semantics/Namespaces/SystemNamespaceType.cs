@@ -779,6 +779,19 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("stringToSearch", LanguageConstants.String, "The value that contains the item to find.")
                     .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
                     .Build();
+                    
+                yield return new FunctionOverloadBuilder("distinct")
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("distinct", LanguageConstants.Array), LanguageConstants.Array)
+                    .WithGenericDescription("Returns a new array with duplicate values removed, preserving order.")
+                    .WithRequiredParameter("array", LanguageConstants.Array, "The array to process.")
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("like")
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("like", LanguageConstants.Bool), LanguageConstants.Bool)
+                    .WithGenericDescription("Performs pattern based matching and returns true if input string matches the pattern and supports '*' as a wildcard. The comparison is case-insensitive.")
+                    .WithRequiredParameter("input", LanguageConstants.String, "The string to evaluate.")
+                    .WithRequiredParameter("pattern", LanguageConstants.String, "The value to match.")
+                    .Build();
 
                 static long? MinOf(TypeSymbol type) => type switch
                 {
@@ -1282,7 +1295,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         .WithGenericDescription($"Reads the specified environment variable as bicep string.")
                         .WithRequiredParameter("variableName", LanguageConstants.String, "The name of the environment variable.", flags: FunctionParameterFlags.Constant)
                         .WithFlags(FunctionFlags.RequiresExternalInput)
-                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, [new StringLiteralExpression(null, "sys.envVar"), .. exp.Parameters]))
+                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputBicepFunctionName, [new StringLiteralExpression(null, "sys.envVar"), .. exp.Parameters]))
                         .WithReturnType(LanguageConstants.String)
                         .Build();
 
@@ -1290,7 +1303,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         .WithGenericDescription($"Reads the specified CLI argument as bicep string.")
                         .WithRequiredParameter("argumentName", LanguageConstants.String, "The name of the CLI argument.", flags: FunctionParameterFlags.Constant)
                         .WithFlags(FunctionFlags.RequiresExternalInput)
-                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, [new StringLiteralExpression(null, "sys.cliArg"), .. exp.Parameters]))
+                        .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputBicepFunctionName, [new StringLiteralExpression(null, "sys.cliArg"), .. exp.Parameters]))
                         .WithReturnType(LanguageConstants.String)
                         .Build();
                 }
@@ -1300,7 +1313,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("name", LanguageConstants.String, "The name of the input provided by the external tool.", flags: FunctionParameterFlags.Constant)
                     .WithOptionalParameter("config", LanguageConstants.Any, "The configuration for the input. The configuration is specific to the external tool.", flags: FunctionParameterFlags.Constant)
                     .WithFlags(FunctionFlags.RequiresExternalInput)
-                    .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputsArmFunctionName, exp.Parameters))
+                    .WithEvaluator(exp => new FunctionCallExpression(exp.SourceSyntax, LanguageConstants.ExternalInputBicepFunctionName, exp.Parameters))
                     .WithReturnType(LanguageConstants.Any)
                     .Build();
             }
@@ -2017,7 +2030,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     })
                     .Build();
 
-                if (featureProvider.WaitAndRetryEnabled)
+                if (featureProvider.WaitUntilEnabled)
                 {
                     yield return new DecoratorBuilder(LanguageConstants.WaitUntilPropertyName)
                         .WithDescription("Causes the resource deployment to wait until the given condition is satisfied")
@@ -2034,16 +2047,15 @@ namespace Bicep.Core.Semantics.Namespaces
                         .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
                         .WithEvaluator(AddDecoratorConfigToResource)
                         .Build();
-
-                    yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
-                        .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")
-                        .WithParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
-                        .WithParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.", FunctionParameterFlags.Constant)
-                        .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
-                        .WithEvaluator(AddDecoratorConfigToResource)
-                        .Build();
                 }
 
+                yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
+                    .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")
+                    .WithParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
+                    .WithParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.", FunctionParameterFlags.Constant)
+                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
+                    .WithEvaluator(AddDecoratorConfigToResource)
+                    .Build();
 
                 yield return new DecoratorBuilder(LanguageConstants.OnlyIfNotExistsPropertyName)
                     .WithDescription("Causes the resource deployment to be skipped if the resource already exists")
@@ -2060,6 +2072,22 @@ namespace Bicep.Core.Semantics.Namespaces
                         .Build();
                 }
 
+                if (featureProvider.ExistingNullIfNotFoundEnabled)
+                {
+                    yield return new DecoratorBuilder(LanguageConstants.NullIfNotFoundDecoratorName)
+                        .WithDescription("Marks an existing resource as nullable, returning null if the resource doesn't exist at deployment time instead of failing.")
+                        .WithFlags(FunctionFlags.ResourceDecorator)
+                        .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
+                        {
+                            var decoratorTarget = binder.GetParent(decoratorSyntax);
+                            if (decoratorTarget is ResourceDeclarationSyntax resourceDeclaration && !resourceDeclaration.IsExistingResource())
+                            {
+                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).NullIfNotFoundOnlyValidOnExistingResources());
+                            }
+                        })
+                        .WithEvaluator(AddDecoratorConfigToResource)
+                        .Build();
+                }
 
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")

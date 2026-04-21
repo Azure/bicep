@@ -722,6 +722,12 @@
                           "type": "integer",
                           "default": 730,
                           "minimum": 0
+                        },
+                        "gracePeriodInDays": {
+                          "description": "Number of days to wait after an API version is published before recommending it, to allow time for regional deployment (default is 90 days)",
+                          "type": "integer",
+                          "default": 90,
+                          "minimum": 0
                         }
                       }
                     },
@@ -755,6 +761,16 @@
                   "allOf": [
                     {
                       "description": "Use a direct resource symbol reference instead of 'reference' or 'list*' functions. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#use-resource-symbol-reference"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "use-recognized-resource-type": {
+                  "allOf": [
+                    {
+                      "description": "Warn if a 'reference' or 'list*' function call uses an unrecognized resource type. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#use-recognized-resource-type"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -884,9 +900,9 @@
           "type": "boolean",
           "description": "Enabling this feature turns on support for local Bicep deployments. See https://aka.ms/bicep/experimental-features#localdeploy"
         },
-        "waitAndRetry": {
+        "waitUntil": {
           "type": "boolean",
-          "description": "Allows to enable wait and retry feature on resource type. See https://aka.ms/bicep/experimental-features#waitandretry"
+          "description": "Allows to enable waitUntil feature on resource type. See https://aka.ms/bicep/experimental-features#waituntil"
         },
         "resourceInfoCodegen": {
           "type": "boolean",
@@ -907,6 +923,10 @@
         "patch": {
           "type": "boolean",
           "description": "Enables the @patch() decorator for deploying resources using the PATCH HTTP method. This feature is restricted to Azure Policy DeployIfNotExists scenarios. See https://aka.ms/bicep/experimental-features#patch"
+        },
+        "existingNullIfNotFound": {
+          "type": "boolean",
+          "description": "Enables the @nullIfNotFound() decorator for existing resources, allowing them to return null if not found at deployment time. See https://aka.ms/bicep/experimental-features#existingnullifnotfound"
         }
       },
       "additionalProperties": false

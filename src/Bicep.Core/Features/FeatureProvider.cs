@@ -42,7 +42,7 @@ namespace Bicep.Core.Features
 
         public static bool HasTracingVerbosity(TraceVerbosity verbosity) => TracingVerbosity >= verbosity;
 
-        public bool WaitAndRetryEnabled => configuration.ExperimentalFeaturesEnabled.WaitAndRetry;
+        public bool WaitUntilEnabled => configuration.ExperimentalFeaturesEnabled.WaitUntil;
 
         public bool LocalDeployEnabled => configuration.ExperimentalFeaturesEnabled.LocalDeploy;
 
@@ -57,6 +57,8 @@ namespace Bicep.Core.Features
         public bool ThisNamespaceEnabled => configuration.ExperimentalFeaturesEnabled.ThisNamespace;
 
         public bool PatchEnabled => configuration.ExperimentalFeaturesEnabled.Patch;
+
+        public bool ExistingNullIfNotFoundEnabled => configuration.ExperimentalFeaturesEnabled.ExistingNullIfNotFound;
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;

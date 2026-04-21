@@ -8,13 +8,13 @@ export async function retryWhile<T>(
   predicate: (result: T) => boolean,
   retryOptions?: Readonly<{
     interval?: number;
-    timeout?: number;
+    timeoutMs?: number;
   }>,
 ): Promise<T> {
   let result = await func();
 
   const interval = retryOptions?.interval ?? 2000;
-  let count = (retryOptions?.timeout ?? 10000) / interval;
+  let count = (retryOptions?.timeoutMs ?? 10000) / interval;
 
   while (predicate(result)) {
     if (count-- <= 0) {

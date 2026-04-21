@@ -17,7 +17,7 @@ public record FeatureProviderOverrides(
     bool? LegacyFormatterEnabled = default,
     bool? TestFrameworkEnabled = default,
     bool? AssertsEnabled = default,
-    bool? WaitAndRetryEnabled = default,
+    bool? WaitUntilEnabled = default,
     bool? LocalDeployEnabled = default,
     bool? ResourceInfoCodegenEnabled = default,
     bool? ExtendableParamFilesEnabled = default,
@@ -26,7 +26,8 @@ public record FeatureProviderOverrides(
     bool? UserDefinedConstraintsEnabled = default,
     bool? DeployCommandsEnabled = default,
     bool? ThisNamespaceEnabled = default,
-    bool? PatchEnabled = default)
+    bool? PatchEnabled = default,
+    bool? ExistingNullIfNotFoundEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -38,7 +39,7 @@ public record FeatureProviderOverrides(
         bool? LegacyFormatterEnabled = default,
         bool? TestFrameworkEnabled = default,
         bool? AssertsEnabled = default,
-        bool? WaitAndRetryEnabled = default,
+        bool? WaitUntilEnabled = default,
         bool? LocalDeployEnabled = default,
         bool? ResourceInfoCodegenEnabled = default,
         bool? ExtendableParamFilesEnabled = default,
@@ -47,7 +48,8 @@ public record FeatureProviderOverrides(
         bool? UserDefinedConstraintsEnabled = default,
         bool? DeployCommandsEnabled = default,
         bool? ThisNamespaceEnabled = default,
-        bool? PatchEnabled = default) : this(
+        bool? PatchEnabled = default,
+        bool? ExistingNullIfNotFoundEnabled = default) : this(
             FileHelper.GetCacheRootDirectory(testContext),
             RegistryEnabled,
             SymbolicNameCodegenEnabled,
@@ -57,7 +59,7 @@ public record FeatureProviderOverrides(
             LegacyFormatterEnabled,
             TestFrameworkEnabled,
             AssertsEnabled,
-            WaitAndRetryEnabled,
+            WaitUntilEnabled,
             LocalDeployEnabled,
             ResourceInfoCodegenEnabled,
             ExtendableParamFilesEnabled,
@@ -66,6 +68,8 @@ public record FeatureProviderOverrides(
             UserDefinedConstraintsEnabled,
             DeployCommandsEnabled,
             ThisNamespaceEnabled,
-            PatchEnabled)
+            PatchEnabled,
+            ExistingNullIfNotFoundEnabled)
     { }
 }
+

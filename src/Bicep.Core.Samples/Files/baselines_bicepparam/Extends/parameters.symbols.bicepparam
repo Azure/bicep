@@ -1,5 +1,6 @@
 using 'main.bicep'
 //@[18:23) ParameterAssignment three. Type: 'param three'. Declaration start char: 12, length: 27
+//@[18:23) BaseParameters base. Type: baseParameters. Declaration start char: 12, length: 27
 
 extends 'shared.bicepparam'
 

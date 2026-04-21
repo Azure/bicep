@@ -498,8 +498,8 @@
   <data name="ExperimentalFeatureNames_TestFramework" xml:space="preserve">
     <value>Test framework</value>
   </data>
-  <data name="ExperimentalFeatureNames_WaitAndRetry" xml:space="preserve">
-    <value>Enable wait and retry feature</value>
+  <data name="ExperimentalFeatureNames_WaitUntil" xml:space="preserve">
+    <value>Enable waitUntil feature on resource bicep types</value>
   </data>
   <data name="NoSymbolicReferencesInInnerScopedDeploymentResourcesDescription" xml:space="preserve">
     <value>Nested deployment resources cannot refer to top-level symbols from within the 'template' property when inner-scoped evaluation is used.</value>
@@ -552,5 +552,16 @@
   </data>
   <data name="NoExplicitAnyRule_Description" xml:space="preserve">
     <value>Avoid using an explicit 'any' type whenever possible.</value>
+  </data>
+  <data name="UseRecognizedResourceTypeRule_Description" xml:space="preserve">
+    <value>Warn if a 'reference' or 'list*' function call uses an unrecognized resource type.</value>
+  </data>
+  <data name="UseRecognizedResourceTypeRule_MessageFormat" xml:space="preserve">
+    <value>Resource type "{0}" is not recognized in function "{1}". If this resource type does exist, the API version must be specified as a function argument.</value>
+    <comment>{0} = resource type, {1} = function name</comment>
+  </data>
+  <data name="UseRecognizedResourceTypeRule_MessageFormatWithSuggestion" xml:space="preserve">
+    <value>Resource type "{0}" is not recognized in function "{1}". Did you mean "{2}"? If this resource type does exist, the API version must be specified as a function argument.</value>
+    <comment>{0} = resource type, {1} = function name, {2} = suggested resource type</comment>
   </data>
 </root>

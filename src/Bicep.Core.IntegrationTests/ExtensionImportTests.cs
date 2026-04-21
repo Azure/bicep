@@ -34,7 +34,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var fileSystem = new Dictionary<string, string>
             {
-                ["/types/index.json"] = """{"resources": {}, "resourceFunctions": {}}""",
+                ["/types/index.json"] = """{"resources": {}, "resourceFunctions": {}, "namespaceFunctions": []}""",
             };
 
             var services = new ServiceBuilder()

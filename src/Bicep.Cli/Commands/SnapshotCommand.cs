@@ -43,8 +43,6 @@ public class SnapshotCommand(
 {
     public async Task<int> RunAsync(SnapshotArguments args, CancellationToken cancellationToken)
     {
-        logger.LogWarning($"WARNING: The '{args.CommandName}' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
-
         var snapshotMode = args.Mode ?? SnapshotArguments.SnapshotMode.Overwrite;
 
         var inputUri = inputOutputArgumentsResolver.ResolveInputArguments(args);
@@ -110,6 +108,7 @@ public class SnapshotCommand(
                 templateContent: templateContent,
                 parametersContent: parametersContent,
                 tenantId: arguments.TenantId,
+                managementGroupId: arguments.ManagementGroupId,
                 subscriptionId: arguments.SubscriptionId,
                 resourceGroup: arguments.ResourceGroup,
                 location: arguments.Location,

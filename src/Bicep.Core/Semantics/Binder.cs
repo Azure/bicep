@@ -171,8 +171,11 @@ namespace Bicep.Core.Semantics
 
                 var childNodes = current switch
                 {
-                    ObjectSyntax obj => obj.Properties.Select(p => p.Value),
-                    ArraySyntax arr => arr.Items.Select(i => i.Value),
+                    ObjectSyntax obj => obj.Children,
+                    ArraySyntax arr => arr.Children,
+                    ObjectPropertySyntax objectProperty => [objectProperty.Key, objectProperty.Value],
+                    ArrayItemSyntax arrayItem => [arrayItem.Value],
+                    SpreadExpressionSyntax spread => [spread.Expression],
                     PropertyAccessSyntax propAccess => [propAccess.BaseExpression],
                     ArrayAccessSyntax arrayAccess => [arrayAccess.BaseExpression, arrayAccess.IndexExpression],
                     FunctionCallSyntaxBase funcCall => funcCall.Arguments.Select(a => a.Expression),

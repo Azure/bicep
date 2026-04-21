@@ -17,14 +17,15 @@ public record ExperimentalFeaturesEnabled(
     bool LegacyFormatter,
     bool TestFramework,
     bool Assertions,
-    bool WaitAndRetry,
+    bool WaitUntil,
     bool LocalDeploy,
     bool ResourceInfoCodegen,
     bool ModuleExtensionConfigs,
     bool UserDefinedConstraints,
     bool DeployCommands,
     bool ThisNamespace,
-    bool Patch)
+    bool Patch,
+    bool ExistingNullIfNotFound)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();
@@ -39,12 +40,13 @@ public record ExperimentalFeaturesEnabled(
         LegacyFormatter: false,
         TestFramework: false,
         Assertions: false,
-        WaitAndRetry: false,
+        WaitUntil: false,
         LocalDeploy: false,
         ResourceInfoCodegen: false,
         ModuleExtensionConfigs: false,
         UserDefinedConstraints: false,
         DeployCommands: false,
         ThisNamespace: false,
-        Patch: false);
+        Patch: false,
+        ExistingNullIfNotFound: false);
 }

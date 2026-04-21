@@ -12,7 +12,6 @@ const meta: Meta<typeof List> = {
   tags: ["autodocs"],
   parameters: {
     layout: "centered",
-    controls: { hideNoControlsWarning: true },
   },
 };
 

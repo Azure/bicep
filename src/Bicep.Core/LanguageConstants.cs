@@ -171,6 +171,7 @@ namespace Bicep.Core
         public const string TypeDiscriminatorDecoratorName = "discriminator";
         public const string OnlyIfNotExistsPropertyName = "onlyIfNotExists";
         public const string PatchDecoratorName = "patch";
+        public const string NullIfNotFoundDecoratorName = "nullIfNotFound";
 
         // module properties
         public const string ModuleParamsPropertyName = "params";
@@ -379,10 +380,11 @@ namespace Bicep.Core
             var nameRequirednessFlags = TypePropertyFlags.None;
             // Taken from the official REST specs for Microsoft.Resources/deployments
             var nameType = TypeFactory.CreateStringType(minLength: 1, maxLength: 64, pattern: @"^[-\w._()]+$");
+            var nameDescription = "The deployment name. Must be 1-64 characters, and can contain alphanumerics, underscores, parentheses, hyphens, and periods.";
 
             List<NamedTypeProperty> moduleProperties =
             [
-                new(ModuleNamePropertyName, nameType, nameRequirednessFlags | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
+                new(ModuleNamePropertyName, nameType, nameRequirednessFlags | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant, nameDescription),
                 new(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
                 new(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                 new(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
@@ -409,11 +411,15 @@ namespace Bicep.Core
             var optionalPropFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.DisallowAny;
             var requiredPropFlags = optionalPropFlags | TypePropertyFlags.Required;
 
+            var nameDescription = "The deployment name. Must be 1-64 characters, and can contain alphanumerics, underscores, parentheses, hyphens, and periods.";
+
             NamedTypeProperty[] commonProps = [
                 // Taken from the official REST specs for Microsoft.Resources/deployments
-                new(ModuleNamePropertyName, TypeFactory.CreateStringType(minLength: 1, maxLength: 64, pattern: @"^[-\w._()]+$"), optionalPropFlags),
+                new(ModuleNamePropertyName, TypeFactory.CreateStringType(minLength: 1, maxLength: 64, pattern: @"^[-\w._()]+$"), optionalPropFlags, nameDescription),
                 // TODO model this properly as a scope, rather than a string
                 new(ResourceScopePropertyName, LanguageConstants.String, requiredPropFlags),
+                // TODO avoid exposing on resource group scoped deployments
+                new(ResourceLocationPropertyName, LanguageConstants.String, optionalPropFlags),
             ];
 
             var deployment = new ObjectType("DeploymentConfig", TypeSymbolValidationFlags.Default, [

@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import cytoscape, { Core, LayoutOptions, Layouts, Stylesheet } from "cytoscape";
+import cytoscape, { Core, LayoutOptions, Layouts, StylesheetStyle } from "cytoscape";
 import elk from "cytoscape-elk";
 import React, { createContext, RefObject, useEffect, useRef } from "react";
 
@@ -19,7 +19,7 @@ export interface CreationOptions {
 
 export function useCytoscape(
   elements: cytoscape.ElementDefinition[],
-  stylesheets: Stylesheet[],
+  stylesheets: StylesheetStyle[],
   { containerRef, layoutOptions, zoomOptions, onNodeDoubleTap }: CreationOptions,
 ): [React.MutableRefObject<Core | undefined>, React.MutableRefObject<Layouts | undefined>] {
   const cytoscapeRef = useRef<Core>();

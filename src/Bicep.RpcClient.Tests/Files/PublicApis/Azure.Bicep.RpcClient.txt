@@ -8,15 +8,30 @@ namespace Bicep.RpcClient
         public BicepClientConfiguration() { }
         public System.Runtime.InteropServices.Architecture? Architecture { get; init; }
         public string? BicepVersion { get; init; }
+        public Bicep.RpcClient.BicepConnectionMode ConnectionMode { get; init; }
+        public System.TimeSpan ConnectionTimeout { get; init; }
+        public string? ExistingCliPath { get; init; }
+        public string? InstallBasePath { get; init; }
+        [System.Obsolete("Use the InstallBasePath property instead. This property will be removed in a futu" +
+            "re release.")]
         public string? InstallPath { get; init; }
         public System.Runtime.InteropServices.OSPlatform? OsPlatform { get; init; }
         public static Bicep.RpcClient.BicepClientConfiguration Default { get; }
     }
     public class BicepClientFactory : Bicep.RpcClient.IBicepClientFactory
     {
-        public BicepClientFactory(System.Net.Http.HttpClient httpClient) { }
+        public BicepClientFactory(System.Net.Http.HttpClient? httpClient = null) { }
+        [System.Obsolete("Use Initialize instead.")]
         public System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> DownloadAndInitialize(Bicep.RpcClient.BicepClientConfiguration configuration, System.Threading.CancellationToken cancellationToken) { }
+        public System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> Initialize(Bicep.RpcClient.BicepClientConfiguration configuration, System.Threading.CancellationToken cancellationToken) { }
+        [System.Obsolete("Use Initialize with a BicepClientConfiguration that has ExistingCliPath set inste" +
+            "ad.")]
         public System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> InitializeFromPath(string bicepCliPath, System.Threading.CancellationToken cancellationToken) { }
+    }
+    public enum BicepConnectionMode
+    {
+        NamedPipe = 0,
+        Stdio = 1,
     }
     public interface IBicepClient : System.IDisposable
     {
@@ -31,7 +46,11 @@ namespace Bicep.RpcClient
     }
     public interface IBicepClientFactory
     {
+        [System.Obsolete("Use Initialize instead.")]
         System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> DownloadAndInitialize(Bicep.RpcClient.BicepClientConfiguration configuration, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> Initialize(Bicep.RpcClient.BicepClientConfiguration configuration, System.Threading.CancellationToken cancellationToken = default);
+        [System.Obsolete("Use Initialize with a BicepClientConfiguration that has ExistingCliPath set inste" +
+            "ad.")]
         System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> InitializeFromPath(string bicepCliPath, System.Threading.CancellationToken cancellationToken = default);
     }
 }

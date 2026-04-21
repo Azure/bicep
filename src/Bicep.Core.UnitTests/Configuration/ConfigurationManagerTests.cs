@@ -107,13 +107,14 @@ namespace Bicep.Core.UnitTests.Configuration
           "legacyFormatter": false,
           "testFramework": false,
           "assertions": false,
-          "waitAndRetry": false,
+          "waitUntil": false,
           "localDeploy": false,
           "resourceInfoCodegen": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
           "thisNamespace": false,
-          "patch": false
+          "patch": false,
+          "existingNullIfNotFound": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -190,14 +191,15 @@ namespace Bicep.Core.UnitTests.Configuration
           "legacyFormatter": false,
           "testFramework": false,
           "assertions": false,
-          "waitAndRetry": false,
+          "waitUntil": false,
           "localDeploy": false,
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
           "thisNamespace": false,
-          "patch": false
+          "patch": false,
+          "existingNullIfNotFound": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -296,14 +298,15 @@ namespace Bicep.Core.UnitTests.Configuration
           "legacyFormatter": false,
           "testFramework": false,
           "assertions": false,
-          "waitAndRetry": false,
+          "waitUntil": false,
           "localDeploy": false,
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
           "thisNamespace": false,
-          "patch": false
+          "patch": false,
+          "existingNullIfNotFound": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -383,14 +386,15 @@ namespace Bicep.Core.UnitTests.Configuration
                 LegacyFormatter: false,
                 TestFramework: false,
                 Assertions: false,
-                WaitAndRetry: false,
+                WaitUntil: false,
                 LocalDeploy: false,
                 ResourceInfoCodegen: false,
                 ModuleExtensionConfigs: false,
                 UserDefinedConstraints: false,
                 DeployCommands: false,
                 ThisNamespace: false,
-                Patch: false);
+                Patch: false,
+                ExistingNullIfNotFound: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -468,14 +472,15 @@ namespace Bicep.Core.UnitTests.Configuration
                 "legacyFormatter": false,
                 "testFramework": false,
                 "assertions": false,
-                "waitAndRetry": false,
+                "waitUntil": false,
                 "localDeploy": false,
                 "resourceInfoCodegen": false,
                 "moduleExtensionConfigs": false,
                 "userDefinedConstraints": false,
                 "deployCommands": false,
                 "thisNamespace": false,
-                "patch": false
+                "patch": false,
+                "existingNullIfNotFound": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -820,14 +825,15 @@ namespace Bicep.Core.UnitTests.Configuration
                     "legacyFormatter": false,
                     "testFramework": false,
                     "assertions": false,
-                    "waitAndRetry": false,
+                    "waitUntil": false,
                     "localDeploy": false,
                     "resourceInfoCodegen": false,
                     "moduleExtensionConfigs": false,
                     "userDefinedConstraints": false,
                     "deployCommands": false,
                     "thisNamespace": false,
-                    "patch": false
+                    "patch": false,
+                    "existingNullIfNotFound": false
                   },
                   "formatting": {
                     "indentKind": "Space",

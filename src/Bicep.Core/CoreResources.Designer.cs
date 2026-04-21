@@ -223,11 +223,11 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Enable wait and retry feature.
+        ///   Looks up a localized string similar to Enable waitUntil feature on resource bicep types.
         /// </summary>
-        internal static string ExperimentalFeatureNames_WaitAndRetry {
+        internal static string ExperimentalFeatureNames_WaitUntil {
             get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_WaitAndRetry", resourceCulture);
+                return ResourceManager.GetString("ExperimentalFeatureNames_WaitUntil", resourceCulture);
             }
         }
         
@@ -1227,6 +1227,33 @@ namespace Bicep.Core {
         internal static string WhatIfShortCircuitingRuleMessageFormat {
             get {
                 return ResourceManager.GetString("WhatIfShortCircuitingRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Warn if a &apos;reference&apos; or &apos;list*&apos; function call uses an unrecognized resource type..
+        /// </summary>
+        internal static string UseRecognizedResourceTypeRule_Description {
+            get {
+                return ResourceManager.GetString("UseRecognizedResourceTypeRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resource type &quot;{0}&quot; is not recognized in function &quot;{1}&quot;. If this resource type does exist, the API version must be specified as a function argument..
+        /// </summary>
+        internal static string UseRecognizedResourceTypeRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("UseRecognizedResourceTypeRule_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resource type &quot;{0}&quot; is not recognized in function &quot;{1}&quot;. Did you mean &quot;{2}&quot;? If this resource type does exist, the API version must be specified as a function argument..
+        /// </summary>
+        internal static string UseRecognizedResourceTypeRule_MessageFormatWithSuggestion {
+            get {
+                return ResourceManager.GetString("UseRecognizedResourceTypeRule_MessageFormatWithSuggestion", resourceCulture);
             }
         }
     }
