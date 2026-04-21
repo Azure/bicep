@@ -9,7 +9,7 @@ using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
 using ModelContextProtocol.Server;
 
-namespace Bicep.McpServer;
+namespace Bicep.McpServer.Core;
 
 [McpServerToolType]
 public sealed class BicepDecompilerTools(

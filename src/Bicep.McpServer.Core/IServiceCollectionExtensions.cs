@@ -6,13 +6,13 @@ using Azure.Bicep.Types.Az;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.TypeSystem.Providers.Az;
-using Bicep.McpServer.ResourceProperties;
+using Bicep.McpServer.Core.ResourceProperties;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using ModelContextProtocol.Protocol;
 
-namespace Bicep.McpServer;
+namespace Bicep.McpServer.Core;
 
 public static class IServiceCollectionExtensions
 {

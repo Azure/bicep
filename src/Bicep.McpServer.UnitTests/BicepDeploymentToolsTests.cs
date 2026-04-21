@@ -8,6 +8,8 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 
+using Bicep.McpServer.Core;
+
 namespace Bicep.McpServer.UnitTests;
 
 [TestClass]
