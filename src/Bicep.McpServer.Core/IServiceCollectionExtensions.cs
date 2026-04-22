@@ -7,7 +7,7 @@ using Azure.Bicep.Types.Az;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.TypeSystem.Providers.Az;
-using Bicep.McpServer.Extensions;
+using Bicep.McpServer.Core.Extensions;
 using Bicep.McpServer.Core.ResourceProperties;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

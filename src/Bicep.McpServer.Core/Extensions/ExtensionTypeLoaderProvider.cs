@@ -14,7 +14,7 @@ using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.IO.Abstraction;
 using Azure.Bicep.Types;
 
-namespace Bicep.McpServer.Extensions;
+namespace Bicep.McpServer.Core.Extensions;
 
 public class ExtensionTypeLoaderProvider
 {

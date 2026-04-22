@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using Bicep.Core;
 using Bicep.Core.Registry.Oci;
 
-namespace Bicep.McpServer.Extensions;
+namespace Bicep.McpServer.Core.Extensions;
 
 public record WellKnownExtension(string Name, string Description, string Registry, string Repository)
 {

@@ -7,7 +7,7 @@ using System.Diagnostics;
 using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Providers.Extensibility;
-using Bicep.McpServer.Extensions;
+using Bicep.McpServer.Core.Extensions;
 using Bicep.McpServer.Core.ResourceProperties;
 using Bicep.McpServer.Core.ResourceProperties.Entities;
 using Bicep.McpServer.Core.ResourceProperties.Helpers;
