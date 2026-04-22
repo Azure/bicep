@@ -20,6 +20,8 @@ namespace Bicep.Core.Features
 
         public IDirectoryHandle CacheRootDirectory => GetCacheRootDirectory(this.configuration.CacheRootDirectory);
 
+        public bool OciEnabled => this.configuration.ExperimentalFeaturesEnabled.OciEnabled;
+
         public bool SymbolicNameCodegenEnabled => this.configuration.ExperimentalFeaturesEnabled.SymbolicNameCodegen;
 
         public bool ExtendableParamFilesEnabled => this.configuration.ExperimentalFeaturesEnabled.ExtendableParamFiles;

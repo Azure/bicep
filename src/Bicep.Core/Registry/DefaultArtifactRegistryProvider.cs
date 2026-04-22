@@ -2,17 +2,26 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Registry.Catalog;
-using Microsoft.Extensions.DependencyInjection;
+using Bicep.Core.Registry.Oci;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Bicep.Core.Registry
 {
     public class DefaultArtifactRegistryProvider : ArtifactRegistryProvider
     {
-        public DefaultArtifactRegistryProvider(IServiceProvider serviceProvider, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
+        public DefaultArtifactRegistryProvider(
+            IOciRegistryTransportFactory transportFactory,
+            ITemplateSpecRepositoryFactory templateSpecRepositoryFactory,
+            IPublicModuleMetadataProvider publicModuleMetadataProvider,
+            ILogger<OciArtifactRegistry>? logger = null)
             : base(new IArtifactRegistry[]
                 {
                     new LocalModuleRegistry(),
-                    new OciArtifactRegistry(clientFactory, serviceProvider.GetRequiredService<IPublicModuleMetadataProvider>()),
+                    new OciArtifactRegistry(
+                        transportFactory,
+                        publicModuleMetadataProvider,
+                        logger ?? NullLogger<OciArtifactRegistry>.Instance),
                     new TemplateSpecModuleRegistry(templateSpecRepositoryFactory),
                 })
         {

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Runtime;
@@ -51,19 +52,22 @@ namespace Bicep.Cli
         }
 
         public static async Task<int> Main(string[] args)
-            => await RunWithCancellationAsync(async cancellationToken =>
+        {
+            return await RunWithCancellationAsync(async cancellationToken =>
             {
                 StartProfile();
 
                 Console.OutputEncoding = TemplateEmitter.UTF8EncodingWithoutBom;
 
-                if (FeatureProvider.TracingEnabled)
+                var tracingEnabled = FeatureProvider.TracingEnabled;
+
+                if (tracingEnabled)
                 {
                     Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
                 }
 
                 // this event listener picks up SDK events and writes them to Trace.WriteLine()
-                using (FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
+                using (tracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
                 {
                     var program = new Program(new(
                         Input: new(Console.In, Console.IsInputRedirected),
@@ -75,6 +79,7 @@ namespace Bicep.Cli
                     return await program.RunAsync(args, cancellationToken);
                 }
             });
+        }
 
         public async Task<int> RunAsync(string[] args, CancellationToken cancellationToken)
         {
