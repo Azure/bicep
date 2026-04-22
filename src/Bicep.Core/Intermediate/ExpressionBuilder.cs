@@ -1174,6 +1174,9 @@ public class ExpressionBuilder
             // variable copy index has the name of the variable
             VariableDeclarationSyntax variable when variable.Name.IsValid => variable.Name.IdentifierName,
 
+            // parameter assignment copy index has the name of the parameter
+            ParameterAssignmentSyntax parameter when parameter.Name.IsValid => parameter.Name.IdentifierName,
+
             // output loops are only allowed at the top level and don't have names, either
             OutputDeclarationSyntax => null,
 

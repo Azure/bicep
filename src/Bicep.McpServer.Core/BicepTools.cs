@@ -8,12 +8,12 @@ using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.McpServer.Extensions;
-using Bicep.McpServer.ResourceProperties;
-using Bicep.McpServer.ResourceProperties.Entities;
-using Bicep.McpServer.ResourceProperties.Helpers;
+using Bicep.McpServer.Core.ResourceProperties;
+using Bicep.McpServer.Core.ResourceProperties.Entities;
+using Bicep.McpServer.Core.ResourceProperties.Helpers;
 using ModelContextProtocol.Server;
 
-namespace Bicep.McpServer;
+namespace Bicep.McpServer.Core;
 
 [McpServerToolType]
 public sealed class BicepTools(

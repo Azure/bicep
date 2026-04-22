@@ -20,54 +20,11 @@ We have built a Bicep MCP server with agentic tools to support Bicep code genera
 - `decompile_arm_parameters_file`: Converts an ARM template parameters JSON file into Bicep parameters syntax (`.bicepparam`). Accepts files with `.json`, `.jsonc`, or `.arm` extensions.
 - `get_deployment_snapshot`: Creates a deployment snapshot from a Bicep parameters file (`.bicepparam`) by compiling and pre-expanding the ARM template, allowing you to preview predicted resources without running a deployment.
 
-Please see below on how to contribute to the Bicep best practices tool.
+## Transport
 
-## Transports
+The Bicep MCP Server uses **stdio** transport, launched locally by a client process (e.g., VS Code, Claude Desktop). This is provided by the `Azure.Bicep.McpServer` NuGet tool.
 
-The Bicep MCP Server supports two transports:
-
-- **stdio** (default): Used when the server is launched locally by a client process (e.g., VS Code, Claude Desktop). This is the default behavior.
-- **HTTP** (Streamable HTTP): Used for remote hosting scenarios. Start the server with the `--transport http` flag to enable HTTP transport on port 8080.
-
-To run the server locally with HTTP transport:
-
-```
-dnx Azure.Bicep.McpServer --transport http
-```
-
-Then configure your MCP client to connect to `http://localhost:8080/`.
-
-## Self-hosting with Docker
-
-You can self-host the Bicep MCP Server as a container using the published NuGet tool package. Create a `Dockerfile` with the following contents:
-
-```dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS install
-
-RUN dotnet tool install --global Azure.Bicep.McpServer
-
-FROM mcr.microsoft.com/dotnet/aspnet:10.0
-
-COPY --from=install /root/.dotnet/tools /opt/tools
-
-ENV PATH="$PATH:/opt/tools"
-
-USER $APP_UID
-
-EXPOSE 8080
-
-ENTRYPOINT ["Azure.Bicep.McpServer", "--transport", "http"]
-```
-
-Build and run the container:
-
-```bash
-docker build -t bicep-mcp-server .
-docker run -p 8080:8080 bicep-mcp-server
-```
-
-> [!NOTE]
-> No authentication is included. If hosting on a network or in the cloud, secure the endpoint using a reverse proxy, VNet integration, or other infrastructure-level controls.
+For remote hosting scenarios, you can build your own MCP server with HTTP transport using the `Azure.Bicep.McpServer.Core` NuGet library (see [Building a Remote MCP Server](#building-a-remote-mcp-server) below).
 
 ## Where can I use it?
 
@@ -112,6 +69,57 @@ Please refer to [this step by step tutorial](https://github.com/johnlokerse/azur
 This article has all the tools you need to run the Bicep MCP Server locally, with pre-written commands, helper scripts, and client setup guides.
 
 Note: This is contributed by our community member [@johnlokerse](https://github.com/johnlokerse). Thanks John!
+
+## Building a Remote MCP Server
+
+The `Azure.Bicep.McpServer.Core` NuGet library provides the `AddBicepMcpServer()` extension method and all Bicep tool definitions, allowing you to build your own MCP server with any transport (HTTP, stdio, etc.).
+
+Create a new ASP.NET Core project and add the required packages:
+
+```xml
+<ItemGroup>
+  <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  <PackageReference Include="Azure.Bicep.McpServer.Core" />
+  <PackageReference Include="ModelContextProtocol.AspNetCore" />
+</ItemGroup>
+```
+
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+builder.Services
+    .AddBicepMcpServer()
+    .WithHttpTransport(options => options.Stateless = true);
+var app = builder.Build();
+app.MapMcp();
+await app.RunAsync();
+```
+
+### Self-hosting with Docker
+
+Publish your project and create a `Dockerfile`:
+
+```bash
+dotnet publish -c Release -o ./publish
+```
+
+```dockerfile
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /app
+COPY publish/ .
+USER $APP_UID
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "MyBicepMcpServer.dll"]
+```
+
+Build and run:
+
+```bash
+docker build -t bicep-mcp-server .
+docker run -p 8080:8080 bicep-mcp-server
+```
+
+> [!NOTE]
+> No authentication is included. If hosting on a network or in the cloud, secure the endpoint using a reverse proxy, VNet integration, or other infrastructure-level controls.
 
 ## Limitations
 

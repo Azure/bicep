@@ -160,6 +160,15 @@ namespace Bicep.Core.Emit
             }
         }
 
+        public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
+        {
+            this.activeLoopCapableTopLevelDeclaration = syntax;
+
+            base.VisitParameterAssignmentSyntax(syntax);
+
+            this.activeLoopCapableTopLevelDeclaration = null;
+        }
+
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
             this.activeLoopCapableTopLevelDeclaration = syntax;
@@ -387,9 +396,11 @@ namespace Bicep.Core.Emit
             }
 
             // not a top-level loop
-            if (this.activeLoopCapableTopLevelDeclaration is OutputDeclarationSyntax || this.activeLoopCapableTopLevelDeclaration is VariableDeclarationSyntax)
+            if (this.activeLoopCapableTopLevelDeclaration is OutputDeclarationSyntax ||
+                this.activeLoopCapableTopLevelDeclaration is VariableDeclarationSyntax ||
+                this.activeLoopCapableTopLevelDeclaration is ParameterAssignmentSyntax)
             {
-                // output and variable loops are only supported in the values due to runtime limitations
+                // output, variable, and parameter assignment loops are only supported in the values due to runtime limitations
                 return false;
             }
 
@@ -451,6 +462,7 @@ namespace Bicep.Core.Emit
                 case ModuleDeclarationSyntax module when ReferenceEquals(module.Value, syntax):
                 case OutputDeclarationSyntax output when ReferenceEquals(output.Value, syntax):
                 case VariableDeclarationSyntax variable when ReferenceEquals(variable.Value, syntax):
+                case ParameterAssignmentSyntax parameterAssignment when ReferenceEquals(parameterAssignment.Value, syntax):
                     return true;
 
                 default:

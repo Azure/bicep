@@ -2030,7 +2030,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     })
                     .Build();
 
-                if (featureProvider.WaitAndRetryEnabled)
+                if (featureProvider.WaitUntilEnabled)
                 {
                     yield return new DecoratorBuilder(LanguageConstants.WaitUntilPropertyName)
                         .WithDescription("Causes the resource deployment to wait until the given condition is satisfied")
@@ -2047,16 +2047,15 @@ namespace Bicep.Core.Semantics.Namespaces
                         .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
                         .WithEvaluator(AddDecoratorConfigToResource)
                         .Build();
-
-                    yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
-                        .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")
-                        .WithParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
-                        .WithParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.", FunctionParameterFlags.Constant)
-                        .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
-                        .WithEvaluator(AddDecoratorConfigToResource)
-                        .Build();
                 }
 
+                yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
+                    .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")
+                    .WithParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
+                    .WithParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.", FunctionParameterFlags.Constant)
+                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
+                    .WithEvaluator(AddDecoratorConfigToResource)
+                    .Build();
 
                 yield return new DecoratorBuilder(LanguageConstants.OnlyIfNotExistsPropertyName)
                     .WithDescription("Causes the resource deployment to be skipped if the resource already exists")

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.McpServer.ResourceProperties.Entities;
+namespace Bicep.McpServer.Core.ResourceProperties.Entities;
 
 public class ResourceFunctionTypeEntity : ComplexType
 {

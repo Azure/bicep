@@ -20,19 +20,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="./Files/**/*.*" />
-    <EmbeddedResource Include="./Files/**/*.*" LogicalName="$([System.String]::new('Files/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" WithCulture="false" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
   </ItemGroup>
 
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="ModelContextProtocol" />
-    <PackageReference Include="ModelContextProtocol.AspNetCore" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="../Bicep.Core/Bicep.Core.csproj" />
-    <ProjectReference Include="../Bicep.Decompiler/Bicep.Decompiler.csproj" />
+    <ProjectReference Include="../Bicep.McpServer.Core/Bicep.McpServer.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
