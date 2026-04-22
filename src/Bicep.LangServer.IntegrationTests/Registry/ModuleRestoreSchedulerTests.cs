@@ -200,7 +200,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
         private class MockArtifactRef : ArtifactReference
         {
             public MockArtifactRef(BicepSourceFile referencingFile, string value)
-                : base(referencingFile, "mock")
+                : base(referencingFile.Configuration, "mock")
             {
                 this.Value = value;
             }

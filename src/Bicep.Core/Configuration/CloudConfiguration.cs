@@ -129,8 +129,8 @@ namespace Bicep.Core.Configuration
         {
             var hashCode = new HashCode();
 
-            hashCode.Add(this.ResourceManagerEndpointUri);
-            hashCode.Add(this.ActiveDirectoryAuthorityUri);
+            hashCode.Add(NormalizeUriForComparison(this.ResourceManagerEndpointUri), StringComparer.OrdinalIgnoreCase);
+            hashCode.Add(NormalizeUriForComparison(this.ActiveDirectoryAuthorityUri), StringComparer.OrdinalIgnoreCase);
 
             foreach (var credentialType in this.CredentialPrecedence)
             {
@@ -144,8 +144,10 @@ namespace Bicep.Core.Configuration
 
         public bool Equals(CloudConfiguration? other) =>
             other is not null &&
-            this.ResourceManagerEndpointUri.Equals(other.ResourceManagerEndpointUri) &&
-            this.ActiveDirectoryAuthorityUri.Equals(other.ActiveDirectoryAuthorityUri) &&
+            string.Equals(NormalizeUriForComparison(this.ResourceManagerEndpointUri), NormalizeUriForComparison(other.ResourceManagerEndpointUri), StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(NormalizeUriForComparison(this.ActiveDirectoryAuthorityUri), NormalizeUriForComparison(other.ActiveDirectoryAuthorityUri), StringComparison.OrdinalIgnoreCase) &&
             this.CredentialPrecedence.SequenceEqual(other.CredentialPrecedence);
+
+        private static string NormalizeUriForComparison(Uri uri) => uri.AbsoluteUri.TrimEnd('/');
     }
 }

@@ -846,7 +846,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
                 ? $"br/{registry}/{repository.Replace("/", "$")}/{digest.Replace(":", "#")}"
                 : $"br/{registry}/{repository.Replace("/", "$")}/{tag}$";
 
-            featureProvider.CacheRootDirectory.GetDirectory(cachePath)?.GetFile("manifest").Write(manifestFileContents);
+            BicepTestConstants.BuiltInConfiguration.GetCacheRootDirectory(fileExplorer).GetDirectory(cachePath)?.GetFile("manifest").Write(manifestFileContents);
         }
 
         [TestMethod]

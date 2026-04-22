@@ -18,8 +18,6 @@ namespace Bicep.Core.Features
             this.fileExplorer = fileExplorer;
         }
 
-        public IDirectoryHandle CacheRootDirectory => GetCacheRootDirectory(this.configuration.CacheRootDirectory);
-
         public bool SymbolicNameCodegenEnabled => this.configuration.ExperimentalFeaturesEnabled.SymbolicNameCodegen;
 
         public bool ExtendableParamFilesEnabled => this.configuration.ExperimentalFeaturesEnabled.ExtendableParamFiles;
@@ -69,13 +67,5 @@ namespace Bicep.Core.Features
             var str = Environment.GetEnvironmentVariable(envVar);
             return Enum.TryParse<T>(str, true, out var value) ? value : defaultValue;
         }
-
-        private IDirectoryHandle GetCacheRootDirectory(string? customPath) =>
-            this.GetCacheRootDirectoryFromLocalPath(string.IsNullOrWhiteSpace(customPath)
-                ? $"{Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)}/.bicep"
-                : customPath);
-
-        private IDirectoryHandle GetCacheRootDirectoryFromLocalPath(string localPath) =>
-            this.fileExplorer.GetDirectory(IOUri.FromFilePath(localPath));
     }
 }

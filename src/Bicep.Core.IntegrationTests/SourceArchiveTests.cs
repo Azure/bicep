@@ -40,6 +40,8 @@ namespace Bicep.Core.IntegrationTests
         private readonly TestExternalArtifactManager artifactManager;
         private readonly TestCompiler compiler;
 
+      private IFileExplorer FileExplorer => this.compiler.GetService<IFileExplorer>();
+
         public SourceArchiveTests()
         {
             this.artifactManager = new TestExternalArtifactManager();
@@ -100,7 +102,7 @@ namespace Bicep.Core.IntegrationTests
         {
             // Arange.
             var sourceFileGrouping = await this.CreateSourceFileGroupingWithAllModuleKinds();
-            var original = SourceArchive.CreateFrom(sourceFileGrouping);
+            var original = SourceArchive.CreateFrom(this.FileExplorer, sourceFileGrouping);
 
             // Act.
             var packadData = original.PackIntoBinaryData();
@@ -122,7 +124,7 @@ namespace Bicep.Core.IntegrationTests
             var sourceFileGrouping = await this.CreateSourceFileGroupingWithAllModuleKinds();
 
             // Act.
-            var sourceArchive = SourceArchive.CreateFrom(sourceFileGrouping);
+            var sourceArchive = SourceArchive.CreateFrom(this.FileExplorer, sourceFileGrouping);
 
             // Assert.
             var bicepRegistryModule1Template = (await this.compiler.CompileInline(SampleData.BicepRegistryModule1Text)).Template!;
@@ -222,7 +224,7 @@ namespace Bicep.Core.IntegrationTests
         {
             // Arrange.
             await this.artifactManager.PublishExtension(Samples.MockExtensionFactory.CreateMockExtWithNoConfigType("foo"));
-            await this.artifactManager.PublishRegistryModules(new RegistryModulePublishArguments("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true));
+          await this.artifactManager.PublishRegistryModules(this.FileExplorer, new RegistryModulePublishArguments("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true));
 
             var sourceFileGrouping = await this.CreateSourceFileGrouping(
                 ("main.bicep", """
@@ -236,7 +238,7 @@ namespace Bicep.Core.IntegrationTests
                     """));
 
             // Act.
-            var sourceArchive = SourceArchive.CreateFrom(sourceFileGrouping);
+            var sourceArchive = SourceArchive.CreateFrom(this.FileExplorer, sourceFileGrouping);
 
             // Assert.
             using (new AssertionScope())
@@ -252,6 +254,7 @@ namespace Bicep.Core.IntegrationTests
         {
             // Arrange.
             await this.artifactManager.PublishRegistryModules(
+              this.FileExplorer,
                 new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
                 new("br:mockregistry.io/test/module2:v1", "param p2 string", WithSource: true),
                 new("br:mockregistry.io/test/module1:v2", "param p12 string", WithSource: true));
@@ -309,7 +312,7 @@ namespace Bicep.Core.IntegrationTests
                     """));
 
             // Act.
-            var sourceArchive = SourceArchive.CreateFrom(sourceFileGrouping);
+            var sourceArchive = SourceArchive.CreateFrom(this.FileExplorer, sourceFileGrouping);
 
             // Assert.
             using (new AssertionScope())
@@ -354,7 +357,7 @@ namespace Bicep.Core.IntegrationTests
                 (longPath3, ""));
 
             // Act.
-            var sourceArchive = SourceArchive.CreateFrom(sourceFileGrouping);
+            var sourceArchive = SourceArchive.CreateFrom(this.FileExplorer, sourceFileGrouping);
 
             // Assert.
             using (new AssertionScope())
@@ -376,7 +379,7 @@ namespace Bicep.Core.IntegrationTests
             var moduleText = "param p1 bool";
             var moduleTemplate = (await this.compiler.CompileInline(moduleText)).Template!;
             var moduleTemplateText = moduleTemplate.ToString(Newtonsoft.Json.Formatting.Indented);
-            await this.artifactManager.PublishRegistryModule("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true);
+            await this.artifactManager.PublishRegistryModule(this.FileExplorer, "br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true);
 
             var mainBicepText = """
                 module m1 'br:mockregistry.io/test/module1:v1' = {
@@ -396,7 +399,7 @@ namespace Bicep.Core.IntegrationTests
             var sourceFileGrouping = await this.CreateSourceFileGrouping(("main.bicep", mainBicepText));
 
             // Act.
-            var sourceArchive = SourceArchive.CreateFrom(sourceFileGrouping);
+            var sourceArchive = SourceArchive.CreateFrom(this.FileExplorer, sourceFileGrouping);
 
             // Assert.
             sourceArchive.Should().HaveMetadataAndFiles($$"""
@@ -441,7 +444,7 @@ namespace Bicep.Core.IntegrationTests
         {
             // Arange.
             var sourceFileGrouping = await this.CreateSourceFileGroupingWithAllModuleKinds();
-            var sourceArchive = SourceArchive.CreateFrom(sourceFileGrouping);
+            var sourceArchive = SourceArchive.CreateFrom(this.FileExplorer, sourceFileGrouping);
 
             // Act.
             var file = sourceArchive.FindSourceFile(path);
@@ -459,7 +462,7 @@ namespace Bicep.Core.IntegrationTests
         {
             // Arange.
             var sourceFileGrouping = await this.CreateSourceFileGroupingWithAllModuleKinds();
-            var sourceArchive = SourceArchive.CreateFrom(sourceFileGrouping);
+            var sourceArchive = SourceArchive.CreateFrom(this.FileExplorer, sourceFileGrouping);
 
             // Act & Assert.
             FluentActions.Invoking(() => sourceArchive.FindSourceFile(path))
@@ -598,7 +601,7 @@ namespace Bicep.Core.IntegrationTests
         {
             // Arange.
             var sourceFileGrouping = await this.CreateSourceFileGroupingWithAllModuleKinds();
-            var sourceArchive = SourceArchive.CreateFrom(sourceFileGrouping);
+            var sourceArchive = SourceArchive.CreateFrom(this.FileExplorer, sourceFileGrouping);
 
             // Act.
             var mainLinks = sourceArchive.FindDocumentLinks("main.bicep");
@@ -628,7 +631,7 @@ namespace Bicep.Core.IntegrationTests
         {
             // Arange.
             var sourceFileGrouping = await this.CreateSourceFileGroupingWithAllModuleKinds();
-            var sourceArchive = SourceArchive.CreateFrom(sourceFileGrouping);
+            var sourceArchive = SourceArchive.CreateFrom(this.FileExplorer, sourceFileGrouping);
 
             // Act.
             var links = sourceArchive.FindDocumentLinks("foobar.bicep");
@@ -666,8 +669,8 @@ namespace Bicep.Core.IntegrationTests
 
         private async Task<SourceFileGrouping> CreateSourceFileGroupingWithAllModuleKinds()
         {
-            await this.artifactManager.PublishRegistryModule(SampleData.BicepRegistryModule1ArtifactId, SampleData.BicepRegistryModule1Text, withSource: false);
-            await this.artifactManager.PublishRegistryModule(SampleData.BicepRegistryModule2ArtifactId, SampleData.BicepRegistryModule2Text, withSource: true);
+            await this.artifactManager.PublishRegistryModule(this.FileExplorer, SampleData.BicepRegistryModule1ArtifactId, SampleData.BicepRegistryModule1Text, withSource: false);
+            await this.artifactManager.PublishRegistryModule(this.FileExplorer, SampleData.BicepRegistryModule2ArtifactId, SampleData.BicepRegistryModule2Text, withSource: true);
             this.artifactManager.UpsertTemplateSpec(SampleData.TemplateSpecId, SampleData.TemplateSpecModuleText);
 
             return await this.CreateSourceFileGrouping(

@@ -192,5 +192,8 @@ namespace Bicep.Core.Configuration
 
             return cacheRootDirectory;
         }
+
+        public IDirectoryHandle GetCacheRootDirectory(IFileExplorer fileExplorer) =>
+            fileExplorer.GetDirectory(IOUri.FromFilePath(this.CacheRootDirectory ?? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)));
     }
 }

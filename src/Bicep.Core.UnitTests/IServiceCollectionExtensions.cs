@@ -58,9 +58,18 @@ public static class IServiceCollectionExtensions
         => Register(services, workspace);
 
     public static IServiceCollection WithFeatureOverrides(this IServiceCollection services, FeatureProviderOverrides overrides)
-        => Register(services, overrides)
+    {
+        services = Register(services, overrides)
             .AddSingleton<FeatureProviderFactory>()
             .AddSingleton<IFeatureProviderFactory, OverriddenFeatureProviderFactory>();
+
+        if (overrides.CacheRootDirectory is { } cacheRootDirectory)
+        {
+            services = services.WithConfigurationPatch(configuration => configuration.With(cacheRootDirectory: cacheRootDirectory.Uri.GetFilePath()));
+        }
+
+        return services;
+    }
 
     public static IServiceCollection WithEnvironmentVariables(this IServiceCollection services, params (string key, string? value)[] variables)
         => WithEnvironment(services, TestEnvironment.Default.WithVariables(variables));

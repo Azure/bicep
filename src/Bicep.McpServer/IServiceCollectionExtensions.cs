@@ -29,7 +29,8 @@ public static class IServiceCollectionExtensions
             .AddSingleton<BicepTools>()
             .AddSingleton<BicepCompilerTools>()
             .AddSingleton<BicepDecompilerTools>()
-            .AddSingleton<BicepDeploymentTools>();
+            .AddSingleton<BicepDeploymentTools>()
+            .AddSingleton<ConnectedTools>();
 
         return services.AddMcpServer(options =>
         {
@@ -39,6 +40,7 @@ public static class IServiceCollectionExtensions
         .WithTools<BicepCompilerTools>()
         .WithTools<BicepDecompilerTools>()
         .WithTools<BicepDeploymentTools>()
+        .WithTools<ConnectedTools>()
         .WithRequestFilters(filters =>
         {
             filters.AddCallToolFilter(next => async (context, cancellationToken) =>

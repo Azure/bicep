@@ -151,7 +151,7 @@ public static class RegistryHelper
             throw new InvalidOperationException($"Module {module.ModuleName} failed to produce a template.");
         }
 
-        BinaryData? sourcesStream = module.WithSource ? SourceArchive.CreateFrom(result.Compilation.SourceFileGrouping).PackIntoBinaryData() : null;
+        BinaryData? sourcesStream = module.WithSource ? SourceArchive.CreateFrom(fileExplorer, result.Compilation.SourceFileGrouping).PackIntoBinaryData() : null;
         await dispatcher.PublishModule(targetReference, BinaryData.FromString(result.Template.ToString()), sourcesStream, module.DocumentationUri);
     }
 

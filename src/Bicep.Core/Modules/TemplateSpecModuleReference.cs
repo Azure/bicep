@@ -24,14 +24,14 @@ namespace Bicep.Core.Modules
 
         private static readonly Regex ResourceNameRegex = new(@"^[-\w\.\(\)]{0,89}[-\w\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-        private TemplateSpecModuleReference(BicepSourceFile referencingFile, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
-            : base(referencingFile, ArtifactReferenceSchemes.TemplateSpecs)
+        private TemplateSpecModuleReference(IFileExplorer fileExplorer, BicepSourceFile referencingFile, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
+            : base(referencingFile.Configuration, ArtifactReferenceSchemes.TemplateSpecs)
         {
             this.SubscriptionId = subscriptionId;
             this.ResourceGroupName = resourceGroupName;
             this.TemplateSpecName = templateSpecName;
             this.Version = version;
-            this.templateSpecModuleArtifact = new(() => new(subscriptionId, resourceGroupName, templateSpecName, version, referencingFile.Features.CacheRootDirectory));
+            this.templateSpecModuleArtifact = new(() => new(subscriptionId, resourceGroupName, templateSpecName, version, referencingFile.Configuration.GetCacheRootDirectory(fileExplorer)));
         }
 
         public override string UnqualifiedReference => $"{this.SubscriptionId}/{this.ResourceGroupName}/{this.TemplateSpecName}:{this.Version}";
@@ -69,7 +69,7 @@ namespace Bicep.Core.Modules
             return hash.ToHashCode();
         }
 
-        public static ResultWithDiagnosticBuilder<TemplateSpecModuleReference> TryParse(BicepSourceFile referencingFile, string? aliasName, string referenceValue)
+        public static ResultWithDiagnosticBuilder<TemplateSpecModuleReference> TryParse(IFileExplorer fileExplorer, BicepSourceFile referencingFile, string? aliasName, string referenceValue)
         {
             if (aliasName is not null)
             {
@@ -132,7 +132,7 @@ namespace Bicep.Core.Modules
                 return new(x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(aliasName, version, FullyQualify(referenceValue)));
             }
 
-            return new(new TemplateSpecModuleReference(referencingFile, subscriptionId, resourceGroupName, templateSpecName, version));
+            return new(new TemplateSpecModuleReference(fileExplorer, referencingFile, subscriptionId, resourceGroupName, templateSpecName, version));
         }
 
         public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle() => new(this.MainTemplateSpecFile);

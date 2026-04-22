@@ -9,8 +9,6 @@ public interface IFeatureProvider
 {
     string AssemblyVersion { get; }
 
-    IDirectoryHandle CacheRootDirectory { get; }
-
     bool SymbolicNameCodegenEnabled { get; }
 
     bool ResourceTypedParamsAndOutputsEnabled { get; }

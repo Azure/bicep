@@ -86,7 +86,7 @@ public static class MockRegistry
             referenceStr = referenceStr[3..];
         }
 
-        if (!TemplateSpecModuleReference.TryParse(BicepTestConstants.DummyBicepFile, null, referenceStr).IsSuccess(out var specReference, out var errorBuilder))
+        if (!TemplateSpecModuleReference.TryParse(BicepTestConstants.FileExplorer, BicepTestConstants.DummyBicepFile, null, referenceStr).IsSuccess(out var specReference, out var errorBuilder))
         {
             diagnostic = errorBuilder(DiagnosticBuilder.ForDocumentStart());
 
@@ -122,7 +122,7 @@ public static class MockRegistry
         var manager = new TestExternalArtifactManager(compiler);
 
         manager.UpsertTemplateSpecs(CreateDefaultMockTemplateSpecs());
-        await manager.PublishRegistryModules(CreateDefaultMockModules());
+        await manager.PublishRegistryModules(BicepTestConstants.FileExplorer, CreateDefaultMockModules());
         await manager.PublishExtensions(CreateDefaultMockExtensions());
 
         return manager;

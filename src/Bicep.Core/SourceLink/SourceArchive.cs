@@ -95,14 +95,14 @@ namespace Bicep.Core.SourceLink
             return BinaryData.FromStream(stream);
         }
 
-        public static SourceArchive CreateFrom(SourceFileGrouping sourceFileGrouping)
+        public static SourceArchive CreateFrom(IFileExplorer fileExplorer, SourceFileGrouping sourceFileGrouping)
         {
             if (sourceFileGrouping.EntryPoint is not BicepFile)
             {
                 throw new InvalidOperationException("The entry point must be a Bicep file.");
             }
 
-            var metadataBySourceFile = CreateMetadataBySourceFile(sourceFileGrouping);
+            var metadataBySourceFile = CreateMetadataBySourceFile(fileExplorer, sourceFileGrouping);
             var sourceDocumentLink = CreateSourceFileLinks(sourceFileGrouping, metadataBySourceFile);
             var entryPointPath = metadataBySourceFile[sourceFileGrouping.EntryPoint].Path;
             var bicepVersion = sourceFileGrouping.EntryPoint.Features.AssemblyVersion;
@@ -196,7 +196,7 @@ namespace Bicep.Core.SourceLink
             }
         }
 
-        private static Dictionary<ISourceFile, ArchivedSourceFileMetadata> CreateMetadataBySourceFile(SourceFileGrouping sourceFileGrouping)
+        private static Dictionary<ISourceFile, ArchivedSourceFileMetadata> CreateMetadataBySourceFile(IFileExplorer fileExplorer, SourceFileGrouping sourceFileGrouping)
         {
             var result = new Dictionary<ISourceFile, ArchivedSourceFileMetadata>()
             {
@@ -219,7 +219,7 @@ namespace Bicep.Core.SourceLink
                 });
 
             var entryPointDirectoryUri = sourceFileGrouping.EntryPoint.FileHandle.Uri.Resolve(".");
-            var cacheRootDirectoryUri = sourceFileGrouping.EntryPoint.Features.CacheRootDirectory.Uri;
+            var cacheRootDirectoryUri = sourceFileGrouping.EntryPoint.Configuration.GetCacheRootDirectory(fileExplorer).Uri;
             var otherDirectoryFiles = new List<ISourceFile>();
 
             foreach (var file in sourceFileGrouping.SourceFiles.Where(x => x != sourceFileGrouping.EntryPoint && ShouldArchiveSourceFile(x)))

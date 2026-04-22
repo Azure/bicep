@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -690,7 +691,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             await RestoreModule(ociRegistry, moduleReference);
 
-            var modules = CachedModules.GetCachedModules(BicepTestConstants.FileSystem, bicepFile.Features.CacheRootDirectory);
+            var modules = CachedModules.GetCachedModules(BicepTestConstants.FileSystem, bicepFile.Configuration.GetCacheRootDirectory(BicepTestConstants.FileExplorer));
             modules.Should().HaveCountGreaterThan(0);
 
             if (publishSource)
@@ -730,7 +731,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         private OciArtifactReference CreateModuleReference(BicepSourceFile referencingFile, string registry, string repository, string? tag, string? digest)
         {
-            OciArtifactReference.TryParse(referencingFile, ArtifactType.Module, null, $"{registry}/{repository}:{tag}").IsSuccess(out var moduleReference).Should().BeTrue();
+          OciArtifactReference.TryParse(BicepTestConstants.FileExplorer, referencingFile.Configuration, ArtifactType.Module, null, $"{registry}/{repository}:{tag}").IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 
@@ -741,19 +742,18 @@ namespace Bicep.Core.UnitTests.Registry
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", parentBicepFileContents ?? "", TestOutputPath);
             var parentModuleUri = new Uri(bicepPath);
 
-            var featureProviderMock = StrictMock.Of<IFeatureProvider>();
             var cacheRootDirectory = BicepTestConstants.FileExplorer.GetDirectory(IOUri.FromFilePath(TestOutputPath));
-            featureProviderMock.Setup(m => m.CacheRootDirectory).Returns(cacheRootDirectory);
 
-            var featureProviderFactoryMock = StrictMock.Of<IFeatureProviderFactory>();
-            featureProviderFactoryMock.Setup(m => m.GetFeatureProvider(parentModuleUri.ToIOUri())).Returns(featureProviderMock.Object);
+            var configurationManager = IConfigurationManager.WithStaticConfiguration(IConfigurationManager.GetBuiltInConfiguration().With(cacheRootDirectory: cacheRootDirectory.Uri.GetFilePath()));
+
+            var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(BicepTestConstants.FeatureOverrides, configurationManager);
 
             var parentModuleFile = new BicepFile(
                 BicepTestConstants.FileExplorer.GetFile(parentModuleUri.ToIOUri()),
                 [],
                 SyntaxFactory.EmptyProgram,
-                BicepTestConstants.ConfigurationManager,
-                featureProviderFactoryMock.Object,
+              configurationManager,
+              featureProviderFactory,
                 BicepTestConstants.AuxiliaryFileCache,
                 EmptyDiagnosticLookup.Instance,
                 EmptyDiagnosticLookup.Instance);

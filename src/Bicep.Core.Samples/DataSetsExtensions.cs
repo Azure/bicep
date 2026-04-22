@@ -62,7 +62,7 @@ namespace Bicep.Core.Samples
         public static async Task PublishAllDataSetArtifacts(this DataSet dataSet, TestExternalArtifactManager manager, bool publishSource = true)
         {
             manager.UpsertTemplateSpecs(dataSet.TemplateSpecs.Select(kvp => MockRegistry.ConvertExternalModuleInfoToMockTemplateSpecData(kvp.Value)));
-            await manager.PublishRegistryModules(dataSet.RegistryModules.Select(m => new TestExternalArtifactManager.RegistryModulePublishArguments(m.Value.Metadata.Target, m.Value.ModuleSource, publishSource)));
+            await manager.PublishRegistryModules(BicepTestConstants.FileExplorer, dataSet.RegistryModules.Select(m => new TestExternalArtifactManager.RegistryModulePublishArguments(m.Value.Metadata.Target, m.Value.ModuleSource, publishSource)));
             await manager.PublishExtensions(MockRegistry.CreateDefaultMockExtensions());
         }
 

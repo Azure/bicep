@@ -46,17 +46,18 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         private readonly MockFileSystem MockFileSystem;
 
+        private readonly IFileExplorer MockFileExplorer;
+
         private readonly IDirectoryHandle CacheRootDirectory;
 
         public BicepExternalSourceDocumentLinkHandlerTests()
         {
             this.MockFileSystem = new();
 
-            var mockFileExplorer = new FileSystemFileExplorer(this.MockFileSystem);
-            var mockConfigurationManager = new ConfigurationManager(mockFileExplorer);
-            var featureProviderFactory = new FeatureProviderFactory(mockConfigurationManager, mockFileExplorer);
+            this.MockFileExplorer = new FileSystemFileExplorer(this.MockFileSystem);
+            var mockConfigurationManager = new ConfigurationManager(this.MockFileExplorer);
 
-            this.CacheRootDirectory = featureProviderFactory.GetFeatureProvider(new IOUri("file", "", "/dummy.bicep")).CacheRootDirectory;
+            this.CacheRootDirectory = mockConfigurationManager.GetConfiguration(new IOUri("file", "", "/dummy.bicep")).GetCacheRootDirectory(this.MockFileExplorer);
         }
 
         private void ResetModuleCache()
@@ -94,7 +95,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 });
 
             var links = BicepExternalSourceDocumentLinkHandler.GetDocumentLinks(
-                sourceFileFactory,
+                this.MockFileExplorer,
                 new DocumentLinkParams() { TextDocument = documentId },
                 CancellationToken.None)
             .ToArray();
@@ -108,7 +109,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
                 telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
 
-                var resolvedLink = await BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink(link, moduleDispatcher, sourceFileFactory, server.Mock.Object, telemetryProvider.Object);
+                var resolvedLink = await BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink(link, moduleDispatcher, this.MockFileExplorer, server.Mock.Object, telemetryProvider.Object);
                 resolvedLinks.Add(resolvedLink);
 
                 telemetryProvider.Verify(m => m.PostEvent(It.Is<BicepTelemetryEvent>(
@@ -231,7 +232,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var target = new ExternalSourceReference(link.Target!);
             target.FullTitle.Should().Be("br:mockregistry.io/test/module1:v1 -> main.bicep");
             target.RequestedFile.Should().Be("main.bicep");
-            target.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
+            target.ToArtifactReference(this.MockFileExplorer, BicepTestConstants.DummyBicepFile.Configuration).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
         }
 
         [TestMethod]
@@ -282,7 +283,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var target1 = new ExternalSourceReference(link1.Target!);
             target1.FullTitle.Should().Be("br:mockregistry.io/test/module1:v1 -> main.bicep");
             target1.RequestedFile.Should().Be("main.bicep");
-            target1.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
+            target1.ToArtifactReference(this.MockFileExplorer, BicepTestConstants.DummyBicepFile.Configuration).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
 
             var link2 = links.Skip(1).First();
             link2.Range.Should().HaveRange((6, 12), (6, 48));
@@ -290,7 +291,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var target2 = new ExternalSourceReference(link2.Target!);
             target2.FullTitle.Should().Be("br:mockregistry.io/test/module1:v2 -> main.bicep");
             target2.RequestedFile.Should().Be("main.bicep");
-            target2.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v2");
+            target2.ToArtifactReference(this.MockFileExplorer, BicepTestConstants.DummyBicepFile.Configuration).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v2");
 
             // ACT: Follow that link and get all nested links inside module1:v2
             var (msg3, links3) = await GetAndResolveLinksForDisplayedDocument(moduleDispatcher, sourceFileFactory, new TextDocumentIdentifier(target2.ToUri()));
@@ -299,7 +300,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var link3 = links3.Should().HaveCount(1).And.Subject.First();
             link3.Target.Should().NotBeNull();
             var target3 = new ExternalSourceReference(link3.Target!);
-            target3.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
+            target3.ToArtifactReference(this.MockFileExplorer, BicepTestConstants.DummyBicepFile.Configuration).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v1");
 
             // Should have restored module1:v1
             GetCachedModules().Should().BeEquivalentTo([
@@ -378,7 +379,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var link = links.Should().HaveCount(1).And.Subject.First();
             link.Target.Should().NotBeNull();
             var target1 = new ExternalSourceReference(link.Target!);
-            target1.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v2");
+            target1.ToArtifactReference(this.MockFileExplorer, BicepTestConstants.DummyBicepFile.Configuration).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v2");
 
             // Should have restored module1:v2
             GetCachedModules().Should().BeEquivalentTo([
@@ -417,7 +418,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             links.Should().HaveCount(1);
             var target = new ExternalSourceReference(links[0].Target!);
             target.RequestedFile.Should().Be("<cache>/br/mockregistry.io/test$module1/v2$/main.json");
-            target.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v3");
+            target.ToArtifactReference(this.MockFileExplorer, BicepTestConstants.DummyBicepFile.Configuration).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v3");
         }
 
         [TestMethod]
@@ -450,7 +451,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             links.Should().HaveCount(1);
             var target = new ExternalSourceReference(links[0].Target!);
             target.RequestedFile.Should().Be("<cache>/br/mockregistry.io/test$module1/v2$/main.json");
-            target.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v3");
+            target.ToArtifactReference(this.MockFileExplorer, BicepTestConstants.DummyBicepFile.Configuration).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.io/test/module1:v3");
         }
     }
 }

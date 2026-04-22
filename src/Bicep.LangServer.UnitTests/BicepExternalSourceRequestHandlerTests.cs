@@ -82,7 +82,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var telemetryProviderMock = new TelemetryProviderMock();
 
             const string ModuleRefStr = "./hello.bicep";
-            LocalModuleReference.TryParse(BicepTestConstants.DummyBicepFile, ArtifactType.Module, ModuleRefStr).IsSuccess(out var localRef).Should().BeTrue();
+            LocalModuleReference.TryParse(BicepTestConstants.FileExplorer, BicepTestConstants.DummyBicepFile, ArtifactType.Module, ModuleRefStr).IsSuccess(out var localRef).Should().BeTrue();
             localRef.Should().NotBeNull();
 
             ArtifactReference? outRef = localRef;
@@ -111,7 +111,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var telemetryProviderMock = new TelemetryProviderMock();
             const string ModuleRefStr = "br:example.azurecr.invalid/foo/bar:v3";
 
-            var moduleReference = ParseModuleReference(BicepTestConstants.DummyBicepFile, ModuleRefStr);
+            var moduleReference = ParseModuleReference(BicepTestConstants.FileExplorer, IConfigurationManager.GetBuiltInConfiguration(), ModuleRefStr);
 
             ArtifactReference? outRef = moduleReference;
             dispatcher.Setup(m => m.TryGetArtifactReference(It.IsAny<BicepSourceFile>(), ArtifactType.Module, ModuleRefStr)).Returns(ResultHelper.Create(outRef, failureBuilder));
@@ -395,7 +395,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var referencingFile = BicepTestConstants.DummyBicepFile;
 
             TemplateSpecModuleReference
-                .TryParse(referencingFile, null, referenceValue)
+                .TryParse(BicepTestConstants.FileExplorer, referencingFile, null, referenceValue)
                 .IsSuccess(out var reference, out var errorBuilder)
                 .Should()
                 .BeTrue();
@@ -409,7 +409,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             Uri? entrypointUri = testData.SourceEntrypoint is { } ? PathHelper.FilePathToFileUrl(testData.SourceEntrypoint) : null;
             OciArtifactReference reference = new(
-                BicepTestConstants.DummyBicepFile,
+                BicepTestConstants.FileExplorer,
+                BicepTestConstants.DummyBicepFile.Configuration,
                 ArtifactType.Module,
                 testData.Registry,
                 testData.Repository,
@@ -531,29 +532,33 @@ namespace Bicep.LangServer.UnitTests.Handlers
             cacheDirectoryMock.Setup(x => x.GetFile("main.json")).Returns(mainJsonFileMock.Object);
 
             var cacheRootDirectoryMock = StrictMock.Of<IDirectoryHandle>();
+            var cacheRootUri = new IOUri("file", "", "/cacheRoot");
+            cacheRootDirectoryMock.SetupGet(x => x.Uri).Returns(cacheRootUri);
             cacheRootDirectoryMock.Setup(x => x.GetDirectory(It.IsAny<string>())).Returns(cacheDirectoryMock.Object);
 
-            var featureProviderMock = StrictMock.Of<IFeatureProvider>();
-            featureProviderMock.Setup(x => x.CacheRootDirectory).Returns(cacheRootDirectoryMock.Object);
+            var fileExplorer = StrictMock.Of<IFileExplorer>();
+            fileExplorer.Setup(x => x.GetDirectory(It.Is<IOUri>(uri => uri == cacheRootUri))).Returns(cacheRootDirectoryMock.Object);
+            fileExplorer.Setup(x => x.GetDirectory(It.Is<IOUri>(uri => uri != cacheRootUri))).Returns((IOUri uri) => BicepTestConstants.FileExplorer.GetDirectory(uri));
+            fileExplorer.Setup(x => x.GetFile(It.IsAny<IOUri>())).Returns((IOUri uri) => BicepTestConstants.FileExplorer.GetFile(uri));
 
-            var featureProviderFactoryMock = StrictMock.Of<IFeatureProviderFactory>();
-            featureProviderFactoryMock.Setup(x => x.GetFeatureProvider(It.IsAny<IOUri>())).Returns(featureProviderMock.Object);
+            var configurationManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfiguration.With(cacheRootDirectory: cacheRootUri.GetFilePath()));
+            var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(BicepTestConstants.FeatureOverrides, configurationManager);
 
-            var sourceFileFactory = new SourceFileFactory(BicepTestConstants.ConfigurationManager, featureProviderFactoryMock.Object, BicepTestConstants.AuxiliaryFileCache, BicepTestConstants.FileExplorer);
+            var sourceFileFactory = new SourceFileFactory(configurationManager, featureProviderFactory, BicepTestConstants.AuxiliaryFileCache, fileExplorer.Object);
 
-            var referencingFile = sourceFileFactory.CreateDummyArtifactReferencingFile();
+            var configuration = IConfigurationManager.GetBuiltInConfiguration();
 
-            return (ParseModuleReference(referencingFile, referenceValue), sourceFileFactory);
+            return (ParseModuleReference(fileExplorer.Object, configuration, referenceValue), sourceFileFactory);
         }
 
-        private static OciArtifactReference ParseModuleReference(BicepFile referencingFile, string fullyQualifiedReference, string? aliasName = null)
+        private static OciArtifactReference ParseModuleReference(IFileExplorer fileExplorer, RootConfiguration configuration, string fullyQualifiedReference, string? aliasName = null)
         {
             if (!fullyQualifiedReference.StartsWith("br:"))
             {
                 throw new ArgumentException("Module reference is not fully qualified.");
             }
 
-            return OciArtifactReference.TryParse(referencingFile, ArtifactType.Module, aliasName, fullyQualifiedReference[3..]).Unwrap();
+            return OciArtifactReference.TryParse(fileExplorer, configuration, ArtifactType.Module, aliasName, fullyQualifiedReference[3..]).Unwrap();
         }
     }
 }

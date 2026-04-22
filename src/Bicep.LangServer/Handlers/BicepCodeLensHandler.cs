@@ -3,6 +3,7 @@
 
 using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -14,13 +15,13 @@ namespace Bicep.LanguageServer.Handlers
     // Provides code lenses for a range in a Bicep document
     public class BicepCodeLensHandler : CodeLensHandlerBase
     {
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IFileExplorer fileExplorer;
         private readonly ISourceFileFactory sourceFileFactory;
         private readonly DocumentSelectorFactory documentSelectorFactory;
 
-        public BicepCodeLensHandler(IModuleDispatcher moduleDispatcher, ISourceFileFactory sourceFileFactory, DocumentSelectorFactory documentSelectorFactory)
+        public BicepCodeLensHandler(IFileExplorer fileExplorer, ISourceFileFactory sourceFileFactory, DocumentSelectorFactory documentSelectorFactory)
         {
-            this.moduleDispatcher = moduleDispatcher;
+            this.fileExplorer = fileExplorer;
             this.sourceFileFactory = sourceFileFactory;
             this.documentSelectorFactory = documentSelectorFactory;
         }
@@ -29,7 +30,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var lenses = ExternalSourceCodeLensProvider.GetCodeLenses(moduleDispatcher, sourceFileFactory, request, cancellationToken);
+            var lenses = ExternalSourceCodeLensProvider.GetCodeLenses(fileExplorer, sourceFileFactory, request, cancellationToken);
 
             return Task.FromResult<CodeLensContainer?>(new CodeLensContainer(lenses));
         }

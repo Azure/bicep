@@ -3,7 +3,6 @@
 param boolParam1 bool
 param strParam1 string
 param objParam1 object
-//@[16:022) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
 param invalidParamAssignment1 string = k8s.config.namespace
 //@[06:029) [no-unused-params (Warning)] Parameter "invalidParamAssignment1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |invalidParamAssignment1|
 //@[39:042) [BCP418 (Error)] Extensions cannot be referenced here. Extensions can only be referenced by module extension configurations. (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |k8s|
@@ -194,13 +193,11 @@ module moduleInvalidInheritanceTernary2 'child/hasConfigurableExtensionsWithAlia
 // Extension symbols are blocked for outputs for now. Users should use deployment parameters for this scenario.
 
 output k8sTheNamespace object = k8s // This is a namespace type
-//@[23:029) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
 //@[32:035) [BCP033 (Error)] Expected a value of type "object" but the provided value is of type "k8s". (bicep https://aka.ms/bicep/core-diagnostics#BCP033) |k8s|
 //@[32:035) [BCP418 (Error)] Extensions cannot be referenced here. Extensions can only be referenced by module extension configurations. (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |k8s|
 //@[32:035) [outputs-should-not-contain-secrets (Warning)] Outputs should not contain secrets. Found possible secret: secure value 'k8s.config.kubeConfig' (bicep core linter https://aka.ms/bicep/linter-diagnostics#outputs-should-not-contain-secrets) |k8s|
 
 output k8sConfig object = k8s.config
-//@[17:023) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
 //@[26:029) [BCP418 (Error)] Extensions cannot be referenced here. Extensions can only be referenced by module extension configurations. (bicep https://aka.ms/bicep/core-diagnostics#BCP418) |k8s|
 //@[30:036) [outputs-should-not-contain-secrets (Warning)] Outputs should not contain secrets. Found possible secret: secure value 'k8s.config.kubeConfig' (bicep core linter https://aka.ms/bicep/linter-diagnostics#outputs-should-not-contain-secrets) |config|
 

@@ -82,7 +82,7 @@ namespace Bicep.Core.UnitTests
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 
         public static IArtifactRegistryProvider CreateRegistryProvider(IServiceProvider services) =>
-            new DefaultArtifactRegistryProvider(services, ClientFactory, TemplateSpecRepositoryFactory);
+            new DefaultArtifactRegistryProvider(FileExplorer, services, ClientFactory, TemplateSpecRepositoryFactory);
 
         public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) => new ModuleDispatcher(CreateRegistryProvider(services));
 

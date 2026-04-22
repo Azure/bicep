@@ -4,6 +4,7 @@
 using Bicep.Core.Registry;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
+using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using Bicep.TextFixtures.Fakes.ContainerRegistry;
 using Bicep.TextFixtures.Fakes.TemplateSpec;
@@ -27,7 +28,7 @@ namespace Bicep.TextFixtures.Utils
             this.compiler = (compiler ?? TestCompiler.ForMockFileSystemCompilation()).ConfigureServices(services => services.AddExternalArtifactManager(this));
         }
 
-        public async Task PublishRegistryModule(string moduleArtifactId, string moduleContent, bool withSource = false, string? documentationUri = null)
+        public async Task PublishRegistryModule(IFileExplorer fileExplorer, string moduleArtifactId, string moduleContent, bool withSource = false, string? documentationUri = null)
         {
             var dispatcher = this.compiler.GetService<IModuleDispatcher>();
             var sourceFileFactory = compiler.GetService<ISourceFileFactory>();
@@ -40,19 +41,19 @@ namespace Bicep.TextFixtures.Utils
                 throw new InvalidOperationException($"Module {moduleArtifactId} has errors.");
             }
 
-            BinaryData? sourceArchiveData = withSource ? SourceArchive.CreateFrom(compilationResult.Compilation.SourceFileGrouping).PackIntoBinaryData() : null;
+            BinaryData? sourceArchiveData = withSource ? SourceArchive.CreateFrom(fileExplorer, compilationResult.Compilation.SourceFileGrouping).PackIntoBinaryData() : null;
             await dispatcher.PublishModule(targetReference, BinaryData.FromString(compilationResult.Template.ToString()), sourceArchiveData, documentationUri);
         }
 
-        public async Task PublishRegistryModules(IEnumerable<RegistryModulePublishArguments> modules)
+        public async Task PublishRegistryModules(IFileExplorer fileExplorer, IEnumerable<RegistryModulePublishArguments> modules)
         {
             foreach (var module in modules)
             {
-                await PublishRegistryModule(module.ModuleArtifactId, module.ModuleContent, module.WithSource, module.DocumentationUri);
+                await PublishRegistryModule(fileExplorer, module.ModuleArtifactId, module.ModuleContent, module.WithSource, module.DocumentationUri);
             }
         }
 
-        public async Task PublishRegistryModules(params RegistryModulePublishArguments[] modules) => await PublishRegistryModules(modules.AsEnumerable());
+        public async Task PublishRegistryModules(IFileExplorer fileExplorer, params RegistryModulePublishArguments[] modules) => await PublishRegistryModules(fileExplorer, modules.AsEnumerable());
 
         public void UpsertTemplateSpec(string templateSpecId, string templateSpecContent)
         {

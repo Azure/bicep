@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
@@ -12,18 +13,18 @@ namespace Bicep.Core.Registry
     /// </summary>
     public abstract class ArtifactReference
     {
-        protected ArtifactReference(BicepSourceFile referencingFile, string scheme)
+        protected ArtifactReference(RootConfiguration configuration, string scheme)
         {
             Scheme = scheme;
-            ReferencingFile = referencingFile;
+            Configuration = configuration;
         }
 
         public string Scheme { get; }
 
         /// <summary>
-        /// The URI of the template in which this artifact reference appears.
+        /// The configuration.
         /// </summary>
-        public BicepSourceFile ReferencingFile { get; }
+        public RootConfiguration Configuration { get; }
 
         /// <summary>
         /// Gets the fully qualified artifact reference, which includes the scheme.

@@ -26,16 +26,18 @@ namespace Bicep.Core.Modules
         private readonly Lazy<ResultWithDiagnosticBuilder<BinaryData>> lazyExtensionBinaryDataResult;
         private readonly Lazy<LocalExtensionArtifact> lazyLocalExtensionArtifact;
 
-        private LocalModuleReference(BicepSourceFile referencingFile, ArtifactType artifactType, RelativePath path)
-            : base(referencingFile, ArtifactReferenceSchemes.Local)
+        private LocalModuleReference(IFileExplorer fileExplorer, BicepSourceFile referencingFile, ArtifactType artifactType, RelativePath path)
+            : base(referencingFile.Configuration, ArtifactReferenceSchemes.Local)
         {
+            ReferencingFile = referencingFile;
             ArtifactType = artifactType;
             this.Path = path;
-            this.lazyTargetFileResult = new(() => this.ReferencingFile.FileHandle.TryGetRelativeFile(this.Path));
+            this.lazyTargetFileResult = new(() => referencingFile.FileHandle.TryGetRelativeFile(this.Path));
             this.lazyExtensionBinaryDataResult = new(() => this.lazyTargetFileResult.Value.Transform(x => x.TryReadBinaryData()));
-            this.lazyLocalExtensionArtifact = new(() => new(this.lazyExtensionBinaryDataResult.Value.Unwrap(), referencingFile.Features.CacheRootDirectory));
+            this.lazyLocalExtensionArtifact = new(() => new(this.lazyExtensionBinaryDataResult.Value.Unwrap(), referencingFile.Configuration.GetCacheRootDirectory(fileExplorer)));
         }
 
+        public BicepSourceFile ReferencingFile { get; }
         public ArtifactType ArtifactType { get; }
 
         /// <summary>
@@ -61,8 +63,8 @@ namespace Bicep.Core.Modules
 
         public override bool IsExternal => false;
 
-        public static ResultWithDiagnosticBuilder<LocalModuleReference> TryParse(BicepSourceFile referencingFile, ArtifactType artifactType, string unqualifiedReference) =>
-            RelativePath.TryCreate(unqualifiedReference).Transform(relativePath => new LocalModuleReference(referencingFile, artifactType, relativePath));
+        public static ResultWithDiagnosticBuilder<LocalModuleReference> TryParse(IFileExplorer fileExplorer, BicepSourceFile referencingFile, ArtifactType artifactType, string unqualifiedReference) =>
+            RelativePath.TryCreate(unqualifiedReference).Transform(relativePath => new LocalModuleReference(fileExplorer, referencingFile, artifactType, relativePath));
 
         public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle()
         {

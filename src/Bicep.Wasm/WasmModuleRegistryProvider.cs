@@ -2,13 +2,14 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Registry;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Wasm
 {
     public class WasmModuleRegistryProvider : ArtifactRegistryProvider
     {
-        public WasmModuleRegistryProvider()
-            : base([new LocalModuleRegistry()])
+        public WasmModuleRegistryProvider(IFileExplorer fileExplorer)
+            : base([new LocalModuleRegistry(fileExplorer)])
         {
         }
     }

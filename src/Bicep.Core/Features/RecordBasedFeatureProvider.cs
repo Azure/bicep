@@ -11,7 +11,6 @@ namespace Bicep.Core.Features
         public static IFeatureProvider AllDisabled { get; } = new RecordBasedFeatureProvider(ExperimentalFeaturesEnabled.AllDisabled);
 
         public string AssemblyVersion => throw new NotImplementedException();
-        public IDirectoryHandle CacheRootDirectory => throw new NotImplementedException();
         public bool SymbolicNameCodegenEnabled => features.SymbolicNameCodegen;
         public bool ResourceTypedParamsAndOutputsEnabled => features.ResourceTypedParamsAndOutputs;
         public bool SourceMappingEnabled => features.SourceMapping;

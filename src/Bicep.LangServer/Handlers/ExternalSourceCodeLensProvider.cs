@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
+using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Extensions;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -19,7 +21,7 @@ namespace Bicep.LanguageServer.Handlers
     {
         private static readonly Range DocumentStart = new(new Position(0, 0), new Position(0, 0));
 
-        public static IEnumerable<CodeLens> GetCodeLenses(IModuleDispatcher moduleDispatcher, ISourceFileFactory sourceFileFactory, CodeLensParams request, CancellationToken cancellationToken)
+        public static IEnumerable<CodeLens> GetCodeLenses(IFileExplorer fileExplorer, ISourceFileFactory sourceFileFactory, CodeLensParams request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -47,7 +49,8 @@ namespace Bicep.LanguageServer.Handlers
                     Debug.Assert(message is null);
 
                     var isDisplayingCompiledJson = externalReference.IsRequestingCompiledJson;
-                    if (externalReference.ToArtifactReference(sourceFileFactory.CreateDummyArtifactReferencingFile()).IsSuccess(out var artifactReference, out message))
+                    var configuration = IConfigurationManager.GetBuiltInConfiguration();
+                    if (externalReference.ToArtifactReference(fileExplorer, configuration).IsSuccess(out var artifactReference, out message))
                     {
                         var sourceArchiveResult = artifactReference.TryLoadSourceArchive();
 

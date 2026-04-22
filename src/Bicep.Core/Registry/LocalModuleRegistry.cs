@@ -22,6 +22,13 @@ namespace Bicep.Core.Registry
 
     public class LocalModuleRegistry : ExternalArtifactRegistry<LocalModuleReference, LocalModuleEntity>
     {
+        private readonly IFileExplorer fileExplorer;
+
+        public LocalModuleRegistry(IFileExplorer fileExplorer)
+        {
+            this.fileExplorer = fileExplorer;
+        }
+
         public override string Scheme => ArtifactReferenceSchemes.Local;
 
         public override RegistryCapabilities GetCapabilities(ArtifactType artifactType, LocalModuleReference reference)
@@ -39,7 +46,7 @@ namespace Bicep.Core.Registry
                 return new(x => x.UnsupportedArtifactType(artifactType));
             }
 
-            if (!LocalModuleReference.TryParse(referencingFile, artifactType, reference).IsSuccess(out var @ref, out var failureBuilder))
+            if (!LocalModuleReference.TryParse(this.fileExplorer, referencingFile, artifactType, reference).IsSuccess(out var @ref, out var failureBuilder))
             {
                 return new(failureBuilder);
             }
@@ -129,7 +136,7 @@ namespace Bicep.Core.Registry
             this.GetTypesTgzFile(reference).Write(entity.Package.Types);
         }
 
-        private static IDirectoryHandle? TryGetArtifactDirectory(LocalModuleReference reference)
+        private static IDirectoryHandle? TryGetArtifactDirectory(IFileExplorer fileExplorer, LocalModuleReference reference)
         {
             if (TryReadContent(reference) is not { } binaryData)
             {
@@ -140,12 +147,12 @@ namespace Bicep.Core.Registry
             // We must use '_' as a separator here because Windows does not allow ':' in file paths.
             var digest = OciDescriptor.ComputeDigest(OciDescriptor.AlgorithmIdentifierSha256, binaryData, separator: '_');
 
-            return reference.ReferencingFile.Features.CacheRootDirectory.GetDirectory($"local/{digest}");
+            return reference.ReferencingFile.Configuration.GetCacheRootDirectory(fileExplorer).GetDirectory($"local/{digest}");
         }
 
         protected override IDirectoryHandle GetArtifactDirectory(LocalModuleReference reference)
         {
-            if (TryGetArtifactDirectory(reference) is not { } directory)
+            if (TryGetArtifactDirectory(fileExplorer, reference) is not { } directory)
             {
                 throw new InvalidOperationException($"Failed to resolve file path for {reference.FullyQualifiedReference}");
             }
@@ -170,6 +177,6 @@ namespace Bicep.Core.Registry
             this.TryGetFile(reference, path) ??
             throw new InvalidOperationException($"Failed to resolve file for {reference.FullyQualifiedReference}.");
 
-        private IFileHandle? TryGetFile(LocalModuleReference reference, string path) => TryGetArtifactDirectory(reference)?.GetFile(path);
+        private IFileHandle? TryGetFile(LocalModuleReference reference, string path) => TryGetArtifactDirectory(this.fileExplorer, reference)?.GetFile(path);
     }
 }

@@ -43,7 +43,7 @@ namespace Bicep.Core.IntegrationTests
             {
                 DiagnosticAssertions.DoWithDiagnosticAnnotations(
                     file,
-                    diagnostics.Where(d => !IsPermittedMissingTypeDiagnostic(d)),
+                    diagnostics.Where(d => d.Level == DiagnosticLevel.Error),
                     diagnostics =>
                     {
                         diagnostics.Should().BeEmpty("{0} should not have warnings or errors", file.FileHandle.Uri);
@@ -106,22 +106,6 @@ namespace Bicep.Core.IntegrationTests
 
         private static IEnumerable<object[]> GetAllExampleData()
             => ExampleData.GetAllExampleData().Select(x => new object[] { x.BicepFile });
-
-        private static bool IsPermittedMissingTypeDiagnostic(IDiagnostic diagnostic)
-        {
-            if (diagnostic.Code != "BCP081")
-            {
-                return false;
-            }
-
-            var permittedMissingTypeDiagnostics = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                // To exclude a particular type for BCP081 (if there are missing types), add an entry of format:
-                // "Resource type \"<type>\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed.",
-            };
-
-            return permittedMissingTypeDiagnostics.Contains(diagnostic.Message);
-        }
 
         public record ExampleData(
             EmbeddedFile BicepFile)

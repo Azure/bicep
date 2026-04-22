@@ -113,13 +113,13 @@ namespace Bicep.Core.UnitTests.Modules
         private static bool IsValid(string package)
         {
             // NOTE: ArtifactAddressComponents doesn't currently have a parser separate from OciArtifactReference.
-            return OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile, ArtifactType.Module, null, package).IsSuccess(out var _, out var _);
+            return OciArtifactReference.TryParse(BicepTestConstants.FileExplorer, BicepTestConstants.DummyBicepFile.Configuration, ArtifactType.Module, null, package).IsSuccess(out var _, out var _);
         }
 
         private static OciArtifactAddressComponents Parse(string package)
         {
             // NOTE: ArtifactAddressComponents doesn't currently have a parser separate from OciArtifactReference.
-            OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile, ArtifactType.Module, null, package).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
+            OciArtifactReference.TryParse(BicepTestConstants.FileExplorer, BicepTestConstants.DummyBicepFile.Configuration, ArtifactType.Module, null, package).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
             failureBuilder!.Should().BeNull();
             parsed.Should().NotBeNull();
             return (OciArtifactAddressComponents)parsed!.AddressComponents;

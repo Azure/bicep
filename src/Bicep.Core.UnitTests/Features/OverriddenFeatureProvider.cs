@@ -19,8 +19,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public string AssemblyVersion => overrides.AssemblyVersion ?? features.AssemblyVersion;
 
-    public IDirectoryHandle CacheRootDirectory => overrides.CacheRootDirectory ?? features.CacheRootDirectory;
-
     public bool SymbolicNameCodegenEnabled => overrides.SymbolicNameCodegenEnabled ?? features.SymbolicNameCodegenEnabled;
 
     public bool ResourceTypedParamsAndOutputsEnabled => overrides.ResourceTypedParamsAndOutputsEnabled ?? features.ResourceTypedParamsAndOutputsEnabled;

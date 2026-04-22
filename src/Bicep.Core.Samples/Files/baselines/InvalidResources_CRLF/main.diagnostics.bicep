@@ -1655,7 +1655,6 @@ resource propertyLoopsCannotNest 'Microsoft.Storage/storageAccounts@2019-06-01' 
     networkAcls: {
       virtualNetworkRules: [for rule in []: {
         id: '${account.name}-${account.location}'
-//@[008:010) [use-resource-id-functions (Warning)] If property "id" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, managementGroupResourceId, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-resource-id-functions) |id|
         state: [for lol in []: 4]
 //@[016:019) [BCP142 (Error)] Property value for-expressions cannot be nested. (bicep https://aka.ms/bicep/core-diagnostics#BCP142) |for|
       }]
@@ -1676,7 +1675,6 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
     networkAcls: {
       virtualNetworkRules: [for (rule,j) in []: {
         id: '${account.name}-${account.location}'
-//@[008:010) [use-resource-id-functions (Warning)] If property "id" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, managementGroupResourceId, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-resource-id-functions) |id|
         state: [for (lol,k) in []: 4]
 //@[016:019) [BCP142 (Error)] Property value for-expressions cannot be nested. (bicep https://aka.ms/bicep/core-diagnostics#BCP142) |for|
       }]
@@ -1699,7 +1697,6 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
       virtualNetworkRules: [for rule in []: {
         // #completionTest(15,31) -> symbolsPlusRule
         id: '${account.name}-${account.location}'
-//@[008:010) [use-resource-id-functions (Warning)] If property "id" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, managementGroupResourceId, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-resource-id-functions) |id|
         state: [for state in []: {
 //@[016:019) [BCP142 (Error)] Property value for-expressions cannot be nested. (bicep https://aka.ms/bicep/core-diagnostics#BCP142) |for|
           // #completionTest(38) -> empty #completionTest(16) -> symbolsPlusAccountRuleState
@@ -1725,7 +1722,6 @@ resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in
       virtualNetworkRules: concat([for lol in []: {
 //@[035:038) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. (bicep https://aka.ms/bicep/core-diagnostics#BCP138) |for|
         id: '${account.name}-${account.location}'
-//@[008:010) [use-resource-id-functions (Warning)] If property "id" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, managementGroupResourceId, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-resource-id-functions) |id|
       }])
     }
   }
@@ -1749,7 +1745,6 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
 var directRefViaVar = premiumStorages
 //@[004:019) [no-unused-vars (Warning)] Variable "directRefViaVar" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |directRefViaVar|
 output directRefViaOutput array = union(premiumStorages, stuffs)
-//@[026:031) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
 
 resource directRefViaSingleResourceBody 'Microsoft.Network/dnszones@2018-05-01' = {
   name: 'myZone2'
@@ -2198,9 +2193,7 @@ var issue3000stgManagedByExtended = issue3000stg.managedByExtended
 //@[049:066) [BCP187 (Warning)] The property "managedByExtended" does not exist in the resource or type definition, although it might still be valid. If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues. (bicep https://aka.ms/bicep/core-diagnostics#BCP187) |managedByExtended|
 
 param dataCollectionRule object
-//@[025:031) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
 param tags object
-//@[011:017) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
 
 var defaultLogAnalyticsWorkspace = {
   subscriptionId: subscription().subscriptionId
@@ -2258,10 +2251,8 @@ resource dataCollectionRuleRes2 'Microsoft.Insights/dataCollectionRules@2021-04-
 param issue4668_kind string = 'AzureCLI'
 @description('The identity that will be used to execute the Deployment Script.')
 param issue4668_identity object
-//@[025:031) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
 @description('The properties of the Deployment Script.')
 param issue4668_properties object
-//@[027:033) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
 resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   name: 'testscript'
   location: 'westeurope'

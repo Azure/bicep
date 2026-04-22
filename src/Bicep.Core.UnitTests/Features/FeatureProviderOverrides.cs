@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.Features;
 
 public record FeatureProviderOverrides(
-    IDirectoryHandle? CacheRootDirectory = null,
+    IDirectoryHandle? CacheRootDirectory = default,
     bool? RegistryEnabled = default,
     bool? SymbolicNameCodegenEnabled = default,
     bool? AdvancedListComprehensionEnabled = default,
@@ -30,6 +30,7 @@ public record FeatureProviderOverrides(
 {
     public FeatureProviderOverrides(
         TestContext testContext,
+        IDirectoryHandle? CacheRootDirectory = default,
         bool? RegistryEnabled = default,
         bool? SymbolicNameCodegenEnabled = default,
         bool? AdvancedListComprehensionEnabled = default,
@@ -48,7 +49,7 @@ public record FeatureProviderOverrides(
         bool? DeployCommandsEnabled = default,
         bool? ThisNamespaceEnabled = default,
         bool? ExistingNullIfNotFoundEnabled = default) : this(
-            FileHelper.GetCacheRootDirectory(testContext),
+            CacheRootDirectory ?? FileHelper.GetCacheRootDirectory(testContext).EnsureExists(),
             RegistryEnabled,
             SymbolicNameCodegenEnabled,
             AdvancedListComprehensionEnabled,

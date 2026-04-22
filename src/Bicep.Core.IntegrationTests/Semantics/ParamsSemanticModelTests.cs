@@ -100,7 +100,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             ";
 
             var artifactManager = await MockRegistry.CreateDefaultExternalArtifactManager(TestContext);
-            await artifactManager.PublishRegistryModule(moduleRef, moduleContent);
+            await artifactManager.PublishRegistryModule(BicepTestConstants.FileExplorer, moduleRef, moduleContent);
 
             var paramsFilePath = FileHelper.SaveResultFile(TestContext, "main.bicepparam", paramsContent);
             var fileUri = PathHelper.FilePathToFileUrl(paramsFilePath);

@@ -34,7 +34,6 @@ module modDTwo 'moduled.bicep' = {
   name: 'modDTwo'
   params: {
     input: modDOne.outputs.storageAccountName
-//@[011:045) [what-if-short-circuiting (Warning)] Parameter 'input' is used as a resource identifier, API version, or condition in the module 'modDTwo'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If. (bicep core linter https://aka.ms/bicep/linter-diagnostics#what-if-short-circuiting) |modDOne.outputs.storageAccountName|
   }
 }
 
@@ -629,7 +628,6 @@ module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNo
 }]
 
 output directRefToCollectionViaOutput array = nonexistentArrays
-//@[038:043) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
 
 module directRefToCollectionViaSingleBody 'modulea.bicep' = {
   name: 'hello'

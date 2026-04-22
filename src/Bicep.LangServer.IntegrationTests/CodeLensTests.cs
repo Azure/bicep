@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.IO.Abstractions;
 using System.Reactive.Linq;
 using System.Reflection;
 using Bicep.Core.Registry;
@@ -15,6 +16,7 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Handlers;
 using Bicep.TextFixtures.Dummies;
@@ -78,7 +80,15 @@ namespace Bicep.LangServer.IntegrationTests
             cacheDirectoryMock.Setup(x => x.GetFile("source.tgz")).Returns(sourceTgzFileMock.Object);
 
             var cacheRootDirectoryMock = StrictMock.Of<IDirectoryHandle>();
+            var cacheRootUri = new IOUri("file", "", "/cacheRoot");
+            cacheRootDirectoryMock.SetupGet(x => x.Uri).Returns(cacheRootUri);
             cacheRootDirectoryMock.Setup(x => x.GetDirectory(It.IsAny<string>())).Returns(cacheDirectoryMock.Object);
+
+            var realFileExplorer = new FileSystemFileExplorer(new FileSystem());
+            var fileExplorer = StrictMock.Of<IFileExplorer>();
+            fileExplorer.Setup(x => x.GetDirectory(It.Is<IOUri>(uri => uri == cacheRootUri))).Returns(cacheRootDirectoryMock.Object);
+            fileExplorer.Setup(x => x.GetDirectory(It.Is<IOUri>(uri => uri != cacheRootUri))).Returns((IOUri uri) => realFileExplorer.GetDirectory(uri));
+            fileExplorer.Setup(x => x.GetFile(It.IsAny<IOUri>())).Returns((IOUri uri) => realFileExplorer.GetFile(uri));
 
             var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
             moduleDispatcher.Setup(x => x.RestoreArtifacts(It.IsAny<ImmutableArray<ArtifactReference>>(), It.IsAny<bool>())).
@@ -93,6 +103,7 @@ namespace Bicep.LangServer.IntegrationTests
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     TestContext,
                     services => services
+                        .WithFileExplorer(fileExplorer.Object)
                         .WithModuleDispatcher(moduleDispatcher.Object)
                         .WithFeatureOverrides(new(cacheRootDirectoryMock.Object))));
             return defaultServer;
