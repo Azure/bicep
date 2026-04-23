@@ -240,7 +240,6 @@ public sealed class BicepTools(
             }
             catch (Exception ex)
             {
-                Trace.WriteLine($"Failed to get tags for extension '{extension.Name}': {ex.Message}");
                 extensions.Add(new ExtensionInfo(extension.Name, extension.Description, extension.OciReference, [], ex.Message));
             }
         }

@@ -5,12 +5,11 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Text.Json;
 using Bicep.Core.Configuration;
-using Bicep.Core.Extensions;
-using Bicep.Core.Modules;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.IO.Abstraction;
 using Azure.Bicep.Types;
 
@@ -18,25 +17,23 @@ namespace Bicep.McpServer.Core.Extensions;
 
 public class ExtensionTypeLoaderProvider
 {
-    private record SimpleOciAddress(string Registry, string Repository, string? Tag, string? Digest) : IOciArtifactAddressComponents
-    {
-        public string ArtifactId => Tag is not null
-            ? $"{Registry}/{Repository}:{Tag}"
-            : $"{Registry}/{Repository}@{Digest}";
-    }
-
-    private readonly IContainerRegistryClientFactory clientFactory;
-    private readonly IFileExplorer fileExplorer;
+    private readonly IModuleDispatcher moduleDispatcher;
+    private readonly IFeatureProvider featureProvider;
 
     private readonly ConcurrentDictionary<string, ITypeLoader> loaderCache = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, IReadOnlyList<string>> tagCache = new(StringComparer.OrdinalIgnoreCase);
 
     public ExtensionTypeLoaderProvider(
-        IContainerRegistryClientFactory clientFactory,
-        IFileExplorer fileExplorer)
+        IModuleDispatcher moduleDispatcher,
+        IFeatureProviderFactory featureProviderFactory)
     {
-        this.clientFactory = clientFactory;
-        this.fileExplorer = fileExplorer;
+        this.moduleDispatcher = moduleDispatcher;
+
+        // The dummy path is never opened or read — it's only used by GetFeatureProvider to resolve
+        // the nearest bicepconfig.json (none is found, so built-in defaults are used).
+        // We only need the resulting IFeatureProvider for its CacheRootDirectory (~/.bicep).
+        this.featureProvider = featureProviderFactory.GetFeatureProvider(
+            IOUri.FromFilePath(Path.Combine(Path.GetTempPath(), "dummy.bicep")));
     }
 
     /// <summary>
@@ -53,6 +50,7 @@ public class ExtensionTypeLoaderProvider
         var tags = await GetRepositoryTagsViaOciAsync(extension.Registry, extension.Repository);
 
         tagCache.TryAdd(extension.Name, tags);
+        
         return tags;
     }
 
@@ -73,7 +71,8 @@ public class ExtensionTypeLoaderProvider
 
     /// <summary>
     /// Gets an <see cref="ITypeLoader"/> for a specific extension and tag.
-    /// Uses a three-tier cache: in-memory, file-system (~/.bicep/br/...), then MCR pull.
+    /// Uses <see cref="IModuleDispatcher"/> to restore the artifact from MCR (with caching handled by the compiler's OCI registry).
+    /// Results are also cached in-memory for fast repeated access.
     /// </summary>
     /// <param name="extension">The well-known extension to load.</param>
     /// <param name="tag">The version tag (e.g., "1.0.0").</param>
@@ -86,107 +85,24 @@ public class ExtensionTypeLoaderProvider
             return cached;
         }
 
-        var typeLoader = TryLoadFromFileSystemCache(extension, tag)
-            ?? await PullAndCacheAsync(extension, tag);
-
-        loaderCache.TryAdd(cacheKey, typeLoader);
-        return typeLoader;
-    }
-
-    private async Task<ArchivedTypeLoader> PullAndCacheAsync(WellKnownExtension extension, string tag)
-    {
-        var cloud = GetCloudConfiguration();
-        var acrManager = new AzureContainerRegistryManager(clientFactory);
-        var address = new SimpleOciAddress(extension.Registry, extension.Repository, tag, null);
-
-        var result = await acrManager.PullArtifactAsync(cloud, address);
-        var mainLayer = result.GetMainLayer();
-
-        // Write to file-system cache using the same locking pattern as OciArtifactRegistry/ExternalArtifactRegistry
-        await WriteToCacheWithLockAsync(extension, tag, mainLayer.Data);
-
-        return ArchivedTypeLoader.FromStream(mainLayer.Data.ToStream());
-    }
-
-    private ArchivedTypeLoader? TryLoadFromFileSystemCache(WellKnownExtension extension, string tag)
-    {
-        try
-        {
-            var cacheDir = GetCacheDirectory(extension, tag);
-            if (cacheDir is null)
-            {
-                return null;
-            }
-
-            var typesTgzFile = cacheDir.GetFile("types.tgz");
-            if (typesTgzFile.Exists())
-            {
-                return ArchivedTypeLoader.FromFileHandle(typesTgzFile);
-            }
-
-            return null;
-        }
-        catch
-        {
-            // If the cached file is corrupted or inaccessible, fall through to MCR pull
-            return null;
-        }
-    }
-
-    /// <summary>
-    /// Writes the extension artifact to the file-system cache using file-based locking
-    /// via <see cref="ArtifactCacheHelper"/>, ensuring consistent concurrency handling with the Bicep compiler.
-    /// </summary>
-    private async Task WriteToCacheWithLockAsync(WellKnownExtension extension, string tag, BinaryData data)
-    {
-        try
-        {
-            var cacheDir = GetCacheDirectory(extension, tag);
-            if (cacheDir is null)
-            {
-                return;
-            }
-
-            cacheDir.EnsureExists();
-            var lockFile = cacheDir.GetFile("lock");
-            var typesTgzFile = cacheDir.GetFile("types.tgz");
-
-            await ArtifactCacheHelper.WriteWithLockAsync(
-                lockFile,
-                isWriteRequired: () => !typesTgzFile.Exists(),
-                writeContent: () => typesTgzFile.Write(data));
-        }
-        catch
-        {
-            // Best-effort caching — don't fail the operation if disk write fails
-        }
-    }
-
-    /// <summary>
-    /// Gets the cache directory for an extension artifact, matching the compiler's cache path convention.
-    /// Uses <see cref="ArtifactCacheHelper.EncodeCachePathSegments"/> for consistent path encoding with OciArtifactRegistry.
-    /// </summary>
-    private IDirectoryHandle? GetCacheDirectory(WellKnownExtension extension, string tag)
-    {
-        var userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        if (string.IsNullOrEmpty(userProfile))
-        {
-            // User profile may not be available in container environments
-            return null;
-        }
-
-        var relativePath = ArtifactCacheHelper.EncodeCachePathSegments(
+        var reference = new OciArtifactReference(
+            featureProvider, IConfigurationManager.GetBuiltInConfiguration(), ArtifactType.Extension,
             extension.Registry, extension.Repository, tag, digest: null);
 
-        var cacheRoot = fileExplorer.GetDirectory(IOUri.FromFilePath(
-            Path.Combine(userProfile, ".bicep", ArtifactReferenceSchemes.Oci)));
+        // RestoreArtifacts is a no-op if already cached on disk
+        await moduleDispatcher.RestoreArtifacts([reference], forceRestore: false);
 
-        return cacheRoot.GetDirectory(relativePath);
-    }
+        if (!moduleDispatcher.TryGetLocalArtifactEntryPointFileHandle(reference)
+            .IsSuccess(out var fileHandle, out var errorBuilder))
+        {
+            var diagnostic = errorBuilder(DiagnosticBuilder.ForDocumentStart());
+            throw new InvalidOperationException(
+                $"Failed to load extension '{extension.Name}:{tag}': {diagnostic.Message}");
+        }
 
-    private static CloudConfiguration GetCloudConfiguration()
-    {
-        var builtInConfig = IConfigurationManager.GetBuiltInConfiguration();
-        return builtInConfig.Cloud;
+        var typeLoader = ArchivedTypeLoader.FromFileHandle(fileHandle);
+        loaderCache.TryAdd(cacheKey, typeLoader);
+
+        return typeLoader;
     }
 }
