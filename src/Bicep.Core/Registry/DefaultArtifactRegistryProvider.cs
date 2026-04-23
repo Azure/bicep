@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Registry.Catalog;
+using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry
@@ -12,7 +13,8 @@ namespace Bicep.Core.Registry
             : base(new IArtifactRegistry[]
                 {
                     new LocalModuleRegistry(),
-                    new OciArtifactRegistry(clientFactory, serviceProvider.GetRequiredService<IPublicModuleMetadataProvider>()),
+                    new OciArtifactRegistry(clientFactory, serviceProvider.GetRequiredService<IPublicModuleMetadataProvider>(), serviceProvider.GetRequiredService<IFileExplorer>()),
+                    new OciArtifactEmulatedRegistry(),
                     new TemplateSpecModuleRegistry(templateSpecRepositoryFactory),
                 })
         {

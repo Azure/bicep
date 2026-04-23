@@ -97,6 +97,40 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
+module appPlanDeploy3 'br/mock-registry-emulated:plan:v2' = {
+//@[000:006) Identifier |module|
+//@[007:021) Identifier |appPlanDeploy3|
+//@[022:057) StringComplete |'br/mock-registry-emulated:plan:v2'|
+//@[058:059) Assignment |=|
+//@[060:061) LeftBrace |{|
+//@[061:062) NewLine |\n|
+  name: 'planDeploy3'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:021) StringComplete |'planDeploy3'|
+//@[021:022) NewLine |\n|
+  scope: rg
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:011) Identifier |rg|
+//@[011:012) NewLine |\n|
+  params: {
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
+    namePrefix: 'hello'
+//@[004:014) Identifier |namePrefix|
+//@[014:015) Colon |:|
+//@[016:023) StringComplete |'hello'|
+//@[023:024) NewLine |\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
 var websites = [
 //@[000:003) Identifier |var|
 //@[004:012) Identifier |websites|
@@ -633,4 +667,6 @@ module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
 //@[003:004) NewLine |\n|
 }
 //@[000:001) RightBrace |}|
-//@[001:001) EndOfFile ||
+//@[001:002) NewLine |\n|
+
+//@[000:000) EndOfFile ||

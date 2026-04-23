@@ -1,5 +1,5 @@
 targetScope = 'subscription'
-//@[000:2463) ProgramSyntax
+//@[000:2603) ProgramSyntax
 //@[000:0028) ├─TargetScopeSyntax
 //@[000:0011) | ├─Token(Identifier) |targetScope|
 //@[012:0013) | ├─Token(Assignment) |=|
@@ -114,6 +114,57 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
 //@[006:0007) |   | ├─Token(Colon) |:|
 //@[008:0021) |   | └─StringSyntax
 //@[008:0021) |   |   └─Token(StringComplete) |'planDeploy2'|
+//@[021:0022) |   ├─Token(NewLine) |\n|
+  scope: rg
+//@[002:0011) |   ├─ObjectPropertySyntax
+//@[002:0007) |   | ├─IdentifierSyntax
+//@[002:0007) |   | | └─Token(Identifier) |scope|
+//@[007:0008) |   | ├─Token(Colon) |:|
+//@[009:0011) |   | └─VariableAccessSyntax
+//@[009:0011) |   |   └─IdentifierSyntax
+//@[009:0011) |   |     └─Token(Identifier) |rg|
+//@[011:0012) |   ├─Token(NewLine) |\n|
+  params: {
+//@[002:0039) |   ├─ObjectPropertySyntax
+//@[002:0008) |   | ├─IdentifierSyntax
+//@[002:0008) |   | | └─Token(Identifier) |params|
+//@[008:0009) |   | ├─Token(Colon) |:|
+//@[010:0039) |   | └─ObjectSyntax
+//@[010:0011) |   |   ├─Token(LeftBrace) |{|
+//@[011:0012) |   |   ├─Token(NewLine) |\n|
+    namePrefix: 'hello'
+//@[004:0023) |   |   ├─ObjectPropertySyntax
+//@[004:0014) |   |   | ├─IdentifierSyntax
+//@[004:0014) |   |   | | └─Token(Identifier) |namePrefix|
+//@[014:0015) |   |   | ├─Token(Colon) |:|
+//@[016:0023) |   |   | └─StringSyntax
+//@[016:0023) |   |   |   └─Token(StringComplete) |'hello'|
+//@[023:0024) |   |   ├─Token(NewLine) |\n|
+  }
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0004) |   ├─Token(NewLine) |\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
+module appPlanDeploy3 'br/mock-registry-emulated:plan:v2' = {
+//@[000:0137) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0021) | ├─IdentifierSyntax
+//@[007:0021) | | └─Token(Identifier) |appPlanDeploy3|
+//@[022:0057) | ├─StringSyntax
+//@[022:0057) | | └─Token(StringComplete) |'br/mock-registry-emulated:plan:v2'|
+//@[058:0059) | ├─Token(Assignment) |=|
+//@[060:0137) | └─ObjectSyntax
+//@[060:0061) |   ├─Token(LeftBrace) |{|
+//@[061:0062) |   ├─Token(NewLine) |\n|
+  name: 'planDeploy3'
+//@[002:0021) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0021) |   | └─StringSyntax
+//@[008:0021) |   |   └─Token(StringComplete) |'planDeploy3'|
 //@[021:0022) |   ├─Token(NewLine) |\n|
   scope: rg
 //@[002:0011) |   ├─ObjectPropertySyntax
@@ -988,4 +1039,6 @@ module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
 //@[003:0004) |   ├─Token(NewLine) |\n|
 }
 //@[000:0001) |   └─Token(RightBrace) |}|
-//@[001:0001) └─Token(EndOfFile) ||
+//@[001:0002) ├─Token(NewLine) |\n|
+
+//@[000:0000) └─Token(EndOfFile) ||
