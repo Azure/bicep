@@ -6,12 +6,12 @@ using Azure.Bicep.Types;
 using Azure.Bicep.Types.Az;
 using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
-using Bicep.McpServer.ResourceProperties.Entities;
+using Bicep.McpServer.Core.ResourceProperties.Entities;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
-namespace Bicep.McpServer.ResourceProperties;
+namespace Bicep.McpServer.Core.ResourceProperties;
 
 public class ResourceVisitor
 {

@@ -19,7 +19,7 @@
     <PackageVersion Include="Azure.Deployments.Extensibility.Core" Version="0.1.67" />
     <PackageVersion Include="Azure.Deployments.Internal.GenerateNotice" Version="0.1.60" />
     <PackageVersion Include="Azure.Deployments.Templates" Version="1.641.0" />
-    <PackageVersion Include="Azure.Identity" Version="1.20.0" />
+    <PackageVersion Include="Azure.Identity" Version="1.21.0" />
     <PackageVersion Include="Azure.ResourceManager.ResourceGraph" Version="1.1.0" />
     <PackageVersion Include="Azure.ResourceManager.Resources" Version="1.11.2" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
@@ -48,15 +48,15 @@
     <PackageVersion Include="Microsoft.Build.Framework" Version="18.4.0" />
     <PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.4.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.CodeStyle" Version="4.11.0" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.5" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.5" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.6" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Http" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.1" />
     <PackageVersion Include="Microsoft.IO.Redist" Version="6.1.0" />
-    <PackageVersion Include="Microsoft.NET.Sdk.WebAssembly.Pack" Version="10.0.2" />
+    <PackageVersion Include="Microsoft.NET.Sdk.WebAssembly.Pack" Version="10.0.6" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageVersion Include="Microsoft.Net.Compilers.Toolset" Version="4.12.0" />
     <PackageVersion Include="Microsoft.PowerPlatform.ResourceStack" Version="7.0.0.2080" />
@@ -86,7 +86,7 @@
     <PackageVersion Include="OmniSharp.Extensions.LanguageServer" Version="0.19.9" />
     <PackageVersion Include="PublicApiGenerator" Version="11.5.4" />
     <PackageVersion Include="RichardSzalay.MockHttp" Version="7.0.0" />
-    <PackageVersion Include="Sarif.Sdk" Version="4.6.0" />
+    <PackageVersion Include="Sarif.Sdk" Version="4.6.2" />
     <PackageVersion Include="Semver" Version="3.0.0" />
     <PackageVersion Include="Serilog.Extensions.Hosting" Version="10.0.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
@@ -105,7 +105,9 @@
     <PackageVersion Include="System.Memory.Data" Version="10.0.5" />
     <!-- force an upgrade of this dependency as it seems to cause build flakiness for unknown reasons -->
     <PackageVersion Include="System.Private.Uri" Version="4.3.2" />
-    <PackageVersion Include="System.Text.Json" Version="10.0.3" />
+    <!-- pin to patched version to resolve CVE-2026-33116 (https://github.com/advisories/GHSA-37gx-xxp4-5rgx) -->
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="8.0.3" />
+    <PackageVersion Include="System.Text.Json" Version="10.0.5" />
     <PackageVersion Include="Tools.InnoSetup" Version="6.0.5" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5">

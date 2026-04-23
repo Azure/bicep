@@ -223,11 +223,11 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Enable wait and retry feature.
+        ///   Looks up a localized string similar to Enable waitUntil feature on resource bicep types.
         /// </summary>
-        internal static string ExperimentalFeatureNames_WaitAndRetry {
+        internal static string ExperimentalFeatureNames_WaitUntil {
             get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_WaitAndRetry", resourceCulture);
+                return ResourceManager.GetString("ExperimentalFeatureNames_WaitUntil", resourceCulture);
             }
         }
         
