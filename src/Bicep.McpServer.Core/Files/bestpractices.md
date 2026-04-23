@@ -25,6 +25,20 @@ This list of best-practices builds on top of information available at https://le
 ### Syntax
 1. If you hit warnings or errors with null properties, prefer solving them with the safe-dereference (`.?`) operator, in conjunction with the coalesce (`??`) operator. For example, `a.?b ?? c` is better than `a!.b` which may cause runtime errors, or `a != null ? a.b : c` which is unnecessarily verbose.
 
+### Extensions
+1. When creating Bicep files that use extension resources (e.g., Microsoft Graph), two things are required:
+   - An `extension` statement in the `.bicep` file (e.g., `extension microsoftGraphV1_0`). The identifier must match the key in `bicepconfig.json`.
+   - A `bicepconfig.json` file in the current directory or an ancestor directory that maps the extension identifier to its OCI artifact reference.
+   If no `bicepconfig.json` exists, create one. For example, for Microsoft Graph v1.0:
+   ```json
+   {
+     "extensions": {
+       "microsoftGraphV1_0": "br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0"
+     }
+   }
+   ```
+1. Use the `list_well_known_extensions` MCP tool to discover available extensions and their versions before configuring `bicepconfig.json`.
+
 ### Formatting
 1. Only include comments if they provide additional context. Use simple single line comments for smaller blocks of text, e.g. `// this is a comment`, and avoid adding unnecessary demarcation - e.g. `// ====`.
 

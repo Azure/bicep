@@ -7,8 +7,11 @@ We have built a Bicep MCP server with agentic tools to support Bicep code genera
 ### Available Bicep MCP tools
 
 - `get_bicep_best_practices`: Lists up-to-date recommended Bicep best-practices for authoring templates. These practices help improve maintainability, security, and reliability of your Bicep files. This is helpful additional context if you've been asked to generate Bicep code.
-- `list_az_resource_types_for_provider`: Lists all available Azure resource types for a specific provider. The return value is a newline-separated list of resource types including their API version, e.g. `Microsoft.KeyVault/vaults@2024-11-01`. Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs.
-- `get_az_resource_type_schema`: Gets the schema for a specific Azure resource type and API version. Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs.
+- `list_azure_resource_types`: Lists all available Azure resource types and their API versions for a specific Azure resource provider namespace. Data is sourced from Azure Resource Provider APIs.
+- `get_azure_resource_type_schema`: Gets the schema for a specific Azure resource type and API version. Data is sourced from Azure Resource Provider APIs.
+- `list_extension_resource_types`: Lists all available resource types for a Bicep extension. Accepts a canonical OCI artifact reference (e.g., `br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0`).
+- `get_extension_resource_type_schema`: Gets the schema for a specific extension resource type. Accepts a canonical OCI artifact reference, resource type, and API version.
+- `list_well_known_extensions`: Lists well-known Bicep extensions (e.g., Microsoft Graph) with their dynamically-discovered version tags from MCR. This is not an exhaustive list; other extensions may exist. Use this to discover extensions and their versions for use with the extension resource type tools.
 - `list_avm_metadata`: Lists up-to-date metadata for all Azure Verified Modules (AVM). The return value is a newline-separated list of AVM metadata. Each line includes the module name, description, versions, and documentation URI for a specific module.
 - `get_bicep_file_diagnostics`: Analyzes a Bicep file (`.bicep`) or Bicep parameters file (`.bicepparam`) and returns all compilation diagnostics including errors, warnings, and informational messages.
 - `format_bicep_file`: Formats a Bicep file (`.bicep`) or Bicep parameters file (`.bicepparam`) according to official Bicep formatting standards, respecting `bicepconfig.json` settings.

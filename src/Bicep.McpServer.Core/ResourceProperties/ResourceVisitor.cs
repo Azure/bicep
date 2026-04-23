@@ -3,7 +3,6 @@
 
 using System.Numerics;
 using Azure.Bicep.Types;
-using Azure.Bicep.Types.Az;
 using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
 using Bicep.McpServer.Core.ResourceProperties.Entities;
@@ -15,18 +14,24 @@ namespace Bicep.McpServer.Core.ResourceProperties;
 
 public class ResourceVisitor
 {
-    private readonly ILogger<ResourceVisitor> _logger;
+    private readonly ILogger<ResourceVisitor> logger;
+    private readonly ITypeLoader azTypeLoader;
 
-    public ResourceVisitor(ILogger<ResourceVisitor> logger)
+    public ResourceVisitor(ILogger<ResourceVisitor> logger, ITypeLoader azTypeLoader)
     {
-        _logger = logger;
+        this.logger = logger;
+        this.azTypeLoader = azTypeLoader;
     }
 
     public TypesDefinitionResult LoadSingleResourceType(string fullyQualifiedResourceType, string apiVersion)
     {
+        return LoadSingleResourceType(azTypeLoader, fullyQualifiedResourceType, apiVersion);
+    }
+
+    public TypesDefinitionResult LoadSingleResourceType(ITypeLoader loader, string fullyQualifiedResourceType, string apiVersion)
+    {
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-        var loader = new AzTypeLoader();
         TypeIndex typeIndex = loader.LoadTypeIndex();
 
         // Sample key of a resource: "Microsoft.App/containerApps/authConfigs@2024-03-01"
@@ -34,10 +39,12 @@ public class ResourceVisitor
 
         // Sample key of a resource function: "microsoft.app/containerapps"
         // Sample value of a resource function: { "2024-03-01": [ function1, function2 ], "2024-08-02-preview": [ function1, function2] }
-        var resourceFunctions = new InsensitiveDictionary<IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(typeIndex.ResourceFunctions.ToDictionary());
+        var resourceFunctions = typeIndex.ResourceFunctions is { } rf
+            ? new InsensitiveDictionary<IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(rf.ToDictionary())
+            : new InsensitiveDictionary<IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>();
 
-        _logger.LogInformation("Total Resources: {ResourceCount}", resources.Count);
-        _logger.LogInformation("Total Resource Functions: {ResourceFunctionCount}", resourceFunctions.Count);
+        logger.LogInformation("Total Resources: {ResourceCount}", resources.Count);
+        logger.LogInformation("Total Resource Functions: {ResourceFunctionCount}", resourceFunctions.Count);
 
         var typesToWrite = new List<TypeBase>();
         CrossFileTypeReference resourceReference = resources.FirstOrDefault(r => r.Key.EqualsOrdinalInsensitively($"{fullyQualifiedResourceType}@{apiVersion}")).Value
@@ -112,10 +119,10 @@ public class ResourceVisitor
 
         result.OtherComplexTypeEntities.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase));
 
-        _logger.LogInformation("Total Complex Types: {OtherComplexTypeEntityCount}", result.OtherComplexTypeEntities.Count);
+        logger.LogInformation("Total Complex Types: {OtherComplexTypeEntityCount}", result.OtherComplexTypeEntities.Count);
 
         stopwatch.Stop();
-        _logger.LogInformation("LoadSingleResourceType took {ElapsedMilliseconds} ms", stopwatch.ElapsedMilliseconds);
+        logger.LogInformation("LoadSingleResourceType took {ElapsedMilliseconds} ms", stopwatch.ElapsedMilliseconds);
 
         return result;
     }
