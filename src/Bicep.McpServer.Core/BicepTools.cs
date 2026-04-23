@@ -3,7 +3,6 @@
 
 using System.Collections.Immutable;
 using System.ComponentModel;
-using System.Diagnostics;
 using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Providers.Extensibility;
