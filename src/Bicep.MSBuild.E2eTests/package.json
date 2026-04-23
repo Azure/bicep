@@ -9,9 +9,9 @@
     "@types/uuid": "^11.0.0",
     "@vitest/eslint-plugin": "^1.6.16",
     "cross-spawn": "^7.0.6",
-    "eslint": "^10.2.0",
+    "eslint": "^10.2.1",
     "prettier": "^3.8.3",
-    "typescript": "~6.0.2",
+    "typescript": "~6.0.3",
     "typescript-eslint": "^8.58.2",
     "vitest": "^4.1.4"
   },

@@ -86,7 +86,7 @@ public static class MockRegistry
             referenceStr = referenceStr[3..];
         }
 
-        if (!TemplateSpecModuleReference.TryParse(BicepTestConstants.DummyBicepFile, null, referenceStr).IsSuccess(out var specReference, out var errorBuilder))
+        if (!TemplateSpecModuleReference.TryParse(BicepTestConstants.DummyBicepFile.Features, BicepTestConstants.DummyBicepFile.Configuration, null, referenceStr).IsSuccess(out var specReference, out var errorBuilder))
         {
             diagnostic = errorBuilder(DiagnosticBuilder.ForDocumentStart());
 

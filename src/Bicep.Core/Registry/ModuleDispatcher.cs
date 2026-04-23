@@ -161,7 +161,7 @@ namespace Bicep.Core.Registry
             out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
         {
             var registry = this.GetRegistry(artifactReference);
-            var configuration = artifactReference.ReferencingFile.Configuration;
+            var configuration = artifactReference.Configuration;
 
             // have we already failed to restore this artifact?
             if (this.HasRestoreFailed(artifactReference, configuration, out var restoreFailureBuilder))
@@ -183,7 +183,7 @@ namespace Bicep.Core.Registry
 
         public ResultWithDiagnosticBuilder<IFileHandle> TryGetLocalArtifactEntryPointFileHandle(ArtifactReference artifactReference)
         {
-            var configuration = artifactReference.ReferencingFile.Configuration;
+            var configuration = artifactReference.Configuration;
             // has restore already failed for this artifact?
             if (this.HasRestoreFailed(artifactReference, configuration, out var restoreFailureBuilder))
             {
@@ -237,7 +237,7 @@ namespace Bicep.Core.Registry
                     // update cache invalidation status for each failed module
                     foreach (var (failedReference, failureBuilder) in invalidateFailures)
                     {
-                        this.SetRestoreFailure(failedReference, failedReference.ReferencingFile.Configuration, failureBuilder);
+                        this.SetRestoreFailure(failedReference, failedReference.Configuration, failureBuilder);
                     }
                 }
 
@@ -246,7 +246,7 @@ namespace Bicep.Core.Registry
                 // update restore status for each failed module restore
                 foreach (var (failedReference, failureBuilder) in restoreFailures)
                 {
-                    this.SetRestoreFailure(failedReference, failedReference.ReferencingFile.Configuration, failureBuilder);
+                    this.SetRestoreFailure(failedReference, failedReference.Configuration, failureBuilder);
                 }
 
                 try
