@@ -5,6 +5,7 @@ using System.CommandLine;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.RegistryModuleTool.Commands;
+using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.TestFixtures.Assertions;
 using Bicep.RegistryModuleTool.TestFixtures.Extensions;
@@ -25,7 +26,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
         {
             var sut = CreateGenerateCommand(fileSystemBeforeGeneration);
 
-            var exitCode = await sut.InvokeAsync("");
+            var exitCode = await sut.Parse("").InvokeAsync();
 
             exitCode.Should().Be(0);
         }
@@ -36,7 +37,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
         {
             var sut = CreateGenerateCommand(fileSystemBeforeGeneration);
 
-            await sut.InvokeAsync("");
+            await sut.Parse("").InvokeAsync();
 
             fileSystemBeforeGeneration.Should().HaveSameFilesAs(fileSystemAfterGeneration);
         }
@@ -49,7 +50,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
 
             for (int i = 0; i < 2; i++)
             {
-                await sut.InvokeAsync("");
+                await sut.Parse("").InvokeAsync();
 
                 fileSystemBeforeGeneration.Should().HaveSameFilesAs(fileSystemAfterGeneration);
             }
@@ -63,7 +64,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
 
             fileSystem.File.WriteAllText(MainBicepFile.FileName, "something");
 
-            var exitCode = await sut.InvokeAsync("");
+            var exitCode = await sut.Parse("").InvokeAsync();
 
             exitCode.Should().Be(1);
         }
@@ -72,15 +73,15 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
         public async Task InvokeAsync_BicepBuildError_PrintDiagnostics()
         {
             var fileSystem = MockFileSystemFactory.CreateForSample(Sample.Valid);
-            var sut = CreateGenerateCommand(fileSystem);
             var mainBicepFilePath = fileSystem.Path.GetFullPath(MainBicepFile.FileName);
             var console = new MockConsole().ExpectErrorLines(
                 @$"{mainBicepFilePath}(1,1) : Error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. [https://aka.ms/bicep/core-diagnostics#BCP007]",
                 @$"Failed to build ""{mainBicepFilePath}"".");
+            var sut = CreateGenerateCommand(fileSystem, console);
 
             fileSystem.File.WriteAllText(MainBicepFile.FileName, "something");
 
-            await sut.InvokeAsync("", console);
+            await sut.Parse("").InvokeAsync();
 
             console.Verify();
         }
@@ -98,7 +99,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
             ];
         }
 
-        private static GenerateCommand CreateGenerateCommand(IFileSystem fileSystem)
+        private static GenerateCommand CreateGenerateCommand(IFileSystem fileSystem, IConsole? console = null)
         {
             var serviceCollection = new ServiceCollection()
                 .AddBicepCompilerWithFileSystem(fileSystem)
@@ -107,11 +108,13 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var handler = serviceProvider.GetRequiredService<GenerateCommand.CommandHandler>();
+            var effectiveConsole = console ?? new MockConsole();
 
-            return new GenerateCommand()
-            {
-                Handler = handler,
-            };
+            var command = new GenerateCommand();
+            command.SetAction(async (ParseResult _, CancellationToken ct) =>
+                await handler.InvokeAsync(effectiveConsole, ct));
+
+            return command;
         }
     }
 }

@@ -65,7 +65,7 @@ namespace Bicep.Cli.Arguments
                 return result;
             }
 
-            throw new InvalidOperationException("Either InputFile or FilePattern must be specified.");
+            throw new CommandLineException("Either the input file path or the --pattern parameter must be specified");
         }
 
         public IReadOnlyList<(IOUri InputUri, IOUri OutputUri)> ResolveFilePatternInputOutputArguments<T>(T arguments)
@@ -95,7 +95,7 @@ namespace Bicep.Cli.Arguments
                 return result;
             }
 
-            throw new InvalidOperationException("Either InputFile or FilePattern must be specified.");
+            throw new CommandLineException("Either the input file path or the --pattern parameter must be specified");
         }
 
         private IOUri ResolveOutputUri(IOUri inputUri, string? outputDir, string? outputFile, string outputFileExtension)

@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
 using Bicep.Cli.Logging;
 using Bicep.Core.Extensions;
 using Bicep.IO.Abstraction;
@@ -13,6 +14,30 @@ namespace Bicep.Cli.Helpers;
 
 public class ArgumentHelper
 {
+    public static void ValidateOutputOptions(bool outputToStdOut, string? outputDir, string? outputFile, string? filePattern = null)
+    {
+        if (filePattern is not null && outputToStdOut)
+        {
+            throw new CommandLineException($"The {Option.Stdout} parameter cannot be used with the {Option.Pattern} parameter");
+        }
+        if (filePattern is not null && outputFile is not null)
+        {
+            throw new CommandLineException($"The {Option.OutFile} parameter cannot be used with the {Option.Pattern} parameter");
+        }
+        if (outputToStdOut && outputDir is not null)
+        {
+            throw new CommandLineException($"The {Option.OutDir} and {Option.Stdout} parameters cannot both be used");
+        }
+        if (outputToStdOut && outputFile is not null)
+        {
+            throw new CommandLineException($"The {Option.OutFile} and {Option.Stdout} parameters cannot both be used");
+        }
+        if (outputDir is not null && outputFile is not null)
+        {
+            throw new CommandLineException($"The {Option.OutDir} and {Option.OutFile} parameters cannot both be used");
+        }
+    }
+
     public static DiagnosticsFormat ToDiagnosticsFormat(string? format)
     {
         if (format is null || (format is not null && format.Equals("default", StringComparison.OrdinalIgnoreCase)))

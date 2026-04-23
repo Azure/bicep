@@ -3,6 +3,7 @@
 
 using System.IO.Abstractions;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -26,10 +27,15 @@ public class FormatCommand(
 {
     public int Run(FormatArguments args)
     {
+        if (args.FilePattern is not null && args.OutputDir is not null)
+        {
+            throw new CommandLineException($"The {Option.OutDir} parameter cannot be used with the {Option.Pattern} parameter");
+        }
+        ArgumentHelper.ValidateOutputOptions(args.OutputToStdOut, args.OutputDir, args.OutputFile, args.FilePattern);
+
         foreach (var (inputUri, outputUri) in inputOutputArgumentsResolver.ResolveFilePatternInputOutputArguments(args))
         {
             ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
-
             this.Format(args, inputUri, outputUri, args.OutputToStdOut);
         }
 

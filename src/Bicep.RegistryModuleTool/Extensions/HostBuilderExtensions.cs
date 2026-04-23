@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.CommandLine;
-using System.CommandLine.Hosting;
 using System.Reflection;
 using Bicep.RegistryModuleTool.Commands;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Bicep.RegistryModuleTool.Extensions
@@ -13,20 +12,18 @@ namespace Bicep.RegistryModuleTool.Extensions
     {
         public static IHostBuilder UseCommandHandlers(this IHostBuilder builder)
         {
-            var baseCommandType = typeof(Command);
             var baseCommandHandlerType = typeof(BaseCommandHandler);
 
-            var commandTypes = Assembly.GetExecutingAssembly().GetTypes()
-                .Where(t => t.Namespace == baseCommandHandlerType.Namespace && baseCommandType.IsAssignableFrom(t));
+            var commandHandlerTypes = Assembly.GetExecutingAssembly().GetTypes()
+                .Where(t => baseCommandHandlerType.IsAssignableFrom(t) && !t.IsAbstract);
 
-            foreach (var commandType in commandTypes)
+            return builder.ConfigureServices(services =>
             {
-                var commandHandlerType = commandType.GetNestedTypes().First(t => baseCommandHandlerType.IsAssignableFrom(t));
-
-                builder.UseCommandHandler(commandType, commandHandlerType);
-            }
-
-            return builder;
+                foreach (var handlerType in commandHandlerTypes)
+                {
+                    services.AddScoped(handlerType);
+                }
+            });
         }
     }
 }
