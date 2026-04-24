@@ -49,5 +49,7 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool ThisNamespaceEnabled => overrides.ThisNamespaceEnabled ?? features.ThisNamespaceEnabled;
 
+    public bool PatchEnabled => overrides.PatchEnabled ?? features.PatchEnabled;
+
     public bool ExistingNullIfNotFoundEnabled => overrides.ExistingNullIfNotFoundEnabled ?? features.ExistingNullIfNotFoundEnabled;
 }

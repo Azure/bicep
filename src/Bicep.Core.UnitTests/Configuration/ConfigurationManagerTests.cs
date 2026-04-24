@@ -113,6 +113,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "userDefinedConstraints": false,
           "deployCommands": false,
           "thisNamespace": false,
+          "patch": false,
           "existingNullIfNotFound": false
         },
         "formatting": {
@@ -197,6 +198,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "userDefinedConstraints": false,
           "deployCommands": false,
           "thisNamespace": false,
+          "patch": false,
           "existingNullIfNotFound": false
         },
         "formatting": {
@@ -303,6 +305,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "userDefinedConstraints": false,
           "deployCommands": false,
           "thisNamespace": false,
+          "patch": false,
           "existingNullIfNotFound": false
         },
         "formatting": {
@@ -390,6 +393,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 UserDefinedConstraints: false,
                 DeployCommands: false,
                 ThisNamespace: false,
+                Patch: false,
                 ExistingNullIfNotFound: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
@@ -475,6 +479,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "userDefinedConstraints": false,
                 "deployCommands": false,
                 "thisNamespace": false,
+                "patch": false,
                 "existingNullIfNotFound": false
             },
             "formatting": {
@@ -827,6 +832,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "userDefinedConstraints": false,
                     "deployCommands": false,
                     "thisNamespace": false,
+                    "patch": false,
                     "existingNullIfNotFound": false
                   },
                   "formatting": {

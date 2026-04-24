@@ -24,6 +24,7 @@ public record ExperimentalFeaturesEnabled(
     bool UserDefinedConstraints,
     bool DeployCommands,
     bool ThisNamespace,
+    bool Patch,
     bool ExistingNullIfNotFound)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
@@ -46,5 +47,6 @@ public record ExperimentalFeaturesEnabled(
         UserDefinedConstraints: false,
         DeployCommands: false,
         ThisNamespace: false,
+        Patch: false,
         ExistingNullIfNotFound: false);
 }
