@@ -16,6 +16,7 @@
       "noEmitHelpers": false,
       "target": "es2015",
       "moduleResolution": "node",
+      "ignoreDeprecations": "6.0",
       "types": ["node", "jest"],
       "esModuleInterop": true,
       "lib": ["es2020"],
