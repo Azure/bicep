@@ -4,7 +4,16 @@ module.exports = {
   verbose: true,
   moduleFileExtensions: ["ts", "js"],
   transform: {
-    "^.+\\.(ts|tsx)$": "ts-jest",
+    "^.+\\.(ts|tsx)$": [
+      "ts-jest",
+      {
+        tsconfig: {
+          // TypeScript 6.0 deprecates moduleResolution=node10 which ts-jest sets internally.
+          // Suppress the deprecation error so that noEmitOnError does not block emit.
+          ignoreDeprecations: "6.0",
+        },
+      },
+    ],
     ".js": "babel-jest",
   },
   testMatch: ["<rootDir>/test/**/*.test.ts"],
