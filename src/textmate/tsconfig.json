@@ -21,7 +21,7 @@
       "newLine": "LF",
       "outDir": "dist",
       "rootDir": ".",
-      "ignoreDeprecations": "6.0"
+      "isolatedModules": true
     },
     "exclude": ["dist", "node_modules", "**/*.d.ts"]
   }
