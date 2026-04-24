@@ -6,6 +6,7 @@ module.exports = {
   transform: {
     "^.+\\.tsx?$": "ts-jest",
   },
+  setupFiles: ["<rootDir>/src/test/snapshot/setup.ts"],
   verbose: true,
   collectCoverage: true,
   collectCoverageFrom: ["<rootDir>/src/visualizer/app/**/*.ts"],
@@ -13,5 +14,7 @@ module.exports = {
   moduleNameMapper: {
     "^.+\\.svg$": "<rootDir>/src/test/snapshot/__mocks__/svgMock.ts",
     "^.+/vscode$": "<rootDir>/src/test/snapshot/__mocks__/vscode.ts",
+    "^cytoscape$": "<rootDir>/src/test/snapshot/__mocks__/cytoscapeMock.ts",
+    "^cytoscape-elk$": "<rootDir>/src/test/snapshot/__mocks__/cytoscapeMock.ts",
   },
 };
