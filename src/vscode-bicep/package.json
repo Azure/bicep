@@ -821,7 +821,7 @@
     "@types/vscode": "^1.101.0",
     "@types/webpack": "^5.28.5",
     "@vscode/test-electron": "^2.5.2",
-    "@vscode/vsce": "^3.7.1",
+    "@vscode/vsce": "^3.9.1",
     "copy-webpack-plugin": "^14.0.0",
     "esbuild-loader": "^4.4.3",
     "eslint": "^10.0.0",
