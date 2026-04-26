@@ -20,7 +20,8 @@
       "lib": ["es2020"],
       "newLine": "LF",
       "outDir": "dist",
-      "rootDir": "."
+      "rootDir": ".",
+      "isolatedModules": true
     },
     "exclude": ["dist", "node_modules", "**/*.d.ts"]
   }
