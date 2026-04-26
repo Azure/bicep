@@ -34,7 +34,7 @@
     "jest-styled-components": "^7.4.0",
     "prettier": "^3.8.3",
     "turbo": "^2.5.4",
-    "typescript": "^5.8.2",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.35.0"
   },
   "overrides": {
