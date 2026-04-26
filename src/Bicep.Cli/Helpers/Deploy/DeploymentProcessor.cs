@@ -195,7 +195,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
                     Template = BinaryData.FromString(template),
                 };
 
-                if (usingConfig.Location is {} location)
+                if (usingConfig.Location is { } location)
                 {
                     stacksData.Location = location;
                 }
@@ -236,7 +236,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
                 }
 
                 var armDeploymentContent = new ArmDeploymentContent(deploymentProperties);
-                if (usingConfig.Location is {} location)
+                if (usingConfig.Location is { } location)
                 {
                     armDeploymentContent.Location = location;
                 }

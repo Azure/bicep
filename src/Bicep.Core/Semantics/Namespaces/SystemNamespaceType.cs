@@ -779,7 +779,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("stringToSearch", LanguageConstants.String, "The value that contains the item to find.")
                     .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
                     .Build();
-                    
+
                 yield return new FunctionOverloadBuilder("distinct")
                     .WithReturnResultBuilder(TryDeriveLiteralReturnType("distinct", LanguageConstants.Array), LanguageConstants.Array)
                     .WithGenericDescription("Returns a new array with duplicate values removed, preserving order.")

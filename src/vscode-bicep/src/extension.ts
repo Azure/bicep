@@ -35,7 +35,12 @@ import { PostExtractionCommand } from "./commands/PostExtractionCommand";
 import { ShowDeployPaneCommand, ShowDeployPaneToSideCommand } from "./commands/showDeployPane";
 import { ShowModuleSourceFileCommand } from "./commands/ShowModuleSourceFileCommand";
 import { ShowSourceFromVisualizerCommand } from "./commands/showSourceFromVisualizer";
-import { ShowVisualizerCommand, ShowVisualizerToSideCommand, ShowVisualDesignerCommand, ShowVisualDesignerToSideCommand } from "./commands/showVisualizer";
+import {
+  ShowVisualDesignerCommand,
+  ShowVisualDesignerToSideCommand,
+  ShowVisualizerCommand,
+  ShowVisualizerToSideCommand,
+} from "./commands/showVisualizer";
 import { SuppressedWarningsManager } from "./commands/SuppressedWarningsManager";
 import * as surveys from "./feedback/surveys";
 import { setGlobalStateKeysToSyncBetweenMachines } from "./globalState";

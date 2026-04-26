@@ -38,4 +38,6 @@ const mockContext = {
   roundRect: jest.fn(),
 };
 
-HTMLCanvasElement.prototype.getContext = jest.fn(() => mockContext) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+HTMLCanvasElement.prototype.getContext = jest.fn(
+  () => mockContext,
+) as unknown as typeof HTMLCanvasElement.prototype.getContext;

@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Text.Json;
+using Azure.Bicep.Types;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
@@ -11,7 +12,6 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.TypeSystem;
 using Bicep.IO.Abstraction;
-using Azure.Bicep.Types;
 
 namespace Bicep.McpServer.Core.Extensions;
 
@@ -50,7 +50,7 @@ public class ExtensionTypeLoaderProvider
         var tags = await GetRepositoryTagsViaOciAsync(extension.Registry, extension.Repository);
 
         tagCache.TryAdd(extension.Name, tags);
-        
+
         return tags;
     }
 
