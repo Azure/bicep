@@ -6,10 +6,9 @@ using System.Diagnostics.CodeAnalysis;
 using Bicep.Core;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
+using Bicep.McpServer.Core;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-
-using Bicep.McpServer.Core;
 
 namespace Bicep.McpServer.UnitTests;
 

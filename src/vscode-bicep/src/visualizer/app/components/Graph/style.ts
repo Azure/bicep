@@ -108,7 +108,8 @@ export function createStylesheet(theme: DefaultTheme): StylesheetStyle[] {
         "background-color": childlessNode.backgroundColor,
         "background-image": "data(backgroundDataUri)",
         "border-width": childlessNode.borderWidth,
-        "border-color": (node: cytoscape.NodeSingular) => (node.data("hasError") === true ? errorIndicatorColor : childlessNode.borderColor),
+        "border-color": (node: cytoscape.NodeSingular) =>
+          node.data("hasError") === true ? errorIndicatorColor : childlessNode.borderColor,
         "border-opacity": childlessNode.borderOpacity,
       },
     },
@@ -121,7 +122,8 @@ export function createStylesheet(theme: DefaultTheme): StylesheetStyle[] {
         "background-position-x": 12,
         "background-position-y": 8,
         "border-width": containerNode.borderWidth,
-        "border-color": (node: cytoscape.NodeSingular) => (node.data("hasError") === true ? errorIndicatorColor : containerNode.borderColor),
+        "border-color": (node: cytoscape.NodeSingular) =>
+          node.data("hasError") === true ? errorIndicatorColor : containerNode.borderColor,
         "border-opacity": containerNode.borderOpacity,
         "background-opacity": containerNode.backgroundOpacity,
         "padding-top": "40px",

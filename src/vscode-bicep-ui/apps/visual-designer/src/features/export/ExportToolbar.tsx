@@ -268,7 +268,16 @@ export function ExportToolbar() {
     } finally {
       setExportInProgress(false);
     }
-  }, [canvasElement, exporting, setExportInProgress, store, backgroundMode, padding, exportBackgroundColor, exportFileStem]);
+  }, [
+    canvasElement,
+    exporting,
+    setExportInProgress,
+    store,
+    backgroundMode,
+    padding,
+    exportBackgroundColor,
+    exportFileStem,
+  ]);
 
   const [paddingText, setPaddingText] = useState(String(padding));
 

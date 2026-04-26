@@ -27,9 +27,7 @@ async function openView(
 export class ShowVisualizerCommand implements Command {
   public readonly id = "bicep.showVisualizer";
 
-  public constructor(
-    private readonly viewManager: BicepVisualizerViewManager,
-  ) {}
+  public constructor(private readonly viewManager: BicepVisualizerViewManager) {}
 
   public async execute(
     context: IActionContext,
@@ -42,9 +40,7 @@ export class ShowVisualizerCommand implements Command {
 export class ShowVisualizerToSideCommand implements Command {
   public readonly id = "bicep.showVisualizerToSide";
 
-  public constructor(
-    private readonly viewManager: BicepVisualizerViewManager,
-  ) {}
+  public constructor(private readonly viewManager: BicepVisualizerViewManager) {}
 
   public async execute(
     context: IActionContext,
@@ -57,9 +53,7 @@ export class ShowVisualizerToSideCommand implements Command {
 export class ShowVisualDesignerCommand implements Command {
   public readonly id = "bicep.showVisualDesigner";
 
-  public constructor(
-    private readonly viewManager: VisualDesignerViewManager,
-  ) {}
+  public constructor(private readonly viewManager: VisualDesignerViewManager) {}
 
   public async execute(
     context: IActionContext,
@@ -72,9 +66,7 @@ export class ShowVisualDesignerCommand implements Command {
 export class ShowVisualDesignerToSideCommand implements Command {
   public readonly id = "bicep.showVisualDesignerToSide";
 
-  public constructor(
-    private readonly viewManager: VisualDesignerViewManager,
-  ) {}
+  public constructor(private readonly viewManager: VisualDesignerViewManager) {}
 
   public async execute(
     context: IActionContext,
