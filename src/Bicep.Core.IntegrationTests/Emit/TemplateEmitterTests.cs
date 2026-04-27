@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Bicep.Core.Emit;
@@ -14,8 +15,11 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
 using Bicep.TextFixtures.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
+using Microsoft.CodeCoverage.Core.Reports.Coverage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -99,6 +103,91 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             // validate that the template is parseable by the deployment engine
             UnitTests.Utils.TemplateHelper.TemplateShouldBeValid(outputFile, result.Features!);
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task ValidBicep_EmitTemplateArchive_should_produce_expected_archive(DataSet dataSet)
+        {
+            var archiveRoot = FileHelper.GetResultFilePath(TestContext, Path.Combine(dataSet.Name, DataSet.TestArchiveDirectory));
+            var compilation = await GetCompilation(dataSet, new(TestContext));
+            CompilationEmitter emitter = new(compilation);
+
+            var result = emitter.TemplateArchive();
+            result.Diagnostics[compilation.SourceFileGrouping.EntryPoint].Should().NotHaveErrors();
+            result.Success.Should().BeTrue();
+            result.Templates.Should().NotBeNull();
+
+            ValidateBaselineDirectory(
+                p => Path.Combine(archiveRoot, p),
+                p => DataSet.GetBaselineUpdatePath(dataSet, Path.Combine(DataSet.TestArchiveDirectory, p)),
+                dataSet.Archive ?? ImmutableDictionary<string, string>.Empty,
+                result.Templates.ToDictionary(kvp => kvp.Key.TrimStart('/'), kvp => kvp.Value.Template));
+        }
+
+        private void ValidateBaselineDirectory(
+            Func<string, string> getGeneratedPath,
+            Func<string, string> getExpectedLocation,
+            IReadOnlyDictionary<string, string> actual,
+            IReadOnlyDictionary<string, string> expected)
+        {
+            HashSet<string> actualPaths = [.. actual.Keys];
+
+            using (new AssertionScope())
+            {
+                foreach (var kvp in expected)
+                {
+                    actualPaths.Remove(kvp.Key);
+
+                    if (actual.TryGetValue(kvp.Key, out var actualJson))
+                    {
+                        var baselinePath = getGeneratedPath(kvp.Key);
+                        Directory.CreateDirectory(Path.GetDirectoryName(baselinePath)!);
+                        File.WriteAllText(baselinePath, kvp.Value);
+
+                        JToken.Parse(actualJson).Should().EqualWithJsonDiffOutput(
+                            TestContext,
+                            JToken.Parse(kvp.Value),
+                            getExpectedLocation(kvp.Key),
+                            baselinePath);
+                    }
+                    else
+                    {
+                        IOUri.FromFilePath(BaselineHelper.GetAbsolutePathRelativeToRepoRoot(getExpectedLocation(kvp.Key))).Should().Exist(TestContext, kvp.Value);
+                    }
+                }
+
+                foreach (var unmatchedPath in actualPaths)
+                {
+                    IOUri.FromFilePath(BaselineHelper.GetAbsolutePathRelativeToRepoRoot(getExpectedLocation(unmatchedPath))).Should().NotExist(TestContext);
+                }
+            }
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task ValidBicep_EmitTemplateOciArchive_should_produce_expected_archive(DataSet dataSet)
+        {
+            var archiveRoot = FileHelper.GetResultFilePath(TestContext, Path.Combine(dataSet.Name, DataSet.TestOciArchiveDirectory));
+            var compilation = await GetCompilation(dataSet, new(TestContext));
+            CompilationEmitter emitter = new(compilation);
+
+            var result = emitter.TemplateOciArchive();
+            result.Diagnostics[compilation.SourceFileGrouping.EntryPoint].Should().NotHaveErrors();
+            result.Success.Should().BeTrue();
+            result.Index.Should().NotBeNull();
+            result.Blobs.Should().NotBeNull();
+
+            ValidateBaselineDirectory(
+                p => Path.Combine(archiveRoot, p),
+                p => DataSet.GetBaselineUpdatePath(dataSet, Path.Combine(DataSet.TestOciArchiveDirectory, p)),
+                dataSet.OciArchive ?? ImmutableDictionary<string, string>.Empty,
+                result.Blobs
+                    .Select(kvp => new KeyValuePair<string, string>(kvp.Key.TrimStart('/'), Encoding.UTF8.GetString(kvp.Value)))
+                    .Append(new("index.json", result.Index))
+                    .ToDictionary());
         }
 
         [DataTestMethod]
