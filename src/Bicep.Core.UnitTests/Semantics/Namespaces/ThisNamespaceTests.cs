@@ -497,5 +497,152 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = [for this
                 template.Should().HaveValueAtPath("$.resources.testResource.name", "[format('testStorage{0}', range(0, 2)[copyIndex()])]");
             }
         }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingResourceInTags_WithFeatureEnabled_ShouldSucceed()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true, RuntimeValuesInTagsAndSkuEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'testStorage'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  tags: {
+    previousAccessTier: this.existingResource().?properties.accessTier ?? 'unknown'
+  }
+  properties: {
+    allowBlobPublicAccess: this.exists()
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                template.Should().HaveValueAtPath("$.resources.testResource.tags.previousAccessTier", "[coalesce(tryGet(target('full'), 'properties', 'accessTier'), 'unknown')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
+            }
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingResourceInSku_WithFeatureEnabled_ShouldSucceed()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true, RuntimeValuesInTagsAndSkuEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'testStorage'
+  location: 'westus'
+  sku: {
+    name: this.existingResource().?sku.name ?? 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    allowBlobPublicAccess: this.exists()
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                template.Should().HaveValueAtPath("$.resources.testResource.sku.name", "[coalesce(tryGet(target('full'), 'sku', 'name'), 'Standard_LRS')]");
+            }
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingResourceInTags_WithFeatureDisabled_ShouldFail()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true, RuntimeValuesInTagsAndSkuEnabled: false));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'testStorage'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  tags: {
+    previousAccessTier: this.existingResource().?properties.accessTier ?? 'unknown'
+  }
+  properties: {
+    allowBlobPublicAccess: this.exists()
+  }
+}
+");
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            {
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"tags\" property of the \"Microsoft.Storage/storageAccounts\" type, which requires a value that can be calculated at the start of the deployment."),
+            });
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingResourceInTagsAndSku_WithFeatureEnabled_OtherDtcPropertiesStillEnforced()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true, RuntimeValuesInTagsAndSkuEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: this.exists() ? 'testStorage' : 'defaultStorage'
+  location: 'westus'
+  sku: {
+    name: this.existingResource().?sku.name ?? 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  tags: {
+    previousAccessTier: this.existingResource().?properties.accessTier ?? 'unknown'
+  }
+  properties: {
+    allowBlobPublicAccess: this.exists()
+  }
+}
+");
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            {
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"name\" property of the \"Microsoft.Storage/storageAccounts\" type, which requires a value that can be calculated at the start of the deployment."),
+            });
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingResourceInTagsAndSku_ForLoop_WithFeatureEnabled_ShouldSucceed()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, ThisNamespaceEnabled: true, RuntimeValuesInTagsAndSkuEnabled: true));
+            var result = CompilationHelper.Compile(services, @"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = [for i in range(0, 3): {
+  name: 'testStorage-${i}'
+  location: 'westus'
+  sku: {
+    name: this.existingResource().?sku.name ?? 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  tags: {
+    previousAccessTier: this.existingResource().?properties.accessTier ?? 'unknown'
+  }
+  properties: {
+    allowBlobPublicAccess: this.exists()
+  }
+}]
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                template.Should().HaveValueAtPath("$.resources.testResource.tags.previousAccessTier", "[coalesce(tryGet(target('full'), 'properties', 'accessTier'), 'unknown')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.sku.name", "[coalesce(tryGet(target('full'), 'sku', 'name'), 'Standard_LRS')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
+            }
+        }
     }
 }

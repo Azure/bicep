@@ -26,7 +26,8 @@ public record FeatureProviderOverrides(
     bool? UserDefinedConstraintsEnabled = default,
     bool? DeployCommandsEnabled = default,
     bool? ThisNamespaceEnabled = default,
-    bool? ExistingNullIfNotFoundEnabled = default)
+    bool? ExistingNullIfNotFoundEnabled = default,
+    bool? RuntimeValuesInTagsAndSkuEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -47,7 +48,8 @@ public record FeatureProviderOverrides(
         bool? UserDefinedConstraintsEnabled = default,
         bool? DeployCommandsEnabled = default,
         bool? ThisNamespaceEnabled = default,
-        bool? ExistingNullIfNotFoundEnabled = default) : this(
+        bool? ExistingNullIfNotFoundEnabled = default,
+        bool? RuntimeValuesInTagsAndSkuEnabled = default) : this(
             FileHelper.GetCacheRootDirectory(testContext),
             RegistryEnabled,
             SymbolicNameCodegenEnabled,
@@ -66,6 +68,7 @@ public record FeatureProviderOverrides(
             UserDefinedConstraintsEnabled,
             DeployCommandsEnabled,
             ThisNamespaceEnabled,
-            ExistingNullIfNotFoundEnabled)
+            ExistingNullIfNotFoundEnabled,
+            RuntimeValuesInTagsAndSkuEnabled)
     { }
 }

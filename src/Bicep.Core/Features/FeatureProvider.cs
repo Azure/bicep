@@ -58,6 +58,8 @@ namespace Bicep.Core.Features
 
         public bool ExistingNullIfNotFoundEnabled => configuration.ExperimentalFeaturesEnabled.ExistingNullIfNotFound;
 
+        public bool RuntimeValuesInTagsAndSkuEnabled => configuration.ExperimentalFeaturesEnabled.RuntimeValuesInTagsAndSku;
+
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;
 

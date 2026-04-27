@@ -23,6 +23,8 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         public const string ResourceNamePropertyName = "name";
         public const string ResourceTypePropertyName = "type";
         public const string ResourceApiVersionPropertyName = "apiVersion";
+        public const string ResourceTagsPropertyName = "tags";
+        public const string ResourceSkuPropertyName = "sku";
 
         public const string ResourceTypeDeployments = "Microsoft.Resources/deployments";
         public const string ResourceTypeResourceGroup = "Microsoft.Resources/resourceGroups";
@@ -58,10 +60,10 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             "extendedLocation",
             "zones",
             "plan",
-            "sku",
+            ResourceSkuPropertyName,
             "identity",
             "managedByExtended",
-            "tags",
+            ResourceTagsPropertyName,
             "asserts",
         ];
 

@@ -923,6 +923,10 @@
         "existingNullIfNotFound": {
           "type": "boolean",
           "description": "Enables the @nullIfNotFound() decorator for existing resources, allowing them to return null if not found at deployment time. See https://aka.ms/bicep/experimental-features#existingnullifnotfound"
+        },
+        "runtimeValuesInTagsAndSku": {
+          "type": "boolean",
+          "description": "Allows the use of runtime values (such as references to resources or this.existingResource()) in tags and sku properties. See https://aka.ms/bicep/experimental-features#runtimevaluesintagsandsku"
         }
       },
       "additionalProperties": false

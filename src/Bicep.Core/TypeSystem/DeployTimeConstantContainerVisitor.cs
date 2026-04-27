@@ -3,6 +3,7 @@
 
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem
@@ -64,6 +65,14 @@ namespace Bicep.Core.TypeSystem
             if (syntax.TryGetTypeProperty(this.semanticModel) is { } typeProperty &&
                 typeProperty.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
             {
+                // Skip DTC validation for tags and sku properties when the experimental feature is enabled.
+                if (this.semanticModel.Features.RuntimeValuesInTagsAndSkuEnabled &&
+                    syntax.TryGetKeyText() is AzResourceTypeProvider.ResourceTagsPropertyName or AzResourceTypeProvider.ResourceSkuPropertyName)
+                {
+                    base.VisitObjectPropertySyntax(syntax);
+                    return;
+                }
+
                 // The property type exists and and has the DTC flag.
                 this.deployTimeConstantContainers.Add(syntax);
             }

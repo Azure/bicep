@@ -50,4 +50,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool ThisNamespaceEnabled => overrides.ThisNamespaceEnabled ?? features.ThisNamespaceEnabled;
 
     public bool ExistingNullIfNotFoundEnabled => overrides.ExistingNullIfNotFoundEnabled ?? features.ExistingNullIfNotFoundEnabled;
+
+    public bool RuntimeValuesInTagsAndSkuEnabled => overrides.RuntimeValuesInTagsAndSkuEnabled ?? features.RuntimeValuesInTagsAndSkuEnabled;
 }

@@ -24,7 +24,8 @@ public record ExperimentalFeaturesEnabled(
     bool UserDefinedConstraints,
     bool DeployCommands,
     bool ThisNamespace,
-    bool ExistingNullIfNotFound)
+    bool ExistingNullIfNotFound,
+    bool RuntimeValuesInTagsAndSku)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();
@@ -46,5 +47,6 @@ public record ExperimentalFeaturesEnabled(
         UserDefinedConstraints: false,
         DeployCommands: false,
         ThisNamespace: false,
-        ExistingNullIfNotFound: false);
+        ExistingNullIfNotFound: false,
+        RuntimeValuesInTagsAndSku: false);
 }
