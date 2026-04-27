@@ -251,10 +251,18 @@ namespace Bicep.Core.UnitTests.TypeSystem
             static object[] Row(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedType, params (string code, DiagnosticLevel level, string message)[] diagnostics)
                 => [sourceType, targetType, expectedType, diagnostics];
 
+            var fooBarUnion = TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("foo"), TypeFactory.CreateStringLiteralType("bar"));
+
             return new[]
             {
                 // A matching source and target type should narrow to the same and produce no warnings
                 Row(LanguageConstants.String, LanguageConstants.String, LanguageConstants.String),
+
+                // A generic source string overlaps with a fixed set of string literals, so it should narrow and warn
+                Row(LanguageConstants.String,
+                    fooBarUnion,
+                    fooBarUnion,
+                    ("BCP033", DiagnosticLevel.Warning, "Expected a value of type \"'bar' | 'foo'\" but the provided value is of type \"string\".")),
 
                 // A source type whose domain is a subset of the target type should narrow to the source
                 Row(TypeFactory.CreateStringType(1, 10), TypeFactory.CreateStringType(0, 11), TypeFactory.CreateStringType(1, 10)),
