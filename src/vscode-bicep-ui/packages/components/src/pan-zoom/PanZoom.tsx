@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 import type { D3ZoomEvent } from "d3-zoom";
-import type { JSX, PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
+import type { ReactElement } from "react";
 
 import { select } from "d3-selection";
 import { zoom, zoomIdentity } from "d3-zoom";
@@ -62,7 +63,7 @@ type PanZoomProps = PropsWithChildren<{
  * @param {number} [props.transition.duration=400] - The duration of the transition.
  * @param {string} [props.className] - The CSS class name for the component.
  * @param {ReactNode} props.children - The child components.
- * @returns {JSX.Element} The rendered component.
+ * @returns {ReactElement} The rendered component.
  */
 export function PanZoom({
   minimumScale = 1 / 4,
@@ -71,7 +72,7 @@ export function PanZoom({
   transition = { duration: 400 },
   className,
   children,
-}: PanZoomProps): JSX.Element {
+}: PanZoomProps): ReactElement {
   const ref = useRef<HTMLDivElement>(null);
   const setPanZoomTransform = useSetAtom(panZoomTransformAtom);
   const setPanZoomDimensions = useSetAtom(panZoomDimensionsAtom);

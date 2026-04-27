@@ -53,3 +53,12 @@ func buildUrlMultiLine(
   path string
 ) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 
+output likeExactMatch bool =like('abc', 'abc')
+output likeWildCardMatch bool= like ('abcdef', 'a*c*')
+output distinctTest array = distinct(['a','b','a','c','b'])
+//@[20:25) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
+output distinctTest2 array = distinct([1,2,3,1,2,4])
+//@[21:26) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
+output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])
+//@[21:26) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
+

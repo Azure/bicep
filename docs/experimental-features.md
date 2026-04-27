@@ -109,9 +109,9 @@ Enables the `@validate()` decorator on types, type properties, parameters, and o
 param p string
 ```
 
-### `waitAndRetry`
+### `waitUntil`
 
-The feature introduces waitUntil and retryOn decorators on resource data type. waitUnitl() decorator waits for the resource until its usable based on the desired property's state. retryOn() will retry the deployment if one if the listed exception codes are encountered.
+The feature introduces waitUntil decorators on resource data type. waitUnitl() decorator waits for the resource until its usable based on the desired property's state. 
 
 ## Other experimental functionality
 

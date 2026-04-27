@@ -84,7 +84,7 @@ internal class BicepClient : IBicepClient
         var combinedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         process.EnableRaisingEvents = true;
         process.Exited += (sender, args) => combinedCts.Cancel();
- 
+
         process.Start();
 
         try
@@ -182,7 +182,7 @@ internal class BicepClient : IBicepClient
         {
             return;
         }
-        
+
         try
         {
             process.Kill();

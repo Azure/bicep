@@ -136,14 +136,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DynamicData(nameof(GetConfigurationData), DynamicDataSourceType.Method)]
         public async Task GetModuleRestoreStatus_ConfigurationChanges_ReturnsCachedStatusWhenChangeIsIrrelevant(RootConfiguration changedConfiguration, ArtifactRestoreStatus expectedStatus)
         {
-            // Arrange.
-            var configManagerMock = StrictMock.Of<IConfigurationManager>();
-            configManagerMock.SetupSequence(m => m.GetConfiguration(It.IsAny<IOUri>()))
-                .Returns(BicepTestConstants.CreateMockConfiguration())
-                .Returns(BicepTestConstants.CreateMockConfiguration())
-                .Returns(changedConfiguration);
-
-            var badFile = BicepTestConstants.CreateDummyBicepFile(configManagerMock.Object);
+            var badFile = BicepTestConstants.CreateDummyBicepFile(BicepTestConstants.CreateMockConfiguration());
             var badReference = new MockModuleReference(badFile, "bad");
 
             var registryMock = StrictMock.Of<IArtifactRegistry>();
@@ -159,11 +152,13 @@ namespace Bicep.Core.UnitTests.Registry
                 .Returns(Task.CompletedTask);
 
             var dispatcher = CreateDispatcher(registryMock.Object);
-            var configuration = BicepTestConstants.CreateMockConfiguration();
 
             await dispatcher.RestoreArtifacts(new[] { badReference }, false);
 
             // Act.
+            badFile = BicepTestConstants.CreateDummyBicepFile(changedConfiguration);
+            badReference = new MockModuleReference(badFile, "bad");
+
             var status = dispatcher.GetArtifactRestoreStatus(badReference, out _);
 
             // Assert.
@@ -229,7 +224,7 @@ namespace Bicep.Core.UnitTests.Registry
         private class MockModuleReference : ArtifactReference
         {
             public MockModuleReference(BicepSourceFile referencingFile, string reference)
-                : base(referencingFile, "mock")
+                : base(referencingFile.Features, referencingFile.Configuration, "mock")
             {
                 this.Reference = reference;
             }

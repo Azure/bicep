@@ -7,6 +7,6 @@ export async function testScope(testScopeName: string, action: () => Promise<voi
   try {
     await action();
   } catch (err) {
-    throw new Error(`Test failure in scope "${testScopeName}":\n${parseError(err).message}`);
+    throw new Error(`Test failure in scope "${testScopeName}":\n${parseError(err).message}`, { cause: err });
   }
 }

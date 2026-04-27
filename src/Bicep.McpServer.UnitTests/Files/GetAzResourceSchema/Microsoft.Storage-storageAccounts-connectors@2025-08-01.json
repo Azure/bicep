@@ -1,0 +1,268 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Microsoft.Storage/storageAccounts/connectors@2025-08-01",
+  "description": "Bicep resource schema for Microsoft.Storage/storageAccounts/connectors@2025-08-01",
+  "x-bicep-resource-flags": "None",
+  "x-bicep-resource-readable-scopes": "ResourceGroup",
+  "x-bicep-resource-writable-scopes": "ResourceGroup",
+  "type": "object",
+  "properties": {
+    "apiVersion": {
+      "const": "2025-08-01",
+      "description": "The resource api version",
+      "readOnly": true,
+      "x-bicep-deploy-time-constant": true
+    },
+    "id": {
+      "type": "string",
+      "description": "The resource id",
+      "readOnly": true,
+      "x-bicep-deploy-time-constant": true
+    },
+    "location": {
+      "type": "string",
+      "description": "The geo-location where the resource lives"
+    },
+    "name": {
+      "type": "string",
+      "description": "The resource name",
+      "x-bicep-deploy-time-constant": true,
+      "minLength": 3,
+      "maxLength": 63,
+      "pattern": "^[a-z0-9](?!.*--)[a-z0-9-]{1,61}[a-z0-9]$"
+    },
+    "properties": {
+      "$ref": "#/$defs/StorageConnectorProperties",
+      "description": "The properties of the Storage Connector."
+    },
+    "systemData": {
+      "$ref": "#/$defs/SystemData",
+      "description": "Azure Resource Manager metadata containing createdBy and modifiedBy information.",
+      "readOnly": true
+    },
+    "tags": {
+      "$ref": "#/$defs/TrackedResourceTags",
+      "description": "Resource tags."
+    },
+    "type": {
+      "const": "Microsoft.Storage/storageAccounts/connectors",
+      "description": "The resource type",
+      "readOnly": true,
+      "x-bicep-deploy-time-constant": true
+    }
+  },
+  "required": [
+    "location",
+    "name",
+    "properties"
+  ],
+  "$defs": {
+    "StorageConnectorAuthProperties": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "identityResourceId": {
+              "type": "string",
+              "description": "ARM ResourceId of the managed identity that should be used to authenticate to the backing data source."
+            },
+            "type": {
+              "const": "ManagedIdentity",
+              "description": "Type of the authentication properties. Controls the type of the authProperties object"
+            }
+          },
+          "required": [
+            "type"
+          ]
+        }
+      ]
+    },
+    "StorageConnectorConnection": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "dataShareUri": {
+              "type": "string",
+              "description": "The URI of the backing DataShare. Must be in the format: azds://<region>:<DataShareName>:<DataShareIdentifier>",
+              "pattern": "^azds://[a-zA-Z0-9-]+:[a-zA-Z0-9-_]+:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+            },
+            "type": {
+              "const": "DataShare",
+              "description": "Type of the connection. Controls the type of the connection object. Not mutable once the Storage Connector is created."
+            }
+          },
+          "required": [
+            "dataShareUri",
+            "type"
+          ]
+        }
+      ]
+    },
+    "StorageConnectorProperties": {
+      "type": "object",
+      "properties": {
+        "creationTime": {
+          "type": "string",
+          "description": "System-generated creation time of the Storage Connector in ISO 8601 date-time format (YYYY-MM-DDTHH:mm:ssZ).\nNot a valid input parameter during creating.",
+          "readOnly": true
+        },
+        "dataSourceType": {
+          "anyOf": [
+            {
+              "enum": [
+                "Azure_DataShare"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The type of backing data source for this Storage Connector."
+        },
+        "description": {
+          "type": "string",
+          "description": "Arbitrary description of this Storage Connector. Max 250 characters.",
+          "maxLength": 250
+        },
+        "provisioningState": {
+          "anyOf": [
+            {
+              "enum": [
+                "Accepted",
+                "Creating",
+                "Succeeded",
+                "Deleting",
+                "Canceled",
+                "Failed"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Represents the provisioning state of the storage connector.",
+          "readOnly": true
+        },
+        "source": {
+          "$ref": "#/$defs/StorageConnectorSource",
+          "description": "Information about how to communicate with and authenticate to the backing data store."
+        },
+        "state": {
+          "anyOf": [
+            {
+              "enum": [
+                "Active",
+                "Inactive"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "State - Active or Inactive. Whether or not the Storage Connector should start as active (default: Active)\n(While set to false on the Storage Connector, all data plane requests using this Storage Connector fail, and this Storage Connector is not billed if it would be otherwise."
+        },
+        "testConnection": {
+          "type": "boolean",
+          "description": "Test connection to backing data source before creating the storage connector.",
+          "writeOnly": true
+        },
+        "uniqueId": {
+          "type": "string",
+          "description": "System-generated GUID identifier for the Storage Connector. Not a valid input parameter when creating.",
+          "readOnly": true
+        }
+      },
+      "required": [
+        "dataSourceType",
+        "source"
+      ]
+    },
+    "StorageConnectorSource": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "authProperties": {
+              "$ref": "#/$defs/StorageConnectorAuthProperties",
+              "description": "Details for how to authenticate to the backing data store."
+            },
+            "connection": {
+              "$ref": "#/$defs/StorageConnectorConnection",
+              "description": "Details for how to connect to the backing data store."
+            },
+            "type": {
+              "const": "DataShare",
+              "description": "Type of the Storage Connector. Not mutable once the Storage Connector is created.\""
+            }
+          },
+          "required": [
+            "authProperties",
+            "connection",
+            "type"
+          ]
+        }
+      ]
+    },
+    "SystemData": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "description": "The timestamp of resource creation (UTC)."
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "The identity that created the resource."
+        },
+        "createdByType": {
+          "anyOf": [
+            {
+              "enum": [
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The type of identity that created the resource."
+        },
+        "lastModifiedAt": {
+          "type": "string",
+          "description": "The timestamp of resource last modification (UTC)"
+        },
+        "lastModifiedBy": {
+          "type": "string",
+          "description": "The identity that last modified the resource."
+        },
+        "lastModifiedByType": {
+          "anyOf": [
+            {
+              "enum": [
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The type of identity that last modified the resource."
+        }
+      }
+    },
+    "TrackedResourceTags": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  }
+}

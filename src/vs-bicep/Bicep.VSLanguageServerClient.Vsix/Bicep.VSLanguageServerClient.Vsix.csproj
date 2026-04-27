@@ -49,6 +49,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="publishManifest.json" />
     <None Include="packages.lock.json" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>

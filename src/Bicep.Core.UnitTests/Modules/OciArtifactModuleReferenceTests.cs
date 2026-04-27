@@ -258,7 +258,7 @@ namespace Bicep.Core.UnitTests.Modules
         private static (OciArtifactReference, OciArtifactReference) ParsePair(string first, string second) => (Parse(first), Parse(second));
 
         private static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseOciArtifactReference(string value, string? aliasName = null, RootConfiguration? configuration = null) =>
-            OciArtifactReference.TryParse(BicepTestConstants.CreateDummyBicepFile(configuration), ArtifactType.Module, aliasName, value);
+            OciArtifactReference.TryParse(BicepTestConstants.CreateDummyBicepFile(configuration).Features, BicepTestConstants.CreateDummyBicepFile(configuration).Configuration, ArtifactType.Module, aliasName, value);
 
         private static IEnumerable<object[]> GetValidCases()
         {

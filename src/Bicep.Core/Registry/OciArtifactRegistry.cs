@@ -48,7 +48,7 @@ namespace Bicep.Core.Registry
 
         public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference)
         {
-            if (!OciArtifactReference.TryParse(referencingFile, artifactType, aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
+            if (!OciArtifactReference.TryParse(referencingFile.Features, referencingFile.Configuration, artifactType, aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
             {
                 return new(failureBuilder);
             }
@@ -87,7 +87,7 @@ namespace Bicep.Core.Registry
             try
             {
                 // Get module
-                await this.containerRegistryManager.PullArtifactAsync(reference.ReferencingFile.Configuration.Cloud, reference);
+                await this.containerRegistryManager.PullArtifactAsync(reference.Configuration.Cloud, reference);
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
@@ -208,7 +208,7 @@ namespace Bicep.Core.Registry
             foreach (var reference in referencesEvaluated)
             {
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectory(reference).Uri.GetFilePath()}");
-                var (result, errorMessage) = await this.TryRestoreArtifactAsync(reference.ReferencingFile.Configuration, reference);
+                var (result, errorMessage) = await this.TryRestoreArtifactAsync(reference.Configuration, reference);
 
                 if (result is null)
                 {
@@ -261,7 +261,7 @@ namespace Bicep.Core.Registry
             try
             {
                 await this.containerRegistryManager.PushArtifactAsync(
-                    reference.ReferencingFile.Configuration.Cloud,
+                    reference.Configuration.Cloud,
                     reference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
                     ManifestMediaType.OciImageManifest.ToString(),
@@ -316,7 +316,7 @@ namespace Bicep.Core.Registry
             try
             {
                 await this.containerRegistryManager.PushArtifactAsync(
-                    reference.ReferencingFile.Configuration.Cloud,
+                    reference.Configuration.Cloud,
                     reference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
                     ManifestMediaType.OciImageManifest.ToString(),
@@ -459,7 +459,7 @@ namespace Bicep.Core.Registry
                 throw new InvalidOperationException("Module reference is missing both tag and digest.");
             }
 
-            return reference.ReferencingFile.Features.CacheRootDirectory.GetDirectory($"{ArtifactReferenceSchemes.Oci}/{registry}/{repository}/{tagOrDigest}");
+            return reference.FeatureProvider.CacheRootDirectory.GetDirectory($"{ArtifactReferenceSchemes.Oci}/{registry}/{repository}/{tagOrDigest}");
         }
 
         protected override IFileHandle GetArtifactLockFile(OciArtifactReference reference) => this.GetArtifactFile(reference, ArtifactFileType.Lock);

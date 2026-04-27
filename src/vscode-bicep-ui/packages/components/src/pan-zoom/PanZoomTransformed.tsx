@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { JSX, PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
+import type { ReactElement } from "react";
 
 import { useCallback, useRef } from "react";
 import styled from "styled-components";
@@ -24,9 +25,9 @@ const $PanZoomTransformed = styled.div`
  * @param {PanZoomTransformedProps} props - The component props.
  * @param {string} props.className - The class name for the component.
  * @param {ReactNode} props.children - The child elements of the component.
- * @returns {JSX.Element} - The transformed component.
+ * @returns {ReactElement} - The transformed component.
  */
-export function PanZoomTransformed({ className, children }: PanZoomTransformedProps): JSX.Element {
+export function PanZoomTransformed({ className, children }: PanZoomTransformedProps): ReactElement {
   const ref = useRef<HTMLDivElement>(null);
 
   usePanZoomTransformListener(

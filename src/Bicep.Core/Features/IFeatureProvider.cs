@@ -23,7 +23,7 @@ public interface IFeatureProvider
 
     bool AssertsEnabled { get; }
 
-    bool WaitAndRetryEnabled { get; }
+    bool WaitUntilEnabled { get; }
 
     bool LocalDeployEnabled { get; }
 
@@ -57,7 +57,7 @@ public interface IFeatureProvider
                 (SourceMappingEnabled, CoreResources.ExperimentalFeatureNames_SourceMapping, true, false),
                 (TestFrameworkEnabled, CoreResources.ExperimentalFeatureNames_TestFramework, false, false),
                 (AssertsEnabled, CoreResources.ExperimentalFeatureNames_Asserts, true, true),
-                (WaitAndRetryEnabled, CoreResources.ExperimentalFeatureNames_WaitAndRetry, true, true),
+                (WaitUntilEnabled, CoreResources.ExperimentalFeatureNames_WaitUntil, true, true),
                 (LocalDeployEnabled, "Enable local deploy", true, true),
                 (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
