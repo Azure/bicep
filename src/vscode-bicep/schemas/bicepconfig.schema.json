@@ -531,6 +531,16 @@
                     }
                   ]
                 },
+                "no-module-name": {
+                  "allOf": [
+                    {
+                      "description": "Avoid specifying a module name to ensure a deterministic name is generated and to avoid the risk of reusing deployment names between nested modules. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#no-module-name"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
                 "nested-deployment-template-scoping": {
                   "allOf": [
                     {

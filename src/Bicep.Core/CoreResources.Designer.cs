@@ -1256,5 +1256,23 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecognizedResourceTypeRule_MessageFormatWithSuggestion", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Avoid specifying a module name to ensure a deterministic name is generated and to avoid the risk of reusing deployment names between nested modules..
+        /// </summary>
+        internal static string NoModuleNameRule_Description {
+            get {
+                return ResourceManager.GetString("NoModuleNameRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove module name.
+        /// </summary>
+        internal static string NoModuleNameRule_CodeFix {
+            get {
+                return ResourceManager.GetString("NoModuleNameRule_CodeFix", resourceCulture);
+            }
+        }
     }
 }
