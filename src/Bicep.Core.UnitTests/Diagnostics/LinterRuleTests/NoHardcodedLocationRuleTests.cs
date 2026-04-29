@@ -292,7 +292,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 Services,
                 ("main.bicep", @"
                     module m1 'module1.bicep' = [for i in range(0, 10): {
-                      name: 'm1${i}'
                       params: {
                           beebop: location
                       }
@@ -319,7 +318,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
 
                     module m2 'module1.bicep' = {
-                      name: 'm2'
                       params: {
                         beebop: location
                       }
@@ -618,7 +616,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 Services,
                 ("main.bicep", @"
                   module m2 'module1.bicep' = [for i in range(0, 10): {
-                    name: 'name${i}'
                     params: {
                       location: 'westus'
                     }
@@ -643,7 +640,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 Services,
                 ("main.bicep", @"
                     module m1 'module1.bicep' = {
-                      name: 'name'
                       params: {
                         location: 'westus'
                       }

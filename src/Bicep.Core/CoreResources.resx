@@ -564,4 +564,10 @@
     <value>Resource type "{0}" is not recognized in function "{1}". Did you mean "{2}"? If this resource type does exist, the API version must be specified as a function argument.</value>
     <comment>{0} = resource type, {1} = function name, {2} = suggested resource type</comment>
   </data>
+  <data name="NoModuleNameRule_Description" xml:space="preserve">
+    <value>Avoid specifying an explicit module name. This simplifies code, and avoids the risk of accidental module name re-use within a deployment.</value>
+  </data>
+  <data name="NoModuleNameRule_CodeFix" xml:space="preserve">
+    <value>Remove module name</value>
+  </data>
 </root>
