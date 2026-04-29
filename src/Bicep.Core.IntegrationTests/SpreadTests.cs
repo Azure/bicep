@@ -22,7 +22,7 @@ var other = {
 output test object = {
   foo: 'foo'
   ...other
-  baz: 'baz'  
+  baz: 'baz'
 }
 """);
 
@@ -125,7 +125,7 @@ var other = ['bar']
 var test = {
   foo: 'foo'
   ...other
-  baz: 'baz'  
+  baz: 'baz'
 }
 """);
 
@@ -144,7 +144,7 @@ var other = {
 var test = [
   'foo'
   ...other
-  'baz'  
+  'baz'
 ]
 """);
 
@@ -205,6 +205,35 @@ resource ex 'Microsoft.Network/expressRouteCircuits@2024-05-01' = {
     authorizations: [for item in array1: {
       name: item
     }]
+  }
+}
+""");
+
+        result.ExcludingLinterDiagnostics().Should().ContainDiagnostic(
+            "BCP417", Diagnostics.DiagnosticLevel.Error, """The spread operator "..." cannot be used inside objects with property for-expressions.""");
+    }
+
+    [TestMethod]
+    public void Spread_is_blocked_with_nested_for_loop()
+    {
+        // https://github.com/Azure/bicep/issues/19394
+        var result = CompilationHelper.Compile("""
+resource foo 'Microsoft.Storage/storageAccounts@2025-08-01' = {
+  name: uniqueString(resourceGroup().id, 'repro')
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    networkAcls: {
+      defaultAction: 'Deny'
+      ipRules: [for item in []: {
+        value: item
+        action: 'Allow'
+      }]
+    }
+    ...{}
   }
 }
 """);
