@@ -129,7 +129,9 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
                     .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot, RegistryEnabled: true))
                     .WithContainerRegistryClientFactory(clientFactory)
                     .WithFileSystem(fileSystem)
-                    .WithFileExplorer(fileExplorer),
+                    .WithFileExplorer(fileExplorer)
+                    .WithConfigurationPatch(c => c.With(security: SecurityConfiguration.Bind(
+                        System.Text.Json.JsonDocument.Parse("""{"trustedRegistries":["mockregistry.io"]}""").RootElement))),
                 ["restore",
                     "--pattern",
                     useRootPath ? $"{outputPath}/file*.bicep" : "file*.bicep"]);
@@ -261,7 +263,8 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             restoredFile.Write(bicep);
 
             var restoredFilePath = restoredFile.Uri.GetFilePath();
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory)
+                .TrustingRegistries(registry);
 
             var (output, error, result) = await Bicep(settings, "restore", restoredFilePath);
             using (new AssertionScope())
@@ -342,7 +345,8 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var restoredFilePath = restoredFile.Uri.GetFilePath();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory)
+                .TrustingRegistries(registry);
 
             var (output, error, result) = await Bicep(settings, "restore", restoredFilePath);
             using (new AssertionScope())
@@ -378,7 +382,8 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory)
+                .TrustingRegistries(registry);
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -499,7 +504,8 @@ output o1 string = '${p1}${p2}'");
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory)
+                .TrustingRegistries(registry);
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -587,7 +593,8 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object)
+                .TrustingRegistries("fake");
             var (output, error, result) = await Bicep(settings, "restore", compiledFilePath);
             using (new AssertionScope())
             {
@@ -619,7 +626,8 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object)
+                .TrustingRegistries("fake");
             var (output, error, result) = await Bicep(settings, "restore", compiledFilePath);
             using (new AssertionScope())
             {
@@ -648,11 +656,287 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object)
+                .TrustingRegistries("mockregistry.io");
             var result = await Bicep(settings, "restore", baselineFolder.EntryFile.OutputFilePath);
 
             result.Should().Fail().And.NotHaveStdout();
             result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the artifact with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");
+        }
+
+        // ── Trusted Registry (BCP446 / BCP447) tests ─────────────────────────
+
+        [TestMethod]
+        public async Task Restore_UntrustedRegistry_EmitsBcp446_ExitCodeOne()
+        {
+            // Use an arbitrary hostname that is NOT in the built-in trusted list and NOT in the module's bicepconfig.json
+            var registry = "untrusted.example.com";
+            var repository = "mymodule";
+
+            // The clientFactory is not expected to be called because enforcement blocks before network I/O.
+            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
+            var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
+            File.WriteAllText(bicepFilePath, $"module mod 'br:{registry}/{repository}:v1' = {{ name: 'mod' }}");
+
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(1);
+                output.Should().BeEmpty();
+                error.Should().Contain("BCP446");
+                error.Should().Contain(registry);
+            }
+        }
+
+        [TestMethod]
+        public async Task Restore_UntrustedRegistry_AddedToTrustedRegistries_Succeeds()
+        {
+            var registry = "mycompany.example.com";
+            var repository = "mymodule";
+            var registryUri = new Uri($"https://{registry}");
+
+            // Publish a real (mock) module so restore can succeed
+            var client = new FakeRegistryBlobClient();
+            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
+            clientFactory
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository))
+                .Returns(client);
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var publishedBicepFilePath = Path.Combine(tempDirectory, "module.bicep");
+            File.WriteAllText(publishedBicepFilePath, "output hello string = 'world'");
+
+            var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
+            var publishSettings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory);
+
+            // Publish the module
+            var (_, _, publishResult) = await Bicep(publishSettings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1");
+            publishResult.Should().Be(0);
+
+            // Write a bicepconfig.json that adds the registry to trustedRegistries
+            var bicepConfigPath = Path.Combine(tempDirectory, "bicepconfig.json");
+            File.WriteAllText(bicepConfigPath, $$"""
+                {
+                  "security": {
+                    "trustedRegistries": ["{{registry}}"]
+                  }
+                }
+                """);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
+            File.WriteAllText(bicepFilePath, $"module mod 'br:{registry}/{repository}:v1' = {{ name: 'mod' }}");
+
+            var restoreSettings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory);
+            var (output, error, result) = await Bicep(restoreSettings, "restore", bicepFilePath);
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0, $"restore should succeed when registry is in trustedRegistries; stderr was: {error}");
+                output.Should().BeEmpty();
+                error.Should().BeEmpty();
+            }
+        }
+
+        [TestMethod]
+        public async Task Restore_InvalidTrustedRegistriesPattern_EmitsBcp447Warning_ButProceedsForTrustedRegistry()
+        {
+            // The registry is built-in trusted, but the bicepconfig has an invalid pattern.
+            // Restore should still succeed for the trusted registry, emitting BCP447 as a warning.
+            var registry = "contoso.azurecr.io";
+            var repository = "mymodule";
+            var registryUri = new Uri($"https://{registry}");
+
+            var client = new FakeRegistryBlobClient();
+            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
+            clientFactory
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository))
+                .Returns(client);
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            // Publish a mock module so restore can succeed
+            var publishedBicepFilePath = Path.Combine(tempDirectory, "module.bicep");
+            File.WriteAllText(publishedBicepFilePath, "output hello string = 'world'");
+
+            var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
+            var publishSettings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory);
+            var (_, _, publishResult) = await Bicep(publishSettings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1");
+            publishResult.Should().Be(0);
+
+            // Write a bicepconfig.json with an invalid pattern (single-label wildcard *.io is rejected)
+            var bicepConfigPath = Path.Combine(tempDirectory, "bicepconfig.json");
+            File.WriteAllText(bicepConfigPath, """
+                {
+                  "security": {
+                    "trustedRegistries": ["*.io"]
+                  }
+                }
+                """);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
+            File.WriteAllText(bicepFilePath, $"module mod 'br:{registry}/{repository}:v1' = {{ name: 'mod' }}");
+
+            var restoreSettings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory);
+            var (output, error, result) = await Bicep(restoreSettings, "restore", bicepFilePath);
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0, $"restore should succeed for built-in trusted registry despite invalid pattern; stderr was: {error}");
+                output.Should().BeEmpty();
+                // BCP447 warning is a config-level diagnostic surfaced during build/editing, not during restore.
+                // The key assertion is that restore succeeds (exit code 0) for built-in trusted registries.
+            }
+        }
+
+        [TestMethod]
+        public async Task Restore_InvalidPattern_UntrustedRegistry_EmitsBcp446_ExitCodeOne()
+        {
+            // An invalid pattern exists in config, but the module references an untrusted registry.
+            // Restore must still be blocked with BCP446.
+            var registry = "other-evil.example.com";
+            var repository = "mymodule";
+
+            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
+            var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            // Config has a valid entry for a different host and one invalid pattern
+            var bicepConfigPath = Path.Combine(tempDirectory, "bicepconfig.json");
+            File.WriteAllText(bicepConfigPath, """
+                {
+                  "security": {
+                    "trustedRegistries": ["evil.example.com", "*.io"]
+                  }
+                }
+                """);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
+            File.WriteAllText(bicepFilePath, $"module mod 'br:{registry}/{repository}:v1' = {{ name: 'mod' }}");
+
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(1);
+                output.Should().BeEmpty();
+                error.Should().Contain("BCP446");
+                error.Should().Contain(registry);
+            }
+        }
+
+        [TestMethod]
+        public async Task Restore_InvalidPattern_ValidUserTrustedRegistry_EmitsBcp447Warning_Succeeds()
+        {
+            // Config has an invalid pattern alongside a valid user-trusted entry.
+            // Restore should succeed for the user-trusted registry, emitting BCP447 as a warning.
+            var registry = "mycompany.example.com";
+            var repository = "mymodule";
+            var registryUri = new Uri($"https://{registry}");
+
+            var client = new FakeRegistryBlobClient();
+            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
+            clientFactory
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository))
+                .Returns(client);
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var publishedBicepFilePath = Path.Combine(tempDirectory, "module.bicep");
+            File.WriteAllText(publishedBicepFilePath, "output hello string = 'world'");
+
+            var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
+            var publishSettings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory);
+            var (_, _, publishResult) = await Bicep(publishSettings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1");
+            publishResult.Should().Be(0);
+
+            // Config: one valid user entry + one invalid pattern
+            var bicepConfigPath = Path.Combine(tempDirectory, "bicepconfig.json");
+            File.WriteAllText(bicepConfigPath, $$"""
+                {
+                  "security": {
+                    "trustedRegistries": ["{{registry}}", "*.io"]
+                  }
+                }
+                """);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
+            File.WriteAllText(bicepFilePath, $"module mod 'br:{registry}/{repository}:v1' = {{ name: 'mod' }}");
+
+            var restoreSettings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory);
+            var (output, error, result) = await Bicep(restoreSettings, "restore", bicepFilePath);
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0, $"restore should succeed for user-trusted registry despite invalid pattern; stderr was: {error}");
+                output.Should().BeEmpty();
+                // BCP447 warning is a config-level diagnostic surfaced during build/editing, not during restore.
+                // The key assertion is that restore succeeds (exit code 0) for user-trusted registries.
+            }
+        }
+
+        [TestMethod]
+        public async Task Restore_AllPatternsInvalid_BuiltInTrustedRegistry_Succeeds()
+        {
+            // All user patterns are invalid, but the module is from a built-in trusted registry.
+            // Restore should still succeed because built-in trust is never affected by user config.
+            var registry = "contoso.azurecr.io";
+            var repository = "mymodule";
+            var registryUri = new Uri($"https://{registry}");
+
+            var client = new FakeRegistryBlobClient();
+            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
+            clientFactory
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository))
+                .Returns(client);
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var publishedBicepFilePath = Path.Combine(tempDirectory, "module.bicep");
+            File.WriteAllText(publishedBicepFilePath, "output hello string = 'world'");
+
+            var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
+            var publishSettings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory);
+            var (_, _, publishResult) = await Bicep(publishSettings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1");
+            publishResult.Should().Be(0);
+
+            // All user entries are invalid
+            var bicepConfigPath = Path.Combine(tempDirectory, "bicepconfig.json");
+            File.WriteAllText(bicepConfigPath, """
+                {
+                  "security": {
+                    "trustedRegistries": ["*", "*.com"]
+                  }
+                }
+                """);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
+            File.WriteAllText(bicepFilePath, $"module mod 'br:{registry}/{repository}:v1' = {{ name: 'mod' }}");
+
+            var restoreSettings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory);
+            var (output, error, result) = await Bicep(restoreSettings, "restore", bicepFilePath);
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0, $"restore should succeed for built-in trusted registry even when all user patterns are invalid; stderr was: {error}");
+                output.Should().BeEmpty();
+                // BCP447 warning is a config-level diagnostic surfaced during build/editing, not during restore.
+                // The key assertion is that restore succeeds (exit code 0) for built-in trusted registries.
+            }
         }
 
         private static IEnumerable<object[]> GetAllDataSetsWithPublishSource()

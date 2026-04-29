@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;
+using System.Text.Json;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
@@ -73,6 +74,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(CacheRootDirectory: CacheRootDirectory))
                 )
                 .WithTemplateSpecRepositoryFactory(BicepTestConstants.TemplateSpecRepositoryFactory)
+                .WithConfigurationPatch(c => c.With(security: SecurityConfiguration.Bind(
+                    JsonDocument.Parse("""{ "trustedRegistries": ["mockregistry.io"] }""").RootElement)))
                 ;
         }
 

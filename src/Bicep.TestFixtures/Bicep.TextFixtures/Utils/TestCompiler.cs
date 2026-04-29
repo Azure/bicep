@@ -4,6 +4,7 @@
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core;
 using Bicep.Core.Features;
+using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using Bicep.TextFixtures.IO;
 
@@ -14,6 +15,11 @@ namespace Bicep.TextFixtures.Utils
         private const string DefaultEntryPointPath = "main.bicep";
 
         private readonly TestServices services;
+
+        // Unique prefix per scope so each scope's files live under {guid}/files/.
+        // ConfigurationManager's directory→config lookup cache never returns a stale
+        // null entry from a previous scope at the same path.
+        private string currentScopePrefix = string.Empty;
 
         private TestCompiler(TestFileSet fileSet)
         {
@@ -89,9 +95,9 @@ namespace Bicep.TextFixtures.Utils
         public async Task<TestCompilationResult> Compile(string entryPointPath = DefaultEntryPointPath, bool skipRestore = false)
         {
             var compiler = this.services.Get<BicepCompiler>();
-            var compilation = await compiler.CreateCompilation(this.FileSet.GetUri(entryPointPath), skipRestore: skipRestore);
+            var compilation = await compiler.CreateCompilation(this.GetScopedUri(entryPointPath), skipRestore: skipRestore);
 
-            return TestCompilationResult.FromCompilation(compilation);
+            return TestCompilationResult.FromCompilation(compilation, this.currentScopePrefix);
         }
 
         // NOTE(kylealbert): Remove type params once the necessary types are migrated to this package.
@@ -103,6 +109,11 @@ namespace Bicep.TextFixtures.Utils
                 svc.AddSingleton(overrides);
                 svc.AddSingleton<IFeatureProviderFactory, TFeatureProviderFactory>();
             });
+
+        // GetScopedUri maps the short entry-point path (e.g. "main.bicep") to
+        // the full GUID-prefixed path used in the current scope.
+        private IOUri GetScopedUri(string path) => this.FileSet.GetUri(
+            string.IsNullOrEmpty(this.currentScopePrefix) ? path : $"{this.currentScopePrefix}/files/{path.TrimStart('/')}");
 
         private TestFileSetScope CreateFileSetScope(params (string FilePath, TestFileData FileData)[] files)
         {
@@ -116,7 +127,10 @@ namespace Bicep.TextFixtures.Utils
             public TestFileSetScope(TestCompiler compiler, params (string FilePath, TestFileData FileData)[] files)
             {
                 this.compiler = compiler;
-                this.compiler.FileSet.Clear().AddFiles(files);
+                this.compiler.currentScopePrefix = Guid.NewGuid().ToString("N");
+                this.compiler.FileSet.Clear();
+                this.compiler.FileSet.AddFiles(
+                    files.Select(f => ($"{this.compiler.currentScopePrefix}/files/{f.FilePath.TrimStart('/')}", f.FileData)).ToArray());
             }
 
             public void Dispose()

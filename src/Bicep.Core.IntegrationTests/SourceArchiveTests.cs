@@ -659,7 +659,9 @@ namespace Bicep.Core.IntegrationTests
 
         private async Task<SourceFileGrouping> CreateSourceFileGrouping(params (string FilePath, TestFileData FileData)[] files)
         {
-            var compilationResult = await this.compiler.Compile(files);
+            // Include a bicepconfig.json that trusts the test registry so module restore is not blocked by the security check.
+            var filesWithConfig = files.Append(("bicepconfig.json", """{"security": {"trustedRegistries": ["mockregistry.io"]}}""")).ToArray();
+            var compilationResult = await this.compiler.Compile(filesWithConfig);
 
             return compilationResult.Compilation.SourceFileGrouping;
         }

@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
+using System.Text.Json;
 using Azure.Bicep.Types.Serialization;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
@@ -130,8 +131,21 @@ public static class RegistryHelper
         var configurationManager = new ConfigurationManager(fileExplorer);
         var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, fileExplorer), BicepTestConstants.FeatureOverrides);
 
+        // Trust the target registry for the compilation step so that modules whose source
+        // references other modules on the same registry can be restored during publish.
+        // Strip any port suffix — ValidateRegistryPattern rejects port-qualified hostnames,
+        // while IsRegistryTrusted normalizes the incoming reference hostname the same way.
+        var registryHostOnly = module.Registry.StartsWith('[')
+            ? module.Registry[..(module.Registry.IndexOf(']') + 1)]   // "[::1]:5000" → "[::1]"
+            : module.Registry.Contains(':')
+                ? module.Registry[..module.Registry.IndexOf(':')]      // "localhost:5000" → "localhost"
+                : module.Registry;
+        var publishSecurityJson = JsonDocument.Parse(
+            $"{{\"trustedRegistries\":[\"{registryHostOnly}\"]}}").RootElement;
+
         serviceBuilder = serviceBuilder
             .WithDisabledAnalyzersConfiguration()
+            .WithConfigurationPatch(c => c.With(security: SecurityConfiguration.Bind(publishSecurityJson)))
             .WithContainerRegistryClientFactory(clientFactory)
             .WithFileSystem(fileSystem)
             .WithTemplateSpecRepositoryFactory(BicepTestConstants.TemplateSpecRepositoryFactory)

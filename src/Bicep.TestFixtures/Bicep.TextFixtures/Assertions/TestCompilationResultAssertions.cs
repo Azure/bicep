@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
+using Bicep.TextFixtures.IO;
 using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using FluentAssertions.Primitives;
@@ -12,6 +13,9 @@ namespace Bicep.TextFixtures.Assertions
     {
         public static TestCompilationResultAssertions Should(this TestCompilationResult subject)
         {
+            // Set the scope prefix before returning so that TestFileUri.From*Path() calls
+            // in the following HaveDiagnostics argument expression see it.
+            TestFileUri.CurrentScopePrefix.Value = subject.ScopePrefix;
             return new TestCompilationResultAssertions(subject);
         }
     }

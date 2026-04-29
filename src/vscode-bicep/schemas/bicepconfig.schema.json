@@ -961,6 +961,20 @@
           "description": ""
         }
       }
+    },
+    "security": {
+      "type": "object",
+      "description": "Security settings for Bicep",
+      "properties": {
+        "trustedRegistries": {
+          "type": "array",
+          "description": "Additional OCI registries trusted for module restore, beyond the built-in list (*.azurecr.io, *.azurecr.cn, *.azurecr.us, mcr.microsoft.com, mcr.azure.cn, ghcr.io). Each entry must be a bare hostname (e.g. \"myregistry.example.com\") or a wildcard subdomain pattern (e.g. \"*.example.com\"). Only add registries you trust, as restoring from an untrusted registry can expose your credentials. See https://aka.ms/bicep-registry-trust for details.",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      }
     }
   }
 }
