@@ -23,8 +23,8 @@ public sealed class NoModuleNameRule : LinterRuleBase
     {
         foreach (var module in model.Root.ModuleDeclarations)
         {
-            if (module.DeclaringModule.TryGetBody() is not { } body ||
-                body.TryGetPropertyByName(LanguageConstants.ModuleNamePropertyName) is not { } nameProperty)
+            if (module.TryGetBodyProperty(LanguageConstants.ModuleNamePropertyName) is not { } nameProperty ||
+                module.DeclaringModule.TryGetBody() is not { } body)
             {
                 continue;
             }

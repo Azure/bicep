@@ -1258,7 +1258,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Avoid specifying a module name to ensure a deterministic name is generated and to avoid the risk of reusing deployment names between nested modules..
+        ///   Looks up a localized string similar to Avoid specifying an explicit module name. This simplifies code, and avoids the risk of accidental module name re-use within a deployment..
         /// </summary>
         internal static string NoModuleNameRule_Description {
             get {
