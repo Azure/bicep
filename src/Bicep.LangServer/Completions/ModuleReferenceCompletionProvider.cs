@@ -38,6 +38,7 @@ namespace Bicep.LanguageServer.Completions
         private readonly IRegistryModuleCatalog registryModuleCatalog;
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
+        private readonly IAvmModuleDisplayNameProvider avmModuleDisplayNameProvider;
 
         private enum ModuleCompletionPriority
         {
@@ -144,12 +145,14 @@ namespace Bicep.LanguageServer.Completions
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
             IRegistryModuleCatalog registryModuleCatalog,
             ISettingsProvider settingsProvider,
-            ITelemetryProvider telemetryProvider)
+            ITelemetryProvider telemetryProvider,
+            IAvmModuleDisplayNameProvider? avmModuleDisplayNameProvider = null)
         {
             this.azureContainerRegistriesProvider = azureContainerRegistriesProvider;
             this.registryModuleCatalog = registryModuleCatalog;
             this.settingsProvider = settingsProvider;
             this.telemetryProvider = telemetryProvider;
+            this.avmModuleDisplayNameProvider = avmModuleDisplayNameProvider ?? NullAvmModuleDisplayNameProvider.Instance;
         }
 
         public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(BicepSourceFile sourceFile, BicepCompletionContext context, CancellationToken cancellationToken)
@@ -653,11 +656,11 @@ namespace Bicep.LanguageServer.Completions
                     telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryResolution(ModuleRegistryResolutionType.AcrVersion));
                 }
 
-                return (completionItem with
-                {
-                    Detail = metadata.Details.Description,
-                })
-                .WithDocumentation(MarkdownHelper.GetDocumentationLink(metadata.Details.DocumentationUri));
+                var title = GetCompletionTitle(registry, modulePath, metadata.Details.Description);
+                var status = GetModuleStatus(registry, modulePath);
+
+                return completionItem
+                    .WithDocumentation(GetCompletionDocumentation(title, modulePath, metadata.Details, status, version));
             }
 
             return completionItem;
@@ -676,10 +679,11 @@ namespace Bicep.LanguageServer.Completions
                     telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryResolution(ModuleRegistryResolutionType.AcrModulePath));
                 }
 
-                return (completionItem with
-                {
-                    Detail = details.Description,
-                }).WithDocumentation(MarkdownHelper.GetDocumentationLink(details.DocumentationUri));
+                var title = GetCompletionTitle(registry, modulePath, details.Description);
+                var status = GetModuleStatus(registry, modulePath);
+
+                return completionItem
+                    .WithDocumentation(GetCompletionDocumentation(title, modulePath, details, status));
             }
 
             return completionItem;
@@ -722,6 +726,85 @@ namespace Bicep.LanguageServer.Completions
         {
             // We want all module completion priorities to come after other completions (e.g. local module paths), so we start with "9"
             return $"9{(int)priority}_{label}";
+        }
+
+        private string? GetCompletionTitle(string registry, string modulePath, string? defaultTitle)
+        {
+            if (registry.Equals(LanguageConstants.BicepPublicMcrRegistry, StringComparison.Ordinal)
+                && avmModuleDisplayNameProvider.TryGetModuleDisplayName(modulePath, out var moduleDisplayName))
+            {
+                return moduleDisplayName;
+            }
+
+            return defaultTitle;
+        }
+
+        private string? GetModuleStatus(string registry, string modulePath)
+        {
+            if (registry.Equals(LanguageConstants.BicepPublicMcrRegistry, StringComparison.Ordinal)
+                && avmModuleDisplayNameProvider.TryGetModuleStatus(modulePath, out var moduleStatus))
+            {
+                return moduleStatus;
+            }
+
+            return null;
+        }
+
+        private static string GetCompletionDocumentation(string? title, string modulePath, RegistryMetadataDetails details, string? status = null, string? version = null)
+        {
+            var displayModulePath = GetDisplayModulePath(modulePath);
+
+            var sections = new List<string>();
+
+            if (title is not null)
+            {
+                sections.Add($"### {title}");
+            }
+
+            if (version is not null)
+            {
+                sections.Add($"**Version:** {version}");
+            }
+
+            sections.Add($"**Full module path:** {displayModulePath}");
+
+            if (status is not null)
+            {
+                var emoji = status switch
+                {
+                    "Proposed" => "⚪",
+                    "Available" => "🟢",
+                    "Orphaned" => "🟡",
+                    "Deprecated" => "🔴",
+                    _ => null,
+                };
+
+                sections.Add(emoji is not null
+                    ? $"**Status:** {emoji} {status}"
+                    : $"**Status:** {status}");
+            }
+
+            sections.Add($"**Description:** {details.Description ?? "N/A"}");
+
+            if (MarkdownHelper.GetDocumentationLink(details.DocumentationUri) is { } docLink)
+            {
+                sections.Add(docLink);
+            }
+            else
+            {
+                sections.Add("**Documentation:** N/A");
+            }
+
+            return MarkdownHelper.JoinWithNewlines(sections);
+        }
+
+        private static string GetDisplayModulePath(string modulePath)
+        {
+            const string publicRegistryPrefix = LanguageConstants.BicepPublicMcrPathPrefix;
+
+            return modulePath.StartsWith(publicRegistryPrefix, StringComparison.Ordinal)
+                ? modulePath[publicRegistryPrefix.Length..]
+                : modulePath;
         }
     }
 }

@@ -527,7 +527,11 @@ namespace Bicep.LangServer.UnitTests.Completions
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().BeNull();
-                    c.Documentation.Should().BeNull();
+                    c.Documentation!.MarkupContent!.Value.Should().NotContain("**Display name:**");
+                    c.Documentation.MarkupContent.Value.Should().NotContain("### ");
+                    c.Documentation.MarkupContent.Value.Should().Contain("**Full module path:** app/dapr-cntrapp1");
+                    c.Documentation.MarkupContent.Value.Should().Contain("**Description:** N/A");
+                    c.Documentation.MarkupContent.Value.Should().Contain("**Documentation:** N/A");
                     c.TextEdit!.TextEdit!.NewText.Should().Be(expectedCompletionText1);
                     c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
                     c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
@@ -540,14 +544,61 @@ namespace Bicep.LangServer.UnitTests.Completions
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.InsertText.Should().BeNull();
-                    c.Detail.Should().Be("description2");
-                    c.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help2)");
+                    c.Detail.Should().BeNull();
+                    c.Documentation!.MarkupContent!.Value.Should().NotContain("**Display name:**");
+                    c.Documentation.MarkupContent.Value.Should().Contain("### description2");
+                    c.Documentation.MarkupContent.Value.Should().Contain("**Full module path:** app/dapr-cntrapp2");
+                    c.Documentation.MarkupContent.Value.Should().Contain("**Description:** description2");
+                    c.Documentation.MarkupContent.Value.Should().Contain("[View Documentation](contoso.com/help2)");
                     c.TextEdit!.TextEdit!.NewText.Should().Be(expectedCompletionText2);
                     c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
                     c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
                     c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
                     c.TextEdit.TextEdit.Range.End.Character.Should().Be(expectedEnd);
                 });
+        }
+
+        [TestMethod]
+        public async Task GetFilteredCompletions_WithPublicAvmModulePathCompletions_UsesModuleDisplayNameForTooltipTitle()
+        {
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
+                RegistryCatalogMocks.MockPublicMetadataProvider([
+                    new("bicep/avm/ptn/ai-platform/baseline", "module description", "contoso.com/help", []),
+                ])
+            );
+
+            var avmDisplayNameProviderMock = StrictMock.Of<IAvmModuleDisplayNameProvider>();
+            string? moduleDisplayName = "AI platform baseline";
+            avmDisplayNameProviderMock
+                .Setup(x => x.TryGetModuleDisplayName("bicep/avm/ptn/ai-platform/baseline", out moduleDisplayName))
+                .Returns(true);
+            string? moduleStatus = "Available";
+            avmDisplayNameProviderMock
+                .Setup(x => x.TryGetModuleStatus("bicep/avm/ptn/ai-platform/baseline", out moduleStatus))
+                .Returns(true);
+
+            var (completionContext, sourceFile) = GetBicepCompletionContext("module test 'br/public:avm/ptn/ai-platform/|'");
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                catalog,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                avmDisplayNameProviderMock.Object);
+            var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
+
+            completions.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Label.Should().Be("avm/ptn/ai-platform/baseline");
+                    x.Detail.Should().BeNull();
+                    x.Documentation!.MarkupContent!.Value.Should().NotContain("**Display name:**");
+                    x.Documentation.MarkupContent.Value.Should().Contain("### AI platform baseline");
+                    x.Documentation.MarkupContent.Value.Should().Contain("**Full module path:** avm/ptn/ai-platform/baseline");
+                    x.Documentation.MarkupContent.Value.Should().Contain("**Status:** \uD83D\uDFE2 Available");
+                    x.Documentation.MarkupContent.Value.Should().Contain("**Description:** module description");
+                });
+
+            avmDisplayNameProviderMock.VerifyAll();
         }
 
         [DataTestMethod]
@@ -599,8 +650,12 @@ namespace Bicep.LangServer.UnitTests.Completions
                 {
                     c.Label.Should().Be(expectedLabel);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-                    c.Detail.Should().Be("d1");
-                    c.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help1)");
+                    c.Detail.Should().BeNull();
+                    c.Documentation!.MarkupContent!.Value.Should().NotContain("**Display name:**");
+                    c.Documentation.MarkupContent.Value.Should().Contain("### d1");
+                    c.Documentation.MarkupContent.Value.Should().Contain("**Full module path:** whatever/abc/foo/bar");
+                    c.Documentation.MarkupContent.Value.Should().Contain("**Description:** d1");
+                    c.Documentation.MarkupContent.Value.Should().Contain("[View Documentation](contoso.com/help1)");
                     c.TextEdit!.TextEdit!.NewText.Should().Be(expectedCompletionText);
                 });
         }
@@ -708,7 +763,12 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.InsertText == null &&
                 x.SortText == expectedSortText1 &&
                 x.Detail == null &&
-                x.Documentation == null &&
+                !x.Documentation!.MarkupContent!.Value.Contains("**Display name:**") &&
+                !x.Documentation.MarkupContent.Value.Contains("### ") &&
+                x.Documentation.MarkupContent.Value.Contains("**Version:** 1.0.2") &&
+                x.Documentation.MarkupContent.Value.Contains("**Full module path:** app/dapr-containerapp") &&
+                x.Documentation.MarkupContent.Value.Contains("**Description:** N/A") &&
+                x.Documentation.MarkupContent.Value.Contains("**Documentation:** N/A") &&
                 x.TextEdit!.TextEdit!.NewText == expectedCompletionText1 &&
                 x.TextEdit!.TextEdit!.Range.Start.Line == 0 &&
                 x.TextEdit!.TextEdit!.Range.Start.Character == 12 &&
@@ -720,8 +780,13 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.Kind == CompletionItemKind.Snippet &&
                 x.InsertText == null &&
                 x.SortText == expectedSortText2 &&
-                x.Detail == "d2" &&
-                x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help%20page.html)" &&
+                x.Detail == null &&
+                !x.Documentation!.MarkupContent!.Value.Contains("**Display name:**") &&
+                x.Documentation.MarkupContent.Value.Contains("### d2") &&
+                x.Documentation.MarkupContent.Value.Contains("**Version:** 1.0.1") &&
+                x.Documentation.MarkupContent.Value.Contains("**Full module path:** app/dapr-containerapp") &&
+                x.Documentation.MarkupContent.Value.Contains("**Description:** d2") &&
+                x.Documentation.MarkupContent.Value.Contains("[View Documentation](contoso.com/help%20page.html)") &&
                 x.TextEdit!.TextEdit!.NewText == expectedCompletionText2 &&
                 x.TextEdit!.TextEdit!.Range.Start.Line == 0 &&
                 x.TextEdit!.TextEdit!.Range.Start.Character == 12 &&
@@ -847,8 +912,12 @@ namespace Bicep.LangServer.UnitTests.Completions
                     x.Label.Should().Be(expectedLabel);
                     x.Kind.Should().Be(CompletionItemKind.Snippet);
                     x.InsertText.Should().BeNull();
-                    x.Detail.Should().Be("dapr description");
-                    x.Documentation!.MarkupContent!.Value.Should().Be("[View Documentation](contoso.com/help)");
+                    x.Detail.Should().BeNull();
+                    x.Documentation!.MarkupContent!.Value.Should().NotContain("**Display name:**");
+                    x.Documentation.MarkupContent.Value.Should().Contain("### dapr description");
+                    x.Documentation.MarkupContent.Value.Should().Contain("**Full module path:** app/dapr-containerapp");
+                    x.Documentation.MarkupContent.Value.Should().Contain("**Description:** dapr description");
+                    x.Documentation.MarkupContent.Value.Should().Contain("[View Documentation](contoso.com/help)");
 
                     var actualTextEdit = x.TextEdit!.TextEdit;
                     actualTextEdit.Should().NotBeNull();
