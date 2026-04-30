@@ -21,6 +21,9 @@
     "vitest": "^4.1.4",
     "vscode-jsonrpc": "^8.2.1"
   },
+  "optionalDependencies": {
+    "@rolldown/binding-linux-x64-musl": "1.0.0-rc.15"
+  },
   "scripts": {
     "check-types": "tsc --noEmit",
     "test": "npm run check-types && vitest local/",
