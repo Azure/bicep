@@ -11,6 +11,7 @@ export default defineConfig({
     peerDepsExternal(),
     dts({
       exclude: ["**/__tests__/**"],
+      insertTypesEntry: true,
     }),
   ],
   build: {
@@ -31,6 +32,7 @@ export default defineConfig({
     watch: false,
     globals: true,
     restoreMocks: true,
+    resetMocks: true,
     environment: "happy-dom",
     coverage: {
       enabled: true,

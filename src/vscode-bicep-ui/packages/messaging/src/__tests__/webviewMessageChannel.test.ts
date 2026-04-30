@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { WebviewRequestMessage, WebviewResponseMessage } from "../webviewMessageChannel";
+import type { WebviewNotificationCallback, WebviewRequestMessage, WebviewResponseMessage } from "../webviewMessageChannel";
 
 import { waitFor } from "@testing-library/dom";
-import { afterAll, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 import { WebviewMessageChannel } from "../webviewMessageChannel";
 
 describe("WebviewMessageChannel", () => {
@@ -12,6 +12,10 @@ describe("WebviewMessageChannel", () => {
 
   afterAll(() => {
     sut.dispose();
+  });
+
+  afterEach(() => {
+    vi.mocked(acquireVsCodeApi().postMessage).mockReset();
   });
 
   describe("sendRequest", () => {
@@ -58,7 +62,7 @@ describe("WebviewMessageChannel", () => {
 
       for (let i = 0; i < numberOfSubscribers; i++) {
         callbacks.push(vi.fn());
-        sut.subscribeToNotification(dummyNotification.method, callbacks[i]);
+        sut.subscribeToNotification(dummyNotification.method, callbacks[i] as WebviewNotificationCallback);
       }
 
       window.postMessage(dummyNotification);
@@ -79,11 +83,11 @@ describe("WebviewMessageChannel", () => {
 
       for (let i = 0; i < numberOfSubscribers; i++) {
         callbacks.push(vi.fn());
-        sut.subscribeToNotification(dummyNotification.method, callbacks[i]);
+        sut.subscribeToNotification(dummyNotification.method, callbacks[i] as WebviewNotificationCallback);
       }
 
-      sut.unsubscribeFromNotification(dummyNotification.method, callbacks[0]);
-      sut.unsubscribeFromNotification(dummyNotification.method, callbacks[1]);
+      sut.unsubscribeFromNotification(dummyNotification.method, callbacks[0] as WebviewNotificationCallback);
+      sut.unsubscribeFromNotification(dummyNotification.method, callbacks[1] as WebviewNotificationCallback);
 
       window.postMessage(dummyNotification);
 
