@@ -156,16 +156,16 @@ namespace Bicep.Core.UnitTests.Semantics
             baseType.Properties["four"].Flags.Should().HaveFlag(TypePropertyFlags.ReadOnly);
         }
 
-                [TestMethod]
-                public void Base_variable_access_should_not_throw_when_inherited_params_include_object_and_array_values()
-                {
-                        var services = new ServiceBuilder()
-                                .WithEmptyAzResources()
-                                .WithFeatureOverrides(new(ExtendableParamFilesEnabled: true));
+        [TestMethod]
+        public void Base_variable_access_should_not_throw_when_inherited_params_include_object_and_array_values()
+        {
+            var services = new ServiceBuilder()
+                    .WithEmptyAzResources()
+                    .WithFeatureOverrides(new(ExtendableParamFilesEnabled: true));
 
-                        var files = new Dictionary<Uri, string>
-                        {
-                                [new Uri("file:///main.bicep")] = """
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///main.bicep")] = """
                                         param one string = ''
                                         param two string = ''
                                         param three string = ''
@@ -180,7 +180,7 @@ namespace Bicep.Core.UnitTests.Semantics
                                             }
                                         ]
                                         """,
-                                [new Uri("file:///shared.bicepparam")] = """
+                [new Uri("file:///shared.bicepparam")] = """
                                         using none
                                         param three = 'param three'
                                         param four = {
@@ -192,30 +192,30 @@ namespace Bicep.Core.UnitTests.Semantics
                                             }
                                         ]
                                         """,
-                                [new Uri("file:///main.bicepparam")] = """
+                [new Uri("file:///main.bicepparam")] = """
                                         using 'main.bicep'
                                         extends 'shared.bicepparam'
                                         param one = 'param one'
                                         param two = base.three
                                         param five = []
                                         """
-                        };
+            };
 
-                        var compilation = services.BuildCompilation(files, new Uri("file:///main.bicepparam"));
-                        var model = compilation.GetEntrypointSemanticModel();
+            var compilation = services.BuildCompilation(files, new Uri("file:///main.bicepparam"));
+            var model = compilation.GetEntrypointSemanticModel();
 
-                        FluentActions.Invoking(() => model.GetAllDiagnostics().ToArray()).Should().NotThrow();
+            FluentActions.Invoking(() => model.GetAllDiagnostics().ToArray()).Should().NotThrow();
 
-                        var baseAccess = ((PropertyAccessSyntax)model.Root.ParameterAssignments
-                                .Single(x => x.Name == "two")
-                                .DeclaringParameterAssignment
-                                .Value).BaseExpression;
+            var baseAccess = ((PropertyAccessSyntax)model.Root.ParameterAssignments
+                    .Single(x => x.Name == "two")
+                    .DeclaringParameterAssignment
+                    .Value).BaseExpression;
 
-                        var baseType = model.GetTypeInfo(baseAccess).Should().BeOfType<ObjectType>().Subject;
+            var baseType = model.GetTypeInfo(baseAccess).Should().BeOfType<ObjectType>().Subject;
 
-                        baseType.Properties.Should().ContainKeys("three", "four", "five");
-                        baseType.Properties["four"].Flags.Should().HaveFlag(TypePropertyFlags.ReadOnly);
-                        baseType.Properties["five"].Flags.Should().HaveFlag(TypePropertyFlags.ReadOnly);
-                }
+            baseType.Properties.Should().ContainKeys("three", "four", "five");
+            baseType.Properties["four"].Flags.Should().HaveFlag(TypePropertyFlags.ReadOnly);
+            baseType.Properties["five"].Flags.Should().HaveFlag(TypePropertyFlags.ReadOnly);
+        }
     }
 }

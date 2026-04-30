@@ -3,12 +3,13 @@
 
 import type { D3ZoomEvent } from "d3-zoom";
 import type { PropsWithChildren } from "react";
+import type { ReactElement } from "react";
 
 import { select } from "d3-selection";
 import { zoom, zoomIdentity } from "d3-zoom";
 import { RESET } from "jotai/utils";
 import { frame } from "motion/react";
-import { useEffect, useLayoutEffect, useRef, type ReactElement } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { panZoomControlAtom, panZoomDimensionsAtom, panZoomTransformAtom, useSetAtom } from "./atoms";
 
 import "d3-transition";

@@ -531,6 +531,16 @@
                     }
                   ]
                 },
+                "no-module-name": {
+                  "allOf": [
+                    {
+                      "description": "Avoid specifying an explicit module name. This simplifies code, and avoids the risk of accidental module name re-use within a deployment. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#no-module-name"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
                 "nested-deployment-template-scoping": {
                   "allOf": [
                     {

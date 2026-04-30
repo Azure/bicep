@@ -4,7 +4,7 @@
 using System.IO.Pipelines;
 using System.Threading.Tasks;
 using Bicep.Core.UnitTests.Logging;
-using Bicep.McpServer;
+using Bicep.McpServer.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

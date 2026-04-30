@@ -4,9 +4,9 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using Bicep.McpServer.ResourceProperties.Entities;
+using Bicep.McpServer.Core.ResourceProperties.Entities;
 
-namespace Bicep.McpServer.ResourceProperties.Helpers;
+namespace Bicep.McpServer.Core.ResourceProperties.Helpers;
 
 public static class JsonSchemaWriter
 {

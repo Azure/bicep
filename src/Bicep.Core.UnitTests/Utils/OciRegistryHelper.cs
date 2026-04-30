@@ -23,7 +23,7 @@ namespace Bicep.Core.UnitTests.Utils
     public static class OciRegistryHelper
     {
         public static OciArtifactReference CreateModuleReferenceMock(BicepSourceFile referencingFile, string registry, string repository, string? digest, string? tag)
-            => new(referencingFile, ArtifactType.Module, registry, repository, tag, digest);
+            => new(referencingFile.Features, referencingFile.Configuration, ArtifactType.Module, registry, repository, tag, digest);
 
         public static OciArtifactReference ParseModuleReference(string moduleId /* with or without br: */, Uri? parentModuleUri = null)
         {
@@ -31,7 +31,7 @@ namespace Bicep.Core.UnitTests.Utils
             {
                 moduleId = moduleId[OciArtifactReferenceFacts.SchemeWithColon.Length..];
             }
-            OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile, ArtifactType.Module, null, moduleId).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile.Features, BicepTestConstants.DummyBicepFile.Configuration, ArtifactType.Module, null, moduleId).IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 
