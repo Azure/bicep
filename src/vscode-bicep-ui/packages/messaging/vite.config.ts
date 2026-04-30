@@ -31,6 +31,7 @@ export default defineConfig({
     watch: false,
     globals: true,
     restoreMocks: true,
+    mockReset: true,
     environment: "happy-dom",
     coverage: {
       enabled: true,

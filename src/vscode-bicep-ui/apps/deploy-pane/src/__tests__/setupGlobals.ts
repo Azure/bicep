@@ -7,11 +7,18 @@ import "@testing-library/jest-dom/vitest";
 import "element-internals-polyfill";
 import "jest-styled-components";
 
-global.ResizeObserver = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+// Seed Math.random to ensure Lit template hashes are deterministic across test runs.
+// Lit computes a hash once per module load using Math.random(); we freeze it here before
+// any test file imports Lit so snapshots remain stable.
+vi.spyOn(Math, "random").mockReturnValue(0.123456789);
+
+global.ResizeObserver = vi.fn(function () {
+  return {
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+  };
+});
 
 const postMessage = vi.fn();
 
