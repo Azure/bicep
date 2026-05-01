@@ -93,7 +93,7 @@ param p string
 
 ### `waitUntil`
 
-The feature introduces waitUntil decorators on resource data type. waitUnitl() decorator waits for the resource until its usable based on the desired property's state. 
+The feature introduces waitUntil decorators on resource data type. waitUntil() decorator waits for the resource until its usable based on the desired property's state. 
 
 ## Other experimental functionality
 
