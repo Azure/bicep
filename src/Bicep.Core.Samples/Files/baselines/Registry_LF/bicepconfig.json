@@ -8,10 +8,10 @@
     },
     "br": {
       "mock-registry-one": {
-        "registry": "mock-registry-one.invalid"
+        "registry": "mock-registry-one.azurecr.io"
       },
       "demo-two": {
-        "registry": "mock-registry-two.invalid",
+        "registry": "mock-registry-two.azurecr.io",
         "modulePath": "demo"
       }
     }

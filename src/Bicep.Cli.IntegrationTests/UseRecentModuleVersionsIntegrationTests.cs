@@ -727,12 +727,12 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         var result = await Test(new Options(CacheRoot)
         {
             Bicep = """
-                module m1 'br:mcr.private.com/bicep/fake/avm/res/app/container-app:1.0.0' = {
+                module m1 'br:mcr-private.azurecr.io/bicep/fake/avm/res/app/container-app:1.0.0' = {
                   name: 'm1'
                 }
                 """,
             PublishedModules = [
-                $"br:mcr.private.com/bicep/fake/avm/res/app/container-app:1.0.0"
+                $"br:mcr-private.azurecr.io/bicep/fake/avm/res/app/container-app:1.0.0"
             ],
             ModulesMetadata = [("fake/avm/res/app/container-app", ["1.0.1", "1.0.0"])],
         });
@@ -748,12 +748,12 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         var result = await Test(new Options(CacheRoot)
         {
             Bicep = """
-                module m1 'br:mcr.private.com/bicep/fake/avm/res/app/container-app:1.0.0' = {
+                module m1 'br:mcr-private.azurecr.io/bicep/fake/avm/res/app/container-app:1.0.0' = {
                   name: 'm1'
                 }
                 """,
             PublishedModules = [
-                $"br:mcr.private.com/bicep/fake/avm/res/app/container-app:1.0.0"
+                $"br:mcr-private.azurecr.io/bicep/fake/avm/res/app/container-app:1.0.0"
             ],
             ModulesMetadata = [("fake/avm/res/app/container-app", ["1.0.1", "1.0.0"])],
             NoRestore = true,

@@ -1,4 +1,4 @@
-using 'br:mockregistry.io/parameters/basic:v1'
+using 'br:mockregistry.azurecr.io/parameters/basic:v1'
 
 extends 'shared.bicepparam'
 

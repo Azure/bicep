@@ -81,7 +81,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [TestMethod]
         public async Task Params_file_should_handle_registry_module_resource_derived_types()
         {
-            const string moduleRef = "br:mockregistry.io/route/table:v1";
+            const string moduleRef = "br:mockregistry.azurecr.io/route/table:v1";
 
             const string moduleContent = """
                 param routes resourceInput<'Microsoft.Network/routeTables@2024-07-01'>.properties.routes?

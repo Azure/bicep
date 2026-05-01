@@ -40,9 +40,9 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
 //@[012:0024) |       └─FunctionCallExpression { Name = deployment }
 }
 
-module appPlanDeploy 'br:mock-registry-one.invalid/demo/plan:v2' = {
-//@[000:0143) ├─DeclaredModuleExpression
-//@[067:0143) | ├─ObjectExpression
+module appPlanDeploy 'br:mock-registry-one.azurecr.io/demo/plan:v2' = {
+//@[000:0146) ├─DeclaredModuleExpression
+//@[070:0146) | ├─ObjectExpression
   name: 'planDeploy'
 //@[002:0020) | | └─ObjectPropertyExpression
 //@[002:0006) | |   ├─StringLiteralExpression { Value = name }
@@ -101,14 +101,14 @@ var websites = [
   }
 ]
 
-module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in websites: {
-//@[000:0287) ├─DeclaredModuleExpression
-//@[064:0287) | ├─ForLoopExpression
-//@[077:0085) | | ├─VariableReferenceExpression { Variable = websites }
-//@[087:0286) | | └─ObjectExpression
-//@[077:0085) | |           └─VariableReferenceExpression { Variable = websites }
-//@[077:0085) | | |     └─VariableReferenceExpression { Variable = websites }
-//@[077:0085) | |       └─VariableReferenceExpression { Variable = websites }
+module siteDeploy 'br:mock-registry-two.azurecr.io/demo/site:v3' = [for site in websites: {
+//@[000:0290) ├─DeclaredModuleExpression
+//@[067:0290) | ├─ForLoopExpression
+//@[080:0088) | | ├─VariableReferenceExpression { Variable = websites }
+//@[090:0289) | | └─ObjectExpression
+//@[080:0088) | |           └─VariableReferenceExpression { Variable = websites }
+//@[080:0088) | | |     └─VariableReferenceExpression { Variable = websites }
+//@[080:0088) | |       └─VariableReferenceExpression { Variable = websites }
   name: '${site.name}siteDeploy'
 //@[002:0032) | |   └─ObjectPropertyExpression
 //@[002:0006) | |     ├─StringLiteralExpression { Value = name }

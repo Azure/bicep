@@ -1215,7 +1215,7 @@ param objParam object
                 TestContext,
                 "main.bicepparam",
                 """
-                using 'br:mockregistry.io/parameters/basic:v1'
+                using 'br:mockregistry.azurecr.io/parameters/basic:v1'
                 extends 'shared.bicepparam'
                 param intParam = 123
                 param boolParam = false
@@ -1317,7 +1317,7 @@ param objParam object
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory
-                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://mockregistry.io"), "parameters/basic"))
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://mockregistry.azurecr.io"), "parameters/basic"))
                 .Returns(client.Object);
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
@@ -1326,7 +1326,7 @@ param objParam object
             var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--stdout");
 
             result.Should().Fail().And.NotHaveStdout();
-            result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the artifact with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");
+            result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the artifact with reference \"br:mockregistry.azurecr.io/parameters/basic:v1\": Mock registry request failure.");
         }
 
         [DataRow([])]

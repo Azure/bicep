@@ -71,13 +71,13 @@ param foo: string
         // * The module is re-published with different contents. The module cache (on disk) is not aware of this change
         // * The user forces a module restore to fetch the latest contents
 
-        var clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor("mockregistry.io", "test/foo", ["v1"]));
+        var clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor("mockregistry.azurecr.io", "test/foo", ["v1"]));
         async Task publish(string source)
             => await RegistryHelper.PublishModuleToRegistryAsync(
                 new ServiceBuilder(),
                 clientFactory,
                 BicepTestConstants.FileSystem,
-                new("br:mockregistry.io/test/foo:1.1", source, WithSource: false));
+                new("br:mockregistry.azurecr.io/test/foo:1.1", source, WithSource: false));
 
         var cacheRoot = FileHelper.GetCacheRootDirectory(TestContext);
         var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
@@ -101,7 +101,7 @@ param foo: string
         var paramsFileUri = new Uri("file:///main.bicepparam");
 
         var diags = await helper.OpenFileOnceAsync(TestContext, """
-using 'br:mockregistry.io/test/foo:1.1'
+using 'br:mockregistry.azurecr.io/test/foo:1.1'
 
 param foo = 'abc'
 """, paramsFileUri);

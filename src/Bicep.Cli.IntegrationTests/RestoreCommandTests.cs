@@ -89,17 +89,17 @@ namespace Bicep.Cli.IntegrationTests
         {
             var fileSystem = new MockFileSystem();
             var fileExplorer = new FileSystemFileExplorer(fileSystem);
-            var clientFactory = RegistryHelper.CreateMockRegistryClient(new RegistryHelper.RepoDescriptor("mockregistry.io", "test/foo", ["v1"]));
+            var clientFactory = RegistryHelper.CreateMockRegistryClient(new RegistryHelper.RepoDescriptor("mockregistry.azurecr.io", "test/foo", ["v1"]));
             await RegistryHelper.PublishModuleToRegistryAsync(
                 new ServiceBuilder(),
                 clientFactory,
                 fileSystem,
-                new("br:mockregistry.io/test/foo:1.1", """
+                new("br:mockregistry.azurecr.io/test/foo:1.1", """
 output myOutput string = 'hello!'
 """, WithSource: false));
 
             var contents = """
-module mod 'br:mockregistry.io/test/foo:1.1' = {
+module mod 'br:mockregistry.azurecr.io/test/foo:1.1' = {
   name: 'mod'
 }
 """;
@@ -231,7 +231,7 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
             "Error BCP192: Unable to restore.* artifacts of type: 'application/vnd.ms.bicep.module.unexpected'.*newer version of Bicep might be required to reference this artifact.")]
         public async Task Restore_Artifacts_BackwardsAndForwardsCompatibility(string? mediaType, string? artifactType, string? configContents, string? expectedErrorRegex = null)
         {
-            var registry = "example.com";
+            var registry = "example.azurecr.io";
             var registryUri = new Uri("https://" + registry);
             var repository = "hello/there";
             var cacheRootDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
@@ -311,7 +311,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
         public async Task Restore_Artifacts_LayerMediaTypes(string[] layerMediaTypes, string expectedErrorRegex)
         {
-            var registry = "example.com";
+            var registry = "example.azurecr.io";
             var registryUri = new Uri("https://" + registry);
             var repository = "hello/there";
             var dataSet = DataSets.Empty;
@@ -367,7 +367,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         [DataRow(true)]
         public async Task Restore_With_Force_Should_Overwrite_Existing_Cache(bool publishSource)
         {
-            var registry = "example.com";
+            var registry = "example.azurecr.io";
             var registryUri = new Uri("https://" + registry);
             var repository = "hello/there";
 
@@ -488,7 +488,7 @@ output o1 string = '${p1}${p2}'");
         [DataRow(true)]
         public async Task Restore_ByDigest_ShouldSucceed(bool publishSource)
         {
-            var registry = "example.com";
+            var registry = "example.azurecr.io";
             var registryUri = new Uri("https://" + registry);
             var repository = "hello/there";
 
@@ -573,7 +573,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
             var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(outputDirectory);
             var compiledFilePath = Path.Combine(outputDirectory, "main.bicep");
-            File.WriteAllText(compiledFilePath, @"module foo 'br:fake/fake:v1'");
+            File.WriteAllText(compiledFilePath, @"module foo 'br:fake.azurecr.io/fake:v1'");
 
             var client = StrictMock.Of<ContainerRegistryContentClient>();
             client
@@ -582,7 +582,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory
-                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://fake"), "fake"))
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://fake.azurecr.io"), "fake"))
                 .Returns(client.Object);
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
@@ -593,7 +593,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
             {
                 result.Should().Be(1);
                 output.Should().BeEmpty();
-                error.Should().Contain("main.bicep(1,12) : Error BCP192: Unable to restore the artifact with reference \"br:fake/fake:v1\": One or more errors occurred. (Mock registry request failure 1.) (Mock registry request failure 2.)");
+                error.Should().Contain("main.bicep(1,12) : Error BCP192: Unable to restore the artifact with reference \"br:fake.azurecr.io/fake:v1\": One or more errors occurred. (Mock registry request failure 1.) (Mock registry request failure 2.)");
             }
         }
 
@@ -605,7 +605,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
             var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(outputDirectory);
             var compiledFilePath = Path.Combine(outputDirectory, "main.bicep");
-            File.WriteAllText(compiledFilePath, @"module foo 'br:fake/fake:v1'");
+            File.WriteAllText(compiledFilePath, @"module foo 'br:fake.azurecr.io/fake:v1'");
 
             var client = StrictMock.Of<ContainerRegistryContentClient>();
             client
@@ -614,7 +614,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory
-                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://fake"), "fake"))
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://fake.azurecr.io"), "fake"))
                 .Returns(client.Object);
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
@@ -625,7 +625,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
             {
                 result.Should().Be(1);
                 output.Should().BeEmpty();
-                error.Should().Contain("main.bicep(1,12) : Error BCP192: Unable to restore the artifact with reference \"br:fake/fake:v1\": Mock registry request failure.");
+                error.Should().Contain("main.bicep(1,12) : Error BCP192: Unable to restore the artifact with reference \"br:fake.azurecr.io/fake:v1\": Mock registry request failure.");
             }
         }
 
@@ -643,7 +643,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
             clientFactory
-                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://mockregistry.io"), "parameters/basic"))
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), new Uri("https://mockregistry.azurecr.io"), "parameters/basic"))
                 .Returns(client.Object);
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
@@ -652,7 +652,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
             var result = await Bicep(settings, "restore", baselineFolder.EntryFile.OutputFilePath);
 
             result.Should().Fail().And.NotHaveStdout();
-            result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the artifact with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");
+            result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the artifact with reference \"br:mockregistry.azurecr.io/parameters/basic:v1\": Mock registry request failure.");
         }
 
         private static IEnumerable<object[]> GetAllDataSetsWithPublishSource()

@@ -165,16 +165,16 @@ namespace Bicep.Core.IntegrationTests
                       "sourceArtifactId": null
                     },
                     {
-                      "path": "<cache>/br/mockregistry.io/test$module1/v1$/main.json",
-                      "archivePath": "files/_cache_/br/mockregistry.io/test$module1/v1$/main.json",
+                      "path": "<cache>/br/mockregistry.azurecr.io/test$module1/v1$/main.json",
+                      "archivePath": "files/_cache_/br/mockregistry.azurecr.io/test$module1/v1$/main.json",
                       "kind": "ArmTemplate",
                       "sourceArtifactId": null
                     },
                     {
-                      "path": "<cache>/br/mockregistry.io/test$module2/v2$/main.json",
-                      "archivePath": "files/_cache_/br/mockregistry.io/test$module2/v2$/main.json",
+                      "path": "<cache>/br/mockregistry.azurecr.io/test$module2/v2$/main.json",
+                      "archivePath": "files/_cache_/br/mockregistry.azurecr.io/test$module2/v2$/main.json",
                       "kind": "ArmTemplate",
-                      "sourceArtifactId": "br:mockregistry.io/test/module2:v2"
+                      "sourceArtifactId": "br:mockregistry.azurecr.io/test/module2:v2"
                     }
                   ],
                   "documentLinks": {
@@ -192,11 +192,11 @@ namespace Bicep.Core.IntegrationTests
                         "target": "modules/arm-templates/arm-template.json"
                       },
                       { "range": "[18:12]-[18:48]",
-                        "target": "<cache>/br/mockregistry.io/test$module1/v1$/main.json"
+                        "target": "<cache>/br/mockregistry.azurecr.io/test$module1/v1$/main.json"
                       },
                       {
                         "range": "[24:12]-[24:48]",
-                        "target": "<cache>/br/mockregistry.io/test$module2/v2$/main.json"
+                        "target": "<cache>/br/mockregistry.azurecr.io/test$module2/v2$/main.json"
                       }
                     ],
                     "local1.bicep": [
@@ -213,8 +213,8 @@ namespace Bicep.Core.IntegrationTests
                 ("files/nested-local.bicep", SampleData.BicepNestedLocalModuleText),
                 ("files/modules/local2.bicep", SampleData.BicepLocalModule2Text),
                 ("files/modules/arm-templates/arm-template.json", SampleData.ArmTemplateModuleText),
-                ("files/_cache_/br/mockregistry.io/test$module1/v1$/main.json", bicepRegistryModule1Template.ToString(Newtonsoft.Json.Formatting.Indented)),
-                ("files/_cache_/br/mockregistry.io/test$module2/v2$/main.json", bicepRegistryModule2Template.ToString(Newtonsoft.Json.Formatting.Indented)));
+                ("files/_cache_/br/mockregistry.azurecr.io/test$module1/v1$/main.json", bicepRegistryModule1Template.ToString(Newtonsoft.Json.Formatting.Indented)),
+                ("files/_cache_/br/mockregistry.azurecr.io/test$module2/v2$/main.json", bicepRegistryModule2Template.ToString(Newtonsoft.Json.Formatting.Indented)));
         }
 
         [TestMethod]
@@ -222,13 +222,13 @@ namespace Bicep.Core.IntegrationTests
         {
             // Arrange.
             await this.artifactManager.PublishExtension(Samples.MockExtensionFactory.CreateMockExtWithNoConfigType("foo"));
-            await this.artifactManager.PublishRegistryModules(new RegistryModulePublishArguments("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true));
+            await this.artifactManager.PublishRegistryModules(new RegistryModulePublishArguments("br:mockregistry.azurecr.io/test/module1:v1", "param p1 bool", WithSource: true));
 
             var sourceFileGrouping = await this.CreateSourceFileGrouping(
                 ("main.bicep", """
                     extension 'br:mcr.microsoft.com/extensions/foo/v1/1.2.3'
 
-                    module m1 'br:mockregistry.io/test/module1:v1' = {
+                    module m1 'br:mockregistry.azurecr.io/test/module1:v1' = {
                         params: {
                             p1: true
                       }
@@ -242,7 +242,7 @@ namespace Bicep.Core.IntegrationTests
             using (new AssertionScope())
             {
                 sourceArchive.FindSourceFile("main.bicep").Metadata.SourceArtifactId.Should().BeNull();
-                sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json").Metadata.SourceArtifactId.Should().Be("br:mockregistry.io/test/module1:v1");
+                sourceArchive.FindSourceFile("<cache>/br/mockregistry.azurecr.io/test$module1/v1$/main.json").Metadata.SourceArtifactId.Should().Be("br:mockregistry.azurecr.io/test/module1:v1");
             }
 
         }
@@ -252,19 +252,19 @@ namespace Bicep.Core.IntegrationTests
         {
             // Arrange.
             await this.artifactManager.PublishRegistryModules(
-                new("br:mockregistry.io/test/module1:v1", "param p1 bool", WithSource: true),
-                new("br:mockregistry.io/test/module2:v1", "param p2 string", WithSource: true),
-                new("br:mockregistry.io/test/module1:v2", "param p12 string", WithSource: true));
+                new("br:mockregistry.azurecr.io/test/module1:v1", "param p1 bool", WithSource: true),
+                new("br:mockregistry.azurecr.io/test/module2:v1", "param p2 string", WithSource: true),
+                new("br:mockregistry.azurecr.io/test/module1:v2", "param p12 string", WithSource: true));
 
             var sourceFileGrouping = await this.CreateSourceFileGrouping(
                 ("main.bicep", """
-                    module m1 'br:mockregistry.io/test/module1:v1' = {
+                    module m1 'br:mockregistry.azurecr.io/test/module1:v1' = {
                         params: {
                             p1: true
                       }
                     }
 
-                    module m1b 'br:mockregistry.io/test/module1:v1' = {
+                    module m1b 'br:mockregistry.azurecr.io/test/module1:v1' = {
                         params: {
                             p1: false
                       }
@@ -282,7 +282,7 @@ namespace Bicep.Core.IntegrationTests
                       }
                     }
 
-                    module m12 'br:mockregistry.io/test/module1:v2' = {
+                    module m12 'br:mockregistry.azurecr.io/test/module1:v2' = {
                         params: {
                             p12: 'p12'
                       }
@@ -291,17 +291,17 @@ namespace Bicep.Core.IntegrationTests
                 ("local.bicep", """
                     param p2 string
 
-                    module m1 'br:mockregistry.io/test/module1:v1' = {
+                    module m1 'br:mockregistry.azurecr.io/test/module1:v1' = {
                         params: {
                             p1: true
                       }
                     }
-                    module m2 'br:mockregistry.io/test/module2:v1' = {
+                    module m2 'br:mockregistry.azurecr.io/test/module2:v1' = {
                         params: {
                             p2: 'p2'
                       }
                     }
-                    module m12 'br:mockregistry.io/test/module1:v2' = {
+                    module m12 'br:mockregistry.azurecr.io/test/module1:v2' = {
                         params: {
                             p12: 'p12'
                       }
@@ -315,9 +315,9 @@ namespace Bicep.Core.IntegrationTests
             using (new AssertionScope())
             {
                 sourceArchive.FindSourceFile("main.bicep").Metadata.SourceArtifactId.Should().BeNull();
-                sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json").Metadata.SourceArtifactId.Should().Be("br:mockregistry.io/test/module1:v1");
-                sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module1/v2$/main.json").Metadata.SourceArtifactId.Should().Be("br:mockregistry.io/test/module1:v2");
-                sourceArchive.FindSourceFile("<cache>/br/mockregistry.io/test$module2/v1$/main.json").Metadata.SourceArtifactId.Should().Be("br:mockregistry.io/test/module2:v1");
+                sourceArchive.FindSourceFile("<cache>/br/mockregistry.azurecr.io/test$module1/v1$/main.json").Metadata.SourceArtifactId.Should().Be("br:mockregistry.azurecr.io/test/module1:v1");
+                sourceArchive.FindSourceFile("<cache>/br/mockregistry.azurecr.io/test$module1/v2$/main.json").Metadata.SourceArtifactId.Should().Be("br:mockregistry.azurecr.io/test/module1:v2");
+                sourceArchive.FindSourceFile("<cache>/br/mockregistry.azurecr.io/test$module2/v1$/main.json").Metadata.SourceArtifactId.Should().Be("br:mockregistry.azurecr.io/test/module2:v1");
                 sourceArchive.FindSourceFile("local.bicep").Metadata.SourceArtifactId.Should().BeNull();
             }
         }
@@ -376,16 +376,16 @@ namespace Bicep.Core.IntegrationTests
             var moduleText = "param p1 bool";
             var moduleTemplate = (await this.compiler.CompileInline(moduleText)).Template!;
             var moduleTemplateText = moduleTemplate.ToString(Newtonsoft.Json.Formatting.Indented);
-            await this.artifactManager.PublishRegistryModule("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true);
+            await this.artifactManager.PublishRegistryModule("br:mockregistry.azurecr.io/test/module1:v1", "param p1 bool", withSource: true);
 
             var mainBicepText = """
-                module m1 'br:mockregistry.io/test/module1:v1' = {
+                module m1 'br:mockregistry.azurecr.io/test/module1:v1' = {
                     params: {
                         p1: true
                   }
                 }
 
-                module m2 'br:mockregistry.io/test/module2:v1' = { // not found
+                module m2 'br:mockregistry.azurecr.io/test/module2:v1' = { // not found
                     params: {
                         p1: true
                   }
@@ -412,24 +412,24 @@ namespace Bicep.Core.IntegrationTests
                       "sourceArtifactId": null
                     },
                     {
-                      "path": "<cache>/br/mockregistry.io/test$module1/v1$/main.json",
-                      "archivePath": "files/_cache_/br/mockregistry.io/test$module1/v1$/main.json",
+                      "path": "<cache>/br/mockregistry.azurecr.io/test$module1/v1$/main.json",
+                      "archivePath": "files/_cache_/br/mockregistry.azurecr.io/test$module1/v1$/main.json",
                       "kind": "ArmTemplate",
-                      "sourceArtifactId": "br:mockregistry.io/test/module1:v1"
+                      "sourceArtifactId": "br:mockregistry.azurecr.io/test/module1:v1"
                     }
                   ],
                   "documentLinks": {
                     "main.bicep": [
                       {
                         "range": "[0:10]-[0:46]",
-                        "target": "<cache>/br/mockregistry.io/test$module1/v1$/main.json"
+                        "target": "<cache>/br/mockregistry.azurecr.io/test$module1/v1$/main.json"
                       }
                     ]
                   }
                 }
                 """,
                 ("files/main.bicep", mainBicepText),
-                ("files/_cache_/br/mockregistry.io/test$module1/v1$/main.json", moduleTemplateText));
+                ("files/_cache_/br/mockregistry.azurecr.io/test$module1/v1$/main.json", moduleTemplateText));
         }
 
         [DataTestMethod]
@@ -612,8 +612,8 @@ namespace Bicep.Core.IntegrationTests
                     new(new TextRange(0, 14, 0, 28), "local1.bicep"),
                     new(new TextRange(6, 14, 6, 36), "modules/local2.bicep"),
                     new(new TextRange(12, 19, 12, 60), "modules/arm-templates/arm-template.json"),
-                    new(new TextRange(18, 12, 18, 48), "<cache>/br/mockregistry.io/test$module1/v1$/main.json"),
-                    new(new TextRange(24, 12, 24, 48), "<cache>/br/mockregistry.io/test$module2/v2$/main.json"),
+                    new(new TextRange(18, 12, 18, 48), "<cache>/br/mockregistry.azurecr.io/test$module1/v1$/main.json"),
+                    new(new TextRange(24, 12, 24, 48), "<cache>/br/mockregistry.azurecr.io/test$module2/v2$/main.json"),
                 });
 
                 localModule1Links.Should().BeEquivalentTo(new ArchivedSourceFileLink[]
@@ -753,12 +753,12 @@ namespace Bicep.Core.IntegrationTests
                 }
                 """;
 
-            public const string BicepRegistryModule1ArtifactId = "br:mockregistry.io/test/module1:v1";
+            public const string BicepRegistryModule1ArtifactId = "br:mockregistry.azurecr.io/test/module1:v1";
             public const string BicepRegistryModule1Text = """
                 param brm1 string
                 """;
 
-            public const string BicepRegistryModule2ArtifactId = "br:mockregistry.io/test/module2:v2";
+            public const string BicepRegistryModule2ArtifactId = "br:mockregistry.azurecr.io/test/module2:v2";
             public const string BicepRegistryModule2Text = """
                 param brm2 string
                 """;

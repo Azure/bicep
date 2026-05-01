@@ -21,6 +21,10 @@ namespace Bicep.Core.Configuration
             "mcr.microsoft.com",
             "mcr.azure.cn",
             "ghcr.io",
+            // Loopback addresses are inherently local and safe for development/testing scenarios.
+            "localhost",
+            "127.0.0.1",
+            "[::1]",
         ];
 
         /// <summary>

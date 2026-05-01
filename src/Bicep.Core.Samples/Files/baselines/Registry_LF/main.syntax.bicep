@@ -45,13 +45,13 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
-module appPlanDeploy 'br:mock-registry-one.invalid/demo/plan:v2' = {
+module appPlanDeploy 'br:mock-registry-one.azurecr.io/demo/plan:v2' = {
 //@[000:0143) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0020) | ├─IdentifierSyntax
 //@[007:0020) | | └─Token(Identifier) |appPlanDeploy|
 //@[021:0064) | ├─StringSyntax
-//@[021:0064) | | └─Token(StringComplete) |'br:mock-registry-one.invalid/demo/plan:v2'|
+//@[021:0067) | | └─Token(StringComplete) |'br:mock-registry-one.azurecr.io/demo/plan:v2'|
 //@[065:0066) | ├─Token(Assignment) |=|
 //@[067:0143) | └─ObjectSyntax
 //@[067:0068) |   ├─Token(LeftBrace) |{|
@@ -208,13 +208,13 @@ var websites = [
 //@[000:0001) |   └─Token(RightSquare) |]|
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
-module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in websites: {
+module siteDeploy 'br:mock-registry-two.azurecr.io/demo/site:v3' = [for site in websites: {
 //@[000:0287) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0017) | ├─IdentifierSyntax
 //@[007:0017) | | └─Token(Identifier) |siteDeploy|
 //@[018:0061) | ├─StringSyntax
-//@[018:0061) | | └─Token(StringComplete) |'br:mock-registry-two.invalid/demo/site:v3'|
+//@[018:0064) | | └─Token(StringComplete) |'br:mock-registry-two.azurecr.io/demo/site:v3'|
 //@[062:0063) | ├─Token(Assignment) |=|
 //@[064:0287) | └─ForSyntax
 //@[064:0065) |   ├─Token(LeftSquare) |[|

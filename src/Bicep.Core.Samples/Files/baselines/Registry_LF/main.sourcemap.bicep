@@ -11,7 +11,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
 //@      "location": "[deployment().location]"
 }
 
-module appPlanDeploy 'br:mock-registry-one.invalid/demo/plan:v2' = {
+module appPlanDeploy 'br:mock-registry-one.azurecr.io/demo/plan:v2' = {
 //@    {
 //@      "type": "Microsoft.Resources/deployments",
 //@      "apiVersion": "2025-04-01",
@@ -170,7 +170,7 @@ var websites = [
   }
 ]
 
-module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in websites: {
+module siteDeploy 'br:mock-registry-two.azurecr.io/demo/site:v3' = [for site in websites: {
 //@    {
 //@      "copy": {
 //@        "name": "siteDeploy",

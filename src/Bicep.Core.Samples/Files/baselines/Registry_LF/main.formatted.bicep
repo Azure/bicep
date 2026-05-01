@@ -5,7 +5,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
   location: deployment().location
 }
 
-module appPlanDeploy 'br:mock-registry-one.invalid/demo/plan:v2' = {
+module appPlanDeploy 'br:mock-registry-one.azurecr.io/demo/plan:v2' = {
   name: 'planDeploy'
   scope: rg
   params: {
@@ -32,7 +32,7 @@ var websites = [
   }
 ]
 
-module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [
+module siteDeploy 'br:mock-registry-two.azurecr.io/demo/site:v3' = [
   for site in websites: {
     name: '${site.name}siteDeploy'
     scope: rg

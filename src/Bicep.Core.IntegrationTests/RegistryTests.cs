@@ -71,25 +71,25 @@ namespace Bicep.Core.IntegrationTests
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:mock-registry-one.invalid/demo/plan:v2"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:mock-registry-one.azurecr.io/demo/plan:v2"));
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:mock-registry-one.invalid/demo/plan:v2"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:mock-registry-one.azurecr.io/demo/plan:v2"));
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:mock-registry-two.invalid/demo/site:v3"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:mock-registry-two.azurecr.io/demo/site:v3"));
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:mock-registry-two.invalid/demo/site:v3"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:mock-registry-two.azurecr.io/demo/site:v3"));
                 },
                 x =>
                 {
