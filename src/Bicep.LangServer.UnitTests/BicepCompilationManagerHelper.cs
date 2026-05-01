@@ -26,14 +26,14 @@ namespace Bicep.LangServer.UnitTests
     {
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
 
-        public static BicepCompilationManager CreateCompilationManager(DocumentUri documentUri, string fileContents, bool upsertCompilation = false, IActiveSourceFileSet? workspace = null, IConfigurationManager? configurationManager = null)
+        public static BicepCompilationManager CreateCompilationManager(DocumentUri documentUri, string fileContents, bool upsertCompilation = false, IActiveSourceFileSet? workspace = null, IConfigurationManager? configurationManager = null, RegistryConfiguration? registryConfiguration = null)
         {
             workspace ??= new ActiveSourceFileSet();
             PublishDiagnosticsParams? receivedParams = null;
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
 
-            var bicepCompilationManager = CreateCompilationManager(server.Object, workspace, configurationManager ?? BicepTestConstants.ConfigurationManager);
+            var bicepCompilationManager = CreateCompilationManager(server.Object, workspace, configurationManager ?? BicepTestConstants.ConfigurationManager, registryConfiguration ?? BicepTestConstants.TestRegistryConfiguration);
 
             if (upsertCompilation)
             {
@@ -43,7 +43,7 @@ namespace Bicep.LangServer.UnitTests
             return bicepCompilationManager;
         }
 
-        public static BicepCompilationManager CreateCompilationManager(ILanguageServerFacade server, IActiveSourceFileSet workspace, IConfigurationManager configurationManager)
+        public static BicepCompilationManager CreateCompilationManager(ILanguageServerFacade server, IActiveSourceFileSet workspace, IConfigurationManager configurationManager, RegistryConfiguration registryConfiguration)
         {
             var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<ILanguageServerFacade>(server)

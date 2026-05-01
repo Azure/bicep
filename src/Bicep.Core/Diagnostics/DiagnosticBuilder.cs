@@ -2026,6 +2026,11 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic NullIfNotFoundOnlyValidOnExistingResources() => CoreError(
                 "BCP445",
                 $@"The ""@{LanguageConstants.NullIfNotFoundDecoratorName}()"" decorator can only be used on existing resources.");
+
+            public Diagnostic ArtifactRestoreBlockedByRegistry(string registryHostname) => CoreError(
+                "BCP446",
+                $"Restore from registry \"{registryHostname}\" is blocked because it is not in the trusted registries list. " +
+                $"See https://aka.ms/bicep/registry-trust for details.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

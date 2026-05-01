@@ -38,6 +38,7 @@ namespace Bicep.LanguageServer.Completions
         private readonly IRegistryModuleCatalog registryModuleCatalog;
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
+        private readonly RegistryConfiguration registryConfiguration;
 
         private enum ModuleCompletionPriority
         {
@@ -144,12 +145,14 @@ namespace Bicep.LanguageServer.Completions
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
             IRegistryModuleCatalog registryModuleCatalog,
             ISettingsProvider settingsProvider,
-            ITelemetryProvider telemetryProvider)
+            ITelemetryProvider telemetryProvider,
+            RegistryConfiguration registryConfiguration)
         {
             this.azureContainerRegistriesProvider = azureContainerRegistriesProvider;
             this.registryModuleCatalog = registryModuleCatalog;
             this.settingsProvider = settingsProvider;
             this.telemetryProvider = telemetryProvider;
+            this.registryConfiguration = registryConfiguration;
         }
 
         public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(BicepSourceFile sourceFile, BicepCompletionContext context, CancellationToken cancellationToken)
@@ -334,6 +337,12 @@ namespace Bicep.LanguageServer.Completions
                 return [];
             }
 
+            // Security: do not contact untrusted registries.
+            if (!registryConfiguration.IsRegistryTrusted(parts.ResolvedRegistry))
+            {
+                return [];
+            }
+
             List<CompletionItem> completions = new();
 
             if (await registryModuleCatalog.GetProviderForRegistry(rootConfiguration.Cloud, parts.ResolvedRegistry)
@@ -459,6 +468,12 @@ namespace Bicep.LanguageServer.Completions
             if (ParseParts(trimmedText, rootConfiguration) is not Parts parts
                 || parts.ResolvedModulePath is null
                 || parts.HasVersionSeparator)
+            {
+                return [];
+            }
+
+            // Security: do not contact untrusted registries.
+            if (!registryConfiguration.IsRegistryTrusted(parts.ResolvedRegistry))
             {
                 return [];
             }
