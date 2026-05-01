@@ -1,5 +1,5 @@
 targetScope = 'subscription'
-//@[000:2463) ProgramExpression
+//@[000:2431) ProgramExpression
 //@[000:0000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:0000) | └─ResourceDependencyExpression [UNPARENTED]
@@ -40,9 +40,9 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
 //@[012:0024) |       └─FunctionCallExpression { Name = deployment }
 }
 
-module appPlanDeploy 'br:mock-registry-one.azurecr.io/demo/plan:v2' = {
-//@[000:0146) ├─DeclaredModuleExpression
-//@[070:0146) | ├─ObjectExpression
+module appPlanDeploy 'br:localhost/demo/plan:v2' = {
+//@[000:0127) ├─DeclaredModuleExpression
+//@[051:0127) | ├─ObjectExpression
   name: 'planDeploy'
 //@[002:0020) | | └─ObjectPropertyExpression
 //@[002:0006) | |   ├─StringLiteralExpression { Value = name }
@@ -101,14 +101,14 @@ var websites = [
   }
 ]
 
-module siteDeploy 'br:mock-registry-two.azurecr.io/demo/site:v3' = [for site in websites: {
-//@[000:0290) ├─DeclaredModuleExpression
-//@[067:0290) | ├─ForLoopExpression
-//@[080:0088) | | ├─VariableReferenceExpression { Variable = websites }
-//@[090:0289) | | └─ObjectExpression
-//@[080:0088) | |           └─VariableReferenceExpression { Variable = websites }
-//@[080:0088) | | |     └─VariableReferenceExpression { Variable = websites }
-//@[080:0088) | |       └─VariableReferenceExpression { Variable = websites }
+module siteDeploy 'br:localhost/demo/site:v3' = [for site in websites: {
+//@[000:0271) ├─DeclaredModuleExpression
+//@[048:0271) | ├─ForLoopExpression
+//@[061:0069) | | ├─VariableReferenceExpression { Variable = websites }
+//@[071:0270) | | └─ObjectExpression
+//@[061:0069) | |           └─VariableReferenceExpression { Variable = websites }
+//@[061:0069) | | |     └─VariableReferenceExpression { Variable = websites }
+//@[061:0069) | |       └─VariableReferenceExpression { Variable = websites }
   name: '${site.name}siteDeploy'
 //@[002:0032) | |   └─ObjectPropertyExpression
 //@[002:0006) | |     ├─StringLiteralExpression { Value = name }

@@ -126,7 +126,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             );
         }
 
-        /// <param name="displayedModuleTarget">E.g. mockregistry.azurecr.io/test/module1:v1</param>
+        /// <param name="displayedModuleTarget">E.g. localhost/test/module1:v1</param>
         private static TextDocumentIdentifier GetDocumentIdForExternalModuleSource(string displayedModuleTarget)
         {
             var moduleReferenceComponents = OciArtifactAddressComponents.TryParse(displayedModuleTarget).Unwrap();
@@ -149,17 +149,17 @@ namespace Bicep.LangServer.UnitTests.Handlers
             //   module3 references module1 and module2 and is published with source
             return await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem, [
-                    new("br:mockregistry.azurecr.io/test/module1:v1", "param p1 bool", module1WithSource),
-                    new("br:mockregistry.azurecr.io/test/module1:v2", """
-                        module m1 'br:mockregistry.azurecr.io/test/module1:v1' = {
+                    new("br:localhost/test/module1:v1", "param p1 bool", module1WithSource),
+                    new("br:localhost/test/module1:v2", """
+                        module m1 'br:localhost/test/module1:v1' = {
                             name: 'm1'
                             params: {
                                 p1: true
                           }
                         }
                         """, module2WithSource),
-                    new("br:mockregistry.azurecr.io/test/module1:v3", """
-                        module m1v2 'br:mockregistry.azurecr.io/test/module1:v2' = {
+                    new("br:localhost/test/module1:v3", """
+                        module m1v2 'br:localhost/test/module1:v2' = {
                             name: 'm1v2'
                         }
                         """, module3WithSource)
@@ -172,7 +172,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var result = await CompilationHelper.RestoreAndCompile(
                 GetServices(clientFactory),
                 ("main.bicep", $$"""
-                    module m 'br:mockregistry.azurecr.io/test/{{moduleName}}:{{tag}}' = {
+                    module m 'br:localhost/test/{{moduleName}}:{{tag}}' = {
                         name: 'm'
                     }
                     """));
@@ -184,7 +184,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem, [
-                    new("br:mockregistry.azurecr.io/test/module1:v1", "metadata m = ''", WithSource: true)
+                    new("br:localhost/test/module1:v1", "metadata m = ''", WithSource: true)
                 ]);
             var (moduleDispatcher, sourceFileFactory) = CreateModuleDispatcher(clientFactory);
             await RestoreModuleViaLocalCode(clientFactory, "module1", "v1");
@@ -203,9 +203,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
             //   module2 references module1 and is published with source
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem, [
-                    new("br:mockregistry.azurecr.io/test/module1:v1", "param p1 bool", WithSource: true),
-                    new("br:mockregistry.azurecr.io/test/module2:v2", """
-                        module m1 'br:mockregistry.azurecr.io/test/module1:v1' = {
+                    new("br:localhost/test/module1:v1", "param p1 bool", WithSource: true),
+                    new("br:localhost/test/module2:v2", """
+                        module m1 'br:localhost/test/module1:v1' = {
                             name: 'm1'
                             params: {
                                 p1: true
@@ -219,7 +219,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             await RestoreModuleViaLocalCode(clientFactory, "module2", "v2");
 
             // Get a URI for displaying module2's source
-            var module2Uri = GetDocumentIdForExternalModuleSource("mockregistry.azurecr.io/test/module2:v2");
+            var module2Uri = GetDocumentIdForExternalModuleSource("localhost/test/module2:v2");
 
             // ACT: Get all links inside module2's source display
             var (msg, links) = await GetAndResolveLinksForDisplayedDocument(moduleDispatcher, sourceFileFactory, module2Uri);
@@ -229,9 +229,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
             link.Range.Should().HaveRange((0, 10), (0, 46));
             link.Target.Should().NotBeNull();
             var target = new ExternalSourceReference(link.Target!);
-            target.FullTitle.Should().Be("br:mockregistry.azurecr.io/test/module1:v1 -> main.bicep");
+            target.FullTitle.Should().Be("br:localhost/test/module1:v1 -> main.bicep");
             target.RequestedFile.Should().Be("main.bicep");
-            target.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.azurecr.io/test/module1:v1");
+            target.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:localhost/test/module1:v1");
         }
 
         [TestMethod]
@@ -243,23 +243,23 @@ namespace Bicep.LangServer.UnitTests.Handlers
             //   module3 references module1 and module2 and is published with source
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem, [
-                    new("br:mockregistry.azurecr.io/test/module1:v1", "param p1 bool", WithSource: true),
-                    new("br:mockregistry.azurecr.io/test/module1:v2", """
-                        module m1 'br:mockregistry.azurecr.io/test/module1:v1' = {
+                    new("br:localhost/test/module1:v1", "param p1 bool", WithSource: true),
+                    new("br:localhost/test/module1:v2", """
+                        module m1 'br:localhost/test/module1:v1' = {
                             name: 'm1'
                             params: {
                                 p1: true
                           }
                         }
                         """, WithSource: true),
-                    new("br:mockregistry.azurecr.io/test/module1:v3", """
-                        module m1 'br:mockregistry.azurecr.io/test/module1:v1' = {
+                    new("br:localhost/test/module1:v3", """
+                        module m1 'br:localhost/test/module1:v1' = {
                             name: 'm1'
                             params: {
                                 p1: true
                           }
                         }
-                        module m1v2 'br:mockregistry.azurecr.io/test/module1:v2' = {
+                        module m1v2 'br:localhost/test/module1:v2' = {
                             name: 'm1v2'
                         }
                         """, WithSource: true)
@@ -270,7 +270,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             await RestoreModuleViaLocalCode(clientFactory, "module1", "v3");
 
             // Get a URI for displaying module1:v3's source
-            var module2Uri = GetDocumentIdForExternalModuleSource("mockregistry.azurecr.io/test/module1:v3");
+            var module2Uri = GetDocumentIdForExternalModuleSource("localhost/test/module1:v3");
 
             // ACT: Get all nested links (one for m1:v1 and one for m1:v2)
             var (msg, links) = await GetAndResolveLinksForDisplayedDocument(moduleDispatcher, sourceFileFactory, module2Uri);
@@ -280,17 +280,17 @@ namespace Bicep.LangServer.UnitTests.Handlers
             link1.Range.Should().HaveRange((0, 10), (0, 46));
             link1.Target.Should().NotBeNull();
             var target1 = new ExternalSourceReference(link1.Target!);
-            target1.FullTitle.Should().Be("br:mockregistry.azurecr.io/test/module1:v1 -> main.bicep");
+            target1.FullTitle.Should().Be("br:localhost/test/module1:v1 -> main.bicep");
             target1.RequestedFile.Should().Be("main.bicep");
-            target1.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.azurecr.io/test/module1:v1");
+            target1.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:localhost/test/module1:v1");
 
             var link2 = links.Skip(1).First();
             link2.Range.Should().HaveRange((6, 12), (6, 48));
             link2.Target.Should().NotBeNull();
             var target2 = new ExternalSourceReference(link2.Target!);
-            target2.FullTitle.Should().Be("br:mockregistry.azurecr.io/test/module1:v2 -> main.bicep");
+            target2.FullTitle.Should().Be("br:localhost/test/module1:v2 -> main.bicep");
             target2.RequestedFile.Should().Be("main.bicep");
-            target2.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.azurecr.io/test/module1:v2");
+            target2.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:localhost/test/module1:v2");
 
             // ACT: Follow that link and get all nested links inside module1:v2
             var (msg3, links3) = await GetAndResolveLinksForDisplayedDocument(moduleDispatcher, sourceFileFactory, new TextDocumentIdentifier(target2.ToUri()));
@@ -299,13 +299,13 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var link3 = links3.Should().HaveCount(1).And.Subject.First();
             link3.Target.Should().NotBeNull();
             var target3 = new ExternalSourceReference(link3.Target!);
-            target3.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.azurecr.io/test/module1:v1");
+            target3.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:localhost/test/module1:v1");
 
             // Should have restored module1:v1
             GetCachedModules().Should().BeEquivalentTo([
-                ("mockregistry.azurecr.io", "test/module1", "v1"),
-                ("mockregistry.azurecr.io", "test/module1", "v2"),
-                ("mockregistry.azurecr.io", "test/module1", "v3"),
+                ("localhost", "test/module1", "v1"),
+                ("localhost", "test/module1", "v2"),
+                ("localhost", "test/module1", "v3"),
             ]);
         }
 
@@ -318,17 +318,17 @@ namespace Bicep.LangServer.UnitTests.Handlers
             //   module3 references module1 and module2 and is published with source
             var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
                 MockFileSystem, [
-                    new("br:mockregistry.azurecr.io/test/module1:v1", "param p1 bool", WithSource: true),
-                    new("br:mockregistry.azurecr.io/test/module1:v2", """
-                        module m1 'br:mockregistry.azurecr.io/test/module1:v1' = {
+                    new("br:localhost/test/module1:v1", "param p1 bool", WithSource: true),
+                    new("br:localhost/test/module1:v2", """
+                        module m1 'br:localhost/test/module1:v1' = {
                             name: 'm1'
                             params: {
                                 p1: true
                           }
                         }
                         """, WithSource: true),
-                    new("br:mockregistry.azurecr.io/test/module1:v3", """
-                        module m1v2 'br:mockregistry.azurecr.io/test/module1:v2' = {
+                    new("br:localhost/test/module1:v3", """
+                        module m1v2 'br:localhost/test/module1:v2' = {
                             name: 'm1v2'
                         }
                         """, WithSource: true)
@@ -339,7 +339,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var (moduleDispatcher, sourceFileFactory) = CreateModuleDispatcher(clientFactory);
 
             // Get a URI for displaying module1:v3's source
-            var module2Uri = GetDocumentIdForExternalModuleSource("mockregistry.azurecr.io/test/module1:v3");
+            var module2Uri = GetDocumentIdForExternalModuleSource("localhost/test/module1:v3");
 
             // ACT: Get all nested links
             var (msg, links) = await GetAndResolveLinksForDisplayedDocument(moduleDispatcher, sourceFileFactory, module2Uri);
@@ -353,8 +353,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var clientFactory = await PublishThreeNestedModules();
 
             GetCachedModules().Should().BeEquivalentTo([
-                ("mockregistry.azurecr.io", "test/module1", "v1"),
-                ("mockregistry.azurecr.io", "test/module1", "v2"),
+                ("localhost", "test/module1", "v1"),
+                ("localhost", "test/module1", "v2"),
             ]);
 
             // Get rid of module cache
@@ -365,11 +365,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
             await RestoreModuleViaLocalCode(clientFactory, "module1", "v3");
 
             GetCachedModules().Should().BeEquivalentTo([
-                ("mockregistry.azurecr.io", "test/module1", "v3"),
+                ("localhost", "test/module1", "v3"),
             ]);
 
             // Get a URI for displaying module1:v3's source
-            var module2Uri = GetDocumentIdForExternalModuleSource("mockregistry.azurecr.io/test/module1:v3");
+            var module2Uri = GetDocumentIdForExternalModuleSource("localhost/test/module1:v3");
 
             // ACT: Get all nested links for module1:v3 - this should force a restoration of module1:v2 and hence should succeed
             var (msg, links) = await GetAndResolveLinksForDisplayedDocument(moduleDispatcher, sourceFileFactory, module2Uri);
@@ -378,12 +378,12 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var link = links.Should().HaveCount(1).And.Subject.First();
             link.Target.Should().NotBeNull();
             var target1 = new ExternalSourceReference(link.Target!);
-            target1.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.azurecr.io/test/module1:v2");
+            target1.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:localhost/test/module1:v2");
 
             // Should have restored module1:v2
             GetCachedModules().Should().BeEquivalentTo([
-                ("mockregistry.azurecr.io", "test/module1", "v2"),
-                ("mockregistry.azurecr.io", "test/module1", "v3"),
+                ("localhost", "test/module1", "v2"),
+                ("localhost", "test/module1", "v3"),
             ]);
         }
 
@@ -399,10 +399,10 @@ namespace Bicep.LangServer.UnitTests.Handlers
             await RestoreModuleViaLocalCode(clientFactory, "module1", "v3");
 
             // Get a URI for displaying module1:v3's source
-            var module3Uri = GetDocumentIdForExternalModuleSource("mockregistry.azurecr.io/test/module1:v3");
+            var module3Uri = GetDocumentIdForExternalModuleSource("localhost/test/module1:v3");
 
             // Unregister module1:v2 so that it can't be restored
-            clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor("mockregistry.azurecr.io", "test/module1", ["tag"]));
+            clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor("localhost", "test/module1", ["tag"]));
 
             // Compile some code to force restoration of module1:v3 (which should always be the case if we're displaying its source)
             var (moduleDispatcher, sourceFileFactory) = CreateModuleDispatcher(clientFactory);
@@ -411,13 +411,13 @@ namespace Bicep.LangServer.UnitTests.Handlers
             // ACT: Get all nested links for module1:v3 - this should force a restoration of module1:v2
             var (msg, links) = await GetAndResolveLinksForDisplayedDocument(moduleDispatcher, sourceFileFactory, module3Uri);
 
-            msg.Should().Be("Unable to restore module br:mockregistry.azurecr.io/test/module1:v2: Unable to restore the artifact with reference \"br:mockregistry.azurecr.io/test/module1:v2\": The artifact does not exist in the registry.");
+            msg.Should().Be("Unable to restore module br:localhost/test/module1:v2: Unable to restore the artifact with reference \"br:localhost/test/module1:v2\": The artifact does not exist in the registry.");
 
             // Target should be to the compiled JSON of module2 embedded inside module3's source
             links.Should().HaveCount(1);
             var target = new ExternalSourceReference(links[0].Target!);
-            target.RequestedFile.Should().Be("<cache>/br/mockregistry.azurecr.io/test$module1/v2$/main.json");
-            target.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.azurecr.io/test/module1:v3");
+            target.RequestedFile.Should().Be("<cache>/br/localhost/test$module1/v2$/main.json");
+            target.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:localhost/test/module1:v3");
         }
 
         [TestMethod]
@@ -429,7 +429,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             await RestoreModuleViaLocalCode(clientFactory, "module1", "v3");
 
             // Get a URI for displaying module1:v3's source
-            var module3Uri = GetDocumentIdForExternalModuleSource("mockregistry.azurecr.io/test/module1:v3");
+            var module3Uri = GetDocumentIdForExternalModuleSource("localhost/test/module1:v3");
 
             // Re-register module1:v2 without source
             clientFactory = await PublishThreeNestedModules(module2WithSource: false);
@@ -444,13 +444,13 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var (moduleDispatcher, sourceFileFactory) = CreateModuleDispatcher(clientFactory);
             var (msg, links) = await GetAndResolveLinksForDisplayedDocument(moduleDispatcher, sourceFileFactory, module3Uri);
 
-            msg.Should().Be("Unable to retrieve source code for module br:mockregistry.azurecr.io/test/module1:v2. No source code is available for this module");
+            msg.Should().Be("Unable to retrieve source code for module br:localhost/test/module1:v2. No source code is available for this module");
 
             // Target should be to the compiled JSON of module2 embedded inside module3's source
             links.Should().HaveCount(1);
             var target = new ExternalSourceReference(links[0].Target!);
-            target.RequestedFile.Should().Be("<cache>/br/mockregistry.azurecr.io/test$module1/v2$/main.json");
-            target.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:mockregistry.azurecr.io/test/module1:v3");
+            target.RequestedFile.Should().Be("<cache>/br/localhost/test$module1/v2$/main.json");
+            target.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:localhost/test/module1:v3");
         }
     }
 }

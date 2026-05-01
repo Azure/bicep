@@ -1,4 +1,4 @@
-using 'br:mockregistry.azurecr.io/parameters/basic:v1'
+using 'br:localhost/parameters/basic:v1'
 
 param stringParam = 'foo'
 

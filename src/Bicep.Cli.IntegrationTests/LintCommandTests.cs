@@ -81,7 +81,7 @@ public class LintCommandTests : TestBase
     [TestMethod]
     public async Task Lint_Valid_SingleFile_WithDigestReference_ShouldSucceed()
     {
-        var registry = "example.azurecr.io";
+        var registry = "localhost";
         var registryUri = new Uri("https://" + registry);
         var repository = "hello/there";
 

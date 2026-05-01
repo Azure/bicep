@@ -29,13 +29,13 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
-module appPlanDeploy 'br:mock-registry-one.azurecr.io/demo/plan:v2' = {
+module appPlanDeploy 'br:localhost/demo/plan:v2' = {
 //@[000:006) Identifier |module|
 //@[007:020) Identifier |appPlanDeploy|
-//@[021:067) StringComplete |'br:mock-registry-one.azurecr.io/demo/plan:v2'|
-//@[065:066) Assignment |=|
-//@[067:068) LeftBrace |{|
-//@[068:069) NewLine |\n|
+//@[021:048) StringComplete |'br:localhost/demo/plan:v2'|
+//@[049:050) Assignment |=|
+//@[051:052) LeftBrace |{|
+//@[052:053) NewLine |\n|
   name: 'planDeploy'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
@@ -139,19 +139,19 @@ var websites = [
 //@[000:001) RightSquare |]|
 //@[001:003) NewLine |\n\n|
 
-module siteDeploy 'br:mock-registry-two.azurecr.io/demo/site:v3' = [for site in websites: {
+module siteDeploy 'br:localhost/demo/site:v3' = [for site in websites: {
 //@[000:006) Identifier |module|
 //@[007:017) Identifier |siteDeploy|
-//@[018:064) StringComplete |'br:mock-registry-two.azurecr.io/demo/site:v3'|
-//@[062:063) Assignment |=|
-//@[064:065) LeftSquare |[|
-//@[065:068) Identifier |for|
-//@[069:073) Identifier |site|
-//@[074:076) Identifier |in|
-//@[077:085) Identifier |websites|
-//@[085:086) Colon |:|
-//@[087:088) LeftBrace |{|
-//@[088:089) NewLine |\n|
+//@[018:045) StringComplete |'br:localhost/demo/site:v3'|
+//@[046:047) Assignment |=|
+//@[048:049) LeftSquare |[|
+//@[049:052) Identifier |for|
+//@[053:057) Identifier |site|
+//@[058:060) Identifier |in|
+//@[061:069) Identifier |websites|
+//@[069:070) Colon |:|
+//@[071:072) LeftBrace |{|
+//@[072:073) NewLine |\n|
   name: '${site.name}siteDeploy'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|

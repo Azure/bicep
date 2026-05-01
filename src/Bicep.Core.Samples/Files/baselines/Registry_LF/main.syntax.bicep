@@ -1,5 +1,5 @@
 targetScope = 'subscription'
-//@[000:2463) ProgramSyntax
+//@[000:2431) ProgramSyntax
 //@[000:0028) ├─TargetScopeSyntax
 //@[000:0011) | ├─Token(Identifier) |targetScope|
 //@[012:0013) | ├─Token(Assignment) |=|
@@ -45,17 +45,17 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
-module appPlanDeploy 'br:mock-registry-one.azurecr.io/demo/plan:v2' = {
-//@[000:0143) ├─ModuleDeclarationSyntax
+module appPlanDeploy 'br:localhost/demo/plan:v2' = {
+//@[000:0127) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0020) | ├─IdentifierSyntax
 //@[007:0020) | | └─Token(Identifier) |appPlanDeploy|
-//@[021:0064) | ├─StringSyntax
-//@[021:0067) | | └─Token(StringComplete) |'br:mock-registry-one.azurecr.io/demo/plan:v2'|
-//@[065:0066) | ├─Token(Assignment) |=|
-//@[067:0143) | └─ObjectSyntax
-//@[067:0068) |   ├─Token(LeftBrace) |{|
-//@[068:0069) |   ├─Token(NewLine) |\n|
+//@[021:0048) | ├─StringSyntax
+//@[021:0048) | | └─Token(StringComplete) |'br:localhost/demo/plan:v2'|
+//@[049:0050) | ├─Token(Assignment) |=|
+//@[051:0127) | └─ObjectSyntax
+//@[051:0052) |   ├─Token(LeftBrace) |{|
+//@[052:0053) |   ├─Token(NewLine) |\n|
   name: 'planDeploy'
 //@[002:0020) |   ├─ObjectPropertySyntax
 //@[002:0006) |   | ├─IdentifierSyntax
@@ -208,28 +208,29 @@ var websites = [
 //@[000:0001) |   └─Token(RightSquare) |]|
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
-module siteDeploy 'br:mock-registry-two.azurecr.io/demo/site:v3' = [for site in websites: {
-//@[000:0287) ├─ModuleDeclarationSyntax
+module siteDeploy 'br:localhost/demo/site:v3' = [for site in websites: {
+//@[000:0271) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0017) | ├─IdentifierSyntax
 //@[007:0017) | | └─Token(Identifier) |siteDeploy|
-//@[018:0061) | ├─StringSyntax
-//@[018:0064) | | └─Token(StringComplete) |'br:mock-registry-two.azurecr.io/demo/site:v3'|
-//@[062:0063) | ├─Token(Assignment) |=|
-//@[064:0287) | └─ForSyntax
-//@[064:0065) |   ├─Token(LeftSquare) |[|
-//@[065:0068) |   ├─Token(Identifier) |for|
-//@[069:0073) |   ├─LocalVariableSyntax
-//@[069:0073) |   | └─IdentifierSyntax
-//@[069:0073) |   |   └─Token(Identifier) |site|
-//@[074:0076) |   ├─Token(Identifier) |in|
-//@[077:0085) |   ├─VariableAccessSyntax
-//@[077:0085) |   | └─IdentifierSyntax
-//@[077:0085) |   |   └─Token(Identifier) |websites|
-//@[085:0086) |   ├─Token(Colon) |:|
-//@[087:0286) |   ├─ObjectSyntax
-//@[087:0088) |   | ├─Token(LeftBrace) |{|
-//@[088:0089) |   | ├─Token(NewLine) |\n|
+//@[018:0045) | ├─StringSyntax
+//@[018:0045) | | └─Token(StringComplete) |'br:localhost/demo/site:v3'|
+//@[046:0047) | ├─Token(Assignment) |=|
+//@[048:0271) | └─ForSyntax
+//@[048:0049) |   ├─Token(LeftSquare) |[|
+//@[049:0052) |   ├─Token(Identifier) |for|
+//@[053:0057) |   ├─LocalVariableSyntax
+//@[053:0057) |   | └─IdentifierSyntax
+//@[053:0057) |   |   └─Token(Identifier) |site|
+//@[058:0060) |   ├─Token(Identifier) |in|
+//@[061:0069) |   ├─VariableAccessSyntax
+//@[061:0069) |   | └─IdentifierSyntax
+//@[061:0069) |   |   └─Token(Identifier) |websites|
+//@[069:0070) |   ├─Token(Colon) |:|
+//@[071:0270) |   ├─ObjectSyntax
+//@[071:0072) |   | ├─Token(LeftBrace) |{|
+//@[072:0073) |   | ├─Token(NewLine) |
+|
   name: '${site.name}siteDeploy'
 //@[002:0032) |   | ├─ObjectPropertySyntax
 //@[002:0006) |   | | ├─IdentifierSyntax

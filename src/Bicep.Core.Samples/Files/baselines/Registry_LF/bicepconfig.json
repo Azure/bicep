@@ -8,10 +8,10 @@
     },
     "br": {
       "mock-registry-one": {
-        "registry": "mock-registry-one.azurecr.io"
+        "registry": "localhost"
       },
       "demo-two": {
-        "registry": "mock-registry-two.azurecr.io",
+        "registry": "localhost",
         "modulePath": "demo"
       }
     }
