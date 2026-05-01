@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.Text.Json;
 
-namespace Bicep.Core.Configuration
+namespace Bicep.Core.Registry.Oci
 {
-    public class SecurityConfiguration
+    public static class OciSecurityConstants
     {
         /// <summary>
         /// Built-in trusted registries. Hardcoded — users cannot remove these.
@@ -28,8 +27,7 @@ namespace Bicep.Core.Configuration
         ];
 
         /// <summary>
-        /// Returns true if <paramref name="registryHostname"/> is trusted by the built-in list
-        /// or the user-supplied list.
+        /// Returns true if <paramref name="registryHostname"/> is trusted by the built-in list.
         /// </summary>
         public static bool IsRegistryTrusted(string registryHostname)
         {
