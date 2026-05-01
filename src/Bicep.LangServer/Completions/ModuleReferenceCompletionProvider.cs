@@ -334,6 +334,12 @@ namespace Bicep.LanguageServer.Completions
                 return [];
             }
 
+            // Security: do not contact untrusted registries.
+            if (!OciSecurityConstants.IsRegistryTrusted(parts.ResolvedRegistry))
+            {
+                return [];
+            }
+
             List<CompletionItem> completions = new();
 
             if (await registryModuleCatalog.GetProviderForRegistry(rootConfiguration.Cloud, parts.ResolvedRegistry)
@@ -459,6 +465,12 @@ namespace Bicep.LanguageServer.Completions
             if (ParseParts(trimmedText, rootConfiguration) is not Parts parts
                 || parts.ResolvedModulePath is null
                 || parts.HasVersionSeparator)
+            {
+                return [];
+            }
+
+            // Security: do not contact untrusted registries.
+            if (!OciSecurityConstants.IsRegistryTrusted(parts.ResolvedRegistry))
             {
                 return [];
             }
