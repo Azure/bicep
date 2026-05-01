@@ -70,14 +70,6 @@ namespace Bicep.Core.Registry
              * when we need to invalidate the cache, the module directory (or even a single file) should be deleted from the cache
              */
 
-            // Security-first: if the registry is untrusted, always mark restore as required so that
-            // RestoreArtifacts() will be called and can emit the appropriate diagnostic (BCP446).
-            var security = reference.Configuration.Security;
-            if (!security.IsRegistryTrusted(reference.Registry))
-            {
-                return true;
-            }
-
             var artifactFilesNotFound = reference.Type switch
             {
                 ArtifactType.Module => !this.GetArtifactFile(reference, ArtifactFileType.ModuleMain).Exists(),
@@ -215,17 +207,6 @@ namespace Bicep.Core.Registry
             // CONSIDER: Run these in parallel
             foreach (var reference in referencesEvaluated)
             {
-                var security = reference.Configuration.Security;
-
-                // Block restore if the registry is not in the trusted list (BCP446).
-                // Invalid patterns in config are handled as warnings at config-load time (BCP447 via RootConfiguration)
-                // and are simply not included in the valid TrustedRegistries list, so they won't match here.
-                if (!security.IsRegistryTrusted(reference.Registry))
-                {
-                    failures[reference] = x => x.ArtifactRestoreBlockedByRegistry(reference.Registry);
-                    continue;
-                }
-
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectory(reference).Uri.GetFilePath()}");
                 var (result, errorMessage) = await this.TryRestoreArtifactAsync(reference.Configuration, reference);
 

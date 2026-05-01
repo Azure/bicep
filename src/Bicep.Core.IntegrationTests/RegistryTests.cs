@@ -13,7 +13,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.IO.Abstraction;
+using Bicep.IO.InMemory;
 using Bicep.TextFixtures.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -165,7 +165,7 @@ namespace Bicep.Core.IntegrationTests
                 .Build();
 
             var dispatcher = services.Construct<IModuleDispatcher>();
-            var dummyFile = CreateDummyReferencingFile(services, outputDirectory);
+            var dummyFile = CreateDummyReferencingFile(services);
             var moduleReferences = dataSet.RegistryModules.Values
                 .OrderBy(m => m.Metadata.Target)
                 .Select(m => TryGetModuleReference(dispatcher, dummyFile, m.Metadata.Target).Unwrap())
@@ -219,7 +219,7 @@ namespace Bicep.Core.IntegrationTests
                 .Build();
 
             var dispatcher = services.Construct<IModuleDispatcher>();
-            var dummyFile = CreateDummyReferencingFile(services, outputDirectory);
+            var dummyFile = CreateDummyReferencingFile(services);
 
             var moduleReferences = moduleInfos
                 .OrderBy(m => m.Metadata.Target)
@@ -282,7 +282,7 @@ namespace Bicep.Core.IntegrationTests
                 .Build();
 
             var dispatcher = services.Construct<IModuleDispatcher>();
-            var dummyFile = CreateDummyReferencingFile(services, outputDirectory);
+            var dummyFile = CreateDummyReferencingFile(services);
 
             var moduleReferences = moduleInfos
                 .OrderBy(m => m.Metadata.Target)
@@ -353,7 +353,7 @@ namespace Bicep.Core.IntegrationTests
                 .Build();
 
             var dispatcher = services.Construct<IModuleDispatcher>();
-            var dummyFile = CreateDummyReferencingFile(services, outputDirectory);
+            var dummyFile = CreateDummyReferencingFile(services);
 
             var moduleReferences = moduleInfos
                 .OrderBy(m => m.Metadata.Target)
@@ -389,14 +389,11 @@ namespace Bicep.Core.IntegrationTests
             yield return new object[] { DataSets.Registry_LF.TemplateSpecs.Values, 2, true };
         }
 
-        private static BicepFile CreateDummyReferencingFile(IDependencyHelper dependencyHelper, string outputDirectory)
+        private static BicepFile CreateDummyReferencingFile(IDependencyHelper dependencyHelper)
         {
             var sourceFileFactory = dependencyHelper.Construct<ISourceFileFactory>();
-            var fileExplorer = dependencyHelper.Construct<IFileExplorer>();
-            var dummyFileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, "dummy.bicep"));
-            var dummyFileHandle = fileExplorer.GetFile(dummyFileUri.ToIOUri());
 
-            return sourceFileFactory.CreateBicepFile(dummyFileHandle, "");
+            return sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
         }
 
         private static ResultWithDiagnosticBuilder<ArtifactReference> TryGetModuleReference(IModuleDispatcher moduleDispatcher, BicepSourceFile referencingFile, string reference) =>

@@ -583,9 +583,6 @@ namespace Bicep.LangServer.UnitTests.Completions
                                 "registry": "registry.contoso.io"
                             }
                         }
-                    },
-                    "security": {
-                        "trustedRegistries": ["registry.contoso.io"]
                     }
                 }
                 """);
@@ -896,9 +893,6 @@ namespace Bicep.LangServer.UnitTests.Completions
                     ""modulePath"": ""bicep/your/apps""
                   }
                 }
-              },
-              ""security"": {
-                ""trustedRegistries"": [""mytest.contoso.io"", ""yourtest.contoso.com""]
               }
             }";
             var (completionContext, sourceFile) = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents);
@@ -961,9 +955,6 @@ namespace Bicep.LangServer.UnitTests.Completions
                     ""modulePath"": ""bicep/modules""
                   }
                 }
-              },
-              ""security"": {
-                ""trustedRegistries"": [""mytest.contoso.io""]
               }
             }";
             var (completionContext, sourceFile) = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents);
@@ -1079,185 +1070,6 @@ namespace Bicep.LangServer.UnitTests.Completions
             var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
 
             return (BicepCompletionContext.Create(compilation, cursors[0]), compilation.SourceFileGrouping.EntryPoint);
-        }
-
-        // ── Trusted-registry security guard tests (ARM token leakage prevention)
-
-        [TestMethod]
-        public async Task GetModuleCompletions_UntrustedRegistry_ReturnsEmptyAndNoCatalogCall()
-        {
-            // Arrange: mock catalog — GetProviderForRegistry should never be called
-            var catalogMock = StrictMock.Of<IRegistryModuleCatalog>();
-
-            var (completionContext, sourceFile) = GetBicepCompletionContext("module test 'br:evil.attacker.com/|'");
-            var provider = new ModuleReferenceCompletionProvider(
-                azureContainerRegistriesProvider,
-                catalogMock.Object,
-                settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
-
-            // Act
-            var completions = await provider.GetFilteredCompletions(sourceFile, completionContext, CancellationToken.None);
-
-            // Assert: no module-path completions returned, catalog never contacted
-            completions.Should().BeEmpty();
-            catalogMock.Verify(
-                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>()),
-                Times.Never);
-        }
-
-        [TestMethod]
-        public async Task GetModuleCompletions_TrustedPrivateRegistry_ReturnsCompletionsNormally()
-        {
-            // Arrange: trust "mycompany.example.com" via bicepconfig
-            var bicepConfig = """
-                {
-                  "security": {
-                    "trustedRegistries": ["mycompany.example.com"]
-                  }
-                }
-                """;
-
-            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
-                null,
-                RegistryCatalogMocks.MockPrivateMetadataProvider(
-                    "mycompany.example.com",
-                    [("some/module", "desc", null, [])]));
-
-            var (completionContext, sourceFile) = GetBicepCompletionContext(
-                "module test 'br:mycompany.example.com/|'", bicepConfig);
-            var provider = new ModuleReferenceCompletionProvider(
-                azureContainerRegistriesProvider,
-                catalog,
-                settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
-
-            // Act
-            var completions = await provider.GetFilteredCompletions(sourceFile, completionContext, CancellationToken.None);
-
-            // Assert: completions returned for the trusted registry
-            completions.Should().Contain(c => c.Label == "some/module");
-        }
-
-        [TestMethod]
-        public async Task GetModuleCompletions_BuiltInTrustedAcrRegistry_ReturnsCompletionsNormally()
-        {
-            // Arrange: no user-specified trusted registries, *.azurecr.io is built-in trusted
-            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
-                null,
-                RegistryCatalogMocks.MockPrivateMetadataProvider(
-                    "contoso.azurecr.io",
-                    [("bicep/mymodule", "desc", null, [])]));
-
-            var (completionContext, sourceFile) = GetBicepCompletionContext(
-                "module test 'br:contoso.azurecr.io/|'");
-            var provider = new ModuleReferenceCompletionProvider(
-                azureContainerRegistriesProvider,
-                catalog,
-                settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
-
-            // Act
-            var completions = await provider.GetFilteredCompletions(sourceFile, completionContext, CancellationToken.None);
-
-            // Assert: completions returned (built-in trust for *.azurecr.io)
-            completions.Should().Contain(c => c.Label == "bicep/mymodule");
-        }
-
-        [TestMethod]
-        public async Task GetVersionCompletions_UntrustedRegistry_ReturnsEmptyAndNoCatalogCall()
-        {
-            // Arrange: mock catalog — GetProviderForRegistry should never be called
-            var catalogMock = StrictMock.Of<IRegistryModuleCatalog>();
-
-            var (completionContext, sourceFile) = GetBicepCompletionContext(
-                "module test 'br:evil.attacker.com/some/module:|'");
-            var provider = new ModuleReferenceCompletionProvider(
-                azureContainerRegistriesProvider,
-                catalogMock.Object,
-                settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
-
-            // Act
-            var completions = await provider.GetFilteredCompletions(sourceFile, completionContext, CancellationToken.None);
-
-            // Assert
-            completions.Should().BeEmpty();
-            catalogMock.Verify(
-                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>()),
-                Times.Never);
-        }
-
-        [TestMethod]
-        public async Task GetVersionCompletions_TrustedRegistry_ReturnsVersionsNormally()
-        {
-            // Arrange: trust registry and provide version data
-            var bicepConfig = """
-                {
-                  "security": {
-                    "trustedRegistries": ["mycompany.example.com"]
-                  }
-                }
-                """;
-
-            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
-                null,
-                RegistryCatalogMocks.MockPrivateMetadataProvider(
-                    "mycompany.example.com",
-                    [("mymodule", null, null,
-                        [new RegistryHelper.RepoTagDescriptor("v1"), new RegistryHelper.RepoTagDescriptor("v2")])]));
-
-            var (completionContext, sourceFile) = GetBicepCompletionContext(
-                "module test 'br:mycompany.example.com/mymodule:|'", bicepConfig);
-            var provider = new ModuleReferenceCompletionProvider(
-                azureContainerRegistriesProvider,
-                catalog,
-                settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
-
-            // Act
-            var completions = await provider.GetFilteredCompletions(sourceFile, completionContext, CancellationToken.None);
-
-            // Assert: version completions returned
-            completions.Should().Contain(c => c.Label == "v1");
-            completions.Should().Contain(c => c.Label == "v2");
-        }
-
-        [TestMethod]
-        public async Task GetModuleCompletions_UntrustedRegistryViaAlias_ReturnsEmptyAndNoCatalogCall()
-        {
-            // Arrange: alias "evil" resolves to untrusted "evil.attacker.com"
-            var bicepConfig = """
-                {
-                  "moduleAliases": {
-                    "br": {
-                      "evil": {
-                        "registry": "evil.attacker.com",
-                        "modulePath": "modules"
-                      }
-                    }
-                  }
-                }
-                """;
-
-            var catalogMock = StrictMock.Of<IRegistryModuleCatalog>();
-
-            var (completionContext, sourceFile) = GetBicepCompletionContext(
-                "module test 'br/evil:|'", bicepConfig);
-            var provider = new ModuleReferenceCompletionProvider(
-                azureContainerRegistriesProvider,
-                catalogMock.Object,
-                settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
-
-            // Act
-            var completions = await provider.GetFilteredCompletions(sourceFile, completionContext, CancellationToken.None);
-
-            // Assert: trust check applies after alias resolution
-            completions.Should().BeEmpty();
-            catalogMock.Verify(
-                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>()),
-                Times.Never);
         }
     }
 }

@@ -102,12 +102,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             var artifactManager = await MockRegistry.CreateDefaultExternalArtifactManager(TestContext);
             await artifactManager.PublishRegistryModule(moduleRef, moduleContent);
 
-            // Save bicepconfig.json alongside main.bicepparam so the configuration manager trusts mockregistry.io.
-            var outputDir = FileHelper.SaveResultFiles(TestContext, [
-                new("main.bicepparam", paramsContent),
-                new("bicepconfig.json", """{"security": {"trustedRegistries": ["mockregistry.io"]}}"""),
-            ]);
-            var paramsFilePath = Path.Combine(outputDir, "main.bicepparam");
+            var paramsFilePath = FileHelper.SaveResultFile(TestContext, "main.bicepparam", paramsContent);
             var fileUri = PathHelper.FilePathToFileUrl(paramsFilePath);
 
             var services = await CreateServicesAsync();
