@@ -226,7 +226,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             msg.Should().BeNull();
             var link = links.Should().HaveCount(1).And.Subject.First();
-            link.Range.Should().HaveRange((0, 10), (0, 46));
+            link.Range.Should().HaveRange((0, 10), (0, 40));
             link.Target.Should().NotBeNull();
             var target = new ExternalSourceReference(link.Target!);
             target.FullTitle.Should().Be("br:localhost/test/module1:v1 -> main.bicep");
@@ -277,7 +277,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             msg.Should().BeNull();
             var link1 = links.Should().HaveCount(2).And.Subject.First();
-            link1.Range.Should().HaveRange((0, 10), (0, 46));
+            link1.Range.Should().HaveRange((0, 10), (0, 40));
             link1.Target.Should().NotBeNull();
             var target1 = new ExternalSourceReference(link1.Target!);
             target1.FullTitle.Should().Be("br:localhost/test/module1:v1 -> main.bicep");
@@ -285,7 +285,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             target1.ToArtifactReference(BicepTestConstants.DummyBicepFile).Unwrap().FullyQualifiedReference.Should().Be("br:localhost/test/module1:v1");
 
             var link2 = links.Skip(1).First();
-            link2.Range.Should().HaveRange((6, 12), (6, 48));
+            link2.Range.Should().HaveRange((6, 12), (6, 42));
             link2.Target.Should().NotBeNull();
             var target2 = new ExternalSourceReference(link2.Target!);
             target2.FullTitle.Should().Be("br:localhost/test/module1:v2 -> main.bicep");

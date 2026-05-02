@@ -191,11 +191,11 @@ namespace Bicep.Core.IntegrationTests
                         "range": "[12:19]-[12:60]",
                         "target": "modules/arm-templates/arm-template.json"
                       },
-                      { "range": "[18:12]-[18:48]",
+                      { "range": "[18:12]-[18:42]",
                         "target": "<cache>/br/localhost/test$module1/v1$/main.json"
                       },
                       {
-                        "range": "[24:12]-[24:48]",
+                        "range": "[24:12]-[24:42]",
                         "target": "<cache>/br/localhost/test$module2/v2$/main.json"
                       }
                     ],
@@ -421,7 +421,7 @@ namespace Bicep.Core.IntegrationTests
                   "documentLinks": {
                     "main.bicep": [
                       {
-                        "range": "[0:10]-[0:46]",
+                        "range": "[0:10]-[0:40]",
                         "target": "<cache>/br/localhost/test$module1/v1$/main.json"
                       }
                     ]
@@ -612,8 +612,8 @@ namespace Bicep.Core.IntegrationTests
                     new(new TextRange(0, 14, 0, 28), "local1.bicep"),
                     new(new TextRange(6, 14, 6, 36), "modules/local2.bicep"),
                     new(new TextRange(12, 19, 12, 60), "modules/arm-templates/arm-template.json"),
-                    new(new TextRange(18, 12, 18, 48), "<cache>/br/localhost/test$module1/v1$/main.json"),
-                    new(new TextRange(24, 12, 24, 48), "<cache>/br/localhost/test$module2/v2$/main.json"),
+                    new(new TextRange(18, 12, 18, 42), "<cache>/br/localhost/test$module1/v1$/main.json"),
+                    new(new TextRange(24, 12, 24, 42), "<cache>/br/localhost/test$module2/v2$/main.json"),
                 });
 
                 localModule1Links.Should().BeEquivalentTo(new ArchivedSourceFileLink[]

@@ -4406,12 +4406,12 @@ var file = " + functionName + @"(templ|)
         [DataTestMethod]
         [DataRow("module test 'br/contoso:app/private-app:|'", BicepSourceFileKind.BicepFile)]
         [DataRow("module test 'br/contoso:app/private-app:|", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br:private.contoso.com/app/private-app:|'", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br:private.contoso.com/app/private-app:|", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:private.azurecr.io/app/private-app:|'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:private.azurecr.io/app/private-app:|", BicepSourceFileKind.BicepFile)]
         [DataRow("module test 'br/contoso:app/private-app:|'", BicepSourceFileKind.ParamsFile)]
         [DataRow("module test 'br/contoso:app/private-app:|", BicepSourceFileKind.ParamsFile)]
-        [DataRow("module test 'br:private.contoso.com/app/private-app:|'", BicepSourceFileKind.ParamsFile)]
-        [DataRow("module test 'br:private.contoso.com/app/private-app:|", BicepSourceFileKind.ParamsFile)]
+        [DataRow("module test 'br:private.azurecr.io/app/private-app:|'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("module test 'br:private.azurecr.io/app/private-app:|", BicepSourceFileKind.ParamsFile)]
         public async Task Private_module_version_completions(string inputWithCursors, BicepSourceFileKind kind)
         {
             var extension = kind == BicepSourceFileKind.ParamsFile ? "bicepparam" : "bicep";
@@ -4421,7 +4421,7 @@ var file = " + functionName + @"(templ|)
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
 
             var privateModuleMetadataProvider = RegistryCatalogMocks.MockPrivateMetadataProvider(
-                "private.contoso.com",
+                "private.azurecr.io",
                 [("app/private-app", "d1", "contoso.com/help1", [
                     new("v100", "d100", "contoso.com/help/d100.html"),
                     new("v101", "d101", "contoso.com/help/d101.html")])
@@ -4437,7 +4437,7 @@ var file = " + functionName + @"(templ|)
                     {
                         "br": {
                             "contoso": {
-                                "registry": "private.contoso.com"
+                                "registry": "private.azurecr.io"
                             }
                         }
                     }
@@ -4525,11 +4525,11 @@ var file = " + functionName + @"(templ|)
         }
 
         [TestMethod]
-        [DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:registry.azurecr.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:registry.azurecr.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:registry.azurecr.io/bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br:registry.azurecr.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
         [DataRow("module test 'br/myRegistry:abc/foo|'", "abc/foo/bar", "'br/myRegistry:abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
         [DataRow("module test 'br/myRegistry_noPath:bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.BicepFile)]
-        [DataRow("module test 'br:registry.contoso.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("module test 'br:registry.azurecr.io/bicep/whatever/abc/foo|'", "bicep/whatever/abc/foo/bar", "'br:registry.azurecr.io/bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
         [DataRow("module test 'br/myRegistry_noPath:bicep/whatever/abc/foo|", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'", BicepSourceFileKind.ParamsFile)]
         public async Task Private_registry_completions_support_prefix_matching(string text, string expectedLabelForFoo, string expectedInsertTextForFoo, BicepSourceFileKind kind)
         {
@@ -4544,11 +4544,11 @@ var file = " + functionName + @"(templ|)
                     {
                         "br": {
                             "myRegistry": {
-                                "registry": "registry.contoso.io",
+                                "registry": "registry.azurecr.io",
                                 "modulePath": "bicep/whatever"
                             },
                             "myRegistry_noPath": {
-                                "registry": "registry.contoso.io"
+                                "registry": "registry.azurecr.io"
                             }
                         }
                     }
@@ -4563,7 +4563,7 @@ var file = " + functionName + @"(templ|)
             var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
                 null,
                 RegistryCatalogMocks.MockPrivateMetadataProvider(
-                    "registry.contoso.io",
+                    "registry.azurecr.io",
                     [
                         ("bicep/whatever/abc/foo/bar", "d1", "contoso.com/help1", []),
                         ("bicep/whatever/abc/food/bar", "d2", "contoso.com/help2", []),

@@ -551,8 +551,8 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br:registry.contoso.io/bicep/|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
-        [DataRow("module test 'br:registry.contoso.io/bicep/|", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
+        [DataRow("module test 'br:registry.azurecr.io/bicep/|'", "bicep/whatever/abc/foo/bar", "'br:registry.azurecr.io/bicep/whatever/abc/foo/bar:$0'")]
+        [DataRow("module test 'br:registry.azurecr.io/bicep/|", "bicep/whatever/abc/foo/bar", "'br:registry.azurecr.io/bicep/whatever/abc/foo/bar:$0'")]
         [DataRow("module test 'br/myRegistry:|'", "abc/foo/bar", "'br/myRegistry:abc/foo/bar:$0'")]
         [DataRow("module test 'br/myRegistry_noPath:|'", "bicep/whatever/abc/foo/bar", "'br/myRegistry_noPath:bicep/whatever/abc/foo/bar:$0'")]
         public async Task GetFilteredCompletions_WithPrivateModulePathCompletions_ReturnsCompletionItems(
@@ -563,7 +563,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
                 null,
                 RegistryCatalogMocks.MockPrivateMetadataProvider(
-                    "registry.contoso.io",
+                    "registry.azurecr.io",
                     [
                         ("bicep/whatever/abc/foo/bar", "d1", "contoso.com/help1", []),
                     ])
@@ -576,11 +576,11 @@ namespace Bicep.LangServer.UnitTests.Completions
                     "moduleAliases": {
                         "br": {
                             "myRegistry": {
-                                "registry": "registry.contoso.io",
+                                "registry": "registry.azurecr.io",
                                 "modulePath": "bicep/whatever"
                             },
                             "myRegistry_noPath": {
-                                "registry": "registry.contoso.io"
+                                "registry": "registry.azurecr.io"
                             }
                         }
                     }
@@ -862,24 +862,24 @@ namespace Bicep.LangServer.UnitTests.Completions
 
         [DataTestMethod]
         [DataRow("module foo 'br:mcr.microsoft.com/bicep/|", ModuleRegistryType.MCR)]
-        [DataRow("module foo 'br:mytest.contoso.io/|", ModuleRegistryType.ACR, ModuleRegistryType.AcrBasePathFromAlias)]
+        [DataRow("module foo 'br:mytest.azurecr.io/|", ModuleRegistryType.ACR, ModuleRegistryType.AcrBasePathFromAlias)]
         [DataRow("module foo 'br/public:|", ModuleRegistryType.MCR)]
         [DataRow("module foo 'br/test1acr:|", ModuleRegistryType.ACR)]
         [DataRow("module foo 'br/test2acr:|", ModuleRegistryType.ACR)]
         [DataRow("module foo 'br/test3mcr:|", ModuleRegistryType.MCR)]
         [DataRow("module foo 'br/test4mcr:|", ModuleRegistryType.MCR)]
-        [DataRow("module foo 'br:yourtest.contoso.com/|", ModuleRegistryType.AcrBasePathFromAlias)]
+        [DataRow("module foo 'br:yourtest.azurecr.io/|", ModuleRegistryType.AcrBasePathFromAlias)]
         public async Task VerifyTelemetryEventIsPostedOnModuleRegistryPathCompletion(string inputWithCursors, params string[] moduleRegistryTypes)
         {
             var bicepConfigFileContents = @"{
               ""moduleAliases"": {
                 ""br"": {
                   ""test1acr"": {
-                    ""registry"": ""mytest.contoso.io"",
+                    ""registry"": ""mytest.azurecr.io"",
                     ""modulePath"": ""bicep/modules""
                   },
                   ""test2acr"": {
-                    ""registry"": ""mytest.contoso.io""
+                    ""registry"": ""mytest.azurecr.io""
                   },
                   ""test3mcr"": {
                     ""registry"": ""mcr.microsoft.com"",
@@ -889,7 +889,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                     ""registry"": ""mcr.microsoft.com""
                   },
                   ""test5unknownAcr"": {
-                    ""registry"": ""yourtest.contoso.com"",
+                    ""registry"": ""yourtest.azurecr.io"",
                     ""modulePath"": ""bicep/your/apps""
                   }
                 }
@@ -903,7 +903,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                     new("bicep/app/dapr-cntrapp2", null, "contoso.com/help2", [])
                 ]),
                 RegistryCatalogMocks.MockPrivateMetadataProvider(
-                    "mytest.contoso.io",
+                    "mytest.azurecr.io",
                     [
                         new("bicep/modules/app1", null, null, [])
                     ]
@@ -938,12 +938,12 @@ namespace Bicep.LangServer.UnitTests.Completions
 
         [DataTestMethod]
         [DataRow("module foo 'br:mcr.microsoft.com/bicep/|", null)]
-        [DataRow("module foo 'br:mytest.contoso.io/|", ModuleRegistryResolutionType.AcrModulePath)]
+        [DataRow("module foo 'br:mytest.azurecr.io/|", ModuleRegistryResolutionType.AcrModulePath)]
         [DataRow("module foo 'br/public:|", null)]
         [DataRow("module foo 'br/public:app/dapr-cntrapp1|", null)]
         [DataRow("module foo 'br/public:app/dapr-cntrapp1:|", null)]
         [DataRow("module foo 'br/test1acr:|", ModuleRegistryResolutionType.AcrModulePath)]
-        [DataRow("module foo 'br:mytest.contoso.io/bicep/modules/app1:|", ModuleRegistryResolutionType.AcrVersion)]
+        [DataRow("module foo 'br:mytest.azurecr.io/bicep/modules/app1:|", ModuleRegistryResolutionType.AcrVersion)]
         [DataRow("module foo 'br/test1acr:app1:|", ModuleRegistryResolutionType.AcrVersion)]
         public async Task VerifyTelemetryEventIsPostedOnModuleRegistryCompletionItemResolution(string inputWithCursors, string? moduleResolutionType)
         {
@@ -951,7 +951,7 @@ namespace Bicep.LangServer.UnitTests.Completions
               ""moduleAliases"": {
                 ""br"": {
                   ""test1acr"": {
-                    ""registry"": ""mytest.contoso.io"",
+                    ""registry"": ""mytest.azurecr.io"",
                     ""modulePath"": ""bicep/modules""
                   }
                 }
@@ -964,7 +964,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                     new("bicep/app/dapr-cntrapp1", "description1", null, [new("v1.1", null, null)]),
                 ]),
                 RegistryCatalogMocks.MockPrivateMetadataProvider(
-                    "mytest.contoso.io",
+                    "mytest.azurecr.io",
                     [
                         new("bicep/modules/app1", null, null, [new("v1.1", null, null)])
                     ]
