@@ -229,8 +229,7 @@ module siteDeploy 'br:localhost/demo/site:v3' = [for site in websites: {
 //@[069:0070) |   ├─Token(Colon) |:|
 //@[071:0270) |   ├─ObjectSyntax
 //@[071:0072) |   | ├─Token(LeftBrace) |{|
-//@[072:0073) |   | ├─Token(NewLine) |
-|
+//@[072:0073) |   | ├─Token(NewLine) |\n|
   name: '${site.name}siteDeploy'
 //@[002:0032) |   | ├─ObjectPropertySyntax
 //@[002:0006) |   | | ├─IdentifierSyntax
