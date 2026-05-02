@@ -27,14 +27,16 @@ namespace Bicep.Core.Registry
     public sealed class OciArtifactRegistry : ExternalArtifactRegistry<OciArtifactReference, OciArtifactResult>
     {
         private readonly AzureContainerRegistryManager containerRegistryManager;
-
+        private readonly RegistryConfiguration registryConfiguration;
         private readonly IPublicModuleMetadataProvider publicModuleMetadataProvider;
 
         public OciArtifactRegistry(
+            RegistryConfiguration registryConfiguration,
             IContainerRegistryClientFactory clientFactory,
             IPublicModuleMetadataProvider publicModuleMetadataProvider)
         {
             this.containerRegistryManager = new AzureContainerRegistryManager(clientFactory);
+            this.registryConfiguration = registryConfiguration;
             this.publicModuleMetadataProvider = publicModuleMetadataProvider;
         }
 
@@ -72,8 +74,7 @@ namespace Bicep.Core.Registry
 
             // Security-first: if the registry is untrusted, always mark restore as required so that
             // RestoreArtifacts() will be called and can emit the appropriate diagnostic (BCP446).
-            var security = reference.Configuration.Security;
-            if (!security.IsRegistryTrusted(reference.Registry))
+            if (!registryConfiguration.IsRegistryTrusted(reference.Registry))
             {
                 return true;
             }
@@ -215,12 +216,10 @@ namespace Bicep.Core.Registry
             // CONSIDER: Run these in parallel
             foreach (var reference in referencesEvaluated)
             {
-                var security = reference.Configuration.Security;
-
                 // Block restore if the registry is not in the trusted list (BCP446).
                 // Invalid patterns in config are handled as warnings at config-load time (BCP447 via RootConfiguration)
                 // and are simply not included in the valid TrustedRegistries list, so they won't match here.
-                if (!security.IsRegistryTrusted(reference.Registry))
+                if (!registryConfiguration.IsRegistryTrusted(reference.Registry))
                 {
                     failures[reference] = x => x.ArtifactRestoreBlockedByRegistry(reference.Registry);
                     continue;

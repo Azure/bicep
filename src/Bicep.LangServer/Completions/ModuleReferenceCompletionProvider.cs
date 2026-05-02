@@ -38,6 +38,7 @@ namespace Bicep.LanguageServer.Completions
         private readonly IRegistryModuleCatalog registryModuleCatalog;
         private readonly ISettingsProvider settingsProvider;
         private readonly ITelemetryProvider telemetryProvider;
+        private readonly RegistryConfiguration registryConfiguration;
 
         private enum ModuleCompletionPriority
         {
@@ -144,12 +145,14 @@ namespace Bicep.LanguageServer.Completions
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
             IRegistryModuleCatalog registryModuleCatalog,
             ISettingsProvider settingsProvider,
-            ITelemetryProvider telemetryProvider)
+            ITelemetryProvider telemetryProvider,
+            RegistryConfiguration registryConfiguration)
         {
             this.azureContainerRegistriesProvider = azureContainerRegistriesProvider;
             this.registryModuleCatalog = registryModuleCatalog;
             this.settingsProvider = settingsProvider;
             this.telemetryProvider = telemetryProvider;
+            this.registryConfiguration = registryConfiguration;
         }
 
         public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(BicepSourceFile sourceFile, BicepCompletionContext context, CancellationToken cancellationToken)
@@ -335,7 +338,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // Security: do not contact untrusted registries.
-            if (!rootConfiguration.Security.IsRegistryTrusted(parts.ResolvedRegistry))
+            if (!registryConfiguration.IsRegistryTrusted(parts.ResolvedRegistry))
             {
                 return [];
             }
@@ -470,7 +473,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // Security: do not contact untrusted registries.
-            if (!rootConfiguration.Security.IsRegistryTrusted(parts.ResolvedRegistry))
+            if (!registryConfiguration.IsRegistryTrusted(parts.ResolvedRegistry))
             {
                 return [];
             }

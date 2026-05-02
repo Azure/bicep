@@ -109,11 +109,7 @@ public class UseRecentModuleVersionsIntegrationTests : TestBase
         var settings = new InvocationSettings()
         {
             ModuleMetadataClient = options.MetadataClient,
-            ClientFactory = clientFactory,
-            TrustedRegistries = options.PublishedModules
-                .Select(m => m.StartsWith("br:") ? m[3..].Split('/')[0] : null)
-                .Where(h => h is not null)
-                .Select(h => h!),
+            ClientFactory = clientFactory
         };
         return await Bicep(settings, "lint", mainFile, options.NoRestore ? "--no-restore" : null);
     }

@@ -31,8 +31,6 @@ namespace Bicep.Core.Configuration
 
         public const string FormattingKey = "formatting";
 
-        public const string SecurityKey = "security";
-
         public RootConfiguration(
             CloudConfiguration cloud,
             ModuleAliasesConfiguration moduleAliases,
@@ -44,8 +42,7 @@ namespace Bicep.Core.Configuration
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
             FormattingConfiguration formatting,
             IOUri? configFileUri,
-            IEnumerable<IDiagnostic>? diagnostics,
-            SecurityConfiguration? security = null)
+            IEnumerable<IDiagnostic>? diagnostics)
         {
             this.Cloud = cloud;
             this.ModuleAliases = moduleAliases;
@@ -57,17 +54,7 @@ namespace Bicep.Core.Configuration
             this.ExperimentalFeaturesEnabled = experimentalFeaturesEnabled;
             this.Formatting = formatting;
             this.ConfigFileUri = configFileUri;
-            this.Security = security ?? SecurityConfiguration.Default;
-
-            // Merge BCP447 warnings from invalid security config patterns
-            var securityDiagnostics = this.Security.InvalidRegistryPatterns
-                .Select(p => DiagnosticBuilder.ForDocumentStart().InvalidTrustedRegistryPattern(
-                    p.Pattern,
-                    p.Reason))
-                .Cast<IDiagnostic>();
-            this.Diagnostics = (diagnostics ?? [])
-                .Concat(securityDiagnostics)
-                .ToImmutableArray();
+            this.Diagnostics = diagnostics?.ToImmutableArray() ?? [];
         }
 
         public static RootConfiguration Bind(JsonElement element, IOUri? configFileUri = null)
@@ -82,11 +69,8 @@ namespace Bicep.Core.Configuration
 
             var extensions = ExtensionsConfiguration.Bind(element.GetProperty(ExtensionsKey));
             var implicitExtensions = ImplicitExtensionsConfiguration.Bind(element.GetProperty(ImplicitExtensionsKey));
-            var security = element.TryGetProperty(SecurityKey, out var securityElement)
-                ? SecurityConfiguration.Bind(securityElement)
-                : SecurityConfiguration.Default;
 
-            return new(cloud, moduleAliases, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesWarning, experimentalFeaturesEnabled, formatting, configFileUri, null, security);
+            return new(cloud, moduleAliases, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesWarning, experimentalFeaturesEnabled, formatting, configFileUri, null);
         }
 
         public CloudConfiguration Cloud { get; }
@@ -107,8 +91,6 @@ namespace Bicep.Core.Configuration
 
         public FormattingConfiguration Formatting { get; }
 
-        public SecurityConfiguration Security { get; }
-
         public IOUri? ConfigFileUri { get; }
 
         public ImmutableArray<IDiagnostic> Diagnostics { get; }
@@ -126,8 +108,7 @@ namespace Bicep.Core.Configuration
             ExperimentalFeaturesEnabled? experimentalFeaturesEnabled = null,
             FormattingConfiguration? formatting = null,
             IOUri? configFileIdentifier = null,
-            IEnumerable<IDiagnostic>? diagnostics = null,
-            SecurityConfiguration? security = null)
+            IEnumerable<IDiagnostic>? diagnostics = null)
         {
             return new RootConfiguration(
                 cloud ?? this.Cloud,
@@ -140,8 +121,7 @@ namespace Bicep.Core.Configuration
                 experimentalFeaturesEnabled ?? this.ExperimentalFeaturesEnabled,
                 formatting ?? this.Formatting,
                 configFileIdentifier ?? this.ConfigFileUri,
-                diagnostics ?? this.Diagnostics,
-                security ?? this.Security);
+                diagnostics ?? this.Diagnostics);
         }
 
         public string ToUtf8Json()
@@ -178,9 +158,6 @@ namespace Bicep.Core.Configuration
 
                 writer.WritePropertyName(FormattingKey);
                 this.Formatting.WriteTo(writer);
-
-                writer.WritePropertyName(SecurityKey);
-                this.Security.WriteTo(writer);
 
                 writer.WriteEndObject();
             }

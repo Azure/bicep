@@ -121,9 +121,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "insertFinalNewline": true,
           "indentSize": 2,
           "width": 120
-        },
-        "security": {
-          "trustedRegistries": []
         }
       }
       """);
@@ -208,9 +205,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "insertFinalNewline": true,
           "indentSize": 2,
           "width": 120
-        },
-        "security": {
-          "trustedRegistries": []
         }
       }
       """);
@@ -317,9 +311,6 @@ namespace Bicep.Core.UnitTests.Configuration
           "insertFinalNewline": true,
           "indentSize": 2,
           "width": 120
-        },
-        "security": {
-          "trustedRegistries": []
         }
       }
       """);
@@ -492,9 +483,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 "insertFinalNewline": true,
                 "indentSize": 2,
                 "width": 120
-            },
-            "security": {
-              "trustedRegistries": []
             }
             }
             """);
@@ -847,9 +835,6 @@ namespace Bicep.Core.UnitTests.Configuration
                     "insertFinalNewline": true,
                     "indentSize": 2,
                     "width": 80
-                  },
-                  "security": {
-                    "trustedRegistries": []
                   }
                 }
                 """);

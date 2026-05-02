@@ -48,8 +48,7 @@ namespace Bicep.Core.Configuration
                 current.ExperimentalFeaturesEnabled,
                 current.Formatting,
                 current.ConfigFileUri,
-                current.Diagnostics,
-                current.Security);
+                current.Diagnostics);
 
         public static RootConfiguration WithAllAnalyzersDisabled(this RootConfiguration current) =>
             current.WithAnalyzersConfiguration(current.Analyzers.WithAllAnalyzersDisabled());
@@ -72,8 +71,7 @@ namespace Bicep.Core.Configuration
             current.ExperimentalFeaturesEnabled,
             current.Formatting,
             current.ConfigFileUri,
-            current.Diagnostics,
-            current.Security);
+            current.Diagnostics);
 
     }
 }

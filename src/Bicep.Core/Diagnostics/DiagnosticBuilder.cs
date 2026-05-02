@@ -2030,14 +2030,6 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic ArtifactRestoreBlockedByRegistry(string registryHostname) => CoreError(
                 "BCP446",
                 $"Restore from registry \"{registryHostname}\" is blocked because it is not in the trusted registries list. " +
-                $"To allow this registry, add it to the \"security.trustedRegistries\" array in your bicepconfig.json. " +
-                $"Only add registries you trust, as restoring from an untrusted registry can expose your credentials. " +
-                $"See https://aka.ms/bicep/registry-trust for details.");
-
-            public Diagnostic InvalidTrustedRegistryPattern(string pattern, string reason) => CoreWarning(
-                "BCP447",
-                $"The trusted registry pattern \"{pattern}\" in \"security.trustedRegistries\" is invalid and will be ignored. " +
-                $"Reason: {reason} " +
                 $"See https://aka.ms/bicep/registry-trust for details.");
         }
 

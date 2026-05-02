@@ -11,14 +11,18 @@ namespace Bicep.Core.Registry
     public class ContainerRegistryClientFactory : IContainerRegistryClientFactory
     {
         private readonly ITokenCredentialFactory credentialFactory;
+        private readonly RegistryConfiguration registryConfiguration;
 
-        public ContainerRegistryClientFactory(ITokenCredentialFactory credentialFactory)
+        public ContainerRegistryClientFactory(RegistryConfiguration registryConfiguration, ITokenCredentialFactory credentialFactory)
         {
+            this.registryConfiguration = registryConfiguration;
             this.credentialFactory = credentialFactory;
         }
 
         public ContainerRegistryContentClient CreateAuthenticatedBlobClient(CloudConfiguration cloud, Uri registryUri, string repository)
         {
+            ThrowIfRegistryNotTrusted(registryUri);
+
             var options = new ContainerRegistryClientOptions();
             options.Diagnostics.ApplySharedContainerRegistrySettings();
             options.Audience = new ContainerRegistryAudience(cloud.ResourceManagerAudience);
@@ -30,6 +34,8 @@ namespace Bicep.Core.Registry
 
         public ContainerRegistryContentClient CreateAnonymousBlobClient(CloudConfiguration cloud, Uri registryUri, string repository)
         {
+            ThrowIfRegistryNotTrusted(registryUri);
+
             var options = new ContainerRegistryClientOptions();
             options.Diagnostics.ApplySharedContainerRegistrySettings();
             options.Audience = new ContainerRegistryAudience(cloud.ResourceManagerAudience);
@@ -39,6 +45,8 @@ namespace Bicep.Core.Registry
 
         public ContainerRegistryClient CreateAuthenticatedContainerClient(CloudConfiguration cloud, Uri registryUri)
         {
+            ThrowIfRegistryNotTrusted(registryUri);
+
             var options = new ContainerRegistryClientOptions();
             options.Diagnostics.ApplySharedContainerRegistrySettings();
             options.Audience = new ContainerRegistryAudience(cloud.ResourceManagerAudience);
@@ -50,11 +58,24 @@ namespace Bicep.Core.Registry
 
         public ContainerRegistryClient CreateAnonymousContainerClient(CloudConfiguration cloud, Uri registryUri)
         {
+            ThrowIfRegistryNotTrusted(registryUri);
+
             var options = new ContainerRegistryClientOptions();
             options.Diagnostics.ApplySharedContainerRegistrySettings();
             options.Audience = new ContainerRegistryAudience(cloud.ResourceManagerAudience);
 
             return new(registryUri, options);
+        }
+
+        private void ThrowIfRegistryNotTrusted(Uri registryUri)
+        {
+            // This should have been already checked to raise an informative error message,
+            // but also check here to ensure it's not possible to violate this security requirement.
+
+            if (!registryConfiguration.IsRegistryTrusted(registryUri.Host))
+            {
+                throw new InvalidOperationException($"Registry {registryUri.Host} is not trusted. Cannot create authenticated client.");
+            }
         }
     }
 }
