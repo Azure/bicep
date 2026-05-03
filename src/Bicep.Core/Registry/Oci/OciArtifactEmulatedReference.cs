@@ -16,18 +16,19 @@ namespace Bicep.Core.Registry.Oci
     public class OciArtifactEmulatedReference : ArtifactReference
     {
         private readonly IFileHandle fileHandle;
+        private readonly string modulePath;
+        private readonly string? fullyQualifiedReference;
 
-        public OciArtifactEmulatedReference(BicepSourceFile referencingFile, string modulePath, IFileHandle fileHandle) : 
-            base(referencingFile, OciArtifactReferenceFacts.EmulatedScheme)
+        public OciArtifactEmulatedReference(BicepSourceFile referencingFile, string modulePath, IFileHandle fileHandle, string? fullyQualifiedReference = null)
+            : base(referencingFile, OciArtifactReferenceFacts.EmulatedScheme)
         {
             this.modulePath = modulePath;
             this.fileHandle = fileHandle;
+            this.fullyQualifiedReference = fullyQualifiedReference;
         }
 
-        private readonly string modulePath;
-
         // Override FullyQualifiedReference so user-facing diagnostics shows "br:..."
-        public override string FullyQualifiedReference => $"{OciArtifactReferenceFacts.Scheme}:{UnqualifiedReference}";
+        public override string FullyQualifiedReference => fullyQualifiedReference ?? $"{OciArtifactReferenceFacts.Scheme}:{UnqualifiedReference}";
 
         public override string UnqualifiedReference => modulePath;
 
