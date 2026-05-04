@@ -90,12 +90,26 @@ namespace Bicep.Core.Registry.Oci
             }
 
             IOUri baseUri;
-            // Resolve the filesystem base directory relative to bicepconfig.json
-            // Ensure the fileSystem path ends with '/' so it's treated as a directory
+            // Ensure the fileSystem path ends with '/' so it's treated as a directory.
             var directoryPath = fileSystemPath.EndsWith('/') || fileSystemPath.EndsWith('\\')
                 ? fileSystemPath
                 : fileSystemPath + "/";
-            baseUri = configFileUri.Resolve(directoryPath);
+
+            if (IOUri.IsAbsoluteFilePath(fileSystemPath))
+            {
+                try
+                {
+                    baseUri = IOUri.FromFilePath(directoryPath);
+                }
+                catch (IOException ex)
+                {
+                    return new(x => x.InvalidOciArtifactModuleAliasFileSystemPath(aliasName, fileSystemPath, ex.Message));
+                }
+            }
+            else
+            {
+                baseUri = configFileUri.Resolve(directoryPath);
+            }
 
             // Construct the file URI by appending the module path with a .bicep extension.
             var moduleFileName = modulePath + ".bicep";
