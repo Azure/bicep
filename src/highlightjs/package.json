@@ -7,11 +7,11 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^25.6.0",
     "@types/plist": "^3.0.5",
-    "@typescript-eslint/eslint-plugin": "^8.56.1",
-    "@typescript-eslint/parser": "^8.58.1",
+    "@typescript-eslint/eslint-plugin": "^8.59.1",
+    "@typescript-eslint/parser": "^8.59.0",
     "cross-env": "^10.1.0",
-    "esbuild": "^0.27.4",
-    "eslint": "^10.2.0",
+    "esbuild": "^0.28.0",
+    "eslint": "^10.3.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jest": "^29.15.2",
     "eslint-plugin-prettier": "^5.5.5",
@@ -22,7 +22,7 @@
     "ts-loader": "^9.5.7",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.58.1"
+    "typescript-eslint": "^8.58.2"
   },
   "engines": {
     "node": ">=14.0.0"

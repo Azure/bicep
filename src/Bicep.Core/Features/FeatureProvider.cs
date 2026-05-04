@@ -42,7 +42,7 @@ namespace Bicep.Core.Features
 
         public static bool HasTracingVerbosity(TraceVerbosity verbosity) => TracingVerbosity >= verbosity;
 
-        public bool WaitAndRetryEnabled => configuration.ExperimentalFeaturesEnabled.WaitAndRetry;
+        public bool WaitUntilEnabled => configuration.ExperimentalFeaturesEnabled.WaitUntil;
 
         public bool LocalDeployEnabled => configuration.ExperimentalFeaturesEnabled.LocalDeploy;
 

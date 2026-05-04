@@ -40,6 +40,11 @@
       "$ref": "#/$defs/DeploymentPropertiesOrDeploymentPropertiesExtended",
       "description": "The deployment properties."
     },
+    "systemData": {
+      "$ref": "#/$defs/SystemData",
+      "description": "Azure Resource Manager metadata containing createdBy and modifiedBy information.",
+      "readOnly": true
+    },
     "tags": {
       "$ref": "#/$defs/DeploymentTags",
       "description": "Deployment tags"
@@ -293,13 +298,6 @@
         "message"
       ]
     },
-    "DeploymentExtensionConfig": {
-      "type": "object",
-      "properties": {},
-      "additionalProperties": {
-        "$ref": "#/$defs/DeploymentExtensionConfigItem"
-      }
-    },
     "DeploymentExtensionConfigItem": {
       "type": "object",
       "properties": {
@@ -341,7 +339,7 @@
           "readOnly": true
         },
         "config": {
-          "$ref": "#/$defs/DeploymentExtensionConfig",
+          "$ref": "#/$defs/DeploymentExtensionDefinitionConfig",
           "description": "The extension configuration.",
           "readOnly": true
         },
@@ -360,6 +358,13 @@
           "description": "The extension version.",
           "readOnly": true
         }
+      }
+    },
+    "DeploymentExtensionDefinitionConfig": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "$ref": "#/$defs/DeploymentExtensionConfigItem"
       }
     },
     "DeploymentExternalInput": {
@@ -442,7 +447,7 @@
       "type": "object",
       "properties": {},
       "additionalProperties": {
-        "$ref": "#/$defs/DeploymentExtensionConfig"
+        "$ref": "#/$defs/DictionaryOfDeploymentExtensionConfigItem"
       }
     },
     "DeploymentPropertiesExternalInputDefinitions": {
@@ -649,6 +654,13 @@
       "properties": {},
       "additionalProperties": {
         "type": "string"
+      }
+    },
+    "DictionaryOfDeploymentExtensionConfigItem": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "$ref": "#/$defs/DeploymentExtensionConfigItem"
       }
     },
     "ErrorAdditionalInfo": {
@@ -956,6 +968,59 @@
           "type": "string",
           "description": "The resource type.",
           "readOnly": true
+        }
+      }
+    },
+    "SystemData": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "description": "The timestamp of resource creation (UTC)."
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "The identity that created the resource."
+        },
+        "createdByType": {
+          "anyOf": [
+            {
+              "enum": [
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The type of identity that created the resource."
+        },
+        "lastModifiedAt": {
+          "type": "string",
+          "description": "The timestamp of resource last modification (UTC)"
+        },
+        "lastModifiedBy": {
+          "type": "string",
+          "description": "The identity that last modified the resource."
+        },
+        "lastModifiedByType": {
+          "anyOf": [
+            {
+              "enum": [
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The type of identity that last modified the resource."
         }
       }
     },

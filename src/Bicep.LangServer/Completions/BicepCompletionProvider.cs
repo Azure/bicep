@@ -200,6 +200,8 @@ namespace Bicep.LanguageServer.Completions
                             yield return CreateKeywordCompletion(LanguageConstants.UsingKeyword, "Using keyword", context.ReplacementRange);
                         }
 
+                        yield return CreateKeywordCompletion(LanguageConstants.ExtensionKeyword, "Extension keyword", context.ReplacementRange);
+                        yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter assignment keyword", context.ReplacementRange);
 
                         if (model.Features.ModuleExtensionConfigsEnabled)
@@ -1172,8 +1174,8 @@ namespace Bicep.LanguageServer.Completions
                 return [];
             }
 
-            var declaredType = compilation.GetEntrypointSemanticModel().GetDeclaredType(context.PropertyAccess.BaseExpression);
             var model = compilation.GetEntrypointSemanticModel();
+            var declaredType = model.GetDeclaredType(context.PropertyAccess.BaseExpression) ?? model.GetTypeInfo(context.PropertyAccess.BaseExpression);
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName) && declaredType is NamespaceType namespaceType)
             {
@@ -2317,6 +2319,7 @@ namespace Bicep.LanguageServer.Completions
                 SymbolKind.Module => CompletionItemKind.Module,
                 SymbolKind.Test => CompletionItemKind.Keyword,
                 SymbolKind.Local => CompletionItemKind.Variable,
+                SymbolKind.BaseParameters => CompletionItemKind.Variable,
 
                 _ => CompletionItemKind.Text
             };

@@ -223,11 +223,11 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Enable wait and retry feature.
+        ///   Looks up a localized string similar to Enable waitUntil feature on resource bicep types.
         /// </summary>
-        internal static string ExperimentalFeatureNames_WaitAndRetry {
+        internal static string ExperimentalFeatureNames_WaitUntil {
             get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_WaitAndRetry", resourceCulture);
+                return ResourceManager.GetString("ExperimentalFeatureNames_WaitUntil", resourceCulture);
             }
         }
         
@@ -1254,6 +1254,24 @@ namespace Bicep.Core {
         internal static string UseRecognizedResourceTypeRule_MessageFormatWithSuggestion {
             get {
                 return ResourceManager.GetString("UseRecognizedResourceTypeRule_MessageFormatWithSuggestion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Avoid specifying an explicit module name. This simplifies code, and avoids the risk of accidental module name re-use within a deployment..
+        /// </summary>
+        internal static string NoModuleNameRule_Description {
+            get {
+                return ResourceManager.GetString("NoModuleNameRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove module name.
+        /// </summary>
+        internal static string NoModuleNameRule_CodeFix {
+            get {
+                return ResourceManager.GetString("NoModuleNameRule_CodeFix", resourceCulture);
             }
         }
     }

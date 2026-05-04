@@ -44,6 +44,7 @@ namespace Bicep.Core.Semantics
             var outputDeclarations = ImmutableArray.CreateBuilder<OutputSymbol>();
             var assertDeclarations = ImmutableArray.CreateBuilder<AssertSymbol>();
             var parameterAssignments = ImmutableArray.CreateBuilder<ParameterAssignmentSymbol>();
+            var baseParametersDeclarations = ImmutableArray.CreateBuilder<BaseParametersSymbol>();
             var testDeclarations = ImmutableArray.CreateBuilder<TestSymbol>();
             var importedTypes = ImmutableArray.CreateBuilder<ImportedTypeSymbol>();
             var importedVariables = ImmutableArray.CreateBuilder<ImportedVariableSymbol>();
@@ -95,6 +96,9 @@ namespace Bicep.Core.Semantics
                     case ParameterAssignmentSymbol parameterAssignment:
                         parameterAssignments.Add(parameterAssignment);
                         break;
+                    case BaseParametersSymbol baseParameters:
+                        baseParametersDeclarations.Add(baseParameters);
+                        break;
                     case TestSymbol test:
                         testDeclarations.Add(test);
                         break;
@@ -129,6 +133,7 @@ namespace Bicep.Core.Semantics
             OutputDeclarations = outputDeclarations.ToImmutable();
             AssertDeclarations = assertDeclarations.ToImmutable();
             ParameterAssignments = parameterAssignments.ToImmutable();
+            BaseParametersDeclarations = baseParametersDeclarations.ToImmutable();
             TestDeclarations = testDeclarations.ToImmutable();
             ImportedTypes = importedTypes.ToImmutable();
             ImportedVariables = importedVariables.ToImmutable();
@@ -156,6 +161,7 @@ namespace Bicep.Core.Semantics
             .Concat(this.OutputDeclarations)
             .Concat(this.AssertDeclarations)
             .Concat(this.ParameterAssignments)
+            .Concat(this.BaseParametersDeclarations)
             .Concat(this.TestDeclarations)
             .Concat(this.ImportedTypes)
             .Concat(this.ImportedVariables)
@@ -204,6 +210,8 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<TestSymbol> TestDeclarations { get; }
 
         public ImmutableArray<ParameterAssignmentSymbol> ParameterAssignments { get; }
+
+        public ImmutableArray<BaseParametersSymbol> BaseParametersDeclarations { get; }
 
         public ImmutableArray<ExtensionConfigAssignmentSymbol> ExtensionConfigAssignments { get; }
 

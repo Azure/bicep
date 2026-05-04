@@ -1,19 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Catalog;
 using Bicep.IO.Abstraction;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry
 {
     public class DefaultArtifactRegistryProvider : ArtifactRegistryProvider
     {
-        public DefaultArtifactRegistryProvider(IServiceProvider serviceProvider, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
+        public DefaultArtifactRegistryProvider(RegistryConfiguration registryConfiguration, IPublicModuleMetadataProvider publicModuleMetadataProvider, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IFileExplorer fileExplorer)
             : base(new IArtifactRegistry[]
                 {
                     new LocalModuleRegistry(),
-                    new OciArtifactRegistry(clientFactory, serviceProvider.GetRequiredService<IPublicModuleMetadataProvider>(), serviceProvider.GetRequiredService<IFileExplorer>()),
+                    new OciArtifactRegistry(registryConfiguration, clientFactory, publicModuleMetadataProvider, fileExplorer),
                     new OciArtifactEmulatedRegistry(),
                     new TemplateSpecModuleRegistry(templateSpecRepositoryFactory),
                 })

@@ -186,7 +186,7 @@ namespace Bicep.Core.UnitTests.Registry.Oci
 
             result.IsSuccess(out _, out var failureBuilder).Should().BeFalse();
             var diagnostic = failureBuilder!(DiagnosticBuilder.ForDocumentStart());
-            diagnostic.Code.Should().Be("BCP446");
+            diagnostic.Code.Should().Be("BCP447");
             diagnostic.Message.Should().Contain("mutually exclusive");
         }
 

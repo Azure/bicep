@@ -19,7 +19,7 @@ namespace Bicep.Core.Registry.Oci
         private readonly string? fullyQualifiedReference;
 
         public OciArtifactEmulatedReference(BicepSourceFile referencingFile, string modulePath, IFileHandle fileHandle, string? fullyQualifiedReference = null)
-            : base(referencingFile, OciArtifactReferenceFacts.EmulatedScheme)
+            : base(referencingFile.Features, referencingFile.Configuration, OciArtifactReferenceFacts.EmulatedScheme)
         {
             this.modulePath = modulePath;
             this.fileHandle = fileHandle;

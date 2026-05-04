@@ -2027,25 +2027,30 @@ namespace Bicep.Core.Diagnostics
                 "BCP445",
                 $@"The ""@{LanguageConstants.NullIfNotFoundDecoratorName}()"" decorator can only be used on existing resources.");
 
-            public Diagnostic InvalidOciArtifactModuleAliasRegistryAndFileSystemSetTogether(string aliasName, IOUri? configFileUri) => CoreError(
+            public Diagnostic ArtifactRestoreBlockedByRegistry(string registryHostname) => CoreError(
                 "BCP446",
+                $"Restore from registry \"{registryHostname}\" is blocked because it is not in the trusted registries list. " +
+                $"See https://aka.ms/bicep/registry-trust for details.");
+
+            public Diagnostic InvalidOciArtifactModuleAliasRegistryAndFileSystemSetTogether(string aliasName, IOUri? configFileUri) => CoreError(
+                "BCP447",
                 $"The OCI artifact module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" and \"fileSystem\" properties are mutually exclusive.");
 
             public Diagnostic OciArtifactModuleAliasFileSystemOnlySupportsModules(string aliasName) => CoreError(
-                "BCP447",
-                $"The OCI artifact module alias \"{aliasName}\" has a \"fileSystem\" property which is only supported for modules, not extensions.");
-            
-            public Diagnostic ModuleReferenceSchemeBrFsNotSupported() => CoreError(
                 "BCP448",
-                "The 'br-fs' module reference scheme is for internal use only. Use a 'br/<alias>:' reference with a configured 'fileSystem' alias instead.");
-            public Diagnostic ConfigurationFileNotFound(string featureName) => CoreError(
+                $"The OCI artifact module alias \"{aliasName}\" has a \"fileSystem\" property which is only supported for modules, not extensions.");
+
+            public Diagnostic ModuleReferenceSchemeBrFsNotSupported() => CoreError(
                 "BCP449",
+                "The 'br-fs' module reference scheme is for internal use only. Use a 'br/<alias>:' reference with a configured 'fileSystem' alias instead.");
+
+            public Diagnostic ConfigurationFileNotFound(string featureName) => CoreError(
+                "BCP450",
                 $"Configuration file is not found. Feature \"{featureName}\" requires a configuration file.");
 
             public Diagnostic InvalidOciArtifactModuleAliasFileSystemPath(string? aliasName, string path, string reason) => CoreError(
-                "BCP450",
+                "BCP451",
                 $"The OCI artifact module alias{(aliasName is not null ? $" \"{aliasName}\"" : "")} has an invalid \"fileSystem\" path \"{path}\": {reason}");
-            
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

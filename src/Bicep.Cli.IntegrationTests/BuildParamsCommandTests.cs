@@ -328,6 +328,129 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
+        public async Task Build_params_inline_for_expression_parameter_should_succeed()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            _ = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                "param p int[]",
+                outputPath);
+
+            var paramsPath = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+
+                param p = [for item in range(0, 4): item * 2]
+                """,
+                outputPath);
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", paramsPath, "--stdout");
+
+            result.Should().Succeed();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            paramsObject.Should().HaveValueAtPath("parameters.p.value", JToken.Parse("[0, 2, 4, 6]"));
+        }
+
+        [TestMethod]
+        public async Task Build_params_for_expression_variable_should_succeed()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            _ = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                type FleetConfig = {
+                    namePrefix: string
+                    sku: string
+                    capacity: int
+                    clusteringPolicy: string
+                }
+
+                param testMatrix FleetConfig[]
+                """,
+                outputPath);
+
+            var paramsPath = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+
+                var matrix = [
+                    {
+                        namePrefix: 'e10impactx4'
+                        sku: 'Enterprise_E10'
+                        capacity: 4
+                    }
+                    {
+                        namePrefix: 'e10impact'
+                        sku: 'Enterprise_E10'
+                        capacity: 2
+                    }
+                ]
+
+                var type1 = [for item in matrix: {
+                    namePrefix: item.namePrefix
+                    sku: item.sku
+                    capacity: item.capacity
+                    clusteringPolicy: 'EnterpriseCluster'
+                }]
+
+                var type2 = [for item in matrix: {
+                    namePrefix: '${item.namePrefix}-ent'
+                    sku: item.sku
+                    capacity: item.capacity
+                    clusteringPolicy: 'OSSCluster'
+                }]
+
+                param testMatrix = concat(type1, type2)
+                """,
+                outputPath);
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", paramsPath, "--stdout");
+
+            result.Should().Succeed();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            paramsObject.Should().HaveValueAtPath("parameters.testMatrix.value", JToken.Parse("""
+                [
+                    {
+                        "namePrefix": "e10impactx4",
+                        "sku": "Enterprise_E10",
+                        "capacity": 4,
+                        "clusteringPolicy": "EnterpriseCluster"
+                    },
+                    {
+                        "namePrefix": "e10impact",
+                        "sku": "Enterprise_E10",
+                        "capacity": 2,
+                        "clusteringPolicy": "EnterpriseCluster"
+                    },
+                    {
+                        "namePrefix": "e10impactx4-ent",
+                        "sku": "Enterprise_E10",
+                        "capacity": 4,
+                        "clusteringPolicy": "OSSCluster"
+                    },
+                    {
+                        "namePrefix": "e10impact-ent",
+                        "sku": "Enterprise_E10",
+                        "capacity": 2,
+                        "clusteringPolicy": "OSSCluster"
+                    }
+                ]
+            """));
+        }
+
+        [TestMethod]
         public async Task Build_params_extends_variable_uses_base_params_not_overridden()
         {
             var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
@@ -1487,7 +1610,7 @@ param objParam object
 
             var result = await Bicep(CreateDefaultSettings(), "build-params", childPath, "--stdout");
             result.Should().Fail();
-            result.Stderr.Should().Contain("Error BCP338: Failed to evaluate parameter \"objParam\"");
+            result.Stderr.Should().Contain("Error BCP402: The spread operator \"...\" can only be used in this context for an expression assignable to type \"object\".");
         }
 
         [TestMethod]

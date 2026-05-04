@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.McpServer.Core;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 

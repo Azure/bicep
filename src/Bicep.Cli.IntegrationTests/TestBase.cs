@@ -53,19 +53,21 @@ namespace Bicep.Cli.IntegrationTests
             public ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory { get; init; }
             public IEnvironment? Environment { get; init; }
             public IPublicModuleIndexHttpClient ModuleMetadataClient { get; init; }
+            public RegistryConfiguration RegistryConfiguration { get; init; }
 
             public InvocationSettings(
                 FeatureProviderOverrides? FeatureOverrides = null,
                 IContainerRegistryClientFactory? ClientFactory = null,
                 ITemplateSpecRepositoryFactory? TemplateSpecRepositoryFactory = null,
                 IEnvironment? Environment = null,
-                IPublicModuleIndexHttpClient? ModuleMetadataClient = null)
+                IPublicModuleIndexHttpClient? ModuleMetadataClient = null,
+                RegistryConfiguration? registryConfiguration = null)
             {
                 this.FeatureOverrides = FeatureOverrides;
                 this.ClientFactory = ClientFactory ?? Repository.Create<IContainerRegistryClientFactory>().Object;
                 this.TemplateSpecRepositoryFactory = TemplateSpecRepositoryFactory ?? Repository.Create<ITemplateSpecRepositoryFactory>().Object;
                 this.Environment = Environment;
-
+                this.RegistryConfiguration = registryConfiguration ?? BicepTestConstants.TestRegistryConfiguration;
                 this.ModuleMetadataClient = ModuleMetadataClient ?? new MockPublicModuleIndexHttpClient(new());
             }
 
@@ -191,6 +193,7 @@ namespace Bicep.Cli.IntegrationTests
                             .AddSingletonIfNotNull(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
                             .AddSingletonIfNotNull(settings.ClientFactory)
                             .AddSingletonIfNotNull(settings.TemplateSpecRepositoryFactory)
+                            .AddSingleton(settings.RegistryConfiguration)
                             .AddSingleton(AnsiConsole.Create(new()
                             {
                                 Ansi = AnsiSupport.Yes,

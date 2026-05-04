@@ -25,16 +25,21 @@ namespace Bicep.Core.Modules
         private readonly Lazy<ResultWithDiagnosticBuilder<IFileHandle>> lazyTargetFileResult;
         private readonly Lazy<ResultWithDiagnosticBuilder<BinaryData>> lazyExtensionBinaryDataResult;
         private readonly Lazy<LocalExtensionArtifact> lazyLocalExtensionArtifact;
+        private readonly BicepSourceFile referencingFile;
 
         private LocalModuleReference(BicepSourceFile referencingFile, ArtifactType artifactType, RelativePath path)
-            : base(referencingFile, ArtifactReferenceSchemes.Local)
+            : base(referencingFile.Features, referencingFile.Configuration, ArtifactReferenceSchemes.Local)
         {
             ArtifactType = artifactType;
             this.Path = path;
-            this.lazyTargetFileResult = new(() => this.ReferencingFile.FileHandle.TryGetRelativeFile(this.Path));
+            this.referencingFile = referencingFile;
+            this.lazyTargetFileResult = new(() => TryGetRelativeFile(this.Path));
             this.lazyExtensionBinaryDataResult = new(() => this.lazyTargetFileResult.Value.Transform(x => x.TryReadBinaryData()));
-            this.lazyLocalExtensionArtifact = new(() => new(this.lazyExtensionBinaryDataResult.Value.Unwrap(), referencingFile.Features.CacheRootDirectory));
+            this.lazyLocalExtensionArtifact = new(() => new(this.lazyExtensionBinaryDataResult.Value.Unwrap(), FeatureProvider.CacheRootDirectory));
         }
+
+        public ResultWithDiagnosticBuilder<IFileHandle> TryGetRelativeFile(RelativePath path)
+            => referencingFile.FileHandle.TryGetRelativeFile(path);
 
         public ArtifactType ArtifactType { get; }
 

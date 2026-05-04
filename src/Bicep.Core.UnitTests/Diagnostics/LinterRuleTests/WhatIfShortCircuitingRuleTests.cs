@@ -80,13 +80,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ("main.bicep", """
                         param input string
                         module creatingSA 'createSA.bicep' = {
-                          name: 'creatingSA'
                           params: {
                             test: input
                           }
                         }
                         module creatingSA2 'createSA.bicep' = {
-                          name: 'creatingSA2'
                           params: {
                             test: 'value'
                           }
@@ -219,7 +217,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                        name: 'acct'
                     }
                     module mod 'mod.bicep' = {
-                       name: 'mod'
                        params: {
                            condition: sa.properties.allowBlobPublicAccess
                            name: sa.properties.dnsEndpointType
@@ -231,14 +228,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     param name string
 
                     module mod2 'mod2.bicep' = {
-                        name: 'mod2'
                         params: {
                             condition: condition
                         }
                     }
 
                     module mod3 'mod3.bicep' = {
-                        name: 'mod3'
                         params: {
                             name: name
                         }
@@ -276,7 +271,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                        name: 'acct'
                     }
                     module mod 'mod.json' = {
-                       name: 'mod'
                        params: {
                            condition: sa.properties.allowBlobPublicAccess
                            nestedCondition: sa.properties.allowBlobPublicAccess
@@ -366,7 +360,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                        name: 'acct'
                     }
                     module mod 'mod.bicep' = {
-                       name: 'mod'
                        params: {
                            condition: sa.properties.allowBlobPublicAccess
                        }

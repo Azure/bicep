@@ -223,6 +223,27 @@
     }
   },
   {
+    "label": "retryOn",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nretryOn(exceptionCodes: string[], [retryCount: int]): any\n\n```  \n  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_retryOn",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "retryOn($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "sealed",
     "kind": "function",
     "documentation": {

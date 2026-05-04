@@ -25,6 +25,9 @@ public class PublicApiTests
 
         var publicApi = typeof(BicepClientConfiguration).Assembly.GeneratePublicApi();
 
+        // Normalize line endings so the baseline is consistent across Windows and Linux CI agents.
+        publicApi = publicApi.Replace("\r\n", "\n");
+
         result.WriteToOutputFolder(publicApi);
         result.ShouldHaveExpectedValue();
     }

@@ -4,7 +4,7 @@
 using Azure.Bicep.Types.Concrete;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
-namespace Bicep.McpServer.ResourceProperties.Extensions;
+namespace Bicep.McpServer.Core.ResourceProperties.Extensions;
 
 public static class BicepTypeExtensions
 {

@@ -82,7 +82,7 @@ namespace Bicep.Core.Registry
         public override async Task PublishExtension(LocalModuleReference reference, ExtensionPackage package)
         {
             var archive = await ExtensionV1Archive.Build(package);
-            var fileHandle = reference.ReferencingFile.FileHandle.TryGetRelativeFile(reference.Path).Unwrap();
+            var fileHandle = reference.TryGetRelativeFile(reference.Path).Unwrap();
             fileHandle.Write(archive);
         }
 
@@ -140,7 +140,7 @@ namespace Bicep.Core.Registry
             // We must use '_' as a separator here because Windows does not allow ':' in file paths.
             var digest = OciDescriptor.ComputeDigest(OciDescriptor.AlgorithmIdentifierSha256, binaryData, separator: '_');
 
-            return reference.ReferencingFile.Features.CacheRootDirectory.GetDirectory($"local/{digest}");
+            return reference.FeatureProvider.CacheRootDirectory.GetDirectory($"local/{digest}");
         }
 
         protected override IDirectoryHandle GetArtifactDirectory(LocalModuleReference reference)
@@ -155,7 +155,7 @@ namespace Bicep.Core.Registry
 
         private static BinaryData? TryReadContent(LocalModuleReference reference)
         {
-            var moduleFileHandle = reference.ReferencingFile.FileHandle.TryGetRelativeFile(reference.Path).TryUnwrap();
+            var moduleFileHandle = reference.TryGetRelativeFile(reference.Path).TryUnwrap();
 
             return moduleFileHandle?.TryReadBinaryData().TryUnwrap();
         }
