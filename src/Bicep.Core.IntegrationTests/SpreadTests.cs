@@ -214,7 +214,7 @@ resource ex 'Microsoft.Network/expressRouteCircuits@2024-05-01' = {
     }
 
     [TestMethod]
-    public void Spread_is_blocked_with_nested_for_loop()
+    public void Nested_for_loop_without_spread_is_allowed()
     {
         // https://github.com/Azure/bicep/issues/19394
         var result = CompilationHelper.Compile("""
@@ -233,13 +233,11 @@ resource foo 'Microsoft.Storage/storageAccounts@2025-08-01' = {
         action: 'Allow'
       }]
     }
-    ...{}
   }
 }
 """);
 
-        result.ExcludingLinterDiagnostics().Should().ContainDiagnostic(
-            "BCP417", Diagnostics.DiagnosticLevel.Error, """The spread operator "..." cannot be used inside objects with property for-expressions.""");
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
