@@ -77,7 +77,7 @@ namespace Bicep.Cli.IntegrationTests
                 result.Should().Be(0);
                 error.Should().BeEmpty();
                 output.Should().ContainAll(
-                    $"Bicep CLI version 0.30.23 ({currentCommitSha})",
+                    $"Bicep CLI version: 0.30.23",
                     "OS: Linux",
                     "OS version: Test OS 1.2.3",
                     "Architecture: X64",
