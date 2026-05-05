@@ -910,9 +910,9 @@
           "type": "boolean",
           "description": "Enabling this feature turns on support for local Bicep deployments. See https://aka.ms/bicep/experimental-features#localdeploy"
         },
-        "waitUntil": {
+        "waitAndRetry": {
           "type": "boolean",
-          "description": "Allows to enable waitUntil feature on resource type. See https://aka.ms/bicep/experimental-features#waituntil"
+          "description": "Allows to enable wait and retry feature on resource type. See https://aka.ms/bicep/experimental-features#waitandretry"
         },
         "resourceInfoCodegen": {
           "type": "boolean",
