@@ -59,33 +59,6 @@ public sealed class BicepCompilerTools(
         [Description("The list of diagnostics from compilation")]
         ImmutableArray<DiagnosticDefinition> Diagnostics);
 
-    [McpServerTool(Title = "Get Bicep File Diagnostics", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
-    [Description("""
-    Analyzes a Bicep file (.bicep) or Bicep parameters file (.bicepparam) and returns all compilation diagnostics including errors, warnings, and informational messages.
-    
-    Use this tool to:
-    - Validate Bicep syntax and identify compilation errors before deployment
-    - Check for warnings about deprecated features, security issues, or best practice violations
-    - Troubleshoot why a Bicep file isn't compiling
-    - Understand the severity and location of issues in the code
-    
-    Each diagnostic includes the error code (e.g., BCP033), severity level (Error/Warning/Info), descriptive message, exact position in the file, and a link to documentation for more details.
-    The file path must be absolute. Diagnostics are returned for the specified file and any modules it references.
-    """)]
-    public async Task<ImmutableArray<DiagnosticDefinition>> GetBicepFileDiagnostics(
-        [Description("The path to the .bicep or .bicepparam file")] string filePath)
-    {
-        var fileUri = IOUri.FromFilePath(filePath);
-        if (!fileUri.HasBicepExtension() && !fileUri.HasBicepParamExtension())
-        {
-            throw new ArgumentException("The specified file must have a .bicep or .bicepparam extension.", nameof(filePath));
-        }
-
-        var compilation = await compiler.CreateCompilation(fileUri);
-
-        return GetDiagnostics(compilation.GetAllDiagnosticsByBicepFile());
-    }
-
     [McpServerTool(Title = "Build Bicep", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
     Compiles a Bicep file (.bicep) to an ARM template JSON string and returns the result along with any diagnostics.
