@@ -9,3 +9,5 @@ syntaxes/language-configuration.json
 bicepLanguageServer
 bicepMcpServer
 ThirdPartyNotices.txt
+vscode-bicep.manifest
+vscode-bicep.p7s

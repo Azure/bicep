@@ -57,8 +57,8 @@ public class FormatCommand(
 
             if (outputToStdOut)
             {
-                io.Output.Write(output);
-                io.Output.Flush();
+                io.Output.Writer.Write(output);
+                io.Output.Writer.Flush();
             }
             else
             {
@@ -73,8 +73,8 @@ public class FormatCommand(
 
         if (outputToStdOut)
         {
-            PrettyPrinterV2.PrintTo(io.Output, sourceFile.ProgramSyntax, context);
-            io.Output.Flush();
+            PrettyPrinterV2.PrintTo(io.Output.Writer, sourceFile.ProgramSyntax, context);
+            io.Output.Writer.Flush();
         }
         else
         {

@@ -59,14 +59,13 @@ namespace Bicep.Core.Emit
             BlockSecureOutputAccessOnIndirectReference(model, diagnostics);
             BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
             BlockExplicitDependenciesInOrOnInlinedExistingResources(model, resourceTypeResolver, diagnostics);
-            BlockUsingWithClauseWithoutFeatureFlagEnabled(model, diagnostics);
-            BlockMultilineStringInterpolationWithoutFeatureFlagEnabled(model, diagnostics);
+            ValidateUsingWithClauseMatchesExperimentalFeatureEnablement(model, diagnostics);
 
             var paramAssignmentEvaluator = new ParameterAssignmentEvaluator(model);
-            var (paramAssignments, usingConfig) = CalculateParameterAssignments(model, paramAssignmentEvaluator, diagnostics);
+            var (paramAssignments, usingConfig, externalInputDefinitions) = CalculateParameterAssignments(model, paramAssignmentEvaluator, diagnostics);
             var extConfigAssignments = CalculateExtensionConfigAssignments(model, paramAssignmentEvaluator, diagnostics);
 
-            return new(diagnostics.GetDiagnostics(), paramAssignments, extConfigAssignments, usingConfig);
+            return new(diagnostics.GetDiagnostics(), paramAssignments, extConfigAssignments, usingConfig, externalInputDefinitions);
         }
 
         private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
@@ -599,14 +598,14 @@ namespace Bicep.Core.Emit
                 .WhereNotNull()
                 .Select(forbiddenSafeAccessMarker => DiagnosticBuilder.ForPosition(forbiddenSafeAccessMarker).SafeDereferenceNotPermittedOnResourceCollections()));
 
-        private static (ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> paramAssignments, ParameterAssignmentValue? usingConfig) CalculateParameterAssignments(
+        private static (ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> paramAssignments, ParameterAssignmentValue? usingConfig, ImmutableArray<ExternalInputDefinition>? externalInputDefinitions) CalculateParameterAssignments(
             SemanticModel model,
             ParameterAssignmentEvaluator evaluator,
             IDiagnosticWriter diagnostics)
         {
             if (model.HasParsingErrors())
             {
-                return (ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue>.Empty, null);
+                return ([], null, null);
             }
 
             var referencesInValues = model.Binder.Bindings.Values.OfType<DeclaredSymbol>().Distinct()
@@ -690,13 +689,14 @@ namespace Bicep.Core.Emit
                 }
             }
 
+            var externalInputDefinitions = evaluator.TryGetExternalInputDefinitions();
             ParameterAssignmentValue? usingConfig = null;
             if (evaluator.EvaluateUsingConfig(model.Root) is { } usingConfigResult)
             {
                 usingConfig = new(usingConfigResult.Value, usingConfigResult.Expression, usingConfigResult.KeyVaultReference);
             }
 
-            return (generated.ToImmutableDictionary(), usingConfig);
+            return (generated.ToImmutableDictionary(), usingConfig, externalInputDefinitions);
         }
 
         private static ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>> CalculateExtensionConfigAssignments(
@@ -706,7 +706,7 @@ namespace Bicep.Core.Emit
         {
             if (model.Root.ExtensionConfigAssignments.IsEmpty)
             {
-                return ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>>.Empty;
+                return [];
             }
 
             var generated = ImmutableDictionary.CreateBuilder<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>>();
@@ -801,13 +801,18 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private static void BlockUsingWithClauseWithoutFeatureFlagEnabled(SemanticModel model, IDiagnosticWriter diagnostics)
+        private static void ValidateUsingWithClauseMatchesExperimentalFeatureEnablement(SemanticModel model, IDiagnosticWriter diagnostics)
         {
             foreach (var syntax in model.SourceFile.ProgramSyntax.Declarations.OfType<UsingDeclarationSyntax>())
             {
                 if (syntax.WithClause is not SkippedTriviaSyntax && !model.Features.DeployCommandsEnabled)
                 {
                     diagnostics.Write(syntax.WithClause, x => x.UsingWithClauseRequiresExperimentalFeature());
+                }
+
+                if (syntax.WithClause is SkippedTriviaSyntax && model.Features.DeployCommandsEnabled)
+                {
+                    diagnostics.Write(syntax, x => x.UsingWithClauseRequiredIfExperimentalFeatureEnabled());
                 }
             }
         }
@@ -956,7 +961,7 @@ namespace Bicep.Core.Emit
                     TypeHelper.IsOrContainsSecureType(model.GetTypeInfo(accessExpr)))
                 {
                     if (model.GetSymbolInfo(baseAccessExpr.BaseExpression) is ModuleSymbol ||
-                        (baseAccessExpr.BaseExpression is ArrayAccessSyntax grandBaseArrayAccess &&
+                        (SyntaxHelper.UnwrapNonNullAssertion(baseAccessExpr.BaseExpression) is ArrayAccessSyntax grandBaseArrayAccess &&
                             model.GetSymbolInfo(grandBaseArrayAccess.BaseExpression) is ModuleSymbol greatGrandBaseModule &&
                             greatGrandBaseModule.IsCollection))
                     {
@@ -1051,20 +1056,6 @@ namespace Bicep.Core.Emit
                 {
                     yield return body;
                 }
-            }
-        }
-
-        private static void BlockMultilineStringInterpolationWithoutFeatureFlagEnabled(SemanticModel model, IDiagnosticWriter diagnostics)
-        {
-            if (model.Features.MultilineStringInterpolationEnabled)
-            {
-                return;
-            }
-            
-            foreach (var @string in SyntaxAggregator.AggregateByType<StringSyntax>(model.Root.Syntax)
-                .Where(x => x.IsMultiLineString() && !x.IsVerbatimString()))
-            {
-                diagnostics.Write(@string, x => x.MultilineStringRequiresExperimentalFeature());
             }
         }
     }

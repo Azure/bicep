@@ -22,3 +22,13 @@ param storageAccount2 string = 'testStorageAccount'
 param storageAccount3 string = 'testStorageAccount'
          #disable-next-line   no-unused-params                // Test comment 2
 param storageAccount5 string = 'testStorageAccount'
+
+#disable-diagnostics                 no-unused-params                      no-unused-vars
+param storageAccount4 string = 'testStorageAccount'
+var unusedVar1 = 'This is an unused variable'
+var unusedVar2 = 'This is another unused variable'
+#restore-diagnostics   no-unused-vars
+param storageAccount6 string = 'testStorageAccount'
+var unusedVar3 = 'This is yet another unused variable'
+#restore-diagnostics    no-unused-params
+param storageAccount7 string = 'testStorageAccount'

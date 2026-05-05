@@ -1,14 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Semantics.Namespaces
@@ -29,6 +32,34 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
                 function.Overloads.Should().HaveCount(1, $"Function '{functionName}' should have exactly one overload");
                 function.Overloads[0].Flags.HasFlag(FunctionFlags.RequiresInlining).Should().BeTrue(
                     $"Function '{functionName}' should have the RequiresInlining flag set");
+            });
+        }
+
+        [TestMethod]
+        public void RoleDefinitionFunction_ShouldExistAndRequireInlining()
+        {
+            VerifyFunctionProperties("roleDefinitions", function =>
+            {
+                function.Name.Should().Be("roleDefinitions");
+                function.Overloads.Should().HaveCount(1, "Function 'roleDefinitions' should have exactly one overload");
+
+                var overload = function.Overloads[0];
+                overload.Flags.HasFlag(FunctionFlags.RequiresInlining).Should().BeFalse(
+                    "Function 'roleDefinitions' should not have the RequiresInlining flag set");
+
+                // Verify parameters
+                overload.FixedParameters.Should().HaveCount(1, "Function 'roleDefinitions' should have exactly one parameter");
+                overload.FixedParameters[0].Name.Should().Be("roleName");
+                overload.FixedParameters[0].Type.Should().Be(LanguageConstants.String);
+                overload.FixedParameters[0].Required.Should().BeTrue();
+
+                // Verify return type
+                overload.TypeSignatureSymbol.Should().BeOfType<ObjectType>();
+                var returnType = (ObjectType)overload.TypeSignatureSymbol;
+                returnType.Properties.Should().HaveCount(2, "The return type should have exactly two properties");
+
+                returnType.Properties.Should().ContainKey("id").WhoseValue.TypeReference.Should().Be(LanguageConstants.String);
+                returnType.Properties.Should().ContainKey("roleDefinitionId").WhoseValue.TypeReference.Should().Be(LanguageConstants.String);
             });
         }
 

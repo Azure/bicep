@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2962853459093046771"
+      "templateHash": "11571129805679809583"
     }
   },
   "parameters": {
@@ -164,7 +164,7 @@
       "condition": "[parameters('enableDeleteLock')]",
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', parameters('name'))]",
+      "scope": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]",
       "name": "[variables('lockName')]",
       "properties": {
         "level": "CanNotDelete"
@@ -177,7 +177,7 @@
       "condition": "[parameters('enableDiagnostics')]",
       "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
-      "scope": "[format('Microsoft.OperationalInsights/workspaces/{0}', parameters('name'))]",
+      "scope": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]",
       "name": "[variables('diagnosticsName')]",
       "properties": {
         "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('name'))]",

@@ -1,5 +1,5 @@
 func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
-//@[000:1461) ProgramSyntax
+//@[000:1738) ProgramSyntax
 //@[000:0141) ├─FunctionDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |func|
 //@[005:0013) | ├─IdentifierSyntax
@@ -648,6 +648,182 @@ func buildUrlMultiLine(
 //@[079:0083) |     |   |   └─Token(Identifier) |path|
 //@[083:0085) |     |   └─Token(StringRightPiece) |}'|
 //@[085:0087) |     └─Token(StringRightPiece) |}'|
-//@[087:0088) ├─Token(NewLine) |\n|
+//@[087:0089) ├─Token(NewLine) |\n\n|
+
+output likeExactMatch bool =like('abc', 'abc')
+//@[000:0046) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0021) | ├─IdentifierSyntax
+//@[007:0021) | | └─Token(Identifier) |likeExactMatch|
+//@[022:0026) | ├─TypeVariableAccessSyntax
+//@[022:0026) | | └─IdentifierSyntax
+//@[022:0026) | |   └─Token(Identifier) |bool|
+//@[027:0028) | ├─Token(Assignment) |=|
+//@[028:0046) | └─FunctionCallSyntax
+//@[028:0032) |   ├─IdentifierSyntax
+//@[028:0032) |   | └─Token(Identifier) |like|
+//@[032:0033) |   ├─Token(LeftParen) |(|
+//@[033:0038) |   ├─FunctionArgumentSyntax
+//@[033:0038) |   | └─StringSyntax
+//@[033:0038) |   |   └─Token(StringComplete) |'abc'|
+//@[038:0039) |   ├─Token(Comma) |,|
+//@[040:0045) |   ├─FunctionArgumentSyntax
+//@[040:0045) |   | └─StringSyntax
+//@[040:0045) |   |   └─Token(StringComplete) |'abc'|
+//@[045:0046) |   └─Token(RightParen) |)|
+//@[046:0047) ├─Token(NewLine) |\n|
+output likeWildCardMatch bool= like ('abcdef', 'a*c*')
+//@[000:0054) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0024) | ├─IdentifierSyntax
+//@[007:0024) | | └─Token(Identifier) |likeWildCardMatch|
+//@[025:0029) | ├─TypeVariableAccessSyntax
+//@[025:0029) | | └─IdentifierSyntax
+//@[025:0029) | |   └─Token(Identifier) |bool|
+//@[029:0030) | ├─Token(Assignment) |=|
+//@[031:0054) | └─FunctionCallSyntax
+//@[031:0035) |   ├─IdentifierSyntax
+//@[031:0035) |   | └─Token(Identifier) |like|
+//@[036:0037) |   ├─Token(LeftParen) |(|
+//@[037:0045) |   ├─FunctionArgumentSyntax
+//@[037:0045) |   | └─StringSyntax
+//@[037:0045) |   |   └─Token(StringComplete) |'abcdef'|
+//@[045:0046) |   ├─Token(Comma) |,|
+//@[047:0053) |   ├─FunctionArgumentSyntax
+//@[047:0053) |   | └─StringSyntax
+//@[047:0053) |   |   └─Token(StringComplete) |'a*c*'|
+//@[053:0054) |   └─Token(RightParen) |)|
+//@[054:0055) ├─Token(NewLine) |\n|
+output distinctTest array = distinct(['a','b','a','c','b'])
+//@[000:0059) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0019) | ├─IdentifierSyntax
+//@[007:0019) | | └─Token(Identifier) |distinctTest|
+//@[020:0025) | ├─TypeVariableAccessSyntax
+//@[020:0025) | | └─IdentifierSyntax
+//@[020:0025) | |   └─Token(Identifier) |array|
+//@[026:0027) | ├─Token(Assignment) |=|
+//@[028:0059) | └─FunctionCallSyntax
+//@[028:0036) |   ├─IdentifierSyntax
+//@[028:0036) |   | └─Token(Identifier) |distinct|
+//@[036:0037) |   ├─Token(LeftParen) |(|
+//@[037:0058) |   ├─FunctionArgumentSyntax
+//@[037:0058) |   | └─ArraySyntax
+//@[037:0038) |   |   ├─Token(LeftSquare) |[|
+//@[038:0041) |   |   ├─ArrayItemSyntax
+//@[038:0041) |   |   | └─StringSyntax
+//@[038:0041) |   |   |   └─Token(StringComplete) |'a'|
+//@[041:0042) |   |   ├─Token(Comma) |,|
+//@[042:0045) |   |   ├─ArrayItemSyntax
+//@[042:0045) |   |   | └─StringSyntax
+//@[042:0045) |   |   |   └─Token(StringComplete) |'b'|
+//@[045:0046) |   |   ├─Token(Comma) |,|
+//@[046:0049) |   |   ├─ArrayItemSyntax
+//@[046:0049) |   |   | └─StringSyntax
+//@[046:0049) |   |   |   └─Token(StringComplete) |'a'|
+//@[049:0050) |   |   ├─Token(Comma) |,|
+//@[050:0053) |   |   ├─ArrayItemSyntax
+//@[050:0053) |   |   | └─StringSyntax
+//@[050:0053) |   |   |   └─Token(StringComplete) |'c'|
+//@[053:0054) |   |   ├─Token(Comma) |,|
+//@[054:0057) |   |   ├─ArrayItemSyntax
+//@[054:0057) |   |   | └─StringSyntax
+//@[054:0057) |   |   |   └─Token(StringComplete) |'b'|
+//@[057:0058) |   |   └─Token(RightSquare) |]|
+//@[058:0059) |   └─Token(RightParen) |)|
+//@[059:0060) ├─Token(NewLine) |\n|
+output distinctTest2 array = distinct([1,2,3,1,2,4])
+//@[000:0052) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0020) | ├─IdentifierSyntax
+//@[007:0020) | | └─Token(Identifier) |distinctTest2|
+//@[021:0026) | ├─TypeVariableAccessSyntax
+//@[021:0026) | | └─IdentifierSyntax
+//@[021:0026) | |   └─Token(Identifier) |array|
+//@[027:0028) | ├─Token(Assignment) |=|
+//@[029:0052) | └─FunctionCallSyntax
+//@[029:0037) |   ├─IdentifierSyntax
+//@[029:0037) |   | └─Token(Identifier) |distinct|
+//@[037:0038) |   ├─Token(LeftParen) |(|
+//@[038:0051) |   ├─FunctionArgumentSyntax
+//@[038:0051) |   | └─ArraySyntax
+//@[038:0039) |   |   ├─Token(LeftSquare) |[|
+//@[039:0040) |   |   ├─ArrayItemSyntax
+//@[039:0040) |   |   | └─IntegerLiteralSyntax
+//@[039:0040) |   |   |   └─Token(Integer) |1|
+//@[040:0041) |   |   ├─Token(Comma) |,|
+//@[041:0042) |   |   ├─ArrayItemSyntax
+//@[041:0042) |   |   | └─IntegerLiteralSyntax
+//@[041:0042) |   |   |   └─Token(Integer) |2|
+//@[042:0043) |   |   ├─Token(Comma) |,|
+//@[043:0044) |   |   ├─ArrayItemSyntax
+//@[043:0044) |   |   | └─IntegerLiteralSyntax
+//@[043:0044) |   |   |   └─Token(Integer) |3|
+//@[044:0045) |   |   ├─Token(Comma) |,|
+//@[045:0046) |   |   ├─ArrayItemSyntax
+//@[045:0046) |   |   | └─IntegerLiteralSyntax
+//@[045:0046) |   |   |   └─Token(Integer) |1|
+//@[046:0047) |   |   ├─Token(Comma) |,|
+//@[047:0048) |   |   ├─ArrayItemSyntax
+//@[047:0048) |   |   | └─IntegerLiteralSyntax
+//@[047:0048) |   |   |   └─Token(Integer) |2|
+//@[048:0049) |   |   ├─Token(Comma) |,|
+//@[049:0050) |   |   ├─ArrayItemSyntax
+//@[049:0050) |   |   | └─IntegerLiteralSyntax
+//@[049:0050) |   |   |   └─Token(Integer) |4|
+//@[050:0051) |   |   └─Token(RightSquare) |]|
+//@[051:0052) |   └─Token(RightParen) |)|
+//@[052:0053) ├─Token(NewLine) |\n|
+output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])
+//@[000:0060) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0020) | ├─IdentifierSyntax
+//@[007:0020) | | └─Token(Identifier) |distinctTest3|
+//@[021:0026) | ├─TypeVariableAccessSyntax
+//@[021:0026) | | └─IdentifierSyntax
+//@[021:0026) | |   └─Token(Identifier) |array|
+//@[027:0028) | ├─Token(Assignment) |=|
+//@[029:0060) | └─FunctionCallSyntax
+//@[029:0037) |   ├─IdentifierSyntax
+//@[029:0037) |   | └─Token(Identifier) |distinct|
+//@[037:0038) |   ├─Token(LeftParen) |(|
+//@[038:0059) |   ├─FunctionArgumentSyntax
+//@[038:0059) |   | └─ArraySyntax
+//@[038:0039) |   |   ├─Token(LeftSquare) |[|
+//@[039:0044) |   |   ├─ArrayItemSyntax
+//@[039:0044) |   |   | └─ObjectSyntax
+//@[039:0040) |   |   |   ├─Token(LeftBrace) |{|
+//@[040:0043) |   |   |   ├─ObjectPropertySyntax
+//@[040:0041) |   |   |   | ├─IdentifierSyntax
+//@[040:0041) |   |   |   | | └─Token(Identifier) |a|
+//@[041:0042) |   |   |   | ├─Token(Colon) |:|
+//@[042:0043) |   |   |   | └─IntegerLiteralSyntax
+//@[042:0043) |   |   |   |   └─Token(Integer) |1|
+//@[043:0044) |   |   |   └─Token(RightBrace) |}|
+//@[044:0045) |   |   ├─Token(Comma) |,|
+//@[046:0051) |   |   ├─ArrayItemSyntax
+//@[046:0051) |   |   | └─ObjectSyntax
+//@[046:0047) |   |   |   ├─Token(LeftBrace) |{|
+//@[047:0050) |   |   |   ├─ObjectPropertySyntax
+//@[047:0048) |   |   |   | ├─IdentifierSyntax
+//@[047:0048) |   |   |   | | └─Token(Identifier) |a|
+//@[048:0049) |   |   |   | ├─Token(Colon) |:|
+//@[049:0050) |   |   |   | └─IntegerLiteralSyntax
+//@[049:0050) |   |   |   |   └─Token(Integer) |1|
+//@[050:0051) |   |   |   └─Token(RightBrace) |}|
+//@[051:0052) |   |   ├─Token(Comma) |,|
+//@[053:0058) |   |   ├─ArrayItemSyntax
+//@[053:0058) |   |   | └─ObjectSyntax
+//@[053:0054) |   |   |   ├─Token(LeftBrace) |{|
+//@[054:0057) |   |   |   ├─ObjectPropertySyntax
+//@[054:0055) |   |   |   | ├─IdentifierSyntax
+//@[054:0055) |   |   |   | | └─Token(Identifier) |b|
+//@[055:0056) |   |   |   | ├─Token(Colon) |:|
+//@[056:0057) |   |   |   | └─IntegerLiteralSyntax
+//@[056:0057) |   |   |   |   └─Token(Integer) |2|
+//@[057:0058) |   |   |   └─Token(RightBrace) |}|
+//@[058:0059) |   |   └─Token(RightSquare) |]|
+//@[059:0060) |   └─Token(RightParen) |)|
+//@[060:0061) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

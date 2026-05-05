@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8310070667541374586"
+      "templateHash": "1649933717581908215"
     }
   },
   "parameters": {
@@ -191,7 +191,7 @@
       "condition": "[parameters('sqlLogicalServer').diagnosticLogsAndMetrics.auditLogs]",
       "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
-      "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', parameters('sqlLogicalServer').name, 'master')]",
+      "scope": "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlLogicalServer').name, 'master')]",
       "name": "SQLSecurityAuditEvents_3d229c42-c7e7-4c97-9a99-ec0d0d8b86c1",
       "properties": {
         "workspaceId": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('sqlLogicalServer').diagnosticLogsAndMetrics.subscriptionId, parameters('sqlLogicalServer').diagnosticLogsAndMetrics.resourceGroupName), 'Microsoft.OperationalInsights/workspaces', parameters('sqlLogicalServer').diagnosticLogsAndMetrics.name)]",
@@ -217,7 +217,7 @@
       "condition": "[not(empty(parameters('sqlLogicalServer').diagnosticLogsAndMetrics.name))]",
       "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
-      "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', parameters('sqlLogicalServer').name, 'master')]",
+      "scope": "[resourceId('Microsoft.Sql/servers/databases', parameters('sqlLogicalServer').name, 'master')]",
       "name": "sendLogsAndMetrics",
       "properties": {
         "copy": [
@@ -331,7 +331,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "14386909951182627608"
+              "templateHash": "6445962537978056232"
             }
           },
           "parameters": {
@@ -425,7 +425,7 @@
               "condition": "[parameters('sqlDatabase').diagnosticLogsAndMetrics.auditLogs]",
               "type": "microsoft.insights/diagnosticSettings",
               "apiVersion": "2017-05-01-preview",
-              "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1])]",
+              "scope": "[resourceId('Microsoft.Sql/servers/databases', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1])]",
               "name": "SQLSecurityAuditEvents_3d229c42-c7e7-4c97-9a99-ec0d0d8b86c1",
               "properties": {
                 "workspaceId": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('sqlDatabase').diagnosticLogsAndMetrics.subscriptionId, parameters('sqlDatabase').diagnosticLogsAndMetrics.resourceGroupName), 'Microsoft.OperationalInsights/workspaces', parameters('sqlDatabase').diagnosticLogsAndMetrics.name)]",
@@ -446,7 +446,7 @@
               "condition": "[not(empty(parameters('sqlDatabase').diagnosticLogsAndMetrics.name))]",
               "type": "microsoft.insights/diagnosticSettings",
               "apiVersion": "2017-05-01-preview",
-              "scope": "[format('Microsoft.Sql/servers/{0}/databases/{1}', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1])]",
+              "scope": "[resourceId('Microsoft.Sql/servers/databases', split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[0], split(format('{0}/{1}', parameters('sqlServerName'), parameters('sqlDatabase').name), '/')[1])]",
               "name": "sendLogsAndMetrics",
               "properties": {
                 "copy": [

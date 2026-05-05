@@ -38,22 +38,22 @@ const supportedConfigurations: ExtensionConfiguration[] = [
   {
     dotnetRid: "osx-arm64",
     bicepCliPublishArg: "--bin-osx-arm64",
-    dotnetPublishPath: `${mockExtensionProjPath}/bin/release/net8.0/osx-arm64/publish/${mockExtensionExeName}`,
+    dotnetPublishPath: `${mockExtensionProjPath}/bin/release/net10.0/osx-arm64/publish/${mockExtensionExeName}`,
   },
   {
     dotnetRid: "osx-x64",
     bicepCliPublishArg: "--bin-osx-x64",
-    dotnetPublishPath: `${mockExtensionProjPath}/bin/release/net8.0/osx-x64/publish/${mockExtensionExeName}`,
+    dotnetPublishPath: `${mockExtensionProjPath}/bin/release/net10.0/osx-x64/publish/${mockExtensionExeName}`,
   },
   {
     dotnetRid: "linux-x64",
     bicepCliPublishArg: "--bin-linux-x64",
-    dotnetPublishPath: `${mockExtensionProjPath}/bin/release/net8.0/linux-x64/publish/${mockExtensionExeName}`,
+    dotnetPublishPath: `${mockExtensionProjPath}/bin/release/net10.0/linux-x64/publish/${mockExtensionExeName}`,
   },
   {
     dotnetRid: "win-x64",
     bicepCliPublishArg: "--bin-win-x64",
-    dotnetPublishPath: `${mockExtensionProjPath}/bin/release/net8.0/win-x64/publish/${mockExtensionExeName}.exe`,
+    dotnetPublishPath: `${mockExtensionProjPath}/bin/release/net10.0/win-x64/publish/${mockExtensionExeName}.exe`,
   },
 ];
 

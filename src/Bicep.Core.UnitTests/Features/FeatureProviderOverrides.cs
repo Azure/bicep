@@ -17,16 +17,16 @@ public record FeatureProviderOverrides(
     bool? LegacyFormatterEnabled = default,
     bool? TestFrameworkEnabled = default,
     bool? AssertsEnabled = default,
-    bool? WaitAndRetryEnabled = default,
+    bool? WaitUntilEnabled = default,
     bool? LocalDeployEnabled = default,
     bool? ResourceInfoCodegenEnabled = default,
     bool? ExtendableParamFilesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
     bool? ModuleExtensionConfigsEnabled = default,
-    bool? DesiredStateConfigurationEnabled = default,
     bool? UserDefinedConstraintsEnabled = default,
     bool? DeployCommandsEnabled = default,
-    bool? MultilineStringInterpolationEnabled = default)
+    bool? ThisNamespaceEnabled = default,
+    bool? ExistingNullIfNotFoundEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -38,16 +38,16 @@ public record FeatureProviderOverrides(
         bool? LegacyFormatterEnabled = default,
         bool? TestFrameworkEnabled = default,
         bool? AssertsEnabled = default,
-        bool? WaitAndRetryEnabled = default,
+        bool? WaitUntilEnabled = default,
         bool? LocalDeployEnabled = default,
         bool? ResourceInfoCodegenEnabled = default,
         bool? ExtendableParamFilesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
         bool? ModuleExtensionConfigsEnabled = default,
-        bool? DesiredStateConfigurationEnabled = default,
         bool? UserDefinedConstraintsEnabled = default,
         bool? DeployCommandsEnabled = default,
-        bool? MultilineStringInterpolationEnabled = default) : this(
+        bool? ThisNamespaceEnabled = default,
+        bool? ExistingNullIfNotFoundEnabled = default) : this(
             FileHelper.GetCacheRootDirectory(testContext),
             RegistryEnabled,
             SymbolicNameCodegenEnabled,
@@ -57,15 +57,15 @@ public record FeatureProviderOverrides(
             LegacyFormatterEnabled,
             TestFrameworkEnabled,
             AssertsEnabled,
-            WaitAndRetryEnabled,
+            WaitUntilEnabled,
             LocalDeployEnabled,
             ResourceInfoCodegenEnabled,
             ExtendableParamFilesEnabled,
             AssemblyVersion,
             ModuleExtensionConfigsEnabled,
-            DesiredStateConfigurationEnabled,
             UserDefinedConstraintsEnabled,
             DeployCommandsEnabled,
-            MultilineStringInterpolationEnabled)
+            ThisNamespaceEnabled,
+            ExistingNullIfNotFoundEnabled)
     { }
 }

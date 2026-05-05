@@ -93,7 +93,7 @@ namespace Bicep.Cli.IntegrationTests
   ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
     ""name"": {
-      ""value"": """"
+      ""value"": ""sampleparameter""
     }
   }
 }".ReplaceLineEndings());
@@ -125,7 +125,7 @@ param required string";
   ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
     ""optional"": {
-      ""value"": """"
+      ""value"": ""sampleparameter""
     },
     ""required"": {
       ""value"": """"
@@ -555,7 +555,10 @@ param required string";
   ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
     ""foo"": {
-      ""value"": {}
+      ""value"": {
+        ""bar"": ""hello"",
+        ""baz"": 42
+      }
     },
     ""bar"": {
       ""value"": {
@@ -565,8 +568,8 @@ param required string";
     },
     ""baz"": {
       ""value"": {
-        ""bar"": """",
-        ""baz"": 0
+        ""bar"": ""hello"",
+        ""baz"": 42
       }
     }
   }

@@ -97,6 +97,16 @@ namespace Bicep.Core.TypeSystem
             VisitFunctionCallSyntaxBase(syntax);
         }
 
+        public override void VisitExtensionWithClauseSyntax(ExtensionWithClauseSyntax syntax)
+        {
+            if (this.semanticModel.Binder.GetParent(syntax) is ExtensionDeclarationSyntax)
+            {
+                deployTimeConstantContainers.Add(syntax);
+            }
+
+            base.VisitExtensionWithClauseSyntax(syntax);
+        }
+
         private void VisitFunctionCallSyntaxBase(FunctionCallSyntaxBase syntax)
         {
             if (this.semanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&

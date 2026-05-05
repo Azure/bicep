@@ -4,7 +4,6 @@
 using System.Collections.Immutable;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
-using Bicep.Cli.Helpers.Snapshot;
 using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -17,6 +16,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
+using Bicep.Core.Utils.Snapshots;
 using Bicep.IO.Abstraction;
 using Newtonsoft.Json.Serialization;
 using StreamJsonRpc;
@@ -224,6 +224,7 @@ public class CliJsonRpcServer(
             templateContent: templateContent,
             parametersContent: parametersContent,
             tenantId: request.Metadata.TenantId,
+            managementGroupId: request.Metadata.ManagementGroupId,
             subscriptionId: request.Metadata.SubscriptionId,
             resourceGroup: request.Metadata.ResourceGroup,
             location: request.Metadata.Location,

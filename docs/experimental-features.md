@@ -17,9 +17,19 @@ Should be enabled in tandem with `testFramework` experimental feature flag for e
 
 Enables `deploy`, `what-if` and `teardown` command groups, as well as the `with` syntax in a `.bicepparam` file. For more information, see [Using the Deploy Commands](./experimental/deploy-commands.md).
 
-### `desiredStateConfiguration`
+### `existingNullIfNotFound`
 
-Allows you to author configuration documents for [Microsoft's Desired State Configuration platform](https://github.com/PowerShell/DSC) using `targetScope = 'desiredStateConfiguration'`. If enabled, the file must only contain DSC resource instances. The built file is a valid configuration document to be used with the CLI. For example, `dsc.exe config test --file example.json`. This feature is in early development.
+Enables the use of the `@nullIfNotFound()` decorator for existing resources. When applied to an existing resource, the resource will return `null` if it doesn't exist at deployment time instead of failing. This allows you to gracefully handle cases where the resource may not exist. (Note: This feature will not work until the backend service support has been deployed)
+
+```bicep
+@nullIfNotFound()
+resource exampleResource 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: 'test'
+}
+
+// Access with safe navigation since the resource may be null
+output accessTier string = exampleResource.?properties.accessTier ?? ''
+```
 
 ### `extendableParamFiles`
 
@@ -37,23 +47,6 @@ Enables Bicep to run deployments locally, so that you can run Bicep extensions w
 
 Moves defining extension configurations to the module level rather than from within a template. The feature also
 includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use.
-
-### `multilineStringInterpolation`
-
-Adds an optional `$` prefix to the current multiline opening syntax `'''`, which enables interpolation using standard `${...}` Bicep interpolation. To permit a `${...}` literal value without escaping requirements, you can specify the number of `$` characters required for interpolation by repeating the `$` prefix.
-
-Basic example:
-```bicep
-var s = $'''
-this is ${interpolated}'''
-```
-
-With multiple `$` characters:
-```bicep
-var s = $$'''
-this is $${interpolated}
-this is not ${interpolated}'''
-```
 
 ### `resourceInfoCodegen`
 
@@ -74,6 +67,20 @@ Allows the ARM template layer to use a new schema to represent resources as an o
 ### `testFramework`
 
 Should be enabled in tandem with `assertions` experimental feature flag for expected functionality. Allows you to author client-side, offline unit-test test blocks that reference Bicep files and mock deployment parameters in a separate `test.bicep` file using the new `test` keyword. Test blocks can be run with the command *bicep test <filepath_to_file_with_test_blocks>* which runs all `assert` statements in the Bicep files referenced by the test blocks. For more information, see [Bicep Experimental Test Framework](https://github.com/Azure/bicep/issues/11967).
+### `thisNamespace`
+
+Enables the `this` namespace for accessing the current resource instance. The `this` namespace is only discoverable in resource bodies. Currently, `this.exists()` and `this.existingResource()` are available for usage. `this.exists()` returns a bool indicating the existence of the current resource. `this.existingResource()` returns null if the resource does not exist and returns the full resource if the resource exists. (Note: This feature will not work until the backend service support has been deployed)
+```
+resource usingThis 'Microsoft...' = {
+  name: 'example'
+  location: 'eastus'
+  properties: {
+    property1: this.exists() ? 'resource exists' : 'resource does not exist'
+    property2: this.existingResource().?properties.?property2
+    property3: this.existingResource().?tags
+  }
+}
+```
 
 ### `userDefinedConstraints`
 
@@ -84,19 +91,15 @@ Enables the `@validate()` decorator on types, type properties, parameters, and o
 param p string
 ```
 
-### `waitAndRetry`
+### `waitUntil`
 
-The feature introduces waitUntil and retryOn decorators on resource data type. waitUnitl() decorator waits for the resource until its usable based on the desired property's state. retryOn() will retry the deployment if one if the listed exception codes are encountered.
+The feature introduces waitUntil decorators on resource data type. waitUntil() decorator waits for the resource until its usable based on the desired property's state. 
 
 ## Other experimental functionality
 
 ### `publish-extension` CLI Command
 
 Command that allows the publishing of extensions to container registries. For more information, see [Using the Publish Extension Command](./experimental/publish-extension-command.md).
-
-### `snapshot` CLI Command
-
-Generate a normalized list of resources to file, which can then be used to generate a visual diff for changes. For more information, see [Using the Snapshot Command](./experimental/snapshot-command.md).
 
 ### Bicep MCP Server
 

@@ -616,6 +616,114 @@ param stringParam =  /*TODO*/
         }
 
         [TestMethod]
+        public void Nested_extends_object_spread_with_base_should_succeed()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("bicepconfig.json", @"
+                {
+                    ""experimentalFeaturesEnabled"": {
+                        ""extendableParamFiles"": true
+                    }
+                }
+              "),
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'middle.bicepparam'
+                param tags = {
+                  ...base.tags
+                  tagC: 'valueC'
+                }
+              "),
+              ("middle.bicepparam", @"
+                using none
+                extends 'base.bicepparam'
+                param tags = {
+                  ...base.tags
+                  tagB: 'valueB'
+                }
+              "),
+              ("base.bicepparam", @"
+                using none
+                param tags = {
+                  tagA: 'valueA'
+                }
+              "),
+              ("main.bicep", @"
+                param tags object
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Parameters.Should().DeepEqual(JToken.Parse(@"{
+                ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+                ""contentVersion"": ""1.0.0.0"",
+                ""parameters"": {
+                    ""tags"": {
+                        ""value"": {
+                            ""tagA"": ""valueA"",
+                            ""tagB"": ""valueB"",
+                            ""tagC"": ""valueC""
+                        }
+                    }
+                }
+            }"));
+        }
+
+        [TestMethod]
+        public void Nested_extends_array_spread_with_base_should_succeed()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("bicepconfig.json", @"
+                {
+                    ""experimentalFeaturesEnabled"": {
+                        ""extendableParamFiles"": true
+                    }
+                }
+              "),
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'middle.bicepparam'
+                param values = [
+                  ...base.values
+                  'valueC'
+                ]
+              "),
+              ("middle.bicepparam", @"
+                using none
+                extends 'base.bicepparam'
+                param values = [
+                  ...base.values
+                  'valueB'
+                ]
+              "),
+              ("base.bicepparam", @"
+                using none
+                param values = [
+                  'valueA'
+                ]
+              "),
+              ("main.bicep", @"
+                param values array
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Parameters.Should().DeepEqual(JToken.Parse(@"{
+                ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+                ""contentVersion"": ""1.0.0.0"",
+                ""parameters"": {
+                    ""values"": {
+                        ""value"": [
+                            ""valueA"",
+                            ""valueB"",
+                            ""valueC""
+                        ]
+                    }
+                }
+            }"));
+        }
+
+        [TestMethod]
         public void Decorators_on_using_param_and_extends_statements_should_raise_errors()
         {
             var result = CompilationHelper.CompileParams(
@@ -661,6 +769,144 @@ param stringParam =  /*TODO*/
                 @secure()
                 param secureParam string
             ");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void ExternalInput_nested_in_function_call_with_extends_should_succeed()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("bicepconfig.json", @"
+                {
+                    ""experimentalFeaturesEnabled"": {
+                        ""extendableParamFiles"": true
+                    }
+                }
+              "),
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+                param endpointWeight = 50
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param trafficManagerEnabled = bool(externalInput('scopeBinding', '__TRAFFICMANAGER_ENABLED__'))
+              "),
+              ("main.bicep", @"
+                param trafficManagerEnabled bool
+                param endpointWeight int
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void Deeply_nested_function_calls_with_extends_should_succeed()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("bicepconfig.json", @"
+                {
+                    ""experimentalFeaturesEnabled"": {
+                        ""extendableParamFiles"": true
+                    }
+                }
+              "),
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param foo = string(int(externalInput('custom', 'value')))
+              "),
+              ("main.bicep", @"
+                param foo string
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void Function_calls_in_objects_with_extends_should_succeed()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("bicepconfig.json", @"
+                {
+                    ""experimentalFeaturesEnabled"": {
+                        ""extendableParamFiles"": true
+                    }
+                }
+              "),
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param config = {
+                  enabled: bool(externalInput('binding', 'enabled'))
+                  count: int(externalInput('binding', 'count'))
+                }
+              "),
+              ("main.bicep", @"
+                param config object
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void Function_calls_in_arrays_with_extends_should_succeed()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("bicepconfig.json", @"
+                {
+                    ""experimentalFeaturesEnabled"": {
+                        ""extendableParamFiles"": true
+                    }
+                }
+              "),
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param items = [
+                  int(externalInput('binding', 'item1'))
+                  int(externalInput('binding', 'item2'))
+                ]
+              "),
+              ("main.bicep", @"
+                param items array
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void Ternary_with_nested_function_calls_with_extends_should_succeed()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("bicepconfig.json", @"
+                {
+                    ""experimentalFeaturesEnabled"": {
+                        ""extendableParamFiles"": true
+                    }
+                }
+              "),
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param value = bool(externalInput('binding', 'condition')) ? int(externalInput('binding', 'trueVal')) : 0
+              "),
+              ("main.bicep", @"
+                param value int
+              "));
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }

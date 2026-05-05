@@ -140,18 +140,61 @@ resource resourceC 'My.Rp/myResource@2020-01-01' = {
 
             using (new AssertionScope())
             {
-                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].scope", "[format('My.Rp/myResource/{0}', 'resourceA')]");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].scope", "[resourceId('My.Rp/myResource', 'resourceA')]");
                 template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].dependsOn[0]", "[resourceId('My.Rp/myResource', 'resourceA')]");
 
-                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceC')].scope", "[extensionResourceId(format('My.Rp/myResource/{0}', 'resourceA'), 'My.Rp/myResource', 'resourceB')]");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceC')].scope", "[extensionResourceId(resourceId('My.Rp/myResource', 'resourceA'), 'My.Rp/myResource', 'resourceB')]");
                 template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceC')].dependsOn[0]", "[extensionResourceId(resourceId('My.Rp/myResource', 'resourceA'), 'My.Rp/myResource', 'resourceB')]");
             }
         }
 
-        [DataRow("tenant", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(tenantResourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
-        [DataRow("managementGroup", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(extensionResourceId(managementGroup().id, 'My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
-        [DataRow("subscription", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(subscriptionResourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
-        [DataRow("resourceGroup", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(resourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
+        //https://github.com/Azure/bicep/issues/18097
+        [TestMethod]
+        public void Emitter_should_generate_fullyQualifiedResourceId_in_extension_scope_property_and_correct_dependsOn()
+        {
+            //tenant scope resource and its extension resource can be deployed from anywhere
+            var (template, _, _) = CompilationHelper.Compile(@"
+resource resourceA 'My.Rp/myResource@2020-01-01' = {
+  name: 'resourceA'
+  scope: tenant()
+}
+
+resource resourceB 'My.Rp/myResource@2020-01-01' = {
+  scope: resourceA
+  name: 'resourceB'
+}");
+
+            using (new AssertionScope())
+            {
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceA')].scope", "/");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].scope", "[tenantResourceId('My.Rp/myResource', 'resourceA')]");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].dependsOn[0]", "[tenantResourceId('My.Rp/myResource', 'resourceA')]");
+            }
+
+            // existing tenant resource and its extension resource can be deployed from anywhere
+            var (template1, _, _) = CompilationHelper.Compile(@"
+resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
+  name: 'resourceA'
+  scope: tenant()
+}
+
+resource resourceB 'My.Rp/myResource@2020-01-01' = {
+  scope: resourceA
+  name: 'resourceB'
+}");
+
+            using (new AssertionScope())
+            {
+                template1.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].scope", "[tenantResourceId('My.Rp/myResource', 'resourceA')]");
+            }
+
+
+        }
+
+        [DataRow("tenant", "[tenantResourceId('My.Rp/myResource', 'resourceA')]", "[reference(tenantResourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
+        [DataRow("managementGroup", "[extensionResourceId(managementGroup().id, 'My.Rp/myResource', 'resourceA')]", "[reference(extensionResourceId(managementGroup().id, 'My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
+        [DataRow("subscription", "[subscriptionResourceId('My.Rp/myResource', 'resourceA')]", "[reference(subscriptionResourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
+        [DataRow("resourceGroup", "[resourceId('My.Rp/myResource', 'resourceA')]", "[reference(resourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
         [DataTestMethod]
         public void Emitter_should_generate_correct_references_for_existing_resources(string targetScope, string expectedScopeExpression, string expectedReferenceExpression)
         {
@@ -314,7 +357,7 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
             {
                 diags.Should().BeEmpty();
 
-                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].scope", "[format('My.Rp/myResource/{0}', 'resourceA')]");
+                template.Should().HaveValueAtPath("$.resources[?(@.name == 'resourceB')].scope", "[resourceId('My.Rp/myResource', 'resourceA')]");
             }
         }
 

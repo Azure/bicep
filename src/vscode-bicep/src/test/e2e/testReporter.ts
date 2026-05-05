@@ -31,6 +31,6 @@ export default class TestReporter implements Pick<Reporter, "onTestResult" | "on
   onRunComplete(_contexts: Set<TestContext>, results: AggregatedResult): void {
     console.log("");
     console.log(`Test Suites: ${results.numPassedTestSuites} passed, ${results.numTotalTestSuites} total`);
-    console.log(`Tests:       ${results.numPassedTestSuites} passed, ${results.numTotalTestSuites} total`);
+    console.log(`Tests:       ${results.numPassedTests} passed, ${results.numTotalTests} total`);
   }
 }

@@ -18,11 +18,6 @@ public record TestEnvironment(ImmutableDictionary<string, string?> Variables, st
     public readonly static TestEnvironment Default = new([], System.Environment.CurrentDirectory);
     private readonly IEnvironment realEnvironment = new Core.Utils.Environment();
 
-    public TestEnvironment(Dictionary<string, string?> variables, string currentDirectory)
-        : this(variables.ToImmutableDictionary(), currentDirectory)
-    {
-    }
-
     public IEnvironment WithVariables(params (string key, string? value)[] variables) =>
         this with { Variables = variables.ToImmutableDictionary(x => x.key, x => x.value) };
 

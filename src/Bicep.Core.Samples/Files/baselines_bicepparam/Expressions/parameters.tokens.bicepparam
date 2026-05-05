@@ -733,5 +733,68 @@ THis
         string!
 '''
 //@[03:04) NewLine |\n|
+param kvSecret = az.getSecret('subId', 'rgName', 'kvName', 'secretName', 'secretVersion')
+//@[00:05) Identifier |param|
+//@[06:14) Identifier |kvSecret|
+//@[15:16) Assignment |=|
+//@[17:19) Identifier |az|
+//@[19:20) Dot |.|
+//@[20:29) Identifier |getSecret|
+//@[29:30) LeftParen |(|
+//@[30:37) StringComplete |'subId'|
+//@[37:38) Comma |,|
+//@[39:47) StringComplete |'rgName'|
+//@[47:48) Comma |,|
+//@[49:57) StringComplete |'kvName'|
+//@[57:58) Comma |,|
+//@[59:71) StringComplete |'secretName'|
+//@[71:72) Comma |,|
+//@[73:88) StringComplete |'secretVersion'|
+//@[88:89) RightParen |)|
+//@[89:90) NewLine |\n|
+param kvSecretExpression = az.getSecret(
+//@[00:05) Identifier |param|
+//@[06:24) Identifier |kvSecretExpression|
+//@[25:26) Assignment |=|
+//@[27:29) Identifier |az|
+//@[29:30) Dot |.|
+//@[30:39) Identifier |getSecret|
+//@[39:40) LeftParen |(|
+//@[40:41) NewLine |\n|
+  externalInput('subId'), 
+//@[02:15) Identifier |externalInput|
+//@[15:16) LeftParen |(|
+//@[16:23) StringComplete |'subId'|
+//@[23:24) RightParen |)|
+//@[24:25) Comma |,|
+//@[26:27) NewLine |\n|
+  externalInput('rgName'), 
+//@[02:15) Identifier |externalInput|
+//@[15:16) LeftParen |(|
+//@[16:24) StringComplete |'rgName'|
+//@[24:25) RightParen |)|
+//@[25:26) Comma |,|
+//@[27:28) NewLine |\n|
+  externalInput('kvName'), 
+//@[02:15) Identifier |externalInput|
+//@[15:16) LeftParen |(|
+//@[16:24) StringComplete |'kvName'|
+//@[24:25) RightParen |)|
+//@[25:26) Comma |,|
+//@[27:28) NewLine |\n|
+  externalInput('secretName'), 
+//@[02:15) Identifier |externalInput|
+//@[15:16) LeftParen |(|
+//@[16:28) StringComplete |'secretName'|
+//@[28:29) RightParen |)|
+//@[29:30) Comma |,|
+//@[31:32) NewLine |\n|
+  externalInput('secretVersion'))
+//@[02:15) Identifier |externalInput|
+//@[15:16) LeftParen |(|
+//@[16:31) StringComplete |'secretVersion'|
+//@[31:32) RightParen |)|
+//@[32:33) RightParen |)|
+//@[33:34) NewLine |\n|
 
 //@[00:00) EndOfFile ||

@@ -20,7 +20,7 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class ParameterUsingWithTests
 {
-    private static readonly ServiceBuilder Services = new ServiceBuilder()
+    private static ServiceBuilder Services => new ServiceBuilder()
         .WithFeatureOverrides(new(DeployCommandsEnabled: true));
 
     [NotNull]
@@ -47,6 +47,25 @@ param foo string
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
             ("BCP435", DiagnosticLevel.Error, """Using the "with" keyword with a "using" statement requires enabling EXPERIMENTAL feature "DeployCommands"."""),
+        ]);
+    }
+
+    [TestMethod]
+    public void Using_with_clause_required_if_experimental_feature_enabled()
+    {
+        // https://github.com/Azure/bicep/issues/18328
+        var result = CompilationHelper.CompileParams(Services,
+            ("parameters.bicepparam", """
+using 'main.bicep'
+
+param foo = 'foo/bar/baz'
+"""),
+            ("main.bicep", """
+param foo string
+"""));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+            ("BCP443", DiagnosticLevel.Error, """The "using" statement requires a "with" clause if the EXPERIMENTAL feature "DeployCommands" is enabled."""),
         ]);
     }
 

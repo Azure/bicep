@@ -100,9 +100,9 @@ var testJson = json(loadTextContent('./Assets/test.json.txt'))
 var testJsonString = testJson.string
 //@[4:18) Variable testJsonString. Type: 'someVal'. Declaration start char: 0, length: 36
 var testJsonInt = testJson.int
-//@[4:15) Variable testJsonInt. Type: int. Declaration start char: 0, length: 30
+//@[4:15) Variable testJsonInt. Type: 123. Declaration start char: 0, length: 30
 var testJsonArrayVal = testJson.array[0]
-//@[4:20) Variable testJsonArrayVal. Type: int. Declaration start char: 0, length: 40
+//@[4:20) Variable testJsonArrayVal. Type: 1 | 2. Declaration start char: 0, length: 40
 var testJsonObject = testJson.object
 //@[4:18) Variable testJsonObject. Type: object. Declaration start char: 0, length: 36
 var testJsonNestedString = testJson.object.nestedString
@@ -115,13 +115,13 @@ var testJsonString2 = testJson.string
 var testJsonString2_1 = loadJsonContent('./Assets/test.json.txt', '.string')
 //@[4:21) Variable testJsonString2_1. Type: 'someVal'. Declaration start char: 0, length: 76
 var testJsonInt2 = testJson.int
-//@[4:16) Variable testJsonInt2. Type: int. Declaration start char: 0, length: 31
+//@[4:16) Variable testJsonInt2. Type: 123. Declaration start char: 0, length: 31
 var testJsonInt2_1 = loadJsonContent('./Assets/test.json.txt', '.int')
-//@[4:18) Variable testJsonInt2_1. Type: int. Declaration start char: 0, length: 70
+//@[4:18) Variable testJsonInt2_1. Type: 123. Declaration start char: 0, length: 70
 var testJsonArrayVal2 = testJson.array[0]
-//@[4:21) Variable testJsonArrayVal2. Type: int. Declaration start char: 0, length: 41
+//@[4:21) Variable testJsonArrayVal2. Type: 1 | 2. Declaration start char: 0, length: 41
 var testJsonArrayVal2_1 = loadJsonContent('./Assets/test.json.txt', '.array[0]')
-//@[4:23) Variable testJsonArrayVal2_1. Type: int. Declaration start char: 0, length: 80
+//@[4:23) Variable testJsonArrayVal2_1. Type: 1. Declaration start char: 0, length: 80
 var testJsonObject2 = testJson.object
 //@[4:19) Variable testJsonObject2. Type: object. Declaration start char: 0, length: 37
 var testJsonObject2_1 = loadJsonContent('./Assets/test.json.txt', '.object')
@@ -146,29 +146,29 @@ var testYaml = loadYamlContent('./Assets/test.yaml.txt')
 var testYamlString = testYaml.string
 //@[4:18) Variable testYamlString. Type: 'someVal'. Declaration start char: 0, length: 36
 var testYamlInt = testYaml.int
-//@[4:15) Variable testYamlInt. Type: int. Declaration start char: 0, length: 30
+//@[4:15) Variable testYamlInt. Type: 123. Declaration start char: 0, length: 30
 var testYamlBool = testYaml.bool
-//@[4:16) Variable testYamlBool. Type: bool. Declaration start char: 0, length: 32
+//@[4:16) Variable testYamlBool. Type: true. Declaration start char: 0, length: 32
 var testYamlArrayInt = testYaml.arrayInt
-//@[4:20) Variable testYamlArrayInt. Type: int[]. Declaration start char: 0, length: 40
+//@[4:20) Variable testYamlArrayInt. Type: (1 | 2)[]. Declaration start char: 0, length: 40
 var testYamlArrayIntVal = testYaml.arrayInt[0]
-//@[4:23) Variable testYamlArrayIntVal. Type: int. Declaration start char: 0, length: 46
+//@[4:23) Variable testYamlArrayIntVal. Type: 1 | 2. Declaration start char: 0, length: 46
 var testYamlArrayString = testYaml.arrayString
 //@[4:23) Variable testYamlArrayString. Type: ('someVal' | 'someVal2')[]. Declaration start char: 0, length: 46
 var testYamlArrayStringVal = testYaml.arrayString[0]
 //@[4:26) Variable testYamlArrayStringVal. Type: 'someVal' | 'someVal2'. Declaration start char: 0, length: 52
 var testYamlArrayBool = testYaml.arrayBool
-//@[4:21) Variable testYamlArrayBool. Type: bool[]. Declaration start char: 0, length: 42
+//@[4:21) Variable testYamlArrayBool. Type: true[]. Declaration start char: 0, length: 42
 var testYamlArrayBoolVal = testYaml.arrayBool[0]
-//@[4:24) Variable testYamlArrayBoolVal. Type: bool. Declaration start char: 0, length: 48
+//@[4:24) Variable testYamlArrayBoolVal. Type: true. Declaration start char: 0, length: 48
 var testYamlObject = testYaml.object
 //@[4:18) Variable testYamlObject. Type: object. Declaration start char: 0, length: 36
 var testYamlObjectNestedString = testYaml.object.nestedString
 //@[4:30) Variable testYamlObjectNestedString. Type: 'someVal'. Declaration start char: 0, length: 61
 var testYamlObjectNestedInt = testYaml.object.nestedInt
-//@[4:27) Variable testYamlObjectNestedInt. Type: int. Declaration start char: 0, length: 55
+//@[4:27) Variable testYamlObjectNestedInt. Type: 123. Declaration start char: 0, length: 55
 var testYamlObjectNestedBool = testYaml.object.nestedBool
-//@[4:28) Variable testYamlObjectNestedBool. Type: bool. Declaration start char: 0, length: 57
+//@[4:28) Variable testYamlObjectNestedBool. Type: true. Declaration start char: 0, length: 57
 
 output testYamlString string = testYamlString
 //@[7:21) Output testYamlString. Type: string. Declaration start char: 0, length: 45

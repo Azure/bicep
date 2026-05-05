@@ -366,6 +366,7 @@ var intJson = json('123')
 var floatJson = json('1234.1224')
 var stringJson = json('""hello!""')
 var nullJson = json('null')
+var boolJson = json('true')
 var jsonWithComments = json('''
 {
     //here's a comment!
@@ -385,10 +386,11 @@ var invalidPropAccess = objectJson.invalidProp
             GetTypeForNamedSymbol(model, "objectJson").Name.Should().Be("object");
             GetTypeForNamedSymbol(model, "propAccess").Name.Should().Be("'validValue'");
 
-            GetTypeForNamedSymbol(model, "intJson").Name.Should().Be("int");
+            GetTypeForNamedSymbol(model, "intJson").Name.Should().Be("123");
             GetTypeForNamedSymbol(model, "floatJson").Name.Should().Be("any");
             GetTypeForNamedSymbol(model, "stringJson").Name.Should().Be("'hello!'");
             GetTypeForNamedSymbol(model, "nullJson").Name.Should().Be("null");
+            GetTypeForNamedSymbol(model, "boolJson").Name.Should().Be("true");
             GetTypeForNamedSymbol(model, "commentsPropAccess").Name.Should().Be("'value'");
 
             GetTypeForNamedSymbol(model, "invalidPropAccess").Name.Should().Be("error");

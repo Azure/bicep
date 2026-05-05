@@ -15,5 +15,6 @@
       "type": "request@v1"
     }
   ],
-  "diagnostics": []
+  "diagnostics": [],
+  "outputs": {}
 }

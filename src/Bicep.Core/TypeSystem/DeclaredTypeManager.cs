@@ -245,7 +245,9 @@ namespace Bicep.Core.TypeSystem
 
             if (semanticModel.Parameters.TryGetValue(syntax.Name.IdentifierName, out var parameterMetadata))
             {
-                return parameterMetadata.TypeReference.Type;
+                var type = parameterMetadata.TypeReference.Type;
+
+                return resourceDerivedTypeResolver.ResolveResourceDerivedTypes(type);
             }
 
             return null;
@@ -1295,6 +1297,10 @@ namespace Bicep.Core.TypeSystem
                 case WildcardImportSymbol wildcardImportSymbol:
                     return new DeclaredTypeAssignment(wildcardImportSymbol.Type, declaringSyntax: null);
 
+                case LocalThisNamespaceSymbol localThisNamespace:
+                    // the syntax node is referencing a local 'this' namespace - use its declared type
+                    return new DeclaredTypeAssignment(localThisNamespace.DeclaredType, declaringSyntax: null);
+
                 case DeclaredSymbol declaredSymbol when IsCycleFree(declaredSymbol):
                     // the syntax node is referencing a declared symbol
                     // use its declared type
@@ -1865,7 +1871,8 @@ namespace Bicep.Core.TypeSystem
                     if (GetDeclaredTypeAssignment(parent) is not { } parameterAssignmentTypeAssignment)
                     {
                         return null;
-                    };
+                    }
+                    ;
 
                     return TryCreateAssignment(parameterAssignmentTypeAssignment.Reference.Type, syntax);
 
@@ -2092,6 +2099,13 @@ namespace Bicep.Core.TypeSystem
         private TypeSymbol GetDeclaredResourceType(ResourceDeclarationSyntax resource)
         {
             // NOTE: this is closely related to the logic in the other overload. Keep them in sync.
+            if (resource.Type.IsSkipped)
+            {
+                // Parser diagnostics already describe missing or malformed type syntax here.
+                // Short-circuit to avoid emitting a second generic invalid resource type diagnostic.
+                return ErrorType.Empty();
+            }
+
             var stringSyntax = resource.TypeString;
 
             if (stringSyntax != null && stringSyntax.IsInterpolated())

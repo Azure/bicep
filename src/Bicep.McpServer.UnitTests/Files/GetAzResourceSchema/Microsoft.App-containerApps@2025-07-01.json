@@ -1,0 +1,1603 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Microsoft.App/containerApps@2025-07-01",
+  "description": "Bicep resource schema for Microsoft.App/containerApps@2025-07-01",
+  "x-bicep-resource-flags": "None",
+  "x-bicep-resource-readable-scopes": "ResourceGroup",
+  "x-bicep-resource-writable-scopes": "ResourceGroup",
+  "x-bicep-resource-functions": [
+    {
+      "name": "listCustomHostNameAnalysis",
+      "apiVersion": "2025-07-01",
+      "output": {
+        "$ref": "#/$defs/CustomHostnameAnalysisResult"
+      }
+    },
+    {
+      "name": "listSecrets",
+      "apiVersion": "2025-07-01",
+      "output": {
+        "$ref": "#/$defs/SecretsCollection"
+      }
+    }
+  ],
+  "type": "object",
+  "properties": {
+    "apiVersion": {
+      "const": "2025-07-01",
+      "description": "The resource api version",
+      "readOnly": true,
+      "x-bicep-deploy-time-constant": true
+    },
+    "extendedLocation": {
+      "$ref": "#/$defs/ExtendedLocation",
+      "description": "The complex type of the extended location."
+    },
+    "id": {
+      "type": "string",
+      "description": "The resource id",
+      "readOnly": true,
+      "x-bicep-deploy-time-constant": true
+    },
+    "identity": {
+      "$ref": "#/$defs/ManagedServiceIdentity",
+      "description": "managed identities for the Container App to interact with other Azure services without maintaining any secrets or credentials in code."
+    },
+    "kind": {
+      "anyOf": [
+        {
+          "enum": [
+            "workflowapp",
+            "functionapp"
+          ]
+        },
+        {
+          "type": "string"
+        }
+      ],
+      "description": "Metadata to represent the container app kind, representing if a container app is workflowapp or functionapp."
+    },
+    "location": {
+      "type": "string",
+      "description": "The geo-location where the resource lives"
+    },
+    "managedBy": {
+      "type": "string",
+      "description": "The fully qualified resource ID of the resource that manages this resource. Indicates if this resource is managed by another Azure resource. If this is present, complete mode deployment will not delete the resource if it is removed from the template since it is managed by another resource."
+    },
+    "name": {
+      "type": "string",
+      "description": "The resource name",
+      "x-bicep-deploy-time-constant": true
+    },
+    "properties": {
+      "$ref": "#/$defs/ContainerAppProperties",
+      "description": "ContainerApp resource specific properties"
+    },
+    "systemData": {
+      "$ref": "#/$defs/SystemData",
+      "description": "Azure Resource Manager metadata containing createdBy and modifiedBy information.",
+      "readOnly": true
+    },
+    "tags": {
+      "$ref": "#/$defs/TrackedResourceTags",
+      "description": "Resource tags."
+    },
+    "type": {
+      "const": "Microsoft.App/containerApps",
+      "description": "The resource type",
+      "readOnly": true,
+      "x-bicep-deploy-time-constant": true
+    }
+  },
+  "required": [
+    "location",
+    "name"
+  ],
+  "$defs": {
+    "Configuration": {
+      "type": "object",
+      "properties": {
+        "activeRevisionsMode": {
+          "anyOf": [
+            {
+              "enum": [
+                "Multiple",
+                "Single"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "ActiveRevisionsMode controls how active revisions are handled for the Container app:\n<list><item>Multiple: multiple revisions can be active.</item><item>Single: Only one revision can be active at a time. Revision weights can not be used in this mode. If no value if provided, this is the default.</item></list>"
+        },
+        "dapr": {
+          "$ref": "#/$defs/Dapr",
+          "description": "Dapr configuration for the Container App."
+        },
+        "identitySettings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/IdentitySettings"
+          },
+          "description": "Optional settings for Managed Identities that are assigned to the Container App. If a Managed Identity is not specified here, default settings will be used."
+        },
+        "ingress": {
+          "$ref": "#/$defs/Ingress",
+          "description": "Ingress configurations."
+        },
+        "maxInactiveRevisions": {
+          "type": "integer",
+          "description": "Optional. Max inactive revisions a Container App can have."
+        },
+        "registries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RegistryCredentials"
+          },
+          "description": "Collection of private container registry credentials for containers used by the Container app"
+        },
+        "runtime": {
+          "$ref": "#/$defs/Runtime",
+          "description": "App runtime configuration for the Container App."
+        },
+        "secrets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Secret"
+          },
+          "description": "Collection of secrets used by a Container app"
+        },
+        "service": {
+          "$ref": "#/$defs/Service",
+          "description": "Container App to be a dev Container App Service"
+        }
+      }
+    },
+    "Container": {
+      "type": "object",
+      "properties": {
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Container start command arguments."
+        },
+        "command": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Container start command."
+        },
+        "env": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EnvironmentVar"
+          },
+          "description": "Container environment variables."
+        },
+        "image": {
+          "type": "string",
+          "description": "Container image tag."
+        },
+        "name": {
+          "type": "string",
+          "description": "Custom container name."
+        },
+        "probes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContainerAppProbe"
+          },
+          "description": "List of probes for the container."
+        },
+        "resources": {
+          "$ref": "#/$defs/ContainerResources",
+          "description": "Container resource requirements."
+        },
+        "volumeMounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VolumeMount"
+          },
+          "description": "Container volume mounts."
+        }
+      }
+    },
+    "ContainerAppProbe": {
+      "type": "object",
+      "properties": {
+        "failureThreshold": {
+          "type": "integer",
+          "description": "Minimum consecutive failures for the probe to be considered failed after having succeeded. Defaults to 3. Minimum value is 1. Maximum value is 10."
+        },
+        "httpGet": {
+          "$ref": "#/$defs/ContainerAppProbeHttpGet",
+          "description": "HTTPGet specifies the http request to perform."
+        },
+        "initialDelaySeconds": {
+          "type": "integer",
+          "description": "Number of seconds after the container has started before liveness probes are initiated. Minimum value is 1. Maximum value is 60."
+        },
+        "periodSeconds": {
+          "type": "integer",
+          "description": "How often (in seconds) to perform the probe. Default to 10 seconds. Minimum value is 1. Maximum value is 240."
+        },
+        "successThreshold": {
+          "type": "integer",
+          "description": "Minimum consecutive successes for the probe to be considered successful after having failed. Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1. Maximum value is 10."
+        },
+        "tcpSocket": {
+          "$ref": "#/$defs/ContainerAppProbeTcpSocket",
+          "description": "TCPSocket specifies an action involving a TCP port. TCP hooks not yet supported."
+        },
+        "terminationGracePeriodSeconds": {
+          "type": "integer",
+          "description": "Optional duration in seconds the pod needs to terminate gracefully upon probe failure. The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process. If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this value overrides the value provided by the pod spec. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). This is an alpha field and requires enabling ProbeTerminationGracePeriod feature gate. Maximum value is 3600 seconds (1 hour)"
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "description": "Number of seconds after which the probe times out. Defaults to 1 second. Minimum value is 1. Maximum value is 240."
+        },
+        "type": {
+          "anyOf": [
+            {
+              "enum": [
+                "Liveness",
+                "Readiness",
+                "Startup"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The type of probe."
+        }
+      }
+    },
+    "ContainerAppProbeHttpGet": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string",
+          "description": "Host name to connect to, defaults to the pod IP. You probably want to set \"Host\" in httpHeaders instead."
+        },
+        "httpHeaders": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContainerAppProbeHttpGetHttpHeadersItem"
+          },
+          "description": "Custom headers to set in the request. HTTP allows repeated headers."
+        },
+        "path": {
+          "type": "string",
+          "description": "Path to access on the HTTP server."
+        },
+        "port": {
+          "type": "integer",
+          "description": "Name or number of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
+        },
+        "scheme": {
+          "anyOf": [
+            {
+              "enum": [
+                "HTTP",
+                "HTTPS"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Scheme to use for connecting to the host. Defaults to HTTP."
+        }
+      },
+      "required": [
+        "port"
+      ]
+    },
+    "ContainerAppProbeHttpGetHttpHeadersItem": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The header field name"
+        },
+        "value": {
+          "type": "string",
+          "description": "The header field value"
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ]
+    },
+    "ContainerAppProbeTcpSocket": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string",
+          "description": "Optional: Host name to connect to, defaults to the pod IP."
+        },
+        "port": {
+          "type": "integer",
+          "description": "Number or name of the port to access on the container. Number must be in the range 1 to 65535. Name must be an IANA_SVC_NAME."
+        }
+      },
+      "required": [
+        "port"
+      ]
+    },
+    "ContainerAppProperties": {
+      "type": "object",
+      "properties": {
+        "configuration": {
+          "$ref": "#/$defs/Configuration",
+          "description": "Non versioned Container App configuration properties."
+        },
+        "customDomainVerificationId": {
+          "type": "string",
+          "description": "Id used to verify domain name ownership",
+          "readOnly": true
+        },
+        "environmentId": {
+          "type": "string",
+          "description": "Resource ID of environment."
+        },
+        "eventStreamEndpoint": {
+          "type": "string",
+          "description": "The endpoint of the eventstream of the container app.",
+          "readOnly": true
+        },
+        "latestReadyRevisionName": {
+          "type": "string",
+          "description": "Name of the latest ready revision of the Container App.",
+          "readOnly": true
+        },
+        "latestRevisionFqdn": {
+          "type": "string",
+          "description": "Fully Qualified Domain Name of the latest revision of the Container App.",
+          "readOnly": true
+        },
+        "latestRevisionName": {
+          "type": "string",
+          "description": "Name of the latest revision of the Container App.",
+          "readOnly": true
+        },
+        "managedEnvironmentId": {
+          "type": "string",
+          "description": "Deprecated. Resource ID of the Container App's environment."
+        },
+        "outboundIpAddresses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Outbound IP Addresses for container app.",
+          "readOnly": true
+        },
+        "provisioningState": {
+          "anyOf": [
+            {
+              "enum": [
+                "InProgress",
+                "Succeeded",
+                "Failed",
+                "Canceled",
+                "Deleting"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Provisioning state of the Container App.",
+          "readOnly": true
+        },
+        "runningStatus": {
+          "anyOf": [
+            {
+              "enum": [
+                "Progressing",
+                "Running",
+                "Stopped",
+                "Suspended",
+                "Ready"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Running status of the Container App.",
+          "readOnly": true
+        },
+        "template": {
+          "$ref": "#/$defs/Template",
+          "description": "Container App versioned application definition."
+        },
+        "workloadProfileName": {
+          "type": "string",
+          "description": "Workload profile name to pin for container app execution."
+        }
+      }
+    },
+    "ContainerAppSecret": {
+      "type": "object",
+      "properties": {
+        "identity": {
+          "type": "string",
+          "description": "Resource ID of a managed identity to authenticate with Azure Key Vault, or System to use a system-assigned identity.",
+          "readOnly": true
+        },
+        "keyVaultUrl": {
+          "type": "string",
+          "description": "Azure Key Vault URL pointing to the secret referenced by the container app.",
+          "readOnly": true
+        },
+        "name": {
+          "type": "string",
+          "description": "Secret Name.",
+          "readOnly": true
+        },
+        "value": {
+          "type": "string",
+          "description": "Secret Value.",
+          "readOnly": true,
+          "x-bicep-sensitive": true
+        }
+      }
+    },
+    "ContainerResources": {
+      "type": "object",
+      "properties": {
+        "cpu": {
+          "type": "integer",
+          "description": "Required CPU in cores, e.g. 0.5"
+        },
+        "ephemeralStorage": {
+          "type": "string",
+          "description": "Ephemeral Storage, e.g. \"1Gi\"",
+          "readOnly": true
+        },
+        "memory": {
+          "type": "string",
+          "description": "Required memory, e.g. \"250Mb\""
+        }
+      }
+    },
+    "CorsPolicy": {
+      "type": "object",
+      "properties": {
+        "allowCredentials": {
+          "type": "boolean",
+          "description": "Specifies whether the resource allows credentials"
+        },
+        "allowedHeaders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specifies the content for the access-control-allow-headers header"
+        },
+        "allowedMethods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specifies the content for the access-control-allow-methods header"
+        },
+        "allowedOrigins": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specifies the content for the access-control-allow-origins header"
+        },
+        "exposeHeaders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Specifies the content for the access-control-expose-headers header"
+        },
+        "maxAge": {
+          "type": "integer",
+          "description": "Specifies the content for the access-control-max-age header"
+        }
+      },
+      "required": [
+        "allowedOrigins"
+      ]
+    },
+    "CustomDomain": {
+      "type": "object",
+      "properties": {
+        "bindingType": {
+          "anyOf": [
+            {
+              "enum": [
+                "Disabled",
+                "SniEnabled",
+                "Auto"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Custom Domain binding type."
+        },
+        "certificateId": {
+          "type": "string",
+          "description": "Resource Id of the Certificate to be bound to this hostname. Must exist in the Managed Environment."
+        },
+        "name": {
+          "type": "string",
+          "description": "Hostname."
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "CustomHostnameAnalysisResult": {
+      "type": "object",
+      "properties": {
+        "alternateCNameRecords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Alternate CName records visible for this hostname."
+        },
+        "alternateTxtRecords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Alternate TXT records visible for this hostname."
+        },
+        "aRecords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A records visible for this hostname."
+        },
+        "cNameRecords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "CName records visible for this hostname."
+        },
+        "conflictingContainerAppResourceId": {
+          "type": "string",
+          "description": "Name of the conflicting Container App on the Managed Environment if it's within the same subscription.",
+          "readOnly": true
+        },
+        "conflictWithEnvironmentCustomDomain": {
+          "type": "boolean",
+          "description": "<code>true</code> if there is a conflict on the Container App's managed environment level custom domain; otherwise, <code>false</code>.",
+          "readOnly": true
+        },
+        "customDomainVerificationFailureInfo": {
+          "$ref": "#/$defs/CustomHostnameAnalysisResultCustomDomainVerificationFailureInfo",
+          "description": "Raw failure information if DNS verification fails.",
+          "readOnly": true
+        },
+        "customDomainVerificationTest": {
+          "enum": [
+            "Passed",
+            "Failed",
+            "Skipped"
+          ],
+          "description": "DNS verification test result.",
+          "readOnly": true
+        },
+        "hasConflictOnManagedEnvironment": {
+          "type": "boolean",
+          "description": "<code>true</code> if there is a conflict on the Container App's managed environment; otherwise, <code>false</code>.",
+          "readOnly": true
+        },
+        "hostName": {
+          "type": "string",
+          "description": "Host name that was analyzed",
+          "readOnly": true
+        },
+        "isHostnameAlreadyVerified": {
+          "type": "boolean",
+          "description": "<code>true</code> if hostname is already verified; otherwise, <code>false</code>.",
+          "readOnly": true
+        },
+        "txtRecords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "TXT records visible for this hostname."
+        }
+      }
+    },
+    "CustomHostnameAnalysisResultCustomDomainVerificationFailureInfo": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Standardized string to programmatically identify the error.",
+          "readOnly": true
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CustomHostnameAnalysisResultCustomDomainVerificationFailureInfoDetailsItem"
+          },
+          "description": "Details or the error"
+        },
+        "message": {
+          "type": "string",
+          "description": "Detailed error description and debugging information.",
+          "readOnly": true
+        },
+        "target": {
+          "type": "string",
+          "description": "Detailed error description and debugging information.",
+          "readOnly": true
+        }
+      }
+    },
+    "CustomHostnameAnalysisResultCustomDomainVerificationFailureInfoDetailsItem": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Standardized string to programmatically identify the error.",
+          "readOnly": true
+        },
+        "message": {
+          "type": "string",
+          "description": "Detailed error description and debugging information.",
+          "readOnly": true
+        },
+        "target": {
+          "type": "string",
+          "description": "Detailed error description and debugging information.",
+          "readOnly": true
+        }
+      }
+    },
+    "CustomScaleRule": {
+      "type": "object",
+      "properties": {
+        "auth": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ScaleRuleAuth"
+          },
+          "description": "Authentication secrets for the custom scale rule."
+        },
+        "identity": {
+          "type": "string",
+          "description": "The resource ID of a user-assigned managed identity that is assigned to the Container App, or 'system' for system-assigned identity."
+        },
+        "metadata": {
+          "$ref": "#/$defs/CustomScaleRuleMetadata",
+          "description": "Metadata properties to describe custom scale rule."
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of the custom scale rule\neg: azure-servicebus, redis etc."
+        }
+      }
+    },
+    "CustomScaleRuleMetadata": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "Dapr": {
+      "type": "object",
+      "properties": {
+        "appHealth": {
+          "$ref": "#/$defs/DaprAppHealth",
+          "description": "Dapr application health check configuration"
+        },
+        "appId": {
+          "type": "string",
+          "description": "Dapr application identifier"
+        },
+        "appPort": {
+          "type": "integer",
+          "description": "Tells Dapr which port your application is listening on"
+        },
+        "appProtocol": {
+          "anyOf": [
+            {
+              "enum": [
+                "http",
+                "grpc"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Tells Dapr which protocol your application is using. Valid options are http and grpc. Default is http"
+        },
+        "enableApiLogging": {
+          "type": "boolean",
+          "description": "Enables API logging for the Dapr sidecar"
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Boolean indicating if the Dapr side car is enabled"
+        },
+        "httpMaxRequestSize": {
+          "type": "integer",
+          "description": "Increasing max size of request body http and grpc servers parameter in MB to handle uploading of big files. Default is 4 MB."
+        },
+        "httpReadBufferSize": {
+          "type": "integer",
+          "description": "Dapr max size of http header read buffer in KB to handle when sending multi-KB headers. Default is 65KB."
+        },
+        "logLevel": {
+          "anyOf": [
+            {
+              "enum": [
+                "info",
+                "debug",
+                "warn",
+                "error"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Sets the log level for the Dapr sidecar. Allowed values are debug, info, warn, error. Default is info."
+        },
+        "maxConcurrency": {
+          "type": "integer",
+          "description": "Maximum number of concurrent requests, events handled by the Dapr sidecar"
+        }
+      }
+    },
+    "DaprAppHealth": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Boolean indicating if the health probe is enabled"
+        },
+        "path": {
+          "type": "string",
+          "description": "Path for the health probe"
+        },
+        "probeIntervalSeconds": {
+          "type": "integer",
+          "description": "Interval for the health probe in seconds",
+          "minimum": 1
+        },
+        "probeTimeoutMilliseconds": {
+          "type": "integer",
+          "description": "Timeout for the health probe in milliseconds",
+          "minimum": 1
+        },
+        "threshold": {
+          "type": "integer",
+          "description": "Threshold for the health probe",
+          "minimum": 1
+        }
+      }
+    },
+    "EnvironmentVar": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Environment variable name."
+        },
+        "secretRef": {
+          "type": "string",
+          "description": "Name of the Container App secret from which to pull the environment variable value."
+        },
+        "value": {
+          "type": "string",
+          "description": "Non-secret environment variable value."
+        }
+      }
+    },
+    "ExtendedLocation": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the extended location."
+        },
+        "type": {
+          "anyOf": [
+            {
+              "enum": [
+                "CustomLocation"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The type of the extended location."
+        }
+      }
+    },
+    "HttpScaleRule": {
+      "type": "object",
+      "properties": {
+        "auth": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ScaleRuleAuth"
+          },
+          "description": "Authentication secrets for the custom scale rule."
+        },
+        "identity": {
+          "type": "string",
+          "description": "The resource ID of a user-assigned managed identity that is assigned to the Container App, or 'system' for system-assigned identity."
+        },
+        "metadata": {
+          "$ref": "#/$defs/HttpScaleRuleMetadata",
+          "description": "Metadata properties to describe http scale rule."
+        }
+      }
+    },
+    "HttpScaleRuleMetadata": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "IdentitySettings": {
+      "type": "object",
+      "properties": {
+        "identity": {
+          "type": "string",
+          "description": "The resource ID of a user-assigned managed identity that is assigned to the Container App, or 'system' for system-assigned identity."
+        },
+        "lifecycle": {
+          "anyOf": [
+            {
+              "enum": [
+                "Init",
+                "Main",
+                "None",
+                "All"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Use to select the lifecycle stages of a Container App during which the Managed Identity should be available."
+        }
+      },
+      "required": [
+        "identity"
+      ]
+    },
+    "Ingress": {
+      "type": "object",
+      "properties": {
+        "additionalPortMappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/IngressPortMapping"
+          },
+          "description": "Settings to expose additional ports on container app"
+        },
+        "allowInsecure": {
+          "type": "boolean",
+          "description": "Bool indicating if HTTP connections to is allowed. If set to false HTTP connections are automatically redirected to HTTPS connections"
+        },
+        "clientCertificateMode": {
+          "anyOf": [
+            {
+              "enum": [
+                "ignore",
+                "accept",
+                "require"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Client certificate mode for mTLS authentication. Ignore indicates server drops client certificate on forwarding. Accept indicates server forwards client certificate but does not require a client certificate. Require indicates server requires a client certificate."
+        },
+        "corsPolicy": {
+          "$ref": "#/$defs/CorsPolicy",
+          "description": "CORS policy for container app"
+        },
+        "customDomains": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CustomDomain"
+          },
+          "description": "custom domain bindings for Container Apps' hostnames."
+        },
+        "exposedPort": {
+          "type": "integer",
+          "description": "Exposed Port in containers for TCP traffic from ingress"
+        },
+        "external": {
+          "type": "boolean",
+          "description": "Bool indicating if app exposes an external http endpoint"
+        },
+        "fqdn": {
+          "type": "string",
+          "description": "Hostname.",
+          "readOnly": true
+        },
+        "ipSecurityRestrictions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/IpSecurityRestrictionRule"
+          },
+          "description": "Rules to restrict incoming IP address."
+        },
+        "stickySessions": {
+          "$ref": "#/$defs/IngressStickySessions",
+          "description": "Sticky Sessions for Single Revision Mode"
+        },
+        "targetPort": {
+          "type": "integer",
+          "description": "Target Port in containers for traffic from ingress"
+        },
+        "traffic": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TrafficWeight"
+          },
+          "description": "Traffic weights for app's revisions"
+        },
+        "transport": {
+          "anyOf": [
+            {
+              "enum": [
+                "auto",
+                "http",
+                "http2",
+                "tcp"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Ingress transport protocol"
+        }
+      }
+    },
+    "IngressPortMapping": {
+      "type": "object",
+      "properties": {
+        "exposedPort": {
+          "type": "integer",
+          "description": "Specifies the exposed port for the target port. If not specified, it defaults to target port"
+        },
+        "external": {
+          "type": "boolean",
+          "description": "Specifies whether the app port is accessible outside of the environment"
+        },
+        "targetPort": {
+          "type": "integer",
+          "description": "Specifies the port user's container listens on"
+        }
+      },
+      "required": [
+        "external",
+        "targetPort"
+      ]
+    },
+    "IngressStickySessions": {
+      "type": "object",
+      "properties": {
+        "affinity": {
+          "anyOf": [
+            {
+              "enum": [
+                "sticky",
+                "none"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Sticky Session Affinity"
+        }
+      }
+    },
+    "InitContainer": {
+      "type": "object",
+      "properties": {
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Container start command arguments."
+        },
+        "command": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Container start command."
+        },
+        "env": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EnvironmentVar"
+          },
+          "description": "Container environment variables."
+        },
+        "image": {
+          "type": "string",
+          "description": "Container image tag."
+        },
+        "name": {
+          "type": "string",
+          "description": "Custom container name."
+        },
+        "resources": {
+          "$ref": "#/$defs/ContainerResources",
+          "description": "Container resource requirements."
+        },
+        "volumeMounts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VolumeMount"
+          },
+          "description": "Container volume mounts."
+        }
+      }
+    },
+    "IpSecurityRestrictionRule": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "anyOf": [
+            {
+              "enum": [
+                "Allow",
+                "Deny"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Allow or Deny rules to determine for incoming IP. Note: Rules can only consist of ALL Allow or ALL Deny"
+        },
+        "description": {
+          "type": "string",
+          "description": "Describe the IP restriction rule that is being sent to the container-app. This is an optional field."
+        },
+        "ipAddressRange": {
+          "type": "string",
+          "description": "CIDR notation to match incoming IP address"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name for the IP restriction rule."
+        }
+      },
+      "required": [
+        "action",
+        "ipAddressRange",
+        "name"
+      ]
+    },
+    "ManagedServiceIdentity": {
+      "type": "object",
+      "properties": {
+        "principalId": {
+          "type": "string",
+          "description": "The service principal ID of the system assigned identity. This property will only be provided for a system assigned identity.",
+          "readOnly": true,
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+        },
+        "tenantId": {
+          "type": "string",
+          "description": "The tenant ID of the system assigned identity. This property will only be provided for a system assigned identity.",
+          "readOnly": true,
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "enum": [
+                "None",
+                "SystemAssigned",
+                "UserAssigned",
+                "SystemAssigned,UserAssigned"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "Type of managed service identity (where both SystemAssigned and UserAssigned types are allowed)."
+        },
+        "userAssignedIdentities": {
+          "$ref": "#/$defs/UserAssignedIdentities",
+          "description": "The set of user assigned identities associated with the resource. The userAssignedIdentities dictionary keys will be ARM resource ids in the form: '/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{identityName}. The dictionary values can be empty objects ({}) in requests."
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "QueueScaleRule": {
+      "type": "object",
+      "properties": {
+        "accountName": {
+          "type": "string",
+          "description": "Storage account name. required if using managed identity to authenticate"
+        },
+        "auth": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ScaleRuleAuth"
+          },
+          "description": "Authentication secrets for the queue scale rule."
+        },
+        "identity": {
+          "type": "string",
+          "description": "The resource ID of a user-assigned managed identity that is assigned to the Container App, or 'system' for system-assigned identity."
+        },
+        "queueLength": {
+          "type": "integer",
+          "description": "Queue length."
+        },
+        "queueName": {
+          "type": "string",
+          "description": "Queue name."
+        }
+      }
+    },
+    "RegistryCredentials": {
+      "type": "object",
+      "properties": {
+        "identity": {
+          "type": "string",
+          "description": "A Managed Identity to use to authenticate with Azure Container Registry. For user-assigned identities, use the full user-assigned identity Resource ID. For system-assigned identities, use 'system'"
+        },
+        "passwordSecretRef": {
+          "type": "string",
+          "description": "The name of the Secret that contains the registry login password"
+        },
+        "server": {
+          "type": "string",
+          "description": "Container Registry Server"
+        },
+        "username": {
+          "type": "string",
+          "description": "Container Registry Username"
+        }
+      }
+    },
+    "Runtime": {
+      "type": "object",
+      "properties": {
+        "java": {
+          "$ref": "#/$defs/RuntimeJava",
+          "description": "Java app configuration"
+        }
+      }
+    },
+    "RuntimeJava": {
+      "type": "object",
+      "properties": {
+        "enableMetrics": {
+          "type": "boolean",
+          "description": "Enable jmx core metrics for the java app"
+        }
+      }
+    },
+    "Scale": {
+      "type": "object",
+      "properties": {
+        "cooldownPeriod": {
+          "type": "integer",
+          "description": "Optional. KEDA Cooldown Period in seconds. Defaults to 300 seconds if not set."
+        },
+        "maxReplicas": {
+          "type": "integer",
+          "description": "Optional. Maximum number of container replicas. Defaults to 10 if not set."
+        },
+        "minReplicas": {
+          "type": "integer",
+          "description": "Optional. Minimum number of container replicas."
+        },
+        "pollingInterval": {
+          "type": "integer",
+          "description": "Optional. KEDA Polling Interval in seconds. Defaults to 30 seconds if not set."
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ScaleRule"
+          },
+          "description": "Scaling rules."
+        }
+      }
+    },
+    "ScaleRule": {
+      "type": "object",
+      "properties": {
+        "azureQueue": {
+          "$ref": "#/$defs/QueueScaleRule",
+          "description": "Azure Queue based scaling."
+        },
+        "custom": {
+          "$ref": "#/$defs/CustomScaleRule",
+          "description": "Custom scale rule."
+        },
+        "http": {
+          "$ref": "#/$defs/HttpScaleRule",
+          "description": "HTTP requests based scaling."
+        },
+        "name": {
+          "type": "string",
+          "description": "Scale Rule Name"
+        },
+        "tcp": {
+          "$ref": "#/$defs/TcpScaleRule",
+          "description": "Tcp requests based scaling."
+        }
+      }
+    },
+    "ScaleRuleAuth": {
+      "type": "object",
+      "properties": {
+        "secretRef": {
+          "type": "string",
+          "description": "Name of the secret from which to pull the auth params."
+        },
+        "triggerParameter": {
+          "type": "string",
+          "description": "Trigger Parameter that uses the secret"
+        }
+      }
+    },
+    "Secret": {
+      "type": "object",
+      "properties": {
+        "identity": {
+          "type": "string",
+          "description": "Resource ID of a managed identity to authenticate with Azure Key Vault, or System to use a system-assigned identity."
+        },
+        "keyVaultUrl": {
+          "type": "string",
+          "description": "Azure Key Vault URL pointing to the secret referenced by the container app."
+        },
+        "name": {
+          "type": "string",
+          "description": "Secret Name."
+        },
+        "value": {
+          "type": "string",
+          "description": "Secret Value.",
+          "writeOnly": true,
+          "x-bicep-sensitive": true
+        }
+      }
+    },
+    "SecretsCollection": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ContainerAppSecret"
+          },
+          "description": "Collection of resources."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    },
+    "SecretVolumeItem": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Path to project secret to. If no path is provided, path defaults to name of secret listed in secretRef."
+        },
+        "secretRef": {
+          "type": "string",
+          "description": "Name of the Container App secret from which to pull the secret value."
+        }
+      }
+    },
+    "Service": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Dev ContainerApp service type"
+        }
+      },
+      "required": [
+        "type"
+      ]
+    },
+    "ServiceBind": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the service bind"
+        },
+        "serviceId": {
+          "type": "string",
+          "description": "Resource id of the target service"
+        }
+      }
+    },
+    "SystemData": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "description": "The timestamp of resource creation (UTC)."
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "The identity that created the resource."
+        },
+        "createdByType": {
+          "anyOf": [
+            {
+              "enum": [
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The type of identity that created the resource."
+        },
+        "lastModifiedAt": {
+          "type": "string",
+          "description": "The timestamp of resource last modification (UTC)"
+        },
+        "lastModifiedBy": {
+          "type": "string",
+          "description": "The identity that last modified the resource."
+        },
+        "lastModifiedByType": {
+          "anyOf": [
+            {
+              "enum": [
+                "User",
+                "Application",
+                "ManagedIdentity",
+                "Key"
+              ]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "The type of identity that last modified the resource."
+        }
+      }
+    },
+    "TcpScaleRule": {
+      "type": "object",
+      "properties": {
+        "auth": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ScaleRuleAuth"
+          },
+          "description": "Authentication secrets for the tcp scale rule."
+        },
+        "identity": {
+          "type": "string",
+          "description": "The resource ID of a user-assigned managed identity that is assigned to the Container App, or 'system' for system-assigned identity."
+        },
+        "metadata": {
+          "$ref": "#/$defs/TcpScaleRuleMetadata",
+          "description": "Metadata properties to describe tcp scale rule."
+        }
+      }
+    },
+    "TcpScaleRuleMetadata": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "Template": {
+      "type": "object",
+      "properties": {
+        "containers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Container"
+          },
+          "description": "List of container definitions for the Container App."
+        },
+        "initContainers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/InitContainer"
+          },
+          "description": "List of specialized containers that run before app containers."
+        },
+        "revisionSuffix": {
+          "type": "string",
+          "description": "User friendly suffix that is appended to the revision name"
+        },
+        "scale": {
+          "$ref": "#/$defs/Scale",
+          "description": "Scaling properties for the Container App."
+        },
+        "serviceBinds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ServiceBind"
+          },
+          "description": "List of container app services bound to the app"
+        },
+        "terminationGracePeriodSeconds": {
+          "type": "integer",
+          "description": "Optional duration in seconds the Container App Instance needs to terminate gracefully. Value must be non-negative integer. The value zero indicates stop immediately via the kill signal (no opportunity to shut down). If this value is nil, the default grace period will be used instead. Set this value longer than the expected cleanup time for your process. Defaults to 30 seconds."
+        },
+        "volumes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Volume"
+          },
+          "description": "List of volume definitions for the Container App."
+        }
+      }
+    },
+    "TrackedResourceTags": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "TrafficWeight": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string",
+          "description": "Associates a traffic label with a revision"
+        },
+        "latestRevision": {
+          "type": "boolean",
+          "description": "Indicates that the traffic weight belongs to a latest stable revision"
+        },
+        "revisionName": {
+          "type": "string",
+          "description": "Name of a revision"
+        },
+        "weight": {
+          "type": "integer",
+          "description": "Traffic weight assigned to a revision"
+        }
+      }
+    },
+    "UserAssignedIdentities": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": {
+        "$ref": "#/$defs/UserAssignedIdentity"
+      }
+    },
+    "UserAssignedIdentity": {
+      "type": "object",
+      "properties": {
+        "clientId": {
+          "type": "string",
+          "description": "The client ID of the assigned identity.",
+          "readOnly": true,
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+        },
+        "principalId": {
+          "type": "string",
+          "description": "The principal ID of the assigned identity.",
+          "readOnly": true,
+          "minLength": 36,
+          "maxLength": 36,
+          "pattern": "^[0-9a-fA-F]{8}-([0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}$"
+        }
+      }
+    },
+    "Volume": {
+      "type": "object",
+      "properties": {
+        "mountOptions": {
+          "type": "string",
+          "description": "Mount options used while mounting the Azure file share or NFS Azure file share. Must be a comma-separated string."
+        },
+        "name": {
+          "type": "string",
+          "description": "Volume name."
+        },
+        "secrets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SecretVolumeItem"
+          },
+          "description": "List of secrets to be added in volume. If no secrets are provided, all secrets in collection will be added to volume."
+        },
+        "storageName": {
+          "type": "string",
+          "description": "Name of storage resource. No need to provide for EmptyDir and Secret."
+        },
+        "storageType": {
+          "anyOf": [
+            {
+              "enum": [
+                "AzureFile",
+                "EmptyDir",
+                "NfsAzureFile"
+              ]
+            },
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Secret"
+            }
+          ],
+          "description": "Storage type for the volume. If not provided, use EmptyDir."
+        }
+      }
+    },
+    "VolumeMount": {
+      "type": "object",
+      "properties": {
+        "mountPath": {
+          "type": "string",
+          "description": "Path within the container at which the volume should be mounted.Must not contain ':'."
+        },
+        "subPath": {
+          "type": "string",
+          "description": "Path within the volume from which the container's volume should be mounted. Defaults to \"\" (volume's root)."
+        },
+        "volumeName": {
+          "type": "string",
+          "description": "This must match the Name of a Volume."
+        }
+      }
+    }
+  }
+}

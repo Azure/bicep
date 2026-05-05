@@ -540,7 +540,7 @@ resource extension1 'My.Rp/extensionResource@2020-12-01' = {
 //@    {
 //@      "type": "My.Rp/extensionResource",
 //@      "apiVersion": "2020-12-01",
-//@      "scope": "[format('Microsoft.Compute/virtualMachines/{0}', 'vmName')]",
+//@      "scope": "[resourceId('Microsoft.Compute/virtualMachines', 'vmName')]",
 //@      "name": "extension",
 //@      "dependsOn": [
 //@        "[resourceId('Microsoft.Compute/virtualMachines', 'vmName')]"
@@ -554,7 +554,7 @@ resource extension2 'My.Rp/extensionResource@2020-12-01' = {
 //@    {
 //@      "type": "My.Rp/extensionResource",
 //@      "apiVersion": "2020-12-01",
-//@      "scope": "[extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
+//@      "scope": "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
 //@      "name": "extension",
 //@      "dependsOn": [
 //@        "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]"
@@ -609,7 +609,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 //@    {
 //@      "type": "My.Rp/extensionResource",
 //@      "apiVersion": "2020-12-01",
-//@      "scope": "[extensionResourceId(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'Mock.Rp/existingExtensionResource', 'existing1')]",
+//@      "scope": "[extensionResourceId(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'Mock.Rp/existingExtensionResource', 'existing1')]",
 //@      "name": "extension3",
 //@      "dependsOn": [
 //@        "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]"
@@ -856,7 +856,7 @@ resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for lock in 
 //@      },
 //@      "type": "Microsoft.Authorization/locks",
 //@      "apiVersion": "2016-09-01",
-//@      "scope": "[format('Microsoft.Network/dnsZones/{0}', format('zone{0}', range(0, 4)[range(0, 2)[copyIndex()]]))]",
+//@      "scope": "[resourceId('Microsoft.Network/dnsZones', format('zone{0}', range(0, 4)[range(0, 2)[copyIndex()]]))]",
 //@      "name": "[format('lock{0}', range(0, 2)[copyIndex()])]",
 //@      "dependsOn": [
 //@        "[resourceId('Microsoft.Network/dnsZones', format('zone{0}', range(0, 4)[range(0, 2)[copyIndex()]]))]"
@@ -880,7 +880,7 @@ resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for (loc
 //@      },
 //@      "type": "Microsoft.Authorization/locks",
 //@      "apiVersion": "2016-09-01",
-//@      "scope": "[format('Microsoft.Network/dnsZones/{0}', format('zone{0}', range(0, 4)[copyIndex()]))]",
+//@      "scope": "[resourceId('Microsoft.Network/dnsZones', format('zone{0}', range(0, 4)[copyIndex()]))]",
 //@      "name": "[format('another{0}', copyIndex())]",
 //@      "dependsOn": [
 //@        "[resourceId('Microsoft.Network/dnsZones', format('zone{0}', range(0, 4)[copyIndex()]))]"
@@ -900,7 +900,7 @@ resource singleLockOnFirstZone 'Microsoft.Authorization/locks@2016-09-01' = {
 //@    {
 //@      "type": "Microsoft.Authorization/locks",
 //@      "apiVersion": "2016-09-01",
-//@      "scope": "[format('Microsoft.Network/dnsZones/{0}', format('zone{0}', range(0, 4)[0]))]",
+//@      "scope": "[resourceId('Microsoft.Network/dnsZones', format('zone{0}', range(0, 4)[0]))]",
 //@      "name": "single-lock",
 //@      "dependsOn": [
 //@        "[resourceId('Microsoft.Network/dnsZones', format('zone{0}', range(0, 4)[0]))]"
@@ -1028,7 +1028,7 @@ resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
 //@    {
 //@      "type": "Microsoft.Rp2/resource2",
 //@      "apiVersion": "2020-06-01",
-//@      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'p2res1', 'child1')]",
+//@      "scope": "[resourceId('Microsoft.Rp1/resource1/child1', 'p2res1', 'child1')]",
 //@      "name": "res2",
 //@      "dependsOn": [
 //@        "[resourceId('Microsoft.Rp1/resource1/child1', 'p2res1', 'child1')]"
@@ -1042,7 +1042,7 @@ resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
 //@    {
 //@      "type": "Microsoft.Rp2/resource2/child2",
 //@      "apiVersion": "2020-06-01",
-//@      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'p2res1', 'child1')]",
+//@      "scope": "[resourceId('Microsoft.Rp1/resource1/child1', 'p2res1', 'child1')]",
 //@      "name": "[format('{0}/{1}', 'res2', 'child2')]",
 //@      "dependsOn": [
 //@        "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'p2res1', 'child1'), 'Microsoft.Rp2/resource2', 'res2')]"

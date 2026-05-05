@@ -12,6 +12,7 @@ param boolParam1 bool
 // BEGIN: Variables
 
 var strVar1 = 'strVar1Value'
+var strParamVar1 = strParam1
 
 // END: Variables
 
@@ -21,6 +22,19 @@ extension az
 extension kubernetes as k8s
 extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig1
 extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as extWithOptionalConfig2
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' with {
+  optionalString: strParam1
+} as extWithOptionalConfig3
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
+  requiredSecureString: secureStrParam1
+//@[24:39) [stacks-extensibility-compat (Info)] Secure config property values must be a key vault reference to be valid for Deployment stack deployments. (bicep core linter https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat) |secureStrParam1|
+} as extWithSecureStr1
+extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with {
+  requiredString: testResource1.id
+} as extWithConfig1
+extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with {
+  requiredString: boolParam1 ? strParamVar1 : strParam1
+} as extWithConfig2
 
 // END: Extension declarations
 

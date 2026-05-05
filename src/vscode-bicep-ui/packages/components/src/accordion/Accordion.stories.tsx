@@ -18,7 +18,6 @@ const meta: Meta<typeof Accordion> = {
   tags: ["autodocs"],
   parameters: {
     layout: "padded",
-    controls: { hideNoControlsWarning: true },
   },
 };
 

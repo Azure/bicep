@@ -7,6 +7,7 @@ import tseslint from "typescript-eslint";
 import pluginJest from 'eslint-plugin-jest';
 import notice from "eslint-plugin-notice";
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import { fixupPluginRules } from "@eslint/compat";
 
 export default tseslint.config({
   files: ["src/**/*.ts", "test/**/*.ts", "test-live/**/*.ts"],
@@ -19,7 +20,7 @@ export default tseslint.config({
   languageOptions: {
     ecmaVersion: 2020,
   },
-  plugins: { notice },
+  plugins: { notice: fixupPluginRules(notice) },
   rules: {
     "notice/notice": [
       "error",

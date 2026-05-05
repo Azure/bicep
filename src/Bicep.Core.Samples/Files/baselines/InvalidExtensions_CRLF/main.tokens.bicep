@@ -15,12 +15,23 @@ param objParam1 object
 //@[000:005) Identifier |param|
 //@[006:015) Identifier |objParam1|
 //@[016:022) Identifier |object|
-//@[022:026) NewLine |\r\n\r\n|
+//@[022:024) NewLine |\r\n|
+param invalidParamAssignment1 string = k8s.config.namespace
+//@[000:005) Identifier |param|
+//@[006:029) Identifier |invalidParamAssignment1|
+//@[030:036) Identifier |string|
+//@[037:038) Assignment |=|
+//@[039:042) Identifier |k8s|
+//@[042:043) Dot |.|
+//@[043:049) Identifier |config|
+//@[049:050) Dot |.|
+//@[050:059) Identifier |namespace|
+//@[059:063) NewLine |\r\n\r\n|
 
 // END: Parameters
 //@[018:022) NewLine |\r\n\r\n|
 
-// BEGIN: Valid Extension declarations
+// BEGIN: Valid extension declarations
 //@[038:042) NewLine |\r\n\r\n|
 
 extension az
@@ -40,8 +51,76 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as 
 //@[080:102) Identifier |extWithOptionalConfig1|
 //@[102:106) NewLine |\r\n\r\n|
 
-// END: Valid Extension declarations
+// END: Valid extension declarations
 //@[036:040) NewLine |\r\n\r\n|
+
+// BEGIN: Invalid extension declarations
+//@[040:044) NewLine |\r\n\r\n|
+
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' with {
+//@[000:009) Identifier |extension|
+//@[010:076) StringComplete |'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3'|
+//@[077:081) Identifier |with|
+//@[082:083) LeftBrace |{|
+//@[083:085) NewLine |\r\n|
+  optionalString: testResource1.properties.ns // no reference calls, use module extension configs instead.
+//@[002:016) Identifier |optionalString|
+//@[016:017) Colon |:|
+//@[018:031) Identifier |testResource1|
+//@[031:032) Dot |.|
+//@[032:042) Identifier |properties|
+//@[042:043) Dot |.|
+//@[043:045) Identifier |ns|
+//@[106:108) NewLine |\r\n|
+} as invalidExtDecl1
+//@[000:001) RightBrace |}|
+//@[002:004) Identifier |as|
+//@[005:020) Identifier |invalidExtDecl1|
+//@[020:024) NewLine |\r\n\r\n|
+
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' with {
+//@[000:009) Identifier |extension|
+//@[010:076) StringComplete |'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3'|
+//@[077:081) Identifier |with|
+//@[082:083) LeftBrace |{|
+//@[083:085) NewLine |\r\n|
+  optionalString: newGuid()
+//@[002:016) Identifier |optionalString|
+//@[016:017) Colon |:|
+//@[018:025) Identifier |newGuid|
+//@[025:026) LeftParen |(|
+//@[026:027) RightParen |)|
+//@[027:029) NewLine |\r\n|
+} as invalidExtDecl2
+//@[000:001) RightBrace |}|
+//@[002:004) Identifier |as|
+//@[005:020) Identifier |invalidExtDecl2|
+//@[020:024) NewLine |\r\n\r\n|
+
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
+//@[000:009) Identifier |extension|
+//@[010:074) StringComplete |'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3'|
+//@[075:079) Identifier |with|
+//@[080:081) LeftBrace |{|
+//@[081:083) NewLine |\r\n|
+  requiredSecureString: kv1.getSecret('abc')
+//@[002:022) Identifier |requiredSecureString|
+//@[022:023) Colon |:|
+//@[024:027) Identifier |kv1|
+//@[027:028) Dot |.|
+//@[028:037) Identifier |getSecret|
+//@[037:038) LeftParen |(|
+//@[038:043) StringComplete |'abc'|
+//@[043:044) RightParen |)|
+//@[044:046) NewLine |\r\n|
+} as invalidExtDecl3
+//@[000:001) RightBrace |}|
+//@[002:004) Identifier |as|
+//@[005:020) Identifier |invalidExtDecl3|
+//@[020:024) NewLine |\r\n\r\n|
+
+// END: Invalid extension declarations
+//@[038:042) NewLine |\r\n\r\n|
 
 // BEGIN: Key vaults
 //@[020:024) NewLine |\r\n\r\n|

@@ -87,7 +87,7 @@ namespace Bicep.LanguageServer.Handlers
             using var fileStream = new FileStream(compiledFileUri, FileMode.Create, FileAccess.Write);
             var result = emitter.EmitTemplateGeneratedParameterFile(fileStream, existingContent, outputFormat, includeParams);
 
-            return "Generating parameters file succeeded. Processed file " + compiledFile;
+            return $"Generating parameters file succeeded. Processed file '{compiledFile.Uri}'";
         }
 
         // Returns true if the template contains the parameters file schema, false otherwise

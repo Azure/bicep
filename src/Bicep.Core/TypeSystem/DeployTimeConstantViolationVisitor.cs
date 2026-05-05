@@ -66,7 +66,9 @@ namespace Bicep.Core.TypeSystem
                         accessedSymbolName,
                         accessiblePropertyNames,
                         variableDependencyChain),
-                _ => throw new ArgumentOutOfRangeException(nameof(this.DeployTimeConstantContainer), "Expected an ObjectPropertySyntax with a propertyName, an IfConditionSyntax, a ForSyntax, a FunctionCallSyntaxBase, or a FunctionDeclarationSyntax."),
+                ExtensionWithClauseSyntax when this.SemanticModel.Binder.GetParent(this.DeployTimeConstantContainer) is ExtensionDeclarationSyntax
+                    => diagnosticBuilder.RuntimeValueNotAllowedInExtensionDeclarationWithClause(accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
+                _ => throw new ArgumentOutOfRangeException(nameof(this.DeployTimeConstantContainer), $@"Unexpected syntax type '{this.DeployTimeConstantContainer.GetType().Name}'."),
             };
 
             this.DiagnosticWriter.Write(diagnostic);

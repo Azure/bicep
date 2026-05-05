@@ -39,7 +39,7 @@ public class BicepDecompilerTests : TestBase
           }
         }
         """);
-        
+
         result.FilesToSave[result.EntrypointUri].Should().Contain("param foo string");
     }
 }

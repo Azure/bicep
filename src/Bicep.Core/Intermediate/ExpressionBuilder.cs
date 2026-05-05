@@ -52,7 +52,7 @@ public class ExpressionBuilder
     }
 
     public ExpressionBuilder(EmitterContext Context)
-        : this(Context, ImmutableDictionary<LocalVariableSymbol, Expression>.Empty)
+        : this(Context, [])
     {
     }
 
@@ -724,7 +724,7 @@ public class ExpressionBuilder
             body,
             bodyExpression,
             BuildDependencyExpressions(resource.Symbol, body),
-            ImmutableDictionary<string, ArrayExpression>.Empty);
+            []);
     }
 
     private Expression ConvertArray(ArraySyntax array)
@@ -884,8 +884,7 @@ public class ExpressionBuilder
 
     private Expression ConvertFunction(FunctionCallSyntaxBase functionCall)
     {
-        if (Context.Settings.FileKind == BicepSourceFileKind.BicepFile &&
-            Context.FunctionVariables.GetValueOrDefault(functionCall) is { } functionVariable)
+        if (Context.FunctionVariables.GetValueOrDefault(functionCall) is { } functionVariable)
         {
             return new SynthesizedVariableReferenceExpression(functionCall, functionVariable.Name);
         }
@@ -1094,19 +1093,17 @@ public class ExpressionBuilder
                 return new ParametersReferenceExpression(variableAccessSyntax, parameterSymbol);
 
             case ParameterAssignmentSymbol parameterSymbol:
-                if (Context.ExternalInputReferences.ParametersReferences.Contains(parameterSymbol))
+                if (Context.SemanticModel.SymbolsToInline.ParameterAssignmentsToInline.Contains(parameterSymbol))
                 {
-                    // we're evaluating a parameter that has an external input function reference, so inline it
+                    // we've got a runtime dependency so we have to inline the parameter assignment
                     return ConvertWithoutLowering(parameterSymbol.DeclaringParameterAssignment.Value);
                 }
                 return new ParametersAssignmentReferenceExpression(variableAccessSyntax, parameterSymbol);
 
             case VariableSymbol variableSymbol:
-                if (Context.SemanticModel.SymbolsToInline.VariablesToInline.Contains(variableSymbol) ||
-                    Context.ExternalInputReferences.VariablesReferences.Contains(variableSymbol))
+                if (Context.SemanticModel.SymbolsToInline.VariablesToInline.Contains(variableSymbol))
                 {
-                    // we've got a runtime dependency, or we're evaluating a variable that has an external input function reference,
-                    // so we have to inline the variable usage
+                    // we've got a runtime dependency so we have to inline the variable usage
                     return ConvertWithoutLowering(variableSymbol.DeclaringVariable.Value);
                 }
 
@@ -1176,6 +1173,9 @@ public class ExpressionBuilder
 
             // variable copy index has the name of the variable
             VariableDeclarationSyntax variable when variable.Name.IsValid => variable.Name.IdentifierName,
+
+            // parameter assignment copy index has the name of the parameter
+            ParameterAssignmentSyntax parameter when parameter.Name.IsValid => parameter.Name.IdentifierName,
 
             // output loops are only allowed at the top level and don't have names, either
             OutputDeclarationSyntax => null,
@@ -1594,7 +1594,7 @@ public class ExpressionBuilder
         {
             // emit the resource id of the resource being extended
             var indexContext = TryGetReplacementContext(scopeResource, resource.ScopeData.IndexExpression, resource.BodySyntax);
-            expressionEmitter.EmitProperty("scope", () => expressionEmitter.EmitUnqualifiedResourceId(scopeResource, indexContext));
+            expressionEmitter.EmitProperty("scope", () => expressionEmitter.EmitFullyQualifiedResourceId(scopeResource, indexContext));
             return;
         }
 
@@ -1663,10 +1663,8 @@ public class ExpressionBuilder
                     expressionEmitter.EmitProperty("resourceGroup", () => expressionEmitter.EmitExpression(scopeData.ResourceGroupProperty, indexContext));
                 }
                 return;
-            case ResourceScope.DesiredStateConfiguration:
             case ResourceScope.Local:
-                // These scopes just changes the schema so there are no properties to emit.
-                // We don't ever need to throw here because the feature is checked during scope validation.
+                // These scopes just change the schema so there are no properties to emit.
                 return;
             default:
                 throw new InvalidOperationException($"Cannot format resourceId for scope {scopeData.RequestedScope}");

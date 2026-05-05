@@ -51,7 +51,10 @@
                 "--output",
                 "${workspaceFolder}/src/vscode-bicep/bicepMcpServer"
             ],
-            "problemMatcher": "$msCompile"
+            "problemMatcher": "$msCompile",
+            "dependsOn": [
+                "Build Language Server for VSIX"
+            ]
         },
         {
             "label": "Build VSIX",

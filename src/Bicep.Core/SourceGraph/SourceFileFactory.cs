@@ -111,12 +111,12 @@ namespace Bicep.Core.SourceGraph
             return new(fileHandle, lineStarts, parser.Program(), this.configurationManager, this.featureProviderFactory, this.auxiliaryFileCache, parser.LexingErrorLookup, parser.ParsingErrorLookup);
         }
 
-        public BicepReplFile CreateBicepReplFile(IFileHandle fileHandle, string fileContents)
+        public BicepReplFile CreateBicepReplFile(IFileHandle fileHandle, IDirectoryHandle auxiliaryDirectoryHandle, string fileContents)
         {
             var parser = new ReplParser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
 
-            return new(fileHandle, lineStarts, parser.Program(), this.configurationManager, this.featureProviderFactory, this.auxiliaryFileCache, parser.LexingErrorLookup, parser.ParsingErrorLookup);
+            return new(fileHandle, auxiliaryDirectoryHandle, lineStarts, parser.Program(), this.configurationManager, this.featureProviderFactory, this.auxiliaryFileCache, parser.LexingErrorLookup, parser.ParsingErrorLookup);
         }
 
         public ArmTemplateFile CreateArmTemplateFile(IOUri fileUri, string fileContents) =>

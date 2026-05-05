@@ -74,8 +74,6 @@ namespace Bicep.Core.Syntax
                 LanguageConstants.TargetScopeTypeManagementGroup => ResourceScope.ManagementGroup,
                 LanguageConstants.TargetScopeTypeSubscription => ResourceScope.Subscription,
                 LanguageConstants.TargetScopeTypeResourceGroup => ResourceScope.ResourceGroup,
-                // The feature flag is checked during scope validation, so just handle it here.
-                LanguageConstants.TargetScopeTypeDesiredStateConfiguration => ResourceScope.DesiredStateConfiguration,
                 LanguageConstants.TargetScopeTypeLocal => ResourceScope.Local,
                 _ => ResourceScope.None,
             };

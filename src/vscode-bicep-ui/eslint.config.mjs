@@ -1,5 +1,6 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 import eslint from "@eslint/js";
+import { fixupConfigRules, fixupPluginRules } from "@eslint/compat";
 import notice from "eslint-plugin-notice";
 import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
@@ -15,11 +16,11 @@ export default tseslint.config(
     extends: [
       eslint.configs.recommended,
       tseslint.configs.recommended,
-      reactPlugin.configs.flat.recommended,
-      reactPlugin.configs.flat["jsx-runtime"],
+      ...fixupConfigRules(reactPlugin.configs.flat.recommended),
+      ...fixupConfigRules(reactPlugin.configs.flat["jsx-runtime"]),
     ],
     plugins: {
-      notice,
+      notice: fixupPluginRules(notice),
       "react-refresh": reactRefreshPlugin,
       "react-hooks": reactHooksPlugin,
     },

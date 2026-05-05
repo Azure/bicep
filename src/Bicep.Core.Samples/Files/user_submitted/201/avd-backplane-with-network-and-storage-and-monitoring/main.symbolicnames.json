@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "446643139507250948"
+      "templateHash": "11238011223108550992"
     }
   },
   "parameters": {
@@ -227,7 +227,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "2539256814123349485"
+              "templateHash": "18177712368314985712"
             }
           },
           "parameters": {
@@ -366,7 +366,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "1744733222370820253"
+                      "templateHash": "3538928845112752341"
                     }
                   },
                   "parameters": {
@@ -432,7 +432,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7397250722142967265"
+                              "templateHash": "4097443846793063282"
                             }
                           },
                           "parameters": {
@@ -462,7 +462,7 @@
                             "avdhpds": {
                               "type": "microsoft.insights/diagnosticSettings",
                               "apiVersion": "2017-05-01-preview",
-                              "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostpoolName'))]",
+                              "scope": "[resourceId('Microsoft.DesktopVirtualization/hostPools', parameters('hostpoolName'))]",
                               "name": "hostpool-diag",
                               "properties": {
                                 "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",
@@ -493,7 +493,7 @@
                             "avdwsds": {
                               "type": "microsoft.insights/diagnosticSettings",
                               "apiVersion": "2017-05-01-preview",
-                              "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('workspaceName'))]",
+                              "scope": "[resourceId('Microsoft.DesktopVirtualization/workspaces', parameters('workspaceName'))]",
                               "name": "workspacepool-diag",
                               "properties": {
                                 "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",

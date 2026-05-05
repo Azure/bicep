@@ -63,6 +63,17 @@ const extensionConfig: webpack.Configuration = {
     new CopyPlugin({
       patterns: [
         {
+          from: "../vscode-bicep-ui/apps/visual-designer/dist",
+          to: path.join(__dirname, "out/visual-designer"),
+          globOptions: {
+            ignore: ["**/index.html"],
+          },
+        },
+      ],
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
           from: "../textmate/bicep.tmlanguage",
           to: path.join(__dirname, "syntaxes/bicep.tmlanguage"),
         },

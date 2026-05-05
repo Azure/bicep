@@ -827,10 +827,10 @@ namespace Bicep.Core.PrettyPrintV2
                     this.ForceBreak();
                 }
 
-                if (triviaItem is DisableNextLineDiagnosticsSyntaxTrivia disableNextLineDirective)
+                if (triviaItem is DiagnosticsPragmaSyntaxTrivia diagnosticsPragma)
                 {
-                    var diagnosticCodes = string.Join(" ", disableNextLineDirective.DiagnosticCodes.Select(x => x.Text));
-                    yield return $"#disable-next-line {diagnosticCodes}";
+                    var diagnosticCodes = string.Join(" ", diagnosticsPragma.DiagnosticCodes.Select(x => x.Text));
+                    yield return $"#{diagnosticsPragma.PragmaType.GetKeyword()} {diagnosticCodes}";
                     continue;
                 }
 

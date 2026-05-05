@@ -610,7 +610,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             try
             {
-                var (_, preflightResources, extensibleResources) = TemplateEngine.ExpandNestedDeploymentsSync(
+                var (_, preflightResources, extensibleResources, _) = TemplateEngine.ExpandNestedDeploymentsSync(
                     deploymentApiVersion: EmitConstants.NestedDeploymentResourceApiVersion,
                     deploymentScope: EnumConverter.ToTemplateDeploymentScope(targetScope)
                         ?? TemplateDeploymentScope.NotSpecified,
@@ -703,7 +703,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     return [];
                 }
 
-                return expression.SelectMany(
+                return expression.Properties.SelectMany(
                     kvp => kvp.Key.Apply(this, expressionsToSkip).Concat(kvp.Value.Apply(this, expressionsToSkip)));
             }
 

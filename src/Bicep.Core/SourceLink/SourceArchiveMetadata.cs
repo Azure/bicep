@@ -60,6 +60,6 @@ namespace Bicep.Core.SourceLink
 
         public ImmutableArray<ArchivedSourceFileMetadata> SourceFiles { get; } = [.. SourceFiles.OrderBy(x => x.Path).ThenBy(x => x.ArchivePath)];
 
-        public ImmutableDictionary<string, ImmutableArray<ArchivedSourceFileLink>> DocumentLinks { get; } = DocumentLinks ?? ImmutableDictionary<string, ImmutableArray<ArchivedSourceFileLink>>.Empty;
+        public ImmutableDictionary<string, ImmutableArray<ArchivedSourceFileLink>> DocumentLinks { get; } = DocumentLinks ?? [];
     }
 }

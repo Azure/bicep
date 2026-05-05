@@ -107,13 +107,13 @@ namespace Bicep.Core.UnitTests.Configuration
           "legacyFormatter": false,
           "testFramework": false,
           "assertions": false,
-          "waitAndRetry": false,
+          "waitUntil": false,
           "localDeploy": false,
           "resourceInfoCodegen": false,
-          "desiredStateConfiguration": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "multilineStringInterpolation": false
+          "thisNamespace": false,
+          "existingNullIfNotFound": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -190,14 +190,14 @@ namespace Bicep.Core.UnitTests.Configuration
           "legacyFormatter": false,
           "testFramework": false,
           "assertions": false,
-          "waitAndRetry": false,
+          "waitUntil": false,
           "localDeploy": false,
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
-          "desiredStateConfiguration": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "multilineStringInterpolation": false
+          "thisNamespace": false,
+          "existingNullIfNotFound": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -296,14 +296,14 @@ namespace Bicep.Core.UnitTests.Configuration
           "legacyFormatter": false,
           "testFramework": false,
           "assertions": false,
-          "waitAndRetry": false,
+          "waitUntil": false,
           "localDeploy": false,
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
-          "desiredStateConfiguration": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "multilineStringInterpolation": false
+          "thisNamespace": false,
+          "existingNullIfNotFound": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -383,14 +383,14 @@ namespace Bicep.Core.UnitTests.Configuration
                 LegacyFormatter: false,
                 TestFramework: false,
                 Assertions: false,
-                WaitAndRetry: false,
+                WaitUntil: false,
                 LocalDeploy: false,
                 ResourceInfoCodegen: false,
                 ModuleExtensionConfigs: false,
-                DesiredStateConfiguration: false,
                 UserDefinedConstraints: false,
                 DeployCommands: false,
-                MultilineStringInterpolation: false);
+                ThisNamespace: false,
+                ExistingNullIfNotFound: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -468,14 +468,14 @@ namespace Bicep.Core.UnitTests.Configuration
                 "legacyFormatter": false,
                 "testFramework": false,
                 "assertions": false,
-                "waitAndRetry": false,
+                "waitUntil": false,
                 "localDeploy": false,
                 "resourceInfoCodegen": false,
                 "moduleExtensionConfigs": false,
-                "desiredStateConfiguration": false,
                 "userDefinedConstraints": false,
                 "deployCommands": false,
-                "multilineStringInterpolation": false
+                "thisNamespace": false,
+                "existingNullIfNotFound": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -820,14 +820,14 @@ namespace Bicep.Core.UnitTests.Configuration
                     "legacyFormatter": false,
                     "testFramework": false,
                     "assertions": false,
-                    "waitAndRetry": false,
+                    "waitUntil": false,
                     "localDeploy": false,
                     "resourceInfoCodegen": false,
                     "moduleExtensionConfigs": false,
-                    "desiredStateConfiguration": false,
                     "userDefinedConstraints": false,
                     "deployCommands": false,
-                    "multilineStringInterpolation": false
+                    "thisNamespace": false,
+                    "existingNullIfNotFound": false
                   },
                   "formatting": {
                     "indentKind": "Space",

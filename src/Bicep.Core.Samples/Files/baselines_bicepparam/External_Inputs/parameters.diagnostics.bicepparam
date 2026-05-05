@@ -51,3 +51,35 @@ param objectBody = {
   baz: 'blah'
 }
 
+var poodle = 'toy'
+param retriever = 'golden'
+param concat = '${poodle}-${retriever}-${externalInput('sys.cli', 'foo')}'
+
+import * as main2 from 'main2.bicep'
+import { person, getPerson, getDefaultPerson } from 'main.bicep'
+
+param principalIds = externalInput('sys.cli', 'principalIds')
+
+var anotherPerson = {
+  name: 'John'
+  age: 21
+}
+param varPeople = [
+  ...map(principalIds, id => {
+    objectId: id
+  })
+  person
+  anotherPerson
+  getPerson('Bob', 30)
+  getDefaultPerson()
+  externalInput('custom.binding', 'foo')
+]
+
+var infra main2.InfraConfig = {
+  storage: main2.storageConfig
+  vm: main2.vmConfig
+  tag: externalInput('custom.binding', 'bar')
+}
+
+param infraParam = infra
+

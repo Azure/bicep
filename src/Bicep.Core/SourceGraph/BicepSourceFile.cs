@@ -98,7 +98,7 @@ namespace Bicep.Core.SourceGraph
                 return new(x => x.ErrorOccurredReadingFile("Cannot load auxiliary file from dummy file handle"));
             }
 
-            return this.FileHandle
+            return this.GetDirectoryHandle()
                 .TryGetRelativeFile(relativePath)
                 .Transform(fileHandle =>
                 {
@@ -118,10 +118,10 @@ namespace Bicep.Core.SourceGraph
                 return new(x => x.ErrorOccurredReadingFile("Cannot load auxiliary file from dummy file handle"));
             }
 
-            var directoryHandle = this.FileHandle.GetParent().GetDirectory(relativePath);
+            var directoryHandle = this.GetDirectoryHandle().GetDirectory(relativePath);
             if (!directoryHandle.Exists())
             {
-                if (this.FileHandle.GetParent().GetFile(relativePath).Exists())
+                if (this.GetDirectoryHandle().GetFile(relativePath).Exists())
                 {
                     return new(x => x.FoundFileInsteadOfDirectory(relativePath));
                 }
@@ -143,5 +143,7 @@ namespace Bicep.Core.SourceGraph
         public FrozenSet<IOUri> GetReferencedAuxiliaryFileUris() => this.referencedAuxiliaryFileUris.ToFrozenSet();
 
         public bool IsReferencingAuxiliaryFile(IOUri uri) => this.referencedAuxiliaryFileUris.Contains(uri);
+
+        protected virtual IDirectoryHandle GetDirectoryHandle() => this.FileHandle.GetParent();
     }
 }

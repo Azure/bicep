@@ -26,7 +26,8 @@ namespace Bicep.Cli.Arguments
                 case var a when new Regex(Constants.Argument.ThirdPartyNoticesRegex).IsMatch(a):
                     PrintThirdPartyNotices = true;
                     break;
-            };
+            }
+            ;
         }
 
         public bool PrintHelp { get; }

@@ -310,7 +310,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public static AndConstraint<StringAssertions> DeepEqualJson(this StringAssertions instance, string json, string because = "", params object[] becauseArgs)
         {
-            json.FromJson<JToken>().Should().DeepEqual(JObject.Parse(json), because, becauseArgs);
+            instance.Subject.FromJson<JToken>().Should().DeepEqual(JObject.Parse(json), because, becauseArgs);
 
             return new(instance);
         }

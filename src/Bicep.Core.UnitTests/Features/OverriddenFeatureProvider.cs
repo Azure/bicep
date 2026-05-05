@@ -33,7 +33,7 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool AssertsEnabled => overrides.AssertsEnabled ?? features.AssertsEnabled;
 
-    public bool WaitAndRetryEnabled => overrides.WaitAndRetryEnabled ?? features.WaitAndRetryEnabled;
+    public bool WaitUntilEnabled => overrides.WaitUntilEnabled ?? features.WaitUntilEnabled;
 
     public bool LocalDeployEnabled => overrides.LocalDeployEnabled ?? features.LocalDeployEnabled;
 
@@ -43,11 +43,11 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool ModuleExtensionConfigsEnabled => overrides.ModuleExtensionConfigsEnabled ?? features.ModuleExtensionConfigsEnabled;
 
-    public bool DesiredStateConfigurationEnabled => overrides.DesiredStateConfigurationEnabled ?? features.DesiredStateConfigurationEnabled;
-
     public bool UserDefinedConstraintsEnabled => overrides.UserDefinedConstraintsEnabled ?? features.UserDefinedConstraintsEnabled;
 
     public bool DeployCommandsEnabled => overrides.DeployCommandsEnabled ?? features.DeployCommandsEnabled;
 
-    public bool MultilineStringInterpolationEnabled => overrides.MultilineStringInterpolationEnabled ?? features.MultilineStringInterpolationEnabled;
+    public bool ThisNamespaceEnabled => overrides.ThisNamespaceEnabled ?? features.ThisNamespaceEnabled;
+
+    public bool ExistingNullIfNotFoundEnabled => overrides.ExistingNullIfNotFoundEnabled ?? features.ExistingNullIfNotFoundEnabled;
 }

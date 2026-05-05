@@ -2009,9 +2009,28 @@ namespace Bicep.Core.Diagnostics
                 "BCP441",
                 $"Resource type \"{resourceTypeReference.FormatName()}\" cannot be used with the 'existing' keyword.");
 
-            public Diagnostic MultilineStringRequiresExperimentalFeature() => CoreError(
-                "BCP442",
-                $"Using multiline string interpolation requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.MultilineStringInterpolation)}\".");
+            public Diagnostic UsingWithClauseRequiredIfExperimentalFeatureEnabled() => CoreError(
+                "BCP443",
+                $"""The "{LanguageConstants.UsingKeyword}" statement requires a "{LanguageConstants.WithKeyword}" clause if the EXPERIMENTAL feature "{nameof(ExperimentalFeaturesEnabled.DeployCommands)}" is enabled.""");
+
+            public Diagnostic RuntimeValueNotAllowedInExtensionDeclarationWithClause(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
+            {
+                var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
+                var accessiblePropertiesClause = BuildAccessiblePropertiesClause(accessedSymbolName, accessiblePropertyNames);
+
+                return CoreError(
+                    "BCP444",
+                    $"This expression is being used as a default value for an extension configuration property, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
+            }
+
+            public Diagnostic NullIfNotFoundOnlyValidOnExistingResources() => CoreError(
+                "BCP445",
+                $@"The ""@{LanguageConstants.NullIfNotFoundDecoratorName}()"" decorator can only be used on existing resources.");
+
+            public Diagnostic ArtifactRestoreBlockedByRegistry(string registryHostname) => CoreError(
+                "BCP446",
+                $"Restore from registry \"{registryHostname}\" is blocked because it is not in the trusted registries list. " +
+                $"See https://aka.ms/bicep/registry-trust for details.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

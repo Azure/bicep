@@ -26,7 +26,7 @@ namespace Bicep.Core.Emit
         private readonly ExpressionBuilder expressionBuilder;
 
         public ExpressionConverter(EmitterContext context)
-            : this(context, ImmutableDictionary<LocalVariableSymbol, Expression>.Empty)
+            : this(context, [])
         {
         }
 
@@ -96,9 +96,19 @@ namespace Bicep.Core.Emit
                         ConvertExpression(ternary.False));
 
                 case FunctionCallExpression function:
-                    return CreateFunction(
-                        function.Name,
-                        function.Parameters.Select(ConvertExpression));
+                    {
+                        var converted = CreateFunction(
+                            function.Name,
+                            function.Parameters.Select(ConvertExpression));
+
+                        if (function.SourceSyntax is FunctionCallSyntaxBase functionCall &&
+                            context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is { ArmExpressionEvaluator: { } evaluator })
+                        {
+                            return evaluator(converted);
+                        }
+
+                        return converted;
+                    }
 
                 case UserDefinedFunctionCallExpression function:
                     return CreateFunction(

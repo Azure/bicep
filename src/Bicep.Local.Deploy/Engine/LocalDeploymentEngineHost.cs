@@ -12,7 +12,9 @@ using Azure.Deployments.Core.EventSources;
 using Azure.Deployments.Core.Exceptions;
 using Azure.Deployments.Core.FeatureEnablement;
 using Azure.Deployments.Core.Telemetry;
+using Azure.Deployments.Engine.DotnetMigration.Abstraction;
 using Azure.Deployments.Engine.External;
+using Azure.Deployments.Engine.Http;
 using Azure.Deployments.Engine.Interfaces;
 using Azure.Deployments.Engine.Workers.Metadata;
 using Azure.Deployments.ResourceMetadata.Contracts;
@@ -41,9 +43,9 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         IDataProviderHolder dataProviderHolder,
         ITemplateExceptionHandler exceptionHandler,
         IEnablementConfigProvider enablementConfigProvider,
-        IHttpContentHandler contentHandler,
+        IHttpResponseReader responseReader,
         IDeploymentMetricsReporter metricsReporter)
-        : base(settings, contentHandler, deploymentEventSource, metricsReporter, keyVaultDataProvider, requestContext, dataProviderHolder, exceptionHandler, enablementConfigProvider)
+        : base(settings, responseReader, deploymentEventSource, metricsReporter, keyVaultDataProvider, requestContext, dataProviderHolder, exceptionHandler, enablementConfigProvider)
     {
         this.extensionHostManager = extensionHostManager;
     }
@@ -76,7 +78,7 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         string oboToken,
         string oboCorrelationId,
         string auxToken,
-        HttpRequestMessage requestMessage = null,
+        IRequestContext originalRequestContext = null,
         HttpContent content = null,
         Action<HttpRequestHeaders> addHeadersFunc = null,
         Action<IDictionary<string, object>> requestPropertiesEnricher = null,

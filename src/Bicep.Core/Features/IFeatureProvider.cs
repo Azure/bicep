@@ -23,7 +23,7 @@ public interface IFeatureProvider
 
     bool AssertsEnabled { get; }
 
-    bool WaitAndRetryEnabled { get; }
+    bool WaitUntilEnabled { get; }
 
     bool LocalDeployEnabled { get; }
 
@@ -33,13 +33,13 @@ public interface IFeatureProvider
 
     bool ModuleExtensionConfigsEnabled { get; }
 
-    bool DesiredStateConfigurationEnabled { get; }
-
     bool UserDefinedConstraintsEnabled { get; }
 
     bool DeployCommandsEnabled { get; }
 
-    bool MultilineStringInterpolationEnabled { get; }
+    bool ThisNamespaceEnabled { get; }
+
+    bool ExistingNullIfNotFoundEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
@@ -55,14 +55,14 @@ public interface IFeatureProvider
                 (SourceMappingEnabled, CoreResources.ExperimentalFeatureNames_SourceMapping, true, false),
                 (TestFrameworkEnabled, CoreResources.ExperimentalFeatureNames_TestFramework, false, false),
                 (AssertsEnabled, CoreResources.ExperimentalFeatureNames_Asserts, true, true),
-                (WaitAndRetryEnabled, CoreResources.ExperimentalFeatureNames_WaitAndRetry, true, true),
+                (WaitUntilEnabled, CoreResources.ExperimentalFeatureNames_WaitUntil, true, true),
                 (LocalDeployEnabled, "Enable local deploy", true, true),
                 (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
-                (DesiredStateConfigurationEnabled, "Enable defining Desired State Configuration documents", true, false),
                 (UserDefinedConstraintsEnabled, "Enable @validate() decorator", true, true),
                 (DeployCommandsEnabled, "Enable deploy commands", true, true),
-                (MultilineStringInterpolationEnabled, "Enable multiline string interpolation", false, false),
+                (ThisNamespaceEnabled, "Enable 'this' namespace", true, true),
+                (ExistingNullIfNotFoundEnabled, "Enable @nullIfNotFound() decorator for existing resources", true, true),
             })
             {
                 if (enabled)

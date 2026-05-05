@@ -19,16 +19,10 @@
     ]
   },
   {
-    "$type": "StringType",
-    "sensitive": null,
-    "minLength": null,
-    "maxLength": null,
-    "pattern": null
+    "$type": "StringType"
   },
   {
-    "$type": "IntegerType",
-    "minValue": null,
-    "maxValue": null
+    "$type": "IntegerType"
   },
   {
     "$type": "AnyType"
@@ -72,9 +66,7 @@
         "flags": 2,
         "description": "The parsed request body."
       }
-    },
-    "additionalProperties": null,
-    "sensitive": null
+    }
   },
   {
     "$type": "ResourceType",
@@ -82,11 +74,7 @@
     "body": {
       "$ref": "#/6"
     },
-    "functions": null,
     "readableScopes": 31,
-    "writableScopes": 31,
-    "scopeType": null,
-    "readOnlyScopes": null,
-    "flags": null
+    "writableScopes": 31
   }
 ]

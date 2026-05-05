@@ -5,7 +5,6 @@ using System.Collections.Immutable;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
-using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.IO.Abstraction;
 
@@ -15,6 +14,7 @@ public class BicepReplFile : BicepSourceFile
 {
     public BicepReplFile(
         IFileHandle fileHandle,
+        IDirectoryHandle auxiliaryDirectoryHandle,
         ImmutableArray<int> lineStarts,
         ProgramSyntax programSyntax,
         IConfigurationManager configurationManager,
@@ -33,13 +33,19 @@ public class BicepReplFile : BicepSourceFile
             lexingErrorLookup,
             parsingErrorLookup)
     {
+        AuxiliaryDirectoryHandle = auxiliaryDirectoryHandle;
     }
 
     private BicepReplFile(BicepReplFile original) : base(original)
     {
+        AuxiliaryDirectoryHandle = original.AuxiliaryDirectoryHandle;
     }
 
     public override BicepSourceFileKind FileKind => BicepSourceFileKind.ReplFile;
 
+    public IDirectoryHandle AuxiliaryDirectoryHandle { get; }
+
     public override BicepSourceFile ShallowClone() => new BicepReplFile(this);
+
+    protected override IDirectoryHandle GetDirectoryHandle() => this.AuxiliaryDirectoryHandle;
 }

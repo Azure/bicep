@@ -1786,11 +1786,14 @@ namespace Bicep.Decompiler
                         SyntaxFactory.TargetScopeKeywordToken,
                         SyntaxFactory.AssignmentToken,
                         SyntaxFactory.CreateStringLiteral("subscription"));
+                // This is for decompilation of DSC JSON config documents, which
+                // is a best-effort attempt and ought to work as long as they
+                // stick to ARMv1.
                 case "/dsc/schemas/v3/bundled/config/document.json":
                     return new TargetScopeSyntax(
                         SyntaxFactory.TargetScopeKeywordToken,
                         SyntaxFactory.AssignmentToken,
-                        SyntaxFactory.CreateStringLiteral("desiredStateConfiguration"));
+                        SyntaxFactory.CreateStringLiteral("local"));
                 case "/schemas/2014-04-01-preview/deploymentTemplate.json":
                 case "/schemas/2015-01-01/deploymentTemplate.json":
                 case "/schemas/2019-04-01/deploymentTemplate.json":

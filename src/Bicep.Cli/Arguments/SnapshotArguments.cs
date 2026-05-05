@@ -10,6 +10,7 @@ public class SnapshotArguments : ArgumentsBase, IInputArguments
 {
     private const string TenantIdArgument = "--tenant-id";
     private const string SubscriptionIdArgument = "--subscription-id";
+    private const string ManagementGroupIdArgument = "--management-group-id";
     private const string LocationArgument = "--location";
     private const string ResourceGroupArgument = "--resource-group";
     private const string DeploymentNameArgument = "--deployment-name";
@@ -41,6 +42,12 @@ public class SnapshotArguments : ArgumentsBase, IInputArguments
                 case SubscriptionIdArgument:
                     ArgumentHelper.ValidateNotAlreadySet(SubscriptionIdArgument, SubscriptionId);
                     SubscriptionId = ArgumentHelper.GetValueWithValidation(SubscriptionIdArgument, args, i);
+                    i++;
+                    break;
+
+                case ManagementGroupIdArgument:
+                    ArgumentHelper.ValidateNotAlreadySet(ManagementGroupIdArgument, ManagementGroupId);
+                    ManagementGroupId = ArgumentHelper.GetValueWithValidation(ManagementGroupIdArgument, args, i);
                     i++;
                     break;
 
@@ -89,6 +96,8 @@ public class SnapshotArguments : ArgumentsBase, IInputArguments
     public string? TenantId { get; }
 
     public string? SubscriptionId { get; }
+
+    public string? ManagementGroupId { get; }
 
     public string? Location { get; }
 

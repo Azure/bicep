@@ -36,7 +36,7 @@ resource singleResourceExtension 'Microsoft.Authorization/locks@2016-09-01' = {
 //@    {
 //@      "type": "Microsoft.Authorization/locks",
 //@      "apiVersion": "2016-09-01",
-//@      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name')))]",
+//@      "scope": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}single-resource-name', parameters('name')))]",
 //@      "name": "single-resource-lock",
 //@      "dependsOn": [
 //@        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}single-resource-name', parameters('name')))]"
@@ -57,7 +57,7 @@ resource singleResourceCascadeExtension 'Microsoft.Authorization/locks@2016-09-0
 //@    {
 //@      "type": "Microsoft.Authorization/locks",
 //@      "apiVersion": "2016-09-01",
-//@      "scope": "[extensionResourceId(format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', 'single-resource-lock')]",
+//@      "scope": "[extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', 'single-resource-lock')]",
 //@      "name": "single-resource-cascade-extension",
 //@      "dependsOn": [
 //@        "[extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', 'single-resource-lock')]"
@@ -111,7 +111,7 @@ resource extendSingleResourceInCollection 'Microsoft.Authorization/locks@2016-09
 //@    {
 //@      "type": "Microsoft.Authorization/locks",
 //@      "apiVersion": "2016-09-01",
-//@      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[mod(parameters('index'), 2)].name, mod(parameters('index'), 2)))]",
+//@      "scope": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[mod(parameters('index'), 2)].name, mod(parameters('index'), 2)))]",
 //@      "name": "one-resource-collection-item-lock",
 //@      "dependsOn": [
 //@        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[mod(parameters('index'), 2)].name, mod(parameters('index'), 2)))]"
@@ -136,7 +136,7 @@ resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for (
 //@      },
 //@      "type": "Microsoft.Authorization/locks",
 //@      "apiVersion": "2016-09-01",
-//@      "scope": "[format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name')))]",
+//@      "scope": "[resourceId('Microsoft.Storage/storageAccounts', format('{0}single-resource-name', parameters('name')))]",
 //@      "name": "[format('lock-{0}-{1}', range(0, 1)[copyIndex()], copyIndex())]",
 //@      "dependsOn": [
 //@        "[resourceId('Microsoft.Storage/storageAccounts', format('{0}single-resource-name', parameters('name')))]"
@@ -164,7 +164,7 @@ resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for (i, i2) 
 //@      },
 //@      "type": "Microsoft.Authorization/locks",
 //@      "apiVersion": "2016-09-01",
-//@      "scope": "[extensionResourceId(format('Microsoft.Storage/storageAccounts/{0}', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', format('lock-{0}-{1}', range(0, 1)[copyIndex()], copyIndex()))]",
+//@      "scope": "[extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', format('lock-{0}-{1}', range(0, 1)[copyIndex()], copyIndex()))]",
 //@      "name": "[format('lock-the-lock-{0}-{1}', range(0, 1)[copyIndex()], copyIndex())]",
 //@      "dependsOn": [
 //@        "[extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', format('{0}single-resource-name', parameters('name'))), 'Microsoft.Authorization/locks', format('lock-{0}-{1}', range(0, 1)[copyIndex()], copyIndex()))]"

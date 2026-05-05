@@ -16,7 +16,7 @@ using Azure.Deployments.Templates.Exceptions;
 using Azure.Deployments.Templates.ParsedEntities;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
-using Bicep.Cli.Helpers.Snapshot;
+using Bicep.Cli.Helpers.Snapshots;
 using Bicep.Cli.Helpers.WhatIf;
 using Bicep.Cli.Logging;
 using Bicep.Core;
@@ -25,6 +25,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Utils.Snapshots;
 using Bicep.IO.Abstraction;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
@@ -42,8 +43,6 @@ public class SnapshotCommand(
 {
     public async Task<int> RunAsync(SnapshotArguments args, CancellationToken cancellationToken)
     {
-        logger.LogWarning($"WARNING: The '{args.CommandName}' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
-
         var snapshotMode = args.Mode ?? SnapshotArguments.SnapshotMode.Overwrite;
 
         var inputUri = inputOutputArgumentsResolver.ResolveInputArguments(args);
@@ -79,7 +78,7 @@ public class SnapshotCommand(
                         logger.LogWarning("Snapshot validation failed. Expected no changes, but found the following:");
                     }
 
-                    await io.Output.WriteAsync(WhatIfOperationResultFormatter.Format(changes));
+                    await io.Output.Writer.WriteAsync(WhatIfOperationResultFormatter.Format(changes));
                     return changes.Any() ? 1 : 0;
                 }
             default:
@@ -109,6 +108,7 @@ public class SnapshotCommand(
                 templateContent: templateContent,
                 parametersContent: parametersContent,
                 tenantId: arguments.TenantId,
+                managementGroupId: arguments.ManagementGroupId,
                 subscriptionId: arguments.SubscriptionId,
                 resourceGroup: arguments.ResourceGroup,
                 location: arguments.Location,

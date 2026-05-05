@@ -73,7 +73,7 @@ namespace Bicep.Core.PrettyPrint
                 this.PushDocument(NoLine);
                 this.VisitNodes(syntax.Children);
 
-                if (!syntax.EndOfFile.LeadingTrivia.Any(x => x.Type == SyntaxTriviaType.DisableNextLineDiagnosticsDirective))
+                if (!syntax.EndOfFile.LeadingTrivia.Any(x => x.Type == SyntaxTriviaType.DiagnosticsPragma))
                 {
                     this.PushDocument(NoLine);
                 }
@@ -558,7 +558,7 @@ namespace Bicep.Core.PrettyPrint
                 this.visitingComment = false;
             }
 
-            if (syntaxTrivia.Type == SyntaxTriviaType.DisableNextLineDiagnosticsDirective)
+            if (syntaxTrivia.Type == SyntaxTriviaType.DiagnosticsPragma)
             {
                 if (this.LeadingDirectiveOrComments is null)
                 {

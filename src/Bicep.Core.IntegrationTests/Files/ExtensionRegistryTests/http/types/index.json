@@ -5,13 +5,12 @@
     }
   },
   "resourceFunctions": {},
+  "namespaceFunctions": [],
   "settings": {
     "name": "http",
     "version": "1.2.3",
     "isSingleton": false,
     "isPreview": false,
-    "isDeprecated": false,
-    "configurationType": null
-  },
-  "fallbackResourceType": null
+    "isDeprecated": false
+  }
 }

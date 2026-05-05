@@ -48,7 +48,8 @@ public static class TypesV1Archive
     {
         var allTypeReferences = index.Resources.Values
             .Concat(index.FallbackResourceType is { } fallbackType ? [fallbackType] : [])
-            .Concat(index.Settings?.ConfigurationType is { } configType ? [configType] : []);
+            .Concat(index.Settings?.ConfigurationType is { } configType ? [configType] : [])
+            .Concat(index.NamespaceFunctions is { } namespaceFunctions ? namespaceFunctions : []);
 
         return allTypeReferences.Select(r => r.RelativePath).Distinct();
     }

@@ -97,7 +97,7 @@ public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedT
                 case BicepSymbolicReference bicepRef:
                     var migrator = new ImportedSymbolDeclarationMigrator(bicepRef.SourceBicepModel,
                         importedBicepSymbolNames,
-                        synthesizedVariableNames.TryGetValue(bicepRef.SourceBicepModel, out var dict) ? dict : ImmutableDictionary<string, string>.Empty,
+                        synthesizedVariableNames.TryGetValue(bicepRef.SourceBicepModel, out var dict) ? dict : [],
                         closure.SymbolsInImportClosure[bicepRef]);
                     ExpressionBuilder expressionBuilder = new(closure.EmitterContexts.GetOrAdd(bicepRef.SourceBicepModel, m => new(m)));
                     switch (bicepRef.Symbol)

@@ -413,6 +413,25 @@
     ]
   },
   {
+    "name": "distinct",
+    "description": "Returns a new array with duplicate values removed, preserving order.",
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array to process.",
+        "type": "array",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(array: array): array",
+    "parameterTypeSignatures": [
+      "array: array"
+    ]
+  },
+  {
     "name": "empty",
     "description": "Determines if an array, object, or string is empty.",
     "fixedParameters": [
@@ -929,6 +948,32 @@
     "typeSignature": "(arg: array): int",
     "parameterTypeSignatures": [
       "arg: array"
+    ]
+  },
+  {
+    "name": "like",
+    "description": "Performs pattern based matching and returns true if input string matches the pattern and supports '*' as a wildcard. The comparison is case-insensitive.",
+    "fixedParameters": [
+      {
+        "name": "input",
+        "description": "The string to evaluate.",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "pattern",
+        "description": "The value to match.",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(input: string, pattern: string): bool",
+    "parameterTypeSignatures": [
+      "input: string",
+      "pattern: string"
     ]
   },
   {

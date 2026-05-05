@@ -1,5 +1,5 @@
 // BEGIN: Parameters
-//@[000:3754) ProgramSyntax
+//@[000:4364) ProgramSyntax
 //@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 param strParam1 string
@@ -55,6 +55,16 @@ var strVar1 = 'strVar1Value'
 //@[012:0013) | ├─Token(Assignment) |=|
 //@[014:0028) | └─StringSyntax
 //@[014:0028) |   └─Token(StringComplete) |'strVar1Value'|
+//@[028:0030) ├─Token(NewLine) |\r\n|
+var strParamVar1 = strParam1
+//@[000:0028) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0016) | ├─IdentifierSyntax
+//@[004:0016) | | └─Token(Identifier) |strParamVar1|
+//@[017:0018) | ├─Token(Assignment) |=|
+//@[019:0028) | └─VariableAccessSyntax
+//@[019:0028) |   └─IdentifierSyntax
+//@[019:0028) |     └─Token(Identifier) |strParam1|
 //@[028:0032) ├─Token(NewLine) |\r\n\r\n|
 
 // END: Variables
@@ -103,7 +113,124 @@ extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' as 
 //@[077:0079) |   ├─Token(Identifier) |as|
 //@[080:0102) |   └─IdentifierSyntax
 //@[080:0102) |     └─Token(Identifier) |extWithOptionalConfig2|
-//@[102:0106) ├─Token(NewLine) |\r\n\r\n|
+//@[102:0104) ├─Token(NewLine) |\r\n|
+extension 'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3' with {
+//@[000:0141) ├─ExtensionDeclarationSyntax
+//@[000:0009) | ├─Token(Identifier) |extension|
+//@[010:0076) | ├─StringSyntax
+//@[010:0076) | | └─Token(StringComplete) |'br:mcr.microsoft.com/bicep/extensions/hasoptionalconfig/v1:1.2.3'|
+//@[077:0115) | ├─ExtensionWithClauseSyntax
+//@[077:0081) | | ├─Token(Identifier) |with|
+//@[082:0115) | | └─ObjectSyntax
+//@[082:0083) | |   ├─Token(LeftBrace) |{|
+//@[083:0085) | |   ├─Token(NewLine) |\r\n|
+  optionalString: strParam1
+//@[002:0027) | |   ├─ObjectPropertySyntax
+//@[002:0016) | |   | ├─IdentifierSyntax
+//@[002:0016) | |   | | └─Token(Identifier) |optionalString|
+//@[016:0017) | |   | ├─Token(Colon) |:|
+//@[018:0027) | |   | └─VariableAccessSyntax
+//@[018:0027) | |   |   └─IdentifierSyntax
+//@[018:0027) | |   |     └─Token(Identifier) |strParam1|
+//@[027:0029) | |   ├─Token(NewLine) |\r\n|
+} as extWithOptionalConfig3
+//@[000:0001) | |   └─Token(RightBrace) |}|
+//@[002:0027) | └─AliasAsClauseSyntax
+//@[002:0004) |   ├─Token(Identifier) |as|
+//@[005:0027) |   └─IdentifierSyntax
+//@[005:0027) |     └─Token(Identifier) |extWithOptionalConfig3|
+//@[027:0029) ├─Token(NewLine) |\r\n|
+extension 'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3' with {
+//@[000:0146) ├─ExtensionDeclarationSyntax
+//@[000:0009) | ├─Token(Identifier) |extension|
+//@[010:0074) | ├─StringSyntax
+//@[010:0074) | | └─Token(StringComplete) |'br:mcr.microsoft.com/bicep/extensions/hassecureconfig/v1:1.2.3'|
+//@[075:0125) | ├─ExtensionWithClauseSyntax
+//@[075:0079) | | ├─Token(Identifier) |with|
+//@[080:0125) | | └─ObjectSyntax
+//@[080:0081) | |   ├─Token(LeftBrace) |{|
+//@[081:0083) | |   ├─Token(NewLine) |\r\n|
+  requiredSecureString: secureStrParam1
+//@[002:0039) | |   ├─ObjectPropertySyntax
+//@[002:0022) | |   | ├─IdentifierSyntax
+//@[002:0022) | |   | | └─Token(Identifier) |requiredSecureString|
+//@[022:0023) | |   | ├─Token(Colon) |:|
+//@[024:0039) | |   | └─VariableAccessSyntax
+//@[024:0039) | |   |   └─IdentifierSyntax
+//@[024:0039) | |   |     └─Token(Identifier) |secureStrParam1|
+//@[039:0041) | |   ├─Token(NewLine) |\r\n|
+} as extWithSecureStr1
+//@[000:0001) | |   └─Token(RightBrace) |}|
+//@[002:0022) | └─AliasAsClauseSyntax
+//@[002:0004) |   ├─Token(Identifier) |as|
+//@[005:0022) |   └─IdentifierSyntax
+//@[005:0022) |     └─Token(Identifier) |extWithSecureStr1|
+//@[022:0024) ├─Token(NewLine) |\r\n|
+extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with {
+//@[000:0132) ├─ExtensionDeclarationSyntax
+//@[000:0009) | ├─Token(Identifier) |extension|
+//@[010:0068) | ├─StringSyntax
+//@[010:0068) | | └─Token(StringComplete) |'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3'|
+//@[069:0114) | ├─ExtensionWithClauseSyntax
+//@[069:0073) | | ├─Token(Identifier) |with|
+//@[074:0114) | | └─ObjectSyntax
+//@[074:0075) | |   ├─Token(LeftBrace) |{|
+//@[075:0077) | |   ├─Token(NewLine) |\r\n|
+  requiredString: testResource1.id
+//@[002:0034) | |   ├─ObjectPropertySyntax
+//@[002:0016) | |   | ├─IdentifierSyntax
+//@[002:0016) | |   | | └─Token(Identifier) |requiredString|
+//@[016:0017) | |   | ├─Token(Colon) |:|
+//@[018:0034) | |   | └─PropertyAccessSyntax
+//@[018:0031) | |   |   ├─VariableAccessSyntax
+//@[018:0031) | |   |   | └─IdentifierSyntax
+//@[018:0031) | |   |   |   └─Token(Identifier) |testResource1|
+//@[031:0032) | |   |   ├─Token(Dot) |.|
+//@[032:0034) | |   |   └─IdentifierSyntax
+//@[032:0034) | |   |     └─Token(Identifier) |id|
+//@[034:0036) | |   ├─Token(NewLine) |\r\n|
+} as extWithConfig1
+//@[000:0001) | |   └─Token(RightBrace) |}|
+//@[002:0019) | └─AliasAsClauseSyntax
+//@[002:0004) |   ├─Token(Identifier) |as|
+//@[005:0019) |   └─IdentifierSyntax
+//@[005:0019) |     └─Token(Identifier) |extWithConfig1|
+//@[019:0021) ├─Token(NewLine) |\r\n|
+extension 'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3' with {
+//@[000:0153) ├─ExtensionDeclarationSyntax
+//@[000:0009) | ├─Token(Identifier) |extension|
+//@[010:0068) | ├─StringSyntax
+//@[010:0068) | | └─Token(StringComplete) |'br:mcr.microsoft.com/bicep/extensions/hasconfig/v1:1.2.3'|
+//@[069:0135) | ├─ExtensionWithClauseSyntax
+//@[069:0073) | | ├─Token(Identifier) |with|
+//@[074:0135) | | └─ObjectSyntax
+//@[074:0075) | |   ├─Token(LeftBrace) |{|
+//@[075:0077) | |   ├─Token(NewLine) |\r\n|
+  requiredString: boolParam1 ? strParamVar1 : strParam1
+//@[002:0055) | |   ├─ObjectPropertySyntax
+//@[002:0016) | |   | ├─IdentifierSyntax
+//@[002:0016) | |   | | └─Token(Identifier) |requiredString|
+//@[016:0017) | |   | ├─Token(Colon) |:|
+//@[018:0055) | |   | └─TernaryOperationSyntax
+//@[018:0028) | |   |   ├─VariableAccessSyntax
+//@[018:0028) | |   |   | └─IdentifierSyntax
+//@[018:0028) | |   |   |   └─Token(Identifier) |boolParam1|
+//@[029:0030) | |   |   ├─Token(Question) |?|
+//@[031:0043) | |   |   ├─VariableAccessSyntax
+//@[031:0043) | |   |   | └─IdentifierSyntax
+//@[031:0043) | |   |   |   └─Token(Identifier) |strParamVar1|
+//@[044:0045) | |   |   ├─Token(Colon) |:|
+//@[046:0055) | |   |   └─VariableAccessSyntax
+//@[046:0055) | |   |     └─IdentifierSyntax
+//@[046:0055) | |   |       └─Token(Identifier) |strParam1|
+//@[055:0057) | |   ├─Token(NewLine) |\r\n|
+} as extWithConfig2
+//@[000:0001) | |   └─Token(RightBrace) |}|
+//@[002:0019) | └─AliasAsClauseSyntax
+//@[002:0004) |   ├─Token(Identifier) |as|
+//@[005:0019) |   └─IdentifierSyntax
+//@[005:0019) |     └─Token(Identifier) |extWithConfig2|
+//@[019:0023) ├─Token(NewLine) |\r\n\r\n|
 
 // END: Extension declarations
 //@[030:0034) ├─Token(NewLine) |\r\n\r\n|

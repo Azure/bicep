@@ -64,13 +64,8 @@ namespace Bicep.Core.Semantics
                         }
                     }
 
-                    var parentVariables = extendedModel.Root.VariableDeclarations.OfType<VariableSymbol>().ToImmutableArray();
-
                     var nonConflicting = allParentAssignments.Where(a => !fileScope.Locals.Any(e => string.Equals(e.Name, a.Name, LanguageConstants.IdentifierComparison)));
                     fileScope = fileScope.ReplaceLocals(fileScope.Locals.AddRange(nonConflicting));
-
-                    var nonConflictingVars = parentVariables.Where(v => !fileScope.Locals.Any(e => string.Equals(e.Name, v.Name, LanguageConstants.IdentifierComparison)));
-                    fileScope = fileScope.ReplaceLocals(fileScope.Locals.AddRange(nonConflictingVars));
                 }
 
                 if (parentParameterAssignments.Any())
@@ -89,18 +84,6 @@ namespace Bicep.Core.Semantics
                     ProcessSyntaxForBinding(
                         parentAssignment.DeclaringParameterAssignment.Value,
                         parentAssignment.Context.Binder,
-                        baseBindings);
-                }
-
-                var inheritedVariables = fileScope.Locals.OfType<VariableSymbol>()
-                    .Where(v => !ReferenceEquals(v.Context.SourceFile, sourceFile))
-                    .ToImmutableArray();
-
-                foreach (var inheritedVar in inheritedVariables)
-                {
-                    ProcessSyntaxForBinding(
-                        inheritedVar.DeclaringVariable.Value,
-                        inheritedVar.Context.Binder,
                         baseBindings);
                 }
             }
@@ -177,7 +160,7 @@ namespace Bicep.Core.Semantics
             {
                 var current = stack.Pop();
 
-                if (current is VariableAccessSyntax || current == rootSyntax || current is PropertyAccessSyntax || current is ArrayAccessSyntax)
+                if (current is VariableAccessSyntax || current == rootSyntax || current is PropertyAccessSyntax || current is ArrayAccessSyntax || current is FunctionCallSyntaxBase)
                 {
                     var parentSymbol = parentBinder.GetSymbolInfo(current);
                     if (parentSymbol is not null && !baseBindings.ContainsKey(current))
@@ -188,8 +171,11 @@ namespace Bicep.Core.Semantics
 
                 var childNodes = current switch
                 {
-                    ObjectSyntax obj => obj.Properties.Select(p => p.Value),
-                    ArraySyntax arr => arr.Items.Select(i => i.Value),
+                    ObjectSyntax obj => obj.Children,
+                    ArraySyntax arr => arr.Children,
+                    ObjectPropertySyntax objectProperty => [objectProperty.Key, objectProperty.Value],
+                    ArrayItemSyntax arrayItem => [arrayItem.Value],
+                    SpreadExpressionSyntax spread => [spread.Expression],
                     PropertyAccessSyntax propAccess => [propAccess.BaseExpression],
                     ArrayAccessSyntax arrayAccess => [arrayAccess.BaseExpression, arrayAccess.IndexExpression],
                     FunctionCallSyntaxBase funcCall => funcCall.Arguments.Select(a => a.Expression),

@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3382300805230530714"
+      "templateHash": "11419283467798908080"
     }
   },
   "parameters": {
@@ -168,7 +168,7 @@
       "condition": "[parameters('enableDeleteLock')]",
       "type": "Microsoft.Authorization/locks",
       "apiVersion": "2016-09-01",
-      "scope": "[format('Microsoft.Automation/automationAccounts/{0}', parameters('name'))]",
+      "scope": "[resourceId('Microsoft.Automation/automationAccounts', parameters('name'))]",
       "name": "[variables('lockName')]",
       "properties": {
         "level": "CanNotDelete"
@@ -181,7 +181,7 @@
       "condition": "[parameters('enableDiagnostics')]",
       "type": "microsoft.insights/diagnosticSettings",
       "apiVersion": "2017-05-01-preview",
-      "scope": "[format('Microsoft.Automation/automationAccounts/{0}', parameters('name'))]",
+      "scope": "[resourceId('Microsoft.Automation/automationAccounts', parameters('name'))]",
       "name": "[variables('diagnosticsName')]",
       "properties": {
         "workspaceId": "[resourceId(parameters('logAnalyticsSubscriptionId'), parameters('logAnalyticsResourceGroup'), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",

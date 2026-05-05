@@ -73,9 +73,7 @@ resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             var result = await Bicep("snapshot", bicepparamPath, "--mode", "overwrite", "--subscription-id", subscriptionId, "--resource-group", resourceGroupName);
 
             result.Should().Succeed();
-
-            // this command should output an experimental warning
-            result.Stderr.Should().Match("WARNING: The 'snapshot' CLI command group is an experimental feature.*");
+            result.Stderr.Should().BeEmpty();
 
             var snapshotContents = File.ReadAllText(outputFilePath).FromJson<JToken>();
             snapshotContents.Should().DeepEqual(JObject.Parse("""
@@ -94,7 +92,8 @@ resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' = {
       "properties": {}
     }
   ],
-  "diagnostics": []
+  "diagnostics": [],
+  "outputs": {}
 }
 """));
         }
@@ -194,7 +193,8 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
                   "location": "westeurope"
                 }
               ],
-              "diagnostics": []
+              "diagnostics": [],
+              "outputs": {}
             }
             """));
     }
@@ -297,7 +297,144 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
                   "apiVersion": "2024-07-01"
                 }
               ],
-              "diagnostics": []
+              "diagnostics": [],
+              "outputs": {}
+            }
+            """));
+    }
+
+    [TestMethod]
+    public async Task Snapshot_command_handles_extension_resources_correctly()
+    {
+        // https://github.com/Azure/bicep/issues/18822
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ExtensionResourceTypeHelper.GetTestTypesTgz(), new(), artifactTarget: "example.azurecr.io/snap_test:1.2.3");
+        var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
+
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var bicepparamPath = FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicepparam",
+            """
+            using './main.bicep'
+            """,
+            testOutputPath: outputPath);
+
+        FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicep",
+            """
+            extension 'br:example.azurecr.io/snap_test:1.2.3'
+
+            resource clientAppWorking 'fooType@v1' = {
+              identifier: 'foo'
+              properties: {
+                required: 'bar'
+              }
+            }
+
+            resource clientAppWorkingSp 'fooType@v1' = {
+              identifier: 'bar'
+              properties: {
+                required: clientAppWorking.properties.readonly
+              }
+            }
+            """,
+            testOutputPath: outputPath);
+
+        var outputFilePath = FileHelper.GetResultFilePath(TestContext, "main.snapshot.json", testOutputPath: outputPath);
+
+        var result = await Bicep(
+            services => services.WithContainerRegistryClientFactory(clientFactory),
+            "snapshot", bicepparamPath, "--mode", "overwrite");
+
+        result.Should().Succeed();
+
+        var snapshotContents = File.ReadAllText(outputFilePath).FromJson<JToken>();
+        snapshotContents.Should().DeepEqual(JObject.Parse("""
+        {
+          "predictedResources": [
+            {
+              "properties": {
+                "identifier": "foo",
+                "properties": {
+                  "required": "bar"
+                }
+              },
+              "type": "fooType@v1"
+            },
+            {
+              "properties": {
+                "identifier": "bar",
+                "properties": {
+                  "required": "[reference('clientAppWorking').properties.readonly]"
+                }
+              },
+              "type": "fooType@v1"
+            }
+          ],
+          "diagnostics": [],
+          "outputs": {}
+        }
+        """));
+    }
+
+    [TestMethod]
+    public async Task Snapshot_command_supports_managementGroup_scope()
+    {
+        // https://github.com/Azure/bicep/issues/19319
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var bicepparamPath = FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicepparam",
+            """
+                using './main.bicep'
+
+                param policyAssignmentName = 'myAssignment'
+                """,
+            testOutputPath: outputPath);
+
+        FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicep",
+            """
+                targetScope = 'managementGroup'
+
+                param policyAssignmentName string
+
+                resource policyAssignment 'Microsoft.Authorization/policyAssignments@2022-06-01' = {
+                  name: policyAssignmentName
+                  properties: {
+                    policyDefinitionId: '/providers/Microsoft.Management/managementGroups/${managementGroup().name}/providers/Microsoft.Authorization/policyDefinitions/00000000-0000-0000-0000-000000000000'
+                  }
+                }
+                """,
+            testOutputPath: outputPath);
+
+        var outputFilePath = FileHelper.GetResultFilePath(TestContext, "main.snapshot.json", testOutputPath: outputPath);
+
+        var managementGroupId = "myManagementGroup";
+
+        var result = await Bicep("snapshot", bicepparamPath, "--mode", "overwrite", "--management-group-id", managementGroupId, "--location", "westeurope");
+
+        result.Should().Succeed();
+        result.Stderr.Should().BeEmpty();
+
+        var snapshotContents = File.ReadAllText(outputFilePath).FromJson<JToken>();
+        snapshotContents.Should().DeepEqual(JObject.Parse("""
+            {
+              "predictedResources": [
+                {
+                  "id": "/providers/Microsoft.Management/managementGroups/myManagementGroup/providers/Microsoft.Authorization/policyAssignments/myAssignment",
+                  "type": "Microsoft.Authorization/policyAssignments",
+                  "name": "myAssignment",
+                  "apiVersion": "2022-06-01",
+                  "properties": {
+                    "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/myManagementGroup/providers/Microsoft.Authorization/policyDefinitions/00000000-0000-0000-0000-000000000000"
+                  }
+                }
+              ],
+              "diagnostics": [],
+              "outputs": {}
             }
             """));
     }

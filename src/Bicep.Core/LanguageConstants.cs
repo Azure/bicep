@@ -92,7 +92,6 @@ namespace Bicep.Core
         public const string TargetScopeTypeManagementGroup = "managementGroup";
         public const string TargetScopeTypeSubscription = "subscription";
         public const string TargetScopeTypeResourceGroup = "resourceGroup";
-        public const string TargetScopeTypeDesiredStateConfiguration = "desiredStateConfiguration";
         public const string TargetScopeTypeLocal = "local";
 
         public const string CopyLoopIdentifier = "copy";
@@ -101,6 +100,8 @@ namespace Bicep.Core
         public const string BicepConfigurationFileName = "bicepconfig.json";
 
         public const string DisableNextLineDiagnosticsKeyword = "disable-next-line";
+        public const string DisableDiagnosticsKeyword = "disable-diagnostics";
+        public const string RestoreDiagnosticsKeyword = "restore-diagnostics";
 
         public static readonly Regex ArmTemplateSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[a-zA-Z]*[dD]eploymentTemplate\.json)#?");
         public static readonly Regex ArmParametersSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[dD]eploymentParameters\.json)#?");
@@ -169,6 +170,7 @@ namespace Bicep.Core
         public const string ExportPropertyName = "export";
         public const string TypeDiscriminatorDecoratorName = "discriminator";
         public const string OnlyIfNotExistsPropertyName = "onlyIfNotExists";
+        public const string NullIfNotFoundDecoratorName = "nullIfNotFound";
 
         // module properties
         public const string ModuleParamsPropertyName = "params";
@@ -343,10 +345,6 @@ namespace Bicep.Core
             {
                 yield return "resourceGroup";
             }
-            if (resourceScope.HasFlag(ResourceScope.DesiredStateConfiguration))
-            {
-                yield return "desiredStateConfiguration";
-            }
             if (resourceScope.HasFlag(ResourceScope.Local))
             {
                 yield return "local";
@@ -379,10 +377,11 @@ namespace Bicep.Core
             var nameRequirednessFlags = TypePropertyFlags.None;
             // Taken from the official REST specs for Microsoft.Resources/deployments
             var nameType = TypeFactory.CreateStringType(minLength: 1, maxLength: 64, pattern: @"^[-\w._()]+$");
+            var nameDescription = "The deployment name. Must be 1-64 characters, and can contain alphanumerics, underscores, parentheses, hyphens, and periods.";
 
             List<NamedTypeProperty> moduleProperties =
             [
-                new(ModuleNamePropertyName, nameType, nameRequirednessFlags | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
+                new(ModuleNamePropertyName, nameType, nameRequirednessFlags | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant, nameDescription),
                 new(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
                 new(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                 new(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
@@ -409,11 +408,15 @@ namespace Bicep.Core
             var optionalPropFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.DisallowAny;
             var requiredPropFlags = optionalPropFlags | TypePropertyFlags.Required;
 
+            var nameDescription = "The deployment name. Must be 1-64 characters, and can contain alphanumerics, underscores, parentheses, hyphens, and periods.";
+
             NamedTypeProperty[] commonProps = [
                 // Taken from the official REST specs for Microsoft.Resources/deployments
-                new(ModuleNamePropertyName, TypeFactory.CreateStringType(minLength: 1, maxLength: 64, pattern: @"^[-\w._()]+$"), optionalPropFlags),
+                new(ModuleNamePropertyName, TypeFactory.CreateStringType(minLength: 1, maxLength: 64, pattern: @"^[-\w._()]+$"), optionalPropFlags, nameDescription),
                 // TODO model this properly as a scope, rather than a string
                 new(ResourceScopePropertyName, LanguageConstants.String, requiredPropFlags),
+                // TODO avoid exposing on resource group scoped deployments
+                new(ResourceLocationPropertyName, LanguageConstants.String, optionalPropFlags),
             ];
 
             var deployment = new ObjectType("DeploymentConfig", TypeSymbolValidationFlags.Default, [

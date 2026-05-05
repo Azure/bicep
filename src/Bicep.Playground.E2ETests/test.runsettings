@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <RunConfiguration>
+    <EnvironmentVariables>
+      <PlaygroundPort>4173</PlaygroundPort>
+    </EnvironmentVariables>
+  </RunConfiguration>
+  <Playwright>
+    <LaunchOptions>
+        <Headless>true</Headless>
+    </LaunchOptions>
+  </Playwright>
+</RunSettings>
