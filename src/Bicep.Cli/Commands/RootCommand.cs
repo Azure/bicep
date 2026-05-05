@@ -286,7 +286,7 @@ Usage:
         private void PrintVersion()
         {
             var output = new StringBuilder();
-            output.AppendLine($"Bicep CLI version {environment.GetVersionString()}");
+            output.AppendLine($"Bicep CLI version: {environment.CurrentVersion.Version}");
 
             if (VersionChecker.TryGetGitCommitSha(environment.CurrentVersion.CommitRef) is { } gitCommitSha)
             {
