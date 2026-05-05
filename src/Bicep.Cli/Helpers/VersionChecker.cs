@@ -4,59 +4,31 @@
 using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using Bicep.Core.Utils;
 
 namespace Bicep.Cli.Helpers;
 
+public record BicepInstallationVersion(
+    Version Version,
+    string? GitCommitSha,
+    string Path);
+
 public class VersionChecker(IEnvironment environment, IFileSystem fileSystem)
 {
-    /// <summary>
-    /// Checks well-known installation locations for other Bicep CLI versions and warns if a newer version is installed.
-    /// Runs asynchronously in the background without blocking CLI startup.
-    /// </summary>
-    /// <param name="output">Output stream to write warnings to</param>
-    /// <param name="shouldCheck">Whether the check should run based on command type and output redirection</param>
-    public void CheckForNewerVersionsAsync(TextWriter output, bool shouldCheck)
+    private static readonly Regex GitCommitShaRegex = new(@"[0-9a-fA-F]{40}", RegexOptions.Compiled);
+    private static readonly Regex VersionPrefixRegex = new(@"^\d+(?:\.\d+){1,3}", RegexOptions.Compiled);
+
+    public virtual IReadOnlyList<BicepInstallationVersion> FindNewerVersions(CancellationToken cancellationToken = default)
+        => TryParseVersionInfo(string.Empty, environment.CurrentVersion.Version) is { } currentVersion ?
+            FindNewerVersions(currentVersion.Version, cancellationToken) :
+            [];
+
+    public IReadOnlyList<BicepInstallationVersion> FindNewerVersions(Version currentVersion, CancellationToken cancellationToken)
     {
-        if (!shouldCheck)
-        {
-            return;
-        }
-
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                var currentVersion = environment.CurrentVersion.Version;
-                if (!Version.TryParse(currentVersion, out var parsedCurrentVersion))
-                {
-                    return;
-                }
-
-                using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(250));
-                var newerVersions = await Task.Run(() => FindNewerVersions(parsedCurrentVersion, cts.Token), cts.Token);
-
-                if (newerVersions.Any())
-                {
-                    await output.WriteLineAsync($"Warning: You are running Bicep CLI version {currentVersion}, but newer version(s) are installed on this system:");
-                    foreach (var (version, path) in newerVersions.OrderByDescending(v => v.Version))
-                    {
-                        await output.WriteLineAsync($"  - Version {version} at {path}");
-                    }
-                    await output.WriteLineAsync();
-                }
-            }
-            catch
-            {
-                // Silently ignore any errors during version checking to avoid disrupting normal CLI operations
-            }
-        });
-    }
-
-    public List<(Version Version, string Path)> FindNewerVersions(Version currentVersion, CancellationToken cancellationToken)
-    {
-        var newerVersions = new List<(Version, string)>();
+        var newerVersions = new List<BicepInstallationVersion>();
         var checkedPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        currentVersion = NormalizeVersion(currentVersion);
 
         var currentExePath = GetNormalizedPath(System.Environment.ProcessPath);
         if (currentExePath != null)
@@ -98,48 +70,41 @@ public class VersionChecker(IEnvironment environment, IFileSystem fileSystem)
 
                     checkedPaths.Add(normalizedPath);
 
-                    var version = GetBicepVersion(bicepPath);
-                    if (version != null && version > currentVersion)
+                    var versionInfo = GetBicepVersion(bicepPath);
+                    if (versionInfo is { } && versionInfo.Version > currentVersion)
                     {
-                        newerVersions.Add((version, bicepPath));
+                        newerVersions.Add(versionInfo);
                     }
                 }
             }
             catch
             {
-                // Skip locations that cannot be accessed
+                // Ignore locations that cannot be inspected.
             }
         }
 
-        return newerVersions;
+        return newerVersions.OrderByDescending(version => version.Version).ToList();
     }
 
-    public List<string> GetWellKnownInstallLocations()
+    public IReadOnlyList<string> GetWellKnownInstallLocations()
     {
         var locations = new List<string>();
         var homePath = environment.GetVariable("HOME") ?? environment.GetVariable("USERPROFILE");
 
-        if (string.IsNullOrEmpty(homePath))
+        if (!string.IsNullOrEmpty(homePath))
         {
-            return locations;
+            locations.Add(fileSystem.Path.Combine(homePath, ".bicep", "bin"));
+            locations.Add(fileSystem.Path.Combine(homePath, ".azure", "bin"));
         }
-
-        // ~/.bicep/bin (default location)
-        locations.Add(fileSystem.Path.Combine(homePath, ".bicep", "bin"));
-
-        // ~/.azure/bin (install location from Azure CLI)
-        locations.Add(fileSystem.Path.Combine(homePath, ".azure", "bin"));
 
         if (environment.CurrentPlatform == OSPlatform.Windows)
         {
-            // C:\Program Files\Bicep CLI
             var programFiles = environment.GetVariable("ProgramFiles");
             if (!string.IsNullOrEmpty(programFiles))
             {
                 locations.Add(fileSystem.Path.Combine(programFiles, "Bicep CLI"));
             }
 
-            // C:\Program Files (x86)\Bicep CLI
             var programFilesX86 = environment.GetVariable("ProgramFiles(x86)");
             if (!string.IsNullOrEmpty(programFilesX86))
             {
@@ -148,17 +113,31 @@ public class VersionChecker(IEnvironment environment, IFileSystem fileSystem)
         }
         else
         {
-            // /usr/local/bin
             locations.Add("/usr/local/bin");
-
-            // /usr/bin
             locations.Add("/usr/bin");
         }
 
-        return locations.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        AddPathEnvironmentLocations(locations);
+
+        return locations
+            .Where(location => !string.IsNullOrWhiteSpace(location))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 
-    protected virtual Version? GetBicepVersion(string bicepPath)
+    public static string? TryGetGitCommitSha(string? commitRef)
+    {
+        if (string.IsNullOrWhiteSpace(commitRef))
+        {
+            return null;
+        }
+
+        var match = GitCommitShaRegex.Match(commitRef);
+
+        return match.Success ? match.Value : commitRef;
+    }
+
+    protected virtual BicepInstallationVersion? GetBicepVersion(string bicepPath)
     {
         try
         {
@@ -168,24 +147,54 @@ public class VersionChecker(IEnvironment environment, IFileSystem fileSystem)
             }
 
             var fileVersionInfo = FileVersionInfo.GetVersionInfo(bicepPath);
-            var fileVersion = fileVersionInfo.FileVersion;
 
-            if (string.IsNullOrEmpty(fileVersion))
-            {
-                return null;
-            }
-
-            if (Version.TryParse(fileVersion, out var version))
-            {
-                return version;
-            }
-
-            return null;
+            return TryParseVersionInfo(bicepPath, fileVersionInfo.ProductVersion) ??
+                TryParseVersionInfo(bicepPath, fileVersionInfo.FileVersion);
         }
         catch
         {
             return null;
         }
+    }
+
+    protected static BicepInstallationVersion? TryParseVersionInfo(string bicepPath, string? versionString)
+    {
+        if (string.IsNullOrWhiteSpace(versionString))
+        {
+            return null;
+        }
+
+        var versionParts = versionString.Split('+', 2);
+        var versionMatch = VersionPrefixRegex.Match(versionParts[0]);
+        if (!versionMatch.Success || !Version.TryParse(versionMatch.Value, out var version))
+        {
+            return null;
+        }
+
+        var gitCommitSha = versionParts.Length > 1 ? TryGetGitCommitSha(versionParts[1]) : null;
+
+        return new(NormalizeVersion(version), gitCommitSha, bicepPath);
+    }
+
+    private static Version NormalizeVersion(Version version)
+    {
+        var build = version.Build >= 0 ? version.Build : 0;
+
+        return version.Revision > 0 ?
+            new(version.Major, version.Minor, build, version.Revision) :
+            new(version.Major, version.Minor, build);
+    }
+
+    private void AddPathEnvironmentLocations(List<string> locations)
+    {
+        var pathVariable = environment.GetVariable("PATH");
+        if (string.IsNullOrWhiteSpace(pathVariable))
+        {
+            return;
+        }
+
+        var pathSeparator = environment.CurrentPlatform == OSPlatform.Windows ? ';' : ':';
+        locations.AddRange(pathVariable.Split(pathSeparator, StringSplitOptions.RemoveEmptyEntries));
     }
 
     private string? GetNormalizedPath(string? path)
