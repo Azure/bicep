@@ -4,8 +4,10 @@
 using System.Collections.Immutable;
 using System.ComponentModel;
 using Bicep.Core;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.PrettyPrintV2;
+using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
 using ModelContextProtocol.Server;
 
@@ -39,6 +41,24 @@ public sealed class BicepCompilerTools(
         [Description("The list of files being referenced by the specified Bicep or Bicep parameters file")]
         ImmutableArray<Uri> FileUris);
 
+    public record BuildBicepResult(
+        [Description("Whether the compilation succeeded without errors")]
+        bool Success,
+        [Description("The compiled ARM template JSON, or null if compilation failed")]
+        string? Template,
+        [Description("The list of diagnostics from compilation")]
+        ImmutableArray<DiagnosticDefinition> Diagnostics);
+
+    public record BuildBicepparamResult(
+        [Description("Whether the compilation succeeded without errors")]
+        bool Success,
+        [Description("The compiled parameters JSON, or null if compilation failed")]
+        string? Parameters,
+        [Description("The compiled ARM template JSON, or null if not applicable or compilation failed")]
+        string? Template,
+        [Description("The list of diagnostics from compilation")]
+        ImmutableArray<DiagnosticDefinition> Diagnostics);
+
     [McpServerTool(Title = "Get Bicep File Diagnostics", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
     [Description("""
     Analyzes a Bicep file (.bicep) or Bicep parameters file (.bicepparam) and returns all compilation diagnostics including errors, warnings, and informational messages.
@@ -63,16 +83,61 @@ public sealed class BicepCompilerTools(
 
         var compilation = await compiler.CreateCompilation(fileUri);
 
-        return [.. compilation
-            .GetAllDiagnosticsByBicepFile()
-            .SelectMany(kvp => kvp.Value.Select(x => new DiagnosticDefinition(
-                kvp.Key.FileHandle.Uri.ToUri(),
-                x.Code,
-                x.Level.ToString(),
-                x.Message,
-                x.Uri,
-                x.Span.Position,
-                x.Span.Length)))];
+        return GetDiagnostics(compilation.GetAllDiagnosticsByBicepFile());
+    }
+
+    [McpServerTool(Title = "Build Bicep", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
+    [Description("""
+    Compiles a Bicep file (.bicep) to an ARM template JSON string and returns the result along with any diagnostics.
+
+    Use this tool to:
+    - Compile Bicep source code to ARM template JSON
+    - Check for compilation errors before deployment
+    - Obtain the ARM template output for inspection or deployment
+
+    The compiled ARM template JSON is returned along with any compilation diagnostics (errors, warnings, and informational messages).
+    The file path must be absolute. If compilation fails due to errors, the Template field will be null.
+    """)]
+    public async Task<BuildBicepResult> BuildBicep(
+        [Description("The path to the .bicep file")] string filePath)
+    {
+        var fileUri = IOUri.FromFilePath(filePath);
+        if (!fileUri.HasBicepExtension())
+        {
+            throw new ArgumentException("The specified file must have a .bicep extension.", nameof(filePath));
+        }
+
+        var compilation = await compiler.CreateCompilation(fileUri);
+        var result = compilation.Emitter.Template();
+
+        return new BuildBicepResult(result.Success, result.Template, GetDiagnostics(result.Diagnostics));
+    }
+
+    [McpServerTool(Title = "Build Bicep Parameters", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
+    [Description("""
+    Compiles a Bicep parameters file (.bicepparam) to a parameters JSON string and returns the result along with any diagnostics.
+
+    Use this tool to:
+    - Compile Bicep parameters source code to ARM parameters JSON
+    - Check for compilation errors before deployment
+    - Obtain the parameters JSON output for inspection or deployment
+
+    The compiled parameters JSON and the associated ARM template JSON are returned along with any compilation diagnostics (errors, warnings, and informational messages).
+    The file path must be absolute. If compilation fails due to errors, the Parameters field will be null.
+    """)]
+    public async Task<BuildBicepparamResult> BuildBicepparam(
+        [Description("The path to the .bicepparam file")] string filePath)
+    {
+        var fileUri = IOUri.FromFilePath(filePath);
+        if (!fileUri.HasBicepParamExtension())
+        {
+            throw new ArgumentException("The specified file must have a .bicepparam extension.", nameof(filePath));
+        }
+
+        var compilation = await compiler.CreateCompilation(fileUri);
+        var result = compilation.Emitter.Parameters();
+
+        return new BuildBicepparamResult(result.Success, result.Parameters, result.Template?.Template, GetDiagnostics(result.Diagnostics));
     }
 
     [McpServerTool(Title = "Format Bicep File", Destructive = false, Idempotent = true, OpenWorld = true, ReadOnly = true, UseStructuredContent = true)]
@@ -147,5 +212,17 @@ public sealed class BicepCompilerTools(
 
         return new(
             [.. fileUris.Select(x => x.ToUri()).OrderBy(x => x.ToString())]);
+    }
+
+    private static ImmutableArray<DiagnosticDefinition> GetDiagnostics(ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> diagnosticsByFile)
+    {
+        return [.. diagnosticsByFile.SelectMany(kvp => kvp.Value.Select(x => new DiagnosticDefinition(
+            kvp.Key.FileHandle.Uri.ToUri(),
+            x.Code,
+            x.Level.ToString(),
+            x.Message,
+            x.Uri,
+            x.Span.Position,
+            x.Span.Length)))];
     }
 }
