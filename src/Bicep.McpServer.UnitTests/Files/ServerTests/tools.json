@@ -1,5 +1,189 @@
 [
   {
+    "name": "build_bicep",
+    "description": "Compiles a Bicep file (.bicep) to an ARM template JSON string and returns the result along with any diagnostics.\n\nUse this tool to:\n- Compile Bicep source code to ARM template JSON\n- Check for compilation errors before deployment\n- Obtain the ARM template output for inspection or deployment\n\nThe compiled ARM template JSON is returned along with any compilation diagnostics (errors, warnings, and informational messages).\nThe file path must be absolute. If compilation fails due to errors, the Template field will be null.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "filePath": {
+          "description": "The path to the .bicep file",
+          "type": "string"
+        }
+      },
+      "required": [
+        "filePath"
+      ]
+    },
+    "returnJsonSchema": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "description": "Whether the compilation succeeded without errors",
+          "type": "boolean"
+        },
+        "template": {
+          "description": "The compiled ARM template JSON, or null if compilation failed",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "diagnostics": {
+          "description": "The list of diagnostics from compilation",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fileUri": {
+                "description": "The .bicep or .bicepparam file URI",
+                "type": "string",
+                "format": "uri"
+              },
+              "code": {
+                "description": "The diagnostic code",
+                "type": "string"
+              },
+              "level": {
+                "description": "The diagnostic level",
+                "type": "string"
+              },
+              "message": {
+                "description": "The diagnostic message",
+                "type": "string"
+              },
+              "documentationUri": {
+                "description": "The documentation URI, if present",
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "uri"
+              },
+              "position": {
+                "description": "The character position of the diagnostic in the file, as a zero-based index",
+                "type": "integer"
+              },
+              "length": {
+                "description": "The character length of the diagnostic",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "fileUri",
+              "code",
+              "level",
+              "message",
+              "documentationUri",
+              "position",
+              "length"
+            ]
+          }
+        }
+      },
+      "required": [
+        "success",
+        "template",
+        "diagnostics"
+      ]
+    }
+  },
+  {
+    "name": "build_bicepparam",
+    "description": "Compiles a Bicep parameters file (.bicepparam) to a parameters JSON string and returns the result along with any diagnostics.\n\nUse this tool to:\n- Compile Bicep parameters source code to ARM parameters JSON\n- Check for compilation errors before deployment\n- Obtain the parameters JSON output for inspection or deployment\n\nThe compiled parameters JSON and the associated ARM template JSON are returned along with any compilation diagnostics (errors, warnings, and informational messages).\nThe file path must be absolute. If compilation fails due to errors, the Parameters field will be null.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "filePath": {
+          "description": "The path to the .bicepparam file",
+          "type": "string"
+        }
+      },
+      "required": [
+        "filePath"
+      ]
+    },
+    "returnJsonSchema": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "description": "Whether the compilation succeeded without errors",
+          "type": "boolean"
+        },
+        "parameters": {
+          "description": "The compiled parameters JSON, or null if compilation failed",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "template": {
+          "description": "The compiled ARM template JSON, or null if not applicable or compilation failed",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "diagnostics": {
+          "description": "The list of diagnostics from compilation",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fileUri": {
+                "description": "The .bicep or .bicepparam file URI",
+                "type": "string",
+                "format": "uri"
+              },
+              "code": {
+                "description": "The diagnostic code",
+                "type": "string"
+              },
+              "level": {
+                "description": "The diagnostic level",
+                "type": "string"
+              },
+              "message": {
+                "description": "The diagnostic message",
+                "type": "string"
+              },
+              "documentationUri": {
+                "description": "The documentation URI, if present",
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "uri"
+              },
+              "position": {
+                "description": "The character position of the diagnostic in the file, as a zero-based index",
+                "type": "integer"
+              },
+              "length": {
+                "description": "The character length of the diagnostic",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "fileUri",
+              "code",
+              "level",
+              "message",
+              "documentationUri",
+              "position",
+              "length"
+            ]
+          }
+        }
+      },
+      "required": [
+        "success",
+        "parameters",
+        "template",
+        "diagnostics"
+      ]
+    }
+  },
+  {
     "name": "decompile_arm_parameters_file",
     "description": "Converts an ARM template parameters JSON file into Bicep parameters syntax (.bicepparam).\n\nUse this tool to:\n- Migrate ARM JSON parameter files to Bicep parameters format\n- Convert deployment parameter files when modernizing to Bicep\n- Generate .bicepparam files from existing ARM deployments\n\nAccepts files with .json, .jsonc, or .arm extensions. The file path must be absolute.\n\nThe generated .bicepparam file includes a 'using' statement placeholder that must be completed, all parameters with their values preserved, and KeyVault references converted to az.getSecret() function calls if present.",
     "jsonSchema": {
@@ -151,80 +335,6 @@
       },
       "required": [
         "content"
-      ]
-    }
-  },
-  {
-    "name": "get_bicep_file_diagnostics",
-    "description": "Analyzes a Bicep file (.bicep) or Bicep parameters file (.bicepparam) and returns all compilation diagnostics including errors, warnings, and informational messages.\n\nUse this tool to:\n- Validate Bicep syntax and identify compilation errors before deployment\n- Check for warnings about deprecated features, security issues, or best practice violations\n- Troubleshoot why a Bicep file isn't compiling\n- Understand the severity and location of issues in the code\n\nEach diagnostic includes the error code (e.g., BCP033), severity level (Error/Warning/Info), descriptive message, exact position in the file, and a link to documentation for more details.\nThe file path must be absolute. Diagnostics are returned for the specified file and any modules it references.",
-    "jsonSchema": {
-      "type": "object",
-      "properties": {
-        "filePath": {
-          "description": "The path to the .bicep or .bicepparam file",
-          "type": "string"
-        }
-      },
-      "required": [
-        "filePath"
-      ]
-    },
-    "returnJsonSchema": {
-      "type": "object",
-      "properties": {
-        "result": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "fileUri": {
-                "description": "The .bicep or .bicepparam file URI",
-                "type": "string",
-                "format": "uri"
-              },
-              "code": {
-                "description": "The diagnostic code",
-                "type": "string"
-              },
-              "level": {
-                "description": "The diagnostic level",
-                "type": "string"
-              },
-              "message": {
-                "description": "The diagnostic message",
-                "type": "string"
-              },
-              "documentationUri": {
-                "description": "The documentation URI, if present",
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "format": "uri"
-              },
-              "position": {
-                "description": "The character position of the diagnostic in the file, as a zero-based index",
-                "type": "integer"
-              },
-              "length": {
-                "description": "The character length of the diagnostic",
-                "type": "integer"
-              }
-            },
-            "required": [
-              "fileUri",
-              "code",
-              "level",
-              "message",
-              "documentationUri",
-              "position",
-              "length"
-            ]
-          }
-        }
-      },
-      "required": [
-        "result"
       ]
     }
   },
