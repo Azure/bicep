@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 import type { D3ZoomEvent } from "d3-zoom";
-import type { PropsWithChildren } from "react";
-import type { ReactElement } from "react";
+import type { PropsWithChildren, ReactElement } from "react";
 
 import { select } from "d3-selection";
 import { zoom, zoomIdentity } from "d3-zoom";
