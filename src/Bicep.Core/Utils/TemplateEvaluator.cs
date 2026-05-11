@@ -278,8 +278,7 @@ namespace Bicep.Core.Utils
                     templateExtResolver: new TemplateExtensionPreprocessingResolver(
                         template,
                         extensionConfigs,
-                        new DeploymentParametersDefinition(),
-                        new FactBasedExtensionConfigSchemaDirectoryFactory().GetOrCreateDirectory()),
+                        new DeploymentParametersDefinition()),
                     metricsRecorder: new TemplateMetricsRecorder());
 
                 ProcessTemplateLanguageExpressions(template, config, deploymentScope);
