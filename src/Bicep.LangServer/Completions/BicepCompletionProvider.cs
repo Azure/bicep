@@ -964,7 +964,7 @@ namespace Bicep.LanguageServer.Completions
                 .ToImmutableDictionary(x => x.symbol, x => x.type!);
         }
 
-        private static CompletionPriority GetContextualCompletionPriority(Symbol symbol, SemanticModel model, BicepCompletionContext context, Symbol? enclosingDeclarationSymbol)
+        private static CompletionPriority GetContextualCompletionPriority(Symbol symbol, SemanticModel model, BicepCompletionContext context, Symbol? enclosingDecorableSymbol)
         {
             // The value type of resource/module.dependsOn items can only be a resource or module symbol so prioritize them higher than anything else.
             // Expressions can also be accepted in this context so other completion items will still be available, just lower in the list.
@@ -972,7 +972,7 @@ namespace Bicep.LanguageServer.Completions
                 && symbol is ResourceSymbol or ModuleSymbol)
             {
                 // parent resource symbols of the current resource should not be prioritized but are still provided for use in expressions
-                var enclosingResourceMetadata = model.DeclaredResources.FirstOrDefault((drm) => drm.Symbol == enclosingDeclarationSymbol);
+                var enclosingResourceMetadata = model.DeclaredResources.FirstOrDefault((drm) => drm.Symbol == enclosingDecorableSymbol);
                 if (enclosingResourceMetadata != null
                     && model.ResourceAncestors.GetAncestors(enclosingResourceMetadata).Any(ra => ra.Resource.Symbol == symbol))
                 {
@@ -985,10 +985,10 @@ namespace Bicep.LanguageServer.Completions
             return GetCompletionPriority(symbol.Kind);
         }
 
-        private static bool ShouldSymbolBeIncludedInCompletion(Symbol symbol, SemanticModel model, BicepCompletionContext context, Symbol? enclosingDeclarationSymbol)
+        private static bool ShouldSymbolBeIncludedInCompletion(Symbol symbol, SemanticModel model, BicepCompletionContext context, Symbol? enclosingDecorableSymbol)
         {
             // filter out self references
-            if (enclosingDeclarationSymbol != null && ReferenceEquals(symbol, enclosingDeclarationSymbol))
+            if (enclosingDecorableSymbol != null && ReferenceEquals(symbol, enclosingDecorableSymbol))
             {
                 return false;
             }
@@ -996,10 +996,10 @@ namespace Bicep.LanguageServer.Completions
             // For nested resource/module symbol completions, don't suggest child symbols for resource.dependsOn symbol completions.
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectsResourceSymbolicReference) && symbol is ResourceSymbol or ModuleSymbol or TestSymbol)
             {
-                // filter out child resource symbols of the enclosing declaration symbol
+                // filter out child resource symbols of the enclosing decorable symbol
                 var symbolResourceMetadata = model.DeclaredResources.FirstOrDefault((drm) => drm.Symbol == symbol);
                 if (symbolResourceMetadata != null
-                    && model.ResourceAncestors.GetAncestors(symbolResourceMetadata).Any(ra => ra.Resource.Symbol == enclosingDeclarationSymbol))
+                    && model.ResourceAncestors.GetAncestors(symbolResourceMetadata).Any(ra => ra.Resource.Symbol == enclosingDecorableSymbol))
                 {
                     return false;
                 }
@@ -1017,9 +1017,9 @@ namespace Bicep.LanguageServer.Completions
 
             var accessibleDecoratorFunctionsCache = new Dictionary<NamespaceType, IEnumerable<FunctionSymbol>>();
 
-            var enclosingDeclarationSymbol = context.EnclosingDeclaration == null
+            var enclosingDecorableSymbol = context.EnclosingDecorable == null
                 ? null
-                : model.GetSymbolInfo(context.EnclosingDeclaration);
+                : model.GetSymbolInfo(context.EnclosingDecorable);
             var decoratorTargetType = context.EnclosingDecorable is null
                 ? null
                 : model.GetDeclaredType(context.EnclosingDecorable);
@@ -1029,13 +1029,13 @@ namespace Bicep.LanguageServer.Completions
             {
                 foreach (var symbol in symbols)
                 {
-                    if (!result.ContainsKey(symbol.Name) && ShouldSymbolBeIncludedInCompletion(symbol, model, context, enclosingDeclarationSymbol))
+                    if (!result.ContainsKey(symbol.Name) && ShouldSymbolBeIncludedInCompletion(symbol, model, context, enclosingDecorableSymbol))
                     {
                         // the symbol satisfies the following conditions:
                         // - we have not added a symbol with the same name (avoids duplicate completions)
-                        // - the symbol is different than the enclosing declaration (avoids suggesting cycles)
-                        // - the symbol name is different than the name of the enclosing declaration (avoids suggesting a duplicate identifier)
-                        var priority = GetContextualCompletionPriority(symbol, model, context, enclosingDeclarationSymbol);
+                        // - the symbol is different than the enclosing decorable (avoids suggesting cycles)
+                        // - the symbol name is different than the name of the enclosing decorable (avoids suggesting a duplicate identifier)
+                        var priority = GetContextualCompletionPriority(symbol, model, context, enclosingDecorableSymbol);
                         result.Add(symbol.Name, CreateSymbolCompletion(symbol, context.ReplacementRange, priority: priority, model: model));
                     }
                 }
@@ -1049,7 +1049,7 @@ namespace Bicep.LanguageServer.Completions
                     return result;
                 }
 
-                result = GetAccessibleDecoratorFunctions(namespaceType, context.EnclosingDecorable, decoratorTargetType, enclosingDeclarationSymbol);
+                result = GetAccessibleDecoratorFunctions(namespaceType, decoratorTargetType, enclosingDecorableSymbol);
                 accessibleDecoratorFunctionsCache.Add(namespaceType, result);
 
                 return result;
@@ -1112,7 +1112,7 @@ namespace Bicep.LanguageServer.Completions
 
                 foreach (var function in functionSymbols)
                 {
-                    if (function.FunctionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly) && !(enclosingDeclarationSymbol is ParameterSymbol))
+                    if (function.FunctionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly) && !(enclosingDecorableSymbol is ParameterSymbol))
                     {
                         // this function is only allowed in param defaults but the enclosing declaration is not bound to a parameter symbol
                         // therefore we should not suggesting this function as a viable completion
@@ -1137,7 +1137,7 @@ namespace Bicep.LanguageServer.Completions
             return completions.Values;
         }
 
-        private static IEnumerable<FunctionSymbol> GetAccessibleDecoratorFunctions(NamespaceType namespaceType, SyntaxBase? enclosingDecorable, TypeSymbol? targetType, Symbol? enclosingDeclarationSymbol)
+        private static IEnumerable<FunctionSymbol> GetAccessibleDecoratorFunctions(NamespaceType namespaceType, TypeSymbol? targetType, Symbol? enclosingDecorableSymbol)
         {
             // Local function.
             IEnumerable<FunctionSymbol> GetAccessible(IEnumerable<FunctionSymbol> symbols, TypeSymbol targetType, FunctionFlags flags) =>
@@ -1146,38 +1146,27 @@ namespace Bicep.LanguageServer.Completions
                     namespaceType.DecoratorResolver.TryGetDecorator(overload)?.CanAttachTo(targetType) == true));
 
             var knownDecoratorFunctions = namespaceType.DecoratorResolver.GetKnownDecoratorFunctions().Values;
+            var unwrappedTargetType = (targetType as TypeType)?.Unwrapped ?? targetType;
 
-            return GetDecoratorCompletionTarget(enclosingDecorable, targetType, enclosingDeclarationSymbol) switch
+            return enclosingDecorableSymbol switch
             {
-                { } decoratorTarget => GetAccessible(knownDecoratorFunctions, decoratorTarget.targetType, decoratorTarget.flags),
+                MetadataSymbol metadataSymbol => GetAccessible(knownDecoratorFunctions, metadataSymbol.Type, FunctionFlags.MetadataDecorator),
+                ParameterSymbol parameterSymbol => GetAccessible(knownDecoratorFunctions, parameterSymbol.Type, FunctionFlags.ParameterDecorator),
+                TypeAliasSymbol when unwrappedTargetType is not null => GetAccessible(knownDecoratorFunctions, unwrappedTargetType, FunctionFlags.TypeDecorator),
+                VariableSymbol variableSymbol => GetAccessible(knownDecoratorFunctions, variableSymbol.Type, FunctionFlags.VariableDecorator),
+                DeclaredFunctionSymbol functionSymbol => GetAccessible(knownDecoratorFunctions, functionSymbol.Type, FunctionFlags.FunctionDecorator),
+                ResourceSymbol resourceSymbol => GetAccessible(knownDecoratorFunctions, resourceSymbol.Type, FunctionFlags.ResourceDecorator),
+                ModuleSymbol moduleSymbol => GetAccessible(knownDecoratorFunctions, moduleSymbol.Type, FunctionFlags.ModuleDecorator),
+                ExtensionNamespaceSymbol extensionSymbol => GetAccessible(knownDecoratorFunctions, extensionSymbol.DeclaredType, FunctionFlags.ExtensionDecorator),
+                OutputSymbol outputSymbol => GetAccessible(knownDecoratorFunctions, outputSymbol.Type, FunctionFlags.OutputDecorator),
+                PropertySymbol propertySymbol => GetAccessible(knownDecoratorFunctions, propertySymbol.Type, FunctionFlags.TypeDecorator),
+                null when unwrappedTargetType is not null => GetAccessible(knownDecoratorFunctions, unwrappedTargetType, FunctionFlags.TypeDecorator),
                 /*
-                 * The decorator is dangling if enclosingDeclarationSymbol is null. Return all decorator factory functions since
+                 * The decorator is dangling if enclosingDecorableSymbol is null. Return all decorator factory functions since
                  * we don't know which kind of declaration it will attach to.
                  */
-                null when enclosingDeclarationSymbol is null => knownDecoratorFunctions,
+                null => knownDecoratorFunctions,
                 _ => []
-            };
-        }
-
-        private static (TypeSymbol targetType, FunctionFlags flags)? GetDecoratorCompletionTarget(SyntaxBase? enclosingDecorable, TypeSymbol? targetType, Symbol? enclosingDeclarationSymbol)
-        {
-            if (enclosingDecorable is TypeDeclarationSyntax or ObjectTypePropertySyntax or ObjectTypeAdditionalPropertiesSyntax or TupleTypeItemSyntax && targetType is not null)
-            {
-                return ((targetType as TypeType)?.Unwrapped ?? targetType, FunctionFlags.TypeDecorator);
-            }
-
-            return enclosingDeclarationSymbol switch
-            {
-                MetadataSymbol metadataSymbol => (metadataSymbol.Type, FunctionFlags.MetadataDecorator),
-                ParameterSymbol parameterSymbol => (parameterSymbol.Type, FunctionFlags.ParameterDecorator),
-                TypeAliasSymbol when targetType is not null => ((targetType as TypeType)?.Unwrapped ?? targetType, FunctionFlags.TypeDecorator),
-                VariableSymbol variableSymbol => (variableSymbol.Type, FunctionFlags.VariableDecorator),
-                DeclaredFunctionSymbol functionSymbol => (functionSymbol.Type, FunctionFlags.FunctionDecorator),
-                ResourceSymbol resourceSymbol => (resourceSymbol.Type, FunctionFlags.ResourceDecorator),
-                ModuleSymbol moduleSymbol => (moduleSymbol.Type, FunctionFlags.ModuleDecorator),
-                ExtensionNamespaceSymbol extensionSymbol => (extensionSymbol.DeclaredType, FunctionFlags.ExtensionDecorator),
-                OutputSymbol outputSymbol => (outputSymbol.Type, FunctionFlags.OutputDecorator),
-                _ => null,
             };
         }
 
@@ -1193,10 +1182,9 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName) && declaredType is NamespaceType namespaceType)
             {
-                var enclosingDeclarationSymbol = context.EnclosingDeclaration is null ? null : model.GetSymbolInfo(context.EnclosingDeclaration);
+                var enclosingDecorableSymbol = context.EnclosingDecorable is null ? null : model.GetSymbolInfo(context.EnclosingDecorable);
                 var decoratorTargetType = context.EnclosingDecorable is null ? null : model.GetDeclaredType(context.EnclosingDecorable);
-
-                return GetAccessibleDecoratorFunctions(namespaceType, context.EnclosingDecorable, decoratorTargetType, enclosingDeclarationSymbol).Select(symbol => CreateSymbolCompletion(symbol, context.ReplacementRange, model));
+                return GetAccessibleDecoratorFunctions(namespaceType, decoratorTargetType, enclosingDecorableSymbol).Select(symbol => CreateSymbolCompletion(symbol, context.ReplacementRange, model));
             }
 
             if (declaredType is not null && TypeHelper.TryRemoveNullability(declaredType) is TypeSymbol nonNullable)
