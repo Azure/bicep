@@ -38,11 +38,12 @@ public class VersionCheckerTests
         };
 
         var versionChecker = new TestableVersionChecker(environmentMock.Object, fileSystemMock, versions);
+        var expectedPath = fileSystemMock.Path.GetFullPath("/home/user/.bicep/bin/bicep");
 
         var result = versionChecker.FindNewerVersions(new Version("0.30.23"), CancellationToken.None);
 
         result.Should().BeEquivalentTo([
-            new BicepInstallationVersion(new Version("0.35.0"), NewerCommitSha, "/home/user/.bicep/bin/bicep"),
+            new BicepInstallationVersion(new Version("0.35.0"), NewerCommitSha, expectedPath),
         ]);
     }
 
