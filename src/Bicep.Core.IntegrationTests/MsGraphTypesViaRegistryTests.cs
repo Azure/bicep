@@ -310,9 +310,10 @@ resource app 'Microsoft.Graph/applications@v1.0' = {
             // Microsoft.Graph/applications resource type with a uniqueName identifier
             // property (flags = Required | DeployTimeConstant | Identifier, value 25)
             // and a plain read-only property for the negative test.
-            return ExtensionResourceTypeHelper.CreateTypesTgzBytesForCustomExtension(
+            return ExtensionTestHelper.CreateMockExtensionMockData(
                 "MicrosoftGraph",
                 "1.0.0",
+                "v1",
                 new()
                 {
                     CreateResourceTypes = (ctx, factory) =>
@@ -343,7 +344,7 @@ resource app 'Microsoft.Graph/applications@v1.0' = {
                             writableScopes_in: Azure.Bicep.Types.Concrete.ScopeType.All,
                             readableScopes_in: Azure.Bicep.Types.Concrete.ScopeType.All))];
                     }
-                });
+                }).TypesTgzData;
         }
 
         [TestMethod]
