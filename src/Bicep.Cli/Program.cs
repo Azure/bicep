@@ -140,7 +140,7 @@ namespace Bicep.Cli
                         return await services.GetRequiredService<ConsoleCommand>().RunAsync(consoleArguments);
 
                     case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
-                        return services.GetRequiredService<RootCommand>().Run(rootArguments);
+                        return await services.GetRequiredService<RootCommand>().RunAsync(rootArguments, cancellationToken);
 
                     default:
                         await io.Error.Writer.WriteLineAsync(string.Format(CliResources.UnrecognizedArgumentsFormat, string.Join(' ', args), ThisAssembly.AssemblyName)); // should probably print help here??
@@ -211,7 +211,12 @@ namespace Bicep.Cli
                 }))
                 .AddSingleton<IDeploymentProcessor, DeploymentProcessor>()
                 .AddSingleton<DeploymentRenderer>()
-                .AddSingleton<VersionChecker>();
+                .AddSingleton<VersionChecker>()
+                .AddHttpClient<IGitHubLatestReleaseClient, GitHubLatestReleaseClient>(client =>
+                {
+                    client.Timeout = TimeSpan.FromSeconds(5);
+                })
+                .Services;
 
         // This logic is duplicated in Bicep.Cli. We avoid placing it in Bicep.Core
         // to keep Bicep.Core free of System.IO dependencies. Consider moving this

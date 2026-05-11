@@ -17,7 +17,7 @@ public record BicepInstallationVersion(
 public class VersionChecker(IEnvironment environment, IFileSystem fileSystem)
 {
     private static readonly Regex GitCommitShaRegex = new(@"[0-9a-fA-F]{40}", RegexOptions.Compiled);
-    private static readonly Regex VersionPrefixRegex = new(@"^\d+(?:\.\d+){1,3}", RegexOptions.Compiled);
+    private static readonly Regex VersionPrefixRegex = new(@"^v?(?<version>\d+(?:\.\d+){1,3})", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     public virtual IReadOnlyList<BicepInstallationVersion> FindNewerVersions(CancellationToken cancellationToken = default)
         => TryParseVersionInfo(string.Empty, environment.CurrentVersion.Version) is { } currentVersion ?
@@ -137,6 +137,23 @@ public class VersionChecker(IEnvironment environment, IFileSystem fileSystem)
         return match.Success ? match.Value : commitRef;
     }
 
+    public static Version? TryParseVersion(string? versionString)
+    {
+        if (string.IsNullOrWhiteSpace(versionString))
+        {
+            return null;
+        }
+
+        var versionParts = versionString.Split('+', 2);
+        var versionMatch = VersionPrefixRegex.Match(versionParts[0]);
+        if (!versionMatch.Success || !Version.TryParse(versionMatch.Groups["version"].Value, out var version))
+        {
+            return null;
+        }
+
+        return NormalizeVersion(version);
+    }
+
     protected virtual BicepInstallationVersion? GetBicepVersion(string bicepPath)
     {
         try
@@ -165,8 +182,7 @@ public class VersionChecker(IEnvironment environment, IFileSystem fileSystem)
         }
 
         var versionParts = versionString.Split('+', 2);
-        var versionMatch = VersionPrefixRegex.Match(versionParts[0]);
-        if (!versionMatch.Success || !Version.TryParse(versionMatch.Value, out var version))
+        if (TryParseVersion(versionString) is not { } version)
         {
             return null;
         }

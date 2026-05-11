@@ -60,7 +60,13 @@ namespace Bicep.Cli.IntegrationTests
             environmentMock.Setup(environment => environment.OperatingSystemArchitecture).Returns(Architecture.X64);
             environmentMock.Setup(environment => environment.CurrentArchitecture).Returns(Architecture.X64);
 
-            var settings = new InvocationSettings(Environment: environmentMock.Object);
+            var latestReleaseVersion = new BicepGitHubReleaseVersion(
+                new Version("0.40.0"),
+                "v0.40.0",
+                new Uri("https://github.com/Azure/bicep/releases/tag/v0.40.0"));
+            var settings = new InvocationSettings(
+                Environment: environmentMock.Object,
+                LatestReleaseClient: new StaticGitHubLatestReleaseClient(latestReleaseVersion));
             var newerVersions = new[]
             {
                 new BicepInstallationVersion(new Version("0.40.0"), newerCommitSha, "/usr/local/bin/bicep"),
@@ -82,9 +88,42 @@ namespace Bicep.Cli.IntegrationTests
                     "OS version: Test OS 1.2.3",
                     "Architecture: X64",
                     $"Git commit SHA: {currentCommitSha}",
+                    "Latest GitHub release: 0.40.0",
+                    "A newer Bicep CLI release is available: https://github.com/Azure/bicep/releases/tag/v0.40.0",
                     "Newer Bicep CLI installation(s) found:",
                     $"Version 0.40.0 (Git commit SHA: {newerCommitSha}) at /usr/local/bin/bicep");
             }
+        }
+
+        [TestMethod]
+        public async Task BicepVersionShouldPrintLatestReleaseStatus()
+        {
+            var environmentMock = new Mock<IEnvironment>(MockBehavior.Strict);
+            environmentMock.Setup(environment => environment.CurrentVersion).Returns(new IEnvironment.BicepVersionInfo("0.40.0", "main"));
+            environmentMock.Setup(environment => environment.CurrentPlatform).Returns(OSPlatform.Linux);
+            environmentMock.Setup(environment => environment.OperatingSystemVersion).Returns("Test OS 1.2.3");
+            environmentMock.Setup(environment => environment.OperatingSystemArchitecture).Returns(Architecture.X64);
+            environmentMock.Setup(environment => environment.CurrentArchitecture).Returns(Architecture.X64);
+
+            var latestReleaseVersion = new BicepGitHubReleaseVersion(
+                new Version("0.40.0"),
+                "v0.40.0",
+                new Uri("https://github.com/Azure/bicep/releases/tag/v0.40.0"));
+            var settings = new InvocationSettings(
+                Environment: environmentMock.Object,
+                LatestReleaseClient: new StaticGitHubLatestReleaseClient(latestReleaseVersion));
+
+            var (output, error, result) = await Bicep(
+                settings,
+                services => services.AddSingleton<VersionChecker>(new StaticVersionChecker(environmentMock.Object, [])),
+                CancellationToken.None,
+                "--version");
+
+            result.Should().Be(0);
+            error.Should().BeEmpty();
+            output.Should().ContainAll(
+                "Latest GitHub release: 0.40.0",
+                "You are running the latest Bicep CLI release.");
         }
 
         [TestMethod]

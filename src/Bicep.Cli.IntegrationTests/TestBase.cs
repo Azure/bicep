@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Cli.Helpers;
 using Bicep.Cli.UnitTests;
 using Bicep.Core;
 using Bicep.Core.Extensions;
@@ -22,6 +23,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Spectre.Console;
 using TestEnvironment = Bicep.Core.UnitTests.Utils.TestEnvironment;
+using CoreTestServiceCollectionExtensions = Bicep.Core.UnitTests.IServiceCollectionExtensions;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -35,7 +37,7 @@ namespace Bicep.Cli.IntegrationTests
                         .AddSingleton(clientFactory)
                         .AddSingleton(templateSpecRepositoryFactory);
 
-                    IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, moduleMetadataClient);
+                    CoreTestServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, moduleMetadataClient);
                 }
                 ).GetCompiler();
 
@@ -53,6 +55,7 @@ namespace Bicep.Cli.IntegrationTests
             public ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory { get; init; }
             public IEnvironment? Environment { get; init; }
             public IPublicModuleIndexHttpClient ModuleMetadataClient { get; init; }
+            public IGitHubLatestReleaseClient LatestReleaseClient { get; init; }
             public RegistryConfiguration RegistryConfiguration { get; init; }
 
             public InvocationSettings(
@@ -61,6 +64,7 @@ namespace Bicep.Cli.IntegrationTests
                 ITemplateSpecRepositoryFactory? TemplateSpecRepositoryFactory = null,
                 IEnvironment? Environment = null,
                 IPublicModuleIndexHttpClient? ModuleMetadataClient = null,
+                IGitHubLatestReleaseClient? LatestReleaseClient = null,
                 RegistryConfiguration? registryConfiguration = null)
             {
                 this.FeatureOverrides = FeatureOverrides;
@@ -69,6 +73,7 @@ namespace Bicep.Cli.IntegrationTests
                 this.Environment = Environment;
                 this.RegistryConfiguration = registryConfiguration ?? BicepTestConstants.TestRegistryConfiguration;
                 this.ModuleMetadataClient = ModuleMetadataClient ?? new MockPublicModuleIndexHttpClient(new());
+                this.LatestReleaseClient = LatestReleaseClient ?? new StaticGitHubLatestReleaseClient(null);
             }
 
             public InvocationSettings WithArtifactManager(TestExternalArtifactManager artifactManager, TestContext testContext) =>
@@ -187,7 +192,8 @@ namespace Bicep.Cli.IntegrationTests
                             services.WithFeatureOverrides(settings.FeatureOverrides);
                         }
 
-                        IServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, settings.ModuleMetadataClient);
+                        CoreTestServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, settings.ModuleMetadataClient);
+                        CoreTestServiceCollectionExtensions.AddMockHttpClientIfNotNull(services, settings.LatestReleaseClient);
 
                         services
                             .AddSingletonIfNotNull(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
@@ -206,5 +212,11 @@ namespace Bicep.Cli.IntegrationTests
                     }
                 ).RunAsync(args.ToArrayExcludingNull(), cancellationToken);
             });
+
+        protected sealed class StaticGitHubLatestReleaseClient(BicepGitHubReleaseVersion? latestReleaseVersion) : IGitHubLatestReleaseClient
+        {
+            public Task<BicepGitHubReleaseVersion?> GetLatestReleaseVersionAsync(CancellationToken cancellationToken)
+                => Task.FromResult(latestReleaseVersion);
+        }
     }
 }
