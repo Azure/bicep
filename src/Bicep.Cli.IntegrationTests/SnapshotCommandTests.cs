@@ -438,4 +438,55 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
             }
             """));
     }
+
+    [TestMethod]
+    public async Task Snapshot_command_supports_roleDefinitions_function()
+    {
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var bicepparamPath = FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicepparam",
+            """
+                using './main.bicep'
+
+                param principalId = '00000000-0000-0000-0000-000000000000'
+                """,
+            testOutputPath: outputPath);
+
+        FileHelper.SaveResultFile(
+            TestContext,
+            "main.bicep",
+            """
+                targetScope = 'subscription'
+
+                param principalId string
+
+                var contributorRole = az.roleDefinitions('Contributor')
+
+                resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+                  name: guid('test')
+                  properties: {
+                    principalId: principalId
+                    roleDefinitionId: contributorRole.id
+                  }
+                }
+                """,
+            testOutputPath: outputPath);
+
+        var outputFilePath = FileHelper.GetResultFilePath(TestContext, "main.snapshot.json", testOutputPath: outputPath);
+
+        var subscriptionId = new Guid().ToString();
+
+        var result = await Bicep("snapshot", bicepparamPath, "--mode", "overwrite", "--subscription-id", subscriptionId, "--location", "eastus");
+
+        result.Should().Succeed();
+        result.Stderr.Should().BeEmpty();
+
+        var snapshotContents = File.ReadAllText(outputFilePath).FromJson<JToken>();
+        ((string?)snapshotContents.SelectToken("$.predictedResources[0].properties.roleDefinitionId"))
+            .Should().Be("[roleDefinitions('Contributor').id]");
+        var diagnostics = (JArray?)snapshotContents.SelectToken("$.diagnostics");
+        diagnostics.Should().NotBeNull();
+        diagnostics!.Count.Should().Be(0);
+    }
 }
