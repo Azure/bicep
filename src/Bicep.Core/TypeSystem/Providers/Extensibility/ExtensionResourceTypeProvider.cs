@@ -71,15 +71,8 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             {
                 if (propertyType.Flags.HasFlag(TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant))
                 {
-                    // Add ReadableAtDeployTime for any property that is both required and a deploy-time constant.
-                    // Rationale:
-                    //   Required           — the caller must supply the value; the service cannot generate or invent it.
-                    //   DeployTimeConstant — the value must be a constant committed before deployment starts.
-                    // Together these mean the value is fully under the caller's control and cannot be
-                    // server-generated or deferred, so it is always safe to read back at deploy time.
-                    // ResourceIdentifier is a strict subset of this condition (all identifiers are
-                    // Required + DeployTimeConstant), but the condition is broader and correctly covers
-                    // any required constant property, not only those flagged as identifiers.
+                    // Required + DeployTimeConstant means the caller owns the value fully and it cannot
+                    // be server-generated or deferred, so it is safe to read back at deploy time.
                     properties = properties.SetItem(propertyName, UpdateFlags(propertyType, propertyType.Flags | TypePropertyFlags.ReadableAtDeployTime));
                 }
             }
