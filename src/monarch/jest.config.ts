@@ -4,7 +4,7 @@ module.exports = {
   verbose: true,
   moduleFileExtensions: ["ts", "js"],
   transform: {
-    "^.+\\.(ts|tsx)$": "ts-jest",
+    "^.+\\.(ts|tsx)$": "@swc/jest",
     ".js": "babel-jest",
   },
   testMatch: ["<rootDir>/test/**/*.test.ts"],
