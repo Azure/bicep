@@ -1,7 +1,6 @@
 import { defineConfig, normalizePath } from 'vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import react from '@vitejs/plugin-react'
-import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -10,8 +9,9 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: normalizePath(path.resolve(__dirname, '../Bicep.Wasm/bin/Release/net10.0/wwwroot/_framework') + '/**/*.*'),
+          src: normalizePath('../Bicep.Wasm/bin/Release/net10.0/wwwroot/_framework/**/*.*'),
           dest: './_framework',
+          rename: { stripBase: 6 },
         },
       ],
     })
