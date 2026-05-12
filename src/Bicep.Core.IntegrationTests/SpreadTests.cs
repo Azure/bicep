@@ -210,7 +210,7 @@ resource ex 'Microsoft.Network/expressRouteCircuits@2024-05-01' = {
 """);
 
         result.ExcludingLinterDiagnostics().Should().ContainDiagnostic(
-            "BCP417", Diagnostics.DiagnosticLevel.Error, """The spread operator "..." cannot be used inside objects with property for-expressions.""");
+            "BCP417", Diagnostics.DiagnosticLevel.Error, """The spread operator "..." cannot be used inside objects containing property for-expressions.""");
     }
 
     [TestMethod]
