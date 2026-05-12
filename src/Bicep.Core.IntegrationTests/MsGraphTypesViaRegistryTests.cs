@@ -309,7 +309,7 @@ resource app 'Microsoft.Graph/applications@v1.0' = {
             // Builds a minimal MS Graph extension types package that contains a single
             // Microsoft.Graph/applications resource type with a uniqueName identifier
             // property (flags = Required | DeployTimeConstant | Identifier, value 25)
-            // and a plain read-only property for the negative test.
+            // and a plain read-only property (createdDateTime) for the negative test.
             return ExtensionTestHelper.CreateMockExtensionMockData(
                 "MicrosoftGraph",
                 "1.0.0",
@@ -330,10 +330,10 @@ resource app 'Microsoft.Graph/applications@v1.0' = {
                                         | Azure.Bicep.Types.Concrete.ObjectTypePropertyFlags.DeployTimeConstant
                                         | Azure.Bicep.Types.Concrete.ObjectTypePropertyFlags.Identifier,
                                     "The unique name of the application"),
-                                ["appId"] = new(
+                                ["createdDateTime"] = new(
                                     factory.GetReference(stringType),
                                     Azure.Bicep.Types.Concrete.ObjectTypePropertyFlags.ReadOnly,
-                                    "The application ID (read-only, not a deploy-time constant)"),
+                                    "The date and time the application was created (read-only, server-generated)"),
                             },
                             null));
 
@@ -385,7 +385,7 @@ resource app 'Microsoft.Graph/applications@v1.0' = {
                 new(),
                 artifactTarget: "example.azurecr.io/microsoftgraph/v1:1.0.0");
 
-            // ACT — use graphApp.appId (ReadOnly only, NOT Required+DTC) as storage account name
+            // ACT — use graphApp.createdDateTime (ReadOnly only, NOT Required+DTC) as storage account name
             var result = await CompilationHelper.RestoreAndCompile(services, """
                 extension 'br:example.azurecr.io/microsoftgraph/v1:1.0.0' as graph
 
@@ -394,14 +394,14 @@ resource app 'Microsoft.Graph/applications@v1.0' = {
                 }
 
                 resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-                  name: graphApp.appId
+                  name: graphApp.createdDateTime
                   location: 'eastus'
                   sku: { name: 'Standard_LRS' }
                   kind: 'StorageV2'
                 }
                 """);
 
-            // ASSERT — must still produce BCP120 (appId is not a deploy-time constant)
+            // ASSERT — must still produce BCP120 (createdDateTime is server-generated, not a deploy-time constant)
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
                 ("BCP120", DiagnosticLevel.Error,
                     """This expression is being used in an assignment to the "name" property of the "Microsoft.Storage/storageAccounts" type, which requires a value that can be calculated at the start of the deployment. Properties of graphApp which can be calculated at the start include "uniqueName".""")
