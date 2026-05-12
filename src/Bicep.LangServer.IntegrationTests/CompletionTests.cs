@@ -6381,8 +6381,7 @@ param foo string = 'bar'
         {
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
-                s => s.WithFeatureOverrides(new(ExistingNullIfNotFoundEnabled: true))
-                    .WithNamespaceProvider(BuiltInTestTypes.Create()));
+                s => s.WithNamespaceProvider(BuiltInTestTypes.Create()));
             var helper = new ServerRequestHelper(TestContext, server);
 
             // Test that @nullIfNotFound is offered for existing resources

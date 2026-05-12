@@ -13,7 +13,12 @@ namespace Bicep.Core.Emit
         public EmitterSettings(SemanticModel model)
         {
             FileKind = model.SourceFileKind;
-            UseExperimentalTemplateLanguageVersion = model.Features.EnabledFeatureMetadata.Any(feature => feature.usesExperimentalArmEngineFeature);
+            UseExperimentalTemplateLanguageVersion = model.Features.EnabledFeatureMetadata.Any(feature => feature.usesExperimentalArmEngineFeature) ||
+                model.Root.ResourceDeclarations.Any(r => SemanticModelHelper.TryGetDecoratorInNamespace(
+                    model,
+                    r.DeclaringResource,
+                    SystemNamespaceType.BuiltInName,
+                    LanguageConstants.NullIfNotFoundDecoratorName) is not null);
 
             // Symbolic names are used if (evaluated in increasing order of computational cost):
             EnableSymbolicNames =

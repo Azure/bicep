@@ -112,8 +112,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "thisNamespace": false,
-          "existingNullIfNotFound": false
+          "thisNamespace": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -196,8 +195,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "thisNamespace": false,
-          "existingNullIfNotFound": false
+          "thisNamespace": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -302,8 +300,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "thisNamespace": false,
-          "existingNullIfNotFound": false
+          "thisNamespace": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -389,8 +386,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 ModuleExtensionConfigs: false,
                 UserDefinedConstraints: false,
                 DeployCommands: false,
-                ThisNamespace: false,
-                ExistingNullIfNotFound: false);
+                ThisNamespace: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -474,8 +470,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "moduleExtensionConfigs": false,
                 "userDefinedConstraints": false,
                 "deployCommands": false,
-                "thisNamespace": false,
-                "existingNullIfNotFound": false
+                "thisNamespace": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -826,8 +821,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "moduleExtensionConfigs": false,
                     "userDefinedConstraints": false,
                     "deployCommands": false,
-                    "thisNamespace": false,
-                    "existingNullIfNotFound": false
+                    "thisNamespace": false
                   },
                   "formatting": {
                     "indentKind": "Space",
