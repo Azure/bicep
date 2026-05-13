@@ -335,7 +335,7 @@ namespace Bicep.Core.Semantics
                     .Where(decl => decl.NameSource.IsValid && this.builtInNamespaces.ContainsKey(decl.Name))
                     .Select(reservedSymbol => DiagnosticBuilder.ForPosition(reservedSymbol.NameSource).SymbolicNameCannotUseReservedNamespaceName(reservedSymbol.Name, this.builtInNamespaces.Keys)));
 
-                if (this.features.ThisNamespaceEnabled && scope is FileSymbol)
+                if (scope is FileSymbol)
                 {
                     this.Diagnostics.AddRange(referenceableDeclarations
                         .Where(decl => decl.NameSource.IsValid && decl.Name == ThisNamespaceType.BuiltInName)

@@ -6230,6 +6230,24 @@
     }
   },
   {
+    "label": "this",
+    "kind": "variable",
+    "detail": "this",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_this",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "this."
+    },
+    "command": {
+      "title": "symbol completion",
+      "command": "editor.action.triggerSuggest"
+    }
+  },
+  {
     "label": "toLogicalZone",
     "kind": "function",
     "documentation": {

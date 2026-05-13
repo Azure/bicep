@@ -111,8 +111,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "resourceInfoCodegen": false,
           "userDefinedConstraints": false,
-          "deployCommands": false,
-          "thisNamespace": false
+          "deployCommands": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -194,8 +193,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
-          "deployCommands": false,
-          "thisNamespace": false
+          "deployCommands": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -299,8 +297,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
-          "deployCommands": false,
-          "thisNamespace": false
+          "deployCommands": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -385,8 +382,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 ResourceInfoCodegen: false,
                 ModuleExtensionConfigs: false,
                 UserDefinedConstraints: false,
-                DeployCommands: false,
-                ThisNamespace: false);
+                DeployCommands: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -469,8 +465,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "resourceInfoCodegen": false,
                 "moduleExtensionConfigs": false,
                 "userDefinedConstraints": false,
-                "deployCommands": false,
-                "thisNamespace": false
+                "deployCommands": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -820,8 +815,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "resourceInfoCodegen": false,
                     "moduleExtensionConfigs": false,
                     "userDefinedConstraints": false,
-                    "deployCommands": false,
-                    "thisNamespace": false
+                    "deployCommands": false
                   },
                   "formatting": {
                     "indentKind": "Space",

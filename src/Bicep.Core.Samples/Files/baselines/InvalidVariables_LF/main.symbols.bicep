@@ -280,6 +280,7 @@ var zoneInput = []
 resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneInput: {
 //@[63:67) Local zone. Type: never. Declaration start char: 63, length: 4
 //@[69:70) Local i. Type: int. Declaration start char: 69, length: 1
+//@[00:08) Local this. Type: error. Declaration start char: 57, length: 86
 //@[09:14) Resource zones. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 143
   name: zone
   location: az.resourceGroup().location

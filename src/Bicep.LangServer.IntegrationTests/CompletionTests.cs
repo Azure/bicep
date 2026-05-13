@@ -382,6 +382,11 @@ resource service 'Microsoft.Storage/storageAccounts/fileServices@2021-02-01' = {
             symbolCompletions.Should().SatisfyRespectively(
               x =>
               {
+                  x.Label.Should().Be("this");
+                  x.Kind.Should().Be(CompletionItemKind.Variable);
+              },
+              x =>
+              {
                   x.Label.Should().Be("myInt");
                   x.Kind.Should().Be(CompletionItemKind.Field);
                   x.Documentation!.MarkupContent!.Value.Should().Be("Type: `0 | 1`  \nthis is an int value  \n");
@@ -6155,7 +6160,7 @@ output people Person[] = [{
                 TestContext,
                 text,
                 bicepFile.Uri,
-                services => services.WithFeatureOverrides(new(ThisNamespaceEnabled: true)).WithAzResources(customTypes));
+                services => services.WithAzResources(customTypes));
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestAndResolveCompletions(cursor);
