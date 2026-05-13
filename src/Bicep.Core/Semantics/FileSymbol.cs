@@ -4,7 +4,6 @@
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
@@ -271,19 +270,16 @@ namespace Bicep.Core.Semantics
         private sealed class DuplicateIdentifierValidatorVisitor : SymbolVisitor
         {
             private readonly ImmutableDictionary<string, BuiltInNamespaceSymbol> builtInNamespaces;
-            private readonly IFeatureProvider features;
 
-            private DuplicateIdentifierValidatorVisitor(ImmutableDictionary<string, BuiltInNamespaceSymbol> builtInNamespaces, IFeatureProvider features)
+            private DuplicateIdentifierValidatorVisitor(ImmutableDictionary<string, BuiltInNamespaceSymbol> builtInNamespaces)
             {
                 this.builtInNamespaces = builtInNamespaces;
-                this.features = features;
             }
 
             public static IEnumerable<Diagnostic> GetDiagnostics(FileSymbol file)
             {
                 var visitor = new DuplicateIdentifierValidatorVisitor(
-                    file.NamespaceResolver.ImplicitNamespaces,
-                    file.Context.SourceFile.Features);
+                    file.NamespaceResolver.ImplicitNamespaces);
                 visitor.Visit(file);
 
                 return visitor.Diagnostics;
