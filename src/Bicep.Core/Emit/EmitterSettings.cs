@@ -14,10 +14,10 @@ namespace Bicep.Core.Emit
         {
             FileKind = model.SourceFileKind;
             UseExperimentalTemplateLanguageVersion = model.Features.EnabledFeatureMetadata.Any(feature => feature.usesExperimentalArmEngineFeature) ||
-                // @nullIfNotFound and this namespace are GA'd Bicep features but still require the experimental ARM engine language version
-                model.Root.ResourceDeclarations.Any(r => SemanticModelHelper.TryGetDecoratorInNamespace(
+                // @nullIfNotFound and this namespace are GA'd Bicep features but still require the experimental ARM engine language version.
+                model.DeclaredResources.Any(r => SemanticModelHelper.TryGetDecoratorInNamespace(
                     model,
-                    r.DeclaringResource,
+                    r.Symbol.DeclaringResource,
                     SystemNamespaceType.BuiltInName,
                     LanguageConstants.NullIfNotFoundDecoratorName) is not null) ||
                 SyntaxAggregator.Aggregate(model.SourceFile.ProgramSyntax,

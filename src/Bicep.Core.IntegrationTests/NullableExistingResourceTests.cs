@@ -403,5 +403,37 @@ output accountLocation string? = storageAccount.?location
                 template.Should().HaveValueAtPath("$.outputs['accountLocation'].value", "[tryGet(reference('storageAccount', '2021-04-01', 'full'), 'location')]");
             }
         }
+            [TestMethod]
+            public void NullableExisting_NestedChildResource_ShouldEmitExperimentalLanguageVersion()
+            {
+                // @nullIfNotFound on a nested existing child resource should still trigger the experimental language version
+                var (template, diagnostics, _) = CompilationHelper.Compile(@"
+    resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+      name: 'testStorage'
+      location: 'westus'
+      sku: {
+        name: 'Standard_LRS'
+      }
+      kind: 'StorageV2'
+
+      @nullIfNotFound()
+      resource blobService 'blobServices' existing = {
+        name: 'default'
+      }
     }
-}
+
+    output blobServiceId string? = storageAccount::blobService.?id
+    ");
+                using (new AssertionScope())
+                {
+                    diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
+                    template.Should().NotBeNull();
+                    // Verify the experimental language version is used (required for @nullIfNotFound)
+                    template.Should().HaveValueAtPath("$.languageVersion", "2.1-experimental");
+                    // Verify the nested existing resource has the correct options
+                    template.Should().HaveValueAtPath("$.resources['storageAccount::blobService'].existing", true);
+                    template.Should().HaveValueAtPath("$.resources['storageAccount::blobService']['@options'].nullIfNotFound", new JArray());
+                }
+            }
+        }
+    }
