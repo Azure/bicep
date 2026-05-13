@@ -915,7 +915,7 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                if (parentObject.Properties.Any(x => x.Value is ForSyntax))
+                if (SyntaxAggregator.AggregateByType<ForSyntax>(parentObject).Any(forSyntax => model.Binder.GetParent(forSyntax) is ObjectPropertySyntax property && ReferenceEquals(property.Value, forSyntax)))
                 {
                     diagnostics.Write(spread, x => x.SpreadOperatorCannotBeUsedWithForLoop(spread));
                 }
