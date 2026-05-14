@@ -172,6 +172,19 @@ public class BicepCompilerToolsTests
     }
 
     [TestMethod]
+    public async Task BuildBicep_compiles_in_memory_content_when_filePath_and_content_are_both_provided()
+    {
+        var response = await tools.BuildBicep(filePath: "/main.bicep", content: """
+            param location string = 'westus'
+            output loc string = location
+            """);
+
+        response.Success.Should().BeTrue();
+        response.Template.Should().NotBeNullOrEmpty();
+        response.Diagnostics.Should().NotContain(x => x.Level == "Error");
+    }
+
+    [TestMethod]
     public async Task BuildBicepparam_returns_diagnostics_on_error()
     {
         var outputFolder = FileHelper.SaveResultFiles(TestContext, [
