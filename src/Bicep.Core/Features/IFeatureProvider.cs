@@ -39,6 +39,8 @@ public interface IFeatureProvider
 
     bool ThisNamespaceEnabled { get; }
 
+    bool PatchEnabled { get; }
+
     bool ExistingNullIfNotFoundEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata

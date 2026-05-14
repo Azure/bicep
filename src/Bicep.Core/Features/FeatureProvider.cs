@@ -56,6 +56,8 @@ namespace Bicep.Core.Features
 
         public bool ThisNamespaceEnabled => configuration.ExperimentalFeaturesEnabled.ThisNamespace;
 
+        public bool PatchEnabled => configuration.ExperimentalFeaturesEnabled.Patch;
+
         public bool ExistingNullIfNotFoundEnabled => configuration.ExperimentalFeaturesEnabled.ExistingNullIfNotFound;
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
