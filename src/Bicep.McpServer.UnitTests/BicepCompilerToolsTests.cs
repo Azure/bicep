@@ -148,40 +148,24 @@ public class BicepCompilerToolsTests
     }
 
     [TestMethod]
-    public async Task BuildBicepparam_returns_compiled_parameters_for_in_memory_content()
+    public async Task BuildBicepparam_returns_diagnostics_for_in_memory_content()
     {
-        var outputFolder = FileHelper.SaveResultFiles(TestContext, [
-            new("main.bicep", """
-                param location string
-                output loc string = location
-                """),
-        ]);
-
-        var response = await tools.BuildBicepparam(
-            Path.Combine(outputFolder, "main.bicepparam"),
-            """
-            using 'main.bicep'
-
+        var response = await tools.BuildBicepparam(content: """
             param location = 'westus'
             """);
 
-        response.Success.Should().BeTrue();
-        response.Parameters.Should().NotBeNullOrEmpty();
-        response.Template.Should().NotBeNullOrEmpty();
-        response.Diagnostics.Should().NotContain(x => x.Level == "Error");
+        response.Success.Should().BeFalse();
+        response.Parameters.Should().BeNull();
+        response.Diagnostics.Should().Contain(x => x.Level == "Error");
     }
 
     [TestMethod]
-    public async Task BuildBicep_compiles_in_memory_content_when_filePath_and_content_are_both_provided()
+    public async Task BuildBicep_throws_when_filePath_and_content_are_both_provided()
     {
-        var response = await tools.BuildBicep(filePath: "/main.bicep", content: """
-            param location string = 'westus'
-            output loc string = location
-            """);
-
-        response.Success.Should().BeTrue();
-        response.Template.Should().NotBeNullOrEmpty();
-        response.Diagnostics.Should().NotContain(x => x.Level == "Error");
+        await FluentActions.Awaiting(() => tools.BuildBicep(filePath: "/main.bicep", content: "param location string = 'westus'"))
+            .Should()
+            .ThrowAsync<ArgumentException>()
+            .WithMessage("'filePath' and 'content' cannot both be provided.");
     }
 
     [TestMethod]

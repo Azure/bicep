@@ -1,12 +1,12 @@
 [
   {
     "name": "build_bicep",
-    "description": "Compiles a Bicep file (.bicep) to an ARM template JSON string and returns the result along with any diagnostics.\n\nUse this tool to:\n- Compile Bicep source code to ARM template JSON\n- Check for compilation errors before deployment\n- Obtain the ARM template output for inspection or deployment\n\nThe compiled ARM template JSON is returned along with any compilation diagnostics (errors, warnings, and informational messages).\nProvide an absolute file path, in-memory content, or both. If content is provided, it is compiled in-memory and filePath (if provided) is used as the entrypoint URI context. If compilation fails due to errors, the Template field will be null.",
+    "description": "Compiles a Bicep file (.bicep) to an ARM template JSON string and returns the result along with any diagnostics.\n\nUse this tool to:\n- Compile Bicep source code to ARM template JSON\n- Check for compilation errors before deployment\n- Obtain the ARM template output for inspection or deployment\n\nThe compiled ARM template JSON is returned along with any compilation diagnostics (errors, warnings, and informational messages).\nProvide either an absolute file path or in-memory content, but not both. If compilation fails due to errors, the Template field will be null.",
     "jsonSchema": {
       "type": "object",
       "properties": {
         "filePath": {
-          "description": "The path to the .bicep file. Required if content is not provided; when content is provided, this sets URI context.",
+          "description": "The path to the .bicep file. Required if content is not provided.",
           "type": [
             "string",
             "null"
@@ -98,12 +98,12 @@
   },
   {
     "name": "build_bicepparam",
-    "description": "Compiles a Bicep parameters file (.bicepparam) to a parameters JSON string and returns the result along with any diagnostics.\n\nUse this tool to:\n- Compile Bicep parameters source code to ARM parameters JSON\n- Check for compilation errors before deployment\n- Obtain the parameters JSON output for inspection or deployment\n\nThe compiled parameters JSON and the associated ARM template JSON are returned along with any compilation diagnostics (errors, warnings, and informational messages).\nProvide an absolute file path, in-memory content, or both. If content is provided, it is compiled in-memory and filePath (if provided) is used as the entrypoint URI context. If compilation fails due to errors, the Parameters field will be null.",
+    "description": "Compiles a Bicep parameters file (.bicepparam) to a parameters JSON string and returns the result along with any diagnostics.\n\nUse this tool to:\n- Compile Bicep parameters source code to ARM parameters JSON\n- Check for compilation errors before deployment\n- Obtain the parameters JSON output for inspection or deployment\n\nThe compiled parameters JSON and the associated ARM template JSON are returned along with any compilation diagnostics (errors, warnings, and informational messages).\nProvide either an absolute file path or in-memory content, but not both. If compilation fails due to errors, the Parameters field will be null.",
     "jsonSchema": {
       "type": "object",
       "properties": {
         "filePath": {
-          "description": "The path to the .bicepparam file. Required if content is not provided; when content is provided, this sets URI context.",
+          "description": "The path to the .bicepparam file. Required if content is not provided.",
           "type": [
             "string",
             "null"
@@ -277,12 +277,12 @@
   },
   {
     "name": "format_bicep_file",
-    "description": "Formats a Bicep file (.bicep) or Bicep parameters file (.bicepparam) according to official Bicep formatting standards.\n\nUse this tool to:\n- Apply consistent code formatting (indentation, spacing, line breaks) to Bicep files\n- Clean up manually edited or generated Bicep code before saving\n- Ensure code follows team formatting conventions\n\nThe formatter respects configuration settings from bicepconfig.json if present in the file's directory hierarchy, including:\n- Indentation style (spaces vs tabs) and size\n- Newline character (LF, CRLF, CR)\n- Whether to insert a final newline\n\nProvide an absolute file path, in-memory content, or both. If content is provided, it is formatted in-memory and filePath (if provided) is used as the entrypoint URI context. Formatting preserves semantic meaning and only changes whitespace and layout. Files with syntax errors will still be formatted to the extent possible.",
+    "description": "Formats a Bicep file (.bicep) or Bicep parameters file (.bicepparam) according to official Bicep formatting standards.\n\nUse this tool to:\n- Apply consistent code formatting (indentation, spacing, line breaks) to Bicep files\n- Clean up manually edited or generated Bicep code before saving\n- Ensure code follows team formatting conventions\n\nThe formatter respects configuration settings from bicepconfig.json if present in the file's directory hierarchy, including:\n- Indentation style (spaces vs tabs) and size\n- Newline character (LF, CRLF, CR)\n- Whether to insert a final newline\n\nProvide either an absolute file path or in-memory content, but not both. Formatting preserves semantic meaning and only changes whitespace and layout. Files with syntax errors will still be formatted to the extent possible.",
     "jsonSchema": {
       "type": "object",
       "properties": {
         "filePath": {
-          "description": "The path to the .bicep or .bicepparam file. Required if content is not provided; when content is provided, this sets URI context.",
+          "description": "The path to the .bicep or .bicepparam file. Required if content is not provided.",
           "type": [
             "string",
             "null"

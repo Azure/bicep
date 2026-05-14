@@ -73,10 +73,10 @@ public sealed class BicepCompilerTools(
     - Obtain the ARM template output for inspection or deployment
 
     The compiled ARM template JSON is returned along with any compilation diagnostics (errors, warnings, and informational messages).
-    Provide an absolute file path, in-memory content, or both. If content is provided, it is compiled in-memory and filePath (if provided) is used as the entrypoint URI context. If compilation fails due to errors, the Template field will be null.
+    Provide either an absolute file path or in-memory content, but not both. If compilation fails due to errors, the Template field will be null.
     """)]
     public async Task<BuildBicepResult> BuildBicep(
-        [Description("The path to the .bicep file. Required if content is not provided; when content is provided, this sets URI context.")] string? filePath = null,
+        [Description("The path to the .bicep file. Required if content is not provided.")] string? filePath = null,
         [Description("The in-memory .bicep file content. If provided, this content is compiled instead of reading from disk.")] string? content = null)
     {
         var compilation = await CreateCompilation(
@@ -101,10 +101,10 @@ public sealed class BicepCompilerTools(
     - Obtain the parameters JSON output for inspection or deployment
 
     The compiled parameters JSON and the associated ARM template JSON are returned along with any compilation diagnostics (errors, warnings, and informational messages).
-    Provide an absolute file path, in-memory content, or both. If content is provided, it is compiled in-memory and filePath (if provided) is used as the entrypoint URI context. If compilation fails due to errors, the Parameters field will be null.
+    Provide either an absolute file path or in-memory content, but not both. If compilation fails due to errors, the Parameters field will be null.
     """)]
     public async Task<BuildBicepparamResult> BuildBicepparam(
-        [Description("The path to the .bicepparam file. Required if content is not provided; when content is provided, this sets URI context.")] string? filePath = null,
+        [Description("The path to the .bicepparam file. Required if content is not provided.")] string? filePath = null,
         [Description("The in-memory .bicepparam file content. If provided, this content is compiled instead of reading from disk.")] string? content = null)
     {
         var compilation = await CreateCompilation(
@@ -133,10 +133,10 @@ public sealed class BicepCompilerTools(
     - Newline character (LF, CRLF, CR)
     - Whether to insert a final newline
     
-    Provide an absolute file path, in-memory content, or both. If content is provided, it is formatted in-memory and filePath (if provided) is used as the entrypoint URI context. Formatting preserves semantic meaning and only changes whitespace and layout. Files with syntax errors will still be formatted to the extent possible.
+    Provide either an absolute file path or in-memory content, but not both. Formatting preserves semantic meaning and only changes whitespace and layout. Files with syntax errors will still be formatted to the extent possible.
     """)]
     public async Task<FormatResult> FormatBicepFile(
-        [Description("The path to the .bicep or .bicepparam file. Required if content is not provided; when content is provided, this sets URI context.")] string? filePath = null,
+        [Description("The path to the .bicep or .bicepparam file. Required if content is not provided.")] string? filePath = null,
         [Description("The in-memory .bicep or .bicepparam file content. If provided, this content is formatted instead of reading from disk.")] string? content = null)
     {
         var compilation = await CreateCompilation(
@@ -217,6 +217,11 @@ public sealed class BicepCompilerTools(
         if (filePath is null && content is null)
         {
             throw new ArgumentException("Either 'filePath' or 'content' must be provided.");
+        }
+
+        if (filePath is not null && content is not null)
+        {
+            throw new ArgumentException("'filePath' and 'content' cannot both be provided.");
         }
 
         var fileUri = filePath is null ? inMemoryFileUri : IOUri.FromFilePath(filePath);
