@@ -7,6 +7,7 @@ using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.PrettyPrintV2;
+using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
 using ModelContextProtocol.Server;
@@ -17,6 +18,9 @@ namespace Bicep.McpServer.Core;
 public sealed class BicepCompilerTools(
     BicepCompiler compiler)
 {
+    private static readonly IOUri InMemoryBicepFileUri = new(IOUriScheme.Untitled, null, "/main.bicep");
+    private static readonly IOUri InMemoryBicepParamFileUri = new(IOUriScheme.Untitled, null, "/main.bicepparam");
+
     public record DiagnosticDefinition(
         [Description("The .bicep or .bicepparam file URI")]
         Uri FileUri,
@@ -69,18 +73,19 @@ public sealed class BicepCompilerTools(
     - Obtain the ARM template output for inspection or deployment
 
     The compiled ARM template JSON is returned along with any compilation diagnostics (errors, warnings, and informational messages).
-    The file path must be absolute. If compilation fails due to errors, the Template field will be null.
+    Provide either an absolute file path or in-memory content. If compilation fails due to errors, the Template field will be null.
     """)]
     public async Task<BuildBicepResult> BuildBicep(
-        [Description("The path to the .bicep file")] string filePath)
+        [Description("The path to the .bicep file. Required if content is not provided.")] string? filePath = null,
+        [Description("The in-memory .bicep file content. Required if filePath is not provided.")] string? content = null)
     {
-        var fileUri = IOUri.FromFilePath(filePath);
-        if (!fileUri.HasBicepExtension())
-        {
-            throw new ArgumentException("The specified file must have a .bicep extension.", nameof(filePath));
-        }
-
-        var compilation = await compiler.CreateCompilation(fileUri);
+        var compilation = await CreateCompilation(
+            filePath,
+            content,
+            InMemoryBicepFileUri,
+            fileUri => fileUri.HasBicepExtension(),
+            "The specified file must have a .bicep extension.",
+            (fileUri, fileContent) => compiler.SourceFileFactory.CreateBicepFile(fileUri, fileContent));
         var result = compilation.Emitter.Template();
 
         return new BuildBicepResult(result.Success, result.Template, GetDiagnostics(result.Diagnostics));
@@ -96,18 +101,19 @@ public sealed class BicepCompilerTools(
     - Obtain the parameters JSON output for inspection or deployment
 
     The compiled parameters JSON and the associated ARM template JSON are returned along with any compilation diagnostics (errors, warnings, and informational messages).
-    The file path must be absolute. If compilation fails due to errors, the Parameters field will be null.
+    Provide either an absolute file path or in-memory content. If compilation fails due to errors, the Parameters field will be null.
     """)]
     public async Task<BuildBicepparamResult> BuildBicepparam(
-        [Description("The path to the .bicepparam file")] string filePath)
+        [Description("The path to the .bicepparam file. Required if content is not provided.")] string? filePath = null,
+        [Description("The in-memory .bicepparam file content. Required if filePath is not provided.")] string? content = null)
     {
-        var fileUri = IOUri.FromFilePath(filePath);
-        if (!fileUri.HasBicepParamExtension())
-        {
-            throw new ArgumentException("The specified file must have a .bicepparam extension.", nameof(filePath));
-        }
-
-        var compilation = await compiler.CreateCompilation(fileUri);
+        var compilation = await CreateCompilation(
+            filePath,
+            content,
+            InMemoryBicepParamFileUri,
+            fileUri => fileUri.HasBicepParamExtension(),
+            "The specified file must have a .bicepparam extension.",
+            (fileUri, fileContent) => compiler.SourceFileFactory.CreateBicepParamFile(fileUri, fileContent));
         var result = compilation.Emitter.Parameters();
 
         return new BuildBicepparamResult(result.Success, result.Parameters, result.Template?.Template, GetDiagnostics(result.Diagnostics));
@@ -127,18 +133,19 @@ public sealed class BicepCompilerTools(
     - Newline character (LF, CRLF, CR)
     - Whether to insert a final newline
     
-    The file path must be absolute. Formatting preserves semantic meaning and only changes whitespace and layout. Files with syntax errors will still be formatted to the extent possible.
+    Provide either an absolute file path or in-memory content. Formatting preserves semantic meaning and only changes whitespace and layout. Files with syntax errors will still be formatted to the extent possible.
     """)]
     public async Task<FormatResult> FormatBicepFile(
-        [Description("The path to the .bicep or .bicepparam file")] string filePath)
+        [Description("The path to the .bicep or .bicepparam file. Required if content is not provided.")] string? filePath = null,
+        [Description("The in-memory .bicep or .bicepparam file content. Required if filePath is not provided.")] string? content = null)
     {
-        var fileUri = IOUri.FromFilePath(filePath);
-        if (!fileUri.HasBicepExtension() && !fileUri.HasBicepParamExtension())
-        {
-            throw new ArgumentException("The specified file must have a .bicep or .bicepparam extension.", nameof(filePath));
-        }
-
-        var compilation = await compiler.CreateCompilation(fileUri);
+        var compilation = await CreateCompilation(
+            filePath,
+            content,
+            InMemoryBicepFileUri,
+            fileUri => fileUri.HasBicepExtension() || fileUri.HasBicepParamExtension(),
+            "The specified file must have a .bicep or .bicepparam extension.",
+            (fileUri, fileContent) => compiler.SourceFileFactory.CreateSourceFile(fileUri, fileContent));
         var sourceFile = compilation.GetEntrypointSemanticModel().SourceFile;
 
         var options = sourceFile.Configuration.Formatting.Data;
@@ -197,5 +204,35 @@ public sealed class BicepCompilerTools(
             x.Uri,
             x.Span.Position,
             x.Span.Length)))];
+    }
+
+    private async Task<Compilation> CreateCompilation(
+        string? filePath,
+        string? content,
+        IOUri inMemoryFileUri,
+        Func<IOUri, bool> hasExpectedExtension,
+        string invalidExtensionError,
+        Func<IOUri, string, ISourceFile> sourceFileFactory)
+    {
+        if (filePath is null && content is null)
+        {
+            throw new ArgumentException("Either filePath or content must be provided.");
+        }
+
+        var fileUri = filePath is null ? inMemoryFileUri : IOUri.FromFilePath(filePath);
+        if (!hasExpectedExtension(fileUri))
+        {
+            throw new ArgumentException(invalidExtensionError, nameof(filePath));
+        }
+
+        if (content is null)
+        {
+            return await compiler.CreateCompilation(fileUri);
+        }
+
+        var workspace = new ActiveSourceFileSet();
+        workspace.UpsertSourceFile(sourceFileFactory(fileUri, content));
+
+        return await compiler.CreateCompilation(fileUri, workspace);
     }
 }

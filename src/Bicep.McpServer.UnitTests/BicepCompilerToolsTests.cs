@@ -39,6 +39,16 @@ public class BicepCompilerToolsTests
     }
 
     [TestMethod]
+    public async Task FormatBicepFile_formats_in_memory_bicep_content()
+    {
+        var response = await tools.FormatBicepFile(content: """
+            param          foo          string
+            """);
+
+        response.Content.Should().Contain("param foo string");
+    }
+
+    [TestMethod]
     public async Task GetFileReferences_returns_referenced_files()
     {
         var outputFolder = FileHelper.SaveResultFiles(TestContext, [
@@ -75,6 +85,20 @@ public class BicepCompilerToolsTests
             """);
 
         var response = await tools.BuildBicep(bicepFilePath);
+
+        response.Success.Should().BeTrue();
+        response.Template.Should().NotBeNullOrEmpty();
+        response.Template.Should().Contain("\"$schema\"");
+        response.Diagnostics.Should().NotContain(x => x.Level == "Error");
+    }
+
+    [TestMethod]
+    public async Task BuildBicep_returns_compiled_template_for_in_memory_content()
+    {
+        var response = await tools.BuildBicep(content: """
+            param location string = 'westus'
+            output loc string = location
+            """);
 
         response.Success.Should().BeTrue();
         response.Template.Should().NotBeNullOrEmpty();
@@ -120,6 +144,30 @@ public class BicepCompilerToolsTests
         response.Parameters.Should().Contain("\"$schema\"");
         response.Template.Should().NotBeNullOrEmpty();
         response.Template.Should().Contain("\"$schema\"");
+        response.Diagnostics.Should().NotContain(x => x.Level == "Error");
+    }
+
+    [TestMethod]
+    public async Task BuildBicepparam_returns_compiled_parameters_for_in_memory_content()
+    {
+        var outputFolder = FileHelper.SaveResultFiles(TestContext, [
+            new("main.bicep", """
+                param location string
+                output loc string = location
+                """),
+        ]);
+
+        var response = await tools.BuildBicepparam(
+            Path.Combine(outputFolder, "main.bicepparam"),
+            """
+            using 'main.bicep'
+
+            param location = 'westus'
+            """);
+
+        response.Success.Should().BeTrue();
+        response.Parameters.Should().NotBeNullOrEmpty();
+        response.Template.Should().NotBeNullOrEmpty();
         response.Diagnostics.Should().NotContain(x => x.Level == "Error");
     }
 
