@@ -64,6 +64,22 @@ public class BicepToolsTests
     }
 
     [TestMethod]
+    [EmbeddedFilesTestData(@"Files/GetAzResourceSchemaTrimmed/.*\.json")]
+    [TestCategory(BaselineHelper.BaselineTestCategory)]
+    public void GetAzureResourceTypeSchema_returns_trimmed_resource_schema(EmbeddedFile jsonFile)
+    {
+        var baselineFile = BaselineFolder.BuildOutputFolder(TestContext, jsonFile).EntryFile;
+        var split = Path.GetFileNameWithoutExtension(jsonFile.FileName).Split("@");
+        var resourceType = split[0].Replace("-", "/");
+        var apiVersion = split[1];
+
+        var response = tools.GetAzureResourceTypeSchema(resourceType, apiVersion, excludeDescriptions: true, excludeReadOnlyProperties: true);
+
+        baselineFile.WriteToOutputFolder(response.Schema);
+        baselineFile.ShouldHaveExpectedJsonValue();
+    }
+
+    [TestMethod]
     public async Task ListExtensionResourceTypes_returns_graph_resource_types()
     {
         var response = await tools.ListExtensionResourceTypes("br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0");
@@ -102,6 +118,33 @@ public class BicepToolsTests
         var apiVersion = resourcePart[(atIndex + 1)..];
 
         var response = await tools.GetExtensionResourceTypeSchema(extensionReference, resourceType, apiVersion);
+
+        baselineFile.WriteToOutputFolder(response.Schema);
+        baselineFile.ShouldHaveExpectedJsonValue();
+    }
+
+    [TestMethod]
+    [EmbeddedFilesTestData(@"Files/GetExtensionResourceSchemaTrimmed/.*\.json")]
+    [TestCategory(BaselineHelper.BaselineTestCategory)]
+    public async Task GetExtensionResourceTypeSchema_returns_trimmed_resource_schema(EmbeddedFile jsonFile)
+    {
+        var baselineFile = BaselineFolder.BuildOutputFolder(TestContext, jsonFile).EntryFile;
+        var fileName = Path.GetFileNameWithoutExtension(jsonFile.FileName);
+
+        // File name format: {repoPath}#{tag}#{resourceType}@{apiVersion}
+        // e.g., microsoftgraph-v1.0#1.0.0#Microsoft.Graph-applications@v1.0
+        var parts = fileName.Split('#');
+        var repoPath = "bicep/extensions/" + parts[0].Replace("-", "/");
+        var tag = parts[1];
+        var resourcePart = parts[2];
+
+        var extensionReference = $"br:{LanguageConstants.BicepPublicMcrRegistry}/{repoPath}:{tag}";
+
+        var atIndex = resourcePart.LastIndexOf('@');
+        var resourceType = resourcePart[..atIndex].Replace("-", "/");
+        var apiVersion = resourcePart[(atIndex + 1)..];
+
+        var response = await tools.GetExtensionResourceTypeSchema(extensionReference, resourceType, apiVersion, excludeDescriptions: true, excludeReadOnlyProperties: true);
 
         baselineFile.WriteToOutputFolder(response.Schema);
         baselineFile.ShouldHaveExpectedJsonValue();
