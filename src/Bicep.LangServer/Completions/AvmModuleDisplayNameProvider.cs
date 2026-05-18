@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Features;
 using Microsoft.VisualBasic.FileIO;
 
