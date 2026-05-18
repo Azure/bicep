@@ -23,7 +23,8 @@ public static class JsonSchemaWriter
     };
 
     public static string Write(TypesDefinitionResult typesDefinition, JsonSchemaWriterOptions? options = null)
-    {        var opts = options ?? new JsonSchemaWriterOptions();
+    {
+        var opts = options ?? new JsonSchemaWriterOptions();
         // Build a set of all known complex type names for distinguishing $ref from const
         var knownTypeNames = new HashSet<string>(StringComparer.Ordinal);
         foreach (var entity in typesDefinition.OtherComplexTypeEntities)
