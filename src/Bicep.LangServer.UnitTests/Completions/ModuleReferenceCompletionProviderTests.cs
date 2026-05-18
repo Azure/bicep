@@ -611,6 +611,49 @@ namespace Bicep.LangServer.UnitTests.Completions
             avmDisplayNameProviderMock.VerifyAll();
         }
 
+        [TestMethod]
+        public async Task GetFilteredCompletions_WithPublicAvmModulePathCompletions_WhenDisplayNameCacheIsEmpty_UsesCatalogDescriptionForTooltipTitle()
+        {
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
+                RegistryCatalogMocks.MockPublicMetadataProvider([
+                    new("bicep/avm/ptn/ai-platform/baseline", "module description", "contoso.com/help", []),
+                ])
+            );
+
+            var avmDisplayNameProviderMock = StrictMock.Of<IAvmModuleDisplayNameProvider>();
+            string? moduleDisplayName = null;
+            avmDisplayNameProviderMock
+                .Setup(provider => provider.TryGetModuleDisplayName("bicep/avm/ptn/ai-platform/baseline", out moduleDisplayName))
+                .Returns(false);
+            string? moduleStatus = null;
+            avmDisplayNameProviderMock
+                .Setup(provider => provider.TryGetModuleStatus("bicep/avm/ptn/ai-platform/baseline", out moduleStatus))
+                .Returns(false);
+
+            var (completionContext, sourceFile) = GetBicepCompletionContext("module test 'br/public:avm/ptn/ai-platform/|'");
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                catalog,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration,
+                avmDisplayNameProviderMock.Object);
+            var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
+
+            completions.Should().SatisfyRespectively(
+                completion =>
+                {
+                    completion.Label.Should().Be("avm/ptn/ai-platform/baseline");
+                    completion.Detail.Should().BeNull();
+                    completion.Documentation!.MarkupContent!.Value.Should().Contain("### module description");
+                    completion.Documentation.MarkupContent.Value.Should().Contain("**Full module path:** avm/ptn/ai-platform/baseline");
+                    completion.Documentation.MarkupContent.Value.Should().NotContain("**Status:**");
+                    completion.Documentation.MarkupContent.Value.Should().Contain("**Description:** module description");
+                });
+
+            avmDisplayNameProviderMock.VerifyAll();
+        }
+
         [DataTestMethod]
         [DataRow("module test 'br:registry.contoso.io/bicep/|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
         [DataRow("module test 'br:registry.contoso.io/bicep/|", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
