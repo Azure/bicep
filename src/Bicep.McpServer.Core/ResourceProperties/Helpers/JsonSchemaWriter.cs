@@ -8,19 +8,23 @@ using Bicep.McpServer.Core.ResourceProperties.Entities;
 
 namespace Bicep.McpServer.Core.ResourceProperties.Helpers;
 
+public record JsonSchemaWriterOptions(
+    bool ExcludeDescriptions = false);
+
 public static class JsonSchemaWriter
 {
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
-        WriteIndented = true,
+        WriteIndented = false,
         // UnsafeRelaxedJsonEscaping avoids unnecessary Unicode escapes (e.g., \u0027 for ' and \u002B for +)
         // while still escaping structurally significant characters (double quotes, backslashes, control chars).
         // Safe here because the input is Azure type definitions, not arbitrary user input.
         Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
     };
 
-    public static string Write(TypesDefinitionResult typesDefinition)
+    public static string Write(TypesDefinitionResult typesDefinition, JsonSchemaWriterOptions? options = null)
     {
+        var opts = options ?? new JsonSchemaWriterOptions();
         // Build a set of all known complex type names for distinguishing $ref from const
         var knownTypeNames = new HashSet<string>(StringComparer.Ordinal);
         foreach (var entity in typesDefinition.OtherComplexTypeEntities)
@@ -67,7 +71,7 @@ public static class JsonSchemaWriter
         }
 
         // Write the body type properties at the root level
-        WriteObjectTypeInline(root, bodyType, knownTypeNames);
+        WriteObjectTypeInline(root, bodyType, knownTypeNames, opts);
 
         // Write $defs for all other complex types
         if (typesDefinition.OtherComplexTypeEntities.Count > 0)
@@ -75,7 +79,7 @@ public static class JsonSchemaWriter
             var defs = new JsonObject();
             foreach (var complexType in typesDefinition.OtherComplexTypeEntities)
             {
-                defs[complexType.Name] = WriteComplexTypeDefinition(complexType, knownTypeNames);
+                defs[complexType.Name] = WriteComplexTypeDefinition(complexType, knownTypeNames, opts);
             }
             root["$defs"] = defs;
         }
@@ -83,7 +87,7 @@ public static class JsonSchemaWriter
         return root.ToJsonString(SerializerOptions);
     }
 
-    private static void WriteObjectTypeInline(JsonObject target, ObjectTypeEntity objectType, HashSet<string> knownTypeNames)
+    private static void WriteObjectTypeInline(JsonObject target, ObjectTypeEntity objectType, HashSet<string> knownTypeNames, JsonSchemaWriterOptions opts)
     {
         target["type"] = "object";
 
@@ -97,7 +101,7 @@ public static class JsonSchemaWriter
 
         foreach (var prop in objectType.Properties)
         {
-            var propSchema = WritePropertySchema(prop, knownTypeNames);
+            var propSchema = WritePropertySchema(prop, knownTypeNames, opts);
             properties[prop.Name] = propSchema;
 
             if (prop.Flags.Contains("Required"))
@@ -119,24 +123,24 @@ public static class JsonSchemaWriter
         }
     }
 
-    private static JsonObject WriteComplexTypeDefinition(ComplexType complexType, HashSet<string> knownTypeNames)
+    private static JsonObject WriteComplexTypeDefinition(ComplexType complexType, HashSet<string> knownTypeNames, JsonSchemaWriterOptions opts)
     {
         return complexType switch
         {
-            ObjectTypeEntity objectTypeEntity => WriteObjectTypeDefinition(objectTypeEntity, knownTypeNames),
-            DiscriminatedObjectTypeEntity discriminatedObjectTypeEntity => WriteDiscriminatedObjectTypeDefinition(discriminatedObjectTypeEntity, knownTypeNames),
+            ObjectTypeEntity objectTypeEntity => WriteObjectTypeDefinition(objectTypeEntity, knownTypeNames, opts),
+            DiscriminatedObjectTypeEntity discriminatedObjectTypeEntity => WriteDiscriminatedObjectTypeDefinition(discriminatedObjectTypeEntity, knownTypeNames, opts),
             _ => throw new InvalidDataException($"Unexpected complex type: {complexType.GetType().Name}"),
         };
     }
 
-    private static JsonObject WriteObjectTypeDefinition(ObjectTypeEntity objectType, HashSet<string> knownTypeNames)
+    private static JsonObject WriteObjectTypeDefinition(ObjectTypeEntity objectType, HashSet<string> knownTypeNames, JsonSchemaWriterOptions opts)
     {
         var schema = new JsonObject();
-        WriteObjectTypeInline(schema, objectType, knownTypeNames);
+        WriteObjectTypeInline(schema, objectType, knownTypeNames, opts);
         return schema;
     }
 
-    private static JsonObject WriteDiscriminatedObjectTypeDefinition(DiscriminatedObjectTypeEntity discriminatedType, HashSet<string> knownTypeNames)
+    private static JsonObject WriteDiscriminatedObjectTypeDefinition(DiscriminatedObjectTypeEntity discriminatedType, HashSet<string> knownTypeNames, JsonSchemaWriterOptions opts)
     {
         var schema = new JsonObject();
 
@@ -148,7 +152,7 @@ public static class JsonSchemaWriter
 
             foreach (var prop in discriminatedType.BaseProperties)
             {
-                baseProperties[prop.Name] = WritePropertySchema(prop, knownTypeNames);
+                baseProperties[prop.Name] = WritePropertySchema(prop, knownTypeNames, opts);
 
                 if (prop.Flags.Contains("Required"))
                 {
@@ -170,7 +174,7 @@ public static class JsonSchemaWriter
             var oneOf = new JsonArray();
             foreach (var element in discriminatedType.Elements)
             {
-                oneOf.Add(WriteComplexTypeDefinition(element, knownTypeNames));
+                oneOf.Add(WriteComplexTypeDefinition(element, knownTypeNames, opts));
             }
             schema["oneOf"] = oneOf;
         }
@@ -178,11 +182,11 @@ public static class JsonSchemaWriter
         return schema;
     }
 
-    private static JsonObject WritePropertySchema(PropertyInfo prop, HashSet<string> knownTypeNames)
+    private static JsonObject WritePropertySchema(PropertyInfo prop, HashSet<string> knownTypeNames, JsonSchemaWriterOptions opts)
     {
         var schema = WriteTypeReference(prop.Type, knownTypeNames);
 
-        if (!string.IsNullOrEmpty(prop.Description))
+        if (!opts.ExcludeDescriptions && !string.IsNullOrEmpty(prop.Description))
         {
             schema["description"] = prop.Description;
         }
