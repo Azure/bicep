@@ -592,6 +592,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 catalog,
                 settingsProvider,
                 BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration,
                 avmDisplayNameProviderMock.Object);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
