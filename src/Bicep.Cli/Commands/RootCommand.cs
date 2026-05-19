@@ -2,7 +2,10 @@
 // Licensed under the MIT License.
 
 using System.IO.Compression;
+using System.Runtime.InteropServices;
+using System.Text;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Helpers;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Utils;
 
@@ -10,13 +13,15 @@ namespace Bicep.Cli.Commands
 {
     public class RootCommand(
         IOContext io,
-        IEnvironment environment) : ICommand
+        IEnvironment environment,
+        VersionChecker versionChecker,
+        IGitHubLatestReleaseClient gitHubLatestReleaseClient) : ICommand
     {
-        public int Run(RootArguments args)
+        public async Task<int> RunAsync(RootArguments args, CancellationToken cancellationToken)
         {
             if (args.PrintVersion)
             {
-                PrintVersion();
+                await PrintVersionAsync(cancellationToken);
                 return 0;
             }
 
@@ -279,13 +284,89 @@ Usage:
             io.Output.Writer.Flush();
         }
 
-        private void PrintVersion()
+        private async Task PrintVersionAsync(CancellationToken cancellationToken)
         {
-            var output = $@"Bicep CLI version {environment.GetVersionString()}{System.Environment.NewLine}";
+            var output = new StringBuilder();
+            output.AppendLine($"Bicep CLI version: {environment.CurrentVersion.Version}");
 
-            io.Output.Writer.Write(output);
-            io.Output.Writer.Flush();
+            if (VersionChecker.TryGetGitCommitSha(environment.CurrentVersion.CommitRef) is { } gitCommitSha)
+            {
+                output.AppendLine($"Git commit SHA: {gitCommitSha}");
+            }
+
+            var osName = environment.CurrentPlatform switch
+            {
+                { } platform when platform == OSPlatform.Windows => "Windows",
+                { } platform when platform == OSPlatform.Linux => "Linux",
+                { } platform when platform == OSPlatform.OSX => "macOS",
+                _ => "unknown",
+            };
+
+            output.AppendLine($"OS: {osName}");
+            output.AppendLine($"OS version: {environment.OperatingSystemVersion}");
+            output.AppendLine($"Architecture: {environment.OperatingSystemArchitecture}");
+
+            output.AppendLine();
+            await AppendLatestReleaseStatusAsync(output, cancellationToken);
+
+            var newerVersions = versionChecker.FindNewerVersions();
+            if (newerVersions.Count > 0)
+            {
+                output.AppendLine();
+                output.AppendLine("Newer Bicep CLI installation(s) found:");
+
+                foreach (var newerVersion in newerVersions)
+                {
+                    output.AppendLine($"  - Version {FormatVersion(newerVersion)} at {newerVersion.Path}");
+                }
+            }
+
+            await io.Output.Writer.WriteAsync(output.ToString());
+            await io.Output.Writer.FlushAsync();
         }
+
+        private async Task AppendLatestReleaseStatusAsync(StringBuilder output, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var latestReleaseVersion = await gitHubLatestReleaseClient.GetLatestReleaseVersionAsync(cancellationToken);
+                if (latestReleaseVersion is null)
+                {
+                    output.AppendLine("Latest GitHub release: unavailable");
+                    return;
+                }
+
+                output.AppendLine($"Latest GitHub release: {latestReleaseVersion.Version}");
+
+                if (VersionChecker.TryParseVersion(environment.CurrentVersion.Version) is not { } currentVersion)
+                {
+                    return;
+                }
+
+                if (currentVersion < latestReleaseVersion.Version)
+                {
+                    var releaseUri = latestReleaseVersion.ReleaseUri is { } uri ? $": {uri}" : ".";
+                    output.AppendLine($"A newer Bicep CLI release is available{releaseUri}");
+                }
+                else
+                {
+                    output.AppendLine("You are running the latest Bicep CLI release.");
+                }
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch
+            {
+                output.AppendLine("Latest GitHub release: unavailable");
+            }
+        }
+
+        private static string FormatVersion(BicepInstallationVersion version)
+            => version.GitCommitSha is { } gitCommitSha ?
+                $"{version.Version} (Git commit SHA: {gitCommitSha})" :
+                version.Version.ToString();
 
         private void PrintLicense()
         {

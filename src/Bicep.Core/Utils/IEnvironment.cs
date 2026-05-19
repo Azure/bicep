@@ -18,6 +18,10 @@ public interface IEnvironment
 
     OSPlatform? CurrentPlatform { get; }
 
+    string OperatingSystemVersion { get; }
+
+    Architecture OperatingSystemArchitecture { get; }
+
     Architecture CurrentArchitecture { get; }
 
     BicepVersionInfo CurrentVersion { get; }

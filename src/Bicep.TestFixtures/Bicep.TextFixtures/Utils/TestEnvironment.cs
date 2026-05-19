@@ -27,6 +27,10 @@ public record TestEnvironment(ImmutableDictionary<string, string?> Variables, st
 
     public OSPlatform? CurrentPlatform => realEnvironment.CurrentPlatform;
 
+    public string OperatingSystemVersion => realEnvironment.OperatingSystemVersion;
+
+    public Architecture OperatingSystemArchitecture => realEnvironment.OperatingSystemArchitecture;
+
     public Architecture CurrentArchitecture => realEnvironment.CurrentArchitecture;
 
     public IEnvironment.BicepVersionInfo CurrentVersion => realEnvironment.CurrentVersion;

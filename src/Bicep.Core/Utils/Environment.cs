@@ -22,6 +22,10 @@ public class Environment : IEnvironment
 
     public OSPlatform? CurrentPlatform => lazyCurrentOsPlatform.Value;
 
+    public string OperatingSystemVersion => RuntimeInformation.OSDescription;
+
+    public Architecture OperatingSystemArchitecture => RuntimeInformation.OSArchitecture;
+
     public IEnvironment.BicepVersionInfo CurrentVersion { get; } = GetVersionInfo();
 
     private static OSPlatform? TryGetCurrentOSPlatform()
