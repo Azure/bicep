@@ -2,6 +2,7 @@
 node_modules
 .turbo
 *.log
+*.tsbuildinfo
 dist
 dist-ssr
 storybook-static
@@ -11,5 +12,12 @@ storybook-static
 server/dist
 public/dist
 coverage
+
+# Playwright
+**/e2e/.report/
+**/e2e/.results/
+playwright-report
+test-results
+.playwright
 
 !packages/*

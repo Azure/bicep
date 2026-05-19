@@ -1,11 +1,4 @@
 {
-  "extends": ["../../tsconfig.base.json"],
-  "include": ["src"],
-  "compilerOptions": {
-    "noUncheckedIndexedAccess": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    }
-  }
+  "files": [],
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.e2e.json" }]
 }

@@ -200,6 +200,27 @@ jobs:
         run: npm run test
         working-directory: ./src/vscode-bicep-ui
 
+      - name: Install Playwright browsers (visual-designer)
+        if: runner.os == 'Linux'
+        run: npm run e2e:install
+        working-directory: ./src/vscode-bicep-ui/apps/visual-designer
+
+      - name: Run Playwright E2E tests (visual-designer)
+        if: runner.os == 'Linux'
+        run: npm run e2e
+        working-directory: ./src/vscode-bicep-ui/apps/visual-designer
+        env:
+          CI: "true"
+
+      - name: Upload Playwright report (visual-designer)
+        if: always() && runner.os == 'Linux'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: visual-designer-playwright-report
+          path: ./src/vscode-bicep-ui/apps/visual-designer/e2e/.report
+          if-no-files-found: ignore
+          retention-days: 7
+
   test-vscode-ext:
     name: "Test: VSCode Extension"
     runs-on: ${{ matrix.os }}
