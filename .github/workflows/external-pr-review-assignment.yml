@@ -10,10 +10,12 @@ permissions:
 
 jobs:
   assign-reviewers:
-    # THe 'if' statement below will exclude Dependabot PRs and Internal ('MEMBER') PRs
+    # The 'if' statement below will exclude Dependabot PRs and internal PRs
     if: >
-      github.actor != 'dependabot[bot]' && 
+      github.actor != 'dependabot[bot]' &&
       github.event.pull_request.author_association != 'MEMBER' &&
+      github.event.pull_request.author_association != 'OWNER' &&
+      github.event.pull_request.author_association != 'COLLABORATOR' &&
       github.event.pull_request.head.repo.fork
     runs-on: ubuntu-latest
     # The job below will use the built-in "Request reviewers for a pull request" script to assign reviewers
