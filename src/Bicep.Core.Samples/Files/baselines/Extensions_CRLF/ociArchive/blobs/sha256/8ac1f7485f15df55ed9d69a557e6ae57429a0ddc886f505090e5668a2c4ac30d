@@ -1,0 +1,318 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.2-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+    "_EXPERIMENTAL_FEATURES_ENABLED": [
+      "Enable defining extension configs for modules"
+    ],
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "2362696626290922246"
+    }
+  },
+  "parameters": {
+    "strParam1": {
+      "type": "string"
+    },
+    "secureStrParam1": {
+      "type": "securestring"
+    },
+    "boolParam1": {
+      "type": "bool"
+    }
+  },
+  "variables": {
+    "strVar1": "strVar1Value"
+  },
+  "extensions": {
+    "az": {
+      "name": "AzureResourceManager",
+      "version": "0.2.803"
+    },
+    "k8s": {
+      "name": "Kubernetes",
+      "version": "1.0.0"
+    },
+    "extWithOptionalConfig1": {
+      "name": "hasoptionalconfig",
+      "version": "1.2.3"
+    },
+    "extWithOptionalConfig2": {
+      "name": "hasoptionalconfig",
+      "version": "1.2.3"
+    }
+  },
+  "resources": {
+    "kv1": {
+      "existing": true,
+      "extension": "az",
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2019-09-01",
+      "name": "kv1"
+    },
+    "scopedKv1": {
+      "existing": true,
+      "extension": "az",
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2019-09-01",
+      "resourceGroup": "otherGroup",
+      "name": "scopedKv1"
+    },
+    "testResource1": {
+      "extension": "az",
+      "type": "My.Rp/TestType",
+      "apiVersion": "2020-01-01",
+      "name": "testResource1",
+      "properties": {}
+    },
+    "aks": {
+      "extension": "az",
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2024-02-01",
+      "name": "aksCluster",
+      "location": "[resourceGroup().location]"
+    },
+    "moduleWithExtsWithAliases": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('moduleWithExtsWithAliases-{0}', uniqueString('moduleWithExtsWithAliases', deployment().name))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": {
+            "kubeConfig": {
+              "value": "kubeConfig2"
+            },
+            "namespace": {
+              "value": "ns2"
+            }
+          }
+        },
+        "templateLink": {
+          "relativePath": "150c8558478b1428d3c7e4a0b9d5fbd080723f8ed1f28ee43c1c45ea860011bc"
+        }
+      }
+    },
+    "moduleWithExtsWithoutAliases": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('moduleWithExtsWithoutAliases-{0}', uniqueString('moduleWithExtsWithoutAliases', deployment().name))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "kubernetes": {
+            "kubeConfig": {
+              "value": "kubeConfig2"
+            }
+          }
+        },
+        "templateLink": {
+          "relativePath": "67ffbeb732f456fd2a7f1674485fb5a6c84ef63a921d5f88e66834678fe3ff8e"
+        }
+      }
+    },
+    "moduleExtConfigsFromParams": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('moduleExtConfigsFromParams-{0}', uniqueString('moduleExtConfigsFromParams', deployment().name))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": {
+            "kubeConfig": "[if(parameters('boolParam1'), createObject('value', parameters('secureStrParam1')), createObject('value', parameters('strParam1')))]",
+            "namespace": "[if(parameters('boolParam1'), createObject('value', parameters('strParam1')), createObject('value', 'falseCond'))]"
+          }
+        },
+        "templateLink": {
+          "relativePath": "150c8558478b1428d3c7e4a0b9d5fbd080723f8ed1f28ee43c1c45ea860011bc"
+        }
+      }
+    },
+    "moduleExtConfigFromKeyVaultReference": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('moduleExtConfigFromKeyVaultReference-{0}', uniqueString('moduleExtConfigFromKeyVaultReference', deployment().name))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": {
+            "kubeConfig": {
+              "keyVaultReference": {
+                "keyVault": {
+                  "id": "[resourceId('Microsoft.KeyVault/vaults', 'kv1')]"
+                },
+                "secretName": "myKubeConfig"
+              }
+            },
+            "namespace": {
+              "value": "[variables('strVar1')]"
+            }
+          }
+        },
+        "templateLink": {
+          "relativePath": "150c8558478b1428d3c7e4a0b9d5fbd080723f8ed1f28ee43c1c45ea860011bc"
+        }
+      }
+    },
+    "moduleExtConfigFromReferences": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('moduleExtConfigFromReferences-{0}', uniqueString('moduleExtConfigFromReferences', deployment().name))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": {
+            "kubeConfig": {
+              "value": "[listClusterAdminCredential('aks', '2024-02-01').kubeconfigs[0].value]"
+            },
+            "namespace": {
+              "value": "[reference('testResource1').namespace]"
+            }
+          }
+        },
+        "templateLink": {
+          "relativePath": "150c8558478b1428d3c7e4a0b9d5fbd080723f8ed1f28ee43c1c45ea860011bc"
+        }
+      },
+      "dependsOn": [
+        "aks",
+        "testResource1"
+      ]
+    },
+    "moduleWithExtsUsingFullInheritance": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('moduleWithExtsUsingFullInheritance-{0}', uniqueString('moduleWithExtsUsingFullInheritance', deployment().name))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": "[extensions('k8s').config]"
+        },
+        "templateLink": {
+          "relativePath": "150c8558478b1428d3c7e4a0b9d5fbd080723f8ed1f28ee43c1c45ea860011bc"
+        }
+      }
+    },
+    "moduleWithExtsUsingFullInheritanceTernary1": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('moduleWithExtsUsingFullInheritanceTernary1-{0}', uniqueString('moduleWithExtsUsingFullInheritanceTernary1', deployment().name))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": "[extensions('k8s').config]",
+          "extWithOptionalConfig": "[if(parameters('boolParam1'), extensions('extWithOptionalConfig1').config, extensions('extWithOptionalConfig2').config)]"
+        },
+        "templateLink": {
+          "relativePath": "150c8558478b1428d3c7e4a0b9d5fbd080723f8ed1f28ee43c1c45ea860011bc"
+        }
+      }
+    },
+    "moduleWithExtsUsingPiecemealInheritance": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('moduleWithExtsUsingPiecemealInheritance-{0}', uniqueString('moduleWithExtsUsingPiecemealInheritance', deployment().name))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": {
+            "kubeConfig": "[extensions('k8s').config.kubeConfig]",
+            "namespace": "[extensions('k8s').config.namespace]"
+          }
+        },
+        "templateLink": {
+          "relativePath": "150c8558478b1428d3c7e4a0b9d5fbd080723f8ed1f28ee43c1c45ea860011bc"
+        }
+      }
+    },
+    "moduleWithExtsUsingPiecemealInheritanceLooped": {
+      "copy": {
+        "name": "moduleWithExtsUsingPiecemealInheritanceLooped",
+        "count": "[length(range(0, 4))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('moduleWithExtsPiecemealInheritanceLooped{0}', range(0, 4)[copyIndex()])]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": {
+            "kubeConfig": "[extensions('k8s').config.kubeConfig]",
+            "namespace": "[extensions('k8s').config.namespace]"
+          }
+        },
+        "templateLink": {
+          "relativePath": "150c8558478b1428d3c7e4a0b9d5fbd080723f8ed1f28ee43c1c45ea860011bc"
+        }
+      }
+    },
+    "moduleExtConfigsConditionalMixed": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('moduleExtConfigsConditionalMixed-{0}', uniqueString('moduleExtConfigsConditionalMixed', deployment().name))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": {
+            "kubeConfig": "[if(parameters('boolParam1'), createObject('value', parameters('secureStrParam1')), extensions('k8s').config.kubeConfig)]",
+            "namespace": "[if(parameters('boolParam1'), createObject('value', resourceGroup().location), extensions('k8s').config.namespace)]"
+          }
+        },
+        "templateLink": {
+          "relativePath": "150c8558478b1428d3c7e4a0b9d5fbd080723f8ed1f28ee43c1c45ea860011bc"
+        }
+      }
+    },
+    "moduleWithExtsEmpty": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "[format('moduleWithExtsEmpty-{0}', uniqueString('moduleWithExtsEmpty', deployment().name))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "extensionConfigs": {
+          "k8s": "[extensions('k8s').config]",
+          "extWithOptionalConfig": {}
+        },
+        "templateLink": {
+          "relativePath": "150c8558478b1428d3c7e4a0b9d5fbd080723f8ed1f28ee43c1c45ea860011bc"
+        }
+      }
+    }
+  }
+}

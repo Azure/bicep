@@ -1,0 +1,106 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "9865822508247546164"
+    }
+  },
+  "parameters": {
+    "deployTimeParam": {
+      "type": "string",
+      "defaultValue": "steve"
+    }
+  },
+  "variables": {
+    "deployTimeVar": "nigel",
+    "dependentVar": {
+      "dependencies": [
+        "[variables('deployTimeVar')]",
+        "[parameters('deployTimeParam')]"
+      ]
+    },
+    "resourceIds": {
+      "a": "[resourceId('My.Rp/myResourceType', 'resA')]",
+      "b": "[resourceId('My.Rp/myResourceType', 'resB')]"
+    }
+  },
+  "resources": [
+    {
+      "type": "My.Rp/myResourceType",
+      "apiVersion": "2020-01-01",
+      "name": "resA",
+      "properties": {
+        "deployTime": "[variables('dependentVar')]",
+        "eTag": "1234"
+      }
+    },
+    {
+      "type": "My.Rp/myResourceType",
+      "apiVersion": "2020-01-01",
+      "name": "resB",
+      "properties": {
+        "dependencies": {
+          "dependenciesA": [
+            "[resourceId('My.Rp/myResourceType', 'resA')]",
+            "resA",
+            "My.Rp/myResourceType",
+            "[reference(resourceId('My.Rp/myResourceType', 'resA'), '2020-01-01').deployTime]",
+            "[reference(resourceId('My.Rp/myResourceType', 'resA'), '2020-01-01').eTag]"
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('My.Rp/myResourceType', 'resA')]"
+      ]
+    },
+    {
+      "type": "My.Rp/myResourceType",
+      "apiVersion": "2020-01-01",
+      "name": "resC",
+      "properties": {
+        "resourceIds": "[variables('resourceIds')]"
+      },
+      "dependsOn": [
+        "[resourceId('My.Rp/myResourceType', 'resA')]",
+        "[resourceId('My.Rp/myResourceType', 'resB')]"
+      ]
+    },
+    {
+      "type": "My.Rp/myResourceType/childType",
+      "apiVersion": "2020-01-01",
+      "name": "[format('{0}/resD', 'resC')]",
+      "properties": {},
+      "dependsOn": [
+        "[resourceId('My.Rp/myResourceType', 'resC')]"
+      ]
+    },
+    {
+      "type": "My.Rp/myResourceType/childType",
+      "apiVersion": "2020-01-01",
+      "name": "resC/resD_2",
+      "properties": {
+        "resDRef": "[resourceId('My.Rp/myResourceType/childType', split(format('{0}/resD', 'resC'), '/')[0], split(format('{0}/resD', 'resC'), '/')[1])]"
+      },
+      "dependsOn": [
+        "[resourceId('My.Rp/myResourceType/childType', split(format('{0}/resD', 'resC'), '/')[0], split(format('{0}/resD', 'resC'), '/')[1])]"
+      ]
+    }
+  ],
+  "outputs": {
+    "resourceAType": {
+      "type": "string",
+      "value": "My.Rp/myResourceType"
+    },
+    "resourceBId": {
+      "type": "string",
+      "value": "[resourceId('My.Rp/myResourceType', 'resB')]"
+    },
+    "resourceCProperties": {
+      "type": "object",
+      "value": "[reference(resourceId('My.Rp/myResourceType', 'resC'), '2020-01-01')]"
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10265253010862566764"
+    }
+  },
+  "parameters": {
+    "storageAccount1": {
+      "type": "string",
+      "defaultValue": "testStorageAccount"
+    },
+    "storageAccount2": {
+      "type": "string",
+      "defaultValue": "testStorageAccount"
+    },
+    "storageAccount3": {
+      "type": "string",
+      "defaultValue": "testStorageAccount"
+    },
+    "storageAccount5": {
+      "type": "string",
+      "defaultValue": "testStorageAccount"
+    }
+  },
+  "variables": {
+    "vmProperties": {
+      "diagnosticsProfile": {
+        "bootDiagnostics": {
+          "enabled": 123,
+          "storageUri": true,
+          "unknownProp": "asdf"
+        }
+      },
+      "evictionPolicy": "Deallocate"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-12-01",
+      "name": "vm",
+      "location": "West US",
+      "properties": "[variables('vmProperties')]"
+    }
+  ]
+}

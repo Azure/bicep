@@ -31,6 +31,10 @@ namespace Bicep.Core.Samples
         public const string TestPublishPrefix = TestPublishDirectory + "/";
         public const string TestTemplateSpecsDirectory = "TemplateSpecs";
         public const string TestTemplateSpecsPrefix = TestTemplateSpecsDirectory + "/";
+        public const string TestArchiveDirectory = "archive";
+        public const string TestArchivePrefix = TestArchiveDirectory + "/";
+        public const string TestOciArchiveDirectory = "ociArchive";
+        public const string TestOciArchivePrefix = TestOciArchiveDirectory + "/";
 
         public record ExternalModuleInfo(string ModuleSource, ExternalModuleMetadata Metadata);
 
@@ -64,6 +68,10 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<ImmutableDictionary<string, ExternalModuleInfo>> lazyTemplateSpecs;
 
+        private readonly Lazy<ImmutableDictionary<string, string>>? lazyArchive;
+
+        private readonly Lazy<ImmutableDictionary<string, string>>? lazyOciArchive;
+
         public DataSet(string name)
         {
             this.Name = name;
@@ -81,6 +89,8 @@ namespace Bicep.Core.Samples
             this.lazyCompletions = new(() => ReadDataSetDictionary(GetStreamName(TestCompletionsPrefix)), LazyThreadSafetyMode.PublicationOnly);
             this.lazyModulesToPublish = new(() => ReadPublishData(GetStreamName(TestPublishPrefix)), LazyThreadSafetyMode.PublicationOnly);
             this.lazyTemplateSpecs = new(() => ReadTemplateSpecsData(GetStreamName(TestTemplateSpecsPrefix)), LazyThreadSafetyMode.PublicationOnly);
+            this.lazyArchive = this.CreateDirectoryIfValid(TestArchivePrefix);
+            this.lazyOciArchive = this.CreateDirectoryIfValid(TestOciArchivePrefix);
         }
 
         public string Name { get; }
@@ -113,6 +123,10 @@ namespace Bicep.Core.Samples
 
         public ImmutableDictionary<string, ExternalModuleInfo> TemplateSpecs => this.lazyTemplateSpecs.Value;
 
+        public ImmutableDictionary<string, string>? Archive => this.lazyArchive?.Value;
+
+        public ImmutableDictionary<string, string>? OciArchive => this.lazyOciArchive?.Value;
+
         public bool HasRegistryModules => !this.RegistryModules.IsEmpty;
 
         public bool HasTemplateSpecs => !this.TemplateSpecs.IsEmpty;
@@ -131,6 +145,9 @@ namespace Bicep.Core.Samples
         }
 
         private Lazy<string>? CreateIffValid(string fileName) => this.IsValid ? this.CreateRequired(fileName) : null;
+
+        private Lazy<ImmutableDictionary<string, string>>? CreateDirectoryIfValid(string streamNamePrefix)
+            => this.IsValid ? new(() => ReadDataSetDictionary(GetStreamName(streamNamePrefix)), LazyThreadSafetyMode.PublicationOnly) : null;
 
         public static string GetDisplayName(MethodInfo info, object[] data) => $"{info.Name}_{((DataSet)data[0]).Name}";
 

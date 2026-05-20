@@ -1,0 +1,129 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16196292690847002686"
+    }
+  },
+  "parameters": {
+    "paramWithOverlappingOutput": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "varWithOverlappingOutput": "hello"
+  },
+  "resources": [],
+  "outputs": {
+    "myStr": {
+      "type": "string",
+      "metadata": {
+        "description": "string output description"
+      },
+      "value": "hello"
+    },
+    "myInt": {
+      "type": "int",
+      "metadata": {
+        "description": "int output description"
+      },
+      "value": 7
+    },
+    "myOtherInt": {
+      "type": "int",
+      "value": "[add(div(20, 13), mod(80, -4))]"
+    },
+    "myBool": {
+      "type": "bool",
+      "metadata": {
+        "description": "bool output description"
+      },
+      "value": "[not(false())]"
+    },
+    "myOtherBool": {
+      "type": "bool",
+      "value": true
+    },
+    "suchEmpty": {
+      "type": "array",
+      "metadata": {
+        "description": "object array description"
+      },
+      "value": []
+    },
+    "suchEmpty2": {
+      "type": "object",
+      "value": {}
+    },
+    "obj": {
+      "type": "object",
+      "metadata": {
+        "description": "object output description"
+      },
+      "value": {
+        "a": "a",
+        "b": 12,
+        "c": true,
+        "d": null,
+        "list": [
+          1,
+          2,
+          3,
+          null,
+          {}
+        ],
+        "obj": {
+          "nested": [
+            "hello"
+          ]
+        }
+      }
+    },
+    "myArr": {
+      "type": "array",
+      "value": [
+        "pirates",
+        "say",
+        "[if(false(), 'arr2', 'arr')]"
+      ]
+    },
+    "rgLocation": {
+      "type": "string",
+      "value": "[resourceGroup().location]"
+    },
+    "isWestUs": {
+      "type": "bool",
+      "value": "[if(not(equals(resourceGroup().location, 'westus')), false(), true())]"
+    },
+    "expressionBasedIndexer": {
+      "type": "string",
+      "value": "[createObject('eastus', createObject('foo', true()), 'westus', createObject('foo', false()))[resourceGroup().location].foo]"
+    },
+    "primaryKey": {
+      "type": "string",
+      "value": "[listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-01-01').primaryKey]"
+    },
+    "secondaryKey": {
+      "type": "string",
+      "value": "[listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01').secondaryKey]"
+    },
+    "varWithOverlappingOutput": {
+      "type": "string",
+      "value": "[variables('varWithOverlappingOutput')]"
+    },
+    "paramWithOverlappingOutput": {
+      "type": "string",
+      "value": "[parameters('paramWithOverlappingOutput')]"
+    },
+    "generatedArray": {
+      "type": "array",
+      "copy": {
+        "count": "[length(range(0, 10))]",
+        "input": "[range(0, 10)[copyIndex()]]"
+      }
+    }
+  }
+}

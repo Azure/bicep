@@ -1,0 +1,92 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16136882420951513019"
+    }
+  },
+  "variables": {
+    "managementGroups": [
+      {
+        "name": "one",
+        "displayName": "The first"
+      },
+      {
+        "name": "two",
+        "displayName": "The second"
+      }
+    ]
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Management/managementGroups",
+      "apiVersion": "2020-05-01",
+      "name": "myMG",
+      "properties": {
+        "displayName": "This one is mine!"
+      }
+    },
+    {
+      "copy": {
+        "name": "manyGroups",
+        "count": "[length(variables('managementGroups'))]"
+      },
+      "type": "Microsoft.Management/managementGroups",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('managementGroups')[copyIndex()].name]",
+      "properties": {
+        "displayName": "[format('{0} ({1})', variables('managementGroups')[copyIndex()].displayName, reference(tenantResourceId('Microsoft.Management/managementGroups', 'myMG'), '2020-05-01').displayName)]"
+      },
+      "dependsOn": [
+        "[tenantResourceId('Microsoft.Management/managementGroups', 'myMG')]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "anotherSet",
+        "count": "[length(variables('managementGroups'))]"
+      },
+      "type": "Microsoft.Management/managementGroups",
+      "apiVersion": "2020-05-01",
+      "name": "[concat(variables('managementGroups')[copyIndex()].name, '-one-', copyIndex())]",
+      "properties": {
+        "displayName": "[format('{0} ({1}) (set 1) (index {2})', variables('managementGroups')[copyIndex()].displayName, reference(tenantResourceId('Microsoft.Management/managementGroups', 'myMG'), '2020-05-01').displayName, copyIndex())]"
+      },
+      "dependsOn": [
+        "manyGroups",
+        "[tenantResourceId('Microsoft.Management/managementGroups', 'myMG')]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "yetAnotherSet",
+        "count": "[length(variables('managementGroups'))]"
+      },
+      "type": "Microsoft.Management/managementGroups",
+      "apiVersion": "2020-05-01",
+      "name": "[concat(variables('managementGroups')[copyIndex()].name, '-two')]",
+      "properties": {
+        "displayName": "[format('{0} ({1}) (set 2)', variables('managementGroups')[copyIndex()].displayName, reference(tenantResourceId('Microsoft.Management/managementGroups', 'myMG'), '2020-05-01').displayName)]"
+      },
+      "dependsOn": [
+        "[tenantResourceId('Microsoft.Management/managementGroups', concat(variables('managementGroups')[0].name, '-one-', 0))]",
+        "[tenantResourceId('Microsoft.Management/managementGroups', 'myMG')]"
+      ]
+    }
+  ],
+  "outputs": {
+    "managementGroupIds": {
+      "type": "array",
+      "copy": {
+        "count": "[length(range(0, length(variables('managementGroups'))))]",
+        "input": {
+          "name": "[concat(variables('managementGroups')[range(0, length(variables('managementGroups')))[copyIndex()]].name, '-two')]",
+          "displayName": "[reference(tenantResourceId('Microsoft.Management/managementGroups', concat(variables('managementGroups')[range(0, length(variables('managementGroups')))[copyIndex()]].name, '-two')), '2020-05-01').displayName]"
+        }
+      }
+    }
+  }
+}

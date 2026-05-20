@@ -1,0 +1,35 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "languageVersion": "2.0",
+    "contentVersion": "1.0.0.0",
+    "metadata": {
+        "__bicep_exported_variables!": [
+            {
+                "name": "not-a-valid-bicep-identifier"
+            },
+            {
+                "name": "refersToCopyVariable"
+            }
+        ]
+    },
+    "resources": {},
+    "variables": {
+        "not-a-valid-bicep-identifier": "value",
+        "copy": [
+            {
+                "name": "copyVariable",
+                "count": "[variables('copyVariableCount')]",
+                "input": {
+                    "count": "[copyIndex('copyVariable')]",
+                    "value": "[variables('notExported')[mod(copyIndex('copyVariable'), 2)]]"
+                }
+            }
+        ],
+        "copyVariableCount": 10,
+        "notExported": [
+            "bippity boppity boop",
+            "abracadabra"
+        ],
+        "refersToCopyVariable": "[variables('copyVariable')]"
+    }
+  }
