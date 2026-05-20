@@ -1602,9 +1602,14 @@ namespace Bicep.Core.Diagnostics
                 $"""The provided array index value of "{indexSought}" is not valid. Array index should be greater than or equal to 0.""");
 
             public Diagnostic UnparsableYamlType() => CoreError(
-                "BCP340",
-                $"Unable to parse literal YAML value. Please ensure that it is well-formed.");
+            "BCP340",
+            $"Unable to parse literal YAML value. Please ensure that it is well-formed.");
 
+                
+            public Diagnostic MultiDocumentYamlNotSupported() => CoreError(
+            "BCP445",
+            "Multi-document YAML files are not supported. Please use a single YAML document.");
+            
             public Diagnostic RuntimeValueNotAllowedInFunctionDeclaration(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames, IEnumerable<string>? variableDependencyChain)
             {
                 var variableDependencyChainClause = BuildVariableDependencyChainClause(variableDependencyChain);
