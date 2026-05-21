@@ -120,7 +120,7 @@ public class ConsoleCommand(
         await io.Output.Writer.WriteLineAsync(string.Empty);
 
         var buffer = new StringBuilder();
-        var pendingTypeContinuationInteractive = false;
+        var pendingTypeContinuation = false;
 
         while (true)
         {
@@ -130,10 +130,10 @@ public class ConsoleCommand(
             }
 
             var rawLine = inputLine.Text;
-            if (pendingTypeContinuationInteractive && !IsTypeContinuationLine(rawLine))
+            if (pendingTypeContinuation && !IsTypeContinuationLine(rawLine))
             {
                 await io.Output.Writer.WriteAsync(EvaluateAndClearBuffer(buffer));
-                pendingTypeContinuationInteractive = false;
+                pendingTypeContinuation = false;
 
                 if (string.IsNullOrWhiteSpace(rawLine))
                 {
@@ -169,13 +169,13 @@ public class ConsoleCommand(
 
             if (ReplEnvironment.ShouldSubmitBuffer(current, rawLine))
             {
-                if (EndsWithTypeDeclaration(current) && ShouldDeferTypeDeclarationSubmit(rawLine, inputLine))
+                if (EndsWithTypeDeclaration(current) && ShouldWaitForTypeContinuation(inputLine))
                 {
-                    pendingTypeContinuationInteractive = true;
+                    pendingTypeContinuation = true;
                 }
                 else
                 {
-                    pendingTypeContinuationInteractive = false;
+                    pendingTypeContinuation = false;
                     await io.Output.Writer.WriteAsync(EvaluateAndClearBuffer(buffer));
                 }
             }
@@ -195,15 +195,9 @@ public class ConsoleCommand(
     private static bool IsTypeContinuationLine(string line)
         => line.TrimStart().StartsWith('|');
 
-    private static bool ShouldDeferTypeDeclarationSubmit(string line, InputLine inputLine)
-    {
-        if (!IsTypeContinuationLine(line))
-        {
-            return inputLine.HasBufferedInputAfterEnter;
-        }
-
-        return !inputLine.StartedWithBufferedInput || inputLine.HasBufferedInputAfterEnter;
-    }
+    private static bool ShouldWaitForTypeContinuation(InputLine inputLine)
+        => inputLine.HasBufferedInputAfterEnter ||
+            (IsTypeContinuationLine(inputLine.Text) && !inputLine.StartedWithBufferedInput);
 
     private static bool EndsWithTypeDeclaration(string text)
     {
