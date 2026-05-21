@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
+using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core;
@@ -8,7 +10,10 @@ using Bicep.Core.Extensions;
 using Bicep.Core.SourceGraph;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.CommandLine;
+using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands
 {
@@ -91,6 +96,65 @@ namespace Bicep.Cli.Commands
                 await io.Error.Writer.WriteLineAsync(string.Format(CliResources.DecompilationFailedFormat, inputUri, exception.Message));
                 return 1;
             }
+        }
+
+        internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+        {
+            var command = new System.CommandLine.Command(Constants.Command.Decompile, "Attempts to decompile a template .json file to .bicep.")
+            {
+                TreatUnmatchedTokensAsErrors = true,
+            };
+
+            var inputFileArgument = new System.CommandLine.Argument<string?>(Constants.Argument.InputFile)
+            {
+                Description = "The path to the ARM template .json file.",
+                Arity = ArgumentArity.ZeroOrOne,
+            };
+            var stdoutOption = new System.CommandLine.Option<bool>(Option.Stdout)
+            {
+                Description = "Prints the output to stdout.",
+            };
+            var forceOption = new System.CommandLine.Option<bool>(Option.Force)
+            {
+                Description = "Allows overwriting the output file if it exists (applies only to 'bicep decompile' or 'bicep decompile-params').",
+            };
+            var outDirOption = new System.CommandLine.Option<string?>(Option.OutDir)
+            {
+                Description = "Saves the output at the specified directory.",
+            };
+            var outFileOption = new System.CommandLine.Option<string?>(Option.OutFile)
+            {
+                Description = "Saves the output as the specified file path.",
+            };
+
+            command.Add(inputFileArgument);
+            command.Add(stdoutOption);
+            command.Add(forceOption);
+            command.Add(outDirOption);
+            command.Add(outFileOption);
+            command.Validators.Add((System.CommandLine.Parsing.CommandResult result) => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
+
+            command.SetAction((result, ct) => context.RunCommandAsync(async () =>
+            {
+                var outputToStdOut = result.GetValue(stdoutOption);
+                var outputDir = result.GetValue(outDirOption);
+                var outputFile = result.GetValue(outFileOption);
+
+                ArgumentHelper.ValidateOutputOptions(outputToStdOut, outputDir, outputFile);
+
+                var inputFile = result.GetValue(inputFileArgument)
+                    ?? throw new CommandLineException("The input file path was not specified");
+                var args = new DecompileArguments(
+                    inputFile,
+                    outputToStdOut,
+                    result.GetValue(forceOption),
+                    outputDir,
+                    outputFile);
+
+                return await context.GetCommand<DecompileCommand>().RunAsync(args);
+            }));
+
+            return command;
         }
     }
 }
