@@ -106,7 +106,9 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             IDictionary<string, JObject>? experimentalFeatures = BicepConfigSchema.SelectToken("properties.experimentalFeaturesEnabled.properties")!.ToObject<IDictionary<string, JObject>>();
             Assert.IsNotNull(experimentalFeatures);
-            return experimentalFeatures.ToImmutableDictionary();
+            return experimentalFeatures
+                .Where(kvp => kvp.Value.SelectToken("deprecated")?.Value<bool>() is not true)
+                .ToImmutableDictionary();
         }
 
         private IEnumerable<string> GetExperimentalFeatureIdsFromSchema()

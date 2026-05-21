@@ -11,7 +11,6 @@ namespace Bicep.Core.Configuration;
 
 public record ExperimentalFeaturesEnabled(
     bool SymbolicNameCodegen,
-    bool ExtendableParamFiles,
     bool ResourceTypedParamsAndOutputs,
     bool SourceMapping,
     bool LegacyFormatter,
@@ -31,7 +30,6 @@ public record ExperimentalFeaturesEnabled(
 
     public static readonly ExperimentalFeaturesEnabled AllDisabled = new(
         SymbolicNameCodegen: false,
-        ExtendableParamFiles: false,
         ResourceTypedParamsAndOutputs: false,
         SourceMapping: false,
         LegacyFormatter: false,

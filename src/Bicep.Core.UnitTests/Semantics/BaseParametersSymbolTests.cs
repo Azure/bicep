@@ -18,8 +18,7 @@ namespace Bicep.Core.UnitTests.Semantics
         public void FileSymbol_should_include_base_parameters_symbol_when_extends_is_present()
         {
             var services = new ServiceBuilder()
-                .WithEmptyAzResources()
-                .WithFeatureOverrides(new(ExtendableParamFilesEnabled: true));
+                .WithEmptyAzResources();
 
             var files = new Dictionary<Uri, string>
             {
@@ -54,8 +53,7 @@ namespace Bicep.Core.UnitTests.Semantics
         public void FileSymbol_should_not_include_base_parameters_symbol_when_extends_is_absent()
         {
             var services = new ServiceBuilder()
-                .WithEmptyAzResources()
-                .WithFeatureOverrides(new(ExtendableParamFilesEnabled: true));
+                .WithEmptyAzResources();
 
             var files = new Dictionary<Uri, string>
             {
@@ -82,8 +80,7 @@ namespace Bicep.Core.UnitTests.Semantics
         public void Base_parameters_symbol_should_include_all_inherited_assignments()
         {
             var services = new ServiceBuilder()
-                .WithEmptyAzResources()
-                .WithFeatureOverrides(new(ExtendableParamFilesEnabled: true));
+                .WithEmptyAzResources();
 
             var files = new Dictionary<Uri, string>
             {
@@ -118,8 +115,7 @@ namespace Bicep.Core.UnitTests.Semantics
         public void Base_variable_access_should_have_object_type_with_read_only_parent_properties()
         {
             var services = new ServiceBuilder()
-                .WithEmptyAzResources()
-                .WithFeatureOverrides(new(ExtendableParamFilesEnabled: true));
+                .WithEmptyAzResources();
 
             var files = new Dictionary<Uri, string>
             {
@@ -160,8 +156,7 @@ namespace Bicep.Core.UnitTests.Semantics
         public void Base_variable_access_should_not_throw_when_inherited_params_include_object_and_array_values()
         {
             var services = new ServiceBuilder()
-                    .WithEmptyAzResources()
-                    .WithFeatureOverrides(new(ExtendableParamFilesEnabled: true));
+                    .WithEmptyAzResources();
 
             var files = new Dictionary<Uri, string>
             {
