@@ -99,7 +99,6 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "experimentalFeaturesWarning": true,
         "experimentalFeaturesEnabled": {
-          "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "moduleExtensionConfigs": false,
           "resourceTypedParamsAndOutputs": false,
@@ -181,7 +180,6 @@ namespace Bicep.Core.UnitTests.Configuration
         "analyzers": {},
         "experimentalFeaturesWarning": true,
         "experimentalFeaturesEnabled": {
-          "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "resourceTypedParamsAndOutputs": false,
           "sourceMapping": false,
@@ -285,7 +283,6 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "experimentalFeaturesWarning": true,
         "experimentalFeaturesEnabled": {
-          "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "resourceTypedParamsAndOutputs": false,
           "sourceMapping": false,
@@ -371,7 +368,6 @@ namespace Bicep.Core.UnitTests.Configuration
 
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled = new(
                 SymbolicNameCodegen: false,
-                ExtendableParamFiles: true,
                 ResourceTypedParamsAndOutputs: false,
                 SourceMapping: false,
                 LegacyFormatter: false,
@@ -454,7 +450,6 @@ namespace Bicep.Core.UnitTests.Configuration
             "experimentalFeaturesWarning": true,
             "experimentalFeaturesEnabled": {
                 "symbolicNameCodegen": false,
-                "extendableParamFiles": true,
                 "resourceTypedParamsAndOutputs": false,
                 "sourceMapping": false,
                 "legacyFormatter": false,
@@ -803,7 +798,6 @@ namespace Bicep.Core.UnitTests.Configuration
                   "cacheRootDirectory": "/home/username/.bicep/cache",
                   "experimentalFeaturesWarning": false,
                   "experimentalFeaturesEnabled": {
-                    "extendableParamFiles": false,
                     "symbolicNameCodegen": false,
                     "resourceTypedParamsAndOutputs": false,
                     "sourceMapping": false,

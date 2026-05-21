@@ -672,7 +672,7 @@ namespace Bicep.LanguageServer.Completions
                 var bicepFileItems = CreateFileCompletionItems(model.SourceFile.FileHandle, replacementRange, fileCompletionInfo, x => x.IsBicepFile(), CompletionPriority.High);
                 var armTemplateFileItems = CreateFileCompletionItems(model.SourceFile.FileHandle, replacementRange, fileCompletionInfo, IsArmTemplateFile, CompletionPriority.Medium);
 
-                if (model.Features.ExtendableParamFilesEnabled && context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
+                if (context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
                 {
                     var item = CompletionItemBuilder.Create(CompletionItemKind.Enum, LanguageConstants.NoneKeyword)
                                                     .WithFilterText(LanguageConstants.NoneKeyword)
