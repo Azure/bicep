@@ -876,7 +876,8 @@
       "properties": {
         "extendableParamFiles": {
           "type": "boolean",
-          "description": "Allows the use of 'extends' keyword. See https://aka.ms/bicep/experimental-features#extendableparamfiles"
+          "description": "Accepted for compatibility. Extendable parameter files are now always enabled.",
+          "deprecated": true
         },
         "symbolicNameCodegen": {
           "type": "boolean",
