@@ -1,24 +1,29 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.Diagnostics;
-using System.IO.Abstractions;
 using System.Runtime;
+using Azure.Core.Diagnostics;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Helpers.Deploy;
+using Bicep.Cli.Helpers.Repl;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core;
 using Bicep.Core.Emit;
-using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
+
+using SclRootCommand = System.CommandLine.RootCommand;
 
 namespace Bicep.Cli
 {
@@ -62,18 +67,16 @@ namespace Bicep.Cli
                     Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
                 }
 
-                // this event listener picks up SDK events and writes them to Trace.WriteLine()
-                using (FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
-                {
-                    var program = new Program(new(
-                        Input: new(Console.In, Console.IsInputRedirected),
-                        Output: new(Console.Out, Console.IsOutputRedirected),
-                        Error: new(Console.Error, Console.IsErrorRedirected)));
+                using var azureEventSourceListener = FeatureProvider.TracingEnabled
+                    ? (IDisposable?)AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity)
+                    : null;
 
-                    // this must be awaited so dispose of the listener occurs in the continuation
-                    // rather than the sync part at the beginning of RunAsync()
-                    return await program.RunAsync(args, cancellationToken);
-                }
+                var program = new Program(new(
+                    Input: new(Console.In, Console.IsInputRedirected),
+                    Output: new(Console.Out, Console.IsOutputRedirected),
+                    Error: new(Console.Error, Console.IsErrorRedirected)));
+
+                return await program.RunAsync(args, cancellationToken);
             });
 
         public async Task<int> RunAsync(string[] args, CancellationToken cancellationToken)
@@ -81,82 +84,86 @@ namespace Bicep.Cli
             var environment = services.GetRequiredService<IEnvironment>();
             Trace.WriteLine($"Bicep version: {environment.GetVersionString()}, OS: {environment.CurrentPlatform?.ToString() ?? "unknown"}, Architecture: {environment.CurrentArchitecture}, CLI arguments: \"{string.Join(' ', args)}\"");
 
-            try
+            var rootCommand = BuildCommandLine();
+            var invocationConfig = new InvocationConfiguration
             {
-                switch (ArgumentParser.TryParse(args, services.GetRequiredService<IFileSystem>()))
+                Output = io.Output.Writer,
+                Error = io.Error.Writer,
+            };
+
+            return await rootCommand.Parse(args).InvokeAsync(invocationConfig, cancellationToken);
+        }
+
+        private SclRootCommand BuildCommandLine()
+        {
+            var rootCommand = new SclRootCommand("Bicep CLI");
+            var context = new CommandLineBuilderContext(services, io);
+
+            var builtInVersion = rootCommand.Options.FirstOrDefault(o => o.Name == Constants.Option.Version);
+            if (builtInVersion is not null)
+            {
+                rootCommand.Options.Remove(builtInVersion);
+            }
+
+            var versionOption = new Option<bool>(Constants.Option.Version, Constants.Option.VersionShort) { Description = "Shows bicep version information." };
+            var licenseOption = new Option<bool>(Constants.Option.License) { Description = "Prints license information." };
+            var thirdPartyNoticesOption = new Option<bool>(Constants.Option.ThirdPartyNotices) { Description = "Prints third-party notices." };
+
+            rootCommand.Add(versionOption);
+            rootCommand.Add(licenseOption);
+            rootCommand.Add(thirdPartyNoticesOption);
+
+            rootCommand.SetAction(async (ParseResult pr, CancellationToken ct) =>
+            {
+                var environment = services.GetRequiredService<IEnvironment>();
+                var unmatched = pr.UnmatchedTokens;
+
+                if (pr.GetValue(versionOption))
                 {
-                    case BuildArguments buildArguments when buildArguments.CommandName == Constants.Command.Build: // bicep build [options]
-                        return await services.GetRequiredService<BuildCommand>().RunAsync(buildArguments);
-
-                    case TestArguments testArguments when testArguments.CommandName == Constants.Command.Test: // bicep test [options]
-                        return await services.GetRequiredService<TestCommand>().RunAsync(testArguments);
-
-                    case BuildParamsArguments buildParamsArguments when buildParamsArguments.CommandName == Constants.Command.BuildParams: // bicep build-params [options]
-                        return await services.GetRequiredService<BuildParamsCommand>().RunAsync(buildParamsArguments);
-
-                    case FormatArguments formatArguments when formatArguments.CommandName == Constants.Command.Format: // bicep format [options]
-                        return services.GetRequiredService<FormatCommand>().Run(formatArguments);
-
-                    case GenerateParametersFileArguments generateParametersFileArguments when generateParametersFileArguments.CommandName == Constants.Command.GenerateParamsFile: // bicep generate-params [options]
-                        return await services.GetRequiredService<GenerateParametersFileCommand>().RunAsync(generateParametersFileArguments);
-
-                    case DecompileArguments decompileArguments when decompileArguments.CommandName == Constants.Command.Decompile: // bicep decompile [options]
-                        return await services.GetRequiredService<DecompileCommand>().RunAsync(decompileArguments);
-
-                    case DecompileParamsArguments decompileParamsArguments when decompileParamsArguments.CommandName == Constants.Command.DecompileParams:
-                        return services.GetRequiredService<DecompileParamsCommand>().Run(decompileParamsArguments);
-
-                    case PublishArguments publishArguments when publishArguments.CommandName == Constants.Command.Publish: // bicep publish [options]
-                        return await services.GetRequiredService<PublishCommand>().RunAsync(publishArguments);
-
-                    case PublishExtensionArguments publishProviderArguments when publishProviderArguments.CommandName == Constants.Command.PublishExtension: // bicep publish-extension [options]
-                        return await services.GetRequiredService<PublishExtensionCommand>().RunAsync(publishProviderArguments, cancellationToken);
-
-                    case RestoreArguments restoreArguments when restoreArguments.CommandName == Constants.Command.Restore: // bicep restore
-                        return await services.GetRequiredService<RestoreCommand>().RunAsync(restoreArguments);
-
-                    case LintArguments lintArguments when lintArguments.CommandName == Constants.Command.Lint: // bicep lint [options]
-                        return await services.GetRequiredService<LintCommand>().RunAsync(lintArguments);
-
-                    case JsonRpcArguments jsonRpcArguments when jsonRpcArguments.CommandName == Constants.Command.JsonRpc: // bicep jsonrpc [options]
-                        return await services.GetRequiredService<JsonRpcCommand>().RunAsync(jsonRpcArguments, cancellationToken);
-
-                    case LocalDeployArguments localDeployArguments when localDeployArguments.CommandName == Constants.Command.LocalDeploy: // bicep local-deploy [options]
-                        return await services.GetRequiredService<LocalDeployCommand>().RunAsync(localDeployArguments, cancellationToken);
-
-                    case SnapshotArguments snapshotArguments when snapshotArguments.CommandName == Constants.Command.Snapshot: // bicep snapshot [options]
-                        return await services.GetRequiredService<SnapshotCommand>().RunAsync(snapshotArguments, cancellationToken);
-
-                    case DeployArguments deployArguments when deployArguments.CommandName == Constants.Command.Deploy: // bicep deploy [options]
-                        return await services.GetRequiredService<DeployCommand>().RunAsync(deployArguments, cancellationToken);
-
-                    case WhatIfArguments whatIfArguments when whatIfArguments.CommandName == Constants.Command.WhatIf: // bicep what-if [options]
-                        return await services.GetRequiredService<WhatIfCommand>().RunAsync(whatIfArguments, cancellationToken);
-
-                    case TeardownArguments teardownArguments when teardownArguments.CommandName == Constants.Command.Teardown: // bicep teardown [options]
-                        return await services.GetRequiredService<TeardownCommand>().RunAsync(teardownArguments, cancellationToken);
-
-                    case ConsoleArguments consoleArguments when consoleArguments.CommandName == Constants.Command.Console: // bicep console
-                        return await services.GetRequiredService<ConsoleCommand>().RunAsync(consoleArguments);
-
-                    case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
-                        return services.GetRequiredService<RootCommand>().Run(rootArguments);
-
-                    default:
-                        await io.Error.Writer.WriteLineAsync(string.Format(CliResources.UnrecognizedArgumentsFormat, string.Join(' ', args), ThisAssembly.AssemblyName)); // should probably print help here??
-                        return 1;
+                    CliInfoPrinter.PrintVersion(io, environment);
+                    return 0;
                 }
-            }
-            catch (BicepException exception)
-            {
-                await io.Error.Writer.WriteLineAsync(exception.Message);
+
+                if (pr.GetValue(licenseOption))
+                {
+                    CliInfoPrinter.PrintLicense(io);
+                    return 0;
+                }
+
+                if (pr.GetValue(thirdPartyNoticesOption))
+                {
+                    CliInfoPrinter.PrintThirdPartyNotices(io);
+                    return 0;
+                }
+
+                await io.Error.Writer.WriteLineAsync(string.Format(CliResources.UnrecognizedArgumentsFormat, string.Join(' ', unmatched), ThisAssembly.AssemblyName));
                 return 1;
-            }
+            });
+
+            rootCommand.Add(BuildCommand.CreateCommand(context));
+            rootCommand.Add(TestCommand.CreateCommand(context));
+            rootCommand.Add(BuildParamsCommand.CreateCommand(context));
+            rootCommand.Add(FormatCommand.CreateCommand(context));
+            rootCommand.Add(GenerateParametersFileCommand.CreateCommand(context));
+            rootCommand.Add(DecompileCommand.CreateCommand(context));
+            rootCommand.Add(DecompileParamsCommand.CreateCommand(context));
+            rootCommand.Add(PublishCommand.CreateCommand(context));
+            rootCommand.Add(PublishExtensionCommand.CreateCommand(context));
+            rootCommand.Add(RestoreCommand.CreateCommand(context));
+            rootCommand.Add(LintCommand.CreateCommand(context));
+            rootCommand.Add(JsonRpcCommand.CreateCommand(context));
+            rootCommand.Add(LocalDeployCommand.CreateCommand(context));
+            rootCommand.Add(SnapshotCommand.CreateCommand(context));
+            rootCommand.Add(DeployCommand.CreateCommand(context));
+            rootCommand.Add(WhatIfCommand.CreateCommand(context));
+            rootCommand.Add(TeardownCommand.CreateCommand(context));
+            rootCommand.Add(ConsoleCommand.CreateCommand(context));
+
+            return rootCommand;
         }
 
         private static ILoggerFactory CreateLoggerFactory(IOContext io)
         {
-            // apparently logging requires a factory factory 🤦‍
             return LoggerFactory.Create(builder =>
             {
                 builder.AddProvider(new BicepLoggerProvider(new BicepLoggerOptions(true, ConsoleColor.Red, ConsoleColor.DarkYellow, io.Error.Writer)));
@@ -184,7 +191,6 @@ namespace Bicep.Cli
             }
             catch (OperationCanceledException exception) when (exception.CancellationToken == cancellationTokenSource.Token)
             {
-                // this is expected - no need to rethrow
                 return 1;
             }
         }
@@ -212,13 +218,9 @@ namespace Bicep.Cli
                 .AddSingleton<IDeploymentProcessor, DeploymentProcessor>()
                 .AddSingleton<DeploymentRenderer>();
 
-        // This logic is duplicated in Bicep.Cli. We avoid placing it in Bicep.Core
-        // to keep Bicep.Core free of System.IO dependencies. Consider moving this
-        // and other components shared between the CLI and Language Server to a
-        // separate project, such as Bicep.Hosting.
         private static void StartProfile()
         {
-            string profilePath = Path.Combine(Path.GetTempPath(), LanguageConstants.LanguageFileExtension); // bicep extension as a hidden folder name
+            string profilePath = Path.Combine(Path.GetTempPath(), LanguageConstants.LanguageFileExtension);
             Directory.CreateDirectory(profilePath);
             ProfileOptimization.SetProfileRoot(profilePath);
             ProfileOptimization.StartProfile("bicep.profile");
