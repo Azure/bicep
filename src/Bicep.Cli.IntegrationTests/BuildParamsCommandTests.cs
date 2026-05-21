@@ -186,18 +186,6 @@ namespace Bicep.Cli.IntegrationTests
                 """,
                 Path.GetDirectoryName(baseParamsFile));
 
-            FileHelper.SaveResultFile(
-                TestContext,
-                "bicepconfig.json",
-                """
-                {
-                    "experimentalFeaturesEnabled": {
-                        "extendableParamFiles": true
-                    }
-                }
-                """,
-                Path.GetDirectoryName(baseParamsFile));
-
             var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
 
             result.Should().Succeed();
@@ -256,18 +244,6 @@ namespace Bicep.Cli.IntegrationTests
                 """,
                 rootDir);
 
-            FileHelper.SaveResultFile(
-                TestContext,
-                "bicepconfig.json",
-                """
-                {
-                    "experimentalFeaturesEnabled": {
-                        "extendableParamFiles": true
-                    }
-                }
-                """,
-                rootDir);
-
             var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
 
             result.Should().Succeed();
@@ -314,18 +290,6 @@ namespace Bicep.Cli.IntegrationTests
                 """,
                 rootDir);
 
-            FileHelper.SaveResultFile(
-                TestContext,
-                "bicepconfig.json",
-                """
-                {
-                    "experimentalFeaturesEnabled": {
-                        "extendableParamFiles": true
-                    }
-                }
-                """,
-                rootDir);
-
             var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
             {
                 rgName = "override-rg"
@@ -364,18 +328,6 @@ namespace Bicep.Cli.IntegrationTests
                 extends './shared.bicepparam'
 
                 param localName = '${base.sharedName}-from-main'
-                """,
-                rootDir);
-
-            FileHelper.SaveResultFile(
-                TestContext,
-                "bicepconfig.json",
-                """
-                {
-                    "experimentalFeaturesEnabled": {
-                        "extendableParamFiles": true
-                    }
-                }
                 """,
                 rootDir);
 
@@ -421,18 +373,6 @@ namespace Bicep.Cli.IntegrationTests
                 """,
                 rootDir);
 
-            FileHelper.SaveResultFile(
-                TestContext,
-                "bicepconfig.json",
-                """
-                {
-                    "experimentalFeaturesEnabled": {
-                        "extendableParamFiles": true
-                    }
-                }
-                """,
-                rootDir);
-
             var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
 
             result.Should().Fail().And.HaveStderrMatch("*Error BCP259: The parameter \"rgNmae\" is assigned in the params file without being declared in the Bicep file.*");
@@ -468,18 +408,6 @@ namespace Bicep.Cli.IntegrationTests
                 "main.bicep",
                 """
                 param rgName string
-                """,
-                rootDir);
-
-            FileHelper.SaveResultFile(
-                TestContext,
-                "bicepconfig.json",
-                """
-                {
-                    "experimentalFeaturesEnabled": {
-                        "extendableParamFiles": true
-                    }
-                }
                 """,
                 rootDir);
 
@@ -522,18 +450,6 @@ namespace Bicep.Cli.IntegrationTests
                 "main.bicep",
                 """
                 param rgName string
-                """,
-                rootDir);
-
-            FileHelper.SaveResultFile(
-                TestContext,
-                "bicepconfig.json",
-                """
-                {
-                    "experimentalFeaturesEnabled": {
-                        "extendableParamFiles": true
-                    }
-                }
                 """,
                 rootDir);
 
