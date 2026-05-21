@@ -1,5 +1,23 @@
 # Docs Generation Command Proposal
 
+## Motivation
+
+Bicep modules are increasingly authored, published, and consumed at scale (most visibly through Azure Verified Modules), but there is currently no first-class way for module authors to generate documentation directly from the Bicep CLI. The AVM project fills that gap today with a substantial PowerShell tool (`Set-ModuleReadMe.ps1`) that parses compiled Bicep output and external metadata to produce a `README.md`. That tool works well for AVM, but it has real costs:
+
+1. It is non-trivial PowerShell that has to be maintained outside of the Bicep compiler, despite depending on Bicep's compiled output.
+2. It is not easily reusable by other Bicep module authors, customers, or internal teams who want the same quality of README without adopting the full AVM toolchain.
+3. It diverges from Bicep's own semantic model, which means improvements to Bicep's type system, parameter metadata, and decorators do not automatically improve documentation output.
+4. There is no shared, official "what a Bicep module README looks like" surface that customers can rely on or align to.
+
+Bringing documentation generation into the Bicep CLI itself addresses all of these concerns:
+
+1. It establishes an official, supported standard for Bicep module documentation that any module author can use without adopting AVM-specific tooling.
+2. It lets AVM (and similar consumers) replace large pieces of bespoke README logic with a single CLI invocation, focusing AVM tooling on the truly AVM-specific concerns (release metadata, network-dependent checks, repository policy) rather than on parsing and re-rendering compiled Bicep.
+3. It keeps documentation in lockstep with the Bicep language. As decorators, types, and metadata evolve, the docs surface evolves with them automatically.
+4. It makes module documentation deterministic, testable, and reproducible across environments, which is currently difficult when the README is produced by an out-of-tree script.
+
+In short: the goal is to give customers a clear, standard, batteries-included way to produce high-quality Bicep module docs, and to remove the need for downstream tooling like AVM's PowerShell scripts to keep re-implementing what Bicep already knows about a module.
+
 ## Summary
 
 Add a new `docs` command group to the Bicep CLI, with two initial subcommands:
