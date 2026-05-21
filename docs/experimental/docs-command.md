@@ -1,5 +1,16 @@
 # Docs Generation Command Proposal
 
+## Summary
+
+Add a new `docs` command group to the Bicep CLI, with two initial subcommands:
+
+```sh
+bicep docs generate
+bicep docs output
+```
+
+The first implementation should generate Markdown documentation for Bicep modules, defaulting to an AVM-compatible `README.md` layout and allowing callers to supply a custom template. `bicep docs generate` should be the file-oriented command, while `bicep docs output` should render the same content to stdout as a string-oriented command and should not support recursive operation. The implementation should be deterministic, fast for bulk generation, and reusable through the existing JSON-RPC surface so that many modules can be processed in a single session without repeated process startup overhead. The core documentation generation engine should live in `Bicep.Core` so that the CLI, JSON-RPC layer, and any other in-repo or external consumer of `Bicep.Core` can use the same implementation without shelling out to the CLI.
+
 ## Motivation
 
 Bicep modules are increasingly authored, published, and consumed at scale (most visibly through Azure Verified Modules), but there is currently no first-class way for module authors to generate documentation directly from the Bicep CLI. The AVM project fills that gap today with a substantial PowerShell tool (`Set-ModuleReadMe.ps1`) that parses compiled Bicep output and external metadata to produce a `README.md`. That tool works well for AVM, but it has real costs:
@@ -17,17 +28,6 @@ Bringing documentation generation into the Bicep CLI itself addresses all of the
 4. It makes module documentation deterministic, testable, and reproducible across environments, which is currently difficult when the README is produced by an out-of-tree script.
 
 In short: the goal is to give customers a clear, standard, batteries-included way to produce high-quality Bicep module docs, and to remove the need for downstream tooling like AVM's PowerShell scripts to keep re-implementing what Bicep already knows about a module.
-
-## Summary
-
-Add a new `docs` command group to the Bicep CLI, with two initial subcommands:
-
-```sh
-bicep docs generate
-bicep docs output
-```
-
-The first implementation should generate Markdown documentation for Bicep modules, defaulting to an AVM-compatible `README.md` layout and allowing callers to supply a custom template. `bicep docs generate` should be the file-oriented command, while `bicep docs output` should render the same content to stdout as a string-oriented command and should not support recursive operation. The implementation should be deterministic, fast for bulk generation, and reusable through the existing JSON-RPC surface so that many modules can be processed in a single session without repeated process startup overhead. The core documentation generation engine should live in `Bicep.Core` so that the CLI, JSON-RPC layer, and any other in-repo or external consumer of `Bicep.Core` can use the same implementation without shelling out to the CLI.
 
 ## Goals
 
