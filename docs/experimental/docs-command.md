@@ -16,7 +16,7 @@ The first implementation should generate Markdown documentation for Bicep module
 1. Add a first-class CLI experience for module documentation generation under a dedicated command group.
 2. Default to Markdown output, with a built-in template that matches the section ordering and general formatting used by the AVM `Set-ModuleReadMe.ps1` script.
 3. Allow callers to provide a custom template using a familiar, well-documented templating syntax.
-4. Support generating docs for one module or many modules in one invocation, including recursive folder traversal.
+4. Support generating docs for one module or many modules in one invocation, including glob-based bulk discovery via `--pattern` (matching the existing `bicep build`, `bicep format`, `bicep lint`, `bicep restore`, and `bicep build-params` convention).
 5. Make bulk generation efficient by reusing compilation state and exposing the same capability over JSON-RPC for persistent sessions.
 6. Add golden-file tests based on representative example repositories so that generated Markdown can be compared directly with checked-in README files.
 7. Package the reusable documentation generation engine as a separate NuGet package that can be consumed directly by module developers and other .NET tooling.
@@ -74,7 +74,7 @@ bicep docs output [<path>] [options]
 
 If `<path>` is omitted, the current directory is used.
 
-`bicep docs output` should resolve exactly one module and write the rendered documentation to stdout. It should not support `--recursive`.
+`bicep docs output` should resolve exactly one module and write the rendered documentation to stdout. It should not support `--pattern`.
 
 ### `generate` options
 
@@ -85,8 +85,7 @@ If `<path>` is omitted, the current directory is used.
 | `--template-root <path>` | Optional override for include resolution root. By default, include paths are resolved relative to the module being processed. |
 | `--set <key=value>` | Supplies a custom string value that is exposed to the template model for use by custom Scriban templates. May be specified multiple times. |
 | `--output-file <name>` | Output file name to write in each module directory. Defaults to `README.md` when `--preset markdown` is used. |
-| `--recursive` | Recursively discover module entrypoints under the supplied directory. |
-| `--pattern <glob>` | Optional glob used when scanning directories. In v1, this should default to `main.bicep` for directory scanning. |
+| `--pattern <glob>` | Generates docs for all files matching the specified glob pattern (for example `./modules/**/main.bicep`). Mutually exclusive with the positional `<path>` argument. Matches the convention used by `bicep build --pattern`. |
 | `--no-restore` | Skips restore when compiling modules for docs generation. |
 | `--diagnostics-format <format>` | Reuses existing diagnostics formatting behavior for emitted compiler diagnostics. |
 
@@ -110,36 +109,50 @@ bicep docs generate
 # Generate README.md for a specific module
 bicep docs generate ./modules/storage/main.bicep
 
-# Recursively generate README.md for all discovered modules
-bicep docs generate ./modules --recursive
+# Generate README.md for all modules discovered by a glob
+bicep docs generate --pattern './modules/**/main.bicep'
 
 # Use a custom template
-bicep docs generate ./modules/storage/main.bicep --template-file ./templates/readme.scriban
+bicep docs generate ./modules/storage/main.bicep --template-file ./templates/readme.md
 
 # Pass custom strings into the template
-bicep docs generate ./modules/storage/main.bicep --template-file ./templates/readme.scriban --set ownerDisplayName="Platform Team" --set supportUrl="https://contoso.example/support"
+bicep docs generate ./modules/storage/main.bicep --template-file ./templates/readme.md --set ownerDisplayName="Platform Team" --set supportUrl="https://contoso.example/support"
 
 # Write a different file name in each module directory
-bicep docs generate ./modules --recursive --output-file MODULE.md
+bicep docs generate --pattern './modules/**/main.bicep' --output-file MODULE.md
 
 # Print a single generated document to stdout
 bicep docs output ./modules/storage/main.bicep
 
 # Print the current directory module docs using a custom template
-bicep docs output --template-file ./templates/readme.scriban
+bicep docs output --template-file ./templates/readme.md
 ```
 
 ## Discovery Rules
 
-To keep v1 simple and predictable:
+To keep v1 simple, predictable, and aligned with the existing `bicep build`, `bicep format`, `bicep lint`, `bicep restore`, and `bicep build-params` commands:
 
-1. If the input is a file, process that file.
-2. If the input is a directory without `--recursive`, look for `<dir>/main.bicep` by default.
-3. If the input is a directory with `--recursive`, `bicep docs generate` enumerates all files matching the active pattern, which defaults to `main.bicep`.
-4. `bicep docs output` does not support `--recursive` and must resolve exactly one module.
-5. `--output-file` is treated as a file name, not a destination directory. In recursive mode, the file is written next to each matched module entrypoint.
+1. If the positional `<path>` is a file, process that file.
+2. If the positional `<path>` is a directory, look for `<dir>/main.bicep`.
+3. If `--pattern` is supplied, `bicep docs generate` enumerates all files matching the glob (for example `./modules/**/main.bicep`) and processes each as a module entrypoint. The positional `<path>` argument and `--pattern` are mutually exclusive.
+4. `bicep docs output` does not support `--pattern` and must resolve exactly one module.
+5. `--output-file` is treated as a file name, not a destination directory. When `--pattern` is used, the file is written next to each matched module entrypoint.
 
-This matches current Bicep module conventions and gives a narrow starting point for reliable test coverage.
+This intentionally avoids introducing a separate `--recursive` flag; recursion is expressed by the glob itself, consistent with the rest of the Bicep CLI surface.
+
+### Why `main.bicep` instead of `*.bicep`
+
+The recommended pattern in examples is `**/main.bicep` rather than `**/*.bicep` because documentation generation is module-entrypoint-oriented, not file-oriented. This differs from `bicep build`, where every `.bicep` file is a valid compilation target.
+
+By Bicep and AVM convention, the entrypoint of a consumable module is `main.bicep` at the module root. Other `.bicep` files in the tree are typically implementation details that should not produce their own `README.md`:
+
+1. Nested or helper modules referenced by a parent `main.bicep`.
+2. Test files such as `tests/e2e/defaults/main.test.bicep`.
+3. Re-usable type or function files imported by the entrypoint.
+
+Generating docs for those files would write meaningless `README.md` documents into test and helper folders and overwrite anything already there. Matching only `main.bicep` produces docs exactly for the directories that are intended to be consumed as modules, and lines up with the directory-default rule above and with the AVM `Set-ModuleReadMe.ps1` behavior.
+
+Callers who follow a different convention can still supply any glob they like (for example `**/module.bicep` or `**/*.bicep`); the examples reflect the recommended default rather than a hard constraint.
 
 ## Default Output Behavior
 
@@ -180,7 +193,7 @@ The generated Markdown does not need to replicate every AVM implementation detai
 
 ### Proposed syntax and package
 
-Use `Scriban` as the templating engine.
+Use `Scriban` as the templating engine. See the [Appendix](#appendix) for a comparison of considered options and a more detailed rationale for the choice.
 
 Reasons:
 
@@ -244,7 +257,7 @@ The recommended CLI shape is a repeatable key/value option:
 Example:
 
 ```sh
-bicep docs output ./main.bicep --template-file ./templates/readme.scriban --set ownerDisplayName="Platform Team" --set supportUrl="https://contoso.example/support"
+bicep docs output ./main.bicep --template-file ./templates/readme.md --set ownerDisplayName="Platform Team" --set supportUrl="https://contoso.example/support"
 ```
 
 Those values should be exposed to the template model through a dedicated object such as `custom`.
@@ -427,7 +440,7 @@ Bulk generation should be efficient. Process startup and repeated compilation wo
 
 ### CLI behavior
 
-`bicep docs generate --recursive` should:
+`bicep docs generate --pattern <glob>` should:
 
 1. Discover all target modules first.
 2. Reuse the same dependency injection container and compiler services for the full invocation.
@@ -506,7 +519,7 @@ The design should favor small, testable services over a single command class wit
 
 1. If a module fails to compile with errors, no output file should be written for that module.
 2. Warnings may be surfaced but should not block generation unless they prevent the docs model from being built.
-3. Recursive mode should continue processing other modules and return a non-zero exit code if any module fails.
+3. When `--pattern` is used, generation should continue processing remaining modules after a failure and return a non-zero exit code if any module fails.
 4. Template parsing or rendering failures should be reported with actionable diagnostics.
 
 ## Testing Strategy
@@ -534,9 +547,10 @@ src/Bicep.Cli.UnitTests/Files/DocsGeneration/
 ### Required tests
 
 1. Generate docs for a single fixture and verify the rendered Markdown matches the checked-in README exactly.
-2. Generate docs recursively for multiple fixtures and verify all outputs match.
+2. Generate docs for multiple fixtures using `--pattern` and verify all outputs match.
 3. Verify `bicep docs output` renders the same content as `bicep docs generate` would write for a single module.
-4. Verify `bicep docs output` rejects `--recursive`.
+4. Verify `bicep docs output` rejects `--pattern`.
+5. Verify `bicep docs generate` rejects supplying both a positional `<path>` and `--pattern`.
 5. Verify `--output-file` changes the file name but not the rendered content.
 6. Verify `--template-file` can render a custom Scriban template.
 7. Verify a custom template can consume add-in files such as `_header.md` and `_footer.md`.
@@ -579,10 +593,41 @@ To make implementation sequencing clear, the first milestone should deliver the 
 5. Support for `--template-file` to allow caller-supplied templates.
 6. Support for template add-in files for custom templates, for example `_header.md` and `_footer.md`.
 7. Support for caller-supplied custom string values via repeatable `--set key=value` arguments for use by custom templates.
-8. Support for single-file generation and recursive directory generation over `main.bicep` discovery for `generate`.
-9. Support for single-module string rendering with no recursive mode for `output`.
+8. Support for single-file generation and glob-based bulk generation via `--pattern` for `generate`, aligned with the existing `bicep build --pattern` convention.
+9. Support for single-module string rendering with no `--pattern` support for `output`.
 10. A reusable docs engine packaged as a separate NuGet package for module developers and other .NET tooling.
 11. Reuse of in-process compiler services, with a shared generation service that can also be invoked through JSON-RPC.
 12. Golden-file unit tests based on example repositories with checked-in expected README outputs.
 
 Anything outside that list should be treated as a follow-up unless it is required to complete one of the items above cleanly.
+
+## Appendix
+
+### Templating engine comparison
+
+The following options were evaluated for the docs feature. The evaluation criteria are: safety for user-authored templates, syntax familiarity for the IaC/AVM audience, whitespace control for Markdown output, include/partial support, performance for bulk generation, ecosystem maintenance, and license compatibility with Bicep.
+
+| Option | Pros | Cons |
+| :-- | :-- | :-- |
+| Scriban | Sandboxed by default; Liquid-compatible mode plus richer native syntax; strong Markdown-friendly whitespace control; native include support; fast AST-based execution; Apache-2.0 license; precedent in Microsoft-adjacent tooling. | Native syntax is less universally known than Liquid; Liquid compatibility mode is a subset of the full Liquid spec. |
+| Fluid | Pure Liquid syntax (broadly known); sandboxed by default; async-first; active maintenance; MIT license; strong .NET integration via OrchardCore lineage. | Weaker whitespace control for Markdown than Scriban; stricter Liquid-only feature set limits more advanced template patterns. |
+| Handlebars.Net | Familiar Mustache/Handlebars syntax for many web developers; logic-less design reduces template complexity; MIT license; active maintenance. | Logic-less philosophy forces helper functions for non-trivial README composition; weaker conditional/table ergonomics; whitespace handling is less precise for Markdown. |
+| RazorLight / RazorEngineCore | Full Razor (C#) inside templates; very expressive; familiar to .NET developers. | Templates execute arbitrary C# code, which is unsafe for user-authored templates; heavy Roslyn dependency; significantly higher runtime cost; overkill for Markdown rendering. |
+| DotLiquid | Familiar Liquid syntax; long history in .NET; permissive license. | Maintenance has slowed and the .NET community has largely moved to Fluid for new work; fewer modern conveniences. |
+| Stubble / Morestachio / Mustachio (Mustache variants) | Lightweight; familiar Mustache syntax. | Logic-less model is too constrained for README composition with conditional sections and tables; whitespace handling is not Markdown-friendly. |
+| T4 templates | Built into the .NET tooling ecosystem; well understood for code generation. | Designed for compile-time/MSBuild scenarios; not suitable for runtime user-supplied templates. |
+| Cottle | Fast and sandboxed; small footprint. | Smaller ecosystem and audience familiarity; less momentum than Scriban or Fluid. |
+| String interpolation / Roslyn scripting | Maximum flexibility for internal use cases. | Executes arbitrary code; poor authoring ergonomics; not viable for user-supplied templates. |
+
+### Chosen package and rationale
+
+The chosen templating engine for v1 is `Scriban`.
+
+The decision is based on the following:
+
+1. Safety. Scriban evaluates templates in a sandbox and does not execute arbitrary code, which is appropriate for templates supplied by module developers.
+2. Markdown ergonomics. Scriban's whitespace control and include semantics map naturally onto README-style output, which is the primary target format in v1.
+3. Familiar syntax with room to grow. Scriban offers a Liquid-compatibility mode for users who already know Liquid, while still exposing a richer native syntax for more advanced templates.
+4. Performance. Scriban is fast and AST-based, which suits bulk generation across many modules and reuse from JSON-RPC.
+5. Ecosystem fit. Scriban is widely used in Microsoft-adjacent .NET tooling, is actively maintained, and ships under the Apache-2.0 license, which is compatible with Bicep.
+6. Reasonable alternative. Fluid is the closest alternative and remains a sensible fallback if a Scriban-specific concern emerges during implementation.
