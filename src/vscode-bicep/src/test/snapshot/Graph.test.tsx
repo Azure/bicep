@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import renderer from "react-test-renderer";
+import { render } from "@testing-library/react";
 import { ThemeProvider } from "styled-components";
 
 import "jest-styled-components";
@@ -10,12 +10,12 @@ import { darkTheme } from "../../visualizer/app/themes";
 
 describe("component Graph", () => {
   it("should render", () => {
-    const graph = renderer.create(
+    const { asFragment } = render(
       <ThemeProvider theme={darkTheme}>
         <Graph elements={[]} />
       </ThemeProvider>,
     );
 
-    expect(graph.toJSON()).toMatchSnapshot();
+    expect(asFragment()).toMatchSnapshot();
   });
 });

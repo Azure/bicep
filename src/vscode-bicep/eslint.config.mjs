@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 import js from "@eslint/js";
+import { fixupPluginRules } from "@eslint/compat";
+import eslintReact from "@eslint-react/eslint-plugin";
 import jest from "eslint-plugin-jest";
 import notice from "eslint-plugin-notice";
-import react from "eslint-plugin-react";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
@@ -18,18 +19,24 @@ export default tseslint.config(
     },
     js.configs.recommended,
     ...tseslint.configs.recommended,
+    eslintReact.configs.recommended,
+    // Disable @eslint-react rules that have no equivalent in the previous
+    // eslint-plugin-react/recommended config and flag existing code patterns.
+    // These can be addressed in a follow-up.
     {
-        ...react.configs.flat.recommended,
-        settings: { react: { version: "detect" } },
+        rules: {
+            "@eslint-react/exhaustive-deps": "off",
+            "@eslint-react/naming-convention-context-name": "off",
+            "@eslint-react/set-state-in-effect": "off",
+        },
     },
-    react.configs.flat["jsx-runtime"],
     jest.configs["flat/recommended"],
     jest.configs["flat/style"],
     {
         files: ["**/*.ts", "**/*.tsx"],
 
         plugins: {
-            notice,
+            notice: fixupPluginRules(notice),
         },
 
         languageOptions: {

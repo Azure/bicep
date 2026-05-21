@@ -20,13 +20,10 @@ public record FeatureProviderOverrides(
     bool? WaitAndRetryEnabled = default,
     bool? LocalDeployEnabled = default,
     bool? ResourceInfoCodegenEnabled = default,
-    bool? ExtendableParamFilesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
     bool? ModuleExtensionConfigsEnabled = default,
     bool? UserDefinedConstraintsEnabled = default,
-    bool? DeployCommandsEnabled = default,
-    bool? ThisNamespaceEnabled = default,
-    bool? ExistingNullIfNotFoundEnabled = default)
+    bool? DeployCommandsEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -41,13 +38,10 @@ public record FeatureProviderOverrides(
         bool? WaitAndRetryEnabled = default,
         bool? LocalDeployEnabled = default,
         bool? ResourceInfoCodegenEnabled = default,
-        bool? ExtendableParamFilesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
         bool? ModuleExtensionConfigsEnabled = default,
         bool? UserDefinedConstraintsEnabled = default,
-        bool? DeployCommandsEnabled = default,
-        bool? ThisNamespaceEnabled = default,
-        bool? ExistingNullIfNotFoundEnabled = default) : this(
+        bool? DeployCommandsEnabled = default) : this(
             FileHelper.GetCacheRootDirectory(testContext),
             RegistryEnabled,
             SymbolicNameCodegenEnabled,
@@ -60,12 +54,9 @@ public record FeatureProviderOverrides(
             WaitAndRetryEnabled,
             LocalDeployEnabled,
             ResourceInfoCodegenEnabled,
-            ExtendableParamFilesEnabled,
             AssemblyVersion,
             ModuleExtensionConfigsEnabled,
             UserDefinedConstraintsEnabled,
-            DeployCommandsEnabled,
-            ThisNamespaceEnabled,
-            ExistingNullIfNotFoundEnabled)
+            DeployCommandsEnabled)
     { }
 }

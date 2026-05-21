@@ -1828,10 +1828,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP405",
                 $"More than one \"{LanguageConstants.ExtendsKeyword}\" declaration are present");
 
-            public Diagnostic ExtendsNotSupported() => CoreError(
-                "BCP406",
-                $"Using \"{LanguageConstants.ExtendsKeyword}\" keyword requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ExtendableParamFiles)}\".");
-
             public Diagnostic MicrosoftGraphBuiltinRetired(ExtensionDeclarationSyntax? syntax)
             {
                 var msGraphRegistryPath = "br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.9-preview";
@@ -1902,7 +1898,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic SpreadOperatorCannotBeUsedWithForLoop(SpreadExpressionSyntax spread) => CoreError(
                 "BCP417",
-                $"The spread operator \"{spread.Ellipsis.Text}\" cannot be used inside objects with property for-expressions.");
+                $"The spread operator \"{spread.Ellipsis.Text}\" cannot be used inside objects containing property for-expressions.");
 
             public Diagnostic ExtensionCannotBeReferenced() => CoreError(
                 "BCP418",
@@ -2026,6 +2022,11 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic NullIfNotFoundOnlyValidOnExistingResources() => CoreError(
                 "BCP445",
                 $@"The ""@{LanguageConstants.NullIfNotFoundDecoratorName}()"" decorator can only be used on existing resources.");
+
+            public Diagnostic ArtifactRestoreBlockedByRegistry(string registryHostname) => CoreError(
+                "BCP446",
+                $"Restore from registry \"{registryHostname}\" is blocked because it is not in the trusted registries list. " +
+                $"See https://aka.ms/bicep/registry-trust for details.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

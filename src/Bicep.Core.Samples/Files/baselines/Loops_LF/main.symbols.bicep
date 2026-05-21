@@ -7,6 +7,7 @@ param index int
 
 // single resource
 resource singleResource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+//@[00:008) Local this. Type: object. Declaration start char: 73, length: 136
 //@[09:023) Resource singleResource. Type: Microsoft.Storage/storageAccounts@2019-06-01. Declaration start char: 0, length: 209
   name: '${name}single-resource-name'
   location: resourceGroup().location
@@ -18,6 +19,7 @@ resource singleResource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 
 // extension of single resource
 resource singleResourceExtension 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[00:008) Local this. Type: object. Declaration start char: 78, length: 104
 //@[09:032) Resource singleResourceExtension. Type: Microsoft.Authorization/locks@2016-09-01. Declaration start char: 0, length: 182
   scope: singleResource
   name: 'single-resource-lock'
@@ -28,6 +30,7 @@ resource singleResourceExtension 'Microsoft.Authorization/locks@2016-09-01' = {
 
 // single resource cascade extension
 resource singleResourceCascadeExtension 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[00:008) Local this. Type: object. Declaration start char: 85, length: 126
 //@[09:039) Resource singleResourceCascadeExtension. Type: Microsoft.Authorization/locks@2016-09-01. Declaration start char: 0, length: 211
   scope: singleResourceExtension
   name: 'single-resource-cascade-extension'
@@ -40,6 +43,7 @@ resource singleResourceCascadeExtension 'Microsoft.Authorization/locks@2016-09-0
 @batchSize(42)
 resource storageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in accounts: {
 //@[79:086) Local account. Type: any. Declaration start char: 79, length: 7
+//@[00:008) Local this. Type: object[]. Declaration start char: 74, length: 200
 //@[09:024) Resource storageAccounts. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 289
   name: '${name}-collection-${account.name}'
   location: account.location
@@ -54,6 +58,7 @@ resource storageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
 
 // extension of a single resource in a collection
 resource extendSingleResourceInCollection 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[00:008) Local this. Type: object. Declaration start char: 87, length: 125
 //@[09:041) Resource extendSingleResourceInCollection. Type: Microsoft.Authorization/locks@2016-09-01. Declaration start char: 0, length: 212
   name: 'one-resource-collection-item-lock'
   properties: {
@@ -65,6 +70,7 @@ resource extendSingleResourceInCollection 'Microsoft.Authorization/locks@2016-09
 // collection of extensions
 resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for i in range(0,1): {
 //@[79:080) Local i. Type: 0. Declaration start char: 79, length: 1
+//@[00:008) Local this. Type: object[]. Declaration start char: 74, length: 138
 //@[09:028) Resource extensionCollection. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 212
   name: 'lock-${i}'
   properties: {
@@ -77,6 +83,7 @@ resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for i
 @batchSize(1)
 resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for i in range(0,1): {
 //@[72:073) Local i. Type: 0. Declaration start char: 72, length: 1
+//@[00:008) Local this. Type: object[]. Declaration start char: 67, length: 155
 //@[09:021) Resource lockTheLocks. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 236
   name: 'lock-the-lock-${i}'
   properties: {
@@ -115,6 +122,7 @@ output indexViaReference string = storageAccounts[int(storageAccounts[index].pro
 // dependency on a resource collection
 resource storageAccounts2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in accounts: {
 //@[80:087) Local account. Type: any. Declaration start char: 80, length: 7
+//@[00:008) Local this. Type: object[]. Declaration start char: 75, length: 201
 //@[09:025) Resource storageAccounts2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 276
   name: '${name}-collection-${account.name}'
   location: account.location
@@ -130,6 +138,7 @@ resource storageAccounts2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 // one-to-one paired dependencies
 resource firstSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for i in range(0, length(accounts)): {
 //@[72:073) Local i. Type: int. Declaration start char: 72, length: 1
+//@[00:008) Local this. Type: object[]. Declaration start char: 67, length: 165
 //@[09:017) Resource firstSet. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 232
   name: '${name}-set1-${i}'
   location: resourceGroup().location
@@ -141,6 +150,7 @@ resource firstSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for i in ran
 
 resource secondSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for i in range(0, length(accounts)): {
 //@[73:074) Local i. Type: int. Declaration start char: 73, length: 1
+//@[00:008) Local this. Type: object[]. Declaration start char: 68, length: 200
 //@[09:018) Resource secondSet. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 268
   name: '${name}-set2-${i}'
   location: resourceGroup().location
@@ -155,6 +165,7 @@ resource secondSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for i in ra
 
 // depending on collection and one resource in the collection optimizes the latter part away
 resource anotherSingleResource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+//@[00:008) Local this. Type: object. Declaration start char: 80, length: 186
 //@[09:030) Resource anotherSingleResource. Type: Microsoft.Storage/storageAccounts@2019-06-01. Declaration start char: 0, length: 266
   name: '${name}single-resource-name'
   location: resourceGroup().location
@@ -183,6 +194,7 @@ var vnetConfigurations = [
 
 resource vnets 'Microsoft.Network/virtualNetworks@2020-06-01' = [for vnetConfig in vnetConfigurations: {
 //@[69:079) Local vnetConfig. Type: object | object. Declaration start char: 69, length: 10
+//@[00:008) Local this. Type: object[]. Declaration start char: 64, length: 99
 //@[09:014) Resource vnets. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 163
   name: vnetConfig.name
   location: vnetConfig.location
@@ -190,6 +202,7 @@ resource vnets 'Microsoft.Network/virtualNetworks@2020-06-01' = [for vnetConfig 
 
 // implicit dependency on single resource from a resource collection
 resource implicitDependencyOnSingleResourceByIndex 'Microsoft.Network/dnsZones@2018-05-01' = {
+//@[00:008) Local this. Type: object. Declaration start char: 93, length: 144
 //@[09:050) Resource implicitDependencyOnSingleResourceByIndex. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 237
   name: 'test'
   location: 'global'
@@ -204,6 +217,7 @@ resource implicitDependencyOnSingleResourceByIndex 'Microsoft.Network/dnsZones@2
 
 // implicit and explicit dependency combined
 resource combinedDependencies 'Microsoft.Network/dnsZones@2018-05-01' = {
+//@[00:008) Local this. Type: object. Declaration start char: 72, length: 222
 //@[09:029) Resource combinedDependencies. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 294
   name: 'test2'
   location: 'global'
@@ -317,6 +331,7 @@ output existingIndexedResourceAccessTier string = existingStorageAccounts[index%
 
 resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in []: {
 //@[72:076) Local zone. Type: never. Declaration start char: 72, length: 4
+//@[00:008) Local this. Type: object[]. Declaration start char: 67, length: 69
 //@[09:024) Resource duplicatedNames. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 136
   name: 'no loop variable'
   location: 'eastus'
@@ -325,6 +340,7 @@ resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in 
 // reference to a resource collection whose name expression does not reference any loop variables
 resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in []: {
 //@[82:086) Local zone. Type: never. Declaration start char: 82, length: 4
+//@[00:008) Local this. Type: object[]. Declaration start char: 77, length: 117
 //@[09:034) Resource referenceToDuplicateNames. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 194
   name: 'no loop variable 2'
   location: 'eastus'
@@ -349,6 +365,7 @@ module apim 'passthrough.bicep' = [for region in regions: {
 }]
 
 resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@2020-05-01' = {
+//@[00:008) Local this. Type: object. Declaration start char: 94, length: 686
 //@[09:049) Resource propertyLoopDependencyOnModuleCollection. Type: Microsoft.Network/frontDoors@2020-05-01. Declaration start char: 0, length: 780
   name: name
   location: 'Global'
@@ -377,6 +394,7 @@ resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@
 
 resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for index in range(0, length(regions)): {
 //@[92:097) Local index. Type: int. Declaration start char: 92, length: 5
+//@[00:008) Local this. Type: object[]. Declaration start char: 87, length: 670
 //@[09:042) Resource indexedModuleCollectionDependency. Type: Microsoft.Network/frontDoors@2020-05-01[]. Declaration start char: 0, length: 757
   name: '${name}-${index}'
   location: 'Global'
@@ -404,6 +422,7 @@ resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05
 }]
 
 resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoors@2020-05-01' = {
+//@[00:008) Local this. Type: object. Declaration start char: 96, length: 775
 //@[09:051) Resource propertyLoopDependencyOnResourceCollection. Type: Microsoft.Network/frontDoors@2020-05-01. Declaration start char: 0, length: 871
   name: name
   location: 'Global'
@@ -432,6 +451,7 @@ resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoor
 
 resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for index in range(0, length(accounts)): {
 //@[94:099) Local index. Type: int. Declaration start char: 94, length: 5
+//@[00:008) Local this. Type: object[]. Declaration start char: 89, length: 759
 //@[09:044) Resource indexedResourceCollectionDependency. Type: Microsoft.Network/frontDoors@2020-05-01[]. Declaration start char: 0, length: 848
   name: '${name}-${index}'
   location: 'Global'
@@ -460,6 +480,7 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
 
 resource filteredZones 'Microsoft.Network/dnsZones@2018-05-01' = [for i in range(0,10): if(i % 3 == 0) {
 //@[70:071) Local i. Type: int. Declaration start char: 70, length: 1
+//@[00:008) Local this. Type: object[]. Declaration start char: 65, length: 98
 //@[09:022) Resource filteredZones. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 163
   name: 'zone${i}'
   location: resourceGroup().location
@@ -477,6 +498,7 @@ module filteredModules 'passthrough.bicep' = [for i in range(0,6): if(i % 2 == 0
 resource filteredIndexedZones 'Microsoft.Network/dnsZones@2018-05-01' = [for (account, i) in accounts: if(account.enabled) {
 //@[78:085) Local account. Type: any. Declaration start char: 78, length: 7
 //@[87:088) Local i. Type: int. Declaration start char: 87, length: 1
+//@[00:008) Local this. Type: object[]. Declaration start char: 72, length: 127
 //@[09:029) Resource filteredIndexedZones. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 199
   name: 'indexedZone-${account.name}-${i}'
   location: account.location

@@ -242,6 +242,105 @@ invalid file
     }
 
     [TestMethod]
+    public void GetSecret_without_expressions_in_parameters_generates_expected_keyVault_reference()
+    {
+        var result = CompilationHelper.CompileParams(
+("parameters.bicepparam", """
+using none
+param foo = getSecret('subId', 'rgName', 'kvName', 'secretName', 'secretVersion')
+param bar = getSecret('subId', 'rgName', 'kvName', 'secretName')
+"""));
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo"].Reference.Should().NotBeNull();
+        parameters["foo"].Reference.Should().DeepEqual(new JObject
+        {
+            ["keyVault"] = new JObject
+            {
+                ["id"] = "/subscriptions/subId/resourceGroups/rgName/providers/Microsoft.KeyVault/vaults/kvName",
+            },
+            ["secretName"] = "secretName",
+            ["secretVersion"] = "secretVersion",
+        });
+
+        parameters["bar"].Reference.Should().NotBeNull();
+        parameters["bar"].Reference.Should().DeepEqual(new JObject
+        {
+            ["keyVault"] = new JObject
+            {
+                ["id"] = "/subscriptions/subId/resourceGroups/rgName/providers/Microsoft.KeyVault/vaults/kvName",
+            },
+            ["secretName"] = "secretName"
+        });
+    }
+
+    [TestMethod]
+    public void GetSecret_expressions_in_parameters_generates_expected_keyVault_reference()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using none
+
+param foo = getSecret(
+  externalInput('subId'),
+  externalInput('rgName'),
+  externalInput('kvName'),
+  externalInput('secretName'),
+  externalInput('secretVersion'))
+
+var subId = externalInput('subId')
+var rgName = externalInput('rgName')
+var kvName = externalInput('kvName')
+var secretName = externalInput('secretName')
+
+param bar = getSecret(subId, rgName, kvName, secretName)
+"""));
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo"].Reference.Should().NotBeNull();
+        parameters["foo"].Reference.Should().DeepEqual(new JObject
+        {
+            ["keyVault"] = new JObject
+            {
+                ["id"] = "[resourceId(externalInputs('subId_0'), externalInputs('rgName_1'), 'Microsoft.KeyVault', 'vaults', externalInputs('kvName_2'))]"
+            },
+            ["secretName"] = "[externalInputs('secretName_3')]",
+            ["secretVersion"] = "[externalInputs('secretVersion_4')]"
+        });
+        parameters["bar"].Reference.Should().NotBeNull();
+        parameters["bar"].Reference.Should().DeepEqual(new JObject
+        {
+            ["keyVault"] = new JObject
+            {
+                ["id"] = "[resourceId(externalInputs('subId_0'), externalInputs('rgName_1'), 'Microsoft.KeyVault', 'vaults', externalInputs('kvName_2'))]"
+            },
+            ["secretName"] = "[externalInputs('secretName_3')]"
+        });
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["subId_0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "subId",
+        });
+        externalInputs["rgName_1"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "rgName",
+        });
+        externalInputs["kvName_2"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "kvName",
+        });
+        externalInputs["secretName_3"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "secretName",
+        });
+        externalInputs["secretVersion_4"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "secretVersion",
+        });
+    }
+
+    [TestMethod]
     public void ExternalInput_without_config_compiles_successfully()
     {
         var result = CompilationHelper.CompileParams(

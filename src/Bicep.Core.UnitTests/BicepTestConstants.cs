@@ -12,6 +12,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
@@ -26,6 +27,7 @@ using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;
 using Bicep.LanguageServer.Telemetry;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Moq;
 using OnDiskFileSystem = System.IO.Abstractions.FileSystem;
@@ -66,7 +68,7 @@ namespace Bicep.Core.UnitTests
         public static readonly string[] NonStableAnalyzerRules = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code];
 
         // Rules that are currently skipped due to configuration for ProgramsShouldProduceExpectedDiagnostics
-        public static readonly string[] TestAnalyzersToSkip = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code, NoHardcodedLocationRule.Code, ExplicitValuesForLocationParamsRule.Code, NoLocationExprOutsideParamsRule.Code];
+        public static readonly string[] TestAnalyzersToSkip = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code, NoHardcodedLocationRule.Code, ExplicitValuesForLocationParamsRule.Code, NoLocationExprOutsideParamsRule.Code, NoModuleNameRule.Code];
 
         public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersDisabled = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
         public static readonly RootConfiguration BuiltInConfigurationWithStableAnalyzers = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzers().WithAnalyzersDisabled(NonStableAnalyzerRules);
@@ -82,7 +84,9 @@ namespace Bicep.Core.UnitTests
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 
         public static IArtifactRegistryProvider CreateRegistryProvider(IServiceProvider services) =>
-            new DefaultArtifactRegistryProvider(services, ClientFactory, TemplateSpecRepositoryFactory);
+            new DefaultArtifactRegistryProvider(TestRegistryConfiguration, services.GetRequiredService<IPublicModuleMetadataProvider>(), ClientFactory, TemplateSpecRepositoryFactory);
+
+        public static readonly RegistryConfiguration TestRegistryConfiguration = new(PermitUntrustedRegistries: true);
 
         public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) => new ModuleDispatcher(CreateRegistryProvider(services));
 
