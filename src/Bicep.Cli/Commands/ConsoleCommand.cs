@@ -66,15 +66,15 @@ public class ConsoleCommand(
             // Handle input line by line (to support multi-line strings)
             var outputBuilder = new StringBuilder();
             var inputBuffer = new StringBuilder();
-            var pendingTypeContinuation = false;
+            var pendingTypeContinuationRedirected = false;
 
             using var reader = new StringReader(input);
             while (await reader.ReadLineAsync() is { } line)
             {
-                if (pendingTypeContinuation && !IsTypeContinuationLine(line))
+                if (pendingTypeContinuationRedirected && !IsTypeContinuationLine(line))
                 {
                     outputBuilder.Append(EvaluateAndClearBuffer(inputBuffer));
-                    pendingTypeContinuation = false;
+                    pendingTypeContinuationRedirected = false;
 
                     if (string.IsNullOrWhiteSpace(line))
                     {
@@ -90,12 +90,12 @@ public class ConsoleCommand(
                 {
                     if (EndsWithTypeDeclaration(current))
                     {
-                        pendingTypeContinuation = true;
+                        pendingTypeContinuationRedirected = true;
                     }
                     else
                     {
                         outputBuilder.Append(EvaluateAndClearBuffer(inputBuffer));
-                        pendingTypeContinuation = false;
+                        pendingTypeContinuationRedirected = false;
                     }
                 }
             }
