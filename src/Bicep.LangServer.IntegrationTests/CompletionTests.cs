@@ -942,6 +942,71 @@ module mod 'mod.bicep' = {
         }
 
         [TestMethod]
+        public async Task Completions_are_offered_in_bicepparam_values_with_a_nullable_declared_type()
+        {
+            var module = """
+                type Resource = {
+                  name: string
+                  resourceGroupName: string?
+                }
+
+                param storageAccount Resource?
+
+                param storageAccounts Resource[]?
+
+                param storageAccountWrapper {
+                  value: Resource?
+                }
+
+                resource StorageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' existing = if (storageAccount != null) {
+                  name: storageAccount.?name ?? ''
+                  scope: resourceGroup(storageAccount.?resourceGroupName ?? '')
+                }
+
+                output storageAccountId string? = storageAccount == null ? null : StorageAccount.id
+                """;
+            var fileWithCursors = """
+                using 'main.bicep'
+
+                param storageAccount = {
+                  |
+                }
+
+                param storageAccounts = [
+                  {
+                    |
+                  }
+                ]
+
+                param storageAccountWrapper = {
+                  value: {
+                    |
+                  }
+                }
+                """;
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            DocumentUri mainUri = "file:///main.bicepparam";
+            var files = new Dictionary<DocumentUri, string>
+            {
+                ["file:///main.bicep"] = module,
+                [mainUri] = text
+            };
+
+            var bicepFile = new LanguageClientFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Uri);
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletions(cursors);
+
+            completions.Should().AllSatisfy(completionList =>
+            {
+                completionList.Should().Contain(completion => completion.Label == "name");
+                completionList.Should().Contain(completion => completion.Label == "resourceGroupName");
+            });
+        }
+
+        [TestMethod]
         public async Task Completions_are_offered_within_values_with_an_interpolated_property_name()
         {
             var module = @"
