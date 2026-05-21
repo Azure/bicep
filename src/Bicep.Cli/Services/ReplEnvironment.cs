@@ -301,7 +301,7 @@ public class ReplEnvironment
     {
         // If line is blank, submit - even if structurally incomplete.
         // This avoids trapping the user in a state where they cannot recover.
-        if (currentLine.Length == 0)
+        if (string.IsNullOrWhiteSpace(currentLine))
         {
             return true;
         }

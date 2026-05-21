@@ -66,24 +66,49 @@ public class ConsoleCommand(
             // Handle input line by line (to support multi-line strings)
             var outputBuilder = new StringBuilder();
             var inputBuffer = new StringBuilder();
+            var pendingTypeContinuation = false;
 
             using var reader = new StringReader(input);
             while (await reader.ReadLineAsync() is { } line)
             {
+                var consumedWhitespaceSubmitLine = false;
+                while (pendingTypeContinuation && !IsTypeContinuationLine(line))
+                {
+                    outputBuilder.Append(EvaluateAndClearBuffer(inputBuffer));
+                    pendingTypeContinuation = false;
+
+                    if (string.IsNullOrWhiteSpace(line))
+                    {
+                        consumedWhitespaceSubmitLine = true;
+                    }
+                }
+
+                if (consumedWhitespaceSubmitLine)
+                {
+                    continue;
+                }
+
                 inputBuffer.Append(line);
                 inputBuffer.Append('\n');
 
                 var current = inputBuffer.ToString();
                 if (ReplEnvironment.ShouldSubmitBuffer(current, line))
                 {
-                    inputBuffer.Clear();
-                    outputBuilder.Append(replEnvironment.EvaluateAndGetOutput(current));
+                    if (EndsWithTypeDeclaration(current))
+                    {
+                        pendingTypeContinuation = true;
+                    }
+                    else
+                    {
+                        outputBuilder.Append(EvaluateAndClearBuffer(inputBuffer));
+                        pendingTypeContinuation = false;
+                    }
                 }
             }
 
             if (inputBuffer.Length > 0)
             {
-                outputBuilder.Append(replEnvironment.EvaluateAndGetOutput(inputBuffer.ToString()));
+                outputBuilder.Append(EvaluateAndClearBuffer(inputBuffer));
             }
 
             var output = outputBuilder.ToString();
@@ -101,12 +126,31 @@ public class ConsoleCommand(
         await io.Output.Writer.WriteLineAsync(string.Empty);
 
         var buffer = new StringBuilder();
+        var pendingTypeContinuationInteractive = false;
 
         while (true)
         {
-            if (await ReadLine(buffer) is not { } rawLine)
+            if (await ReadLine(buffer) is not { } inputLine)
             {
                 break;
+            }
+
+            var rawLine = inputLine.Text;
+            var consumedWhitespaceSubmitLine = false;
+            while (pendingTypeContinuationInteractive && !IsTypeContinuationLine(rawLine))
+            {
+                await io.Output.Writer.WriteAsync(EvaluateAndClearBuffer(buffer));
+                pendingTypeContinuationInteractive = false;
+
+                if (string.IsNullOrWhiteSpace(rawLine))
+                {
+                    consumedWhitespaceSubmitLine = true;
+                }
+            }
+
+            if (consumedWhitespaceSubmitLine)
+            {
+                continue;
             }
 
             if (buffer.Length == 0)
@@ -137,16 +181,47 @@ public class ConsoleCommand(
 
             if (ReplEnvironment.ShouldSubmitBuffer(current, rawLine))
             {
-                buffer.Clear();
-
-                // evaluate input
-                var output = replEnvironment.EvaluateAndGetOutput(current);
-                await io.Output.Writer.WriteAsync(output);
+                if (EndsWithTypeDeclaration(current) && ShouldDeferTypeDeclarationSubmit(rawLine, inputLine))
+                {
+                    pendingTypeContinuationInteractive = true;
+                }
+                else
+                {
+                    pendingTypeContinuationInteractive = false;
+                    await io.Output.Writer.WriteAsync(EvaluateAndClearBuffer(buffer));
+                }
             }
         }
 
         return 0;
     }
+
+    private string EvaluateAndClearBuffer(StringBuilder buffer)
+    {
+        var current = buffer.ToString();
+        buffer.Clear();
+
+        return replEnvironment.EvaluateAndGetOutput(current);
+    }
+
+    private static bool IsTypeContinuationLine(string line)
+        => line.TrimStart().StartsWith('|');
+
+    private static bool ShouldDeferTypeDeclarationSubmit(string line, InputLine inputLine)
+        => IsTypeContinuationLine(line)
+            ? !inputLine.StartedWithBufferedInput || inputLine.HasBufferedInputAfterEnter
+            : inputLine.HasBufferedInputAfterEnter;
+
+    private static bool EndsWithTypeDeclaration(string text)
+    {
+        var finalSyntax = new ReplParser(text).Program().Children
+            .Where(x => x is not Token { Type: TokenType.NewLine })
+            .LastOrDefault();
+
+        return finalSyntax is TypeDeclarationSyntax;
+    }
+
+    private readonly record struct InputLine(string Text, bool StartedWithBufferedInput, bool HasBufferedInputAfterEnter);
 
     private async Task<int> PrintHistory(StringBuilder buffer, List<Rune> lineBuffer, int cursorOffset, bool backwards)
     {
@@ -175,12 +250,14 @@ public class ConsoleCommand(
     private string GetPrefix(StringBuilder buffer)
         => buffer.Length == 0 ? FirstLinePrefix : "";
 
-    private async Task<string?> ReadLine(StringBuilder buffer)
+    private async Task<InputLine?> ReadLine(StringBuilder buffer)
     {
         await io.Output.Writer.WriteAsync(GetPrefix(buffer));
 
         var lineBuffer = new List<Rune>();
         var cursorOffset = 0;
+        var startedWithBufferedInput = Console.KeyAvailable;
+
         while (true)
         {
             var keyInfo = Console.ReadKey(intercept: true);
@@ -246,6 +323,6 @@ public class ConsoleCommand(
 
         await io.Output.Writer.WriteAsync("\n");
 
-        return string.Concat(lineBuffer);
+        return new(string.Concat(lineBuffer), startedWithBufferedInput, Console.KeyAvailable);
     }
 }
