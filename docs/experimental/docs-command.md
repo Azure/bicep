@@ -9,7 +9,7 @@ bicep docs generate
 bicep docs output
 ```
 
-The first implementation should generate Markdown documentation for Bicep modules, defaulting to an AVM-compatible `README.md` layout and allowing callers to supply a custom template. `bicep docs generate` should be the file-oriented command, while `bicep docs output` should render the same content to stdout as a string-oriented command and should not support recursive operation. The implementation should be deterministic, fast for bulk generation, and reusable through the existing JSON-RPC surface so that many modules can be processed in a single session without repeated process startup overhead. The core documentation generation engine should also be packaged as a separate NuGet package so module developers can consume the same functionality directly from .NET tooling without shelling out to the CLI.
+The first implementation should generate Markdown documentation for Bicep modules, defaulting to an AVM-compatible `README.md` layout and allowing callers to supply a custom template. `bicep docs generate` should be the file-oriented command, while `bicep docs output` should render the same content to stdout as a string-oriented command and should not support recursive operation. The implementation should be deterministic, fast for bulk generation, and reusable through the existing JSON-RPC surface so that many modules can be processed in a single session without repeated process startup overhead. The core documentation generation engine should live in `Bicep.Core` so that the CLI, JSON-RPC layer, and any other in-repo or external consumer of `Bicep.Core` can use the same implementation without shelling out to the CLI.
 
 ## Goals
 
@@ -19,7 +19,7 @@ The first implementation should generate Markdown documentation for Bicep module
 4. Support generating docs for one module or many modules in one invocation, including glob-based bulk discovery via `--pattern` (matching the existing `bicep build`, `bicep format`, `bicep lint`, `bicep restore`, and `bicep build-params` convention).
 5. Make bulk generation efficient by reusing compilation state and exposing the same capability over JSON-RPC for persistent sessions.
 6. Add golden-file tests based on representative example repositories so that generated Markdown can be compared directly with checked-in README files.
-7. Package the reusable documentation generation engine as a separate NuGet package that can be consumed directly by module developers and other .NET tooling.
+7. Implement the reusable documentation generation engine inside `Bicep.Core` so the CLI, JSON-RPC layer, and any other consumer of `Bicep.Core` share a single implementation.
 8. Keep the implementation aligned with existing Bicep quality standards: clear command/help text, deterministic output, localized CLI messages, nullable-safe C#, and minimal duplication of existing compilation logic.
 
 ## Non-goals
@@ -402,37 +402,35 @@ This keeps the generation model deterministic and easy to reason about: the outp
 
 ## Packaging And Reuse
 
-The documentation generation implementation should not live only as CLI command code. The core engine should be factored into a reusable library and published as a separate NuGet package.
+The documentation generation implementation should not live only as CLI command code. The core engine should be implemented inside `Bicep.Core` so that any code that already depends on `Bicep.Core` can use it directly.
 
-### Why a separate package?
+### Why `Bicep.Core`?
 
-1. Module developers should be able to generate or inspect documentation from their own .NET tooling without invoking the Bicep CLI as an external process.
-2. The CLI, JSON-RPC layer, and third-party tooling should all use the same core implementation.
-3. Packaging the engine separately reduces pressure to expose the CLI process as the only automation surface.
-4. It provides a cleaner layering model: reusable library first, CLI and RPC adapters second.
+1. The CLI, JSON-RPC layer, and other in-repo consumers already depend on `Bicep.Core`, so placing the engine there gives every existing consumer access without introducing a new package boundary.
+2. The docs engine depends heavily on existing `Bicep.Core` services (compilation, semantic model, diagnostics, type system). Co-locating it avoids exposing internals across an additional package boundary.
+3. Module developers and external .NET tooling that need programmatic access can already reference `Bicep.Core`; no additional package is required.
+4. It avoids the additional release, versioning, and dependency-management cost of shipping a separate package for v1.
 
 ### Proposed shape
 
-The reusable package should contain:
+The docs engine code in `Bicep.Core` should contain:
 
 1. The typed documentation model.
 2. The model-building logic that projects compiled Bicep information into that model.
 3. The template rendering engine and built-in templates.
 4. Support for template add-in file resolution for custom templates.
-5. Any repository-local example discovery logic that is needed by both CLI and library consumers.
+5. Any repository-local example discovery logic that is needed by both CLI and JSON-RPC consumers.
 
-The package should not depend on CLI-only abstractions such as command-line parsing, console I/O, or localized command help resources.
+The engine should not depend on CLI-only abstractions such as command-line parsing, console I/O, or localized command help resources. CLI- and RPC-specific concerns should remain in their respective assemblies and call into the shared `Bicep.Core` services.
 
 ### Consumer model
 
 The expected architecture is:
 
-1. A reusable NuGet package exposes the core docs generation APIs.
-2. `bicep docs generate` and `bicep docs output` call into that package.
-3. The JSON-RPC endpoints call into that same package.
-4. External .NET tools used by module developers can reference the same package directly.
-
-The exact package name can be decided during implementation, but it should be clearly scoped and consistent with existing repository naming. A name along the lines of `Bicep.Docs` or `Bicep.Documentation` would fit the current structure.
+1. `Bicep.Core` exposes the docs generation APIs as part of its public surface.
+2. `bicep docs generate` and `bicep docs output` call into those APIs.
+3. The JSON-RPC endpoints call into the same APIs.
+4. External .NET tools that already reference `Bicep.Core` can use the same APIs directly.
 
 ## Performance And JSON-RPC
 
@@ -496,13 +494,13 @@ Representative response shape:
 }
 ```
 
-The CLI command itself should call the shared generation service directly in-process. The JSON-RPC endpoints should reuse that same service, not a second implementation. That shared service should live in the reusable docs NuGet package rather than inside the CLI assembly.
+The CLI command itself should call the shared generation service directly in-process. The JSON-RPC endpoints should reuse that same service, not a second implementation. That shared service should live in `Bicep.Core` rather than inside the CLI assembly.
 
 ## Implementation Shape
 
 Suggested high-level structure:
 
-1. A reusable docs library project, packaged as a separate NuGet package for module developers.
+1. The docs generation engine implemented inside `Bicep.Core` and exposed through its public API.
 2. `DocsGenerateArguments` and `DocsOutputArguments` for grouped command parsing.
 3. `DocsGenerateCommand` to orchestrate discovery, generation, and file writes.
 4. `DocsOutputCommand` to orchestrate single-module rendering to stdout.
@@ -558,7 +556,7 @@ src/Bicep.Cli.UnitTests/Files/DocsGeneration/
 9. Verify `bicep docs generate` overwrites the entire output file and does not preserve existing content already present in that file.
 10. Verify compiler errors prevent output writes and produce the expected non-zero exit code.
 11. Verify JSON-RPC generation returns the same content as the CLI services.
-12. Verify the reusable docs library can be invoked directly without going through CLI-specific types.
+12. Verify the docs engine in `Bicep.Core` can be invoked directly without going through CLI-specific types.
 
 Golden-file comparison should normalize only platform-specific newline handling if required. Beyond that, the tests should compare exact content so that formatting regressions are caught early.
 
@@ -571,7 +569,7 @@ The implementation should follow existing Bicep standards:
 3. Avoid null-forgiving operators in product code.
 4. Keep output deterministic by sorting collections consistently.
 5. Prefer well-known packages like Scriban over custom template engines.
-6. Keep the reusable docs engine cleanly separated from CLI-specific concerns so it can ship as a stable NuGet package.
+6. Keep the docs engine in `Bicep.Core` cleanly separated from CLI-specific concerns so it remains stable for other in-process consumers.
 7. Add focused unit tests rather than relying only on manual validation.
 
 ## Open Questions
@@ -580,7 +578,7 @@ The following decisions should be treated as the v1 scope unless implementation 
 
 1. v1 should expose `bicep docs generate` and `bicep docs output`. A future `bicep docs validate` command is still reasonable for CI scenarios, but it should be deferred until generation semantics, output stability, and template behavior are proven.
 2. The initial built-in template should include the core AVM-aligned sections that can be generated locally and deterministically: title/description, navigation, resource types, usage examples when present, parameters, exported functions, outputs, and data collection notes when applicable. Cross-referenced modules may be included only if they can be derived from local compilation inputs without introducing network-dependent or repository-wide cache complexity. The built-in template does not need to support add-in files. That capability should be available for custom templates.
-3. The initial JSON-RPC contracts should return rendered content plus diagnostics. The typed intermediate docs model may remain internal to the public RPC contract in v1, but it should be public within the reusable NuGet package so .NET consumers can use it directly if needed.
+3. The initial JSON-RPC contracts should return rendered content plus diagnostics. The typed intermediate docs model may remain internal to the public RPC contract in v1, but it should be public within `Bicep.Core` so .NET consumers can use it directly if needed.
 
 ## Recommended V1 Scope
 
@@ -595,7 +593,7 @@ To make implementation sequencing clear, the first milestone should deliver the 
 7. Support for caller-supplied custom string values via repeatable `--set key=value` arguments for use by custom templates.
 8. Support for single-file generation and glob-based bulk generation via `--pattern` for `generate`, aligned with the existing `bicep build --pattern` convention.
 9. Support for single-module string rendering with no `--pattern` support for `output`.
-10. A reusable docs engine packaged as a separate NuGet package for module developers and other .NET tooling.
+10. A docs engine implemented in `Bicep.Core` and reused by the CLI, the JSON-RPC layer, and any other consumer of `Bicep.Core`.
 11. Reuse of in-process compiler services, with a shared generation service that can also be invoked through JSON-RPC.
 12. Golden-file unit tests based on example repositories with checked-in expected README outputs.
 
