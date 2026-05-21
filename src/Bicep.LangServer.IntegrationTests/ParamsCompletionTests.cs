@@ -326,6 +326,11 @@ using './nested1/|'
                 },
                 x =>
                 {
+                    x.Label.Should().Be("none");
+                    x.Kind.Should().Be(CompletionItemKind.Enum);
+                },
+                x =>
+                {
                     x.Label.Should().Be("../");
                     x.Kind.Should().Be(CompletionItemKind.Folder);
                 });
