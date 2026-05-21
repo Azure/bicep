@@ -308,6 +308,12 @@ public class ReplEnvironmentTests
     }
 
     [TestMethod]
+    public void ShouldSubmitBuffer_treats_whitespace_only_line_as_blank()
+    {
+        ReplEnvironment.ShouldSubmitBuffer("var foo = {\n  \n", "  ").Should().BeTrue();
+    }
+
+    [TestMethod]
     public void LoadFunctions_succeed()
     {
         var mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
