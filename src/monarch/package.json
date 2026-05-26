@@ -24,7 +24,7 @@
     "@swc/jest": "^0.2.39",
     "monaco-editor-core": "^0.55.1",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.3"
+    "typescript-eslint": "^8.60.0"
   },
   "engines": {
     "node": ">=14.0.0"
