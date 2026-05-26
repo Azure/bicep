@@ -174,7 +174,7 @@ function AppCore() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      <$AppContainer>
+      <$AppContainer data-testid="app-root">
         <PanZoomProvider>
           <GraphContainer />
         </PanZoomProvider>

@@ -78,7 +78,7 @@ export function CompoundNode({ id, childIdsAtom, boxAtom, dataAtom }: CompoundNo
   });
 
   return (
-    <BaseNode ref={ref} id={id} zIndex={zIndex}>
+    <BaseNode ref={ref} id={id} kind="compound" zIndex={zIndex}>
       <NodeContent id={id} kind="compound" dataAtom={dataAtom} />
     </BaseNode>
   );
