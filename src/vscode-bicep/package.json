@@ -829,7 +829,7 @@
     "eslint-plugin-notice": "^1.0.0",
     "@eslint-react/eslint-plugin": "^4.2.3",
     "fork-ts-checker-webpack-plugin": "^9.0.2",
-    "jest": "^30.3.0",
+    "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "jest-styled-components": "^7.2.0",
     "moment": "^2.30.1",
