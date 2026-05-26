@@ -33,7 +33,7 @@
     "globals": "^17.5.0",
     "jest-styled-components": "^7.4.0",
     "prettier": "^3.8.3",
-    "turbo": "^2.5.4",
+    "turbo": "^2.9.14",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.35.0"
   },
