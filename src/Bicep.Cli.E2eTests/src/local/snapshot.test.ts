@@ -18,6 +18,6 @@ describe("bicep snapshot", () => {
   });
 
   it("should show error message when no input file path was specified", () => {
-    invokingBicepCommand("snapshot").shouldFail().withStderr(/The input file path was not specified/);
+    invokingBicepCommand("snapshot").shouldFail().withStderr(/Required argument missing for command: 'snapshot'/);
   });
 });
