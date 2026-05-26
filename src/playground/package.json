@@ -24,7 +24,7 @@
     "nerdbank-gitversioning": "3.9.50",
     "typescript": "6.0.3",
     "typescript-eslint": "8.60.0",
-    "vite": "8.0.13",
+    "vite": "8.0.14",
     "vite-plugin-static-copy": "4.1.0"
   },
   "dependencies": {
