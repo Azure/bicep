@@ -9,7 +9,6 @@ import { deploymentGraphRequestType } from "../language";
 import { Disposable } from "../utils/disposable";
 import { getLogger } from "../utils/logger";
 import { debounce } from "../utils/time";
-import { createDeploymentGraphMessage, Message } from "./messages";
 
 export class BicepVisualizerView extends Disposable {
   public static viewType = "bicep.visualizer";
@@ -119,9 +118,15 @@ export class BicepVisualizerView extends Disposable {
     }
 
     try {
-      await this.webviewPanel.webview.postMessage(
-        createDeploymentGraphMessage(this.documentUri.fsPath, deploymentGraph),
-      );
+      // Send as a notification using the messaging library's format
+      await this.webviewPanel.webview.postMessage({
+        method: "deploymentGraph",
+        params: {
+          documentPath: this.documentUri.fsPath,
+          documentFileName: path.basename(this.documentUri.fsPath),
+          deploymentGraph,
+        },
+      });
     } catch (error) {
       // Race condition: the webview was closed before receiving the message,
       // which causes "Unknown webview handle" error.
@@ -129,19 +134,40 @@ export class BicepVisualizerView extends Disposable {
     }
   }
 
-  private handleDidReceiveMessage(message: Message): void {
-    switch (message.kind) {
-      case "READY":
-        getLogger().debug(`Visualizer for ${this.documentUri.fsPath} is ready.`);
+  private handleDidReceiveMessage(message: unknown): void {
+    if (!message || typeof message !== "object") {
+      return;
+    }
 
-        this.readyToRender = true;
-        this.render();
+    // Handle notification messages (method-based, no id)
+    if ("method" in message && !("id" in message)) {
+      const notification = message as { method: string; params?: unknown };
 
-        return;
-      case "REVEAL_FILE_RANGE":
-        this.revealFileRange(message.filePath, message.range);
+      switch (notification.method) {
+        case "ready":
+          getLogger().debug(`Visualizer for ${this.documentUri.fsPath} is ready.`);
+          this.readyToRender = true;
+          this.render();
+          return;
 
-        return;
+        case "revealFileRange": {
+          const payload = notification.params as { filePath: string; range: vscode.Range };
+          this.revealFileRange(payload.filePath, payload.range);
+          return;
+        }
+
+        case "showProblemsPanel":
+          vscode.commands.executeCommand("workbench.actions.view.problems");
+          return;
+      }
+    }
+
+    // Handle request messages (have id — need response)
+    if ("id" in message && "method" in message) {
+      const request = message as { id: string; method: string; params?: unknown };
+      // Future: handle request/response patterns if needed
+      // For now, no requests are expected from the webview
+      getLogger().warn(`Unhandled request method: ${request.method}`);
     }
   }
 
@@ -157,19 +183,31 @@ export class BicepVisualizerView extends Disposable {
       }
     }
 
+    const targetColumn = this.getTextEditorViewColumn() ?? vscode.ViewColumn.Beside;
+
     vscode.workspace
       .openTextDocument(filePath)
-      .then(vscode.window.showTextDocument)
+      .then((doc) => vscode.window.showTextDocument(doc, targetColumn))
       .then(
         (editor) => this.revealEditorRange(editor, range),
         (err) => vscode.window.showErrorMessage(`Could not open "${filePath}": ${parseError(err).message}`),
       );
   }
 
+  private getTextEditorViewColumn(): vscode.ViewColumn | undefined {
+    const webviewColumn = this.webviewPanel.viewColumn;
+
+    for (const editor of vscode.window.visibleTextEditors) {
+      if (editor.viewColumn !== undefined && editor.viewColumn !== webviewColumn) {
+        return editor.viewColumn;
+      }
+    }
+
+    return undefined;
+  }
+
   private revealEditorRange(editor: vscode.TextEditor, range: vscode.Range) {
-    // editor.selection.active is the current cursor position which is immutable.
     const cursorPosition = editor.selection.active.with(range.start.line, range.start.character);
-    // Move cursor to the beginning of the resource/module and reveal the source code.
     editor.selection = new vscode.Selection(cursorPosition, cursorPosition);
     editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
   }
@@ -177,8 +215,12 @@ export class BicepVisualizerView extends Disposable {
   private createWebviewHtml() {
     const { cspSource } = this.webviewPanel.webview;
     const nonce = crypto.randomBytes(16).toString("hex");
+
     const scriptUri = this.webviewPanel.webview.asWebviewUri(
-      vscode.Uri.joinPath(this.extensionUri, "out", "visualizer.js"),
+      vscode.Uri.joinPath(this.extensionUri, "out", "visual-designer", "index.js"),
+    );
+    const cssUri = this.webviewPanel.webview.asWebviewUri(
+      vscode.Uri.joinPath(this.extensionUri, "out", "visual-designer", "assets", "index.css"),
     );
 
     return `
@@ -186,16 +228,13 @@ export class BicepVisualizerView extends Disposable {
       <html lang="en">
       <head>
         <meta charset="UTF-8">
-        <!--
-        Use a content security policy to only allow loading images from our extension directory,
-        and only allow scripts that have a specific nonce.
-        -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'nonce-${nonce}' vscode-webview-resource:;">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'nonce-${nonce}' vscode-webview-resource:; font-src data: ${cspSource};">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" nonce="${nonce}" href="${cssUri}">
       </head>
       <body>
         <div id="root"></div>
-        <script nonce="${nonce}" src="${scriptUri}" />
+        <script nonce="${nonce}" type="module" src="${scriptUri}" />
       </body>
       </html>`;
   }

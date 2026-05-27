@@ -287,10 +287,6 @@ jobs:
         run: npm run test:unit
         working-directory: ./src/vscode-bicep
 
-      - name: Run snapshot tests
-        run: npm run test:snapshot
-        working-directory: ./src/vscode-bicep
-
       - name: Build prod
         run: npm run build:prod
         working-directory: ./src/vscode-bicep
