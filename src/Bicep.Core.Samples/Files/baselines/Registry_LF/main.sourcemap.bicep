@@ -149,6 +149,75 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
   }
 }
 
+module appPlanDeploy3 'br/mock-registry-emulated:plan:v2' = {
+//@    {
+//@      "type": "Microsoft.Resources/deployments",
+//@      "apiVersion": "2025-04-01",
+//@      "resourceGroup": "adotfrank-rg",
+//@      "properties": {
+//@        "expressionEvaluationOptions": {
+//@          "scope": "inner"
+//@        },
+//@        "mode": "Incremental",
+//@        "template": {
+//@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "contentVersion": "1.0.0.0",
+//@          "metadata": {
+//@            "_generator": {
+//@              "name": "bicep",
+//@              "version": "dev",
+//@              "templateHash": "15019246960605065046"
+//@            }
+//@          },
+//@          "parameters": {
+//@            "namePrefix": {
+//@              "type": "string"
+//@            },
+//@            "sku": {
+//@              "type": "string",
+//@              "defaultValue": "B1"
+//@            }
+//@          },
+//@          "resources": [
+//@            {
+//@              "type": "Microsoft.Web/serverfarms",
+//@              "apiVersion": "2020-06-01",
+//@              "name": "[format('{0}appPlan', parameters('namePrefix'))]",
+//@              "location": "[resourceGroup().location]",
+//@              "kind": "linux",
+//@              "sku": {
+//@                "name": "[parameters('sku')]"
+//@              },
+//@              "properties": {
+//@                "reserved": true
+//@              }
+//@            }
+//@          ],
+//@          "outputs": {
+//@            "planId": {
+//@              "type": "string",
+//@              "value": "[resourceId('Microsoft.Web/serverfarms', format('{0}appPlan', parameters('namePrefix')))]"
+//@            }
+//@          }
+//@        }
+//@      },
+//@      "dependsOn": [
+//@        "[subscriptionResourceId('Microsoft.Resources/resourceGroups', 'adotfrank-rg')]"
+//@      ]
+//@    },
+  name: 'planDeploy3'
+//@      "name": "planDeploy3",
+  scope: rg
+  params: {
+//@        "parameters": {
+//@        },
+    namePrefix: 'hello'
+//@          "namePrefix": {
+//@            "value": "hello"
+//@          }
+  }
+}
+
 var websites = [
 //@    "websites": [
 //@    ],
@@ -780,3 +849,4 @@ module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
 //@          }
   }
 }
+

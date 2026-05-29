@@ -37,9 +37,13 @@ namespace Bicep.Core.Configuration
 
         public string? ModulePath { get; init; }
 
-        public override string ToString() => this.ModulePath is not null
-            ? $"{Registry}/{ModulePath}"
-            : $"{Registry}";
+        public string? FileSystem { get; init; }
+
+        public override string ToString() => this.FileSystem is not null
+            ? $"{FileSystem}"
+            : this.ModulePath is not null
+                ? $"{Registry}/{ModulePath}"
+                : $"{Registry}";
     }
 
     public partial class ModuleAliasesConfiguration : ConfigurationSection<ModuleAliases>
@@ -101,7 +105,12 @@ namespace Bicep.Core.Configuration
                 return new(x => x.OciArtifactModuleAliasNameDoesNotExistInConfiguration(aliasName, configFileUri));
             }
 
-            if (alias.Registry is null)
+            if (alias.Registry is not null && alias.FileSystem is not null)
+            {
+                return new(x => x.InvalidOciArtifactModuleAliasRegistryAndFileSystemSetTogether(aliasName, configFileUri));
+            }
+
+            if (alias.Registry is null && alias.FileSystem is null)
             {
                 return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, configFileUri));
             }

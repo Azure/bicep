@@ -8,6 +8,9 @@ namespace Bicep.Core.Registry.Oci
     public static partial class OciArtifactReferenceFacts
     {
         public const string Scheme = "br";
+
+        public const string EmulatedScheme = "br-fs";
+        
         public const string SchemeWithColon = Scheme + ":";
 
         public const int MaxRegistryLength = 255;

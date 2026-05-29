@@ -1,5 +1,7 @@
 targetScope = 'subscription'
-//@[000:2463) ProgramExpression
+//@[000:2603) ProgramExpression
+//@[000:0000) | └─ResourceDependencyExpression [UNPARENTED]
+//@[000:0000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:0000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:0000) | └─ResourceDependencyExpression [UNPARENTED]
@@ -64,6 +66,23 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
 //@[002:0021) | | └─ObjectPropertyExpression
 //@[002:0006) | |   ├─StringLiteralExpression { Value = name }
 //@[008:0021) | |   └─StringLiteralExpression { Value = planDeploy2 }
+  scope: rg
+  params: {
+//@[010:0039) | ├─ObjectExpression
+    namePrefix: 'hello'
+//@[004:0023) | | └─ObjectPropertyExpression
+//@[004:0014) | |   ├─StringLiteralExpression { Value = namePrefix }
+//@[016:0023) | |   └─StringLiteralExpression { Value = hello }
+  }
+}
+
+module appPlanDeploy3 'br/mock-registry-emulated:plan:v2' = {
+//@[000:0137) ├─DeclaredModuleExpression
+//@[060:0137) | ├─ObjectExpression
+  name: 'planDeploy3'
+//@[002:0021) | | └─ObjectPropertyExpression
+//@[002:0006) | |   ├─StringLiteralExpression { Value = name }
+//@[008:0021) | |   └─StringLiteralExpression { Value = planDeploy3 }
   scope: rg
   params: {
 //@[010:0039) | ├─ObjectExpression
@@ -374,3 +393,4 @@ module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
 //@[014:0020) | |   └─StringLiteralExpression { Value = test }
   }
 }
+

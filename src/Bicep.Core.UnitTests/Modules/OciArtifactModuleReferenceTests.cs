@@ -277,7 +277,7 @@ namespace Bicep.Core.UnitTests.Modules
                         ["moduleAliases.br.myModulePath.modulePath"] = "path",
                     }),
                 "BCP216",
-                "The OCI artifact module alias \"myModulePath\" in the built-in Bicep configuration is invalid. The \"registry\" property cannot be null or undefined.",
+                "The OCI artifact module alias \"myModulePath\" in the built-in Bicep configuration is invalid. Either the \"registry\" or \"fileSystem\" property must be specified.",
             };
 
             yield return new object[]
@@ -291,7 +291,7 @@ namespace Bicep.Core.UnitTests.Modules
                     },
                     "/bicepconfig.json"),
                 "BCP216",
-                "The OCI artifact module alias \"myModulePath2\" in the Bicep configuration \"/bicepconfig.json\" is invalid. The \"registry\" property cannot be null or undefined.",
+                "The OCI artifact module alias \"myModulePath2\" in the Bicep configuration \"/bicepconfig.json\" is invalid. Either the \"registry\" or \"fileSystem\" property must be specified.",
             };
         }
 
