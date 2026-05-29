@@ -8,8 +8,15 @@ import { sleep } from "../../utils/time";
 import { createUniqueTempFolder } from "../utils/createUniqueTempFolder";
 import { executeCloseAllEditors, executeGenerateParamsCommand } from "./commands";
 
+type ShowStringQuickPick = (
+  items: readonly string[],
+  options?: vscode.QuickPickOptions,
+  token?: vscode.CancellationToken,
+) => Thenable<string | undefined>;
+
 describe("generateParams", (): void => {
   afterEach(async () => {
+    jest.restoreAllMocks();
     await executeCloseAllEditors();
   });
 
@@ -32,10 +39,23 @@ describe("generateParams", (): void => {
       // Give the language server some time to finish compilation.
       await sleep(2000);
 
-      await executeGenerateParamsCommand(textDocument.uri, "json", "requiredonly");
+      const showQuickPick = jest.spyOn(vscode.window, "showQuickPick") as unknown as jest.SpiedFunction<ShowStringQuickPick>;
+      showQuickPick.mockResolvedValueOnce("json").mockResolvedValueOnce("requiredonly");
+
+      await executeGenerateParamsCommand(textDocument.uri);
 
       expect(fs.existsSync(parametersJsonPath)).toBe(true);
       expect(fs.existsSync(templateJsonPath)).toBe(true);
+      expect(showQuickPick).toHaveBeenNthCalledWith(
+        1,
+        ["json", "bicepparam"],
+        expect.objectContaining({ title: "Please select the output format" }),
+      );
+      expect(showQuickPick).toHaveBeenNthCalledWith(
+        2,
+        ["requiredonly", "all"],
+        expect.objectContaining({ title: "Please select which parameters to include" }),
+      );
     } finally {
       fs.rmSync(tempFolder, { recursive: true, force: true });
     }
