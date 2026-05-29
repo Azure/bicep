@@ -72,6 +72,10 @@ export async function executeBuildParamsCommand(documentUri: vscode.Uri): Promis
   return await vscode.commands.executeCommand("bicep.buildParams", documentUri);
 }
 
+export async function executeGenerateParamsCommand(documentUri: vscode.Uri, outputFormat?: "json" | "bicepparam", includeParams?: "requiredonly" | "all"): Promise<void> {
+  return await vscode.commands.executeCommand("bicep.generateParams", documentUri, outputFormat, includeParams);
+}
+
 export async function executeDecompileCommand(documentUri: vscode.Uri): Promise<void> {
   return await vscode.commands.executeCommand("bicep.decompile", documentUri);
 }
