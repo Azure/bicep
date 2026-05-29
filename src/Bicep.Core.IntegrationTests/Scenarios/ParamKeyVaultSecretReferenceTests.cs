@@ -213,6 +213,175 @@ param testParam array
             result.Should().OnlyContainDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
         }
 
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/4270 - getSecret nested inside object should fail
+        /// </summary>
+        [TestMethod]
+        public void InvalidKeyVaultSecretReferenceUsageInNestedObject()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+
+module apim 'apim.bicep' = {
+  name: 'apim-deployment'
+  params: {
+    customUrlInfo: {
+      url: 'https://api-dev.example.com'
+      sslInfo: {
+        certificate: kv.getSecret('api-cert')
+        certificatePassword: kv.getSecret('api-cert-pwd')
+      }
+    }
+  }
+}
+"),
+                ("apim.bicep", @"
+param customUrlInfo urlInfo
+
+type urlInfo = {
+  url: string
+  sslInfo: certificateInfo
+}
+
+type certificateInfo = {
+  @secure()
+  certificate: string
+  @secure()
+  certificatePassword: string
+}
+"));
+
+            result.Should().NotGenerateATemplate();
+            result.Diagnostics.Should().SatisfyRespectively(
+                x => x.Code.Should().Be("BCP180"),
+                x => x.Code.Should().Be("BCP180"));
+        }
+
+        [TestMethod]
+        public void InvalidKeyVaultSecretReferenceUsageInDeeplyNestedObject()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+
+module m 'mod.bicep' = {
+  name: 'deployment'
+  params: {
+    level1: {
+      level2: {
+        level3: {
+          secret: kv.getSecret('mySecret')
+        }
+      }
+    }
+  }
+}
+"),
+                ("mod.bicep", @"
+param level1 object
+"));
+
+            result.Should().NotGenerateATemplate();
+            result.Should().ContainDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
+        }
+
+        [TestMethod]
+        public void InvalidKeyVaultSecretReferenceUsageInLoopWithNestedObject()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+
+var configs = [
+  { name: 'config1' }
+  { name: 'config2' }
+]
+
+module m 'mod.bicep' = [for config in configs: {
+  name: config.name
+  params: {
+    settings: {
+      secret: kv.getSecret('${config.name}-secret')
+    }
+  }
+}]
+"),
+                ("mod.bicep", @"
+param settings object
+"));
+
+            result.Should().NotGenerateATemplate();
+            result.Should().ContainDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
+        }
+
+        [TestMethod]
+        public void InvalidKeyVaultSecretReferenceUsageInTernaryReturningNestedObject()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+
+module m 'mod.bicep' = {
+  name: 'deployment'
+  params: {
+    config: true ? {
+      secret: kv.getSecret('mySecret')
+    } : {
+      secret: 'default'
+    }
+  }
+}
+"),
+                ("mod.bicep", @"
+param config object
+"));
+
+            result.Should().NotGenerateATemplate();
+            result.Should().ContainDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator.");
+        }
+
+        [TestMethod]
+        public void InvalidKeyVaultSecretReferenceUsageInArrayOfObjects()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'testkeyvault'
+}
+
+module m 'mod.bicep' = {
+  name: 'deployment'
+  params: {
+    items: [
+      {
+        secret: kv.getSecret('secret1')
+      }
+      {
+        secret: kv.getSecret('secret2')
+      }
+    ]
+  }
+}
+"),
+                ("mod.bicep", @"
+param items array
+"));
+
+            result.Should().NotGenerateATemplate();
+            result.Diagnostics.Should().SatisfyRespectively(
+                x => x.Code.Should().Be("BCP180"),
+                x => x.Code.Should().Be("BCP180"));
+        }
+
 
         [TestMethod]
         public void ValidKeyVaultSecretReferenceInLoopedModule()
