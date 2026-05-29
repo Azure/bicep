@@ -39,6 +39,16 @@ public class BicepCompilerToolsTests
     }
 
     [TestMethod]
+    public async Task FormatBicepFile_formats_in_memory_bicep_content()
+    {
+        var response = await tools.FormatBicepFile(content: """
+            param          foo          string
+            """);
+
+        response.Content.Should().Contain("param foo string");
+    }
+
+    [TestMethod]
     public async Task GetFileReferences_returns_referenced_files()
     {
         var outputFolder = FileHelper.SaveResultFiles(TestContext, [
@@ -75,6 +85,20 @@ public class BicepCompilerToolsTests
             """);
 
         var response = await tools.BuildBicep(bicepFilePath);
+
+        response.Success.Should().BeTrue();
+        response.Template.Should().NotBeNullOrEmpty();
+        response.Template.Should().Contain("\"$schema\"");
+        response.Diagnostics.Should().NotContain(x => x.Level == "Error");
+    }
+
+    [TestMethod]
+    public async Task BuildBicep_returns_compiled_template_for_in_memory_content()
+    {
+        var response = await tools.BuildBicep(content: """
+            param location string = 'westus'
+            output loc string = location
+            """);
 
         response.Success.Should().BeTrue();
         response.Template.Should().NotBeNullOrEmpty();
@@ -121,6 +145,27 @@ public class BicepCompilerToolsTests
         response.Template.Should().NotBeNullOrEmpty();
         response.Template.Should().Contain("\"$schema\"");
         response.Diagnostics.Should().NotContain(x => x.Level == "Error");
+    }
+
+    [TestMethod]
+    public async Task BuildBicepparam_returns_diagnostics_for_in_memory_content()
+    {
+        var response = await tools.BuildBicepparam(content: """
+            param location = 'westus'
+            """);
+
+        response.Success.Should().BeFalse();
+        response.Parameters.Should().BeNull();
+        response.Diagnostics.Should().Contain(x => x.Level == "Error");
+    }
+
+    [TestMethod]
+    public async Task BuildBicep_throws_when_filePath_and_content_are_both_provided()
+    {
+        await FluentActions.Awaiting(() => tools.BuildBicep(filePath: "/main.bicep", content: "param location string = 'westus'"))
+            .Should()
+            .ThrowAsync<ArgumentException>()
+            .WithMessage("'filePath' and 'content' cannot both be provided.");
     }
 
     [TestMethod]
