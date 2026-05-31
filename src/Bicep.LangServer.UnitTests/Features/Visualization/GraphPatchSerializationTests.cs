@@ -6,7 +6,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LangServer.UnitTests.Features.Visualization;
@@ -14,11 +14,13 @@ namespace Bicep.LangServer.UnitTests.Features.Visualization;
 [TestClass]
 public class GraphPatchSerializationTests
 {
-    private static readonly JsonSerializer Serializer = JsonSerializer.Create(new JsonSerializerSettings
-    {
-        ContractResolver = new CamelCasePropertyNamesContractResolver(),
-        Converters = { new GraphPatchJsonConverter() },
-    });
+    // Patches travel over the LSP wire serialized by OmniSharp's serializer, so the test exercises that exact
+    // stack (camelCase naming, LSP model converters, and so on) rather than a hand-rolled configuration. No
+    // patch converter is registered here: GraphPatch carries a class-level converter attribute, so reading the
+    // union back works on a plain OmniSharp serializer, exactly as it does on the typed client.
+    private static readonly JsonSerializer Serializer = CreateWireSerializer();
+
+    private static JsonSerializer CreateWireSerializer() => JsonSerializer.Create(new LspSerializer().Settings);
 
     private static JToken Serialize(GraphPatch patch) => JToken.FromObject(patch, Serializer);
 

@@ -545,10 +545,10 @@ Legend: `[ ]` not started, `[~]` in progress, `[x]` done.
 
 | # | Phase | Status | PR | Notes |
 |---|-------|--------|----|-------|
-| 1 | Protocol contracts and flags | [ ] | — | Types + capability handshake + feature flag, no behavior change. |
-| 2 | Document change notification loop | [ ] | — | Notify-then-request flow behind the flag; old full-graph path intact. |
-| 3 | Server graph service | [ ] | — | Build canonical graph from compilation and diff vs submitted graph; no MSAGL. |
-| 4 | Patch diff engine | [ ] | — | Return `GraphPatch[]`; ELK still lays out on the client. |
+| 1 | Protocol contracts and flags | [x] | 49b011acf | Types + feature flag landed; capability handshake deferred (flag is the gate). Node kind trimmed to resource/module; edges carry no kind. |
+| 2 | Document change notification loop | [ ] | — | Notify-then-request flow behind the flag; old full-graph path intact. **Reordered after 3–4** so it forwards the real LSP request instead of a throwaway TS diff. |
+| 3 | Server graph service | [x] | — | Canonical graph built from compilation (`VisualizerGraphBuilder`, mirrors `BicepDeploymentGraphHandler`); no MSAGL. Combined with Phase 4 into one PR. Hash linked by the next commit. |
+| 4 | Patch diff engine | [x] | — | `VisualizerGraphDiffer` returns `GraphPatch[]`; handler registered (shadow mode, not flag-gated); ELK still lays out on the client. Combined with Phase 3. Hash linked by the next commit. |
 | 5 | MSAGL adapter (shadow mode) | [ ] | — | Add `Msagl`, compute layout behind the flag, not applied by default. |
 | 6 | React applies server layout | [ ] | — | Apply `setNodeLayout`; disable ELK for server-layout sessions. |
 | 7 | Single-flight hardening + telemetry | [ ] | — | In-flight + dirty loop, cancellation, debounce, metrics. |

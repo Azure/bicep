@@ -84,7 +84,7 @@ export interface DocumentDidChangePayload {
 export const GET_GRAPH_UPDATE_REQUEST = "getGraphUpdate";
 
 export interface GetGraphUpdateRequest {
-  current: ClientGraph | null;
+  current: RenderedGraph | null;
 }
 
 export interface GetGraphUpdateResponse {
@@ -93,14 +93,14 @@ export interface GetGraphUpdateResponse {
 
 export type GraphNodeKind = "resource" | "module";
 
-/** The graph the webview currently displays, sent with each update request for the server to diff against. */
-export interface ClientGraph {
-  nodes: ClientGraphNode[];
-  edges: ClientGraphEdge[];
+/** The graph as currently rendered by the webview, sent with each update request for the server to diff against. */
+export interface RenderedGraph {
+  nodes: RenderedGraphNode[];
+  edges: RenderedGraphEdge[];
 }
 
 /** Minimal node identity plus client-measured size, used as layout input. */
-export interface ClientGraphNode {
+export interface RenderedGraphNode {
   id: string;
   kind: GraphNodeKind;
   parentId: string | null;
@@ -108,7 +108,7 @@ export interface ClientGraphNode {
   height: number;
 }
 
-export interface ClientGraphEdge {
+export interface RenderedGraphEdge {
   id: string;
   sourceId: string;
   targetId: string;
