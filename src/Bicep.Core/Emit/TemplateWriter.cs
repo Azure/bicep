@@ -1470,7 +1470,8 @@ namespace Bicep.Core.Emit
 
                     moduleWriter.Write(moduleJsonWriter);
                     jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
-                    emitter.EmitProperty("template", moduleTextWriter.ToString());
+                    // Emit as a plain JSON string (not an ARM expression string literal) to avoid expression literal size limits.
+                    emitter.EmitProperty("template", () => jsonWriter.WriteValue(moduleTextWriter.ToString()));
 
                     if (moduleBicepFile?.FileHandle.Uri is { } sourceUri)
                     {
