@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Diagnostics;
 using System.CommandLine;
+using System.Diagnostics;
 using System.IO.Pipes;
 using System.Net;
 using System.Net.Sockets;

@@ -28,9 +28,7 @@ test.describe("Application bootstrap", () => {
 
     // Filter out errors that are not actionable for E2E (e.g. dev-only
     // resource fetch warnings from external CDNs).  Surface anything else.
-    const significant = errors.filter(
-      (text) => !/failed to load resource/i.test(text) && !/codicon/i.test(text),
-    );
+    const significant = errors.filter((text) => !/failed to load resource/i.test(text) && !/codicon/i.test(text));
     expect(significant, `Unexpected console errors:\n${significant.join("\n")}`).toEqual([]);
   });
 

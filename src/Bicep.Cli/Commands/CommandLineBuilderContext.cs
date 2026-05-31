@@ -16,7 +16,7 @@ public class CommandLineBuilderContext(IServiceProvider services, IOContext io)
 
     public async Task<int> RunCommandAsync(Func<Task<int>> action)
     {
-        try 
+        try
         {
             return await action();
         }
