@@ -782,7 +782,7 @@
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.28.0",
     "webpack": "^5.105.2",
-    "webpack-cli": "^7.0.2"
+    "webpack-cli": "^7.0.3"
   },
   "dependencies": {
     "@azure/arm-managementgroups": "2.0.2",
