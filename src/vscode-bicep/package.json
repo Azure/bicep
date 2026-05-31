@@ -791,7 +791,7 @@
     "@azure/identity": "^4.13.1",
     "@microsoft/vscode-azext-azureauth": "^5.1.1",
     "@microsoft/vscode-azext-azureutils": "^4.1.1",
-    "@microsoft/vscode-azext-utils": "^4.0.7",
+    "@microsoft/vscode-azext-utils": "^4.1.0",
     "@vscode/codicons": "^0.0.45",
     "fs-extra": "^11.3.5",
     "triple-beam": "^1.4.1",
