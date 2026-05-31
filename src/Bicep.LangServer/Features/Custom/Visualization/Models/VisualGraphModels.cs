@@ -17,9 +17,9 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
     }
 
     /// <summary>
-    /// A node in the server's canonical visualizer graph. Sizes are intentionally absent:
+    /// A node in the server's canonical visual graph. Sizes are intentionally absent:
     /// the webview owns node measurement, so the layout engine receives sizes from the client
-    /// (<see cref="ClientGraphNode"/>) and the server only emits positions via <see cref="GraphPatch.SetNodeLayout"/>.
+    /// (<see cref="RenderedGraphNode"/>) and the server only emits positions via <see cref="GraphPatch.SetNodeLayout"/>.
     /// </summary>
     public record GraphNode(
         string Id,
@@ -34,7 +34,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
         Range Range);
 
     /// <summary>
-    /// A directed dependency edge in the server's canonical visualizer graph. Containment (parent/child)
+    /// A directed dependency edge in the server's canonical visual graph. Containment (parent/child)
     /// is expressed via <see cref="GraphNode.ParentId"/>, not edges, so edges carry no kind today.
     /// </summary>
     public record GraphEdge(
@@ -61,18 +61,27 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
         Range? Range = null);
 
     /// <summary>
-    /// The graph the webview currently displays, submitted with each update request so the server can diff against it.
-    /// Null/empty on first load.
+    /// The server's canonical visual graph, rebuilt from the live compilation on each request.
     /// </summary>
-    public record ClientGraph(
-        IReadOnlyList<ClientGraphNode> Nodes,
-        IReadOnlyList<ClientGraphEdge> Edges);
+    public record CanonicalGraph(
+        IReadOnlyList<GraphNode> Nodes,
+        IReadOnlyList<GraphEdge> Edges,
+        int ErrorCount);
+
+    /// <summary>
+    /// The graph as currently rendered by the webview, submitted with each update request so the server can diff
+    /// against it. Null/empty on first load. It carries only what the server needs to reconcile: topology plus
+    /// the client-measured node sizes that feed layout.
+    /// </summary>
+    public record RenderedGraph(
+        IReadOnlyList<RenderedGraphNode> Nodes,
+        IReadOnlyList<RenderedGraphEdge> Edges);
 
     /// <summary>
     /// The minimal node identity the server needs to diff and to decide whether layout must run.
     /// <see cref="Width"/>/<see cref="Height"/> are the client-measured sizes used as layout input.
     /// </summary>
-    public record ClientGraphNode(
+    public record RenderedGraphNode(
         string Id,
         string Kind,
         string? ParentId,
@@ -82,7 +91,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
     /// <summary>
     /// The minimal edge identity the server needs to diff.
     /// </summary>
-    public record ClientGraphEdge(
+    public record RenderedGraphEdge(
         string Id,
         string SourceId,
         string TargetId);

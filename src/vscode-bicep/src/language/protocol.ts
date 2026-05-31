@@ -47,7 +47,7 @@ export const deploymentGraphRequestType = new ProtocolRequestType<
 // they are left untyped here; the typed model lives in the visual-designer webview package.
 export type VisualizerGraphNodeKind = "resource" | "module";
 
-export interface VisualizerClientGraphNode {
+export interface VisualizerRenderedGraphNode {
   id: string;
   kind: VisualizerGraphNodeKind;
   parentId: string | null;
@@ -55,20 +55,20 @@ export interface VisualizerClientGraphNode {
   height: number;
 }
 
-export interface VisualizerClientGraphEdge {
+export interface VisualizerRenderedGraphEdge {
   id: string;
   sourceId: string;
   targetId: string;
 }
 
-export interface VisualizerClientGraph {
-  nodes: VisualizerClientGraphNode[];
-  edges: VisualizerClientGraphEdge[];
+export interface VisualizerRenderedGraph {
+  nodes: VisualizerRenderedGraphNode[];
+  edges: VisualizerRenderedGraphEdge[];
 }
 
 export interface VisualizerGraphUpdateParams {
   textDocument: TextDocumentIdentifier;
-  current: VisualizerClientGraph | null;
+  current: VisualizerRenderedGraph | null;
 }
 
 export interface VisualizerGraphUpdateResult {

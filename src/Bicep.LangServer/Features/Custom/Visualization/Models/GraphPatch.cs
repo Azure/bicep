@@ -11,12 +11,16 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
     /// server's current graph. A response carries a complete delta as a list of these patches, so an
     /// empty list means nothing changed. The <see cref="Op"/> property is the wire discriminator.
     /// <para>
-    /// Deserialization requires <see cref="GraphPatchJsonConverter"/> to be registered on the serializer.
-    /// The converter is intentionally not applied via a class-level attribute: such an attribute is
-    /// inherited by the derived records and would cause the converter to re-enter itself when it
-    /// deserializes a concrete patch type, resulting in infinite recursion.
+    /// On the wire, patches are serialized by OmniSharp's Newtonsoft-based serializer. Writing relies on
+    /// default serialization (the runtime record type emits all of its properties, and <see cref="Op"/>
+    /// emits the <c>op</c> discriminator). Reading the union back is handled by
+    /// <see cref="GraphPatchJsonConverter"/>, applied here as a class-level attribute so the type is
+    /// self-describing for any Newtonsoft serializer (including OmniSharp's typed client). The attribute
+    /// is inherited by the derived records, so the converter uses a re-entrancy guard to fall back to
+    /// default deserialization once it has selected the concrete patch type, avoiding infinite recursion.
     /// </para>
     /// </summary>
+    [JsonConverter(typeof(GraphPatchJsonConverter))]
     public abstract record GraphPatch
     {
         public abstract string Op { get; }
@@ -66,13 +70,21 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
     /// <summary>
     /// Deserializes the <see cref="GraphPatch"/> discriminated union by reading the <c>op</c> field.
     /// Writing relies on default serialization (the <see cref="GraphPatch.Op"/> property emits <c>op</c>),
-    /// so this converter is read-only.
+    /// so this converter is read-only. It is applied to <see cref="GraphPatch"/> via a class-level
+    /// attribute, which the derived records inherit. To avoid re-entering itself when deserializing a
+    /// concrete patch type, it uses a thread-local guard so the inner <see cref="JToken.ToObject(Type, JsonSerializer)"/>
+    /// call falls back to default deserialization.
     /// </summary>
     public sealed class GraphPatchJsonConverter : JsonConverter
     {
+        [ThreadStatic]
+        private static bool skipConverter;
+
         public override bool CanWrite => false;
 
-        public override bool CanConvert(Type objectType) => objectType == typeof(GraphPatch);
+        public override bool CanRead => !skipConverter;
+
+        public override bool CanConvert(Type objectType) => typeof(GraphPatch).IsAssignableFrom(objectType);
 
         public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
         {
@@ -84,25 +96,39 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
             var jObject = JObject.Load(reader);
             var op = jObject.Value<string>("op");
 
-            return op switch
+            var targetType = op switch
             {
-                "clearGraph" => new GraphPatch.ClearGraph(),
-                "addNode" => Deserialize<GraphPatch.AddNode>(jObject, serializer),
-                "removeNode" => Deserialize<GraphPatch.RemoveNode>(jObject, serializer),
-                "updateNode" => Deserialize<GraphPatch.UpdateNode>(jObject, serializer),
-                "addEdge" => Deserialize<GraphPatch.AddEdge>(jObject, serializer),
-                "removeEdge" => Deserialize<GraphPatch.RemoveEdge>(jObject, serializer),
-                "setNodeLayout" => Deserialize<GraphPatch.SetNodeLayout>(jObject, serializer),
-                "setErrorCount" => Deserialize<GraphPatch.SetErrorCount>(jObject, serializer),
+                "clearGraph" => typeof(GraphPatch.ClearGraph),
+                "addNode" => typeof(GraphPatch.AddNode),
+                "removeNode" => typeof(GraphPatch.RemoveNode),
+                "updateNode" => typeof(GraphPatch.UpdateNode),
+                "addEdge" => typeof(GraphPatch.AddEdge),
+                "removeEdge" => typeof(GraphPatch.RemoveEdge),
+                "setNodeLayout" => typeof(GraphPatch.SetNodeLayout),
+                "setErrorCount" => typeof(GraphPatch.SetErrorCount),
                 _ => throw new JsonSerializationException($"Unknown graph patch op '{op}'."),
             };
+
+            return Deserialize(jObject, targetType, serializer);
         }
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) =>
             throw new NotSupportedException($"{nameof(GraphPatchJsonConverter)} is read-only; default serialization emits the discriminator.");
 
-        private static GraphPatch Deserialize<T>(JObject jObject, JsonSerializer serializer)
-            where T : GraphPatch =>
-            jObject.ToObject<T>(serializer) ?? throw new JsonSerializationException($"Failed to deserialize graph patch of type '{typeof(T).Name}'.");
+        private static GraphPatch Deserialize(JObject jObject, Type targetType, JsonSerializer serializer)
+        {
+            // The attribute is inherited by the concrete patch types, so suppress the converter for the
+            // nested call to avoid recursing back into ReadJson.
+            skipConverter = true;
+            try
+            {
+                return (GraphPatch?)jObject.ToObject(targetType, serializer)
+                    ?? throw new JsonSerializationException($"Failed to deserialize graph patch of type '{targetType.Name}'.");
+            }
+            finally
+            {
+                skipConverter = false;
+            }
+        }
     }
 }

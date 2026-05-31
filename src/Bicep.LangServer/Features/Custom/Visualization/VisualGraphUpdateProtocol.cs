@@ -13,18 +13,19 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
     /// Request sent by the webview (via the extension) asking the server to reconcile the graph it
     /// currently displays with the server's latest graph. The server returns a complete patch delta.
     /// <para>
-    /// This is the contract only; the handler is introduced in a later change. Until then no handler is
-    /// registered, so sending this request is a no-op and the existing deployment graph path is unaffected.
+    /// Handled by <see cref="VisualGraphUpdateHandler"/>. The handler always answers (it is not gated by
+    /// the feature flag); the flag only controls whether the extension routes the visual graph through this path,
+    /// so the existing deployment graph path is unaffected until the extension opts in.
     /// </para>
     /// </summary>
-    [Method("textDocument/visualizerGraphUpdate", Direction.ClientToServer)]
-    public record VisualizerGraphUpdateParams(
+    [Method("textDocument/visualGraphUpdate", Direction.ClientToServer)]
+    public record VisualGraphUpdateParams(
         TextDocumentIdentifier TextDocument,
-        ClientGraph? Current) : ITextDocumentIdentifierParams, IRequest<VisualizerGraphUpdateResult>;
+        RenderedGraph? Current) : ITextDocumentIdentifierParams, IRequest<VisualGraphUpdateResult>;
 
     /// <summary>
-    /// Response to a <see cref="VisualizerGraphUpdateParams"/> request: a complete, ordered delta transforming
+    /// Response to a <see cref="VisualGraphUpdateParams"/> request: a complete, ordered delta transforming
     /// the submitted graph into the server's latest graph. An empty list means nothing changed.
     /// </summary>
-    public record VisualizerGraphUpdateResult(IReadOnlyList<GraphPatch> Patches);
+    public record VisualGraphUpdateResult(IReadOnlyList<GraphPatch> Patches);
 }
