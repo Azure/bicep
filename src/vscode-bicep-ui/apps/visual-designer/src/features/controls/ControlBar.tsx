@@ -81,12 +81,7 @@ export function ControlBar() {
 
   return (
     <$ControlBar data-testid="control-bar">
-      <$ControlButton
-        onClick={() => zoomIn(1.5)}
-        title="Zoom In"
-        aria-label="Zoom In"
-        data-testid="control-zoom-in"
-      >
+      <$ControlButton onClick={() => zoomIn(1.5)} title="Zoom In" aria-label="Zoom In" data-testid="control-zoom-in">
         <Codicon name="zoom-in" size={16} />
       </$ControlButton>
       <$ControlButton

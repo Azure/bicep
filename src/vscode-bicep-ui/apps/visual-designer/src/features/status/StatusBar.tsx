@@ -61,11 +61,7 @@ export function StatusBar() {
   const errorCount = graphStatus.kind === "errors" ? graphStatus.errorCount : 0;
 
   return (
-    <$StatusBarContainer
-      data-testid="status-bar"
-      data-status={graphStatus.kind}
-      data-error-count={errorCount}
-    >
+    <$StatusBarContainer data-testid="status-bar" data-status={graphStatus.kind} data-error-count={errorCount}>
       <$StatusCircle $hasErrors={graphStatus.kind === "errors"} data-testid="status-indicator" />
       {graphStatus.kind === "errors" && (
         <span>

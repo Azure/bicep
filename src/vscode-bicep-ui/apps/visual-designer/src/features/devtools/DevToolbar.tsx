@@ -84,11 +84,7 @@ export function DevToolbar({ channel }: DevToolbarProps) {
       <$Label>DEV</$Label>
       <$SectionLabel>Graphs</$SectionLabel>
       {Object.entries(SAMPLE_GRAPHS).map(([name, graph]) => (
-        <$Button
-          key={name}
-          onClick={() => channel.pushGraph(graph)}
-          data-testid={`dev-graph-${slugify(name)}`}
-        >
+        <$Button key={name} onClick={() => channel.pushGraph(graph)} data-testid={`dev-graph-${slugify(name)}`}>
           {name}
         </$Button>
       ))}
