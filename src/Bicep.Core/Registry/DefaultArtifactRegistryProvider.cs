@@ -3,6 +3,7 @@
 
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Catalog;
+using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry
@@ -15,6 +16,9 @@ namespace Bicep.Core.Registry
                     new LocalModuleRegistry(),
                     new OciArtifactRegistry(registryConfiguration, clientFactory, publicModuleMetadataProvider),
                     new TemplateSpecModuleRegistry(templateSpecRepositoryFactory),
+                    new ExecExtensionRegistry(
+                        serviceProvider.GetRequiredService<IFileExplorer>(),
+                        serviceProvider.GetService<IBinaryExtensionTypesFetcher>()),
                 })
         {
         }
