@@ -123,7 +123,7 @@ namespace Bicep.Core.Registry.Oci
                 switch (type)
                 {
                     case ArtifactType.Module:
-                        if (!configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName).IsSuccess(out var moduleAlias, out var moduleFailureBuilder))
+                        if (!configuration.TryGetOciArtifactModuleAlias(aliasName).IsSuccess(out var moduleAlias, out var moduleFailureBuilder))
                         {
                             return new(moduleFailureBuilder);
                         }

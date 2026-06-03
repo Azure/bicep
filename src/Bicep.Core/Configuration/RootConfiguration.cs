@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Json;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Configuration
@@ -16,6 +17,8 @@ namespace Bicep.Core.Configuration
         public const string CloudKey = "cloud";
 
         public const string ModuleAliasesKey = "moduleAliases";
+
+        public const string ModuleAliasesMockKey = "moduleAliasesMock";
 
         public const string ExtensionsKey = "extensions";
 
@@ -34,6 +37,7 @@ namespace Bicep.Core.Configuration
         public RootConfiguration(
             CloudConfiguration cloud,
             ModuleAliasesConfiguration moduleAliases,
+            ModuleAliasesConfiguration moduleAliasesMock,
             ExtensionsConfiguration extensions,
             ImplicitExtensionsConfiguration implicitExtensions,
             AnalyzersConfiguration analyzers,
@@ -46,6 +50,7 @@ namespace Bicep.Core.Configuration
         {
             this.Cloud = cloud;
             this.ModuleAliases = moduleAliases;
+            this.ModuleAliasesMock = moduleAliasesMock;
             this.Extensions = extensions;
             this.ImplicitExtensions = implicitExtensions;
             this.Analyzers = analyzers;
@@ -61,6 +66,10 @@ namespace Bicep.Core.Configuration
         {
             var cloud = CloudConfiguration.Bind(element.GetProperty(CloudKey));
             var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesKey), configFileUri);
+            var moduleAliasesMock = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesMockKey), configFileUri);
+            // var moduleAliasesMock = element.TryGetProperty(ModuleAliasesMockKey, out var mockElement)
+            //      ? ModuleAliasesConfiguration.Bind(mockElement, configFileUri)
+            //      : ModuleAliasesConfiguration.Bind(JsonElementFactory.CreateElement(new ModuleAliases()), configFileUri);
             var analyzers = new AnalyzersConfiguration(element.GetProperty(AnalyzersKey));
             var cacheRootDirectory = element.TryGetProperty(CacheRootDirectoryKey, out var e) ? e.GetString() : default;
             var experimentalFeaturesWarning = element.TryGetProperty(ExperimentalFeaturesWarningKey, out var value) && value.GetBoolean();
@@ -70,12 +79,14 @@ namespace Bicep.Core.Configuration
             var extensions = ExtensionsConfiguration.Bind(element.GetProperty(ExtensionsKey));
             var implicitExtensions = ImplicitExtensionsConfiguration.Bind(element.GetProperty(ImplicitExtensionsKey));
 
-            return new(cloud, moduleAliases, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesWarning, experimentalFeaturesEnabled, formatting, configFileUri, null);
+            return new(cloud, moduleAliases, moduleAliasesMock, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesWarning, experimentalFeaturesEnabled, formatting, configFileUri, null);
         }
 
         public CloudConfiguration Cloud { get; }
 
         public ModuleAliasesConfiguration ModuleAliases { get; }
+
+        public ModuleAliasesConfiguration ModuleAliasesMock { get; }
 
         public ExtensionsConfiguration Extensions { get; }
 
@@ -97,9 +108,68 @@ namespace Bicep.Core.Configuration
 
         public bool IsBuiltIn => ConfigFileUri is null;
 
+        /// <summary>
+        /// Gets an OCI artifact module alias. If the alias is defined in moduleAliasesMock, that definition supersedes
+        /// the one in moduleAliases. Otherwise, the alias is resolved from moduleAliases.
+        /// </summary>
+        public ResultWithDiagnosticBuilder<OciArtifactModuleAlias> TryGetOciArtifactModuleAlias(string aliasName)
+        {
+            if (this.ModuleAliasesMock.GetOciArtifactModuleAliases().ContainsKey(aliasName))
+            {
+                return this.ModuleAliasesMock.TryGetOciArtifactModuleAlias(aliasName);
+            }
+
+            return this.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName);
+        }
+
+        /// <summary>
+        /// Gets a template spec module alias. If the alias is defined in moduleAliasesMock, that definition supersedes
+        /// the one in moduleAliases. Otherwise, the alias is resolved from moduleAliases.
+        /// </summary>
+        public ResultWithDiagnosticBuilder<TemplateSpecModuleAlias> TryGetTemplateSpecModuleAlias(string aliasName)
+        {
+            if (this.ModuleAliasesMock.GetTemplateSpecModuleAliases().ContainsKey(aliasName))
+            {
+                return this.ModuleAliasesMock.TryGetTemplateSpecModuleAlias(aliasName);
+            }
+
+            return this.ModuleAliases.TryGetTemplateSpecModuleAlias(aliasName);
+        }
+
+        /// <summary>
+        /// Gets all OCI artifact module aliases, merging moduleAliases with moduleAliasesMock. Aliases defined in
+        /// moduleAliasesMock supersede those with the same name in moduleAliases.
+        /// </summary>
+        public ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetOciArtifactModuleAliases()
+        {
+            var merged = this.ModuleAliases.GetOciArtifactModuleAliases();
+            foreach (var (aliasName, alias) in this.ModuleAliasesMock.GetOciArtifactModuleAliases())
+            {
+                merged = merged.SetItem(aliasName, alias);
+            }
+
+            return merged;
+        }
+
+        /// <summary>
+        /// Gets all template spec module aliases, merging moduleAliases with moduleAliasesMock. Aliases defined in
+        /// moduleAliasesMock supersede those with the same name in moduleAliases.
+        /// </summary>
+        public ImmutableSortedDictionary<string, TemplateSpecModuleAlias> GetTemplateSpecModuleAliases()
+        {
+            var merged = this.ModuleAliases.GetTemplateSpecModuleAliases();
+            foreach (var (aliasName, alias) in this.ModuleAliasesMock.GetTemplateSpecModuleAliases())
+            {
+                merged = merged.SetItem(aliasName, alias);
+            }
+
+            return merged;
+        }
+
         public RootConfiguration With(
             CloudConfiguration? cloud = null,
             ModuleAliasesConfiguration? moduleAliases = null,
+            ModuleAliasesConfiguration? moduleAliasesMock = null,
             ExtensionsConfiguration? extensions = null,
             ImplicitExtensionsConfiguration? implicitExtensions = null,
             AnalyzersConfiguration? analyzers = null,
@@ -113,6 +183,7 @@ namespace Bicep.Core.Configuration
             return new RootConfiguration(
                 cloud ?? this.Cloud,
                 moduleAliases ?? this.ModuleAliases,
+                moduleAliasesMock ?? this.ModuleAliasesMock,
                 extensions ?? this.Extensions,
                 implicitExtensions ?? this.ImplicitExtensions,
                 analyzers ?? this.Analyzers,
@@ -136,6 +207,9 @@ namespace Bicep.Core.Configuration
 
                 writer.WritePropertyName(ModuleAliasesKey);
                 this.ModuleAliases.WriteTo(writer);
+
+                writer.WritePropertyName(ModuleAliasesMockKey);
+                this.ModuleAliasesMock.WriteTo(writer);
 
                 writer.WritePropertyName(ExtensionsKey);
                 this.Extensions.WriteTo(writer);

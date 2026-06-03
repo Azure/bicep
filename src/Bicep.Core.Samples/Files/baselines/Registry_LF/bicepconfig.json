@@ -15,6 +15,13 @@
         "modulePath": "demo"
       },
       "mock-registry-emulated": {
+        "registry": "mock-registry-three.invalid"
+      }
+    }
+  },
+  "moduleAliasesMock": {
+    "br": {
+      "mock-registry-emulated": {
         "fileSystem": "Publish"
       }
     }

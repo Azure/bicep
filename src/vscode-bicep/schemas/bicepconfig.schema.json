@@ -136,17 +136,8 @@
     "bicepRegistryModuleAlias": {
       "type": "object",
       "additionalProperties": false,
-      "oneOf": [
-        {
-          "required": [
-            "registry"
-          ]
-        },
-        {
-          "required": [
-            "fileSystem"
-          ]
-        }
+      "required": [
+        "registry"
       ],
       "properties": {
         "registry": {
@@ -156,6 +147,21 @@
           "minLength": 1,
           "maxLength": 255
         },
+        "modulePath": {
+          "title": "Module Path",
+          "description": "The module path of the alias",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "bicepRegistryModuleAliasMock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fileSystem"
+      ],
+      "properties": {
         "fileSystem": {
           "title": "File System",
           "description": "The path relative to bicepconfig.json used to emulate a registry alias",
@@ -298,6 +304,35 @@
           "description": "Bicep Registry module alias definitions",
           "additionalProperties": {
             "$ref": "#/definitions/bicepRegistryModuleAlias",
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    "moduleAliasesMock": {
+      "title": "Module Aliases Mock",
+      "description": "Mock module aliases that supersede moduleAliases when present",
+      "type": "object",
+      "additionalProperties": false,
+      "default": {
+        "ts": {},
+        "br": {}
+      },
+      "properties": {
+        "ts": {
+          "title": "Template Spec Module Aliases Mock",
+          "description": "Mock Template Spec module alias definitions",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/templateSpecModuleAlias",
+            "additionalProperties": false
+          }
+        },
+        "br": {
+          "title": "Bicep Registry Module Aliases Mock",
+          "description": "Mock Bicep Registry module alias definitions",
+          "additionalProperties": {
+            "$ref": "#/definitions/bicepRegistryModuleAliasMock",
             "additionalProperties": false
           }
         }

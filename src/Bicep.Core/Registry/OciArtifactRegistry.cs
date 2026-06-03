@@ -57,7 +57,7 @@ namespace Bicep.Core.Registry
             // Check if the alias resolves to a filesystem-based alias.
             if (aliasName is not null)
             {
-                if (!referencingFile.Configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName).IsSuccess(out var alias, out var aliasFailureBuilder))
+                if (!referencingFile.Configuration.TryGetOciArtifactModuleAlias(aliasName).IsSuccess(out var alias, out var aliasFailureBuilder))
                 {
                     return new(aliasFailureBuilder);
                 }

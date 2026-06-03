@@ -251,7 +251,7 @@ namespace Bicep.LanguageServer.Completions
 
             List<CompletionItem> completionItems = new();
 
-            var templateSpecModuleAliases = rootConfiguration.ModuleAliases.GetTemplateSpecModuleAliases();
+            var templateSpecModuleAliases = rootConfiguration.GetTemplateSpecModuleAliases();
             var bicepModuleAliases = GetModuleAliases(rootConfiguration);
 
             // Top-level TemplateSpec completions
@@ -375,7 +375,7 @@ namespace Bicep.LanguageServer.Completions
 
         private static ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetModuleAliases(RootConfiguration configuration)
         {
-            return configuration.ModuleAliases.GetOciArtifactModuleAliases();
+            return configuration.GetOciArtifactModuleAliases();
         }
 
         private static bool TryGetValidModuleAlias(
@@ -387,7 +387,8 @@ namespace Bicep.LanguageServer.Completions
             registry = null;
             modulePath = null;
 
-            if (configuration.ModuleAliases.GetOciArtifactModuleAliases().TryGetValue(aliasName, out var aliasConfig)
+            // Mock aliases supersede real aliases with the same name.
+            if (configuration.GetOciArtifactModuleAliases().TryGetValue(aliasName, out var aliasConfig)
                 && !string.IsNullOrWhiteSpace(aliasConfig.Registry))
             {
                 registry = aliasConfig.Registry;
