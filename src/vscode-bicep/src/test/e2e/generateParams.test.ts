@@ -57,7 +57,15 @@ describe("generateParams", (): void => {
         expect.objectContaining({ title: "Please select which parameters to include" }),
       );
     } finally {
-      fs.rmSync(tempFolder, { recursive: true, force: true });
+      try {
+        fs.rmSync(tempFolder, {
+          recursive: true,
+          maxRetries: 5,
+          retryDelay: 1000,
+        });
+      } catch {
+        // post-test cleanup is strictly best-effort only
+      }
     }
   });
 });
