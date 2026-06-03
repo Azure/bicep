@@ -14,7 +14,7 @@ namespace Bicep.Core.Registry
                 {
                     new LocalModuleRegistry(),
                     new OciArtifactRegistry(registryConfiguration, clientFactory, publicModuleMetadataProvider, fileExplorer),
-                    new OciArtifactEmulatedRegistry(),
+                    new OciArtifactMockedRegistry(),
                     new TemplateSpecModuleRegistry(templateSpecRepositoryFactory),
                 })
         {

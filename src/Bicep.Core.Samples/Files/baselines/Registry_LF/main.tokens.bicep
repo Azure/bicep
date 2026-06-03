@@ -97,10 +97,10 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
-module appPlanDeploy3 'br/mock-registry-emulated:plan:v2' = {
+module appPlanDeploy3 'br/mock-registry-mocked:plan:v2' = {
 //@[000:006) Identifier |module|
 //@[007:021) Identifier |appPlanDeploy3|
-//@[022:057) StringComplete |'br/mock-registry-emulated:plan:v2'|
+//@[022:057) StringComplete |'br/mock-registry-mocked:plan:v2'|
 //@[058:059) Assignment |=|
 //@[060:061) LeftBrace |{|
 //@[061:062) NewLine |\n|

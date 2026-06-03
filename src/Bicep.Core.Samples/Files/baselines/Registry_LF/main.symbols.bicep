@@ -24,7 +24,7 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
   }
 }
 
-module appPlanDeploy3 'br/mock-registry-emulated:plan:v2' = {
+module appPlanDeploy3 'br/mock-registry-mocked:plan:v2' = {
 //@[07:21) Module appPlanDeploy3. Type: module. Declaration start char: 0, length: 137
   name: 'planDeploy3'
   scope: rg

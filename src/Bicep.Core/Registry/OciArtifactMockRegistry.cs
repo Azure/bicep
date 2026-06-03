@@ -10,38 +10,38 @@ using Bicep.Core.SourceLink;
 
 namespace Bicep.Core.Registry
 {
-    public class OciArtifactEmulatedRegistry : ArtifactRegistry<OciArtifactEmulatedReference>
+    public class OciArtifactMockedRegistry : ArtifactRegistry<OciArtifactMockedReference>
     {
-        public override string Scheme => ArtifactReferenceSchemes.OciEmulated;
+        public override string Scheme => ArtifactReferenceSchemes.OciMocked;
 
-        public override RegistryCapabilities GetCapabilities(ArtifactType artifactType, OciArtifactEmulatedReference reference)
+        public override RegistryCapabilities GetCapabilities(ArtifactType artifactType, OciArtifactMockedReference reference)
             => RegistryCapabilities.Default;
 
         public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference)
            => new(x => x.ModuleReferenceSchemeBrFsNotSupported());
 
-        public override bool IsArtifactRestoreRequired(OciArtifactEmulatedReference reference) => false;
+        public override bool IsArtifactRestoreRequired(OciArtifactMockedReference reference) => false;
 
-        public override Task<bool> CheckArtifactExists(ArtifactType artifactType, OciArtifactEmulatedReference reference)
+        public override Task<bool> CheckArtifactExists(ArtifactType artifactType, OciArtifactMockedReference reference)
             => Task.FromResult(reference.TryGetEntryPointFileHandle().IsSuccess(out var fileHandle, out _) && fileHandle.Exists());
 
-        public override Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactEmulatedReference> references)
+        public override Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactMockedReference> references)
             => Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>>(
                 new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>());
 
-        public override Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<OciArtifactEmulatedReference> references)
+        public override Task<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<OciArtifactMockedReference> references)
             => Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>>(
                 new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>());
 
-        public override Task PublishModule(OciArtifactEmulatedReference reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description)
+        public override Task PublishModule(OciArtifactMockedReference reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description)
             => throw new NotSupportedException("Publishing is not supported for filesystem-based module aliases.");
 
-        public override Task PublishExtension(OciArtifactEmulatedReference reference, ExtensionPackage package)
+        public override Task PublishExtension(OciArtifactMockedReference reference, ExtensionPackage package)
             => throw new NotSupportedException("Publishing is not supported for filesystem-based module aliases.");
 
-        public override string? TryGetDocumentationUri(OciArtifactEmulatedReference reference) => null;
+        public override string? TryGetDocumentationUri(OciArtifactMockedReference reference) => null;
 
-        public override Task<string?> TryGetModuleDescription(ModuleSymbol module, OciArtifactEmulatedReference reference)
+        public override Task<string?> TryGetModuleDescription(ModuleSymbol module, OciArtifactMockedReference reference)
             => Task.FromResult<string?>(null);
     }
 }

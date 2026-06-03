@@ -9,7 +9,7 @@ namespace Bicep.Core.Registry.Oci
     {
         public const string Scheme = "br";
 
-        public const string EmulatedScheme = "br-fs";
+        public const string MockedScheme = "br-mock";
         
         public const string SchemeWithColon = Scheme + ":";
 

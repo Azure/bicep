@@ -147,13 +147,13 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
-module appPlanDeploy3 'br/mock-registry-emulated:plan:v2' = {
+module appPlanDeploy3 'br/mock-registry-mocked:plan:v2' = {
 //@[000:0137) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0021) | ├─IdentifierSyntax
 //@[007:0021) | | └─Token(Identifier) |appPlanDeploy3|
 //@[022:0057) | ├─StringSyntax
-//@[022:0057) | | └─Token(StringComplete) |'br/mock-registry-emulated:plan:v2'|
+//@[022:0057) | | └─Token(StringComplete) |'br/mock-registry-mocked:plan:v2'|
 //@[058:0059) | ├─Token(Assignment) |=|
 //@[060:0137) | └─ObjectSyntax
 //@[060:0061) |   ├─Token(LeftBrace) |{|

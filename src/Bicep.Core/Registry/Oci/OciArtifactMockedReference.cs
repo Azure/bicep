@@ -8,18 +8,18 @@ using Bicep.IO.Abstraction;
 namespace Bicep.Core.Registry.Oci
 {
     /// <summary>
-    /// Represents an OCI module reference that is emulated via a local filesystem path.
+    /// Represents an OCI module reference that is mocked via a local filesystem path.
     /// When a module alias specifies a "fileSystem" property instead of "registry",
     /// module references are resolved to local .bicep files instead of pulling from a container registry.
     /// </summary>
-    public class OciArtifactEmulatedReference : ArtifactReference
+    public class OciArtifactMockedReference : ArtifactReference
     {
         private readonly IFileHandle fileHandle;
         private readonly string modulePath;
         private readonly string? fullyQualifiedReference;
 
-        public OciArtifactEmulatedReference(BicepSourceFile referencingFile, string modulePath, IFileHandle fileHandle, string? fullyQualifiedReference = null)
-            : base(referencingFile.Features, referencingFile.Configuration, OciArtifactReferenceFacts.EmulatedScheme)
+        public OciArtifactMockedReference(BicepSourceFile referencingFile, string modulePath, IFileHandle fileHandle, string? fullyQualifiedReference = null)
+            : base(referencingFile.Features, referencingFile.Configuration, OciArtifactReferenceFacts.MockedScheme)
         {
             this.modulePath = modulePath;
             this.fileHandle = fileHandle;
@@ -65,7 +65,7 @@ namespace Bicep.Core.Registry.Oci
         // unqualifiedReference is the unqualified reference string (e.g., "keyvault:1.0.0")
         // fileExplorer is the file explorer used to create file handles
         // aliasName is the name of the module alias, used in diagnostics
-        public static ResultWithDiagnosticBuilder<OciArtifactEmulatedReference> TryParse(
+        public static ResultWithDiagnosticBuilder<OciArtifactMockedReference> TryParse(
             BicepSourceFile referencingFile,
             string fileSystemPath,
             IOUri configFileUri,
@@ -117,12 +117,12 @@ namespace Bicep.Core.Registry.Oci
 
             var fileHandle = fileExplorer.GetFile(moduleFileUri);
 
-            return new(new OciArtifactEmulatedReference(referencingFile, modulePath, fileHandle));
+            return new(new OciArtifactMockedReference(referencingFile, modulePath, fileHandle));
         }
 
         public override bool Equals(object? obj)
         {
-            if (obj is not OciArtifactEmulatedReference other)
+            if (obj is not OciArtifactMockedReference other)
             {
                 return false;
             }

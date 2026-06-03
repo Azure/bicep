@@ -76,7 +76,7 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
   }
 }
 
-module appPlanDeploy3 'br/mock-registry-emulated:plan:v2' = {
+module appPlanDeploy3 'br/mock-registry-mocked:plan:v2' = {
 //@[000:0137) ├─DeclaredModuleExpression
 //@[060:0137) | ├─ObjectExpression
   name: 'planDeploy3'

@@ -21,7 +21,7 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
   }
 }
 
-module appPlanDeploy3 'br/mock-registry-emulated:plan:v2' = {
+module appPlanDeploy3 'br/mock-registry-mocked:plan:v2' = {
   name: 'planDeploy3'
   scope: rg
   params: {

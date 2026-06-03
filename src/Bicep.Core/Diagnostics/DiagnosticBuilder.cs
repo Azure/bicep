@@ -991,7 +991,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic UnknownModuleReferenceScheme(string badScheme, ImmutableArray<string> allowedSchemes)
             {
-                string FormatSchemes() => ToQuotedString(allowedSchemes.Where(scheme => !string.Equals(scheme, ArtifactReferenceSchemes.Local) && scheme != ArtifactReferenceSchemes.OciEmulated));
+                string FormatSchemes() => ToQuotedString(allowedSchemes.Where(scheme => !string.Equals(scheme, ArtifactReferenceSchemes.Local) && scheme != ArtifactReferenceSchemes.OciMocked));
 
                 return CoreError(
                     "BCP189",

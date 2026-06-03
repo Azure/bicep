@@ -71,21 +71,21 @@ namespace Bicep.Core.Registry
 
                     if (referencingFile.Configuration.ConfigFileUri is null)
                     {
-                        return new(x => x.ConfigurationFileNotFound("OciEmulatedModuleAliases"));
+                        return new(x => x.ConfigurationFileNotFound("OciModuleAliasesMock"));
                     }
 
-                    if (!OciArtifactEmulatedReference.TryParse(
+                    if (!OciArtifactMockedReference.TryParse(
                         referencingFile,
                         alias.FileSystem,
                         referencingFile.Configuration.ConfigFileUri,
                         reference,
                         this.fileExplorer,
-                        aliasName).IsSuccess(out var emulatedRef, out var emulatedFailureBuilder))
+                        aliasName).IsSuccess(out var mockedRef, out var mockedFailureBuilder))
                     {
-                        return new(emulatedFailureBuilder);
+                        return new(mockedFailureBuilder);
                     }
 
-                    return new(emulatedRef);
+                    return new(mockedRef);
                 }
             }
 
