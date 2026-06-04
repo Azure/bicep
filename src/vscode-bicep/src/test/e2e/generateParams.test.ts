@@ -58,7 +58,15 @@ describe("generateParams", (): void => {
       );
     } finally {
       await executeCloseAllEditors();
-      fs.rmSync(tempFolder, { recursive: true, force: true });
+      try {
+        fs.rmSync(tempFolder, {
+          recursive: true,
+          maxRetries: 5,
+          retryDelay: 1000,
+        });
+      } catch {
+        // post-test cleanup is strictly best-effort only
+      }
     }
   });
 });
