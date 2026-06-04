@@ -57,6 +57,7 @@ describe("generateParams", (): void => {
         expect.objectContaining({ title: "Please select which parameters to include" }),
       );
     } finally {
+      await executeCloseAllEditors();
       fs.rmSync(tempFolder, { recursive: true, force: true });
     }
   });
