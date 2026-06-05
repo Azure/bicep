@@ -41,47 +41,48 @@ export const deploymentGraphRequestType = new ProtocolRequestType<
   void
 >("textDocument/deploymentGraph");
 
-// ── Server-driven visualizer layout (feature-flagged, not yet wired) ──
+// ── Server-driven visual graph layout (feature-flagged) ──
 // The webview submits the graph it currently displays; the server returns a complete patch
 // delta transforming it into the latest graph. Patches are forwarded to the webview as-is, so
 // they are left untyped here; the typed model lives in the visual-designer webview package.
-export type VisualizerGraphNodeKind = "resource" | "module";
+// The method name and shapes mirror the C# `VisualGraphUpdateProtocol` on the language server.
+export type VisualGraphNodeKind = "resource" | "module";
 
-export interface VisualizerRenderedGraphNode {
+export interface VisualGraphRenderedNode {
   id: string;
-  kind: VisualizerGraphNodeKind;
+  kind: VisualGraphNodeKind;
   parentId: string | null;
   width: number;
   height: number;
 }
 
-export interface VisualizerRenderedGraphEdge {
+export interface VisualGraphRenderedEdge {
   id: string;
   sourceId: string;
   targetId: string;
 }
 
-export interface VisualizerRenderedGraph {
-  nodes: VisualizerRenderedGraphNode[];
-  edges: VisualizerRenderedGraphEdge[];
+export interface VisualGraphRendered {
+  nodes: VisualGraphRenderedNode[];
+  edges: VisualGraphRenderedEdge[];
 }
 
-export interface VisualizerGraphUpdateParams {
+export interface VisualGraphUpdateParams {
   textDocument: TextDocumentIdentifier;
-  current: VisualizerRenderedGraph | null;
+  current: VisualGraphRendered | null;
 }
 
-export interface VisualizerGraphUpdateResult {
+export interface VisualGraphUpdateResult {
   patches: unknown[];
 }
 
-export const visualizerGraphUpdateRequestType = new ProtocolRequestType<
-  VisualizerGraphUpdateParams,
-  VisualizerGraphUpdateResult,
+export const visualGraphUpdateRequestType = new ProtocolRequestType<
+  VisualGraphUpdateParams,
+  VisualGraphUpdateResult,
   never,
   void,
   void
->("textDocument/visualizerGraphUpdate");
+>("textDocument/visualGraphUpdate");
 
 export interface GetDeploymentDataRequest {
   textDocument: TextDocumentIdentifier;
