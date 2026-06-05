@@ -65,7 +65,6 @@ namespace Bicep.Core.UnitTests.Configuration
           }
         },
         "moduleAliasesMock": {
-         "ts": {},
          "br": {}
         },
         "extensions": {
@@ -178,7 +177,6 @@ namespace Bicep.Core.UnitTests.Configuration
           }
         },
         "moduleAliasesMock": {
-         "ts": {},
          "br": {}
         },
         "extensions": {
@@ -258,7 +256,6 @@ namespace Bicep.Core.UnitTests.Configuration
           }
         },
         "moduleAliasesMock": {
-         "ts": {},
          "br": {}
         },
         "extensions": {
@@ -437,7 +434,6 @@ namespace Bicep.Core.UnitTests.Configuration
                 }
             },
             "moduleAliasesMock": {
-             "ts": {},
              "br": {}
             },
             "extensions": {
@@ -798,7 +794,6 @@ namespace Bicep.Core.UnitTests.Configuration
                     }
                   },
                   "moduleAliasesMock": {
-                   "ts": {},
                    "br": {}
                   },
                   "extensions": {

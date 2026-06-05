@@ -315,19 +315,9 @@
       "type": "object",
       "additionalProperties": false,
       "default": {
-        "ts": {},
         "br": {}
       },
       "properties": {
-        "ts": {
-          "title": "Template Spec Module Aliases Mock",
-          "description": "Mock Template Spec module alias definitions",
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/templateSpecModuleAlias",
-            "additionalProperties": false
-          }
-        },
         "br": {
           "title": "Bicep Registry Module Aliases Mock",
           "description": "Mock Bicep Registry module alias definitions",
