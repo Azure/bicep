@@ -2042,7 +2042,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic ModuleReferenceSchemeBrFsNotSupported() => CoreError(
                 "BCP449",
-                "The 'br-fs' module reference scheme is for internal use only. Use a 'br/<alias>:' reference with a configured 'fileSystem' alias instead.");
+                $"The '{Registry.Oci.OciArtifactReferenceFacts.MockedScheme}' module reference scheme is for internal use only. Use a 'br/<alias>:' reference with a configured 'fileSystem' alias instead.");
 
             public Diagnostic ConfigurationFileNotFound(string featureName) => CoreError(
                 "BCP450",

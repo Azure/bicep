@@ -71,7 +71,7 @@ namespace Bicep.Core.UnitTests.Registry.Oci
             reference!.UnqualifiedReference.Should().Be("keyvault");
             reference!.FullyQualifiedReference.Should().Be("br:keyvault");
             reference!.IsExternal.Should().BeFalse();
-            reference.Scheme.Should().Be("br-fs");
+            reference.Scheme.Should().Be(OciArtifactReferenceFacts.MockedScheme);
         }
 
         [TestMethod]

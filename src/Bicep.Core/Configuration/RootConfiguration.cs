@@ -67,9 +67,6 @@ namespace Bicep.Core.Configuration
             var cloud = CloudConfiguration.Bind(element.GetProperty(CloudKey));
             var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesKey), configFileUri);
             var moduleAliasesMock = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesMockKey), configFileUri);
-            // var moduleAliasesMock = element.TryGetProperty(ModuleAliasesMockKey, out var mockElement)
-            //      ? ModuleAliasesConfiguration.Bind(mockElement, configFileUri)
-            //      : ModuleAliasesConfiguration.Bind(JsonElementFactory.CreateElement(new ModuleAliases()), configFileUri);
             var analyzers = new AnalyzersConfiguration(element.GetProperty(AnalyzersKey));
             var cacheRootDirectory = element.TryGetProperty(CacheRootDirectoryKey, out var e) ? e.GetString() : default;
             var experimentalFeaturesWarning = element.TryGetProperty(ExperimentalFeaturesWarningKey, out var value) && value.GetBoolean();
