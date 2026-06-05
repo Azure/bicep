@@ -41,6 +41,48 @@ export const deploymentGraphRequestType = new ProtocolRequestType<
   void
 >("textDocument/deploymentGraph");
 
+// ── Server-driven visualizer layout (feature-flagged, not yet wired) ──
+// The webview submits the graph it currently displays; the server returns a complete patch
+// delta transforming it into the latest graph. Patches are forwarded to the webview as-is, so
+// they are left untyped here; the typed model lives in the visual-designer webview package.
+export type VisualizerGraphNodeKind = "resource" | "module";
+
+export interface VisualizerRenderedGraphNode {
+  id: string;
+  kind: VisualizerGraphNodeKind;
+  parentId: string | null;
+  width: number;
+  height: number;
+}
+
+export interface VisualizerRenderedGraphEdge {
+  id: string;
+  sourceId: string;
+  targetId: string;
+}
+
+export interface VisualizerRenderedGraph {
+  nodes: VisualizerRenderedGraphNode[];
+  edges: VisualizerRenderedGraphEdge[];
+}
+
+export interface VisualizerGraphUpdateParams {
+  textDocument: TextDocumentIdentifier;
+  current: VisualizerRenderedGraph | null;
+}
+
+export interface VisualizerGraphUpdateResult {
+  patches: unknown[];
+}
+
+export const visualizerGraphUpdateRequestType = new ProtocolRequestType<
+  VisualizerGraphUpdateParams,
+  VisualizerGraphUpdateResult,
+  never,
+  void,
+  void
+>("textDocument/visualizerGraphUpdate");
+
 export interface GetDeploymentDataRequest {
   textDocument: TextDocumentIdentifier;
 }

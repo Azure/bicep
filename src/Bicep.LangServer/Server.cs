@@ -8,6 +8,7 @@ using Bicep.Core.Features;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
+using Bicep.LanguageServer.Features.Custom.Visualization;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Options;
 using Bicep.LanguageServer.Providers;
@@ -36,6 +37,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDocumentSymbolHandler>()
                     .WithHandler<BicepDefinitionHandler>()
                     .WithHandler<BicepDeploymentGraphHandler>()
+                    .WithHandler<VisualGraphUpdateHandler>()
                     .WithHandler<GetDeploymentDataHandler>()
                     .WithHandler<BicepReferencesHandler>()
                     .WithHandler<BicepExternalSourceDocumentLinkHandler>()

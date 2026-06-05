@@ -95,6 +95,11 @@
           "description": "When completing 'br:' module references, query Azure for all container registries accessible to the user (may be slow). If this option is off, only registries configured under moduleAliases in bicepconfig.json will be listed.",
           "default": false
         },
+        "bicep.visualizer.serverLayout.enabled": {
+          "type": "boolean",
+          "description": "Experimental: compute the visualizer graph layout in the Bicep language server instead of in the webview. Off by default while this is under development.",
+          "default": false
+        },
         "bicep.trace.server": {
           "type": "string",
           "enum": [
