@@ -8,6 +8,7 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Json;
 using Bicep.IO.Abstraction;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
@@ -50,13 +51,44 @@ namespace Bicep.Core.Configuration
     {
         private readonly IOUri? configFileUri;
 
-        private ModuleAliasesConfiguration(ModuleAliases data, IOUri? configFileUri)
+        private readonly bool serializeOciArtifactAliasesOnly;
+
+        private ModuleAliasesConfiguration(ModuleAliases data, IOUri? configFileUri, bool serializeOciArtifactAliasesOnly)
             : base(data)
         {
             this.configFileUri = configFileUri;
+            this.serializeOciArtifactAliasesOnly = serializeOciArtifactAliasesOnly;
         }
 
-        public static ModuleAliasesConfiguration Bind(JsonElement element, IOUri? configFileUri) => new(element.ToNonNullObject<ModuleAliases>(), configFileUri);
+        public static ModuleAliasesConfiguration Bind(JsonElement element, IOUri? configFileUri) => new(element.ToNonNullObject<ModuleAliases>(), configFileUri, serializeOciArtifactAliasesOnly: false);
+
+        /// <summary>
+        /// Binds a mock module aliases configuration. Mock aliases only support Bicep Registry (br) aliases, so any
+        /// template spec (ts) section is discarded on bind and omitted when serializing.
+        /// </summary>
+        public static ModuleAliasesConfiguration BindMock(JsonElement element, IOUri? configFileUri)
+        {
+            var data = element.ToNonNullObject<ModuleAliases>() with
+            {
+                TemplateSpecModuleAliases = ImmutableSortedDictionary<string, TemplateSpecModuleAlias>.Empty,
+            };
+
+            return new(data, configFileUri, serializeOciArtifactAliasesOnly: true);
+        }
+
+        public override void WriteTo(Utf8JsonWriter writer)
+        {
+            if (!this.serializeOciArtifactAliasesOnly)
+            {
+                base.WriteTo(writer);
+                return;
+            }
+
+            writer.WriteStartObject();
+            writer.WritePropertyName("br");
+            JsonElementFactory.CreateElement(this.Data.OciArtifactModuleAliases).WriteTo(writer);
+            writer.WriteEndObject();
+        }
 
         public ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetOciArtifactModuleAliases()
         {
