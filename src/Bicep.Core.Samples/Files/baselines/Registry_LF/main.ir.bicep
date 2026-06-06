@@ -1,5 +1,5 @@
 targetScope = 'subscription'
-//@[000:2603) ProgramExpression
+//@[000:2601) ProgramExpression
 //@[000:0000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:0000) | └─ResourceDependencyExpression [UNPARENTED]
@@ -77,8 +77,8 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
 }
 
 module appPlanDeploy3 'br/mock-registry-mocked:plan:v2' = {
-//@[000:0137) ├─DeclaredModuleExpression
-//@[060:0137) | ├─ObjectExpression
+//@[000:0135) ├─DeclaredModuleExpression
+//@[058:0135) | ├─ObjectExpression
   name: 'planDeploy3'
 //@[002:0021) | | └─ObjectPropertyExpression
 //@[002:0006) | |   ├─StringLiteralExpression { Value = name }

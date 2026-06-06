@@ -1,5 +1,5 @@
 targetScope = 'subscription'
-//@[000:2603) ProgramSyntax
+//@[000:2601) ProgramSyntax
 //@[000:0028) ├─TargetScopeSyntax
 //@[000:0011) | ├─Token(Identifier) |targetScope|
 //@[012:0013) | ├─Token(Assignment) |=|
@@ -148,16 +148,16 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
 module appPlanDeploy3 'br/mock-registry-mocked:plan:v2' = {
-//@[000:0137) ├─ModuleDeclarationSyntax
+//@[000:0135) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
 //@[007:0021) | ├─IdentifierSyntax
 //@[007:0021) | | └─Token(Identifier) |appPlanDeploy3|
-//@[022:0057) | ├─StringSyntax
-//@[022:0057) | | └─Token(StringComplete) |'br/mock-registry-mocked:plan:v2'|
-//@[058:0059) | ├─Token(Assignment) |=|
-//@[060:0137) | └─ObjectSyntax
-//@[060:0061) |   ├─Token(LeftBrace) |{|
-//@[061:0062) |   ├─Token(NewLine) |\n|
+//@[022:0055) | ├─StringSyntax
+//@[022:0055) | | └─Token(StringComplete) |'br/mock-registry-mocked:plan:v2'|
+//@[056:0057) | ├─Token(Assignment) |=|
+//@[058:0135) | └─ObjectSyntax
+//@[058:0059) |   ├─Token(LeftBrace) |{|
+//@[059:0060) |   ├─Token(NewLine) |\n|
   name: 'planDeploy3'
 //@[002:0021) |   ├─ObjectPropertySyntax
 //@[002:0006) |   | ├─IdentifierSyntax

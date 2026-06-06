@@ -100,10 +100,10 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
 module appPlanDeploy3 'br/mock-registry-mocked:plan:v2' = {
 //@[000:006) Identifier |module|
 //@[007:021) Identifier |appPlanDeploy3|
-//@[022:057) StringComplete |'br/mock-registry-mocked:plan:v2'|
-//@[058:059) Assignment |=|
-//@[060:061) LeftBrace |{|
-//@[061:062) NewLine |\n|
+//@[022:055) StringComplete |'br/mock-registry-mocked:plan:v2'|
+//@[056:057) Assignment |=|
+//@[058:059) LeftBrace |{|
+//@[059:060) NewLine |\n|
   name: 'planDeploy3'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
