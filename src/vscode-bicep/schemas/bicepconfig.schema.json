@@ -167,12 +167,6 @@
           "description": "The path relative to bicepconfig.json used to emulate a registry alias",
           "type": "string",
           "minLength": 1
-        },
-        "modulePath": {
-          "title": "Module Path",
-          "description": "The module path of the alias",
-          "type": "string",
-          "minLength": 1
         }
       }
     },
