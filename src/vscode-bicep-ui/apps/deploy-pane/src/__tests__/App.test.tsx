@@ -16,6 +16,8 @@ import {
 } from "../messages";
 import { vscode } from "../vscode";
 import {
+  allowedValuesTemplateJson,
+  emptyParametersJson,
   fileUri,
   getDeploymentOperations,
   getDeployResponse,
@@ -159,13 +161,38 @@ describe("App", () => {
 
     expect(container).toMatchSnapshot();
   });
+
+  it.each([
+    ["Deploy", () => mockClient.deployments.beginCreateOrUpdateAtScope, 2],
+    ["Validate", () => mockClient.deployments.beginValidateAtScopeAndWait, 2],
+    ["What-If", () => mockClient.deployments.beginWhatIfAndWait, 2],
+  ] as const)(
+    "uses the first allowed string value for %s when no parameter value is set",
+    async (buttonText, getOperation, deploymentArgIndex) => {
+      render(<App />);
+
+      await initialize({ templateJson: allowedValuesTemplateJson, parametersJson: emptyParametersJson });
+
+      fireEvent.click(screen.getByText(buttonText));
+
+      await waitFor(() => {
+        expect(getOperation()).toHaveBeenCalled();
+      });
+
+      const calls = getOperation().mock.calls as unknown[][];
+      const deployment = calls[0]?.[deploymentArgIndex] as { properties: { parameters: unknown } };
+      expect(deployment.properties.parameters).toEqual({
+        environment: { value: "dev" },
+      });
+    },
+  );
 });
 
-async function initialize() {
+async function initialize(data: { templateJson?: string; parametersJson?: string } = {}) {
   const stateResult = getStateResultMessage();
   await act(async () => {
     await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createReadyMessage()));
-    sendMessage(getDeploymentDataMessage());
+    sendMessage(getDeploymentDataMessage(data));
 
     await waitFor(() => expect(vscode.postMessage).toBeCalledWith(createGetStateMessage()));
     sendMessage(stateResult);
@@ -178,8 +205,13 @@ function sendMessage(message: VscodeMessage) {
   fireEvent(window, new MessageEvent<VscodeMessage>("message", { data: message }));
 }
 
-function getDeploymentDataMessage() {
-  return createDeploymentDataMessage(fileUri, false, templateJson, parametersJson);
+function getDeploymentDataMessage(data: { templateJson?: string; parametersJson?: string } = {}) {
+  return createDeploymentDataMessage(
+    fileUri,
+    false,
+    data.templateJson ?? templateJson,
+    data.parametersJson ?? parametersJson,
+  );
 }
 
 function getStateResultMessage() {
