@@ -785,7 +785,7 @@
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.28.0",
+    "typescript-eslint": "^8.60.1",
     "webpack": "^5.105.2",
     "webpack-cli": "^7.0.3"
   },
