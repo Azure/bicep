@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { afterEach, describe, expect, it } from "@jest/globals";
 import fs from "fs";
 import path from "path";
+import { afterEach, describe, expect, it } from "@jest/globals";
 import vscode from "vscode";
 import { sleep } from "../../utils/time";
 import { createUniqueTempFolder } from "../utils/createUniqueTempFolder";
@@ -39,7 +39,10 @@ describe("generateParams", (): void => {
       // Give the language server some time to finish compilation.
       await sleep(2000);
 
-      const showQuickPick = jest.spyOn(vscode.window, "showQuickPick") as unknown as jest.SpiedFunction<ShowStringQuickPick>;
+      const showQuickPick = jest.spyOn(
+        vscode.window,
+        "showQuickPick",
+      ) as unknown as jest.SpiedFunction<ShowStringQuickPick>;
       showQuickPick.mockResolvedValueOnce("json").mockResolvedValueOnce("requiredonly");
 
       await executeGenerateParamsCommand(textDocument.uri);

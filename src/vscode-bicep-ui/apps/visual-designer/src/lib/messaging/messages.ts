@@ -161,4 +161,3 @@ export type GraphPatch =
   | { op: "removeEdge"; edgeId: string }
   | { op: "setNodeLayout"; nodeId: string; layout: NodeLayout }
   | { op: "setErrorCount"; errorCount: number };
-
