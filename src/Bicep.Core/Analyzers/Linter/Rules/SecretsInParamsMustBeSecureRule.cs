@@ -63,7 +63,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             string name = parameterSymbol.Name;
             TypeSymbol type = parameterSymbol.Type;
-            if (type.IsObject() || type.IsString())
+            if (!DeclaredTypeRefersToTypeAlias(model, parameterSymbol) && (type.IsObject() || type.IsString()))
             {
                 if (HasSecretRegex.IsMatch(name))
                 {
@@ -85,6 +85,27 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             return null;
         }
+
+        private static bool DeclaredTypeRefersToTypeAlias(SemanticModel model, ParameterSymbol parameterSymbol)
+            => RefersToTypeAlias(parameterSymbol.DeclaringParameter.Type, model);
+
+        private static bool RefersToTypeAlias(SyntaxBase? typeSyntax, SemanticModel model) => UnwrapNullableSyntax(typeSyntax) switch
+        {
+            TypeVariableAccessSyntax variableAccess
+                => model.Binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol or ImportedTypeSymbol or WildcardImportSymbol,
+            TypePropertyAccessSyntax typePropertyAccess => RefersToTypeAlias(typePropertyAccess.BaseExpression, model),
+            TypeAdditionalPropertiesAccessSyntax typeAdditionalPropertiesAccess => RefersToTypeAlias(typeAdditionalPropertiesAccess.BaseExpression, model),
+            TypeArrayAccessSyntax typeArrayAccess
+                => RefersToTypeAlias(typeArrayAccess.BaseExpression, model) || RefersToTypeAlias(typeArrayAccess.IndexExpression, model),
+            TypeItemsAccessSyntax typeItemsAccess => RefersToTypeAlias(typeItemsAccess.BaseExpression, model),
+            _ => false,
+        };
+
+        private static SyntaxBase? UnwrapNullableSyntax(SyntaxBase? maybeNullable) => maybeNullable switch
+        {
+            NullableTypeSyntax nullable => nullable.Base,
+            var otherwise => otherwise,
+        };
 
         private IDiagnostic CreateDiagnostic(SemanticModel model, ParameterSymbol parameterSymbol, DiagnosticLevel diagnosticLevel)
         {

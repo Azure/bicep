@@ -126,6 +126,54 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestMethod]
+        public void User_defined_type_reference_with_secret_name_is_not_flagged()
+        {
+            CompileAndTest("""
+type ContainerAppSecretType = {
+  name: string
+  value: string
+}
+
+type ContainerAppSecretListType = {
+  secureList: ContainerAppSecretType[]
+}
+
+param containerAppSecrets ContainerAppSecretListType
+""", 0);
+        }
+
+        [TestMethod]
+        public void User_defined_string_type_reference_with_secret_name_is_not_flagged()
+        {
+            CompileAndTest("""
+type SecureStringType = string
+
+param password SecureStringType
+""", 0);
+        }
+
+        [TestMethod]
+        public void Direct_object_with_secret_name_is_still_flagged()
+        {
+            CompileAndTest("""
+param containerAppSecrets object
+""", 1);
+        }
+
+        [TestMethod]
+        public void User_defined_type_reference_defaulting_to_secure_param_is_still_flagged()
+        {
+            CompileAndTest("""
+@secure()
+param secureParam string
+
+type SecureStringType = string
+
+param insecureParam SecureStringType = secureParam
+""", 1);
+        }
+
+        [TestMethod]
         public void FullExample()
         {
             string bicep = @"
