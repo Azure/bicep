@@ -310,7 +310,10 @@ public class ReplEnvironmentTests
     [TestMethod]
     public void ShouldSubmitBuffer_treats_whitespace_only_line_as_blank()
     {
-        ReplEnvironment.ShouldSubmitBuffer("var foo = {\n  \n", "  ").Should().BeTrue();
+        var bufferState = ReplEnvironment.GetBufferState("var foo = {\n  \n", "  ");
+
+        bufferState.ShouldSubmit.Should().BeTrue();
+        bufferState.IsTypeDeclaration.Should().BeFalse();
     }
 
     [TestMethod]

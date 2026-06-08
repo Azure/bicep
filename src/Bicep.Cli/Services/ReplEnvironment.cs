@@ -297,21 +297,36 @@ public class ReplEnvironment
     /// and not inside (multi-line) string or interpolation expression.
     /// Not a full parse; parse errors still reported by real parser.
     /// </summary>
-    public static bool ShouldSubmitBuffer(string text, string currentLine)
+    public static ReplBufferState GetBufferState(string text, string currentLine)
     {
         // If line is blank, submit - even if structurally incomplete.
         // This avoids trapping the user in a state where they cannot recover.
         if (string.IsNullOrWhiteSpace(currentLine))
         {
-            return true;
+            return new ReplBufferState(
+                ShouldSubmit: true,
+                IsTypeDeclaration: false);
         }
 
         var program = new ReplParser(text).Program();
 
         // Use the existence of skipped trivia to determine whether we have a complete structure.
         var allNodes = SyntaxAggregator.Aggregate(program, x => x is not Token, useCst: true);
-        return allNodes.Last() is not SkippedTriviaSyntax;
+        var shouldSubmit = allNodes.Last() is not SkippedTriviaSyntax;
+
+        var finalExpression = program.Children
+            .Where(x => x is not Token { Type: TokenType.NewLine })
+            .LastOrDefault();
+
+        return new ReplBufferState(
+            ShouldSubmit: shouldSubmit,
+            IsTypeDeclaration: finalExpression is TypeDeclarationSyntax);
     }
+
+    public static bool ShouldSubmitBuffer(string text, string currentLine)
+        => GetBufferState(text, currentLine).ShouldSubmit;
 }
 
 public record AnnotatedReplResult(SyntaxBase? Value, IEnumerable<PrintHelper.AnnotatedDiagnostic> AnnotatedDiagnostics);
+
+public record ReplBufferState(bool ShouldSubmit, bool IsTypeDeclaration);

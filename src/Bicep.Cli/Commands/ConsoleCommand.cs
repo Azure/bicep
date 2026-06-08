@@ -86,9 +86,10 @@ public class ConsoleCommand(
                 inputBuffer.Append('\n');
 
                 var current = inputBuffer.ToString();
-                if (ReplEnvironment.ShouldSubmitBuffer(current, line))
+                var bufferState = ReplEnvironment.GetBufferState(current, line);
+                if (bufferState.ShouldSubmit)
                 {
-                    if (EndsWithTypeDeclaration(current))
+                    if (bufferState.IsTypeDeclaration)
                     {
                         pendingTypeContinuationRedirected = true;
                     }
@@ -167,9 +168,10 @@ public class ConsoleCommand(
 
             var current = buffer.ToString();
 
-            if (ReplEnvironment.ShouldSubmitBuffer(current, rawLine))
+            var bufferState = ReplEnvironment.GetBufferState(current, rawLine);
+            if (bufferState.ShouldSubmit)
             {
-                if (EndsWithTypeDeclaration(current) && ShouldWaitForTypeContinuation(inputLine))
+                if (bufferState.IsTypeDeclaration && ShouldWaitForTypeContinuation(inputLine))
                 {
                     pendingTypeContinuation = true;
                 }
@@ -198,15 +200,6 @@ public class ConsoleCommand(
     private static bool ShouldWaitForTypeContinuation(InputLine inputLine)
         => inputLine.HasBufferedInputAfterEnter ||
             (IsTypeContinuationLine(inputLine.Text) && !inputLine.StartedWithBufferedInput);
-
-    private static bool EndsWithTypeDeclaration(string text)
-    {
-        var finalSyntax = new ReplParser(text).Program().Children
-            .Where(x => x is not Token { Type: TokenType.NewLine })
-            .LastOrDefault();
-
-        return finalSyntax is TypeDeclarationSyntax;
-    }
 
     private readonly record struct InputLine(string Text, bool StartedWithBufferedInput, bool HasBufferedInputAfterEnter);
 
