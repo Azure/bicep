@@ -97,7 +97,7 @@
     <PackageVersion Include="StreamJsonRpc" Version="2.20.20" />
     <PackageVersion Include="System.CommandLine" Version="2.0.8" />
     <PackageVersion Include="System.Collections.Immutable" Version="10.0.8" />
-    <PackageVersion Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.0.15" />
+    <PackageVersion Include="TestableIO.System.IO.Abstractions.Wrappers" Version="22.1.1" />
     <PackageVersion Include="TestableIO.System.IO.Abstractions.TestingHelpers" Version="22.0.15" />
     <PackageVersion Include="System.Memory.Data" Version="10.0.8" />
     <!-- force an upgrade of this dependency as it seems to cause build flakiness for unknown reasons -->
