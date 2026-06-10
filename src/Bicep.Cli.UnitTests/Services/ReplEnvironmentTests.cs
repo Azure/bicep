@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.Globalization;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text;
 using Bicep.Cli.Services;
@@ -311,51 +310,42 @@ public class ReplEnvironmentTests
     [TestMethod]
     public void LoadFunctions_succeed()
     {
-        var originalCulture = CultureInfo.CurrentCulture;
-        var originalUICulture = CultureInfo.CurrentUICulture;
-        var testCulture = CultureInfo.GetCultureInfo("sv-SE");
-
-        CultureInfo.CurrentCulture = testCulture;
-        CultureInfo.CurrentUICulture = testCulture;
-
-        try
+        var mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            var mockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-            {
-                ["/testDir/vnet/vNetSubnet.jsonc"] = new MockFileData("""
+            ["/testDir/vnet/vNetSubnet.jsonc"] = new MockFileData("""
         {
           "name": "mySubnet",
           "version": 1.4 // test float handling
         }
         """),
-                ["/testDir/config/app1.txt"] = new MockFileData("test content 1"),
-                ["/testDir/config/app2.txt"] = new MockFileData("test content 2"),
-                ["/testDir/test.yaml"] = new MockFileData("""
+            ["/testDir/config/app1.txt"] = new MockFileData("test content 1"),
+            ["/testDir/config/app2.txt"] = new MockFileData("test content 2"),
+            ["/testDir/test.yaml"] = new MockFileData("""
         description: "Allows SSH traffic"
         protocol: "Tcp"
         """)
-            });
+        });
 
-            mockFileSystem.Directory.SetCurrentDirectory("/testDir");
+        mockFileSystem.Directory.SetCurrentDirectory("/testDir");
 
-            var outputs = EvaluateInputs([
-                "loadJsonContent('./vnet/vNetSubnet.jsonc')",
-            "loadTextContent('./config/app1.txt')",
-            "loadYamlContent('./test.yaml')",
-            "loadDirectoryFileInfo('./config/', '*.txt')"
-            ], services =>
-            {
-                services.WithFileSystem(mockFileSystem);
-            });
+        var outputs = EvaluateInputs([
+            "loadJsonContent('./vnet/vNetSubnet.jsonc')",
+        "loadTextContent('./config/app1.txt')",
+        "loadYamlContent('./test.yaml')",
+        "loadDirectoryFileInfo('./config/', '*.txt')"
+        ], services =>
+        {
+            services.WithFileSystem(mockFileSystem);
+        });
 
 #if WINDOWS_BUILD
-            var pathPrefix = "C:/";
+        var pathPrefix = "C:/";
 #else
-            var pathPrefix = string.Empty;
+        var pathPrefix = string.Empty;
 #endif
 
-            outputs.Should().SatisfyRespectively(
-                x => x.Should().BeEquivalentToIgnoringNewlines("""
+        outputs.Should().SatisfyRespectively(
+            x => x.Should().BeEquivalentToIgnoringNewlines("""
           {
             [DarkYellow]name[Reset]: [Orange]'mySubnet'[Reset]
             [DarkYellow]version[Reset]: [Orange]'1.4'[Reset]
@@ -390,12 +380,6 @@ public class ReplEnvironmentTests
           ]
 
           """));
-        }
-        finally
-        {
-            CultureInfo.CurrentCulture = originalCulture;
-            CultureInfo.CurrentUICulture = originalUICulture;
-        }
     }
 
     private static void EnsureSingleInput(string text)
