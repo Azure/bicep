@@ -20,9 +20,9 @@ namespace Bicep.LanguageServer.Completions
 
     public class AvmModuleDisplayNameProvider : IAvmModuleDisplayNameProvider
     {
-        private static readonly Uri UtilityModulesCsvUri = new("https://azure.github.io/Azure-Verified-Modules/module-indexes/BicepUtilityModules.csv");
-        private static readonly Uri PatternModulesCsvUri = new("https://azure.github.io/Azure-Verified-Modules/module-indexes/BicepPatternModules.csv");
-        private static readonly Uri ResourceModulesCsvUri = new("https://azure.github.io/Azure-Verified-Modules/module-indexes/BicepResourceModules.csv");
+        private static readonly Uri UtilityModulesCsvUri = new("https://aka.ms/avm/index/bicep/utl/csv");
+        private static readonly Uri PatternModulesCsvUri = new("https://aka.ms/avm/index/bicep/ptn/csv");
+        private static readonly Uri ResourceModulesCsvUri = new("https://aka.ms/avm/index/bicep/res/csv");
 
         private static readonly AvmModuleInfoLookup EmptyLookup = new([], [], []);
 
