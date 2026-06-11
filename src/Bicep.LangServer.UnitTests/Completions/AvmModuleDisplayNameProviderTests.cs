@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Concurrent;
 using System.Net.Http;
 using System.Reflection;
 using Bicep.LanguageServer.Completions;
@@ -40,6 +41,11 @@ namespace Bicep.LangServer.UnitTests.Completions
             resourceModuleStatus.Should().Be("Deprecated");
 
             client.RequestCount.Should().Be(3);
+            client.RequestedUris.Select(uri => uri.ToString()).Should().BeEquivalentTo([
+                "https://aka.ms/avm/index/bicep/utl/csv",
+                "https://aka.ms/avm/index/bicep/ptn/csv",
+                "https://aka.ms/avm/index/bicep/res/csv",
+            ]);
         }
 
         [TestMethod]
@@ -86,6 +92,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         private sealed class TestAvmModuleCsvIndexHttpClient : IAvmModuleCsvIndexHttpClient
         {
             private readonly Func<Uri, CancellationToken, Task<string>> getCsvAsync;
+            private readonly ConcurrentQueue<Uri> requestedUris = new();
             private int requestCount;
 
             public TestAvmModuleCsvIndexHttpClient(Func<Uri, CancellationToken, Task<string>> getCsvAsync)
@@ -95,8 +102,12 @@ namespace Bicep.LangServer.UnitTests.Completions
 
             public int RequestCount => Volatile.Read(ref requestCount);
 
+            public IEnumerable<Uri> RequestedUris => requestedUris;
+
             public async Task<string> GetCsvAsync(Uri csvUri, CancellationToken cancellationToken)
             {
+                requestedUris.Enqueue(csvUri);
+
                 try
                 {
                     return await getCsvAsync(csvUri, cancellationToken);
