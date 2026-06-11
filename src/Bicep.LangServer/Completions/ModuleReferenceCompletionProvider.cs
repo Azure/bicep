@@ -498,6 +498,13 @@ namespace Bicep.LanguageServer.Completions
                     continue;
                 }
 
+                if (parts.ResolvedRegistry.Equals(LanguageConstants.BicepPublicMcrRegistry, StringComparison.Ordinal)
+                    && avmModuleDisplayNameProvider.TryGetModuleStatus(moduleName, out var moduleStatus)
+                    && moduleStatus.Equals("Proposed", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
                 string insertText = $"'{parts.WithModulePath(moduleName).ToNotation()}:$0'";
 
                 // Remove the base path prefix from the label if we're dealing with a module alias
