@@ -612,6 +612,71 @@ namespace Bicep.LangServer.UnitTests.Completions
         }
 
         [TestMethod]
+        public async Task GetFilteredCompletions_WithPublicAvmModulePathCompletions_ExcludesProposedModules()
+        {
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
+                RegistryCatalogMocks.MockPublicMetadataProvider([
+                    new("bicep/avm/res/compute/virtual-machine", "Virtual machine", "contoso.com/available", []),
+                    new("bicep/avm/res/compute/proposed-service", "Proposed service", "contoso.com/proposed", []),
+                ])
+            );
+
+            var avmDisplayNameProviderMock = StrictMock.Of<IAvmModuleDisplayNameProvider>();
+            string? availableModuleStatus = "Available";
+            avmDisplayNameProviderMock
+                .Setup(provider => provider.TryGetModuleStatus("bicep/avm/res/compute/virtual-machine", out availableModuleStatus))
+                .Returns(true);
+            string? proposedModuleStatus = "Proposed";
+            avmDisplayNameProviderMock
+                .Setup(provider => provider.TryGetModuleStatus("bicep/avm/res/compute/proposed-service", out proposedModuleStatus))
+                .Returns(true);
+
+            var (completionContext, sourceFile) = GetBicepCompletionContext("module test 'br/public:avm/res/compute/|'");
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                catalog,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration,
+                avmDisplayNameProviderMock.Object);
+            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(sourceFile, completionContext, CancellationToken.None);
+
+            completions.Select(completion => completion.Label).Should().Equal("avm/res/compute/virtual-machine");
+
+            avmDisplayNameProviderMock.VerifyAll();
+        }
+
+        [TestMethod]
+        public async Task GetFilteredCompletions_WithPublicAvmModulePathCompletions_WhenModuleStatusIsUnavailable_IncludesModule()
+        {
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
+                RegistryCatalogMocks.MockPublicMetadataProvider([
+                    new("bicep/avm/res/compute/virtual-machine", "Virtual machine", "contoso.com/help", []),
+                ])
+            );
+
+            var avmDisplayNameProviderMock = StrictMock.Of<IAvmModuleDisplayNameProvider>();
+            string? moduleStatus = null;
+            avmDisplayNameProviderMock
+                .Setup(provider => provider.TryGetModuleStatus("bicep/avm/res/compute/virtual-machine", out moduleStatus))
+                .Returns(false);
+
+            var (completionContext, sourceFile) = GetBicepCompletionContext("module test 'br/public:avm/res/compute/|'");
+            var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                catalog,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration,
+                avmDisplayNameProviderMock.Object);
+            var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(sourceFile, completionContext, CancellationToken.None);
+
+            completions.Select(completion => completion.Label).Should().Equal("avm/res/compute/virtual-machine");
+
+            avmDisplayNameProviderMock.VerifyAll();
+        }
+
+        [TestMethod]
         public async Task GetFilteredCompletions_WithPublicAvmModulePathCompletions_WhenDisplayNameCacheIsEmpty_UsesCatalogDescriptionForTooltipTitle()
         {
             var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
