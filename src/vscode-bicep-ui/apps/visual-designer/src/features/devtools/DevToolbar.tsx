@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { useState } from "react";
 import { styled } from "styled-components";
 import { FakeMessageChannel, GRAPH_MUTATIONS, SAMPLE_GRAPHS } from "./fake-message-channel";
 
@@ -62,6 +63,12 @@ const $Button = styled.button`
   }
 `;
 
+const $ToggleButton = styled($Button)<{ $on: boolean }>`
+  border-color: ${(props) => (props.$on ? "#3fa45b" : "rgba(255, 255, 255, 0.2)")};
+  background: ${(props) => (props.$on ? "rgba(63, 164, 91, 0.25)" : "rgba(255, 255, 255, 0.08)")};
+  color: ${(props) => (props.$on ? "#9fe0b3" : "#ddd")};
+`;
+
 /**
  * A floating toolbar rendered only in dev mode (`npm run dev`).
  * Each button pushes a different sample graph through the
@@ -69,6 +76,14 @@ const $Button = styled.button`
  * sending `deploymentGraph` notifications.
  */
 export function DevToolbar({ channel }: DevToolbarProps) {
+  const [serverLayout, setServerLayout] = useState(channel.isServerLayoutMode());
+
+  const toggleServerLayout = () => {
+    const next = !serverLayout;
+    setServerLayout(next);
+    channel.setServerLayoutMode(next);
+  };
+
   const applyMutation = (
     apply: (
       graph: import("@/lib/messaging/messages").DeploymentGraph,
@@ -82,6 +97,15 @@ export function DevToolbar({ channel }: DevToolbarProps) {
   return (
     <$Toolbar data-testid="dev-toolbar">
       <$Label>DEV</$Label>
+      <$ToggleButton
+        $on={serverLayout}
+        onClick={toggleServerLayout}
+        title="Toggle the server-driven layout path (documentDidChange + getGraphUpdate patches) vs the legacy full-graph push."
+        data-testid="dev-toggle-server-layout"
+      >
+        Server layout: {serverLayout ? "ON" : "OFF"}
+      </$ToggleButton>
+      <$Separator />
       <$SectionLabel>Graphs</$SectionLabel>
       {Object.entries(SAMPLE_GRAPHS).map(([name, graph]) => (
         <$Button key={name} onClick={() => channel.pushGraph(graph)} data-testid={`dev-graph-${slugify(name)}`}>

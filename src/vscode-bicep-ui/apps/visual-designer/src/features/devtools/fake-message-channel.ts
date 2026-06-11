@@ -2,14 +2,17 @@
 // Licensed under the MIT License.
 
 import type { WebviewNotificationCallback, WebviewNotificationMessage } from "@vscode-bicep-ui/messaging";
-import type { DeploymentGraph, DeploymentGraphPayload } from "@/lib/messaging";
+import type { DeploymentGraph, DeploymentGraphPayload, GetGraphUpdateRequest, GetGraphUpdateResponse } from "@/lib/messaging";
 
 import {
   DEPLOYMENT_GRAPH_NOTIFICATION,
+  DOCUMENT_DID_CHANGE_NOTIFICATION,
+  GET_GRAPH_UPDATE_REQUEST,
   READY_NOTIFICATION,
   REVEAL_FILE_RANGE_NOTIFICATION,
   SHOW_PROBLEMS_PANEL_NOTIFICATION,
 } from "@/lib/messaging/messages";
+import { diffGraph } from "./fake-graph-differ";
 
 const FAKE_FILE_PATH = "file:///main.bicep";
 
@@ -786,6 +789,13 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
 export class FakeMessageChannel {
   private readonly notificationSubscriptions: Record<string, Set<WebviewNotificationCallback>> = {};
 
+  /**
+   * When true, the channel drives the server-driven layout path: graph changes are announced via
+   * `documentDidChange` and the webview pulls them with a `getGraphUpdate` request (answered by
+   * {@link diffGraph}). When false, it pushes full `deploymentGraph` notifications (the legacy path).
+   */
+  private serverLayoutMode = false;
+
   revive() {
     // no-op
   }
@@ -794,8 +804,14 @@ export class FakeMessageChannel {
     // no-op
   }
 
-  sendRequest<T>(): Promise<T> {
-    return Promise.reject(new Error("FakeMessageChannel does not support requests."));
+  sendRequest<T>(requestMessage: { method: string; params?: unknown }): Promise<T> {
+    if (requestMessage.method === GET_GRAPH_UPDATE_REQUEST) {
+      const { current } = requestMessage.params as GetGraphUpdateRequest;
+      const patches = diffGraph(current, this.currentGraph);
+      return Promise.resolve({ patches } as GetGraphUpdateResponse as T);
+    }
+
+    return Promise.reject(new Error(`FakeMessageChannel does not support request: ${requestMessage.method}`));
   }
 
   /** The last graph pushed, so mutations can build on top of it. */
@@ -804,7 +820,7 @@ export class FakeMessageChannel {
   sendNotification(notificationMessage: WebviewNotificationMessage) {
     if (notificationMessage.method === READY_NOTIFICATION) {
       // Simulate async response from the extension host:
-      // after a short delay, push the sample deployment graph.
+      // after a short delay, present the sample deployment graph.
       setTimeout(() => {
         this.pushGraph(MODULE_GRAPH);
       }, 50);
@@ -820,16 +836,41 @@ export class FakeMessageChannel {
     return this.currentGraph;
   }
 
+  /** Whether the server-driven layout path is active. */
+  isServerLayoutMode(): boolean {
+    return this.serverLayoutMode;
+  }
+
   /**
-   * Simulate the extension host sending a new deployment graph
-   * notification to the webview.
+   * Toggle between the server-driven layout path and the legacy full-graph push path, then
+   * re-present the current graph through the newly selected path so the change is visible at once.
+   */
+  setServerLayoutMode(enabled: boolean) {
+    this.serverLayoutMode = enabled;
+    this.presentCurrentGraph();
+  }
+
+  /**
+   * Simulate the extension host announcing a new graph to the webview. In legacy mode this is a
+   * full `deploymentGraph` push; in server-layout mode it is a `documentDidChange` notification
+   * that prompts the webview to pull the delta via `getGraphUpdate`.
    */
   pushGraph(graph: DeploymentGraph | null) {
     this.currentGraph = graph;
-    this.dispatchNotification(DEPLOYMENT_GRAPH_NOTIFICATION, {
-      documentPath: FAKE_FILE_PATH,
-      deploymentGraph: graph,
-    } satisfies DeploymentGraphPayload);
+    this.presentCurrentGraph();
+  }
+
+  private presentCurrentGraph() {
+    if (this.serverLayoutMode) {
+      this.dispatchNotification(DOCUMENT_DID_CHANGE_NOTIFICATION, {
+        documentUri: FAKE_FILE_PATH,
+      });
+    } else {
+      this.dispatchNotification(DEPLOYMENT_GRAPH_NOTIFICATION, {
+        documentPath: FAKE_FILE_PATH,
+        deploymentGraph: this.currentGraph,
+      } satisfies DeploymentGraphPayload);
+    }
   }
 
   subscribeToNotification(method: string, callback: WebviewNotificationCallback) {
