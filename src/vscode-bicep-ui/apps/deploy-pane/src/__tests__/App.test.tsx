@@ -12,6 +12,7 @@ import {
   createGetDeploymentScopeResultMessage,
   createGetStateMessage,
   createGetStateResultMessage,
+  createPickParamsFileResultMessage,
   createReadyMessage,
 } from "../messages";
 import { vscode } from "../vscode";
@@ -186,6 +187,26 @@ describe("App", () => {
       });
     },
   );
+
+  it("shows an error when a picked JSON parameters file cannot be parsed", async () => {
+    render(<App />);
+
+    await initialize({ parametersJson: emptyParametersJson });
+
+    const invalidParametersJson = `{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "fooParam": {
+      "value": "ASDASD""
+    }
+  }
+}`;
+
+    expect(() => sendMessage(createPickParamsFileResultMessage("/tmp/main.parameters.json", invalidParametersJson))).not.toThrow();
+
+    expect(screen.getByText(/Expected ',' or '}' after property value/)).toBeInTheDocument();
+  });
 });
 
 async function initialize(data: { templateJson?: string; parametersJson?: string } = {}) {
