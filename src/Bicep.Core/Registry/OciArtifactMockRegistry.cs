@@ -34,10 +34,10 @@ namespace Bicep.Core.Registry
                 new Dictionary<ArtifactReference, DiagnosticBuilder.DiagnosticBuilderDelegate>());
 
         public override Task PublishModule(OciArtifactMockedReference reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description)
-            => throw new NotSupportedException("Publishing is not supported for filesystem-based module aliases.");
+            => throw new NotSupportedException("Publishing is not supported for mocked module aliases.");
 
         public override Task PublishExtension(OciArtifactMockedReference reference, ExtensionPackage package)
-            => throw new NotSupportedException("Publishing is not supported for filesystem-based module aliases.");
+            => throw new NotSupportedException("Publishing is not supported for mocked module aliases.");
 
         public override string? TryGetDocumentationUri(OciArtifactMockedReference reference) => null;
 

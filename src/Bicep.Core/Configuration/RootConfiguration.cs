@@ -37,7 +37,7 @@ namespace Bicep.Core.Configuration
         public RootConfiguration(
             CloudConfiguration cloud,
             ModuleAliasesConfiguration moduleAliases,
-            ModuleAliasesConfiguration moduleAliasesMock,
+            ModuleAliasesMockConfiguration moduleAliasesMock,
             ExtensionsConfiguration extensions,
             ImplicitExtensionsConfiguration implicitExtensions,
             AnalyzersConfiguration analyzers,
@@ -67,8 +67,8 @@ namespace Bicep.Core.Configuration
             var cloud = CloudConfiguration.Bind(element.GetProperty(CloudKey));
             var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesKey), configFileUri);
             var moduleAliasesMock = element.TryGetProperty(ModuleAliasesMockKey, out var mockElement)
-                 ? ModuleAliasesConfiguration.BindMock(mockElement, configFileUri)
-                 : ModuleAliasesConfiguration.BindMock(JsonElementFactory.CreateElement(new ModuleAliases()), configFileUri);
+                 ? ModuleAliasesMockConfiguration.Bind(mockElement, configFileUri)
+                  : ModuleAliasesMockConfiguration.Bind(JsonElementFactory.CreateElement(new ModuleAliasesMock()), configFileUri);
             var analyzers = new AnalyzersConfiguration(element.GetProperty(AnalyzersKey));
             var cacheRootDirectory = element.TryGetProperty(CacheRootDirectoryKey, out var e) ? e.GetString() : default;
             var experimentalFeaturesWarning = element.TryGetProperty(ExperimentalFeaturesWarningKey, out var value) && value.GetBoolean();
@@ -85,7 +85,7 @@ namespace Bicep.Core.Configuration
 
         public ModuleAliasesConfiguration ModuleAliases { get; }
 
-        public ModuleAliasesConfiguration ModuleAliasesMock { get; }
+        public ModuleAliasesMockConfiguration ModuleAliasesMock { get; }
 
         public ExtensionsConfiguration Extensions { get; }
 
@@ -108,67 +108,56 @@ namespace Bicep.Core.Configuration
         public bool IsBuiltIn => ConfigFileUri is null;
 
         /// <summary>
-        /// Gets an OCI artifact module alias. If the alias is defined in moduleAliasesMock, that definition supersedes
-        /// the one in moduleAliases. Otherwise, the alias is resolved from moduleAliases.
+        /// Gets an OCI artifact module alias.
         /// </summary>
         public ResultWithDiagnosticBuilder<OciArtifactModuleAlias> TryGetOciArtifactModuleAlias(string aliasName)
         {
-            if (this.ModuleAliasesMock.GetOciArtifactModuleAliases().ContainsKey(aliasName))
-            {
-                return this.ModuleAliasesMock.TryGetOciArtifactModuleAlias(aliasName);
-            }
-
             return this.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName);
         }
 
         /// <summary>
-        /// Gets a template spec module alias. If the alias is defined in moduleAliasesMock, that definition supersedes
-        /// the one in moduleAliases. Otherwise, the alias is resolved from moduleAliases.
+        /// Gets a template spec module alias
         /// </summary>
         public ResultWithDiagnosticBuilder<TemplateSpecModuleAlias> TryGetTemplateSpecModuleAlias(string aliasName)
         {
-            if (this.ModuleAliasesMock.GetTemplateSpecModuleAliases().ContainsKey(aliasName))
-            {
-                return this.ModuleAliasesMock.TryGetTemplateSpecModuleAlias(aliasName);
-            }
-
             return this.ModuleAliases.TryGetTemplateSpecModuleAlias(aliasName);
         }
-
         /// <summary>
-        /// Gets all OCI artifact module aliases, merging moduleAliases with moduleAliasesMock. Aliases defined in
-        /// moduleAliasesMock supersede those with the same name in moduleAliases.
+        /// Gets all OCI artifact module aliases from the configuration.
         /// </summary>
         public ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetOciArtifactModuleAliases()
         {
-            var merged = this.ModuleAliases.GetOciArtifactModuleAliases();
-            foreach (var (aliasName, alias) in this.ModuleAliasesMock.GetOciArtifactModuleAliases())
-            {
-                merged = merged.SetItem(aliasName, alias);
-            }
-
-            return merged;
+            return this.ModuleAliases.GetOciArtifactModuleAliases();
         }
 
         /// <summary>
-        /// Gets all template spec module aliases, merging moduleAliases with moduleAliasesMock. Aliases defined in
-        /// moduleAliasesMock supersede those with the same name in moduleAliases.
+        /// Gets all template spec module aliases from the configuration.
         /// </summary>
         public ImmutableSortedDictionary<string, TemplateSpecModuleAlias> GetTemplateSpecModuleAliases()
         {
-            var merged = this.ModuleAliases.GetTemplateSpecModuleAliases();
-            foreach (var (aliasName, alias) in this.ModuleAliasesMock.GetTemplateSpecModuleAliases())
-            {
-                merged = merged.SetItem(aliasName, alias);
-            }
+            return this.ModuleAliases.GetTemplateSpecModuleAliases();
+        }
 
-            return merged;
+         /// <summary>
+         /// Gets all OCI artifact module alias mocks from the moduleAliasesMock configuration.
+         /// </summary>
+        public ImmutableSortedDictionary<string, OciArtifactModuleAliasMock> GetOciArtifactModuleAliasMocks()
+        {
+            return this.ModuleAliasesMock.GetOciArtifactModuleAliasesMock();
+        }
+
+         /// <summary>
+         /// Gets an OCI artifact module alias mock. Returns null if the alias is not defined in moduleAliasesMock.
+         /// </summary>
+        public ResultWithDiagnosticBuilder<OciArtifactModuleAliasMock> TryGetOciArtifactModuleAliasMock(string aliasName)
+        {
+            return this.ModuleAliasesMock.TryGetOciArtifactModuleAliasMock(aliasName);
         }
 
         public RootConfiguration With(
             CloudConfiguration? cloud = null,
             ModuleAliasesConfiguration? moduleAliases = null,
-            ModuleAliasesConfiguration? moduleAliasesMock = null,
+            ModuleAliasesMockConfiguration? moduleAliasesMock = null,
             ExtensionsConfiguration? extensions = null,
             ImplicitExtensionsConfiguration? implicitExtensions = null,
             AnalyzersConfiguration? analyzers = null,

@@ -173,25 +173,7 @@ namespace Bicep.Core.UnitTests.Registry.Oci
         }
 
         [TestMethod]
-        public void TryGetOciArtifactModuleAlias_BothRegistryAndFileSystemSet_ShouldFail()
-        {
-            var configuration = BicepTestConstants.CreateMockConfiguration(
-                new()
-                {
-                    ["moduleAliases.br.myAlias.registry"] = "example.azurecr.io",
-                    ["moduleAliases.br.myAlias.fileSystem"] = "../bicepModules",
-                });
-
-            var result = configuration.ModuleAliases.TryGetOciArtifactModuleAlias("myAlias");
-
-            result.IsSuccess(out _, out var failureBuilder).Should().BeFalse();
-            var diagnostic = failureBuilder!(DiagnosticBuilder.ForDocumentStart());
-            diagnostic.Code.Should().Be("BCP447");
-            diagnostic.Message.Should().Contain("mutually exclusive");
-        }
-
-        [TestMethod]
-        public void TryGetOciArtifactModuleAlias_NeitherRegistryNorFileSystemSet_ShouldFail()
+        public void TryGetOciArtifactModuleAlias_RegistryNotSet_ShouldFail()
         {
             var configuration = BicepTestConstants.CreateMockConfiguration(
                 new()
@@ -204,23 +186,22 @@ namespace Bicep.Core.UnitTests.Registry.Oci
             result.IsSuccess(out _, out var failureBuilder).Should().BeFalse();
             var diagnostic = failureBuilder!(DiagnosticBuilder.ForDocumentStart());
             diagnostic.Code.Should().Be("BCP216");
-            diagnostic.Message.Should().Contain("fileSystem");
+            diagnostic.Message.Should().Contain("registry");
         }
 
         [TestMethod]
-        public void TryGetOciArtifactModuleAlias_OnlyFileSystemSet_ShouldSucceed()
+        public void TryGetOciArtifactModuleAliasMock_OnlyMapToFilePathSet_ShouldSucceed()
         {
             var configuration = BicepTestConstants.CreateMockConfiguration(
                 new()
                 {
-                    ["moduleAliases.br.myAlias.fileSystem"] = "../bicepModules",
+                    ["moduleAliasesMock.br.myAlias.mapToFilePath"] = "../bicepModules",
                 });
 
-            var result = configuration.ModuleAliases.TryGetOciArtifactModuleAlias("myAlias");
+            var result = configuration.ModuleAliasesMock.TryGetOciArtifactModuleAliasMock("myAlias");
 
             result.IsSuccess(out var alias, out _).Should().BeTrue();
-            alias!.FileSystem.Should().Be("../bicepModules");
-            alias.Registry.Should().BeNull();
+            alias!.MapToFilePath.Should().Be("../bicepModules");
         }
 
         [TestMethod]
@@ -236,7 +217,6 @@ namespace Bicep.Core.UnitTests.Registry.Oci
 
             result.IsSuccess(out var alias, out _).Should().BeTrue();
             alias!.Registry.Should().Be("example.azurecr.io");
-            alias.FileSystem.Should().BeNull();
         }
 
         [TestMethod]

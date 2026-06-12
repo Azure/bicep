@@ -22,7 +22,7 @@
   "moduleAliasesMock": {
     "br": {
       "mock-registry-mocked": {
-        "fileSystem": "Publish"
+        "mapToFilePath": "Publish"
       }
     }
   }

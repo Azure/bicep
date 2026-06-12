@@ -902,7 +902,7 @@ namespace Bicep.Core.UnitTests.Configuration
                   },
                   "moduleAliasesMock": {
                     "br": {
-                      "myAlias": { "fileSystem": "mock/path" }
+                      "myAlias": { "mapToFilePath": "mock/path" }
                     }
                   }
                 }
@@ -913,13 +913,13 @@ namespace Bicep.Core.UnitTests.Configuration
             var configuration = sut.GetConfiguration(fileSet.GetUri("main.bicep"));
 
             // Assert.
-            configuration.TryGetOciArtifactModuleAlias("myAlias").IsSuccess(out var alias).Should().BeTrue();
-            alias!.FileSystem.Should().Be("mock/path");
+         configuration.TryGetOciArtifactModuleAliasMock("myAlias").IsSuccess(out var mockAlias).Should().BeTrue();
+         mockAlias!.MapToFilePath.Should().Be("mock/path");
 
-            // The merged view should expose the mock definition without throwing on duplicate keys.
-            var merged = configuration.GetOciArtifactModuleAliases();
-            merged.Should().ContainKey("myAlias");
-            merged["myAlias"].FileSystem.Should().Be("mock/path");
+         // The merged view should expose the mock definition without throwing on duplicate keys.
+         var mocks = configuration.GetOciArtifactModuleAliasMocks();
+         mocks.Should().ContainKey("myAlias");
+         mocks["myAlias"].MapToFilePath.Should().Be("mock/path");
         }
 
         [TestMethod]
@@ -935,7 +935,7 @@ namespace Bicep.Core.UnitTests.Configuration
                   },
                   "moduleAliasesMock": {
                     "br": {
-                      "otherAlias": { "fileSystem": "mock/path" }
+                      "otherAlias": { "mapToFilePath": "mock/path" }
                     }
                   }
                 }

@@ -9,7 +9,7 @@ namespace Bicep.Core.Registry.Oci
 {
     /// <summary>
     /// Represents an OCI module reference that is mocked via a local filesystem path.
-    /// When a module alias specifies a "fileSystem" property instead of "registry",
+    /// When a module alias is added to moduleAliasesMock configuration,
     /// module references are resolved to local .bicep files instead of pulling from a container registry.
     /// </summary>
     public class OciArtifactMockedReference : ArtifactReference
@@ -60,14 +60,14 @@ namespace Bicep.Core.Registry.Oci
         }
        
         // referencingFile is the Bicep source file containing the module reference
-        // fileSystemPath is the filesystem path from the alias configuration
+        // mapToFilePath is the path from the alias configuration
         // configFileUri is the URI of the bicepconfig.json file, used to resolve relative paths
         // unqualifiedReference is the unqualified reference string (e.g., "keyvault:1.0.0")
         // fileExplorer is the file explorer used to create file handles
         // aliasName is the name of the module alias, used in diagnostics
         public static ResultWithDiagnosticBuilder<OciArtifactMockedReference> TryParse(
             BicepSourceFile referencingFile,
-            string fileSystemPath,
+           string mapToFilePath,
             IOUri configFileUri,
             string unqualifiedReference,
             IFileExplorer fileExplorer,
@@ -90,12 +90,12 @@ namespace Bicep.Core.Registry.Oci
             }
 
             IOUri baseUri;
-            // Ensure the fileSystem path ends with '/' so it's treated as a directory.
-            var directoryPath = fileSystemPath.EndsWith('/') || fileSystemPath.EndsWith('\\')
-                ? fileSystemPath
-                : fileSystemPath + "/";
+            // Ensure the mapToFilePath path ends with '/' so it's treated as a directory.
+           var directoryPath = mapToFilePath.EndsWith('/') || mapToFilePath.EndsWith('\\')
+                ? mapToFilePath
+                : mapToFilePath + "/";
 
-            if (IOUri.IsAbsoluteFilePath(fileSystemPath))
+           if (IOUri.IsAbsoluteFilePath(mapToFilePath))
             {
                 try
                 {
@@ -103,7 +103,7 @@ namespace Bicep.Core.Registry.Oci
                 }
                 catch (IOException ex)
                 {
-                    return new(x => x.InvalidOciArtifactModuleAliasFileSystemPath(aliasName, fileSystemPath, ex.Message));
+                   return new(x => x.InvalidOciArtifactModuleAliasMapToFilePath(aliasName, mapToFilePath, ex.Message));
                 }
             }
             else

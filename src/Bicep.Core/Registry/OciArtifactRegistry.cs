@@ -54,19 +54,15 @@ namespace Bicep.Core.Registry
 
         public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference)
         {
-            // Check if the alias resolves to a filesystem-based alias.
+             // Check if the alias resolves to a mocked alias
             if (aliasName is not null)
             {
-                if (!referencingFile.Configuration.TryGetOciArtifactModuleAlias(aliasName).IsSuccess(out var alias, out var aliasFailureBuilder))
+                if (referencingFile.Configuration.TryGetOciArtifactModuleAliasMock(aliasName).IsSuccess(out var mockAlias, out var _))
                 {
-                    return new(aliasFailureBuilder);
-                }
-
-                if (alias.FileSystem is not null)
-                {
+                       // Mock aliases only support modules, not extensions.
                     if (artifactType != ArtifactType.Module)
                     {
-                        return new(x => x.OciArtifactModuleAliasFileSystemOnlySupportsModules(aliasName));
+                        return new(x => x.OciArtifactModuleAliasMapToFilePathOnlySupportsModules(aliasName));
                     }
 
                     if (referencingFile.Configuration.ConfigFileUri is null)
@@ -74,18 +70,23 @@ namespace Bicep.Core.Registry
                         return new(x => x.ConfigurationFileNotFound("OciModuleAliasesMock"));
                     }
 
+                    if (mockAlias.MapToFilePath is null)
+                       {
+                        return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, referencingFile.Configuration.ConfigFileUri));
+                       }
+
                     if (!OciArtifactMockedReference.TryParse(
                         referencingFile,
-                        alias.FileSystem,
+                        mockAlias.MapToFilePath,
                         referencingFile.Configuration.ConfigFileUri,
                         reference,
                         this.fileExplorer,
                         aliasName).IsSuccess(out var mockedRef, out var mockedFailureBuilder))
                     {
-                        return new(mockedFailureBuilder);
+                        return new(mockedFailureBuilder!);
                     }
 
-                    return new(mockedRef);
+                    return new(mockedRef!);
                 }
             }
 
@@ -93,9 +94,9 @@ namespace Bicep.Core.Registry
             {
                 return new(failureBuilder);
             }
+
             return new(@ref);
         }
-
 
         public override bool IsArtifactRestoreRequired(OciArtifactReference reference)
         {

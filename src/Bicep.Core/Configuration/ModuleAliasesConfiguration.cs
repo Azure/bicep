@@ -38,11 +38,7 @@ namespace Bicep.Core.Configuration
 
         public string? ModulePath { get; init; }
 
-        public string? FileSystem { get; init; }
-
-        public override string ToString() => this.FileSystem is not null
-            ? $"{FileSystem}"
-            : this.ModulePath is not null
+        public override string ToString() => this.ModulePath is not null
                 ? $"{Registry}/{ModulePath}"
                 : $"{Registry}";
     }
@@ -61,34 +57,6 @@ namespace Bicep.Core.Configuration
         }
 
         public static ModuleAliasesConfiguration Bind(JsonElement element, IOUri? configFileUri) => new(element.ToNonNullObject<ModuleAliases>(), configFileUri, serializeOciArtifactAliasesOnly: false);
-
-        /// <summary>
-        /// Binds a mock module aliases configuration. Mock aliases only support Bicep Registry (br) aliases, so any
-        /// template spec (ts) section is discarded on bind and omitted when serializing.
-        /// </summary>
-        public static ModuleAliasesConfiguration BindMock(JsonElement element, IOUri? configFileUri)
-        {
-            var data = element.ToNonNullObject<ModuleAliases>() with
-            {
-                TemplateSpecModuleAliases = ImmutableSortedDictionary<string, TemplateSpecModuleAlias>.Empty,
-            };
-
-            return new(data, configFileUri, serializeOciArtifactAliasesOnly: true);
-        }
-
-        public override void WriteTo(Utf8JsonWriter writer)
-        {
-            if (!this.serializeOciArtifactAliasesOnly)
-            {
-                base.WriteTo(writer);
-                return;
-            }
-
-            writer.WriteStartObject();
-            writer.WritePropertyName("br");
-            JsonElementFactory.CreateElement(this.Data.OciArtifactModuleAliases).WriteTo(writer);
-            writer.WriteEndObject();
-        }
 
         public ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetOciArtifactModuleAliases()
         {
@@ -137,12 +105,7 @@ namespace Bicep.Core.Configuration
                 return new(x => x.OciArtifactModuleAliasNameDoesNotExistInConfiguration(aliasName, configFileUri));
             }
 
-            if (alias.Registry is not null && alias.FileSystem is not null)
-            {
-                return new(x => x.InvalidOciArtifactModuleAliasRegistryAndFileSystemSetTogether(aliasName, configFileUri));
-            }
-
-            if (alias.Registry is null && alias.FileSystem is null)
+            if (alias.Registry is null)
             {
                 return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, configFileUri));
             }
@@ -163,6 +126,6 @@ namespace Bicep.Core.Configuration
         }
 
         [GeneratedRegex("^[a-zA-Z0-9-_]+$", RegexOptions.CultureInvariant)]
-        private static partial Regex ModuleAliasNameRegex();
+        internal static partial Regex ModuleAliasNameRegex();
     }
 }

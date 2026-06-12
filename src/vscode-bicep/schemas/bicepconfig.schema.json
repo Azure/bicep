@@ -159,11 +159,11 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "fileSystem"
+        "mapToFilePath"
       ],
       "properties": {
-        "fileSystem": {
-          "title": "File System",
+        "mapToFilePath": {
+          "title": "Map To File Path",
           "description": "The path relative to bicepconfig.json used to emulate a registry alias",
           "type": "string",
           "minLength": 1

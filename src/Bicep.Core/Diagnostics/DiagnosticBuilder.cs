@@ -1111,7 +1111,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP216",
-                $"The OCI artifact module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. Either the \"registry\" or \"fileSystem\" property must be specified.");
+                $"The OCI artifact module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property must be specified.");
 
             public Diagnostic InvalidTemplateSpecReferenceInvalidSubscriptionId(string? aliasName, string subscriptionId, string referenceValue) => CoreError(
                 "BCP217",
@@ -2032,25 +2032,21 @@ namespace Bicep.Core.Diagnostics
                 $"Restore from registry \"{registryHostname}\" is blocked because it is not in the trusted registries list. " +
                 $"See https://aka.ms/bicep/registry-trust for details.");
 
-            public Diagnostic InvalidOciArtifactModuleAliasRegistryAndFileSystemSetTogether(string aliasName, IOUri? configFileUri) => CoreError(
-                "BCP447",
-                $"The OCI artifact module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" and \"fileSystem\" properties are mutually exclusive.");
-
-            public Diagnostic OciArtifactModuleAliasFileSystemOnlySupportsModules(string aliasName) => CoreError(
+            public Diagnostic OciArtifactModuleAliasMapToFilePathOnlySupportsModules(string aliasName) => CoreError(
                 "BCP448",
-                $"The OCI artifact module alias \"{aliasName}\" has a \"fileSystem\" property which is only supported for modules, not extensions.");
+                $"The OCI artifact module alias \"{aliasName}\" has a \"mapToFilePath\" property which is only supported for modules, not extensions.");
 
             public Diagnostic ModuleReferenceSchemeBrFsNotSupported() => CoreError(
                 "BCP449",
-                $"The '{Registry.Oci.OciArtifactReferenceFacts.MockedScheme}' module reference scheme is for internal use only. Use a 'br/<alias>:' reference with a configured 'fileSystem' alias instead.");
+                $"The '{Registry.Oci.OciArtifactReferenceFacts.MockedScheme}' module reference scheme is for internal use only. Use a 'br/<alias>:' reference with a configured 'mapToFilePath' alias instead.");
 
             public Diagnostic ConfigurationFileNotFound(string featureName) => CoreError(
                 "BCP450",
                 $"Configuration file is not found. Feature \"{featureName}\" requires a configuration file.");
 
-            public Diagnostic InvalidOciArtifactModuleAliasFileSystemPath(string? aliasName, string path, string reason) => CoreError(
+            public Diagnostic InvalidOciArtifactModuleAliasMapToFilePath(string? aliasName, string path, string reason) => CoreError(
                 "BCP451",
-                $"The OCI artifact module alias{(aliasName is not null ? $" \"{aliasName}\"" : "")} has an invalid \"fileSystem\" path \"{path}\": {reason}");
+                $"The OCI artifact module alias{(aliasName is not null ? $" \"{aliasName}\"" : "")} has an invalid \"mapToFilePath\" path \"{path}\": {reason}");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
