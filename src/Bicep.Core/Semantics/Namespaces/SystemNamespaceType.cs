@@ -2030,7 +2030,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     })
                     .Build();
 
-                if (featureProvider.WaitUntilEnabled)
+                if (featureProvider.WaitAndRetryEnabled)
                 {
                     yield return new DecoratorBuilder(LanguageConstants.WaitUntilPropertyName)
                         .WithDescription("Causes the resource deployment to wait until the given condition is satisfied")
@@ -2047,15 +2047,16 @@ namespace Bicep.Core.Semantics.Namespaces
                         .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
                         .WithEvaluator(AddDecoratorConfigToResource)
                         .Build();
+
+                    yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
+                        .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")
+                        .WithParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
+                        .WithParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.", FunctionParameterFlags.Constant)
+                        .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
+                        .WithEvaluator(AddDecoratorConfigToResource)
+                        .Build();
                 }
 
-                yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
-                    .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")
-                    .WithParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
-                    .WithParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.", FunctionParameterFlags.Constant)
-                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
-                    .WithEvaluator(AddDecoratorConfigToResource)
-                    .Build();
 
                 yield return new DecoratorBuilder(LanguageConstants.OnlyIfNotExistsPropertyName)
                     .WithDescription("Causes the resource deployment to be skipped if the resource already exists")
@@ -2063,22 +2064,19 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithEvaluator(AddDecoratorConfigToResource)
                     .Build();
 
-                if (featureProvider.ExistingNullIfNotFoundEnabled)
-                {
-                    yield return new DecoratorBuilder(LanguageConstants.NullIfNotFoundDecoratorName)
-                        .WithDescription("Marks an existing resource as nullable, returning null if the resource doesn't exist at deployment time instead of failing.")
-                        .WithFlags(FunctionFlags.ResourceDecorator)
-                        .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
+                yield return new DecoratorBuilder(LanguageConstants.NullIfNotFoundDecoratorName)
+                    .WithDescription("Marks an existing resource as nullable, returning null if the resource doesn't exist at deployment time instead of failing.")
+                    .WithFlags(FunctionFlags.ResourceDecorator)
+                    .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
+                    {
+                        var decoratorTarget = binder.GetParent(decoratorSyntax);
+                        if (decoratorTarget is ResourceDeclarationSyntax resourceDeclaration && !resourceDeclaration.IsExistingResource())
                         {
-                            var decoratorTarget = binder.GetParent(decoratorSyntax);
-                            if (decoratorTarget is ResourceDeclarationSyntax resourceDeclaration && !resourceDeclaration.IsExistingResource())
-                            {
-                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).NullIfNotFoundOnlyValidOnExistingResources());
-                            }
-                        })
-                        .WithEvaluator(AddDecoratorConfigToResource)
-                        .Build();
-                }
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).NullIfNotFoundOnlyValidOnExistingResources());
+                        }
+                    })
+                    .WithEvaluator(AddDecoratorConfigToResource)
+                    .Build();
 
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")

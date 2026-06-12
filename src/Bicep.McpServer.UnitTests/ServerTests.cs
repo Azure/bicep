@@ -63,7 +63,7 @@ public class ServerTests
     {
         await using var helper = await McpServerHelper.StartServer(TestContext);
 
-        var instructions = await helper.Client.CallToolAsync("get_bicep_file_diagnostics", new Dictionary<string, object?>
+        var instructions = await helper.Client.CallToolAsync("build_bicep", new Dictionary<string, object?>
         {
             ["filePath"] = "nonexistent.bicep",
         });

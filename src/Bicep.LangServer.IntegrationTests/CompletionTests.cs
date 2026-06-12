@@ -382,6 +382,11 @@ resource service 'Microsoft.Storage/storageAccounts/fileServices@2021-02-01' = {
             symbolCompletions.Should().SatisfyRespectively(
               x =>
               {
+                  x.Label.Should().Be("this");
+                  x.Kind.Should().Be(CompletionItemKind.Variable);
+              },
+              x =>
+              {
                   x.Label.Should().Be("myInt");
                   x.Kind.Should().Be(CompletionItemKind.Field);
                   x.Documentation!.MarkupContent!.Value.Should().Be("Type: `0 | 1`  \nthis is an int value  \n");
@@ -934,6 +939,71 @@ module mod 'mod.bicep' = {
 
             // despite being in a location with a nullable type or nested within a nullable type, each cursor should be recognized as accepting a typed object and therefore offer the "required-properties" snippet as a completion
             completions.Should().AllSatisfy(y => y.Any(x => x.Label == "required-properties").Should().BeTrue());
+        }
+
+        [TestMethod]
+        public async Task Completions_are_offered_in_bicepparam_values_with_a_nullable_declared_type()
+        {
+            var module = """
+                type Resource = {
+                  name: string
+                  resourceGroupName: string?
+                }
+
+                param storageAccount Resource?
+
+                param storageAccounts Resource[]?
+
+                param storageAccountWrapper {
+                  value: Resource?
+                }
+
+                resource StorageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' existing = if (storageAccount != null) {
+                  name: storageAccount.?name ?? ''
+                  scope: resourceGroup(storageAccount.?resourceGroupName ?? '')
+                }
+
+                output storageAccountId string? = storageAccount == null ? null : StorageAccount.id
+                """;
+            var fileWithCursors = """
+                using 'main.bicep'
+
+                param storageAccount = {
+                  |
+                }
+
+                param storageAccounts = [
+                  {
+                    |
+                  }
+                ]
+
+                param storageAccountWrapper = {
+                  value: {
+                    |
+                  }
+                }
+                """;
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            DocumentUri mainUri = "file:///main.bicepparam";
+            var files = new Dictionary<DocumentUri, string>
+            {
+                ["file:///main.bicep"] = module,
+                [mainUri] = text
+            };
+
+            var bicepFile = new LanguageClientFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Uri);
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletions(cursors);
+
+            completions.Should().AllSatisfy(completionList =>
+            {
+                completionList.Should().Contain(completion => completion.Label == "name");
+                completionList.Should().Contain(completion => completion.Label == "resourceGroupName");
+            });
         }
 
         [TestMethod]
@@ -6155,7 +6225,7 @@ output people Person[] = [{
                 TestContext,
                 text,
                 bicepFile.Uri,
-                services => services.WithFeatureOverrides(new(ThisNamespaceEnabled: true)).WithAzResources(customTypes));
+                services => services.WithAzResources(customTypes));
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestAndResolveCompletions(cursor);
@@ -6381,8 +6451,7 @@ param foo string = 'bar'
         {
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
-                s => s.WithFeatureOverrides(new(ExistingNullIfNotFoundEnabled: true))
-                    .WithNamespaceProvider(BuiltInTestTypes.Create()));
+                s => s.WithNamespaceProvider(BuiltInTestTypes.Create()));
             var helper = new ServerRequestHelper(TestContext, server);
 
             // Test that @nullIfNotFound is offered for existing resources

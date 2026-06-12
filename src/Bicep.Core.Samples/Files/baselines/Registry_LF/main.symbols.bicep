@@ -1,6 +1,7 @@
 targetScope = 'subscription'
 
 resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
+//@[00:08) Local this. Type: object. Declaration start char: 62, length: 60
 //@[09:11) Resource rg. Type: Microsoft.Resources/resourceGroups@2020-06-01. Declaration start char: 0, length: 122
   name: 'adotfrank-rg'
   location: deployment().location

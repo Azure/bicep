@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.CommandLine;
 using System.Text;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers.Repl;
 using Bicep.Cli.Services;
 using Bicep.Core.Diagnostics;
@@ -11,6 +13,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
@@ -31,6 +34,16 @@ public class ConsoleCommand(
 
     private Rune ReadRune(char firstChar)
         => ReadRune(firstChar, () => Console.ReadKey(intercept: true).KeyChar);
+
+    internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+    {
+        var command = new System.CommandLine.Command(Constants.Command.Console, "Opens an interactive Bicep console.");
+
+        command.SetAction((result, ct) => context.RunCommandAsync(
+            () => context.GetCommand<ConsoleCommand>().RunAsync(new ConsoleArguments())));
+
+        return command;
+    }
 
     private Rune ReadRune(char firstChar, Func<char> readNextChar)
     {

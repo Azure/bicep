@@ -80,14 +80,25 @@ export function ControlBar() {
   const openExportOverlay = useSetAtom(openExportOverlayAtom);
 
   return (
-    <$ControlBar>
-      <$ControlButton onClick={() => zoomIn(1.5)} title="Zoom In" aria-label="Zoom In">
+    <$ControlBar data-testid="control-bar">
+      <$ControlButton onClick={() => zoomIn(1.5)} title="Zoom In" aria-label="Zoom In" data-testid="control-zoom-in">
         <Codicon name="zoom-in" size={16} />
       </$ControlButton>
-      <$ControlButton onClick={() => zoomOut(1.5)} title="Zoom Out" aria-label="Zoom Out">
+      <$ControlButton
+        onClick={() => zoomOut(1.5)}
+        title="Zoom Out"
+        aria-label="Zoom Out"
+        data-testid="control-zoom-out"
+      >
         <Codicon name="zoom-out" size={16} />
       </$ControlButton>
-      <$ControlButton onClick={fitView} title="Fit View" aria-label="Fit View" disabled={!controls.canFitView}>
+      <$ControlButton
+        onClick={fitView}
+        title="Fit View"
+        aria-label="Fit View"
+        disabled={!controls.canFitView}
+        data-testid="control-fit-view"
+      >
         <Codicon name="screen-full" size={16} />
       </$ControlButton>
       <$ControlButton
@@ -95,6 +106,7 @@ export function ControlBar() {
         title="Reset Layout"
         aria-label="Reset Layout"
         disabled={!controls.canResetLayout}
+        data-testid="control-reset-layout"
       >
         <Codicon name="type-hierarchy-sub" size={16} />
       </$ControlButton>
@@ -104,6 +116,7 @@ export function ControlBar() {
         title="Export Graph"
         aria-label="Export Graph"
         disabled={!controls.canExportGraph}
+        data-testid="control-export"
       >
         <Codicon name="desktop-download" size={16} />
       </$ControlButton>

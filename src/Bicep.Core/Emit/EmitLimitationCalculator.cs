@@ -57,7 +57,6 @@ namespace Bicep.Core.Emit
             BlockSpreadInUnsupportedLocations(model, diagnostics);
             BlockSecureOutputsWithLocalDeploy(model, diagnostics);
             BlockSecureOutputAccessOnIndirectReference(model, diagnostics);
-            BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
             BlockExplicitDependenciesInOrOnInlinedExistingResources(model, resourceTypeResolver, diagnostics);
             ValidateUsingWithClauseMatchesExperimentalFeatureEnablement(model, diagnostics);
 
@@ -790,17 +789,6 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private static void BlockExtendsWithoutFeatureFlagEnabled(SemanticModel model, IDiagnosticWriter diagnostics)
-        {
-            foreach (var extendsDeclaration in model.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>())
-            {
-                if (!model.Features.ExtendableParamFilesEnabled)
-                {
-                    diagnostics.Write(extendsDeclaration, x => x.ExtendsNotSupported());
-                }
-            }
-        }
-
         private static void ValidateUsingWithClauseMatchesExperimentalFeatureEnablement(SemanticModel model, IDiagnosticWriter diagnostics)
         {
             foreach (var syntax in model.SourceFile.ProgramSyntax.Declarations.OfType<UsingDeclarationSyntax>())
@@ -915,7 +903,7 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                if (parentObject.Properties.Any(x => x.Value is ForSyntax))
+                if (SyntaxAggregator.AggregateByType<ForSyntax>(parentObject).Any(forSyntax => model.Binder.GetParent(forSyntax) is ObjectPropertySyntax property && ReferenceEquals(property.Value, forSyntax)))
                 {
                     diagnostics.Write(spread, x => x.SpreadOperatorCannotBeUsedWithForLoop(spread));
                 }

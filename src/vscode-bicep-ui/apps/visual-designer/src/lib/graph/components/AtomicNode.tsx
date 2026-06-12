@@ -97,7 +97,7 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
   });
 
   return (
-    <BaseNode ref={ref} id={id} zIndex={zIndex}>
+    <BaseNode ref={ref} id={id} kind="atomic" zIndex={zIndex}>
       <NodeContent id={id} kind="atomic" dataAtom={dataAtom} />
     </BaseNode>
   );

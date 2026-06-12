@@ -41,6 +41,49 @@ export const deploymentGraphRequestType = new ProtocolRequestType<
   void
 >("textDocument/deploymentGraph");
 
+// ── Server-driven visual graph layout (feature-flagged) ──
+// The webview submits the graph it currently displays; the server returns a complete patch
+// delta transforming it into the latest graph. Patches are forwarded to the webview as-is, so
+// they are left untyped here; the typed model lives in the visual-designer webview package.
+// The method name and shapes mirror the C# `VisualGraphUpdateProtocol` on the language server.
+export type VisualGraphNodeKind = "resource" | "module";
+
+export interface VisualGraphRenderedNode {
+  id: string;
+  kind: VisualGraphNodeKind;
+  parentId: string | null;
+  width: number;
+  height: number;
+}
+
+export interface VisualGraphRenderedEdge {
+  id: string;
+  sourceId: string;
+  targetId: string;
+}
+
+export interface VisualGraphRendered {
+  nodes: VisualGraphRenderedNode[];
+  edges: VisualGraphRenderedEdge[];
+}
+
+export interface VisualGraphUpdateParams {
+  textDocument: TextDocumentIdentifier;
+  current: VisualGraphRendered | null;
+}
+
+export interface VisualGraphUpdateResult {
+  patches: unknown[];
+}
+
+export const visualGraphUpdateRequestType = new ProtocolRequestType<
+  VisualGraphUpdateParams,
+  VisualGraphUpdateResult,
+  never,
+  void,
+  void
+>("textDocument/visualGraphUpdate");
+
 export interface GetDeploymentDataRequest {
   textDocument: TextDocumentIdentifier;
 }

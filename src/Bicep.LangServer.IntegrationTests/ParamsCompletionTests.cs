@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
@@ -193,7 +192,7 @@ param firstParam string", new[] { "'one'", "'two'" }, new[] { CompletionItemKind
 using |
 ", fileTextsByUri.ToImmutableDictionary(), '|');
 
-            completions.Take(5).Should().SatisfyRespectively(
+            completions.Take(6).Should().SatisfyRespectively(
                 x =>
                 {
                     x.Label.Should().Be("main1.bicep");
@@ -203,6 +202,11 @@ using |
                 {
                     x.Label.Should().Be("module1.bicep");
                     x.Kind.Should().Be(CompletionItemKind.File);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("none");
+                    x.Kind.Should().Be(CompletionItemKind.Enum);
                 },
                 x =>
                 {
@@ -222,7 +226,7 @@ using |
         }
 
         [TestMethod]
-        public async Task Request_for_using_declaration_path_completions_should_return_correct_items_with_extendableparamsfeature_enabled()
+        public async Task Request_for_using_declaration_path_completions_should_return_none_without_feature_flag()
         {
             var mainContent = """
                 using |
@@ -235,8 +239,7 @@ using |
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 text,
-                mainUri,
-                services => services.WithFeatureOverrides(new(ExtendableParamFilesEnabled: true)));
+                mainUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestAndResolveCompletions(cursors[0]);
@@ -320,6 +323,11 @@ using './nested1/|'
                 {
                     x.Label.Should().Be("module2.bicep");
                     x.Kind.Should().Be(CompletionItemKind.File);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("none");
+                    x.Kind.Should().Be(CompletionItemKind.Enum);
                 },
                 x =>
                 {
@@ -569,8 +577,7 @@ param three = 'param three'
             var completions = await RunCompletionScenario(
                 paramTextWithCursor,
                 fileTextsByUri.ToImmutableDictionary(),
-                '|',
-                featureOverrides: new(ExtendableParamFilesEnabled: true));
+                '|');
 
             completions.Should().ContainSingle(x => x.Label == "base" && x.Kind == CompletionItemKind.Variable);
         }
@@ -600,8 +607,7 @@ param three = 'param three'
             var completions = await RunCompletionScenario(
                 paramTextWithCursor,
                 fileTextsByUri.ToImmutableDictionary(),
-                '|',
-                featureOverrides: new(ExtendableParamFilesEnabled: true));
+                '|');
 
             completions.Should().ContainSingle(x => x.Label == "three" && x.Kind == CompletionItemKind.Property);
         }
@@ -631,8 +637,7 @@ param three = 'param three'
             var completions = await RunCompletionScenario(
                 paramTextWithCursor,
                 fileTextsByUri.ToImmutableDictionary(),
-                '|',
-                featureOverrides: new(ExtendableParamFilesEnabled: true));
+                '|');
 
             completions.Should().ContainSingle(x => x.Label == "three" && x.Kind == CompletionItemKind.Property);
         }
@@ -657,8 +662,7 @@ param three string = ''
             var completions = await RunCompletionScenario(
                 paramTextWithCursor,
                 fileTextsByUri.ToImmutableDictionary(),
-                '|',
-                featureOverrides: new(ExtendableParamFilesEnabled: true));
+                '|');
 
             completions.Should().NotContain(x => x.Label == "base");
         }
@@ -688,8 +692,7 @@ param three = 'param three'
             var completions = await RunCompletionScenario(
                 paramTextWithCursor,
                 fileTextsByUri.ToImmutableDictionary(),
-                '|',
-                featureOverrides: new(ExtendableParamFilesEnabled: true));
+                '|');
 
             completions.Should().ContainSingle(x => x.Label == "three");
         }
@@ -721,8 +724,7 @@ param four = 'param four'
             var completions = await RunCompletionScenario(
                 paramTextWithCursor,
                 fileTextsByUri.ToImmutableDictionary(),
-                '|',
-                featureOverrides: new(ExtendableParamFilesEnabled: true));
+                '|');
 
             completions.Should().Contain(x => x.Label == "three" && x.Kind == CompletionItemKind.Property);
             completions.Should().Contain(x => x.Label == "four" && x.Kind == CompletionItemKind.Property);
@@ -771,8 +773,7 @@ param five = [
             var completions = await RunCompletionScenario(
                     paramTextWithCursor,
                     fileTextsByUri.ToImmutableDictionary(),
-                    '|',
-                    featureOverrides: new(ExtendableParamFilesEnabled: true));
+                    '|');
 
             completions.Should().Contain(x => x.Label == "three" && x.Kind == CompletionItemKind.Property);
             completions.Should().Contain(x => x.Label == "four" && x.Kind == CompletionItemKind.Property);
@@ -812,8 +813,7 @@ param four = {
             var completions = await RunCompletionScenario(
                     paramTextWithCursor,
                     fileTextsByUri.ToImmutableDictionary(),
-                    '|',
-                    featureOverrides: new(ExtendableParamFilesEnabled: true));
+                    '|');
 
             completions.Should().Contain(x => x.Label == "name" && x.Kind == CompletionItemKind.Property);
         }
@@ -857,8 +857,7 @@ param five = [
             var completions = await RunCompletionScenario(
                     paramTextWithCursor,
                     fileTextsByUri.ToImmutableDictionary(),
-                    '|',
-                    featureOverrides: new(ExtendableParamFilesEnabled: true));
+                    '|');
 
             completions.Should().Contain(x => x.Label == "name" && x.Kind == CompletionItemKind.Property);
         }
@@ -866,8 +865,7 @@ param five = [
         private async Task<IEnumerable<CompletionItem>> RunCompletionScenario(
             string paramTextWithCursors,
             ImmutableDictionary<DocumentUri, string> fileTextsByUri,
-            char cursorInsertionMarker,
-            FeatureProviderOverrides? featureOverrides = null)
+            char cursorInsertionMarker)
         {
             var paramUri = InMemoryFileResolver.GetFileUri("/path/to/param.bicepparam");
             var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramTextWithCursors, cursorInsertionMarker);
@@ -881,11 +879,6 @@ param five = [
                 services =>
                 {
                     services.WithNamespaceProvider(BuiltInTestTypes.Create());
-
-                    if (featureOverrides is { } overrides)
-                    {
-                        services.WithFeatureOverrides(overrides);
-                    }
                 });
 
             var paramFile = new LanguageClientFile(paramUri, paramFileTextNoCursor);

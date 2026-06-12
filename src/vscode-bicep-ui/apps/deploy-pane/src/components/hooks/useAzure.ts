@@ -6,7 +6,6 @@ import type { AccessToken, TokenCredential } from "@azure/identity";
 import type {
   DeploymentScope,
   DeployState,
-  ParamData,
   ParametersMetadata,
   TemplateMetadata,
   UntypedError,
@@ -15,6 +14,7 @@ import type {
 import { ResourceManagementClient } from "@azure/arm-resources";
 import { RestError } from "@azure/core-rest-pipeline";
 import { useState } from "react";
+import { getEffectiveParamData } from "../utils";
 import { getDate } from "./time";
 
 export interface UseAzureProps {
@@ -64,7 +64,7 @@ export function useAzure(props: UseAzureProps) {
       setWhatIfChanges(undefined);
       setDeployState({ status: "running", name: deploymentName });
 
-      const deployment = getDeploymentProperties(scope, templateMetadata, parametersMetadata.parameters);
+      const deployment = getDeploymentProperties(scope, templateMetadata, parametersMetadata);
       const armClient = getArmClient(scope, {
         getToken: acquireAccessToken,
       });
@@ -178,13 +178,18 @@ function parseError(error: UntypedError) {
 function getDeploymentProperties(
   scope: DeploymentScope,
   metadata: TemplateMetadata,
-  paramValues: Record<string, ParamData>,
+  parametersMetadata: ParametersMetadata,
 ): Deployment {
   const parameters: Record<string, unknown> = {};
-  for (const { name } of metadata.parameterDefinitions) {
-    if (paramValues[name]) {
-      const value = paramValues[name].value;
-      parameters[name] = { value };
+  const useAllowedStringDropdownDefault = !parametersMetadata.sourceFilePath;
+  for (const definition of metadata.parameterDefinitions) {
+    const paramData = getEffectiveParamData(
+      parametersMetadata.parameters,
+      definition,
+      useAllowedStringDropdownDefault,
+    );
+    if (paramData) {
+      parameters[definition.name] = { value: paramData.value };
     }
   }
 
