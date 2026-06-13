@@ -5,10 +5,8 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Json;
 using Bicep.IO.Abstraction;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 

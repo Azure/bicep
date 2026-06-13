@@ -8,7 +8,6 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Json;
 using Bicep.IO.Abstraction;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
@@ -47,16 +46,13 @@ namespace Bicep.Core.Configuration
     {
         private readonly IOUri? configFileUri;
 
-        private readonly bool serializeOciArtifactAliasesOnly;
-
-        private ModuleAliasesConfiguration(ModuleAliases data, IOUri? configFileUri, bool serializeOciArtifactAliasesOnly)
+        private ModuleAliasesConfiguration(ModuleAliases data, IOUri? configFileUri)
             : base(data)
         {
             this.configFileUri = configFileUri;
-            this.serializeOciArtifactAliasesOnly = serializeOciArtifactAliasesOnly;
         }
 
-        public static ModuleAliasesConfiguration Bind(JsonElement element, IOUri? configFileUri) => new(element.ToNonNullObject<ModuleAliases>(), configFileUri, serializeOciArtifactAliasesOnly: false);
+        public static ModuleAliasesConfiguration Bind(JsonElement element, IOUri? configFileUri) => new(element.ToNonNullObject<ModuleAliases>(), configFileUri);
 
         public ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetOciArtifactModuleAliases()
         {
