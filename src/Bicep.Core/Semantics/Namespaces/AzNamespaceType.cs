@@ -21,6 +21,7 @@ namespace Bicep.Core.Semantics.Namespaces
     {
         public const string BuiltInName = "az";
         public const string GetSecretFunctionName = "getSecret";
+        public const string ResourceIdFunctionName = "resourceId";
         private static readonly string EmbeddedAzExtensionVersion = typeof(AzTypeLoader).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version
             ?? throw new UnreachableException("The 'Azure.Bicep.Types.Az' assembly should always have a file version attribute.");
 
@@ -135,6 +136,23 @@ namespace Bicep.Core.Semantics.Namespaces
                 new NamedTypeProperty("tenantId", LanguageConstants.String),
                 new NamedTypeProperty("displayName", LanguageConstants.String),
             }));
+        }
+
+        private static ObjectType GetRoleDefinitionReturnType()
+        {
+            // Return type matches the ARM implementation where we expect id and roleDefinitionId
+            return new ObjectType("roleDefinition", TypeSymbolValidationFlags.Default, new[]
+            {
+                new NamedTypeProperty("id", LanguageConstants.String),
+                new NamedTypeProperty("roleDefinitionId", LanguageConstants.String),
+            }, null);
+        }
+
+        private static FunctionResult GetRoleDefinitionReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            // The actual role definition will be populated at runtime based on the role name
+            // No need to validate the role name at compile time since Azure manages the role definitions
+            return new(GetRoleDefinitionReturnType());
         }
 
         private static ObjectType GetProvidersSingleResourceReturnType()
@@ -343,46 +361,65 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads()
             {
+                var kvResourceNamespace = "Microsoft.KeyVault";
+                var kvResourceType = "vaults";
+
                 yield return new FunctionOverloadBuilder(GetSecretFunctionName)
                     .WithReturnType(LanguageConstants.SecureString)
-                    .WithGenericDescription("Retrieve a value from an Azure Key Vault at the start of a deployment. All arguments must be compile-time constants.")
-                    .WithReturnResultBuilder((_, _, func, argumentTypes) =>
-                    {
-                        if ((argumentTypes[0] as StringLiteralType)?.RawStringValue is not { } subscriptionId)
-                        {
-                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(func.Arguments[0]).CompileTimeConstantRequired()));
-                        }
-                        if ((argumentTypes[1] as StringLiteralType)?.RawStringValue is not { } resourceGroupName)
-                        {
-                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(func.Arguments[1]).CompileTimeConstantRequired()));
-                        }
-                        if ((argumentTypes[2] as StringLiteralType)?.RawStringValue is not { } keyVaultName)
-                        {
-                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(func.Arguments[2]).CompileTimeConstantRequired()));
-                        }
-                        if ((argumentTypes[3] as StringLiteralType)?.RawStringValue is not { } secretName)
-                        {
-                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(func.Arguments[3]).CompileTimeConstantRequired()));
-                        }
-
-                        string? secretVersion = null;
-                        if (func.Arguments.Length > 4)
-                        {
-                            if ((argumentTypes[4] as StringLiteralType)?.RawStringValue is not { } sv)
-                            {
-                                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(func.Arguments[4]).CompileTimeConstantRequired()));
-                            }
-                            secretVersion = sv;
-                        }
-
-                        var kvResourceId = ResourceGroupLevelResourceId.Create(subscriptionId, resourceGroupName, "Microsoft.KeyVault", new[] { "vaults" }, new[] { keyVaultName });
-                        return new(LanguageConstants.SecureString, new ParameterKeyVaultReferenceExpression(func, kvResourceId.FullyQualifiedId, secretName, secretVersion));
-                    }, LanguageConstants.SecureString)
+                    .WithGenericDescription("Retrieve a value from an Azure Key Vault at the start of a deployment.")
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "Id of the Subscription that has the target KeyVault")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "Name of the Resource Group that has the target KeyVault")
                     .WithRequiredParameter("keyVaultName", LanguageConstants.String, "Name of the target KeyVault")
                     .WithRequiredParameter("secretName", LanguageConstants.String, "Name of the Secret")
                     .WithOptionalParameter("secretVersion", LanguageConstants.String, "Version of the Secret")
+                    .WithReturnResultBuilder((_, _, func, argumentTypes) =>
+                    {
+                        if (argumentTypes[0] is not StringLiteralType subType ||
+                            argumentTypes[1] is not StringLiteralType rgType ||
+                            argumentTypes[2] is not StringLiteralType kvNameType ||
+                            argumentTypes[3] is not StringLiteralType secretNameType ||
+                            (func.Arguments.Length > 4 && argumentTypes[4] is not StringLiteralType))
+                        {
+                            return new(LanguageConstants.SecureString);
+                        }
+
+                        // all arguments are string literals, hence key vault id should be string literal expression
+                        // if any arguments are not string literals, we will handle that in the expression evaluator callback (see WithEvaluator)
+                        var kvResourceId = ResourceGroupLevelResourceId.Create(
+                            subType.RawStringValue,
+                            rgType.RawStringValue,
+                            kvResourceNamespace,
+                            [kvResourceType],
+                            [kvNameType.RawStringValue]);
+                        var secretVersion = func.Arguments.Length > 4 ? (argumentTypes[4] as StringLiteralType)?.RawStringValue : null;
+
+                        return new(
+                            LanguageConstants.SecureString,
+                            new ParameterKeyVaultReferenceExpression(func,
+                                new StringLiteralExpression(null, kvResourceId.FullyQualifiedId),
+                                new StringLiteralExpression(null, secretNameType.RawStringValue),
+                                secretVersion != null ? new StringLiteralExpression(null, secretVersion) : null));
+
+                    }, LanguageConstants.SecureString)
+                    .WithEvaluator(exp =>
+                    {
+                        var subscriptionId = exp.Parameters[0];
+                        var resourceGroupName = exp.Parameters[1];
+                        var keyVaultName = exp.Parameters[2];
+                        var secretName = exp.Parameters[3];
+                        var secretVersion = exp.Parameters.Length > 4 ? exp.Parameters[4] : null;
+
+                        // If we get to this callback, then at least one argument was not a string literal type (see WithReturnResultBuilder)
+                        // hence, we can go ahead an use resourceId expression for the key vault id
+                        var keyVaultId = new FunctionCallExpression(exp.SourceSyntax, ResourceIdFunctionName, [
+                            subscriptionId,
+                            resourceGroupName,
+                            new StringLiteralExpression(null, kvResourceNamespace),
+                            new StringLiteralExpression(null, kvResourceType),
+                            keyVaultName]);
+
+                        return new ParameterKeyVaultReferenceExpression(exp.SourceSyntax, keyVaultId, secretName, secretVersion);
+                    })
                     .WithFlags(FunctionFlags.DirectAssignment)
                     .Build();
             }
@@ -398,14 +435,14 @@ namespace Bicep.Core.Semantics.Namespaces
                 // the resourceId function relies on leading optional parameters that are disambiguated at runtime
                 // modeling this as multiple overload with all possible permutations of the leading parameters
                 const string resourceIdDescription = "Returns the unique identifier of a resource. You use this function when the resource name is ambiguous or not provisioned within the same template. The format of the returned identifier varies based on whether the deployment happens at the scope of a resource group, subscription, management group, or tenant.";
-                yield return new FunctionOverloadBuilder("resourceId")
+                yield return new FunctionOverloadBuilder(ResourceIdFunctionName)
                     .WithReturnType(LanguageConstants.String)
                     .WithGenericDescription(resourceIdDescription)
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                     .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
                     .Build();
 
-                yield return new FunctionOverloadBuilder("resourceId")
+                yield return new FunctionOverloadBuilder(ResourceIdFunctionName)
                     .WithReturnType(LanguageConstants.String)
                     .WithGenericDescription(resourceIdDescription)
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
@@ -413,7 +450,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
                     .Build();
 
-                yield return new FunctionOverloadBuilder("resourceId")
+                yield return new FunctionOverloadBuilder(ResourceIdFunctionName)
                     .WithReturnType(LanguageConstants.String)
                     .WithGenericDescription(resourceIdDescription)
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
@@ -421,7 +458,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
                     .Build();
 
-                yield return new FunctionOverloadBuilder("resourceId")
+                yield return new FunctionOverloadBuilder(ResourceIdFunctionName)
                     .WithReturnType(LanguageConstants.String)
                     .WithGenericDescription(resourceIdDescription)
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
@@ -478,6 +515,14 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("managementGroupId", LanguageConstants.String, "The management group ID")
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                     .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                    .Build();
+
+                // Add roleDefinition function
+                yield return new FunctionOverloadBuilder("roleDefinitions")
+                    .WithReturnResultBuilder(GetRoleDefinitionReturnResult, GetRoleDefinitionReturnType())
+                    .WithGenericDescription("Gets a role definition that can be used in role assignments.")
+                    .WithDescription("Returns information about the specified role definition including id and roleDefinitionId.")
+                    .WithRequiredParameter("roleName", LanguageConstants.String, "The display name of the role definition")
                     .Build();
 
                 const string providersDescription = "Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.";

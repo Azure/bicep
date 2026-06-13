@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.Cli.Arguments
+namespace Bicep.Cli.Arguments;
+
+public enum DiagnosticsFormat
 {
-    public enum DiagnosticsFormat
-    {
-        Default,
-        Sarif
-    }
+    Default,
+    Sarif
 }

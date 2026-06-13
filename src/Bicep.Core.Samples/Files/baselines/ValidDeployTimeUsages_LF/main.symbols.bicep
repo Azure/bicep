@@ -1,4 +1,5 @@
 resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+//@[00:08) Local this. Type: object. Declaration start char: 62, length: 160
 //@[09:12) Resource foo. Type: Microsoft.Storage/storageAccounts@2022-09-01. Declaration start char: 0, length: 222
   name: 'foo'
   location: 'westus'
@@ -8,12 +9,14 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   kind: 'StorageV2'
 
   resource fooChild 'fileServices' = {
+//@[02:10) Local this. Type: object. Declaration start char: 37, length: 25
 //@[11:19) Resource fooChild. Type: Microsoft.Storage/storageAccounts/fileServices@2022-09-01. Declaration start char: 2, length: 60
     name: 'default'
   }
 }
 resource foos 'Microsoft.Storage/storageAccounts@2022-09-01' = [for i in range(0, 2): {
 //@[68:69) Local i. Type: int. Declaration start char: 68, length: 1
+//@[00:08) Local this. Type: object[]. Declaration start char: 63, length: 125
 //@[09:13) Resource foos. Type: Microsoft.Storage/storageAccounts@2022-09-01[]. Declaration start char: 0, length: 188
   name: 'foo-${i}'
   location: 'westus'

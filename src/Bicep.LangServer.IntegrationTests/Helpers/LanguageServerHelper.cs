@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.IO.Pipelines;
+using Bicep.Core.Configuration;
+using Bicep.Core.Registry;
 using Bicep.Core.Tracing;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
@@ -48,7 +50,9 @@ namespace Bicep.LangServer.IntegrationTests
                 options => options
                     .WithInput(serverPipe.Reader)
                     .WithOutput(clientPipe.Writer)
-                    .WithServices(services => services.AddSingleton(mockRestoreScheduler.Object))
+                    .WithServices(services => services
+                        .AddSingleton(mockRestoreScheduler.Object)
+                        .AddSingleton<RegistryConfiguration>(BicepTestConstants.TestRegistryConfiguration))
                     .WithServices(services => onRegisterServices?.Invoke(services)));
             var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
 

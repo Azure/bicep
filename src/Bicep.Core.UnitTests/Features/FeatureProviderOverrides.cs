@@ -21,12 +21,10 @@ public record FeatureProviderOverrides(
     bool? LocalDeployEnabled = default,
     bool? OrchestrationEnabled = default,
     bool? ResourceInfoCodegenEnabled = default,
-    bool? ExtendableParamFilesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
     bool? ModuleExtensionConfigsEnabled = default,
     bool? UserDefinedConstraintsEnabled = default,
-    bool? DeployCommandsEnabled = default,
-    bool? ThisNamespaceEnabled = default)
+    bool? DeployCommandsEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -42,12 +40,10 @@ public record FeatureProviderOverrides(
         bool? LocalDeployEnabled = default,
         bool? OrchestrationEnabled = default,
         bool? ResourceInfoCodegenEnabled = default,
-        bool? ExtendableParamFilesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
         bool? ModuleExtensionConfigsEnabled = default,
         bool? UserDefinedConstraintsEnabled = default,
-        bool? DeployCommandsEnabled = default,
-        bool? ThisNamespaceEnabled = default) : this(
+        bool? DeployCommandsEnabled = default) : this(
             FileHelper.GetCacheRootDirectory(testContext),
             RegistryEnabled,
             SymbolicNameCodegenEnabled,
@@ -61,11 +57,9 @@ public record FeatureProviderOverrides(
             LocalDeployEnabled,
             OrchestrationEnabled,
             ResourceInfoCodegenEnabled,
-            ExtendableParamFilesEnabled,
             AssemblyVersion,
             ModuleExtensionConfigsEnabled,
             UserDefinedConstraintsEnabled,
-            DeployCommandsEnabled,
-            ThisNamespaceEnabled)
+            DeployCommandsEnabled)
     { }
 }

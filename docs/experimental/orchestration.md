@@ -60,7 +60,7 @@ The following samples demonstrate orchestration mode capabilities:
 
 To run this sample:
 ```sh
-~/.azure/bin/bicep deploy ./bicep-orchestrator/docs/experimental/orchestration-samples/basic/main.bicepparam
+~/.azure/bin/bicep orchestrate deploy ./bicep-orchestrator/docs/experimental/orchestration-samples/basic/main.bicepparam
 ```
 
 **Location**: [`basic/main.bicepparam`](./orchestration-samples/basic/main.bicepparam)
@@ -94,7 +94,7 @@ This section outlines the various different features we want to build, along wit
 
 #### Status
 * Basic syntax is functional
-* Orchestration works in `bicep deploy`, `bicep what-if` and `bicep teardown` commands
+* Orchestration works in `bicep orchestrate deploy`, `bicep orchestrate what-if` and `bicep orchestrate teardown` commands
 * Further refinements needed to improve syntax and validation
 
 ### Modeling Dependencies

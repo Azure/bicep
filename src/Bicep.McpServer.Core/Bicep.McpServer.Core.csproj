@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>Azure.Bicep.McpServer.Core</AssemblyName>
+    <RootNamespace>Bicep.McpServer.Core</RootNamespace>
+    <Nullable>enable</Nullable>
+    <EnableNuget>true</EnableNuget>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <PackageTags>Azure;ResourceManager;ARM;Deployments;Templates;Bicep</PackageTags>
+    <Description>
+      Bicep MCP Server Core SDK. Provides the AddBicepMcpServer() extension method and Bicep tool definitions for building custom MCP servers.
+    </Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="./Files/**/*.*" />
+    <EmbeddedResource Include="./Files/**/*.*" LogicalName="$([System.String]::new('Files/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" WithCulture="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ModelContextProtocol" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Bicep.Core/Bicep.Core.csproj" />
+    <ProjectReference Include="../Bicep.Decompiler/Bicep.Decompiler.csproj" />
+  </ItemGroup>
+
+</Project>

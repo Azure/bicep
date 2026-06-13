@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.CommandLine;
 using System.Text;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers.Repl;
 using Bicep.Cli.Services;
 using Bicep.Core.Diagnostics;
@@ -11,6 +13,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
@@ -18,12 +21,11 @@ using Spectre.Console;
 namespace Bicep.Cli.Commands;
 
 /// <summary>
-/// Minimal interactive console (experimental).
+/// Minimal interactive console
 /// Supports multi-line input: enter expressions or variable declarations.
 /// Input is submitted automatically when structurally complete, or by entering a blank line once complete.
 /// </summary>
 public class ConsoleCommand(
-    ILogger logger,
     IOContext io,
     IEnvironment environment,
     ReplEnvironment replEnvironment) : ICommand
@@ -32,6 +34,16 @@ public class ConsoleCommand(
 
     private Rune ReadRune(char firstChar)
         => ReadRune(firstChar, () => Console.ReadKey(intercept: true).KeyChar);
+
+    internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+    {
+        var command = new System.CommandLine.Command(Constants.Command.Console, "Opens an interactive Bicep console.");
+
+        command.SetAction((result, ct) => context.RunCommandAsync(
+            () => context.GetCommand<ConsoleCommand>().RunAsync(new ConsoleArguments())));
+
+        return command;
+    }
 
     private Rune ReadRune(char firstChar, Func<char> readNextChar)
     {
@@ -54,8 +66,6 @@ public class ConsoleCommand(
 
     public async Task<int> RunAsync(ConsoleArguments args)
     {
-        logger.LogWarning($"WARNING: The '{args.CommandName}' CLI command is an experimental feature. Experimental features should be used for testing purposes only, as there are no guarantees about the quality or stability of these features.");
-
         if (io.Input.IsRedirected)
         {
             // Read all input from stdin if redirected (via pipe or file redirection)
@@ -69,24 +79,44 @@ public class ConsoleCommand(
             // Handle input line by line (to support multi-line strings)
             var outputBuilder = new StringBuilder();
             var inputBuffer = new StringBuilder();
+            var pendingTypeContinuationRedirected = false;
 
             using var reader = new StringReader(input);
             while (await reader.ReadLineAsync() is { } line)
             {
+                if (pendingTypeContinuationRedirected && !IsTypeContinuationLine(line))
+                {
+                    outputBuilder.Append(EvaluateAndClearBuffer(inputBuffer));
+                    pendingTypeContinuationRedirected = false;
+
+                    if (string.IsNullOrWhiteSpace(line))
+                    {
+                        continue;
+                    }
+                }
+
                 inputBuffer.Append(line);
                 inputBuffer.Append('\n');
 
                 var current = inputBuffer.ToString();
-                if (ReplEnvironment.ShouldSubmitBuffer(current, line))
+                var bufferState = ReplEnvironment.GetBufferState(current, line);
+                if (bufferState.ShouldSubmit)
                 {
-                    inputBuffer.Clear();
-                    outputBuilder.Append(replEnvironment.EvaluateAndGetOutput(current));
+                    if (bufferState.IsTypeDeclaration)
+                    {
+                        pendingTypeContinuationRedirected = true;
+                    }
+                    else
+                    {
+                        outputBuilder.Append(EvaluateAndClearBuffer(inputBuffer));
+                        pendingTypeContinuationRedirected = false;
+                    }
                 }
             }
 
             if (inputBuffer.Length > 0)
             {
-                outputBuilder.Append(replEnvironment.EvaluateAndGetOutput(inputBuffer.ToString()));
+                outputBuilder.Append(EvaluateAndClearBuffer(inputBuffer));
             }
 
             var output = outputBuilder.ToString();
@@ -104,12 +134,25 @@ public class ConsoleCommand(
         await io.Output.Writer.WriteLineAsync(string.Empty);
 
         var buffer = new StringBuilder();
+        var pendingTypeContinuation = false;
 
         while (true)
         {
-            if (await ReadLine(buffer) is not { } rawLine)
+            if (await ReadLine(buffer) is not { } inputLine)
             {
                 break;
+            }
+
+            var rawLine = inputLine.Text;
+            if (pendingTypeContinuation && !IsTypeContinuationLine(rawLine))
+            {
+                await io.Output.Writer.WriteAsync(EvaluateAndClearBuffer(buffer));
+                pendingTypeContinuation = false;
+
+                if (string.IsNullOrWhiteSpace(rawLine))
+                {
+                    continue;
+                }
             }
 
             if (buffer.Length == 0)
@@ -138,18 +181,40 @@ public class ConsoleCommand(
 
             var current = buffer.ToString();
 
-            if (ReplEnvironment.ShouldSubmitBuffer(current, rawLine))
+            var bufferState = ReplEnvironment.GetBufferState(current, rawLine);
+            if (bufferState.ShouldSubmit)
             {
-                buffer.Clear();
-
-                // evaluate input
-                var output = replEnvironment.EvaluateAndGetOutput(current);
-                await io.Output.Writer.WriteAsync(output);
+                if (bufferState.IsTypeDeclaration && ShouldWaitForTypeContinuation(inputLine))
+                {
+                    pendingTypeContinuation = true;
+                }
+                else
+                {
+                    pendingTypeContinuation = false;
+                    await io.Output.Writer.WriteAsync(EvaluateAndClearBuffer(buffer));
+                }
             }
         }
 
         return 0;
     }
+
+    private string EvaluateAndClearBuffer(StringBuilder buffer)
+    {
+        var current = buffer.ToString();
+        buffer.Clear();
+
+        return replEnvironment.EvaluateAndGetOutput(current);
+    }
+
+    private static bool IsTypeContinuationLine(string line)
+        => line.TrimStart().StartsWith('|');
+
+    private static bool ShouldWaitForTypeContinuation(InputLine inputLine)
+        => inputLine.HasBufferedInputAfterEnter ||
+            (IsTypeContinuationLine(inputLine.Text) && !inputLine.StartedWithBufferedInput);
+
+    private readonly record struct InputLine(string Text, bool StartedWithBufferedInput, bool HasBufferedInputAfterEnter);
 
     private async Task<int> PrintHistory(StringBuilder buffer, List<Rune> lineBuffer, int cursorOffset, bool backwards)
     {
@@ -178,12 +243,14 @@ public class ConsoleCommand(
     private string GetPrefix(StringBuilder buffer)
         => buffer.Length == 0 ? FirstLinePrefix : "";
 
-    private async Task<string?> ReadLine(StringBuilder buffer)
+    private async Task<InputLine?> ReadLine(StringBuilder buffer)
     {
         await io.Output.Writer.WriteAsync(GetPrefix(buffer));
 
         var lineBuffer = new List<Rune>();
         var cursorOffset = 0;
+        var startedWithBufferedInput = Console.KeyAvailable;
+
         while (true)
         {
             var keyInfo = Console.ReadKey(intercept: true);
@@ -249,6 +316,6 @@ public class ConsoleCommand(
 
         await io.Output.Writer.WriteAsync("\n");
 
-        return string.Concat(lineBuffer);
+        return new(string.Concat(lineBuffer), startedWithBufferedInput, Console.KeyAvailable);
     }
 }

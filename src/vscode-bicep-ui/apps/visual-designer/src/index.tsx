@@ -4,11 +4,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
-import { GlobalStyle } from "./GlobalStyle";
+
+if (import.meta.env.DEV) {
+  import("@vscode-elements/webview-playground");
+  document.body.appendChild(document.createElement("vscode-dev-toolbar"));
+}
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <GlobalStyle />
     <App />
   </React.StrictMode>,
 );

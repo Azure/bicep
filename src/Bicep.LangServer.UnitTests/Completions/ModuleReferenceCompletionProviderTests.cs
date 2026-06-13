@@ -69,7 +69,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Count().Should().Be(4);
@@ -150,7 +151,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Count().Should().Be(5);
@@ -217,7 +219,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().BeEmpty();
@@ -250,7 +253,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 catalog,
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().BeEmpty();
@@ -281,7 +285,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().SatisfyRespectively(
@@ -358,7 +363,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProviderMock.Object,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().SatisfyRespectively(
@@ -424,7 +430,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider.Object,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProviderMock.Object,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().SatisfyRespectively(
@@ -476,7 +483,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider.Object,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProviderMock.Object,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().SatisfyRespectively(
@@ -516,7 +524,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 catalog,
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().SatisfyRespectively(
@@ -591,7 +600,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 catalog,
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().SatisfyRespectively(
@@ -638,7 +648,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 catalog,
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().SatisfyRespectively(
@@ -699,7 +710,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 catalog,
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().Contain(c => c.Label == expectedLabel1)
@@ -747,7 +759,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 catalog,
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().BeEmpty();
@@ -785,7 +798,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration);
             var completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().Contain(
@@ -838,7 +852,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 catalog,
                 settingsProvider,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration);
             IEnumerable<CompletionItem> completions = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
 
             completions.Should().SatisfyRespectively(
@@ -917,7 +932,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 catalog,
                 settingsProvider,
-                telemetryProvider.Object);
+                telemetryProvider.Object,
+                BicepTestConstants.TestRegistryConfiguration);
             var items = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
             items.Should().HaveCountGreaterThanOrEqualTo(1);
 
@@ -978,7 +994,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider,
                 catalog,
                 settingsProvider,
-                telemetryProvider.Object);
+                telemetryProvider.Object,
+                BicepTestConstants.TestRegistryConfiguration);
             var items = await GetAndResolveCompletionItems(sourceFile, completionContext, moduleReferenceCompletionProvider);
             items.Should().HaveCountGreaterThanOrEqualTo(1);
 
@@ -1036,7 +1053,8 @@ namespace Bicep.LangServer.UnitTests.Completions
                 azureContainerRegistriesProvider.Object,
                 RegistryCatalogMocks.CreateCatalogWithMocks(),
                 settingsProviderMock.Object,
-                BicepTestConstants.CreateMockTelemetryProvider().Object);
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                BicepTestConstants.TestRegistryConfiguration);
 
             var func = () => moduleReferenceCompletionProvider.GetFilteredCompletions(sourceFile, completionContext, cts.Token);
             await func.Should().ThrowAsync<OperationCanceledException>();
@@ -1047,7 +1065,8 @@ namespace Bicep.LangServer.UnitTests.Completions
 
         private (BicepCompletionContext, BicepSourceFile) GetBicepCompletionContext(
             string inputWithCursors,
-            string? bicepConfigFileContents = null)
+            string? bicepConfigFileContents = null,
+            RegistryConfiguration? registryConfiguration = null)
         {
             var documentUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
             var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(inputWithCursors, '|');
@@ -1066,10 +1085,123 @@ namespace Bicep.LangServer.UnitTests.Completions
                 ? BicepTestConstants.BuiltInOnlyConfigurationManager
                 : IConfigurationManager.WithStaticConfiguration(BicepTestConstants.GetConfiguration(bicepConfigFileContents));
 
-            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, upsertCompilation: true, configurationManager: configurationManager);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, upsertCompilation: true, configurationManager: configurationManager, registryConfiguration: registryConfiguration);
             var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
 
             return (BicepCompletionContext.Create(compilation, cursors[0]), compilation.SourceFileGrouping.EntryPoint);
+        }
+
+        [TestMethod]
+        public async Task GetModuleCompletions_UntrustedRegistry_ReturnsEmptyAndNoCatalogCall()
+        {
+            // Arrange: mock catalog — GetProviderForRegistry should never be called
+            var catalogMock = StrictMock.Of<IRegistryModuleCatalog>();
+
+            var (completionContext, sourceFile) = GetBicepCompletionContext("module test 'br:evil.attacker.com/|'", registryConfiguration: new(PermitUntrustedRegistries: false));
+            var provider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                catalogMock.Object,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                new RegistryConfiguration(PermitUntrustedRegistries: false));
+
+            // Act
+            var completions = await provider.GetFilteredCompletions(sourceFile, completionContext, CancellationToken.None);
+
+            // Assert: no module-path completions returned, catalog never contacted
+            completions.Should().BeEmpty();
+            catalogMock.Verify(
+                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>()),
+                Times.Never);
+        }
+
+        [TestMethod]
+        public async Task GetModuleCompletions_BuiltInTrustedAcrRegistry_ReturnsCompletionsNormally()
+        {
+            // Arrange: no user-specified trusted registries, *.azurecr.io is built-in trusted
+            var catalog = RegistryCatalogMocks.CreateCatalogWithMocks(
+                null,
+                RegistryCatalogMocks.MockPrivateMetadataProvider(
+                    "contoso.azurecr.io",
+                    [("bicep/mymodule", "desc", null, [])]));
+
+            var (completionContext, sourceFile) = GetBicepCompletionContext(
+                "module test 'br:contoso.azurecr.io/|'", registryConfiguration: new(PermitUntrustedRegistries: false));
+            var provider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                catalog,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                new RegistryConfiguration(PermitUntrustedRegistries: false));
+
+            // Act
+            var completions = await provider.GetFilteredCompletions(sourceFile, completionContext, CancellationToken.None);
+
+            // Assert: completions returned (built-in trust for *.azurecr.io)
+            completions.Should().Contain(c => c.Label == "bicep/mymodule");
+        }
+
+        [TestMethod]
+        public async Task GetVersionCompletions_UntrustedRegistry_ReturnsEmptyAndNoCatalogCall()
+        {
+            // Arrange: mock catalog — GetProviderForRegistry should never be called
+            var catalogMock = StrictMock.Of<IRegistryModuleCatalog>();
+
+            var (completionContext, sourceFile) = GetBicepCompletionContext(
+                "module test 'br:evil.attacker.com/some/module:|'", registryConfiguration: new(PermitUntrustedRegistries: false));
+            var provider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                catalogMock.Object,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                new RegistryConfiguration(PermitUntrustedRegistries: false));
+
+            // Act
+            var completions = await provider.GetFilteredCompletions(sourceFile, completionContext, CancellationToken.None);
+
+            // Assert
+            completions.Should().BeEmpty();
+            catalogMock.Verify(
+                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>()),
+                Times.Never);
+        }
+
+        [TestMethod]
+        public async Task GetModuleCompletions_UntrustedRegistryViaAlias_ReturnsEmptyAndNoCatalogCall()
+        {
+            // Arrange: alias "evil" resolves to untrusted "evil.attacker.com"
+            var bicepConfig = """
+                {
+                  "moduleAliases": {
+                    "br": {
+                      "evil": {
+                        "registry": "evil.attacker.com",
+                        "modulePath": "modules"
+                      }
+                    }
+                  }
+                }
+                """;
+
+            var catalogMock = StrictMock.Of<IRegistryModuleCatalog>();
+
+            var (completionContext, sourceFile) = GetBicepCompletionContext(
+                "module test 'br/evil:|'", bicepConfig, registryConfiguration: new(PermitUntrustedRegistries: false));
+            var provider = new ModuleReferenceCompletionProvider(
+                azureContainerRegistriesProvider,
+                catalogMock.Object,
+                settingsProvider,
+                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                new RegistryConfiguration(PermitUntrustedRegistries: false));
+
+            // Act
+            var completions = await provider.GetFilteredCompletions(sourceFile, completionContext, CancellationToken.None);
+
+            // Assert: trust check applies after alias resolution
+            completions.Should().BeEmpty();
+            catalogMock.Verify(
+                x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>()),
+                Times.Never);
         }
     }
 }

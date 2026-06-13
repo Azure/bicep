@@ -8,7 +8,6 @@ using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
-using Bicep.Core.TypeSystem;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands;
@@ -28,19 +27,14 @@ public abstract class DeploymentsCommandsBase<TArgs>(
         var compilation = await compiler.CreateCompilation(paramsFileUri, skipRestore: args.NoRestore);
         var model = compilation.GetEntrypointSemanticModel();
 
-        if (model.TargetScope == ResourceScope.Orchestrator)
-        {
-            return await RunOrchestrationInternal(args, compilation, model, cancellationToken);
-        }
-
         if (!model.Features.DeployCommandsEnabled)
         {
-            throw new CommandLineException($"The '{nameof(ExperimentalFeaturesEnabled.DeployCommands)}' experimental feature must be enabled to use the '{args.CommandName}' command.");
+            throw new CommandLineException($"The '{nameof(ExperimentalFeaturesEnabled.DeployCommands)}' experimental feature must be enabled.");
         }
 
         if (!model.HasAzureTargetScope())
         {
-            throw new CommandLineException($"The '{args.CommandName}' command only supports Bicep files with an Azure target scope.");
+            throw new CommandLineException($"Only Bicep files with an Azure target scope are supported.");
         }
 
         CommandHelper.LogExperimentalWarning(logger, compilation);
@@ -53,10 +47,8 @@ public abstract class DeploymentsCommandsBase<TArgs>(
             return 1;
         }
 
-        return await RunInternal(args, compilation, model, parameters, cancellationToken);
+        return await RunInternal(args, model, parameters, cancellationToken);
     }
 
-    protected abstract Task<int> RunInternal(TArgs args, Compilation compilation, SemanticModel model, ParametersResult parameters, CancellationToken cancellationToken);
-
-    protected abstract Task<int> RunOrchestrationInternal(TArgs args, Compilation compilation, SemanticModel model, CancellationToken cancellationToken);
+    protected abstract Task<int> RunInternal(TArgs args, SemanticModel model, ParametersResult parameters, CancellationToken cancellationToken);
 }

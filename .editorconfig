@@ -23,6 +23,28 @@ indent_size = 4
 
 file_header_template = Copyright (c) Microsoft Corporation.\nLicensed under the MIT License.
 
+# Naming rules: private static fields may be PascalCase
+dotnet_naming_rule.private_static_fields_pascal_case.symbols = private_static_fields
+dotnet_naming_rule.private_static_fields_pascal_case.style = pascal_case_style
+dotnet_naming_rule.private_static_fields_pascal_case.severity = warning
+
+dotnet_naming_symbols.private_static_fields.applicable_kinds = field
+dotnet_naming_symbols.private_static_fields.applicable_accessibilities = private, private_protected
+dotnet_naming_symbols.private_static_fields.required_modifiers = static
+
+dotnet_naming_style.pascal_case_style.capitalization = pascal_case
+
+# Naming rules: private instance fields must be camelCase (no underscore prefix)
+dotnet_naming_rule.private_instance_fields_must_be_camel_case.symbols = private_instance_fields
+dotnet_naming_rule.private_instance_fields_must_be_camel_case.style = camel_case_style
+dotnet_naming_rule.private_instance_fields_must_be_camel_case.severity = warning
+
+dotnet_naming_symbols.private_instance_fields.applicable_kinds = field
+dotnet_naming_symbols.private_instance_fields.applicable_accessibilities = private, private_protected
+dotnet_naming_symbols.private_instance_fields.required_modifiers = 
+
+dotnet_naming_style.camel_case_style.capitalization = camel_case
+
 # Organize usings
 dotnet_separate_import_directive_groups = false
 dotnet_sort_system_directives_first = true

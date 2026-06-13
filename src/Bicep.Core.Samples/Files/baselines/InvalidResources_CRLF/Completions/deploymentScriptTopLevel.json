@@ -41,7 +41,7 @@
     "detail": "location (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \nThe location of the ACI and the storage account for the deployment script.  \n"
+      "value": "Type: `string`  \nThe geo-location where the resource lives  \n"
     },
     "deprecated": false,
     "preselect": true,
@@ -151,7 +151,7 @@
     "detail": "tags",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `DeploymentScriptTags`  \nResource tags.  \n"
+      "value": "Type: `TrackedResourceTags`  \nResource tags.  \n"
     },
     "deprecated": false,
     "preselect": false,

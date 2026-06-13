@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "event": "PostToolUse",
+        "type": "command",
+        "command": "npx prettier --write \"${filePath}\"",
+        "windows": "npx prettier --write \"${filePath}\"",
+        "timeout": 15,
+        "matchers": {
+          "toolName": "create_file|replace_string_in_file|multi_replace_string_in_file",
+          "filePath": "**/*.{ts,tsx,md,json}"
+        }
+      },
+      {
+        "event": "PostToolUse",
+        "type": "command",
+        "command": "npx eslint --fix \"${filePath}\"",
+        "windows": "npx eslint --fix \"${filePath}\"",
+        "timeout": 15,
+        "matchers": {
+          "toolName": "create_file|replace_string_in_file|multi_replace_string_in_file",
+          "filePath": "**/*.{ts,tsx}"
+        }
+      }
+    ]
+  }
+}

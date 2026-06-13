@@ -8,6 +8,7 @@ import { CodeEditor } from './CodeEditor';
 interface Props {
   interop: DotnetInterop,
   initialContent: string,
+  sourcePath?: string,
   onBicepChange: (bicepContent: string) => void,
   onJsonChange: (jsonContent: string) => void,
 }
@@ -30,10 +31,10 @@ const editorOptions: editor.IStandaloneEditorConstructionOptions = {
 };
 
 export const BicepEditor : React.FC<Props> = (props) => {
-  const { interop, initialContent, onBicepChange, onJsonChange } = props;
+  const { interop, initialContent, sourcePath, onBicepChange, onJsonChange } = props;
 
   async function handleContentChange(model: editor.ITextModel, content: string) {
-    const { template, diagnostics } = await interop.compileAndEmitDiagnostics(content);
+    const { template, diagnostics } = await interop.compileAndEmitDiagnostics(content, sourcePath);
     editor.setModelMarkers(model, 'default', diagnostics);
     onBicepChange(content);
     onJsonChange(template);

@@ -99,7 +99,6 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "experimentalFeaturesWarning": true,
         "experimentalFeaturesEnabled": {
-          "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "moduleExtensionConfigs": false,
           "resourceTypedParamsAndOutputs": false,
@@ -112,8 +111,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "orchestration": false,
           "resourceInfoCodegen": false,
           "userDefinedConstraints": false,
-          "deployCommands": false,
-          "thisNamespace": false
+          "deployCommands": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -183,7 +181,6 @@ namespace Bicep.Core.UnitTests.Configuration
         "analyzers": {},
         "experimentalFeaturesWarning": true,
         "experimentalFeaturesEnabled": {
-          "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "resourceTypedParamsAndOutputs": false,
           "sourceMapping": false,
@@ -196,8 +193,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
-          "deployCommands": false,
-          "thisNamespace": false
+          "deployCommands": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -289,7 +285,6 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "experimentalFeaturesWarning": true,
         "experimentalFeaturesEnabled": {
-          "extendableParamFiles": false,
           "symbolicNameCodegen": false,
           "resourceTypedParamsAndOutputs": false,
           "sourceMapping": false,
@@ -302,8 +297,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
-          "deployCommands": false,
-          "thisNamespace": false
+          "deployCommands": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -377,7 +371,6 @@ namespace Bicep.Core.UnitTests.Configuration
 
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled = new(
                 SymbolicNameCodegen: false,
-                ExtendableParamFiles: true,
                 ResourceTypedParamsAndOutputs: false,
                 SourceMapping: false,
                 LegacyFormatter: false,
@@ -389,8 +382,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 ResourceInfoCodegen: false,
                 ModuleExtensionConfigs: false,
                 UserDefinedConstraints: false,
-                DeployCommands: false,
-                ThisNamespace: false);
+                DeployCommands: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -462,7 +454,6 @@ namespace Bicep.Core.UnitTests.Configuration
             "experimentalFeaturesWarning": true,
             "experimentalFeaturesEnabled": {
                 "symbolicNameCodegen": false,
-                "extendableParamFiles": true,
                 "resourceTypedParamsAndOutputs": false,
                 "sourceMapping": false,
                 "legacyFormatter": false,
@@ -474,8 +465,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "resourceInfoCodegen": false,
                 "moduleExtensionConfigs": false,
                 "userDefinedConstraints": false,
-                "deployCommands": false,
-                "thisNamespace": false
+                "deployCommands": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -813,7 +803,6 @@ namespace Bicep.Core.UnitTests.Configuration
                   "cacheRootDirectory": "/home/username/.bicep/cache",
                   "experimentalFeaturesWarning": false,
                   "experimentalFeaturesEnabled": {
-                    "extendableParamFiles": false,
                     "symbolicNameCodegen": false,
                     "resourceTypedParamsAndOutputs": false,
                     "sourceMapping": false,
@@ -826,8 +815,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "resourceInfoCodegen": false,
                     "moduleExtensionConfigs": false,
                     "userDefinedConstraints": false,
-                    "deployCommands": false,
-                    "thisNamespace": false
+                    "deployCommands": false
                   },
                   "formatting": {
                     "indentKind": "Space",

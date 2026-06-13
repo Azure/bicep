@@ -26,7 +26,7 @@
     "detail": "name",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \n"
+      "value": "Type: `string`  \nThe deployment name. Must be 1-64 characters, and can contain alphanumerics, underscores, parentheses, hyphens, and periods.  \n"
     },
     "deprecated": false,
     "preselect": false,

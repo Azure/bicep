@@ -1,5 +1,6 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
 import eslint from "@eslint/js";
+import { fixupConfigRules, fixupPluginRules } from "@eslint/compat";
 import notice from "eslint-plugin-notice";
 import reactPlugin from "eslint-plugin-react";
 import reactHooksPlugin from "eslint-plugin-react-hooks";
@@ -8,18 +9,18 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: ["**/*.{js,cjs,mjs}", "**/.turbo/", "**/dist/"],
+    ignores: ["**/*.{js,cjs,mjs}", "**/.turbo/", "**/dist/", "**/e2e/.results/", "**/e2e/.report/"],
   },
   {
     files: ["**/*.ts", "**/*.tsx"],
     extends: [
       eslint.configs.recommended,
       tseslint.configs.recommended,
-      reactPlugin.configs.flat.recommended,
-      reactPlugin.configs.flat["jsx-runtime"],
+      ...fixupConfigRules(reactPlugin.configs.flat.recommended),
+      ...fixupConfigRules(reactPlugin.configs.flat["jsx-runtime"]),
     ],
     plugins: {
-      notice,
+      notice: fixupPluginRules(notice),
       "react-refresh": reactRefreshPlugin,
       "react-hooks": reactHooksPlugin,
     },

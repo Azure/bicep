@@ -3,6 +3,8 @@
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Types;
 using NamedTypeProperties = System.Collections.Immutable.ImmutableSortedDictionary<string, Bicep.Core.TypeSystem.Types.NamedTypeProperty>;
 
@@ -62,6 +64,16 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                 {
                     // Add LoopVariant flag to required identifier properties.
                     properties = properties.SetItem(propertyName, UpdateFlags(propertyType, propertyType.Flags | TypePropertyFlags.SystemProperty | TypePropertyFlags.LoopVariant));
+                }
+            }
+
+            foreach (var (propertyName, propertyType) in properties)
+            {
+                if (propertyType.Flags.HasFlag(TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant))
+                {
+                    // Required + DeployTimeConstant means the caller owns the value fully and it cannot
+                    // be server-generated or deferred, so it is safe to read back at deploy time.
+                    properties = properties.SetItem(propertyName, UpdateFlags(propertyType, propertyType.Flags | TypePropertyFlags.ReadableAtDeployTime));
                 }
             }
 
@@ -194,6 +206,11 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                 TemplateExtensionVersion: namespaceConfiguration.Version);
 
             return MicrosoftGraphExtensionCompatibilityManager.PatchNamespaceSettings(namespaceSettings);
+        }
+
+        public IEnumerable<(FunctionOverload overload, BicepSourceFileKind? visibility)> GetFunctionOverloads()
+        {
+            return resourceTypeLoader.LoadNamespaceFunctions();
         }
 
         public bool HasDefinedType(ResourceTypeReference typeReference)

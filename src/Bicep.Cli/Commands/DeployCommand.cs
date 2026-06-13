@@ -1,21 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
-using System.Text.Json.Nodes;
-using Azure.ResourceManager.Resources.Models;
+using System.CommandLine;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers.Deploy;
 using Bicep.Cli.Logging;
 using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
-using Bicep.Local.Deploy;
-using Bicep.Local.Deploy.Extensibility;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands;
 
@@ -26,10 +23,9 @@ public class DeployCommand(
     IEnvironment environment,
     DiagnosticLogger diagnosticLogger,
     BicepCompiler compiler,
-    LocalExtensionDispatcherFactory dispatcherFactory,
     InputOutputArgumentsResolver inputOutputArgumentsResolver) : DeploymentsCommandsBase<DeployArguments>(logger, diagnosticLogger, compiler, inputOutputArgumentsResolver)
 {
-    protected override async Task<int> RunInternal(DeployArguments args, Compilation compilation, SemanticModel model, ParametersResult result, CancellationToken cancellationToken)
+    protected override async Task<int> RunInternal(DeployArguments args, SemanticModel model, ParametersResult result, CancellationToken cancellationToken)
     {
         var config = await DeploymentProcessor.GetDeployCommandsConfig(environment, args.AdditionalArguments, result, model.TargetScope);
 
@@ -42,39 +38,43 @@ public class DeployCommand(
         return success ? 0 : 1;
     }
 
-    protected override async Task<int> RunOrchestrationInternal(DeployArguments args, Compilation compilation, SemanticModel model, CancellationToken cancellationToken)
+    internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
     {
-        var parameters = compilation.Emitter.Parameters();
-
-        if (parameters.Template?.Template is not { } templateContent ||
-            parameters.Parameters is not { } parametersContent)
+        var command = new System.CommandLine.Command(Constants.Command.Deploy, "[Experimental] Deploys infrastructure using a .bicepparam file.")
         {
-            return 1;
-        }
+            TreatUnmatchedTokensAsErrors = false,
+        };
 
-        async Task ProcessLocal(Action<DeploymentWrapperView> onUpdate)
+        var inputFileArgument = new System.CommandLine.Argument<string>(Constants.Argument.ParametersFile)
         {
-            try
-            {
-                await using var dispatcher = dispatcherFactory.Create();
+            Description = "The path to the .bicepparam file.",
+        };
+        var noRestoreOption = new System.CommandLine.Option<bool>(Option.NoRestore)
+        {
+            Description = "Do not restore modules prior to deploying.",
+        };
+        var formatOption = new System.CommandLine.Option<DeploymentOutputFormat?>(Option.Format)
+        {
+            Description = "Output format for deployment results (Default, Json).",
+        };
 
-                await dispatcher.InitializeExtensions(compilation);
-                await dispatcher.Deploy(templateContent, parametersContent, result => onUpdate(new(DeploymentProcessor.GetDeploymentView(result.Deployment, result.Operations), null)), cancellationToken);
-            }
-            catch (Exception exception)
-            {
-                onUpdate(new(null, exception.Message));
-            }
-        }
+        command.Add(inputFileArgument);
+        command.Add(noRestoreOption);
+        command.Add(formatOption);
+        command.Validators.Add((System.CommandLine.Parsing.CommandResult result) => CommandLineBuilderContext.ValidateRequiredPositionalArgument(result, inputFileArgument));
 
-        var success = await deploymentRenderer.RenderDeployment(
-            DeploymentRenderer.RefreshInterval,
-            (onUpdate) => ProcessLocal(onUpdate),
-            args.OutputFormat ?? DeploymentOutputFormat.Default,
-            cancellationToken);
+        command.SetAction((result, ct) => context.RunCommandAsync(async () =>
+        {
+            var additionalArguments = CommandLineBuilderContext.ParseAdditionalArguments(result.UnmatchedTokens);
+            var args = new DeployArguments(
+                result.GetRequiredValue(inputFileArgument),
+                result.GetValue(noRestoreOption),
+                additionalArguments,
+                result.GetValue(formatOption));
 
-        return success ? 0 : 1;
+            return await context.GetCommand<DeployCommand>().RunAsync(args, ct);
+        }));
+
+        return command;
     }
-
-    private record DeploymentState(ImmutableArray<DeploymentView> Deployments, bool IsActive);
 }

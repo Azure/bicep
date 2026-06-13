@@ -64,6 +64,7 @@ var configProp = 'config'
 // Extension symbols are blocked in resources because each config property returns an object { value, keyVaultReference } and "value" is not available when a reference is provided.
 // Users should use deployment parameters for this scenario.
 resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
+//@[00:008) Local this. Type: object. Declaration start char: 56, length: 175
 //@[09:022) Resource testResource1. Type: My.Rp/TestType@2020-01-01. Declaration start char: 0, length: 231
   name: k8s.config.namespace
   properties: {

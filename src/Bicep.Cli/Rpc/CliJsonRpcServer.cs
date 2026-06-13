@@ -224,6 +224,7 @@ public class CliJsonRpcServer(
             templateContent: templateContent,
             parametersContent: parametersContent,
             tenantId: request.Metadata.TenantId,
+            managementGroupId: request.Metadata.ManagementGroupId,
             subscriptionId: request.Metadata.SubscriptionId,
             resourceGroup: request.Metadata.ResourceGroup,
             location: request.Metadata.Location,

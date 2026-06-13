@@ -82,9 +82,10 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         HttpContent content = null,
         Action<HttpRequestHeaders> addHeadersFunc = null,
         Action<IDictionary<string, object>> requestPropertiesEnricher = null,
-        AuthenticationToken frontdoorAuthenticationToken = null)
+        AuthenticationToken frontdoorAuthenticationToken = null,
+        JobLogger jobLogger = null,
+        string jobName = null)
         => throw new NotImplementedException();
-
 
     public override Task<HttpResponseMessage> CallFrontdoorServiceWithoutAuthentication(HttpMethod requestMethod, Uri requestUri, CancellationToken cancellationToken, HttpContent content = null)
         => throw new NotImplementedException();

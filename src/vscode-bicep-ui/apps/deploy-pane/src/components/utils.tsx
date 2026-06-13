@@ -4,6 +4,34 @@
 import type { DeploymentOperation } from "@azure/arm-resources";
 import type { DeploymentScopeType, ParamData, ParamDefinition, TemplateMetadata } from "../models";
 
+export function getEffectiveParamData(
+  paramValues: Record<string, ParamData>,
+  definition: ParamDefinition,
+  useAllowedStringDropdownDefault = true,
+) {
+  const explicitParamData = paramValues[definition.name];
+  if (explicitParamData) {
+    return explicitParamData;
+  }
+
+  if (!useAllowedStringDropdownDefault) {
+    return undefined;
+  }
+
+  return getAllowedStringDropdownDefaultParamData(definition);
+}
+
+function getAllowedStringDropdownDefaultParamData(definition: ParamDefinition) {
+  if (definition.type === "string" && definition.defaultValue === undefined) {
+    const firstAllowedValue = definition.allowedValues?.[0];
+    if (firstAllowedValue !== undefined) {
+      return { value: firstAllowedValue };
+    }
+  }
+
+  return undefined;
+}
+
 function getScopeTypeFromSchema(template: Record<string, unknown>): DeploymentScopeType | undefined {
   const lookup: Record<string, DeploymentScopeType> = {
     "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#": "resourceGroup",

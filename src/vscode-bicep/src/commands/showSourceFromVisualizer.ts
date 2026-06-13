@@ -11,8 +11,10 @@ export class ShowSourceFromVisualizerCommand implements Command {
   public constructor(private readonly viewManager: BicepVisualizerViewManager) {}
 
   public async execute(): Promise<vscode.TextEditor | undefined> {
-    if (this.viewManager.activeDocumentUri) {
-      const document = await vscode.workspace.openTextDocument(this.viewManager.activeDocumentUri);
+    const activeUri = this.viewManager.activeDocumentUri;
+
+    if (activeUri) {
+      const document = await vscode.workspace.openTextDocument(activeUri);
 
       return await vscode.window.showTextDocument(document, vscode.ViewColumn.One);
     }

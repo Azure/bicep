@@ -5,7 +5,7 @@
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import pluginJest from 'eslint-plugin-jest';
-import notice from "eslint-plugin-notice";
+import headers from "eslint-plugin-headers";
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 
 export default tseslint.config({
@@ -19,12 +19,14 @@ export default tseslint.config({
   languageOptions: {
     ecmaVersion: 2020,
   },
-  plugins: { notice },
+  plugins: { headers },
   rules: {
-    "notice/notice": [
+    "headers/header-format": [
       "error",
       {
-        templateFile: "../copyright-template.js",
+        source: "string",
+        style: "line",
+        content: "Copyright (c) Microsoft Corporation.\nLicensed under the MIT License.",
       },
     ],
   },

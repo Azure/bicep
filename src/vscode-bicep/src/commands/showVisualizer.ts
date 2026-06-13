@@ -6,11 +6,11 @@ import { BicepVisualizerViewManager } from "../visualizer";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 import { Command } from "./types";
 
-async function showVisualizer(
+async function openView(
   context: IActionContext,
   viewManager: BicepVisualizerViewManager,
   documentUri: vscode.Uri | undefined,
-  sideBySide = false,
+  sideBySide: boolean,
 ) {
   documentUri = await findOrCreateActiveBicepFile(context, documentUri, "Choose which Bicep file to visualize");
 
@@ -32,7 +32,7 @@ export class ShowVisualizerCommand implements Command {
     context: IActionContext,
     documentUri?: vscode.Uri | undefined,
   ): Promise<vscode.ViewColumn | undefined> {
-    return await showVisualizer(context, this.viewManager, documentUri);
+    return await openView(context, this.viewManager, documentUri, false);
   }
 }
 
@@ -45,6 +45,6 @@ export class ShowVisualizerToSideCommand implements Command {
     context: IActionContext,
     documentUri?: vscode.Uri | undefined,
   ): Promise<vscode.ViewColumn | undefined> {
-    return await showVisualizer(context, this.viewManager, documentUri, true);
+    return await openView(context, this.viewManager, documentUri, true);
   }
 }

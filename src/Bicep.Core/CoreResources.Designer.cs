@@ -1229,5 +1229,50 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("WhatIfShortCircuitingRuleMessageFormat", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Warn if a &apos;reference&apos; or &apos;list*&apos; function call uses an unrecognized resource type..
+        /// </summary>
+        internal static string UseRecognizedResourceTypeRule_Description {
+            get {
+                return ResourceManager.GetString("UseRecognizedResourceTypeRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resource type &quot;{0}&quot; is not recognized in function &quot;{1}&quot;. If this resource type does exist, the API version must be specified as a function argument..
+        /// </summary>
+        internal static string UseRecognizedResourceTypeRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("UseRecognizedResourceTypeRule_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resource type &quot;{0}&quot; is not recognized in function &quot;{1}&quot;. Did you mean &quot;{2}&quot;? If this resource type does exist, the API version must be specified as a function argument..
+        /// </summary>
+        internal static string UseRecognizedResourceTypeRule_MessageFormatWithSuggestion {
+            get {
+                return ResourceManager.GetString("UseRecognizedResourceTypeRule_MessageFormatWithSuggestion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Avoid specifying an explicit module name. This simplifies code, and avoids the risk of accidental module name re-use within a deployment..
+        /// </summary>
+        internal static string NoModuleNameRule_Description {
+            get {
+                return ResourceManager.GetString("NoModuleNameRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove module name.
+        /// </summary>
+        internal static string NoModuleNameRule_CodeFix {
+            get {
+                return ResourceManager.GetString("NoModuleNameRule_CodeFix", resourceCulture);
+            }
+        }
     }
 }

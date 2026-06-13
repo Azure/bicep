@@ -142,6 +142,7 @@ export class AzurePickers extends Disposable {
     } catch (err) {
       throw new Error(
         `You might not have access to any management groups. Please create one in the Azure portal and try to deploy again.  Error: ${parseError(err).message}. ${await this.getTenantInfo()}`,
+        { cause: err },
       );
     }
 

@@ -1,10 +1,10 @@
-# Using the `snapshot` command (Experimental!)
+# Using the `snapshot` command
 
 ## What is it?
 
 The `snapshot` command group can be used to generate a normalized list of resources to file, which can then be used to generate a visual diff for changes. This could be used similarly to Snapshot Testing for HTML, and it can also be helpful to understand how expressions will be evaluated in a complex deployment.
 
-**Important:** The `snapshot` command is only available in the standalone Bicep CLI and does not work through Azure CLI (`az bicep`). This means `az bicep snapshot` functionality is not available - you must use the standalone `bicep` executable to access this experimental feature.
+**Important:** The `snapshot` command is only available in the standalone Bicep CLI and does not work through Azure CLI (`az bicep`). This means `az bicep snapshot` functionality is not available - you must use the standalone `bicep` executable.
 
 ## Usage
 

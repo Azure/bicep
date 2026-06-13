@@ -13,6 +13,9 @@ import { resolveExamplePath } from "./examples";
 
 const extensionLogPath = path.join(__dirname, `../../../${e2eLogName}`);
 
+// Each test opens a document (2s sleep) and waits up to 30s for the webview to be ready.
+jest.setTimeout(60000);
+
 describe("deploypane", (): void => {
   afterEach(executeCloseAllEditors);
 

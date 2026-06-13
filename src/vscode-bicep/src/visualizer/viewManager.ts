@@ -87,7 +87,6 @@ export class BicepVisualizerViewManager extends Disposable implements vscode.Web
     this.viewsByPath.set(documentUri.fsPath, view);
 
     view.onDidChangeViewState((e) => {
-      // Don't wait
       void this.setVisualizerActiveContext(e.webviewPanel.active);
       if (e.webviewPanel.active) {
         this.activeUri = documentUri;
@@ -97,7 +96,6 @@ export class BicepVisualizerViewManager extends Disposable implements vscode.Web
 
     view.onDidDispose(async () => {
       if (this.activeUri === documentUri) {
-        // Don't wait
         void this.setVisualizerActiveContext(false);
         this.activeUri = undefined;
       }

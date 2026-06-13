@@ -1,139 +1,39 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.Core;
-using Azure.Deployments.Core.Definitions;
+using System.CommandLine;
 using Azure.Deployments.Core.Entities;
-using Azure.ResourceManager.Resources;
-using Azure.ResourceManager.Resources.Models;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers.Deploy;
 using Bicep.Cli.Helpers.WhatIf;
 using Bicep.Cli.Logging;
 using Bicep.Core;
-using Bicep.Core.AzureApi;
 using Bicep.Core.Emit;
-using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
-using Bicep.Core.Utils.Snapshots;
-using Bicep.Local.Deploy.Extensibility;
-using Json.More;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.WindowsAzure.ResourceStack.Common.Json;
-using Newtonsoft.Json.Linq;
+using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands;
 
-public class WhatIfCommand : DeploymentsCommandsBase<WhatIfArguments>
+public class WhatIfCommand(
+    IDeploymentProcessor deploymentProcessor,
+    IOContext io,
+    ILogger logger,
+    IEnvironment environment,
+    DiagnosticLogger diagnosticLogger,
+    BicepCompiler compiler,
+    InputOutputArgumentsResolver inputOutputArgumentsResolver) : DeploymentsCommandsBase<WhatIfArguments>(logger, diagnosticLogger, compiler, inputOutputArgumentsResolver)
 {
-    private readonly IOContext io;
-    private readonly ILogger logger;
-    private readonly IEnvironment environment;
-    private readonly IDeploymentProcessor deploymentProcessor;
-    private readonly IArmClientProvider armClientProvider;
-    private readonly DiagnosticLogger diagnosticLogger;
-    private readonly BicepCompiler compiler;
-
-    public WhatIfCommand(
-        IOContext io,
-        ILogger logger,
-        IEnvironment environment,
-        IDeploymentProcessor deploymentProcessor,
-        IArmClientProvider armClientProvider,
-        DiagnosticLogger diagnosticLogger,
-        BicepCompiler compiler,
-        InputOutputArgumentsResolver inputOutputArgumentsResolver) : base(logger, diagnosticLogger, compiler, inputOutputArgumentsResolver)
-    {
-        this.io = io;
-        this.logger = logger;
-        this.environment = environment;
-        this.deploymentProcessor = deploymentProcessor;
-        this.armClientProvider = armClientProvider;
-        this.diagnosticLogger = diagnosticLogger;
-        this.compiler = compiler;
-    }
-
-    protected override async Task<int> RunInternal(WhatIfArguments args, Compilation compilation, SemanticModel model, ParametersResult result, CancellationToken cancellationToken)
+    protected override async Task<int> RunInternal(WhatIfArguments args, SemanticModel model, ParametersResult result, CancellationToken cancellationToken)
     {
         var config = await DeploymentProcessor.GetDeployCommandsConfig(environment, args.AdditionalArguments, result, model.TargetScope);
 
         await WhatIf(model, config, cancellationToken);
 
         return 0;
-    }
-
-    protected override async Task<int> RunOrchestrationInternal(WhatIfArguments args, Compilation compilation, SemanticModel model, CancellationToken cancellationToken)
-    {
-        var parameters = compilation.Emitter.Parameters();
-
-        if (parameters.Template?.Template is not { } templateContent ||
-            parameters.Parameters is not { } parametersContent)
-        {
-            return 1;
-        }
-
-        var snapshot = await SnapshotHelper.GetSnapshot(
-            targetScope: model.TargetScope,
-            templateContent: templateContent,
-            parametersContent: parametersContent,
-            tenantId: null,
-            subscriptionId: null,
-            resourceGroup: null,
-            location: null,
-            deploymentName: null,
-            cancellationToken: cancellationToken,
-            includeSymbolicNames: true,
-            externalInputs: []);
-
-        var armClient = armClientProvider.CreateArmClient(model.Configuration, null);
-
-        var hasFailures = false;
-        foreach (var stackResource in snapshot.PredictedResources)
-        {
-            var symbolicName = stackResource.GetPropertyByPath("symbolicName").GetString()!;
-            var stackParameters = stackResource.GetPropertyByPath("properties.parameters").GetString()!;
-            var sourceUriString = stackResource.GetPropertyByPath("properties.sourceUri").GetString()!;
-            var region = stackResource.GetPropertyByPath("properties.body.region").GetString()!;
-            var inputs = stackResource.GetPropertyByPath("properties.body.inputs");
-
-            var sourceUri = new Uri(sourceUriString).ToIOUri();
-
-            var paramsResult = await NestedDeploymentExtension.ProcessParameters(stackParameters, inputs.ToJsonString().FromJson<JObject>());
-            var deploymentName = paramsResult.UsingConfig.Name ?? "main";
-
-            var stackCompilation = await compiler.CreateCompilation(sourceUri);
-            var stackSummary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, stackCompilation);
-
-            if (stackSummary.HasErrors ||
-                stackCompilation.Emitter.Parameters() is not { } stackResult ||
-                stackResult.Template?.Template is not { } stackTemplateContent ||
-                stackResult.Parameters is not { } stackParametersContent)
-            {
-                hasFailures = true;
-                continue;
-            }
-
-            var deploymentResource = armClient.GetArmDeploymentResource(new ResourceIdentifier($"{paramsResult.UsingConfig.Scope}/providers/Microsoft.Resources/deployments/{deploymentName}"));
-            var paramsDefinition = paramsResult.Parameters.FromJson<DeploymentParametersDefinition>();
-            var deploymentProperties = new ArmDeploymentWhatIfProperties(ArmDeploymentMode.Incremental)
-            {
-                Template = BinaryData.FromString(stackTemplateContent),
-                Parameters = BinaryData.FromString(paramsDefinition.Parameters.ToJson()),
-            };
-            var armDeploymentContent = new ArmDeploymentWhatIfContent(deploymentProperties);
-
-            var response = await deploymentResource.WhatIfAsync(Azure.WaitUntil.Completed, armDeploymentContent, cancellationToken);
-
-            var definition = response.GetRawResponse().Content.ToString().FromJson<DeploymentWhatIfResponseDefinition>();
-            var changes = definition.Properties.Changes.Where(x => x.ChangeType != DeploymentWhatIfChangeType.Ignore);
-
-            logger.LogInformation($"WhatIf results for Stack {symbolicName} - {sourceUri}:");
-            await io.Output.Writer.WriteAsync(WhatIfOperationResultFormatter.Format([.. changes]));
-        }
-
-        return hasFailures ? 1 : 0;
     }
 
     private async Task WhatIf(SemanticModel model, DeployCommandsConfig config, CancellationToken cancellationToken)
@@ -143,5 +43,39 @@ public class WhatIfCommand : DeploymentsCommandsBase<WhatIfArguments>
         var changes = result.Properties.Changes.Where(x => x.ChangeType != DeploymentWhatIfChangeType.Ignore);
 
         await io.Output.Writer.WriteAsync(WhatIfOperationResultFormatter.Format([.. changes]));
+    }
+
+    internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+    {
+        var command = new System.CommandLine.Command(Constants.Command.WhatIf, "[Experimental] Previews the changes a deployment would make.")
+        {
+            TreatUnmatchedTokensAsErrors = false,
+        };
+
+        var inputFileArgument = new System.CommandLine.Argument<string>(Constants.Argument.ParametersFile)
+        {
+            Description = "The path to the .bicepparam file.",
+        };
+        var noRestoreOption = new System.CommandLine.Option<bool>(Option.NoRestore)
+        {
+            Description = "Do not restore modules prior to running what-if.",
+        };
+
+        command.Add(inputFileArgument);
+        command.Add(noRestoreOption);
+        command.Validators.Add((System.CommandLine.Parsing.CommandResult result) => CommandLineBuilderContext.ValidateRequiredPositionalArgument(result, inputFileArgument));
+
+        command.SetAction((result, ct) => context.RunCommandAsync(async () =>
+        {
+            var additionalArguments = CommandLineBuilderContext.ParseAdditionalArguments(result.UnmatchedTokens);
+            var args = new WhatIfArguments(
+                result.GetRequiredValue(inputFileArgument),
+                result.GetValue(noRestoreOption),
+                additionalArguments);
+
+            return await context.GetCommand<WhatIfCommand>().RunAsync(args, ct);
+        }));
+
+        return command;
     }
 }

@@ -36,6 +36,7 @@ namespace Bicep.TextFixtures.Utils
                 .AddSingleton<IEnvironment>(TestEnvironment.Default)
                 .AddBicepCore()
                 .AddBicepDecompiler()
+                .AddSingleton<RegistryConfiguration>(new RegistryConfiguration(PermitUntrustedRegistries: true))
                 .AddSingleton<IActiveSourceFileSet, ActiveSourceFileSet>();
             this.dirty = true;
         }

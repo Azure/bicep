@@ -29,8 +29,6 @@ public interface IFeatureProvider
 
     bool OrchestrationEnabled { get; }
 
-    bool ExtendableParamFilesEnabled { get; }
-
     bool ResourceInfoCodegenEnabled { get; }
 
     bool ModuleExtensionConfigsEnabled { get; }
@@ -38,8 +36,6 @@ public interface IFeatureProvider
     bool UserDefinedConstraintsEnabled { get; }
 
     bool DeployCommandsEnabled { get; }
-
-    bool ThisNamespaceEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
@@ -57,11 +53,9 @@ public interface IFeatureProvider
                 (AssertsEnabled, CoreResources.ExperimentalFeatureNames_Asserts, true, true),
                 (WaitAndRetryEnabled, CoreResources.ExperimentalFeatureNames_WaitAndRetry, true, true),
                 (LocalDeployEnabled, "Enable local deploy", true, true),
-                (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
                 (UserDefinedConstraintsEnabled, "Enable @validate() decorator", true, true),
                 (DeployCommandsEnabled, "Enable deploy commands", true, true),
-                (ThisNamespaceEnabled, "Enable 'this' namespace", true, true),
             })
             {
                 if (enabled)

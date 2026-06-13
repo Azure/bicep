@@ -4,67 +4,84 @@ bad
 
 // incomplete #completionTest(9) -> empty
 resource 
+//@[000:008) Local this. Type: error. Declaration start char: 9, length: 0
 //@[009:009) Resource <missing>. Type: error. Declaration start char: 0, length: 9
 resource foo
+//@[000:008) Local this. Type: error. Declaration start char: 12, length: 0
 //@[009:012) Resource foo. Type: error. Declaration start char: 0, length: 12
 resource fo/o
+//@[000:008) Local this. Type: error. Declaration start char: 13, length: 0
 //@[009:011) Resource fo. Type: error. Declaration start char: 0, length: 13
 resource foo 'ddd'
+//@[000:008) Local this. Type: error. Declaration start char: 18, length: 0
 //@[009:012) Resource foo. Type: error. Declaration start char: 0, length: 18
 
 // #completionTest(23) -> resourceTypes
 resource trailingSpace  
+//@[000:008) Local this. Type: error. Declaration start char: 24, length: 0
 //@[009:022) Resource trailingSpace. Type: error. Declaration start char: 0, length: 24
 
 // #completionTest(19,20) -> resourceObject
 resource foo 'ddd'= 
+//@[000:008) Local this. Type: error. Declaration start char: 20, length: 0
 //@[009:012) Resource foo. Type: error. Declaration start char: 0, length: 20
 
 // wrong resource type
 resource foo 'ddd'={
+//@[000:008) Local this. Type: object. Declaration start char: 19, length: 4
 //@[009:012) Resource foo. Type: error. Declaration start char: 0, length: 23
 }
 
 resource foo 'ddd'=if (1 + 1 == 2) {
+//@[000:008) Local this. Type: object. Declaration start char: 35, length: 4
 //@[009:012) Resource foo. Type: error. Declaration start char: 0, length: 39
 }
 
 // using string interpolation for the resource type
 resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
+//@[000:008) Local this. Type: object. Declaration start char: 60, length: 4
 //@[009:012) Resource foo. Type: error. Declaration start char: 0, length: 64
 }
 
 resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= if (true) {
+//@[000:008) Local this. Type: object. Declaration start char: 70, length: 4
 //@[009:012) Resource foo. Type: error. Declaration start char: 0, length: 74
 }
 
 // missing required property
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
+//@[000:008) Local this. Type: object. Declaration start char: 51, length: 4
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 55
 }
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (name == 'value') {
+//@[000:008) Local this. Type: object. Declaration start char: 73, length: 4
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 77
 }
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
+//@[000:008) Local this. Type: object. Declaration start char: 79, length: 4
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 83
 }
 
 // simulate typing if condition
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
+//@[000:008) Local this. Type: error. Declaration start char: 54, length: 0
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 54
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (
+//@[000:008) Local this. Type: error. Declaration start char: 60, length: 0
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 120
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true)
+//@[000:008) Local this. Type: error. Declaration start char: 61, length: 0
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 61
 
 // missing condition
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
+//@[000:008) Local this. Type: object. Declaration start char: 55, length: 19
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 74
   name: 'foo'
 }
@@ -72,35 +89,41 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
 // empty condition
 // #completionTest(56) -> symbols
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
+//@[000:008) Local this. Type: object. Declaration start char: 58, length: 19
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 77
   name: 'foo'
 }
 
 // #completionTest(57, 59) -> symbols
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
+//@[000:008) Local this. Type: object. Declaration start char: 63, length: 19
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 82
   name: 'foo'
 }
 
 // invalid condition type
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
+//@[000:008) Local this. Type: object. Declaration start char: 61, length: 19
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 80
   name: 'foo'
 }
 
 // runtime functions are no allowed in resource conditions
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
+//@[000:008) Local this. Type: object. Declaration start char: 146, length: 19
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 165
   name: 'foo'
 }
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-05-01').bar == true) {
+//@[000:008) Local this. Type: object. Declaration start char: 100, length: 19
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 119
   name: 'foo'
 }
 
 // duplicate property at the top level
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[000:008) Local this. Type: error. Declaration start char: 52, length: 33
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 85
   name: 'foo'
   name: true
@@ -108,6 +131,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 
 // duplicate property at the top level with string literal syntax
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[000:008) Local this. Type: error. Declaration start char: 52, length: 35
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 87
   name: 'foo'
   'name': true
@@ -115,6 +139,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 
 // duplicate property inside
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[000:008) Local this. Type: error. Declaration start char: 52, length: 69
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 121
   name: 'foo'
   properties: {
@@ -125,6 +150,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 
 // duplicate property inside with string literal syntax
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[000:008) Local this. Type: error. Declaration start char: 52, length: 71
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 123
   name: 'foo'
   properties: {
@@ -135,6 +161,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 
 // wrong property types
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[000:008) Local this. Type: object. Declaration start char: 52, length: 72
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 124
   name: 'foo'
   location: [
@@ -143,6 +170,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 }
 
 resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[000:008) Local this. Type: error. Declaration start char: 53, length: 178
 //@[009:012) Resource bar. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 231
   name: true ? 's' : 'a' + 1
   properties: {
@@ -158,12 +186,14 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 
 // there should be no completions without the colon
 resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[000:008) Local this. Type: error. Declaration start char: 88, length: 50
 //@[009:034) Resource noCompletionsWithoutColon. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 138
   // #completionTest(7,8) -> empty
   kind  
 }
 
 resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[000:008) Local this. Type: error. Declaration start char: 87, length: 51
 //@[009:033) Resource noCompletionsBeforeColon. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 138
   // #completionTest(7,8) -> empty
   kind  :
@@ -181,6 +211,7 @@ output resrefout bool = bar.id
 
 // attempting to set read-only properties
 resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[000:008) Local this. Type: object. Declaration start char: 53, length: 66
 //@[009:012) Resource baz. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 119
   name: 'test'
   id: 2
@@ -189,6 +220,7 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 }
 
 resource readOnlyPropertyAssignment 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 85, length: 267
 //@[009:035) Resource readOnlyPropertyAssignment. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 352
   name: 'vnet-bicep'
   location: 'westeurope'
@@ -205,6 +237,7 @@ resource readOnlyPropertyAssignment 'Microsoft.Network/virtualNetworks@2020-06-0
 }
 
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[000:008) Local this. Type: object. Declaration start char: 60, length: 53
 //@[009:019) Resource badDepends. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 113
   name: 'test'
   dependsOn: [
@@ -213,6 +246,7 @@ resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 }
 
 resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[000:008) Local this. Type: object. Declaration start char: 61, length: 64
 //@[009:020) Resource badDepends2. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 125
   name: 'test'
   dependsOn: [
@@ -222,11 +256,13 @@ resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 }
 
 resource badDepends3 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[000:008) Local this. Type: object. Declaration start char: 61, length: 20
 //@[009:020) Resource badDepends3. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 81
   name: 'test'
 }
 
 resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[000:008) Local this. Type: object. Declaration start char: 61, length: 58
 //@[009:020) Resource badDepends4. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 119
   name: 'test'
   dependsOn: [
@@ -235,6 +271,7 @@ resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 }
 
 resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[000:008) Local this. Type: error. Declaration start char: 61, length: 56
 //@[009:020) Resource badDepends5. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 117
   name: 'test'
   dependsOn: badDepends3.dependsOn
@@ -243,6 +280,7 @@ resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 var interpVal = 'abc'
 //@[004:013) Variable interpVal. Type: 'abc'. Declaration start char: 0, length: 21
 resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+//@[000:008) Local this. Type: error. Declaration start char: 59, length: 146
 //@[009:018) Resource badInterp. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 205
   name: 'test'
   '${interpVal}': 'unsupported' // resource definition does not allow for additionalProperties
@@ -258,6 +296,7 @@ module validModule './module.bicep' = {
 }
 
 resource runtimeValidRes1 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 75, length: 99
 //@[009:025) Resource runtimeValidRes1. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 174
   name: 'name1'
   location: 'eastus'
@@ -267,6 +306,7 @@ resource runtimeValidRes1 'Microsoft.Compute/virtualMachines@2020-06-01' = {
 }
 
 resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 79, length: 250
 //@[009:025) Resource runtimeValidRes2. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 329
   name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
   kind:'AzureCLI'
@@ -278,31 +318,37 @@ resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 }
 
 resource runtimeValidRes3 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 88, length: 43
 //@[009:025) Resource runtimeValidRes3. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 131
   name: '${runtimeValidRes1.name}_v1'
 }
 
 resource runtimeValidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 88, length: 47
 //@[009:025) Resource runtimeValidRes4. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 135
   name: concat(validModule['name'], 'v1')
 }
 
 resource runtimeValidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 88, length: 38
 //@[009:025) Resource runtimeValidRes5. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 126
   name: '${validModule.name}_v1'
 }
 
 resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 90, length: 39
 //@[009:027) Resource runtimeInvalidRes1. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 129
   name: runtimeValidRes1.location
 }
 
 resource runtimeInvalidRes2 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 90, length: 42
 //@[009:027) Resource runtimeInvalidRes2. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 132
   name: runtimeValidRes1['location']
 }
 
 resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 81, length: 211
 //@[009:027) Resource runtimeInvalidRes3. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 292
   name: runtimeValidRes1.properties.evictionPolicy
   kind:'AzureCLI'
@@ -314,21 +360,25 @@ resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' =
 }
 
 resource runtimeInvalidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 90, length: 59
 //@[009:027) Resource runtimeInvalidRes4. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 149
   name: runtimeValidRes1['properties'].evictionPolicy
 }
 
 resource runtimeInvalidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 90, length: 62
 //@[009:027) Resource runtimeInvalidRes5. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 152
   name: runtimeValidRes1['properties']['evictionPolicy']
 }
 
 resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 90, length: 59
 //@[009:027) Resource runtimeInvalidRes6. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 149
   name: runtimeValidRes1.properties['evictionPolicy']
 }
 
 resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 90, length: 54
 //@[009:027) Resource runtimeInvalidRes7. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 144
   name: runtimeValidRes2.properties.azCliVersion
 }
@@ -336,26 +386,31 @@ resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020
 var magicString1 = 'location'
 //@[004:016) Variable magicString1. Type: 'location'. Declaration start char: 0, length: 29
 resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 90, length: 49
 //@[009:027) Resource runtimeInvalidRes8. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 139
   name: runtimeValidRes2['${magicString1}']
 }
 
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 91, length: 44
 //@[009:028) Resource runtimeInvalidRes10. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 135
   name: '${runtimeValidRes3.location}'
 }
 
 resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: error. Declaration start char: 91, length: 40
 //@[009:028) Resource runtimeInvalidRes11. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 131
   name: validModule.params['name']
 }
 
 resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 91, length: 149
 //@[009:028) Resource runtimeInvalidRes12. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 240
   name: concat(runtimeValidRes1.location, runtimeValidRes2['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
 }
 
 resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: error. Declaration start char: 91, length: 152
 //@[009:028) Resource runtimeInvalidRes13. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 243
   name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
 }
@@ -389,47 +444,56 @@ var runtimeValid = {
 }
 
 resource runtimeInvalidRes14 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 91, length: 33
 //@[009:028) Resource runtimeInvalidRes14. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 124
   name: runtimeInvalid.foo1
 }
 
 resource runtimeInvalidRes15 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 91, length: 33
 //@[009:028) Resource runtimeInvalidRes15. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 124
   name: runtimeInvalid.foo2
 }
 
 resource runtimeInvalidRes16 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 91, length: 57
 //@[009:028) Resource runtimeInvalidRes16. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 148
   name: runtimeInvalid.foo3.properties.azCliVersion
 }
 
 // Note: This is actually a runtime valid value. However, other properties of the variable cannot be resolved, so we block this.
 resource runtimeInvalidRes17 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 91, length: 33
 //@[009:028) Resource runtimeInvalidRes17. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 124
   name: runtimeInvalid.foo4
 }
 
 resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 91, length: 135
 //@[009:028) Resource runtimeInvalidRes18. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 226
   name: concat(runtimeInvalid.foo1, runtimeValidRes2['properties'].azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)
 }
 
 resource runtimeValidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 88, length: 31
 //@[009:025) Resource runtimeValidRes6. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 119
   name: runtimeValid.foo1
 }
 
 resource runtimeValidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 88, length: 31
 //@[009:025) Resource runtimeValidRes7. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 119
   name: runtimeValid.foo2
 }
 
 resource runtimeValidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 88, length: 31
 //@[009:025) Resource runtimeValidRes8. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 119
   name: runtimeValid.foo3
 }
 
 resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 88, length: 31
 //@[009:025) Resource runtimeValidRes9. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 119
   name: runtimeValid.foo4
 }
@@ -437,12 +501,14 @@ resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-0
 var magicString2 = 'name'
 //@[004:016) Variable magicString2. Type: 'name'. Declaration start char: 0, length: 25
 resource runtimeValidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 89, length: 49
 //@[009:026) Resource runtimeValidRes10. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 138
   name: runtimeValidRes2['${magicString2}']
 }
 
 resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
 //@[076:081) Local thing. Type: never. Declaration start char: 76, length: 5
+//@[000:008) Local this. Type: object[]. Declaration start char: 71, length: 59
 //@[009:028) Resource loopForRuntimeCheck. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 130
   name: 'test'
   location: 'test'
@@ -454,6 +520,7 @@ var runtimeCheckVar2 = runtimeCheckVar
 //@[004:020) Variable runtimeCheckVar2. Type: 'Private' | 'Public'. Declaration start char: 0, length: 38
 
 resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 81, length: 50
 //@[009:038) Resource singleResourceForRuntimeCheck. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 131
   name: runtimeCheckVar2
   location: 'test'
@@ -461,6 +528,7 @@ resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' =
 
 resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
 //@[077:082) Local thing. Type: never. Declaration start char: 77, length: 5
+//@[000:008) Local this. Type: object[]. Declaration start char: 72, length: 69
 //@[009:029) Resource loopForRuntimeCheck2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 141
   name: runtimeCheckVar2
   location: 'test'
@@ -468,6 +536,7 @@ resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thi
 
 resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
 //@[077:087) Local otherThing. Type: never. Declaration start char: 77, length: 10
+//@[000:008) Local this. Type: object[]. Declaration start char: 72, length: 100
 //@[009:029) Resource loopForRuntimeCheck3. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 172
   name: loopForRuntimeCheck[0].properties.zoneType
   location: 'test'
@@ -479,18 +548,21 @@ var varForRuntimeCheck4b = varForRuntimeCheck4a
 //@[004:024) Variable varForRuntimeCheck4b. Type: 'Private' | 'Public'. Declaration start char: 0, length: 47
 resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
 //@[077:087) Local otherThing. Type: never. Declaration start char: 77, length: 10
+//@[000:008) Local this. Type: object[]. Declaration start char: 72, length: 78
 //@[009:029) Resource loopForRuntimeCheck4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 150
   name: varForRuntimeCheck4b
   location: 'test'
 }]
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
+//@[000:008) Local this. Type: object. Declaration start char: 92, length: 61
 //@[009:034) Resource missingTopLevelProperties. Type: Microsoft.Storage/storageAccounts@2020-08-01-preview. Declaration start char: 0, length: 153
   // #completionTest(0, 1, 2) -> topLevelProperties
   
 }
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
+//@[000:008) Local this. Type: object. Declaration start char: 102, length: 203
 //@[009:044) Resource missingTopLevelPropertiesExceptName. Type: Microsoft.Storage/storageAccounts@2020-08-01-preview. Declaration start char: 0, length: 305
   // #completionTest(2) -> topLevelPropertiesMinusNameNoColon
   name: 'me'
@@ -501,6 +573,7 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
 
 // #completionTest(24,25,26,49,65,69,70) -> virtualNetworksResourceTypes
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 73, length: 458
 //@[009:023) Resource unfinishedVnet. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 531
   name: 'v'
   location: 'eastus'
@@ -527,6 +600,7 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 Discriminator key missing
 */
 resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 86, length: 62
 //@[009:032) Resource discriminatorKeyMissing. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 148
   // #completionTest(0,1,2) -> discriminatorProperty
   
@@ -536,6 +610,7 @@ resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-
 Discriminator key missing (conditional)
 */
 resource discriminatorKeyMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(true) {
+//@[000:008) Local this. Type: object. Declaration start char: 98, length: 62
 //@[009:035) Resource discriminatorKeyMissing_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 160
   // #completionTest(0,1,2) -> discriminatorProperty
   
@@ -546,6 +621,7 @@ Discriminator key missing (loop)
 */
 resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
 //@[095:100) Local thing. Type: never. Declaration start char: 95, length: 5
+//@[000:008) Local this. Type: object[]. Declaration start char: 90, length: 81
 //@[009:036) Resource discriminatorKeyMissing_for. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 171
   // #completionTest(0,1,2) -> discriminatorProperty
   
@@ -556,6 +632,7 @@ Discriminator key missing (filtered loop)
 */
 resource discriminatorKeyMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
 //@[098:103) Local thing. Type: never. Declaration start char: 98, length: 5
+//@[000:008) Local this. Type: object[]. Declaration start char: 93, length: 90
 //@[009:039) Resource discriminatorKeyMissing_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 183
   // #completionTest(0,1,2) -> discriminatorProperty
   
@@ -565,6 +642,7 @@ resource discriminatorKeyMissing_for_if 'Microsoft.Resources/deploymentScripts@2
 Discriminator key value missing with property access
 */
 resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[000:008) Local this. Type: error. Declaration start char: 91, length: 84
 //@[009:037) Resource discriminatorKeyValueMissing. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 175
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols
   kind:   
@@ -584,6 +662,7 @@ var discriminatorKeyValueMissingCompletions3 = discriminatorKeyValueMissing[]
 Discriminator key value missing with property access (conditional)
 */
 resource discriminatorKeyValueMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(false) {
+//@[000:008) Local this. Type: error. Declaration start char: 104, length: 87
 //@[009:040) Resource discriminatorKeyValueMissing_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 191
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_if
   kind:   
@@ -604,6 +683,7 @@ Discriminator key value missing with property access (loops)
 */
 resource discriminatorKeyValueMissing_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
 //@[100:105) Local thing. Type: never. Declaration start char: 100, length: 5
+//@[000:008) Local this. Type: error. Declaration start char: 95, length: 107
 //@[009:041) Resource discriminatorKeyValueMissing_for. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 202
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for
   kind:   
@@ -629,6 +709,7 @@ Discriminator key value missing with property access (filtered loops)
 */
 resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
 //@[103:108) Local thing. Type: never. Declaration start char: 103, length: 5
+//@[000:008) Local this. Type: error. Declaration start char: 98, length: 119
 //@[009:044) Resource discriminatorKeyValueMissing_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 217
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for_if
   kind:   
@@ -653,6 +734,7 @@ var discriminatorKeyValueMissingCompletions3_for_if = discriminatorKeyValueMissi
 Discriminator value set 1
 */
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 85, length: 181
 //@[009:031) Resource discriminatorKeySetOne. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 266
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
@@ -677,6 +759,7 @@ var discriminatorKeySetOneCompletions3 = discriminatorKeySetOne.properties[]
 Discriminator value set 1 (conditional)
 */
 resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(2==3) {
+//@[000:008) Local this. Type: object. Declaration start char: 97, length: 181
 //@[009:034) Resource discriminatorKeySetOne_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 278
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
@@ -702,6 +785,7 @@ Discriminator value set 1 (loop)
 */
 resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: {
 //@[095:100) Local thing. Type: never. Declaration start char: 95, length: 5
+//@[000:008) Local this. Type: object[]. Declaration start char: 89, length: 201
 //@[009:035) Resource discriminatorKeySetOne_for. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 290
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
@@ -727,6 +811,7 @@ Discriminator value set 1 (filtered loop)
 */
 resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: if(true) {
 //@[098:103) Local thing. Type: never. Declaration start char: 98, length: 5
+//@[000:008) Local this. Type: object[]. Declaration start char: 92, length: 210
 //@[009:038) Resource discriminatorKeySetOne_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 302
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
@@ -752,6 +837,7 @@ var discriminatorKeySetOneCompletions3_for_if = discriminatorKeySetOne_for_if[1]
 Discriminator value set 2
 */
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 85, length: 187
 //@[009:031) Resource discriminatorKeySetTwo. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 272
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
@@ -779,6 +865,7 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2 = discriminatorKeySetTwo['pro
 Discriminator value set 2 (conditional)
 */
 resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 88, length: 187
 //@[009:034) Resource discriminatorKeySetTwo_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 275
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
@@ -808,6 +895,7 @@ Discriminator value set 2 (loops)
 */
 resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
 //@[094:099) Local thing. Type: never. Declaration start char: 94, length: 5
+//@[000:008) Local this. Type: object[]. Declaration start char: 89, length: 206
 //@[009:035) Resource discriminatorKeySetTwo_for. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 295
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
@@ -837,6 +925,7 @@ Discriminator value set 2 (filtered loops)
 */
 resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
 //@[097:102) Local thing. Type: never. Declaration start char: 97, length: 5
+//@[000:008) Local this. Type: object[]. Declaration start char: 92, length: 215
 //@[009:038) Resource discriminatorKeySetTwo_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 307
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
@@ -863,6 +952,7 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetT
 
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 85, length: 48
 //@[009:031) Resource incorrectPropertiesKey. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 133
   kind: 'AzureCLI'
 
@@ -874,6 +964,7 @@ var mock = incorrectPropertiesKey.p
 //@[004:008) Variable mock. Type: error. Declaration start char: 0, length: 35
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[000:008) Local this. Type: error. Declaration start char: 86, length: 710
 //@[009:032) Resource incorrectPropertiesKey2. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 796
   kind: 'AzureCLI'
   name: 'test'
@@ -906,17 +997,21 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
 
 // #completionTest(21) -> resourceTypes
 resource missingType 
+//@[000:008) Local this. Type: error. Declaration start char: 21, length: 0
 //@[009:020) Resource missingType. Type: error. Declaration start char: 0, length: 21
 
 // #completionTest(37,38,39,40,41,42,43,44) -> resourceTypes
 resource startedTypingTypeWithQuotes 'virma'
+//@[000:008) Local this. Type: error. Declaration start char: 44, length: 0
 //@[009:036) Resource startedTypingTypeWithQuotes. Type: error. Declaration start char: 0, length: 44
 
 // #completionTest(40,41,42,43,44,45) -> resourceTypes
 resource startedTypingTypeWithoutQuotes virma
+//@[000:008) Local this. Type: error. Declaration start char: 45, length: 0
 //@[009:039) Resource startedTypingTypeWithoutQuotes. Type: error. Declaration start char: 0, length: 45
 
 resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 89, length: 4
 //@[009:030) Resource dashesInPropertyNames. Type: Microsoft.ContainerService/managedClusters@2020-09-01. Declaration start char: 0, length: 93
 }
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
@@ -930,6 +1025,7 @@ var letsAccessTheDashes2 = dashesInPropertyNames.properties.autoScalerProfile.
 Nested discriminator missing key
 */
 resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+//@[000:008) Local this. Type: object. Declaration start char: 100, length: 90
 //@[009:038) Resource nestedDiscriminatorMissingKey. Type: Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview. Declaration start char: 0, length: 190
   name: 'test'
   location: 'l'
@@ -953,6 +1049,7 @@ var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKe
 Nested discriminator missing key (conditional)
 */
 resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = if(bool(1)) {
+//@[000:008) Local this. Type: object. Declaration start char: 115, length: 90
 //@[009:041) Resource nestedDiscriminatorMissingKey_if. Type: Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview. Declaration start char: 0, length: 205
   name: 'test'
   location: 'l'
@@ -977,6 +1074,7 @@ Nested discriminator missing key (loop)
 */
 resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
 //@[109:114) Local thing. Type: never. Declaration start char: 109, length: 5
+//@[000:008) Local this. Type: object[]. Declaration start char: 104, length: 109
 //@[009:042) Resource nestedDiscriminatorMissingKey_for. Type: Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview[]. Declaration start char: 0, length: 213
   name: 'test'
   location: 'l'
@@ -1002,6 +1100,7 @@ Nested discriminator missing key (filtered loop)
 */
 resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
 //@[112:117) Local thing. Type: never. Declaration start char: 112, length: 5
+//@[000:008) Local this. Type: object[]. Declaration start char: 107, length: 118
 //@[009:045) Resource nestedDiscriminatorMissingKey_for_if. Type: Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview[]. Declaration start char: 0, length: 225
   name: 'test'
   location: 'l'
@@ -1026,6 +1125,7 @@ var nestedDiscriminatorMissingKeyIndexCompletions_for_if = nestedDiscriminatorMi
 Nested discriminator
 */
 resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
+//@[000:008) Local this. Type: object. Declaration start char: 90, length: 88
 //@[009:028) Resource nestedDiscriminator. Type: Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview. Declaration start char: 0, length: 178
   name: 'test'
   location: 'l'
@@ -1055,6 +1155,7 @@ var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]
 Nested discriminator (conditional)
 */
 resource nestedDiscriminator_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = if(true) {
+//@[000:008) Local this. Type: object. Declaration start char: 102, length: 88
 //@[009:031) Resource nestedDiscriminator_if. Type: Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview. Declaration start char: 0, length: 190
   name: 'test'
   location: 'l'
@@ -1086,6 +1187,7 @@ Nested discriminator (loop)
 */
 resource nestedDiscriminator_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
 //@[099:104) Local thing. Type: never. Declaration start char: 99, length: 5
+//@[000:008) Local this. Type: object[]. Declaration start char: 94, length: 107
 //@[009:032) Resource nestedDiscriminator_for. Type: Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview[]. Declaration start char: 0, length: 201
   name: 'test'
   location: 'l'
@@ -1117,6 +1219,7 @@ Nested discriminator (filtered loop)
 */
 resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
 //@[102:107) Local thing. Type: never. Declaration start char: 102, length: 5
+//@[000:008) Local this. Type: object[]. Declaration start char: 97, length: 116
 //@[009:035) Resource nestedDiscriminator_for_if. Type: Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview[]. Declaration start char: 0, length: 213
   name: 'test'
   location: 'l'
@@ -1146,6 +1249,7 @@ var nestedDiscriminatorArrayIndexCompletions_for_if = nestedDiscriminator_for_if
 
 // sample resource to validate completions on the next declarations
 resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@2020-06-01' = if(true) {
+//@[000:008) Local this. Type: object. Declaration start char: 101, length: 108
 //@[009:042) Resource nestedPropertyAccessOnConditional. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 209
   location: 'test'
   name: 'test'
@@ -1164,6 +1268,7 @@ var sigh = nestedPropertyAccessOnConditional.properties.
   boolean property value completions
 */ 
 resource booleanPropertyPartialValue 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[000:008) Local this. Type: error. Declaration start char: 97, length: 125
 //@[009:036) Resource booleanPropertyPartialValue. Type: Microsoft.Compute/virtualMachines/extensions@2020-06-01. Declaration start char: 0, length: 222
   properties: {
     // #completionTest(28,29,30) -> boolPropertyValuesPlusSymbols
@@ -1172,6 +1277,7 @@ resource booleanPropertyPartialValue 'Microsoft.Compute/virtualMachines/extensio
 }
 
 resource selfScope 'My.Rp/mockResource@2020-12-01' = {
+//@[000:008) Local this. Type: error. Declaration start char: 53, length: 45
 //@[009:018) Resource selfScope. Type: My.Rp/mockResource@2020-12-01. Declaration start char: 0, length: 98
   name: 'selfScope'
   scope: selfScope
@@ -1183,48 +1289,57 @@ var notAResource = {
   a: 'resource!'
 }
 resource invalidScope 'My.Rp/mockResource@2020-12-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 56, length: 51
 //@[009:021) Resource invalidScope. Type: My.Rp/mockResource@2020-12-01. Declaration start char: 0, length: 107
   name: 'invalidScope'
   scope: notAResource
 }
 
 resource invalidScope2 'My.Rp/mockResource@2020-12-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 57, length: 55
 //@[009:022) Resource invalidScope2. Type: My.Rp/mockResource@2020-12-01. Declaration start char: 0, length: 112
   name: 'invalidScope2'
   scope: resourceGroup()
 }
 
 resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 57, length: 54
 //@[009:022) Resource invalidScope3. Type: My.Rp/mockResource@2020-12-01. Declaration start char: 0, length: 111
   name: 'invalidScope3'
   scope: subscription()
 }
 
 resource invalidDuplicateName1 'Mock.Rp/mockResource@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 67, length: 36
 //@[009:030) Resource invalidDuplicateName1. Type: Mock.Rp/mockResource@2020-01-01. Declaration start char: 0, length: 103
   name: 'invalidDuplicateName'
 }
 resource invalidDuplicateName2 'Mock.Rp/mockResource@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 67, length: 36
 //@[009:030) Resource invalidDuplicateName2. Type: Mock.Rp/mockResource@2020-01-01. Declaration start char: 0, length: 103
   name: 'invalidDuplicateName'
 }
 resource invalidDuplicateName3 'Mock.Rp/mockResource@2019-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 67, length: 36
 //@[009:030) Resource invalidDuplicateName3. Type: Mock.Rp/mockResource@2019-01-01. Declaration start char: 0, length: 103
   name: 'invalidDuplicateName'
 }
 
 resource validResourceForInvalidExtensionResourceDuplicateName 'Mock.Rp/mockResource@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 99, length: 69
 //@[009:062) Resource validResourceForInvalidExtensionResourceDuplicateName. Type: Mock.Rp/mockResource@2020-01-01. Declaration start char: 0, length: 168
   name: 'validResourceForInvalidExtensionResourceDuplicateName'
 }
 
 resource invalidExtensionResourceDuplicateName1 'Mock.Rp/mockExtResource@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 87, length: 117
 //@[009:047) Resource invalidExtensionResourceDuplicateName1. Type: Mock.Rp/mockExtResource@2020-01-01. Declaration start char: 0, length: 204
   name: 'invalidExtensionResourceDuplicateName'
   scope: validResourceForInvalidExtensionResourceDuplicateName
 }
 
 resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 87, length: 117
 //@[009:047) Resource invalidExtensionResourceDuplicateName2. Type: Mock.Rp/mockExtResource@2019-01-01. Declaration start char: 0, length: 204
   name: 'invalidExtensionResourceDuplicateName'
   scope: validResourceForInvalidExtensionResourceDuplicateName
@@ -1233,11 +1348,13 @@ resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01
 @concat('foo', 'bar')
 @secure()
 resource invalidDecorator 'Microsoft.Foo/foos@2020-02-02-alpha'= {
+//@[000:008) Local this. Type: object. Declaration start char: 65, length: 32
 //@[009:025) Resource invalidDecorator. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 131
   name: 'invalidDecorator'
 }
 
 resource cyclicRes 'Mock.Rp/mockExistingResource@2020-01-01' = {
+//@[000:008) Local this. Type: error. Declaration start char: 63, length: 45
 //@[009:018) Resource cyclicRes. Type: Mock.Rp/mockExistingResource@2020-01-01. Declaration start char: 0, length: 108
   name: 'cyclicRes'
   scope: cyclicRes
@@ -1251,87 +1368,108 @@ resource cyclicExistingRes 'Mock.Rp/mockExistingResource@2020-01-01' existing = 
 
 // loop parsing cases
 resource expectedForKeyword 'Microsoft.Storage/storageAccounts@2019-06-01' = []
+//@[000:008) Local this. Type: error. Declaration start char: 77, length: 2
 //@[009:027) Resource expectedForKeyword. Type: Microsoft.Storage/storageAccounts@2019-06-01. Declaration start char: 0, length: 79
 
 resource expectedForKeyword2 'Microsoft.Storage/storageAccounts@2019-06-01' = [f]
+//@[000:008) Local this. Type: error. Declaration start char: 78, length: 3
 //@[009:028) Resource expectedForKeyword2. Type: Microsoft.Storage/storageAccounts@2019-06-01. Declaration start char: 0, length: 81
 
 resource expectedLoopVar 'Microsoft.Storage/storageAccounts@2019-06-01' = [for]
+//@[000:008) Local this. Type: error. Declaration start char: 74, length: 5
 //@[009:024) Resource expectedLoopVar. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 79
 
 resource expectedInKeyword 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x]
 //@[081:082) Local x. Type: any. Declaration start char: 81, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 76, length: 7
 //@[009:026) Resource expectedInKeyword. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 83
 
 resource expectedInKeyword2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x b]
 //@[082:083) Local x. Type: any. Declaration start char: 82, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 77, length: 9
 //@[009:027) Resource expectedInKeyword2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 86
 
 resource expectedArrayExpression 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in]
 //@[087:088) Local x. Type: any. Declaration start char: 87, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 82, length: 10
 //@[009:032) Resource expectedArrayExpression. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 92
 
 resource expectedColon 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y]
 //@[077:078) Local x. Type: any. Declaration start char: 77, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 72, length: 12
 //@[009:022) Resource expectedColon. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 84
 
 resource expectedLoopBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y:]
 //@[080:081) Local x. Type: any. Declaration start char: 80, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 75, length: 13
 //@[009:025) Resource expectedLoopBody. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 88
 
 // loop index parsing cases
 resource expectedLoopItemName 'Microsoft.Network/dnsZones@2018-05-01' = [for ()]
+//@[000:008) Local this. Type: error. Declaration start char: 72, length: 8
 //@[009:029) Resource expectedLoopItemName. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 80
 
 resource expectedLoopItemName2 'Microsoft.Network/dnsZones@2018-05-01' = [for (
+//@[000:008) Local this. Type: error. Declaration start char: 73, length: 6
 //@[009:030) Resource expectedLoopItemName2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 79
 
 resource expectedComma 'Microsoft.Network/dnsZones@2018-05-01' = [for (x)]
+//@[000:008) Local this. Type: error. Declaration start char: 65, length: 9
 //@[009:022) Resource expectedComma. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 74
 
 resource expectedLoopIndexName 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, )]
+//@[000:008) Local this. Type: error. Declaration start char: 73, length: 11
 //@[009:030) Resource expectedLoopIndexName. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 84
 
 resource expectedInKeyword3 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y)]
 //@[076:077) Local x. Type: any. Declaration start char: 76, length: 1
 //@[079:080) Local y. Type: int. Declaration start char: 79, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 70, length: 12
 //@[009:027) Resource expectedInKeyword3. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 82
 
 resource expectedInKeyword4 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) z]
 //@[076:077) Local x. Type: any. Declaration start char: 76, length: 1
 //@[079:080) Local y. Type: int. Declaration start char: 79, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 70, length: 14
 //@[009:027) Resource expectedInKeyword4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 84
 
 resource expectedArrayExpression2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in ]
 //@[082:083) Local x. Type: any. Declaration start char: 82, length: 1
 //@[085:086) Local y. Type: int. Declaration start char: 85, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 76, length: 16
 //@[009:033) Resource expectedArrayExpression2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 92
 
 resource expectedColon2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z]
 //@[072:073) Local x. Type: any. Declaration start char: 72, length: 1
 //@[075:076) Local y. Type: int. Declaration start char: 75, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 66, length: 17
 //@[009:023) Resource expectedColon2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 83
 
 resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z:]
 //@[075:076) Local x. Type: any. Declaration start char: 75, length: 1
 //@[078:079) Local y. Type: int. Declaration start char: 78, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 69, length: 18
 //@[009:026) Resource expectedLoopBody2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 87
 
 // loop filter parsing cases
 resource expectedLoopFilterOpenParen 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if]
 //@[091:092) Local x. Type: any. Declaration start char: 91, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 86, length: 16
 //@[009:036) Resource expectedLoopFilterOpenParen. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 102
 resource expectedLoopFilterOpenParen2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if]
 //@[086:087) Local x. Type: any. Declaration start char: 86, length: 1
 //@[089:090) Local y. Type: int. Declaration start char: 89, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 80, length: 21
 //@[009:037) Resource expectedLoopFilterOpenParen2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 101
 
 resource expectedLoopFilterPredicateAndBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if()]
 //@[098:099) Local x. Type: any. Declaration start char: 98, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 93, length: 18
 //@[009:043) Resource expectedLoopFilterPredicateAndBody. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 111
 resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if()]
 //@[093:094) Local x. Type: any. Declaration start char: 93, length: 1
 //@[096:097) Local y. Type: int. Declaration start char: 96, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 87, length: 23
 //@[009:044) Resource expectedLoopFilterPredicateAndBody2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 110
 
 // wrong body type
@@ -1339,27 +1477,32 @@ var emptyArray = []
 //@[004:014) Variable emptyArray. Type: <empty array>. Declaration start char: 0, length: 19
 resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in emptyArray:4]
 //@[081:082) Local x. Type: never. Declaration start char: 81, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 76, length: 23
 //@[009:026) Resource wrongLoopBodyType. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 99
 resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
 //@[083:084) Local x. Type: never. Declaration start char: 83, length: 1
 //@[086:087) Local i. Type: int. Declaration start char: 86, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 77, length: 28
 //@[009:027) Resource wrongLoopBodyType2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 105
 
 // duplicate variable in the same scope
 resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {
 //@[080:084) Local same. Type: never. Declaration start char: 80, length: 4
 //@[086:090) Local same. Type: int. Declaration start char: 86, length: 4
+//@[000:008) Local this. Type: object[]. Declaration start char: 74, length: 38
 //@[009:029) Resource itemAndIndexSameName. Type: Microsoft.AAD/domainServices@2020-01-01[]. Declaration start char: 0, length: 112
 }]
 
 // errors in the array expression
 resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in union([], 2): {
 //@[085:092) Local account. Type: any. Declaration start char: 85, length: 7
+//@[000:008) Local this. Type: error. Declaration start char: 80, length: 35
 //@[009:030) Resource arrayExpressionErrors. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 115
 }]
 resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,k) in union([], 2): {
 //@[087:094) Local account. Type: any. Declaration start char: 87, length: 7
 //@[095:096) Local k. Type: int. Declaration start char: 95, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 81, length: 39
 //@[009:031) Resource arrayExpressionErrors2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 120
 }]
 
@@ -1368,39 +1511,46 @@ var notAnArray = true
 //@[004:014) Variable notAnArray. Type: true. Declaration start char: 0, length: 21
 resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in notAnArray: {
 //@[078:085) Local account. Type: any. Declaration start char: 78, length: 7
+//@[000:008) Local this. Type: error. Declaration start char: 73, length: 33
 //@[009:023) Resource wrongArrayType. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 106
 }]
 resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in notAnArray: {
 //@[080:087) Local account. Type: any. Declaration start char: 80, length: 7
 //@[088:089) Local i. Type: int. Declaration start char: 88, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 74, length: 37
 //@[009:024) Resource wrongArrayType2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 111
 }]
 
 // wrong filter expression type
 resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in emptyArray: if(4) {
 //@[089:096) Local account. Type: never. Declaration start char: 89, length: 7
+//@[000:008) Local this. Type: object[]. Declaration start char: 84, length: 39
 //@[009:034) Resource wrongFilterExpressionType. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 123
 }]
 resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in emptyArray: if(concat('s')){
 //@[091:098) Local account. Type: never. Declaration start char: 91, length: 7
 //@[099:100) Local i. Type: int. Declaration start char: 99, length: 1
+//@[000:008) Local this. Type: object[]. Declaration start char: 85, length: 52
 //@[009:035) Resource wrongFilterExpressionType2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 137
 }]
 
 // missing required properties
 resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
 //@[089:096) Local account. Type: never. Declaration start char: 89, length: 7
+//@[000:008) Local this. Type: object[]. Declaration start char: 84, length: 25
 //@[009:034) Resource missingRequiredProperties. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 109
 }]
 resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,j) in []: {
 //@[091:098) Local account. Type: never. Declaration start char: 91, length: 7
 //@[099:100) Local j. Type: int. Declaration start char: 99, length: 1
+//@[000:008) Local this. Type: object[]. Declaration start char: 85, length: 29
 //@[009:035) Resource missingRequiredProperties2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 114
 }]
 
 // fewer missing required properties and a wrong property
 resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
 //@[094:101) Local account. Type: never. Declaration start char: 94, length: 7
+//@[000:008) Local this. Type: object[]. Declaration start char: 89, length: 107
 //@[009:039) Resource missingFewerRequiredProperties. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 196
   name: account
   location: 'eastus42'
@@ -1412,6 +1562,7 @@ resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-
 // wrong property inside the nested property loop
 resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
 //@[089:090) Local i. Type: int. Declaration start char: 89, length: 1
+//@[000:008) Local this. Type: object[]. Declaration start char: 84, length: 178
 //@[009:034) Resource wrongPropertyInNestedLoop. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 262
   name: 'vnet-${i}'
   properties: {
@@ -1425,6 +1576,7 @@ resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01
 resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-01' = [for (i,k) in range(0, 3): {
 //@[091:092) Local i. Type: int. Declaration start char: 91, length: 1
 //@[093:094) Local k. Type: int. Declaration start char: 93, length: 1
+//@[000:008) Local this. Type: object[]. Declaration start char: 85, length: 187
 //@[009:035) Resource wrongPropertyInNestedLoop2. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 272
   name: 'vnet-${i}'
   properties: {
@@ -1439,6 +1591,7 @@ resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-0
 // nonexistent arrays and loop variables
 resource nonexistentArrays 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in notAThing: {
 //@[081:082) Local i. Type: any. Declaration start char: 81, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 76, length: 204
 //@[009:026) Resource nonexistentArrays. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 280
   name: 'vnet-${justPlainWrong}'
   properties: {
@@ -1453,6 +1606,7 @@ resource nonexistentArrays 'Microsoft.Network/virtualNetworks@2020-06-01' = [for
 // property loops cannot be nested
 resource propertyLoopsCannotNest 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
 //@[087:094) Local account. Type: any. Declaration start char: 87, length: 7
+//@[000:008) Local this. Type: error. Declaration start char: 82, length: 346
 //@[009:032) Resource propertyLoopsCannotNest. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 428
   name: account.name
   location: account.location
@@ -1475,6 +1629,7 @@ resource propertyLoopsCannotNest 'Microsoft.Storage/storageAccounts@2019-06-01' 
 resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in storageAccounts: {
 //@[089:096) Local account. Type: any. Declaration start char: 89, length: 7
 //@[097:098) Local i. Type: int. Declaration start char: 97, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 83, length: 358
 //@[009:033) Resource propertyLoopsCannotNest2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 441
   name: account.name
   location: account.location
@@ -1500,6 +1655,7 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 // property loops cannot be nested (even more nesting)
 resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
 //@[088:095) Local account. Type: any. Declaration start char: 88, length: 7
+//@[000:008) Local this. Type: error. Declaration start char: 83, length: 551
 //@[009:033) Resource propertyLoopsCannotNest2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 634
   name: account.name
   location: account.location
@@ -1527,6 +1683,7 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 // loops cannot be used inside of expressions
 resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
 //@[070:077) Local account. Type: any. Declaration start char: 70, length: 7
+//@[000:008) Local this. Type: error. Declaration start char: 65, length: 316
 //@[009:015) Resource stuffs. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 381
   name: account.name
   location: account.location
@@ -1547,6 +1704,7 @@ resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in
 // using the same loop variable in a new language scope should be allowed
 resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
 //@[079:086) Local account. Type: any. Declaration start char: 79, length: 7
+//@[000:008) Local this. Type: error. Declaration start char: 74, length: 294
 //@[009:024) Resource premiumStorages. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 368
   // #completionTest(7) -> symbolsPlusAccount1
   name: account.name
@@ -1565,6 +1723,7 @@ output directRefViaOutput array = union(premiumStorages, stuffs)
 //@[007:025) Output directRefViaOutput. Type: array. Declaration start char: 0, length: 64
 
 resource directRefViaSingleResourceBody 'Microsoft.Network/dnszones@2018-05-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 82, length: 117
 //@[009:039) Resource directRefViaSingleResourceBody. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 199
   name: 'myZone2'
   location: 'global'
@@ -1574,6 +1733,7 @@ resource directRefViaSingleResourceBody 'Microsoft.Network/dnszones@2018-05-01' 
 }
 
 resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2018-05-01' = if(true) {
+//@[000:008) Local this. Type: object. Declaration start char: 102, length: 133
 //@[009:050) Resource directRefViaSingleConditionalResourceBody. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 235
   name: 'myZone3'
   location: 'global'
@@ -1585,6 +1745,7 @@ resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2
 @batchSize()
 resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
 //@[098:099) Local i. Type: int. Declaration start char: 98, length: 1
+//@[000:008) Local this. Type: object[]. Declaration start char: 93, length: 101
 //@[009:043) Resource directRefViaSingleLoopResourceBody. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 208
   name: 'vnet-${i}'
   properties: {
@@ -1595,6 +1756,7 @@ resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2
 @batchSize(0)
 resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
 //@[116:117) Local i. Type: int. Declaration start char: 116, length: 1
+//@[000:008) Local this. Type: object[]. Declaration start char: 111, length: 176
 //@[009:061) Resource directRefViaSingleLoopResourceBodyWithExtraDependsOn. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 302
   name: 'vnet-${i}'
   properties: {
@@ -1611,6 +1773,7 @@ resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network
 var expressionInPropertyLoopVar = true
 //@[004:031) Variable expressionInPropertyLoopVar. Type: true. Declaration start char: 0, length: 38
 resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 81, length: 151
 //@[009:038) Resource expressionsInPropertyLoopName. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 232
   name: 'hello'
   location: 'eastus'
@@ -1624,33 +1787,41 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
 @batchSize(-1)
 resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
 //@[082:087) Local thing. Type: never. Declaration start char: 82, length: 5
+//@[000:008) Local this. Type: error. Declaration start char: 77, length: 25
 //@[009:034) Resource nonObjectResourceLoopBody. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 118
 resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
 //@[083:088) Local thing. Type: never. Declaration start char: 83, length: 5
+//@[000:008) Local this. Type: error. Declaration start char: 78, length: 32
 //@[009:035) Resource nonObjectResourceLoopBody2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 110
 resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: 'test']
 //@[084:089) Local thing. Type: never. Declaration start char: 84, length: 5
 //@[090:091) Local i. Type: int. Declaration start char: 90, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 78, length: 29
 //@[009:035) Resource nonObjectResourceLoopBody3. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 107
 resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: environment()]
 //@[084:089) Local thing. Type: never. Declaration start char: 84, length: 5
 //@[090:091) Local i. Type: int. Declaration start char: 90, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 78, length: 36
 //@[009:035) Resource nonObjectResourceLoopBody4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 114
 resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) 'test']
 //@[084:089) Local thing. Type: never. Declaration start char: 84, length: 5
 //@[090:091) Local i. Type: int. Declaration start char: 90, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 78, length: 38
 //@[009:035) Resource nonObjectResourceLoopBody3. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 116
 resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) environment()]
 //@[084:089) Local thing. Type: never. Declaration start char: 84, length: 5
 //@[090:091) Local i. Type: int. Declaration start char: 90, length: 1
+//@[000:008) Local this. Type: error. Declaration start char: 78, length: 45
 //@[009:035) Resource nonObjectResourceLoopBody4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 123
 
 // #completionTest(54,55) -> objectPlusFor
 resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
+//@[000:008) Local this. Type: error. Declaration start char: 55, length: 0
 //@[009:012) Resource foo. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 55
 
 resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
 //@[060:064) Local item. Type: never. Declaration start char: 60, length: 4
+//@[000:008) Local this. Type: error. Declaration start char: 55, length: 202
 //@[009:012) Resource foo. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 257
   properties: {
     // #completionTest(32,33) -> symbolsPlusArrayAndFor
@@ -1663,6 +1834,7 @@ resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
 }]
 
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+//@[000:008) Local this. Type: error. Declaration start char: 63, length: 262
 //@[009:013) Resource vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 325
   properties: {
     virtualNetworkPeerings: [for item in []: {
@@ -1685,6 +1857,7 @@ resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 }
 
 resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 65, length: 41
 //@[009:018) Resource p1_child1. Type: Microsoft.Rp1/resource1/child1@2020-06-01. Declaration start char: 0, length: 106
   parent: p1_res1
   name: 'child1'
@@ -1692,16 +1865,19 @@ resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 
 // parent property with scope on child resource
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 56, length: 20
 //@[009:016) Resource p2_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 76
   name: 'res1'
 }
 
 resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 56, length: 20
 //@[009:016) Resource p2_res2. Type: Microsoft.Rp2/resource2@2020-06-01. Declaration start char: 0, length: 76
   name: 'res2'
 }
 
 resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 68, length: 59
 //@[009:021) Resource p2_res2child. Type: Microsoft.Rp2/resource2/child2@2020-06-01. Declaration start char: 0, length: 127
   scope: p2_res1
   parent: p2_res2
@@ -1710,6 +1886,7 @@ resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
 
 // parent property self-cycle
 resource p3_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[000:008) Local this. Type: error. Declaration start char: 78, length: 46
 //@[009:017) Resource p3_vmExt. Type: Microsoft.Compute/virtualMachines/extensions@2020-06-01. Declaration start char: 0, length: 124
   parent: p3_vmExt
   location: 'eastus'
@@ -1717,12 +1894,14 @@ resource p3_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
 
 // parent property 2-cycle
 resource p4_vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+//@[000:008) Local this. Type: error. Declaration start char: 64, length: 46
 //@[009:014) Resource p4_vm. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 110
   parent: p4_vmExt
   location: 'eastus'
 }
 
 resource p4_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[000:008) Local this. Type: error. Declaration start char: 78, length: 43
 //@[009:017) Resource p4_vmExt. Type: Microsoft.Compute/virtualMachines/extensions@2020-06-01. Declaration start char: 0, length: 121
   parent: p4_vm
   location: 'eastus'
@@ -1730,11 +1909,13 @@ resource p4_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
 
 // parent property with invalid child
 resource p5_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 56, length: 20
 //@[009:016) Resource p5_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 76
   name: 'res1'
 }
 
 resource p5_res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 63, length: 39
 //@[009:016) Resource p5_res2. Type: Microsoft.Rp2/resource2/child2@2020-06-01. Declaration start char: 0, length: 102
   parent: p5_res1
   name: 'res2'
@@ -1742,11 +1923,13 @@ resource p5_res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
 
 // parent property with invalid parent
 resource p6_res1 '${true}' = {
+//@[000:008) Local this. Type: object. Declaration start char: 29, length: 20
 //@[009:016) Resource p6_res1. Type: error. Declaration start char: 0, length: 49
   name: 'res1'
 }
 
 resource p6_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+//@[000:008) Local this. Type: error. Declaration start char: 63, length: 39
 //@[009:016) Resource p6_res2. Type: Microsoft.Rp1/resource1/child2@2020-06-01. Declaration start char: 0, length: 102
   parent: p6_res1
   name: 'res2'
@@ -1754,17 +1937,20 @@ resource p6_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
 
 // parent property with incorrectly-formatted name
 resource p7_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 56, length: 20
 //@[009:016) Resource p7_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 76
   name: 'res1'
 }
 
 resource p7_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 63, length: 44
 //@[009:016) Resource p7_res2. Type: Microsoft.Rp1/resource1/child2@2020-06-01. Declaration start char: 0, length: 107
   parent: p7_res1
   name: 'res1/res2'
 }
 
 resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 63, length: 55
 //@[009:016) Resource p7_res3. Type: Microsoft.Rp1/resource1/child2@2020-06-01. Declaration start char: 0, length: 118
   parent: p7_res1
   name: '${p7_res1.name}/res2'
@@ -1772,6 +1958,7 @@ resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
 
 // top-level resource with too many '/' characters
 resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 56, length: 25
 //@[009:016) Resource p8_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 81
   name: 'res1/res2'
 }
@@ -1784,6 +1971,7 @@ resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' exis
 }
 
 resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 96, length: 100
 //@[009:035) Resource invalidExistingLocationRef. Type: Microsoft.Compute/virtualMachines/extensions@2020-06-01. Declaration start char: 0, length: 196
     parent: existingResProperty
     name: 'myExt'
@@ -1791,6 +1979,7 @@ resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extension
 }
 
 resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 70, length: 189
 //@[009:027) Resource anyTypeInDependsOn. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 259
   name: 'anyTypeInDependsOn'
   location: resourceGroup().location
@@ -1802,22 +1991,26 @@ resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
 }
 
 resource anyTypeInParent 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 73, length: 25
 //@[009:024) Resource anyTypeInParent. Type: Microsoft.Network/dnsZones/CNAME@2018-05-01. Declaration start char: 0, length: 98
   parent: any(true)
 }
 
 resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for thing in []: {
 //@[082:087) Local thing. Type: never. Declaration start char: 82, length: 5
+//@[000:008) Local this. Type: object[]. Declaration start char: 77, length: 44
 //@[009:028) Resource anyTypeInParentLoop. Type: Microsoft.Network/dnsZones/CNAME@2018-05-01[]. Declaration start char: 0, length: 121
   parent: any(true)
 }]
 
 resource anyTypeInScope 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 69, length: 46
 //@[009:023) Resource anyTypeInScope. Type: Microsoft.Authorization/locks@2016-09-01. Declaration start char: 0, length: 115
   scope: any(invalidExistingLocationRef)
 }
 
 resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' = if(true) {
+//@[000:008) Local this. Type: object. Declaration start char: 89, length: 46
 //@[009:034) Resource anyTypeInScopeConditional. Type: Microsoft.Authorization/locks@2016-09-01. Declaration start char: 0, length: 135
   scope: any(invalidExistingLocationRef)
 }
@@ -1836,45 +2029,55 @@ resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01'
 }]
 
 resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-05-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 89, length: 42
 //@[009:035) Resource tenantLevelResourceBlocked. Type: Microsoft.Management/managementGroups@2020-05-01. Declaration start char: 0, length: 131
   name: 'tenantLevelResourceBlocked'
 }
 
 // #completionTest(15,36,37) -> resourceTypes
 resource comp1 'Microsoft.Resources/'
+//@[000:008) Local this. Type: error. Declaration start char: 37, length: 0
 //@[009:014) Resource comp1. Type: error. Declaration start char: 0, length: 37
 
 // #completionTest(15,16,17) -> resourceTypes
 resource comp2 ''
+//@[000:008) Local this. Type: error. Declaration start char: 17, length: 0
 //@[009:014) Resource comp2. Type: error. Declaration start char: 0, length: 17
 
 // #completionTest(38) -> resourceTypes
 resource comp3 'Microsoft.Resources/t'
+//@[000:008) Local this. Type: error. Declaration start char: 38, length: 0
 //@[009:014) Resource comp3. Type: error. Declaration start char: 0, length: 38
 
 // #completionTest(40) -> resourceTypes
 resource comp4 'Microsoft.Resources/t/v'
+//@[000:008) Local this. Type: error. Declaration start char: 40, length: 0
 //@[009:014) Resource comp4. Type: error. Declaration start char: 0, length: 40
 
 // #completionTest(49) -> resourceTypes
 resource comp5 'Microsoft.Storage/storageAccounts'
+//@[000:008) Local this. Type: error. Declaration start char: 50, length: 0
 //@[009:014) Resource comp5. Type: error. Declaration start char: 0, length: 50
 
 // #completionTest(50) -> storageAccountsResourceTypes
 resource comp6 'Microsoft.Storage/storageAccounts@'
+//@[000:008) Local this. Type: error. Declaration start char: 51, length: 0
 //@[009:014) Resource comp6. Type: error. Declaration start char: 0, length: 51
 
 // #completionTest(52) -> templateSpecsResourceTypes
 resource comp7 'Microsoft.Resources/templateSpecs@20'
+//@[000:008) Local this. Type: error. Declaration start char: 53, length: 0
 //@[009:014) Resource comp7. Type: error. Declaration start char: 0, length: 53
 
 // #completionTest(60,61) -> virtualNetworksResourceTypes
 resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'
+//@[000:008) Local this. Type: error. Declaration start char: 61, length: 0
 //@[009:014) Resource comp8. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 61
 
 
 // issue #3000
 resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 69, length: 384
 //@[009:027) Resource issue3000LogicApp1. Type: Microsoft.Logic/workflows@2019-05-01. Declaration start char: 0, length: 453
   name: 'issue3000LogicApp1'
   location: resourceGroup().location
@@ -1903,6 +2106,7 @@ resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
 }
 
 resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 69, length: 383
 //@[009:027) Resource issue3000LogicApp2. Type: Microsoft.Logic/workflows@2019-05-01. Declaration start char: 0, length: 452
   name: 'issue3000LogicApp2'
   location: resourceGroup().location
@@ -1933,6 +2137,7 @@ resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
 }
 
 resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 71, length: 163
 //@[009:021) Resource issue3000stg. Type: Microsoft.Storage/storageAccounts@2021-04-01. Declaration start char: 0, length: 234
   name: 'issue3000stg'
   kind: 'StorageV2'
@@ -1969,6 +2174,7 @@ resource logAnalyticsWorkspaces 'Microsoft.OperationalInsights/workspaces@2020-1
 }]
 
 resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 85, length: 752
 //@[009:030) Resource dataCollectionRuleRes. Type: Microsoft.Insights/dataCollectionRules@2021-04-01. Declaration start char: 0, length: 837
   name: dataCollectionRule.name
   location: dataCollectionRule.location
@@ -1994,6 +2200,7 @@ resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-0
 }
 
 resource dataCollectionRuleRes2 'Microsoft.Insights/dataCollectionRules@2021-04-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 86, length: 359
 //@[009:031) Resource dataCollectionRuleRes2. Type: Microsoft.Insights/dataCollectionRules@2021-04-01. Declaration start char: 0, length: 445
   name: dataCollectionRule.name
   location: dataCollectionRule.location
@@ -2023,6 +2230,7 @@ param issue4668_identity object
 param issue4668_properties object
 //@[006:026) Parameter issue4668_properties. Type: object. Declaration start char: 0, length: 91
 resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 85, length: 144
 //@[009:031) Resource issue4668_mainResource. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 229
   name: 'testscript'
   location: 'westeurope'
@@ -2042,6 +2250,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
 
 // parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
 resource sqlServer1 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 57, length: 62
 //@[009:019) Resource sqlServer1. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 119
   name: 'sqlServer1'
   location: 'polandcentral'
@@ -2049,6 +2258,7 @@ resource sqlServer1 'Microsoft.Sql/servers@2021-11-01' = {
   @
 }
 resource sqlServer2 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:008) Local this. Type: error. Declaration start char: 57, length: 174
 //@[009:019) Resource sqlServer2. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 231
   name: 'sqlServer2'
   location: 'polandcentral'
@@ -2062,6 +2272,7 @@ resource sqlServer2 'Microsoft.Sql/servers@2021-11-01' = {
   }
 }
 resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 57, length: 103
 //@[009:019) Resource sqlServer3. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 160
   name: 'sqlServer3'
   location: 'polandcentral'
@@ -2070,6 +2281,7 @@ resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
 
 }
 resource sqlServer4 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 57, length: 76
 //@[009:019) Resource sqlServer4. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 133
   name: 'sqlServer4'
   location: 'polandcentral'
@@ -2078,12 +2290,14 @@ resource sqlServer4 'Microsoft.Sql/servers@2021-11-01' = {
 
 }
 resource sqlServer5 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 57, length: 166
 //@[009:019) Resource sqlServer5. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 223
   name: 'sqlServer5'
   location: 'polandcentral'
 
   @batchSize(1)
   resource sqlDatabase 'databases' = {
+//@[002:010) Local this. Type: object. Declaration start char: 37, length: 53
 //@[011:022) Resource sqlDatabase. Type: Microsoft.Sql/servers/databases@2021-11-01. Declaration start char: 2, length: 105
     name: 'db'
     location: 'polandcentral'

@@ -345,6 +345,56 @@ func lineBeforeComma(
 //@[013:019) Identifier |string|
 //@[020:022) Arrow |=>|
 //@[023:028) StringComplete |'foo'|
-//@[028:029) NewLine |\n|
+//@[028:031) NewLine |\n\n\n|
+
+
+output likeWrongArgcount bool =like('abc')
+//@[000:006) Identifier |output|
+//@[007:024) Identifier |likeWrongArgcount|
+//@[025:029) Identifier |bool|
+//@[030:031) Assignment |=|
+//@[031:035) Identifier |like|
+//@[035:036) LeftParen |(|
+//@[036:041) StringComplete |'abc'|
+//@[041:042) RightParen |)|
+//@[042:043) NewLine |\n|
+output likeWrongArgcount2 bool =like('abcdef','a*','abcd*')
+//@[000:006) Identifier |output|
+//@[007:025) Identifier |likeWrongArgcount2|
+//@[026:030) Identifier |bool|
+//@[031:032) Assignment |=|
+//@[032:036) Identifier |like|
+//@[036:037) LeftParen |(|
+//@[037:045) StringComplete |'abcdef'|
+//@[045:046) Comma |,|
+//@[046:050) StringComplete |'a*'|
+//@[050:051) Comma |,|
+//@[051:058) StringComplete |'abcd*'|
+//@[058:059) RightParen |)|
+//@[059:060) NewLine |\n|
+output likeWrongType bool =like(123,'a*')
+//@[000:006) Identifier |output|
+//@[007:020) Identifier |likeWrongType|
+//@[021:025) Identifier |bool|
+//@[026:027) Assignment |=|
+//@[027:031) Identifier |like|
+//@[031:032) LeftParen |(|
+//@[032:035) Integer |123|
+//@[035:036) Comma |,|
+//@[036:040) StringComplete |'a*'|
+//@[040:041) RightParen |)|
+//@[041:042) NewLine |\n|
+output likeWrongReturnType string=like('abcd','a*')
+//@[000:006) Identifier |output|
+//@[007:026) Identifier |likeWrongReturnType|
+//@[027:033) Identifier |string|
+//@[033:034) Assignment |=|
+//@[034:038) Identifier |like|
+//@[038:039) LeftParen |(|
+//@[039:045) StringComplete |'abcd'|
+//@[045:046) Comma |,|
+//@[046:050) StringComplete |'a*'|
+//@[050:051) RightParen |)|
+//@[051:052) NewLine |\n|
 
 //@[000:000) EndOfFile ||

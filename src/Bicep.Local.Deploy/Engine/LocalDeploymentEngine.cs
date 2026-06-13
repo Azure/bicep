@@ -37,8 +37,7 @@ public class LocalDeploymentEngine
         this.requestContext = requestContext;
         this.settings = settings;
         this.deploymentEngine = deploymentEngine;
-        this.deploymentDataProvider = dataProviderHolder.GetDeploymentDataProvider(requestContext.Location);
-        this.deploymentStatusDataProvider = dataProviderHolder.GetDeploymentStatusDataProvider(requestContext.Location);
+        this.dataProviderHolder = dataProviderHolder;
         this.jobProvider = jobProvider;
         this.deploymentEntityFactory = deploymentEntityFactory;
     }
@@ -46,8 +45,7 @@ public class LocalDeploymentEngine
     private readonly LocalRequestContext requestContext;
     private readonly IAzureDeploymentSettings settings;
     private readonly AzureDeploymentEngine deploymentEngine;
-    private readonly IDeploymentDataProvider deploymentDataProvider;
-    private readonly IDeploymentStatusDataProvider deploymentStatusDataProvider;
+    private readonly IDataProviderHolder dataProviderHolder;
     private readonly IDeploymentJobsDataProvider jobProvider;
     private readonly IDeploymentEntityFactory deploymentEntityFactory;
 
@@ -130,6 +128,7 @@ public class LocalDeploymentEngine
                 resourceGroupDefinition: null,
                 tenantDefinition: null);
 
+            var deploymentDataProvider = await dataProviderHolder.GetDeploymentDataProviderAsync(requestContext.Location);
             var entity = await deploymentDataProvider.FindDeployment(context.SubscriptionId, context.ResourceGroupName, context.DeploymentName);
             var operationEntities = await deploymentDataProvider.FindDeploymentOperations(context.SubscriptionId, context.ResourceGroupName, context.DeploymentName, entity.SequenceId, -1);
 
@@ -163,6 +162,9 @@ public class LocalDeploymentEngine
 
     private async Task SaveDeployment(DeploymentPlan deploymentPlan)
     {
+        var deploymentDataProvider = await dataProviderHolder.GetDeploymentDataProviderAsync(requestContext.Location);
+        var deploymentStatusDataProvider = await dataProviderHolder.GetDeploymentStatusDataProviderAsync(requestContext.Location);
+
         if (deploymentPlan.OldDeployment != null)
         {
             await deploymentDataProvider.DeleteDeployment(
