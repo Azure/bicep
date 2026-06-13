@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO.Abstractions;
 using System.Text;
 using Bicep.Cli.Helpers.Repl;
@@ -278,7 +279,7 @@ public class ReplEnvironment
             JTokenType.String => SyntaxFactory.CreateStringLiteral(value.ToString()),
             JTokenType.Boolean => SyntaxFactory.CreateBooleanLiteral(value.Value<bool>()),
             // Floats are currently not supported in Bicep, so fallback to string syntax
-            JTokenType.Float => SyntaxFactory.CreateStringLiteral(value.ToString()),
+            JTokenType.Float => SyntaxFactory.CreateStringLiteral(value.ToString(CultureInfo.InvariantCulture)),
             JTokenType.Null => SyntaxFactory.CreateNullLiteral(),
             _ => throw new NotImplementedException($"Unrecognized token type {value.Type}"),
         };
