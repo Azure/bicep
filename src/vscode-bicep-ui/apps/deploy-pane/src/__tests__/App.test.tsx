@@ -203,7 +203,9 @@ describe("App", () => {
   }
 }`;
 
-    expect(() => sendMessage(createPickParamsFileResultMessage("/tmp/main.parameters.json", invalidParametersJson))).not.toThrow();
+    expect(() =>
+      sendMessage(createPickParamsFileResultMessage("/tmp/main.parameters.json", invalidParametersJson)),
+    ).not.toThrow();
 
     expect(screen.getByText(/Expected ',' or '}' after property value/)).toBeInTheDocument();
   });
