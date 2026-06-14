@@ -895,11 +895,11 @@ namespace Bicep.Core.UnitTests.Configuration
             var configuration = sut.GetConfiguration(fileSet.GetUri("main.bicep"));
 
             // Assert.
-         configuration.TryGetOciArtifactModuleAliasMock("myAlias").IsSuccess(out var mockAlias).Should().BeTrue();
+         configuration.ModuleAliasesMock.TryGetOciArtifactModuleAliasMock("myAlias").IsSuccess(out var mockAlias).Should().BeTrue();
          mockAlias!.MapToFilePath.Should().Be("mock/path");
 
          // The merged view should expose the mock definition without throwing on duplicate keys.
-         var mocks = configuration.GetOciArtifactModuleAliasMocks();
+         var mocks = configuration.ModuleAliasesMock.GetOciArtifactModuleAliasesMock();
          mocks.Should().ContainKey("myAlias");
          mocks["myAlias"].MapToFilePath.Should().Be("mock/path");
         }
@@ -928,7 +928,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var configuration = sut.GetConfiguration(fileSet.GetUri("main.bicep"));
 
             // Assert.
-            configuration.TryGetOciArtifactModuleAlias("myAlias").IsSuccess(out var alias).Should().BeTrue();
+            configuration.ModuleAliases.TryGetOciArtifactModuleAlias("myAlias").IsSuccess(out var alias).Should().BeTrue();
             alias!.Registry.Should().Be("real.azurecr.io");
         }
     }

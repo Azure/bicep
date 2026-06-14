@@ -107,53 +107,6 @@ namespace Bicep.Core.Configuration
 
         public bool IsBuiltIn => ConfigFileUri is null;
 
-        /// <summary>
-        /// Gets an OCI artifact module alias.
-        /// </summary>
-        public ResultWithDiagnosticBuilder<OciArtifactModuleAlias> TryGetOciArtifactModuleAlias(string aliasName)
-        {
-            return this.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName);
-        }
-
-        /// <summary>
-        /// Gets a template spec module alias
-        /// </summary>
-        public ResultWithDiagnosticBuilder<TemplateSpecModuleAlias> TryGetTemplateSpecModuleAlias(string aliasName)
-        {
-            return this.ModuleAliases.TryGetTemplateSpecModuleAlias(aliasName);
-        }
-        /// <summary>
-        /// Gets all OCI artifact module aliases from the configuration.
-        /// </summary>
-        public ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetOciArtifactModuleAliases()
-        {
-            return this.ModuleAliases.GetOciArtifactModuleAliases();
-        }
-
-        /// <summary>
-        /// Gets all template spec module aliases from the configuration.
-        /// </summary>
-        public ImmutableSortedDictionary<string, TemplateSpecModuleAlias> GetTemplateSpecModuleAliases()
-        {
-            return this.ModuleAliases.GetTemplateSpecModuleAliases();
-        }
-
-         /// <summary>
-         /// Gets all OCI artifact module alias mocks from the moduleAliasesMock configuration.
-         /// </summary>
-        public ImmutableSortedDictionary<string, OciArtifactModuleAliasMock> GetOciArtifactModuleAliasMocks()
-        {
-            return this.ModuleAliasesMock.GetOciArtifactModuleAliasesMock();
-        }
-
-         /// <summary>
-         /// Gets an OCI artifact module alias mock. Returns null if the alias is not defined in moduleAliasesMock.
-         /// </summary>
-        public ResultWithDiagnosticBuilder<OciArtifactModuleAliasMock> TryGetOciArtifactModuleAliasMock(string aliasName)
-        {
-            return this.ModuleAliasesMock.TryGetOciArtifactModuleAliasMock(aliasName);
-        }
-
         public RootConfiguration With(
             CloudConfiguration? cloud = null,
             ModuleAliasesConfiguration? moduleAliases = null,

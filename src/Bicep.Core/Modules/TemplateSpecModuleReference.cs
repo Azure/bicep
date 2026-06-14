@@ -74,7 +74,7 @@ namespace Bicep.Core.Modules
         {
             if (aliasName is not null)
             {
-                if (!configuration.TryGetTemplateSpecModuleAlias(aliasName).IsSuccess(out var alias, out var errorBuilder))
+                if (!configuration.ModuleAliases.TryGetTemplateSpecModuleAlias(aliasName).IsSuccess(out var alias, out var errorBuilder))
                 {
                     return new(errorBuilder);
                 }

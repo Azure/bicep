@@ -57,7 +57,7 @@ namespace Bicep.Core.Registry
              // Check if the alias resolves to a mocked alias
             if (aliasName is not null)
             {
-                if (referencingFile.Configuration.TryGetOciArtifactModuleAliasMock(aliasName).IsSuccess(out var mockAlias, out var _))
+                if (referencingFile.Configuration.ModuleAliasesMock.TryGetOciArtifactModuleAliasMock(aliasName).IsSuccess(out var mockAlias, out var _))
                 {
                        // Mock aliases only support modules, not extensions.
                     if (artifactType != ArtifactType.Module)
