@@ -126,7 +126,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestMethod]
-        public void User_defined_type_reference_with_secret_name_is_not_flagged()
+        public void Unsecure_user_defined_type_reference_with_secret_name_is_flagged()
         {
             CompileAndTest("""
 type ContainerAppSecretType = {
@@ -139,17 +139,86 @@ type ContainerAppSecretListType = {
 }
 
 param containerAppSecrets ContainerAppSecretListType
-""", 0);
+""", 1);
         }
 
         [TestMethod]
-        public void User_defined_string_type_reference_with_secret_name_is_not_flagged()
+        public void Unsecure_user_defined_string_type_reference_with_secret_name_is_flagged()
         {
             CompileAndTest("""
 type SecureStringType = string
 
 param password SecureStringType
+""", 1);
+        }
+
+        [TestMethod]
+        public void Secure_user_defined_type_reference_with_secret_name_is_not_flagged()
+        {
+            CompileAndTest("""
+@secure()
+type SecureStringType = string
+
+param password SecureStringType
 """, 0);
+        }
+
+        [TestMethod]
+        public void Secure_user_defined_object_type_reference_with_secret_name_is_not_flagged()
+        {
+            CompileAndTest("""
+type ContainerAppSecretType = {
+  name: string
+  value: string
+}
+
+@secure()
+type ContainerAppSecretListType = {
+  secureList: ContainerAppSecretType[]
+}
+
+param containerAppSecrets ContainerAppSecretListType
+""", 0);
+        }
+
+        [TestMethod]
+        public void Imported_type_reference_with_secret_name_uses_secure_flag_from_imported_type()
+        {
+            var options = new Options(AdditionalFiles: [("types.bicep", """
+@export()
+type SecureStringType = string
+
+@export()
+@secure()
+type ActuallySecureStringType = string
+""")]);
+
+            AssertLinterRuleDiagnostics(SecretsInParamsMustBeSecureRule.Code, """
+import { SecureStringType, ActuallySecureStringType } from './types.bicep'
+
+param password SecureStringType
+param securePassword ActuallySecureStringType
+""", 1, options);
+        }
+
+        [TestMethod]
+        public void Wildcard_imported_type_reference_with_secret_name_uses_secure_flag_from_imported_type()
+        {
+            var options = new Options(AdditionalFiles: [("types.bicep", """
+@export()
+type SecureStringType = string
+
+@export()
+@secure()
+type ActuallySecureStringType = string
+""")]);
+
+            AssertLinterRuleDiagnostics(SecretsInParamsMustBeSecureRule.Code, """
+import * as types from './types.bicep'
+
+param password types.SecureStringType
+param securePassword types.ActuallySecureStringType
+""", 1, options);
         }
 
         [TestMethod]
@@ -172,6 +241,19 @@ type SecureStringType = string
 param insecureParam SecureStringType = secureParam
 """, 1);
         }
+
+        [TestMethod]
+        public void Codefix_marks_local_type_alias_as_secure()
+            => AssertCodeFix(SecretsInParamsMustBeSecureRule.Code, "Mark type as secure", """
+type SecureStringType = string
+
+param pass|word SecureStringType
+""", """
+@secure()
+type SecureStringType = string
+
+param password SecureStringType
+""");
 
         [TestMethod]
         public void FullExample()
