@@ -780,7 +780,7 @@
     "nerdbank-gitversioning": "^3.7.115",
     "prettier": "^3.8.2",
     "rimraf": "^6.0.1",
-    "semver": "^7.8.2",
+    "semver": "^7.8.4",
     "terser-webpack-plugin": "^5.6.1",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
