@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Json;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Configuration
@@ -16,6 +17,8 @@ namespace Bicep.Core.Configuration
         public const string CloudKey = "cloud";
 
         public const string ModuleAliasesKey = "moduleAliases";
+
+        public const string ModuleAliasesMockKey = "moduleAliasesMock";
 
         public const string ExtensionsKey = "extensions";
 
@@ -34,6 +37,7 @@ namespace Bicep.Core.Configuration
         public RootConfiguration(
             CloudConfiguration cloud,
             ModuleAliasesConfiguration moduleAliases,
+            ModuleAliasesMockConfiguration moduleAliasesMock,
             ExtensionsConfiguration extensions,
             ImplicitExtensionsConfiguration implicitExtensions,
             AnalyzersConfiguration analyzers,
@@ -46,6 +50,7 @@ namespace Bicep.Core.Configuration
         {
             this.Cloud = cloud;
             this.ModuleAliases = moduleAliases;
+            this.ModuleAliasesMock = moduleAliasesMock;
             this.Extensions = extensions;
             this.ImplicitExtensions = implicitExtensions;
             this.Analyzers = analyzers;
@@ -61,6 +66,9 @@ namespace Bicep.Core.Configuration
         {
             var cloud = CloudConfiguration.Bind(element.GetProperty(CloudKey));
             var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesKey), configFileUri);
+            var moduleAliasesMock = element.TryGetProperty(ModuleAliasesMockKey, out var mockElement)
+                 ? ModuleAliasesMockConfiguration.Bind(mockElement, configFileUri)
+                  : ModuleAliasesMockConfiguration.Bind(JsonElementFactory.CreateElement(new ModuleAliasesMock()), configFileUri);
             var analyzers = new AnalyzersConfiguration(element.GetProperty(AnalyzersKey));
             var cacheRootDirectory = element.TryGetProperty(CacheRootDirectoryKey, out var e) ? e.GetString() : default;
             var experimentalFeaturesWarning = element.TryGetProperty(ExperimentalFeaturesWarningKey, out var value) && value.GetBoolean();
@@ -70,12 +78,14 @@ namespace Bicep.Core.Configuration
             var extensions = ExtensionsConfiguration.Bind(element.GetProperty(ExtensionsKey));
             var implicitExtensions = ImplicitExtensionsConfiguration.Bind(element.GetProperty(ImplicitExtensionsKey));
 
-            return new(cloud, moduleAliases, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesWarning, experimentalFeaturesEnabled, formatting, configFileUri, null);
+            return new(cloud, moduleAliases, moduleAliasesMock, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesWarning, experimentalFeaturesEnabled, formatting, configFileUri, null);
         }
 
         public CloudConfiguration Cloud { get; }
 
         public ModuleAliasesConfiguration ModuleAliases { get; }
+
+        public ModuleAliasesMockConfiguration ModuleAliasesMock { get; }
 
         public ExtensionsConfiguration Extensions { get; }
 
@@ -100,6 +110,7 @@ namespace Bicep.Core.Configuration
         public RootConfiguration With(
             CloudConfiguration? cloud = null,
             ModuleAliasesConfiguration? moduleAliases = null,
+            ModuleAliasesMockConfiguration? moduleAliasesMock = null,
             ExtensionsConfiguration? extensions = null,
             ImplicitExtensionsConfiguration? implicitExtensions = null,
             AnalyzersConfiguration? analyzers = null,
@@ -113,6 +124,7 @@ namespace Bicep.Core.Configuration
             return new RootConfiguration(
                 cloud ?? this.Cloud,
                 moduleAliases ?? this.ModuleAliases,
+                moduleAliasesMock ?? this.ModuleAliasesMock,
                 extensions ?? this.Extensions,
                 implicitExtensions ?? this.ImplicitExtensions,
                 analyzers ?? this.Analyzers,
@@ -136,6 +148,9 @@ namespace Bicep.Core.Configuration
 
                 writer.WritePropertyName(ModuleAliasesKey);
                 this.ModuleAliases.WriteTo(writer);
+
+                writer.WritePropertyName(ModuleAliasesMockKey);
+                this.ModuleAliasesMock.WriteTo(writer);
 
                 writer.WritePropertyName(ExtensionsKey);
                 this.Extensions.WriteTo(writer);

@@ -387,6 +387,7 @@ namespace Bicep.LanguageServer.Completions
             registry = null;
             modulePath = null;
 
+            // Mock aliases supersede real aliases with the same name.
             if (configuration.ModuleAliases.GetOciArtifactModuleAliases().TryGetValue(aliasName, out var aliasConfig)
                 && !string.IsNullOrWhiteSpace(aliasConfig.Registry))
             {
