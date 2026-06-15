@@ -3,6 +3,7 @@
 
 import type { VscodeMessage } from "../messages";
 
+import "@testing-library/jest-dom";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { App } from "../components/App";
