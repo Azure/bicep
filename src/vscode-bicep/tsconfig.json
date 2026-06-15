@@ -2,8 +2,8 @@
   "compilerOptions": {
     "target": "es6",
     "lib": ["dom", "dom.iterable", "es2020", "ES2021.String", "ES2022.Error"],
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "Node16",
+    "moduleResolution": "node16",
     "esModuleInterop": true,
     "outDir": "out",
     "sourceMap": true,
