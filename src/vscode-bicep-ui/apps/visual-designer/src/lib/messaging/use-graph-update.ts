@@ -4,11 +4,11 @@
 import type { Point } from "@/lib/utils/math/geometry";
 import type {
   DeploymentGraph,
+  GetGraphUpdateRequest,
+  GetGraphUpdateResponse,
   GraphEdge,
   GraphNode,
   GraphPatch,
-  GetGraphUpdateRequest,
-  GetGraphUpdateResponse,
   RenderedGraph,
 } from "./messages";
 

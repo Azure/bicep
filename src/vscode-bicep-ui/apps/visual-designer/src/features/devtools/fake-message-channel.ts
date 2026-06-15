@@ -2,7 +2,12 @@
 // Licensed under the MIT License.
 
 import type { WebviewNotificationCallback, WebviewNotificationMessage } from "@vscode-bicep-ui/messaging";
-import type { DeploymentGraph, DeploymentGraphPayload, GetGraphUpdateRequest, GetGraphUpdateResponse } from "@/lib/messaging";
+import type {
+  DeploymentGraph,
+  DeploymentGraphPayload,
+  GetGraphUpdateRequest,
+  GetGraphUpdateResponse,
+} from "@/lib/messaging";
 
 import {
   DEPLOYMENT_GRAPH_NOTIFICATION,
