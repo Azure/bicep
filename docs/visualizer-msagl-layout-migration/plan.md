@@ -54,8 +54,8 @@ This folder holds the request/notification handlers, the graph service, the diff
 - Reference it from `src/Bicep.LangServer/Bicep.LangServer.csproj`.
 - Introduce internal services under `Features/Custom/Visualization/`, conceptually shaped as:
   - `IVisualizerGraphService`: builds the canonical graph and computes diffs against a submitted client graph.
-  - `IVisualizerLayoutEngine`: maps canonical graph to MSAGL geometry graph and returns node positions.
-  - `MsaglVisualizerLayoutEngine`: invokes core MSAGL layout only; React still renders all visuals.
+  - `IVisualGraphLayoutEngine`: maps canonical graph to MSAGL geometry graph and returns node positions.
+  - `MsaglVisualGraphLayoutEngine`: invokes core MSAGL layout only; React still renders all visuals.
 - Do not reference MSAGL from the React app or VS Code extension host.
 
 ### How This Maps Onto The Existing App
@@ -318,15 +318,14 @@ Do not run MSAGL when:
 ### MSAGL Constraints And Options
 
 - Use core MSAGL geometry graph APIs from the `Msagl` package, not Drawing, WPF, or WinForms viewer packages.
-- Model Bicep resources/modules as MSAGL nodes with deterministic sizes.
+- Model Bicep resources/modules as MSAGL nodes with sizes from the submitted rendered graph, falling back to shared `VisualGraphLayoutOptions.Default` values when the client has not measured a node yet.
 - Model dependencies as directed MSAGL edges.
 - Use a layered/Sugiyama-style top-to-bottom layout to match current ELK intent:
   - Direction: top to bottom.
   - Stable layer ordering by source order and node ID.
   - Tunable node separation, rank/layer separation, and component separation.
   - Edges are still modeled in MSAGL so they influence layering and node placement, but the client draws the straight edges itself. Use MSAGL's straight-line edge routing mode (`StraightLineEdges`) so layout does not spend time computing spline routes we discard; only node positions are read out.
-- Represent modules/compound nodes as clusters if core MSAGL cluster support is adequate.
-- If cluster behavior is not good enough initially, lay out nested module graphs independently and compose them into parent bounding boxes in the server service.
+- MSAGL cluster behavior was evaluated and is not reliable enough for the initial adapter, so lay out nested module scopes independently and compose them into parent module boxes in the server service.
 
 ### Stable Layouts And Minimal Movement
 
@@ -526,10 +525,10 @@ Do not run MSAGL when:
   - Mitigate with typed patch ops, strict ordering, whole-list application, and tests for every operation.
 
 - Node size mismatch between server and React:
-  - Mitigate by defining deterministic visual size in canonical graph, keeping layout independent of DOM measurement, and adding visual regression tests.
+  - Mitigate by using client-measured node sizes when available, keeping fallback/default metrics in shared `VisualGraphLayoutOptions.Default`, and adding visual regression tests.
 
 - MSAGL compound/module layout gaps:
-  - Mitigate by validating cluster support early; if needed, compose nested module layouts manually before deeper cluster investment.
+  - Mitigated initially by evaluating cluster support, avoiding it for Phase 5, and composing nested module scopes manually before deeper cluster investment.
 
 - Drag reconciliation complexity:
   - Out of scope for this migration; deferred to the future drag-n-drop work, which will revisit the protocol (see Forward Compatibility).
@@ -549,7 +548,7 @@ Legend: `[ ]` not started, `[~]` in progress, `[x]` done.
 | 2 | Document change notification loop | [x] | #19792 | Notify-then-request flow behind the flag; old full-graph path intact. Extension forwards `documentDidChange`→webview, webview pulls via `getGraphUpdate`→`textDocument/visualGraphUpdate`; single in-flight + dirty loop; patches applied to a client graph mirror, then translated to `DeploymentGraph` so ELK still lays out. Dev playground gains a server-layout toggle + throwaway TS differ. **Reordered after 3–4** so it forwards the real LSP request instead of a throwaway TS diff. |
 | 3 | Server graph service | [x] | #19757 | Canonical graph built from compilation (`VisualGraphBuilder`, mirrors `BicepDeploymentGraphHandler`); no MSAGL. Combined with Phase 4 into one PR. Types renamed `Visualizer*`→`Visual*`. |
 | 4 | Patch diff engine | [x] | #19757 | `VisualGraphDiffer` returns `GraphPatch[]`; handler registered (shadow mode, not flag-gated); ELK still lays out on the client. Combined with Phase 3. |
-| 5 | MSAGL adapter (shadow mode) | [ ] | — | Add `Msagl`, compute layout behind the flag, not applied by default. |
+| 5 | MSAGL adapter (shadow mode) | [~] | — | Implemented locally, pending PR. `Msagl` 1.2.1 added to central package management + `Bicep.LangServer.csproj`. New `IVisualGraphLayoutEngine` / `MsaglVisualGraphLayoutEngine` run a layered (Sugiyama) top-to-bottom layout via `LayoutHelpers.CalculateLayout`, straight-line routing, y-flipped + origin-normalized positions. Shared defaults live in `VisualGraphLayoutOptions.Default` (default node size, node/layer spacing, module padding) so future callers such as CLI image generation do not duplicate React constants; renderer-provided options can override later. **MSAGL clusters were tried first but throw at runtime**, so containment uses the plan's sanctioned fallback: lay out each scope's siblings flat, size each module box from its subtree + label padding, then compose by offsetting children (exact because the builder only ever emits sibling edges). `VisualGraphDiffer` gained `HasTopologyChange` + an optional `layout` arg (emits `setNodeLayout` before `setErrorCount`); the handler runs layout only on topology change, sizing nodes from the client `RenderedGraph` with shared defaults for missing measurements. Failures are caught/logged (empty result keeps prior positions); cancellation is bridged to MSAGL's `CancelToken`. Still shadow mode: React ignores `setNodeLayout`, ELK still lays out. Engine + differ unit tests added. |
 | 6 | React applies server layout | [ ] | — | Apply `setNodeLayout`; disable ELK for server-layout sessions. |
 | 7 | Single-flight hardening + telemetry | [ ] | — | In-flight + dirty loop, cancellation, debounce, metrics. |
 | 8 | Reserved for future WYSIWYG | [ ] | — | No work planned; placeholder only. |

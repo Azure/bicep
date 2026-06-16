@@ -28,7 +28,7 @@ public class GraphPatchSerializationTests
         token.ToObject<GraphPatch>(Serializer) ?? throw new InvalidOperationException("Deserialization returned null.");
 
     [TestMethod]
-    public void ClearGraph_round_trips_and_emits_camelCase_op()
+    public void ClearGraph_WhenSerialized_RoundTripsWithCamelCaseOp()
     {
         var patch = new GraphPatch.ClearGraph();
 
@@ -39,7 +39,7 @@ public class GraphPatchSerializationTests
     }
 
     [TestMethod]
-    public void AddNode_round_trips_with_camelCase_fields()
+    public void AddNode_WhenSerialized_RoundTripsWithCamelCaseFields()
     {
         var node = new GraphNode(
             Id: "res:foo",
@@ -62,7 +62,7 @@ public class GraphPatchSerializationTests
     }
 
     [TestMethod]
-    public void RemoveNode_round_trips()
+    public void RemoveNode_WhenSerialized_RoundTrips()
     {
         var patch = new GraphPatch.RemoveNode("res:foo");
 
@@ -74,7 +74,7 @@ public class GraphPatchSerializationTests
     }
 
     [TestMethod]
-    public void UpdateNode_round_trips_with_partial_changes()
+    public void UpdateNode_WithPartialChanges_RoundTrips()
     {
         var patch = new GraphPatch.UpdateNode("res:foo", new GraphNodeChanges(HasError: true));
 
@@ -85,7 +85,7 @@ public class GraphPatchSerializationTests
     }
 
     [TestMethod]
-    public void AddEdge_round_trips()
+    public void AddEdge_WhenSerialized_RoundTrips()
     {
         var patch = new GraphPatch.AddEdge(new GraphEdge("e1", "res:a", "res:b"));
 
@@ -96,7 +96,7 @@ public class GraphPatchSerializationTests
     }
 
     [TestMethod]
-    public void RemoveEdge_round_trips()
+    public void RemoveEdge_WhenSerialized_RoundTrips()
     {
         var patch = new GraphPatch.RemoveEdge("e1");
 
@@ -108,7 +108,7 @@ public class GraphPatchSerializationTests
     }
 
     [TestMethod]
-    public void SetNodeLayout_round_trips()
+    public void SetNodeLayout_WhenSerialized_RoundTrips()
     {
         var patch = new GraphPatch.SetNodeLayout("res:foo", new NodeLayout(12.5, -3.25));
 
@@ -119,7 +119,7 @@ public class GraphPatchSerializationTests
     }
 
     [TestMethod]
-    public void SetErrorCount_round_trips_with_camelCase_op()
+    public void SetErrorCount_WhenSerialized_RoundTripsWithCamelCaseOp()
     {
         var patch = new GraphPatch.SetErrorCount(3);
 
@@ -131,7 +131,7 @@ public class GraphPatchSerializationTests
     }
 
     [TestMethod]
-    public void Unknown_op_throws()
+    public void Deserialize_WithUnknownOp_Throws()
     {
         var json = new JObject { ["op"] = "bogus" };
 

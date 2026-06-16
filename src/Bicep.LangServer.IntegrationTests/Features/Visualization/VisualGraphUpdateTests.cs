@@ -26,7 +26,7 @@ namespace Bicep.LangServer.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
-        public async Task Initial_request_with_null_current_returns_a_full_add_delta()
+        public async Task VisualGraphUpdate_ForNullCurrent_ReturnsFullAddDelta()
         {
             using var helper = await StartServerAndOpenAsync();
             var client = helper.Helper.Client;
@@ -64,7 +64,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [TestMethod]
-        public async Task Request_with_matching_current_returns_only_metadata_refresh()
+        public async Task VisualGraphUpdate_ForMatchingCurrent_ReturnsOnlyMetadataRefresh()
         {
             using var helper = await StartServerAndOpenAsync();
             var client = helper.Helper.Client;
