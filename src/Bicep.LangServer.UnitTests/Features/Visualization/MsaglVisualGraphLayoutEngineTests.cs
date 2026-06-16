@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using Bicep.LanguageServer.Features.Custom.Visualization;
 using Bicep.LanguageServer.Features.Custom.Visualization.Models;
 using FluentAssertions;
@@ -159,6 +160,21 @@ public class MsaglVisualGraphLayoutEngineTests
         layout["mod::child"].Should().Be(new NodeLayout(29, 17));
     }
 
+    [TestMethod]
+    public void Layout_ForSimpleGraph_CompletesWithinSmokeBudget()
+    {
+        var engine = CreateEngine();
+        var graph = BuildRepresentativeGraph(moduleCount: 4, resourcesPerModule: 4, topLevelResourceCount: 8);
+        var stopwatch = Stopwatch.StartNew();
+
+        var layout = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None);
+
+        stopwatch.Stop();
+        layout.Keys.Should().BeEquivalentTo(graph.Nodes.Select(node => node.Id));
+        layout.Values.Should().OnlyContain(position => IsFinite(position));
+        stopwatch.Elapsed.Should().BeLessThan(TimeSpan.FromMilliseconds(500));
+    }
+
     private const double Tolerance = 1e-6;
 
     private static readonly VisualGraphLayoutOptions DefaultOptions = VisualGraphLayoutOptions.Default;
@@ -174,6 +190,49 @@ public class MsaglVisualGraphLayoutEngineTests
 
     private static IReadOnlyDictionary<string, NodeSize> Sizes(params (string Id, double Width, double Height)[] entries) =>
         entries.ToDictionary(entry => entry.Id, entry => new NodeSize(entry.Width, entry.Height), StringComparer.Ordinal);
+
+    private static CanonicalGraph BuildRepresentativeGraph(
+        int moduleCount,
+        int resourcesPerModule,
+        int topLevelResourceCount)
+    {
+        var nodes = new List<GraphNode>();
+        var edges = new List<GraphEdge>();
+
+        for (var index = 0; index < topLevelResourceCount; index++)
+        {
+            nodes.Add(Node($"top{index}"));
+
+            if (index > 0)
+            {
+                edges.Add(Edge($"top{index - 1}", $"top{index}"));
+            }
+        }
+
+        for (var moduleIndex = 0; moduleIndex < moduleCount; moduleIndex++)
+        {
+            var moduleId = $"mod{moduleIndex}";
+            nodes.Add(Node(moduleId, GraphNodeKind.Module, hasChildren: true));
+
+            if (topLevelResourceCount > 0)
+            {
+                edges.Add(Edge($"top{moduleIndex % topLevelResourceCount}", moduleId));
+            }
+
+            for (var resourceIndex = 0; resourceIndex < resourcesPerModule; resourceIndex++)
+            {
+                var resourceId = $"{moduleId}::res{resourceIndex}";
+                nodes.Add(Node(resourceId, parentId: moduleId));
+
+                if (resourceIndex > 0)
+                {
+                    edges.Add(Edge($"{moduleId}::res{resourceIndex - 1}", resourceId));
+                }
+            }
+        }
+
+        return new CanonicalGraph(nodes, edges, ErrorCount: 0);
+    }
 
     private static GraphNode Node(
         string id,

@@ -31,6 +31,7 @@ import { StatusBar } from "./features/status";
 import { ModuleDeclaration, ResourceDeclaration } from "./features/visualization";
 import { GlobalStyle } from "./GlobalStyle";
 import { Canvas, Graph, nodeConfigAtom } from "./lib/graph";
+import { useFitViewToBounds } from "./lib/graph/hooks";
 import {
   DEPLOYMENT_GRAPH_NOTIFICATION,
   DOCUMENT_DID_CHANGE_NOTIFICATION,
@@ -88,8 +89,9 @@ function GraphContainer() {
     const { width, height } = getPanZoomDimensions();
     return { x: width / 2, y: height / 2 };
   }, [getPanZoomDimensions]);
+  const fitViewToBounds = useFitViewToBounds();
   const applyGraph = useApplyDeploymentGraph(getViewportCenter);
-  const requestGraphUpdate = useGraphUpdate(getViewportCenter);
+  const { requestGraphUpdate, resetLayout } = useGraphUpdate(getViewportCenter, fitViewToBounds);
   const messageChannel = useWebviewMessageChannel();
   const exportTheme = useAtomValue(effectiveExportThemeAtom);
   const setExportFileStem = useSetAtom(exportFileStemAtom);
@@ -143,7 +145,7 @@ function GraphContainer() {
   return (
     <>
       <$ControlBarContainer>
-        <ControlBar />
+        <ControlBar requestServerLayout={resetLayout} />
       </$ControlBarContainer>
       <ExportUILayer />
       <ThemeProvider theme={canvasTheme}>

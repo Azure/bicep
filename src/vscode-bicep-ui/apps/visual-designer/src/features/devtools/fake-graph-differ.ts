@@ -7,6 +7,7 @@ import type {
   GraphEdge,
   GraphNode,
   GraphPatch,
+  NodeLayout,
   RenderedGraph,
 } from "@/lib/messaging";
 
@@ -36,6 +37,49 @@ function getDepth(id: string): number {
   return id.split("::").length - 1;
 }
 
+function buildFakeLayout(nodes: GraphNode[]): Map<string, NodeLayout> {
+  const nodesByParent = new Map<string | null, GraphNode[]>();
+  const layout = new Map<string, NodeLayout>();
+
+  for (const node of nodes) {
+    const siblings = nodesByParent.get(node.parentId) ?? [];
+    siblings.push(node);
+    nodesByParent.set(node.parentId, siblings);
+  }
+
+  for (const siblings of nodesByParent.values()) {
+    siblings.sort((a, b) => a.id.localeCompare(b.id));
+  }
+
+  function layoutScope(parentId: string | null, offsetX: number, offsetY: number): { width: number; height: number } {
+    const siblings = nodesByParent.get(parentId) ?? [];
+    let maxWidth = 0;
+    let cursorY = 0;
+
+    for (const node of siblings) {
+      layout.set(node.id, { x: offsetX, y: offsetY + cursorY });
+
+      let width = 220;
+      let height = 80;
+
+      if (node.hasChildren) {
+        const childBounds = layoutScope(node.id, offsetX + 40, offsetY + cursorY + 50);
+        width = childBounds.width + 80;
+        height = childBounds.height + 90;
+      }
+
+      maxWidth = Math.max(maxWidth, width);
+      cursorY += height + 80;
+    }
+
+    return { width: maxWidth, height: Math.max(cursorY - 80, 0) };
+  }
+
+  layoutScope(null, 0, 0);
+
+  return layout;
+}
+
 function toCanonicalNode(node: DeploymentGraphNode): GraphNode {
   return {
     id: node.id,
@@ -53,8 +97,8 @@ function toCanonicalNode(node: DeploymentGraphNode): GraphNode {
 
 /**
  * Produce the patch list transforming `current` (the graph the webview displays) into `target`
- * (the dev toolbar's graph). Mirrors the ordering the real server guarantees: remove edges,
- * remove nodes deepest-first, add/update nodes shallowest-first, add edges, then error count.
+ * (the dev toolbar's graph). Mirrors the ordering the real server guarantees for graph updates:
+ * remove edges, remove nodes deepest-first, add/update nodes shallowest-first, add edges, then error count.
  */
 export function diffGraph(current: RenderedGraph | null, target: DeploymentGraph | null): GraphPatch[] {
   const targetNodes = new Map<string, GraphNode>();
@@ -132,4 +176,42 @@ export function diffGraph(current: RenderedGraph | null, target: DeploymentGraph
   patches.push({ op: "setErrorCount", errorCount });
 
   return patches;
+}
+
+export function hasTopologyChange(current: RenderedGraph | null, target: DeploymentGraph | null): boolean {
+  if (!target) {
+    return (current?.nodes.length ?? 0) > 0;
+  }
+
+  const targetNodes = new Map(target.nodes.map((node) => [node.id, toCanonicalNode(node)]));
+  const targetEdgeIds = new Set(target.edges.map((edge) => edgeId(edge.sourceId, edge.targetId)));
+  const currentNodes = current?.nodes ?? [];
+  const currentEdges = current?.edges ?? [];
+
+  if (currentNodes.length !== targetNodes.size || currentEdges.length !== targetEdgeIds.size) {
+    return true;
+  }
+
+  for (const node of currentNodes) {
+    const targetNode = targetNodes.get(node.id);
+    if (!targetNode || node.kind !== targetNode.kind || node.parentId !== targetNode.parentId) {
+      return true;
+    }
+  }
+
+  return currentEdges.some((edge) => !targetEdgeIds.has(edge.id));
+}
+
+export function layoutGraph(current: RenderedGraph, target: DeploymentGraph | null): GraphPatch[] | undefined {
+  if (hasTopologyChange(current, target)) {
+    return undefined;
+  }
+
+  if (!target) {
+    return [];
+  }
+
+  const targetNodes = target.nodes.map(toCanonicalNode);
+
+  return [...buildFakeLayout(targetNodes)].map(([nodeId, layout]) => ({ op: "setNodeLayout", nodeId, layout }));
 }

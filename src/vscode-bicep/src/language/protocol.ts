@@ -84,6 +84,24 @@ export const visualGraphUpdateRequestType = new ProtocolRequestType<
   void
 >("textDocument/visualGraphUpdate");
 
+export interface VisualGraphLayoutParams {
+  textDocument: TextDocumentIdentifier;
+  current: VisualGraphRendered;
+}
+
+export interface VisualGraphLayoutResult {
+  status: "ok" | "graphChanged" | "layoutFailed";
+  patches: unknown[];
+}
+
+export const visualGraphLayoutRequestType = new ProtocolRequestType<
+  VisualGraphLayoutParams,
+  VisualGraphLayoutResult,
+  never,
+  void,
+  void
+>("textDocument/visualGraphLayout");
+
 export interface GetDeploymentDataRequest {
   textDocument: TextDocumentIdentifier;
 }

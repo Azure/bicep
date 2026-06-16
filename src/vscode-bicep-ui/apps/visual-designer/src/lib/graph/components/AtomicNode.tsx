@@ -9,6 +9,7 @@ import { useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { useAtomValue, useStore } from "jotai";
 import { frame } from "motion/react";
 import { useEffect, useLayoutEffect, useRef } from "react";
+import { serverLayoutActiveAtom } from "@/lib/graph/atoms";
 import { focusedNodeIdAtom, getNodeZIndex } from "@/lib/graph/atoms/nodes";
 import { useBoxUpdate, useDragListener } from "@/lib/graph/hooks";
 import { REVEAL_FILE_RANGE_NOTIFICATION } from "@/lib/messaging/messages";
@@ -56,10 +57,11 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
 
     store.set(boxAtom, (box) => {
       // On first measurement the box is a zero-size point (min === max)
-      // placed at the spawn origin. Shift min so the node's center
-      // aligns with the origin instead of its top-left corner.
+      // placed at the spawn origin. Legacy ELK layout uses that origin as a center;
+      // server layout uses it as an already-computed top-left coordinate.
+      const serverLayoutActive = store.get(serverLayoutActiveAtom);
       const isInitial = box.min.x === box.max.x && box.min.y === box.max.y;
-      const min = isInitial ? { x: box.min.x - offsetWidth / 2, y: box.min.y - offsetHeight / 2 } : box.min;
+      const min = isInitial && !serverLayoutActive ? { x: box.min.x - offsetWidth / 2, y: box.min.y - offsetHeight / 2 } : box.min;
 
       return {
         min,
@@ -75,11 +77,19 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
       return;
     }
 
+    // Round to whole pixels so this matches the integer `offsetWidth`/`offsetHeight`
+    // used for the initial measurement above. `borderBoxSize` is device-pixel precise
+    // (e.g. 200.4), and letting that fractional value into the box would (a) visibly
+    // resize the enclosing module box by a fraction of a pixel and (b) feed a slightly
+    // different size into the server layout, making re-layout shift nodes by ~1px.
+    const width = Math.round(borderBoxSize.inlineSize);
+    const height = Math.round(borderBoxSize.blockSize);
+
     store.set(boxAtom, (box) => ({
       ...box,
       max: {
-        x: box.min.x + borderBoxSize.inlineSize,
-        y: box.min.y + borderBoxSize.blockSize,
+        x: box.min.x + width,
+        y: box.min.y + height,
       },
     }));
   });

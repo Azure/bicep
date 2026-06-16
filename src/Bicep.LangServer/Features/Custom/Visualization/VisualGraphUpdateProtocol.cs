@@ -10,8 +10,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace Bicep.LanguageServer.Features.Custom.Visualization
 {
     /// <summary>
-    /// Request sent by the webview (via the extension) asking the server to reconcile the graph it
-    /// currently displays with the server's latest graph. The server returns a complete patch delta.
+    /// Request sent by the webview (via the extension) asking the server to reconcile the topology/metadata
+    /// it currently displays with the server's latest graph. Layout is intentionally not computed here: when
+    /// topology changes, the client first renders/measures nodes and then sends <see cref="VisualGraphLayoutParams"/>.
     /// <para>
     /// Handled by <see cref="VisualGraphUpdateHandler"/>. The handler always answers (it is not gated by
     /// the feature flag); the flag only controls whether the extension routes the visual graph through this path,
@@ -24,8 +25,34 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         RenderedGraph? Current) : ITextDocumentIdentifierParams, IRequest<VisualGraphUpdateResult>;
 
     /// <summary>
-    /// Response to a <see cref="VisualGraphUpdateParams"/> request: a complete, ordered delta transforming
-    /// the submitted graph into the server's latest graph. An empty list means nothing changed.
+    /// Response to a <see cref="VisualGraphUpdateParams"/> request: a complete, ordered topology/metadata
+    /// delta transforming the submitted graph into the server's latest graph. The client decides whether the
+    /// patches may affect rendered size and whether to send a follow-up <see cref="VisualGraphLayoutParams"/> request.
     /// </summary>
     public record VisualGraphUpdateResult(IReadOnlyList<GraphPatch> Patches);
+
+    /// <summary>
+    /// Request sent after the webview has applied graph update patches and measured actual node sizes. The
+    /// server validates that the measured topology still matches the live compilation before running MSAGL.
+    /// </summary>
+    [Method("textDocument/visualGraphLayout", Direction.ClientToServer)]
+    public record VisualGraphLayoutParams(
+        TextDocumentIdentifier TextDocument,
+        RenderedGraph Current,
+        VisualGraphLayoutOptions? Options) : ITextDocumentIdentifierParams, IRequest<VisualGraphLayoutResult>;
+
+    public static class VisualGraphLayoutStatus
+    {
+        public const string Ok = "ok";
+
+        public const string GraphChanged = "graphChanged";
+
+        public const string LayoutFailed = "layoutFailed";
+    }
+
+    /// <summary>
+    /// Response to a <see cref="VisualGraphLayoutParams"/> request. Successful responses contain only
+    /// <see cref="GraphPatch.SetNodeLayout"/> patches.
+    /// </summary>
+    public record VisualGraphLayoutResult(string Status, IReadOnlyList<GraphPatch> Patches);
 }

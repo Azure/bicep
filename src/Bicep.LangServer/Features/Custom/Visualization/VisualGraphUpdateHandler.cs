@@ -13,28 +13,21 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 {
     /// <summary>
     /// Handles <c>textDocument/visualGraphUpdate</c>: builds the canonical graph from the live compilation,
-    /// diffs it against the graph the client submitted, and returns the patch delta. When topology changes it
-    /// also runs the MSAGL layout engine and includes the resulting positions; metadata-only edits carry none.
+    /// diffs it against the graph topology the client submitted, and returns the topology/metadata patch delta.
+    /// Layout is computed later by <see cref="VisualGraphLayoutHandler"/> after the client renders and measures nodes.
     /// </summary>
     public class VisualGraphUpdateHandler : IJsonRpcRequestHandler<VisualGraphUpdateParams, VisualGraphUpdateResult>
     {
-        private static readonly IReadOnlyDictionary<string, NodeSize> EmptySizes =
-            new Dictionary<string, NodeSize>(StringComparer.Ordinal);
-
         private readonly ILogger<VisualGraphUpdateHandler> logger;
 
         private readonly ICompilationManager compilationManager;
 
-        private readonly IVisualGraphLayoutEngine layoutEngine;
-
         public VisualGraphUpdateHandler(
             ILogger<VisualGraphUpdateHandler> logger,
-            ICompilationManager compilationManager,
-            IVisualGraphLayoutEngine layoutEngine)
+            ICompilationManager compilationManager)
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
-            this.layoutEngine = layoutEngine;
         }
 
         public Task<VisualGraphUpdateResult> Handle(VisualGraphUpdateParams request, CancellationToken cancellationToken)
@@ -50,29 +43,71 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             }
 
             var target = VisualGraphBuilder.Build(context, request.TextDocument.Uri.ToIOUri());
-
-            // Lay out only when topology changed. Metadata-only edits (error state, source ranges) reuse the
-            // client's current positions, so no layout runs and nothing reflows.
-            IReadOnlyDictionary<string, NodeLayout>? layout = null;
-
-            if (VisualGraphDiffer.HasTopologyChange(request.Current, target))
-            {
-                var nodeSizes = BuildNodeSizes(request.Current);
-                layout = this.layoutEngine.Layout(target, nodeSizes, VisualGraphLayoutOptions.Default, cancellationToken);
-            }
-
-            var patches = VisualGraphDiffer.Diff(request.Current, target, layout);
+            var patches = VisualGraphDiffer.Diff(request.Current, target);
 
             return Task.FromResult(new VisualGraphUpdateResult(patches));
         }
+    }
 
-        private static IReadOnlyDictionary<string, NodeSize> BuildNodeSizes(RenderedGraph? current)
+    /// <summary>
+    /// Handles <c>textDocument/visualGraphLayout</c>: validates the measured graph against the live compilation,
+    /// runs MSAGL with actual client-measured sizes, and returns layout patches.
+    /// </summary>
+    public class VisualGraphLayoutHandler : IJsonRpcRequestHandler<VisualGraphLayoutParams, VisualGraphLayoutResult>
+    {
+        private readonly ILogger<VisualGraphLayoutHandler> logger;
+
+        private readonly ICompilationManager compilationManager;
+
+        private readonly IVisualGraphLayoutEngine layoutEngine;
+
+        public VisualGraphLayoutHandler(
+            ILogger<VisualGraphLayoutHandler> logger,
+            ICompilationManager compilationManager,
+            IVisualGraphLayoutEngine layoutEngine)
         {
-            if (current is null)
+            this.logger = logger;
+            this.compilationManager = compilationManager;
+            this.layoutEngine = layoutEngine;
+        }
+
+        public Task<VisualGraphLayoutResult> Handle(VisualGraphLayoutParams request, CancellationToken cancellationToken)
+        {
+            var context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
+
+            if (context is null)
             {
-                return EmptySizes;
+                this.logger.LogError("Visual graph layout request arrived before file {Uri} could be compiled.", request.TextDocument.Uri);
+
+                return Task.FromResult(new VisualGraphLayoutResult(VisualGraphLayoutStatus.GraphChanged, []));
             }
 
+            var target = VisualGraphBuilder.Build(context, request.TextDocument.Uri.ToIOUri());
+
+            if (VisualGraphDiffer.HasTopologyChange(request.Current, target))
+            {
+                return Task.FromResult(new VisualGraphLayoutResult(VisualGraphLayoutStatus.GraphChanged, []));
+            }
+
+            var nodeSizes = BuildNodeSizes(request.Current);
+            var layout = this.layoutEngine.Layout(target, nodeSizes, request.Options ?? VisualGraphLayoutOptions.Default, cancellationToken);
+
+            if (target.Nodes.Count > 0 && layout.Count == 0)
+            {
+                return Task.FromResult(new VisualGraphLayoutResult(VisualGraphLayoutStatus.LayoutFailed, []));
+            }
+
+            var patches = target.Nodes
+                .OrderBy(node => node.Id, StringComparer.Ordinal)
+                .Where(node => layout.ContainsKey(node.Id))
+                .Select(node => new GraphPatch.SetNodeLayout(node.Id, layout[node.Id]))
+                .ToArray();
+
+            return Task.FromResult(new VisualGraphLayoutResult(VisualGraphLayoutStatus.Ok, patches));
+        }
+
+        private static IReadOnlyDictionary<string, NodeSize> BuildNodeSizes(RenderedGraph current)
+        {
             var sizes = new Dictionary<string, NodeSize>(current.Nodes.Count, StringComparer.Ordinal);
 
             foreach (var node in current.Nodes)
