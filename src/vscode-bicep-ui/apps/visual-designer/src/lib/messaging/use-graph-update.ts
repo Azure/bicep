@@ -5,14 +5,14 @@ import type { Box } from "@/lib/utils/math";
 import type { Point } from "@/lib/utils/math/geometry";
 import type {
   DeploymentGraph,
-  GraphEdge,
-  GraphNode,
-  NodeLayout,
-  GraphPatch,
   GetGraphLayoutRequest,
   GetGraphLayoutResponse,
   GetGraphUpdateRequest,
   GetGraphUpdateResponse,
+  GraphEdge,
+  GraphNode,
+  GraphPatch,
+  NodeLayout,
   RenderedGraph,
 } from "./messages";
 
@@ -183,55 +183,58 @@ export function useGraphUpdate(
   const dirtyRef = useRef(false);
   const forceLayoutRef = useRef(false);
 
-  const requestGraphLayout = useCallback(async (force = false) => {
-    const graph = clientGraphRef.current;
+  const requestGraphLayout = useCallback(
+    async (force = false) => {
+      const graph = clientGraphRef.current;
 
-    if (graph.nodes.size === 0) {
-      lastLayoutInputRef.current = null;
-      return;
-    }
+      if (graph.nodes.size === 0) {
+        lastLayoutInputRef.current = null;
+        return;
+      }
 
-    await waitForAnimationFrame();
+      await waitForAnimationFrame();
 
-    const measuredGraph = buildRenderedGraph(graph);
+      const measuredGraph = buildRenderedGraph(graph);
 
-    if (!force && renderedGraphsEqual(lastLayoutInputRef.current, measuredGraph)) {
-      // Sizes are unchanged since the last layout, so positions still hold.
-      // Just make sure the graph is revealed in case it was hidden.
-      await applyServerLayout(new Map());
-      return;
-    }
+      if (!force && renderedGraphsEqual(lastLayoutInputRef.current, measuredGraph)) {
+        // Sizes are unchanged since the last layout, so positions still hold.
+        // Just make sure the graph is revealed in case it was hidden.
+        await applyServerLayout(new Map());
+        return;
+      }
 
-    const layoutRequest: GetGraphLayoutRequest = { current: measuredGraph };
-    const layoutResponse = await messageChannel.sendRequest<GetGraphLayoutResponse>({
-      method: GET_GRAPH_LAYOUT_REQUEST,
-      params: layoutRequest,
-    });
+      const layoutRequest: GetGraphLayoutRequest = { current: measuredGraph };
+      const layoutResponse = await messageChannel.sendRequest<GetGraphLayoutResponse>({
+        method: GET_GRAPH_LAYOUT_REQUEST,
+        params: layoutRequest,
+      });
 
-    if (layoutResponse.status === "graphChanged") {
-      dirtyRef.current = true;
-      return;
-    }
+      if (layoutResponse.status === "graphChanged") {
+        dirtyRef.current = true;
+        return;
+      }
 
-    if (layoutResponse.status === "layoutFailed") {
-      // No usable layout — reveal the graph as-is so it isn't stuck hidden.
-      await applyServerLayout(new Map());
-      return;
-    }
+      if (layoutResponse.status === "layoutFailed") {
+        // No usable layout — reveal the graph as-is so it isn't stuck hidden.
+        await applyServerLayout(new Map());
+        return;
+      }
 
-    const nodeLayouts = collectNodeLayouts(layoutResponse.patches);
-    lastLayoutInputRef.current = measuredGraph;
+      const nodeLayouts = collectNodeLayouts(layoutResponse.patches);
+      lastLayoutInputRef.current = measuredGraph;
 
-    // Fit the viewport to the layout's final bounds before the nodes animate
-    // there (mirrors the ELK auto-layout reveal/animate sequence). The bounds
-    // include compound boxes so this matches the Fit View button exactly.
-    const bounds = measureServerLayoutBounds(nodeLayouts);
-    if (bounds) {
-      fitViewToBounds(bounds);
-    }
+      // Fit the viewport to the layout's final bounds before the nodes animate
+      // there (mirrors the ELK auto-layout reveal/animate sequence). The bounds
+      // include compound boxes so this matches the Fit View button exactly.
+      const bounds = measureServerLayoutBounds(nodeLayouts);
+      if (bounds) {
+        fitViewToBounds(bounds);
+      }
 
-    await applyServerLayout(nodeLayouts);
-  }, [fitViewToBounds, messageChannel]);
+      await applyServerLayout(nodeLayouts);
+    },
+    [fitViewToBounds, messageChannel],
+  );
 
   const requestGraphUpdate = useCallback(async () => {
     if (inFlightRef.current) {

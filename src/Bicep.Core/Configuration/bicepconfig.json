@@ -29,6 +29,9 @@
       }
     }
   },
+  "moduleAliasesMock": {
+    "br": {}
+  },
   "extensions": {
     "az": "builtin:",
     "kubernetes": "builtin:"

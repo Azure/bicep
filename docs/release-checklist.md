@@ -29,19 +29,12 @@
     1. Download the appropriate Bicep executable for your platform (e.g. `bicep-linux-x64`). Verify you can invoke it with e.g. `bicep-linux-x64 --version`, and that it prints the expected output.
 1. Verify that the draft release on GitHub has at least 28 artifacts associated with it before publishing it. (On the Bicep releases [page](https://github.com/Azure/bicep/releases) it should state that many assets. On the edit page of the draft release itself, there will be two fewer assets because the 2 source code files don't show up.)
 1. Publish the release on GitHub.
-1. Upload vscode-bicep.VSIX to the VS marketplace (INSTRUCTIONS NOT TESTED FOR THIS STEP - UPDATE WIKI AS NEEDED)
-    1. Navigate to the official build drop (Published artifacts). (If you can't see it Ctrl+F for "published".)
-    1. Download the drop_build_vscode_vsix/vscode-bicep folder to your machine. The folder should contain the files: `vscode-bicep.vsix`, `vscode-bicep.manifest`, and `vscode-bicep.signature.p7s`.
-    1. In the Bicep GitHub repo, go to `src/vscode-bicep` directory and run `npm i` or `npm ci`.
-    1. Run `npx vsce publish -i <path to vsix> --manifestPath <path to manifest> --signaturePath <path to signature.p7s> --azure-credential`. You may need access permissions, request help in the team channel.
+1. Publish the NuGet packages and the VSCode extension by running the [BicepMirror-UploadPackages pipeline](https://msazure.visualstudio.com/One/_build?definitionId=411626).
 1. Upload vs-bicep.VSIX to VS marketplace
     1. ⚠️ **[READ THIS BEFORE PROCEED] Copy/paste the text from the current version of [src\vs-bicep\README.md](https://github.com/Azure/bicep/blob/main/src/vs-bicep/README.md) over the existing text in the "Overview" field for the next step of uploading vs-bicep.vsix to the VS marketplace (this can only be changed on the marketplace when publishing a new version)**
     1. Go [here](https://marketplace.visualstudio.com/manage), click on the ... for Bicep for Visual Studio, then Edit.
     1. Upload the new vs-bicep.VSIX file at the top. This should update the Version number automatically for you. Verify that it does.
     1. Scroll to the bottom and hit Save and Upload.
-1. Upload NuGet packages to nuget.org by running `./scripts/UploadPackages.ps1` in the BicepMirror repo. This is an almost identical process to publishing the BicepMirror-Types-Az nuget packages so look at that previous step above. (Make sure to include CLI packages.) This can be done one of two ways:
-    1. Easiest is to use the `__assets` directory created by the `UploadSignedReleaseArtifacts.ps1` script. This will be in the temporary folder you created before. (Example command: `.\scripts\UploadPackages.ps1 -PackageDirectory .\temporary\__assets\`)
-    2. You can also download all the files from the published release into a separate folder and run the script using that folder. (The script looks for files ending in *.nupkg)
 1. Update homebrew:
     1. Go [here](https://github.com/Azure/homebrew-bicep/actions/workflows/update-homebrew.yml), click `Run workflow`, and wait for it to complete successfully.
     1. Create a PR [here](https://github.com/Azure/homebrew-bicep/compare/main...update-homebrew), get it approved, and then merge it.

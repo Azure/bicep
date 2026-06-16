@@ -3,13 +3,7 @@
 
 import type { CloudError, Deployment, DeploymentOperation, ErrorResponse, WhatIfChange } from "@azure/arm-resources";
 import type { AccessToken, TokenCredential } from "@azure/identity";
-import type {
-  DeploymentScope,
-  DeployState,
-  ParametersMetadata,
-  TemplateMetadata,
-  UntypedError,
-} from "../../models";
+import type { DeploymentScope, DeployState, ParametersMetadata, TemplateMetadata, UntypedError } from "../../models";
 
 import { ResourceManagementClient } from "@azure/arm-resources";
 import { RestError } from "@azure/core-rest-pipeline";
@@ -183,11 +177,7 @@ function getDeploymentProperties(
   const parameters: Record<string, unknown> = {};
   const useAllowedStringDropdownDefault = !parametersMetadata.sourceFilePath;
   for (const definition of metadata.parameterDefinitions) {
-    const paramData = getEffectiveParamData(
-      parametersMetadata.parameters,
-      definition,
-      useAllowedStringDropdownDefault,
-    );
+    const paramData = getEffectiveParamData(parametersMetadata.parameters, definition, useAllowedStringDropdownDefault);
     if (paramData) {
       parameters[definition.name] = { value: paramData.value };
     }

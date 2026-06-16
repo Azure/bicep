@@ -630,7 +630,8 @@ namespace Bicep.Core.Semantics
             }
 
             // parameters that are assigned but not declared
-            var missingAssignedParams = Root.ParameterAssignments.Where(s => TryGetParameterMetadata(s) is null);
+            var missingAssignedParams = Root.ParameterAssignments
+                .Where(s => s.Context.SourceFile == Root.Context.SourceFile && TryGetParameterMetadata(s) is null);
 
             // parameters that are declared but not assigned
             var missingRequiredParams = usingModel.Parameters

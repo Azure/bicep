@@ -8,10 +8,10 @@ import { LanguageClient } from "vscode-languageclient/node";
 import {
   deploymentGraphRequestType,
   visualGraphLayoutRequestType,
-  VisualGraphRendered,
   VisualGraphLayoutResult,
-  VisualGraphUpdateResult,
+  VisualGraphRendered,
   visualGraphUpdateRequestType,
+  VisualGraphUpdateResult,
 } from "../language";
 import { getBicepConfiguration } from "../language/getBicepConfiguration";
 import { Disposable } from "../utils/disposable";
