@@ -10,26 +10,41 @@ using Bicep.RpcClient.Models;
 
 namespace Bicep.RpcClient;
 
+/// <summary>
+/// A factory that manages a pool of Bicep clients, allowing for reuse of clients and automatic disposal of idle clients after a specified inactivity interval.
+/// </summary>
 public class PooledBicepClientFactory : IBicepClientFactory, IDisposable
 {
     private readonly object lockObj = new();
-    private static readonly TimeSpan TimerPollInterval = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan DefaultTimerPollInterval = TimeSpan.FromSeconds(5);
     private static readonly TimeSpan DefaultClientInactivityInterval = TimeSpan.FromSeconds(30);
+    private readonly TimeSpan timerPollInterval;
     private readonly TimeSpan clientInactivityInterval;
-    private readonly BicepClientFactory innerFactory;
+    private readonly IBicepClientFactory innerFactory;
     private readonly ConcurrentDictionary<BicepClientConfiguration, ClientPoolEntry> clientPool = new();
     private readonly CancellationTokenSource disposedCts = new();
 
     public PooledBicepClientFactory(HttpClient? httpClient = null, TimeSpan? inactivityInterval = null)
+        : this(new BicepClientFactory(httpClient), ValidateInactivityInterval(inactivityInterval), DefaultTimerPollInterval)
     {
-        if (inactivityInterval is { } interval && interval < DefaultClientInactivityInterval)
+    }
+
+    internal PooledBicepClientFactory(IBicepClientFactory innerFactory, TimeSpan inactivityInterval, TimeSpan timerPollInterval)
+    {
+        this.innerFactory = innerFactory;
+        this.clientInactivityInterval = inactivityInterval;
+        this.timerPollInterval = timerPollInterval;
+        _ = Task.Run(TimerLoop);
+    }
+
+    private static TimeSpan ValidateInactivityInterval(TimeSpan? inactivityInterval)
+    {
+        if (inactivityInterval is { } interval && interval <= TimeSpan.Zero)
         {
-            throw new ArgumentOutOfRangeException(nameof(inactivityInterval), $"The {nameof(inactivityInterval)} must be at least {DefaultClientInactivityInterval.TotalSeconds:0} seconds.");
+            throw new ArgumentOutOfRangeException(nameof(inactivityInterval), $"The {nameof(inactivityInterval)} must be greater than zero.");
         }
 
-        clientInactivityInterval = inactivityInterval ?? DefaultClientInactivityInterval;
-        innerFactory = new(httpClient);
-        _ = Task.Run(TimerLoop);
+        return inactivityInterval ?? DefaultClientInactivityInterval;
     }
 
     /// <inheritdoc/>
@@ -65,7 +80,7 @@ public class PooledBicepClientFactory : IBicepClientFactory, IDisposable
         {
             try
             {
-                await Task.Delay(TimerPollInterval, disposedCts.Token).ConfigureAwait(false);
+                await Task.Delay(timerPollInterval, disposedCts.Token).ConfigureAwait(false);
             }
             catch (OperationCanceledException) when (disposedCts.Token.IsCancellationRequested)
             {
@@ -95,7 +110,7 @@ public class PooledBicepClientFactory : IBicepClientFactory, IDisposable
         }
     }
 
-    private class ClientPoolEntry(BicepClientFactory innerFactory, BicepClientConfiguration configuration) : IDisposable
+    private class ClientPoolEntry(IBicepClientFactory innerFactory, BicepClientConfiguration configuration) : IDisposable
     {
         private readonly SemaphoreSlim acquireClientSemaphore = new(1, 1);
         private readonly object lockObj = new();
@@ -103,6 +118,8 @@ public class PooledBicepClientFactory : IBicepClientFactory, IDisposable
         private DateTime lastUsed = DateTime.MinValue;
         private readonly CancellationTokenSource disposedCts = new();
         private int activeRequests;
+
+        public bool IsDisposed => disposedCts.IsCancellationRequested;
 
         public void Dispose()
         {
@@ -264,7 +281,7 @@ public class PooledBicepClientFactory : IBicepClientFactory, IDisposable
 
                 return await poolEntry.MakeRequest(func, requestCts.Token).ConfigureAwait(false);
             }
-            catch (OperationCanceledException) when (disposedCts.IsCancellationRequested)
+            catch (OperationCanceledException) when (disposedCts.IsCancellationRequested || poolEntry.IsDisposed)
             {
                 throw new ObjectDisposedException(nameof(PooledBicepClient));
             }
