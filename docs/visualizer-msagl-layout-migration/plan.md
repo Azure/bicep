@@ -52,10 +52,11 @@ This folder holds the request/notification handlers, the graph service, the diff
 
 - Add `Msagl` to central package management in `src/Directory.Packages.props`.
 - Reference it from `src/Bicep.LangServer/Bicep.LangServer.csproj`.
-- Introduce internal services under `Features/Custom/Visualization/`, conceptually shaped as:
-  - `IVisualizerGraphService`: builds the canonical graph and computes diffs against a submitted client graph.
-  - `IVisualizerLayoutEngine`: maps canonical graph to MSAGL geometry graph and returns node positions.
-  - `MsaglVisualizerLayoutEngine`: invokes core MSAGL layout only; React still renders all visuals.
+- Introduce internal services under `Features/Custom/Visualization/`, shaped as:
+  - `VisualGraphBuilder`: builds the canonical graph from the live compilation.
+  - `VisualGraphDiffer`: computes the topology/metadata patch delta against a submitted client graph (and exposes `HasTopologyChange` for the layout handler's validation).
+  - `IVisualGraphLayoutEngine`: maps canonical graph to MSAGL geometry graph and returns node positions.
+  - `MsaglVisualGraphLayoutEngine`: invokes core MSAGL layout only; React still renders all visuals.
 - Do not reference MSAGL from the React app or VS Code extension host.
 
 ### How This Maps Onto The Existing App
@@ -105,12 +106,29 @@ sequenceDiagram
     alt a request is already in flight
         UI->>UI: mark dirty, wait for the in-flight response
     else idle
-        UI->>Ext: getGraphUpdate(current nodes + edges)
-        Ext->>LS: textDocument/visualizerGraphUpdate(current)
-        LS->>LS: build graph from live compilation, diff vs current, lay out changed topology
-        LS-->>Ext: patches (complete delta; empty if nothing changed)
-        Ext-->>UI: patches
-        UI->>UI: apply all patches; if dirty, send another request
+        UI->>Ext: getGraphUpdate(current topology)
+        Ext->>LS: textDocument/visualGraphUpdate(current topology)
+        LS->>LS: build graph from live compilation, diff vs current topology
+        LS-->>Ext: topology/metadata patches
+        Ext-->>UI: topology/metadata patches
+        UI->>UI: apply graph patches and decide whether layout may be stale
+        opt layout may be stale
+          UI->>UI: render nodes, measure actual node sizes, compare last layout input
+            UI->>Ext: getGraphLayout(measured current graph)
+            Ext->>LS: textDocument/visualGraphLayout(measured current graph)
+            LS->>LS: rebuild live graph and validate measured topology still matches
+            alt topology still matches
+                LS->>LS: run MSAGL with measured sizes
+                LS-->>Ext: setNodeLayout patches
+                Ext-->>UI: setNodeLayout patches
+                UI->>UI: apply layout patches and fit view
+            else graph changed while measuring/layouting
+                LS-->>Ext: graphChanged
+                Ext-->>UI: graphChanged
+                UI->>UI: mark dirty and restart with getGraphUpdate
+            end
+        end
+        UI->>UI: if dirty, send another graph update request
     end
 ```
 
@@ -123,13 +141,13 @@ The first draft of this design carried `graphRevision`, `layoutRevision`, a `top
 
 Together these mean responses do not have to be applied in order: if the client only ever applies the response to its newest request and discards older ones, the result is always correct. There is nothing to reconcile, so there are no conflict states.
 
-A separate `layoutRevision` was meant to catch the case where the client holds new topology but stale positions. That cannot happen here: MSAGL layout is deterministic for a given topology, and the server always returns layout patches together with the topology change that requires them. The client can never end up with topology the server has not also laid out. The graph the client holds is therefore the only "version" the protocol needs, and the client already holds it.
+A separate `layoutRevision` was meant to catch the case where the client holds new topology but stale positions. The revised protocol handles this without shared revision state by making layout an explicit second request. The layout request carries the measured graph topology and actual rendered sizes. Before running MSAGL, the server rebuilds the live canonical graph and verifies that the measured topology still matches. If it does not, the server returns `graphChanged` and the client restarts with a graph update request. The server still does not need to remember a revision; it validates the request body against the current compilation.
 
 `changeReason` is dropped for the same reason the existing `handleDiagnostics` middleware does not carry one: the notification only means "the graph may have changed, ask for an update." The server recomputes from the live compilation regardless of why it changed.
 
 ### Protocol Spec
 
-Three messages. The webview is already bound to a single document, so the document URI is the only routing information required.
+Four messages. The webview is already bound to a single document, so the document URI is the only routing information required.
 
 ```ts
 // Extension -> webview. "The graph may have changed; request an update when ready."
@@ -139,28 +157,52 @@ interface DocumentDidChangeNotification {
   params: { documentUri: string };
 }
 
-// Webview -> extension -> language server. Carries the graph the webview currently displays.
-// `current` is null (or empty) on first load.
+// Webview -> extension -> language server. Carries the topology the webview currently displays.
+// `current` is null (or empty) on first load. This request does not run layout; it only reconciles
+// graph topology and metadata. The client decides whether the returned patches may stale layout.
 interface GetGraphUpdateRequest {
   method: "visualizer/getGraphUpdate";
   params: {
     textDocument: { uri: string };
     current: {
-      nodes: ClientGraphNode[];
+      nodes: ClientGraphNodeIdentity[];
       edges: ClientGraphEdge[];
     } | null;
   };
 }
 
 // Language server -> extension -> webview.
-// A complete delta transforming `current` into the server's latest graph.
+// A complete delta transforming `current` into the server's latest graph topology/metadata.
 // An empty `patches` array means nothing changed.
 interface GetGraphUpdateResponse {
   patches: GraphPatch[];
 }
+
+// Webview -> extension -> language server. Sent only after the graph update patches have been
+// applied and the webview has rendered/measured node sizes.
+interface GetGraphLayoutRequest {
+  method: "visualizer/getGraphLayout";
+  params: {
+    textDocument: { uri: string };
+    current: {
+      nodes: ClientGraphNodeMeasurement[];
+      edges: ClientGraphEdge[];
+    };
+    options?: VisualGraphLayoutOptions;
+  };
+}
+
+// Language server -> extension -> webview.
+// If `status` is `ok`, `patches` contains only layout patches (`setNodeLayout`).
+// If `status` is `graphChanged`, the measured topology no longer matches the live compilation;
+// the client discards the layout response and immediately requests a new graph update.
+interface GetGraphLayoutResponse {
+  status: "ok" | "graphChanged" | "layoutFailed";
+  patches: GraphPatch[];
+}
 ```
 
-`ClientGraphNode` and `ClientGraphEdge` are the minimal identity the server needs to diff and to decide whether layout must run: node `id`, `kind`, `parentId`, layout-affecting `size`, and edge `id`/`sourceId`/`targetId`. The client does not send positions back; the server does not need them to compute the next layout, and omitting them keeps the request small.
+`ClientGraphNodeIdentity` and `ClientGraphEdge` are the minimal identity the server needs to diff topology: node `id`, `kind`, `parentId`, and edge `id`/`sourceId`/`targetId`. `ClientGraphNodeMeasurement` extends the same node identity with layout-affecting `width` and `height`. The client does not send positions back; the server only needs topology, measured sizes, and layout options to compute the next layout.
 
 ### Concurrency: Single In-Flight Request
 
@@ -168,16 +210,17 @@ This replaces the optimistic-concurrency machinery with the convergence pattern 
 
 Per open visualizer the webview keeps:
 
-- one in-flight `getGraphUpdate` request, and
+- one in-flight visualizer request (either graph update or layout), and
 - a `dirty` flag.
 
 Rules:
 
-- On `documentDidChange`: if a request is in flight, set `dirty`; otherwise send a request with the currently displayed graph.
-- On response: apply all patches (the response's base is the graph that was sent, which is still what is displayed, because nothing else mutates the displayed graph between request and response). Then, if `dirty`, clear it and send a fresh request with the now-current graph.
+- On `documentDidChange`: if a request is in flight, set `dirty`; otherwise send a graph update request with the currently displayed topology.
+- On graph update response: apply topology/metadata patches as a unit and track whether any patch may affect layout. Topology patches (`clearGraph`, add/remove node, add/remove edge) always may affect layout. Metadata patches only may affect layout when they touch rendered-size-affecting fields such as `type`, `isCollection`, or `hasChildren`; `hasError`, source ranges, and file paths do not trigger layout. If layout may be stale, render the graph, wait for node measurement, compare the measured graph against the last graph used for layout, and send a layout request only if that measured layout input changed. If no layout is required and `dirty` is set, clear it and send a fresh graph update.
+- On layout response: if `status` is `ok`, apply `setNodeLayout` patches as a unit and fit the view. If `status` is `graphChanged`, mark `dirty` and send a fresh graph update. If `status` is `layoutFailed`, keep existing positions and wait for the next graph update/manual retry.
 - A short debounce (the existing render debounce, ~75-150 ms) coalesces bursts of notifications into a single request.
 
-This guarantees that when a response is applied its base equals the current displayed graph, so stale application is impossible without any version checks. If the webview additionally tags requests with a local monotonic sequence number, it can also defensively ignore a late response from a superseded request — but the single-in-flight rule already prevents that situation from arising.
+This guarantees that when a response is applied its base equals the graph submitted for that request, so stale application is impossible without shared version checks. The layout response adds one validation point: if the measured graph no longer matches the live compilation, the server refuses to lay it out and asks the client to restart from graph update.
 
 ### Forward Compatibility: A Writable Webview
 
@@ -199,9 +242,10 @@ We intentionally do **not** design that handshake now — it would be speculativ
 
 ### Canonical Graph Representation
 
+This is the implemented contract (mirrored by the C# records under `Features/Custom/Visualization/Models` and the TypeScript interfaces in `messages.ts`). It is intentionally minimal: the node stores neither size nor position. Sizes are owned by the webview and submitted back via `RenderedGraph`; positions are applied separately via `setNodeLayout` patches.
+
 ```ts
-interface VisualizerGraph {
-  documentUri: string;
+interface CanonicalGraph {
   errorCount: number;
   nodes: GraphNode[];
   edges: GraphEdge[];
@@ -209,61 +253,56 @@ interface VisualizerGraph {
 
 interface GraphNode {
   id: string;
-  kind: "resource" | "module" | "extension" | "unknown";
-  parentId?: string;
+  kind: "resource" | "module";
+  parentId: string | null;
   type: string;
   symbolName: string;
   isCollection: boolean;
   hasChildren: boolean;
   hasError: boolean;
-  source: {
-    filePath: string | null;
-    range: Range;
-  };
-  visual: {
-    size: { width: number; height: number };
-    styleKey?: string;
-  };
-  layout?: NodeLayout;
-  metadata?: Record<string, unknown>;
+  filePath: string | null;
+  range: Range;
 }
 
 interface GraphEdge {
   id: string;
   sourceId: string;
   targetId: string;
-  kind: "dependency" | "containment" | "implicit";
-  metadata?: Record<string, unknown>;
 }
 
 interface NodeLayout {
   x: number;
   y: number;
-  width: number;
-  height: number;
 }
 ```
 
+`kind` is `"resource" | "module"` only. Earlier drafts of this plan listed an `"extension" | "unknown"` superset and a richer node (nested `source`/`visual` objects, an embedded `layout`, a free-form `metadata` bag); none of that was built. The implemented node keeps `filePath`/`range` flat and omits size/style entirely, matching the existing deployment-graph contract. Widening `kind` or adding fields later is additive and does not change the protocol envelope.
+
+`NodeLayout` is position-only (`x`/`y` in graph coordinates); width and height are the client's measured values, never round-tripped through the server.
+
 Edges carry no route geometry. The current visualizer draws straight edges entirely on the client — `StraightEdge.tsx` takes the two node boxes, draws a segment between their centers, and clips it to the box boundaries — so it never consumes layout-engine edge routes (bend points/splines). Passing server routes would add protocol surface and a `setEdgeRoute` patch for geometry the client recomputes anyway, and which would otherwise need re-syncing every time a node moves. If curved or orthogonal routing is ever wanted, add `route` then.
+
+Edges also carry no `kind`: containment (parent/child) is expressed via a node's `parentId`, and every remaining edge is a dependency, so a discriminator would be redundant today. Add one only if a second edge semantic appears.
 
 Ports are not required for parity with the current visualizer, which uses node-to-node dependency edges. Add ports later only if edge attachment points become meaningful for sub-resources, resource properties, or grouped module boundaries.
 
 ### Patch Format
 
-The response is a plain ordered list of typed patches — no wrapper, no revisions, no patch-set identity. A typed list is preferred over generic JSON Patch because the graph has domain-specific invariants (containment ordering, edge endpoint validity) that typed patches make explicit.
+Responses carry plain ordered lists of typed patches — no revisions, no patch-set identity. A typed list is preferred over generic JSON Patch because the graph has domain-specific invariants (containment ordering, edge endpoint validity) that typed patches make explicit. The graph update response carries topology/metadata patches; the client derives whether layout may be stale while applying them. The layout response carries only `setNodeLayout` patches.
 
 ```ts
 type GraphPatch =
   | { op: "clearGraph" }
   | { op: "addNode"; node: GraphNode }
   | { op: "removeNode"; nodeId: string }
-  | { op: "updateNode"; nodeId: string; changes: Partial<GraphNode> }
+  | { op: "updateNode"; nodeId: string; changes: GraphNodeChanges }
   | { op: "addEdge"; edge: GraphEdge }
   | { op: "removeEdge"; edgeId: string }
-  | { op: "updateEdge"; edgeId: string; changes: Partial<GraphEdge> }
   | { op: "setNodeLayout"; nodeId: string; layout: NodeLayout }
   | { op: "setErrorCount"; errorCount: number };
 ```
+
+`GraphNodeChanges` is the mutable, topology-preserving subset of a node — `type`, `isCollection`, `hasChildren`, `hasError`, `filePath`, `range` — each optional; an omitted field is left unchanged. There is no `updateEdge`: edges are immutable value objects (id/source/target), so an edge change is expressed as `removeEdge` + `addEdge` rather than an in-place mutation.
 
 The entire list for one response is applied as a unit: the client applies all patches, then re-renders. Because the list is a complete delta from the graph the client submitted, there is no per-patch precondition to check.
 
@@ -274,17 +313,16 @@ The server returns patches already ordered so they apply cleanly against the sub
 - Remove edges.
 - Remove nodes deepest-first.
 - Add/update nodes.
-- Add/update edges.
-- Apply node layout.
+- Add edges.
 - Set error count.
 
-Initial load is just the build-from-empty case of this same ordering: `addNode`, `addEdge`, then layout patches.
+Initial graph update is just the build-from-empty case of this same ordering: `addNode`, `addEdge`, then `setErrorCount`. Those add patches cause the client to render and measure the nodes, then the layout request returns `setNodeLayout` patches.
 
 ### Layout-Only Versus Topology Patches
 
 The server decides per request what to include:
 
-- Topology changed: include add/remove/update node and edge patches plus `setNodeLayout` for the new and affected nodes.
+- Topology changed: graph update includes add/remove/update node and edge patches; the client treats those patches as layout-affecting, renders/measures, and requests layout when the measured layout input differs from the last one used for layout.
 - Topology unchanged, only metadata changed (error state, source ranges, file paths): include only `updateNode`/`setErrorCount` and omit all position patches, so the client keeps its current positions and nothing reflows.
 - Nothing changed: return an empty list.
 
@@ -298,7 +336,7 @@ Drag/drop is out of scope for this migration and is not part of this protocol. T
 
 ### Layout Triggers And Topology Changes
 
-Run MSAGL when:
+Request and run MSAGL when:
 
 - Node set changes.
 - Edge set changes.
@@ -313,20 +351,19 @@ Do not run MSAGL when:
 - Only source ranges change.
 - Only file paths change.
 - Diagnostics count changes without affecting node visual size.
-- The submitted topology already matches the freshly built topology.
+- The submitted topology already matches the freshly built topology and measured node sizes/layout options have not changed.
 
 ### MSAGL Constraints And Options
 
 - Use core MSAGL geometry graph APIs from the `Msagl` package, not Drawing, WPF, or WinForms viewer packages.
-- Model Bicep resources/modules as MSAGL nodes with deterministic sizes.
+- Model Bicep resources/modules as MSAGL nodes with sizes from the submitted rendered graph, falling back to shared `VisualGraphLayoutOptions.Default` values when the client has not measured a node yet.
 - Model dependencies as directed MSAGL edges.
 - Use a layered/Sugiyama-style top-to-bottom layout to match current ELK intent:
   - Direction: top to bottom.
   - Stable layer ordering by source order and node ID.
   - Tunable node separation, rank/layer separation, and component separation.
   - Edges are still modeled in MSAGL so they influence layering and node placement, but the client draws the straight edges itself. Use MSAGL's straight-line edge routing mode (`StraightLineEdges`) so layout does not spend time computing spline routes we discard; only node positions are read out.
-- Represent modules/compound nodes as clusters if core MSAGL cluster support is adequate.
-- If cluster behavior is not good enough initially, lay out nested module graphs independently and compose them into parent bounding boxes in the server service.
+- MSAGL cluster behavior was evaluated and is not reliable enough for the initial adapter, so lay out nested module scopes independently and compose them into parent module boxes in the server service.
 
 ### Stable Layouts And Minimal Movement
 
@@ -456,23 +493,26 @@ Do not run MSAGL when:
 ### Phase 6: React Applies Server Layout
 
 - Goal and scope:
-  - Under feature flag, React applies `setNodeLayout`; disable ELK auto-layout for server-layout sessions.
+  - Under feature flag, React applies `setNodeLayout`; disable ELK auto-layout for server-layout sessions; split the client/server loop into topology update, render/measure, and measured layout request.
 - Files/areas likely touched:
   - `src/vscode-bicep-ui/apps/visual-designer/src/features/layout/use-auto-layout.ts`
   - `src/vscode-bicep-ui/apps/visual-designer/src/features/layout/elk-layout.ts`
   - Graph components and edge layer under `src/vscode-bicep-ui/apps/visual-designer/src/lib/graph`
+  - Visualizer webview/extension/LSP protocol bridge for `getGraphLayout` / `textDocument/visualGraphLayout`
 - Test plan:
   - Vitest for patch application.
+  - Layout request tests for initial topology update followed by measured-size layout.
   - Playwright visualizer e2e for initial load, edit, delete, module graph, and fit view.
 - Acceptance criteria:
   - No client layout runs when the flag is on.
+  - Initial render uses measured node sizes for the final server layout rather than fallback dimensions.
   - Graph remains stable through rapid edits.
   - Fit view still works from server-provided bounds/layout.
 
 ### Phase 7: Single-Flight Hardening And Telemetry
 
 - Goal and scope:
-  - Add the single-in-flight + dirty-flag loop, request cancellation, debounce, layout timing, and fallback telemetry.
+  - Harden the graph-update + measured-layout loop with dirty-flag replay, request cancellation, debounce, layout timing, and fallback telemetry.
 - Files/areas likely touched:
   - Extension visualizer bridge.
   - LSP graph service.
@@ -526,10 +566,10 @@ Do not run MSAGL when:
   - Mitigate with typed patch ops, strict ordering, whole-list application, and tests for every operation.
 
 - Node size mismatch between server and React:
-  - Mitigate by defining deterministic visual size in canonical graph, keeping layout independent of DOM measurement, and adding visual regression tests.
+  - Mitigate by using client-measured node sizes when available, keeping fallback/default metrics in shared `VisualGraphLayoutOptions.Default`, and adding visual regression tests.
 
 - MSAGL compound/module layout gaps:
-  - Mitigate by validating cluster support early; if needed, compose nested module layouts manually before deeper cluster investment.
+  - Mitigated initially by evaluating cluster support, avoiding it for Phase 5, and composing nested module scopes manually before deeper cluster investment.
 
 - Drag reconciliation complexity:
   - Out of scope for this migration; deferred to the future drag-n-drop work, which will revisit the protocol (see Forward Compatibility).
@@ -549,8 +589,8 @@ Legend: `[ ]` not started, `[~]` in progress, `[x]` done.
 | 2 | Document change notification loop | [x] | #19792 | Notify-then-request flow behind the flag; old full-graph path intact. Extension forwards `documentDidChange`→webview, webview pulls via `getGraphUpdate`→`textDocument/visualGraphUpdate`; single in-flight + dirty loop; patches applied to a client graph mirror, then translated to `DeploymentGraph` so ELK still lays out. Dev playground gains a server-layout toggle + throwaway TS differ. **Reordered after 3–4** so it forwards the real LSP request instead of a throwaway TS diff. |
 | 3 | Server graph service | [x] | #19757 | Canonical graph built from compilation (`VisualGraphBuilder`, mirrors `BicepDeploymentGraphHandler`); no MSAGL. Combined with Phase 4 into one PR. Types renamed `Visualizer*`→`Visual*`. |
 | 4 | Patch diff engine | [x] | #19757 | `VisualGraphDiffer` returns `GraphPatch[]`; handler registered (shadow mode, not flag-gated); ELK still lays out on the client. Combined with Phase 3. |
-| 5 | MSAGL adapter (shadow mode) | [ ] | — | Add `Msagl`, compute layout behind the flag, not applied by default. |
-| 6 | React applies server layout | [ ] | — | Apply `setNodeLayout`; disable ELK for server-layout sessions. |
+| 5 | MSAGL adapter (shadow mode) | [x] | — | `Msagl` 1.2.1 added to central package management + `Bicep.LangServer.csproj`. New `IVisualGraphLayoutEngine` / `MsaglVisualGraphLayoutEngine` run a layered (Sugiyama) top-to-bottom layout via `LayoutHelpers.CalculateLayout`, straight-line routing, y-flipped + origin-normalized positions. Shared defaults live in `VisualGraphLayoutOptions.Default` (default node size, node/layer spacing, module padding) so future callers such as CLI image generation do not duplicate React constants; renderer-provided options can override later. **MSAGL clusters were tried first but throw at runtime**, so containment uses the plan's sanctioned fallback: lay out each scope's siblings flat, size each module box from its subtree + label padding, then compose by offsetting children (exact because the builder only ever emits sibling edges). Failures are caught/logged (empty result keeps prior positions); cancellation is bridged to MSAGL's `CancelToken`. Engine + differ unit tests added, including a simple-graph performance smoke test (<500 ms budget). |
+| 6 | React applies server layout | [x] | — | `getGraphUpdate` / `textDocument/visualGraphUpdate` returns topology/metadata patches. The webview decides whether layout may be stale while applying patches (`hasError`, source ranges, and file paths do not trigger layout), renders/measures nodes when needed, compares the measured graph with the last layout input, then sends `getGraphLayout` / `textDocument/visualGraphLayout` only when measured topology/sizes changed. The server validates measured topology against the live compilation before running MSAGL and returns `setNodeLayout` patches (`ok`), `graphChanged`, or `layoutFailed`. The webview applies layout patches, gates automatic ELK with `serverLayoutActiveAtom`, keeps Reset Layout enabled, and routes Reset Layout to a fresh measured server layout in server-layout mode. Because the server is stateless and re-sends all metadata on every `updateNode`, the client derives layout-affecting changes by comparing incoming field values against its current node (not field presence), so range-only edits never reflow. Applying a server layout springs nodes to their new positions (reusing the existing motion animation) and fits the viewport to the same bounds the Fit View button uses, so re-layout, additions, and removals animate and the two controls agree to the pixel. Dev fake channel follows the same two-step protocol. Focused validation: visualization unit tests, visual graph integration tests, app TypeScript check, and Vite bundle. |
 | 7 | Single-flight hardening + telemetry | [ ] | — | In-flight + dirty loop, cancellation, debounce, metrics. |
 | 8 | Reserved for future WYSIWYG | [ ] | — | No work planned; placeholder only. |
 | 9 | Default-on and ELK removal | [ ] | — | Flip default, remove `elkjs`, keep old-path fallback one release. |
@@ -591,3 +631,24 @@ The guiding rule is the Per-PR Definition of Done below: split wherever a PR wou
 - `main` remains shippable with the feature flag in its default state.
 - New baselines (if any) are inspected and explained in the PR.
 - This table is updated (status + PR link) in the same PR.
+
+## I) Known Follow-ups From Implementation Review
+
+Findings from a review of the Phase 5/6 implementation that are intentionally deferred (the protocol absorbs them without change). Tracked here so they are not lost.
+
+- **O(N) metadata chatter per edit (→ Phase 7).** Because the server is stateless, every `updateNode` re-sends *all* node metadata, so a single edit returns one `updateNode` per surviving node. It is correct (the client compares values, so range-only edits do not reflow) but is O(nodes) of network/JSON per debounced edit. Add a patch-count telemetry counter and a noted ceiling; do **not** add a client metadata hash, which would break statelessness.
+
+  *Proposed fix (O(N) → O(1)):* the only per-edit-churning field is `range` (and the `filePath` that pairs with it) — every other metadata field changes rarely. `range` exists solely so a double-click can reveal the node's source. Remove `range`/`filePath` from the node metadata the server pushes, and instead resolve the source location on demand: when the user double-clicks a node, the webview sends its node id to the language server, which maps it to a source range from the live compilation and reveals it. Then a pure whitespace edit produces *no* `updateNode` patches at all (topology and the remaining metadata are unchanged), collapsing the common case from O(nodes) to O(0). This is a protocol change (drop two fields, add a `revealNode`-style request), so it belongs with the Phase 7 hardening rather than this PR.
+
+- **Layout runs on the LSP request thread (→ Phase 7).** `VisualGraphLayoutHandler` runs MSAGL inline and returns `Task.FromResult`. The engine takes a `CancellationToken`, but the work is not offloaded (`Task.Run`) and superseded layout requests are not coalesced server-side. Pathological graphs could block the handler. Phase 7's "non-blocking async layout work" covers this.
+
+- **`measureServerLayoutBounds` transiently mutates shared atoms.** To fit the viewport to a layout's *final* bounds it briefly writes every atomic `boxAtom` to its target, reads the derived `graphBoundsAtom`, then restores. This must stay fully synchronous (no `await` between the writes and the restore) or a paint could flash. The constraint is documented at the definition; preserve it.
+
+  *Proposed fix:* adopt the [pretext](https://github.com/chenglou/pretext) library for synchronous, DOM-free text measurement. With node sizes computable up front (resource node height is fixed; only the text-driven width needs measuring via `measureNaturalWidth` plus our known chrome constants), the client can derive each node's final box arithmetically and compute the layout's bounding box directly — no transient atom writes, no read-back of `graphBoundsAtom`, and no reliance on the set→read→restore staying synchronous. This is the same library noted as a future direction for eliminating the `waitForAnimationFrame` measure step, so the two simplifications share one dependency; track them together (Phase 8 WYSIWYG groundwork). The remaining caveats are font-load timing (`document.fonts.ready`), modeling state-dependent chrome such as the thicker error border, and keeping the chrome math in lockstep with the node CSS.
+
+- **Partial-layout semantics are implicit.** If MSAGL returns positions for only some nodes, the handler returns `ok` and the unpositioned nodes keep their client positions. Reasonable, but add a server test asserting it so it is not silently changed.
+
+- **`activeLayoutAnimations` is module-level singleton state** in `use-deployment-graph.ts`. Correct only because there is one webview instance per document; revisit if the app ever hosts multiple graph stores.
+
+- **Three sites encode "what affects layout."** The client centralizes its two checks in `layout-invalidation.ts` (`patchMayAffectLayout` + `renderedGraphsEqual`), which cross-references the server's `VisualGraphDiffer.HasTopologyChange`. These cannot share code across the C#/TS boundary, so they must be kept consistent by hand when layout-affecting fields change.
+

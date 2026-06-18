@@ -17,13 +17,17 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
     /// client and never triggers a re-layout.
     /// </para>
     /// <para>
-    /// No layout (<see cref="GraphPatch.SetNodeLayout"/>) patches are produced here: positioning is still the
-    /// client's responsibility until the server-side layout engine is introduced.
+    /// Layout (<see cref="GraphPatch.SetNodeLayout"/>) patches are emitted only when a non-empty
+    /// <c>layout</c> is supplied. The handler computes layout only on topology changes (see
+    /// <see cref="HasTopologyChange"/>), so metadata-only edits carry no position patches and never reflow.
     /// </para>
     /// </summary>
     public static class VisualGraphDiffer
     {
-        public static IReadOnlyList<GraphPatch> Diff(RenderedGraph? current, CanonicalGraph target)
+        public static IReadOnlyList<GraphPatch> Diff(
+            RenderedGraph? current,
+            CanonicalGraph target,
+            IReadOnlyDictionary<string, NodeLayout>? layout = null)
         {
             var currentNodes = (current?.Nodes ?? []).ToDictionary(node => node.Id);
             var currentEdgeIds = (current?.Edges ?? []).Select(edge => edge.Id).ToHashSet();
@@ -40,11 +44,6 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                     patches.Add(new GraphPatch.RemoveEdge(edge.Id));
                 }
             }
-
-            // A node "survives" only if its id, kind, and parent are all unchanged. A change to kind or parent
-            // is structural (re-parenting / kind flip), so the node is removed and re-added rather than updated.
-            static bool Survives(RenderedGraphNode renderedNode, GraphNode targetNode) =>
-                renderedNode.Kind == targetNode.Kind && renderedNode.ParentId == targetNode.ParentId;
 
             // Remove nodes that are gone or structurally changed, deepest containment first so children are
             // removed before their parents.
@@ -94,10 +93,58 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 }
             }
 
+            // Apply server-computed positions, when supplied. A global layout repositions every node, so the
+            // engine returns a position for each one; nodes absent from the layout keep their client position.
+            if (layout is { Count: > 0 })
+            {
+                foreach (var targetNode in target.Nodes.OrderBy(node => node.Id, StringComparer.Ordinal))
+                {
+                    if (layout.TryGetValue(targetNode.Id, out var nodeLayout))
+                    {
+                        patches.Add(new GraphPatch.SetNodeLayout(targetNode.Id, nodeLayout));
+                    }
+                }
+            }
+
             patches.Add(new GraphPatch.SetErrorCount(target.ErrorCount));
 
             return patches;
         }
+
+        /// <summary>
+        /// Returns whether the submitted graph and the freshly built target differ in topology — the set of
+        /// nodes (by id, kind, and parent) or the set of edges (by id). Metadata-only differences (error state,
+        /// source ranges, file paths) are not topology changes. The handler uses this to decide whether to run
+        /// layout, so metadata-only edits never trigger a reflow.
+        /// </summary>
+        public static bool HasTopologyChange(RenderedGraph? current, CanonicalGraph target)
+        {
+            var currentNodes = (current?.Nodes ?? []).ToDictionary(node => node.Id);
+
+            // Counts equal plus every target node matching a surviving current node implies identical id sets.
+            if (currentNodes.Count != target.Nodes.Count)
+            {
+                return true;
+            }
+
+            foreach (var targetNode in target.Nodes)
+            {
+                if (!currentNodes.TryGetValue(targetNode.Id, out var renderedNode) || !Survives(renderedNode, targetNode))
+                {
+                    return true;
+                }
+            }
+
+            var currentEdgeIds = (current?.Edges ?? []).Select(edge => edge.Id).ToHashSet();
+            var targetEdgeIds = target.Edges.Select(edge => edge.Id).ToHashSet();
+
+            return !currentEdgeIds.SetEquals(targetEdgeIds);
+        }
+
+        // A node "survives" only if its id, kind, and parent are all unchanged. A change to kind or parent is
+        // structural (re-parenting / kind flip), so the node is removed and re-added rather than updated.
+        private static bool Survives(RenderedGraphNode renderedNode, GraphNode targetNode) =>
+            renderedNode.Kind == targetNode.Kind && renderedNode.ParentId == targetNode.ParentId;
 
         private static int ContainmentDepth(string nodeId)
         {

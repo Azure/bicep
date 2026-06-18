@@ -38,6 +38,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDefinitionHandler>()
                     .WithHandler<BicepDeploymentGraphHandler>()
                     .WithHandler<VisualGraphUpdateHandler>()
+                    .WithHandler<VisualGraphLayoutHandler>()
                     .WithHandler<GetDeploymentDataHandler>()
                     .WithHandler<BicepReferencesHandler>()
                     .WithHandler<BicepExternalSourceDocumentLinkHandler>()

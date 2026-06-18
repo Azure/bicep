@@ -91,6 +91,17 @@ export interface GetGraphUpdateResponse {
   patches: GraphPatch[];
 }
 
+export const GET_GRAPH_LAYOUT_REQUEST = "getGraphLayout";
+
+export interface GetGraphLayoutRequest {
+  current: RenderedGraph;
+}
+
+export interface GetGraphLayoutResponse {
+  status: "ok" | "graphChanged" | "layoutFailed";
+  patches: GraphPatch[];
+}
+
 export type GraphNodeKind = "resource" | "module";
 
 /** The graph as currently rendered by the webview, sent with each update request for the server to diff against. */

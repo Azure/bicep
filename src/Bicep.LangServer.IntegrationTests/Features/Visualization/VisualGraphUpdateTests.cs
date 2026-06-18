@@ -26,7 +26,7 @@ namespace Bicep.LangServer.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
-        public async Task Initial_request_with_null_current_returns_a_full_add_delta()
+        public async Task VisualGraphUpdate_ForNullCurrent_ReturnsFullAddDelta()
         {
             using var helper = await StartServerAndOpenAsync();
             var client = helper.Helper.Client;
@@ -60,11 +60,12 @@ namespace Bicep.LangServer.IntegrationTests
             result.Patches.OfType<GraphPatch.RemoveNode>().Should().BeEmpty();
             result.Patches.OfType<GraphPatch.RemoveEdge>().Should().BeEmpty();
             result.Patches.OfType<GraphPatch.UpdateNode>().Should().BeEmpty();
+            result.Patches.OfType<GraphPatch.SetNodeLayout>().Should().BeEmpty();
             result.Patches.OfType<GraphPatch.SetErrorCount>().Single().ErrorCount.Should().Be(0);
         }
 
         [TestMethod]
-        public async Task Request_with_matching_current_returns_only_metadata_refresh()
+        public async Task VisualGraphUpdate_ForMatchingCurrent_ReturnsOnlyMetadataRefresh()
         {
             using var helper = await StartServerAndOpenAsync();
             var client = helper.Helper.Client;
@@ -92,9 +93,59 @@ namespace Bicep.LangServer.IntegrationTests
             result.Patches.OfType<GraphPatch.RemoveNode>().Should().BeEmpty();
             result.Patches.OfType<GraphPatch.AddEdge>().Should().BeEmpty();
             result.Patches.OfType<GraphPatch.RemoveEdge>().Should().BeEmpty();
+            result.Patches.OfType<GraphPatch.SetNodeLayout>().Should().BeEmpty();
             result.Patches.OfType<GraphPatch.UpdateNode>().Select(patch => patch.NodeId)
                 .Should().BeEquivalentTo("res1", "res2", "mod1", "mod1::res3");
             result.Patches.OfType<GraphPatch.SetErrorCount>().Single().ErrorCount.Should().Be(0);
+        }
+
+        [TestMethod]
+        public async Task VisualGraphLayout_ForMeasuredMatchingCurrent_ReturnsLayoutPatches()
+        {
+            using var helper = await StartServerAndOpenAsync();
+            var client = helper.Helper.Client;
+
+            var initial = await client.SendRequest(
+                new VisualGraphUpdateParams(new TextDocumentIdentifier(helper.MainUri), Current: null),
+                default);
+
+            var renderedNodes = initial.Patches.OfType<GraphPatch.AddNode>()
+                .Select(patch => new RenderedGraphNode(patch.Node.Id, patch.Node.Kind, patch.Node.ParentId, 180, 72))
+                .ToList();
+            var renderedEdges = initial.Patches.OfType<GraphPatch.AddEdge>()
+                .Select(patch => new RenderedGraphEdge(patch.Edge.Id, patch.Edge.SourceId, patch.Edge.TargetId))
+                .ToList();
+
+            var result = await client.SendRequest(
+                new VisualGraphLayoutParams(
+                    new TextDocumentIdentifier(helper.MainUri),
+                    new RenderedGraph(renderedNodes, renderedEdges),
+                    Options: null),
+                default);
+
+            result.Status.Should().Be(VisualGraphLayoutStatus.Ok);
+            result.Patches.Should().AllBeOfType<GraphPatch.SetNodeLayout>();
+            result.Patches.OfType<GraphPatch.SetNodeLayout>().Select(patch => patch.NodeId)
+                .Should().BeEquivalentTo("res1", "res2", "mod1", "mod1::res3");
+            result.Patches.OfType<GraphPatch.SetNodeLayout>().Select(patch => patch.Layout)
+                .Should().OnlyContain(layout => double.IsFinite(layout.X) && double.IsFinite(layout.Y));
+        }
+
+        [TestMethod]
+        public async Task VisualGraphLayout_ForStaleMeasuredCurrent_ReturnsGraphChanged()
+        {
+            using var helper = await StartServerAndOpenAsync();
+            var client = helper.Helper.Client;
+            var stale = new RenderedGraph(
+                Nodes: [new RenderedGraphNode("missing", GraphNodeKind.Resource, ParentId: null, Width: 180, Height: 72)],
+                Edges: []);
+
+            var result = await client.SendRequest(
+                new VisualGraphLayoutParams(new TextDocumentIdentifier(helper.MainUri), stale, Options: null),
+                default);
+
+            result.Status.Should().Be(VisualGraphLayoutStatus.GraphChanged);
+            result.Patches.Should().BeEmpty();
         }
 
         private async Task<TestServer> StartServerAndOpenAsync()

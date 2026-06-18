@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { PrimitiveAtom } from "jotai";
+import type { Box } from "@/lib/utils/math";
 import type { Point } from "@/lib/utils/math/geometry";
-import type { DeploymentGraph } from "./messages";
+import type { DeploymentGraph, NodeLayout } from "./messages";
 
 import { getDefaultStore, useSetAtom } from "jotai";
+import { animate, transform, type AnimationPlaybackControlsWithThen } from "motion";
 import { useCallback, useRef } from "react";
 import { errorCountAtom, hasNodesAtom } from "@/features/status";
 import {
@@ -12,14 +15,153 @@ import {
   addCompoundNodeAtom,
   addEdgeAtom,
   edgesAtom,
+  graphBoundsAtom,
   graphVersionAtom,
   layoutReadyAtom,
   nodesByIdAtom,
   removeNodesAtom,
+  serverLayoutActiveAtom,
 } from "@/lib/graph";
 import { isDeploymentGraphEqual } from "@/lib/utils/deployment-graph-equality";
+import { translateBox } from "@/lib/utils/math";
 
 const store = getDefaultStore();
+
+/** Duration (in seconds) of the spring animation when nodes move to new positions. */
+const ANIMATION_DURATION_S = 0.6;
+
+/**
+ * Animations still settling from the most recent server layout.  They are
+ * cancelled before a new layout is applied so overlapping springs don't
+ * fight over the same boxes.
+ */
+let activeLayoutAnimations: AnimationPlaybackControlsWithThen[] = [];
+
+function waitForAnimationFrame(): Promise<void> {
+  return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+}
+
+/**
+ * Spring a node's boxAtom from its current position to a target position.
+ * Returns the animation control so it can be cancelled if a newer layout
+ * arrives before it settles.
+ */
+function springNodeTo(boxAtom: PrimitiveAtom<Box>, targetX: number, targetY: number) {
+  const box = store.get(boxAtom);
+  const fromX = box.min.x;
+  const fromY = box.min.y;
+
+  const opts = { clamp: false };
+  const xTransform = transform([0, 100], [fromX, targetX], opts);
+  const yTransform = transform([0, 100], [fromY, targetY], opts);
+
+  return animate(0, 100, {
+    type: "spring",
+    duration: ANIMATION_DURATION_S,
+    onUpdate: (latest) => {
+      const x = xTransform(latest);
+      const y = yTransform(latest);
+      store.set(boxAtom, (b) => translateBox(b, x - b.min.x, y - b.min.y));
+    },
+  });
+}
+
+/**
+ * Measure the bounding box the graph will occupy once the server layout is
+ * applied, including compound (module) boxes.
+ *
+ * A module box is derived from its children's union plus padding, so the union
+ * of atomic leaf positions alone is a few pixels tighter than the real graph
+ * bounds.  To get the true target bounds we briefly move the atomic boxes to
+ * their server positions, read the derived {@link graphBoundsAtom} (which
+ * recomputes compound boxes synchronously from their children), then restore
+ * the original positions so the follow-up spring animation still starts from
+ * where the nodes currently are.
+ *
+ * Reading the same atom the Fit View button uses guarantees Reset Layout and
+ * Fit View settle on an identical viewport instead of drifting by a few pixels.
+ */
+export function measureServerLayoutBounds(nodeLayouts: Map<string, NodeLayout>): Box | null {
+  if (nodeLayouts.size === 0) {
+    return null;
+  }
+
+  const nodes = store.get(nodesByIdAtom);
+  const snapshot = new Map<string, Box>();
+
+  for (const [nodeId, layout] of nodeLayouts) {
+    const node = nodes[nodeId];
+
+    if (!node || node.kind !== "atomic") {
+      continue;
+    }
+
+    const box = store.get(node.boxAtom);
+    snapshot.set(nodeId, box);
+    store.set(node.boxAtom, translateBox(box, layout.x - box.min.x, layout.y - box.min.y));
+  }
+
+  const bounds = store.get(graphBoundsAtom);
+
+  // Restore the pre-measurement positions. These writes are synchronous and the
+  // DOM is only painted on the next animation frame, so no movement is visible.
+  for (const [nodeId, box] of snapshot) {
+    const node = nodes[nodeId];
+
+    if (node && node.kind === "atomic") {
+      store.set(node.boxAtom, box);
+    }
+  }
+
+  return bounds;
+}
+
+/**
+ * Apply a server-computed layout to the current graph: reveal the graph
+ * layer if it was hidden, then spring every atomic node from its current
+ * position to its server-assigned position.  Compound boxes follow their
+ * children automatically.
+ *
+ * Mirrors the ELK auto-layout reveal/animate sequence so server-driven
+ * re-layouts and node additions/removals animate instead of snapping.
+ */
+export async function applyServerLayout(nodeLayouts: Map<string, NodeLayout>): Promise<void> {
+  // When the graph layer is hidden (initial load or a major topology
+  // replacement), wait one painted frame so the fitted viewport and the
+  // freshly-spawned node positions are committed, then reveal.  Incremental
+  // edits leave the graph visible so nodes animate in place.
+  if (!store.get(layoutReadyAtom)) {
+    await waitForAnimationFrame();
+    store.set(layoutReadyAtom, true);
+  }
+
+  if (nodeLayouts.size === 0) {
+    // No positions to apply (e.g. unchanged sizes or a failed layout). Leave
+    // any in-flight springs running so they settle on their targets; we only
+    // needed to make sure the graph was revealed.
+    return;
+  }
+
+  // Cancel any in-flight springs from the previous layout so overlapping
+  // springs don't fight over the same boxes.  New springs read each box's
+  // current (interpolated) position, so movement continues smoothly.
+  for (const animation of activeLayoutAnimations) {
+    animation.stop();
+  }
+  activeLayoutAnimations = [];
+
+  const nodes = store.get(nodesByIdAtom);
+
+  for (const [nodeId, layout] of nodeLayouts) {
+    const node = nodes[nodeId];
+
+    if (!node || node.kind !== "atomic") {
+      continue;
+    }
+
+    activeLayoutAnimations.push(springNodeTo(node.boxAtom, layout.x, layout.y));
+  }
+}
 
 /**
  * Snapshot the current position (box.min) of every node so we can
@@ -44,6 +186,16 @@ function snapshotNodePositions(): Map<string, Point> {
   return positions;
 }
 
+interface ApplyDeploymentGraphOptions {
+  /**
+   * When true, the graph is being applied in server-layout mode: the
+   * topology is updated in place but node positions and the visibility
+   * gate are driven separately via {@link applyServerLayout} (no ELK
+   * version bump).
+   */
+  serverLayout?: boolean;
+}
+
 export function useApplyDeploymentGraph(getViewportCenter: () => Point) {
   const setEdgesAtom = useSetAtom(edgesAtom);
   const addAtomicNode = useSetAtom(addAtomicNodeAtom);
@@ -55,7 +207,12 @@ export function useApplyDeploymentGraph(getViewportCenter: () => Point) {
   const previousGraphRef = useRef<DeploymentGraph | null>(null);
 
   return useCallback(
-    (graph: DeploymentGraph | null) => {
+    (graph: DeploymentGraph | null, options: ApplyDeploymentGraphOptions = {}) => {
+      const isServerLayoutActive = options.serverLayout === true;
+      const wasServerLayoutActive = store.get(serverLayoutActiveAtom);
+
+      store.set(serverLayoutActiveAtom, isServerLayoutActive);
+
       // Update status bar atoms
       store.set(errorCountAtom, graph?.errorCount ?? 0);
       store.set(hasNodesAtom, (graph?.nodes.length ?? 0) > 0);
@@ -75,6 +232,13 @@ export function useApplyDeploymentGraph(getViewportCenter: () => Point) {
                 filePath: node.filePath,
               }));
             }
+          }
+
+          // In server-layout mode, positions and visibility are applied
+          // separately via applyServerLayout, so nothing else to do here.
+          // When switching back to ELK, bump the version to re-lay out.
+          if (!isServerLayoutActive && wasServerLayoutActive) {
+            setGraphVersion((v) => v + 1);
           }
         }
         previousGraphRef.current = graph;
@@ -290,9 +454,17 @@ export function useApplyDeploymentGraph(getViewportCenter: () => Point) {
         }
       }
 
-      // Phase 6: Bump graph version so subscribers (e.g. useLayoutEffect
-      // in App) can trigger ELK layout after the DOM reflects the new graph.
-      setGraphVersion((v) => v + 1);
+      if (isServerLayoutActive) {
+        // Server-layout mode: the topology is now in place. Node positions
+        // and the visibility reveal are applied separately via
+        // applyServerLayout once the server returns the computed layout.
+        // The visibility gate set above (hidden on major replacement, kept
+        // visible on incremental edits) is preserved until then.
+      } else {
+        // Phase 6: Bump graph version so subscribers (e.g. useLayoutEffect
+        // in App) can trigger ELK layout after the DOM reflects the new graph.
+        setGraphVersion((v) => v + 1);
+      }
     },
     [
       setEdgesAtom,

@@ -7,6 +7,8 @@ import vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import {
   deploymentGraphRequestType,
+  visualGraphLayoutRequestType,
+  VisualGraphLayoutResult,
   VisualGraphRendered,
   visualGraphUpdateRequestType,
   VisualGraphUpdateResult,
@@ -194,6 +196,41 @@ export class BicepVisualizerView extends Disposable {
     }
   }
 
+  private async handleGetGraphLayout(id: string, params: unknown): Promise<void> {
+    const current = (params as { current?: VisualGraphRendered })?.current;
+    let result: VisualGraphLayoutResult = { status: "layoutFailed", patches: [] };
+
+    if (!current) {
+      await this.webviewPanel.webview.postMessage({ id, result });
+      return;
+    }
+
+    try {
+      const document = await vscode.workspace.openTextDocument(this.documentUri);
+
+      if (this.isDisposed) {
+        return;
+      }
+
+      result = await this.languageClient.sendRequest(visualGraphLayoutRequestType, {
+        textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
+        current,
+      });
+    } catch (error) {
+      getLogger().error(`Visual graph layout request failed: ${parseError(error).message}`);
+    }
+
+    if (this.isDisposed) {
+      return;
+    }
+
+    try {
+      await this.webviewPanel.webview.postMessage({ id, result });
+    } catch (error) {
+      getLogger().debug((error as Error).message ?? error);
+    }
+  }
+
   private handleDidReceiveMessage(message: unknown): void {
     if (!message || typeof message !== "object") {
       return;
@@ -229,6 +266,10 @@ export class BicepVisualizerView extends Disposable {
       switch (request.method) {
         case "getGraphUpdate":
           void this.handleGetGraphUpdate(request.id, request.params);
+          return;
+
+        case "getGraphLayout":
+          void this.handleGetGraphLayout(request.id, request.params);
           return;
       }
 

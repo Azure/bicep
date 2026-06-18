@@ -5,6 +5,8 @@ import type { WebviewNotificationCallback, WebviewNotificationMessage } from "@v
 import type {
   DeploymentGraph,
   DeploymentGraphPayload,
+  GetGraphLayoutRequest,
+  GetGraphLayoutResponse,
   GetGraphUpdateRequest,
   GetGraphUpdateResponse,
 } from "@/lib/messaging";
@@ -12,12 +14,13 @@ import type {
 import {
   DEPLOYMENT_GRAPH_NOTIFICATION,
   DOCUMENT_DID_CHANGE_NOTIFICATION,
+  GET_GRAPH_LAYOUT_REQUEST,
   GET_GRAPH_UPDATE_REQUEST,
   READY_NOTIFICATION,
   REVEAL_FILE_RANGE_NOTIFICATION,
   SHOW_PROBLEMS_PANEL_NOTIFICATION,
 } from "@/lib/messaging/messages";
-import { diffGraph } from "./fake-graph-differ";
+import { diffGraph, layoutGraph } from "./fake-graph-differ";
 
 const FAKE_FILE_PATH = "file:///main.bicep";
 
@@ -814,6 +817,16 @@ export class FakeMessageChannel {
       const { current } = requestMessage.params as GetGraphUpdateRequest;
       const patches = diffGraph(current, this.currentGraph);
       return Promise.resolve({ patches } as GetGraphUpdateResponse as T);
+    }
+
+    if (requestMessage.method === GET_GRAPH_LAYOUT_REQUEST) {
+      const { current } = requestMessage.params as GetGraphLayoutRequest;
+      const patches = layoutGraph(current, this.currentGraph);
+      const result: GetGraphLayoutResponse = patches
+        ? { status: "ok", patches }
+        : { status: "graphChanged", patches: [] };
+
+      return Promise.resolve(result as T);
     }
 
     return Promise.reject(new Error(`FakeMessageChannel does not support request: ${requestMessage.method}`));
