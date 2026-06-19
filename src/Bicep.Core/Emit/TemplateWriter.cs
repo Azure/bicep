@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Helpers;
+using Azure.Deployments.Expression.Engines;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Resources;
