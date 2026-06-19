@@ -72,21 +72,20 @@ const $Divider = styled.div`
   background-color: ${({ theme }) => theme.controlBar.border};
 `;
 
-export function ControlBar() {
+interface ControlBarProps {
+  requestServerLayout?: () => Promise<void>;
+}
+
+export function ControlBar({ requestServerLayout }: ControlBarProps) {
   const { zoomIn, zoomOut } = usePanZoomControl();
   const fitView = useFitView();
-  const resetLayout = useResetLayout();
+  const resetLayout = useResetLayout(requestServerLayout);
   const controls = useAtomValue(graphControlAvailabilityAtom);
   const openExportOverlay = useSetAtom(openExportOverlayAtom);
 
   return (
     <$ControlBar data-testid="control-bar">
-      <$ControlButton
-        onClick={() => zoomIn(1.5)}
-        title="Zoom In"
-        aria-label="Zoom In"
-        data-testid="control-zoom-in"
-      >
+      <$ControlButton onClick={() => zoomIn(1.5)} title="Zoom In" aria-label="Zoom In" data-testid="control-zoom-in">
         <Codicon name="zoom-in" size={16} />
       </$ControlButton>
       <$ControlButton

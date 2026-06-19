@@ -155,6 +155,21 @@
         }
       }
     },
+    "bicepRegistryModuleAliasMock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mapToFilePath"
+      ],
+      "properties": {
+        "mapToFilePath": {
+          "title": "Map To File Path",
+          "description": "The path relative to bicepconfig.json used to emulate a registry alias",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
     "extensionConfig": {
       "type": "string"
     },
@@ -283,6 +298,25 @@
           "description": "Bicep Registry module alias definitions",
           "additionalProperties": {
             "$ref": "#/definitions/bicepRegistryModuleAlias",
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    "moduleAliasesMock": {
+      "title": "Module Aliases Mock",
+      "description": "Mock module aliases that supersede moduleAliases when present",
+      "type": "object",
+      "additionalProperties": false,
+      "default": {
+        "br": {}
+      },
+      "properties": {
+        "br": {
+          "title": "Bicep Registry Module Aliases Mock",
+          "description": "Mock Bicep Registry module alias definitions",
+          "additionalProperties": {
+            "$ref": "#/definitions/bicepRegistryModuleAliasMock",
             "additionalProperties": false
           }
         }

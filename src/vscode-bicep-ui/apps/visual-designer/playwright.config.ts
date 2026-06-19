@@ -31,11 +31,7 @@ export default defineConfig({
   },
 
   reporter: process.env.CI
-    ? [
-        ["github"],
-        ["html", { open: "never", outputFolder: "./e2e/.report" }],
-        ["list"],
-      ]
+    ? [["github"], ["html", { open: "never", outputFolder: "./e2e/.report" }], ["list"]]
     : [["list"], ["html", { open: "never", outputFolder: "./e2e/.report" }]],
 
   use: {

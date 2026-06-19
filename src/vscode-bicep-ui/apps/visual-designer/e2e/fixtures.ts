@@ -63,9 +63,7 @@ export function nodeCount(page: Page): Promise<number> {
 /** Return the current pan-zoom transform on the inner graph layer. */
 export async function getGraphTransform(page: Page): Promise<string> {
   return page.evaluate(() => {
-    const layer = document.querySelector<HTMLElement>(
-      '[data-testid="graph-canvas"] [style*="transform"]',
-    );
+    const layer = document.querySelector<HTMLElement>('[data-testid="graph-canvas"] [style*="transform"]');
     if (!layer) return "";
     return layer.style.transform || getComputedStyle(layer).transform;
   });

@@ -4,7 +4,7 @@
 import { usePanZoomControl } from "@vscode-bicep-ui/components";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useLayoutEffect } from "react";
-import { graphVersionAtom, layoutReadyAtom } from "@/lib/graph";
+import { graphVersionAtom, layoutReadyAtom, serverLayoutActiveAtom } from "@/lib/graph";
 import { applyLayoutAtom, computeFitViewTransform } from "./elk-layout";
 import { useComputeLayout } from "./use-compute-layout";
 
@@ -28,6 +28,7 @@ export function useAutoLayout() {
   const { transform } = usePanZoomControl();
   const graphVersion = useAtomValue(graphVersionAtom);
   const isLayoutReady = useAtomValue(layoutReadyAtom);
+  const serverLayoutActive = useAtomValue(serverLayoutActiveAtom);
 
   // Run ELK layout after the DOM has been updated with the new graph.
   // useLayoutEffect fires synchronously after React commits DOM changes,
@@ -37,7 +38,7 @@ export function useAutoLayout() {
   // previous layout is still in flight, the stale layout's completion
   // is ignored (via the `cancelled` flag set in the cleanup function).
   useLayoutEffect(() => {
-    if (graphVersion === 0) {
+    if (serverLayoutActive || graphVersion === 0) {
       return;
     }
 
@@ -83,5 +84,5 @@ export function useAutoLayout() {
     return () => {
       cancelled = true;
     };
-  }, [computeLayout, applyLayout, setLayoutReady, isLayoutReady, graphVersion, transform]);
+  }, [computeLayout, applyLayout, setLayoutReady, isLayoutReady, serverLayoutActive, graphVersion, transform]);
 }

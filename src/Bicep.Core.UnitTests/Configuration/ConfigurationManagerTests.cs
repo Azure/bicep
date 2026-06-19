@@ -64,6 +64,9 @@ namespace Bicep.Core.UnitTests.Configuration
             }
           }
         },
+        "moduleAliasesMock": {
+         "br": {}
+        },
         "extensions": {
           "az": "builtin:",
           "kubernetes": "builtin:"
@@ -170,6 +173,9 @@ namespace Bicep.Core.UnitTests.Configuration
             }
           }
         },
+        "moduleAliasesMock": {
+         "br": {}
+        },
         "extensions": {
             "az": "builtin:",
             "kubernetes": "builtin:"
@@ -242,6 +248,9 @@ namespace Bicep.Core.UnitTests.Configuration
               "modulePath": "bicep"
             }
           }
+        },
+        "moduleAliasesMock": {
+         "br": {}
         },
         "extensions": {
             "az": "builtin:",
@@ -411,6 +420,9 @@ namespace Bicep.Core.UnitTests.Configuration
                     "modulePath": "bicep"
                 }
                 }
+            },
+            "moduleAliasesMock": {
+             "br": {}
             },
             "extensions": {
                 "kubernetes": "builtin:",
@@ -766,6 +778,9 @@ namespace Bicep.Core.UnitTests.Configuration
                       }
                     }
                   },
+                  "moduleAliasesMock": {
+                   "br": {}
+                  },
                   "extensions": {
                     "az": "builtin:",
                     "kubernetes": "builtin:"
@@ -854,6 +869,67 @@ namespace Bicep.Core.UnitTests.Configuration
             // Assert.
             configuration.ModuleAliases.TryGetOciArtifactModuleAlias("public").IsSuccess(out var moduleAlias).Should().BeTrue();
             moduleAlias!.Registry.Should().Be("mcr.microsoft.com");
+        }
+
+        [TestMethod]
+        public void GetConfiguration_ModuleAliasesMock_SupersedesModuleAliasesForSameAlias()
+        {
+            // Arrange.
+            var fileSet = InMemoryTestFileSet.Create(("bicepconfig.json", """
+                {
+                  "moduleAliases": {
+                    "br": {
+                      "myAlias": { "registry": "real.azurecr.io", "modulePath": "real/path" }
+                    }
+                  },
+                  "moduleAliasesMock": {
+                    "br": {
+                      "myAlias": { "mapToFilePath": "mock/path" }
+                    }
+                  }
+                }
+                """));
+            var sut = new ConfigurationManager(fileSet.FileExplorer);
+
+            // Act.
+            var configuration = sut.GetConfiguration(fileSet.GetUri("main.bicep"));
+
+            // Assert.
+         configuration.ModuleAliasesMock.TryGetOciArtifactModuleAliasMock("myAlias").IsSuccess(out var mockAlias).Should().BeTrue();
+         mockAlias!.MapToFilePath.Should().Be("mock/path");
+
+         // The merged view should expose the mock definition without throwing on duplicate keys.
+         var mocks = configuration.ModuleAliasesMock.GetOciArtifactModuleAliasesMock();
+         mocks.Should().ContainKey("myAlias");
+         mocks["myAlias"].MapToFilePath.Should().Be("mock/path");
+        }
+
+        [TestMethod]
+        public void GetConfiguration_ModuleAliasesMock_FallsBackToModuleAliasesWhenAliasNotInMock()
+        {
+            // Arrange.
+            var fileSet = InMemoryTestFileSet.Create(("bicepconfig.json", """
+                {
+                  "moduleAliases": {
+                    "br": {
+                      "myAlias": { "registry": "real.azurecr.io" }
+                    }
+                  },
+                  "moduleAliasesMock": {
+                    "br": {
+                      "otherAlias": { "mapToFilePath": "mock/path" }
+                    }
+                  }
+                }
+                """));
+            var sut = new ConfigurationManager(fileSet.FileExplorer);
+
+            // Act.
+            var configuration = sut.GetConfiguration(fileSet.GetUri("main.bicep"));
+
+            // Assert.
+            configuration.ModuleAliases.TryGetOciArtifactModuleAlias("myAlias").IsSuccess(out var alias).Should().BeTrue();
+            alias!.Registry.Should().Be("real.azurecr.io");
         }
     }
 }

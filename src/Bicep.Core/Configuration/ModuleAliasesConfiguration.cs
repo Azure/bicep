@@ -38,8 +38,8 @@ namespace Bicep.Core.Configuration
         public string? ModulePath { get; init; }
 
         public override string ToString() => this.ModulePath is not null
-            ? $"{Registry}/{ModulePath}"
-            : $"{Registry}";
+                ? $"{Registry}/{ModulePath}"
+                : $"{Registry}";
     }
 
     public partial class ModuleAliasesConfiguration : ConfigurationSection<ModuleAliases>
@@ -122,6 +122,6 @@ namespace Bicep.Core.Configuration
         }
 
         [GeneratedRegex("^[a-zA-Z0-9-_]+$", RegexOptions.CultureInvariant)]
-        private static partial Regex ModuleAliasNameRegex();
+        internal static partial Regex ModuleAliasNameRegex();
     }
 }
