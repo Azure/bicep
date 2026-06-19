@@ -7412,11 +7412,10 @@ module mod 'mod.bicep' = {
 
         var nestedTemplateToken = result.Template!
             .SelectTokens("$..template")
-            .OfType<JValue>()
-            .FirstOrDefault(value => value.Type == JTokenType.String);
+            .FirstOrDefault(value => value.Type == JTokenType.Object);
         Assert.IsNotNull(nestedTemplateToken);
 
-        var nestedTemplateText = nestedTemplateToken!.Value<string>();
+        var nestedTemplateText = nestedTemplateToken.ToJson();
         Assert.IsNotNull(nestedTemplateText);
         nestedTemplateText!.Length.Should().BeGreaterThan(131072);
 
