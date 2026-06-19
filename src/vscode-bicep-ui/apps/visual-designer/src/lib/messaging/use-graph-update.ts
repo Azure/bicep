@@ -1,0 +1,311 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+import type { Box } from "@/lib/utils/math";
+import type { Point } from "@/lib/utils/math/geometry";
+import type {
+  DeploymentGraph,
+  GetGraphLayoutRequest,
+  GetGraphLayoutResponse,
+  GetGraphUpdateRequest,
+  GetGraphUpdateResponse,
+  GraphEdge,
+  GraphNode,
+  GraphPatch,
+  NodeLayout,
+  RenderedGraph,
+} from "./messages";
+
+import { useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
+import { getDefaultStore } from "jotai";
+import { useCallback, useRef } from "react";
+import { nodesByIdAtom } from "@/lib/graph";
+import { patchMayAffectLayout, renderedGraphsEqual } from "./layout-invalidation";
+import { GET_GRAPH_LAYOUT_REQUEST, GET_GRAPH_UPDATE_REQUEST } from "./messages";
+import { applyServerLayout, measureServerLayoutBounds, useApplyDeploymentGraph } from "./use-deployment-graph";
+
+const store = getDefaultStore();
+
+/**
+ * The client-side mirror of the server's canonical graph. This is the graph the webview
+ * "currently displays": the server diffs against it and returns a complete patch delta, so the
+ * webview submits exactly this topology back on the next update request.
+ */
+interface ClientGraph {
+  nodes: Map<string, GraphNode>;
+  edges: Map<string, GraphEdge>;
+  errorCount: number;
+}
+
+function createClientGraph(): ClientGraph {
+  return { nodes: new Map(), edges: new Map(), errorCount: 0 };
+}
+
+function applyPatch(graph: ClientGraph, nodeLayouts: Map<string, NodeLayout>, patch: GraphPatch): void {
+  switch (patch.op) {
+    case "clearGraph":
+      graph.nodes.clear();
+      graph.edges.clear();
+      graph.errorCount = 0;
+      return;
+    case "addNode":
+      graph.nodes.set(patch.node.id, patch.node);
+      return;
+    case "removeNode":
+      graph.nodes.delete(patch.nodeId);
+      return;
+    case "updateNode": {
+      const node = graph.nodes.get(patch.nodeId);
+      if (node) {
+        // Only defined fields in `changes` override the node; the rest are left untouched.
+        const next = { ...node };
+        for (const [key, value] of Object.entries(patch.changes)) {
+          if (value !== undefined) {
+            (next as Record<string, unknown>)[key] = value;
+          }
+        }
+        graph.nodes.set(patch.nodeId, next);
+      }
+      return;
+    }
+    case "addEdge":
+      graph.edges.set(patch.edge.id, patch.edge);
+      return;
+    case "removeEdge":
+      graph.edges.delete(patch.edgeId);
+      return;
+    case "setNodeLayout":
+      nodeLayouts.set(patch.nodeId, patch.layout);
+      return;
+    case "setErrorCount":
+      graph.errorCount = patch.errorCount;
+      return;
+  }
+}
+
+/**
+ * Translate the canonical client graph into the legacy `DeploymentGraph` shape so the existing
+ * position-preserving apply path (and ELK auto-layout) can render it unchanged.
+ */
+function toDeploymentGraph(graph: ClientGraph): DeploymentGraph {
+  return {
+    nodes: [...graph.nodes.values()].map((node) => ({
+      id: node.id,
+      type: node.type,
+      isCollection: node.isCollection,
+      range: node.range,
+      hasChildren: node.hasChildren,
+      hasError: node.hasError,
+      filePath: node.filePath ?? "",
+    })),
+    edges: [...graph.edges.values()].map((edge) => ({
+      sourceId: edge.sourceId,
+      targetId: edge.targetId,
+    })),
+    errorCount: graph.errorCount,
+  };
+}
+
+/**
+ * Build the `RenderedGraph` to submit with an update request: the topology the webview holds plus
+ * the size it has measured for each node (zero until the node has been laid out and measured).
+ */
+function buildRenderedGraph(graph: ClientGraph): RenderedGraph {
+  const renderedNodes = store.get(nodesByIdAtom);
+
+  return {
+    nodes: [...graph.nodes.values()].map((node) => {
+      const rendered = renderedNodes[node.id];
+      const box = rendered ? store.get(rendered.boxAtom) : undefined;
+
+      return {
+        id: node.id,
+        kind: node.kind,
+        parentId: node.parentId,
+        width: box ? box.max.x - box.min.x : 0,
+        height: box ? box.max.y - box.min.y : 0,
+      };
+    }),
+    edges: [...graph.edges.values()].map((edge) => ({
+      id: edge.id,
+      sourceId: edge.sourceId,
+      targetId: edge.targetId,
+    })),
+  };
+}
+
+function waitForAnimationFrame(): Promise<void> {
+  return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+}
+
+function collectNodeLayouts(patches: GraphPatch[]): Map<string, NodeLayout> {
+  const nodeLayouts = new Map<string, NodeLayout>();
+
+  for (const patch of patches) {
+    if (patch.op === "setNodeLayout") {
+      nodeLayouts.set(patch.nodeId, patch.layout);
+    }
+  }
+
+  return nodeLayouts;
+}
+
+/**
+ * Drives the notify-then-request loop for server-driven graph updates.
+ *
+ * Returns a function to call on each `documentDidChange` notification. It enforces the single
+ * in-flight request + dirty-flag convergence pattern from the migration plan: only one request is
+ * outstanding at a time, and notifications that arrive while a request is in flight collapse into a
+ * single follow-up request. Because every response is a complete delta against the graph that was
+ * submitted, applying only the latest response is always correct without version tokens.
+ */
+export interface GraphUpdateActions {
+  requestGraphUpdate: () => Promise<void>;
+  /**
+   * Re-run the server layout for the current graph and apply it, bypassing the
+   * "sizes unchanged since last layout" short-circuit so it re-lays out (and
+   * animates) even after the user has only dragged nodes around. Backs the Reset
+   * Layout button. Shares the single in-flight slot with {@link requestGraphUpdate},
+   * so it never races a concurrent document-change update.
+   */
+  resetLayout: () => Promise<void>;
+}
+
+export function useGraphUpdate(
+  getViewportCenter: () => Point,
+  fitViewToBounds: (bounds: Box) => void,
+): GraphUpdateActions {
+  const applyGraph = useApplyDeploymentGraph(getViewportCenter);
+  const messageChannel = useWebviewMessageChannel();
+  const clientGraphRef = useRef<ClientGraph>(createClientGraph());
+  const lastLayoutInputRef = useRef<RenderedGraph | null>(null);
+  const inFlightRef = useRef(false);
+  const dirtyRef = useRef(false);
+  const forceLayoutRef = useRef(false);
+
+  const requestGraphLayout = useCallback(
+    async (force = false) => {
+      const graph = clientGraphRef.current;
+
+      if (graph.nodes.size === 0) {
+        lastLayoutInputRef.current = null;
+        return;
+      }
+
+      await waitForAnimationFrame();
+
+      const measuredGraph = buildRenderedGraph(graph);
+
+      if (!force && renderedGraphsEqual(lastLayoutInputRef.current, measuredGraph)) {
+        // Sizes are unchanged since the last layout, so positions still hold.
+        // Just make sure the graph is revealed in case it was hidden.
+        await applyServerLayout(new Map());
+        return;
+      }
+
+      const layoutRequest: GetGraphLayoutRequest = { current: measuredGraph };
+      const layoutResponse = await messageChannel.sendRequest<GetGraphLayoutResponse>({
+        method: GET_GRAPH_LAYOUT_REQUEST,
+        params: layoutRequest,
+      });
+
+      if (layoutResponse.status === "graphChanged") {
+        dirtyRef.current = true;
+        return;
+      }
+
+      if (layoutResponse.status === "layoutFailed") {
+        // No usable layout — reveal the graph as-is so it isn't stuck hidden.
+        await applyServerLayout(new Map());
+        return;
+      }
+
+      const nodeLayouts = collectNodeLayouts(layoutResponse.patches);
+      lastLayoutInputRef.current = measuredGraph;
+
+      // Fit the viewport to the layout's final bounds before the nodes animate
+      // there (mirrors the ELK auto-layout reveal/animate sequence). The bounds
+      // include compound boxes so this matches the Fit View button exactly.
+      const bounds = measureServerLayoutBounds(nodeLayouts);
+      if (bounds) {
+        fitViewToBounds(bounds);
+      }
+
+      await applyServerLayout(nodeLayouts);
+    },
+    [fitViewToBounds, messageChannel],
+  );
+
+  const requestGraphUpdate = useCallback(async () => {
+    if (inFlightRef.current) {
+      // A request is already outstanding; mark dirty so it issues one more round when it returns.
+      dirtyRef.current = true;
+      return;
+    }
+
+    inFlightRef.current = true;
+
+    try {
+      do {
+        // A forced layout (Reset Layout) takes priority over a normal update pass: re-run the
+        // server layout without the size-unchanged short-circuit, then fall through to drain any
+        // document-change update that arrived in the meantime.
+        if (forceLayoutRef.current) {
+          forceLayoutRef.current = false;
+          await requestGraphLayout(true);
+          continue;
+        }
+
+        dirtyRef.current = false;
+
+        const graph = clientGraphRef.current;
+        const current: RenderedGraph | null = graph.nodes.size === 0 ? null : buildRenderedGraph(graph);
+        const request: GetGraphUpdateRequest = { current };
+
+        const response = await messageChannel.sendRequest<GetGraphUpdateResponse>({
+          method: GET_GRAPH_UPDATE_REQUEST,
+          params: request,
+        });
+
+        const nodeLayouts = new Map<string, NodeLayout>();
+        let layoutMayBeStale = false;
+
+        for (const patch of response.patches) {
+          layoutMayBeStale ||= patchMayAffectLayout(graph, patch);
+          applyPatch(graph, nodeLayouts, patch);
+        }
+
+        const shouldMeasureLayout = layoutMayBeStale && graph.nodes.size > 0;
+
+        if (graph.nodes.size === 0) {
+          lastLayoutInputRef.current = null;
+        }
+
+        // Apply the new topology. Visibility is preserved for incremental
+        // edits (so nodes animate in place) and gated for major changes;
+        // positions arrive in the layout phase below.
+        applyGraph(toDeploymentGraph(graph), { serverLayout: true });
+
+        if (shouldMeasureLayout) {
+          await requestGraphLayout();
+        }
+      } while (dirtyRef.current || forceLayoutRef.current);
+    } finally {
+      inFlightRef.current = false;
+    }
+  }, [applyGraph, requestGraphLayout, messageChannel]);
+
+  const resetLayout = useCallback(async () => {
+    forceLayoutRef.current = true;
+
+    if (inFlightRef.current) {
+      // A request is already outstanding; the in-flight loop drains forceLayoutRef before it
+      // releases the lock, so the reset runs there instead of racing it.
+      return;
+    }
+
+    await requestGraphUpdate();
+  }, [requestGraphUpdate]);
+
+  return { requestGraphUpdate, resetLayout };
+}

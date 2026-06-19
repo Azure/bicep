@@ -25,6 +25,15 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
   }
 }
 
+module appPlanDeploy3 'br/mock-registry-mocked:plan:v2' = {
+//@[07:21) Module appPlanDeploy3. Type: module. Declaration start char: 0, length: 135
+  name: 'planDeploy3'
+  scope: rg
+  params: {
+    namePrefix: 'hello'
+  }
+}
+
 var websites = [
 //@[04:12) Variable websites. Type: [object, object]. Declaration start char: 0, length: 110
   {
@@ -153,3 +162,4 @@ module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
     ipv6port: 'test'
   }
 }
+

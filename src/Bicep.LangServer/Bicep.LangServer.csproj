@@ -18,6 +18,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.ResourceManager.ResourceGraph" />
     <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Msagl" />
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" />
     <PackageReference Include="CommandLineParser" />
     <PackageReference Include="SharpYaml" />

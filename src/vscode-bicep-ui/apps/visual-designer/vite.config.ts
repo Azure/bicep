@@ -6,7 +6,7 @@ import type { Plugin } from "vite";
 import fs from "fs";
 import path from "path";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 
 /**
  * Inject a fake `acquireVsCodeApi` with sample graph data only
@@ -92,5 +92,10 @@ export default defineConfig({
         assetFileNames: `assets/[name].[ext]`,
       },
     },
+  },
+  test: {
+    // Unit tests live next to the source under `src`. Playwright e2e specs in `e2e/`
+    // are run by Playwright, not Vitest, so keep them out of test discovery.
+    include: ["src/**/*.test.{ts,tsx}"],
   },
 });

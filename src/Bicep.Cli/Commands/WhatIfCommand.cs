@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.CommandLine;
 using Azure.Deployments.Core.Entities;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Constants;
@@ -13,7 +14,6 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.CommandLine;
 using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands;

@@ -30,14 +30,18 @@ namespace Bicep.Core.Registry
         private readonly RegistryConfiguration registryConfiguration;
         private readonly IPublicModuleMetadataProvider publicModuleMetadataProvider;
 
+        private readonly IFileExplorer fileExplorer;
+
         public OciArtifactRegistry(
             RegistryConfiguration registryConfiguration,
             IContainerRegistryClientFactory clientFactory,
-            IPublicModuleMetadataProvider publicModuleMetadataProvider)
+            IPublicModuleMetadataProvider publicModuleMetadataProvider,
+            IFileExplorer fileExplorer)
         {
             this.containerRegistryManager = new AzureContainerRegistryManager(clientFactory);
             this.registryConfiguration = registryConfiguration;
             this.publicModuleMetadataProvider = publicModuleMetadataProvider;
+            this.fileExplorer = fileExplorer;
         }
 
         public override string Scheme => ArtifactReferenceSchemes.Oci;
@@ -50,13 +54,49 @@ namespace Bicep.Core.Registry
 
         public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference)
         {
+             // Check if the alias resolves to a mocked alias
+            if (aliasName is not null)
+            {
+                if (referencingFile.Configuration.ModuleAliasesMock.TryGetOciArtifactModuleAliasMock(aliasName).IsSuccess(out var mockAlias, out var _))
+                {
+                       // Mock aliases only support modules, not extensions.
+                    if (artifactType != ArtifactType.Module)
+                    {
+                        return new(x => x.OciArtifactModuleAliasMapToFilePathOnlySupportsModules(aliasName));
+                    }
+
+                    if (referencingFile.Configuration.ConfigFileUri is null)
+                    {
+                        return new(x => x.ConfigurationFileNotFound("OciModuleAliasesMock"));
+                    }
+
+                    if (mockAlias.MapToFilePath is null)
+                       {
+                        return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, referencingFile.Configuration.ConfigFileUri));
+                       }
+
+                    if (!OciArtifactMockedReference.TryParse(
+                        referencingFile,
+                        mockAlias.MapToFilePath,
+                        referencingFile.Configuration.ConfigFileUri,
+                        reference,
+                        this.fileExplorer,
+                        aliasName).IsSuccess(out var mockedRef, out var mockedFailureBuilder))
+                    {
+                        return new(mockedFailureBuilder!);
+                    }
+
+                    return new(mockedRef!);
+                }
+            }
+
             if (!OciArtifactReference.TryParse(referencingFile.Features, referencingFile.Configuration, artifactType, aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
             {
                 return new(failureBuilder);
             }
+
             return new(@ref);
         }
-
 
         public override bool IsArtifactRestoreRequired(OciArtifactReference reference)
         {

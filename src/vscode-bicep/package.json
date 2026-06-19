@@ -95,6 +95,11 @@
           "description": "When completing 'br:' module references, query Azure for all container registries accessible to the user (may be slow). If this option is off, only registries configured under moduleAliases in bicepconfig.json will be listed.",
           "default": false
         },
+        "bicep.visualizer.serverLayout.enabled": {
+          "type": "boolean",
+          "description": "Experimental: compute the visualizer graph layout in the Bicep language server instead of in the webview. Off by default while this is under development.",
+          "default": false
+        },
         "bicep.trace.server": {
           "type": "string",
           "enum": [
@@ -766,7 +771,7 @@
     "@vscode/vsce": "^3.9.1",
     "copy-webpack-plugin": "^14.0.0",
     "esbuild-loader": "^4.4.3",
-    "eslint": "^10.2.1",
+    "eslint": "^10.5.0",
     "eslint-plugin-jest": "^29.15.2",
     "eslint-plugin-notice": "^1.0.0",
     "fork-ts-checker-webpack-plugin": "^9.0.2",
@@ -775,14 +780,14 @@
     "nerdbank-gitversioning": "^3.7.115",
     "prettier": "^3.8.2",
     "rimraf": "^6.0.1",
-    "semver": "^7.7.1",
-    "terser-webpack-plugin": "^5.5.0",
+    "semver": "^7.8.4",
+    "terser-webpack-plugin": "^5.6.1",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.28.0",
+    "typescript-eslint": "^8.60.1",
     "webpack": "^5.105.2",
-    "webpack-cli": "^7.0.2"
+    "webpack-cli": "^7.0.3"
   },
   "dependencies": {
     "@azure/arm-managementgroups": "2.0.2",
@@ -790,8 +795,8 @@
     "@azure/arm-subscriptions": "^6.0.0",
     "@azure/identity": "^4.13.1",
     "@microsoft/vscode-azext-azureauth": "^5.1.1",
-    "@microsoft/vscode-azext-azureutils": "^4.1.1",
-    "@microsoft/vscode-azext-utils": "^4.0.7",
+    "@microsoft/vscode-azext-azureutils": "^4.3.0",
+    "@microsoft/vscode-azext-utils": "^4.1.0",
     "@vscode/codicons": "^0.0.45",
     "fs-extra": "^11.3.5",
     "triple-beam": "^1.4.1",
