@@ -8,7 +8,7 @@
     "@swc/jest": "^0.2.39",
     "@types/html-escaper": "^3.0.4",
     "@types/jest": "^30.0.0",
-    "@types/node": "^25.9.2",
+    "@types/node": "^26.0.0",
     "@types/plist": "^3.0.5",
     "@typescript-eslint/eslint-plugin": "^8.60.0",
     "@typescript-eslint/parser": "^8.60.1",
