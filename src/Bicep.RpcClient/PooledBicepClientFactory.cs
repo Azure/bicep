@@ -60,7 +60,7 @@ public class PooledBicepClientFactory : IBicepClientFactory, IDisposable
                 throw new ObjectDisposedException(nameof(PooledBicepClientFactory));
             }
 
-            poolEntry = clientPool.GetOrAdd(configuration, config => new ClientPoolEntry(innerFactory, config));            
+            poolEntry = clientPool.GetOrAdd(configuration, config => new ClientPoolEntry(innerFactory, config));
         }
 
         return Task.FromResult<IBicepClient>(poolEntry.GetPooledClient());
@@ -149,7 +149,7 @@ public class PooledBicepClientFactory : IBicepClientFactory, IDisposable
 
         public void CloseUnderlyingClientIfIdle(TimeSpan inactivityInterval)
             => CloseUnderlyingClient(() =>
-                activeClient is {} &&
+                activeClient is { } &&
                 activeRequests == 0 &&
                 lastUsed + inactivityInterval < DateTime.UtcNow);
 

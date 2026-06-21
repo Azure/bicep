@@ -54,12 +54,12 @@ namespace Bicep.Core.Registry
 
         public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference)
         {
-             // Check if the alias resolves to a mocked alias
+            // Check if the alias resolves to a mocked alias
             if (aliasName is not null)
             {
                 if (referencingFile.Configuration.ModuleAliasesMock.TryGetOciArtifactModuleAliasMock(aliasName).IsSuccess(out var mockAlias, out var _))
                 {
-                       // Mock aliases only support modules, not extensions.
+                    // Mock aliases only support modules, not extensions.
                     if (artifactType != ArtifactType.Module)
                     {
                         return new(x => x.OciArtifactModuleAliasMapToFilePathOnlySupportsModules(aliasName));
@@ -71,9 +71,9 @@ namespace Bicep.Core.Registry
                     }
 
                     if (mockAlias.MapToFilePath is null)
-                       {
+                    {
                         return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, referencingFile.Configuration.ConfigFileUri));
-                       }
+                    }
 
                     if (!OciArtifactMockedReference.TryParse(
                         referencingFile,
