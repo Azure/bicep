@@ -3,7 +3,7 @@
   "private": true,
   "devDependencies": {
     "@babel/core": "^7.29.7",
-    "@babel/plugin-transform-modules-commonjs": "^7.29.7",
+    "@babel/plugin-transform-modules-commonjs": "^8.0.1",
     "@eslint/eslintrc": "^3.3.5",
     "@eslint/js": "^10.0.1",
     "@types/html-escaper": "^3.0.4",
