@@ -36,7 +36,7 @@ namespace Bicep.Core.Configuration
         }
 
         public static ModuleAliasesMockConfiguration Bind(JsonElement element, IOUri? configFileUri) => new(element.ToNonNullObject<ModuleAliasesMock>(), configFileUri);
-        
+
         public ImmutableSortedDictionary<string, OciArtifactModuleAliasMock> GetOciArtifactModuleAliasesMock()
         {
             return this.Data.OciArtifactModuleAliasesMock;

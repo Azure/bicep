@@ -2,12 +2,13 @@
 // Licensed under the MIT License.
 
 import type { PrimitiveAtom } from "jotai";
+import type { AnimationPlaybackControlsWithThen } from "motion";
 import type { Box } from "@/lib/utils/math";
 import type { Point } from "@/lib/utils/math/geometry";
 import type { DeploymentGraph, NodeLayout } from "./messages";
 
 import { getDefaultStore, useSetAtom } from "jotai";
-import { animate, transform, type AnimationPlaybackControlsWithThen } from "motion";
+import { animate, transform } from "motion";
 import { useCallback, useRef } from "react";
 import { errorCountAtom, hasNodesAtom } from "@/features/status";
 import {

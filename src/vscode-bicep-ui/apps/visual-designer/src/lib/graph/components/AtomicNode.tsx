@@ -61,7 +61,10 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
       // server layout uses it as an already-computed top-left coordinate.
       const serverLayoutActive = store.get(serverLayoutActiveAtom);
       const isInitial = box.min.x === box.max.x && box.min.y === box.max.y;
-      const min = isInitial && !serverLayoutActive ? { x: box.min.x - offsetWidth / 2, y: box.min.y - offsetHeight / 2 } : box.min;
+      const min =
+        isInitial && !serverLayoutActive
+          ? { x: box.min.x - offsetWidth / 2, y: box.min.y - offsetHeight / 2 }
+          : box.min;
 
       return {
         min,

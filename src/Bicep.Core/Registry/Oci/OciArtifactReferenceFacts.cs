@@ -10,7 +10,7 @@ namespace Bicep.Core.Registry.Oci
         public const string Scheme = "br";
 
         public const string MockedScheme = "br-mock";
-        
+
         public const string SchemeWithColon = Scheme + ":";
 
         public const int MaxRegistryLength = 255;
