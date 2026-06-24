@@ -9,6 +9,7 @@ import {
   deploymentGraphRequestType,
   visualGraphLayoutRequestType,
   VisualGraphLayoutResult,
+  visualGraphNodeSourceRequestType,
   VisualGraphRendered,
   visualGraphUpdateRequestType,
   VisualGraphUpdateResult,
@@ -253,6 +254,12 @@ export class BicepVisualizerView extends Disposable {
           return;
         }
 
+        case "revealNodeSource": {
+          const payload = notification.params as { nodeId: string };
+          void this.handleRevealNodeSource(payload.nodeId);
+          return;
+        }
+
         case "showProblemsPanel":
           vscode.commands.executeCommand("workbench.actions.view.problems");
           return;
@@ -274,6 +281,29 @@ export class BicepVisualizerView extends Disposable {
       }
 
       getLogger().warn(`Unhandled request method: ${request.method}`);
+    }
+  }
+
+  private async handleRevealNodeSource(nodeId: string): Promise<void> {
+    try {
+      const document = await vscode.workspace.openTextDocument(this.documentUri);
+
+      if (this.isDisposed) {
+        return;
+      }
+
+      const result = await this.languageClient.sendRequest(visualGraphNodeSourceRequestType, {
+        textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
+        nodeId,
+      });
+
+      if (this.isDisposed || !result.found || !result.filePath || !result.range) {
+        return;
+      }
+
+      this.revealFileRange(result.filePath, this.languageClient.protocol2CodeConverter.asRange(result.range));
+    } catch (error) {
+      getLogger().error(`Visual graph node source request failed: ${parseError(error).message}`);
     }
   }
 

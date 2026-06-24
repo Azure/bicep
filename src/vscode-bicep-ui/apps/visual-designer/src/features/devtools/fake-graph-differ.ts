@@ -4,8 +4,10 @@
 import type {
   DeploymentGraph,
   DeploymentGraphNode,
+  GraphBounds,
   GraphEdge,
   GraphNode,
+  GraphNodeChanges,
   GraphPatch,
   NodeLayout,
   RenderedGraph,
@@ -37,7 +39,7 @@ function getDepth(id: string): number {
   return id.split("::").length - 1;
 }
 
-function buildFakeLayout(nodes: GraphNode[]): Map<string, NodeLayout> {
+function buildFakeLayout(nodes: GraphNode[]): { layout: Map<string, NodeLayout>; bounds: GraphBounds } {
   const nodesByParent = new Map<string | null, GraphNode[]>();
   const layout = new Map<string, NodeLayout>();
 
@@ -75,9 +77,9 @@ function buildFakeLayout(nodes: GraphNode[]): Map<string, NodeLayout> {
     return { width: maxWidth, height: Math.max(cursorY - 80, 0) };
   }
 
-  layoutScope(null, 0, 0);
+  const root = layoutScope(null, 0, 0);
 
-  return layout;
+  return { layout, bounds: { width: root.width, height: root.height } };
 }
 
 function toCanonicalNode(node: DeploymentGraphNode): GraphNode {
@@ -90,8 +92,6 @@ function toCanonicalNode(node: DeploymentGraphNode): GraphNode {
     isCollection: node.isCollection,
     hasChildren: node.hasChildren,
     hasError: node.hasError,
-    filePath: node.filePath,
-    range: node.range,
   };
 }
 
@@ -117,6 +117,7 @@ export function diffGraph(current: RenderedGraph | null, target: DeploymentGraph
   }
 
   const currentNodeIds = new Set((current?.nodes ?? []).map((node) => node.id));
+  const currentNodesById = new Map((current?.nodes ?? []).map((node) => [node.id, node]));
   const currentEdgeIds = new Set((current?.edges ?? []).map((edge) => edge.id));
 
   // Empty target: clear in one shot rather than emitting a removal per node.
@@ -142,24 +143,22 @@ export function diffGraph(current: RenderedGraph | null, target: DeploymentGraph
   }
 
   // 3. Add new nodes shallowest-first; refresh metadata on survivors.
-  // The webview only submits node identity (id/kind/parentId/size), so the server can't tell which
-  // metadata changed — it just re-pushes the current metadata for every survivor. updateNode never
-  // triggers a relayout, so this is cheap.
+  // The webview submits each node's metadata, so the differ emits updateNode only for nodes whose
+  // metadata actually changed (matching the real C# differ). A whitespace-only edit therefore yields
+  // no node patches at all.
   const orderedNodes = [...targetNodes.values()].sort((a, b) => getDepth(a.id) - getDepth(b.id));
   for (const node of orderedNodes) {
-    if (currentNodeIds.has(node.id)) {
-      patches.push({
-        op: "updateNode",
-        nodeId: node.id,
-        changes: {
-          type: node.type,
-          isCollection: node.isCollection,
-          hasChildren: node.hasChildren,
-          hasError: node.hasError,
-          filePath: node.filePath,
-          range: node.range,
-        },
-      });
+    const currentNode = currentNodesById.get(node.id);
+    if (currentNode) {
+      const changes: GraphNodeChanges = {};
+      if (currentNode.type !== node.type) changes.type = node.type;
+      if (currentNode.isCollection !== node.isCollection) changes.isCollection = node.isCollection;
+      if (currentNode.hasChildren !== node.hasChildren) changes.hasChildren = node.hasChildren;
+      if (currentNode.hasError !== node.hasError) changes.hasError = node.hasError;
+
+      if (Object.keys(changes).length > 0) {
+        patches.push({ op: "updateNode", nodeId: node.id, changes });
+      }
     } else {
       patches.push({ op: "addNode", node });
     }
@@ -212,6 +211,10 @@ export function layoutGraph(current: RenderedGraph, target: DeploymentGraph | nu
   }
 
   const targetNodes = target.nodes.map(toCanonicalNode);
+  const { layout, bounds } = buildFakeLayout(targetNodes);
 
-  return [...buildFakeLayout(targetNodes)].map(([nodeId, layout]) => ({ op: "setNodeLayout", nodeId, layout }));
+  return [
+    ...[...layout].map(([nodeId, nodeLayout]): GraphPatch => ({ op: "setNodeLayout", nodeId, layout: nodeLayout })),
+    { op: "setGraphBounds", bounds },
+  ];
 }

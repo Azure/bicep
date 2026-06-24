@@ -52,6 +52,10 @@ export interface VisualGraphRenderedNode {
   id: string;
   kind: VisualGraphNodeKind;
   parentId: string | null;
+  type: string;
+  isCollection: boolean;
+  hasChildren: boolean;
+  hasError: boolean;
   width: number;
   height: number;
 }
@@ -101,6 +105,28 @@ export const visualGraphLayoutRequestType = new ProtocolRequestType<
   void,
   void
 >("textDocument/visualGraphLayout");
+
+// Resolves a node's source location on demand (e.g. on double-click), so the canonical graph never
+// carries volatile range/filePath data. `found` is false when the node no longer exists in the live
+// compilation, in which case `filePath`/`range` are null and nothing is revealed.
+export interface VisualGraphNodeSourceParams {
+  textDocument: TextDocumentIdentifier;
+  nodeId: string;
+}
+
+export interface VisualGraphNodeSourceResult {
+  found: boolean;
+  filePath: string | null;
+  range: Range | null;
+}
+
+export const visualGraphNodeSourceRequestType = new ProtocolRequestType<
+  VisualGraphNodeSourceParams,
+  VisualGraphNodeSourceResult,
+  never,
+  void,
+  void
+>("textDocument/visualGraphNodeSource");
 
 export interface GetDeploymentDataRequest {
   textDocument: TextDocumentIdentifier;

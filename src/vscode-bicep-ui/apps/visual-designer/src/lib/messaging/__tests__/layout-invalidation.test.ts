@@ -1,12 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { GraphNode, GraphPatch, Range, RenderedGraph, RenderedGraphNode } from "../messages";
+import type { GraphNode, GraphPatch, RenderedGraph, RenderedGraphNode } from "../messages";
 
 import { describe, expect, it } from "vitest";
 import { patchMayAffectLayout, renderedGraphsEqual } from "../layout-invalidation";
-
-const ZERO_RANGE: Range = { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } };
 
 function makeNode(overrides: Partial<GraphNode> = {}): GraphNode {
   return {
@@ -18,8 +16,6 @@ function makeNode(overrides: Partial<GraphNode> = {}): GraphNode {
     isCollection: false,
     hasChildren: false,
     hasError: false,
-    filePath: "file:///main.bicep",
-    range: ZERO_RANGE,
     ...overrides,
   };
 }
@@ -28,7 +24,7 @@ function graphOf(...nodes: GraphNode[]) {
   return { nodes: new Map(nodes.map((node) => [node.id, node])) };
 }
 
-/** Mirror the server's stateless `updateNode`: every metadata field is always re-sent. */
+/** Mirror the server's `updateNode`: only the changed metadata fields are sent. */
 function fullUpdate(node: GraphNode, changes: Partial<GraphNode> = {}): GraphPatch {
   const merged = { ...node, ...changes };
   return {
@@ -39,8 +35,6 @@ function fullUpdate(node: GraphNode, changes: Partial<GraphNode> = {}): GraphPat
       isCollection: merged.isCollection,
       hasChildren: merged.hasChildren,
       hasError: merged.hasError,
-      filePath: merged.filePath,
-      range: merged.range,
     },
   };
 }
@@ -68,17 +62,8 @@ describe("patchMayAffectLayout", () => {
     expect(patchMayAffectLayout(graph, { op: "setErrorCount", errorCount: 3 })).toBe(false);
   });
 
-  it("does not reflow when an updateNode only shifts the range (the blank-line-edit case)", () => {
-    const movedRange: Range = { start: { line: 9, character: 0 }, end: { line: 9, character: 1 } };
-    expect(patchMayAffectLayout(graph, fullUpdate(node, { range: movedRange }))).toBe(false);
-  });
-
   it("does not reflow when an updateNode only toggles hasError", () => {
     expect(patchMayAffectLayout(graph, fullUpdate(node, { hasError: true }))).toBe(false);
-  });
-
-  it("does not reflow when an updateNode only changes filePath", () => {
-    expect(patchMayAffectLayout(graph, fullUpdate(node, { filePath: "file:///other.bicep" }))).toBe(false);
   });
 
   it("reflows when a size-affecting field actually changes", () => {
@@ -94,7 +79,18 @@ describe("patchMayAffectLayout", () => {
 
 describe("renderedGraphsEqual", () => {
   function rnode(overrides: Partial<RenderedGraphNode> = {}): RenderedGraphNode {
-    return { id: "a", kind: "resource", parentId: null, width: 220, height: 80, ...overrides };
+    return {
+      id: "a",
+      kind: "resource",
+      parentId: null,
+      type: "Microsoft.Storage/storageAccounts",
+      isCollection: false,
+      hasChildren: false,
+      hasError: false,
+      width: 220,
+      height: 80,
+      ...overrides,
+    };
   }
 
   const base: RenderedGraph = {

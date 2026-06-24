@@ -15,7 +15,6 @@ import {
   addCompoundNodeAtom,
   addEdgeAtom,
   edgesAtom,
-  graphBoundsAtom,
   graphVersionAtom,
   layoutReadyAtom,
   nodesByIdAtom,
@@ -64,56 +63,6 @@ function springNodeTo(boxAtom: PrimitiveAtom<Box>, targetX: number, targetY: num
       store.set(boxAtom, (b) => translateBox(b, x - b.min.x, y - b.min.y));
     },
   });
-}
-
-/**
- * Measure the bounding box the graph will occupy once the server layout is
- * applied, including compound (module) boxes.
- *
- * A module box is derived from its children's union plus padding, so the union
- * of atomic leaf positions alone is a few pixels tighter than the real graph
- * bounds.  To get the true target bounds we briefly move the atomic boxes to
- * their server positions, read the derived {@link graphBoundsAtom} (which
- * recomputes compound boxes synchronously from their children), then restore
- * the original positions so the follow-up spring animation still starts from
- * where the nodes currently are.
- *
- * Reading the same atom the Fit View button uses guarantees Reset Layout and
- * Fit View settle on an identical viewport instead of drifting by a few pixels.
- */
-export function measureServerLayoutBounds(nodeLayouts: Map<string, NodeLayout>): Box | null {
-  if (nodeLayouts.size === 0) {
-    return null;
-  }
-
-  const nodes = store.get(nodesByIdAtom);
-  const snapshot = new Map<string, Box>();
-
-  for (const [nodeId, layout] of nodeLayouts) {
-    const node = nodes[nodeId];
-
-    if (!node || node.kind !== "atomic") {
-      continue;
-    }
-
-    const box = store.get(node.boxAtom);
-    snapshot.set(nodeId, box);
-    store.set(node.boxAtom, translateBox(box, layout.x - box.min.x, layout.y - box.min.y));
-  }
-
-  const bounds = store.get(graphBoundsAtom);
-
-  // Restore the pre-measurement positions. These writes are synchronous and the
-  // DOM is only painted on the next animation frame, so no movement is visible.
-  for (const [nodeId, box] of snapshot) {
-    const node = nodes[nodeId];
-
-    if (node && node.kind === "atomic") {
-      store.set(node.boxAtom, box);
-    }
-  }
-
-  return bounds;
 }
 
 /**

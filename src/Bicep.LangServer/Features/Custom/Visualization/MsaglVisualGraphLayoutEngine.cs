@@ -46,7 +46,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             this.logger = logger;
         }
 
-        public IReadOnlyDictionary<string, NodeLayout> Layout(
+        public VisualGraphLayout Layout(
             CanonicalGraph graph,
             IReadOnlyDictionary<string, NodeSize> nodeSizes,
             VisualGraphLayoutOptions options,
@@ -66,7 +66,11 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
                 using var cancelRegistration = LinkCancellation(cancellationToken, out var cancelToken);
 
-                return this.LayoutScope(RootScope, childrenByScope, edgesByScope, nodeSizes, options, cancelToken).Positions;
+                var (positions, width, height) = this.LayoutScope(RootScope, childrenByScope, edgesByScope, nodeSizes, options, cancelToken);
+
+                // The engine normalizes the content's top-left corner to the origin, so the bounds the graph
+                // occupies are exactly { (0, 0), (width, height) }.
+                return new VisualGraphLayout(positions, new GraphBounds(width, height));
             }
             catch (OperationCanceledException)
             {
@@ -296,7 +300,11 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             return cancellationToken.Register(() => msaglToken.Canceled = true);
         }
 
-        private static readonly IReadOnlyDictionary<string, NodeLayout> EmptyLayout =
+        private static readonly IReadOnlyDictionary<string, NodeLayout> EmptyPositions =
             new Dictionary<string, NodeLayout>(StringComparer.Ordinal);
+
+        // Returned when no layout can be produced (empty graph or recoverable failure): no positions and no
+        // bounds, so callers keep any previously known positions and skip fitting the view.
+        private static readonly VisualGraphLayout EmptyLayout = new(EmptyPositions, null);
     }
 }
