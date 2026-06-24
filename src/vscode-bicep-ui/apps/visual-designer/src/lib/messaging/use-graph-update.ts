@@ -178,6 +178,29 @@ function collectGraphBounds(patches: GraphPatch[]): GraphBounds | null {
   return bounds;
 }
 
+function centerServerLayout(
+  nodeLayouts: Map<string, NodeLayout>,
+  graphBounds: GraphBounds | null,
+  viewportCenter: Point,
+): { nodeLayouts: Map<string, NodeLayout>; bounds: Box | null } {
+  if (!graphBounds) {
+    return { nodeLayouts, bounds: null };
+  }
+
+  const offsetX = viewportCenter.x - graphBounds.width / 2;
+  const offsetY = viewportCenter.y - graphBounds.height / 2;
+  const centeredLayouts = new Map<string, NodeLayout>();
+
+  for (const [nodeId, layout] of nodeLayouts) {
+    centeredLayouts.set(nodeId, { x: layout.x + offsetX, y: layout.y + offsetY });
+  }
+
+  return {
+    nodeLayouts: centeredLayouts,
+    bounds: { min: { x: offsetX, y: offsetY }, max: { x: offsetX + graphBounds.width, y: offsetY + graphBounds.height } },
+  };
+}
+
 /**
  * Drives the notify-then-request loop for server-driven graph updates.
  *
@@ -248,19 +271,22 @@ export function useGraphUpdate(
         return;
       }
 
-      const nodeLayouts = collectNodeLayouts(layoutResponse.patches);
-      const graphBounds = collectGraphBounds(layoutResponse.patches);
+      const { nodeLayouts, bounds } = centerServerLayout(
+        collectNodeLayouts(layoutResponse.patches),
+        collectGraphBounds(layoutResponse.patches),
+        getViewportCenter(),
+      );
       lastLayoutInputRef.current = measuredGraph;
 
       // Fit the viewport to the server-computed graph bounds before the nodes settle there. Reset Layout
       // (force) only re-runs the layout and must not touch the user's pan/zoom, so it skips the fit.
-      if (graphBounds && !force) {
-        fitViewToBounds({ min: { x: 0, y: 0 }, max: { x: graphBounds.width, y: graphBounds.height } });
+      if (bounds && !force) {
+        fitViewToBounds(bounds);
       }
 
       await applyServerLayout(nodeLayouts);
     },
-    [fitViewToBounds, messageChannel],
+    [fitViewToBounds, getViewportCenter, messageChannel],
   );
 
   const requestGraphUpdate = useCallback(async () => {

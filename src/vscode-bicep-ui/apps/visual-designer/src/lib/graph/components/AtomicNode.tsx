@@ -9,7 +9,6 @@ import { useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { useAtomValue, useStore } from "jotai";
 import { frame } from "motion/react";
 import { useEffect, useLayoutEffect, useRef } from "react";
-import { serverLayoutActiveAtom } from "@/lib/graph/atoms";
 import { focusedNodeIdAtom, getNodeZIndex } from "@/lib/graph/atoms/nodes";
 import { useBoxUpdate, useDragListener } from "@/lib/graph/hooks";
 import { REVEAL_FILE_RANGE_NOTIFICATION, REVEAL_NODE_SOURCE_NOTIFICATION } from "@/lib/messaging/messages";
@@ -63,12 +62,9 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
     const { offsetWidth, offsetHeight } = ref.current;
 
     store.set(boxAtom, (box) => {
-      // On first measurement the box is a zero-size point (min === max)
-      // placed at the spawn origin. Legacy ELK layout uses that origin as a center;
-      // server layout uses it as an already-computed top-left coordinate.
-      const serverLayoutActive = store.get(serverLayoutActiveAtom);
+      // On first measurement the box is a zero-size point placed at the spawn origin.
       const isInitial = box.min.x === box.max.x && box.min.y === box.max.y;
-      const min = isInitial && !serverLayoutActive ? { x: box.min.x - offsetWidth / 2, y: box.min.y - offsetHeight / 2 } : box.min;
+      const min = isInitial ? { x: box.min.x - offsetWidth / 2, y: box.min.y - offsetHeight / 2 } : box.min;
 
       return {
         min,

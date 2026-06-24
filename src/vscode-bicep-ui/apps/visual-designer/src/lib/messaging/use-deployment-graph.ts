@@ -65,44 +65,23 @@ function springNodeTo(boxAtom: PrimitiveAtom<Box>, targetX: number, targetY: num
   });
 }
 
-/**
- * Apply a server-computed layout to the current graph.
- *
- * On the first reveal (initial load or a major topology replacement, when the
- * graph layer is hidden) nodes are snapped straight to their final positions so
- * the fitted viewport shows the graph already centered, with no initial slide.
- * While the graph is visible (incremental edits, Reset Layout) every atomic node
- * springs from its current position to the server-assigned one. Compound boxes
- * follow their children automatically.
- */
+/** Apply a server-computed layout to the current graph. */
 export async function applyServerLayout(nodeLayouts: Map<string, NodeLayout>): Promise<void> {
-  const revealing = !store.get(layoutReadyAtom);
+  if (!store.get(layoutReadyAtom)) {
+    await waitForAnimationFrame();
+    store.set(layoutReadyAtom, true);
+  }
 
-  // Cancel any in-flight springs from a previous layout so overlapping springs
-  // don't fight over the same boxes.
+  if (nodeLayouts.size === 0) {
+    return;
+  }
+
   for (const animation of activeLayoutAnimations) {
     animation.stop();
   }
   activeLayoutAnimations = [];
 
   const nodes = store.get(nodesByIdAtom);
-
-  if (revealing) {
-    // Snap nodes to their final positions, then wait one painted frame so the
-    // fitted transform and positions commit together before revealing.
-    for (const [nodeId, layout] of nodeLayouts) {
-      const node = nodes[nodeId];
-
-      if (node?.kind === "atomic") {
-        const box = store.get(node.boxAtom);
-        store.set(node.boxAtom, translateBox(box, layout.x - box.min.x, layout.y - box.min.y));
-      }
-    }
-
-    await waitForAnimationFrame();
-    store.set(layoutReadyAtom, true);
-    return;
-  }
 
   for (const [nodeId, layout] of nodeLayouts) {
     const node = nodes[nodeId];
