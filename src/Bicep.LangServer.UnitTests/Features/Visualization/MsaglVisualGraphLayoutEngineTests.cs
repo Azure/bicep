@@ -25,6 +25,21 @@ public class MsaglVisualGraphLayoutEngineTests
     }
 
     [TestMethod]
+    public void Layout_WhenCancelled_ThrowsOperationCanceled()
+    {
+        var engine = CreateEngine();
+        var graph = new CanonicalGraph(
+            Nodes: [Node("a"), Node("b")],
+            Edges: [Edge("a", "b")],
+            ErrorCount: 0);
+        var cancelled = new CancellationToken(canceled: true);
+
+        var act = () => engine.Layout(graph, NoSizes, DefaultOptions, cancelled);
+
+        act.Should().Throw<OperationCanceledException>();
+    }
+
+    [TestMethod]
     public void Layout_ForConnectedGraph_PositionsEveryNode()
     {
         var engine = CreateEngine();

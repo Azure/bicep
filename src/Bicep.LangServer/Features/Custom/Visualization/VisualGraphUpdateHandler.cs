@@ -71,7 +71,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             this.layoutEngine = layoutEngine;
         }
 
-        public Task<VisualGraphLayoutResult> Handle(VisualGraphLayoutParams request, CancellationToken cancellationToken)
+        public async Task<VisualGraphLayoutResult> Handle(VisualGraphLayoutParams request, CancellationToken cancellationToken)
         {
             var context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
 
@@ -79,22 +79,26 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             {
                 this.logger.LogError("Visual graph layout request arrived before file {Uri} could be compiled.", request.TextDocument.Uri);
 
-                return Task.FromResult(new VisualGraphLayoutResult(VisualGraphLayoutStatus.GraphChanged, []));
+                return new VisualGraphLayoutResult(VisualGraphLayoutStatus.GraphChanged, []);
             }
 
             var target = VisualGraphBuilder.Build(context, request.TextDocument.Uri.ToIOUri());
 
             if (VisualGraphDiffer.HasTopologyChange(request.Current, target))
             {
-                return Task.FromResult(new VisualGraphLayoutResult(VisualGraphLayoutStatus.GraphChanged, []));
+                return new VisualGraphLayoutResult(VisualGraphLayoutStatus.GraphChanged, []);
             }
 
             var nodeSizes = BuildNodeSizes(request.Current);
-            var layout = this.layoutEngine.Layout(target, nodeSizes, request.Options ?? VisualGraphLayoutOptions.Default, cancellationToken);
+            var options = request.Options ?? VisualGraphLayoutOptions.Default;
+
+            // Offload the CPU-bound MSAGL layout so a pathological graph cannot block the request dispatch
+            // thread; cancellation flows through to abandon a layout the client no longer cares about.
+            var layout = await Task.Run(() => this.layoutEngine.Layout(target, nodeSizes, options, cancellationToken), cancellationToken);
 
             if (target.Nodes.Count > 0 && layout.Positions.Count == 0)
             {
-                return Task.FromResult(new VisualGraphLayoutResult(VisualGraphLayoutStatus.LayoutFailed, []));
+                return new VisualGraphLayoutResult(VisualGraphLayoutStatus.LayoutFailed, []);
             }
 
             var layoutPatches = target.Nodes
@@ -102,13 +106,11 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 .Where(node => layout.Positions.ContainsKey(node.Id))
                 .Select(node => (GraphPatch)new GraphPatch.SetNodeLayout(node.Id, layout.Positions[node.Id]));
 
-            // The engine returns the overall graph bounds for free (it already sizes module boxes), so the
-            // webview fits the viewport to these instead of re-deriving them client-side.
             var patches = layout.Bounds is { } bounds
                 ? [.. layoutPatches, new GraphPatch.SetGraphBounds(bounds)]
                 : layoutPatches.ToArray();
 
-            return Task.FromResult(new VisualGraphLayoutResult(VisualGraphLayoutStatus.Ok, patches));
+            return new VisualGraphLayoutResult(VisualGraphLayoutStatus.Ok, patches);
         }
 
         private static IReadOnlyDictionary<string, NodeSize> BuildNodeSizes(RenderedGraph current)
