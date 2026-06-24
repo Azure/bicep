@@ -66,34 +66,20 @@ function springNodeTo(boxAtom: PrimitiveAtom<Box>, targetX: number, targetY: num
 }
 
 /**
- * Apply a server-computed layout to the current graph: reveal the graph
- * layer if it was hidden, then spring every atomic node from its current
- * position to its server-assigned position.  Compound boxes follow their
- * children automatically.
+ * Apply a server-computed layout to the current graph.
  *
- * Mirrors the ELK auto-layout reveal/animate sequence so server-driven
- * re-layouts and node additions/removals animate instead of snapping.
+ * On the first reveal (initial load or a major topology replacement, when the
+ * graph layer is hidden) nodes are snapped straight to their final positions so
+ * the fitted viewport shows the graph already centered, with no initial slide.
+ * While the graph is visible (incremental edits, Reset Layout) every atomic node
+ * springs from its current position to the server-assigned one. Compound boxes
+ * follow their children automatically.
  */
 export async function applyServerLayout(nodeLayouts: Map<string, NodeLayout>): Promise<void> {
-  // When the graph layer is hidden (initial load or a major topology
-  // replacement), wait one painted frame so the fitted viewport and the
-  // freshly-spawned node positions are committed, then reveal.  Incremental
-  // edits leave the graph visible so nodes animate in place.
-  if (!store.get(layoutReadyAtom)) {
-    await waitForAnimationFrame();
-    store.set(layoutReadyAtom, true);
-  }
+  const revealing = !store.get(layoutReadyAtom);
 
-  if (nodeLayouts.size === 0) {
-    // No positions to apply (e.g. unchanged sizes or a failed layout). Leave
-    // any in-flight springs running so they settle on their targets; we only
-    // needed to make sure the graph was revealed.
-    return;
-  }
-
-  // Cancel any in-flight springs from the previous layout so overlapping
-  // springs don't fight over the same boxes.  New springs read each box's
-  // current (interpolated) position, so movement continues smoothly.
+  // Cancel any in-flight springs from a previous layout so overlapping springs
+  // don't fight over the same boxes.
   for (const animation of activeLayoutAnimations) {
     animation.stop();
   }
@@ -101,14 +87,29 @@ export async function applyServerLayout(nodeLayouts: Map<string, NodeLayout>): P
 
   const nodes = store.get(nodesByIdAtom);
 
+  if (revealing) {
+    // Snap nodes to their final positions, then wait one painted frame so the
+    // fitted transform and positions commit together before revealing.
+    for (const [nodeId, layout] of nodeLayouts) {
+      const node = nodes[nodeId];
+
+      if (node?.kind === "atomic") {
+        const box = store.get(node.boxAtom);
+        store.set(node.boxAtom, translateBox(box, layout.x - box.min.x, layout.y - box.min.y));
+      }
+    }
+
+    await waitForAnimationFrame();
+    store.set(layoutReadyAtom, true);
+    return;
+  }
+
   for (const [nodeId, layout] of nodeLayouts) {
     const node = nodes[nodeId];
 
-    if (!node || node.kind !== "atomic") {
-      continue;
+    if (node?.kind === "atomic") {
+      activeLayoutAnimations.push(springNodeTo(node.boxAtom, layout.x, layout.y));
     }
-
-    activeLayoutAnimations.push(springNodeTo(node.boxAtom, layout.x, layout.y));
   }
 }
 

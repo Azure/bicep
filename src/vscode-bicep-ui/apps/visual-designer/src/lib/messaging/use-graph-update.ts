@@ -252,10 +252,9 @@ export function useGraphUpdate(
       const graphBounds = collectGraphBounds(layoutResponse.patches);
       lastLayoutInputRef.current = measuredGraph;
 
-      // Fit the viewport to the server-computed graph bounds before the nodes animate there (mirrors the ELK
-      // reveal/animate sequence). The server normalizes the graph to a top-left origin and already accounts for
-      // module box extents, so the bounds box is simply {min:{0,0}, max:{width,height}}.
-      if (graphBounds) {
+      // Fit the viewport to the server-computed graph bounds before the nodes settle there. Reset Layout
+      // (force) only re-runs the layout and must not touch the user's pan/zoom, so it skips the fit.
+      if (graphBounds && !force) {
         fitViewToBounds({ min: { x: 0, y: 0 }, max: { x: graphBounds.width, y: graphBounds.height } });
       }
 
