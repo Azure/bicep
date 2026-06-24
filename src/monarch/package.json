@@ -8,9 +8,9 @@
     "@eslint/js": "^10.0.1",
     "@types/html-escaper": "^3.0.4",
     "@types/jest": "^30.0.0",
-    "@types/node": "^25.9.3",
+    "@types/node": "^26.0.0",
     "@typescript-eslint/eslint-plugin": "^8.59.2",
-    "@typescript-eslint/parser": "^8.61.0",
+    "@typescript-eslint/parser": "^8.61.1",
     "babel-jest": "^30.4.1",
     "eslint": "^10.5.0",
     "eslint-config-prettier": "^10.1.8",
@@ -24,7 +24,7 @@
     "@swc/jest": "^0.2.39",
     "monaco-editor-core": "^0.55.1",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.61.0"
+    "typescript-eslint": "^8.61.1"
   },
   "engines": {
     "node": ">=14.0.0"

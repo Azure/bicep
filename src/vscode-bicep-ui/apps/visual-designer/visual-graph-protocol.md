@@ -130,7 +130,7 @@ Non-layout-affecting patches:
 
 Notably, `hasError` does not trigger layout.
 
-Because the server is stateless, every `updateNode` is an idempotent refresh that carries *all* node metadata fields, not only the ones that changed. The client therefore compares each incoming field against the value it currently holds and treats the patch as layout-affecting only when a layout-relevant field (`type`, `isCollection`, or `hasChildren`) actually changed value. Checking for field *presence* alone would reflow on every edit — for example, deleting a blank line shifts every node's `range`, so every `updateNode` would carry a (new) `range` and, if presence were the test, falsely look layout-affecting.
+Because the server is stateless, every `updateNode` is an idempotent refresh that carries _all_ node metadata fields, not only the ones that changed. The client therefore compares each incoming field against the value it currently holds and treats the patch as layout-affecting only when a layout-relevant field (`type`, `isCollection`, or `hasChildren`) actually changed value. Checking for field _presence_ alone would reflow on every edit — for example, deleting a blank line shifts every node's `range`, so every `updateNode` would carry a (new) `range` and, if presence were the test, falsely look layout-affecting.
 
 If a patch may affect layout, the client renders the updated graph, measures actual node boxes, builds a measured `RenderedGraph`, and compares it with the last measured graph that produced a layout. The client sends a layout request only when measured topology, sizes, or layout options changed.
 

@@ -374,6 +374,78 @@ output likeWildCardMatch bool= like ('abcdef', 'a*c*')
 //@[047:053) StringComplete |'a*c*'|
 //@[053:054) RightParen |)|
 //@[054:055) NewLine |\n|
+output likewildcard bool = like('abcabc', '*abc')
+//@[000:006) Identifier |output|
+//@[007:019) Identifier |likewildcard|
+//@[020:024) Identifier |bool|
+//@[025:026) Assignment |=|
+//@[027:031) Identifier |like|
+//@[031:032) LeftParen |(|
+//@[032:040) StringComplete |'abcabc'|
+//@[040:041) Comma |,|
+//@[042:048) StringComplete |'*abc'|
+//@[048:049) RightParen |)|
+//@[049:050) NewLine |\n|
+output likewildcardtest2 bool = like('aXaYa' , 'a*a')
+//@[000:006) Identifier |output|
+//@[007:024) Identifier |likewildcardtest2|
+//@[025:029) Identifier |bool|
+//@[030:031) Assignment |=|
+//@[032:036) Identifier |like|
+//@[036:037) LeftParen |(|
+//@[037:044) StringComplete |'aXaYa'|
+//@[045:046) Comma |,|
+//@[047:052) StringComplete |'a*a'|
+//@[052:053) RightParen |)|
+//@[053:054) NewLine |\n|
+output likewildcardtest3 bool = like('' , '***')
+//@[000:006) Identifier |output|
+//@[007:024) Identifier |likewildcardtest3|
+//@[025:029) Identifier |bool|
+//@[030:031) Assignment |=|
+//@[032:036) Identifier |like|
+//@[036:037) LeftParen |(|
+//@[037:039) StringComplete |''|
+//@[040:041) Comma |,|
+//@[042:047) StringComplete |'***'|
+//@[047:048) RightParen |)|
+//@[048:049) NewLine |\n|
+output likewildcardtest4 bool = like('a', 'b')
+//@[000:006) Identifier |output|
+//@[007:024) Identifier |likewildcardtest4|
+//@[025:029) Identifier |bool|
+//@[030:031) Assignment |=|
+//@[032:036) Identifier |like|
+//@[036:037) LeftParen |(|
+//@[037:040) StringComplete |'a'|
+//@[040:041) Comma |,|
+//@[042:045) StringComplete |'b'|
+//@[045:046) RightParen |)|
+//@[046:047) NewLine |\n|
+output likewildcardtest5 bool = like('abc**def', '*def')
+//@[000:006) Identifier |output|
+//@[007:024) Identifier |likewildcardtest5|
+//@[025:029) Identifier |bool|
+//@[030:031) Assignment |=|
+//@[032:036) Identifier |like|
+//@[036:037) LeftParen |(|
+//@[037:047) StringComplete |'abc**def'|
+//@[047:048) Comma |,|
+//@[049:055) StringComplete |'*def'|
+//@[055:056) RightParen |)|
+//@[056:057) NewLine |\n|
+output likewildcardtest6 bool = like('aXbYa', 'a*b*a')
+//@[000:006) Identifier |output|
+//@[007:024) Identifier |likewildcardtest6|
+//@[025:029) Identifier |bool|
+//@[030:031) Assignment |=|
+//@[032:036) Identifier |like|
+//@[036:037) LeftParen |(|
+//@[037:044) StringComplete |'aXbYa'|
+//@[044:045) Comma |,|
+//@[046:053) StringComplete |'a*b*a'|
+//@[053:054) RightParen |)|
+//@[054:055) NewLine |\n|
 output distinctTest array = distinct(['a','b','a','c','b'])
 //@[000:006) Identifier |output|
 //@[007:019) Identifier |distinctTest|

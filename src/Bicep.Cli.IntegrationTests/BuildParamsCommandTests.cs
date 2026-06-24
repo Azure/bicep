@@ -104,6 +104,69 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
+        public async Task Build_params_with_extends_can_union_inherited_object_param()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "root.bicepparam",
+                """
+                using none
+
+                param parLocation = 'westeurope'
+                param parTags = {
+                  managedBy: 'PlatformTeam'
+                  costCenter: 'IT'
+                }
+                param parLogAnalyticsRetentionInDays = 10
+                """,
+                outputPath);
+
+            var mainParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './root.bicepparam'
+
+                param parLogAnalyticsRetentionInDays = 90
+                param parManagementTags = union(parTags, {
+                  landingZone: 'Management'
+                })
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param parTags object
+                param parManagementTags object = union(parTags, {
+                  landingZone: 'Management'
+                })
+
+                param parLocation string
+                param parLogAnalyticsRetentionInDays int
+                """,
+                outputPath);
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed();
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+
+            paramsObject.Should().HaveValueAtPath("parameters.parLocation.value", "westeurope");
+            paramsObject.Should().HaveValueAtPath("parameters.parLogAnalyticsRetentionInDays.value", 90);
+            paramsObject.Should().HaveValueAtPath("parameters.parTags.value.managedBy", "PlatformTeam");
+            paramsObject.Should().HaveValueAtPath("parameters.parTags.value.costCenter", "IT");
+            paramsObject.Should().HaveValueAtPath("parameters.parManagementTags.value.managedBy", "PlatformTeam");
+            paramsObject.Should().HaveValueAtPath("parameters.parManagementTags.value.costCenter", "IT");
+            paramsObject.Should().HaveValueAtPath("parameters.parManagementTags.value.landingZone", "Management");
+        }
+
+        [TestMethod]
         public async Task Build_params_extends_uses_variables_from_base_file()
         {
             var baseParamsFile = FileHelper.SaveResultFile(

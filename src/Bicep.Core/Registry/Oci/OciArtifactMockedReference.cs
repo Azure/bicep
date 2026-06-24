@@ -32,7 +32,7 @@ namespace Bicep.Core.Registry.Oci
         public override string UnqualifiedReference => modulePath;
 
         public override bool IsExternal => false;
-    
+
         public override ResultWithDiagnosticBuilder<IFileHandle> TryGetEntryPointFileHandle()
         {
             return new(fileHandle);
@@ -58,7 +58,7 @@ namespace Bicep.Core.Registry.Oci
             // No tag or digest — use the whole reference as the module path
             return unqualifiedReference;
         }
-       
+
         // referencingFile is the Bicep source file containing the module reference
         // mapToFilePath is the path from the alias configuration
         // configFileUri is the URI of the bicepconfig.json file, used to resolve relative paths
@@ -91,11 +91,11 @@ namespace Bicep.Core.Registry.Oci
 
             IOUri baseUri;
             // Ensure the mapToFilePath path ends with '/' so it's treated as a directory.
-           var directoryPath = mapToFilePath.EndsWith('/') || mapToFilePath.EndsWith('\\')
-                ? mapToFilePath
-                : mapToFilePath + "/";
+            var directoryPath = mapToFilePath.EndsWith('/') || mapToFilePath.EndsWith('\\')
+                 ? mapToFilePath
+                 : mapToFilePath + "/";
 
-           if (IOUri.IsAbsoluteFilePath(mapToFilePath))
+            if (IOUri.IsAbsoluteFilePath(mapToFilePath))
             {
                 try
                 {
@@ -103,7 +103,7 @@ namespace Bicep.Core.Registry.Oci
                 }
                 catch (IOException ex)
                 {
-                   return new(x => x.InvalidOciArtifactModuleAliasMapToFilePath(aliasName, mapToFilePath, ex.Message));
+                    return new(x => x.InvalidOciArtifactModuleAliasMapToFilePath(aliasName, mapToFilePath, ex.Message));
                 }
             }
             else
