@@ -62,7 +62,7 @@ function applyPatch(graph: ClientGraph, nodeLayouts: Map<string, NodeLayout>, pa
         // Only defined fields in `changes` override the node; the rest are left untouched.
         const next = { ...node };
         for (const [key, value] of Object.entries(patch.changes)) {
-          if (value !== undefined) {
+          if (value !== undefined && value !== null) {
             (next as Record<string, unknown>)[key] = value;
           }
         }

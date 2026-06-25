@@ -78,6 +78,11 @@ public class GraphPatchSerializationTests
         var json = Serialize(patch);
 
         json.Value<string>("op").Should().Be("updateNode");
+        var changes = json["changes"].Should().BeOfType<JObject>().Subject;
+        changes.ContainsKey("type").Should().BeFalse();
+        changes.ContainsKey("isCollection").Should().BeFalse();
+        changes.ContainsKey("hasChildren").Should().BeFalse();
+        changes.Value<bool>("hasError").Should().BeTrue();
         Deserialize(json).Should().Be(patch);
     }
 

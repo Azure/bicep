@@ -66,6 +66,16 @@ describe("patchMayAffectLayout", () => {
     expect(patchMayAffectLayout(graph, fullUpdate(node, { hasError: true }))).toBe(false);
   });
 
+  it("ignores null update fields as omitted metadata", () => {
+    expect(
+      patchMayAffectLayout(graph, {
+        op: "updateNode",
+        nodeId: "a",
+        changes: { type: null, isCollection: null, hasChildren: null, hasError: true },
+      }),
+    ).toBe(false);
+  });
+
   it("reflows when a size-affecting field actually changes", () => {
     expect(patchMayAffectLayout(graph, fullUpdate(node, { type: "Microsoft.Web/sites" }))).toBe(true);
     expect(patchMayAffectLayout(graph, fullUpdate(node, { isCollection: true }))).toBe(true);
