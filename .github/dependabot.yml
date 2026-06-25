@@ -135,6 +135,10 @@ updates:
     schedule:
       interval: weekly
       day: wednesday
+    groups:
+      dotnet-sdk:
+        patterns:
+          - '*'
     ignore:
       - dependency-name: '*'
         update-types:
