@@ -278,7 +278,6 @@ export class Survey {
   }
 
   public static async getIsSurveyAvailable(this: void, context: IActionContext, fullLink: string): Promise<boolean> {
-    // eslint-disable-next-line no-useless-assignment
     let linkStatus = "unknown";
 
     try {

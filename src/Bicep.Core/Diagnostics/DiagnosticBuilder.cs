@@ -991,7 +991,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic UnknownModuleReferenceScheme(string badScheme, ImmutableArray<string> allowedSchemes)
             {
-                string FormatSchemes() => ToQuotedString(allowedSchemes.Where(scheme => !string.Equals(scheme, ArtifactReferenceSchemes.Local)));
+                string FormatSchemes() => ToQuotedString(allowedSchemes.Where(scheme => !string.Equals(scheme, ArtifactReferenceSchemes.Local) && scheme != ArtifactReferenceSchemes.OciMocked));
 
                 return CoreError(
                     "BCP189",
@@ -1111,7 +1111,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP216",
-                $"The OCI artifact module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property cannot be null or undefined.");
+                $"The OCI artifact module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property must be specified.");
 
             public Diagnostic InvalidTemplateSpecReferenceInvalidSubscriptionId(string? aliasName, string subscriptionId, string referenceValue) => CoreError(
                 "BCP217",
@@ -1828,10 +1828,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP405",
                 $"More than one \"{LanguageConstants.ExtendsKeyword}\" declaration are present");
 
-            public Diagnostic ExtendsNotSupported() => CoreError(
-                "BCP406",
-                $"Using \"{LanguageConstants.ExtendsKeyword}\" keyword requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ExtendableParamFiles)}\".");
-
             public Diagnostic MicrosoftGraphBuiltinRetired(ExtensionDeclarationSyntax? syntax)
             {
                 var msGraphRegistryPath = "br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.9-preview";
@@ -1902,7 +1898,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic SpreadOperatorCannotBeUsedWithForLoop(SpreadExpressionSyntax spread) => CoreError(
                 "BCP417",
-                $"The spread operator \"{spread.Ellipsis.Text}\" cannot be used inside objects with property for-expressions.");
+                $"The spread operator \"{spread.Ellipsis.Text}\" cannot be used inside objects containing property for-expressions.");
 
             public Diagnostic ExtensionCannotBeReferenced() => CoreError(
                 "BCP418",
@@ -2026,6 +2022,27 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic NullIfNotFoundOnlyValidOnExistingResources() => CoreError(
                 "BCP445",
                 $@"The ""@{LanguageConstants.NullIfNotFoundDecoratorName}()"" decorator can only be used on existing resources.");
+
+            public Diagnostic ArtifactRestoreBlockedByRegistry(string registryHostname) => CoreError(
+                "BCP446",
+                $"Restore from registry \"{registryHostname}\" is blocked because it is not in the trusted registries list. " +
+                $"See https://aka.ms/bicep/registry-trust for details.");
+
+            public Diagnostic OciArtifactModuleAliasMapToFilePathOnlySupportsModules(string aliasName) => CoreError(
+                "BCP448",
+                $"The OCI artifact module alias \"{aliasName}\" has a \"mapToFilePath\" property which is only supported for modules, not extensions.");
+
+            public Diagnostic ModuleReferenceSchemeBrFsNotSupported() => CoreError(
+                "BCP449",
+                $"The '{Registry.Oci.OciArtifactReferenceFacts.MockedScheme}' module reference scheme is for internal use only. Use a 'br/<alias>:' reference with a configured 'mapToFilePath' alias instead.");
+
+            public Diagnostic ConfigurationFileNotFound(string featureName) => CoreError(
+                "BCP450",
+                $"Configuration file is not found. Feature \"{featureName}\" requires a configuration file.");
+
+            public Diagnostic InvalidOciArtifactModuleAliasMapToFilePath(string? aliasName, string path, string reason) => CoreError(
+                "BCP451",
+                $"The OCI artifact module alias{(aliasName is not null ? $" \"{aliasName}\"" : "")} has an invalid \"mapToFilePath\" path \"{path}\": {reason}");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO.Abstractions;
 using System.Text;
 using Bicep.Cli.Helpers.Repl;
@@ -278,7 +279,7 @@ public class ReplEnvironment
             JTokenType.String => SyntaxFactory.CreateStringLiteral(value.ToString()),
             JTokenType.Boolean => SyntaxFactory.CreateBooleanLiteral(value.Value<bool>()),
             // Floats are currently not supported in Bicep, so fallback to string syntax
-            JTokenType.Float => SyntaxFactory.CreateStringLiteral(value.ToString()),
+            JTokenType.Float => SyntaxFactory.CreateStringLiteral(value.ToString(CultureInfo.InvariantCulture)),
             JTokenType.Null => SyntaxFactory.CreateNullLiteral(),
             _ => throw new NotImplementedException($"Unrecognized token type {value.Type}"),
         };
@@ -297,21 +298,36 @@ public class ReplEnvironment
     /// and not inside (multi-line) string or interpolation expression.
     /// Not a full parse; parse errors still reported by real parser.
     /// </summary>
-    public static bool ShouldSubmitBuffer(string text, string currentLine)
+    public static ReplBufferState GetBufferState(string text, string currentLine)
     {
         // If line is blank, submit - even if structurally incomplete.
         // This avoids trapping the user in a state where they cannot recover.
-        if (currentLine.Length == 0)
+        if (string.IsNullOrWhiteSpace(currentLine))
         {
-            return true;
+            return new ReplBufferState(
+                ShouldSubmit: true,
+                IsTypeDeclaration: false);
         }
 
         var program = new ReplParser(text).Program();
 
         // Use the existence of skipped trivia to determine whether we have a complete structure.
         var allNodes = SyntaxAggregator.Aggregate(program, x => x is not Token, useCst: true);
-        return allNodes.Last() is not SkippedTriviaSyntax;
+        var shouldSubmit = allNodes.Last() is not SkippedTriviaSyntax;
+
+        var finalExpression = program.Children
+            .Where(x => x is not Token { Type: TokenType.NewLine })
+            .LastOrDefault();
+
+        return new ReplBufferState(
+            ShouldSubmit: shouldSubmit,
+            IsTypeDeclaration: finalExpression is TypeDeclarationSyntax);
     }
+
+    public static bool ShouldSubmitBuffer(string text, string currentLine)
+        => GetBufferState(text, currentLine).ShouldSubmit;
 }
 
 public record AnnotatedReplResult(SyntaxBase? Value, IEnumerable<PrintHelper.AnnotatedDiagnostic> AnnotatedDiagnostics);
+
+public record ReplBufferState(bool ShouldSubmit, bool IsTypeDeclaration);

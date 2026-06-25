@@ -32,7 +32,7 @@ namespace Bicep.Core.Registry
             {
                 return new(x => x.UnsupportedArtifactType(artifactType));
             }
-            if (!TemplateSpecModuleReference.TryParse(referencingFile, aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
+            if (!TemplateSpecModuleReference.TryParse(referencingFile.Features, referencingFile.Configuration, aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
             {
                 return new(failureBuilder);
             }
@@ -60,7 +60,7 @@ namespace Bicep.Core.Registry
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectory(reference).Uri.GetFilePath()}");
                 try
                 {
-                    var repository = this.repositoryFactory.CreateRepository(reference.ReferencingFile.Configuration, reference.SubscriptionId);
+                    var repository = this.repositoryFactory.CreateRepository(reference.Configuration, reference.SubscriptionId);
                     var templateSpecEntity = await repository.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId);
 
                     await this.WriteArtifactContentToCacheAsync(reference, templateSpecEntity);
@@ -90,7 +90,7 @@ namespace Bicep.Core.Registry
 
         protected override void WriteArtifactContentToCache(TemplateSpecModuleReference reference, TemplateSpecEntity entity) => reference.MainTemplateSpecFile.Write(entity.Content);
 
-        protected override IDirectoryHandle GetArtifactDirectory(TemplateSpecModuleReference reference) => reference.ReferencingFile.Features.CacheRootDirectory.GetDirectory(
+        protected override IDirectoryHandle GetArtifactDirectory(TemplateSpecModuleReference reference) => reference.FeatureProvider.CacheRootDirectory.GetDirectory(
             $"{this.Scheme}/{reference.SubscriptionId}/{reference.ResourceGroupName}/{reference.TemplateSpecName}/{reference.Version}".ToLowerInvariant());
 
         protected override IFileHandle GetArtifactLockFile(TemplateSpecModuleReference reference) => this.GetArtifactDirectory(reference).GetFile("lock");

@@ -18,6 +18,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
@@ -125,8 +126,10 @@ public class LocalDeployCommandTests : TestBase
         var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
         var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
 
+        var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+
         var result = await Bicep(
-            new InvocationSettings(ClientFactory: clientFactory),
+            new InvocationSettings(ClientFactory: clientFactory, FeatureOverrides: new(CacheRootDirectory: cacheDirectory)),
             services => RegisterExtensionMocks(services, GetExtensionMock()),
             TestContext.CancellationTokenSource.Token,
             ["local-deploy", baselineFolder.EntryFile.OutputFilePath]);
@@ -172,8 +175,10 @@ public class LocalDeployCommandTests : TestBase
         var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
         var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
 
+        var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+
         var result = await Bicep(
-            new InvocationSettings(ClientFactory: clientFactory),
+            new InvocationSettings(ClientFactory: clientFactory, FeatureOverrides: new(CacheRootDirectory: cacheDirectory)),
             services => RegisterExtensionMocks(services, GetExtensionMock()),
             TestContext.CancellationTokenSource.Token,
             ["local-deploy", baselineFolder.EntryFile.OutputFilePath, "--format", "json"]);
@@ -269,8 +274,10 @@ public class LocalDeployCommandTests : TestBase
         var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
         var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
 
+        var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+
         var result = await Bicep(
-            new InvocationSettings(ClientFactory: clientFactory),
+            new InvocationSettings(ClientFactory: clientFactory, FeatureOverrides: new(CacheRootDirectory: cacheDirectory)),
             services => RegisterExtensionMocks(services, extensionMock.Object, deploymentProviderMock.Object),
             TestContext.CancellationTokenSource.Token,
             ["local-deploy", baselineFolder.EntryFile.OutputFilePath]);

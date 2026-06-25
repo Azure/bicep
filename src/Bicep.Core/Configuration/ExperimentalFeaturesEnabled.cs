@@ -11,7 +11,6 @@ namespace Bicep.Core.Configuration;
 
 public record ExperimentalFeaturesEnabled(
     bool SymbolicNameCodegen,
-    bool ExtendableParamFiles,
     bool ResourceTypedParamsAndOutputs,
     bool SourceMapping,
     bool LegacyFormatter,
@@ -22,9 +21,7 @@ public record ExperimentalFeaturesEnabled(
     bool ResourceInfoCodegen,
     bool ModuleExtensionConfigs,
     bool UserDefinedConstraints,
-    bool DeployCommands,
-    bool ThisNamespace,
-    bool ExistingNullIfNotFound)
+    bool DeployCommands)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();
@@ -33,7 +30,6 @@ public record ExperimentalFeaturesEnabled(
 
     public static readonly ExperimentalFeaturesEnabled AllDisabled = new(
         SymbolicNameCodegen: false,
-        ExtendableParamFiles: false,
         ResourceTypedParamsAndOutputs: false,
         SourceMapping: false,
         LegacyFormatter: false,
@@ -44,7 +40,5 @@ public record ExperimentalFeaturesEnabled(
         ResourceInfoCodegen: false,
         ModuleExtensionConfigs: false,
         UserDefinedConstraints: false,
-        DeployCommands: false,
-        ThisNamespace: false,
-        ExistingNullIfNotFound: false);
+        DeployCommands: false);
 }

@@ -64,9 +64,9 @@ namespace Bicep.Core.IntegrationTests
             var compilation = await compiler.CreateCompilation(fileUri.ToIOUri());
 
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
-            diagnostics.Should().HaveCount(1);
+            diagnostics.Should().HaveCount(2);
             var expectedErrorMessage = "Unable to restore the artifact with reference \"{0}\": Unable to create the local artifact directory \"";
-            diagnostics.Single().Value.ExcludingLinterDiagnostics().Should().SatisfyRespectively(
+            diagnostics[compilation.SourceFileGrouping.EntryPoint].ExcludingLinterDiagnostics().Should().SatisfyRespectively(
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);

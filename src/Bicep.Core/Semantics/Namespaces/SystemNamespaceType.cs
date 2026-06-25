@@ -780,6 +780,12 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
                     .Build();
 
+                yield return new FunctionOverloadBuilder("distinct")
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("distinct", LanguageConstants.Array), LanguageConstants.Array)
+                    .WithGenericDescription("Returns a new array with duplicate values removed, preserving order.")
+                    .WithRequiredParameter("array", LanguageConstants.Array, "The array to process.")
+                    .Build();
+
                 yield return new FunctionOverloadBuilder("like")
                     .WithReturnResultBuilder(TryDeriveLiteralReturnType("like", LanguageConstants.Bool), LanguageConstants.Bool)
                     .WithGenericDescription("Performs pattern based matching and returns true if input string matches the pattern and supports '*' as a wildcard. The comparison is case-insensitive.")
@@ -2058,22 +2064,19 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithEvaluator(AddDecoratorConfigToResource)
                     .Build();
 
-                if (featureProvider.ExistingNullIfNotFoundEnabled)
-                {
-                    yield return new DecoratorBuilder(LanguageConstants.NullIfNotFoundDecoratorName)
-                        .WithDescription("Marks an existing resource as nullable, returning null if the resource doesn't exist at deployment time instead of failing.")
-                        .WithFlags(FunctionFlags.ResourceDecorator)
-                        .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
+                yield return new DecoratorBuilder(LanguageConstants.NullIfNotFoundDecoratorName)
+                    .WithDescription("Marks an existing resource as nullable, returning null if the resource doesn't exist at deployment time instead of failing.")
+                    .WithFlags(FunctionFlags.ResourceDecorator)
+                    .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
+                    {
+                        var decoratorTarget = binder.GetParent(decoratorSyntax);
+                        if (decoratorTarget is ResourceDeclarationSyntax resourceDeclaration && !resourceDeclaration.IsExistingResource())
                         {
-                            var decoratorTarget = binder.GetParent(decoratorSyntax);
-                            if (decoratorTarget is ResourceDeclarationSyntax resourceDeclaration && !resourceDeclaration.IsExistingResource())
-                            {
-                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).NullIfNotFoundOnlyValidOnExistingResources());
-                            }
-                        })
-                        .WithEvaluator(AddDecoratorConfigToResource)
-                        .Build();
-                }
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).NullIfNotFoundOnlyValidOnExistingResources());
+                        }
+                    })
+                    .WithEvaluator(AddDecoratorConfigToResource)
+                    .Build();
 
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")

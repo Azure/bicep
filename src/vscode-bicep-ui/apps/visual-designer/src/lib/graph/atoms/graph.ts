@@ -15,6 +15,12 @@ import { nodesByIdAtom } from "./nodes";
 export const graphVersionAtom = atom(0);
 
 /**
+ * Whether the current visualizer session is using server-provided node positions. When true,
+ * the client-side ELK auto-layout is disabled and graph updates apply `setNodeLayout` patches directly.
+ */
+export const serverLayoutActiveAtom = atom(false);
+
+/**
  * Whether the first ELK layout has completed and nodes are in
  * their final positions.  The graph layer uses this to stay
  * invisible (`opacity: 0`) until layout is ready, preventing

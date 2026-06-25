@@ -58,19 +58,25 @@ export function StatusBar() {
     });
   }, [messageChannel]);
 
+  const errorCount = graphStatus.kind === "errors" ? graphStatus.errorCount : 0;
+
   return (
-    <$StatusBarContainer>
-      <$StatusCircle $hasErrors={graphStatus.kind === "errors"} />
+    <$StatusBarContainer data-testid="status-bar" data-status={graphStatus.kind} data-error-count={errorCount}>
+      <$StatusCircle $hasErrors={graphStatus.kind === "errors"} data-testid="status-indicator" />
       {graphStatus.kind === "errors" && (
         <span>
           There {graphStatus.errorCount === 1 ? "is" : "are"}{" "}
-          <$ErrorLink onClick={handleShowProblems}>
+          <$ErrorLink onClick={handleShowProblems} data-testid="status-error-link">
             {graphStatus.errorCount} {graphStatus.errorCount === 1 ? "error" : "errors"}
           </$ErrorLink>{" "}
           in the file. The rendered graph may not be accurate.
         </span>
       )}
-      {graphStatus.kind === "empty" && <span>There are no resources or modules in the file. Nothing to display.</span>}
+      {graphStatus.kind === "empty" && (
+        <span data-testid="status-empty-message">
+          There are no resources or modules in the file. Nothing to display.
+        </span>
+      )}
     </$StatusBarContainer>
   );
 }

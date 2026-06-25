@@ -2398,7 +2398,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol VisitDeclaredSymbol(VariableAccessSyntax syntax, DeclaredSymbol declaredSymbol)
         {
-            var declaringType = typeManager.GetTypeInfo(declaredSymbol.DeclaringSyntax);
+            var declaringType = declaredSymbol.Type;
 
             // symbols are responsible for doing their own type checking
             // the error from that should not be propagated to expressions that have type errors
