@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Newtonsoft.Json;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
@@ -72,10 +73,10 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
     /// so the client can refresh a node without triggering a re-layout. Null fields are left unchanged.
     /// </summary>
     public record GraphNodeChanges(
-        string? Type = null,
-        bool? IsCollection = null,
-        bool? HasChildren = null,
-        bool? HasError = null);
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] string? Type = null,
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] bool? IsCollection = null,
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] bool? HasChildren = null,
+        [property: JsonProperty(NullValueHandling = NullValueHandling.Ignore)] bool? HasError = null);
 
     /// <summary>
     /// The server's canonical visual graph, rebuilt from the live compilation on each request.

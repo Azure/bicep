@@ -184,10 +184,10 @@ export interface GraphBounds {
 
 /** The mutable subset of a node that can change without altering topology (metadata-only updates). */
 export interface GraphNodeChanges {
-  type?: string;
-  isCollection?: boolean;
-  hasChildren?: boolean;
-  hasError?: boolean;
+  type?: string | null;
+  isCollection?: boolean | null;
+  hasChildren?: boolean | null;
+  hasError?: boolean | null;
 }
 
 /** A typed, ordered patch. A response is a complete delta as a list of these; an empty list means no change. */

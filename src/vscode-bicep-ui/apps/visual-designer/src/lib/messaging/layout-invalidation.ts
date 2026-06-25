@@ -51,7 +51,7 @@ export function patchMayAffectLayout(graph: LayoutRelevantGraph, patch: GraphPat
       }
       const { changes } = patch;
       return LAYOUT_AFFECTING_NODE_FIELDS.some(
-        (field) => changes[field] !== undefined && changes[field] !== node[field],
+        (field) => changes[field] !== undefined && changes[field] !== null && changes[field] !== node[field],
       );
     }
     case "setNodeLayout":
