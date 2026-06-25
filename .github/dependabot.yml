@@ -138,7 +138,7 @@ updates:
     groups:
       dotnet-sdk:
         patterns:
-          - '*'
+          - "*"
     ignore:
       - dependency-name: '*'
         update-types:
