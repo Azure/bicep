@@ -16,7 +16,6 @@ import {
   addCompoundNodeAtom,
   addEdgeAtom,
   edgesAtom,
-  graphBoundsAtom,
   graphVersionAtom,
   layoutReadyAtom,
   nodesByIdAtom,
@@ -67,85 +66,17 @@ function springNodeTo(boxAtom: PrimitiveAtom<Box>, targetX: number, targetY: num
   });
 }
 
-/**
- * Measure the bounding box the graph will occupy once the server layout is
- * applied, including compound (module) boxes.
- *
- * A module box is derived from its children's union plus padding, so the union
- * of atomic leaf positions alone is a few pixels tighter than the real graph
- * bounds.  To get the true target bounds we briefly move the atomic boxes to
- * their server positions, read the derived {@link graphBoundsAtom} (which
- * recomputes compound boxes synchronously from their children), then restore
- * the original positions so the follow-up spring animation still starts from
- * where the nodes currently are.
- *
- * Reading the same atom the Fit View button uses guarantees Reset Layout and
- * Fit View settle on an identical viewport instead of drifting by a few pixels.
- */
-export function measureServerLayoutBounds(nodeLayouts: Map<string, NodeLayout>): Box | null {
-  if (nodeLayouts.size === 0) {
-    return null;
-  }
-
-  const nodes = store.get(nodesByIdAtom);
-  const snapshot = new Map<string, Box>();
-
-  for (const [nodeId, layout] of nodeLayouts) {
-    const node = nodes[nodeId];
-
-    if (!node || node.kind !== "atomic") {
-      continue;
-    }
-
-    const box = store.get(node.boxAtom);
-    snapshot.set(nodeId, box);
-    store.set(node.boxAtom, translateBox(box, layout.x - box.min.x, layout.y - box.min.y));
-  }
-
-  const bounds = store.get(graphBoundsAtom);
-
-  // Restore the pre-measurement positions. These writes are synchronous and the
-  // DOM is only painted on the next animation frame, so no movement is visible.
-  for (const [nodeId, box] of snapshot) {
-    const node = nodes[nodeId];
-
-    if (node && node.kind === "atomic") {
-      store.set(node.boxAtom, box);
-    }
-  }
-
-  return bounds;
-}
-
-/**
- * Apply a server-computed layout to the current graph: reveal the graph
- * layer if it was hidden, then spring every atomic node from its current
- * position to its server-assigned position.  Compound boxes follow their
- * children automatically.
- *
- * Mirrors the ELK auto-layout reveal/animate sequence so server-driven
- * re-layouts and node additions/removals animate instead of snapping.
- */
+/** Apply a server-computed layout to the current graph. */
 export async function applyServerLayout(nodeLayouts: Map<string, NodeLayout>): Promise<void> {
-  // When the graph layer is hidden (initial load or a major topology
-  // replacement), wait one painted frame so the fitted viewport and the
-  // freshly-spawned node positions are committed, then reveal.  Incremental
-  // edits leave the graph visible so nodes animate in place.
   if (!store.get(layoutReadyAtom)) {
     await waitForAnimationFrame();
     store.set(layoutReadyAtom, true);
   }
 
   if (nodeLayouts.size === 0) {
-    // No positions to apply (e.g. unchanged sizes or a failed layout). Leave
-    // any in-flight springs running so they settle on their targets; we only
-    // needed to make sure the graph was revealed.
     return;
   }
 
-  // Cancel any in-flight springs from the previous layout so overlapping
-  // springs don't fight over the same boxes.  New springs read each box's
-  // current (interpolated) position, so movement continues smoothly.
   for (const animation of activeLayoutAnimations) {
     animation.stop();
   }
@@ -156,11 +87,9 @@ export async function applyServerLayout(nodeLayouts: Map<string, NodeLayout>): P
   for (const [nodeId, layout] of nodeLayouts) {
     const node = nodes[nodeId];
 
-    if (!node || node.kind !== "atomic") {
-      continue;
+    if (node?.kind === "atomic") {
+      activeLayoutAnimations.push(springNodeTo(node.boxAtom, layout.x, layout.y));
     }
-
-    activeLayoutAnimations.push(springNodeTo(node.boxAtom, layout.x, layout.y));
   }
 }
 

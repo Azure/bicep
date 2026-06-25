@@ -7,7 +7,6 @@ using Bicep.LanguageServer.Features.Custom.Visualization.Models;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LangServer.UnitTests.Features.Visualization;
 
@@ -21,7 +20,23 @@ public class MsaglVisualGraphLayoutEngineTests
 
         var layout = engine.Layout(new CanonicalGraph([], [], ErrorCount: 0), NoSizes, DefaultOptions, CancellationToken.None);
 
-        layout.Should().BeEmpty();
+        layout.Positions.Should().BeEmpty();
+        layout.Bounds.Should().BeNull();
+    }
+
+    [TestMethod]
+    public void Layout_WhenCancelled_ThrowsOperationCanceled()
+    {
+        var engine = CreateEngine();
+        var graph = new CanonicalGraph(
+            Nodes: [Node("a"), Node("b")],
+            Edges: [Edge("a", "b")],
+            ErrorCount: 0);
+        var cancelled = new CancellationToken(canceled: true);
+
+        var act = () => engine.Layout(graph, NoSizes, DefaultOptions, cancelled);
+
+        act.Should().Throw<OperationCanceledException>();
     }
 
     [TestMethod]
@@ -33,7 +48,7 @@ public class MsaglVisualGraphLayoutEngineTests
             Edges: [Edge("a", "b"), Edge("b", "c")],
             ErrorCount: 0);
 
-        var layout = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None);
+        var layout = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None).Positions;
 
         layout.Keys.Should().BeEquivalentTo("a", "b", "c");
         layout.Values.Should().OnlyContain(position => IsFinite(position));
@@ -48,11 +63,31 @@ public class MsaglVisualGraphLayoutEngineTests
             Edges: [Edge("a", "b"), Edge("a", "c")],
             ErrorCount: 0);
 
-        var layout = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None);
+        var layout = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None).Positions;
 
         // The graph's left-most and top-most edges sit at the origin; pan/zoom and centering stay on the client.
         layout.Values.Min(position => position.X).Should().BeApproximately(0, Tolerance);
         layout.Values.Min(position => position.Y).Should().BeApproximately(0, Tolerance);
+    }
+
+    [TestMethod]
+    public void Layout_ForGraph_ReturnsBoundsEnclosingEveryNode()
+    {
+        var engine = CreateEngine();
+        var graph = new CanonicalGraph(
+            Nodes: [Node("a"), Node("b"), Node("c")],
+            Edges: [Edge("a", "b"), Edge("a", "c")],
+            ErrorCount: 0);
+
+        var layout = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None);
+
+        // The bounds wrap the whole graph from the origin, so every node's top-left position falls inside.
+        layout.Bounds.Should().NotBeNull();
+        layout.Bounds!.Width.Should().BeGreaterThan(0);
+        layout.Bounds.Height.Should().BeGreaterThan(0);
+        layout.Positions.Values.Should().OnlyContain(position =>
+            position.X >= -Tolerance && position.X <= layout.Bounds.Width + Tolerance &&
+            position.Y >= -Tolerance && position.Y <= layout.Bounds.Height + Tolerance);
     }
 
     [TestMethod]
@@ -64,7 +99,7 @@ public class MsaglVisualGraphLayoutEngineTests
             Edges: [Edge("a", "b")],
             ErrorCount: 0);
 
-        var layout = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None);
+        var layout = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None).Positions;
 
         // A layered top-to-bottom layout separates the two endpoints vertically.
         layout["a"].Y.Should().NotBe(layout["b"].Y);
@@ -79,8 +114,8 @@ public class MsaglVisualGraphLayoutEngineTests
             Edges: [Edge("a", "b"), Edge("a", "c"), Edge("b", "d"), Edge("c", "d")],
             ErrorCount: 0);
 
-        var first = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None);
-        var second = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None);
+        var first = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None).Positions;
+        var second = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None).Positions;
 
         second.Should().BeEquivalentTo(first);
     }
@@ -100,7 +135,7 @@ public class MsaglVisualGraphLayoutEngineTests
             Edges: [Edge("root", "mod"), Edge("mod::child1", "mod::child2")],
             ErrorCount: 0);
 
-        var layout = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None);
+        var layout = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None).Positions;
 
         layout.Keys.Should().BeEquivalentTo("root", "mod", "mod::child1", "mod::child2");
         layout.Values.Should().OnlyContain(position => IsFinite(position));
@@ -116,7 +151,7 @@ public class MsaglVisualGraphLayoutEngineTests
             ErrorCount: 0);
         var sizes = Sizes(("a", 400, 300), ("b", 400, 300));
 
-        var layout = engine.Layout(graph, sizes, DefaultOptions, CancellationToken.None);
+        var layout = engine.Layout(graph, sizes, DefaultOptions, CancellationToken.None).Positions;
 
         // Larger nodes simply produce a valid, fully-populated layout; sizing is an input, not an output.
         layout.Keys.Should().BeEquivalentTo("a", "b");
@@ -156,8 +191,12 @@ public class MsaglVisualGraphLayoutEngineTests
 
         var layout = engine.Layout(graph, NoSizes, options, CancellationToken.None);
 
-        layout["mod"].Should().Be(new NodeLayout(0, 0));
-        layout["mod::child"].Should().Be(new NodeLayout(29, 17));
+        layout.Positions["mod"].Should().Be(new NodeLayout(0, 0));
+        layout.Positions["mod::child"].Should().Be(new NodeLayout(29, 17));
+
+        // The module box wraps its single default-sized child (100x80) plus padding on every side, and is the
+        // only top-level node, so the whole-graph bounds equal the module box size.
+        layout.Bounds.Should().Be(new GraphBounds(100 + 29 + 31, 80 + 17 + 23));
     }
 
     [TestMethod]
@@ -167,7 +206,7 @@ public class MsaglVisualGraphLayoutEngineTests
         var graph = BuildRepresentativeGraph(moduleCount: 4, resourcesPerModule: 4, topLevelResourceCount: 8);
         var stopwatch = Stopwatch.StartNew();
 
-        var layout = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None);
+        var layout = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None).Positions;
 
         stopwatch.Stop();
         layout.Keys.Should().BeEquivalentTo(graph.Nodes.Select(node => node.Id));
@@ -247,9 +286,7 @@ public class MsaglVisualGraphLayoutEngineTests
             SymbolName: id,
             IsCollection: false,
             HasChildren: hasChildren,
-            HasError: false,
-            FilePath: "/main.bicep",
-            Range: new Range(0, 0, 0, 0));
+            HasError: false);
 
     private static GraphEdge Edge(string sourceId, string targetId) =>
         new(Id: $"{sourceId}->{targetId}", SourceId: sourceId, TargetId: targetId);

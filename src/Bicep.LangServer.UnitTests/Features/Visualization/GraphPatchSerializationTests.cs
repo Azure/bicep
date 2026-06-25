@@ -7,7 +7,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LangServer.UnitTests.Features.Visualization;
 
@@ -49,9 +48,7 @@ public class GraphPatchSerializationTests
             SymbolName: "foo",
             IsCollection: false,
             HasChildren: true,
-            HasError: false,
-            FilePath: "main.bicep",
-            Range: new Range(0, 0, 1, 5));
+            HasError: false);
         var patch = new GraphPatch.AddNode(node);
 
         var json = Serialize(patch);
@@ -115,6 +112,19 @@ public class GraphPatchSerializationTests
         var json = Serialize(patch);
 
         json.Value<string>("op").Should().Be("setNodeLayout");
+        Deserialize(json).Should().Be(patch);
+    }
+
+    [TestMethod]
+    public void SetGraphBounds_WhenSerialized_RoundTrips()
+    {
+        var patch = new GraphPatch.SetGraphBounds(new GraphBounds(640.5, 480.25));
+
+        var json = Serialize(patch);
+
+        json.Value<string>("op").Should().Be("setGraphBounds");
+        json["bounds"]!.Value<double>("width").Should().Be(640.5);
+        json["bounds"]!.Value<double>("height").Should().Be(480.25);
         Deserialize(json).Should().Be(patch);
     }
 

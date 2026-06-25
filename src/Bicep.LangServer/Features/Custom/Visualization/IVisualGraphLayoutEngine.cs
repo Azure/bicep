@@ -87,14 +87,23 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         /// <param name="options">Shared defaults and renderer-provided layout overrides.</param>
         /// <param name="cancellationToken">Cancels the layout computation.</param>
         /// <returns>
-        /// A position per node id, in graph coordinates with a top-left origin and y increasing downward. An
-        /// empty result means no layout was produced (the graph was empty or a recoverable failure occurred);
-        /// callers should keep any previously known positions in that case.
+        /// A position per node id and the overall graph bounds, in graph coordinates with a top-left origin and
+        /// y increasing downward. An empty result (no positions, null bounds) means no layout was produced (the
+        /// graph was empty or a recoverable failure occurred); callers should keep any previously known
+        /// positions in that case.
         /// </returns>
-        IReadOnlyDictionary<string, NodeLayout> Layout(
+        VisualGraphLayout Layout(
             CanonicalGraph graph,
             IReadOnlyDictionary<string, NodeSize> nodeSizes,
             VisualGraphLayoutOptions options,
             CancellationToken cancellationToken);
     }
+
+    /// <summary>
+    /// The result of a layout pass: a position per node id, plus the bounding box the whole graph occupies
+    /// (null when no layout was produced). The engine already computes module box extents (children plus
+    /// padding) to size containers, so it returns the overall bounds for free, sparing the client from
+    /// re-deriving them.
+    /// </summary>
+    public record VisualGraphLayout(IReadOnlyDictionary<string, NodeLayout> Positions, GraphBounds? Bounds);
 }

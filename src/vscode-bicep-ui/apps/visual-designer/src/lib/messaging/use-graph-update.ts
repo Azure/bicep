@@ -9,10 +9,12 @@ import type {
   GetGraphLayoutResponse,
   GetGraphUpdateRequest,
   GetGraphUpdateResponse,
+  GraphBounds,
   GraphEdge,
   GraphNode,
   GraphPatch,
   NodeLayout,
+  Range,
   RenderedGraph,
 } from "./messages";
 
@@ -22,7 +24,7 @@ import { useCallback, useRef } from "react";
 import { nodesByIdAtom } from "@/lib/graph";
 import { patchMayAffectLayout, renderedGraphsEqual } from "./layout-invalidation";
 import { GET_GRAPH_LAYOUT_REQUEST, GET_GRAPH_UPDATE_REQUEST } from "./messages";
-import { applyServerLayout, measureServerLayoutBounds, useApplyDeploymentGraph } from "./use-deployment-graph";
+import { applyServerLayout, useApplyDeploymentGraph } from "./use-deployment-graph";
 
 const store = getDefaultStore();
 
@@ -77,6 +79,9 @@ function applyPatch(graph: ClientGraph, nodeLayouts: Map<string, NodeLayout>, pa
     case "setNodeLayout":
       nodeLayouts.set(patch.nodeId, patch.layout);
       return;
+    case "setGraphBounds":
+      // Graph bounds drive fit-view in the layout flow, not the client graph mirror.
+      return;
     case "setErrorCount":
       graph.errorCount = patch.errorCount;
       return;
@@ -86,17 +91,23 @@ function applyPatch(graph: ClientGraph, nodeLayouts: Map<string, NodeLayout>, pa
 /**
  * Translate the canonical client graph into the legacy `DeploymentGraph` shape so the existing
  * position-preserving apply path (and ELK auto-layout) can render it unchanged.
+ *
+ * The canonical graph no longer carries source locations, so `range`/`filePath` are filled with empty
+ * placeholders here. Reveal is driven on demand by node id (see `REVEAL_NODE_SOURCE_NOTIFICATION`),
+ * which is why the empty `filePath` is intentional and not a missing value.
  */
 function toDeploymentGraph(graph: ClientGraph): DeploymentGraph {
+  const emptyRange: Range = { start: { line: 0, character: 0 }, end: { line: 0, character: 0 } };
+
   return {
     nodes: [...graph.nodes.values()].map((node) => ({
       id: node.id,
       type: node.type,
       isCollection: node.isCollection,
-      range: node.range,
+      range: emptyRange,
       hasChildren: node.hasChildren,
       hasError: node.hasError,
-      filePath: node.filePath ?? "",
+      filePath: "",
     })),
     edges: [...graph.edges.values()].map((edge) => ({
       sourceId: edge.sourceId,
@@ -122,6 +133,10 @@ function buildRenderedGraph(graph: ClientGraph): RenderedGraph {
         id: node.id,
         kind: node.kind,
         parentId: node.parentId,
+        type: node.type,
+        isCollection: node.isCollection,
+        hasChildren: node.hasChildren,
+        hasError: node.hasError,
         width: box ? box.max.x - box.min.x : 0,
         height: box ? box.max.y - box.min.y : 0,
       };
@@ -148,6 +163,42 @@ function collectNodeLayouts(patches: GraphPatch[]): Map<string, NodeLayout> {
   }
 
   return nodeLayouts;
+}
+
+/** Pick the graph bounds out of a layout response, if the server emitted them. */
+function collectGraphBounds(patches: GraphPatch[]): GraphBounds | null {
+  let bounds: GraphBounds | null = null;
+
+  for (const patch of patches) {
+    if (patch.op === "setGraphBounds") {
+      bounds = patch.bounds;
+    }
+  }
+
+  return bounds;
+}
+
+function centerServerLayout(
+  nodeLayouts: Map<string, NodeLayout>,
+  graphBounds: GraphBounds | null,
+  viewportCenter: Point,
+): { nodeLayouts: Map<string, NodeLayout>; bounds: Box | null } {
+  if (!graphBounds) {
+    return { nodeLayouts, bounds: null };
+  }
+
+  const offsetX = viewportCenter.x - graphBounds.width / 2;
+  const offsetY = viewportCenter.y - graphBounds.height / 2;
+  const centeredLayouts = new Map<string, NodeLayout>();
+
+  for (const [nodeId, layout] of nodeLayouts) {
+    centeredLayouts.set(nodeId, { x: layout.x + offsetX, y: layout.y + offsetY });
+  }
+
+  return {
+    nodeLayouts: centeredLayouts,
+    bounds: { min: { x: offsetX, y: offsetY }, max: { x: offsetX + graphBounds.width, y: offsetY + graphBounds.height } },
+  };
 }
 
 /**
@@ -220,20 +271,22 @@ export function useGraphUpdate(
         return;
       }
 
-      const nodeLayouts = collectNodeLayouts(layoutResponse.patches);
+      const { nodeLayouts, bounds } = centerServerLayout(
+        collectNodeLayouts(layoutResponse.patches),
+        collectGraphBounds(layoutResponse.patches),
+        getViewportCenter(),
+      );
       lastLayoutInputRef.current = measuredGraph;
 
-      // Fit the viewport to the layout's final bounds before the nodes animate
-      // there (mirrors the ELK auto-layout reveal/animate sequence). The bounds
-      // include compound boxes so this matches the Fit View button exactly.
-      const bounds = measureServerLayoutBounds(nodeLayouts);
-      if (bounds) {
+      // Fit the viewport to the server-computed graph bounds before the nodes settle there. Reset Layout
+      // (force) only re-runs the layout and must not touch the user's pan/zoom, so it skips the fit.
+      if (bounds && !force) {
         fitViewToBounds(bounds);
       }
 
       await applyServerLayout(nodeLayouts);
     },
-    [fitViewToBounds, messageChannel],
+    [fitViewToBounds, getViewportCenter, messageChannel],
   );
 
   const requestGraphUpdate = useCallback(async () => {

@@ -18,6 +18,7 @@ import {
   GET_GRAPH_UPDATE_REQUEST,
   READY_NOTIFICATION,
   REVEAL_FILE_RANGE_NOTIFICATION,
+  REVEAL_NODE_SOURCE_NOTIFICATION,
   SHOW_PROBLEMS_PANEL_NOTIFICATION,
 } from "@/lib/messaging/messages";
 import { diffGraph, layoutGraph } from "./fake-graph-differ";
@@ -844,6 +845,9 @@ export class FakeMessageChannel {
       }, 50);
     } else if (notificationMessage.method === REVEAL_FILE_RANGE_NOTIFICATION) {
       console.log("[FakeMessageChannel] revealFileRange:", notificationMessage.params);
+    } else if (notificationMessage.method === REVEAL_NODE_SOURCE_NOTIFICATION) {
+      // The real host would resolve the node's source location via the language server and reveal it.
+      console.log("[FakeMessageChannel] revealNodeSource:", notificationMessage.params);
     } else if (notificationMessage.method === SHOW_PROBLEMS_PANEL_NOTIFICATION) {
       console.log("[FakeMessageChannel] showProblemsPanel: would open VS Code Problems panel");
     }

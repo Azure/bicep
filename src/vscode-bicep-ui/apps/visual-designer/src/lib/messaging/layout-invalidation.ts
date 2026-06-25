@@ -55,6 +55,7 @@ export function patchMayAffectLayout(graph: LayoutRelevantGraph, patch: GraphPat
       );
     }
     case "setNodeLayout":
+    case "setGraphBounds":
     case "setErrorCount":
       return false;
   }

@@ -71,7 +71,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             this.layoutEngine = layoutEngine;
         }
 
-        public Task<VisualGraphLayoutResult> Handle(VisualGraphLayoutParams request, CancellationToken cancellationToken)
+        public async Task<VisualGraphLayoutResult> Handle(VisualGraphLayoutParams request, CancellationToken cancellationToken)
         {
             var context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
 
@@ -79,31 +79,38 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             {
                 this.logger.LogError("Visual graph layout request arrived before file {Uri} could be compiled.", request.TextDocument.Uri);
 
-                return Task.FromResult(new VisualGraphLayoutResult(VisualGraphLayoutStatus.GraphChanged, []));
+                return new VisualGraphLayoutResult(VisualGraphLayoutStatus.GraphChanged, []);
             }
 
             var target = VisualGraphBuilder.Build(context, request.TextDocument.Uri.ToIOUri());
 
             if (VisualGraphDiffer.HasTopologyChange(request.Current, target))
             {
-                return Task.FromResult(new VisualGraphLayoutResult(VisualGraphLayoutStatus.GraphChanged, []));
+                return new VisualGraphLayoutResult(VisualGraphLayoutStatus.GraphChanged, []);
             }
 
             var nodeSizes = BuildNodeSizes(request.Current);
-            var layout = this.layoutEngine.Layout(target, nodeSizes, request.Options ?? VisualGraphLayoutOptions.Default, cancellationToken);
+            var options = request.Options ?? VisualGraphLayoutOptions.Default;
 
-            if (target.Nodes.Count > 0 && layout.Count == 0)
+            // Offload the CPU-bound MSAGL layout so a pathological graph cannot block the request dispatch
+            // thread; cancellation flows through to abandon a layout the client no longer cares about.
+            var layout = await Task.Run(() => this.layoutEngine.Layout(target, nodeSizes, options, cancellationToken), cancellationToken);
+
+            if (target.Nodes.Count > 0 && layout.Positions.Count == 0)
             {
-                return Task.FromResult(new VisualGraphLayoutResult(VisualGraphLayoutStatus.LayoutFailed, []));
+                return new VisualGraphLayoutResult(VisualGraphLayoutStatus.LayoutFailed, []);
             }
 
-            var patches = target.Nodes
+            var layoutPatches = target.Nodes
                 .OrderBy(node => node.Id, StringComparer.Ordinal)
-                .Where(node => layout.ContainsKey(node.Id))
-                .Select(node => new GraphPatch.SetNodeLayout(node.Id, layout[node.Id]))
-                .ToArray();
+                .Where(node => layout.Positions.ContainsKey(node.Id))
+                .Select(node => (GraphPatch)new GraphPatch.SetNodeLayout(node.Id, layout.Positions[node.Id]));
 
-            return Task.FromResult(new VisualGraphLayoutResult(VisualGraphLayoutStatus.Ok, patches));
+            var patches = layout.Bounds is { } bounds
+                ? [.. layoutPatches, new GraphPatch.SetGraphBounds(bounds)]
+                : layoutPatches.ToArray();
+
+            return new VisualGraphLayoutResult(VisualGraphLayoutStatus.Ok, patches);
         }
 
         private static IReadOnlyDictionary<string, NodeSize> BuildNodeSizes(RenderedGraph current)
@@ -116,6 +123,47 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             }
 
             return sizes;
+        }
+    }
+
+    /// <summary>
+    /// Handles <c>textDocument/visualGraphNodeSource</c>: maps a node id to its source location from the live
+    /// compilation, so the webview can reveal a node on demand without the graph carrying volatile range/file
+    /// data. Returns <see cref="VisualGraphNodeSourceResult.Found"/> = false when the node no longer exists.
+    /// </summary>
+    public class VisualGraphNodeSourceHandler : IJsonRpcRequestHandler<VisualGraphNodeSourceParams, VisualGraphNodeSourceResult>
+    {
+        private readonly ILogger<VisualGraphNodeSourceHandler> logger;
+
+        private readonly ICompilationManager compilationManager;
+
+        public VisualGraphNodeSourceHandler(
+            ILogger<VisualGraphNodeSourceHandler> logger,
+            ICompilationManager compilationManager)
+        {
+            this.logger = logger;
+            this.compilationManager = compilationManager;
+        }
+
+        public Task<VisualGraphNodeSourceResult> Handle(VisualGraphNodeSourceParams request, CancellationToken cancellationToken)
+        {
+            var context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
+
+            if (context is null)
+            {
+                this.logger.LogError("Visual graph node source request arrived before file {Uri} could be compiled.", request.TextDocument.Uri);
+
+                return Task.FromResult(new VisualGraphNodeSourceResult(Found: false, FilePath: null, Range: null));
+            }
+
+            var (_, sources) = VisualGraphBuilder.BuildWithSources(context, request.TextDocument.Uri.ToIOUri());
+
+            if (!sources.TryGetValue(request.NodeId, out var source))
+            {
+                return Task.FromResult(new VisualGraphNodeSourceResult(Found: false, FilePath: null, Range: null));
+            }
+
+            return Task.FromResult(new VisualGraphNodeSourceResult(Found: true, source.FilePath, source.Range));
         }
     }
 }

@@ -6,6 +6,7 @@ using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer.Features.Custom.Visualization
 {
@@ -55,4 +56,21 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
     /// <see cref="GraphPatch.SetNodeLayout"/> patches.
     /// </summary>
     public record VisualGraphLayoutResult(string Status, IReadOnlyList<GraphPatch> Patches);
+
+    /// <summary>
+    /// Request to resolve a node's source location on demand (for example when the user double-clicks a node
+    /// to reveal it). The canonical graph carries no source location, so the webview asks for it by node id
+    /// only when it actually needs to reveal, keeping volatile range/file-path data out of the graph diff.
+    /// </summary>
+    [Method("textDocument/visualGraphNodeSource", Direction.ClientToServer)]
+    public record VisualGraphNodeSourceParams(
+        TextDocumentIdentifier TextDocument,
+        string NodeId) : ITextDocumentIdentifierParams, IRequest<VisualGraphNodeSourceResult>;
+
+    /// <summary>
+    /// Response to a <see cref="VisualGraphNodeSourceParams"/> request. <see cref="Found"/> is false when the
+    /// node no longer exists in the live compilation (for example it was deleted between render and reveal),
+    /// in which case <see cref="FilePath"/>/<see cref="Range"/> are null and the client reveals nothing.
+    /// </summary>
+    public record VisualGraphNodeSourceResult(bool Found, string? FilePath, Range? Range);
 }
