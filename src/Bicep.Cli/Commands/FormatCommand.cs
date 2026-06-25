@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions;
 using System.CommandLine;
+using System.IO.Abstractions;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers;

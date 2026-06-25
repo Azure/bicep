@@ -67,9 +67,7 @@ test.describe("Control bar", () => {
     await page.getByTestId("control-zoom-in").click();
     // The pan-zoom transform updates synchronously after the click,
     // but allow a frame for the styled-component to flush.
-    await expect
-      .poll(async () => await getGraphTransform(page), { timeout: 5_000 })
-      .not.toBe(before);
+    await expect.poll(async () => await getGraphTransform(page), { timeout: 5_000 }).not.toBe(before);
   });
 
   test("zoom out also changes the pan-zoom transform", async ({ page }) => {
@@ -77,9 +75,7 @@ test.describe("Control bar", () => {
 
     const before = await getGraphTransform(page);
     await page.getByTestId("control-zoom-out").click();
-    await expect
-      .poll(async () => await getGraphTransform(page), { timeout: 5_000 })
-      .not.toBe(before);
+    await expect.poll(async () => await getGraphTransform(page), { timeout: 5_000 }).not.toBe(before);
   });
 
   test("fit-view recenters the graph after zoom changes", async ({ page }) => {
@@ -90,9 +86,7 @@ test.describe("Control bar", () => {
     const zoomed = await getGraphTransform(page);
 
     await page.getByTestId("control-fit-view").click();
-    await expect
-      .poll(async () => await getGraphTransform(page), { timeout: 5_000 })
-      .not.toBe(zoomed);
+    await expect.poll(async () => await getGraphTransform(page), { timeout: 5_000 }).not.toBe(zoomed);
   });
 });
 

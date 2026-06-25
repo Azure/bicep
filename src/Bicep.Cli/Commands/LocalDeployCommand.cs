@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.CommandLine;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers;
@@ -12,7 +13,6 @@ using Bicep.Core.TypeSystem;
 using Bicep.Local.Deploy.Extensibility;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.CommandLine;
 using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands;

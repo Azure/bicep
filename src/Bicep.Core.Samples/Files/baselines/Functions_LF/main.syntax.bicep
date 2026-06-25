@@ -1,5 +1,5 @@
 func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
-//@[000:1738) ProgramSyntax
+//@[000:2050) ProgramSyntax
 //@[000:0141) ├─FunctionDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |func|
 //@[005:0013) | ├─IdentifierSyntax
@@ -692,6 +692,138 @@ output likeWildCardMatch bool= like ('abcdef', 'a*c*')
 //@[047:0053) |   ├─FunctionArgumentSyntax
 //@[047:0053) |   | └─StringSyntax
 //@[047:0053) |   |   └─Token(StringComplete) |'a*c*'|
+//@[053:0054) |   └─Token(RightParen) |)|
+//@[054:0055) ├─Token(NewLine) |\n|
+output likewildcard bool = like('abcabc', '*abc')
+//@[000:0049) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0019) | ├─IdentifierSyntax
+//@[007:0019) | | └─Token(Identifier) |likewildcard|
+//@[020:0024) | ├─TypeVariableAccessSyntax
+//@[020:0024) | | └─IdentifierSyntax
+//@[020:0024) | |   └─Token(Identifier) |bool|
+//@[025:0026) | ├─Token(Assignment) |=|
+//@[027:0049) | └─FunctionCallSyntax
+//@[027:0031) |   ├─IdentifierSyntax
+//@[027:0031) |   | └─Token(Identifier) |like|
+//@[031:0032) |   ├─Token(LeftParen) |(|
+//@[032:0040) |   ├─FunctionArgumentSyntax
+//@[032:0040) |   | └─StringSyntax
+//@[032:0040) |   |   └─Token(StringComplete) |'abcabc'|
+//@[040:0041) |   ├─Token(Comma) |,|
+//@[042:0048) |   ├─FunctionArgumentSyntax
+//@[042:0048) |   | └─StringSyntax
+//@[042:0048) |   |   └─Token(StringComplete) |'*abc'|
+//@[048:0049) |   └─Token(RightParen) |)|
+//@[049:0050) ├─Token(NewLine) |\n|
+output likewildcardtest2 bool = like('aXaYa' , 'a*a')
+//@[000:0053) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0024) | ├─IdentifierSyntax
+//@[007:0024) | | └─Token(Identifier) |likewildcardtest2|
+//@[025:0029) | ├─TypeVariableAccessSyntax
+//@[025:0029) | | └─IdentifierSyntax
+//@[025:0029) | |   └─Token(Identifier) |bool|
+//@[030:0031) | ├─Token(Assignment) |=|
+//@[032:0053) | └─FunctionCallSyntax
+//@[032:0036) |   ├─IdentifierSyntax
+//@[032:0036) |   | └─Token(Identifier) |like|
+//@[036:0037) |   ├─Token(LeftParen) |(|
+//@[037:0044) |   ├─FunctionArgumentSyntax
+//@[037:0044) |   | └─StringSyntax
+//@[037:0044) |   |   └─Token(StringComplete) |'aXaYa'|
+//@[045:0046) |   ├─Token(Comma) |,|
+//@[047:0052) |   ├─FunctionArgumentSyntax
+//@[047:0052) |   | └─StringSyntax
+//@[047:0052) |   |   └─Token(StringComplete) |'a*a'|
+//@[052:0053) |   └─Token(RightParen) |)|
+//@[053:0054) ├─Token(NewLine) |\n|
+output likewildcardtest3 bool = like('' , '***')
+//@[000:0048) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0024) | ├─IdentifierSyntax
+//@[007:0024) | | └─Token(Identifier) |likewildcardtest3|
+//@[025:0029) | ├─TypeVariableAccessSyntax
+//@[025:0029) | | └─IdentifierSyntax
+//@[025:0029) | |   └─Token(Identifier) |bool|
+//@[030:0031) | ├─Token(Assignment) |=|
+//@[032:0048) | └─FunctionCallSyntax
+//@[032:0036) |   ├─IdentifierSyntax
+//@[032:0036) |   | └─Token(Identifier) |like|
+//@[036:0037) |   ├─Token(LeftParen) |(|
+//@[037:0039) |   ├─FunctionArgumentSyntax
+//@[037:0039) |   | └─StringSyntax
+//@[037:0039) |   |   └─Token(StringComplete) |''|
+//@[040:0041) |   ├─Token(Comma) |,|
+//@[042:0047) |   ├─FunctionArgumentSyntax
+//@[042:0047) |   | └─StringSyntax
+//@[042:0047) |   |   └─Token(StringComplete) |'***'|
+//@[047:0048) |   └─Token(RightParen) |)|
+//@[048:0049) ├─Token(NewLine) |\n|
+output likewildcardtest4 bool = like('a', 'b')
+//@[000:0046) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0024) | ├─IdentifierSyntax
+//@[007:0024) | | └─Token(Identifier) |likewildcardtest4|
+//@[025:0029) | ├─TypeVariableAccessSyntax
+//@[025:0029) | | └─IdentifierSyntax
+//@[025:0029) | |   └─Token(Identifier) |bool|
+//@[030:0031) | ├─Token(Assignment) |=|
+//@[032:0046) | └─FunctionCallSyntax
+//@[032:0036) |   ├─IdentifierSyntax
+//@[032:0036) |   | └─Token(Identifier) |like|
+//@[036:0037) |   ├─Token(LeftParen) |(|
+//@[037:0040) |   ├─FunctionArgumentSyntax
+//@[037:0040) |   | └─StringSyntax
+//@[037:0040) |   |   └─Token(StringComplete) |'a'|
+//@[040:0041) |   ├─Token(Comma) |,|
+//@[042:0045) |   ├─FunctionArgumentSyntax
+//@[042:0045) |   | └─StringSyntax
+//@[042:0045) |   |   └─Token(StringComplete) |'b'|
+//@[045:0046) |   └─Token(RightParen) |)|
+//@[046:0047) ├─Token(NewLine) |\n|
+output likewildcardtest5 bool = like('abc**def', '*def')
+//@[000:0056) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0024) | ├─IdentifierSyntax
+//@[007:0024) | | └─Token(Identifier) |likewildcardtest5|
+//@[025:0029) | ├─TypeVariableAccessSyntax
+//@[025:0029) | | └─IdentifierSyntax
+//@[025:0029) | |   └─Token(Identifier) |bool|
+//@[030:0031) | ├─Token(Assignment) |=|
+//@[032:0056) | └─FunctionCallSyntax
+//@[032:0036) |   ├─IdentifierSyntax
+//@[032:0036) |   | └─Token(Identifier) |like|
+//@[036:0037) |   ├─Token(LeftParen) |(|
+//@[037:0047) |   ├─FunctionArgumentSyntax
+//@[037:0047) |   | └─StringSyntax
+//@[037:0047) |   |   └─Token(StringComplete) |'abc**def'|
+//@[047:0048) |   ├─Token(Comma) |,|
+//@[049:0055) |   ├─FunctionArgumentSyntax
+//@[049:0055) |   | └─StringSyntax
+//@[049:0055) |   |   └─Token(StringComplete) |'*def'|
+//@[055:0056) |   └─Token(RightParen) |)|
+//@[056:0057) ├─Token(NewLine) |\n|
+output likewildcardtest6 bool = like('aXbYa', 'a*b*a')
+//@[000:0054) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0024) | ├─IdentifierSyntax
+//@[007:0024) | | └─Token(Identifier) |likewildcardtest6|
+//@[025:0029) | ├─TypeVariableAccessSyntax
+//@[025:0029) | | └─IdentifierSyntax
+//@[025:0029) | |   └─Token(Identifier) |bool|
+//@[030:0031) | ├─Token(Assignment) |=|
+//@[032:0054) | └─FunctionCallSyntax
+//@[032:0036) |   ├─IdentifierSyntax
+//@[032:0036) |   | └─Token(Identifier) |like|
+//@[036:0037) |   ├─Token(LeftParen) |(|
+//@[037:0044) |   ├─FunctionArgumentSyntax
+//@[037:0044) |   | └─StringSyntax
+//@[037:0044) |   |   └─Token(StringComplete) |'aXbYa'|
+//@[044:0045) |   ├─Token(Comma) |,|
+//@[046:0053) |   ├─FunctionArgumentSyntax
+//@[046:0053) |   | └─StringSyntax
+//@[046:0053) |   |   └─Token(StringComplete) |'a*b*a'|
 //@[053:0054) |   └─Token(RightParen) |)|
 //@[054:0055) ├─Token(NewLine) |\n|
 output distinctTest array = distinct(['a','b','a','c','b'])
