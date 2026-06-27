@@ -9,6 +9,7 @@ using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
 using Bicep.LanguageServer.Features.Custom.Visualization;
+using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Options;
 using Bicep.LanguageServer.Providers;
@@ -98,6 +99,9 @@ namespace Bicep.LanguageServer
             {
                 var scheduler = server.GetRequiredService<IModuleRestoreScheduler>();
                 scheduler.Start();
+
+                var avmDisplayNameProvider = server.GetRequiredService<IAvmModuleDisplayNameProvider>();
+                avmDisplayNameProvider.StartCache();
 
 #pragma warning disable VSTHRD003 // Avoid awaiting foreign Tasks
                 await server.WaitForExit;
