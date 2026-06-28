@@ -197,7 +197,10 @@ function centerServerLayout(
 
   return {
     nodeLayouts: centeredLayouts,
-    bounds: { min: { x: offsetX, y: offsetY }, max: { x: offsetX + graphBounds.width, y: offsetY + graphBounds.height } },
+    bounds: {
+      min: { x: offsetX, y: offsetY },
+      max: { x: offsetX + graphBounds.width, y: offsetY + graphBounds.height },
+    },
   };
 }
 
