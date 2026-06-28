@@ -18,7 +18,7 @@
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.3",
-    "eslint": "10.5.0",
+    "eslint": "10.6.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.6",
     "nerdbank-gitversioning": "3.10.85",
@@ -31,7 +31,7 @@
     "@microsoft/applicationinsights-web": "3.4.2",
     "bootstrap": "5.3.8",
     "monaco-editor": "0.55.1",
-    "pako": "2.2.0",
+    "pako": "3.0.0",
     "react": "19.2.7",
     "react-bootstrap": "2.10.10",
     "react-dom": "19.2.7"
