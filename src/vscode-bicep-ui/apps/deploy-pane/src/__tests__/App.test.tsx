@@ -51,7 +51,9 @@ beforeEach(() => {
     const mod: any = await importOriginal();
     return {
       ...mod,
-      ResourceManagementClient: vi.fn(() => mockClient),
+      ResourceManagementClient: vi.fn(function () {
+        return mockClient;
+      }),
     };
   });
   vi.mock("../components/hooks/time", () => ({

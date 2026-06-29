@@ -25,6 +25,7 @@
     "@ianvs/prettier-plugin-sort-imports": "^4.4.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@vitest/coverage-v8": "^4.1.5",
     "eslint": "^10.2.1",
     "eslint-plugin-notice": "^1.0.0",
     "eslint-plugin-react": "^7.37.5",
@@ -35,7 +36,9 @@
     "prettier": "^3.8.3",
     "turbo": "^2.9.14",
     "typescript": "^5.8.2",
-    "typescript-eslint": "^8.35.0"
+    "typescript-eslint": "^8.35.0",
+    "vite": "^8.0.0",
+    "vitest": "^4.1.5"
   },
   "overrides": {
     "@types/react": "^19.2.14",
