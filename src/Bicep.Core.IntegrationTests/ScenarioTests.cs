@@ -7825,4 +7825,23 @@ output locations array = flatten(map(databases, database => database.properties.
             DiagnosticLevel.Error,
             "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.");
     }
+
+    [TestMethod]
+    public void Test_Issue17102_fully_qualified_non_deterministic_functions_are_blocked()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                module Foo2 'module.bicep' = {
+                    name: sys.newGuid()
+                }
+            """),
+            ("module.bicep", """
+                param name string
+            """));
+        result.Should().OnlyContainDiagnostic(
+            "BCP065",
+            DiagnosticLevel.Error,
+            """Function "newGuid" is not valid at this location. It can only be used as a parameter default value."""
+        );
+    }
 }

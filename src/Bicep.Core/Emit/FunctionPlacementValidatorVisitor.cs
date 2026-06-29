@@ -15,7 +15,8 @@ namespace Bicep.Core.Emit
         {
             Module,
             ModuleParams,
-            ModuleExtensionConfigs
+            ModuleExtensionConfigs,
+            ParameterDefaultValue
         }
 
         private readonly SemanticModel semanticModel;
@@ -74,15 +75,23 @@ namespace Bicep.Core.Emit
             base.VisitObjectPropertySyntax(syntax);
         }
 
+        public override void VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax)
+        {
+            using var _ = elementsRecorder.Scope(VisitedElement.ParameterDefaultValue);
+            base.VisitParameterDefaultValueSyntax(syntax);
+        }
+
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
             VerifyModuleSecureParameterFunctionPlacement(syntax);
+            VerifyParameterDefaultsOnlyFunctionPlacement(syntax);
             base.VisitInstanceFunctionCallSyntax(syntax);
         }
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
             VerifyModuleSecureParameterFunctionPlacement(syntax);
+            VerifyParameterDefaultsOnlyFunctionPlacement(syntax);
             base.VisitFunctionCallSyntax(syntax);
         }
 
@@ -111,6 +120,19 @@ namespace Bicep.Core.Emit
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).FunctionOnlyValidWithDirectAssignment(functionSymbol.Name));
                     }
                 }
+            }
+        }
+
+        private void VerifyParameterDefaultsOnlyFunctionPlacement(FunctionCallSyntaxBase syntax)
+        {
+            // Unqualified calls (e.g. newGuid()) have their placement validated during binding. Namespace-qualified
+            // calls (e.g. sys.newGuid()) are resolved lazily by the type checker without flag validation, so the
+            // placement of ParamDefaultsOnly functions is enforced here.
+            if (semanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
+                functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly) &&
+                !elementsRecorder.Contains(VisitedElement.ParameterDefaultValue))
+            {
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.Name).FunctionOnlyValidInParameterDefaults(functionSymbol.Name));
             }
         }
     }
