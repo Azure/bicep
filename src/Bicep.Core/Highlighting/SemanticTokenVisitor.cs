@@ -219,7 +219,7 @@ public class SemanticTokenVisitor : CstVisitor
         base.VisitFunctionDeclarationSyntax(syntax);
     }
 
-    private void AddStringToken(Token token, string? start, string? end)
+    private void AddStringToken(Token token, string? start, string? end, bool isSingleLineString)
     {
         var endInterp = (token.Type, end) switch
         {
@@ -248,12 +248,92 @@ public class SemanticTokenVisitor : CstVisitor
             AddTokenType(token.GetSpanSlice(0, startOperatorLength), SemanticTokenType.Operator);
         }
 
-        AddTokenType(token.GetSpanSlice(startOperatorLength, token.Span.Length - startOperatorLength - endOperatorLength), SemanticTokenType.String);
+        this.AddStringContentTokens(token, startOperatorLength, token.Span.Length - startOperatorLength - endOperatorLength, isSingleLineString);
 
         if (hasEndOperator)
         {
             AddTokenType(token.GetSpanSlice(token.Span.Length - endOperatorLength, endOperatorLength), SemanticTokenType.Operator);
         }
+    }
+
+    private void AddStringContentTokens(Token token, int start, int length, bool excludeEscapeSequences)
+    {
+        if (length <= 0)
+        {
+            return;
+        }
+
+        if (!excludeEscapeSequences)
+        {
+            this.AddTokenType(token.GetSpanSlice(start, length), SemanticTokenType.String);
+            return;
+        }
+
+        var end = start + length;
+        var segmentStart = start;
+        for (var position = start; position < end; position++)
+        {
+            if (TryGetEscapeSequenceLength(token.Text, position, end) is not { } escapeSequenceLength)
+            {
+                continue;
+            }
+
+            this.AddStringSegmentToken(token, segmentStart, position);
+            position += escapeSequenceLength - 1;
+            segmentStart = position + 1;
+        }
+
+        this.AddStringSegmentToken(token, segmentStart, end);
+    }
+
+    private void AddStringSegmentToken(Token token, int start, int end)
+    {
+        if (end > start)
+        {
+            this.AddTokenType(token.GetSpanSlice(start, end - start), SemanticTokenType.String);
+        }
+    }
+
+    private static int? TryGetEscapeSequenceLength(string text, int position, int end)
+    {
+        if (text[position] != '\\' || position + 1 >= end)
+        {
+            return null;
+        }
+
+        return text[position + 1] switch
+        {
+            'n' or 'r' or 't' or '\\' or '\'' => 2,
+            '$' when position + 2 < end && text[position + 2] == '{' => 3,
+            'u' => TryGetUnicodeEscapeSequenceLength(text, position, end),
+            _ => null,
+        };
+    }
+
+    private static int? TryGetUnicodeEscapeSequenceLength(string text, int position, int end)
+    {
+        if (position + 3 >= end || text[position + 2] != '{')
+        {
+            return null;
+        }
+
+        var hexDigitCount = 0;
+        for (var current = position + 3; current < end; current++)
+        {
+            if (text[current] == '}')
+            {
+                return hexDigitCount > 0 ? current - position + 1 : null;
+            }
+
+            if (!Uri.IsHexDigit(text[current]))
+            {
+                return null;
+            }
+
+            hexDigitCount++;
+        }
+
+        return null;
     }
 
     public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
@@ -266,10 +346,11 @@ public class SemanticTokenVisitor : CstVisitor
     public override void VisitStringTypeLiteralSyntax(StringTypeLiteralSyntax syntax)
     {
         var startAndEndTokens = Lexer.TryGetStartAndEndTokens(syntax.StringTokens).ToImmutableArray();
+        var isSingleLineString = syntax.StringTokens.Length == 0 || !Lexer.GetStringTokenInfo(syntax.StringTokens[0]).isMultiLine;
         for (var i = 0; i < syntax.StringTokens.Length; i++)
         {
             var result = startAndEndTokens[i];
-            AddStringToken(syntax.StringTokens[i], result?.start, result?.end);
+            AddStringToken(syntax.StringTokens[i], result?.start, result?.end, isSingleLineString);
         }
         foreach (var expression in syntax.Expressions)
         {
@@ -280,10 +361,11 @@ public class SemanticTokenVisitor : CstVisitor
     public override void VisitStringSyntax(StringSyntax syntax)
     {
         var startAndEndTokens = Lexer.TryGetStartAndEndTokens(syntax.StringTokens).ToImmutableArray();
+        var isSingleLineString = syntax.StringTokens.Length == 0 || !Lexer.GetStringTokenInfo(syntax.StringTokens[0]).isMultiLine;
         for (var i = 0; i < syntax.StringTokens.Length; i++)
         {
             var result = startAndEndTokens[i];
-            AddStringToken(syntax.StringTokens[i], result?.start, result?.end);
+            AddStringToken(syntax.StringTokens[i], result?.start, result?.end, isSingleLineString);
         }
         foreach (var expression in syntax.Expressions)
         {
