@@ -1,6 +1,8 @@
 param _ string = '_'
 param _1 string = '_1'
+// WARNING: This parameter was renamed during decompilation because Bicep identifiers cannot contain periods or other special characters.
 param _123 string = '123'
+// WARNING: This parameter was renamed during decompilation because Bicep identifiers cannot contain periods or other special characters.
 param my_bad string = 'my bad'
 param _doNotStripUnderscoresFromUserNames string = '_doNotStripUnderscoresFromUserNames'
 param doNotStripUnderscoresFromUserNames_ string = 'doNotStripUnderscoresFromUserNames_'
