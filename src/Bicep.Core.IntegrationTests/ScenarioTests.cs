@@ -7827,21 +7827,27 @@ output locations array = flatten(map(databases, database => database.properties.
     }
 
     [TestMethod]
-    public void Test_Issue17102_fully_qualified_non_deterministic_functions_are_blocked()
+    public void Test_Issue17102_fully_qualified_functions_flags_are_validated()
     {
         var result = CompilationHelper.Compile(
             ("main.bicep", """
                 module Foo2 'module.bicep' = {
                     name: sys.newGuid()
                 }
+
+                param foo object = az.listKeys('id', '2020-01-01')
+
+                @description(sys.utcNow())
+                param bar string
             """),
             ("module.bicep", """
                 param name string
             """));
-        result.Should().OnlyContainDiagnostic(
-            "BCP065",
-            DiagnosticLevel.Error,
-            """Function "newGuid" is not valid at this location. It can only be used as a parameter default value."""
-        );
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP065", DiagnosticLevel.Error, """Function "newGuid" is not valid at this location. It can only be used as a parameter default value."""),
+            ("BCP066", DiagnosticLevel.Error, """Function "listKeys" is not valid at this location. It can only be used in resource declarations."""),
+            ("BCP065", DiagnosticLevel.Error, """Function "utcNow" is not valid at this location. It can only be used as a parameter default value."""),
+        ]);
     }
 }
