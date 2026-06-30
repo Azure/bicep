@@ -7381,6 +7381,48 @@ output secret string = secret
     }
 
     [TestMethod]
+    public void Test_Issue19750()
+    {
+        var moduleLines = new List<string>
+        {
+            "output large object = {",
+        };
+
+        for (var i = 0; i < 12000; i++)
+        {
+            moduleLines.Add($"  p{i}: 'value{i}'");
+        }
+
+        moduleLines.Add("}");
+
+        var result = CompilationHelper.Compile(
+            Services.WithFeatureOverrides(new(LocalDeployEnabled: true)),
+            ("main.bicep", """
+targetScope = 'local'
+
+module mod 'mod.bicep' = {
+  name: 'mod'
+  scope: resourceGroup('00000000-0000-0000-0000-000000000000', 'rg')
+}
+"""),
+            ("mod.bicep", string.Join('\n', moduleLines)));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+
+        var nestedTemplateToken = result.Template!
+            .SelectTokens("$..template")
+            .FirstOrDefault(value => value.Type == JTokenType.Object);
+        Assert.IsNotNull(nestedTemplateToken);
+
+        var nestedTemplateText = nestedTemplateToken.ToJson();
+        Assert.IsNotNull(nestedTemplateText);
+        nestedTemplateText!.Length.Should().BeGreaterThan(131072);
+
+        JToken.Parse(nestedTemplateText);
+    }
+
+    [TestMethod]
     public async Task Test_Issue16748()
     {
         // https://github.com/Azure/bicep/issues/16748
