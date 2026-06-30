@@ -273,7 +273,7 @@ public class SemanticTokenVisitor : CstVisitor
         var segmentStart = start;
         for (var position = start; position < end; position++)
         {
-            if (TryGetEscapeSequenceLength(token.Text, position, end) is not { } escapeSequenceLength)
+            if (!Lexer.TryScanStringEscapeSequence(token.Text.AsSpan(position, end - position), out var escapeSequenceLength))
             {
                 continue;
             }
@@ -292,48 +292,6 @@ public class SemanticTokenVisitor : CstVisitor
         {
             this.AddTokenType(token.GetSpanSlice(start, end - start), SemanticTokenType.String);
         }
-    }
-
-    private static int? TryGetEscapeSequenceLength(string text, int position, int end)
-    {
-        if (text[position] != '\\' || position + 1 >= end)
-        {
-            return null;
-        }
-
-        return text[position + 1] switch
-        {
-            'n' or 'r' or 't' or '\\' or '\'' => 2,
-            '$' when position + 2 < end && text[position + 2] == '{' => 3,
-            'u' => TryGetUnicodeEscapeSequenceLength(text, position, end),
-            _ => null,
-        };
-    }
-
-    private static int? TryGetUnicodeEscapeSequenceLength(string text, int position, int end)
-    {
-        if (position + 3 >= end || text[position + 2] != '{')
-        {
-            return null;
-        }
-
-        var hexDigitCount = 0;
-        for (var current = position + 3; current < end; current++)
-        {
-            if (text[current] == '}')
-            {
-                return hexDigitCount > 0 ? current - position + 1 : null;
-            }
-
-            if (!Uri.IsHexDigit(text[current]))
-            {
-                return null;
-            }
-
-            hexDigitCount++;
-        }
-
-        return null;
     }
 
     public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
