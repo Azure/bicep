@@ -20,22 +20,22 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "@eslint/compat": "^2.0.3",
+    "@eslint/compat": "^2.1.0",
     "@eslint/js": "^10.0.1",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "eslint": "^10.2.1",
+    "eslint": "^10.6.0",
     "eslint-plugin-notice": "^1.0.0",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.5.2",
-    "globals": "^17.5.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.3",
+    "globals": "^17.7.0",
     "jest-styled-components": "^7.4.0",
-    "prettier": "^3.8.3",
-    "turbo": "^2.9.14",
-    "typescript": "^5.8.2",
-    "typescript-eslint": "^8.35.0"
+    "prettier": "^3.9.3",
+    "turbo": "^2.10.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.62.1"
   },
   "overrides": {
     "@types/react": "^19.2.14",
