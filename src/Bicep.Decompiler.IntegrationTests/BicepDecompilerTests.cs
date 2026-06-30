@@ -42,4 +42,76 @@ public class BicepDecompilerTests : TestBase
 
         result.FilesToSave[result.EntrypointUri].Should().Contain("param foo string");
     }
+
+    [TestMethod]
+    public async Task Decompiler_emits_warning_comment_for_parameter_names_with_periods()
+    {
+        var fileExplorer = new InMemoryFileExplorer();
+        var bicepUri = IOUri.FromFilePath("/main.bicep");
+
+        var decompiler = BicepDecompiler.Create(s => s.AddSingleton<IFileExplorer>(fileExplorer));
+
+        var result = await decompiler.Decompile(bicepUri, """
+        {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "Security.Authentication.AAD.Tenant": {
+              "type": "string"
+            },
+            "normalParam": {
+              "type": "string"
+            }
+          },
+          "resources": []
+        }
+        """);
+
+        var bicepOutput = result.FilesToSave[result.EntrypointUri];
+
+        // The dotted parameter name should be renamed to use underscores
+        bicepOutput.Should().Contain("param Security_Authentication_AAD_Tenant string");
+
+        // A warning comment should appear before the renamed parameter
+        bicepOutput.Should().Contain(
+            "// WARNING: This parameter was renamed during decompilation because its original name could not be used as a Bicep identifier.");
+
+        // The warning should appear before the renamed param declaration
+        var warningIndex = bicepOutput.IndexOf("// WARNING:");
+        var paramIndex = bicepOutput.IndexOf("param Security_Authentication_AAD_Tenant");
+        warningIndex.Should().BeLessThan(paramIndex);
+
+        // Parameters with valid names should not have a warning
+        var normalParamIndex = bicepOutput.IndexOf("param normalParam");
+        var warningBeforeNormal = bicepOutput.LastIndexOf("// WARNING:", normalParamIndex);
+        warningBeforeNormal.Should().BeLessThan(paramIndex,
+            because: "the warning comment should only appear before the renamed parameter, not before normalParam");
+    }
+
+    [TestMethod]
+    public async Task Decompiler_does_not_emit_warning_for_valid_parameter_names()
+    {
+        var fileExplorer = new InMemoryFileExplorer();
+        var bicepUri = IOUri.FromFilePath("/main.bicep");
+
+        var decompiler = BicepDecompiler.Create(s => s.AddSingleton<IFileExplorer>(fileExplorer));
+
+        var result = await decompiler.Decompile(bicepUri, """
+        {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "validParamName": {
+              "type": "string"
+            }
+          },
+          "resources": []
+        }
+        """);
+
+        var bicepOutput = result.FilesToSave[result.EntrypointUri];
+        bicepOutput.Should().Contain("param validParamName string");
+        bicepOutput.Should().NotContain("// WARNING:");
+    }
 }
+
