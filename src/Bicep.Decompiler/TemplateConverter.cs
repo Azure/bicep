@@ -990,16 +990,13 @@ namespace Bicep.Decompiler
 
             var identifier = nameResolver.TryLookupName(NameType.Parameter, value.Name) ?? throw new ConversionFailedException($"Unable to find parameter {value.Name}", value);
 
-            // Collect any warning comments to prepend before the param declaration.
-            // Each warning is a newline token with a single-line comment as leading trivia.
-            var warningNodes = new List<SyntaxBase>();
             if (identifier != value.Name)
             {
-                warningNodes.Add(CreateWarningComment("This parameter was renamed during decompilation because Bicep identifiers cannot contain periods or other special characters."));
+                leadingNodes = leadingNodes.Prepend(CreateWarningComment("This parameter was renamed during decompilation because its original name could not be used as a Bicep identifier."));
             }
 
             return new ParameterDeclarationSyntax(
-                warningNodes.Concat(leadingNodes),
+                leadingNodes,
                 SyntaxFactory.ParameterKeywordToken,
                 SyntaxFactory.CreateIdentifierWithTrailingSpace(identifier),
                 typeSyntax,

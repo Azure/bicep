@@ -74,7 +74,7 @@ public class BicepDecompilerTests : TestBase
 
         // A warning comment should appear before the renamed parameter
         bicepOutput.Should().Contain(
-            "// WARNING: This parameter was renamed during decompilation because Bicep identifiers cannot contain periods or other special characters.");
+            "// WARNING: This parameter was renamed during decompilation because its original name could not be used as a Bicep identifier.");
 
         // The warning should appear before the renamed param declaration
         var warningIndex = bicepOutput.IndexOf("// WARNING:");
