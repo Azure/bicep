@@ -22,6 +22,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
 using Bicep.Core.Utils.Deployments;
+using Bicep.Local.Deploy;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
@@ -480,10 +481,12 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
             Outputs: GetOutputs(deployment.Data));
     }
 
-    public static DeploymentView GetDeploymentView(DeploymentContent deployment, IEnumerable<DeploymentOperationDefinition> operations)
+    public static DeploymentView GetDeploymentView(LocalDeploymentResult result)
     {
+        var deployment = result.Deployment;
+
         List<DeploymentOperationView> operationViews = [];
-        foreach (var operation in operations)
+        foreach (var (prefix, operation) in FlattenOperations(result, string.Empty))
         {
             if (operation.Properties.TargetResource is null)
             {
@@ -501,7 +504,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
             operationViews.Add(new(
                 Id: operation.Properties.TargetResource.Id,
                 Name: operation.Properties.TargetResource.ResourceName,
-                SymbolicName: operation.Properties.TargetResource.SymbolicName,
+                SymbolicName: $"{prefix}{operation.Properties.TargetResource.SymbolicName}",
                 Type: operation.Properties.TargetResource.ResourceType!,
                 State: operationState,
                 StartTime: operation.Properties.Timestamp!.Value,
@@ -519,5 +522,21 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
             State: deploymentState,
             Error: GetError(deployment),
             Outputs: GetOutputs(deployment));
+    }
+
+    private static IEnumerable<(string prefix, DeploymentOperationDefinition operation)> FlattenOperations(LocalDeploymentResult result, string prefix)
+    {
+        foreach (var operation in result.Operations)
+        {
+            yield return (prefix, operation);
+        }
+
+        foreach (var (name, childDeployment) in result.ChildDeployments)
+        {
+            foreach (var item in FlattenOperations(childDeployment, $"{prefix}{name} -> "))
+            {
+                yield return item;
+            }
+        }
     }
 }
