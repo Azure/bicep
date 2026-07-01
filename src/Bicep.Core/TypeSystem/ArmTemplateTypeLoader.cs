@@ -299,7 +299,11 @@ public static class ArmTemplateTypeLoader
                 // or all of them are (but some may be nullable)
                 var required = context.TemplateLanguageVersion?.HasFeature(TemplateLanguageFeature.NullableParameters) == true
                     || (requiredProps?.Contains(propertyName) ?? false);
-                var propertyFlags = required ? TypePropertyFlags.Required : TypePropertyFlags.None;
+                // A property with nullable:true is optional. We must check this explicitly because some types (e.g 'any')
+                // 'any | null' collapses back to 'any', causing IsNullable() to return false.
+                var isSchemaExplicitlyNullable = context.TemplateLanguageVersion?.HasFeature(TemplateLanguageFeature.NullableParameters) == true
+                    && ((ITemplateSchemaNode)schema).Nullable?.Value == true;
+                var propertyFlags = (required && !isSchemaExplicitlyNullable) ? TypePropertyFlags.Required : TypePropertyFlags.None;
                 var description = GetDescriptionFromMetadata(schema.Metadata);
 
                 var (type, typeName) = GetDeferrableTypeInfo(context, schema);
