@@ -1,17 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// ── Notification: Extension → Webview ──
-// Sent when the deployment graph changes (initial load + on every file edit)
-export const DEPLOYMENT_GRAPH_NOTIFICATION = "deploymentGraph";
-
-export interface DeploymentGraphPayload {
-  documentPath: string;
-  /** Optional basename provided by the host (for robust naming across environments). */
-  documentFileName?: string;
-  deploymentGraph: DeploymentGraph | null;
-}
-
 export interface DeploymentGraph {
   nodes: DeploymentGraphNode[];
   edges: DeploymentGraphEdge[];
@@ -71,13 +60,13 @@ export const SHOW_PROBLEMS_PANEL_NOTIFICATION = "showProblemsPanel";
 export const READY_NOTIFICATION = "ready";
 
 // ──────────────────────────────────────────────────────────────────────────
-// Server-driven layout protocol (feature-flagged, not yet wired)
+// Server-driven visual graph protocol
 //
-// Replaces the full-graph push above with a notify-then-request loop:
+// The extension announces that the graph may have changed, then the webview pulls
+// topology/metadata patches and a measured layout through request/response messages:
 //   1. Extension → Webview: DOCUMENT_DID_CHANGE notification ("the graph may have changed").
 //   2. Webview → Extension: GET_GRAPH_UPDATE request carrying the graph it currently displays.
-//   3. Extension → Webview (response): a complete patch delta to apply.
-// These contracts are defined now; the loop is wired in a later change.
+//   3. Webview → Extension: GET_GRAPH_LAYOUT request after rendered node sizes are measured.
 // ──────────────────────────────────────────────────────────────────────────
 
 // ── Notification: Extension → Webview ──

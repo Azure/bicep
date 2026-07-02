@@ -41,7 +41,7 @@ export const deploymentGraphRequestType = new ProtocolRequestType<
   void
 >("textDocument/deploymentGraph");
 
-// ── Server-driven visual graph layout (feature-flagged) ──
+// ── Server-driven visual graph layout ──
 // The webview submits the graph it currently displays; the server returns a complete patch
 // delta transforming it into the latest graph. Patches are forwarded to the webview as-is, so
 // they are left untyped here; the typed model lives in the visual-designer webview package.

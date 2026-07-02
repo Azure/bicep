@@ -16,11 +16,9 @@ import {
   addCompoundNodeAtom,
   addEdgeAtom,
   edgesAtom,
-  graphVersionAtom,
   layoutReadyAtom,
   nodesByIdAtom,
   removeNodesAtom,
-  serverLayoutActiveAtom,
 } from "@/lib/graph";
 import { isDeploymentGraphEqual } from "@/lib/utils/deployment-graph-equality";
 import { translateBox } from "@/lib/utils/math";
@@ -31,7 +29,7 @@ const store = getDefaultStore();
 const ANIMATION_DURATION_S = 0.6;
 
 /**
- * Animations still settling from the most recent server layout.  They are
+ * Animations still settling from the most recent graph layout. They are
  * cancelled before a new layout is applied so overlapping springs don't
  * fight over the same boxes.
  */
@@ -67,7 +65,7 @@ function springNodeTo(boxAtom: PrimitiveAtom<Box>, targetX: number, targetY: num
 }
 
 /** Apply a server-computed layout to the current graph. */
-export async function applyServerLayout(nodeLayouts: Map<string, NodeLayout>): Promise<void> {
+export async function applyGraphLayout(nodeLayouts: Map<string, NodeLayout>): Promise<void> {
   if (!store.get(layoutReadyAtom)) {
     await waitForAnimationFrame();
     store.set(layoutReadyAtom, true);
@@ -96,7 +94,7 @@ export async function applyServerLayout(nodeLayouts: Map<string, NodeLayout>): P
 /**
  * Snapshot the current position (box.min) of every node so we can
  * restore positions for nodes that survive a graph update, giving
- * them a smooth transition to their new ELK-computed location
+ * them a smooth transition to their new server-computed location
  * instead of jumping from (0,0).
  */
 function snapshotNodePositions(): Map<string, Point> {
@@ -116,33 +114,17 @@ function snapshotNodePositions(): Map<string, Point> {
   return positions;
 }
 
-interface ApplyDeploymentGraphOptions {
-  /**
-   * When true, the graph is being applied in server-layout mode: the
-   * topology is updated in place but node positions and the visibility
-   * gate are driven separately via {@link applyServerLayout} (no ELK
-   * version bump).
-   */
-  serverLayout?: boolean;
-}
-
-export function useApplyDeploymentGraph(getViewportCenter: () => Point) {
+export function useApplyVisualGraph(getViewportCenter: () => Point) {
   const setEdgesAtom = useSetAtom(edgesAtom);
   const addAtomicNode = useSetAtom(addAtomicNodeAtom);
   const addCompoundNode = useSetAtom(addCompoundNodeAtom);
   const addEdge = useSetAtom(addEdgeAtom);
   const removeNodes = useSetAtom(removeNodesAtom);
-  const setGraphVersion = useSetAtom(graphVersionAtom);
   const setLayoutReady = useSetAtom(layoutReadyAtom);
   const previousGraphRef = useRef<DeploymentGraph | null>(null);
 
   return useCallback(
-    (graph: DeploymentGraph | null, options: ApplyDeploymentGraphOptions = {}) => {
-      const isServerLayoutActive = options.serverLayout === true;
-      const wasServerLayoutActive = store.get(serverLayoutActiveAtom);
-
-      store.set(serverLayoutActiveAtom, isServerLayoutActive);
-
+    (graph: DeploymentGraph | null) => {
       // Update status bar atoms
       store.set(errorCountAtom, graph?.errorCount ?? 0);
       store.set(hasNodesAtom, (graph?.nodes.length ?? 0) > 0);
@@ -163,13 +145,6 @@ export function useApplyDeploymentGraph(getViewportCenter: () => Point) {
               }));
             }
           }
-
-          // In server-layout mode, positions and visibility are applied
-          // separately via applyServerLayout, so nothing else to do here.
-          // When switching back to ELK, bump the version to re-lay out.
-          if (!isServerLayoutActive && wasServerLayoutActive) {
-            setGraphVersion((v) => v + 1);
-          }
         }
         previousGraphRef.current = graph;
         return;
@@ -182,7 +157,6 @@ export function useApplyDeploymentGraph(getViewportCenter: () => Point) {
         // from the center without flashing.
         removeNodes(new Set(Object.keys(store.get(nodesByIdAtom))));
         setEdgesAtom([]);
-        setGraphVersion(0);
         setLayoutReady(false);
         return;
       }
@@ -241,7 +215,7 @@ export function useApplyDeploymentGraph(getViewportCenter: () => Point) {
 
       // Hide the graph layer when most of the topology is being replaced
       // so the user doesn't see new nodes piled at the spawn origin while
-      // ELK computes.  Incremental edits (adding/removing a few nodes)
+      // graph layout computes. Incremental edits (adding/removing a few nodes)
       // keep the graph visible for smooth in-place animation.
       const survivingCount = currentNodeIds.size - idsToRemove.size;
       const survivalRatio = graph.nodes.length > 0 ? survivingCount / graph.nodes.length : 0;
@@ -384,17 +358,9 @@ export function useApplyDeploymentGraph(getViewportCenter: () => Point) {
         }
       }
 
-      if (isServerLayoutActive) {
-        // Server-layout mode: the topology is now in place. Node positions
-        // and the visibility reveal are applied separately via
-        // applyServerLayout once the server returns the computed layout.
-        // The visibility gate set above (hidden on major replacement, kept
-        // visible on incremental edits) is preserved until then.
-      } else {
-        // Phase 6: Bump graph version so subscribers (e.g. useLayoutEffect
-        // in App) can trigger ELK layout after the DOM reflects the new graph.
-        setGraphVersion((v) => v + 1);
-      }
+      // Node positions and the visibility reveal are applied separately via
+      // applyGraphLayout once the server returns the computed layout. The visibility
+      // gate set above is preserved until then.
     },
     [
       setEdgesAtom,
@@ -402,7 +368,6 @@ export function useApplyDeploymentGraph(getViewportCenter: () => Point) {
       addCompoundNode,
       addEdge,
       removeNodes,
-      setGraphVersion,
       setLayoutReady,
       getViewportCenter,
     ],

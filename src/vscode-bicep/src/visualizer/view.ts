@@ -6,7 +6,6 @@ import { parseError } from "@microsoft/vscode-azext-utils";
 import vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import {
-  deploymentGraphRequestType,
   visualGraphLayoutRequestType,
   VisualGraphLayoutResult,
   visualGraphNodeSourceRequestType,
@@ -14,7 +13,6 @@ import {
   visualGraphUpdateRequestType,
   VisualGraphUpdateResult,
 } from "../language";
-import { getBicepConfiguration } from "../language/getBicepConfiguration";
 import { Disposable } from "../utils/disposable";
 import { getLogger } from "../utils/logger";
 import { debounce } from "../utils/time";
@@ -106,9 +104,8 @@ export class BicepVisualizerView extends Disposable {
       return;
     }
 
-    let document: vscode.TextDocument;
     try {
-      document = await vscode.workspace.openTextDocument(this.documentUri);
+      await vscode.workspace.openTextDocument(this.documentUri);
     } catch {
       this.webviewPanel.webview.html = this.createDocumentNotFoundHtml();
       return;
@@ -118,40 +115,7 @@ export class BicepVisualizerView extends Disposable {
       return;
     }
 
-    // When server-driven layout is enabled, the extension is a thin bridge: it only tells the
-    // webview "the graph may have changed" and the webview pulls the update via getGraphUpdate.
-    if (this.serverLayoutEnabled) {
-      await this.notifyDocumentDidChange();
-      return;
-    }
-
-    const deploymentGraph = await this.languageClient.sendRequest(deploymentGraphRequestType, {
-      textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
-    });
-
-    if (this.isDisposed) {
-      return;
-    }
-
-    try {
-      // Send as a notification using the messaging library's format
-      await this.webviewPanel.webview.postMessage({
-        method: "deploymentGraph",
-        params: {
-          documentPath: this.documentUri.fsPath,
-          documentFileName: path.basename(this.documentUri.fsPath),
-          deploymentGraph,
-        },
-      });
-    } catch (error) {
-      // Race condition: the webview was closed before receiving the message,
-      // which causes "Unknown webview handle" error.
-      getLogger().debug((error as Error).message ?? error);
-    }
-  }
-
-  private get serverLayoutEnabled(): boolean {
-    return getBicepConfiguration().get<boolean>("visualizer.serverLayout.enabled", false) === true;
+    await this.notifyDocumentDidChange();
   }
 
   private async notifyDocumentDidChange(): Promise<void> {

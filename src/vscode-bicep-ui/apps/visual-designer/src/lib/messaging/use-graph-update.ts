@@ -24,7 +24,7 @@ import { useCallback, useRef } from "react";
 import { nodesByIdAtom } from "@/lib/graph";
 import { patchMayAffectLayout, renderedGraphsEqual } from "./layout-invalidation";
 import { GET_GRAPH_LAYOUT_REQUEST, GET_GRAPH_UPDATE_REQUEST } from "./messages";
-import { applyServerLayout, useApplyDeploymentGraph } from "./use-deployment-graph";
+import { applyGraphLayout, useApplyVisualGraph } from "./use-visual-graph";
 
 const store = getDefaultStore();
 
@@ -89,8 +89,8 @@ function applyPatch(graph: ClientGraph, nodeLayouts: Map<string, NodeLayout>, pa
 }
 
 /**
- * Translate the canonical client graph into the legacy `DeploymentGraph` shape so the existing
- * position-preserving apply path (and ELK auto-layout) can render it unchanged.
+ * Translate the canonical client graph into the graph shape consumed by the existing
+ * position-preserving apply path.
  *
  * The canonical graph no longer carries source locations, so `range`/`filePath` are filled with empty
  * placeholders here. Reveal is driven on demand by node id (see `REVEAL_NODE_SOURCE_NOTIFICATION`),
@@ -178,7 +178,7 @@ function collectGraphBounds(patches: GraphPatch[]): GraphBounds | null {
   return bounds;
 }
 
-function centerServerLayout(
+function centerGraphLayout(
   nodeLayouts: Map<string, NodeLayout>,
   graphBounds: GraphBounds | null,
   viewportCenter: Point,
@@ -216,7 +216,7 @@ function centerServerLayout(
 export interface GraphUpdateActions {
   requestGraphUpdate: () => Promise<void>;
   /**
-   * Re-run the server layout for the current graph and apply it, bypassing the
+   * Re-run layout for the current graph and apply it, bypassing the
    * "sizes unchanged since last layout" short-circuit so it re-lays out (and
    * animates) even after the user has only dragged nodes around. Backs the Reset
    * Layout button. Shares the single in-flight slot with {@link requestGraphUpdate},
@@ -229,7 +229,7 @@ export function useGraphUpdate(
   getViewportCenter: () => Point,
   fitViewToBounds: (bounds: Box) => void,
 ): GraphUpdateActions {
-  const applyGraph = useApplyDeploymentGraph(getViewportCenter);
+  const applyGraph = useApplyVisualGraph(getViewportCenter);
   const messageChannel = useWebviewMessageChannel();
   const clientGraphRef = useRef<ClientGraph>(createClientGraph());
   const lastLayoutInputRef = useRef<RenderedGraph | null>(null);
@@ -253,7 +253,7 @@ export function useGraphUpdate(
       if (!force && renderedGraphsEqual(lastLayoutInputRef.current, measuredGraph)) {
         // Sizes are unchanged since the last layout, so positions still hold.
         // Just make sure the graph is revealed in case it was hidden.
-        await applyServerLayout(new Map());
+        await applyGraphLayout(new Map());
         return;
       }
 
@@ -270,11 +270,11 @@ export function useGraphUpdate(
 
       if (layoutResponse.status === "layoutFailed") {
         // No usable layout — reveal the graph as-is so it isn't stuck hidden.
-        await applyServerLayout(new Map());
+        await applyGraphLayout(new Map());
         return;
       }
 
-      const { nodeLayouts, bounds } = centerServerLayout(
+      const { nodeLayouts, bounds } = centerGraphLayout(
         collectNodeLayouts(layoutResponse.patches),
         collectGraphBounds(layoutResponse.patches),
         getViewportCenter(),
@@ -287,7 +287,7 @@ export function useGraphUpdate(
         fitViewToBounds(bounds);
       }
 
-      await applyServerLayout(nodeLayouts);
+      await applyGraphLayout(nodeLayouts);
     },
     [fitViewToBounds, getViewportCenter, messageChannel],
   );
@@ -304,7 +304,7 @@ export function useGraphUpdate(
     try {
       do {
         // A forced layout (Reset Layout) takes priority over a normal update pass: re-run the
-        // server layout without the size-unchanged short-circuit, then fall through to drain any
+        // graph layout without the size-unchanged short-circuit, then fall through to drain any
         // document-change update that arrived in the meantime.
         if (forceLayoutRef.current) {
           forceLayoutRef.current = false;
@@ -340,7 +340,7 @@ export function useGraphUpdate(
         // Apply the new topology. Visibility is preserved for incremental
         // edits (so nodes animate in place) and gated for major changes;
         // positions arrive in the layout phase below.
-        applyGraph(toDeploymentGraph(graph), { serverLayout: true });
+        applyGraph(toDeploymentGraph(graph));
 
         if (shouldMeasureLayout) {
           await requestGraphLayout();
