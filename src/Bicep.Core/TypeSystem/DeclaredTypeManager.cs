@@ -1872,9 +1872,8 @@ namespace Bicep.Core.TypeSystem
                     {
                         return null;
                     }
-                    ;
 
-                    return TryCreateAssignment(parameterAssignmentTypeAssignment.Reference.Type, syntax);
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(parameterAssignmentTypeAssignment.Reference.Type, syntax), syntax);
 
                 case ExtensionConfigAssignmentSyntax:
                     if (GetDeclaredTypeAssignment(parent) is not { } extConfigAssignment)
