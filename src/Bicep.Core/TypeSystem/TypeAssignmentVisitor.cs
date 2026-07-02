@@ -2317,7 +2317,12 @@ namespace Bicep.Core.TypeSystem
                 else
                 {
                     var resolvedSymbol = objectType.MethodResolver.TryGetSymbol(syntax.Name);
-                    foundSymbol = SymbolValidator.ResolveObjectQualifiedFunctionWithoutValidatingFlags(resolvedSymbol, syntax.Name, objectType);
+                    foundSymbol = objectType is NamespaceType namespaceType
+                        // For namespace-qualified function calls (e.g. sys.newGuid(), az.listKeys()), validate the
+                        // placement flags (e.g. ParamDefaultsOnly, RequiresInlining) using the context the binder
+                        // captured for this call site, so they are restricted like their unqualified counterparts.
+                        ? SymbolValidator.ResolveNamespaceQualifiedFunction(binder.GetInstanceFunctionFlags(syntax), resolvedSymbol, syntax.Name, namespaceType)
+                        : SymbolValidator.ResolveObjectQualifiedFunctionWithoutValidatingFlags(resolvedSymbol, syntax.Name, objectType);
                 }
 
                 switch (foundSymbol)

@@ -19,6 +19,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow(@"'test'", "test")]
         [DataRow(@"'hello there'", "hello there")]
         [DataRow(@"'\r\n\t\\\$\''", "\r\n\t\\$'")]
+        [DataRow(@"'\${foo}'", "${foo}")]
         [DataRow("'First line\\nSecond\\ttabbed\\tline'", "First line\nSecond\ttabbed\tline")]
         // escape ascii
         [DataRow(@"'\u{0}'", "\0")]
