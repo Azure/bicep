@@ -103,6 +103,13 @@ type nullable = string?
 
 type nonNullable = nullable!
 
+type withOptionalAnyProp = {
+  requiredProp: string
+  @description('An optional any-typed property')
+  optionalAny: any?
+//@[15:18) [no-explicit-any (Warning)] Avoid using an explicit 'any' type whenever possible. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-explicit-any) |any|
+}
+
 type typeA = {
   type: 'a'
   value: string

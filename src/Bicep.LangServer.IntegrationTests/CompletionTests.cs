@@ -709,6 +709,39 @@ module mod 'mod.bicep' = {
         }
 
         [TestMethod]
+        public async Task VerifyOptionalAnyPropertyIsNotIncludedInRequiredPropertiesCompletion()
+        {
+            var fileWithCursors = @"
+module mod 'mod.bicep' = {
+  name: 'mod'
+  params: |
+}
+";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            DocumentUri mainUri = "file:///main.bicep";
+            var files = new Dictionary<DocumentUri, string>
+            {
+                ["file:///mod.bicep"] = @"param foo {
+  requiredProperty: string
+  optionalAny: any?
+}",
+                [mainUri] = text
+            };
+
+            var bicepFile = new LanguageClientFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.Uri);
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+            var completions = await file.RequestCompletions(cursors);
+            completions.Count().Should().Be(1);
+
+            var withRequiredProps = file.ApplyCompletion(completions.Single(), "required-properties").Text;
+            withRequiredProps.Should().Contain("requiredProperty");
+            withRequiredProps.Should().NotContain("optionalAny");
+        }
+
+        [TestMethod]
         public async Task VerifyResourceBodyCompletionWithDiscriminatedObjectTypeContainsRequiredPropertiesSnippet()
         {
             string text = @"resource deploymentScripts 'Microsoft.Resources/deploymentScripts@2020-10-01'=";
