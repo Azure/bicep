@@ -65,7 +65,7 @@ namespace Bicep.Core.UnitTests
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
         // Linter rules added to this list will be automatically disabled for most tests.
-        public static readonly string[] NonStableAnalyzerRules = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code];
+        public static readonly string[] NonStableAnalyzerRules = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code, NoHardcodedOutputsRule.Code];
 
         // Rules that are currently skipped due to configuration for ProgramsShouldProduceExpectedDiagnostics
         public static readonly string[] TestAnalyzersToSkip = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code, NoHardcodedLocationRule.Code, ExplicitValuesForLocationParamsRule.Code, NoLocationExprOutsideParamsRule.Code, NoModuleNameRule.Code];
