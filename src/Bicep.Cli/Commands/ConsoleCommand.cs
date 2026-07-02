@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
+using static System.ConsoleKey;
 
 namespace Bicep.Cli.Commands;
 
@@ -216,28 +217,26 @@ public class ConsoleCommand(
 
     private readonly record struct InputLine(string Text, bool StartedWithBufferedInput, bool HasBufferedInputAfterEnter);
 
-    private async Task<int> PrintHistory(StringBuilder buffer, List<Rune> lineBuffer, int cursorOffset, bool backwards)
+    private async Task<bool> PrintHistory(StringBuilder buffer, LineEditor editor, bool backwards)
     {
-        if (replEnvironment.TryGetHistory(backwards) is { } history)
+        if (replEnvironment.TryGetHistory(backwards) is not { } history)
         {
-            var prevBufferLineCount = buffer.ToString().Count(x => x == '\n');
-            buffer.Clear();
-            lineBuffer.Clear();
-
-            var finalNewline = history.LastIndexOf('\n');
-            var lineStart = finalNewline > -1 ? finalNewline + 1 : 0;
-
-            buffer.Append(history[..lineStart]);
-            lineBuffer.AddRange(GetRunes(history[lineStart..]));
-            cursorOffset = lineBuffer.Count;
-
-            var output2 = replEnvironment.HighlightInputLine(FirstLinePrefix, buffer.ToString(), lineBuffer, cursorOffset, printPrevLines: true);
-            await io.Output.Writer.WriteAsync(PrintHelper.MoveCursorUp(prevBufferLineCount));
-            await io.Output.Writer.WriteAsync(output2);
-            return cursorOffset;
+            return false;
         }
 
-        return -1;
+        var prevBufferLineCount = buffer.ToString().Count(x => x == '\n');
+        buffer.Clear();
+
+        var finalNewline = history.LastIndexOf('\n');
+        var lineStart = finalNewline > -1 ? finalNewline + 1 : 0;
+
+        buffer.Append(history[..lineStart]);
+        editor.Reset(GetRunes(history[lineStart..]));
+
+        var output = replEnvironment.HighlightInputLine(FirstLinePrefix, buffer.ToString(), editor.Buffer, editor.Cursor, printPrevLines: true);
+        await io.Output.Writer.WriteAsync(PrintHelper.MoveCursorUp(prevBufferLineCount));
+        await io.Output.Writer.WriteAsync(output);
+        return true;
     }
 
     private string GetPrefix(StringBuilder buffer)
@@ -247,75 +246,83 @@ public class ConsoleCommand(
     {
         await io.Output.Writer.WriteAsync(GetPrefix(buffer));
 
-        var lineBuffer = new List<Rune>();
-        var cursorOffset = 0;
+        var editor = new LineEditor();
         var startedWithBufferedInput = Console.KeyAvailable;
 
         while (true)
         {
             var keyInfo = Console.ReadKey(intercept: true);
-            var nextChar = keyInfo.KeyChar;
 
-            if (keyInfo.Key == ConsoleKey.UpArrow)
+            switch ((keyInfo.Modifiers, keyInfo.Key))
             {
-                if (await PrintHistory(buffer, lineBuffer, cursorOffset, backwards: true) is { } newOffset and not -1)
-                {
-                    cursorOffset = newOffset;
-                    continue;
-                }
-            }
-            if (keyInfo.Key == ConsoleKey.DownArrow)
-            {
-                if (await PrintHistory(buffer, lineBuffer, cursorOffset, backwards: false) is { } newOffset and not -1)
-                {
-                    cursorOffset = newOffset;
-                    continue;
-                }
-            }
-            if (keyInfo.Key == ConsoleKey.LeftArrow)
-            {
-                cursorOffset = Math.Max(cursorOffset - 1, 0);
-            }
-            if (keyInfo.Key == ConsoleKey.RightArrow)
-            {
-                cursorOffset = Math.Min(cursorOffset + 1, lineBuffer.Count);
-            }
-            if (keyInfo.Key == ConsoleKey.Enter)
-            {
-                await io.Output.Writer.FlushAsync();
-                break;
-            }
-            else if (keyInfo.Key == ConsoleKey.Backspace)
-            {
-                if (cursorOffset > 0 && cursorOffset <= lineBuffer.Count)
-                {
-                    lineBuffer.RemoveAt(cursorOffset - 1);
-                    cursorOffset = Math.Max(cursorOffset - 1, 0);
-                }
-            }
-            else if (keyInfo.Key == ConsoleKey.Delete)
-            {
-                if (cursorOffset < lineBuffer.Count)
-                {
-                    lineBuffer.RemoveAt(cursorOffset);
-                }
-            }
-            else if (keyInfo.Key == ConsoleKey.Escape)
-            {
-                return null;
-            }
-            else if (nextChar != 0)
-            {
-                lineBuffer.Insert(cursorOffset, ReadRune(nextChar));
-                cursorOffset += 1;
+                case (_, UpArrow) or (_, DownArrow):
+                    // History navigation re-renders the whole line itself, so skip the redraw below when it handled the key.
+                    if (await PrintHistory(buffer, editor, backwards: keyInfo.Key == UpArrow))
+                    {
+                        continue;
+                    }
+                    break;
+
+                case (ConsoleModifiers.Control, LeftArrow):
+                    editor.MoveToWordBoundary(-1);
+                    break;
+
+                case (_, LeftArrow):
+                    editor.MoveLeft();
+                    break;
+
+                case (ConsoleModifiers.Control, RightArrow):
+                    editor.MoveToWordBoundary(+1);
+                    break;
+
+                case (_, RightArrow):
+                    editor.MoveRight();
+                    break;
+
+                case (_, Home):
+                    editor.MoveToStart();
+                    break;
+
+                case (_, End):
+                    editor.MoveToEnd();
+                    break;
+
+                case (_, Enter):
+                    await io.Output.Writer.FlushAsync();
+                    await io.Output.Writer.WriteAsync("\n");
+                    return new(string.Concat(editor.Buffer), startedWithBufferedInput, Console.KeyAvailable);
+
+                case (_, Backspace):
+                    editor.Backspace();
+                    break;
+
+                case (_, Delete):
+                    editor.Delete();
+                    break;
+
+                case (ConsoleModifiers.Control, Z):
+                    editor.Undo();
+                    break;
+
+                case (ConsoleModifiers.Control, Y):
+                    editor.Redo();
+                    break;
+
+                case (_, Escape):
+                    return null;
+
+                default:
+                    if (keyInfo.KeyChar != 0)
+                    {
+                        editor.Insert(ReadRune(keyInfo.KeyChar));
+                    }
+                    break;
             }
 
-            var output = replEnvironment.HighlightInputLine(GetPrefix(buffer), buffer.ToString(), lineBuffer, cursorOffset, printPrevLines: false);
-            await io.Output.Writer.WriteAsync(output);
+            editor.Track();
+
+            await io.Output.Writer.WriteAsync(
+                replEnvironment.HighlightInputLine(GetPrefix(buffer), buffer.ToString(), editor.Buffer, editor.Cursor, printPrevLines: false));
         }
-
-        await io.Output.Writer.WriteAsync("\n");
-
-        return new(string.Concat(lineBuffer), startedWithBufferedInput, Console.KeyAvailable);
     }
 }
