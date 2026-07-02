@@ -40,7 +40,6 @@
     1. Create a PR [here](https://github.com/Azure/homebrew-bicep/compare/main...update-homebrew), get it approved, and then merge it.
 
 ## Post-release Tasks
-1. Upload copyleft dependency source to 3rd party disclosure site. See [instructions](https://msazure.visualstudio.com/One/_wiki/wikis/Azure%20Deployments%20Team%20Wiki/369910/Bicep-release-step-Upload-copyleft-source-to-3rd-party-disclosure-site).
 1. Let the PM team know that the release is completed; they may want to post a twitter/X thread on BicepLang twitter account, with the following information:
     * Highlights from Release Notes with link to full release
     * Link to the most recent community call
