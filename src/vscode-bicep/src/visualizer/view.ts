@@ -5,7 +5,16 @@ import path from "path";
 import { parseError } from "@microsoft/vscode-azext-utils";
 import vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
-import { deploymentGraphRequestType } from "../language";
+import {
+  deploymentGraphRequestType,
+  visualGraphLayoutRequestType,
+  VisualGraphLayoutResult,
+  visualGraphNodeSourceRequestType,
+  VisualGraphRendered,
+  visualGraphUpdateRequestType,
+  VisualGraphUpdateResult,
+} from "../language";
+import { getBicepConfiguration } from "../language/getBicepConfiguration";
 import { Disposable } from "../utils/disposable";
 import { getLogger } from "../utils/logger";
 import { debounce } from "../utils/time";
@@ -109,6 +118,13 @@ export class BicepVisualizerView extends Disposable {
       return;
     }
 
+    // When server-driven layout is enabled, the extension is a thin bridge: it only tells the
+    // webview "the graph may have changed" and the webview pulls the update via getGraphUpdate.
+    if (this.serverLayoutEnabled) {
+      await this.notifyDocumentDidChange();
+      return;
+    }
+
     const deploymentGraph = await this.languageClient.sendRequest(deploymentGraphRequestType, {
       textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
     });
@@ -130,6 +146,88 @@ export class BicepVisualizerView extends Disposable {
     } catch (error) {
       // Race condition: the webview was closed before receiving the message,
       // which causes "Unknown webview handle" error.
+      getLogger().debug((error as Error).message ?? error);
+    }
+  }
+
+  private get serverLayoutEnabled(): boolean {
+    return getBicepConfiguration().get<boolean>("visualizer.serverLayout.enabled", false) === true;
+  }
+
+  private async notifyDocumentDidChange(): Promise<void> {
+    try {
+      await this.webviewPanel.webview.postMessage({
+        method: "documentDidChange",
+        params: { documentUri: this.documentUri.fsPath },
+      });
+    } catch (error) {
+      // Race condition: the webview was closed before receiving the message.
+      getLogger().debug((error as Error).message ?? error);
+    }
+  }
+
+  private async handleGetGraphUpdate(id: string, params: unknown): Promise<void> {
+    const current = (params as { current?: VisualGraphRendered | null })?.current ?? null;
+    let result: VisualGraphUpdateResult = { patches: [] };
+
+    try {
+      const document = await vscode.workspace.openTextDocument(this.documentUri);
+
+      if (this.isDisposed) {
+        return;
+      }
+
+      result = await this.languageClient.sendRequest(visualGraphUpdateRequestType, {
+        textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
+        current,
+      });
+    } catch (error) {
+      // Keep the webview responsive: an empty delta means "nothing changed", so it keeps what it has.
+      getLogger().error(`Visual graph update request failed: ${parseError(error).message}`);
+    }
+
+    if (this.isDisposed) {
+      return;
+    }
+
+    try {
+      await this.webviewPanel.webview.postMessage({ id, result });
+    } catch (error) {
+      getLogger().debug((error as Error).message ?? error);
+    }
+  }
+
+  private async handleGetGraphLayout(id: string, params: unknown): Promise<void> {
+    const current = (params as { current?: VisualGraphRendered })?.current;
+    let result: VisualGraphLayoutResult = { status: "layoutFailed", patches: [] };
+
+    if (!current) {
+      await this.webviewPanel.webview.postMessage({ id, result });
+      return;
+    }
+
+    try {
+      const document = await vscode.workspace.openTextDocument(this.documentUri);
+
+      if (this.isDisposed) {
+        return;
+      }
+
+      result = await this.languageClient.sendRequest(visualGraphLayoutRequestType, {
+        textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
+        current,
+      });
+    } catch (error) {
+      getLogger().error(`Visual graph layout request failed: ${parseError(error).message}`);
+    }
+
+    if (this.isDisposed) {
+      return;
+    }
+
+    try {
+      await this.webviewPanel.webview.postMessage({ id, result });
+    } catch (error) {
       getLogger().debug((error as Error).message ?? error);
     }
   }
@@ -156,6 +254,12 @@ export class BicepVisualizerView extends Disposable {
           return;
         }
 
+        case "revealNodeSource": {
+          const payload = notification.params as { nodeId: string };
+          void this.handleRevealNodeSource(payload.nodeId);
+          return;
+        }
+
         case "showProblemsPanel":
           vscode.commands.executeCommand("workbench.actions.view.problems");
           return;
@@ -165,9 +269,41 @@ export class BicepVisualizerView extends Disposable {
     // Handle request messages (have id — need response)
     if ("id" in message && "method" in message) {
       const request = message as { id: string; method: string; params?: unknown };
-      // Future: handle request/response patterns if needed
-      // For now, no requests are expected from the webview
+
+      switch (request.method) {
+        case "getGraphUpdate":
+          void this.handleGetGraphUpdate(request.id, request.params);
+          return;
+
+        case "getGraphLayout":
+          void this.handleGetGraphLayout(request.id, request.params);
+          return;
+      }
+
       getLogger().warn(`Unhandled request method: ${request.method}`);
+    }
+  }
+
+  private async handleRevealNodeSource(nodeId: string): Promise<void> {
+    try {
+      const document = await vscode.workspace.openTextDocument(this.documentUri);
+
+      if (this.isDisposed) {
+        return;
+      }
+
+      const result = await this.languageClient.sendRequest(visualGraphNodeSourceRequestType, {
+        textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
+        nodeId,
+      });
+
+      if (this.isDisposed || !result.found || !result.filePath || !result.range) {
+        return;
+      }
+
+      this.revealFileRange(result.filePath, this.languageClient.protocol2CodeConverter.asRange(result.range));
+    } catch (error) {
+      getLogger().error(`Visual graph node source request failed: ${parseError(error).message}`);
     }
   }
 

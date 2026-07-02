@@ -53,6 +53,16 @@ export interface RevealFileRangePayload {
 }
 
 // ── Notification: Webview → Extension ──
+// Sent when the user wants to reveal a node whose source location is resolved on demand. The canonical
+// graph no longer carries range/filePath, so the webview asks the host (which asks the server) to resolve
+// and reveal the node by id. This keeps volatile source locations out of the per-edit graph diff.
+export const REVEAL_NODE_SOURCE_NOTIFICATION = "revealNodeSource";
+
+export interface RevealNodeSourcePayload {
+  nodeId: string;
+}
+
+// ── Notification: Webview → Extension ──
 // Sent when the user clicks "Show errors" to open the VS Code Problems panel
 export const SHOW_PROBLEMS_PANEL_NOTIFICATION = "showProblemsPanel";
 
@@ -91,6 +101,17 @@ export interface GetGraphUpdateResponse {
   patches: GraphPatch[];
 }
 
+export const GET_GRAPH_LAYOUT_REQUEST = "getGraphLayout";
+
+export interface GetGraphLayoutRequest {
+  current: RenderedGraph;
+}
+
+export interface GetGraphLayoutResponse {
+  status: "ok" | "graphChanged" | "layoutFailed";
+  patches: GraphPatch[];
+}
+
 export type GraphNodeKind = "resource" | "module";
 
 /** The graph as currently rendered by the webview, sent with each update request for the server to diff against. */
@@ -99,11 +120,19 @@ export interface RenderedGraph {
   edges: RenderedGraphEdge[];
 }
 
-/** Minimal node identity plus client-measured size, used as layout input. */
+/**
+ * A node as currently rendered by the webview: its identity, the layout-irrelevant metadata it was rendered
+ * with, and its client-measured size. The metadata travels with the request so the server can diff it
+ * precisely and emit a metadata patch only when a field actually changed.
+ */
 export interface RenderedGraphNode {
   id: string;
   kind: GraphNodeKind;
   parentId: string | null;
+  type: string;
+  isCollection: boolean;
+  hasChildren: boolean;
+  hasError: boolean;
   width: number;
   height: number;
 }
@@ -114,7 +143,11 @@ export interface RenderedGraphEdge {
   targetId: string;
 }
 
-/** A node in the server's canonical graph. Sizes are measured by the webview, not sent by the server. */
+/**
+ * A node in the server's canonical graph. Sizes are measured by the webview, not sent by the server, and
+ * source locations (range/filePath) are intentionally omitted: they are resolved on demand via
+ * {@link REVEAL_NODE_SOURCE_NOTIFICATION} so that whitespace-only edits never produce metadata patches.
+ */
 export interface GraphNode {
   id: string;
   kind: GraphNodeKind;
@@ -124,8 +157,6 @@ export interface GraphNode {
   isCollection: boolean;
   hasChildren: boolean;
   hasError: boolean;
-  filePath: string | null;
-  range: Range;
 }
 
 /** A directed dependency edge. Containment (parent/child) is expressed via a node's parentId, not edges. */
@@ -141,14 +172,22 @@ export interface NodeLayout {
   y: number;
 }
 
+/**
+ * The size of the bounding box enclosing the whole laid-out graph. The server normalizes the graph to a
+ * top-left origin, so the bounds are `{ min: (0, 0), max: (width, height) }`. The webview fits the viewport
+ * to this instead of re-deriving module box extents client-side.
+ */
+export interface GraphBounds {
+  width: number;
+  height: number;
+}
+
 /** The mutable subset of a node that can change without altering topology (metadata-only updates). */
 export interface GraphNodeChanges {
-  type?: string;
-  isCollection?: boolean;
-  hasChildren?: boolean;
-  hasError?: boolean;
-  filePath?: string | null;
-  range?: Range;
+  type?: string | null;
+  isCollection?: boolean | null;
+  hasChildren?: boolean | null;
+  hasError?: boolean | null;
 }
 
 /** A typed, ordered patch. A response is a complete delta as a list of these; an empty list means no change. */
@@ -160,5 +199,5 @@ export type GraphPatch =
   | { op: "addEdge"; edge: GraphEdge }
   | { op: "removeEdge"; edgeId: string }
   | { op: "setNodeLayout"; nodeId: string; layout: NodeLayout }
+  | { op: "setGraphBounds"; bounds: GraphBounds }
   | { op: "setErrorCount"; errorCount: number };
-

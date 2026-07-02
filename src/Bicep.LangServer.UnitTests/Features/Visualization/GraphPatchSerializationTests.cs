@@ -7,7 +7,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LangServer.UnitTests.Features.Visualization;
 
@@ -28,7 +27,7 @@ public class GraphPatchSerializationTests
         token.ToObject<GraphPatch>(Serializer) ?? throw new InvalidOperationException("Deserialization returned null.");
 
     [TestMethod]
-    public void ClearGraph_round_trips_and_emits_camelCase_op()
+    public void ClearGraph_WhenSerialized_RoundTripsWithCamelCaseOp()
     {
         var patch = new GraphPatch.ClearGraph();
 
@@ -39,7 +38,7 @@ public class GraphPatchSerializationTests
     }
 
     [TestMethod]
-    public void AddNode_round_trips_with_camelCase_fields()
+    public void AddNode_WhenSerialized_RoundTripsWithCamelCaseFields()
     {
         var node = new GraphNode(
             Id: "res:foo",
@@ -49,9 +48,7 @@ public class GraphPatchSerializationTests
             SymbolName: "foo",
             IsCollection: false,
             HasChildren: true,
-            HasError: false,
-            FilePath: "main.bicep",
-            Range: new Range(0, 0, 1, 5));
+            HasError: false);
         var patch = new GraphPatch.AddNode(node);
 
         var json = Serialize(patch);
@@ -62,7 +59,7 @@ public class GraphPatchSerializationTests
     }
 
     [TestMethod]
-    public void RemoveNode_round_trips()
+    public void RemoveNode_WhenSerialized_RoundTrips()
     {
         var patch = new GraphPatch.RemoveNode("res:foo");
 
@@ -74,18 +71,23 @@ public class GraphPatchSerializationTests
     }
 
     [TestMethod]
-    public void UpdateNode_round_trips_with_partial_changes()
+    public void UpdateNode_WithPartialChanges_RoundTrips()
     {
         var patch = new GraphPatch.UpdateNode("res:foo", new GraphNodeChanges(HasError: true));
 
         var json = Serialize(patch);
 
         json.Value<string>("op").Should().Be("updateNode");
+        var changes = json["changes"].Should().BeOfType<JObject>().Subject;
+        changes.ContainsKey("type").Should().BeFalse();
+        changes.ContainsKey("isCollection").Should().BeFalse();
+        changes.ContainsKey("hasChildren").Should().BeFalse();
+        changes.Value<bool>("hasError").Should().BeTrue();
         Deserialize(json).Should().Be(patch);
     }
 
     [TestMethod]
-    public void AddEdge_round_trips()
+    public void AddEdge_WhenSerialized_RoundTrips()
     {
         var patch = new GraphPatch.AddEdge(new GraphEdge("e1", "res:a", "res:b"));
 
@@ -96,7 +98,7 @@ public class GraphPatchSerializationTests
     }
 
     [TestMethod]
-    public void RemoveEdge_round_trips()
+    public void RemoveEdge_WhenSerialized_RoundTrips()
     {
         var patch = new GraphPatch.RemoveEdge("e1");
 
@@ -108,7 +110,7 @@ public class GraphPatchSerializationTests
     }
 
     [TestMethod]
-    public void SetNodeLayout_round_trips()
+    public void SetNodeLayout_WhenSerialized_RoundTrips()
     {
         var patch = new GraphPatch.SetNodeLayout("res:foo", new NodeLayout(12.5, -3.25));
 
@@ -119,7 +121,20 @@ public class GraphPatchSerializationTests
     }
 
     [TestMethod]
-    public void SetErrorCount_round_trips_with_camelCase_op()
+    public void SetGraphBounds_WhenSerialized_RoundTrips()
+    {
+        var patch = new GraphPatch.SetGraphBounds(new GraphBounds(640.5, 480.25));
+
+        var json = Serialize(patch);
+
+        json.Value<string>("op").Should().Be("setGraphBounds");
+        json["bounds"]!.Value<double>("width").Should().Be(640.5);
+        json["bounds"]!.Value<double>("height").Should().Be(480.25);
+        Deserialize(json).Should().Be(patch);
+    }
+
+    [TestMethod]
+    public void SetErrorCount_WhenSerialized_RoundTripsWithCamelCaseOp()
     {
         var patch = new GraphPatch.SetErrorCount(3);
 
@@ -131,7 +146,7 @@ public class GraphPatchSerializationTests
     }
 
     [TestMethod]
-    public void Unknown_op_throws()
+    public void Deserialize_WithUnknownOp_Throws()
     {
         var json = new JObject { ["op"] = "bogus" };
 

@@ -84,7 +84,7 @@ namespace Bicep.Core.UnitTests
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 
         public static IArtifactRegistryProvider CreateRegistryProvider(IServiceProvider services) =>
-            new DefaultArtifactRegistryProvider(TestRegistryConfiguration, services.GetRequiredService<IPublicModuleMetadataProvider>(), ClientFactory, TemplateSpecRepositoryFactory);
+            new DefaultArtifactRegistryProvider(TestRegistryConfiguration, services.GetRequiredService<IPublicModuleMetadataProvider>(), ClientFactory, TemplateSpecRepositoryFactory, FileExplorer);
 
         public static readonly RegistryConfiguration TestRegistryConfiguration = new(PermitUntrustedRegistries: true);
 
@@ -112,6 +112,7 @@ namespace Bicep.Core.UnitTests
                 ["cloud.profiles.AzureCloud.activeDirectoryAuthority"] = "https://example.invalid",
                 ["cloud.credentialPrecedence"] = new[] { "AzureCLI", "AzurePowerShell" },
                 ["moduleAliases"] = new Dictionary<string, object>(),
+                ["moduleAliasesMock"] = new Dictionary<string, object>(),
                 ["extensions"] = new Dictionary<string, object>(),
                 ["implicitExtensions"] = new[] { "az" },
                 ["analyzers"] = new Dictionary<string, object>(),

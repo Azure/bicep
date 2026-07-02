@@ -101,10 +101,15 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
           return;
         }
         case "PICK_PARAMS_FILE_RESULT": {
-          setParamsMetadata({
-            sourceFilePath: message.documentPath,
-            parameters: parseParametersJson(message.parametersJson),
-          });
+          try {
+            setParamsMetadata({
+              sourceFilePath: message.documentPath,
+              parameters: parseParametersJson(message.parametersJson),
+            });
+            setErrorMessage(undefined);
+          } catch (error) {
+            setErrorMessage(error instanceof Error ? error.message : `${error}`);
+          }
           return;
         }
         case "GET_ACCESS_TOKEN_RESULT": {

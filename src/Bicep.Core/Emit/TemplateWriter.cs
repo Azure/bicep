@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Helpers;
+using Azure.Deployments.Expression.Engines;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Resources;
@@ -1470,7 +1471,8 @@ namespace Bicep.Core.Emit
 
                     moduleWriter.Write(moduleJsonWriter);
                     jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
-                    emitter.EmitProperty("template", moduleTextWriter.ToString());
+                    var nestedTemplate = moduleTextWriter.ToString().FromJson<JToken>();
+                    emitter.EmitProperty("template", () => ExpressionsEngine.EscapeJTokenStringValues(nestedTemplate).WriteTo(jsonWriter));
 
                     if (moduleBicepFile?.FileHandle.Uri is { } sourceUri)
                     {

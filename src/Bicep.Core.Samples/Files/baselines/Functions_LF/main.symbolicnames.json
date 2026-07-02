@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4573292804379626792"
+      "templateHash": "16013494690126396150"
     }
   },
   "definitions": {
@@ -234,6 +234,30 @@
     "likeWildCardMatch": {
       "type": "bool",
       "value": "[like('abcdef', 'a*c*')]"
+    },
+    "likewildcard": {
+      "type": "bool",
+      "value": "[like('abcabc', '*abc')]"
+    },
+    "likewildcardtest2": {
+      "type": "bool",
+      "value": "[like('aXaYa', 'a*a')]"
+    },
+    "likewildcardtest3": {
+      "type": "bool",
+      "value": "[like('', '***')]"
+    },
+    "likewildcardtest4": {
+      "type": "bool",
+      "value": "[like('a', 'b')]"
+    },
+    "likewildcardtest5": {
+      "type": "bool",
+      "value": "[like('abc**def', '*def')]"
+    },
+    "likewildcardtest6": {
+      "type": "bool",
+      "value": "[like('aXbYa', 'a*b*a')]"
     },
     "distinctTest": {
       "type": "array",

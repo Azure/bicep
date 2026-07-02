@@ -117,6 +117,25 @@ public class LocalDeployCommandTests : TestBase
         return extensionMock.Object;
     }
 
+    private ILocalExtension GetFailingExtensionMock()
+    {
+        var extensionMock = StrictMock.Of<ILocalExtension>();
+        extensionMock.Setup(x => x.CreateOrUpdate(It.IsAny<ResourceSpecification>(), It.IsAny<CancellationToken>()))
+            .Returns<ResourceSpecification, CancellationToken>((req, _) =>
+            {
+                return Task.FromResult(new LocalExtensionOperationResponse(null, new(new(
+                    "MyErrorCode",
+                    "Dummy error message",
+                    null,
+                    [
+                        new("NestedCode1", "Nested message 1", null),
+                        new("NestedCode2", "Nested message 2", null),
+                    ]))));
+            });
+
+        return extensionMock.Object;
+    }
+
     [TestMethod]
     public async Task Local_deploy_should_succeed()
     {
@@ -162,6 +181,37 @@ public class LocalDeployCommandTests : TestBase
         │                │ ]                              │
         │ forecastString │ Forecast: Name                 │
         ╰────────────────┴────────────────────────────────╯
+
+        """);
+    }
+
+    [TestMethod]
+    public async Task Local_deploy_should_report_failures()
+    {
+        var paramFile = new EmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/main.bicepparam");
+        var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
+
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
+        var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
+
+        var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+
+        var result = await Bicep(
+            new InvocationSettings(ClientFactory: clientFactory, FeatureOverrides: new(CacheRootDirectory: cacheDirectory)),
+            services => RegisterExtensionMocks(services, GetFailingExtensionMock()),
+            TestContext.CancellationTokenSource.Token,
+            ["local-deploy", baselineFolder.EntryFile.OutputFilePath]);
+
+        result.Should().NotHaveStderr().And.Fail();
+
+        result.WithoutAnsi().WithoutDurations().Stdout.Should().BeEquivalentToIgnoringNewlines("""
+        ╭───────────────┬──────────┬───────────────────────────────────╮
+        │ Resource      │ Duration │ Status                            │
+        ├───────────────┼──────────┼───────────────────────────────────┤
+        │ gridpointsReq │          │ MyErrorCode: Dummy error message  │
+        │               │          │   - NestedCode1: Nested message 1 │
+        │               │          │   - NestedCode2: Nested message 2 │
+        ╰───────────────┴──────────┴───────────────────────────────────╯
 
         """);
     }
@@ -268,7 +318,7 @@ public class LocalDeployCommandTests : TestBase
                             }
                         },
                     },
-                    []);
+                    [], []);
             });
 
         var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
@@ -296,6 +346,75 @@ public class LocalDeployCommandTests : TestBase
         ├────────┼───────┤
         │ gridId │ SEW   │
         ╰────────┴───────╯
+
+        """);
+    }
+
+    [TestMethod]
+    public async Task Local_deploy_should_report_nested_operations()
+    {
+        var paramFile = new EmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/nested.bicepparam");
+        var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
+
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
+        var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
+
+        var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+
+        var result = await Bicep(
+            new InvocationSettings(ClientFactory: clientFactory, FeatureOverrides: new(CacheRootDirectory: cacheDirectory)),
+            services => RegisterExtensionMocks(services, GetExtensionMock()),
+            TestContext.CancellationTokenSource.Token,
+            ["local-deploy", baselineFolder.EntryFile.OutputFilePath]);
+
+        result.Should().NotHaveStderr().And.Succeed();
+
+        result.WithoutAnsi().WithoutDurations().Stdout.Should().BeEquivalentToIgnoringNewlines("""
+        ╭───────────────────────┬──────────┬───────────╮
+        │ Resource              │ Duration │ Status    │
+        ├───────────────────────┼──────────┼───────────┤
+        │ main                  │          │ Succeeded │
+        │ main -> gridpointsReq │          │ Succeeded │
+        │ main -> forecastReq   │          │ Succeeded │
+        ╰───────────────────────┴──────────┴───────────╯
+
+        """);
+    }
+
+    [TestMethod]
+    public async Task Local_deploy_should_report_nested_operation_failures()
+    {
+        var paramFile = new EmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/nested.bicepparam");
+        var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
+
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
+        var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
+
+        var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+
+        var result = await Bicep(
+            new InvocationSettings(ClientFactory: clientFactory, FeatureOverrides: new(CacheRootDirectory: cacheDirectory)),
+            services => RegisterExtensionMocks(services, GetFailingExtensionMock()),
+            TestContext.CancellationTokenSource.Token,
+            ["local-deploy", baselineFolder.EntryFile.OutputFilePath]);
+
+        result.Should().NotHaveStderr().And.Fail();
+
+        result.WithoutAnsi().WithoutDurations().Stdout.Should().BeEquivalentToIgnoringNewlines("""
+        ╭───────────────────────┬──────────┬───────────────────────────────────────────╮
+        │ Resource              │ Duration │ Status                                    │
+        ├───────────────────────┼──────────┼───────────────────────────────────────────┤
+        │ main                  │          │ DeploymentFailed: At least one resource   │
+        │                       │          │ deployment operation failed. Please list  │
+        │                       │          │ deployment operations for details. Please │
+        │                       │          │ see                                       │
+        │                       │          │ https://aka.ms/arm-deployment-operations  │
+        │                       │          │ for usage details.                        │
+        │                       │          │   - NestedCode1: Nested message 1         │
+        │ main -> gridpointsReq │          │ MyErrorCode: Dummy error message          │
+        │                       │          │   - NestedCode1: Nested message 1         │
+        │                       │          │   - NestedCode2: Nested message 2         │
+        ╰───────────────────────┴──────────┴───────────────────────────────────────────╯
 
         """);
     }
