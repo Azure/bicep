@@ -5,9 +5,9 @@ import { Codicon, usePanZoomControl } from "@vscode-bicep-ui/components";
 import { useAtomValue, useSetAtom } from "jotai";
 import { styled } from "styled-components";
 import { openExportOverlayAtom } from "@/features/export";
-import { useResetLayout } from "@/features/layout";
 import { useFitView } from "@/lib/graph";
 import { graphControlAvailabilityAtom } from "./atoms";
+import { useResetLayout } from "./use-reset-layout";
 
 const $ControlBar = styled.div`
   display: flex;
@@ -73,13 +73,13 @@ const $Divider = styled.div`
 `;
 
 interface ControlBarProps {
-  requestServerLayout?: () => Promise<void>;
+  requestLayout: () => Promise<void>;
 }
 
-export function ControlBar({ requestServerLayout }: ControlBarProps) {
+export function ControlBar({ requestLayout }: ControlBarProps) {
   const { zoomIn, zoomOut } = usePanZoomControl();
   const fitView = useFitView();
-  const resetLayout = useResetLayout(requestServerLayout);
+  const resetLayout = useResetLayout(requestLayout);
   const controls = useAtomValue(graphControlAvailabilityAtom);
   const openExportOverlay = useSetAtom(openExportOverlayAtom);
 

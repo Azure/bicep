@@ -4,7 +4,6 @@
 import type { WebviewNotificationCallback, WebviewNotificationMessage } from "@vscode-bicep-ui/messaging";
 import type {
   DeploymentGraph,
-  DeploymentGraphPayload,
   GetGraphLayoutRequest,
   GetGraphLayoutResponse,
   GetGraphUpdateRequest,
@@ -12,7 +11,6 @@ import type {
 } from "@/lib/messaging";
 
 import {
-  DEPLOYMENT_GRAPH_NOTIFICATION,
   DOCUMENT_DID_CHANGE_NOTIFICATION,
   GET_GRAPH_LAYOUT_REQUEST,
   GET_GRAPH_UPDATE_REQUEST,
@@ -787,23 +785,12 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
 ];
 
 /**
- * A fake message channel that simulates the VS Code extension host
- * for dev-mode usage. When the webview sends the "ready" notification,
- * it replies asynchronously with a sample deployment graph — the same
- * flow that happens in production.
- *
- * Also exposes {@link pushGraph} so dev toolbar buttons can simulate
- * the extension host pushing new graphs at any time.
+ * A fake message channel that simulates the VS Code extension host for dev-mode usage.
+ * Graph changes are announced with `documentDidChange`; the webview then pulls patch
+ * and layout responses through the same request flow used in production.
  */
 export class FakeMessageChannel {
   private readonly notificationSubscriptions: Record<string, Set<WebviewNotificationCallback>> = {};
-
-  /**
-   * When true, the channel drives the server-driven layout path: graph changes are announced via
-   * `documentDidChange` and the webview pulls them with a `getGraphUpdate` request (answered by
-   * {@link diffGraph}). When false, it pushes full `deploymentGraph` notifications (the legacy path).
-   */
-  private serverLayoutMode = false;
 
   revive() {
     // no-op
@@ -858,41 +845,12 @@ export class FakeMessageChannel {
     return this.currentGraph;
   }
 
-  /** Whether the server-driven layout path is active. */
-  isServerLayoutMode(): boolean {
-    return this.serverLayoutMode;
-  }
-
-  /**
-   * Toggle between the server-driven layout path and the legacy full-graph push path, then
-   * re-present the current graph through the newly selected path so the change is visible at once.
-   */
-  setServerLayoutMode(enabled: boolean) {
-    this.serverLayoutMode = enabled;
-    this.presentCurrentGraph();
-  }
-
-  /**
-   * Simulate the extension host announcing a new graph to the webview. In legacy mode this is a
-   * full `deploymentGraph` push; in server-layout mode it is a `documentDidChange` notification
-   * that prompts the webview to pull the delta via `getGraphUpdate`.
-   */
+  /** Simulate the extension host announcing that the graph may have changed. */
   pushGraph(graph: DeploymentGraph | null) {
     this.currentGraph = graph;
-    this.presentCurrentGraph();
-  }
-
-  private presentCurrentGraph() {
-    if (this.serverLayoutMode) {
-      this.dispatchNotification(DOCUMENT_DID_CHANGE_NOTIFICATION, {
-        documentUri: FAKE_FILE_PATH,
-      });
-    } else {
-      this.dispatchNotification(DEPLOYMENT_GRAPH_NOTIFICATION, {
-        documentPath: FAKE_FILE_PATH,
-        deploymentGraph: this.currentGraph,
-      } satisfies DeploymentGraphPayload);
-    }
+    this.dispatchNotification(DOCUMENT_DID_CHANGE_NOTIFICATION, {
+      documentUri: FAKE_FILE_PATH,
+    });
   }
 
   subscribeToNotification(method: string, callback: WebviewNotificationCallback) {

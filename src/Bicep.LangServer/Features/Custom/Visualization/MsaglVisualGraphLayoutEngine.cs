@@ -16,7 +16,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 {
     /// <summary>
     /// Lays out the canonical graph using the core MSAGL engine (the <c>Msagl</c> package). It runs a layered
-    /// (Sugiyama) top-to-bottom layout to match the intent of the previous client-side ELK layout.
+    /// (Sugiyama) top-to-bottom layout to match the visualizer's established layout direction.
     /// <para>
     /// Containment is handled by laying each scope out independently and composing the results: a module's
     /// children are laid out on their own, the module is then sized to that result (plus padding for its

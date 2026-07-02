@@ -3,7 +3,7 @@
 
 import type { ComponentType } from "react";
 import type { NodeKind } from "./lib/graph";
-import type { DeploymentGraphPayload, DocumentDidChangePayload } from "./lib/messaging";
+import type { DocumentDidChangePayload } from "./lib/messaging";
 
 import { PanZoomProvider, useGetPanZoomDimensions } from "@vscode-bicep-ui/components";
 import {
@@ -26,17 +26,14 @@ import {
   isExportCanvasCoverVisibleAtom,
   isExportPreviewVisibleAtom,
 } from "./features/export";
-import { useAutoLayout } from "./features/layout";
 import { StatusBar } from "./features/status";
 import { ModuleDeclaration, ResourceDeclaration } from "./features/visualization";
 import { GlobalStyle } from "./GlobalStyle";
 import { Canvas, Graph, nodeConfigAtom } from "./lib/graph";
 import { useFitViewToBounds } from "./lib/graph/hooks";
 import {
-  DEPLOYMENT_GRAPH_NOTIFICATION,
   DOCUMENT_DID_CHANGE_NOTIFICATION,
   READY_NOTIFICATION,
-  useApplyDeploymentGraph,
   useGraphUpdate,
 } from "./lib/messaging";
 import { useTheme } from "./lib/theming";
@@ -90,7 +87,6 @@ function GraphContainer() {
     return { x: width / 2, y: height / 2 };
   }, [getPanZoomDimensions]);
   const fitViewToBounds = useFitViewToBounds();
-  const applyGraph = useApplyDeploymentGraph(getViewportCenter);
   const { requestGraphUpdate, resetLayout } = useGraphUpdate(getViewportCenter, fitViewToBounds);
   const messageChannel = useWebviewMessageChannel();
   const exportTheme = useAtomValue(effectiveExportThemeAtom);
@@ -104,20 +100,7 @@ function GraphContainer() {
     });
   }, [messageChannel]);
 
-  // Listen for deployment graph updates (legacy full-graph push path)
-  useWebviewNotification(
-    DEPLOYMENT_GRAPH_NOTIFICATION,
-    useCallback(
-      (params: unknown) => {
-        const payload = params as DeploymentGraphPayload;
-        applyGraph(payload.deploymentGraph);
-        setExportFileStem(deriveExportFileStem(payload.documentPath, payload.documentFileName));
-      },
-      [applyGraph, setExportFileStem],
-    ),
-  );
-
-  // Listen for "the graph may have changed" notifications (server-driven layout path). The webview
+  // Listen for "the graph may have changed" notifications. The webview
   // pulls the update itself, submitting the graph it currently displays and applying the patches.
   useWebviewNotification(
     DOCUMENT_DID_CHANGE_NOTIFICATION,
@@ -131,8 +114,6 @@ function GraphContainer() {
     ),
   );
 
-  useAutoLayout();
-
   const canvasTheme = exportTheme;
 
   const handleCanvasRef = useCallback(
@@ -145,7 +126,7 @@ function GraphContainer() {
   return (
     <>
       <$ControlBarContainer>
-        <ControlBar requestServerLayout={resetLayout} />
+        <ControlBar requestLayout={resetLayout} />
       </$ControlBarContainer>
       <ExportUILayer />
       <ThemeProvider theme={canvasTheme}>

@@ -31,10 +31,8 @@ interface LayoutRelevantGraph {
  * before the (more expensive) render + measure + {@link renderedGraphsEqual} confirmation.
  *
  * Must be called BEFORE the patch is applied: for `updateNode` it compares the incoming values
- * against the node's CURRENT values. The server is stateless and re-sends ALL metadata on every
- * `updateNode`, so a field being present in `changes` does not mean it changed — e.g. deleting a
- * blank line shifts every node's `range`, so every node receives an `updateNode`. Only an actual
- * change to a size-affecting field counts. (`hasError`, `filePath`, and `range` never affect layout.)
+ * against the node's CURRENT values. Only an actual change to a size-affecting field counts;
+ * `hasError` never affects layout.
  */
 export function patchMayAffectLayout(graph: LayoutRelevantGraph, patch: GraphPatch): boolean {
   switch (patch.op) {
