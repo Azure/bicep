@@ -96,9 +96,11 @@ public class ConsoleCommand(
         }
 
         await io.Output.Writer.WriteLineAsync($"Bicep Console version {environment.GetVersionString()}");
-        await io.Output.Writer.WriteLineAsync("Type 'help' for available commands, press ESC to quit.");
+        await io.Output.Writer.WriteLineAsync("Type 'help' for available commands, press ESC or CTRL+C to quit.");
         await io.Output.Writer.WriteLineAsync("Multi-line input supported.");
         await io.Output.Writer.WriteLineAsync(string.Empty);
+
+        Console.TreatControlCAsInput = true;
 
         var buffer = new StringBuilder();
 
@@ -230,7 +232,8 @@ public class ConsoleCommand(
                     lineBuffer.RemoveAt(cursorOffset);
                 }
             }
-            else if (keyInfo.Key == ConsoleKey.Escape)
+            else if (keyInfo.Key == ConsoleKey.Escape ||
+                (keyInfo.Modifiers.HasFlag(ConsoleModifiers.Control) && keyInfo.Key == ConsoleKey.C))
             {
                 return null;
             }
