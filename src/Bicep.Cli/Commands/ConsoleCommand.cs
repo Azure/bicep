@@ -313,7 +313,7 @@ public class ConsoleCommand(
                 case (_, Escape):
                     return null;
 
-                case (var modifiers, C) when modifiers.HasFlag(ConsoleModifiers.Control):
+                case (ConsoleModifiers.Control, C):
                     return null;
 
                 default:
