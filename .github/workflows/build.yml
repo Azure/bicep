@@ -46,13 +46,13 @@ jobs:
       # See: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions
       # for more details, though these are "built-in" actions supplied by github it still makes sense to pin
       # them for defense in depth.
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
 
       - name: Publish Bicep
         run: dotnet publish --configuration release --self-contained true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
@@ -76,13 +76,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
 
       - name: Pack
         run: dotnet pack --configuration release
@@ -101,7 +101,7 @@ jobs:
       TURBO_TELEMETRY_DISABLED: 1
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -112,7 +112,7 @@ jobs:
           node-version: 24
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
 
       - name: Publish Language Server
         run: |
@@ -171,7 +171,7 @@ jobs:
           - macos-latest
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -200,6 +200,27 @@ jobs:
         run: npm run test
         working-directory: ./src/vscode-bicep-ui
 
+      - name: Install Playwright browsers (visual-designer)
+        if: runner.os == 'Linux'
+        run: npm run e2e:install
+        working-directory: ./src/vscode-bicep-ui/apps/visual-designer
+
+      - name: Run Playwright E2E tests (visual-designer)
+        if: runner.os == 'Linux'
+        run: npm run e2e
+        working-directory: ./src/vscode-bicep-ui/apps/visual-designer
+        env:
+          CI: "true"
+
+      - name: Upload Playwright report (visual-designer)
+        if: always() && runner.os == 'Linux'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: visual-designer-playwright-report
+          path: ./src/vscode-bicep-ui/apps/visual-designer/e2e/.report
+          if-no-files-found: ignore
+          retention-days: 7
+
   test-vscode-ext:
     name: "Test: VSCode Extension"
     runs-on: ${{ matrix.os }}
@@ -220,7 +241,7 @@ jobs:
             os: macos-latest
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -231,7 +252,7 @@ jobs:
           node-version: 24
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
 
       - name: Publish Language Server
         run: |
@@ -266,10 +287,6 @@ jobs:
         run: npm run test:unit
         working-directory: ./src/vscode-bicep
 
-      - name: Run snapshot tests
-        run: npm run test:snapshot
-        working-directory: ./src/vscode-bicep
-
       - name: Build prod
         run: npm run build:prod
         working-directory: ./src/vscode-bicep
@@ -299,14 +316,14 @@ jobs:
     runs-on: windows-2025-vs2026
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       # needed by the GenerateNotice package
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3
@@ -358,13 +375,13 @@ jobs:
     needs: build-cli
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
 
       - name: Download Bicep CLI
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -421,13 +438,13 @@ jobs:
             runTests: false
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
@@ -500,13 +517,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
@@ -540,13 +557,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
@@ -586,13 +603,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
@@ -642,13 +659,13 @@ jobs:
           - os: macos-latest
             rid: osx-x64
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
@@ -713,13 +730,13 @@ jobs:
             os: macos-latest
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
 
       - name: Run Tests
         run: dotnet test --configuration release -- --filter '${{ matrix.config.filter }}' --report-trx --results-directory ${{ github.workspace }}/TestResults
@@ -741,7 +758,7 @@ jobs:
     if: always() && !github.event.pull_request.head.repo.fork
 
     steps:
-      - uses: mshick/add-pr-comment@8e4927817251f1ff60c001f04568532b38e0b4a0 # v3
+      - uses: mshick/add-pr-comment@ec328af66588ab8f77cdeb2c264f14aba45bbf59 # v3
         with:
           message: |
             Test this change out locally with the following install scripts (Action run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}))
@@ -804,7 +821,7 @@ jobs:
     if: needs.can-run-live-tests.outputs.access_verified == 'true'
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -815,7 +832,7 @@ jobs:
           node-version: 24
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
 
       - name: Download Bicep CLI
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -867,7 +884,7 @@ jobs:
     if: needs.can-run-live-tests.outputs.access_verified == 'true'
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       # Cannot use actions/setup-node@v6 for linux-musl-x64
       - name: Setup Node.js

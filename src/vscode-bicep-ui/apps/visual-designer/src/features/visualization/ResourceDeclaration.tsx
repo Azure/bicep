@@ -114,11 +114,12 @@ const $ResourceTypeContainer = styled.div`
 
 export function ResourceDeclaration({ id, data }: ResourceDeclarationProps) {
   const { symbolicName, resourceType, isCollection, hasError } = data;
-  const resourceTypeDisplayName = camelCaseToWords(resourceType.split("/").pop());
+  const normalizedResourceType = resourceType ?? "<unknown>";
+  const resourceTypeDisplayName = camelCaseToWords(normalizedResourceType.split("/").pop());
   // Modules demoted to atomic (no children) render here with
   // resourceType "<module>".  Use the folder icon to match the
   // compound module styling.
-  const iconType = resourceType === "<module>" ? "folder" : resourceType;
+  const iconType = normalizedResourceType === "<module>" ? "folder" : normalizedResourceType;
   const focusedNodeId = useAtomValue(focusedNodeIdAtom);
   const isFocused = focusedNodeId === id;
 

@@ -2,11 +2,20 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>Bicep.LanguageServer</RootNamespace>
-    <!-- generates a NOTICE file in the publish output using our custom targets -->
-    <EnableNoticeInPublishOutput>true</EnableNoticeInPublishOutput>
     <!-- Disable CS1591 Missing XML comment for publicly visible type or member for generated code -->
     <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+    <!-- Set up the NuGet package to be a dotnet tool -->
+    <PackAsTool>true</PackAsTool>
+    <EnableNuget>true</EnableNuget>
+    <PackageId>Azure.Bicep.LangServer</PackageId>
+    <ToolCommandName>bicep-ls</ToolCommandName>
+    <PackageTags>Azure;ResourceManager;ARM;Deployments;Templates;Bicep</PackageTags>
+    <Description>
+      Bicep Language Server
+    </Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +27,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.ResourceManager.ResourceGraph" />
     <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Msagl" />
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" />
     <PackageReference Include="CommandLineParser" />
     <PackageReference Include="SharpYaml" />

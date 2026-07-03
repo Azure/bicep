@@ -99,6 +99,12 @@ type nullable = string?
 
 type nonNullable = nullable!
 
+type withOptionalAnyProp = {
+  requiredProp: string
+  @description('An optional any-typed property')
+  optionalAny: any?
+}
+
 type typeA = {
   type: 'a'
   value: string

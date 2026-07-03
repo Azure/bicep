@@ -15,6 +15,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Decompiler.ArmHelpers;
 using Bicep.Decompiler.BicepHelpers;
 using Bicep.Decompiler.Exceptions;
@@ -989,6 +990,11 @@ namespace Bicep.Decompiler
 
             var identifier = nameResolver.TryLookupName(NameType.Parameter, value.Name) ?? throw new ConversionFailedException($"Unable to find parameter {value.Name}", value);
 
+            if (identifier != value.Name)
+            {
+                leadingNodes = leadingNodes.Prepend(CreateWarningComment("This parameter was renamed during decompilation because its original name could not be used as a Bicep identifier."));
+            }
+
             return new ParameterDeclarationSyntax(
                 leadingNodes,
                 SyntaxFactory.ParameterKeywordToken,
@@ -1802,6 +1808,12 @@ namespace Bicep.Decompiler
             }
 
             throw new ConversionFailedException($"$schema value \"{schema}\" did not match any of the known ARM template deployment schemas.", schema);
+        }
+
+        private static SyntaxBase CreateWarningComment(string message)
+        {
+            var commentTrivia = new SyntaxTrivia(SyntaxTriviaType.SingleLineComment, TextSpan.Nil, $"// WARNING: {message}");
+            return SyntaxFactory.GetNewlineToken(leadingTrivia: commentTrivia.AsEnumerable());
         }
 
         private static void AddSyntaxBlock(IList<SyntaxBase> syntaxes, IEnumerable<SyntaxBase> syntaxesToAdd, bool newLineBetweenItems)

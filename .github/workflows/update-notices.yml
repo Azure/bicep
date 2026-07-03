@@ -24,12 +24,12 @@ jobs:
       GenerateNoticeUpdateLocalFile: true
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
@@ -85,7 +85,7 @@ jobs:
         run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore -property:Configuration=Release /v:m
 
       - name: Create branch and force push
-        uses: stefanzweifel/git-auto-commit-action@04702edda442b2e678b25b537cec683a1493fcb9 # v7
+        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7
         with:
           commit_message: Update Local TPN Files
           commit_user_name: ${{ github.actor }}

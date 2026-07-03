@@ -11,7 +11,7 @@ import { useEffect, useRef } from "react";
 import { nodesByIdAtom } from "@/lib/graph/atoms";
 import { focusedNodeIdAtom, getNodeZIndex } from "@/lib/graph/atoms/nodes";
 import { useBoxUpdate, useDragListener } from "@/lib/graph/hooks";
-import { REVEAL_FILE_RANGE_NOTIFICATION } from "@/lib/messaging/messages";
+import { REVEAL_FILE_RANGE_NOTIFICATION, REVEAL_NODE_SOURCE_NOTIFICATION } from "@/lib/messaging/messages";
 import { translateBox } from "@/lib/utils/math";
 import { BaseNode } from "./BaseNode";
 import { NodeContent } from "./NodeContent";
@@ -36,16 +36,23 @@ export function CompoundNode({ id, childIdsAtom, boxAtom, dataAtom }: CompoundNo
 
       const data = store.get(dataAtom) as { range?: Range; filePath?: string };
       if (data?.range && data?.filePath) {
+        // Legacy push path: the node still carries an inline source location.
         messageChannel.sendNotification({
           method: REVEAL_FILE_RANGE_NOTIFICATION,
           params: { filePath: data.filePath, range: data.range },
+        });
+      } else {
+        // Server-driven path: source location is resolved on demand by node id.
+        messageChannel.sendNotification({
+          method: REVEAL_NODE_SOURCE_NOTIFICATION,
+          params: { nodeId: id },
         });
       }
     };
 
     el.addEventListener("dblclick", handler);
     return () => el.removeEventListener("dblclick", handler);
-  }, [store, dataAtom, messageChannel]);
+  }, [store, dataAtom, messageChannel, id]);
 
   useDragListener(ref, (dx: number, dy: number) => {
     const translateChildren = (childIds: string[]) => {
@@ -78,7 +85,7 @@ export function CompoundNode({ id, childIdsAtom, boxAtom, dataAtom }: CompoundNo
   });
 
   return (
-    <BaseNode ref={ref} id={id} zIndex={zIndex}>
+    <BaseNode ref={ref} id={id} kind="compound" zIndex={zIndex}>
       <NodeContent id={id} kind="compound" dataAtom={dataAtom} />
     </BaseNode>
   );

@@ -17,6 +17,7 @@ public class RootConfigurationTests
         var configuration = new RootConfiguration(
                 BicepTestConstants.BuiltInConfiguration.Cloud,
                 BicepTestConstants.BuiltInConfiguration.ModuleAliases,
+                BicepTestConstants.BuiltInConfiguration.ModuleAliasesMock,
                 BicepTestConstants.BuiltInConfiguration.Extensions,
                 BicepTestConstants.BuiltInConfiguration.ImplicitExtensions,
                 BicepTestConstants.BuiltInConfiguration.Analyzers,

@@ -128,7 +128,7 @@ export function Canvas({ children, showBackground = true }: CanvasProps) {
   }, [store]);
 
   return (
-    <$Container ref={containerRef}>
+    <$Container ref={containerRef} data-testid="graph-canvas">
       <$PanZoom>
         {showBackground && <CanvasBackground />}
         {children}

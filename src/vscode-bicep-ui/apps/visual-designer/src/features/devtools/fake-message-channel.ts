@@ -2,14 +2,24 @@
 // Licensed under the MIT License.
 
 import type { WebviewNotificationCallback, WebviewNotificationMessage } from "@vscode-bicep-ui/messaging";
-import type { DeploymentGraph, DeploymentGraphPayload } from "@/lib/messaging";
+import type {
+  DeploymentGraph,
+  GetGraphLayoutRequest,
+  GetGraphLayoutResponse,
+  GetGraphUpdateRequest,
+  GetGraphUpdateResponse,
+} from "@/lib/messaging";
 
 import {
-  DEPLOYMENT_GRAPH_NOTIFICATION,
+  DOCUMENT_DID_CHANGE_NOTIFICATION,
+  GET_GRAPH_LAYOUT_REQUEST,
+  GET_GRAPH_UPDATE_REQUEST,
   READY_NOTIFICATION,
   REVEAL_FILE_RANGE_NOTIFICATION,
+  REVEAL_NODE_SOURCE_NOTIFICATION,
   SHOW_PROBLEMS_PANEL_NOTIFICATION,
 } from "@/lib/messaging/messages";
+import { diffGraph, layoutGraph } from "./fake-graph-differ";
 
 const FAKE_FILE_PATH = "file:///main.bicep";
 
@@ -775,13 +785,9 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
 ];
 
 /**
- * A fake message channel that simulates the VS Code extension host
- * for dev-mode usage. When the webview sends the "ready" notification,
- * it replies asynchronously with a sample deployment graph — the same
- * flow that happens in production.
- *
- * Also exposes {@link pushGraph} so dev toolbar buttons can simulate
- * the extension host pushing new graphs at any time.
+ * A fake message channel that simulates the VS Code extension host for dev-mode usage.
+ * Graph changes are announced with `documentDidChange`; the webview then pulls patch
+ * and layout responses through the same request flow used in production.
  */
 export class FakeMessageChannel {
   private readonly notificationSubscriptions: Record<string, Set<WebviewNotificationCallback>> = {};
@@ -794,8 +800,24 @@ export class FakeMessageChannel {
     // no-op
   }
 
-  sendRequest<T>(): Promise<T> {
-    return Promise.reject(new Error("FakeMessageChannel does not support requests."));
+  sendRequest<T>(requestMessage: { method: string; params?: unknown }): Promise<T> {
+    if (requestMessage.method === GET_GRAPH_UPDATE_REQUEST) {
+      const { current } = requestMessage.params as GetGraphUpdateRequest;
+      const patches = diffGraph(current, this.currentGraph);
+      return Promise.resolve({ patches } as GetGraphUpdateResponse as T);
+    }
+
+    if (requestMessage.method === GET_GRAPH_LAYOUT_REQUEST) {
+      const { current } = requestMessage.params as GetGraphLayoutRequest;
+      const patches = layoutGraph(current, this.currentGraph);
+      const result: GetGraphLayoutResponse = patches
+        ? { status: "ok", patches }
+        : { status: "graphChanged", patches: [] };
+
+      return Promise.resolve(result as T);
+    }
+
+    return Promise.reject(new Error(`FakeMessageChannel does not support request: ${requestMessage.method}`));
   }
 
   /** The last graph pushed, so mutations can build on top of it. */
@@ -804,12 +826,15 @@ export class FakeMessageChannel {
   sendNotification(notificationMessage: WebviewNotificationMessage) {
     if (notificationMessage.method === READY_NOTIFICATION) {
       // Simulate async response from the extension host:
-      // after a short delay, push the sample deployment graph.
+      // after a short delay, present the sample deployment graph.
       setTimeout(() => {
         this.pushGraph(MODULE_GRAPH);
       }, 50);
     } else if (notificationMessage.method === REVEAL_FILE_RANGE_NOTIFICATION) {
       console.log("[FakeMessageChannel] revealFileRange:", notificationMessage.params);
+    } else if (notificationMessage.method === REVEAL_NODE_SOURCE_NOTIFICATION) {
+      // The real host would resolve the node's source location via the language server and reveal it.
+      console.log("[FakeMessageChannel] revealNodeSource:", notificationMessage.params);
     } else if (notificationMessage.method === SHOW_PROBLEMS_PANEL_NOTIFICATION) {
       console.log("[FakeMessageChannel] showProblemsPanel: would open VS Code Problems panel");
     }
@@ -820,16 +845,12 @@ export class FakeMessageChannel {
     return this.currentGraph;
   }
 
-  /**
-   * Simulate the extension host sending a new deployment graph
-   * notification to the webview.
-   */
+  /** Simulate the extension host announcing that the graph may have changed. */
   pushGraph(graph: DeploymentGraph | null) {
     this.currentGraph = graph;
-    this.dispatchNotification(DEPLOYMENT_GRAPH_NOTIFICATION, {
-      documentPath: FAKE_FILE_PATH,
-      deploymentGraph: graph,
-    } satisfies DeploymentGraphPayload);
+    this.dispatchNotification(DOCUMENT_DID_CHANGE_NOTIFICATION, {
+      documentUri: FAKE_FILE_PATH,
+    });
   }
 
   subscribeToNotification(method: string, callback: WebviewNotificationCallback) {

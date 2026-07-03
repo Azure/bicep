@@ -33,13 +33,11 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool AssertsEnabled => overrides.AssertsEnabled ?? features.AssertsEnabled;
 
-    public bool WaitAndRetryEnabled => overrides.WaitAndRetryEnabled ?? features.WaitAndRetryEnabled;
+    public bool WaitUntilEnabled => overrides.WaitUntilEnabled ?? features.WaitUntilEnabled;
 
     public bool LocalDeployEnabled => overrides.LocalDeployEnabled ?? features.LocalDeployEnabled;
 
     public bool ResourceInfoCodegenEnabled => overrides.ResourceInfoCodegenEnabled ?? features.ResourceInfoCodegenEnabled;
-
-    public bool ExtendableParamFilesEnabled => overrides.ExtendableParamFilesEnabled ?? features.ExtendableParamFilesEnabled;
 
     public bool ModuleExtensionConfigsEnabled => overrides.ModuleExtensionConfigsEnabled ?? features.ModuleExtensionConfigsEnabled;
 

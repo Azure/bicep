@@ -406,13 +406,7 @@ param stringParam =  /*TODO*/
         public void Valid_extends_should_not_fail()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "), ("parameters.bicepparam", @"
+              ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'shared.bicepparam'
               "),
@@ -429,13 +423,6 @@ param stringParam =  /*TODO*/
         public void Invalid_extends_reference_does_not_exist_should_fail()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'does-not-exists.bicepparam'
@@ -456,13 +443,6 @@ param stringParam =  /*TODO*/
         public void Invalid_extends_reference_file_type_should_fail()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.json", @"
                 { ""foo"": ""bar"" }
               "),
@@ -502,10 +482,8 @@ param stringParam =  /*TODO*/
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP405", DiagnosticLevel.Error, "More than one \"extends\" declaration are present"),
-                ("BCP406", DiagnosticLevel.Error, "Using \"extends\" keyword requires enabling EXPERIMENTAL feature \"ExtendableParamFiles\"."),
                 ("BCP404", DiagnosticLevel.Error, "The \"extends\" declaration is missing a bicepparam file path reference"),
                 ("BCP405", DiagnosticLevel.Error, "More than one \"extends\" declaration are present"),
-                ("BCP406", DiagnosticLevel.Error, "Using \"extends\" keyword requires enabling EXPERIMENTAL feature \"ExtendableParamFiles\"."),
             });
         }
 
@@ -513,13 +491,6 @@ param stringParam =  /*TODO*/
         public void Extending_parameters_allow_overriding_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'shared.bicepparam'
@@ -550,13 +521,6 @@ param stringParam =  /*TODO*/
         public void Using_variables_objects_arrays_in_base_parameters_file_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'shared.bicepparam'
@@ -619,13 +583,6 @@ param stringParam =  /*TODO*/
         public void Nested_extends_object_spread_with_base_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'middle.bicepparam'
@@ -673,13 +630,6 @@ param stringParam =  /*TODO*/
         public void Nested_extends_array_spread_with_base_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'middle.bicepparam'
@@ -727,13 +677,6 @@ param stringParam =  /*TODO*/
         public void Decorators_on_using_param_and_extends_statements_should_raise_errors()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 @foo('bar')
                 using 'main.bicep'
@@ -777,13 +720,6 @@ param stringParam =  /*TODO*/
         public void ExternalInput_nested_in_function_call_with_extends_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'shared.bicepparam'
@@ -805,13 +741,6 @@ param stringParam =  /*TODO*/
         public void Deeply_nested_function_calls_with_extends_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'shared.bicepparam'
@@ -831,13 +760,6 @@ param stringParam =  /*TODO*/
         public void Function_calls_in_objects_with_extends_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'shared.bicepparam'
@@ -860,13 +782,6 @@ param stringParam =  /*TODO*/
         public void Function_calls_in_arrays_with_extends_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'shared.bicepparam'
@@ -889,13 +804,6 @@ param stringParam =  /*TODO*/
         public void Ternary_with_nested_function_calls_with_extends_should_succeed()
         {
             var result = CompilationHelper.CompileParams(
-              ("bicepconfig.json", @"
-                {
-                    ""experimentalFeaturesEnabled"": {
-                        ""extendableParamFiles"": true
-                    }
-                }
-              "),
               ("parameters.bicepparam", @"
                 using 'main.bicep'
                 extends 'shared.bicepparam'

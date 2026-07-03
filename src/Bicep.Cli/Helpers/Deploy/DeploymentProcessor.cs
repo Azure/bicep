@@ -3,9 +3,11 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Text;
 using System.Text.Json.Nodes;
 using Azure.Core;
 using Azure.Deployments.Core.Definitions;
+using Azure.Deployments.Core.ErrorResponses;
 using Azure.Deployments.Expression.Intermediate;
 using Azure.Deployments.Expression.Intermediate.Extensions;
 using Azure.Deployments.Templates.Expressions.PartialEvaluation;
@@ -22,6 +24,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
 using Bicep.Core.Utils.Deployments;
+using Bicep.Local.Deploy;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
@@ -354,44 +357,57 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
         var id = ResourceIdentifier.Parse(resourceId);
         var deploymentsClient = armClient.GetArmDeploymentResource(id);
 
-        var deployment = await deploymentsClient.GetAsync(cancellationToken);
-        List<ArmDeploymentOperation> operations = [];
+        var sdkDeployment = await deploymentsClient.GetAsync(cancellationToken);
+        var deployment = sdkDeployment.GetRawResponse().Content.ToString().FromJson<DeploymentContent>();
+
+        List<DeploymentOperationDefinition> operations = [];
         await foreach (var operation in deploymentsClient.GetDeploymentOperationsAsync(cancellationToken: cancellationToken))
         {
-            operations.Add(operation);
+            // This is necessary because the SDK doesn't directly expose 'details': https://github.com/Azure/azure-sdk-for-net/issues/38890
+            var operationDefinition = operation.Properties.RequestContent
+                .ToStream()
+                .FromJsonStream<DeploymentOperationDefinition>();
+            operations.Add(operationDefinition);
         }
 
         return GetDeploymentView(deployment, operations);
     }
 
-    private static string? GetError(ArmDeploymentOperation operation)
+    private static string FormatError(ExtendedErrorInfo error)
     {
-        if (operation.Properties.StatusMessage?.Error is not { } error)
+        static void AppendError(StringBuilder sb, ExtendedErrorInfo error, int depth)
         {
-            return null;
+            if (depth == 0)
+            {
+                sb.Append($"{error.Code}: {error.Message}");
+            }
+            else
+            {
+                sb.AppendLine();
+                sb.Append($"{new string(' ', depth * 2)}- {error.Code}: {error.Message}");
+            }
+
+            foreach (var detail in error.Details ?? [])
+            {
+                AppendError(sb, detail, depth + 1);
+            }
         }
 
-        return $"{error.Code}: {error.Message}";
+        StringBuilder sb = new();
+        AppendError(sb, error, 0);
+
+        return sb.ToString();
     }
 
     private static string? GetError(DeploymentOperationDefinition operation)
     {
-        if (operation.Properties.StatusMessage?.GetProperty("error") is not { } error)
+        if (operation.Properties.StatusMessage?.TryFromJToken<ErrorResponseMessage>() is not {} errorResponse ||
+            errorResponse.Error is not { } error)
         {
             return null;
         }
 
-        return $"{error.GetProperty("code")}: {error.GetProperty("message")}";
-    }
-
-    private static string? GetError(ArmDeploymentData deployment)
-    {
-        if (deployment.Properties.Error is not { } error)
-        {
-            return null;
-        }
-
-        return $"{error.Code}: {error.Message}";
+        return FormatError(error);
     }
 
     private static string? GetError(DeploymentContent deployment)
@@ -401,21 +417,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
             return null;
         }
 
-        return $"{error.Code}: {error.Message}";
-    }
-
-    private static ImmutableDictionary<string, JsonNode> GetOutputs(ArmDeploymentData deployment)
-    {
-        if (deployment.Properties.Outputs is not { } outputsData)
-        {
-            return [];
-        }
-
-        var outputs = outputsData.ToString().FromJson<Dictionary<string, DeploymentParameterDefinition>>();
-
-        return outputs.ToImmutableDictionary(
-            kvp => kvp.Key,
-            kvp => JsonNode.Parse(kvp.Value.Value.ToJson())!);
+        return FormatError(error);
     }
 
     private static ImmutableDictionary<string, JsonNode> GetOutputs(DeploymentContent deployment)
@@ -439,48 +441,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
     public static bool IsSuccess(string? state)
         => state?.ToLowerInvariant() is "succeeded";
 
-    private static DeploymentView GetDeploymentView(ArmDeploymentResource deployment, IEnumerable<ArmDeploymentOperation> operations)
-    {
-        List<DeploymentOperationView> operationViews = [];
-        foreach (var operation in operations)
-        {
-            if (operation.Properties.TargetResource is null)
-            {
-                continue;
-            }
-
-            if (operation.Properties.ProvisioningOperation == ProvisioningOperationKind.Read)
-            {
-                // Hide read operations for now
-                // TODO re-visit this
-                continue;
-            }
-
-            var operationState = operation.Properties.ProvisioningState.ToString();
-            operationViews.Add(new(
-                Id: operation.Properties.TargetResource.Id,
-                Name: operation.Properties.TargetResource.ResourceName,
-                SymbolicName: operation.Properties.TargetResource.SymbolicName,
-                Type: operation.Properties.TargetResource.ResourceType!,
-                State: operationState,
-                StartTime: operation.Properties.Timestamp!.Value.DateTime,
-                EndTime: IsTerminal(operationState) ? operation.Properties.Timestamp!.Value.Add(operation.Properties.Duration!.Value).DateTime : null,
-                Error: GetError(operation)));
-        }
-
-        var deploymentState = deployment.Data.Properties.ProvisioningState!.Value.ToString();
-        return new(
-            Id: deployment.Data.Id.ToString(),
-            Name: deployment.Data.Name,
-            StartTime: deployment.Data.Properties.Timestamp!.Value.DateTime,
-            EndTime: IsTerminal(deploymentState) ? deployment.Data.Properties.Timestamp!.Value.Add(deployment.Data.Properties.Duration!.Value).DateTime : null,
-            Operations: [.. operationViews],
-            State: deploymentState,
-            Error: GetError(deployment.Data),
-            Outputs: GetOutputs(deployment.Data));
-    }
-
-    public static DeploymentView GetDeploymentView(DeploymentContent deployment, IEnumerable<DeploymentOperationDefinition> operations)
+    private static DeploymentView GetDeploymentView(DeploymentContent deployment, IEnumerable<DeploymentOperationDefinition> operations)
     {
         List<DeploymentOperationView> operationViews = [];
         foreach (var operation in operations)
@@ -511,6 +472,49 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
 
         var deploymentState = deployment.Properties.ProvisioningState!.Value.ToString();
         return new(
+            Id: deployment.Id,
+            Name: deployment.Name,
+            StartTime: deployment.Properties.Timestamp!.Value,
+            EndTime: IsTerminal(deploymentState) ? deployment.Properties.Timestamp!.Value.Add(deployment.Properties.Duration!.Value) : null,
+            Operations: [.. operationViews],
+            State: deploymentState,
+            Error: GetError(deployment),
+            Outputs: GetOutputs(deployment));
+    }
+
+    public static DeploymentView GetDeploymentView(LocalDeploymentResult result)
+    {
+        var deployment = result.Deployment;
+
+        List<DeploymentOperationView> operationViews = [];
+        foreach (var (prefix, operation) in FlattenOperations(result, string.Empty))
+        {
+            if (operation.Properties.TargetResource is null)
+            {
+                continue;
+            }
+
+            if (operation.Properties.ProvisioningOperation == ProvisioningOperation.Read)
+            {
+                // Hide read operations for now
+                // TODO re-visit this
+                continue;
+            }
+
+            var operationState = operation.Properties.ProvisioningState.ToString();
+            operationViews.Add(new(
+                Id: operation.Properties.TargetResource.Id,
+                Name: operation.Properties.TargetResource.ResourceName,
+                SymbolicName: $"{prefix}{operation.Properties.TargetResource.SymbolicName}",
+                Type: operation.Properties.TargetResource.ResourceType!,
+                State: operationState,
+                StartTime: operation.Properties.Timestamp!.Value,
+                EndTime: IsTerminal(operationState) ? operation.Properties.Timestamp!.Value.Add(operation.Properties.Duration!.Value) : null,
+                Error: GetError(operation)));
+        }
+
+        var deploymentState = deployment.Properties.ProvisioningState!.Value.ToString();
+        return new(
             Id: deployment.Id.ToString(),
             Name: deployment.Name,
             StartTime: deployment.Properties.Timestamp!.Value,
@@ -519,5 +523,21 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
             State: deploymentState,
             Error: GetError(deployment),
             Outputs: GetOutputs(deployment));
+    }
+
+    private static IEnumerable<(string prefix, DeploymentOperationDefinition operation)> FlattenOperations(LocalDeploymentResult result, string prefix)
+    {
+        foreach (var operation in result.Operations)
+        {
+            yield return (prefix, operation);
+        }
+
+        foreach (var (name, childDeployment) in result.ChildDeployments)
+        {
+            foreach (var item in FlattenOperations(childDeployment, $"{prefix}{name} -> "))
+            {
+                yield return item;
+            }
+        }
     }
 }

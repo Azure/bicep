@@ -6,7 +6,7 @@ import type { Plugin } from "vite";
 import fs from "fs";
 import path from "path";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 
 /**
  * Inject a fake `acquireVsCodeApi` with sample graph data only
@@ -16,6 +16,52 @@ import { defineConfig } from "vite";
 function previewMock(): Plugin {
   const mockScript = `
 <script>
+  var graph = {
+    nodes: [
+      { id: "vnet", kind: "resource", parentId: null, type: "Microsoft.Network/virtualNetworks", symbolName: "vnet", isCollection: false, hasChildren: false, hasError: false },
+      { id: "subnet", kind: "resource", parentId: null, type: "Microsoft.Network/virtualNetworks/subnets", symbolName: "subnet", isCollection: false, hasChildren: false, hasError: false },
+      { id: "nsg", kind: "resource", parentId: null, type: "Microsoft.Network/networkSecurityGroups", symbolName: "nsg", isCollection: false, hasChildren: false, hasError: false },
+      { id: "pip", kind: "resource", parentId: null, type: "Microsoft.Network/publicIPAddresses", symbolName: "pip", isCollection: true, hasChildren: false, hasError: false },
+    ],
+    edges: [
+      { id: "subnet>vnet", sourceId: "subnet", targetId: "vnet" },
+      { id: "nsg>subnet", sourceId: "nsg", targetId: "subnet" },
+      { id: "pip>nsg", sourceId: "pip", targetId: "nsg" },
+    ],
+    errorCount: 0,
+  };
+
+  function sameGraph(current) {
+    if (!current) return false;
+    if (current.nodes.length !== graph.nodes.length || current.edges.length !== graph.edges.length) return false;
+    return graph.nodes.every(function (node) { return current.nodes.some(function (currentNode) { return currentNode.id === node.id; }); }) &&
+      graph.edges.every(function (edge) { return current.edges.some(function (currentEdge) { return currentEdge.id === edge.id; }); });
+  }
+
+  function graphUpdatePatches(current) {
+    if (sameGraph(current)) return [];
+    return [
+      { op: "clearGraph" },
+      { op: "setErrorCount", errorCount: graph.errorCount },
+    ].concat(
+      graph.nodes.map(function (node) { return { op: "addNode", node: node }; }),
+      graph.edges.map(function (edge) { return { op: "addEdge", edge: edge }; })
+    );
+  }
+
+  function graphLayoutPatches() {
+    var positions = {
+      vnet: { x: 0, y: 0 },
+      subnet: { x: 190, y: 90 },
+      nsg: { x: 380, y: 180 },
+      pip: { x: 570, y: 270 },
+    };
+
+    return graph.nodes.map(function (node) {
+      return { op: "setNodeLayout", nodeId: node.id, layout: positions[node.id] };
+    }).concat([{ op: "setGraphBounds", bounds: { width: 760, height: 420 } }]);
+  }
+
   window.acquireVsCodeApi = function () {
     return {
       postMessage: function (msg) {
@@ -23,26 +69,20 @@ function previewMock(): Plugin {
         if (msg && msg.method === "ready") {
           setTimeout(function () {
             window.postMessage({
-              method: "deploymentGraph",
-              params: {
-                documentPath: "file:///main.bicep",
-                deploymentGraph: {
-                  nodes: [
-                    { id: "vnet", type: "Microsoft.Network/virtualNetworks", isCollection: false, range: { start: { line: 0, character: 0 }, end: { line: 5, character: 1 } }, hasChildren: false, hasError: false, filePath: "file:///main.bicep" },
-                    { id: "subnet", type: "Microsoft.Network/virtualNetworks/subnets", isCollection: false, range: { start: { line: 7, character: 0 }, end: { line: 12, character: 1 } }, hasChildren: false, hasError: false, filePath: "file:///main.bicep" },
-                    { id: "nsg", type: "Microsoft.Network/networkSecurityGroups", isCollection: false, range: { start: { line: 14, character: 0 }, end: { line: 19, character: 1 } }, hasChildren: false, hasError: false, filePath: "file:///main.bicep" },
-                    { id: "pip", type: "Microsoft.Network/publicIPAddresses", isCollection: true, range: { start: { line: 21, character: 0 }, end: { line: 26, character: 1 } }, hasChildren: false, hasError: false, filePath: "file:///main.bicep" },
-                  ],
-                  edges: [
-                    { sourceId: "subnet", targetId: "vnet" },
-                    { sourceId: "nsg", targetId: "subnet" },
-                    { sourceId: "pip", targetId: "nsg" },
-                  ],
-                  errorCount: 0,
-                },
-              },
-            });
+              method: "documentDidChange",
+              params: { documentUri: "file:///main.bicep" },
+            }, "*");
           }, 100);
+        } else if (msg && msg.method === "getGraphUpdate") {
+          window.postMessage({
+            id: msg.id,
+            result: { patches: graphUpdatePatches(msg.params && msg.params.current) },
+          }, "*");
+        } else if (msg && msg.method === "getGraphLayout") {
+          window.postMessage({
+            id: msg.id,
+            result: { status: "ok", patches: graphLayoutPatches() },
+          }, "*");
         }
       },
       getState: function () { return undefined; },
@@ -92,5 +132,10 @@ export default defineConfig({
         assetFileNames: `assets/[name].[ext]`,
       },
     },
+  },
+  test: {
+    // Unit tests live next to the source under `src`. Playwright e2e specs in `e2e/`
+    // are run by Playwright, not Vitest, so keep them out of test discovery.
+    include: ["src/**/*.test.{ts,tsx}"],
   },
 });

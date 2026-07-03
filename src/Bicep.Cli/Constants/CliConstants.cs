@@ -28,9 +28,69 @@ namespace Bicep.Cli.Constants
 
     public static class Argument
     {
-        public const string VersionRegex = @"^(--version|-v)$";
-        public const string HelpRegex = @"^(--help|-h)$";
-        public const string LicenseRegex = @"^--license$";
-        public const string ThirdPartyNoticesRegex = @"^--third-party-notices$";
+        public const string InputFile = "Input file";
+        public const string IndexFile = "Index file";
+        public const string ParametersFile = "Parameters file";
+    }
+
+    public static class Option
+    {
+        // Root options
+        public const string Version = "--version";
+        public const string VersionShort = "-v";
+        public const string License = "--license";
+        public const string ThirdPartyNotices = "--third-party-notices";
+
+        // Common output options
+        public const string Stdout = "--stdout";
+        public const string OutDir = "--outdir";
+        public const string OutFile = "--outfile";
+        public const string Pattern = "--pattern";
+        public const string NoRestore = "--no-restore";
+        public const string Force = "--force";
+        public const string DiagnosticsFormat = "--diagnostics-format";
+
+        // Build / BuildParams
+        public const string BicepFile = "--bicep-file";
+
+        // GenerateParams
+        public const string OutputFormat = "--output-format";
+        public const string IncludeParams = "--include-params";
+
+        // Format
+        public const string NewlineKind = "--newline-kind";
+        public const string IndentKind = "--indent-kind";
+        public const string IndentSize = "--indent-size";
+        public const string InsertFinalNewline = "--insert-final-newline";
+
+        // Publish
+        public const string Target = "--target";
+        public const string DocumentationUri = "--documentation-uri";
+        public const string WithSource = "--with-source";
+
+        // PublishExtension binaries
+        public const string BinLinuxX64 = "--bin-linux-x64";
+        public const string BinLinuxArm64 = "--bin-linux-arm64";
+        public const string BinOsxX64 = "--bin-osx-x64";
+        public const string BinOsxArm64 = "--bin-osx-arm64";
+        public const string BinWinX64 = "--bin-win-x64";
+        public const string BinWinArm64 = "--bin-win-arm64";
+
+        // JsonRpc
+        public const string Pipe = "--pipe";
+        public const string Socket = "--socket";
+        public const string Stdio = "--stdio";
+
+        // Deploy / local-deploy / what-if / teardown
+        public const string Format = "--format";
+
+        // Snapshot
+        public const string Mode = "--mode";
+        public const string TenantId = "--tenant-id";
+        public const string SubscriptionId = "--subscription-id";
+        public const string ManagementGroupId = "--management-group-id";
+        public const string Location = "--location";
+        public const string ResourceGroup = "--resource-group";
+        public const string DeploymentName = "--deployment-name";
     }
 }

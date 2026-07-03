@@ -1655,7 +1655,7 @@ resource propertyLoopsCannotNest 'Microsoft.Storage/storageAccounts@2019-06-01' 
     networkAcls: {
       virtualNetworkRules: [for rule in []: {
         id: '${account.name}-${account.location}'
-//@[008:010) [use-resource-id-functions (Warning)] If property "id" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, managementGroupResourceId, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-resource-id-functions) |id|
+//@[008:010) [use-resource-id-functions (Warning)] If property "id" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, managementGroupResourceId, reference, resourceId, roleDefinitions, subscription, subscriptionResourceId, tenantResourceId. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-resource-id-functions) |id|
         state: [for lol in []: 4]
 //@[016:019) [BCP142 (Error)] Property value for-expressions cannot be nested. (bicep https://aka.ms/bicep/core-diagnostics#BCP142) |for|
       }]
@@ -1676,7 +1676,7 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
     networkAcls: {
       virtualNetworkRules: [for (rule,j) in []: {
         id: '${account.name}-${account.location}'
-//@[008:010) [use-resource-id-functions (Warning)] If property "id" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, managementGroupResourceId, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-resource-id-functions) |id|
+//@[008:010) [use-resource-id-functions (Warning)] If property "id" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, managementGroupResourceId, reference, resourceId, roleDefinitions, subscription, subscriptionResourceId, tenantResourceId. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-resource-id-functions) |id|
         state: [for (lol,k) in []: 4]
 //@[016:019) [BCP142 (Error)] Property value for-expressions cannot be nested. (bicep https://aka.ms/bicep/core-diagnostics#BCP142) |for|
       }]
@@ -1699,7 +1699,7 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
       virtualNetworkRules: [for rule in []: {
         // #completionTest(15,31) -> symbolsPlusRule
         id: '${account.name}-${account.location}'
-//@[008:010) [use-resource-id-functions (Warning)] If property "id" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, managementGroupResourceId, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-resource-id-functions) |id|
+//@[008:010) [use-resource-id-functions (Warning)] If property "id" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, managementGroupResourceId, reference, resourceId, roleDefinitions, subscription, subscriptionResourceId, tenantResourceId. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-resource-id-functions) |id|
         state: [for state in []: {
 //@[016:019) [BCP142 (Error)] Property value for-expressions cannot be nested. (bicep https://aka.ms/bicep/core-diagnostics#BCP142) |for|
           // #completionTest(38) -> empty #completionTest(16) -> symbolsPlusAccountRuleState
@@ -1725,7 +1725,7 @@ resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in
       virtualNetworkRules: concat([for lol in []: {
 //@[035:038) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. (bicep https://aka.ms/bicep/core-diagnostics#BCP138) |for|
         id: '${account.name}-${account.location}'
-//@[008:010) [use-resource-id-functions (Warning)] If property "id" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, managementGroupResourceId, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-resource-id-functions) |id|
+//@[008:010) [use-resource-id-functions (Warning)] If property "id" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, managementGroupResourceId, reference, resourceId, roleDefinitions, subscription, subscriptionResourceId, tenantResourceId. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-resource-id-functions) |id|
       }])
     }
   }

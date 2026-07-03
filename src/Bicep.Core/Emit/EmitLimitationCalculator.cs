@@ -57,7 +57,6 @@ namespace Bicep.Core.Emit
             BlockSpreadInUnsupportedLocations(model, diagnostics);
             BlockSecureOutputsWithLocalDeploy(model, diagnostics);
             BlockSecureOutputAccessOnIndirectReference(model, diagnostics);
-            BlockExtendsWithoutFeatureFlagEnabled(model, diagnostics);
             BlockExplicitDependenciesInOrOnInlinedExistingResources(model, resourceTypeResolver, diagnostics);
             ValidateUsingWithClauseMatchesExperimentalFeatureEnablement(model, diagnostics);
 
@@ -786,17 +785,6 @@ namespace Bicep.Core.Emit
                 if (!model.Features.TestFrameworkEnabled)
                 {
                     diagnostics.Write(test.DeclaringTest, x => x.TestDeclarationStatementsUnsupported());
-                }
-            }
-        }
-
-        private static void BlockExtendsWithoutFeatureFlagEnabled(SemanticModel model, IDiagnosticWriter diagnostics)
-        {
-            foreach (var extendsDeclaration in model.SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>())
-            {
-                if (!model.Features.ExtendableParamFilesEnabled)
-                {
-                    diagnostics.Write(extendsDeclaration, x => x.ExtendsNotSupported());
                 }
             }
         }

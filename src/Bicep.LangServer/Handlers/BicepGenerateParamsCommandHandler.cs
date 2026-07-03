@@ -55,19 +55,24 @@ namespace Bicep.LanguageServer.Handlers
         private async Task<string> GenerateCompiledParametersFileAndReturnOutputMessage(OutputFormatOption outputFormat, IncludeParamsOption includeParams, DocumentUri documentUri)
         {
             var bicepFileUri = documentUri.ToIOUri();
-            var extension = outputFormat == OutputFormatOption.BicepParam ? LanguageConstants.ParamsFileExtension : LanguageConstants.JsonFileExtension;
+            var extension = outputFormat switch
+            {
+                OutputFormatOption.Json => $".parameters{LanguageConstants.JsonFileExtension}",
+                OutputFormatOption.BicepParam => LanguageConstants.ParamsFileExtension,
+                _ => throw new ArgumentOutOfRangeException(nameof(outputFormat), $"Unsupported output format: {outputFormat}")
+            };
             var compiledFileUri = bicepFileUri.WithExtension(extension);
             var compiledFile = this.fileExplorer.GetFile(compiledFileUri);
 
-            // If the template exists and has a .json extension and contains the Bicep metadata, fail the generate params.
+            // If the JSON output file exists and is not a parameters file, fail the generate params.
             // If not, continue to update the file.
-            if (extension == LanguageConstants.JsonFileExtension && compiledFile.Exists())
+            if (outputFormat == OutputFormatOption.Json && compiledFile.Exists())
             {
                 var template = await compiledFile.ReadAllTextAsync();
 
                 if (!TemplateIsParametersFile(template))
                 {
-                    return "Generating parameters file failed. The file \"" + compiledFile + "\" already exists. If overwriting the file is intended, delete it manually and retry the Generate Parameters command.";
+                    return $"Generating parameters file failed. The file \"{compiledFile.Uri}\" already exists. If overwriting the file is intended, delete it manually and retry the Generate Parameters command.";
                 }
             }
 
@@ -84,7 +89,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var model = compilation.GetEntrypointSemanticModel();
             var emitter = new TemplateEmitter(model);
-            using var fileStream = new FileStream(compiledFileUri, FileMode.Create, FileAccess.Write);
+            using var fileStream = compiledFile.OpenWrite();
             var result = emitter.EmitTemplateGeneratedParameterFile(fileStream, existingContent, outputFormat, includeParams);
 
             return $"Generating parameters file succeeded. Processed file '{compiledFile.Uri}'";

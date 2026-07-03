@@ -53,6 +53,17 @@ namespace Bicep.RpcClient
             "ad.")]
         System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> InitializeFromPath(string bicepCliPath, System.Threading.CancellationToken cancellationToken = default);
     }
+    public class PooledBicepClientFactory : Bicep.RpcClient.IBicepClientFactory, System.IDisposable
+    {
+        public PooledBicepClientFactory(System.Net.Http.HttpClient? httpClient = null, System.TimeSpan? inactivityInterval = default) { }
+        public void Dispose() { }
+        [System.Obsolete("Use Initialize instead.")]
+        public System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> DownloadAndInitialize(Bicep.RpcClient.BicepClientConfiguration configuration, System.Threading.CancellationToken cancellationToken) { }
+        public System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> Initialize(Bicep.RpcClient.BicepClientConfiguration configuration, System.Threading.CancellationToken cancellationToken) { }
+        [System.Obsolete("Use Initialize with a BicepClientConfiguration that has ExistingCliPath set inste" +
+            "ad.")]
+        public System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> InitializeFromPath(string bicepCliPath, System.Threading.CancellationToken cancellationToken) { }
+    }
 }
 namespace Bicep.RpcClient.Models
 {

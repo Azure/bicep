@@ -11,7 +11,7 @@ import { frame } from "motion/react";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { focusedNodeIdAtom, getNodeZIndex } from "@/lib/graph/atoms/nodes";
 import { useBoxUpdate, useDragListener } from "@/lib/graph/hooks";
-import { REVEAL_FILE_RANGE_NOTIFICATION } from "@/lib/messaging/messages";
+import { REVEAL_FILE_RANGE_NOTIFICATION, REVEAL_NODE_SOURCE_NOTIFICATION } from "@/lib/messaging/messages";
 import { translateBox } from "@/lib/utils/math";
 import { BaseNode } from "./BaseNode";
 import { NodeContent } from "./NodeContent";
@@ -36,16 +36,23 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
 
       const data = store.get(dataAtom) as { range?: Range; filePath?: string };
       if (data?.range && data?.filePath) {
+        // Legacy push path: the node still carries an inline source location.
         messageChannel.sendNotification({
           method: REVEAL_FILE_RANGE_NOTIFICATION,
           params: { filePath: data.filePath, range: data.range },
+        });
+      } else {
+        // Server-driven path: source location is resolved on demand by node id.
+        messageChannel.sendNotification({
+          method: REVEAL_NODE_SOURCE_NOTIFICATION,
+          params: { nodeId: id },
         });
       }
     };
 
     el.addEventListener("dblclick", handler);
     return () => el.removeEventListener("dblclick", handler);
-  }, [store, dataAtom, messageChannel]);
+  }, [store, dataAtom, messageChannel, id]);
 
   useLayoutEffect(() => {
     if (!ref.current) {
@@ -55,9 +62,7 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
     const { offsetWidth, offsetHeight } = ref.current;
 
     store.set(boxAtom, (box) => {
-      // On first measurement the box is a zero-size point (min === max)
-      // placed at the spawn origin. Shift min so the node's center
-      // aligns with the origin instead of its top-left corner.
+      // On first measurement the box is a zero-size point placed at the spawn origin.
       const isInitial = box.min.x === box.max.x && box.min.y === box.max.y;
       const min = isInitial ? { x: box.min.x - offsetWidth / 2, y: box.min.y - offsetHeight / 2 } : box.min;
 
@@ -75,11 +80,19 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
       return;
     }
 
+    // Round to whole pixels so this matches the integer `offsetWidth`/`offsetHeight`
+    // used for the initial measurement above. `borderBoxSize` is device-pixel precise
+    // (e.g. 200.4), and letting that fractional value into the box would (a) visibly
+    // resize the enclosing module box by a fraction of a pixel and (b) feed a slightly
+    // different size into the server layout, making re-layout shift nodes by ~1px.
+    const width = Math.round(borderBoxSize.inlineSize);
+    const height = Math.round(borderBoxSize.blockSize);
+
     store.set(boxAtom, (box) => ({
       ...box,
       max: {
-        x: box.min.x + borderBoxSize.inlineSize,
-        y: box.min.y + borderBoxSize.blockSize,
+        x: box.min.x + width,
+        y: box.min.y + height,
       },
     }));
   });
@@ -97,7 +110,7 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
   });
 
   return (
-    <BaseNode ref={ref} id={id} zIndex={zIndex}>
+    <BaseNode ref={ref} id={id} kind="atomic" zIndex={zIndex}>
       <NodeContent id={id} kind="atomic" dataAtom={dataAtom} />
     </BaseNode>
   );
