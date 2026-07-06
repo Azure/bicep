@@ -555,6 +555,16 @@
                     }
                   ]
                 },
+                "no-hardcoded-outputs": {
+                  "allOf": [
+                    {
+                      "description": "Outputs should not be used for hard-coded constants. Use exported variables instead. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#no-hardcoded-outputs"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
                 "no-loc-expr-outside-params": {
                   "allOf": [
                     {
