@@ -263,7 +263,10 @@ public class ConsoleCommand(
                     }
                     break;
 
-                case (ConsoleModifiers.Control, LeftArrow):
+                // referenced from how NodeJS REPL handles jumping between words for MacOS:
+                // https://github.com/nodejs/node/blob/0e2126d8b1c0eb93b105ac53c0939908392cbb42/lib/internal/readline/interface.js#L1435-L1445
+                // Option key in MacOS maps to Alt
+                case (ConsoleModifiers.Control, LeftArrow) or (ConsoleModifiers.Alt, B):
                     editor.MoveToWordBoundary(-1);
                     break;
 
@@ -271,10 +274,13 @@ public class ConsoleCommand(
                     editor.MoveLeft();
                     break;
 
-                case (ConsoleModifiers.Control, RightArrow):
+                // referenced from how NodeJS REPL handles jumping between words for MacOS:
+                // https://github.com/nodejs/node/blob/0e2126d8b1c0eb93b105ac53c0939908392cbb42/lib/internal/readline/interface.js#L1435-L1445
+                // Option key in MacOS maps to Alt
+                case (ConsoleModifiers.Control, RightArrow) or (ConsoleModifiers.Alt, F): 
                     editor.MoveToWordBoundary(+1);
                     break;
-
+                    
                 case (_, RightArrow):
                     editor.MoveRight();
                     break;
