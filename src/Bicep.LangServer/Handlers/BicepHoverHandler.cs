@@ -346,10 +346,19 @@ namespace Bicep.LanguageServer.Handlers
                 resourceType.DeclaringNamespace.ExtensionNameEquals(AzNamespaceType.BuiltInName) &&
                 resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
             {
-                var provider = resourceType.TypeReference.TypeSegments.First().ToLowerInvariant();
-                var typePath = resourceType.TypeReference.TypeSegments.Skip(1).Select(x => x.ToLowerInvariant());
+                var typeReference = resourceType.TypeReference;
+                var provider = typeReference.TypeSegments.First().ToLowerInvariant();
+                var typePath = string.Join('/', typeReference.TypeSegments.Skip(1).Select(x => x.ToLowerInvariant()));
 
-                return $"https://learn.microsoft.com/azure/templates/{provider}/{string.Join('/', typePath)}?pivots=deployment-language-bicep";
+                // Learn hosts a page per API version alongside a versionless page for the latest, so link
+                // to the pinned version's page to match the resource. ApiVersion is null only if no version
+                // was given, in which case we fall back to the versionless URL.
+                var apiVersion = typeReference.ApiVersion;
+                var versionSegment = string.IsNullOrEmpty(apiVersion)
+                    ? ""
+                    : $"{apiVersion.ToLowerInvariant()}/";
+
+                return $"https://learn.microsoft.com/azure/templates/{provider}/{versionSegment}{typePath}?pivots=deployment-language-bicep";
             }
 
             return null;
