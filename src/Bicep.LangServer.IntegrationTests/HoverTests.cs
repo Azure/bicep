@@ -555,6 +555,40 @@ resource madeUp 'Test.MadeUp/nonExistentResourceType@2020-01-01'
         }
 
         [TestMethod]
+        public async Task Resource_type_hovers_should_include_documentation_links_for_known_resource_types()
+        {
+            // https://github.com/Azure/bicep/issues/16178 - the documentation link should also be
+            // discoverable by hovering over the resource type, not just the resource name.
+            var hovers = await RequestHoversAtCursorLocations(@"
+resource foo 'Test.Rp/basic|Tests@2020-01-01' = {}
+
+@description('This resource also has a description!')
+resource bar 'Test.Rp/basic|Tests@2020-01-01' = {}
+
+resource madeUp 'Test.MadeUp/nonExistent|ResourceType@2020-01-01' = {}
+",
+                '|');
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
+resource foo 'Test.Rp/basicTests@2020-01-01'
+```  " + @"
+[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/basictests?pivots=deployment-language-bicep)  " + @"
+"),
+                h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
+resource bar 'Test.Rp/basicTests@2020-01-01'
+```  " + @"
+This resource also has a description!  " + @"
+[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/basictests?pivots=deployment-language-bicep)  " + @"
+"),
+                h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
+resource madeUp 'Test.MadeUp/nonExistentResourceType@2020-01-01'
+```  " + @"
+  " + @"
+"));
+        }
+
+        [TestMethod]
         public async Task Function_hovers_display_without_descriptions_if_function_overload_has_not_been_resolved()
         {
             // using the any type, we don't know which particular overload has been selected, so we cannot show an accurate description.
