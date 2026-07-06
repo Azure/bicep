@@ -46,6 +46,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDocumentHighlightHandler>()
                     .WithHandler<BicepDocumentFormattingHandler>()
                     .WithHandler<BicepRenameHandler>()
+                    .WithHandler<BicepPrepareRenameHandler>()
                     .WithHandler<BicepHoverHandler>()
                     .WithHandler<BicepCompletionHandler>()
                     .WithHandler<BicepCodeActionHandler>()
