@@ -65,7 +65,26 @@ describe("hover", (): void => {
       contents: [
         codeblockWithDescription(
           "resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01'",
-          "[View Documentation](https://learn.microsoft.com/azure/templates/microsoft.network/virtualnetworks?pivots=deployment-language-bicep)",
+          "[View Documentation](https://learn.microsoft.com/azure/templates/microsoft.network/2020-06-01/virtualnetworks?pivots=deployment-language-bicep)",
+        ),
+      ],
+    });
+  });
+
+  it("should reveal type signature and documentation link when hovering over a resource type", async () => {
+    // https://github.com/Azure/bicep/issues/16178 - the hover (and its documentation link) should
+    // also be discoverable over the resource type string, not just the symbolic name.
+    const hovers = await executeHoverProviderCommandWithRetry(document.uri, new vscode.Position(108, 30));
+
+    expectHovers(hovers, {
+      startLine: 108,
+      startCharacter: 14,
+      endLine: 108,
+      endCharacter: 60,
+      contents: [
+        codeblockWithDescription(
+          "resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01'",
+          "[View Documentation](https://learn.microsoft.com/azure/templates/microsoft.network/2020-06-01/virtualnetworks?pivots=deployment-language-bicep)",
         ),
       ],
     });
