@@ -130,9 +130,11 @@ public class ConsoleCommand(
         }
 
         await io.Output.Writer.WriteLineAsync($"Bicep Console version {environment.GetVersionString()}");
-        await io.Output.Writer.WriteLineAsync("Type 'help' for available commands, press ESC to quit.");
+        await io.Output.Writer.WriteLineAsync("Type 'help' for available commands, press ESC or CTRL+C to quit.");
         await io.Output.Writer.WriteLineAsync("Multi-line input supported.");
         await io.Output.Writer.WriteLineAsync(string.Empty);
+
+        Console.TreatControlCAsInput = true;
 
         var buffer = new StringBuilder();
         var pendingTypeContinuation = false;
@@ -315,6 +317,9 @@ public class ConsoleCommand(
                     break;
 
                 case (_, Escape):
+                    return null;
+
+                case (ConsoleModifiers.Control, C):
                     return null;
 
                 default:
