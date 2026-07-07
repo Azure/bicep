@@ -62,7 +62,19 @@ namespace Bicep.Core.Registry
                         continue;
                     }
 
-                    var package = ExtensionV1Archive.Read(binaryData);
+                    ExtensionPackage package;
+                    try
+                    {
+                        package = ExtensionV1Archive.Read(binaryData);
+                    }
+                    catch (Exception exception)
+                    {
+                        statuses.Add(reference, x => x.ArtifactRestoreFailedWithMessage(
+                            reference.FullyQualifiedReference,
+                            $"The file is not a valid extension package. If you intended to reference an extension declared in bicepconfig.json, use its alias without quotes (for example: 'extension myExtension'). Error: {exception.Message}"));
+                        continue;
+                    }
+
                     await this.WriteArtifactContentToCacheAsync(reference, new(package));
                 }
             }
