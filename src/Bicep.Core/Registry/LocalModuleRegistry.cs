@@ -67,11 +67,20 @@ namespace Bicep.Core.Registry
                     {
                         package = ExtensionV1Archive.Read(binaryData);
                     }
-                    catch (Exception exception)
+                    catch (InvalidDataException exception)
                     {
+                        // The gzip/tar decompression failed - the referenced file is not a valid archive (see https://github.com/Azure/bicep/issues/19165).
                         statuses.Add(reference, x => x.ArtifactRestoreFailedWithMessage(
                             reference.FullyQualifiedReference,
-                            $"The file is not a valid extension package. If you intended to reference an extension declared in bicepconfig.json, use its alias without quotes (for example: 'extension myExtension'). Error: {exception.Message}"));
+                            $"The file is not a valid extension package. Expected a gzip-compressed tar archive containing extension types. Error: {exception.Message}"));
+                        continue;
+                    }
+                    catch (Exception exception)
+                    {
+                        // Any other failure reading the package (e.g. missing types.tgz entry, truncated content).
+                        statuses.Add(reference, x => x.ArtifactRestoreFailedWithMessage(
+                            reference.FullyQualifiedReference,
+                            $"The file could not be read as a valid extension package. Error: {exception.Message}"));
                         continue;
                     }
 

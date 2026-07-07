@@ -13,13 +13,15 @@ namespace Bicep.Core.UnitTests.Registry
     public class ExtensionV1ArchiveTests
     {
         [TestMethod]
-        public void Read_NonArchiveContent_Throws()
+        public void Read_NonArchiveContent_ThrowsInvalidDataException()
         {
             var binaryData = BinaryData.FromString("this is not a valid tgz archive");
 
             Action fail = () => ExtensionV1Archive.Read(binaryData);
 
-            fail.Should().Throw<Exception>();
+            // The tiered exception handling in LocalModuleRegistry.RestoreArtifacts relies on
+            // non-archive content surfacing as InvalidDataException (see https://github.com/Azure/bicep/issues/19165).
+            fail.Should().Throw<InvalidDataException>();
         }
 
         [TestMethod]
