@@ -695,6 +695,16 @@
                     }
                   ]
                 },
+                "secure-params-in-parameters-file": {
+                  "allOf": [
+                    {
+                      "description": "Secure parameter values should not be assigned to insecure parameters in a parameters file. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#secure-params-in-parameters-file"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "secure-secrets-in-params": {
                   "allOf": [
                     {

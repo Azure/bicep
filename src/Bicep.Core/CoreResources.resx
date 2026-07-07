@@ -359,6 +359,13 @@
   <data name="SecureParamsInNestedDeployRule_Solution" xml:space="preserve">
     <value>Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.</value>
   </data>
+  <data name="SecureParamsInParametersFileRule_Description" xml:space="preserve">
+    <value>Secure parameter values should not be assigned to insecure parameters in a parameters file.</value>
+  </data>
+  <data name="SecureParamsInParametersFileRule_MessageFormat" xml:space="preserve">
+    <value>Insecure parameter '{0}' is assigned a value that references secure parameter(s) {1}, which could expose their values in deployment history.</value>
+    <comment>{0} = programmatic name of the insecure parameter, {1} = comma-separated list of secure parameter names</comment>
+  </data>
   <data name="UseResourceSymbolReferenceRule_Description" xml:space="preserve">
     <value>Use a direct resource symbol reference instead of 'reference' or 'list*' functions.</value>
   </data>
