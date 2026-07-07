@@ -822,64 +822,92 @@ public class ExpressionBuilder
                     function.Name.IdentifierName,
                     [.. function.Arguments.Select(a => ConvertWithoutLowering(a.Expression))]);
 
-            case InstanceFunctionCallSyntax method:
+            case InstanceFunctionCallSyntax instanceFunction:
                 var (baseSyntax, indexExpression) = SyntaxHelper.UnwrapArrayAccessSyntax(
-                    SyntaxHelper.UnwrapNonNullAssertion(method.BaseExpression));
+                    UnwrapInstanceFunctionBase(instanceFunction.BaseExpression));
                 var baseSymbol = Context.SemanticModel.GetSymbolInfo(baseSyntax);
 
                 if (baseSymbol is INamespaceSymbol namespaceSymbol)
                 {
                     Debug.Assert(indexExpression is null, "Indexing into a namespace should have been blocked by type analysis");
                     return new FunctionCallExpression(
-                        method,
-                        method.Name.IdentifierName,
-                        [.. method.Arguments.Select(a => ConvertWithoutLowering(a.Expression))]);
+                        instanceFunction,
+                        instanceFunction.Name.IdentifierName,
+                        [.. instanceFunction.Arguments.Select(a => ConvertWithoutLowering(a.Expression))]);
                 }
 
-                var resource = Context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax);
-                if (resource is DeclaredResourceMetadata decl && !decl.IsAzResource)
+                var resourceReference = TryGetResourceMethodReference(instanceFunction.BaseExpression, instanceFunction);
+                if (resourceReference is { resource: DeclaredResourceMetadata decl } && !decl.IsAzResource)
                 {
-                    Expression nameExpression = indexExpression is { } ?
+                    Expression nameExpression = resourceReference.Value.indexExpression is { } resourceIndexExpression ?
                         new FunctionCallExpression(baseSyntax, "format", new Expression[] {
                             new StringLiteralExpression(baseSyntax, $"{decl.Symbol.Name}[{{0}}]"),
-                            ConvertWithoutLowering(indexExpression),
+                            ConvertWithoutLowering(resourceIndexExpression),
                         }.ToImmutableArray()) :
                         new StringLiteralExpression(baseSyntax, decl.Symbol.Name);
 
                     return new FunctionCallExpression(
-                        method,
+                        instanceFunction,
                         "invokeResourceMethod",
                         [
                             nameExpression,
-                            new StringLiteralExpression(method.Name, method.Name.IdentifierName),
+                            new StringLiteralExpression(instanceFunction.Name, instanceFunction.Name.IdentifierName),
                             new ArrayExpression(
-                                method,
-                                [.. method.Arguments.Select(a => ConvertWithoutLowering(a.Expression))]),
+                                instanceFunction,
+                                [.. instanceFunction.Arguments.Select(a => ConvertWithoutLowering(a.Expression))]),
                         ]);
                 }
 
-                var indexContext = resource switch
-                {
-                    DeclaredResourceMetadata declaredResource => TryGetReplacementContext(declaredResource.NameSyntax, indexExpression, method),
-                    ModuleOutputResourceMetadata moduleOutputResource => TryGetReplacementContext(moduleOutputResource.Module, indexExpression, method),
-                    _ => null,
-                };
-
-                if (resource is not null)
+                if (resourceReference is { } resourceReferenceValue)
                 {
                     // Handle list<method_name>(...) method on resource symbol - e.g. stgAcc.listKeys()
                     // This is also used for kv.getSecret() - for passing secure values to module parameters
                     return new ResourceFunctionCallExpression(
-                        method,
-                        new ResourceReferenceExpression(method.BaseExpression, resource, indexContext),
-                        method.Name.IdentifierName,
-                        [.. method.Arguments.Select(a => ConvertWithoutLowering(a.Expression))]);
+                        instanceFunction,
+                        new ResourceReferenceExpression(instanceFunction.BaseExpression, resourceReferenceValue.resource, resourceReferenceValue.indexContext),
+                        instanceFunction.Name.IdentifierName,
+                        [.. instanceFunction.Arguments.Select(a => ConvertWithoutLowering(a.Expression))]);
                 }
 
                 throw new InvalidOperationException($"Unrecognized base expression {baseSymbol?.Kind}");
             default:
                 throw new NotImplementedException($"Cannot emit unexpected expression of type {functionCall.GetType().Name}");
         }
+    }
+
+    private (ResourceMetadata resource, SyntaxBase? indexExpression, IndexReplacementContext? indexContext)? TryGetResourceMethodReference(SyntaxBase expression, SyntaxBase newContext)
+    {
+        var (baseSyntax, indexExpression) = SyntaxHelper.UnwrapArrayAccessSyntax(UnwrapInstanceFunctionBase(expression));
+        if (Context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax) is { } resource)
+        {
+            var indexContext = resource switch
+            {
+                DeclaredResourceMetadata { IsAzResource: true } declaredResource => TryGetReplacementContext(declaredResource.NameSyntax, indexExpression, newContext),
+                ModuleOutputResourceMetadata moduleOutputResource => TryGetReplacementContext(moduleOutputResource.Module, indexExpression, newContext),
+                _ => null,
+            };
+
+            return (resource, indexExpression, indexContext);
+        }
+
+        if (indexExpression is null &&
+            Context.SemanticModel.GetSymbolInfo(baseSyntax) is VariableSymbol variableSymbol &&
+            Context.SemanticModel.Binder.TryGetCycle(variableSymbol) is null)
+        {
+            return TryGetResourceMethodReference(variableSymbol.DeclaringVariable.Value, newContext);
+        }
+
+        return null;
+    }
+
+    private static SyntaxBase UnwrapInstanceFunctionBase(SyntaxBase syntax)
+    {
+        var unwrapped = SyntaxHelper.UnwrapNonNullAssertion(syntax);
+        return unwrapped switch
+        {
+            ParenthesizedExpressionSyntax parenthesized => UnwrapInstanceFunctionBase(parenthesized.Expression),
+            _ => unwrapped,
+        };
     }
 
     private Expression ConvertFunction(FunctionCallSyntaxBase functionCall)
