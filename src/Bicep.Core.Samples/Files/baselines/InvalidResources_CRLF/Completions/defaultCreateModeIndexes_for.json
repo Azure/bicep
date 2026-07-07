@@ -6393,6 +6393,23 @@
     ]
   },
   {
+    "label": "sqlServer5::sqlDatabase",
+    "kind": "interface",
+    "detail": "sqlServer5::sqlDatabase",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_sqlServer5::sqlDatabase",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "sqlServer5::sqlDatabase"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "startedTypingTypeWithQuotes",
     "kind": "interface",
     "detail": "startedTypingTypeWithQuotes",
@@ -6459,6 +6476,23 @@
     "textEdit": {
       "range": {},
       "newText": "storage"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "storage::blobServices",
+    "kind": "interface",
+    "detail": "storage::blobServices",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_storage::blobServices",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "storage::blobServices"
     },
     "commitCharacters": [
       ":"

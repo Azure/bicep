@@ -1043,6 +1043,37 @@ namespace Bicep.LanguageServer.Completions
                 }
             }
 
+            void AddNestedResourceCompletions(IDictionary<string, CompletionItem> result)
+            {
+                foreach (var resource in model.DeclaredResources)
+                {
+                    var resourceNameComponents = model.ResourceAncestors.GetAncestors(resource)
+                        .Where(ancestor => ancestor.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested)
+                        .Select(ancestor => ancestor.Resource.Symbol)
+                        .Append(resource.Symbol)
+                        .ToArray();
+
+                    if (resourceNameComponents.Length == 1 ||
+                        resourceNameComponents.Any(symbol => !symbol.NameSource.IsValid || !symbol.CanBeReferenced()) ||
+                        !ShouldSymbolBeIncludedInCompletion(resource.Symbol, model, context, enclosingDecorableSymbol))
+                    {
+                        continue;
+                    }
+
+                    var qualifiedResourceName = string.Join("::", resourceNameComponents.Select(symbol => symbol.Name));
+                    if (!result.ContainsKey(qualifiedResourceName))
+                    {
+                        var priority = GetContextualCompletionPriority(resource.Symbol, model, context, enclosingDecorableSymbol);
+                        result.Add(qualifiedResourceName, CreateSymbolCompletion(
+                            resource.Symbol,
+                            context.ReplacementRange,
+                            priority: priority,
+                            model: model,
+                            insertText: qualifiedResourceName));
+                    }
+                }
+            }
+
             // local function
             IEnumerable<FunctionSymbol> GetAccessibleDecoratorFunctionsWithCache(NamespaceType namespaceType)
             {
@@ -1085,6 +1116,8 @@ namespace Bicep.LanguageServer.Completions
                         symbolFilter = symbol => symbol is VariableSymbol or ImportedVariableSymbol or DeclaredFunctionSymbol or ImportedFunctionSymbol or WildcardImportSymbol or ResourceSymbol;
                     }
                 }
+
+                AddNestedResourceCompletions(completions);
             }
             else
             {

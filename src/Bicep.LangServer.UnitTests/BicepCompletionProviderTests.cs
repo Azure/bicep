@@ -216,6 +216,47 @@ output o int = 42
         }
 
         [TestMethod]
+        public async Task GetFilteredCompletions_WithNestedResourceDeclarations_ReturnsQualifiedResourceReferences()
+        {
+            var compilation = Services.BuildCompilation(@"
+resource parent 'Microsoft.Foo/foos@2020-09-01' = {
+  name: 'foo'
+
+  resource child 'bars' = {
+    name: 'bar'
+
+    resource grandchild 'bazs' = {
+      name: 'baz'
+    }
+  }
+}
+
+var v =
+");
+            var offset = compilation.GetEntrypointSemanticModel().Root.VariableDeclarations.Select(x => x.DeclaringVariable).Single().Value.Span.Position;
+
+            var context = BicepCompletionContext.Create(compilation, offset);
+            var completionProvider = CreateProvider();
+            var completions = (await completionProvider.GetFilteredCompletions(compilation, context, CancellationToken.None)).ToList();
+
+            var resourceCompletions = completions
+                .Where(c => c.Kind == SymbolKind.Resource.ToCompletionItemKind())
+                .ToDictionary(c => c.Label);
+
+            resourceCompletions.Keys.Should().BeEquivalentTo([
+                "parent",
+                "parent::child",
+                "parent::child::grandchild",
+            ]);
+
+            var nestedResourceCompletion = resourceCompletions["parent::child::grandchild"];
+            nestedResourceCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
+            nestedResourceCompletion.TextEdit!.TextEdit!.NewText.Should().Be("parent::child::grandchild");
+            nestedResourceCompletion.CommitCharacters.Should().BeEquivalentTo([":",]);
+            nestedResourceCompletion.Detail.Should().Be("parent::child::grandchild");
+        }
+
+        [TestMethod]
         public async Task CompletionsForOneLinerParameterDefaultValueShouldIncludeFunctionsValidInDefaultValues()
         {
             var compilation = Services.BuildCompilation(@"param p string = ");
