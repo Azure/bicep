@@ -790,6 +790,24 @@ namespace Bicep.Core {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Secure parameter values should not be assigned to insecure parameters in a parameters file..
+        /// </summary>
+        internal static string SecureParamsInParametersFileRule_Description {
+            get {
+                return ResourceManager.GetString("SecureParamsInParametersFileRule_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Insecure parameter &apos;{0}&apos; is assigned a value that references secure parameter(s) {1}, which could expose their values in deployment history..
+        /// </summary>
+        internal static string SecureParamsInParametersFileRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("SecureParamsInParametersFileRule_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Either set the deployment&apos;s properties.expressionEvaluationOptions.scope to &apos;inner&apos; or use a Bicep module instead..
         /// </summary>
         internal static string SecureParamsInNestedDeployRule_Solution {
