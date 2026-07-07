@@ -67,6 +67,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetArrayItemCompletions(model, context))
                 .Concat(GetResourceTypeCompletions(model, context))
                 .Concat(GetResourceTypeFollowerCompletions(context))
+                .Concat(GetModulePathFollowerCompletions(context))
                 .Concat(GetLocalModulePathCompletions(model, context))
                 .Concat(GetModuleBodyCompletions(model, context))
                 .Concat(GetTestBodyCompletions(model, context))
@@ -524,6 +525,19 @@ namespace Bicep.LanguageServer.Completions
                 {
                     const string existing = "existing";
                     yield return CreateKeywordCompletion(existing, existing, context.ReplacementRange);
+                }
+            }
+        }
+
+        private static IEnumerable<CompletionItem> GetModulePathFollowerCompletions(BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ModulePathFollower))
+            {
+                if (context.EnclosingDeclaration is ModuleDeclarationSyntax module &&
+                    module.Assignment is SkippedTriviaSyntax { Elements: { IsDefaultOrEmpty: true } })
+                {
+                    const string equals = "=";
+                    yield return CreateOperatorCompletion(equals, context.ReplacementRange, preselect: true);
                 }
             }
         }
