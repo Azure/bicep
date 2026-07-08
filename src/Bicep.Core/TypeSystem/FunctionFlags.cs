@@ -93,7 +93,7 @@ namespace Bicep.Core.TypeSystem
         RequiresExternalInput = 1 << 16,
 
         /// <summary>
-        /// The function result is determined by its arguments and compile-time state.
+        /// The function result is determined only by its arguments and compile-time state.
         /// </summary>
         Pure = 1 << 17,
 
