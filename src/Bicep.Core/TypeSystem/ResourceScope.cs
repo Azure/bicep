@@ -21,5 +21,7 @@ namespace Bicep.Core.TypeSystem
         ResourceGroup = 1 << 5,
 
         Local = 1 << 6,
+
+        Orchestrator = 1 << 7,
     }
 }
