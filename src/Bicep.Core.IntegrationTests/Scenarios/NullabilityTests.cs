@@ -518,4 +518,24 @@ func sum(a int?, b int?) int => a + b + 1
             "$.functions[0].members['sum'].output.value",
             "[add(add(parameters('a'), parameters('b')), 1)]");
     }
+
+    [TestMethod]
+    public void Multi_line_nullable_operand_source_text_is_rendered_on_a_single_line_in_the_diagnostic_message()
+    {
+        // The offending operand spans multiple lines in the source. The BCP321 message must render on a single line
+        // (newlines replaced with spaces) so it stays readable in CLI/IDE output — indentation whitespace is preserved
+        // as-is, we just guarantee the message never contains a raw newline.
+        var result = CompilationHelper.Compile(@"
+func firstOrZero(input int[]) int => first(filter(
+  input,
+  x => x != 0
+)) + 1
+");
+
+        result.Template.Should().NotBeNull();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""int"" but the provided value ""first(filter(   input,   x => x != 0 ))"" is of type ""int | null""."),
+        });
+    }
 }
