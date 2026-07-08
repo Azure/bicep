@@ -71,6 +71,31 @@ public class ParametersJsonWriter
                     }
                 });
             }
+
+            if (this.Context.SemanticModel.EmitLimitationInfo.UsingConfig is { } usingConfig)
+            {
+                emitter.EmitObjectProperty("$usingConfig", () =>
+                {
+                    if (usingConfig.KeyVaultReferenceExpression is { } keyVaultReference)
+                    {
+                        WriteKeyVaultReference(emitter, keyVaultReference, "reference");
+                    }
+                    else if (usingConfig.Value is { } value)
+                    {
+                        emitter.EmitProperty("value", () => value.WriteTo(jsonWriter));
+                    }
+                    else if (usingConfig.Expression is { } expression)
+                    {
+                        // The backend is always expecting an expression string, so we must always ensure we emit
+                        // a top-level expression, even if we could simplify by emitting a top-level object.
+                        emitter.EmitProperty("expression", () => emitter.EmitLanguageExpression(expression));
+                    }
+                    else
+                    {
+                        throw new UnreachableException();
+                    }
+                });
+            }
         });
 
         if (this.Context.SemanticModel.EmitLimitationInfo.ExternalInputDefinitions is { } externalInputDefinitions)

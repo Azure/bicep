@@ -330,6 +330,43 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceModuleDeclarationSyntax);
 
+        protected virtual SyntaxBase ReplaceStackDeclarationSyntax(StackDeclarationSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Name, out var name);
+            hasChanges |= TryRewrite(syntax.Path, out var path);
+            hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
+            hasChanges |= TryRewrite(syntax.Newlines, out var newlines);
+            hasChanges |= TryRewrite(syntax.Value, out var value);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new StackDeclarationSyntax(leadingNodes, keyword, name, path, assignment, newlines.Cast<Token>().ToImmutableArray(), value);
+        }
+        void ISyntaxVisitor.VisitStackDeclarationSyntax(StackDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceStackDeclarationSyntax);
+
+        protected virtual SyntaxBase ReplaceRuleDeclarationSyntax(RuleDeclarationSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Name, out var name);
+            hasChanges |= TryRewrite(syntax.Type, out var type);
+            hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
+            hasChanges |= TryRewrite(syntax.Value, out var value);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new RuleDeclarationSyntax(leadingNodes, keyword, name, type, assignment, value);
+        }
+        void ISyntaxVisitor.VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceRuleDeclarationSyntax);
+
         protected virtual SyntaxBase ReplaceTestDeclarationSyntax(TestDeclarationSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);

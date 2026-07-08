@@ -53,6 +53,10 @@ includes enhancements for Deployment stacks extensibility integration. This feat
 
 Switches all OCI registry operations to the ORAS transport, including Azure Container Registry (ACR), and enables Docker-based authentication for non-Azure registries (e.g. GitHub Container Registry, Docker Hub, self-hosted registries). When disabled (the default), Bicep continues to use the ACR SDK. For more information, see [Using OCI Registries](./experimental/oci-registries.md).
 
+### `orchestration`
+
+Enables Bicep to in orchestration mode. For more information, see [Using Orchestration](../orchestration/README.md).
+
 ### `patch`
 
 Enables the `@patch()` decorator for deploying resources using the PATCH HTTP method instead of PUT. This feature is restricted to Azure Policy DeployIfNotExists (DINE) scenarios, allowing policies to make incremental changes to existing resources without full redeployment.

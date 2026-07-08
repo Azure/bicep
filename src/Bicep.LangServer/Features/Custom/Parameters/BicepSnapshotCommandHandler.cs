@@ -71,6 +71,7 @@ namespace Bicep.LanguageServer.Features.Custom.Parameters
                     resourceGroup: null,
                     location: null,
                     deploymentName: null,
+                    includeSymbolicNames: false,
                     cancellationToken: cancellationToken,
                     externalInputs: []);
 

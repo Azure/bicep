@@ -55,5 +55,6 @@ public static class TestFeatureProviderFactory
 
         public bool AzExtensionConfigEnabled => features.AzExtensionConfigEnabled;
 
+        public bool OrchestrationEnabled => features.OrchestrationEnabled;
     }
 }
