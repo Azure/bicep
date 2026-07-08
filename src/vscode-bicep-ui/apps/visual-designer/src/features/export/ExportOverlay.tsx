@@ -37,7 +37,7 @@ export function ExportOverlay() {
   }, [handleClose]);
 
   return (
-    <$OverlayContainer>
+    <$OverlayContainer data-testid="export-overlay">
       <ExportToolbar />
     </$OverlayContainer>
   );

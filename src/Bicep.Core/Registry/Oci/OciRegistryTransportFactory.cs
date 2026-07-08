@@ -59,7 +59,7 @@ public class OciRegistryTransportFactory : IOciRegistryTransportFactory
 
         // Any other host: when the experimental OCI feature is enabled, use ORAS with docker-config credentials.
         // Otherwise, fall back to the Azure SDK session (preserves pre-experimental-flag behavior).
-        if (reference.ReferencingFile.Features.OciEnabled)
+        if (reference.FeatureProvider.OciEnabled)
         {
             return new OrasRegistrySession(reference.Registry, reference.Repository, dockerCredentialProvider);
         }

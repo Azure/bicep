@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
@@ -239,6 +240,196 @@ invalid file
         {
             ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
         });
+    }
+
+    [TestMethod]
+    public void GetSecret_without_expressions_in_parameters_generates_expected_keyVault_reference()
+    {
+        var result = CompilationHelper.CompileParams(
+("parameters.bicepparam", """
+using none
+param foo = getSecret('subId', 'rgName', 'kvName', 'secretName', 'secretVersion')
+param bar = getSecret('subId', 'rgName', 'kvName', 'secretName')
+"""));
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo"].Reference.Should().NotBeNull();
+        parameters["foo"].Reference.Should().DeepEqual(new JObject
+        {
+            ["keyVault"] = new JObject
+            {
+                ["id"] = "/subscriptions/subId/resourceGroups/rgName/providers/Microsoft.KeyVault/vaults/kvName",
+            },
+            ["secretName"] = "secretName",
+            ["secretVersion"] = "secretVersion",
+        });
+
+        parameters["bar"].Reference.Should().NotBeNull();
+        parameters["bar"].Reference.Should().DeepEqual(new JObject
+        {
+            ["keyVault"] = new JObject
+            {
+                ["id"] = "/subscriptions/subId/resourceGroups/rgName/providers/Microsoft.KeyVault/vaults/kvName",
+            },
+            ["secretName"] = "secretName"
+        });
+    }
+
+    [TestMethod]
+    public void GetSecret_expressions_in_parameters_generates_expected_keyVault_reference()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using none
+
+param foo = getSecret(
+  externalInput('subId'),
+  externalInput('rgName'),
+  externalInput('kvName'),
+  externalInput('secretName'),
+  externalInput('secretVersion'))
+
+var subId = externalInput('subId')
+var rgName = externalInput('rgName')
+var kvName = externalInput('kvName')
+var secretName = externalInput('secretName')
+
+param bar = getSecret(subId, rgName, kvName, secretName)
+"""));
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["foo"].Reference.Should().NotBeNull();
+        parameters["foo"].Reference.Should().DeepEqual(new JObject
+        {
+            ["keyVault"] = new JObject
+            {
+                ["id"] = "[resourceId(externalInputs('subId_0'), externalInputs('rgName_1'), 'Microsoft.KeyVault', 'vaults', externalInputs('kvName_2'))]"
+            },
+            ["secretName"] = "[externalInputs('secretName_3')]",
+            ["secretVersion"] = "[externalInputs('secretVersion_4')]"
+        });
+        parameters["bar"].Reference.Should().NotBeNull();
+        parameters["bar"].Reference.Should().DeepEqual(new JObject
+        {
+            ["keyVault"] = new JObject
+            {
+                ["id"] = "[resourceId(externalInputs('subId_0'), externalInputs('rgName_1'), 'Microsoft.KeyVault', 'vaults', externalInputs('kvName_2'))]"
+            },
+            ["secretName"] = "[externalInputs('secretName_3')]"
+        });
+
+        var externalInputs = TemplateHelper.ConvertAndAssertExternalInputs(result.Parameters);
+        externalInputs["subId_0"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "subId",
+        });
+        externalInputs["rgName_1"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "rgName",
+        });
+        externalInputs["kvName_2"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "kvName",
+        });
+        externalInputs["secretName_3"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "secretName",
+        });
+        externalInputs["secretVersion_4"].Should().DeepEqual(new JObject
+        {
+            ["kind"] = "secretVersion",
+        });
+    }
+
+    [TestMethod]
+    public void All_getSecret_forms_emit_keyVault_references()
+    {
+        var parametersResult = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using none
+
+param fromGetSecret = getSecret('subId', 'rgName', 'kvName', 'secretName', 'secretVersion')
+param fromAzGetSecret = az.getSecret('subId', 'rgName', 'kvName', 'secretName', 'secretVersion')
+param fromGetSecretWithoutVersion = getSecret('subId', 'rgName', 'kvName', 'secretName')
+param fromAzGetSecretWithoutVersion = az.getSecret('subId', 'rgName', 'kvName', 'secretName')
+"""));
+
+        var templateResult = CompilationHelper.Compile(
+            ("main.bicep", """
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: 'kvName'
+}
+
+module secret 'secret.bicep' = {
+  name: 'secret'
+  params: {
+    fromResourceGetSecret: kv.getSecret('secretName', 'secretVersion')
+    fromResourceGetSecretWithoutVersion: kv.getSecret('secretName')
+  }
+}
+"""),
+            ("secret.bicep", """
+@secure()
+param fromResourceGetSecret string
+
+@secure()
+param fromResourceGetSecretWithoutVersion string
+"""));
+
+        using (new AssertionScope())
+        {
+            parametersResult.Should().NotHaveAnyDiagnostics();
+            templateResult.Should().NotHaveAnyDiagnostics();
+        }
+
+        var parameters = TemplateHelper.ConvertAndAssertParameters(parametersResult.Parameters);
+
+        AssertGetSecretForms(parameters, templateResult.Template, "fromGetSecret", "fromAzGetSecret", "fromResourceGetSecret", "secretVersion");
+        AssertGetSecretForms(parameters, templateResult.Template, "fromGetSecretWithoutVersion", "fromAzGetSecretWithoutVersion", "fromResourceGetSecretWithoutVersion", null);
+    }
+
+    private static void AssertGetSecretForms(
+        ImmutableDictionary<string, TemplateHelper.ParameterProperties> parameters,
+        JToken? template,
+        string getSecretParameterName,
+        string azGetSecretParameterName,
+        string resourceGetSecretParameterName,
+        string? expectedSecretVersion)
+    {
+        var getSecretReference = parameters[getSecretParameterName].Reference;
+        var azGetSecretReference = parameters[azGetSecretParameterName].Reference;
+        var resourceGetSecretParameter = template!.SelectToken($"$.resources[?(@.name == 'secret')].properties.parameters.{resourceGetSecretParameterName}")!;
+        var resourceGetSecretReference = resourceGetSecretParameter.SelectToken("$.reference");
+
+        using (new AssertionScope())
+        {
+            parameters[getSecretParameterName].Value.Should().BeNull();
+            parameters[azGetSecretParameterName].Value.Should().BeNull();
+            resourceGetSecretParameter.SelectToken("$.value").Should().BeNull();
+
+            getSecretReference.Should().NotBeNull();
+            azGetSecretReference.Should().NotBeNull();
+            getSecretReference!.Should().DeepEqual(azGetSecretReference!);
+
+            AssertKeyVaultReference(getSecretReference, "secretName", expectedSecretVersion);
+            AssertKeyVaultReference(azGetSecretReference, "secretName", expectedSecretVersion);
+            AssertKeyVaultReference(resourceGetSecretReference, "secretName", expectedSecretVersion);
+        }
+    }
+
+    private static void AssertKeyVaultReference(JToken? reference, string expectedSecretName, string? expectedSecretVersion)
+    {
+        reference.Should().NotBeNull();
+        reference!.SelectToken("$.keyVault.id").Should().NotBeNull();
+        reference.SelectToken("$.secretName")!.Should().DeepEqual(expectedSecretName);
+        if (expectedSecretVersion is null)
+        {
+            reference.SelectToken("$.secretVersion").Should().BeNull();
+        }
+        else
+        {
+            reference.SelectToken("$.secretVersion")!.Should().DeepEqual(expectedSecretVersion);
+        }
     }
 
     [TestMethod]

@@ -20,6 +20,7 @@ using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Configuration;
 using Bicep.LanguageServer.Deploy;
+using Bicep.LanguageServer.Features.Custom.Visualization;
 using Bicep.LanguageServer.Options;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
@@ -61,6 +62,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IDeploymentHelper, DeploymentHelper>()
         .AddSingleton<ISettingsProvider, SettingsProvider>()
         .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>()
+        .AddSingleton<IVisualGraphLayoutEngine, MsaglVisualGraphLayoutEngine>()
         .AddSingleton(bicepLangServerOptions)
         .AddSingleton<DocumentSelectorFactory>();
 }

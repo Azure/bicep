@@ -1,23 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.CommandLine.Builder;
+using System.CommandLine;
 using Bicep.RegistryModuleTool.Options;
 
 namespace Bicep.RegistryModuleTool.Extensions
 {
     public static class CommandLineBuilderExtensions
     {
-        public static CommandLineBuilder UseVerboseOption(this CommandLineBuilder builder)
+        /// <summary>Adds <see cref="GlobalOptions.Verbose"/> as a global option on the root command.</summary>
+        public static Command UseVerboseOption(this Command command)
         {
-            if (builder.Command.Children.Any(x => x is VerboseOption))
+            if (!command.Options.Any(x => x is VerboseOption))
             {
-                return builder;
+                command.Add(GlobalOptions.Verbose);
             }
 
-            builder.Command.AddGlobalOption(GlobalOptions.Verbose);
-
-            return builder;
+            return command;
         }
     }
 }

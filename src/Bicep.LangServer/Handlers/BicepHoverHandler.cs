@@ -5,12 +5,15 @@ using System.Text;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
+using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -24,23 +27,28 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IArtifactRegistryProvider moduleRegistryProvider;
         private readonly ISymbolResolver symbolResolver;
+        private readonly ICompilationManager compilationManager;
         private readonly DocumentSelectorFactory documentSelectorFactory;
 
         public BicepHoverHandler(
             IModuleDispatcher moduleDispatcher,
             IArtifactRegistryProvider moduleRegistryProvider,
             ISymbolResolver symbolResolver,
+            ICompilationManager compilationManager,
             DocumentSelectorFactory documentSelectorFactory)
         {
             this.moduleDispatcher = moduleDispatcher;
             this.moduleRegistryProvider = moduleRegistryProvider;
             this.symbolResolver = symbolResolver;
+            this.compilationManager = compilationManager;
             this.documentSelectorFactory = documentSelectorFactory;
         }
 
         public override async Task<Hover?> Handle(HoverParams request, CancellationToken cancellationToken)
         {
-            var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
+            // ResolveSymbol returns null over a resource type string; fall back to show the resource hover there.
+            var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position)
+                ?? TryResolveResourceTypeSymbol(request);
             if (result == null)
             {
                 return null;
@@ -57,6 +65,33 @@ namespace Bicep.LanguageServer.Handlers
                 Contents = markdown,
                 Range = PositionHelper.GetNameRange(result.Context.LineStarts, result.Origin)
             };
+        }
+
+        // A resource type string is a type reference, not a symbol reference, so ResolveSymbol returns
+        // null over it. We handle it here rather than in ResolveSymbol because that resolver also backs
+        // rename, go-to-definition, find-references, and highlight, which shouldn't act on the resource
+        // from its type string. Resolving the enclosing declaration binds to the same symbol as a hover
+        // over the resource name.
+        private SymbolResolutionResult? TryResolveResourceTypeSymbol(HoverParams request)
+        {
+            var context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
+            if (context is null)
+            {
+                return null;
+            }
+
+            var offset = PositionHelper.GetOffset(context.LineStarts, request.Position);
+            var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(context.ProgramSyntax, offset);
+
+            if (SyntaxMatcher.GetTailMatch<ResourceDeclarationSyntax, StringSyntax, Token>(matchingNodes) is not (var resourceDeclaration, var typeString, _) ||
+                resourceDeclaration.Type != typeString ||
+                context.Compilation.GetEntrypointSemanticModel().GetSymbolInfo(resourceDeclaration) is not ResourceSymbol resource)
+            {
+                return null;
+            }
+
+            // Report the type string as the origin so the hover highlights it (rather than the name).
+            return new SymbolResolutionResult(typeString, resource, context);
         }
 
         private static string? TryGetDescription(SymbolResolutionResult result, DeclaredSymbol symbol)
@@ -311,10 +346,19 @@ namespace Bicep.LanguageServer.Handlers
                 resourceType.DeclaringNamespace.ExtensionNameEquals(AzNamespaceType.BuiltInName) &&
                 resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
             {
-                var provider = resourceType.TypeReference.TypeSegments.First().ToLowerInvariant();
-                var typePath = resourceType.TypeReference.TypeSegments.Skip(1).Select(x => x.ToLowerInvariant());
+                var typeReference = resourceType.TypeReference;
+                var provider = typeReference.TypeSegments.First().ToLowerInvariant();
+                var typePath = string.Join('/', typeReference.TypeSegments.Skip(1).Select(x => x.ToLowerInvariant()));
 
-                return $"https://learn.microsoft.com/azure/templates/{provider}/{string.Join('/', typePath)}?pivots=deployment-language-bicep";
+                // Learn hosts a page per API version alongside a versionless page for the latest, so link
+                // to the pinned version's page to match the resource. ApiVersion is null only if no version
+                // was given, in which case we fall back to the versionless URL.
+                var apiVersion = typeReference.ApiVersion;
+                var versionSegment = string.IsNullOrEmpty(apiVersion)
+                    ? ""
+                    : $"{apiVersion.ToLowerInvariant()}/";
+
+                return $"https://learn.microsoft.com/azure/templates/{provider}/{versionSegment}{typePath}?pivots=deployment-language-bicep";
             }
 
             return null;

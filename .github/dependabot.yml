@@ -45,6 +45,10 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
   - package-ecosystem: "npm"
     directory: "/src/vscode-bicep"
     schedule:
@@ -55,41 +59,73 @@ updates:
       - dependency-name: "@types/vscode"
         versions:
           - ">1.90.0"
+    groups:
+      npm-vscode-bicep:
+        patterns:
+          - "*"
   - package-ecosystem: "npm"
     directory: "/src/vscode-bicep-ui"
     schedule:
       interval: "weekly"
       day: "sunday"
+    groups:
+      npm-vscode-bicep-ui:
+        patterns:
+          - "*"
   - package-ecosystem: "npm"
     directory: "/src/playground"
     schedule:
       interval: "weekly"
       day: "sunday"
+    groups:
+      npm-playground:
+        patterns:
+          - "*"
   - package-ecosystem: "npm"
     directory: "/src/Bicep.Cli.E2eTests"
     schedule:
       interval: "weekly"
       day: "sunday"
+    groups:
+      npm-bicep-cli-e2e:
+        patterns:
+          - "*"
   - package-ecosystem: "npm"
     directory: "/src/Bicep.MSBuild.E2eTests"
     schedule:
       interval: "weekly"
       day: "sunday"
+    groups:
+      npm-bicep-msbuild-e2e:
+        patterns:
+          - "*"
   - package-ecosystem: "npm"
     directory: "/src/textmate"
     schedule:
       interval: "weekly"
       day: "sunday"
+    groups:
+      npm-textmate:
+        patterns:
+          - "*"
   - package-ecosystem: "npm"
     directory: "/src/highlightjs"
     schedule:
       interval: "weekly"
       day: "sunday"
+    groups:
+      npm-highlightjs:
+        patterns:
+          - "*"
   - package-ecosystem: "npm"
     directory: "/src/monarch"
     schedule:
       interval: "weekly"
       day: "sunday"
+    groups:
+      npm-monarch:
+        patterns:
+          - "*"
   - package-ecosystem: "devcontainers"
     directory: "/"
     schedule:
@@ -99,6 +135,10 @@ updates:
     schedule:
       interval: weekly
       day: wednesday
+    groups:
+      dotnet-sdk:
+        patterns:
+          - "*"
     ignore:
       - dependency-name: '*'
         update-types:

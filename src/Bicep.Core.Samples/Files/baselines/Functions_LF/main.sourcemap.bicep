@@ -150,7 +150,7 @@ output fooValue array = fooTest()
 //@    "fooValue": {
 //@      "type": "array",
 //@      "value": "[__bicep.fooTest()]"
-//@    }
+//@    },
 
 func test() object => loadJsonContent('./repro-data.json')
 //@        "test": {
@@ -250,4 +250,60 @@ func buildUrlMultiLine(
 ) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
 //@            "type": "string",
 //@            "value": "[format('{0}://{1}{2}', if(parameters('https'), 'https', 'http'), parameters('hostname'), if(empty(parameters('path')), '', format('/{0}', parameters('path'))))]"
+
+output likeExactMatch bool =like('abc', 'abc')
+//@    "likeExactMatch": {
+//@      "type": "bool",
+//@      "value": "[like('abc', 'abc')]"
+//@    },
+output likeWildCardMatch bool= like ('abcdef', 'a*c*')
+//@    "likeWildCardMatch": {
+//@      "type": "bool",
+//@      "value": "[like('abcdef', 'a*c*')]"
+//@    },
+output likewildcard bool = like('abcabc', '*abc')
+//@    "likewildcard": {
+//@      "type": "bool",
+//@      "value": "[like('abcabc', '*abc')]"
+//@    },
+output likewildcardtest2 bool = like('aXaYa' , 'a*a')
+//@    "likewildcardtest2": {
+//@      "type": "bool",
+//@      "value": "[like('aXaYa', 'a*a')]"
+//@    },
+output likewildcardtest3 bool = like('' , '***')
+//@    "likewildcardtest3": {
+//@      "type": "bool",
+//@      "value": "[like('', '***')]"
+//@    },
+output likewildcardtest4 bool = like('a', 'b')
+//@    "likewildcardtest4": {
+//@      "type": "bool",
+//@      "value": "[like('a', 'b')]"
+//@    },
+output likewildcardtest5 bool = like('abc**def', '*def')
+//@    "likewildcardtest5": {
+//@      "type": "bool",
+//@      "value": "[like('abc**def', '*def')]"
+//@    },
+output likewildcardtest6 bool = like('aXbYa', 'a*b*a')
+//@    "likewildcardtest6": {
+//@      "type": "bool",
+//@      "value": "[like('aXbYa', 'a*b*a')]"
+//@    },
+output distinctTest array = distinct(['a','b','a','c','b'])
+//@    "distinctTest": {
+//@      "type": "array",
+//@      "value": "[distinct(createArray('a', 'b', 'a', 'c', 'b'))]"
+//@    },
+output distinctTest2 array = distinct([1,2,3,1,2,4])
+//@    "distinctTest2": {
+//@      "type": "array",
+//@      "value": "[distinct(createArray(1, 2, 3, 1, 2, 4))]"
+//@    },
+output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])
+//@    "distinctTest3": {
+//@      "type": "array",
+//@      "value": "[distinct(createArray(createObject('a', 1), createObject('a', 1), createObject('b', 2)))]"
+//@    }
 

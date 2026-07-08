@@ -12,6 +12,7 @@ using Azure.Deployments.Engine;
 using Azure.Deployments.Engine.Definitions;
 using Azure.Deployments.Engine.Dependencies;
 using Azure.Deployments.Engine.DeploymentExpander;
+using Azure.Deployments.Engine.Extensions;
 using Azure.Deployments.Engine.External;
 using Azure.Deployments.Engine.Http;
 using Azure.Deployments.Engine.Interfaces;
@@ -51,12 +52,12 @@ internal static class IServiceCollectionExtensions
         services.AddSingleton<ITemplateExceptionHandler, TemplateExceptionHandler>();
 
         services.AddSingleton<AzureDeploymentValidation>();
-        services.AddSingleton<IExtensionConfigSchemaDirectoryFactory, FactBasedExtensionConfigSchemaDirectoryFactory>();
         services.AddSingleton<IAzureDeploymentConfiguration, LocalDeploymentConfiguration>();
         services.AddSingleton<AzureDeploymentEngine>();
         services.AddSingleton<IDeploymentEntityFactory, VolatileDeploymentEntityFactory>();
         services.AddSingleton<IDeploymentJobsDataProvider, VolatileDeploymentJobDataProvider>();
         services.AddSingleton<IDataProviderHolder, VolatileDataProviderHolder>();
+        services.AddResourceTypeRegistrationCaching();
         services.AddSingleton<IResourceTypeRegistrationProvider, ResourceTypeRegistrationProvider>();
 
         var jobConfiguration = new JobConfigurationBase

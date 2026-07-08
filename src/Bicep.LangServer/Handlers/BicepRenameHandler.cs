@@ -7,6 +7,8 @@ using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -14,30 +16,30 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepRenameHandler(ISymbolResolver symbolResolver, DocumentSelectorFactory documentSelectorFactory) : RenameHandlerBase
+    public class BicepRenameHandler : RenameHandlerBase
     {
+        internal const string CannotRenameSymbolMessage = "The selected location does not contain a renameable Bicep symbol.";
+        private const string InvalidIdentifierMessage = "The new name must be a valid Bicep identifier.";
+
+        private readonly ISymbolResolver symbolResolver;
+        private readonly DocumentSelectorFactory documentSelectorFactory;
+
+        public BicepRenameHandler(ISymbolResolver symbolResolver, DocumentSelectorFactory documentSelectorFactory)
+        {
+            this.symbolResolver = symbolResolver;
+            this.documentSelectorFactory = documentSelectorFactory;
+        }
+
         public override Task<WorkspaceEdit?> Handle(RenameParams request, CancellationToken cancellationToken)
         {
-            var result = symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
-            if (result == null || !(result.Symbol is DeclaredSymbol))
-            {
-                // result is not a symbol or it's a built-in symbol that was not declared by the user (namespaces, functions, for example)
-                // symbols that are not declared by the user cannot be renamed
-                return Task.FromResult<WorkspaceEdit?>(null);
-            }
-
-            if (result.Symbol is PropertySymbol)
-            {
-                // TODO: Implement for PropertySymbol
-                return Task.FromResult<WorkspaceEdit?>(null);
-            }
+            // Re-validate here even though BicepPrepareRenameHandler already checks the location. textDocument/prepareRename
+            // is only an optional preflight - clients are not required to call it before textDocument/rename, and some don't.
+            // So the rename request must be self-sufficient and cannot rely on prepare having rejected invalid locations.
+            var result = ResolveRenameableSymbol(this.symbolResolver, request.TextDocument.Uri, request.Position);
 
             if (!Lexer.IsValidIdentifier(request.NewName))
             {
-                // if the value that the user wants to rename to is invalid (contains characters, etc.), the rename will fail.
-                // despite there being a way for errors to be represented in LSP (https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_rename),
-                // we are failing here as Omnisharp doesn't handle returning error messages.
-                return Task.FromResult<WorkspaceEdit?>(null);
+                throw CreateRenameError(InvalidIdentifierMessage);
             }
 
             var textEdits = result.Context.Compilation.GetEntrypointSemanticModel()
@@ -59,7 +61,20 @@ namespace Bicep.LanguageServer.Handlers
             });
         }
 
-        private static IdentifierSyntax? GetIdentifier(SyntaxBase syntax)
+        internal static SymbolResolutionResult ResolveRenameableSymbol(ISymbolResolver symbolResolver, DocumentUri uri, Position position)
+        {
+            var result = symbolResolver.ResolveSymbol(uri, position);
+            if (result is null || result.Symbol is not DeclaredSymbol || result.Symbol is PropertySymbol)
+            {
+                throw CreateRenameError(CannotRenameSymbolMessage);
+            }
+
+            return result;
+        }
+
+        internal static RpcErrorException CreateRenameError(string message) => new(ErrorCodes.RequestFailed, string.Empty, message);
+
+        internal static IdentifierSyntax? GetIdentifier(SyntaxBase syntax)
         {
             switch (syntax)
             {
@@ -82,8 +97,8 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override RenameRegistrationOptions CreateRegistrationOptions(RenameCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
-            PrepareProvider = false
+            DocumentSelector = this.documentSelectorFactory.CreateForBicepAndParams(),
+            PrepareProvider = true
         };
     }
 }

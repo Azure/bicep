@@ -18,16 +18,13 @@ public record FeatureProviderOverrides(
     bool? LegacyFormatterEnabled = default,
     bool? TestFrameworkEnabled = default,
     bool? AssertsEnabled = default,
-    bool? WaitAndRetryEnabled = default,
+    bool? WaitUntilEnabled = default,
     bool? LocalDeployEnabled = default,
     bool? ResourceInfoCodegenEnabled = default,
-    bool? ExtendableParamFilesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
     bool? ModuleExtensionConfigsEnabled = default,
     bool? UserDefinedConstraintsEnabled = default,
-    bool? DeployCommandsEnabled = default,
-    bool? ThisNamespaceEnabled = default,
-    bool? ExistingNullIfNotFoundEnabled = default)
+    bool? DeployCommandsEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -40,16 +37,13 @@ public record FeatureProviderOverrides(
         bool? LegacyFormatterEnabled = default,
         bool? TestFrameworkEnabled = default,
         bool? AssertsEnabled = default,
-        bool? WaitAndRetryEnabled = default,
+        bool? WaitUntilEnabled = default,
         bool? LocalDeployEnabled = default,
         bool? ResourceInfoCodegenEnabled = default,
-        bool? ExtendableParamFilesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
         bool? ModuleExtensionConfigsEnabled = default,
         bool? UserDefinedConstraintsEnabled = default,
-        bool? DeployCommandsEnabled = default,
-        bool? ThisNamespaceEnabled = default,
-        bool? ExistingNullIfNotFoundEnabled = default) : this(
+        bool? DeployCommandsEnabled = default) : this(
             FileHelper.GetCacheRootDirectory(testContext),
             RegistryEnabled,
             OciEnabled,
@@ -60,15 +54,12 @@ public record FeatureProviderOverrides(
             LegacyFormatterEnabled,
             TestFrameworkEnabled,
             AssertsEnabled,
-            WaitAndRetryEnabled,
+            WaitUntilEnabled,
             LocalDeployEnabled,
             ResourceInfoCodegenEnabled,
-            ExtendableParamFilesEnabled,
             AssemblyVersion,
             ModuleExtensionConfigsEnabled,
             UserDefinedConstraintsEnabled,
-            DeployCommandsEnabled,
-            ThisNamespaceEnabled,
-            ExistingNullIfNotFoundEnabled)
+            DeployCommandsEnabled)
     { }
 }

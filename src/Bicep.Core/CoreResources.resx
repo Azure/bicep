@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -194,6 +194,17 @@
   </data>
   <data name="NoHardcodedLocationRuleDescription" xml:space="preserve">
     <value>A resource's location should not use a hard-coded string or variable value. It should use a parameter, an expression, or the string 'global'.</value>
+  </data>
+  <data name="NoHardcodedOutputsRuleDescription" xml:space="preserve">
+    <value>Outputs should not be used for hard-coded constants. Use exported variables instead.</value>
+  </data>
+  <data name="NoHardcodedOutputsRuleFixTitle" xml:space="preserve">
+    <value>Create exported variable '{0}' and remove output '{1}'</value>
+    <comment>{0} is a programmatic variable name, {1} is a programmatic output name</comment>
+  </data>
+  <data name="NoHardcodedOutputsRuleMessageFormat" xml:space="preserve">
+    <value>Output '{0}' uses a hard-coded value. Use an exported variable for constants that need to be imported by other files.</value>
+    <comment>{0} is a programmatic output name</comment>
   </data>
   <data name="NoLocExprOutsideParamsRuleError" xml:space="preserve">
     <value>Use a parameter here instead of '{0}'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.</value>
@@ -348,6 +359,13 @@
   <data name="SecureParamsInNestedDeployRule_Solution" xml:space="preserve">
     <value>Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.</value>
   </data>
+  <data name="SecureParamsInParametersFileRule_Description" xml:space="preserve">
+    <value>Secure parameter values should not be assigned to insecure parameters in a parameters file.</value>
+  </data>
+  <data name="SecureParamsInParametersFileRule_MessageFormat" xml:space="preserve">
+    <value>Insecure parameter '{0}' is assigned a value that references secure parameter(s) {1}, which could expose their values in deployment history.</value>
+    <comment>{0} = programmatic name of the insecure parameter, {1} = comma-separated list of secure parameter names</comment>
+  </data>
   <data name="UseResourceSymbolReferenceRule_Description" xml:space="preserve">
     <value>Use a direct resource symbol reference instead of 'reference' or 'list*' functions.</value>
   </data>
@@ -501,8 +519,8 @@
   <data name="ExperimentalFeatureNames_TestFramework" xml:space="preserve">
     <value>Test framework</value>
   </data>
-  <data name="ExperimentalFeatureNames_WaitAndRetry" xml:space="preserve">
-    <value>Enable wait and retry feature</value>
+  <data name="ExperimentalFeatureNames_WaitUntil" xml:space="preserve">
+    <value>Enable waitUntil feature on resource bicep types</value>
   </data>
   <data name="NoSymbolicReferencesInInnerScopedDeploymentResourcesDescription" xml:space="preserve">
     <value>Nested deployment resources cannot refer to top-level symbols from within the 'template' property when inner-scoped evaluation is used.</value>
@@ -566,5 +584,11 @@
   <data name="UseRecognizedResourceTypeRule_MessageFormatWithSuggestion" xml:space="preserve">
     <value>Resource type "{0}" is not recognized in function "{1}". Did you mean "{2}"? If this resource type does exist, the API version must be specified as a function argument.</value>
     <comment>{0} = resource type, {1} = function name, {2} = suggested resource type</comment>
+  </data>
+  <data name="NoModuleNameRule_Description" xml:space="preserve">
+    <value>Avoid specifying an explicit module name. This simplifies code, and avoids the risk of accidental module name re-use within a deployment.</value>
+  </data>
+  <data name="NoModuleNameRule_CodeFix" xml:space="preserve">
+    <value>Remove module name</value>
   </data>
 </root>

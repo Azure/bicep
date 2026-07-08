@@ -70,6 +70,40 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
+        public async Task GenerateParams_ImplicitOutputFormatJson_ExistingCompiledTemplate_Should_CreateParametersJson()
+        {
+            var bicep = @"param name string = 'sampleparameter'
+output used string = name";
+            var templateJson = @"{ ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"" }";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
+            var templateJsonPath = Path.Combine(tempDirectory, "main.json");
+            var parametersJsonPath = Path.Combine(tempDirectory, "main.parameters.json");
+
+            File.WriteAllText(bicepFilePath, bicep);
+            File.WriteAllText(templateJsonPath, templateJson);
+
+            var (output, error, result) = await Bicep("generate-params", bicepFilePath);
+
+            var content = File.ReadAllText(parametersJsonPath).ReplaceLineEndings();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                output.Should().BeEmpty();
+                error.Should().BeEmpty();
+                File.ReadAllText(templateJsonPath).Should().Be(templateJson);
+                content.Should().Be(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0""
+}".ReplaceLineEndings());
+            }
+        }
+
+        [TestMethod]
         public async Task GenerateParams_ImplicitOutputFormatJson_ExplicitIncludeParamsAll_OneParameterWithDefaultValue_Should_Succeed()
         {
             var bicep = $@"param name string = 'sampleparameter'";

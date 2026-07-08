@@ -26,16 +26,20 @@ const svgPathsByResourceType: Record<string, string> = {
   "Microsoft.Compute/images": "compute/10033-icon-service-Images",
   "Microsoft.Compute/galleries": "compute/10039-icon-service-Shared-Image-Galleries",
 
+  // Microsoft.ServiceFabric
+  "Microsoft.ServiceFabric/clusters": "containers/10036-icon-service-Service-Fabric-Clusters",
+
+  // Microsoft.RedHatOpenShift
+  "Microsoft.RedHatOpenShift/openShiftClusters": "containers/03331-icon-service-Azure-Red-Hat-OpenShift",
+
   // Microsoft.SQL / Databases
   "Microsoft.Sql/servers": "databases/10132-icon-service-SQL-Server",
   "Microsoft.Sql/servers/databases": "databases/10130-icon-service-SQL-Database",
   "Microsoft.DocumentDB/databaseAccounts": "databases/10121-icon-service-Azure-Cosmos-DB",
-  "Microsoft.DBforMySQL/servers": "databases/10122-icon-service-Azure-Database-MySQL-Server",
   "Microsoft.DBforMySQL/flexibleServers": "databases/10122-icon-service-Azure-Database-MySQL-Server",
   "Microsoft.DBforMariaDB/servers": "databases/10123-icon-service-Azure-Database-MariaDB-Server",
   "Microsoft.SqlVirtualMachine/sqlVirtualMachines": "databases/10124-icon-service-Azure-SQL-VM",
   "Microsoft.DataFactory/factories": "databases/10126-icon-service-Data-Factory",
-  "Microsoft.DBforPostgreSQL/servers": "databases/10131-icon-service-Azure-Database-PostgreSQL-Server",
   "Microsoft.DBforPostgreSQL/flexibleServers": "databases/10131-icon-service-Azure-Database-PostgreSQL-Server",
   "Microsoft.DataMigration/services": "databases/10133-icon-service-Azure-Database-Migration-Services",
   "Microsoft.Sql/servers/elasticPools": "databases/10134-icon-service-SQL-Elastic-Pools",
@@ -45,7 +49,6 @@ const svgPathsByResourceType: Record<string, string> = {
   "Microsoft.Sql/instancePools": "databases/10139-icon-service-Instance-Pools",
 
   // Microsoft.Network
-  "Microsoft.Network/privateDnsZones": "networking/10064-icon-service-DNS-Zones",
   "Microsoft.Network/dnsZones": "networking/10064-icon-service-DNS-Zones",
   "Microsoft.Network/loadBalancers": "networking/10062-icon-service-Load-Balancers",
   "Microsoft.Network/networkInterfaces": "networking/10080-icon-service-Network-Interfaces",
@@ -54,10 +57,13 @@ const svgPathsByResourceType: Record<string, string> = {
   "Microsoft.Network/virtualNetworkGateways": "networking/10063-icon-service-Virtual-Network-Gateways",
   "Microsoft.Network/virtualNetworks": "networking/10061-icon-service-Virtual-Networks",
   "Microsoft.Network/virtualNetworks/subnets": "custom/subnets",
+  "Microsoft.Network/bastionHosts": "networking/02422-icon-service-Bastions",
   "Microsoft.Network/ipGroups": "networking/00701-icon-service-IP-Groups",
+  "Microsoft.Network/privateEndpoints": "networking/00427-icon-service-Private-Link",
   "Microsoft.Network/privateLinkServices": "networking/01105-icon-service-Private-Link-Service",
   "Microsoft.Network/trafficManagerProfiles": "networking/10065-icon-service-Traffic-Manager-Profiles",
   "Microsoft.Network/networkWatchers": "networking/10066-icon-service-Network-Watcher",
+  "Microsoft.Network/dnsResolvers": "networking/02882-icon-service-DNS-Private-Resolver",
   "Microsoft.Network/routeFilters": "networking/10071-icon-service-Route-Filters",
   "Microsoft.Network/ddosProtectionPlans": "networking/10072-icon-service-DDoS-Protection-Plans",
   "Microsoft.Network/frontDoors": "networking/10073-icon-service-Front-Doors",
@@ -69,6 +75,8 @@ const svgPathsByResourceType: Record<string, string> = {
   "Microsoft.Network/azureFirewalls": "networking/10084-icon-service-Firewalls",
   "Microsoft.Network/serviceEndpointPolicies": "networking/10085-icon-service-Service-Endpoint-Policies",
   "Microsoft.Network/natGateways": "networking/10310-icon-service-NAT",
+  "Microsoft.Network/virtualHubs": "networking/00860-icon-service-Virtual-WAN-Hub",
+  "Microsoft.Network/virtualRouters": "networking/02496-icon-service-Virtual-Router",
   "Microsoft.Network/virtualWans": "networking/10353-icon-service-Virtual-WANs",
   "Microsoft.Network/firewallPolicies": "networking/10362-icon-service-Web-Application-Firewall-Policies(WAF)",
   "Microsoft.Network/publicIPPrefixes": "networking/10372-icon-service-Public-IP-Prefixes",
@@ -77,8 +85,26 @@ const svgPathsByResourceType: Record<string, string> = {
   // Microsoft.Resources
   "Microsoft.Resources/resourceGroups": "general/10007-icon-service-Resource-Groups",
 
-  // Microsoft.Security
+  // Microsoft.Management
+  "Microsoft.Management/managementGroups": "general/10011-icon-service-Management-Groups",
+
+  // Microsoft.Portal
+  "Microsoft.Portal/dashboards": "general/10015-icon-service-Dashboard",
+
+  // Microsoft.KeyVault
   "Microsoft.KeyVault/vaults": "security/10245-icon-service-Key-Vaults",
+
+  // Microsoft.Security
+  "Microsoft.Security/securityConnectors": "security/10241-icon-service-Microsoft-Defender-for-Cloud",
+
+  // Microsoft.SecurityInsights
+  "Microsoft.SecurityInsights/onboardingStates": "security/10248-icon-service-Azure-Sentinel",
+
+  // Microsoft.ManagedServices
+  "Microsoft.ManagedServices/registrationDefinitions": "management/00471-icon-service-Azure-Lighthouse",
+
+  // Microsoft.HybridCompute
+  "Microsoft.HybridCompute/machines": "management/01710-icon-service-Arc-Machines",
 
   // Microsoft.Automation
   "Microsoft.Automation/automationAccounts": "management/00022-icon-service-Automation-Accounts",
@@ -91,13 +117,16 @@ const svgPathsByResourceType: Record<string, string> = {
 
   // Microsoft.Storage
   "Microsoft.Storage/storageAccounts": "storage/10086-icon-service-Storage-Accounts",
+  "Microsoft.Storage/storageAccounts/blobServices": "general/10780-icon-service-Blob-Block",
   "Microsoft.Storage/storageAccounts/fileServices": "general/10838-icon-service-Storage-Azure-Files",
   "Microsoft.Storage/storageAccounts/queueServices": "general/10840-icon-service-Storage-Queue",
   "Microsoft.Storage/storageAccounts/tableServices": "general/10841-icon-service-Table",
   "Microsoft.RecoveryServices/vaults": "storage/00017-icon-service-Recovery-Services-Vaults",
+  "Microsoft.DataProtection/backupVaults": "other/02361-icon-service-Backup-Vault",
   "Microsoft.StorageSync/storageSyncServices": "storage/10093-icon-service-Storage-Sync-Services",
   "Microsoft.DataBox/jobs": "storage/10094-icon-service-Data-Box",
   "Microsoft.DataBoxEdge/dataBoxEdgeDevices": "storage/10095-icon-service-Data-Box-Edge",
+  "Microsoft.ImportExport/jobs": "storage/10100-icon-service-Import-Export-Jobs",
   "Microsoft.NetApp/netAppAccounts": "storage/10096-icon-service-Azure-NetApp-Files",
   "Microsoft.DataShare/accounts": "storage/10098-icon-service-Data-Shares",
 
@@ -105,7 +134,41 @@ const svgPathsByResourceType: Record<string, string> = {
   "Microsoft.Web/serverfarms": "app-services/00046-icon-service-App-Service-Plans",
   "Microsoft.Web/sites": "app-services/10035-icon-service-App-Services",
   "Microsoft.Web/certificates": "app-services/00049-icon-service-App-Service-Certificates",
+  "Microsoft.Web/connections": "integration/10048-icon-service-API-Connections",
+  "Microsoft.Web/customApis": "integration/10363-icon-service-Logic-Apps-Custom-Connector",
+  "Microsoft.Web/domains": "app-services/00050-icon-service-App-Service-Domains",
   "Microsoft.Web/hostingEnvironments": "app-services/10047-icon-service-App-Service-Environments",
+  "Microsoft.Web/staticSites": "web/01007-icon-service-Static-Apps",
+
+  // Microsoft.Search
+  "Microsoft.Search/searchServices": "app-services/10044-icon-service-Cognitive-Search",
+
+  // Microsoft.AppConfiguration
+  "Microsoft.AppConfiguration/configurationStores": "integration/10219-icon-service-App-Configuration",
+
+  // Microsoft.EventGrid
+  "Microsoft.EventGrid/domains": "integration/10215-icon-service-Event-Grid-Domains",
+  "Microsoft.EventGrid/eventSubscriptions": "integration/10221-icon-service-Event-Grid-Subscriptions",
+  "Microsoft.EventGrid/partnerNamespaces": "integration/02266-icon-service-Partner-Namespace",
+  "Microsoft.EventGrid/partnerRegistrations": "integration/02265-icon-service-Partner-Registration",
+  "Microsoft.EventGrid/partnerTopics": "integration/02072-icon-service-Partner-Topic",
+  "Microsoft.EventGrid/systemTopics": "integration/02073-icon-service-System-Topic",
+  "Microsoft.EventGrid/topics": "integration/10206-icon-service-Event-Grid-Topics",
+
+  // Microsoft.Relay
+  "Microsoft.Relay/namespaces": "integration/10209-icon-service-Relays",
+
+  // Microsoft.SignalRService
+  "Microsoft.SignalRService/SignalR": "web/10052-icon-service-SignalR",
+
+  // Microsoft.AppPlatform
+  "Microsoft.AppPlatform/Spring": "web/10370-icon-service-Azure-Spring-Apps",
+
+  // Microsoft.ApiCenter
+  "Microsoft.ApiCenter/services": "web/03291-icon-service-API-Center",
+
+  // Microsoft.Communication
+  "Microsoft.Communication/communicationServices": "other/00968-icon-service-Azure-Communication-Services",
 
   // Microsoft.NotificationHubs
   "Microsoft.NotificationHubs/namespaces": "iot/10045-icon-service-Notification-Hubs",
@@ -135,14 +198,23 @@ const svgPathsByResourceType: Record<string, string> = {
   // Microsoft.Databricks
   "Microsoft.Databricks/workspaces": "analytics/10787-icon-service-Azure-Databricks",
 
+  // Microsoft.DataLakeAnalytics
+  "Microsoft.DataLakeAnalytics/accounts": "analytics/10143-icon-service-Data-Lake-Analytics",
+
+  // Microsoft.DataLakeStore
+  "Microsoft.DataLakeStore/accounts": "analytics/10150-icon-service-Data-Lake-Store-Gen1",
+
+  // Microsoft.Kusto
+  "Microsoft.Kusto/clusters": "analytics/10145-icon-service-Azure-Data-Explorer-Clusters",
+
   // Microsoft.BotService
   "Microsoft.BotService/botServices": "ai/10165-icon-service-Bot-Services",
 
   // Microsoft.CognitiveServices
   "Microsoft.CognitiveServices/accounts": "ai/10162-icon-service-Cognitive-Services",
 
-  // Microsoft.MachineLearning
-  "Microsoft.MachineLearning/workspaces": "ai/10167-icon-service-Machine-Learning-Studio-Workspaces",
+  // Microsoft.MachineLearningServices
+  "Microsoft.MachineLearningServices/workspaces": "ai/10167-icon-service-Machine-Learning-Studio-Workspaces",
 
   // Microsoft.HDInsight
   "Microsoft.HDInsight/clusters": "analytics/10142-icon-service-HD-Insight-Clusters",
@@ -152,6 +224,17 @@ const svgPathsByResourceType: Record<string, string> = {
 
   // Microsoft.Insights
   "Microsoft.Insights/components": "devops/00012-icon-service-Application-Insights",
+  "Microsoft.Insights/alertRules": "monitor/00002-icon-service-Alerts",
+  "Microsoft.Insights/autoscaleSettings": "monitor/10832-icon-service-Auto-Scale",
+  "Microsoft.Insights/dataCollectionRules": "other/01857-icon-service-Data-Collection-Rules",
+  "Microsoft.Insights/diagnosticSettings": "monitor/00008-icon-service-Diagnostics-Settings",
+  "Microsoft.Insights/workbooks": "monitor/02189-icon-service-Azure-Workbooks",
+
+  // Microsoft.Dashboard
+  "Microsoft.Dashboard/grafana": "other/02905-icon-service-Azure-Managed-Grafana",
+
+  // Microsoft.LoadTestService
+  "Microsoft.LoadTestService/loadTests": "devops/02423-icon-service-Load-Testing",
 
   // Microsoft.DevTestLab
   "Microsoft.DevTestLab/labs": "devops/10264-icon-service-DevTest-Labs",
@@ -161,12 +244,14 @@ const svgPathsByResourceType: Record<string, string> = {
 
   // Microsoft.Logic
   "Microsoft.Logic/workflows": "iot/10201-icon-service-Logic-Apps",
+  "Microsoft.Logic/integrationAccounts": "integration/10218-icon-service-Integration-Accounts",
+  "Microsoft.Logic/integrationServiceEnvironments": "integration/00555-icon-service-Integration-Service-Environments",
 
   // Microsoft.AzureActiveDirectory
   "Microsoft.AzureActiveDirectory/b2cDirectories": "identity/10228-icon-service-Azure-AD-B2C",
 
   // Microsoft.ManagedIdentity
-  "Microsoft.ManagedIdentity/identities": "identity/10227-icon-service-Managed-Identities",
+  "Microsoft.ManagedIdentity/userAssignedIdentities": "identity/10227-icon-service-Managed-Identities",
 
   // Microsoft.LabServices
   "Microsoft.LabServices/labAccounts": "devops/10265-icon-service-Lab-Services",
@@ -188,7 +273,7 @@ const svgPathsByResourceType: Record<string, string> = {
   "Microsoft.App/managedEnvironments": "containers/02989-icon-service-Container-App-Environments",
 
   // Microsoft.Cdn
-  "Microsoft.Cdn/service": "app-services/00056-icon-service-CDN-Profiles",
+  "Microsoft.Cdn/profiles": "app-services/00056-icon-service-CDN-Profiles",
 
   // Module icon
   folder: "general/10802-icon-service-Folder-Blank",

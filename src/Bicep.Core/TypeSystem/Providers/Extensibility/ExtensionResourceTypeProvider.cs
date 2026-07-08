@@ -67,6 +67,16 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                 }
             }
 
+            foreach (var (propertyName, propertyType) in properties)
+            {
+                if (propertyType.Flags.HasFlag(TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant))
+                {
+                    // Required + DeployTimeConstant means the caller owns the value fully and it cannot
+                    // be server-generated or deferred, so it is safe to read back at deploy time.
+                    properties = properties.SetItem(propertyName, UpdateFlags(propertyType, propertyType.Flags | TypePropertyFlags.ReadableAtDeployTime));
+                }
+            }
+
             return new ObjectType(
                 objectType.Name,
                 objectType.ValidationFlags,

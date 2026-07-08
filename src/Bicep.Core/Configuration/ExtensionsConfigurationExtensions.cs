@@ -18,6 +18,7 @@ public static class ExtensionsConfigurationExtensions
         return new RootConfiguration(
             rootConfiguration.Cloud,
             rootConfiguration.ModuleAliases,
+            rootConfiguration.ModuleAliasesMock,
             rootConfiguration.Extensions.WithExtensions(payload),
             rootConfiguration.ImplicitExtensions,
             rootConfiguration.Analyzers,
@@ -34,6 +35,7 @@ public static class ExtensionsConfigurationExtensions
         return new RootConfiguration(
             rootConfiguration.Cloud,
             rootConfiguration.ModuleAliases,
+            rootConfiguration.ModuleAliasesMock,
             rootConfiguration.Extensions,
             rootConfiguration.ImplicitExtensions.WithImplicitExtensions(payload),
             rootConfiguration.Analyzers,

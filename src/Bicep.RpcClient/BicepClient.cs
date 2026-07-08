@@ -16,18 +16,29 @@ namespace Bicep.RpcClient;
 
 internal class BicepClient : IBicepClient
 {
-    private readonly Process cliProcess;
-    private readonly JsonRpcClient jsonRpcClient;
+    private readonly Process? cliProcess;
+    private readonly IJsonRpcClient jsonRpcClient;
     private readonly Task backgroundTask;
     private readonly CancellationTokenSource onDisposeCts;
     private string? cachedVersion;
 
-    private BicepClient(Action onComplete, Process cliProcess, JsonRpcClient jsonRpcClient)
+    private BicepClient(Action onComplete, Process cliProcess, IJsonRpcClient jsonRpcClient)
     {
         this.cliProcess = cliProcess;
         this.jsonRpcClient = jsonRpcClient;
         this.onDisposeCts = new CancellationTokenSource();
         this.backgroundTask = jsonRpcClient.Listen(onComplete: onComplete, onDisposeCts.Token);
+    }
+
+    /// <summary>
+    /// Test-only constructor that injects a JSON-RPC client without starting a CLI process.
+    /// </summary>
+    internal BicepClient(IJsonRpcClient jsonRpcClient)
+    {
+        this.cliProcess = null;
+        this.jsonRpcClient = jsonRpcClient;
+        this.onDisposeCts = new CancellationTokenSource();
+        this.backgroundTask = jsonRpcClient.Listen(onComplete: () => { }, onDisposeCts.Token);
     }
 
     /// <summary>
@@ -84,7 +95,7 @@ internal class BicepClient : IBicepClient
         var combinedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         process.EnableRaisingEvents = true;
         process.Exited += (sender, args) => combinedCts.Cancel();
- 
+
         process.Start();
 
         try
@@ -173,7 +184,10 @@ internal class BicepClient : IBicepClient
     {
         onDisposeCts.Cancel();
         jsonRpcClient.Dispose();
-        TryKillProcess(cliProcess);
+        if (cliProcess is { })
+        {
+            TryKillProcess(cliProcess);
+        }
     }
 
     private static void TryKillProcess(Process process)
@@ -182,7 +196,7 @@ internal class BicepClient : IBicepClient
         {
             return;
         }
-        
+
         try
         {
             process.Kill();

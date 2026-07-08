@@ -32,19 +32,27 @@ namespace Bicep.Core.Registry
 {
     public sealed class OciArtifactRegistry : ExternalArtifactRegistry<OciArtifactReference, OciArtifactResult>
     {
+        private readonly RegistryConfiguration registryConfiguration;
+
         private readonly IOciRegistryTransportFactory transportFactory;
 
         private readonly IPublicModuleMetadataProvider publicModuleMetadataProvider;
 
+        private readonly IFileExplorer fileExplorer;
+
         private readonly ILogger<OciArtifactRegistry> logger;
 
         public OciArtifactRegistry(
+            RegistryConfiguration registryConfiguration,
             IOciRegistryTransportFactory transportFactory,
             IPublicModuleMetadataProvider publicModuleMetadataProvider,
+            IFileExplorer fileExplorer,
             ILogger<OciArtifactRegistry> logger)
         {
+            this.registryConfiguration = registryConfiguration;
             this.transportFactory = transportFactory;
             this.publicModuleMetadataProvider = publicModuleMetadataProvider;
+            this.fileExplorer = fileExplorer;
             this.logger = logger;
         }
 
@@ -58,14 +66,49 @@ namespace Bicep.Core.Registry
 
         public override ResultWithDiagnosticBuilder<ArtifactReference> TryParseArtifactReference(BicepSourceFile referencingFile, ArtifactType artifactType, string? aliasName, string reference)
         {
-            if (!OciArtifactReference.TryParse(referencingFile, artifactType, aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
+            // Check if the alias resolves to a mocked alias
+            if (aliasName is not null)
+            {
+                if (referencingFile.Configuration.ModuleAliasesMock.TryGetOciArtifactModuleAliasMock(aliasName).IsSuccess(out var mockAlias, out var _))
+                {
+                    // Mock aliases only support modules, not extensions.
+                    if (artifactType != ArtifactType.Module)
+                    {
+                        return new(x => x.OciArtifactModuleAliasMapToFilePathOnlySupportsModules(aliasName));
+                    }
+
+                    if (referencingFile.Configuration.ConfigFileUri is null)
+                    {
+                        return new(x => x.ConfigurationFileNotFound("OciModuleAliasesMock"));
+                    }
+
+                    if (mockAlias.MapToFilePath is null)
+                    {
+                        return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, referencingFile.Configuration.ConfigFileUri));
+                    }
+
+                    if (!OciArtifactMockedReference.TryParse(
+                        referencingFile,
+                        mockAlias.MapToFilePath,
+                        referencingFile.Configuration.ConfigFileUri,
+                        reference,
+                        this.fileExplorer,
+                        aliasName).IsSuccess(out var mockedRef, out var mockedFailureBuilder))
+                    {
+                        return new(mockedFailureBuilder!);
+                    }
+
+                    return new(mockedRef!);
+                }
+            }
+
+            if (!OciArtifactReference.TryParse(referencingFile.Features, referencingFile.Configuration, artifactType, aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
             {
                 return new(failureBuilder);
             }
 
             return new(@ref);
         }
-
 
         public override bool IsArtifactRestoreRequired(OciArtifactReference reference)
         {
@@ -80,6 +123,13 @@ namespace Bicep.Core.Registry
              * this relies on the assumption that modules are never updated in-place in the cache
              * when we need to invalidate the cache, the module directory (or even a single file) should be deleted from the cache
              */
+
+            // Security-first: if the registry is untrusted, always mark restore as required so that
+            // RestoreArtifacts() will be called and can emit the appropriate diagnostic (BCP446).
+            if (!registryConfiguration.IsRegistryTrusted(reference.Registry))
+            {
+                return true;
+            }
 
             var artifactFilesNotFound = reference.Type switch
             {
@@ -246,8 +296,17 @@ namespace Bicep.Core.Registry
             // CONSIDER: Run these in parallel
             foreach (var reference in referencesEvaluated)
             {
+                // Block restore if the registry is not in the trusted list (BCP446).
+                // Invalid patterns in config are handled as warnings at config-load time (BCP447 via RootConfiguration)
+                // and are simply not included in the valid TrustedRegistries list, so they won't match here.
+                if (!registryConfiguration.IsRegistryTrusted(reference.Registry))
+                {
+                    failures[reference] = x => x.ArtifactRestoreBlockedByRegistry(reference.Registry);
+                    continue;
+                }
+
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectory(reference).Uri.GetFilePath()}");
-                var (result, errorMessage) = await this.TryRestoreArtifactAsync(reference.ReferencingFile.Configuration, reference);
+                var (result, errorMessage) = await this.TryRestoreArtifactAsync(reference.Configuration, reference);
 
                 if (result is null)
                 {
@@ -492,7 +551,7 @@ namespace Bicep.Core.Registry
                 throw new InvalidOperationException("Module reference is missing both tag and digest.");
             }
 
-            return reference.ReferencingFile.Features.CacheRootDirectory.GetDirectory($"{ArtifactReferenceSchemes.Oci}/{registry}/{repository}/{tagOrDigest}");
+            return reference.FeatureProvider.CacheRootDirectory.GetDirectory($"{ArtifactReferenceSchemes.Oci}/{registry}/{repository}/{tagOrDigest}");
         }
 
         protected override IFileHandle GetArtifactLockFile(OciArtifactReference reference) => this.GetArtifactFile(reference, ArtifactFileType.Lock);
@@ -532,7 +591,7 @@ namespace Bicep.Core.Registry
         }
 
         private IRegistrySession CreateSession(OciArtifactReference reference) =>
-            transportFactory.CreateSession(reference, reference.ReferencingFile.Configuration.Cloud);
+            transportFactory.CreateSession(reference, reference.Configuration.Cloud);
 
         private static bool IsNotFoundException(Exception? exception) =>
             exception switch

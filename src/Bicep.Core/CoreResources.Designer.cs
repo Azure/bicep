@@ -10,8 +10,8 @@
 
 namespace Bicep.Core {
     using System;
-    
-    
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -23,15 +23,15 @@ namespace Bicep.Core {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class CoreResources {
-        
+
         private static global::System.Resources.ResourceManager resourceMan;
-        
+
         private static global::System.Globalization.CultureInfo resourceCulture;
-        
+
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal CoreResources() {
         }
-        
+
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
@@ -45,7 +45,7 @@ namespace Bicep.Core {
                 return resourceMan;
             }
         }
-        
+
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
@@ -59,7 +59,7 @@ namespace Bicep.Core {
                 resourceCulture = value;
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Property &apos;adminUserName&apos; should not use a literal value. Use a param instead..
         /// </summary>
@@ -68,7 +68,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("AdminUsernameShouldNotBeLiteralRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to If an &apos;{0}&apos; parameter is provided, an &apos;{1}&apos; parameter must also be provided..
         /// </summary>
@@ -77,7 +77,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ArtifactsLocationRule_Error_ParamMissing", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Artifacts parameter &apos;{0}&apos; must use the @secure() attribute.
         /// </summary>
@@ -86,7 +86,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ArtifactsLocationRule_Error_ParamMustBeSecure", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Artifacts parameter &apos;{0}&apos; must be of type &apos;{1}&apos;.
         /// </summary>
@@ -95,7 +95,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ArtifactsLocationRule_Error_ParamMustBeType", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Change parameter type to &apos;{0}&apos;.
         /// </summary>
@@ -104,7 +104,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ArtifactsLocationRule_FixTitle_ChangeType", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Custom bicepconfig.json file found ({0})..
         /// </summary>
@@ -113,7 +113,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("BicepConfigCustomSettingsFoundFormatMessage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to No bicepconfig.json found for configuration override..
         /// </summary>
@@ -122,7 +122,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("BicepConfigNoCustomSettingsMessage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Some decompiler imperfections may need to be cleaned up manually.
         /// </summary>
@@ -131,7 +131,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("DecompilerImperfectionsRule_Description", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Consider renaming it and removing the suffix (using the editor&apos;s rename functionality)..
         /// </summary>
@@ -140,7 +140,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("DecompilerImperfectionsRule_MayWantToRename", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to The symbolic name of resource &apos;{0}&apos; appears to have originated from a naming conflict during a decompilation from JSON..
         /// </summary>
@@ -149,7 +149,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("DecompilerImperfectionsRule_Resource", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to The name of variable &apos;{0}&apos; appears to have originated from a naming conflict during a decompilation from JSON..
         /// </summary>
@@ -158,7 +158,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("DecompilerImperfectionsRule_Variable", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds..
         /// </summary>
@@ -167,7 +167,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("EnvironmentUrlHardcodedRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Asserts.
         /// </summary>
@@ -176,7 +176,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ExperimentalFeatureNames_Asserts", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to OCI registry support.
         /// </summary>
@@ -194,7 +194,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ExperimentalFeatureNames_ResourceInfoCodegen", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Resource-typed parameters and outputs.
         /// </summary>
@@ -203,7 +203,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ExperimentalFeatureNames_ResourceTypedParamsAndOutputs", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Source mapping.
         /// </summary>
@@ -212,7 +212,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ExperimentalFeatureNames_SourceMapping", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Symbolic name code generation.
         /// </summary>
@@ -221,7 +221,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ExperimentalFeatureNames_SymbolicNameCodegen", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Test framework.
         /// </summary>
@@ -230,16 +230,16 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ExperimentalFeatureNames_TestFramework", resourceCulture);
             }
         }
-        
+
         /// <summary>
-        ///   Looks up a localized string similar to Enable wait and retry feature.
+        ///   Looks up a localized string similar to Enable waitUntil feature on resource bicep types.
         /// </summary>
-        internal static string ExperimentalFeatureNames_WaitAndRetry {
+        internal static string ExperimentalFeatureNames_WaitUntil {
             get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_WaitAndRetry", resourceCulture);
+                return ResourceManager.GetString("ExperimentalFeatureNames_WaitUntil", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to All imports must be used..
         /// </summary>
@@ -248,7 +248,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ImportMustBeUsedRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Import &quot;{0}&quot; is declared but never used..
         /// </summary>
@@ -257,7 +257,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ImportMustBeUsedRuleMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use string interpolation.
         /// </summary>
@@ -266,7 +266,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("InterpolateNotConcatFixTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use string interpolation instead of the concat function..
         /// </summary>
@@ -275,7 +275,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("InterpolateNotConcatRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Linter is disabled in settings file located at {0} .
         /// </summary>
@@ -284,7 +284,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("LinterDisabledFormatMessage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Analyzer &apos;{0}&apos; encountered an unexpected exception. {1}.
         /// </summary>
@@ -293,7 +293,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("LinterRuleExceptionMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Resource location should be specified by a parameter without a default value or one that defaults to &apos;global&apos; or resourceGroup().location..
         /// </summary>
@@ -302,7 +302,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("LocationSetByParameterRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Maximum number of &apos;assert&apos; statements used..
         /// </summary>
@@ -311,7 +311,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("MaxNumberAssertsRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Too many predeployment conditions. Number of &apos;assert&apos; statements is limited to {0}..
         /// </summary>
@@ -320,7 +320,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("MaxNumberAssertsRuleMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Maximum number of outputs used..
         /// </summary>
@@ -329,7 +329,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("MaxNumberOutputsRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Too many outputs. Number of outputs is limited to {0}..
         /// </summary>
@@ -338,7 +338,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("MaxNumberOutputsRuleMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Maximum number of parameters used..
         /// </summary>
@@ -347,7 +347,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("MaxNumberParametersRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Too many parameters. Number of parameters is limited to {0}..
         /// </summary>
@@ -356,7 +356,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("MaxNumberParametersRuleMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Maximum number of resources used..
         /// </summary>
@@ -365,7 +365,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("MaxNumberResourcesRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Too many resources. Number of resources is limited to {0}..
         /// </summary>
@@ -374,7 +374,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("MaxNumberResourcesRuleMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Maximum number of variables used..
         /// </summary>
@@ -383,7 +383,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("MaxNumberVariablesRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Too many variables. Number of variables is limited to {0}..
         /// </summary>
@@ -392,7 +392,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("MaxNumberVariablesRuleMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Metadata properties whose value is set by a separate decorator should not be set via the &apos;@metadata()&apos; decorator..
         /// </summary>
@@ -401,7 +401,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoConflictingMetadataRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to The &quot;{0}&quot; metadata property conflicts with the &quot;{1}&quot; decorator and will be overwritten..
         /// </summary>
@@ -410,7 +410,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoConflictingMetadataRuleMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Bicep modules are recommended instead of representing nested or linked deployments as a resource..
         /// </summary>
@@ -419,7 +419,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoDeploymentsResourcesRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Resource &apos;{0}&apos; of type &apos;{1}&apos; should instead be declared as a Bicep module..
         /// </summary>
@@ -428,7 +428,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoDeploymentsResourcesRuleMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Avoid using an explicit &apos;any&apos; type whenever possible..
         /// </summary>
@@ -437,7 +437,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoExplicitAnyRule_Description", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to A resource location should not use a hard-coded string or variable value. Change variable &apos;{0}&apos; into a parameter instead..
         /// </summary>
@@ -446,7 +446,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoHardcodedLocation_ErrorChangeVarToParam", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Parameter &apos;{0}&apos; may be used as a resource location in the module and should not be assigned a hard-coded string or variable value..
         /// </summary>
@@ -455,7 +455,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoHardcodedLocation_ErrorForModuleParam", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to A resource location should not use a hard-coded string or variable value..
         /// </summary>
@@ -464,7 +464,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoHardcodedLocation_ErrorForResourceLocation", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Please use a parameter value, an expression, or the string &apos;{0}&apos;. Found: &apos;{1}&apos;.
         /// </summary>
@@ -473,7 +473,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoHardcodedLocation_ErrorSolution", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Change variable &apos;{0}&apos; into a parameter instead.
         /// </summary>
@@ -482,7 +482,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoHardcodedLocation_FixChangeVarToParam", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Create new parameter &apos;{0}&apos; with default value {1}.
         /// </summary>
@@ -491,7 +491,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoHardcodedLocation_FixNewParam", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Parameter &apos;{0}&apos; of module &apos;{1}&apos; isn&apos;t assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter..
         /// </summary>
@@ -500,7 +500,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoHardcodedLocation_ModuleLocationNeedsExplicitValue", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to A resource location should be either an expression or the string &apos;{0}&apos;. Found &apos;{1}&apos;.
         /// </summary>
@@ -509,7 +509,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoHardcodedLocation_ResourceLocationShouldBeExpressionOrGlobal", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to A resource&apos;s location should not use a hard-coded string or variable value. It should use a parameter, an expression, or the string &apos;global&apos;..
         /// </summary>
@@ -518,7 +518,34 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoHardcodedLocationRuleDescription", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Outputs should not be used for hard-coded constants. Use exported variables instead..
+        /// </summary>
+        internal static string NoHardcodedOutputsRuleDescription {
+            get {
+                return ResourceManager.GetString("NoHardcodedOutputsRuleDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Create exported variable &apos;{0}&apos; and remove output &apos;{1}&apos;.
+        /// </summary>
+        internal static string NoHardcodedOutputsRuleFixTitle {
+            get {
+                return ResourceManager.GetString("NoHardcodedOutputsRuleFixTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Output &apos;{0}&apos; uses a hard-coded value. Use an exported variable for constants that need to be imported by other files..
+        /// </summary>
+        internal static string NoHardcodedOutputsRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("NoHardcodedOutputsRuleMessageFormat", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Functions resourceGroup().location and deployment().location should only be used as the default value of a parameter..
         /// </summary>
@@ -527,7 +554,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoLocExprOutsideParamsRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use a parameter here instead of &apos;{0}&apos;. &apos;resourceGroup().location&apos; and &apos;deployment().location&apos; should only be used as a default value for parameters..
         /// </summary>
@@ -536,7 +563,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoLocExprOutsideParamsRuleError", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Nested deployment resources cannot refer to top-level symbols from within the &apos;template&apos; property when inner-scoped evaluation is used..
         /// </summary>
@@ -545,7 +572,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoSymbolicReferencesInInnerScopedDeploymentResourcesDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to The symbol &quot;{0}&quot; is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation..
         /// </summary>
@@ -554,7 +581,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoSymbolicReferencesInInnerScopedDeploymentResourcesMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Remove unnecessary dependsOn.
         /// </summary>
@@ -563,7 +590,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoUnnecessaryDependsOnRuleCodeFix", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to No unnecessary dependsOn..
         /// </summary>
@@ -572,7 +599,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoUnnecessaryDependsOnRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Remove unnecessary dependsOn entry &apos;{0}&apos;..
         /// </summary>
@@ -581,7 +608,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("NoUnnecessaryDependsOnRuleMessage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to function &apos;{0}&apos;.
         /// </summary>
@@ -590,7 +617,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("OutputsShouldNotContainSecretsFunction", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to {0} Found possible secret: {1}.
         /// </summary>
@@ -599,7 +626,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("OutputsShouldNotContainSecretsMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to output name &apos;{0}&apos; suggests a secret.
         /// </summary>
@@ -608,7 +635,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("OutputsShouldNotContainSecretsOutputName", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Outputs should not contain secrets..
         /// </summary>
@@ -617,7 +644,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("OutputsShouldNotContainSecretsRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to secure value &apos;{0}&apos;.
         /// </summary>
@@ -626,7 +653,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("OutputsShouldNotContainSecretsSecureParam", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to All parameters must be used..
         /// </summary>
@@ -635,7 +662,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ParameterMustBeUsedRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Parameter &quot;{0}&quot; is declared but never used..
         /// </summary>
@@ -644,7 +671,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ParameterMustBeUsedRuleMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to function &apos;{0}&apos;.
         /// </summary>
@@ -653,7 +680,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("PossibleSecretMessageFunction", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to secure value &apos;{0}&apos;.
         /// </summary>
@@ -662,7 +689,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("PossibleSecretMessageSecureParam", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Remove quotes from property name &apos;{0}&apos;.
         /// </summary>
@@ -671,7 +698,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("PreferUnquotedPropertyNames_DeclarationFixTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Replace array syntax with &apos;{0}&apos;.
         /// </summary>
@@ -680,7 +707,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("PreferUnquotedPropertyNames_DereferenceFixTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation..
         /// </summary>
@@ -689,7 +716,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("PreferUnquotedPropertyNamesRule_Description", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use protectedSettings for commandToExecute secrets.
         /// </summary>
@@ -698,7 +725,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ProtectCommandToExecuteSecretsRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use protectedSettings for commandToExecute secrets. Found possible secret: {0}.
         /// </summary>
@@ -707,7 +734,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ProtectCommandToExecuteSecretsRuleMessage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Parameters that represent secrets must be secure..
         /// </summary>
@@ -716,7 +743,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("SecretsInParamsRule_Description", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Parameter &apos;{0}&apos; may represent a secret (according to its name) and must be declared with the &apos;@secure()&apos; attribute..
         /// </summary>
@@ -725,7 +752,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("SecretsInParamsRule_MessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Remove insecure default value.
         /// </summary>
@@ -734,7 +761,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("SecureParameterDefaultFixTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Secure parameters should not have hardcoded defaults (except for empty or newGuid())..
         /// </summary>
@@ -743,7 +770,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("SecureParameterDefaultRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Outer-scoped nested deployment resources should not be used for secure parameters or list* functions..
         /// </summary>
@@ -752,7 +779,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("SecureParamsInNestedDeployRule_Description", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; is an outer scoped nested deployment that calls a list* function (&quot;{1}&quot;), which could expose sensitive values in deployment history..
         /// </summary>
@@ -761,7 +788,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("SecureParamsInNestedDeployRule_Message_ListFunction", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; is an outer scoped nested deployment that accesses secure string parameters ({1}), which could expose their values in deployment history..
         /// </summary>
@@ -770,7 +797,25 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("SecureParamsInNestedDeployRule_Message_SecureParams", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Secure parameter values should not be assigned to insecure parameters in a parameters file..
+        /// </summary>
+        internal static string SecureParamsInParametersFileRule_Description {
+            get {
+                return ResourceManager.GetString("SecureParamsInParametersFileRule_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Insecure parameter &apos;{0}&apos; is assigned a value that references secure parameter(s) {1}, which could expose their values in deployment history..
+        /// </summary>
+        internal static string SecureParamsInParametersFileRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("SecureParamsInParametersFileRule_MessageFormat", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to Either set the deployment&apos;s properties.expressionEvaluationOptions.scope to &apos;inner&apos; or use a Bicep module instead..
         /// </summary>
@@ -779,7 +824,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("SecureParamsInNestedDeployRule_Solution", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Remove unnecessary string interpolation.
         /// </summary>
@@ -788,7 +833,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("SimplifyInterpolationFixTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Remove unnecessary string interpolation..
         /// </summary>
@@ -797,7 +842,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("SimplifyInterpolationRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Simplify json(&apos;null&apos;) to null.
         /// </summary>
@@ -806,7 +851,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("SimplifyJsonNullFixTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Simplify json(&apos;null&apos;) to null.
         /// </summary>
@@ -815,7 +860,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("SimplifyJsonNullRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Non-secure config property values must be a value type to be valid for Deployment stack deployments..
         /// </summary>
@@ -824,7 +869,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("StacksExtensibilityCompatibilityRule_NonSecurePropertyValueIsReference", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Secure config property values must be a key vault reference to be valid for Deployment stack deployments..
         /// </summary>
@@ -833,7 +878,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("StacksExtensibilityCompatibilityRule_SecurePropertyValueIsNotReference", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Extensibility for deployments has additional constraints for Deployment stack deployments..
         /// </summary>
@@ -842,7 +887,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("StacksExtensibilityCompatibilityRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to All existing resources must be used..
         /// </summary>
@@ -851,7 +896,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UnusedExistingResourceRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Existing resource &quot;{0}&quot; is declared but never used..
         /// </summary>
@@ -860,7 +905,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UnusedExistingResourceRuleMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to All variables must be used..
         /// </summary>
@@ -869,7 +914,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UnusedVariableRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Variable &quot;{0}&quot; is declared but never used..
         /// </summary>
@@ -878,7 +923,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UnusedVariableRuleMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use parent property.
         /// </summary>
@@ -887,7 +932,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseParentPropertyRule_CodeFix", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use the parent property instead of formatting child resource names with &apos;/&apos; characters..
         /// </summary>
@@ -896,7 +941,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseParentPropertyRule_Description", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Resource &quot;{0}&quot; has its name formatted as a child of resource &quot;{1}&quot;. The syntax can be simplified by using the parent property..
         /// </summary>
@@ -905,7 +950,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseParentPropertyRule_MessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Acceptable versions: {0}.
         /// </summary>
@@ -914,7 +959,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentApiVersionRule_AcceptableVersions", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use recent API versions.
         /// </summary>
@@ -923,7 +968,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentApiVersionRule_Description", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use more recent API version for &apos;{0}&apos;. {1}.
         /// </summary>
@@ -932,7 +977,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentApiVersionRule_ErrorMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Replace with {0}.
         /// </summary>
@@ -941,7 +986,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentApiVersionRule_Fix_ReplaceApiVersion", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; is a preview version and there is a more recent non-preview version available..
         /// </summary>
@@ -950,7 +995,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentApiVersionRule_MoreRecentStable", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; is a preview version and there is a non-preview version available with the same date..
         /// </summary>
@@ -959,7 +1004,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentApiVersionRule_StableWithSameDate", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; is {1} days old, should be no more than {2} days old, or the most recent..
         /// </summary>
@@ -968,7 +1013,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentApiVersionRule_TooOld", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Could not find resource type &quot;{0}&quot;..
         /// </summary>
@@ -977,7 +1022,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentApiVersionRule_UnknownType", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Did you mean &quot;{0}&quot;?.
         /// </summary>
@@ -986,7 +1031,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentApiVersionRule_UnknownTypeSuggestion", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Could not find apiVersion {0} for {1}..
         /// </summary>
@@ -995,7 +1040,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentApiVersionRule_UnknownVersion", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use AzPowerShell version 11.0 or higher in deployment scripts to avoid EOL Ubuntu 20.04 LTS.
         /// </summary>
@@ -1004,7 +1049,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentAzPowerShellVersionRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Deployment script is using AzPowerShell version &apos;{0}&apos; which is below the recommended minimum version &apos;{1}&apos;. Consider upgrading to version 11.0 or higher to avoid EOL Ubuntu 20.04 LTS..
         /// </summary>
@@ -1013,7 +1058,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentAzPowerShellVersionRuleMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Could not download available module versions: {0}.
         /// </summary>
@@ -1022,7 +1067,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentModulesVersionRule_CouldNotDownload", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to The most recent version is {0}..
         /// </summary>
@@ -1031,7 +1076,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentModulesVersionRule_MostRecentVersion", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Available module versions have not yet been downloaded. If running from the command line, be sure --no-restore is not specified..
         /// </summary>
@@ -1040,7 +1085,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentModulesVersionRule_NotCached", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use a more recent version of module &apos;{0}&apos;..
         /// </summary>
@@ -1049,7 +1094,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentModuleVersionRule_ErrorMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Replace with most recent version &apos;{0}&apos;.
         /// </summary>
@@ -1058,7 +1103,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentModuleVersionRule_Fix_ReplaceWithMostRecent", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use recent module versions.
         /// </summary>
@@ -1067,7 +1112,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecentModuleVersionsRule_Description", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Properties representing a resource ID must be generated appropriately..
         /// </summary>
@@ -1076,7 +1121,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseResourceIdFunctionsRule_Description", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to If property &quot;{0}&quot; represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {1}..
         /// </summary>
@@ -1085,7 +1130,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseResourceIdFunctionsRule_MessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Found nonconforming expression at {0}.
         /// </summary>
@@ -1094,7 +1139,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseResourceIdFunctionsRule_NonConformingExprPath", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use direct resource reference.
         /// </summary>
@@ -1103,7 +1148,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseResourceSymbolReferenceRule_CodeFix", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use a direct resource symbol reference instead of &apos;reference&apos; or &apos;list*&apos; functions..
         /// </summary>
@@ -1112,7 +1157,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseResourceSymbolReferenceRule_Description", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use a resource reference instead of invoking function &quot;{0}&quot;. This simplifies the syntax and allows Bicep to better understand your deployment dependency graph..
         /// </summary>
@@ -1121,7 +1166,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseResourceSymbolReferenceRule_MessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use the safe access (.?) operator.
         /// </summary>
@@ -1130,7 +1175,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseSafeAccessRule_CodeFix", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to The syntax can be simplified by using the safe access (.?) operator..
         /// </summary>
@@ -1139,7 +1184,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseSafeAccessRule_ContainsReplacement_MessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use the safe access (.?) operator..
         /// </summary>
@@ -1148,7 +1193,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseSafeAccessRule_Description", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to The property being accessed may be null. Use the (.?) operator to handle this safely..
         /// </summary>
@@ -1157,7 +1202,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseSafeAccessRule_NullCheckReplacement_MessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Resource properties expecting secure input should be assigned secure values..
         /// </summary>
@@ -1166,7 +1211,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseSecureValueForSecureInputsRule_Description", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Property &apos;{0}&apos; expects a secure value, but the value provided may not be secure..
         /// </summary>
@@ -1175,7 +1220,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseSecureValueForSecureInputsRule_MessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Resource identifiers should be reproducible outside of their initial deployment context. .
         /// </summary>
@@ -1184,7 +1229,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseStableResourceIdentifiersMessage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Resource identifiers should be reproducible outside of their initial deployment context. Resource {0}&apos;s &apos;{1}&apos; identifier is potentially nondeterministic due to its use of the &apos;{2}&apos; function ({3})..
         /// </summary>
@@ -1193,7 +1238,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseStableResourceIdentifiersMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Virtual machines shouldn&apos;t use preview images..
         /// </summary>
@@ -1202,7 +1247,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseStableVMImage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Virtual machines shouldn&apos;t use preview images. Use stable version in imageReference property &quot;{0}&quot;..
         /// </summary>
@@ -1211,7 +1256,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseStableVMImageRuleFixMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Use user-defined types instead of &apos;object&apos; or &apos;array&apos;..
         /// </summary>
@@ -1220,7 +1265,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseUserDefinedTypesRule_Description", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Runtime values should not be used to determine resource IDs.
         /// </summary>
@@ -1229,7 +1274,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("WhatIfShortCircuitingRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Parameter &apos;{0}&apos; is used as a resource identifier, API version, or condition in the module &apos;{1}&apos;. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If..
         /// </summary>
@@ -1238,7 +1283,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("WhatIfShortCircuitingRuleMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Warn if a &apos;reference&apos; or &apos;list*&apos; function call uses an unrecognized resource type..
         /// </summary>
@@ -1247,7 +1292,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecognizedResourceTypeRule_Description", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Resource type &quot;{0}&quot; is not recognized in function &quot;{1}&quot;. If this resource type does exist, the API version must be specified as a function argument..
         /// </summary>
@@ -1256,13 +1301,31 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UseRecognizedResourceTypeRule_MessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Resource type &quot;{0}&quot; is not recognized in function &quot;{1}&quot;. Did you mean &quot;{2}&quot;? If this resource type does exist, the API version must be specified as a function argument..
         /// </summary>
         internal static string UseRecognizedResourceTypeRule_MessageFormatWithSuggestion {
             get {
                 return ResourceManager.GetString("UseRecognizedResourceTypeRule_MessageFormatWithSuggestion", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Avoid specifying an explicit module name. This simplifies code, and avoids the risk of accidental module name re-use within a deployment..
+        /// </summary>
+        internal static string NoModuleNameRule_Description {
+            get {
+                return ResourceManager.GetString("NoModuleNameRule_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Remove module name.
+        /// </summary>
+        internal static string NoModuleNameRule_CodeFix {
+            get {
+                return ResourceManager.GetString("NoModuleNameRule_CodeFix", resourceCulture);
             }
         }
     }

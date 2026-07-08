@@ -191,40 +191,40 @@ namespace Bicep.Core.Emit
                         return true;
 
                     case ArraySyntax arraySyntax:
-                    {
-                        var array = new JArray();
-                        foreach (var item in arraySyntax.Items)
                         {
-                            if (!TryConvertSyntaxToJToken(item.Value, out var itemToken))
+                            var array = new JArray();
+                            foreach (var item in arraySyntax.Items)
                             {
-                                token = JValue.CreateNull();
-                                return false;
+                                if (!TryConvertSyntaxToJToken(item.Value, out var itemToken))
+                                {
+                                    token = JValue.CreateNull();
+                                    return false;
+                                }
+
+                                array.Add(itemToken);
                             }
 
-                            array.Add(itemToken);
+                            token = array;
+                            return true;
                         }
-
-                        token = array;
-                        return true;
-                    }
 
                     case ObjectSyntax objectSyntax:
-                    {
-                        var obj = new JObject();
-                        foreach (var property in objectSyntax.Properties)
                         {
-                            if (property.TryGetKeyText() is not string key || !TryConvertSyntaxToJToken(property.Value, out var propertyValue))
+                            var obj = new JObject();
+                            foreach (var property in objectSyntax.Properties)
                             {
-                                token = JValue.CreateNull();
-                                return false;
+                                if (property.TryGetKeyText() is not string key || !TryConvertSyntaxToJToken(property.Value, out var propertyValue))
+                                {
+                                    token = JValue.CreateNull();
+                                    return false;
+                                }
+
+                                obj.Add(key, propertyValue);
                             }
 
-                            obj.Add(key, propertyValue);
+                            token = obj;
+                            return true;
                         }
-
-                        token = obj;
-                        return true;
-                    }
 
                     default:
                         token = JValue.CreateNull();

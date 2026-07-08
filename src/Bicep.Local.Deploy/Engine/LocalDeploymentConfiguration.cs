@@ -18,7 +18,6 @@ public class LocalDeploymentConfiguration : IAzureDeploymentConfiguration
         IDependencyProcessor dependency,
         ITemplateExceptionHandler exceptionHandler,
         IDataProviderHolder dataProviders,
-        IExtensionConfigSchemaDirectoryFactory extensionConfigSchemaDirectoryFactory,
         IResourceTypeRegistrationProvider resourceTypeRegistrationProvider)
     {
         Settings = settings;
@@ -27,7 +26,6 @@ public class LocalDeploymentConfiguration : IAzureDeploymentConfiguration
         DependencyProcessor = dependency;
         TemplateExceptionHandler = exceptionHandler;
         DataProviders = dataProviders;
-        ExtensionConfigSchemaDirectoryFactory = extensionConfigSchemaDirectoryFactory;
         ResourceTypeRegistrationProvider = resourceTypeRegistrationProvider;
     }
 
@@ -44,8 +42,6 @@ public class LocalDeploymentConfiguration : IAzureDeploymentConfiguration
     public ITemplateExceptionHandler TemplateExceptionHandler { get; }
 
     public IDataProviderHolder DataProviders { get; }
-
-    public IExtensionConfigSchemaDirectoryFactory ExtensionConfigSchemaDirectoryFactory { get; }
 
     public IResourceTypeRegistrationProvider ResourceTypeRegistrationProvider { get; }
 }
