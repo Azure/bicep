@@ -1664,6 +1664,28 @@ namespace Bicep.Core.TypeSystem
                     return result;
                 }
 
+                // if one or both operands are nullable and stripping nullability would let the operation match a known operator,
+                // emit a fixable warning per nullable operand and proceed as if it had been non-nullable.
+                // the diagnostic spans the whole binary operation (matching the position of the BCP045 error it replaces)
+                // so the operator context is visible, but the code fix still targets the individual operand.
+                var nonNullableOperand1 = TypeHelper.TryRemoveNullability(operandType1);
+                var nonNullableOperand2 = TypeHelper.TryRemoveNullability(operandType2);
+                if ((nonNullableOperand1 is not null || nonNullableOperand2 is not null) &&
+                    OperationReturnTypeEvaluator.TryFoldBinaryExpression(syntax, nonNullableOperand1 ?? operandType1, nonNullableOperand2 ?? operandType2, diagnostics) is { } nullableResult)
+                {
+                    if (nonNullableOperand1 is not null)
+                    {
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(syntax)
+                            .PossibleNullReferenceAssignment(nonNullableOperand1, operandType1, syntax.LeftExpression, includeSourceText: true));
+                    }
+                    if (nonNullableOperand2 is not null)
+                    {
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(syntax)
+                            .PossibleNullReferenceAssignment(nonNullableOperand2, operandType2, syntax.RightExpression, includeSourceText: true));
+                    }
+                    return nullableResult;
+                }
+
                 string? additionalInfo = null;
                 if (TypeValidator.AreTypesAssignable(operandType1, LanguageConstants.String) &&
                     TypeValidator.AreTypesAssignable(operandType2, LanguageConstants.String) &&
@@ -1695,6 +1717,18 @@ namespace Bicep.Core.TypeSystem
                 if (OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax.Operator, operandType, diagnostics) is { } result)
                 {
                     return result;
+                }
+
+                // if the operand is nullable and stripping nullability would let the operation match a known operator,
+                // emit a fixable warning and proceed as if it had been non-nullable.
+                // the diagnostic spans the whole unary operation (matching the position of the BCP044 error it replaces)
+                // so the operator context is visible, but the code fix still targets the operand.
+                if (TypeHelper.TryRemoveNullability(operandType) is { } nonNullableOperand &&
+                    OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax.Operator, nonNullableOperand, diagnostics) is { } nullableResult)
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax)
+                        .PossibleNullReferenceAssignment(nonNullableOperand, operandType, syntax.Expression, includeSourceText: true));
+                    return nullableResult;
                 }
 
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnaryOperatorInvalidType(Operators.UnaryOperatorToText[syntax.Operator], operandType));

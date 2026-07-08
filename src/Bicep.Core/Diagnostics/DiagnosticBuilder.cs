@@ -1511,11 +1511,21 @@ namespace Bicep.Core.Diagnostics
                 "BCP320",
                 "The properties of module output resources cannot be accessed directly. To use the properties of this resource, pass it as a resource-typed parameter to another module and access the parameter's properties therein.");
 
-            public Diagnostic PossibleNullReferenceAssignment(TypeSymbol expectedType, TypeSymbol actualType, SyntaxBase expression) => CoreWarning(
-                "BCP321",
-                $"Expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".")
-                with
-            { Fixes = [AsNonNullable(expression)] };
+            public Diagnostic PossibleNullReferenceAssignment(TypeSymbol expectedType, TypeSymbol actualType, SyntaxBase expression, bool includeSourceText = false)
+            {
+                // when the diagnostic underline covers more than just the offending expression (e.g. a binary/unary operator that
+                // spans multiple operands), the caller can opt in to include the source text of the offending value in the message
+                // itself so the reader can tell which sub-expression is nullable.
+                var providedValueClause = includeSourceText
+                    ? $"the provided value \"{expression.ToString().Trim()}\""
+                    : "the provided value";
+
+                return CoreWarning(
+                    "BCP321",
+                    $"Expected a value of type \"{expectedType}\" but {providedValueClause} is of type \"{actualType}\".")
+                    with
+                { Fixes = [AsNonNullable(expression)] };
+            }
 
             public Diagnostic SafeDereferenceNotPermittedOnInstanceFunctions() => CoreError(
                 "BCP322",

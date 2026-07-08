@@ -240,4 +240,282 @@ output out array = split(first(input), 21)
             ("BCP070", DiagnosticLevel.Error, @"Argument of type ""21"" is not assignable to parameter of type ""array | string""."),
         });
     }
+
+    // https://github.com/Azure/bicep/issues/17284
+    [TestMethod]
+    public void Issue_17284_nullable_operand_in_binary_operator_raises_fixable_warning_instead_of_error()
+    {
+        var result = CompilationHelper.Compile(@"
+func hello(input int?) string? => input == null ? null : input > 60 ? 'Hello world ${input}' : 'Value is lower than 60'
+");
+
+        result.Template.Should().NotBeNull();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""int"" but the provided value ""input"" is of type ""int | null""."),
+        });
+
+        // ensure the emitted ARM expression is what the user actually intended (same as writing `input!` explicitly)
+        result.Template.Should().HaveValueAtPath(
+            "$.functions[0].members['hello'].output.value",
+            "[if(equals(parameters('input'), null()), null(), if(greater(parameters('input'), 60), format('Hello world {0}', parameters('input')), 'Value is lower than 60'))]");
+    }
+
+    [TestMethod]
+    public void Nullable_operand_on_left_of_binary_comparison_raises_fixable_warning()
+    {
+        var templateWithNullable = @"
+func compareLeft(input int?) bool => input > 60
+";
+        var templateWithNonNullAssertion = @"
+func compareLeft(input int?) bool => input ! > 60
+";
+
+        var result = CompilationHelper.Compile(templateWithNullable);
+
+        result.Template.Should().NotBeNull();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""int"" but the provided value ""input"" is of type ""int | null""."),
+        });
+
+        var warning = result.ExcludingLinterDiagnostics().Diagnostics.Single();
+        warning.Should().BeAssignableTo<IFixable>();
+        warning.As<IFixable>().Fixes.Single().Should().HaveResult(templateWithNullable, templateWithNonNullAssertion);
+
+        // roundtrip: applying the fix yields a template that compiles without any diagnostics
+        CompilationHelper.Compile(templateWithNonNullAssertion).ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        // the emitted expression matches what the user would get with an explicit `!` non-null assertion
+        result.Template.Should().HaveValueAtPath(
+            "$.functions[0].members['compareLeft'].output.value",
+            "[greater(parameters('input'), 60)]");
+    }
+
+    [TestMethod]
+    public void Nullable_operand_on_right_of_binary_comparison_raises_fixable_warning()
+    {
+        var templateWithNullable = @"
+func compareRight(input int?) bool => 60 > input
+";
+        var templateWithNonNullAssertion = @"
+func compareRight(input int?) bool => 60 > input!
+";
+
+        var result = CompilationHelper.Compile(templateWithNullable);
+
+        result.Template.Should().NotBeNull();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""int"" but the provided value ""input"" is of type ""int | null""."),
+        });
+
+        var warning = result.ExcludingLinterDiagnostics().Diagnostics.Single();
+        warning.Should().BeAssignableTo<IFixable>();
+        warning.As<IFixable>().Fixes.Single().Should().HaveResult(templateWithNullable, templateWithNonNullAssertion);
+
+        // roundtrip: applying the fix yields a template that compiles without any diagnostics
+        CompilationHelper.Compile(templateWithNonNullAssertion).ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        // the emitted expression matches what the user would get with an explicit `!` non-null assertion
+        result.Template.Should().HaveValueAtPath(
+            "$.functions[0].members['compareRight'].output.value",
+            "[greater(60, parameters('input'))]");
+    }
+
+    [TestMethod]
+    public void Both_nullable_operands_in_binary_comparison_raise_two_fixable_warnings()
+    {
+        var result = CompilationHelper.Compile(@"
+func compareBoth(a int?, b int?) bool => a > b
+");
+
+        result.Template.Should().NotBeNull();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""int"" but the provided value ""a"" is of type ""int | null""."),
+            ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""int"" but the provided value ""b"" is of type ""int | null""."),
+        });
+
+        // both operands still surface as parameters in the emitted expression
+        result.Template.Should().HaveValueAtPath(
+            "$.functions[0].members['compareBoth'].output.value",
+            "[greater(parameters('a'), parameters('b'))]");
+    }
+
+    [TestMethod]
+    public void Nullable_operand_in_arithmetic_operator_raises_fixable_warning()
+    {
+        var result = CompilationHelper.Compile(@"
+func addOne(input int?) int => input + 1
+");
+
+        result.Template.Should().NotBeNull();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""int"" but the provided value ""input"" is of type ""int | null""."),
+        });
+
+        result.Template.Should().HaveValueAtPath(
+            "$.functions[0].members['addOne'].output.value",
+            "[add(parameters('input'), 1)]");
+    }
+
+    [TestMethod]
+    public void Nullable_operand_in_binary_operator_with_non_null_assertion_raises_no_warning()
+    {
+        var result = CompilationHelper.Compile(@"
+func compareLeft(input int?) bool => input! > 60
+");
+
+        result.Template.Should().NotBeNull();
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Pure_null_operand_in_binary_operator_still_raises_error()
+    {
+        // pure `null` (not `T | null`) cannot be stripped by TryRemoveNullability, so BCP045 must still fire.
+        var result = CompilationHelper.Compile(@"
+var invalid = null + 's'
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP045", DiagnosticLevel.Error, @"Cannot apply operator ""+"" to operands of type ""null"" and ""'s'""."),
+        });
+    }
+
+    [TestMethod]
+    public void Nullable_operand_in_unary_not_operator_raises_fixable_warning()
+    {
+        var templateWithNullable = @"
+func negate(input bool?) bool => !input
+";
+        var templateWithNonNullAssertion = @"
+func negate(input bool?) bool => !input!
+";
+
+        var result = CompilationHelper.Compile(templateWithNullable);
+
+        result.Template.Should().NotBeNull();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""bool"" but the provided value ""input"" is of type ""bool | null""."),
+        });
+
+        var warning = result.ExcludingLinterDiagnostics().Diagnostics.Single();
+        warning.Should().BeAssignableTo<IFixable>();
+        warning.As<IFixable>().Fixes.Single().Should().HaveResult(templateWithNullable, templateWithNonNullAssertion);
+
+        // roundtrip: applying the fix yields a template that compiles without any diagnostics
+        CompilationHelper.Compile(templateWithNonNullAssertion).ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        // the emitted expression matches what the user would get with an explicit `!` non-null assertion
+        result.Template.Should().HaveValueAtPath(
+            "$.functions[0].members['negate'].output.value",
+            "[not(parameters('input'))]");
+    }
+
+    [TestMethod]
+    public void Nullable_operand_in_unary_minus_operator_raises_fixable_warning()
+    {
+        var result = CompilationHelper.Compile(@"
+func negate(input int?) int => -input
+");
+
+        result.Template.Should().NotBeNull();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""int"" but the provided value ""input"" is of type ""int | null""."),
+        });
+
+        result.Template.Should().HaveValueAtPath(
+            "$.functions[0].members['negate'].output.value",
+            "[sub(0, parameters('input'))]");
+    }
+
+    [TestMethod]
+    public void Null_guarded_unary_operator_pattern_compiles_with_warning()
+    {
+        // User's expected null-guarded pattern from issue #17284 discussion — compiles (with a warning) instead of failing outright.
+        var result = CompilationHelper.Compile(@"
+func not(input bool?) bool => input != null ? !input : false
+");
+
+        result.Template.Should().NotBeNull();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""bool"" but the provided value ""input"" is of type ""bool | null""."),
+        });
+
+        // the emitted expression preserves the null-guard: if(input != null, !input, false)
+        result.Template.Should().HaveValueAtPath(
+            "$.functions[0].members['not'].output.value",
+            "[if(not(equals(parameters('input'), null())), not(parameters('input')), false())]");
+    }
+
+    [TestMethod]
+    public void Nullable_operand_in_unary_operator_with_non_null_assertion_raises_no_warning()
+    {
+        var result = CompilationHelper.Compile(@"
+func negate(input bool?) bool => !input!
+");
+
+        result.Template.Should().NotBeNull();
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Pure_null_operand_in_unary_operator_still_raises_error()
+    {
+        // pure `null` (not `T | null`) cannot be stripped by TryRemoveNullability, so BCP044 must still fire.
+        var result = CompilationHelper.Compile(@"
+var invalid = !null
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP044", DiagnosticLevel.Error, @"Cannot apply operator ""!"" to operand of type ""null""."),
+        });
+    }
+
+    [TestMethod]
+    public void Coalesce_operator_on_nullable_left_does_not_raise_nullability_warning()
+    {
+        // the `??` operator's signature is (Any, Any) and it handles nullability internally, so the exploratory
+        // strip-and-refold branch must never fire for it (no BCP321 false positives).
+        var result = CompilationHelper.Compile(@"
+func withDefault(input int?) int => input ?? 0
+");
+
+        result.Template.Should().NotBeNull();
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        result.Template.Should().HaveValueAtPath(
+            "$.functions[0].members['withDefault'].output.value",
+            "[coalesce(parameters('input'), 0)]");
+    }
+
+    [TestMethod]
+    public void Chained_nullable_arithmetic_raises_warnings_only_on_the_nullable_leaves()
+    {
+        // inner `a + b`: two nullable operands -> two BCP321s, folds to a non-nullable int type.
+        // outer `<inner> + 1`: inner result is already non-nullable, so no extra warning.
+        // this verifies the folded return type propagates as non-nullable up the expression tree.
+        var result = CompilationHelper.Compile(@"
+func sum(a int?, b int?) int => a + b + 1
+");
+
+        result.Template.Should().NotBeNull();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""int"" but the provided value ""a"" is of type ""int | null""."),
+            ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""int"" but the provided value ""b"" is of type ""int | null""."),
+        });
+
+        result.Template.Should().HaveValueAtPath(
+            "$.functions[0].members['sum'].output.value",
+            "[add(add(parameters('a'), parameters('b')), 1)]");
+    }
 }
