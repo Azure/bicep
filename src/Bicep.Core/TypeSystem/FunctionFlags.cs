@@ -93,6 +93,11 @@ namespace Bicep.Core.TypeSystem
         RequiresExternalInput = 1 << 16,
 
         /// <summary>
+        /// The function result is determined by its arguments and compile-time state.
+        /// </summary>
+        Pure = 1 << 17,
+
+        /// <summary>
         /// The function can be used as a resource or module decorator.
         /// </summary>
         ResourceOrModuleDecorator = ResourceDecorator | ModuleDecorator,

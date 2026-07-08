@@ -70,6 +70,18 @@ namespace Bicep.Core.Semantics
 
         public string TypeSignature { get; }
 
+        public virtual FunctionOverload WithAdditionalFlags(FunctionFlags flags) => new(
+            Name,
+            GenericDescription,
+            Description,
+            ResultBuilder,
+            TypeSignatureSymbol,
+            FixedParameters,
+            VariableParameter,
+            Evaluator,
+            ArmExpressionEvaluator,
+            Flags | flags);
+
         public IEnumerable<string> ParameterTypeSignatures => this.FixedParameters
             .Select(fp => fp.Signature)
             .Concat(this.VariableParameter?.GenericSignature.AsEnumerable() ?? []);

@@ -25,5 +25,18 @@ namespace Bicep.Core.Semantics
         }
 
         public Regex WildcardRegex { get; }
+
+        public override FunctionOverload WithAdditionalFlags(FunctionFlags flags) => new FunctionWildcardOverload(
+            Name,
+            GenericDescription,
+            Description,
+            WildcardRegex,
+            ResultBuilder,
+            TypeSignatureSymbol,
+            FixedParameters,
+            VariableParameter,
+            Evaluator,
+            ArmExpressionEvaluator,
+            Flags | flags);
     }
 }

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Numerics;
@@ -15,6 +16,7 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
@@ -59,6 +61,20 @@ namespace Bicep.Core.Semantics.Namespaces
         private record NamespaceValue<T>(T Value, VisibilityDelegate IsVisible);
 
         private static readonly ImmutableArray<NamespaceValue<NamedTypeProperty>> AmbientSymbols = [.. GetSystemAmbientSymbols()];
+
+        private static readonly FrozenSet<string> NonPureSystemFunctionNames = new[]
+        {
+            "fail",
+            "newGuid",
+            "utcNow",
+        }.ToFrozenSet(LanguageConstants.IdentifierComparer);
+
+        private static FunctionOverload MarkPureIfAppropriate(FunctionOverload overload) =>
+            NonPureSystemFunctionNames.Contains(overload.Name) ||
+            overload.Flags.HasFlag(FunctionFlags.ParamDefaultsOnly) ||
+            overload.Flags.HasFlag(FunctionFlags.RequiresExternalInput)
+                ? overload
+                : overload.WithAdditionalFlags(FunctionFlags.Pure);
 
         private static IEnumerable<NamespaceValue<FunctionOverload>> GetSystemOverloads(IFeatureProvider featureProvider)
         {
@@ -1318,7 +1334,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
 
-            foreach (var overload in GetAlwaysPermittedOverloads())
+            foreach (var overload in GetAlwaysPermittedOverloads().Select(MarkPureIfAppropriate))
             {
                 yield return new(overload, (_, _) => true);
             }
@@ -2128,7 +2144,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         DeclaredFunctionExpression declaredFunction => declaredFunction with { Exported = functionCall },
                         _ => decorated,
                     })
-                    .WithValidator(static (decoratorName, decoratorSyntax, _, _, binder, _, diagnosticWriter) =>
+                    .WithValidator(static (decoratorName, decoratorSyntax, _, typeManager, binder, _, diagnosticWriter) =>
                     {
                         var decoratorTarget = binder.GetParent(decoratorSyntax);
 
@@ -2153,6 +2169,12 @@ namespace Bicep.Core.Semantics.Namespaces
                             if (nonExportableSymbolsInClosure.Any())
                             {
                                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).ClosureContainsNonExportableSymbols(nonExportableSymbolsInClosure));
+                            }
+
+                            var nonPureFunctionNamesInClosure = GetNonPureFunctionNamesInClosure(targetedDeclaration, typeManager, binder);
+                            if (nonPureFunctionNamesInClosure.Count > 0)
+                            {
+                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).ClosureContainsNonPureFunctions(nonPureFunctionNamesInClosure.Order(StringComparer.OrdinalIgnoreCase)));
                             }
                         }
                     })
@@ -2200,6 +2222,30 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new(decorator, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
             }
         }
+
+        private static FrozenSet<string> GetNonPureFunctionNamesInClosure(DeclaredSymbol targetedDeclaration, ITypeManager typeManager, IBinder binder)
+            => binder.GetReferencedSymbolClosureFor(targetedDeclaration)
+                .Add(targetedDeclaration)
+                .SelectMany(GetValueSyntaxesToValidateForExport)
+                .SelectMany(syntax => SyntaxAggregator.AggregateByType<FunctionCallSyntaxBase>(syntax))
+                .Select(functionCall => new
+                {
+                    FunctionCall = functionCall,
+                    Symbol = SymbolHelper.TryGetSymbolInfo(binder, typeManager.GetDeclaredType, functionCall) as FunctionSymbol,
+                })
+                .Where(x => x.Symbol is not null && !IsPureFunctionCall(x.Symbol, x.FunctionCall, typeManager))
+                .Select(x => x.Symbol!.Name)
+                .ToFrozenSet(LanguageConstants.IdentifierComparer);
+
+        private static IEnumerable<SyntaxBase> GetValueSyntaxesToValidateForExport(DeclaredSymbol symbol) => symbol switch
+        {
+            VariableSymbol variable => [variable.DeclaringVariable.Value],
+            DeclaredFunctionSymbol function => [function.DeclaringFunction.Lambda],
+            _ => [],
+        };
+
+        private static bool IsPureFunctionCall(FunctionSymbol functionSymbol, FunctionCallSyntaxBase functionCall, ITypeManager typeManager)
+            => (typeManager.GetMatchedFunctionOverload(functionCall)?.Flags ?? functionSymbol.FunctionFlags).HasFlag(FunctionFlags.Pure);
 
         private static void ValidateTypeDiscriminator(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter)
         {

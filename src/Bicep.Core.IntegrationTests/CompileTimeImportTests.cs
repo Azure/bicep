@@ -113,6 +113,47 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
+    public void Exporting_variable_that_references_non_pure_function_should_raise_diagnostic()
+    {
+        var result = CompilationHelper.Compile("""
+            @export()
+            var defaultSubnetId = resourceId('resourceGroup', 'Microsoft.Network/virtualNetworks/subnets', 'vnet', 'subnet')
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP452", DiagnosticLevel.Error, "The \"@export()\" decorator may not be applied to variables or functions that reference deployment-context functions, either directly or indirectly. The target of this decorator contains direct or transitive references to the following functions: \"resourceId\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Exporting_variable_that_transitively_references_non_pure_function_should_raise_diagnostic()
+    {
+        var result = CompilationHelper.Compile("""
+            var defaultSubnetId = resourceId('resourceGroup', 'Microsoft.Network/virtualNetworks/subnets', 'vnet', 'subnet')
+
+            @export()
+            var exportedSubnetId = defaultSubnetId
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP452", DiagnosticLevel.Error, "The \"@export()\" decorator may not be applied to variables or functions that reference deployment-context functions, either directly or indirectly. The target of this decorator contains direct or transitive references to the following functions: \"resourceId\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Exporting_variable_that_references_pure_function_should_not_raise_diagnostic()
+    {
+        var result = CompilationHelper.Compile("""
+            @export()
+            var value = toLower('HELLO')
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
     public void Importing_non_template_should_not_raise_diagnostic()
     {
         var result = CompilationHelper.Compile(
