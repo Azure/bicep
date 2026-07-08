@@ -1258,7 +1258,7 @@ namespace Bicep.Core.Semantics.Namespaces
                             new StringLiteralType(returnValue, TypeSymbolValidationFlags.Default),
                             new StringLiteralExpression(argument, returnValue));
                     }, LanguageConstants.String)
-                    .WithFlags(FunctionFlags.IsArgumentValueIndependent)
+                    .WithFlags(FunctionFlags.ArgumentValueIndependent)
                     .Build();
 
                 yield return new FunctionOverloadBuilder("fail")

@@ -264,7 +264,7 @@ namespace Bicep.Core.Emit
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
             var functionSymbol = semanticModel.GetSymbolInfo(syntax) as FunctionSymbol;
-            if (functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.IsArgumentValueIndependent))
+            if (functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ArgumentValueIndependent))
             {
                 base.VisitFunctionCallSyntax(syntax);
             }
@@ -273,7 +273,7 @@ namespace Bicep.Core.Emit
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
             var functionSymbol = semanticModel.GetSymbolInfo(syntax) as FunctionSymbol;
-            if (functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.IsArgumentValueIndependent))
+            if (functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ArgumentValueIndependent))
             {
                 base.VisitInstanceFunctionCallSyntax(syntax);
             }

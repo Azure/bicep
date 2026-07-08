@@ -197,7 +197,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         protected bool ShouldVisitFunctionArguments(FunctionSymbol? functionSymbol)
-            => functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.IsArgumentValueIndependent);
+            => functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ArgumentValueIndependent);
 
         protected void FlagIfFunctionRequiresInlining(FunctionSymbol? functionSymbol)
         {

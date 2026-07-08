@@ -85,7 +85,7 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// The function does not depend on argument values - e.g. `nameof(foo)` does not depend on the value of `foo`.
         /// </summary>
-        IsArgumentValueIndependent = 1 << 15,
+        ArgumentValueIndependent = 1 << 15,
 
         /// <summary>
         /// The function depends on inputs provided by external tooling.
