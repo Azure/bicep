@@ -265,10 +265,10 @@ func hello(input int?) string? => input == null ? null : input > 60 ? 'Hello wor
     public void Nullable_operand_on_left_of_binary_comparison_raises_fixable_warning()
     {
         var templateWithNullable = @"
-func compareLeft(input int?) bool => input > 60
+func compareLeft(input int?) bool => input == null ? false : input > 60
 ";
         var templateWithNonNullAssertion = @"
-func compareLeft(input int?) bool => input ! > 60
+func compareLeft(input int?) bool => input == null ? false : input ! > 60
 ";
 
         var result = CompilationHelper.Compile(templateWithNullable);
@@ -286,20 +286,20 @@ func compareLeft(input int?) bool => input ! > 60
         // roundtrip: applying the fix yields a template that compiles without any diagnostics
         CompilationHelper.Compile(templateWithNonNullAssertion).ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-        // the emitted expression matches what the user would get with an explicit `!` non-null assertion
+        // the emitted expression preserves the null guard around the greater-than comparison
         result.Template.Should().HaveValueAtPath(
             "$.functions[0].members['compareLeft'].output.value",
-            "[greater(parameters('input'), 60)]");
+            "[if(equals(parameters('input'), null()), false(), greater(parameters('input'), 60))]");
     }
 
     [TestMethod]
     public void Nullable_operand_on_right_of_binary_comparison_raises_fixable_warning()
     {
         var templateWithNullable = @"
-func compareRight(input int?) bool => 60 > input
+func compareRight(input int?) bool => input == null ? false : 60 > input
 ";
         var templateWithNonNullAssertion = @"
-func compareRight(input int?) bool => 60 > input!
+func compareRight(input int?) bool => input == null ? false : 60 > input!
 ";
 
         var result = CompilationHelper.Compile(templateWithNullable);
@@ -317,17 +317,17 @@ func compareRight(input int?) bool => 60 > input!
         // roundtrip: applying the fix yields a template that compiles without any diagnostics
         CompilationHelper.Compile(templateWithNonNullAssertion).ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-        // the emitted expression matches what the user would get with an explicit `!` non-null assertion
+        // the emitted expression preserves the null guard around the greater-than comparison
         result.Template.Should().HaveValueAtPath(
             "$.functions[0].members['compareRight'].output.value",
-            "[greater(60, parameters('input'))]");
+            "[if(equals(parameters('input'), null()), false(), greater(60, parameters('input')))]");
     }
 
     [TestMethod]
     public void Both_nullable_operands_in_binary_comparison_raise_two_fixable_warnings()
     {
         var result = CompilationHelper.Compile(@"
-func compareBoth(a int?, b int?) bool => a > b
+func compareBoth(cond bool, a int?, b int?) bool => cond ? a > b : false
 ");
 
         result.Template.Should().NotBeNull();
@@ -337,17 +337,17 @@ func compareBoth(a int?, b int?) bool => a > b
             ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""int"" but the provided value ""b"" is of type ""int | null""."),
         });
 
-        // both operands still surface as parameters in the emitted expression
+        // both operands still surface as parameters in the emitted expression, gated by the ternary condition
         result.Template.Should().HaveValueAtPath(
             "$.functions[0].members['compareBoth'].output.value",
-            "[greater(parameters('a'), parameters('b'))]");
+            "[if(parameters('cond'), greater(parameters('a'), parameters('b')), false())]");
     }
 
     [TestMethod]
     public void Nullable_operand_in_arithmetic_operator_raises_fixable_warning()
     {
         var result = CompilationHelper.Compile(@"
-func addOne(input int?) int => input + 1
+func addOne(input int?) int => input == null ? 0 : input + 1
 ");
 
         result.Template.Should().NotBeNull();
@@ -358,7 +358,7 @@ func addOne(input int?) int => input + 1
 
         result.Template.Should().HaveValueAtPath(
             "$.functions[0].members['addOne'].output.value",
-            "[add(parameters('input'), 1)]");
+            "[if(equals(parameters('input'), null()), 0, add(parameters('input'), 1))]");
     }
 
     [TestMethod]
@@ -390,10 +390,10 @@ var invalid = null + 's'
     public void Nullable_operand_in_unary_not_operator_raises_fixable_warning()
     {
         var templateWithNullable = @"
-func negate(input bool?) bool => !input
+func negate(input bool?) bool => input == null ? false : !input
 ";
         var templateWithNonNullAssertion = @"
-func negate(input bool?) bool => !input!
+func negate(input bool?) bool => input == null ? false : !input!
 ";
 
         var result = CompilationHelper.Compile(templateWithNullable);
@@ -411,17 +411,17 @@ func negate(input bool?) bool => !input!
         // roundtrip: applying the fix yields a template that compiles without any diagnostics
         CompilationHelper.Compile(templateWithNonNullAssertion).ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
-        // the emitted expression matches what the user would get with an explicit `!` non-null assertion
+        // the emitted expression preserves the null guard around the negation
         result.Template.Should().HaveValueAtPath(
             "$.functions[0].members['negate'].output.value",
-            "[not(parameters('input'))]");
+            "[if(equals(parameters('input'), null()), false(), not(parameters('input')))]");
     }
 
     [TestMethod]
     public void Nullable_operand_in_unary_minus_operator_raises_fixable_warning()
     {
         var result = CompilationHelper.Compile(@"
-func negate(input int?) int => -input
+func negate(input int?) int => input == null ? 0 : -input
 ");
 
         result.Template.Should().NotBeNull();
@@ -432,27 +432,7 @@ func negate(input int?) int => -input
 
         result.Template.Should().HaveValueAtPath(
             "$.functions[0].members['negate'].output.value",
-            "[sub(0, parameters('input'))]");
-    }
-
-    [TestMethod]
-    public void Null_guarded_unary_operator_pattern_compiles_with_warning()
-    {
-        // User's expected null-guarded pattern from issue #17284 discussion — compiles (with a warning) instead of failing outright.
-        var result = CompilationHelper.Compile(@"
-func not(input bool?) bool => input != null ? !input : false
-");
-
-        result.Template.Should().NotBeNull();
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""bool"" but the provided value ""input"" is of type ""bool | null""."),
-        });
-
-        // the emitted expression preserves the null-guard: if(input != null, !input, false)
-        result.Template.Should().HaveValueAtPath(
-            "$.functions[0].members['not'].output.value",
-            "[if(not(equals(parameters('input'), null())), not(parameters('input')), false())]");
+            "[if(equals(parameters('input'), null()), 0, sub(0, parameters('input')))]");
     }
 
     [TestMethod]
@@ -504,7 +484,7 @@ func withDefault(input int?) int => input ?? 0
         // outer `<inner> + 1`: inner result is already non-nullable, so no extra warning.
         // this verifies the folded return type propagates as non-nullable up the expression tree.
         var result = CompilationHelper.Compile(@"
-func sum(a int?, b int?) int => a + b + 1
+func sum(cond bool, a int?, b int?) int => cond ? a + b + 1 : 0
 ");
 
         result.Template.Should().NotBeNull();
@@ -516,17 +496,17 @@ func sum(a int?, b int?) int => a + b + 1
 
         result.Template.Should().HaveValueAtPath(
             "$.functions[0].members['sum'].output.value",
-            "[add(add(parameters('a'), parameters('b')), 1)]");
+            "[if(parameters('cond'), add(add(parameters('a'), parameters('b')), 1), 0)]");
     }
 
     [TestMethod]
     public void Multi_line_nullable_operand_source_text_is_rendered_on_a_single_line_in_the_diagnostic_message()
     {
         // The offending operand spans multiple lines in the source. The BCP321 message must render on a single line
-        // (newlines replaced with spaces) so it stays readable in CLI/IDE output — indentation whitespace is preserved
+        // (newlines replaced with spaces) so it stays readable in CLI/IDE output — inter-token whitespace is preserved
         // as-is, we just guarantee the message never contains a raw newline.
         var result = CompilationHelper.Compile(@"
-func firstOrZero(input int[]) int => first(filter(
+func firstOrZero(input int[]) int => length(input) == 0 ? 0 : first(filter(
   input,
   x => x != 0
 )) + 1
@@ -536,6 +516,36 @@ func firstOrZero(input int[]) int => first(filter(
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             ("BCP321", DiagnosticLevel.Warning, @"Expected a value of type ""int"" but the provided value ""first(filter(   input,   x => x != 0 ))"" is of type ""int | null""."),
+        });
+    }
+
+    [TestMethod]
+    public void Nullable_binary_operand_outside_ternary_branch_still_raises_BCP045_error()
+    {
+        // The strip-and-refold error->warning downgrade is intentionally gated on the operator being inside a
+        // ternary branch (rough proxy for "user has a guard"). Outside a ternary, the pre-PR BCP045 error still fires
+        // so the compiler doesn't silently succeed against a possibly-null runtime value.
+        var result = CompilationHelper.Compile(@"
+func addOne(input int?) int => input + 1
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP045", DiagnosticLevel.Error, @"Cannot apply operator ""+"" to operands of type ""int | null"" and ""1""."),
+        });
+    }
+
+    [TestMethod]
+    public void Nullable_unary_operand_outside_ternary_branch_still_raises_BCP044_error()
+    {
+        // Same gating applies to unary operators: outside a ternary branch, the pre-PR BCP044 error still fires.
+        var result = CompilationHelper.Compile(@"
+func negate(input bool?) bool => !input
+");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP044", DiagnosticLevel.Error, @"Cannot apply operator ""!"" to operand of type ""bool | null""."),
         });
     }
 }
