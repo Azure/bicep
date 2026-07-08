@@ -471,6 +471,52 @@ namespace Bicep.Core.TypeSystem
                 return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Value, declaredType);
             });
 
+        public override void VisitStackDeclarationSyntax(StackDeclarationSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax);
+                if (declaredType is null)
+                {
+                    return ErrorType.Empty();
+                }
+
+                var singleDeclaredType = declaredType.UnwrapArrayType();
+
+                this.ValidateDecorators(syntax.Decorators, declaredType, diagnostics);
+
+                if (singleDeclaredType is ErrorType)
+                {
+                    return singleDeclaredType;
+                }
+
+                if (this.binder.GetSymbolInfo(syntax) is StackSymbol symbol && symbol.TryGetSemanticModel().IsSuccess(out var linkedModel, out var _))
+                {
+                    if (linkedModel.HasErrors())
+                    {
+                        diagnostics.Write(linkedModel is ArmTemplateSemanticModel
+                            ? DiagnosticBuilder.ForPosition(syntax.Path).ReferencedArmTemplateHasErrors()
+                            : DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
+                    }
+
+                    diagnostics.WriteMultiple(linkedModel.Parameters.Values.Select(md => md.TypeReference)
+                        .Concat(linkedModel.Outputs.Select(md => md.TypeReference))
+                        .SelectMany(resourceDerivedTypeDiagnosticReporter.ReportResourceDerivedTypeDiagnostics)
+                        .Select(builder => builder(DiagnosticBuilder.ForPosition(syntax.Path))));
+                }
+
+
+                return TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, this.parsingErrorLookup, diagnostics, syntax.Value, declaredType);
+            });
+
+        public override void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
+                diagnostics.WriteMultiple(GetDeclarationAssignmentDiagnostics(declaredType, syntax.Value));
+
+                return declaredType;
+            });
+
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
@@ -2501,6 +2547,9 @@ namespace Bicep.Core.TypeSystem
 
                     case ModuleSymbol module:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, module));
+
+                    case StackSymbol stack:
+                        return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, stack));
 
                     case TestSymbol test:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, test));

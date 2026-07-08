@@ -2043,7 +2043,7 @@ namespace Bicep.Core.Diagnostics
                     "BCP444",
                     $"This expression is being used as a default value for an extension configuration property, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
-
+            
             public Diagnostic NullIfNotFoundOnlyValidOnExistingResources() => CoreError(
                 "BCP445",
                 $@"The ""@{LanguageConstants.NullIfNotFoundDecoratorName}()"" decorator can only be used on existing resources.");
@@ -2084,6 +2084,14 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic BicepConfigExtendsChainTooDeep(IOUri configFileUri) => CoreError(
                 "BCP455",
                 $"The Bicep configuration \"extends\" chain starting from \"{configFileUri}\" exceeds the maximum allowed depth of 64.");
+
+            public Diagnostic SyntaxBlockedWithTargetScopeOrchestrator(string keyword) => CoreError(
+                "BCP456",
+                $"""Usage of syntax with keyword "{keyword}" is not permitted if the target scope is set to "{LanguageConstants.TargetScopeTypeOrchestrator}".""");
+
+            public Diagnostic SyntaxBlockedWithoutTargetScopeOrchestrator(string keyword) => CoreError(
+                "BCP457",
+                $"""Usage of syntax with keyword "{keyword}" is only permitted if the target scope is set to "{LanguageConstants.TargetScopeTypeOrchestrator}".""");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

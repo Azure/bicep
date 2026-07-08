@@ -19,6 +19,7 @@ public static class EnumConverter
         ResourceScope.ManagementGroup => TemplateDeploymentScope.ManagementGroup,
         ResourceScope.Subscription => TemplateDeploymentScope.Subscription,
         ResourceScope.ResourceGroup => TemplateDeploymentScope.ResourceGroup,
+        ResourceScope.Orchestrator => TemplateDeploymentScope.Tenant, // temporary hack
         _ => null,
     };
 }

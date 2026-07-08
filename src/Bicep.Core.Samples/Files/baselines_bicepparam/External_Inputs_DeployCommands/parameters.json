@@ -1,7 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
-  "parameters": {},
+  "parameters": {
+    "$usingConfig": {
+      "expression": "[createObject('scope', format('/subscriptions/{0}/resourceGroups/{1}', externalInput('sys.cliArg', 'subscription-id'), externalInput('sys.cliArg', 'resource-group')), 'actionOnUnmanage', createObject('resources', 'delete'), 'denySettings', createObject('mode', 'denyDelete'), 'mode', 'stack')]"
+    }
+  },
   "externalInputDefinitions": {
     "sys_cliArg_0": {
       "kind": "sys.cliArg",

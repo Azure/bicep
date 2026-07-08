@@ -152,6 +152,22 @@ namespace Bicep.Core.Semantics
             DeclareSymbol(symbol);
         }
 
+        public override void VisitStackDeclarationSyntax(StackDeclarationSyntax syntax)
+        {
+            base.VisitStackDeclarationSyntax(syntax);
+
+            var symbol = new StackSymbol(this.context, syntax.Name.IdentifierName, syntax);
+            DeclareSymbol(symbol);
+        }
+
+        public override void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax)
+        {
+            base.VisitRuleDeclarationSyntax(syntax);
+
+            var symbol = new RuleSymbol(this.context, syntax.Name.IdentifierName, syntax);
+            DeclareSymbol(symbol);
+        }
+
         public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)
         {
             base.VisitTestDeclarationSyntax(syntax);

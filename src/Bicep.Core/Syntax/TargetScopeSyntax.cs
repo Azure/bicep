@@ -59,6 +59,11 @@ namespace Bicep.Core.Syntax
                 scopes.Add(LanguageConstants.TargetScopeTypeLocal);
             }
 
+            if (features.OrchestrationEnabled)
+            {
+                scopes.Add(LanguageConstants.TargetScopeTypeOrchestrator);
+            }
+
             return TypeHelper.CreateTypeUnion(
                 scopes.Select(x => TypeFactory.CreateStringLiteralType(x)).ToImmutableArray());
         }

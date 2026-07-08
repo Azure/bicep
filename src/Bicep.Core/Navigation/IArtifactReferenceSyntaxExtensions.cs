@@ -39,6 +39,8 @@ public static class IArtifactReferenceSyntaxExtensions
         {
             (ExtendsDeclarationSyntax, BicepParamFile) => true,
             (ExtendsDeclarationSyntax, _) => false,
+            (StackDeclarationSyntax, BicepParamFile) => true,
+            (StackDeclarationSyntax, _) => false,
             (_, BicepFile or ArmTemplateFile or TemplateSpecFile) => true,
             _ => false,
         };

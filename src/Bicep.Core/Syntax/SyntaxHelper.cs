@@ -75,6 +75,7 @@ namespace Bicep.Core.Syntax
                 LanguageConstants.TargetScopeTypeSubscription => ResourceScope.Subscription,
                 LanguageConstants.TargetScopeTypeResourceGroup => ResourceScope.ResourceGroup,
                 LanguageConstants.TargetScopeTypeLocal => ResourceScope.Local,
+                LanguageConstants.TargetScopeTypeOrchestrator => ResourceScope.Orchestrator,
                 _ => ResourceScope.None,
             };
         }

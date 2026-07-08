@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.ClientModel.Primitives;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -9,6 +10,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Navigation;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
@@ -59,6 +61,7 @@ namespace Bicep.Core.Emit
             BlockSecureOutputAccessOnIndirectReference(model, diagnostics);
             BlockExplicitDependenciesInOrOnInlinedExistingResources(model, resourceTypeResolver, diagnostics);
             ValidateUsingWithClauseMatchesExperimentalFeatureEnablement(model, diagnostics);
+            ValidateSyntaxForOrchestrationMode(model, diagnostics);
 
             var paramAssignmentEvaluator = new ParameterAssignmentEvaluator(model);
             var (paramAssignments, usingConfig, externalInputDefinitions) = CalculateParameterAssignments(model, paramAssignmentEvaluator, diagnostics);
@@ -472,7 +475,14 @@ namespace Bicep.Core.Emit
         {
             foreach (var lambda in SyntaxAggregator.AggregateByType<LambdaSyntax>(model.Root.Syntax))
             {
-                foreach (var ancestor in model.Binder.EnumerateAncestorsUpwards(lambda))
+                var ancestors = model.Binder.EnumerateAncestorsUpwards(lambda).ToImmutableArray();
+                if (ancestors.Any(x => x is StackDeclarationSyntax or RuleDeclarationSyntax))
+                {
+                    // lambdas are allowed in stack and rule declarations
+                    continue;
+                }
+
+                foreach (var ancestor in ancestors)
                 {
                     if (ancestor is FunctionArgumentSyntax)
                     {
@@ -798,7 +808,7 @@ namespace Bicep.Core.Emit
                     diagnostics.Write(syntax.WithClause, x => x.UsingWithClauseRequiresExperimentalFeature());
                 }
 
-                if (syntax.WithClause is SkippedTriviaSyntax && model.Features.DeployCommandsEnabled)
+                if (syntax.WithClause is SkippedTriviaSyntax && model.Features.DeployCommandsEnabled && model.TargetScope is not ResourceScope.Orchestrator)
                 {
                     diagnostics.Write(syntax, x => x.UsingWithClauseRequiredIfExperimentalFeatureEnabled());
                 }
@@ -1003,6 +1013,37 @@ namespace Bicep.Core.Emit
                                     GetRuntimeIdentifierProperties(resolver, inlinedResource)));
                         }
                     }
+                }
+            }
+        }
+
+        private static void ValidateSyntaxForOrchestrationMode(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            if (model.TargetScope == ResourceScope.Orchestrator)
+            {
+                Token[] blockedKeywords = [
+                    ..model.Root.OutputDeclarations.Select(o => o.DeclaringOutput.Keyword),
+                    ..model.Root.ResourceDeclarations.Select(r => r.DeclaringResource.Keyword),
+                    ..model.Root.ModuleDeclarations.Select(m => m.DeclaringModule.Keyword),
+                ];
+
+                foreach (var keyword in blockedKeywords)
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(keyword)
+                        .SyntaxBlockedWithTargetScopeOrchestrator(keyword.Text));
+                }
+            }
+            else
+            {
+                Token[] blockedKeywords = [
+                    ..model.Root.StackDeclarations.Select(m => m.DeclaringStack.Keyword),
+                    ..model.Root.RuleDeclarations.Select(m => m.DeclaringRule.Keyword),
+                ];
+
+                foreach (var keyword in blockedKeywords)
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(keyword)
+                        .SyntaxBlockedWithoutTargetScopeOrchestrator(keyword.Text));
                 }
             }
         }

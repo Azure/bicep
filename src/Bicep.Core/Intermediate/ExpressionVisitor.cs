@@ -90,6 +90,10 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     {
     }
 
+    public virtual void VisitStackReferenceExpression(StackReferenceExpression expression)
+    {
+    }
+
     public virtual void VisitNullLiteralExpression(NullLiteralExpression expression)
     {
     }
@@ -226,6 +230,19 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         Visit(expression.Parameters);
         Visit(expression.DependsOn);
         Visit(expression.ExtensionConfigs);
+    }
+
+    public virtual void VisitDeclaredStackExpression(DeclaredStackExpression expression)
+    {
+        VisitDescribableExpression(expression);
+        Visit(expression.Body);
+        Visit(expression.DependsOn);
+    }
+
+    public virtual void VisitDeclaredRuleExpression(DeclaredRuleExpression expression)
+    {
+        VisitDescribableExpression(expression);
+        Visit(expression.Body);
     }
 
     public virtual void VisitResourceDependencyExpression(ResourceDependencyExpression expression)

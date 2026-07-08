@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Data;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -139,6 +140,24 @@ namespace Bicep.Core.Emit
             // clear the stash
             this.currentDependsOnProperty = null;
             this.currentPropertiesProperty = null;
+
+            this.activeLoopCapableTopLevelDeclaration = null;
+        }
+
+        public override void VisitStackDeclarationSyntax(StackDeclarationSyntax syntax)
+        {
+            this.activeLoopCapableTopLevelDeclaration = syntax;
+
+            base.VisitStackDeclarationSyntax(syntax);
+
+            this.activeLoopCapableTopLevelDeclaration = null;
+        }
+
+        public override void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax)
+        {
+            this.activeLoopCapableTopLevelDeclaration = syntax;
+
+            base.VisitRuleDeclarationSyntax(syntax);
 
             this.activeLoopCapableTopLevelDeclaration = null;
         }
@@ -309,7 +328,7 @@ namespace Bicep.Core.Emit
         private void ValidateDirectAccessToResourceOrModuleCollection(SyntaxBase variableOrResourceAccessSyntax)
         {
             var symbol = this.semanticModel.GetSymbolInfo(variableOrResourceAccessSyntax);
-            if (symbol is ResourceSymbol { IsCollection: true } or ModuleSymbol { IsCollection: true })
+            if (symbol is ResourceSymbol { IsCollection: true } or ModuleSymbol { IsCollection: true } or StackSymbol { IsCollection: true })
             {
                 // we are inside a dependsOn property and the referenced symbol is a resource/module collection
                 var parent = this.semanticModel.Binder.GetParentIgnoringParentheses(variableOrResourceAccessSyntax);
@@ -460,6 +479,7 @@ namespace Bicep.Core.Emit
             {
                 case ResourceDeclarationSyntax resource when ReferenceEquals(resource.Value, syntax):
                 case ModuleDeclarationSyntax module when ReferenceEquals(module.Value, syntax):
+                case StackDeclarationSyntax stack when ReferenceEquals(stack.Value, syntax):
                 case OutputDeclarationSyntax output when ReferenceEquals(output.Value, syntax):
                 case VariableDeclarationSyntax variable when ReferenceEquals(variable.Value, syntax):
                 case ParameterAssignmentSyntax parameterAssignment when ReferenceEquals(parameterAssignment.Value, syntax):
