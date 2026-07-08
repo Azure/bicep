@@ -30,6 +30,8 @@ namespace Bicep.Core.Registry
         // (https://docs.docker.com/registry/spec/api/#content-digests)
         private static readonly string DigestAlgorithmIdentifier = OciDescriptor.AlgorithmIdentifierSha256;
 
+        private const int MaxConcurrentLayerDownloads = 5;
+
         public AzureContainerRegistryManager(IContainerRegistryClientFactory clientFactory)
         {
             this.clientFactory = clientFactory;
@@ -270,9 +272,7 @@ namespace Bicep.Core.Registry
             ValidateManifestResponse(manifestResult);
 
             var deserializedManifest = OciManifest.FromBinaryData(manifestResult.Manifest) ?? throw new InvalidOperationException("the manifest is not a valid OCI manifest");
-            var layerTasks = deserializedManifest.Layers.AsParallel().WithDegreeOfParallelism(5)
-                .Select(async layer => new OciArtifactLayer(layer.Digest, layer.MediaType, await PullLayerAsync(client, layer)));
-            var layers = await Task.WhenAll(layerTasks);
+            var layers = await PullLayersAsync(client, deserializedManifest.Layers);
 
             var config = !deserializedManifest.Config.IsEmpty() ?
                 new OciArtifactLayer(deserializedManifest.Config.Digest, deserializedManifest.Config.MediaType, await PullLayerAsync(client, deserializedManifest.Config)) :
@@ -284,6 +284,21 @@ namespace Bicep.Core.Registry
                 BicepMediaTypes.BicepExtensionArtifactType => new OciExtensionArtifactResult(manifestResult.Manifest, manifestResult.Digest, layers, config),
                 _ => throw new InvalidArtifactException($"artifacts of type: \'{deserializedManifest.ArtifactType}\' are not supported by this Bicep version. {OciModuleArtifactResult.NewerVersionMightBeRequired}")
             };
+        }
+
+        private static async Task<OciArtifactLayer[]> PullLayersAsync(ContainerRegistryContentClient client, IEnumerable<OciDescriptor> layers)
+        {
+            var pulledLayers = new List<OciArtifactLayer>();
+
+            foreach (var batch in layers.Chunk(MaxConcurrentLayerDownloads))
+            {
+                var pulledBatch = await Task.WhenAll(batch.Select(async layer =>
+                    new OciArtifactLayer(layer.Digest, layer.MediaType, await PullLayerAsync(client, layer))));
+
+                pulledLayers.AddRange(pulledBatch);
+            }
+
+            return [.. pulledLayers];
         }
 
         private static async Task<BinaryData> PullLayerAsync(ContainerRegistryContentClient client, OciDescriptor layer, CancellationToken cancellationToken = default)
