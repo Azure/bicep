@@ -2043,7 +2043,7 @@ namespace Bicep.Core.Diagnostics
                     "BCP444",
                     $"This expression is being used as a default value for an extension configuration property, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
-
+            
             public Diagnostic NullIfNotFoundOnlyValidOnExistingResources() => CoreError(
                 "BCP445",
                 $@"The ""@{LanguageConstants.NullIfNotFoundDecoratorName}()"" decorator can only be used on existing resources.");
@@ -2072,6 +2072,14 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic ImportedSymbolDependsOnDeploymentContextFunctions(string symbolName, IEnumerable<string> functionNames) => CoreError(
                 "BCP452",
                 @$"The imported symbol ""{symbolName}"" cannot be used in a {LanguageConstants.ParamsFileExtension} file because it depends on deployment-context functions: {ToQuotedString(functionNames)}. Imported declarations may only use functions that can be evaluated while building the parameters file.");
+
+            public Diagnostic SyntaxBlockedWithTargetScopeOrchestrator(string keyword) => CoreError(
+                "BCP453",
+                $"""Usage of syntax with keyword "{keyword}" is not permitted if the target scope is set to "{LanguageConstants.TargetScopeTypeOrchestrator}".""");
+
+            public Diagnostic SyntaxBlockedWithoutTargetScopeOrchestrator(string keyword) => CoreError(
+                "BCP454",
+                $"""Usage of syntax with keyword "{keyword}" is only permitted if the target scope is set to "{LanguageConstants.TargetScopeTypeOrchestrator}".""");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -12,6 +12,8 @@ namespace Bicep.Core.Semantics
         Resource,
         Assert,
         Module,
+        Stack,
+        Rule,
         Test,
         Output,
         Namespace,

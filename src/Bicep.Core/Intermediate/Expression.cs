@@ -229,6 +229,16 @@ public record ModuleReferenceExpression(
         => visitor.VisitModuleReferenceExpression(this);
 }
 
+public record StackReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    StackSymbol Module,
+    IndexReplacementContext? IndexContext
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitStackReferenceExpression(this);
+}
+
 public record ModuleOutputPropertyAccessExpression(
     SyntaxBase? SourceSyntax,
     Expression Base,
@@ -542,6 +552,29 @@ public record DeclaredModuleExpression(
         => visitor.VisitDeclaredModuleExpression(this);
 }
 
+public record DeclaredStackExpression(
+    SyntaxBase? SourceSyntax,
+    StackSymbol Symbol,
+    Expression Body,
+    ImmutableArray<ResourceDependencyExpression> DependsOn,
+    Expression? Description = null
+) : DescribableExpression(SourceSyntax, Description)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDeclaredStackExpression(this);
+}
+
+public record DeclaredRuleExpression(
+    SyntaxBase? SourceSyntax,
+    StackSymbol Symbol,
+    Expression Body,
+    Expression? Description = null
+) : DescribableExpression(SourceSyntax, Description)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDeclaredRuleExpression(this);
+}
+
 public record ResourceDependencyExpression(
     SyntaxBase? SourceSyntax,
     Expression Reference
@@ -561,6 +594,7 @@ public record ProgramExpression(
     ImmutableArray<DeclaredFunctionExpression> Functions,
     ImmutableArray<DeclaredResourceExpression> Resources,
     ImmutableArray<DeclaredModuleExpression> Modules,
+    ImmutableArray<DeclaredStackExpression> Stacks,
     ImmutableArray<DeclaredOutputExpression> Outputs,
     ImmutableArray<DeclaredAssertExpression> Asserts
 ) : Expression(SourceSyntax)

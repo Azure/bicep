@@ -81,8 +81,9 @@ public sealed class BicepDeploymentTools(
             resourceGroup: resourceGroup,
             location: location,
             deploymentName: deploymentName,
-            cancellationToken: cancellationToken,
-            externalInputs: []);
+            externalInputs: [],
+            includeSymbolicNames: false,
+            cancellationToken: cancellationToken);
 
         return new(
              PredictedResources: snapshot.PredictedResources,

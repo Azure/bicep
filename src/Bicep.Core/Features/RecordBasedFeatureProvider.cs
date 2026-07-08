@@ -21,6 +21,7 @@ namespace Bicep.Core.Features
         public bool AssertsEnabled => features.Assertions;
         public bool WaitUntilEnabled => features.WaitUntil;
         public bool LocalDeployEnabled => features.LocalDeploy;
+        public bool OrchestrationEnabled => features.Orchestration;
         public bool ResourceInfoCodegenEnabled => features.ResourceInfoCodegen;
         public bool ModuleExtensionConfigsEnabled => features.ModuleExtensionConfigs;
         public bool UserDefinedConstraintsEnabled => features.UserDefinedConstraints;

@@ -1,0 +1,6 @@
+{
+  "experimentalFeaturesEnabled": {
+    "deployCommands": true,
+    "orchestration": true
+  }
+}

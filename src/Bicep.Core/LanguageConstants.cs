@@ -70,6 +70,8 @@ namespace Bicep.Core
         public const string VariableKeyword = "var";
         public const string ResourceKeyword = "resource";
         public const string ModuleKeyword = "module";
+        public const string StackKeyword = "stack";
+        public const string RuleKeyword = "rule";
         public const string TestKeyword = "test";
         public const string FunctionKeyword = "func";
         public const string ExistingKeyword = "existing";
@@ -93,6 +95,7 @@ namespace Bicep.Core
         public const string TargetScopeTypeSubscription = "subscription";
         public const string TargetScopeTypeResourceGroup = "resourceGroup";
         public const string TargetScopeTypeLocal = "local";
+        public const string TargetScopeTypeOrchestrator = "orchestrator";
 
         public const string CopyLoopIdentifier = "copy";
         public const string BaseIdentifier = "base";
@@ -404,6 +407,30 @@ namespace Bicep.Core
             var moduleBody = new ObjectType(typeName, TypeSymbolValidationFlags.Default, moduleProperties, null);
 
             return new ModuleType(typeName, moduleScope, moduleBody);
+        }
+
+        public static TypeSymbol CreateStackType(string typeName)
+        {
+            // List<NamedTypeProperty> properties =
+            // [
+            //     // TODO add properties
+            // ];
+
+            // return new ObjectType(typeName, TypeSymbolValidationFlags.Default, properties, null);
+
+            return Object;
+        }
+
+        public static TypeSymbol CreateRuleType(string typeName)
+        {
+            // List<NamedTypeProperty> properties =
+            // [
+            //     // TODO add properties
+            // ];
+
+            // return new ObjectType(typeName, TypeSymbolValidationFlags.Default, properties, null);
+
+            return Object;
         }
 
         public static TypeSymbol CreateUsingConfigType()

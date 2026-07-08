@@ -34,6 +34,10 @@ includes enhancements for Deployment stacks extensibility integration. This feat
 
 Enables publishing and restoring Bicep modules and extensions to and from non-Azure OCI-compliant registries (e.g. GitHub Container Registry, Docker Hub, self-hosted registries) using the ORAS transport. For more information, see [Using OCI Registries](./experimental/oci-registries.md).
 
+### `orchestration`
+
+Enables Bicep to in orchestration mode. For more information, see [Using Orchestration](../orchestration/README.md).
+
 ### `patch`
 
 Enables the `@patch()` decorator for deploying resources using the PATCH HTTP method instead of PUT. This feature is restricted to Azure Policy DeployIfNotExists (DINE) scenarios, allowing policies to make incremental changes to existing resources without full redeployment.

@@ -29,6 +29,10 @@ namespace Bicep.Core.Syntax
 
         void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax);
 
+        void VisitStackDeclarationSyntax(StackDeclarationSyntax syntax);
+
+        void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax);
+
         void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax);
 
         void VisitNullableTypeSyntax(NullableTypeSyntax syntax);

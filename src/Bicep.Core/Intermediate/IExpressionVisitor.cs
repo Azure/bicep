@@ -39,6 +39,8 @@ public interface IExpressionVisitor
 
     void VisitModuleReferenceExpression(ModuleReferenceExpression expression);
 
+    void VisitStackReferenceExpression(StackReferenceExpression expression);
+
     void VisitModuleOutputPropertyAccessExpression(ModuleOutputPropertyAccessExpression expression);
 
     void VisitVariableReferenceExpression(VariableReferenceExpression expression);
@@ -78,6 +80,10 @@ public interface IExpressionVisitor
     void VisitDeclaredResourceExpression(DeclaredResourceExpression expression);
 
     void VisitDeclaredModuleExpression(DeclaredModuleExpression expression);
+
+    void VisitDeclaredStackExpression(DeclaredStackExpression expression);
+
+    void VisitDeclaredRuleExpression(DeclaredRuleExpression expression);
 
     void VisitResourceDependencyExpression(ResourceDependencyExpression expression);
 

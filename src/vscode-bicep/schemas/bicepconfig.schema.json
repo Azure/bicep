@@ -969,6 +969,10 @@
           "type": "boolean",
           "description": "Enabling this feature turns on support for local Bicep deployments. See https://aka.ms/bicep/experimental-features#localdeploy"
         },
+        "orchestration": {
+          "type": "boolean",
+          "description": "Enabling this feature turns on support for orchestration. See https://aka.ms/bicep/experimental-features#orchestration"
+        },
         "waitUntil": {
           "type": "boolean",
           "description": "Allows to enable waitUntil feature on resource type. See https://aka.ms/bicep/experimental-features#waituntil"

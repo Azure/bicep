@@ -293,5 +293,10 @@ namespace Bicep.LanguageServer.Completions
         /// The current location is after the module path string: 'module foo '...' |'
         /// </summary>
         ModulePathFollower = 1UL << 54,
+
+        /// <summary>
+        /// The current location needs a stack path (local or remote)
+        /// </summary>
+        StackPath = 1UL << 55,
     }
 }

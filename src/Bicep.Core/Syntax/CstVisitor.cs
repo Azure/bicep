@@ -106,6 +106,28 @@ namespace Bicep.Core.Syntax
             this.VisitNodes(syntax.Newlines);
             this.Visit(syntax.Value);
         }
+
+        public override void VisitStackDeclarationSyntax(StackDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Path);
+            this.Visit(syntax.Assignment);
+            this.VisitNodes(syntax.Newlines);
+            this.Visit(syntax.Value);
+        }
+
+        public override void VisitRuleDeclarationSyntax(RuleDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Type);
+            this.Visit(syntax.Assignment);
+            this.Visit(syntax.Value);
+        }
+
         public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)
         {
             this.VisitNodes(syntax.LeadingNodes);
