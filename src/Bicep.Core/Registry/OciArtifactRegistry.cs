@@ -590,8 +590,21 @@ namespace Bicep.Core.Registry
             }
         }
 
-        private IRegistrySession CreateSession(OciArtifactReference reference) =>
-            transportFactory.CreateSession(reference, reference.Configuration.Cloud);
+        private IRegistrySession CreateSession(OciArtifactReference reference)
+        {
+            // Security: never open an authenticated session to a registry that is not trusted.
+            // This is the single choke point for all session-based operations (restore, publish,
+            // existence checks, hover/annotations) and covers every transport (Azure SDK and ORAS),
+            // preventing credentials/tokens from being sent to an attacker-controlled registry host.
+            if (!registryConfiguration.IsRegistryTrusted(reference.Registry))
+            {
+                throw new ExternalArtifactException(
+                    $"Cannot connect to registry \"{reference.Registry}\" because it is not in the list of trusted registries. " +
+                    $"Set the BICEP_TRUSTED_REGISTRIES environment variable (comma-separated hostnames, e.g. \"contoso.example.com,*.contoso.io\") to allow it.");
+            }
+
+            return transportFactory.CreateSession(reference, reference.Configuration.Cloud);
+        }
 
         private static bool IsNotFoundException(Exception? exception) =>
             exception switch

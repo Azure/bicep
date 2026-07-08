@@ -43,7 +43,12 @@ public static class BicepCoreServiceCollectionExtensions
         services.TryAddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
         services.TryAddSingleton<IArmClientProvider, ArmClientProvider>();
         services.TryAddSingleton<IModuleDispatcher, ModuleDispatcher>();
-        services.TryAddSingleton<RegistryConfiguration>(new RegistryConfiguration(PermitUntrustedRegistries: false));
+        services.TryAddSingleton<RegistryConfiguration>(serviceProvider =>
+        {
+            var environment = serviceProvider.GetRequiredService<IEnvironment>();
+            var additionalTrustedRegistries = RegistryConfiguration.ParseTrustedRegistries(environment.GetVariable("BICEP_TRUSTED_REGISTRIES"));
+            return new RegistryConfiguration(PermitUntrustedRegistries: false, additionalTrustedRegistries);
+        });
         services.TryAddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>();
         services.TryAddSingleton<ITokenCredentialFactory, TokenCredentialFactory>();
         services.TryAddSingleton<IEnvironment, Environment>();

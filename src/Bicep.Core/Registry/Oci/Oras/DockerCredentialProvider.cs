@@ -145,13 +145,23 @@ public class DockerCredentialProvider : ICredentialProvider
         cancellationToken.ThrowIfCancellationRequested();
 
         var credential = await ResolveFromDockerConfigAsync(hostname, cancellationToken).ConfigureAwait(false)
-            ?? ResolveFromEnvironment();
+            ?? ResolveFromEnvironment(hostname);
 
         return credential ?? default;
     }
 
-    private Credential? ResolveFromEnvironment()
+    private Credential? ResolveFromEnvironment(string hostname)
     {
+        // Security: DOCKER_USERNAME/DOCKER_PASSWORD are ambient (not tied to a host), so they must only
+        // be sent to the registry they were explicitly scoped to via DOCKER_REGISTRY. Without this scoping
+        // the credentials would be handed to whatever registry is being contacted — including an
+        // attacker-controlled host referenced from a malicious module — leaking the secret.
+        var scopedRegistry = environment.GetVariable("DOCKER_REGISTRY");
+        if (string.IsNullOrWhiteSpace(scopedRegistry) || !MatchesRegistry(scopedRegistry, hostname))
+        {
+            return null;
+        }
+
         var username = environment.GetVariable("DOCKER_USERNAME");
         var password = environment.GetVariable("DOCKER_PASSWORD");
 

@@ -115,16 +115,51 @@ public class DockerCredentialProviderTests
     }
 
     [TestMethod]
-    public async Task ResolveCredentialAsync_ShouldFallBackToEnvironmentVariables()
+    public async Task ResolveCredentialAsync_ShouldUseEnvironmentVariables_WhenScopedToMatchingRegistry()
     {
         var fileSystem = new MockFileSystem();
-        var environment = TestEnvironment.Default.WithVariables(("DOCKER_USERNAME", "envUser"), ("DOCKER_PASSWORD", "envPass"));
+        var environment = TestEnvironment.Default.WithVariables(
+            ("DOCKER_REGISTRY", "example.com"),
+            ("DOCKER_USERNAME", "envUser"),
+            ("DOCKER_PASSWORD", "envPass"));
         var provider = new DockerCredentialProvider(environment, fileSystem);
 
         Credential credential = await provider.ResolveCredentialAsync("example.com", default);
 
         credential.Username.Should().Be("envUser");
         credential.Password.Should().Be("envPass");
+    }
+
+    [TestMethod]
+    public async Task ResolveCredentialAsync_ShouldNotLeakEnvironmentVariables_WhenDockerRegistryUnset()
+    {
+        // Security: without DOCKER_REGISTRY scoping, ambient DOCKER_USERNAME/PASSWORD must NOT be sent
+        // to an arbitrary (possibly attacker-controlled) host.
+        var fileSystem = new MockFileSystem();
+        var environment = TestEnvironment.Default.WithVariables(("DOCKER_USERNAME", "envUser"), ("DOCKER_PASSWORD", "envPass"));
+        var provider = new DockerCredentialProvider(environment, fileSystem);
+
+        Credential credential = await provider.ResolveCredentialAsync("attacker.example", default);
+
+        credential.Username.Should().BeNull();
+        credential.Password.Should().BeNull();
+    }
+
+    [TestMethod]
+    public async Task ResolveCredentialAsync_ShouldNotLeakEnvironmentVariables_ToNonMatchingRegistry()
+    {
+        // Security: env credentials scoped to one registry must never be sent to a different host.
+        var fileSystem = new MockFileSystem();
+        var environment = TestEnvironment.Default.WithVariables(
+            ("DOCKER_REGISTRY", "trusted.example.com"),
+            ("DOCKER_USERNAME", "envUser"),
+            ("DOCKER_PASSWORD", "envPass"));
+        var provider = new DockerCredentialProvider(environment, fileSystem);
+
+        Credential credential = await provider.ResolveCredentialAsync("attacker.example", default);
+
+        credential.Username.Should().BeNull();
+        credential.Password.Should().BeNull();
     }
 
     [TestMethod]
