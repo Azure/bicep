@@ -65,6 +65,12 @@ namespace Bicep.Cli.Commands
             try
             {
                 var jsonContents = await this.fileExplorer.GetFile(inputUri).ReadAllTextAsync();
+
+                if (BicepDecompiler.IsBicepGeneratedTemplate(jsonContents))
+                {
+                    logger.LogWarning(BicepDecompiler.BicepGeneratedTemplateWarning);
+                }
+
                 var decompilation = await decompiler.Decompile(outputUri, jsonContents);
 
                 // TODO(low-priority): It would be ideal to remove Workspace and use InMemoryFileExplorer instead.

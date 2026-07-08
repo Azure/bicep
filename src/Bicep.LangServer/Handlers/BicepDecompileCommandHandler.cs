@@ -117,6 +117,11 @@ namespace Bicep.LanguageServer.Handlers
                     throw new InvalidOperationException($"Failed to read {jsonUri}");
                 }
 
+                if (BicepDecompiler.IsBicepGeneratedTemplate(jsonContents))
+                {
+                    Log(output, BicepDecompiler.BicepGeneratedTemplateWarning);
+                }
+
                 (bicepUri, filesToSave) = await bicepDecompiler.Decompile(jsonUri.WithExtension(LanguageConstants.LanguageFileExtension), jsonContents);
             }
             catch (Exception ex)
