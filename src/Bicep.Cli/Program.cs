@@ -56,16 +56,13 @@ namespace Bicep.Cli
         }
 
         public static async Task<int> Main(string[] args)
-        {
-            return await RunWithCancellationAsync(async cancellationToken =>
+            => await RunWithCancellationAsync(async cancellationToken =>
             {
                 StartProfile();
 
                 Console.OutputEncoding = TemplateEmitter.UTF8EncodingWithoutBom;
 
-                var tracingEnabled = FeatureProvider.TracingEnabled;
-
-                if (tracingEnabled)
+                if (FeatureProvider.TracingEnabled)
                 {
                     Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
                 }
@@ -81,7 +78,6 @@ namespace Bicep.Cli
 
                 return await program.RunAsync(args, cancellationToken);
             });
-        }
 
         public async Task<int> RunAsync(string[] args, CancellationToken cancellationToken)
         {
