@@ -12,7 +12,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(value: any): any",
     "parameterTypeSignatures": [
       "value: any"
@@ -31,7 +31,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(valueToConvert: any): array",
     "parameterTypeSignatures": [
       "valueToConvert: any"
@@ -50,7 +50,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(inputString: string): string",
     "parameterTypeSignatures": [
       "inputString: string"
@@ -69,7 +69,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(base64Value: string): any",
     "parameterTypeSignatures": [
       "base64Value: string"
@@ -88,7 +88,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(base64Value: string): string",
     "parameterTypeSignatures": [
       "base64Value: string"
@@ -107,7 +107,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(value: any): bool",
     "parameterTypeSignatures": [
       "value: any"
@@ -126,7 +126,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(components: parseUri): string",
     "parameterTypeSignatures": [
       "components: parseUri"
@@ -151,7 +151,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(network: string, hostIndex: int): string",
     "parameterTypeSignatures": [
       "network: string",
@@ -183,7 +183,7 @@
     ],
     "minimumArgumentCount": 3,
     "maximumArgumentCount": 3,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(network: string, cidr: int, subnetIndex: int): string",
     "parameterTypeSignatures": [
       "network: string",
@@ -202,7 +202,7 @@
       "type": "array",
       "minimumCount": 1
     },
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(... : array): array",
     "parameterTypeSignatures": [
       "... : array"
@@ -219,7 +219,7 @@
       "type": "bool | int | string",
       "minimumCount": 1
     },
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(... : bool | int | string): string",
     "parameterTypeSignatures": [
       "... : bool | int | string"
@@ -244,7 +244,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(object: object, propertyName: string): bool",
     "parameterTypeSignatures": [
       "object: object",
@@ -270,7 +270,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(array: array, itemToFind: any): bool",
     "parameterTypeSignatures": [
       "array: array",
@@ -296,7 +296,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(string: string, itemToFind: string): bool",
     "parameterTypeSignatures": [
       "string: string",
@@ -316,7 +316,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(valueToConvert: any): string",
     "parameterTypeSignatures": [
       "valueToConvert: any"
@@ -335,7 +335,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(dataUriToConvert: string): string",
     "parameterTypeSignatures": [
       "dataUriToConvert: string"
@@ -366,7 +366,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 3,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(base: string, duration: string, [format: string]): string",
     "parameterTypeSignatures": [
       "base: string",
@@ -387,7 +387,7 @@
     ],
     "minimumArgumentCount": 0,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "([epochTime: int]): string",
     "parameterTypeSignatures": [
       "[epochTime: int]"
@@ -406,7 +406,7 @@
     ],
     "minimumArgumentCount": 0,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "([dateTime: string]): int",
     "parameterTypeSignatures": [
       "[dateTime: string]"
@@ -425,7 +425,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(array: array): array",
     "parameterTypeSignatures": [
       "array: array"
@@ -444,7 +444,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(itemToTest: array | null | object | string): bool",
     "parameterTypeSignatures": [
       "itemToTest: array | null | object | string"
@@ -469,7 +469,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(stringToSearch: string, stringToFind: string): bool",
     "parameterTypeSignatures": [
       "stringToSearch: string",
@@ -514,7 +514,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(array: array, predicate: (any[, int]) => bool): array",
     "parameterTypeSignatures": [
       "array: array",
@@ -534,7 +534,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(array: array): any",
     "parameterTypeSignatures": [
       "array: array"
@@ -553,7 +553,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(string: string): string",
     "parameterTypeSignatures": [
       "string: string"
@@ -572,7 +572,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(array: array[]): array",
     "parameterTypeSignatures": [
       "array: array[]"
@@ -596,7 +596,7 @@
       "type": "any",
       "minimumCount": 0
     },
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(formatString: string, ... : any): string",
     "parameterTypeSignatures": [
       "formatString: string",
@@ -628,7 +628,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 3,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(array: array, keyPredicate: any => string, [valuePredicate: any => any]): object",
     "parameterTypeSignatures": [
       "array: array",
@@ -647,7 +647,7 @@
       "type": "string",
       "minimumCount": 1
     },
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(... : string): string",
     "parameterTypeSignatures": [
       "... : string"
@@ -672,7 +672,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(stringToSearch: string, stringToFind: string): int",
     "parameterTypeSignatures": [
       "stringToSearch: string",
@@ -698,7 +698,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(array: array, itemToFind: any): int",
     "parameterTypeSignatures": [
       "array: array",
@@ -718,7 +718,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(valueToConvert: int | string): int",
     "parameterTypeSignatures": [
       "valueToConvert: int | string"
@@ -735,7 +735,7 @@
       "type": "object",
       "minimumCount": 2
     },
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(... : object): object",
     "parameterTypeSignatures": [
       "... : object"
@@ -752,7 +752,7 @@
       "type": "array",
       "minimumCount": 2
     },
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(... : array): array",
     "parameterTypeSignatures": [
       "... : array"
@@ -771,7 +771,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(object: object): object[]",
     "parameterTypeSignatures": [
       "object: object"
@@ -796,7 +796,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(inputArray: (bool | int | string)[], delimiter: string): string",
     "parameterTypeSignatures": [
       "inputArray: (bool | int | string)[]",
@@ -816,7 +816,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(json: string): any",
     "parameterTypeSignatures": [
       "json: string"
@@ -835,7 +835,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(array: array): any",
     "parameterTypeSignatures": [
       "array: array"
@@ -854,7 +854,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(string: string): string",
     "parameterTypeSignatures": [
       "string: string"
@@ -879,7 +879,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(stringToSearch: string, stringToFind: string): int",
     "parameterTypeSignatures": [
       "stringToSearch: string",
@@ -905,7 +905,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(array: array, itemToFind: any): int",
     "parameterTypeSignatures": [
       "array: array",
@@ -925,7 +925,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(arg: object | string): int",
     "parameterTypeSignatures": [
       "arg: object | string"
@@ -944,7 +944,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(arg: array): int",
     "parameterTypeSignatures": [
       "arg: array"
@@ -969,7 +969,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(input: string, pattern: string): bool",
     "parameterTypeSignatures": [
       "input: string",
@@ -995,7 +995,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 2,
-    "flags": "generateIntermediateVariableAlways",
+    "flags": "generateIntermediateVariableAlways, pure",
     "typeSignature": "(directoryPath: string, [searchPattern: string]): any",
     "parameterTypeSignatures": [
       "directoryPath: string",
@@ -1015,7 +1015,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "generateIntermediateVariableOnIndirectAssignment",
+    "flags": "generateIntermediateVariableOnIndirectAssignment, pure",
     "typeSignature": "(filePath: string): string",
     "parameterTypeSignatures": [
       "filePath: string"
@@ -1046,7 +1046,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 3,
-    "flags": "generateIntermediateVariableAlways",
+    "flags": "generateIntermediateVariableAlways, pure",
     "typeSignature": "(filePath: string, [jsonPath: string], [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): any",
     "parameterTypeSignatures": [
       "filePath: string",
@@ -1073,7 +1073,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 2,
-    "flags": "generateIntermediateVariableOnIndirectAssignment",
+    "flags": "generateIntermediateVariableOnIndirectAssignment, pure",
     "typeSignature": "(filePath: string, [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): string",
     "parameterTypeSignatures": [
       "filePath: string",
@@ -1105,7 +1105,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 3,
-    "flags": "generateIntermediateVariableAlways",
+    "flags": "generateIntermediateVariableAlways, pure",
     "typeSignature": "(filePath: string, [pathFilter: string], [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): any",
     "parameterTypeSignatures": [
       "filePath: string",
@@ -1132,7 +1132,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(array: array, predicate: (any[, int]) => any): array",
     "parameterTypeSignatures": [
       "array: array",
@@ -1158,7 +1158,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(object: object, predicate: any => any): array",
     "parameterTypeSignatures": [
       "object: object",
@@ -1176,7 +1176,7 @@
       "type": "int",
       "minimumCount": 1
     },
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(... : int): int",
     "parameterTypeSignatures": [
       "... : int"
@@ -1195,7 +1195,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(intArray: int[]): int",
     "parameterTypeSignatures": [
       "intArray: int[]"
@@ -1212,7 +1212,7 @@
       "type": "int",
       "minimumCount": 1
     },
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(... : int): int",
     "parameterTypeSignatures": [
       "... : int"
@@ -1231,7 +1231,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(intArray: int[]): int",
     "parameterTypeSignatures": [
       "intArray: int[]"
@@ -1250,7 +1250,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "isArgumentValueIndependent",
+    "flags": "argumentValueIndependent, pure",
     "typeSignature": "(symbol: any): string",
     "parameterTypeSignatures": [
       "symbol: any"
@@ -1279,7 +1279,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(object: object): string[]",
     "parameterTypeSignatures": [
       "object: object"
@@ -1310,7 +1310,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 3,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(valueToPad: int | string, totalLength: int, [paddingCharacter: string]): string",
     "parameterTypeSignatures": [
       "valueToPad: int | string",
@@ -1331,7 +1331,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(network: string): parseCidr",
     "parameterTypeSignatures": [
       "network: string"
@@ -1350,7 +1350,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(baseUrl: string): parseUri",
     "parameterTypeSignatures": [
       "baseUrl: string"
@@ -1375,7 +1375,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(startIndex: int, count: int): int[]",
     "parameterTypeSignatures": [
       "startIndex: int",
@@ -1407,7 +1407,7 @@
     ],
     "minimumArgumentCount": 3,
     "maximumArgumentCount": 3,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(array: array, initialValue: any, predicate: (any, any[, int]) => any): any",
     "parameterTypeSignatures": [
       "array: array",
@@ -1440,7 +1440,7 @@
     ],
     "minimumArgumentCount": 3,
     "maximumArgumentCount": 3,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(originalString: string, oldString: string, newString: string): string",
     "parameterTypeSignatures": [
       "originalString: string",
@@ -1461,7 +1461,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(entries: object[]): object",
     "parameterTypeSignatures": [
       "entries: object[]"
@@ -1486,7 +1486,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(originalValue: array, numberToSkip: int): array",
     "parameterTypeSignatures": [
       "originalValue: array",
@@ -1512,7 +1512,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(originalValue: string, numberToSkip: int): string",
     "parameterTypeSignatures": [
       "originalValue: string",
@@ -1538,7 +1538,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(array: array, predicate: (any, any) => bool): array",
     "parameterTypeSignatures": [
       "array: array",
@@ -1564,7 +1564,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(inputString: string, delimiter: array | string): string[]",
     "parameterTypeSignatures": [
       "inputString: string",
@@ -1590,7 +1590,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(stringToSearch: string, stringToFind: string): bool",
     "parameterTypeSignatures": [
       "stringToSearch: string",
@@ -1610,7 +1610,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(valueToConvert: any): string",
     "parameterTypeSignatures": [
       "valueToConvert: any"
@@ -1641,7 +1641,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 3,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(stringToParse: string, startIndex: int, [length: int]): string",
     "parameterTypeSignatures": [
       "stringToParse: string",
@@ -1668,7 +1668,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(originalValue: array, numberToTake: int): array",
     "parameterTypeSignatures": [
       "originalValue: array",
@@ -1694,7 +1694,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(originalValue: string, numberToTake: int): string",
     "parameterTypeSignatures": [
       "originalValue: string",
@@ -1714,7 +1714,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(stringToChange: string): string",
     "parameterTypeSignatures": [
       "stringToChange: string"
@@ -1745,7 +1745,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 3,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(array: array, keyPredicate: any => string, [valuePredicate: any => any]): object",
     "parameterTypeSignatures": [
       "array: array",
@@ -1766,7 +1766,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(stringToChange: string): string",
     "parameterTypeSignatures": [
       "stringToChange: string"
@@ -1785,7 +1785,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(stringToTrim: string): string",
     "parameterTypeSignatures": [
       "stringToTrim: string"
@@ -1802,7 +1802,7 @@
       "type": "object",
       "minimumCount": 2
     },
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(... : object): object",
     "parameterTypeSignatures": [
       "... : object"
@@ -1819,7 +1819,7 @@
       "type": "array",
       "minimumCount": 2
     },
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(... : array): array",
     "parameterTypeSignatures": [
       "... : array"
@@ -1836,7 +1836,7 @@
       "type": "string",
       "minimumCount": 1
     },
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(... : string): string",
     "parameterTypeSignatures": [
       "... : string"
@@ -1861,7 +1861,7 @@
     ],
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(baseUri: string, relativeUri: string): string",
     "parameterTypeSignatures": [
       "baseUri: string",
@@ -1881,7 +1881,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(stringToEncode: string): string",
     "parameterTypeSignatures": [
       "stringToEncode: string"
@@ -1900,7 +1900,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(uriEncodedString: string): string",
     "parameterTypeSignatures": [
       "uriEncodedString: string"
