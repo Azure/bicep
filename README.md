@@ -58,7 +58,7 @@ az deployment group create -f ./main.bicep -g my-rg
 
 **What unique benefits do you get with Bicep?**
 
-1. Day 0 resource provider support. You can use Bicep to provision any ARM resource, whether it's in private or public preview or GA. Some Azure-branded services, such as Azure Databricks, Azure DevOps, and app registrations, aren't managed by ARM and are outside the scope of Bicep. For example, the Databricks control plane is distinct from the Azure control plane and isn't accessible via ARM.
+1. Day 0 resource provider support. You can use Bicep to provision any ARM resource, whether it's in private, public preview, or GA.
 1. Much simpler syntax [compared to equivalent ARM Template JSON](https://learn.microsoft.com/azure/azure-resource-manager/bicep/compare-template-syntax).
 1. No state or state files to manage. All state is stored in Azure, so it's easy to collaborate and make changes to resources confidently.
 1. Tooling is the cornerstone to any great experience with a programming language. The VS Code extension for Bicep makes it extremely easy to author and get started with advanced type validation based on all Azure resource type [API definitions](https://github.com/Azure/azure-rest-api-specs/tree/main/specification).
