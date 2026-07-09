@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
@@ -1056,7 +1057,11 @@ public class TypeStringifierTests
 
     private static CompilationResult Compile(string source)
     {
-        var services = new ServiceBuilder().WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true));
+        var services = new ServiceBuilder()
+            .WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true))
+            // These tests compile standalone type declarations that are intentionally never referenced,
+            // so suppress the no-unused-types linter rule to keep the "no diagnostics" assertions valid.
+            .WithConfigurationPatch(c => c.WithAnalyzersDisabled("no-unused-types"));
         return CompilationHelper.Compile(services, source);
     }
 
