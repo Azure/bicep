@@ -17,6 +17,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using Bicep.Local.Deploy.Extensibility;
@@ -34,6 +35,7 @@ namespace Bicep.Cli.Commands
         IFileExplorer fileExplorer,
         InputOutputArgumentsResolver inputOutputArgumentsResolver,
         ILocalExtensionFactory localExtensionFactory,
+        IEnvironment environment,
         ILogger logger) : ICommand
     {
         public async Task<int> RunAsync(PublishExtensionArguments args, CancellationToken cancellationToken)
@@ -142,7 +144,7 @@ namespace Bicep.Cli.Commands
             }
             else
             {
-                dummyReferencingFileUri = new IOUri("file", "", "/dummy");
+                dummyReferencingFileUri = IOUri.FromFilePath(Path.Join(environment.CurrentDirectory, "dummy"));
             }
 
             var dummyReferencingFile = sourceFileFactory.CreateBicepFile(dummyReferencingFileUri, "");
