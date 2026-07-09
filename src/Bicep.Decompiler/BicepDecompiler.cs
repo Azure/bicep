@@ -54,7 +54,7 @@ public class BicepDecompiler
                 .SelectToken("metadata._generator.name")
                 ?.Value<string>() == LanguageConstants.LanguageId;
         }
-        catch
+        catch (JsonReaderException)
         {
             return false;
         }
