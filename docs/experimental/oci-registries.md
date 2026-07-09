@@ -23,16 +23,18 @@ Add the feature flag to your `bicepconfig.json`:
 
 ## Publishing
 
+Publishing and restoring generally require the target registry to be [trusted](#trusted-registries) and, for private registries, that you are [authenticated](#authentication).
+
 Publish a **module** to any OCI registry with `bicep publish`:
 
 ```sh
-bicep publish ./main.bicep --target br:ghcr.io/myorg/modules/storage:v1 --force
+bicep publish ./main.bicep --target br:ghcr.io/myorg/modules/storage:v1
 ```
 
 Publish an **extension** with `bicep publish-extension` (see [Using the `publish-extension` command](./publish-extension-command.md)):
 
 ```sh
-bicep publish-extension ./index.json --target br:ghcr.io/myorg/extensions/myext:v1 --force
+bicep publish-extension ./index.json --target br:ghcr.io/myorg/extensions/myext:v1
 ```
 
 ## Consuming
@@ -57,6 +59,9 @@ The following registries are trusted by default and cannot be removed:
 - `*.azurecr.io`, `*.azurecr.cn`, `*.azurecr.us` (Azure Container Registry)
 - `mcr.microsoft.com`, `mcr.azure.cn`
 - `ghcr.io` (GitHub Container Registry)
+
+> [!WARNING]
+> Only add registries that you own or trust. Bicep sends your credentials to any registry on this allowlist, so adding an attacker-controlled or untrusted host could allow your registry credentials to be stolen.
 
 To allow additional registries, set the `BICEP_TRUSTED_REGISTRIES` environment variable to a comma- (or semicolon-) separated list of hostnames. Entries may be exact hostnames or `*.suffix` wildcards:
 
