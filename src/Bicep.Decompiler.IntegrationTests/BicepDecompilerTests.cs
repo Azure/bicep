@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.UnitTests;
+using Bicep.Decompiler.ArmHelpers;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Decompiler.IntegrationTests;
 
@@ -113,5 +115,59 @@ public class BicepDecompilerTests : TestBase
         bicepOutput.Should().Contain("param validParamName string");
         bicepOutput.Should().NotContain("// WARNING:");
     }
-}
 
+    [TestMethod]
+    public void IsBicepGeneratedTemplate_returns_true_for_bicep_generated_template()
+    {
+        var template = """
+        {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.99.0.0",
+              "templateHash": "12345678901234567"
+            }
+          },
+          "resources": []
+        }
+        """;
+
+        TemplateHelpers.IsBicepGeneratedTemplate(JObject.Parse(template)).Should().BeTrue();
+    }
+
+    [TestMethod]
+    public void IsBicepGeneratedTemplate_returns_false_for_plain_arm_template()
+    {
+        var template = """
+        {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": []
+        }
+        """;
+
+        TemplateHelpers.IsBicepGeneratedTemplate(JObject.Parse(template)).Should().BeFalse();
+    }
+
+    [TestMethod]
+    public void IsBicepGeneratedTemplate_returns_false_for_non_bicep_generator()
+    {
+        var template = """
+        {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "arm-ttk",
+              "version": "1.0.0"
+            }
+          },
+          "resources": []
+        }
+        """;
+
+        TemplateHelpers.IsBicepGeneratedTemplate(JObject.Parse(template)).Should().BeFalse();
+    }
+}

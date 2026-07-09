@@ -55,11 +55,9 @@ namespace Bicep.Decompiler
             ISourceFileFactory sourceFileFactory,
             ActiveSourceFileSet workspace,
             IOUri bicepFileUri,
-            string content,
+            JObject templateObject,
             DecompileOptions options)
         {
-            JObject templateObject = JTokenHelpers.LoadJson(content, JObject.Load, options.IgnoreTrailingInput);
-
             var instance = new TemplateConverter(
                 sourceFileFactory,
                 workspace,
@@ -69,6 +67,17 @@ namespace Bicep.Decompiler
                 options);
 
             return (instance.Parse(), instance.jsonTemplateUrisByModule);
+        }
+
+        public static (ProgramSyntax programSyntax, IReadOnlyDictionary<ModuleDeclarationSyntax, IOUri> jsonTemplateUrisByModule) DecompileTemplate(
+            ISourceFileFactory sourceFileFactory,
+            ActiveSourceFileSet workspace,
+            IOUri bicepFileUri,
+            string content,
+            DecompileOptions options)
+        {
+            JObject templateObject = JTokenHelpers.LoadJson(content, JObject.Load, options.IgnoreTrailingInput);
+            return DecompileTemplate(sourceFileFactory, workspace, bicepFileUri, templateObject, options);
         }
 
         public static SyntaxBase? DecompileJsonValue(
