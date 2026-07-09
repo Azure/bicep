@@ -4,6 +4,7 @@ import { IActionContext, parseError } from "@microsoft/vscode-azext-utils";
 import vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
+import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 import { Command } from "./types";
 
 export class ForceModulesRestoreCommand implements Command {
@@ -13,12 +14,12 @@ export class ForceModulesRestoreCommand implements Command {
     private readonly outputChannelManager: OutputChannelManager,
   ) {}
 
-  public async execute(_context: IActionContext, documentUri?: vscode.Uri | undefined): Promise<void> {
-    documentUri ??= vscode.window.activeTextEditor?.document.uri;
-
-    if (!documentUri) {
-      return;
-    }
+  public async execute(context: IActionContext, documentUri?: vscode.Uri | undefined): Promise<void> {
+    documentUri = await findOrCreateActiveBicepFile(
+      context,
+      documentUri,
+      "Choose which Bicep file to restore modules for",
+    );
 
     if (documentUri.scheme === "output") {
       // The output panel in VS Code was implemented as a text editor by accident. Due to breaking change concerns,
