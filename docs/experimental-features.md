@@ -30,6 +30,14 @@ Enables Bicep to run deployments locally, so that you can run Bicep extensions w
 Moves defining extension configurations to the module level rather than from within a template. The feature also
 includes enhancements for Deployment stacks extensibility integration. This feature is not ready for use.
 
+### `ociEnabled`
+
+Enables publishing and restoring Bicep modules and extensions from non-Azure OCI-compliant registries (e.g. GHCR, Docker Hub) using the ORAS transport.
+
+For security, Bicep only connects (and sends credentials) to registries on a trusted allowlist. Azure Container Registry (`*.azurecr.io`/`.cn`/`.us`), `mcr.microsoft.com`, `mcr.azure.cn`, and `ghcr.io` are trusted by default. To allow additional registries, set the `BICEP_TRUSTED_REGISTRIES` environment variable to a comma-separated list of hostnames or `*.suffix` wildcards (e.g. `harbor.contoso.com,*.contoso.io`). References to untrusted registries are rejected before any connection is made.
+
+When using ambient `DOCKER_USERNAME`/`DOCKER_PASSWORD` credentials, also set `DOCKER_REGISTRY` to the hostname those credentials belong to; they are only sent to a matching registry, never to arbitrary hosts. Per-registry credentials in your Docker `config.json` (`auths`/`credHelpers`/`credsStore`) continue to be matched by host.
+
 ### `resourceInfoCodegen`
 
 Enables the 'resourceInfo' function for simplified code generation.

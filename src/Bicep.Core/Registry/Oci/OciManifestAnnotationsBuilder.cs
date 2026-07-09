@@ -44,6 +44,8 @@ public class OciManifestAnnotationsBuilder
     public OciManifestAnnotationsBuilder WithBicepSerializationFormatV1()
         => AddAnnotation(OciAnnotationKeys.BicepSerializationFormatAnnotation, "v1");
 
+    public OciManifestAnnotationsBuilder Add(string key, string value) => AddAnnotation(key, value);
+
     private OciManifestAnnotationsBuilder AddAnnotation(string key, string value)
     {
         annotations[key] = value;

@@ -14,6 +14,8 @@ using Bicep.Core.Json;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Registry.Oci.Oras;
+using Bicep.Core.Registry.Sessions;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
@@ -83,8 +85,15 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 
-        public static IArtifactRegistryProvider CreateRegistryProvider(IServiceProvider services) =>
-            new DefaultArtifactRegistryProvider(TestRegistryConfiguration, services.GetRequiredService<IPublicModuleMetadataProvider>(), ClientFactory, TemplateSpecRepositoryFactory, FileExplorer);
+        public static IArtifactRegistryProvider CreateRegistryProvider(IServiceProvider services)
+        {
+            var transport = new AzureContainerRegistryManager(ClientFactory);
+            var dockerCredentials = new DockerCredentialProvider(TestEnvironment.Default, new System.IO.Abstractions.TestingHelpers.MockFileSystem());
+            var transportFactory = new OciRegistryTransportFactory(transport, dockerCredentials);
+            var publicMetadataProvider = (services.GetService(typeof(IPublicModuleMetadataProvider)) as IPublicModuleMetadataProvider)
+                ?? StrictMock.Of<IPublicModuleMetadataProvider>().Object;
+            return new DefaultArtifactRegistryProvider(TestRegistryConfiguration, transportFactory, publicMetadataProvider, TemplateSpecRepositoryFactory, FileExplorer);
+        }
 
         public static readonly RegistryConfiguration TestRegistryConfiguration = new(PermitUntrustedRegistries: true);
 
