@@ -7,6 +7,7 @@ using System.Text;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Decompiler;
+using Bicep.Decompiler.ArmHelpers;
 using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Telemetry;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -117,12 +118,14 @@ namespace Bicep.LanguageServer.Handlers
                     throw new InvalidOperationException($"Failed to read {jsonUri}");
                 }
 
-                if (BicepDecompiler.IsBicepGeneratedTemplate(jsonContents))
+                var templateObject = JTokenHelpers.LoadJson(jsonContents, Newtonsoft.Json.Linq.JObject.Load, ignoreTrailingContent: true);
+
+                if (TemplateHelpers.IsBicepGeneratedTemplate(templateObject))
                 {
                     Log(output, BicepDecompiler.BicepGeneratedTemplateWarning);
                 }
 
-                (bicepUri, filesToSave) = await bicepDecompiler.Decompile(jsonUri.WithExtension(LanguageConstants.LanguageFileExtension), jsonContents);
+                (bicepUri, filesToSave) = await bicepDecompiler.Decompile(jsonUri.WithExtension(LanguageConstants.LanguageFileExtension), templateObject);
             }
             catch (Exception ex)
             {

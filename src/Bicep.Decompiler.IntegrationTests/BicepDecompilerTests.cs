@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.UnitTests;
+using Bicep.Decompiler.ArmHelpers;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Decompiler.IntegrationTests;
 
@@ -132,7 +134,7 @@ public class BicepDecompilerTests : TestBase
         }
         """;
 
-        BicepDecompiler.IsBicepGeneratedTemplate(template).Should().BeTrue();
+        TemplateHelpers.IsBicepGeneratedTemplate(JObject.Parse(template)).Should().BeTrue();
     }
 
     [TestMethod]
@@ -146,7 +148,7 @@ public class BicepDecompilerTests : TestBase
         }
         """;
 
-        BicepDecompiler.IsBicepGeneratedTemplate(template).Should().BeFalse();
+        TemplateHelpers.IsBicepGeneratedTemplate(JObject.Parse(template)).Should().BeFalse();
     }
 
     [TestMethod]
@@ -166,13 +168,6 @@ public class BicepDecompilerTests : TestBase
         }
         """;
 
-        BicepDecompiler.IsBicepGeneratedTemplate(template).Should().BeFalse();
-    }
-
-    [TestMethod]
-    public void IsBicepGeneratedTemplate_returns_false_for_invalid_json()
-    {
-        BicepDecompiler.IsBicepGeneratedTemplate("this is not json").Should().BeFalse();
+        TemplateHelpers.IsBicepGeneratedTemplate(JObject.Parse(template)).Should().BeFalse();
     }
 }
-
