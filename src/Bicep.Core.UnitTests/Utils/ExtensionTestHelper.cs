@@ -7,7 +7,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Features;
 using Bicep.IO.Abstraction;
-using Bicep.TextFixtures.Mocks;
+using Bicep.Testing.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 

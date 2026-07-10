@@ -20,7 +20,7 @@ using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
-using Bicep.TextFixtures.Utils;
+using Bicep.Testing.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
