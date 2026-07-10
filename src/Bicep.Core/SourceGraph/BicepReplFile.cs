@@ -23,7 +23,6 @@ public class BicepReplFile : BicepSourceFile
         IDiagnosticLookup lexingErrorLookup,
         IDiagnosticLookup parsingErrorLookup)
         : base(
-            fileHandle.Uri.ToUri(),
             fileHandle,
             lineStarts,
             programSyntax,

@@ -24,7 +24,6 @@ namespace Bicep.Core.SourceGraph
         private readonly ConcurrentBag<IOUri> referencedAuxiliaryFileUris;
 
         protected BicepSourceFile(
-            Uri fileUri,
             IFileHandle fileHandle,
             ImmutableArray<int> lineStarts,
             ProgramSyntax programSyntax,
@@ -34,7 +33,6 @@ namespace Bicep.Core.SourceGraph
             IDiagnosticLookup lexingErrorLookup,
             IDiagnosticLookup parsingErrorLookup)
         {
-            this.Uri = fileUri;
             this.FileHandle = fileHandle;
             this.LineStarts = lineStarts;
             this.ProgramSyntax = programSyntax;
@@ -50,7 +48,6 @@ namespace Bicep.Core.SourceGraph
 
         protected BicepSourceFile(BicepSourceFile original)
         {
-            this.Uri = original.Uri;
             this.FileHandle = original.FileHandle;
             this.LineStarts = original.LineStarts;
             this.ProgramSyntax = original.ProgramSyntax;
@@ -63,8 +60,6 @@ namespace Bicep.Core.SourceGraph
             this.ParsingErrorLookup = original.ParsingErrorLookup;
             this.DisabledDiagnosticsCache = original.DisabledDiagnosticsCache;
         }
-
-        public Uri Uri { get; }
 
         public IFileHandle FileHandle { get; }
 
