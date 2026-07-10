@@ -14,7 +14,8 @@ public sealed class UseParameterDescriptionsRule : LinterRuleBase
     public UseParameterDescriptionsRule() : base(
         code: Code,
         description: CoreResources.UseParameterDescriptionsRuleDescription,
-        LinterRuleCategory.BestPractice)
+        LinterRuleCategory.BestPractice,
+        overrideCategoryDefaultDiagnosticLevel: DiagnosticLevel.Off)
     { }
 
     public override string FormatMessage(params object[] values)

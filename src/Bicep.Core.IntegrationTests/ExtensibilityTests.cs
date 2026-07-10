@@ -182,7 +182,6 @@ extension baz with {
         {
             var result = CompilationHelper.Compile(CreateServiceBuilder(), """
             extension foo as foo
-            #disable-next-line use-parameter-descriptions
             param numApps int
 
             resource myApp 'application' = {

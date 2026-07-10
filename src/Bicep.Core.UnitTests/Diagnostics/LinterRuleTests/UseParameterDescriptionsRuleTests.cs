@@ -3,8 +3,9 @@
 
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,25 +14,43 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 [TestClass]
 public class UseParameterDescriptionsRuleTests : LinterRuleTestsBase
 {
-    private static readonly Options RuleOptions = new(
-        OnCompileErrors.Ignore,
-        ConfigurationPatch: EnableRule);
+    private static readonly Options RuleOptions = new(ConfigurationPatch: EnableRule);
 
     private static RootConfiguration EnableRule(RootConfiguration configuration) =>
         configuration.WithAnalyzersConfiguration(
             configuration.Analyzers.SetValue($"core.rules.{UseParameterDescriptionsRule.Code}.level", "warning"));
 
+    private void AssertDiagnostics(string inputFile, int expectedCount = 1)
+        => AssertLinterRuleDiagnostics(UseParameterDescriptionsRule.Code, inputFile, expectedCount, RuleOptions);
+
+    private void AssertDiagnostics(string inputFile, string[] expectedMessages)
+        => AssertLinterRuleDiagnostics(UseParameterDescriptionsRule.Code, inputFile, expectedMessages, RuleOptions);
+
+    private void AssertNoDiagnostics(string inputFile, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
+        => AssertLinterRuleDiagnostics(
+            UseParameterDescriptionsRule.Code,
+            inputFile,
+            [],
+            RuleOptions with
+            {
+                OnCompileErrors = onCompileErrors,
+                IncludePosition = IncludePosition.None,
+            });
+
     [TestMethod]
-    public void Rule_defaults_to_warning()
+    public void Rule_defaults_to_off()
     {
-        new UseParameterDescriptionsRule().DefaultDiagnosticLevel.Should().Be(DiagnosticLevel.Warning);
+        var result = CompilationHelper.Compile("""
+            param input string
+            """);
+
+        result.ExcludingDiagnostics("no-unused-params").Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
     public void Parameters_without_descriptions_are_reported()
     {
-        AssertLinterRuleDiagnostics(
-            UseParameterDescriptionsRule.Code,
+        AssertDiagnostics(
             """
             param first string
 
@@ -41,86 +60,75 @@ public class UseParameterDescriptionsRuleTests : LinterRuleTestsBase
             [
                 """[1] Parameter "first" must have a non-empty description.""",
                 """[4] Parameter "second" must have a non-empty description.""",
-            ],
-            RuleOptions);
+            ]);
     }
 
-    [TestMethod]
-    public void Unqualified_and_sys_qualified_descriptions_are_accepted()
+    [DataRow("""
+        @description('Parameter description.')
+        param input string
+        """)]
+    [DataRow("""
+        @sys.description('Parameter description.')
+        param input string
+        """)]
+    [DataTestMethod]
+    public void Non_empty_descriptions_are_accepted(string text)
     {
-        AssertLinterRuleDiagnostics(
-            UseParameterDescriptionsRule.Code,
-            """
-            @description('First parameter.')
-            param first string
-
-            @sys.description('Second parameter.')
-            param second string
-            """,
-            0,
-            RuleOptions);
+        AssertNoDiagnostics(text);
     }
 
-    [TestMethod]
-    public void Empty_and_whitespace_descriptions_are_reported_for_both_decorator_forms()
+    [DataRow("""
+        @description('')
+        param input string
+        """)]
+    [DataRow("""
+        @description('   ')
+        param input string
+        """)]
+    [DataRow("""
+        @sys.description('')
+        param input string
+        """)]
+    [DataRow("""
+        @sys.description('''
+
+        ''')
+        param input string
+        """)]
+    [DataTestMethod]
+    public void Empty_and_whitespace_descriptions_are_reported(string text)
     {
-        AssertLinterRuleDiagnostics(
-            UseParameterDescriptionsRule.Code,
-            """
-            @description('')
-            param empty string
-
-            @description('   ')
-            param spaces string
-
-            @sys.description('')
-            param qualifiedEmpty string
-
-            @sys.description('''
-
-            ''')
-            param qualifiedNewline string
-            """,
-            4,
-            RuleOptions);
+        AssertDiagnostics(text);
     }
 
     [TestMethod]
     public void Metadata_description_does_not_satisfy_the_rule()
     {
-        AssertLinterRuleDiagnostics(
-            UseParameterDescriptionsRule.Code,
+        AssertDiagnostics(
             """
             @metadata({ description: 'Metadata description.' })
             param input string
             """,
-            ["""[2] Parameter "input" must have a non-empty description."""],
-            RuleOptions);
+            ["""[2] Parameter "input" must have a non-empty description."""]);
     }
 
-    [TestMethod]
-    public void Descriptions_on_other_declarations_are_ignored()
+    [DataRow("""
+        @description('Variable description.')
+        var value = 'value'
+        """)]
+    [DataRow("""
+        @description('Output description.')
+        output result string = 'value'
+        """)]
+    [DataTestMethod]
+    public void Descriptions_on_other_declarations_are_ignored(string text)
     {
-        AssertLinterRuleDiagnostics(
-            UseParameterDescriptionsRule.Code,
-            """
-            @description('Variable description.')
-            var value = 'value'
-
-            @description('Output description.')
-            output result string = value
-            """,
-            0,
-            RuleOptions);
+        AssertNoDiagnostics(text);
     }
 
     [TestMethod]
     public void Malformed_parameter_without_a_name_is_ignored()
     {
-        AssertLinterRuleDiagnostics(
-            UseParameterDescriptionsRule.Code,
-            "param",
-            0,
-            RuleOptions);
+        AssertNoDiagnostics("param", OnCompileErrors.Ignore);
     }
 }

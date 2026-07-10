@@ -205,9 +205,7 @@ module main 'main.bicep' = {
         {
             var mainFileUri = new Uri("file:///path/to/main.bicep");
             var mainFileText = @"
-#disable-next-line use-parameter-descriptions
 param inputa string
-#disable-next-line use-parameter-descriptions
 param inputb string
 
 module modulea 'modulea.bicep' = {
