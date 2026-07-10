@@ -185,7 +185,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ExperimentalFeatureNames_OciEnabled", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Resource info code generation.
         /// </summary>
@@ -948,6 +948,24 @@ namespace Bicep.Core {
         internal static string UseParentPropertyRule_MessageFormat {
             get {
                 return ResourceManager.GetString("UseParentPropertyRule_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Parameters should have non-empty descriptions..
+        /// </summary>
+        internal static string UseParameterDescriptionsRuleDescription {
+            get {
+                return ResourceManager.GetString("UseParameterDescriptionsRule_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Parameter &quot;{0}&quot; must have a non-empty description..
+        /// </summary>
+        internal static string UseParameterDescriptionsRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("UseParameterDescriptionsRule_MessageFormat", resourceCulture);
             }
         }
 

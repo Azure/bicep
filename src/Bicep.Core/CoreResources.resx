@@ -381,6 +381,13 @@
   <data name="UseParentPropertyRule_CodeFix" xml:space="preserve">
     <value>Use parent property</value>
   </data>
+  <data name="UseParameterDescriptionsRule_Description" xml:space="preserve">
+    <value>Parameters should have non-empty descriptions.</value>
+  </data>
+  <data name="UseParameterDescriptionsRule_MessageFormat" xml:space="preserve">
+    <value>Parameter "{0}" must have a non-empty description.</value>
+    <comment>{0} is the parameter name</comment>
+  </data>
   <data name="UseSecureValueForSecureInputsRule_MessageFormat" xml:space="preserve">
     <value>Property '{0}' expects a secure value, but the value provided may not be secure.</value>
     <comment>{0} property name</comment>
