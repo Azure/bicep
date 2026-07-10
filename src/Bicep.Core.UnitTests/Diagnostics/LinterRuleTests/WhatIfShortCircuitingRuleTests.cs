@@ -78,7 +78,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 [
                     ("createSA.bicep", SAModuleContent),
                     ("main.bicep", """
-                        #disable-next-line use-parameter-descriptions
                         param input string
                         module creatingSA 'createSA.bicep' = {
                           params: {
@@ -248,8 +247,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
                     """),
                 ("mod3.bicep", """
-                    param name string 
-                    
+                    param name string
+
                     resource vnet 'Microsoft.Network/virtualNetworks@2024-07-01' = {
                       name: name
                     }
