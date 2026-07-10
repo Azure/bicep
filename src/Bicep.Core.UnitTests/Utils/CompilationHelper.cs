@@ -16,7 +16,7 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
-using Bicep.TextFixtures.IO;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 
