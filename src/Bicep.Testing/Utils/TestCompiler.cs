@@ -4,6 +4,7 @@
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core;
 using Bicep.Core.Features;
+using Bicep.Core.Semantics;
 using Bicep.IO.InMemory;
 using Bicep.Testing.IO;
 
@@ -29,15 +30,6 @@ namespace Bicep.Testing.Utils
         }
 
         public TestFileSet FileSet { get; }
-
-        public static TestCompiler ForRealFileSystemCompilation()
-        {
-            var fileSet = new MockFileSystemTestFileSet();
-
-            return new TestCompiler(fileSet).ConfigureServices(services => services
-                .AddFileSystem(fileSet.FileSystem)
-                .AddFileExplorer(fileSet.FileExplorer));
-        }
 
         public static TestCompiler ForMockFileSystemCompilation()
         {
@@ -86,12 +78,28 @@ namespace Bicep.Testing.Utils
             }
         }
 
+        public Task<Compilation> CreateCompilationWithoutRestore(params (string FilePath, TestFileData FileData)[] files) => this.CreateCompilationWithoutRestore(DefaultEntryPointPath, files);
+
+        public async Task<Compilation> CreateCompilationWithoutRestore(string entryPointPath, params (string FilePath, TestFileData FileData)[] files)
+        {
+            using (this.CreateFileSetScope(files))
+            {
+                return await this.CreateCompilation(entryPointPath, skipRestore: true);
+            }
+        }
+
         public async Task<TestCompilationResult> Compile(string entryPointPath = DefaultEntryPointPath, bool skipRestore = false)
         {
-            var compiler = this.services.Get<BicepCompiler>();
-            var compilation = await compiler.CreateCompilation(this.FileSet.GetUri(entryPointPath), skipRestore: skipRestore);
+            var compilation = await this.CreateCompilation(entryPointPath, skipRestore);
 
             return TestCompilationResult.FromCompilation(compilation);
+        }
+
+        public async Task<Compilation> CreateCompilation(string entryPointPath = DefaultEntryPointPath, bool skipRestore = false)
+        {
+            var compiler = this.services.Get<BicepCompiler>();
+
+            return await compiler.CreateCompilation(this.FileSet.GetUri(entryPointPath), skipRestore: skipRestore);
         }
 
         // NOTE(kylealbert): Remove type params once the necessary types are migrated to this package.
