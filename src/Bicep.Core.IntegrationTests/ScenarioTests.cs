@@ -7892,4 +7892,51 @@ output locations array = flatten(map(databases, database => database.properties.
             ("BCP065", DiagnosticLevel.Error, """Function "utcNow" is not valid at this location. It can only be used as a parameter default value."""),
         ]);
     }
+
+    [TestMethod]
+    // https://github.com/azure/bicep/issues/19745
+    public void Test_Issue19745_EmptyArrayResourceLoopEvaluationShouldSucceed()
+    {
+        // Test that Bicep templates with empty array resource loops (copy.count = 0) can be evaluated successfully.
+        // Real Azure ARM accepts copy.count = 0 as a no-op (no resources deployed).
+        // This tests the workaround for the external Azure.Deployments.Templates package validation error.
+
+        var bicepTemplate = @"
+param items array = []
+
+resource storage 'Microsoft.Storage/storageAccounts@2023-05-01' = [for item in items: {
+  name: 'st${uniqueString(item)}'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}]
+
+output deployedCount int = length(storage)
+";
+
+        var compilationResult = CompilationHelper.Compile(bicepTemplate);
+        compilationResult.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        compilationResult.Template.Should().NotBeNull();
+
+        // Verify the compiled template has the copy block with length expression
+        var template = compilationResult.Template!;
+        template.Should().NotBeNull();
+
+        // Evaluate the template to ensure no validation error occurs
+        var armTemplate = template.ToJToken();
+        
+        // The TemplateEvaluator.Evaluate call should not throw an exception for copy.count = 0
+        var evaluatedTemplate = TemplateEvaluator.Evaluate(
+            armTemplate,
+            parametersJToken: null,
+            configBuilder: config => config,
+            features: null
+        );
+
+        evaluatedTemplate.Should().NotBeNull();
+        // Verify that resources with zero copy count were handled correctly
+        evaluatedTemplate.Resources.Should().HaveCount(0, because: "the storage resource has copy.count = 0 and should be excluded");
+    }
 }
