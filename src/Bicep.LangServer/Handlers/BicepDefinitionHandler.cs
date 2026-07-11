@@ -150,7 +150,7 @@ namespace Bicep.LanguageServer.Handlers
                     && relativeFile.Exists())
                 {
                     return GetFileDefinitionLocation(
-                        relativeFile.Uri.ToUri(),
+                        relativeFile.Uri.ToDocumentUri(),
                         stringToken,
                         context,
                         new() { Start = new(0, 0), End = new(0, 0) });
