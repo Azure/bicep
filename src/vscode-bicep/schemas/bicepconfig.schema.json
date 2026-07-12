@@ -984,6 +984,10 @@
         "deployCommands": {
           "type": "boolean",
           "description": "Allows you to access the 'deploy', 'what-if' and 'teardown' commands. See https://aka.ms/bicep/experimental-features#deploycommands"
+        },
+        "moduleContentDeduplication": {
+          "type": "boolean",
+          "description": "Emits nested module templates into a content-addressed store referenced via 'templateLink.contentId' instead of inlining them. See https://aka.ms/bicep/experimental-features#modulecontentdeduplication"
         }
       },
       "additionalProperties": false

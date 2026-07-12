@@ -98,9 +98,13 @@ namespace Bicep.Core.Samples
 
         public static DataSet Modules_CRLF => CreateDataSet();
 
+        public static DataSet ModulesContentManifest_CRLF => CreateDataSet();
+
         public static DataSet ModulesSubscription_LF => CreateDataSet();
 
         public static DataSet ModulesWithScopes_LF => CreateDataSet();
+
+        public static DataSet ModulesWithScopesContentManifest_LF => CreateDataSet();
 
         public static DataSet TestFramework_CRLF => CreateDataSet();
 
