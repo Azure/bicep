@@ -1,0 +1,463 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+  "languageVersion": "2.1-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+    "_EXPERIMENTAL_FEATURES_ENABLED": [
+      "Enable content-addressed deduplication of nested module templates"
+    ],
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10799161342671961670"
+    }
+  },
+  "resources": {
+    "myManagementGroupMod": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "myManagementGroupMod",
+      "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup')]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "templateLink": {
+          "contentId": "sha256:b0e48580ec85bc7699c01af9e91baaa9334c074fa4b1241d39cdd0b25e7b69b7"
+        }
+      }
+    },
+    "myManagementGroupModWithDuplicatedNameButDifferentScope": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "myManagementGroupMod",
+      "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup2')]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "templateLink": {
+          "contentId": "sha256:bd47cb5084e5d04753b7182536f3cd22b11ad5a276e72dd2f732399aef62ae9e"
+        }
+      }
+    },
+    "mySubscriptionMod": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "mySubscriptionMod",
+      "subscriptionId": "ee44cd78-68c6-43d9-874e-e684ec8d1191",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "templateLink": {
+          "contentId": "sha256:2f751175cb9be0ad11a72de9fca59bf11ec3565b3fb1f2892483c0026c2352aa"
+        }
+      }
+    },
+    "mySubscriptionModWithCondition": {
+      "condition": "[equals(length('foo'), 3)]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "mySubscriptionModWithCondition",
+      "subscriptionId": "ee44cd78-68c6-43d9-874e-e684ec8d1191",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "templateLink": {
+          "contentId": "sha256:2f751175cb9be0ad11a72de9fca59bf11ec3565b3fb1f2892483c0026c2352aa"
+        }
+      }
+    },
+    "mySubscriptionModWithDuplicatedNameButDifferentScope": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "mySubscriptionMod",
+      "subscriptionId": "1ad827ac-2669-4c2f-9970-282b93c3c550",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "templateLink": {
+          "contentId": "sha256:d365b89e1f679dd5ca5bfec42c89146fd1f66e650b1c54fd7f2fda13dce48bcf"
+        }
+      }
+    }
+  },
+  "outputs": {
+    "myManagementGroupOutput": {
+      "type": "string",
+      "value": "[reference('myManagementGroupMod').outputs.myOutput.value]"
+    },
+    "mySubscriptionOutput": {
+      "type": "string",
+      "value": "[reference('mySubscriptionMod').outputs.myOutput.value]"
+    }
+  },
+  "content": {
+    "sha256:0e9b9f29d09e7acf34705168ea2fc1a685d825c60ac9f45827bab8be0859b443": {
+      "value": {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        "languageVersion": "2.1-experimental",
+        "contentVersion": "1.0.0.0",
+        "metadata": {
+          "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+          "_EXPERIMENTAL_FEATURES_ENABLED": [
+            "Enable content-addressed deduplication of nested module templates"
+          ],
+          "_generator": {
+            "name": "bicep",
+            "version": "dev",
+            "templateHash": "12211336549599938349"
+          }
+        },
+        "resources": {
+          "myTenantMod": {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2025-04-01",
+            "name": "myTenantMod",
+            "scope": "/",
+            "location": "[resourceGroup().location]",
+            "properties": {
+              "expressionEvaluationOptions": {
+                "scope": "inner"
+              },
+              "mode": "Incremental",
+              "templateLink": {
+                "contentId": "sha256:d497d1af0b5ffc7c828ef9f61c19fb8f5ce0d22fe519295f9a290f869a44923e"
+              }
+            }
+          },
+          "myOtherResourceGroup": {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2025-04-01",
+            "name": "myOtherResourceGroup",
+            "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
+            "resourceGroup": "myOtherRg",
+            "properties": {
+              "expressionEvaluationOptions": {
+                "scope": "inner"
+              },
+              "mode": "Incremental",
+              "templateLink": {
+                "contentId": "sha256:86e4a3f6d830d73dbe20895f01e7420a16e91557d00789222eef0e07d0d3e796"
+              }
+            }
+          },
+          "mySubscription": {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2025-04-01",
+            "name": "mySubscription",
+            "subscriptionId": "[subscription().subscriptionId]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+              "expressionEvaluationOptions": {
+                "scope": "inner"
+              },
+              "mode": "Incremental",
+              "templateLink": {
+                "contentId": "sha256:d365b89e1f679dd5ca5bfec42c89146fd1f66e650b1c54fd7f2fda13dce48bcf"
+              }
+            }
+          },
+          "otherSubscription": {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2025-04-01",
+            "name": "otherSubscription",
+            "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
+            "location": "[resourceGroup().location]",
+            "properties": {
+              "expressionEvaluationOptions": {
+                "scope": "inner"
+              },
+              "mode": "Incremental",
+              "templateLink": {
+                "contentId": "sha256:d365b89e1f679dd5ca5bfec42c89146fd1f66e650b1c54fd7f2fda13dce48bcf"
+              }
+            }
+          }
+        },
+        "outputs": {
+          "myOutput": {
+            "type": "string",
+            "value": "[reference('myTenantMod').outputs.myOutput.value]"
+          },
+          "myOutputResourceGroup": {
+            "type": "string",
+            "value": "[reference('myOtherResourceGroup').outputs.myOutput.value]"
+          }
+        }
+      }
+    },
+    "sha256:2f751175cb9be0ad11a72de9fca59bf11ec3565b3fb1f2892483c0026c2352aa": {
+      "value": {
+        "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+        "languageVersion": "2.1-experimental",
+        "contentVersion": "1.0.0.0",
+        "metadata": {
+          "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+          "_EXPERIMENTAL_FEATURES_ENABLED": [
+            "Enable content-addressed deduplication of nested module templates"
+          ],
+          "_generator": {
+            "name": "bicep",
+            "version": "dev",
+            "templateHash": "15924331173791733922"
+          }
+        },
+        "resources": {
+          "myResourceGroupMod": {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2025-04-01",
+            "name": "myResourceGroupMod",
+            "resourceGroup": "myRg",
+            "properties": {
+              "expressionEvaluationOptions": {
+                "scope": "inner"
+              },
+              "mode": "Incremental",
+              "templateLink": {
+                "contentId": "sha256:0e9b9f29d09e7acf34705168ea2fc1a685d825c60ac9f45827bab8be0859b443"
+              }
+            }
+          },
+          "myResourceGroupMod2": {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2025-04-01",
+            "name": "myResourceGroupMod2",
+            "resourceGroup": "myRg",
+            "properties": {
+              "expressionEvaluationOptions": {
+                "scope": "inner"
+              },
+              "mode": "Incremental",
+              "templateLink": {
+                "contentId": "sha256:0e9b9f29d09e7acf34705168ea2fc1a685d825c60ac9f45827bab8be0859b443"
+              }
+            }
+          },
+          "myResourceGroupMod3": {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2025-04-01",
+            "name": "myResourceGroupMod3",
+            "subscriptionId": "subId",
+            "resourceGroup": "myRg",
+            "properties": {
+              "expressionEvaluationOptions": {
+                "scope": "inner"
+              },
+              "mode": "Incremental",
+              "templateLink": {
+                "contentId": "sha256:0e9b9f29d09e7acf34705168ea2fc1a685d825c60ac9f45827bab8be0859b443"
+              }
+            }
+          },
+          "myTenantMod": {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2025-04-01",
+            "name": "myTenantMod",
+            "scope": "/",
+            "location": "[deployment().location]",
+            "properties": {
+              "expressionEvaluationOptions": {
+                "scope": "inner"
+              },
+              "mode": "Incremental",
+              "templateLink": {
+                "contentId": "sha256:d497d1af0b5ffc7c828ef9f61c19fb8f5ce0d22fe519295f9a290f869a44923e"
+              }
+            }
+          }
+        },
+        "outputs": {
+          "myOutput": {
+            "type": "string",
+            "value": "[reference('myTenantMod').outputs.myOutput.value]"
+          },
+          "myOutputRgMod": {
+            "type": "string",
+            "value": "[reference('myResourceGroupMod').outputs.myOutput.value]"
+          },
+          "myOutputRgMod2": {
+            "type": "string",
+            "value": "[reference('myResourceGroupMod2').outputs.myOutput.value]"
+          }
+        }
+      }
+    },
+    "sha256:86e4a3f6d830d73dbe20895f01e7420a16e91557d00789222eef0e07d0d3e796": {
+      "value": {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        "languageVersion": "2.1-experimental",
+        "contentVersion": "1.0.0.0",
+        "metadata": {
+          "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+          "_EXPERIMENTAL_FEATURES_ENABLED": [
+            "Enable content-addressed deduplication of nested module templates"
+          ],
+          "_generator": {
+            "name": "bicep",
+            "version": "dev",
+            "templateHash": "8688843110047013828"
+          }
+        },
+        "resources": {},
+        "outputs": {
+          "myOutput": {
+            "type": "string",
+            "value": "hello!"
+          }
+        }
+      }
+    },
+    "sha256:b0e48580ec85bc7699c01af9e91baaa9334c074fa4b1241d39cdd0b25e7b69b7": {
+      "value": {
+        "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+        "languageVersion": "2.1-experimental",
+        "contentVersion": "1.0.0.0",
+        "metadata": {
+          "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+          "_EXPERIMENTAL_FEATURES_ENABLED": [
+            "Enable content-addressed deduplication of nested module templates"
+          ],
+          "_generator": {
+            "name": "bicep",
+            "version": "dev",
+            "templateHash": "902531172735975563"
+          }
+        },
+        "resources": {
+          "myTenantMod": {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2025-04-01",
+            "name": "myTenantMod",
+            "scope": "/",
+            "location": "[deployment().location]",
+            "properties": {
+              "expressionEvaluationOptions": {
+                "scope": "inner"
+              },
+              "mode": "Incremental",
+              "templateLink": {
+                "contentId": "sha256:d497d1af0b5ffc7c828ef9f61c19fb8f5ce0d22fe519295f9a290f869a44923e"
+              }
+            }
+          },
+          "myManagementGroupModWithDuplicatedNameButInSeparateModule": {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2025-04-01",
+            "name": "myManagementGroupMod",
+            "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup2')]",
+            "location": "[deployment().location]",
+            "properties": {
+              "expressionEvaluationOptions": {
+                "scope": "inner"
+              },
+              "mode": "Incremental",
+              "templateLink": {
+                "contentId": "sha256:bd47cb5084e5d04753b7182536f3cd22b11ad5a276e72dd2f732399aef62ae9e"
+              }
+            }
+          },
+          "mySubscriptionModWithDuplicatedNameButInSeparateModule": {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2025-04-01",
+            "name": "mySubscriptionMod",
+            "subscriptionId": "1ad827ac-2669-4c2f-9970-282b93c3c550",
+            "location": "[deployment().location]",
+            "properties": {
+              "expressionEvaluationOptions": {
+                "scope": "inner"
+              },
+              "mode": "Incremental",
+              "templateLink": {
+                "contentId": "sha256:d365b89e1f679dd5ca5bfec42c89146fd1f66e650b1c54fd7f2fda13dce48bcf"
+              }
+            }
+          }
+        },
+        "outputs": {
+          "myOutput": {
+            "type": "string",
+            "value": "[reference('myTenantMod').outputs.myOutput.value]"
+          }
+        }
+      }
+    },
+    "sha256:bd47cb5084e5d04753b7182536f3cd22b11ad5a276e72dd2f732399aef62ae9e": {
+      "value": {
+        "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+        "languageVersion": "2.1-experimental",
+        "contentVersion": "1.0.0.0",
+        "metadata": {
+          "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+          "_EXPERIMENTAL_FEATURES_ENABLED": [
+            "Enable content-addressed deduplication of nested module templates"
+          ],
+          "_generator": {
+            "name": "bicep",
+            "version": "dev",
+            "templateHash": "10060721982683105121"
+          }
+        },
+        "resources": {}
+      }
+    },
+    "sha256:d365b89e1f679dd5ca5bfec42c89146fd1f66e650b1c54fd7f2fda13dce48bcf": {
+      "value": {
+        "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+        "languageVersion": "2.1-experimental",
+        "contentVersion": "1.0.0.0",
+        "metadata": {
+          "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+          "_EXPERIMENTAL_FEATURES_ENABLED": [
+            "Enable content-addressed deduplication of nested module templates"
+          ],
+          "_generator": {
+            "name": "bicep",
+            "version": "dev",
+            "templateHash": "3756952332756885582"
+          }
+        },
+        "resources": {}
+      }
+    },
+    "sha256:d497d1af0b5ffc7c828ef9f61c19fb8f5ce0d22fe519295f9a290f869a44923e": {
+      "value": {
+        "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+        "languageVersion": "2.1-experimental",
+        "contentVersion": "1.0.0.0",
+        "metadata": {
+          "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+          "_EXPERIMENTAL_FEATURES_ENABLED": [
+            "Enable content-addressed deduplication of nested module templates"
+          ],
+          "_generator": {
+            "name": "bicep",
+            "version": "dev",
+            "templateHash": "18232673065688289497"
+          }
+        },
+        "resources": {},
+        "outputs": {
+          "myOutput": {
+            "type": "string",
+            "value": "hello!"
+          }
+        }
+      }
+    }
+  }
+}
