@@ -88,7 +88,7 @@
     <PackageVersion Include="OrasProject.Oras" Version="0.5.0" />
     <PackageVersion Include="PublicApiGenerator" Version="11.5.4" />
     <PackageVersion Include="RichardSzalay.MockHttp" Version="7.0.0" />
-    <PackageVersion Include="Sarif.Sdk" Version="5.4.3" />
+    <PackageVersion Include="Sarif.Sdk" Version="5.5.0" />
     <PackageVersion Include="Semver" Version="3.0.0" />
     <PackageVersion Include="Serilog.Extensions.Hosting" Version="10.0.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
