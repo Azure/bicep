@@ -20,3 +20,6 @@ output arrayOutput array = [
   basicStorage.id
   dnsZone.id
 ]
+
+@export()
+func foo() string => resourceId('Mock.Rp/mockResource@2020-01-01', 'basicblobs')
