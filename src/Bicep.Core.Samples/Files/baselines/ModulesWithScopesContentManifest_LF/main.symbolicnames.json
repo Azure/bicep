@@ -106,7 +106,7 @@
       "value": "[reference('mySubscriptionMod').outputs.myOutput.value]"
     }
   },
-  "content": {
+  "contentManifest": {
     "sha256:0e9b9f29d09e7acf34705168ea2fc1a685d825c60ac9f45827bab8be0859b443": {
       "value": {
         "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
