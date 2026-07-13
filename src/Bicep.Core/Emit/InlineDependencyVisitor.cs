@@ -452,6 +452,6 @@ namespace Bicep.Core.Emit
         }
 
         private static bool ShouldVisitFunctionArguments(FunctionSymbol? functionSymbol)
-            => functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ArgumentValueIndependent);
+            => functionSymbol is null || !functionSymbol.FunctionFlags.HasFlag(FunctionFlags.IsArgumentValueIndependent);
     }
 }

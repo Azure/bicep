@@ -2068,10 +2068,6 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic InvalidOciArtifactModuleAliasMapToFilePath(string? aliasName, string path, string reason) => CoreError(
                 "BCP451",
                 $"The OCI artifact module alias{(aliasName is not null ? $" \"{aliasName}\"" : "")} has an invalid \"mapToFilePath\" path \"{path}\": {reason}");
-
-            public Diagnostic ClosureContainsNonPureFunctions(IEnumerable<string> nonPureFunctions) => CoreError(
-                "BCP452",
-                @$"The ""@export()"" decorator may not be applied to variables or functions that reference deployment-context functions, either directly or indirectly. The target of this decorator contains direct or transitive references to the following functions: {ToQuotedString(nonPureFunctions)}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
