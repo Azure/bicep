@@ -1062,7 +1062,7 @@
       "value": "[tryIndexFromEnd(tryGet(tryGet(reference('moduleWithNullableOutputs').outputs, 'nullableObj'), 'value', 'deeply', 'nested', 'array'), 1)]"
     }
   },
-  "content": {
+  "contentManifest": {
     "sha256:0dca82bb0b680be5308885b844217493b57c438f9c26322e541ffe1c9bf164ff": {
       "value": {
         "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",

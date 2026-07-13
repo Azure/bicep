@@ -171,7 +171,7 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            emitter.EmitObjectProperty("content", () =>
+            emitter.EmitObjectProperty("contentManifest", () =>
             {
                 foreach (var (contentId, nestedTemplate) in store.Entries)
                 {
