@@ -6,5 +6,8 @@
     "allowPrerelease": false,
     "version": "10.0.301",
     "rollForward": "latestPatch"
+  },
+  "test": {
+    "runner": "Microsoft.Testing.Platform"
   }
 }
