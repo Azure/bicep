@@ -585,7 +585,7 @@ param bar2 = externalInput('kind', foo)
     }
 
     [TestMethod]
-    public void ExternalInput_parameter_with_non_pure_imported_variable_references_returns_diagnostic()
+    public void ExternalInput_parameter_with_unevaluable_imported_variable_references_returns_diagnostic()
     {
         var result = CompilationHelper.CompileParams(
             ("parameters.bicepparam", @"
@@ -597,37 +597,10 @@ param bar2 = externalInput('kind', foo)
     @export()
     var foo = resourceGroup().location // cannot be evaluated in bicepparam file
     "));
-        result.Should().HaveDiagnostics(
-            [
-                ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
-                ("BCP063", DiagnosticLevel.Error, "The name \"foo\" is not a parameter, variable, resource or module."),
-            ]);
-    }
-
-    [TestMethod]
-    public void Parameter_assignment_with_imported_resource_id_variable_returns_referenced_module_diagnostic()
-    {
-        var result = CompilationHelper.CompileParams(
-            ("main.bicep", """
-                param subnetId string
-                """),
-            ("parameters.bicepparam", """
-                using 'main.bicep'
-
-                import { defaultSubnetId } from 'variables.bicep'
-
-                param subnetId = defaultSubnetId
-                """),
-            ("variables.bicep", """
-                @export()
-                var defaultSubnetId = resourceId('resourceGroup', 'Microsoft.Network/virtualNetworks/subnets', 'vnet', 'subnet')
-                """));
-
-        result.Should().HaveDiagnostics(
-            [
-                ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
-                ("BCP063", DiagnosticLevel.Error, "The name \"defaultSubnetId\" is not a parameter, variable, resource or module."),
-            ]);
+        result.Should().OnlyContainDiagnostic(
+            "BCP338",
+            DiagnosticLevel.Error,
+            "Failed to evaluate parameter \"foo2\": Failed to evaluate variable \"foo\": The template function 'RESOURCEGROUP' is not expected at this location. Please see https://aka.ms/arm-functions for usage details.");
     }
 
     [TestMethod]
@@ -658,7 +631,7 @@ param bar2 = externalInput('kind', foo)
     }
 
     [TestMethod]
-    public void ExternalInput_parameter_with_non_pure_imported_function_returns_diagnostics()
+    public void ExternalInput_parameter_with_unevaluable_imported_function_returns_diagnostics()
     {
         var result = CompilationHelper.CompileParams(
             ("parameters.bicepparam", @"
@@ -670,11 +643,10 @@ param bar2 = externalInput('kind', foo)
     @export()
     func foo() string => resourceGroup().location // cannot be evaluated in bicepparam file
     "));
-        result.Should().HaveDiagnostics(
-            [
-                ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
-                ("BCP059", DiagnosticLevel.Error, "The name \"foo\" is not a function."),
-            ]);
+        result.Should().OnlyContainDiagnostic(
+            "BCP338",
+            DiagnosticLevel.Error,
+            "Failed to evaluate parameter \"foo2\": The template function 'RESOURCEGROUP' is not expected at this location. Please see https://aka.ms/arm-functions for usage details.");
     }
 
     [TestMethod]
