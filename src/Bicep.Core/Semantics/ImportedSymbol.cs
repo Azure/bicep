@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Metadata;
@@ -27,6 +28,12 @@ public abstract class ImportedSymbol : DeclaredSymbol
 
     public abstract string? Description { get; }
 
+    /// <summary>
+    /// The sorted, distinct names of deployment-context ("non-pure") functions referenced by the imported symbol,
+    /// either directly or transitively. Such functions cannot be evaluated in a Bicep parameters file.
+    /// </summary>
+    public abstract ImmutableArray<string> NonPureFunctionsInClosure { get; }
+
     public ResultWithDiagnosticBuilder<ArtifactReference> TryGetArtifactReference()
         => Context.ArtifactReferenceFactory.TryGetArtifactReference(this.Context.SourceFile, this.EnclosingDeclaration);
 }
@@ -50,7 +57,21 @@ public abstract class ImportedSymbol<T> : ImportedSymbol where T : ExportMetadat
             yield return DiagnosticBuilder.ForPosition(DeclaringImportedSymbolsListItem.OriginalSymbolName)
                 .ImportedSymbolKindNotSupportedInSourceFileKind(ExportMetadata.Name, ExportMetadata.Kind, Context.SourceFile.FileKind);
         }
+
+        if (Context.SourceFile is BicepParamFile &&
+            NonPureFunctionsInClosure is { IsDefaultOrEmpty: false } nonPureFunctions)
+        {
+            yield return DiagnosticBuilder.ForPosition(DeclaringImportedSymbolsListItem.OriginalSymbolName)
+                .ImportedSymbolReferencesNonPureFunctions(ExportMetadata.Name, nonPureFunctions);
+        }
     }
+
+    public override ImmutableArray<string> NonPureFunctionsInClosure => ExportMetadata switch
+    {
+        ExportedVariableMetadata variable => variable.NonPureFunctionsInClosure,
+        ExportedFunctionMetadata function => function.NonPureFunctionsInClosure,
+        _ => [],
+    };
 
     private bool IsSupportedImportKind() => Context.SourceFile switch
     {

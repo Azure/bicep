@@ -113,21 +113,18 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
-    public void Exporting_variable_that_references_non_pure_function_should_raise_diagnostic()
+    public void Exporting_variable_that_references_non_pure_function_should_not_raise_diagnostic()
     {
         var result = CompilationHelper.Compile("""
             @export()
             var defaultSubnetId = resourceId('resourceGroup', 'Microsoft.Network/virtualNetworks/subnets', 'vnet', 'subnet')
             """);
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP452", DiagnosticLevel.Error, "The \"@export()\" decorator may not be applied to variables or functions that reference deployment-context functions, either directly or indirectly. The target of this decorator contains direct or transitive references to the following functions: \"resourceId\"."),
-        });
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
-    public void Exporting_variable_that_transitively_references_non_pure_function_should_raise_diagnostic()
+    public void Exporting_variable_that_transitively_references_non_pure_function_should_not_raise_diagnostic()
     {
         var result = CompilationHelper.Compile("""
             var defaultSubnetId = resourceId('resourceGroup', 'Microsoft.Network/virtualNetworks/subnets', 'vnet', 'subnet')
@@ -136,10 +133,7 @@ public class CompileTimeImportTests
             var exportedSubnetId = defaultSubnetId
             """);
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP452", DiagnosticLevel.Error, "The \"@export()\" decorator may not be applied to variables or functions that reference deployment-context functions, either directly or indirectly. The target of this decorator contains direct or transitive references to the following functions: \"resourceId\"."),
-        });
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
@@ -149,6 +143,115 @@ public class CompileTimeImportTests
             @export()
             var value = toLower('HELLO')
             """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Importing_variable_that_references_non_pure_function_into_bicepparam_should_raise_diagnostic()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+
+                import { defaultSubnetId } from 'variables.bicep'
+
+                param foo = defaultSubnetId
+                """),
+            ("variables.bicep", """
+                @export()
+                var defaultSubnetId = resourceId('resourceGroup', 'Microsoft.Network/virtualNetworks/subnets', 'vnet', 'subnet')
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP452", DiagnosticLevel.Error, "The imported symbol \"defaultSubnetId\" cannot be used in a Bicep parameters file because it contains direct or transitive references to the following deployment-context functions, which cannot be evaluated outside of a deployment: \"resourceId\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Importing_function_that_references_non_pure_function_into_bicepparam_should_raise_diagnostic()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+
+                import { getLocation } from 'functions.bicep'
+
+                param foo = getLocation()
+                """),
+            ("functions.bicep", """
+                @export()
+                func getLocation() string => resourceGroup().location
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP452", DiagnosticLevel.Error, "The imported symbol \"getLocation\" cannot be used in a Bicep parameters file because it contains direct or transitive references to the following deployment-context functions, which cannot be evaluated outside of a deployment: \"resourceGroup\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Importing_variable_that_references_pure_function_into_bicepparam_should_not_raise_diagnostic()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+
+                import { value } from 'variables.bicep'
+
+                param foo = value
+                """),
+            ("variables.bicep", """
+                @export()
+                var value = toLower('HELLO')
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Wildcard_importing_symbols_that_reference_non_pure_functions_into_bicepparam_should_raise_diagnostic()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+
+                import * as exports from 'exports.bicep'
+
+                param foo = exports.defaultSubnetId
+                param bar = exports.getLocation()
+                """),
+            ("exports.bicep", """
+                @export()
+                var defaultSubnetId = resourceId('resourceGroup', 'Microsoft.Network/virtualNetworks/subnets', 'vnet', 'subnet')
+
+                @export()
+                func getLocation() string => resourceGroup().location
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP452", DiagnosticLevel.Error, "The imported symbol \"defaultSubnetId\" cannot be used in a Bicep parameters file because it contains direct or transitive references to the following deployment-context functions, which cannot be evaluated outside of a deployment: \"resourceId\"."),
+            ("BCP452", DiagnosticLevel.Error, "The imported symbol \"getLocation\" cannot be used in a Bicep parameters file because it contains direct or transitive references to the following deployment-context functions, which cannot be evaluated outside of a deployment: \"resourceGroup\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Wildcard_importing_symbols_that_reference_pure_functions_into_bicepparam_should_not_raise_diagnostic()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+
+                import * as exports from 'exports.bicep'
+
+                param foo = exports.value
+                """),
+            ("exports.bicep", """
+                @export()
+                var value = toLower('HELLO')
+                """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }

@@ -200,14 +200,47 @@ namespace Bicep.Core.Semantics
                 v.Name,
                 v.Type,
                 DescriptionHelper.TryGetFromDecorator(this, v.DeclaringVariable),
-                DeclaredType: GetDeclaredType(v.DeclaringVariable)));
+                DeclaredType: GetDeclaredType(v.DeclaringVariable))
+            {
+                NonPureFunctionsInClosure = GetNonPureFunctionNamesInClosure(v),
+            });
 
         private IEnumerable<ExportMetadata> FindExportedFunctions() => Root.FunctionDeclarations
             .Where(f => f.IsExported(this))
             .Select(f => new ExportedFunctionMetadata(f.Name,
                 [.. f.Overload.FixedParameters.Select(p => new ExportedFunctionParameterMetadata(p.Name, p.Type, p.Description))],
                 new(f.Overload.TypeSignatureSymbol, null),
-                DescriptionHelper.TryGetFromDecorator(this, f.DeclaringFunction)));
+                DescriptionHelper.TryGetFromDecorator(this, f.DeclaringFunction))
+            {
+                NonPureFunctionsInClosure = GetNonPureFunctionNamesInClosure(f),
+            });
+
+        /// <summary>
+        /// Returns the sorted, distinct names of deployment-context ("non-pure") functions referenced by the given
+        /// declaration, either directly or transitively. Such functions cannot be evaluated in a Bicep parameters file.
+        /// </summary>
+        private ImmutableArray<string> GetNonPureFunctionNamesInClosure(DeclaredSymbol targetedDeclaration)
+            => [.. Binder.GetReferencedSymbolClosureFor(targetedDeclaration)
+                .Add(targetedDeclaration)
+                .SelectMany(GetValueSyntaxesToValidateForExport)
+                .SelectMany(syntax => SyntaxAggregator.AggregateByType<FunctionCallSyntaxBase>(syntax))
+                .Select(functionCall => (
+                    functionCall,
+                    symbol: SymbolHelper.TryGetSymbolInfo(Binder, TypeManager.GetDeclaredType, functionCall) as FunctionSymbol))
+                .Where(x => x.symbol is not null && !IsPureFunctionCall(x.symbol, x.functionCall))
+                .Select(x => x.symbol!.Name)
+                .Distinct(LanguageConstants.IdentifierComparer)
+                .OrderBy(name => name, LanguageConstants.IdentifierComparer)];
+
+        private static IEnumerable<SyntaxBase> GetValueSyntaxesToValidateForExport(DeclaredSymbol symbol) => symbol switch
+        {
+            VariableSymbol variable => [variable.DeclaringVariable.Value],
+            DeclaredFunctionSymbol function => [function.DeclaringFunction.Lambda],
+            _ => [],
+        };
+
+        private bool IsPureFunctionCall(FunctionSymbol functionSymbol, FunctionCallSyntaxBase functionCall)
+            => (TypeManager.GetMatchedFunctionOverload(functionCall)?.Flags ?? functionSymbol.FunctionFlags).HasFlag(FunctionFlags.Pure);
 
         private static void TraceBuildOperation(BicepSourceFile sourceFile, IFeatureProvider features, RootConfiguration configuration)
         {

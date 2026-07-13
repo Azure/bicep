@@ -642,6 +642,30 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
+                if (symbol is ImportedSymbol { NonPureFunctionsInClosure.IsDefaultOrEmpty: false })
+                {
+                    // The imported symbol references deployment-context functions that cannot be evaluated in a
+                    // parameters file (a BCP452 error is already reported on the import). Skip evaluation to avoid
+                    // emitting a spurious secondary failure diagnostic for any parameter that references it.
+                    erroredSymbols.Add(symbol);
+                    continue;
+                }
+
+                if (GetNonPureWildcardImportReferences(model, symbol) is { Count: > 0 } nonPureWildcardReferences)
+                {
+                    // The symbol references deployment-context functions via a wildcard import property or function,
+                    // which cannot be evaluated in a parameters file. Report BCP452 at the reference and skip
+                    // evaluation to avoid emitting a spurious secondary failure diagnostic.
+                    foreach (var (referenceSyntax, exportName, nonPureFunctions) in nonPureWildcardReferences)
+                    {
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(referenceSyntax)
+                            .ImportedSymbolReferencesNonPureFunctions(exportName, nonPureFunctions));
+                    }
+
+                    erroredSymbols.Add(symbol);
+                    continue;
+                }
+
                 var referencedValueHasError = false;
                 foreach (var referenced in referencesInValues[symbol])
                 {
@@ -696,6 +720,51 @@ namespace Bicep.Core.Emit
             }
 
             return (generated.ToImmutableDictionary(), usingConfig, externalInputDefinitions);
+        }
+
+        /// <summary>
+        /// Finds references to deployment-context ("non-pure") functions made through wildcard imports (either a
+        /// wildcard-imported variable property or a wildcard-imported function call) within the value assigned to the
+        /// given symbol. Such references cannot be evaluated in a Bicep parameters file.
+        /// </summary>
+        private static IReadOnlyList<(SyntaxBase syntax, string exportName, ImmutableArray<string> nonPureFunctions)> GetNonPureWildcardImportReferences(
+            SemanticModel model,
+            Symbol symbol)
+        {
+            var value = symbol switch
+            {
+                ParameterAssignmentSymbol parameterAssignment => parameterAssignment.DeclaringParameterAssignment.Value,
+                VariableSymbol variable => variable.DeclaringVariable.Value,
+                _ => (SyntaxBase?)null,
+            };
+
+            if (value is null)
+            {
+                return [];
+            }
+
+            var references = new List<(SyntaxBase, string, ImmutableArray<string>)>();
+            foreach (var node in SyntaxAggregator.AggregateByType<SyntaxBase>(value))
+            {
+                switch (node)
+                {
+                    case InstanceFunctionCallSyntax functionCall
+                        when model.GetSymbolInfo(functionCall) is WildcardImportInstanceFunctionSymbol wildcardFunction &&
+                            wildcardFunction.BaseSymbol.SourceModel.Exports.TryGetValue(functionCall.Name.IdentifierName, out var functionExport) &&
+                            functionExport is ExportedFunctionMetadata { NonPureFunctionsInClosure.IsDefaultOrEmpty: false } functionMetadata:
+                        references.Add((functionCall.Name, functionMetadata.Name, functionMetadata.NonPureFunctionsInClosure));
+                        break;
+
+                    case PropertyAccessSyntax propertyAccess
+                        when model.GetSymbolInfo(propertyAccess.BaseExpression) is WildcardImportSymbol wildcardImport &&
+                            wildcardImport.SourceModel.Exports.TryGetValue(propertyAccess.PropertyName.IdentifierName, out var variableExport) &&
+                            variableExport is ExportedVariableMetadata { NonPureFunctionsInClosure.IsDefaultOrEmpty: false } variableMetadata:
+                        references.Add((propertyAccess.PropertyName, variableMetadata.Name, variableMetadata.NonPureFunctionsInClosure));
+                        break;
+                }
+            }
+
+            return references;
         }
 
         private static ImmutableDictionary<ExtensionConfigAssignmentSymbol, ImmutableDictionary<string, ExtensionConfigAssignmentValue>> CalculateExtensionConfigAssignments(

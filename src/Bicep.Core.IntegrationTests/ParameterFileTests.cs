@@ -599,13 +599,12 @@ param bar2 = externalInput('kind', foo)
     "));
         result.Should().HaveDiagnostics(
             [
-                ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
-                ("BCP063", DiagnosticLevel.Error, "The name \"foo\" is not a parameter, variable, resource or module."),
+                ("BCP452", DiagnosticLevel.Error, "The imported symbol \"foo\" cannot be used in a Bicep parameters file because it contains direct or transitive references to the following deployment-context functions, which cannot be evaluated outside of a deployment: \"resourceGroup\"."),
             ]);
     }
 
     [TestMethod]
-    public void Parameter_assignment_with_imported_resource_id_variable_returns_referenced_module_diagnostic()
+    public void Parameter_assignment_with_imported_resource_id_variable_returns_non_pure_diagnostic()
     {
         var result = CompilationHelper.CompileParams(
             ("main.bicep", """
@@ -625,8 +624,7 @@ param bar2 = externalInput('kind', foo)
 
         result.Should().HaveDiagnostics(
             [
-                ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
-                ("BCP063", DiagnosticLevel.Error, "The name \"defaultSubnetId\" is not a parameter, variable, resource or module."),
+                ("BCP452", DiagnosticLevel.Error, "The imported symbol \"defaultSubnetId\" cannot be used in a Bicep parameters file because it contains direct or transitive references to the following deployment-context functions, which cannot be evaluated outside of a deployment: \"resourceId\"."),
             ]);
     }
 
@@ -672,8 +670,7 @@ param bar2 = externalInput('kind', foo)
     "));
         result.Should().HaveDiagnostics(
             [
-                ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
-                ("BCP059", DiagnosticLevel.Error, "The name \"foo\" is not a function."),
+                ("BCP452", DiagnosticLevel.Error, "The imported symbol \"foo\" cannot be used in a Bicep parameters file because it contains direct or transitive references to the following deployment-context functions, which cannot be evaluated outside of a deployment: \"resourceGroup\"."),
             ]);
     }
 
