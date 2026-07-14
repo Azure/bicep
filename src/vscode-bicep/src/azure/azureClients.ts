@@ -3,16 +3,24 @@
 import { ManagementGroupsAPI } from "@azure/arm-managementgroups";
 import { ResourceManagementClient } from "@azure/arm-resources";
 import { SubscriptionClient } from "@azure/arm-resources-subscriptions";
+import { TokenCredential } from "@azure/core-auth";
 import {
   AzExtClientContext,
-  createAzureClient,
   createAzureSubscriptionClient,
+  parseClientContext,
 } from "@microsoft/vscode-azext-azureutils";
 
 // Lazy-load @azure packages to improve startup performance.
 
 export async function createResourceManagementClient(context: AzExtClientContext): Promise<ResourceManagementClient> {
-  return createAzureClient(context, (await import("@azure/arm-resources")).ResourceManagementClient);
+  const parsedContext = parseClientContext(context);
+  return new ResourceManagementClient(
+    parsedContext.credentials as TokenCredential,
+    parsedContext.subscriptionId,
+    {
+      endpoint: parsedContext.environment.resourceManagerEndpointUrl,
+    },
+  );
 }
 
 export async function createSubscriptionClient(context: AzExtClientContext): Promise<SubscriptionClient> {

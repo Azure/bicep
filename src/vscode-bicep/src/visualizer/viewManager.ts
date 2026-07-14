@@ -19,7 +19,7 @@ export class BicepVisualizerViewManager extends Disposable implements vscode.Web
     super();
 
     this.register(vscode.window.registerWebviewPanelSerializer(BicepVisualizerView.viewType, this));
-
+ 
     const existingMiddleware = languageClient.clientOptions.middleware?.handleDiagnostics;
 
     this.languageClient.clientOptions.middleware = {
