@@ -564,6 +564,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 
                 template.Should().HaveValueAtPath("$.resources.testResource.tags.previousAccessTier", "[coalesce(tryGet(target('full'), 'properties', 'accessTier'), 'unknown')]");
                 template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
+                template.Should().HaveValueAtPath("$.languageVersion", "2.1-experimental");
             }
         }
 
@@ -592,6 +593,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
                 var template = result.Template;
 
                 template.Should().HaveValueAtPath("$.resources.testResource.sku.name", "[coalesce(tryGet(target('full'), 'sku', 'name'), 'Standard_LRS')]");
+                template.Should().HaveValueAtPath("$.languageVersion", "2.1-experimental");
             }
         }
 
@@ -679,6 +681,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = [for i in
                 template.Should().HaveValueAtPath("$.resources.testResource.tags.previousAccessTier", "[coalesce(tryGet(target('full'), 'properties', 'accessTier'), 'unknown')]");
                 template.Should().HaveValueAtPath("$.resources.testResource.sku.name", "[coalesce(tryGet(target('full'), 'sku', 'name'), 'Standard_LRS')]");
                 template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
+                template.Should().HaveValueAtPath("$.languageVersion", "2.1-experimental");
             }
         }
     }
