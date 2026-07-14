@@ -44,19 +44,16 @@ Enables the type for a parameter or output to be of type resource to make it eas
 
 ### `runtimeValuesInTagsAndSku`
 
-Allows the use of runtime values (such as references to resources) in `tags` and `sku` properties. By default, these properties are flagged as deploy-time constants, meaning they cannot reference runtime resource properties. Enabling this feature relaxes that restriction. (Note: This feature will not work until the backend service support has been deployed)
+Allows the use of runtime values (such as this.existingResource()) in `tags` and `sku` properties. By default, these properties are flagged as deploy-time constants, meaning they cannot reference runtime resource properties. Enabling this feature relaxes that restriction. (Note: This feature will not work until the backend service support has been deployed)
 
 ```bicep
-resource nic 'Microsoft.Network/networkInterfaces@2023-04-01' existing = {
-  name: 'myNic'
-}
-
-resource vm 'Microsoft.Compute/virtualMachines@2023-03-01' = {
-  name: 'myVM'
-  location: 'eastus'
-  tags: {
-    ip: nic.properties.ipConfigurations[0].properties.privateIPAddress
+resource example 'Microsoft...' = {
+  name: 'example'
+  location: resourceGroup().location
+  sku: {
+    name: this.existingResource().?sku.name ?? 'Standard'
   }
+  tags: this.existingResource().?tags ?? {}
 }
 ```
 
