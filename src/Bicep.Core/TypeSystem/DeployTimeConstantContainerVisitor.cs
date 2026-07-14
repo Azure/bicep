@@ -69,6 +69,7 @@ namespace Bicep.Core.TypeSystem
                 if (this.semanticModel.Features.RuntimeValuesInTagsAndSkuEnabled &&
                     (syntax.HasPropertyName(AzResourceTypeProvider.ResourceTagsPropertyName) ||
                      syntax.HasPropertyName(AzResourceTypeProvider.ResourceSkuPropertyName)))
+                {
                     base.VisitObjectPropertySyntax(syntax);
                     return;
                 }
