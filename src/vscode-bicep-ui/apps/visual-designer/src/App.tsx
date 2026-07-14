@@ -3,7 +3,7 @@
 
 import type { ComponentType } from "react";
 import type { NodeKind } from "./lib/graph";
-import type { DeploymentGraphPayload } from "./lib/messaging";
+import type { DocumentDidChangePayload } from "./lib/messaging";
 
 import { PanZoomProvider, useGetPanZoomDimensions } from "@vscode-bicep-ui/components";
 import {
@@ -26,12 +26,16 @@ import {
   isExportCanvasCoverVisibleAtom,
   isExportPreviewVisibleAtom,
 } from "./features/export";
-import { useAutoLayout } from "./features/layout";
 import { StatusBar } from "./features/status";
 import { ModuleDeclaration, ResourceDeclaration } from "./features/visualization";
 import { GlobalStyle } from "./GlobalStyle";
 import { Canvas, Graph, nodeConfigAtom } from "./lib/graph";
-import { DEPLOYMENT_GRAPH_NOTIFICATION, READY_NOTIFICATION, useApplyDeploymentGraph } from "./lib/messaging";
+import { useFitViewToBounds } from "./lib/graph/hooks";
+import {
+  DOCUMENT_DID_CHANGE_NOTIFICATION,
+  READY_NOTIFICATION,
+  useGraphUpdate,
+} from "./lib/messaging";
 import { useTheme } from "./lib/theming";
 
 const DevAppShell = loadDevAppShell();
@@ -82,7 +86,8 @@ function GraphContainer() {
     const { width, height } = getPanZoomDimensions();
     return { x: width / 2, y: height / 2 };
   }, [getPanZoomDimensions]);
-  const applyGraph = useApplyDeploymentGraph(getViewportCenter);
+  const fitViewToBounds = useFitViewToBounds();
+  const { requestGraphUpdate, resetLayout } = useGraphUpdate(getViewportCenter, fitViewToBounds);
   const messageChannel = useWebviewMessageChannel();
   const exportTheme = useAtomValue(effectiveExportThemeAtom);
   const setExportFileStem = useSetAtom(exportFileStemAtom);
@@ -95,20 +100,19 @@ function GraphContainer() {
     });
   }, [messageChannel]);
 
-  // Listen for deployment graph updates
+  // Listen for "the graph may have changed" notifications. The webview
+  // pulls the update itself, submitting the graph it currently displays and applying the patches.
   useWebviewNotification(
-    DEPLOYMENT_GRAPH_NOTIFICATION,
+    DOCUMENT_DID_CHANGE_NOTIFICATION,
     useCallback(
       (params: unknown) => {
-        const payload = params as DeploymentGraphPayload;
-        applyGraph(payload.deploymentGraph);
-        setExportFileStem(deriveExportFileStem(payload.documentPath, payload.documentFileName));
+        const payload = params as DocumentDidChangePayload;
+        setExportFileStem(deriveExportFileStem(payload.documentUri));
+        void requestGraphUpdate();
       },
-      [applyGraph, setExportFileStem],
+      [requestGraphUpdate, setExportFileStem],
     ),
   );
-
-  useAutoLayout();
 
   const canvasTheme = exportTheme;
 
@@ -122,7 +126,7 @@ function GraphContainer() {
   return (
     <>
       <$ControlBarContainer>
-        <ControlBar />
+        <ControlBar requestLayout={resetLayout} />
       </$ControlBarContainer>
       <ExportUILayer />
       <ThemeProvider theme={canvasTheme}>
@@ -174,7 +178,7 @@ function AppCore() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
-      <$AppContainer>
+      <$AppContainer data-testid="app-root">
         <PanZoomProvider>
           <GraphContainer />
         </PanZoomProvider>

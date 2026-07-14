@@ -36,6 +36,37 @@ const $Toolbar = styled.div`
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(8px);
   white-space: nowrap;
+
+  /*
+   * Override the VS Code design-token CSS variables consumed by
+   * <vscode-single-select> (and any other @vscode-elements widget
+   * we may add to this toolbar) so its shadow-DOM styles resolve
+   * to the visualizer's curated palette instead of the editor's
+   * native theme. The variables listed here are the ones declared
+   * by vscode-single-select via @cssprop; any not listed fall back
+   * to the library's defaults.
+   */
+  --vscode-foreground: ${({ theme }) => theme.text.primary};
+  --vscode-focusBorder: ${({ theme }) => theme.focusBorder};
+
+  --vscode-settings-dropdownBackground: ${({ theme }) => theme.controlBar.background};
+  --vscode-settings-dropdownForeground: ${({ theme }) => theme.text.primary};
+  --vscode-settings-dropdownBorder: ${({ theme }) => theme.controlBar.border};
+  --vscode-settings-dropdownListBorder: ${({ theme }) => theme.controlBar.border};
+  --vscode-settings-checkboxBackground: ${({ theme }) => theme.node.background};
+
+  --vscode-list-hoverBackground: ${({ theme }) => theme.controlBar.hoverBackground};
+  --vscode-list-hoverForeground: ${({ theme }) => theme.text.primary};
+  --vscode-list-activeSelectionBackground: ${({ theme }) => theme.controlBar.activeBackground};
+  --vscode-list-activeSelectionForeground: ${({ theme }) => theme.text.primary};
+  --vscode-list-focusOutline: ${({ theme }) => theme.focusBorder};
+  --vscode-list-focusHighlightForeground: ${({ theme }) => theme.focusBorder};
+  --vscode-list-highlightForeground: ${({ theme }) => theme.focusBorder};
+
+  --vscode-badge-background: ${({ theme }) => theme.text.secondary};
+  --vscode-badge-foreground: ${({ theme }) => theme.node.background};
+
+  --vscode-inputValidation-errorBorder: ${({ theme }) => theme.error};
 `;
 
 /** Logical group of related controls. */

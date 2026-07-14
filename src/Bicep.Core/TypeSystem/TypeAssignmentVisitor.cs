@@ -222,6 +222,26 @@ namespace Bicep.Core.TypeSystem
             var parent => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}"),
         };
 
+        // Walks the ancestor chain looking for a ternary operator that reaches the starting node through one of its
+        // branches (as opposed to its condition). This is used as a heuristic proxy for "the operator is arguably
+        // null-guarded"; note it does NOT verify that the ternary's condition actually null-checks the operand, so
+        // e.g. `unrelatedFlag ? input + 1 : 0` also returns true. A precise check requires flow-sensitive typing
+        // (tracked by https://github.com/Azure/bicep/issues/12121).
+        private bool IsInsideTernaryBranch(SyntaxBase syntax)
+        {
+            var current = syntax;
+            while (binder.GetParent(current) is { } parent)
+            {
+                if (parent is TernaryOperationSyntax ternary &&
+                    (ReferenceEquals(current, ternary.TrueExpression) || ReferenceEquals(current, ternary.FalseExpression)))
+                {
+                    return true;
+                }
+                current = parent;
+            }
+            return false;
+        }
+
         public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
@@ -1664,6 +1684,32 @@ namespace Bicep.Core.TypeSystem
                     return result;
                 }
 
+                // if one or both operands are nullable and stripping nullability would let the operation match a known operator,
+                // emit a fixable warning per nullable operand and proceed as if it had been non-nullable.
+                // the diagnostic spans the whole binary operation (matching the position of the BCP045 error it replaces)
+                // so the operator context is visible, but the code fix still targets the individual operand.
+                // gated on IsInsideTernaryBranch so we only downgrade error -> warning when the operator sits inside a
+                // ternary branch (a rough proxy for "the user has some form of null-guard"); outside a ternary we still
+                // hard-fail with BCP045 rather than silently succeed against a possibly-null runtime value.
+                var nonNullableOperand1 = TypeHelper.TryRemoveNullability(operandType1);
+                var nonNullableOperand2 = TypeHelper.TryRemoveNullability(operandType2);
+                if ((nonNullableOperand1 is not null || nonNullableOperand2 is not null) &&
+                    IsInsideTernaryBranch(syntax) &&
+                    OperationReturnTypeEvaluator.TryFoldBinaryExpression(syntax, nonNullableOperand1 ?? operandType1, nonNullableOperand2 ?? operandType2, diagnostics) is { } nullableResult)
+                {
+                    if (nonNullableOperand1 is not null)
+                    {
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(syntax)
+                            .PossibleNullReferenceAssignment(nonNullableOperand1, operandType1, syntax.LeftExpression, includeSourceText: true));
+                    }
+                    if (nonNullableOperand2 is not null)
+                    {
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(syntax)
+                            .PossibleNullReferenceAssignment(nonNullableOperand2, operandType2, syntax.RightExpression, includeSourceText: true));
+                    }
+                    return nullableResult;
+                }
+
                 string? additionalInfo = null;
                 if (TypeValidator.AreTypesAssignable(operandType1, LanguageConstants.String) &&
                     TypeValidator.AreTypesAssignable(operandType2, LanguageConstants.String) &&
@@ -1695,6 +1741,22 @@ namespace Bicep.Core.TypeSystem
                 if (OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax.Operator, operandType, diagnostics) is { } result)
                 {
                     return result;
+                }
+
+                // if the operand is nullable and stripping nullability would let the operation match a known operator,
+                // emit a fixable warning and proceed as if it had been non-nullable.
+                // the diagnostic spans the whole unary operation (matching the position of the BCP044 error it replaces)
+                // so the operator context is visible, but the code fix still targets the operand.
+                // gated on IsInsideTernaryBranch so we only downgrade error -> warning when the operator sits inside a
+                // ternary branch (a rough proxy for "the user has some form of null-guard"); outside a ternary we still
+                // hard-fail with BCP044 rather than silently succeed against a possibly-null runtime value.
+                if (TypeHelper.TryRemoveNullability(operandType) is { } nonNullableOperand &&
+                    IsInsideTernaryBranch(syntax) &&
+                    OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax.Operator, nonNullableOperand, diagnostics) is { } nullableResult)
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax)
+                        .PossibleNullReferenceAssignment(nonNullableOperand, operandType, syntax.Expression, includeSourceText: true));
+                    return nullableResult;
                 }
 
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnaryOperatorInvalidType(Operators.UnaryOperatorToText[syntax.Operator], operandType));
@@ -2317,7 +2379,12 @@ namespace Bicep.Core.TypeSystem
                 else
                 {
                     var resolvedSymbol = objectType.MethodResolver.TryGetSymbol(syntax.Name);
-                    foundSymbol = SymbolValidator.ResolveObjectQualifiedFunctionWithoutValidatingFlags(resolvedSymbol, syntax.Name, objectType);
+                    foundSymbol = objectType is NamespaceType namespaceType
+                        // For namespace-qualified function calls (e.g. sys.newGuid(), az.listKeys()), validate the
+                        // placement flags (e.g. ParamDefaultsOnly, RequiresInlining) using the context the binder
+                        // captured for this call site, so they are restricted like their unqualified counterparts.
+                        ? SymbolValidator.ResolveNamespaceQualifiedFunction(binder.GetInstanceFunctionFlags(syntax), resolvedSymbol, syntax.Name, namespaceType)
+                        : SymbolValidator.ResolveObjectQualifiedFunctionWithoutValidatingFlags(resolvedSymbol, syntax.Name, objectType);
                 }
 
                 switch (foundSymbol)
@@ -2398,7 +2465,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol VisitDeclaredSymbol(VariableAccessSyntax syntax, DeclaredSymbol declaredSymbol)
         {
-            var declaringType = typeManager.GetTypeInfo(declaredSymbol.DeclaringSyntax);
+            var declaringType = declaredSymbol.Type;
 
             // symbols are responsible for doing their own type checking
             // the error from that should not be propagated to expressions that have type errors

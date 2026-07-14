@@ -201,6 +201,16 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
         }
 
         [DataTestMethod]
+        [DataRow("module dummy 'modules/dummy.bicep' |")]
+        [DataRow("module dummy 'modules/dummy.bicep' | {}")]
+        public void ContextKind_Is_ModulePathFollower(string text)
+        {
+            var context = CreateContextFromTextWithCursor(text);
+            context.Kind.Should().HaveFlag(BicepCompletionContextKind.ModulePathFollower,
+                $"cursor in '{text}' should be a module path follower context");
+        }
+
+        [DataTestMethod]
         [DataRow("var foo1 = [a |]")]
         [DataRow("var foo2 = [| a]")]
         [DataRow("var foo3 = [aSymbol, b |]")]

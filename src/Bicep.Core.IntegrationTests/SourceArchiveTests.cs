@@ -21,16 +21,16 @@ using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.Utils;
 using Bicep.LanguageServer.Handlers;
-using Bicep.TextFixtures.Assertions;
-using Bicep.TextFixtures.IO;
-using Bicep.TextFixtures.Mocks;
-using Bicep.TextFixtures.Utils;
+using Bicep.Testing.Assertions;
+using Bicep.Testing.IO;
+using Bicep.Testing.Mocks;
+using Bicep.Testing.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using static Bicep.TextFixtures.Utils.TestExternalArtifactManager;
+using static Bicep.Testing.Utils.TestExternalArtifactManager;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -106,7 +106,7 @@ namespace Bicep.Core.IntegrationTests
             var packadData = original.PackIntoBinaryData();
 
             // Assert.
-            var fileHandleMock = TextFixtures.Mocks.StrictMock.Of<IFileHandle>();
+            var fileHandleMock = Testing.Mocks.StrictMock.Of<IFileHandle>();
             fileHandleMock.Setup(x => x.Exists()).Returns(true);
             fileHandleMock.Setup(x => x.OpenRead()).Returns(packadData.ToStream());
 
@@ -650,7 +650,7 @@ namespace Bicep.Core.IntegrationTests
 
             stream.Seek(0, SeekOrigin.Begin);
 
-            var tgzFileHandleMock = TextFixtures.Mocks.StrictMock.Of<IFileHandle>();
+            var tgzFileHandleMock = Testing.Mocks.StrictMock.Of<IFileHandle>();
             tgzFileHandleMock.Setup(x => x.Exists()).Returns(true);
             tgzFileHandleMock.Setup(x => x.OpenRead()).Returns(stream);
 

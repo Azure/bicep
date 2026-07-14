@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { PropsWithChildren } from "react";
-import type { ReactElement } from "react";
+import type { PropsWithChildren, ReactElement } from "react";
 
 import { useCallback, useRef } from "react";
 import styled from "styled-components";

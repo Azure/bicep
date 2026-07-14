@@ -288,5 +288,10 @@ namespace Bicep.LanguageServer.Completions
         /// The current location is after '#restore-diagnostics |'.
         /// </summary>
         RestoreDiagnosticsCodes = 1UL << 53,
+
+        /// <summary>
+        /// The current location is after the module path string: 'module foo '...' |'
+        /// </summary>
+        ModulePathFollower = 1UL << 54,
     }
 }

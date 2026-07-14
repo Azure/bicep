@@ -71,6 +71,6 @@ public class ArmDeploymentProvider(
         var response = await deploymentsClient.GetAsync(deploymentLocator.DeploymentName, cancellationToken);
         var content = response.GetRawResponse().Content.ToString().FromDeploymentsJson<DeploymentContent>();
 
-        return new(content, []);
+        return new(content, [], []);
     }
 }

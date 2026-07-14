@@ -30,6 +30,10 @@ namespace Bicep.Core.Diagnostics
 
             private const string TypeInaccuracyClause = " If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.";
 
+            // Upper bound (roughly a traditional terminal width) on source-text embedded in a diagnostic message;
+            // longer expressions are truncated with an ellipsis so the message stays readable in CLI/IDE output.
+            private const int MaxEmbeddedSourceTextLength = 80;
+
             public DiagnosticBuilderInternal(TextSpan textSpan)
             {
                 TextSpan = textSpan;
@@ -77,6 +81,17 @@ namespace Bicep.Core.Diagnostics
             private static string BuildInvalidOciArtifactReferenceClause(string? aliasName, string referenceValue) => aliasName is not null
                 ? $"The OCI artifact reference \"{referenceValue}\" after resolving alias \"{aliasName}\" is not valid."
                 : $"The specified OCI artifact reference \"{referenceValue}\" is not valid.";
+
+            /// <summary>
+            /// Formats a syntax node's source text for safe inclusion in a diagnostic message body:
+            /// newlines are replaced with spaces so the message stays on a single line, and the result is
+            /// truncated with an ellipsis if it exceeds <see cref="MaxEmbeddedSourceTextLength"/> characters
+            /// so very long expressions don't bloat the message.
+            /// </summary>
+            private static string FormatSourceTextForDiagnostic(SyntaxBase expression)
+                => SyntaxStringifier.Stringify(expression, newlineReplacement: " ")
+                    .Trim()
+                    .TruncateWithEllipses(MaxEmbeddedSourceTextLength);
 
             private static string BuildInvalidTemplateSpecReferenceClause(string? aliasName, string referenceValue) => aliasName is not null
                 ? $"The Template Spec reference \"{referenceValue}\" after resolving alias \"{aliasName}\" is not valid."
@@ -991,7 +1006,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic UnknownModuleReferenceScheme(string badScheme, ImmutableArray<string> allowedSchemes)
             {
-                string FormatSchemes() => ToQuotedString(allowedSchemes.Where(scheme => !string.Equals(scheme, ArtifactReferenceSchemes.Local)));
+                string FormatSchemes() => ToQuotedString(allowedSchemes.Where(scheme => !string.Equals(scheme, ArtifactReferenceSchemes.Local) && scheme != ArtifactReferenceSchemes.OciMocked));
 
                 return CoreError(
                     "BCP189",
@@ -1111,7 +1126,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, IOUri? configFileUri) => CoreError(
                 "BCP216",
-                $"The OCI artifact module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property cannot be null or undefined.");
+                $"The OCI artifact module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property must be specified.");
 
             public Diagnostic InvalidTemplateSpecReferenceInvalidSubscriptionId(string? aliasName, string subscriptionId, string referenceValue) => CoreError(
                 "BCP217",
@@ -1511,11 +1526,21 @@ namespace Bicep.Core.Diagnostics
                 "BCP320",
                 "The properties of module output resources cannot be accessed directly. To use the properties of this resource, pass it as a resource-typed parameter to another module and access the parameter's properties therein.");
 
-            public Diagnostic PossibleNullReferenceAssignment(TypeSymbol expectedType, TypeSymbol actualType, SyntaxBase expression) => CoreWarning(
-                "BCP321",
-                $"Expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".")
-                with
-            { Fixes = [AsNonNullable(expression)] };
+            public Diagnostic PossibleNullReferenceAssignment(TypeSymbol expectedType, TypeSymbol actualType, SyntaxBase expression, bool includeSourceText = false)
+            {
+                // when the diagnostic underline covers more than just the offending expression (e.g. a binary/unary operator that
+                // spans multiple operands), the caller can opt in to include the source text of the offending value in the message
+                // itself so the reader can tell which sub-expression is nullable.
+                var providedValueClause = includeSourceText
+                    ? $"the provided value \"{FormatSourceTextForDiagnostic(expression)}\""
+                    : "the provided value";
+
+                return CoreWarning(
+                    "BCP321",
+                    $"Expected a value of type \"{expectedType}\" but {providedValueClause} is of type \"{actualType}\".")
+                    with
+                { Fixes = [AsNonNullable(expression)] };
+            }
 
             public Diagnostic SafeDereferenceNotPermittedOnInstanceFunctions() => CoreError(
                 "BCP322",
@@ -1828,10 +1853,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP405",
                 $"More than one \"{LanguageConstants.ExtendsKeyword}\" declaration are present");
 
-            public Diagnostic ExtendsNotSupported() => CoreError(
-                "BCP406",
-                $"Using \"{LanguageConstants.ExtendsKeyword}\" keyword requires enabling EXPERIMENTAL feature \"{nameof(ExperimentalFeaturesEnabled.ExtendableParamFiles)}\".");
-
             public Diagnostic MicrosoftGraphBuiltinRetired(ExtensionDeclarationSyntax? syntax)
             {
                 var msGraphRegistryPath = "br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:0.1.9-preview";
@@ -1902,7 +1923,7 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic SpreadOperatorCannotBeUsedWithForLoop(SpreadExpressionSyntax spread) => CoreError(
                 "BCP417",
-                $"The spread operator \"{spread.Ellipsis.Text}\" cannot be used inside objects with property for-expressions.");
+                $"The spread operator \"{spread.Ellipsis.Text}\" cannot be used inside objects containing property for-expressions.");
 
             public Diagnostic ExtensionCannotBeReferenced() => CoreError(
                 "BCP418",
@@ -2026,6 +2047,27 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic NullIfNotFoundOnlyValidOnExistingResources() => CoreError(
                 "BCP445",
                 $@"The ""@{LanguageConstants.NullIfNotFoundDecoratorName}()"" decorator can only be used on existing resources.");
+
+            public Diagnostic ArtifactRestoreBlockedByRegistry(string registryHostname) => CoreError(
+                "BCP446",
+                $"Restore from registry \"{registryHostname}\" is blocked because it is not in the trusted registries list. " +
+                $"See https://aka.ms/bicep/registry-trust for details.");
+
+            public Diagnostic OciArtifactModuleAliasMapToFilePathOnlySupportsModules(string aliasName) => CoreError(
+                "BCP448",
+                $"The OCI artifact module alias \"{aliasName}\" has a \"mapToFilePath\" property which is only supported for modules, not extensions.");
+
+            public Diagnostic ModuleReferenceSchemeBrFsNotSupported() => CoreError(
+                "BCP449",
+                $"The '{Registry.Oci.OciArtifactReferenceFacts.MockedScheme}' module reference scheme is for internal use only. Use a 'br/<alias>:' reference with a configured 'mapToFilePath' alias instead.");
+
+            public Diagnostic ConfigurationFileNotFound(string featureName) => CoreError(
+                "BCP450",
+                $"Configuration file is not found. Feature \"{featureName}\" requires a configuration file.");
+
+            public Diagnostic InvalidOciArtifactModuleAliasMapToFilePath(string? aliasName, string path, string reason) => CoreError(
+                "BCP451",
+                $"The OCI artifact module alias{(aliasName is not null ? $" \"{aliasName}\"" : "")} has an invalid \"mapToFilePath\" path \"{path}\": {reason}");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

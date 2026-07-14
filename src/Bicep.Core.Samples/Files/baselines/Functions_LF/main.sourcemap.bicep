@@ -261,6 +261,36 @@ output likeWildCardMatch bool= like ('abcdef', 'a*c*')
 //@      "type": "bool",
 //@      "value": "[like('abcdef', 'a*c*')]"
 //@    },
+output likewildcard bool = like('abcabc', '*abc')
+//@    "likewildcard": {
+//@      "type": "bool",
+//@      "value": "[like('abcabc', '*abc')]"
+//@    },
+output likewildcardtest2 bool = like('aXaYa' , 'a*a')
+//@    "likewildcardtest2": {
+//@      "type": "bool",
+//@      "value": "[like('aXaYa', 'a*a')]"
+//@    },
+output likewildcardtest3 bool = like('' , '***')
+//@    "likewildcardtest3": {
+//@      "type": "bool",
+//@      "value": "[like('', '***')]"
+//@    },
+output likewildcardtest4 bool = like('a', 'b')
+//@    "likewildcardtest4": {
+//@      "type": "bool",
+//@      "value": "[like('a', 'b')]"
+//@    },
+output likewildcardtest5 bool = like('abc**def', '*def')
+//@    "likewildcardtest5": {
+//@      "type": "bool",
+//@      "value": "[like('abc**def', '*def')]"
+//@    },
+output likewildcardtest6 bool = like('aXbYa', 'a*b*a')
+//@    "likewildcardtest6": {
+//@      "type": "bool",
+//@      "value": "[like('aXbYa', 'a*b*a')]"
+//@    },
 output distinctTest array = distinct(['a','b','a','c','b'])
 //@    "distinctTest": {
 //@      "type": "array",

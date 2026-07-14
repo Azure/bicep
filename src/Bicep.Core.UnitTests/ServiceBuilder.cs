@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock.Registry;
@@ -38,6 +39,7 @@ public class ServiceBuilder
             .AddSingleton<IEnvironment>(TestEnvironment.Default)
             .AddBicepCore()
             .AddBicepDecompiler()
+            .AddSingleton(BicepTestConstants.TestRegistryConfiguration)
             .AddMockHttpClient(PublicModuleIndexHttpClientMocks.Create([]).Object)
             .WithWorkspace(new ActiveSourceFileSet());
     }

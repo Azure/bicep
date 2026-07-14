@@ -94,6 +94,87 @@ public class BicepClientTests
     }
 
     [TestMethod]
+    public async Task Download_uses_specified_BicepVersion_without_querying_latest()
+    {
+        var outputDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+        MockHttpMessageHandler mockHandler = new();
+        // Any request other than the pinned-version artifact (e.g. releases/latest) should fail the test.
+        mockHandler.Fallback.Throw(new InvalidOperationException("Unexpected request - the latest version should not be queried when BicepVersion is set."));
+
+        var randomBytes = Guid.NewGuid().ToByteArray();
+        mockHandler.When(HttpMethod.Get, "https://downloads.bicep.azure.com/v9.8.7/bicep-linux-x64")
+            .Respond(_ => new(System.Net.HttpStatusCode.OK) { Content = new ByteArrayContent(randomBytes) });
+
+        var clientFactory = new BicepClientFactory(new(mockHandler));
+
+        var bicepCliPath = await clientFactory.Download(new()
+        {
+            InstallBasePath = outputDir,
+            OsPlatform = OSPlatform.Linux,
+            Architecture = Architecture.X64,
+            BicepVersion = "9.8.7",
+        }, TestContext.CancellationTokenSource.Token);
+
+        bicepCliPath.Should().Be(Path.Combine(outputDir, "v9.8.7", "bicep"));
+        (await File.ReadAllBytesAsync(bicepCliPath)).Should().BeEquivalentTo(randomBytes);
+    }
+
+    [TestMethod]
+    public async Task Download_skips_download_when_cli_is_already_installed()
+    {
+        var outputDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var existingPath = Path.Combine(outputDir, "v9.8.7", "bicep");
+        Directory.CreateDirectory(Path.GetDirectoryName(existingPath)!);
+        await File.WriteAllTextAsync(existingPath, "already-installed");
+
+        MockHttpMessageHandler mockHandler = new();
+        // No download should occur, so any HTTP request fails the test.
+        mockHandler.Fallback.Throw(new InvalidOperationException("Unexpected request - the CLI is already installed."));
+
+        var clientFactory = new BicepClientFactory(new(mockHandler));
+
+        var bicepCliPath = await clientFactory.Download(new()
+        {
+            InstallBasePath = outputDir,
+            OsPlatform = OSPlatform.Linux,
+            Architecture = Architecture.X64,
+            BicepVersion = "9.8.7",
+        }, TestContext.CancellationTokenSource.Token);
+
+        bicepCliPath.Should().Be(existingPath);
+        (await File.ReadAllTextAsync(bicepCliPath)).Should().Be("already-installed");
+    }
+
+    [TestMethod]
+    public async Task Download_falls_back_to_obsolete_InstallPath_when_InstallBasePath_is_not_set()
+    {
+        var outputDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+        MockHttpMessageHandler mockHandler = new();
+        var randomBytes = Guid.NewGuid().ToByteArray();
+        mockHandler.When(HttpMethod.Get, "https://downloads.bicep.azure.com/v9.8.7/bicep-linux-x64")
+            .Respond(_ => new(System.Net.HttpStatusCode.OK) { Content = new ByteArrayContent(randomBytes) });
+
+        var clientFactory = new BicepClientFactory(new(mockHandler));
+
+#pragma warning disable CS0618 // Type or member is obsolete
+        var configuration = new BicepClientConfiguration
+        {
+            InstallPath = outputDir,
+            OsPlatform = OSPlatform.Linux,
+            Architecture = Architecture.X64,
+            BicepVersion = "9.8.7",
+        };
+#pragma warning restore CS0618 // Type or member is obsolete
+
+        var bicepCliPath = await clientFactory.Download(configuration, TestContext.CancellationTokenSource.Token);
+
+        bicepCliPath.Should().Be(Path.Combine(outputDir, "v9.8.7", "bicep"));
+        (await File.ReadAllBytesAsync(bicepCliPath)).Should().BeEquivalentTo(randomBytes);
+    }
+
+    [TestMethod]
     public async Task Initialize_validates_version_number_format()
     {
         var clientFactory = new BicepClientFactory();
@@ -344,5 +425,51 @@ public class BicepClientTests
         var result = await Bicep.GetMetadata(new(bicepFile));
 
         result.Exports[0].Description.Should().Be("A foo object");
+    }
+
+    [TestMethod]
+    public async Task GetDeploymentGraph_runs_successfully()
+    {
+        var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", """
+            resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+              name: 'myStgAct'
+              location: 'westus'
+              kind: 'StorageV2'
+              sku: {
+                name: 'Standard_LRS'
+              }
+            }
+
+            resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2021-02-01' = {
+              parent: storageAccount
+              name: 'default'
+            }
+            """);
+
+        var result = await Bicep.GetDeploymentGraph(new(bicepFile));
+
+        result.Nodes.Should().Contain(node => node.Name == "storageAccount");
+        result.Nodes.Should().Contain(node => node.Name == "blobService");
+        result.Edges.Should().Contain(edge => edge.Source == "blobService" && edge.Target == "storageAccount");
+    }
+
+    [TestMethod]
+    public async Task GetFileReferences_runs_successfully()
+    {
+        var outputPath = FileHelper.SaveResultFiles(TestContext, [
+            new("main.bicep", """
+            module mod 'mod.bicep' = {
+              name: 'mod'
+            }
+            """),
+            new("mod.bicep", """
+            param unused string
+            """),
+        ]);
+
+        var result = await Bicep.GetFileReferences(new(Path.Combine(outputPath, "main.bicep")));
+
+        result.FilePaths.Should().Contain(path => path.EndsWith("main.bicep"));
+        result.FilePaths.Should().Contain(path => path.EndsWith("mod.bicep"));
     }
 }

@@ -65,8 +65,7 @@ const $Button = styled.button`
 /**
  * A floating toolbar rendered only in dev mode (`npm run dev`).
  * Each button pushes a different sample graph through the
- * {@link FakeMessageChannel}, simulating the extension host
- * sending `deploymentGraph` notifications.
+ * {@link FakeMessageChannel}, simulating extension graph-change notifications.
  */
 export function DevToolbar({ channel }: DevToolbarProps) {
   const applyMutation = (
@@ -80,21 +79,34 @@ export function DevToolbar({ channel }: DevToolbarProps) {
   };
 
   return (
-    <$Toolbar>
+    <$Toolbar data-testid="dev-toolbar">
       <$Label>DEV</$Label>
       <$SectionLabel>Graphs</$SectionLabel>
       {Object.entries(SAMPLE_GRAPHS).map(([name, graph]) => (
-        <$Button key={name} onClick={() => channel.pushGraph(graph)}>
+        <$Button key={name} onClick={() => channel.pushGraph(graph)} data-testid={`dev-graph-${slugify(name)}`}>
           {name}
         </$Button>
       ))}
       <$Separator />
       <$SectionLabel>Mutations</$SectionLabel>
       {GRAPH_MUTATIONS.map((mutation) => (
-        <$Button key={mutation.label} title={mutation.description} onClick={() => applyMutation(mutation.apply)}>
+        <$Button
+          key={mutation.label}
+          title={mutation.description}
+          onClick={() => applyMutation(mutation.apply)}
+          data-testid={`dev-mutation-${slugify(mutation.label)}`}
+        >
           {mutation.label}
         </$Button>
       ))}
     </$Toolbar>
   );
+}
+
+function slugify(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase();
 }

@@ -94,6 +94,7 @@ namespace Bicep.Cli.IntegrationTests
             "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues."
         ];
 
+        private const string BicepGeneratedTemplateWarning = "WARNING: The source file appears to have been generated from a .bicep file. Decompiling it may produce results that are less accurate than the original Bicep source, since information is lost when compiling to ARM JSON. If you have access to the original .bicep file, use that instead.";
 
         [TestMethod]
         public async Task Decompile_EmptyTemplate_ShouldSucceed()
@@ -110,6 +111,22 @@ namespace Bicep.Cli.IntegrationTests
             }
 
             File.ReadAllText(bicepPath).Should().BeEquivalentToIgnoringNewlines("\n");
+        }
+
+        [TestMethod]
+        public async Task Decompile_BicepGeneratedTemplate_ShouldShowBicepGeneratedWarning()
+        {
+            var (jsonPath, _) = Setup(TestContext); 
+
+            var (output, error, result) = await Bicep("decompile", "--force", jsonPath);
+
+            using (new AssertionScope())
+            {
+                output.Should().BeEmpty();
+                error.AsLines().Should().Contain(BicepGeneratedTemplateWarning);
+                error.AsLines().Should().Contain(DecompilationDisclaimer);
+                result.Should().Be(0);
+            }
         }
 
         [TestMethod]

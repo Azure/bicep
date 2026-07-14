@@ -44,7 +44,7 @@ const extensionConfig: webpack.Configuration = {
           loader: "ts",
           target: "es2019",
         },
-        exclude: [/node_modules/, /panes\/deploy\/app/, /visualizer\/app/, /test/],
+        exclude: [/node_modules/, /panes\/deploy\/app/, /test/],
       },
     ],
   },
@@ -95,62 +95,6 @@ const extensionConfig: webpack.Configuration = {
   },
 };
 
-const visualizerConfig: webpack.Configuration = {
-  target: "web",
-  entry: "./src/visualizer/app/components/index.tsx",
-  devtool: "source-map",
-  output: {
-    filename: "visualizer.js",
-    path: outputPath,
-    devtoolModuleFilenameTemplate: "file:///[absolute-resource-path]",
-  },
-  externals: {
-    "web-worker": "commonjs web-worker",
-  },
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        loader: "esbuild-loader",
-        options: {
-          loader: "tsx",
-          target: "es2019",
-        },
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.svg$/,
-        use: "svg-inline-loader",
-        exclude: /node_modules/,
-      },
-    ],
-  },
-  resolve: {
-    extensions: [".js", ".ts", ".tsx"],
-  },
-  plugins: [
-    // Since React 17 it's not necessary to do "import React from 'react';" anymore.
-    // This is needed for esbuild-loader to resolve react.
-    new webpack.ProvidePlugin({
-      React: "react",
-    }),
-  ],
-};
-
-module.exports = (_env: unknown, argv: { mode: string }) => {
-  if (argv.mode === "development") {
-    // "cheap-module-source-map" is almost 2x faster than "source-map",
-    // while it provides decent source map quality.
-    // Note that any "eval" options cannot be used because it will be blocked by
-    // the content security policy that we set in /visualizer/view.ts.
-    const developmentDevtool = "cheap-module-source-map";
-    visualizerConfig.devtool = developmentDevtool;
-
-    // I don't notice any difference in F5 time when using the cheap version, but using it
-    // causes many problems recognizing breakpoints in some code, especially tests, so don't use for
-    // the main extension code.
-    //extensionConfig.devtool = developmentDevtool;
-  }
-
-  return [extensionConfig, visualizerConfig];
+module.exports = () => {
+  return [extensionConfig];
 };

@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Catalog;
+using Bicep.IO.Abstraction;
+using Bicep.IO.InMemory;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.JSInterop;
 
@@ -15,8 +16,9 @@ public class Program
     {
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-        builder.Services.AddSingleton<IFileSystem, MockFileSystem>();
+        builder.Services.AddSingleton<IFileExplorer, InMemoryFileExplorer>();
         builder.Services.AddSingleton<IArtifactRegistryProvider, WasmModuleRegistryProvider>();
+        builder.Services.AddSingleton<IPublicModuleMetadataProvider, WasmPublicModuleMetadataProvider>();
         builder.Services.AddBicepCore();
         builder.Services.AddBicepDecompiler();
 

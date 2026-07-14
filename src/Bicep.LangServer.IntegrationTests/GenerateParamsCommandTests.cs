@@ -58,5 +58,41 @@ namespace Bicep.LangServer.IntegrationTests
             var commandOutput = File.ReadAllText(Path.ChangeExtension(bicepFilePath, ".parameters.json"));
             commandOutput.Should().BeEquivalentToIgnoringNewlines(expectedJson);
         }
+
+        [TestMethod]
+        public async Task GenerateParams_command_should_generate_paramsfile_when_compiled_template_exists()
+        {
+            var diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
+
+            using var helper = await LanguageServerHelper.StartServer(
+                this.TestContext,
+                options => options.OnPublishDiagnostics(diagnosticsListener.AddMessage),
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()).WithFeatureOverrides(new(TestContext)));
+            var client = helper.Client;
+
+            var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(outputDirectory);
+
+            var bicepFilePath = Path.Combine(outputDirectory, "main.bicep");
+            var templateJsonPath = Path.ChangeExtension(bicepFilePath, ".json");
+            var parametersJsonPath = Path.ChangeExtension(bicepFilePath, ".parameters.json");
+
+            File.WriteAllText(bicepFilePath, "param name string\n");
+            File.WriteAllText(templateJsonPath, "{ \"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#\" }");
+
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParamsFromFile(bicepFilePath, 1));
+            await diagnosticsListener.WaitNext();
+
+            var commandParams = new BicepGenerateParamsCommandParams(bicepFilePath, OutputFormatOption.Json, IncludeParamsOption.RequiredOnly);
+
+            await client.Workspace.ExecuteCommand(new Command
+            {
+                Name = "generateParams",
+                Arguments = new JArray(new[] { commandParams.ToJToken() })
+            });
+
+            File.Exists(parametersJsonPath).Should().BeTrue();
+            File.Exists(templateJsonPath).Should().BeTrue();
+        }
     }
 }

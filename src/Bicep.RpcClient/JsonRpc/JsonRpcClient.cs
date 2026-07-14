@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Bicep.RpcClient.JsonRpc;
 
-internal class JsonRpcClient(PipeReader reader, PipeWriter writer) : IDisposable
+internal class JsonRpcClient(PipeReader reader, PipeWriter writer) : IJsonRpcClient
 {
     private record JsonRpcRequest<T>(
         string Jsonrpc,

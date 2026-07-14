@@ -23,12 +23,12 @@ public class ResourceVisitor
         this.azTypeLoader = azTypeLoader;
     }
 
-    public TypesDefinitionResult LoadSingleResourceType(string fullyQualifiedResourceType, string apiVersion)
+    public TypesDefinitionResult LoadSingleResourceType(string fullyQualifiedResourceType, string apiVersion, bool excludeReadOnlyProperties = false)
     {
-        return LoadSingleResourceType(azTypeLoader, fullyQualifiedResourceType, apiVersion);
+        return LoadSingleResourceType(azTypeLoader, fullyQualifiedResourceType, apiVersion, excludeReadOnlyProperties);
     }
 
-    public TypesDefinitionResult LoadSingleResourceType(ITypeLoader loader, string fullyQualifiedResourceType, string apiVersion)
+    public TypesDefinitionResult LoadSingleResourceType(ITypeLoader loader, string fullyQualifiedResourceType, string apiVersion, bool excludeReadOnlyProperties = false)
     {
         var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
@@ -59,9 +59,9 @@ public class ResourceVisitor
         };
 
         ResourceType resourceType = loader.LoadResourceType(resourceReference);
-        FindTypesToWrite(typesToWrite, resourceType.Body);
+        FindTypesToWrite(typesToWrite, resourceType.Body, excludeReadOnlyProperties);
 
-        if (WriteComplexType(resourceType) is ResourceTypeEntity resourceTypeEntity)
+        if (WriteComplexType(resourceType, excludeReadOnlyProperties) is ResourceTypeEntity resourceTypeEntity)
         {
             result.ResourceTypeEntities.Add(resourceTypeEntity);
         }
@@ -80,13 +80,13 @@ public class ResourceVisitor
                 if (resourceFunctionType.Input != null)
                 {
                     typesToWrite.Add(resourceFunctionType.Input.Type);
-                    FindTypesToWrite(typesToWrite, resourceFunctionType.Input);
+                    FindTypesToWrite(typesToWrite, resourceFunctionType.Input, excludeReadOnlyProperties);
                 }
 
                 typesToWrite.Add(resourceFunctionType.Output.Type);
-                FindTypesToWrite(typesToWrite, resourceFunctionType.Output);
+                FindTypesToWrite(typesToWrite, resourceFunctionType.Output, excludeReadOnlyProperties);
 
-                if (WriteComplexType(resourceFunctionType) is ResourceFunctionTypeEntity resourceFunctionTypeEntity)
+                if (WriteComplexType(resourceFunctionType, excludeReadOnlyProperties) is ResourceFunctionTypeEntity resourceFunctionTypeEntity)
                 {
                     result.ResourceFunctionTypeEntities.Add(resourceFunctionTypeEntity);
                 }
@@ -108,7 +108,7 @@ public class ResourceVisitor
         {
             if (IsComplexType(type))
             {
-                result.OtherComplexTypeEntities.Add(WriteComplexType(type));
+                result.OtherComplexTypeEntities.Add(WriteComplexType(type, excludeReadOnlyProperties));
             }
         }
 
@@ -128,28 +128,32 @@ public class ResourceVisitor
     }
 
     // This finds all the types the referenced type depends on, and adds them to the typesToWrite list.
-    private void FindTypesToWrite(List<TypeBase> typesToWrite, ITypeReference typeReference)
+    private void FindTypesToWrite(List<TypeBase> typesToWrite, ITypeReference typeReference, bool excludeReadOnlyProperties)
     {
         switch (typeReference.Type)
         {
             case ArrayType arrayType:
-                ProcessTypeLinks(typesToWrite, arrayType.ItemType, false);
+                ProcessTypeLinks(typesToWrite, arrayType.ItemType, false, excludeReadOnlyProperties);
                 break;
             case ObjectType objectType:
                 foreach (KeyValuePair<string, ObjectTypeProperty> property in objectType.Properties.OrderByAscendingOrdinalInsensitively(kvp => kvp.Key))
                 {
-                    ProcessTypeLinks(typesToWrite, property.Value.Type, false);
+                    if (excludeReadOnlyProperties && property.Value.Flags.HasFlag(ObjectTypePropertyFlags.ReadOnly))
+                    {
+                        continue;
+                    }
+                    ProcessTypeLinks(typesToWrite, property.Value.Type, false, excludeReadOnlyProperties);
                 }
                 if (objectType.AdditionalProperties != null)
                 {
-                    ProcessTypeLinks(typesToWrite, objectType.AdditionalProperties, false);
+                    ProcessTypeLinks(typesToWrite, objectType.AdditionalProperties, false, excludeReadOnlyProperties);
                 }
                 break;
             case DiscriminatedObjectType discriminatedObjectType:
                 foreach (KeyValuePair<string, ITypeReference> property in discriminatedObjectType.Elements.OrderByAscendingOrdinalInsensitively(kvp => kvp.Key))
                 {
                     // Don't display discriminated object elements as individual types
-                    ProcessTypeLinks(typesToWrite, property.Value, true);
+                    ProcessTypeLinks(typesToWrite, property.Value, true, excludeReadOnlyProperties);
                 }
                 break;
             default:
@@ -159,7 +163,7 @@ public class ResourceVisitor
         }
     }
 
-    private void ProcessTypeLinks(List<TypeBase> typesToWrite, ITypeReference typeReference, bool skipParent)
+    private void ProcessTypeLinks(List<TypeBase> typesToWrite, ITypeReference typeReference, bool skipParent, bool excludeReadOnlyProperties)
     {
         if (!typesToWrite.Contains(typeReference.Type))
         {
@@ -168,11 +172,11 @@ public class ResourceVisitor
                 typesToWrite.Add(typeReference.Type);
             }
 
-            FindTypesToWrite(typesToWrite, typeReference);
+            FindTypesToWrite(typesToWrite, typeReference, excludeReadOnlyProperties);
         }
     }
 
-    private ComplexType WriteComplexType(TypeBase typeBase)
+    private ComplexType WriteComplexType(TypeBase typeBase, bool excludeReadOnlyProperties)
     {
         switch (typeBase)
         {
@@ -180,7 +184,7 @@ public class ResourceVisitor
                 var rtEntity = new ResourceTypeEntity
                 {
                     Name = resourceType.Name,
-                    BodyType = WriteComplexType(resourceType.Body.Type),
+                    BodyType = WriteComplexType(resourceType.Body.Type, excludeReadOnlyProperties),
                     // Resource is ReadOnly if there are no writable scopes (matches legacy ReadOnly behavior)
                     Flags = (resourceType.WritableScopes == Azure.Bicep.Types.Concrete.ScopeType.None ? "ReadOnly" : "None"),
                     ReadableScopes = ExpandScopeFlags(resourceType.ReadableScopes),
@@ -206,6 +210,10 @@ public class ResourceVisitor
                 };
                 foreach (KeyValuePair<string, ObjectTypeProperty> property in objectType.Properties.OrderByAscendingOrdinalInsensitively(kvp => kvp.Key))
                 {
+                    if (excludeReadOnlyProperties && property.Value.Flags.HasFlag(ObjectTypePropertyFlags.ReadOnly))
+                    {
+                        continue;
+                    }
                     otEntity.Properties.Add(WriteTypeProperty(property.Key, property.Value));
                 }
                 return otEntity;
@@ -216,11 +224,15 @@ public class ResourceVisitor
                 };
                 foreach (KeyValuePair<string, ObjectTypeProperty> baseProperty in discriminatedObjectType.BaseProperties.OrderByAscendingOrdinalInsensitively(kvp => kvp.Key))
                 {
+                    if (excludeReadOnlyProperties && baseProperty.Value.Flags.HasFlag(ObjectTypePropertyFlags.ReadOnly))
+                    {
+                        continue;
+                    }
                     dotEntity.BaseProperties.Add(WriteTypeProperty(baseProperty.Key, baseProperty.Value));
                 }
                 foreach (KeyValuePair<string, ITypeReference> element in discriminatedObjectType.Elements.OrderByAscendingOrdinalInsensitively(kvp => kvp.Key))
                 {
-                    dotEntity.Elements.Add(WriteComplexType(element.Value.Type));
+                    dotEntity.Elements.Add(WriteComplexType(element.Value.Type, excludeReadOnlyProperties));
                 }
 
                 return dotEntity;
