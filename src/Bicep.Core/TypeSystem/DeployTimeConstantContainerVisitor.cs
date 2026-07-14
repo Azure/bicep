@@ -67,8 +67,8 @@ namespace Bicep.Core.TypeSystem
             {
                 // Skip DTC validation for tags and sku properties when the experimental feature is enabled.
                 if (this.semanticModel.Features.RuntimeValuesInTagsAndSkuEnabled &&
-                    syntax.TryGetKeyText() is AzResourceTypeProvider.ResourceTagsPropertyName or AzResourceTypeProvider.ResourceSkuPropertyName)
-                {
+                    (syntax.HasPropertyName(AzResourceTypeProvider.ResourceTagsPropertyName) ||
+                     syntax.HasPropertyName(AzResourceTypeProvider.ResourceSkuPropertyName)))
                     base.VisitObjectPropertySyntax(syntax);
                     return;
                 }
