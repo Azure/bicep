@@ -15,10 +15,10 @@
     <PackageVersion Include="Azure.Bicep.Types.Az" Version="0.2.881" />
     <PackageVersion Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
     <PackageVersion Include="Azure.Containers.ContainerRegistry" Version="1.3.0" />
-    <PackageVersion Include="Azure.Deployments.Engine" Version="1.683.0" />
+    <PackageVersion Include="Azure.Deployments.Engine" Version="1.710.0" />
     <PackageVersion Include="Azure.Deployments.Extensibility.Core" Version="0.1.67" />
     <PackageVersion Include="Azure.Deployments.Internal.GenerateNotice" Version="0.1.60" />
-    <PackageVersion Include="Azure.Deployments.Templates" Version="1.683.0" />
+    <PackageVersion Include="Azure.Deployments.Templates" Version="1.710.0" />
     <PackageVersion Include="Azure.Identity" Version="1.21.0" />
     <PackageVersion Include="Azure.ResourceManager.ResourceGraph" Version="1.1.1" />
     <PackageVersion Include="Azure.ResourceManager.Resources" Version="1.11.2" />
@@ -59,7 +59,7 @@
     <PackageVersion Include="Microsoft.NET.Sdk.WebAssembly.Pack" Version="10.0.8" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
     <PackageVersion Include="Microsoft.Net.Compilers.Toolset" Version="4.12.0" />
-    <PackageVersion Include="Microsoft.PowerPlatform.ResourceStack" Version="7.0.0.2080" />
+    <PackageVersion Include="Microsoft.PowerPlatform.ResourceStack" Version="7.0.0.2089" />
     <PackageVersion Include="Microsoft.Test.Apex.VisualStudio" Version="17.11.35222.181" />
     <PackageVersion Include="Microsoft.VSSDK.BuildTools" Version="17.12.2069" />
     <PackageVersion Include="Microsoft.VisualStudio.Composition" Version="17.12.18" />
