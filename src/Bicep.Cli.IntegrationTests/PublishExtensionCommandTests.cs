@@ -146,7 +146,7 @@ resource fooRes 'fooType@v1' = {
         var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", "malformed", outputDirectory);
 
         var result = await Bicep(InvocationSettings.Default, "publish-extension", indexPath, "--target", $"br:example.com/test/extension:0.0.1");
-        result.Should().Fail().And.HaveStderrMatch("*Extension package creation failed: 'm' is an invalid start of a value.*");
+        result.Should().Fail().And.HaveStderrMatch("*Extension package creation failed:*'m' is an invalid start of a value.*");
     }
 
     [TestMethod]

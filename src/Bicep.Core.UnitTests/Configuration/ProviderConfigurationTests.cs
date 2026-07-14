@@ -8,7 +8,7 @@ using Bicep.Core.Json;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
-using Bicep.TextFixtures.IO;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

@@ -67,6 +67,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetArrayItemCompletions(model, context))
                 .Concat(GetResourceTypeCompletions(model, context))
                 .Concat(GetResourceTypeFollowerCompletions(context))
+                .Concat(GetModulePathFollowerCompletions(context))
                 .Concat(GetLocalModulePathCompletions(model, context))
                 .Concat(GetModuleBodyCompletions(model, context))
                 .Concat(GetTestBodyCompletions(model, context))
@@ -524,6 +525,19 @@ namespace Bicep.LanguageServer.Completions
                 {
                     const string existing = "existing";
                     yield return CreateKeywordCompletion(existing, existing, context.ReplacementRange);
+                }
+            }
+        }
+
+        private static IEnumerable<CompletionItem> GetModulePathFollowerCompletions(BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ModulePathFollower))
+            {
+                if (context.EnclosingDeclaration is ModuleDeclarationSyntax module &&
+                    module.Assignment is SkippedTriviaSyntax { Elements: { IsDefaultOrEmpty: true } })
+                {
+                    const string equals = "=";
+                    yield return CreateOperatorCompletion(equals, context.ReplacementRange, preselect: true);
                 }
             }
         }
@@ -1043,6 +1057,37 @@ namespace Bicep.LanguageServer.Completions
                 }
             }
 
+            void AddNestedResourceCompletions(IDictionary<string, CompletionItem> result)
+            {
+                foreach (var resource in model.DeclaredResources)
+                {
+                    var resourceNameComponents = model.ResourceAncestors.GetAncestors(resource)
+                        .Where(ancestor => ancestor.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested)
+                        .Select(ancestor => ancestor.Resource.Symbol)
+                        .Append(resource.Symbol)
+                        .ToArray();
+
+                    if (resourceNameComponents.Length == 1 ||
+                        resourceNameComponents.Any(symbol => !symbol.NameSource.IsValid || !symbol.CanBeReferenced()) ||
+                        !ShouldSymbolBeIncludedInCompletion(resource.Symbol, model, context, enclosingDecorableSymbol))
+                    {
+                        continue;
+                    }
+
+                    var qualifiedResourceName = string.Join("::", resourceNameComponents.Select(symbol => symbol.Name));
+                    if (!result.ContainsKey(qualifiedResourceName))
+                    {
+                        var priority = GetContextualCompletionPriority(resource.Symbol, model, context, enclosingDecorableSymbol);
+                        result.Add(qualifiedResourceName, CreateSymbolCompletion(
+                            resource.Symbol,
+                            context.ReplacementRange,
+                            priority: priority,
+                            model: model,
+                            insertText: qualifiedResourceName));
+                    }
+                }
+            }
+
             // local function
             IEnumerable<FunctionSymbol> GetAccessibleDecoratorFunctionsWithCache(NamespaceType namespaceType)
             {
@@ -1085,6 +1130,8 @@ namespace Bicep.LanguageServer.Completions
                         symbolFilter = symbol => symbol is VariableSymbol or ImportedVariableSymbol or DeclaredFunctionSymbol or ImportedFunctionSymbol or WildcardImportSymbol or ResourceSymbol;
                     }
                 }
+
+                AddNestedResourceCompletions(completions);
             }
             else
             {

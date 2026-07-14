@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31815.197
+# Visual Studio Version 18
+VisualStudioVersion = 18.6.11828.311 oobstable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.Cli", "src\Bicep.Cli\Bicep.Cli.csproj", "{58F20140-729B-41E0-91F0-7004C4E0CB1E}"
 EndProject
@@ -99,9 +99,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.IO", "src\Bicep.IO\Bi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.IO.UnitTests", "src\Bicep.IO.UnitTests\Bicep.IO.UnitTests.csproj", "{69FC508E-6FE7-4C01-942F-F3BF0F3C68E3}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestFixtures", "TestFixtures", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.TextFixtures", "src\Bicep.TestFixtures\Bicep.TextFixtures\Bicep.TextFixtures.csproj", "{AA960E8F-4186-4AFD-85FC-55996FAF70D8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Testing", "src\Bicep.Testing\Bicep.Testing.csproj", "{AA960E8F-4186-4AFD-85FC-55996FAF70D8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Local.Extension.UnitTests", "src\Bicep.Local.Extension.UnitTests\Bicep.Local.Extension.UnitTests.csproj", "{DB318A8A-4E80-4D70-A53C-1E69310C5E49}"
 EndProject
@@ -120,6 +120,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.MSBuild.UnitTests", "src\Bicep.MSBuild.UnitTests\Bicep.MSBuild.UnitTests.csproj", "{64F80A63-FF29-4B66-89EB-3F94A0F33E3B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.McpServer.Core", "src\Bicep.McpServer.Core\Bicep.McpServer.Core.csproj", "{AAAC063A-C133-47AF-885D-8F6EBA608EC8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Wasm.UnitTests", "src\Bicep.Wasm.UnitTests\Bicep.Wasm.UnitTests.csproj", "{B887FEC4-2151-6199-35E5-688C1052BC06}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -267,6 +269,10 @@ Global
 		{AAAC063A-C133-47AF-885D-8F6EBA608EC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AAAC063A-C133-47AF-885D-8F6EBA608EC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AAAC063A-C133-47AF-885D-8F6EBA608EC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B887FEC4-2151-6199-35E5-688C1052BC06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B887FEC4-2151-6199-35E5-688C1052BC06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B887FEC4-2151-6199-35E5-688C1052BC06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B887FEC4-2151-6199-35E5-688C1052BC06}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -307,6 +313,7 @@ Global
 		{930BA3F9-160A-4EB6-80DC-AABFDE3BB919} = {013E98B4-42CE-4009-BC62-2588ED9028CD}
 		{64F80A63-FF29-4B66-89EB-3F94A0F33E3B} = {38A0A11F-72BD-4512-A4A9-AC953936C09F}
 		{AAAC063A-C133-47AF-885D-8F6EBA608EC8} = {013E98B4-42CE-4009-BC62-2588ED9028CD}
+		{B887FEC4-2151-6199-35E5-688C1052BC06} = {9EBF2BF0-C968-4029-B21D-214D195EA148}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {21F77282-91E7-4304-B1EF-FADFA4F39E37}

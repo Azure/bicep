@@ -14,11 +14,12 @@ using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
-using Bicep.TextFixtures.Assertions;
-using Bicep.TextFixtures.Dummies;
-using Bicep.TextFixtures.Utils;
+using Bicep.Testing.Assertions;
+using Bicep.Testing.Dummies;
+using Bicep.Testing.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -40,6 +41,18 @@ namespace Bicep.Core.UnitTests.Registry
         public void TestInitialize()
         {
             TestOutputPath = FileHelper.GetUniqueTestOutputPath(this.TestContext);
+        }
+
+        [TestMethod]
+        public void TryParseArtifactReference_ShouldSucceedForNonAzureRegistry()
+        {
+            var (registry, _) = OciRegistryHelper.CreateModuleRegistry();
+            var referencingFile = BicepTestConstants.CreateDummyBicepFile(featureOverrides: new FeatureProviderOverrides(OciEnabled: false));
+
+            var result = registry.TryParseArtifactReference(referencingFile, ArtifactType.Module, aliasName: null, reference: "ghcr.io/contoso/app:v1");
+
+            result.IsSuccess(out var artifactReference, out _).Should().BeTrue();
+            artifactReference!.Should().NotBeNull();
         }
 
         #region GetDocumentationUri
@@ -744,6 +757,7 @@ namespace Bicep.Core.UnitTests.Registry
             var featureProviderMock = StrictMock.Of<IFeatureProvider>();
             var cacheRootDirectory = BicepTestConstants.FileExplorer.GetDirectory(IOUri.FromFilePath(TestOutputPath));
             featureProviderMock.Setup(m => m.CacheRootDirectory).Returns(cacheRootDirectory);
+            featureProviderMock.Setup(m => m.OciEnabled).Returns(false);
 
             var featureProviderFactoryMock = StrictMock.Of<IFeatureProviderFactory>();
             featureProviderFactoryMock.Setup(m => m.GetFeatureProvider(parentModuleUri.ToIOUri())).Returns(featureProviderMock.Object);

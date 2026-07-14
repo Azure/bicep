@@ -178,6 +178,15 @@ namespace Bicep.Core {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to OCI registry support.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_OciEnabled {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_OciEnabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Resource info code generation.
         /// </summary>
         internal static string ExperimentalFeatureNames_ResourceInfoCodegen {
@@ -786,6 +795,24 @@ namespace Bicep.Core {
         internal static string SecureParamsInNestedDeployRule_Message_SecureParams {
             get {
                 return ResourceManager.GetString("SecureParamsInNestedDeployRule_Message_SecureParams", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Secure parameter values should not be assigned to insecure parameters in a parameters file..
+        /// </summary>
+        internal static string SecureParamsInParametersFileRule_Description {
+            get {
+                return ResourceManager.GetString("SecureParamsInParametersFileRule_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Insecure parameter &apos;{0}&apos; is assigned a value that references secure parameter(s) {1}, which could expose their values in deployment history..
+        /// </summary>
+        internal static string SecureParamsInParametersFileRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("SecureParamsInParametersFileRule_MessageFormat", resourceCulture);
             }
         }
 

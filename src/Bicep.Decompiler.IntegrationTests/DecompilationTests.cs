@@ -12,7 +12,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.Decompiler;
 using Bicep.Decompiler.Exceptions;
 using Bicep.IO.Abstraction;
-using Bicep.TextFixtures.Utils;
+using Bicep.Testing.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

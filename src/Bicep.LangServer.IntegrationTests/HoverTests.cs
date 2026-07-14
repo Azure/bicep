@@ -334,7 +334,7 @@ resource test|Output string = 'str'
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is my module  \n"),
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is my param  \n"),
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is my var  \n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is my\nmultiline\nresource  \n[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/discriminatortests?pivots=deployment-language-bicep)  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is my\nmultiline\nresource  \n[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/2020-01-01/discriminatortests?pivots=deployment-language-bicep)  \n"),
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is my output  \n  \n"));
         }
 
@@ -539,13 +539,47 @@ resource m|adeUp 'Test.MadeUp/nonExistentResourceType@2020-01-01' = {}
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
 resource foo 'Test.Rp/basicTests@2020-01-01'
 ```  " + @"
-[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/basictests?pivots=deployment-language-bicep)  " + @"
+[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/2020-01-01/basictests?pivots=deployment-language-bicep)  " + @"
 "),
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
 resource bar 'Test.Rp/basicTests@2020-01-01'
 ```  " + @"
 This resource also has a description!  " + @"
-[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/basictests?pivots=deployment-language-bicep)  " + @"
+[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/2020-01-01/basictests?pivots=deployment-language-bicep)  " + @"
+"),
+                h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
+resource madeUp 'Test.MadeUp/nonExistentResourceType@2020-01-01'
+```  " + @"
+  " + @"
+"));
+        }
+
+        [TestMethod]
+        public async Task Resource_type_hovers_should_include_documentation_links_for_known_resource_types()
+        {
+            // https://github.com/Azure/bicep/issues/16178 - the documentation link should also be
+            // discoverable by hovering over the resource type, not just the resource name.
+            var hovers = await RequestHoversAtCursorLocations(@"
+resource foo 'Test.Rp/basic|Tests@2020-01-01' = {}
+
+@description('This resource also has a description!')
+resource bar 'Test.Rp/basic|Tests@2020-01-01' = {}
+
+resource madeUp 'Test.MadeUp/nonExistent|ResourceType@2020-01-01' = {}
+",
+                '|');
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
+resource foo 'Test.Rp/basicTests@2020-01-01'
+```  " + @"
+[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/2020-01-01/basictests?pivots=deployment-language-bicep)  " + @"
+"),
+                h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
+resource bar 'Test.Rp/basicTests@2020-01-01'
+```  " + @"
+This resource also has a description!  " + @"
+[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/2020-01-01/basictests?pivots=deployment-language-bicep)  " + @"
 "),
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
 resource madeUp 'Test.MadeUp/nonExistentResourceType@2020-01-01'

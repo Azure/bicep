@@ -79,6 +79,21 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             """;
 
+        private const string BicepGeneratedJson = """
+            {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "metadata": {
+                "_generator": {
+                  "name": "bicep",
+                  "version": "0.99.0.0",
+                  "templateHash": "12345678901234567"
+                }
+              },
+              "resources": []
+            }
+            """;
+
         #endregion
 
         #region Complex JSON (multi-file output)
@@ -291,6 +306,23 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             result.output.Should().Contain("WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep Template or Bicep Parameters.");
             result.output.Should().Contain("You may need to fix warnings and errors in the generated bicep/bicepparam file(s), or decompilation may fail entirely if an accurate conversion is not possible.");
+        }
+
+        [TestMethod]
+        public async Task BicepGeneratedJson_ShouldShowBicepGeneratedWarning()
+        {
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            string jsonPath = FileHelper.SaveResultFile(TestContext, "main.json", BicepGeneratedJson, testOutputPath);
+
+            var server = new LanguageServerMock();
+            server.WindowMock.OnShowDocument();
+
+            var (handler, _) = CreateHandlers(server);
+            var result = await handler.Handle(
+                new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
+                CancellationToken.None);
+
+            result.output.Should().Contain("WARNING: The source file appears to have been generated from a .bicep file.");
         }
 
         [TestMethod]

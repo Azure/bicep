@@ -23,10 +23,7 @@ namespace Bicep.Core.Registry
         {
             ThrowIfRegistryNotTrusted(registryUri);
 
-            var options = new ContainerRegistryClientOptions();
-            options.Diagnostics.ApplySharedContainerRegistrySettings();
-            options.Audience = new ContainerRegistryAudience(cloud.ResourceManagerAudience);
-
+            var options = CreateClientOptions(cloud);
             var credential = this.credentialFactory.CreateChain(cloud.CredentialPrecedence, cloud.CredentialOptions, cloud.ActiveDirectoryAuthorityUri);
 
             return new(registryUri, repository, credential, options);
@@ -36,10 +33,7 @@ namespace Bicep.Core.Registry
         {
             ThrowIfRegistryNotTrusted(registryUri);
 
-            var options = new ContainerRegistryClientOptions();
-            options.Diagnostics.ApplySharedContainerRegistrySettings();
-            options.Audience = new ContainerRegistryAudience(cloud.ResourceManagerAudience);
-
+            var options = CreateClientOptions(cloud);
             return new(registryUri, repository, options);
         }
 
@@ -47,10 +41,7 @@ namespace Bicep.Core.Registry
         {
             ThrowIfRegistryNotTrusted(registryUri);
 
-            var options = new ContainerRegistryClientOptions();
-            options.Diagnostics.ApplySharedContainerRegistrySettings();
-            options.Audience = new ContainerRegistryAudience(cloud.ResourceManagerAudience);
-
+            var options = CreateClientOptions(cloud);
             var credential = this.credentialFactory.CreateChain(cloud.CredentialPrecedence, cloud.CredentialOptions, cloud.ActiveDirectoryAuthorityUri);
 
             return new(registryUri, credential, options);
@@ -60,11 +51,16 @@ namespace Bicep.Core.Registry
         {
             ThrowIfRegistryNotTrusted(registryUri);
 
+            var options = CreateClientOptions(cloud);
+            return new(registryUri, options);
+        }
+
+        private static ContainerRegistryClientOptions CreateClientOptions(CloudConfiguration cloud)
+        {
             var options = new ContainerRegistryClientOptions();
             options.Diagnostics.ApplySharedContainerRegistrySettings();
             options.Audience = new ContainerRegistryAudience(cloud.ResourceManagerAudience);
-
-            return new(registryUri, options);
+            return options;
         }
 
         private void ThrowIfRegistryNotTrusted(Uri registryUri)

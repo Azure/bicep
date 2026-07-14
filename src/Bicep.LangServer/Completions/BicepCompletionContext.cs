@@ -223,6 +223,7 @@ namespace Bicep.LanguageServer.Completions
                 ConvertFlag(IsNestedResourceStartContext(matchingNodes, topLevelDeclarationInfo, objectInfo, offset), BicepCompletionContextKind.NestedResourceDeclarationStart) |
                 GetDeclarationTypeFlags(matchingNodes, offset) |
                 ConvertFlag(IsResourceTypeFollowerContext(matchingNodes, offset), BicepCompletionContextKind.ResourceTypeFollower) |
+                ConvertFlag(IsModulePathFollowerContext(matchingNodes, offset), BicepCompletionContextKind.ModulePathFollower) |
                 GetObjectPropertyNameFlags(matchingNodes, objectInfo, offset) |
                 ConvertFlag(IsMemberAccessContext(matchingNodes, propertyAccessInfo, offset), BicepCompletionContextKind.MemberAccess) |
                 ConvertFlag(IsResourceAccessContext(matchingNodes, resourceAccessInfo, offset), BicepCompletionContextKind.ResourceAccess) |
@@ -463,6 +464,14 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (resource, skipped, token) => resource.Assignment == skipped && token.Type == TokenType.Identifier) ||
             // resource foo '...' |=
             SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, Token>(matchingNodes, (resource, token) => IsAtTokenStart(resource.Assignment, token, offset) && token.Type == TokenType.Assignment);
+
+        private static bool IsModulePathFollowerContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // module foo '...' |
+            // OR
+            // module foo '...' | = {
+            SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax>(matchingNodes, module => offset > module.Path.GetEndPosition() && offset <= module.Assignment.Span.Position) ||
+            // module foo '...' |=
+            SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, Token>(matchingNodes, (module, token) => IsAtTokenStart(module.Assignment, token, offset) && token.Type == TokenType.Assignment);
 
         private static bool IsVariableNameFollowerContext(List<SyntaxBase> matchingNodes, int offset) =>
             // var foo |

@@ -30,6 +30,10 @@ namespace Bicep.Core.Diagnostics
 
             private const string TypeInaccuracyClause = " If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.";
 
+            // Upper bound (roughly a traditional terminal width) on source-text embedded in a diagnostic message;
+            // longer expressions are truncated with an ellipsis so the message stays readable in CLI/IDE output.
+            private const int MaxEmbeddedSourceTextLength = 80;
+
             public DiagnosticBuilderInternal(TextSpan textSpan)
             {
                 TextSpan = textSpan;
@@ -77,6 +81,17 @@ namespace Bicep.Core.Diagnostics
             private static string BuildInvalidOciArtifactReferenceClause(string? aliasName, string referenceValue) => aliasName is not null
                 ? $"The OCI artifact reference \"{referenceValue}\" after resolving alias \"{aliasName}\" is not valid."
                 : $"The specified OCI artifact reference \"{referenceValue}\" is not valid.";
+
+            /// <summary>
+            /// Formats a syntax node's source text for safe inclusion in a diagnostic message body:
+            /// newlines are replaced with spaces so the message stays on a single line, and the result is
+            /// truncated with an ellipsis if it exceeds <see cref="MaxEmbeddedSourceTextLength"/> characters
+            /// so very long expressions don't bloat the message.
+            /// </summary>
+            private static string FormatSourceTextForDiagnostic(SyntaxBase expression)
+                => SyntaxStringifier.Stringify(expression, newlineReplacement: " ")
+                    .Trim()
+                    .TruncateWithEllipses(MaxEmbeddedSourceTextLength);
 
             private static string BuildInvalidTemplateSpecReferenceClause(string? aliasName, string referenceValue) => aliasName is not null
                 ? $"The Template Spec reference \"{referenceValue}\" after resolving alias \"{aliasName}\" is not valid."
@@ -1511,11 +1526,21 @@ namespace Bicep.Core.Diagnostics
                 "BCP320",
                 "The properties of module output resources cannot be accessed directly. To use the properties of this resource, pass it as a resource-typed parameter to another module and access the parameter's properties therein.");
 
-            public Diagnostic PossibleNullReferenceAssignment(TypeSymbol expectedType, TypeSymbol actualType, SyntaxBase expression) => CoreWarning(
-                "BCP321",
-                $"Expected a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".")
-                with
-            { Fixes = [AsNonNullable(expression)] };
+            public Diagnostic PossibleNullReferenceAssignment(TypeSymbol expectedType, TypeSymbol actualType, SyntaxBase expression, bool includeSourceText = false)
+            {
+                // when the diagnostic underline covers more than just the offending expression (e.g. a binary/unary operator that
+                // spans multiple operands), the caller can opt in to include the source text of the offending value in the message
+                // itself so the reader can tell which sub-expression is nullable.
+                var providedValueClause = includeSourceText
+                    ? $"the provided value \"{FormatSourceTextForDiagnostic(expression)}\""
+                    : "the provided value";
+
+                return CoreWarning(
+                    "BCP321",
+                    $"Expected a value of type \"{expectedType}\" but {providedValueClause} is of type \"{actualType}\".")
+                    with
+                { Fixes = [AsNonNullable(expression)] };
+            }
 
             public Diagnostic SafeDereferenceNotPermittedOnInstanceFunctions() => CoreError(
                 "BCP322",
