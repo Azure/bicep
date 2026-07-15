@@ -50,6 +50,11 @@ public abstract class ImportedSymbol<T> : ImportedSymbol where T : ExportMetadat
             yield return DiagnosticBuilder.ForPosition(DeclaringImportedSymbolsListItem.OriginalSymbolName)
                 .ImportedSymbolKindNotSupportedInSourceFileKind(ExportMetadata.Name, ExportMetadata.Kind, Context.SourceFile.FileKind);
         }
+
+        if (ParameterFileImportValidator.ValidateImport(this) is { } diagnostic)
+        {
+            yield return diagnostic;
+        }
     }
 
     private bool IsSupportedImportKind() => Context.SourceFile switch
