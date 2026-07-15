@@ -979,6 +979,13 @@ public class ExpressionBuilder
             }
         }
 
+        if (arrayAccess.IndexExpression is StringSyntax indexString &&
+            indexString.TryGetLiteralValue() is { } propertyName &&
+            TryGetBaseParameterAssignment(arrayAccess.BaseExpression, propertyName) is { } parentAssignment)
+        {
+            return ConvertWithoutLowering(parentAssignment.DeclaringParameterAssignment.Value);
+        }
+
         var convertedBase = ConvertWithoutLowering(arrayAccess.BaseExpression);
         var convertedIndex = ConvertWithoutLowering(arrayAccess.IndexExpression);
 
