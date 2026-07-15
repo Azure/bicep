@@ -712,6 +712,44 @@ param stringParam =  /*TODO*/
         }
 
         [TestMethod]
+        public void Base_array_spread_should_not_evaluate_unreferenced_external_input()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+                param values = [
+                  ...base.values
+                  'child'
+                ]
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param enabled = bool(externalInput('feature', 'enabled'))
+                param values = [
+                  'parent'
+                ]
+              "),
+              ("main.bicep", @"
+                param enabled bool
+                param values array
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().HaveJsonAtPath("parameters.values.value", @"[
+              ""parent"",
+              ""child""
+            ]");
+            result.Parameters.Should().HaveValueAtPath("parameters.enabled.expression", "[bool(externalInputs('feature_0'))]");
+            result.Parameters.Should().HaveJsonAtPath("externalInputDefinitions", @"{
+              ""feature_0"": {
+                ""kind"": ""feature"",
+                ""config"": ""enabled""
+              }
+            }");
+        }
+
+        [TestMethod]
         public void Decorators_on_using_param_and_extends_statements_should_raise_errors()
         {
             var result = CompilationHelper.CompileParams(
