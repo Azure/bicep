@@ -13,7 +13,7 @@ using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.TextFixtures.Utils;
+using Bicep.Testing.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -429,7 +429,7 @@ output myOutput string = 'hello!'
                 var errorJToken = JToken.Parse(error);
                 var expectedErrorJToken = JToken.Parse("""
                     {
-                      "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.6.json",
+                      "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json",
                       "version": "2.1.0",
                       "runs": [
                         {
@@ -609,42 +609,42 @@ output myOutput string = 'hello!'
             output.Should().BeEmpty();
             var errorJToken = JToken.Parse(error);
             var expectedErrorJToken = JToken.Parse("""
-{
-   "$schema":"https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.6.json",
-   "version":"2.1.0",
-   "runs":[
-      {
-         "tool":{
-            "driver":{
-               "name":"bicep"
-            }
-         },
-         "results":[
-            {
-               "ruleId":"no-unused-params",
-               "message":{
-                  "text":"Parameter \"storageAccountName\" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]"
-               },
-               "locations":[
-                  {
-                     "physicalLocation":{
-                        "artifactLocation":{
-                           "uri":"main.bicep"
-                        },
-                        "region":{
-                           "startLine":1,
-                           "charOffset":7
+                {
+                  "$schema":"https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0.json",
+                  "version": "2.1.0",
+                  "runs": [
+                    {
+                      "tool": {
+                        "driver": {
+                          "name": "bicep"
                         }
-                     }
-                  }
-               ]
-            }
-         ],
-         "columnKind":"utf16CodeUnits"
-      }
-   ]
-}
-""");
+                      },
+                      "results": [
+                        {
+                          "ruleId": "no-unused-params",
+                          "message": {
+                            "text": "Parameter \"storageAccountName\" is declared but never used. [https://aka.ms/bicep/linter-diagnostics#no-unused-params]"
+                          },
+                          "locations": [
+                            {
+                              "physicalLocation": {
+                                "artifactLocation": {
+                                  "uri": "main.bicep"
+                                },
+                                "region": {
+                                  "startLine": 1,
+                                  "charOffset": 7
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ],
+                      "columnKind": "utf16CodeUnits"
+                    }
+                  ]
+                }
+                """);
             var selectedPath = errorJToken.SelectToken("$.runs[0].results[0].locations[0].physicalLocation.artifactLocation.uri");
             selectedPath.Should().NotBeNull();
             selectedPath?.Value<string>().Should().Contain("file://");

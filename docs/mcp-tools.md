@@ -7,8 +7,11 @@ We have built a Bicep MCP server with agentic tools to support Bicep code genera
 ### Available Bicep MCP tools
 
 - `get_bicep_best_practices`: Lists up-to-date recommended Bicep best-practices for authoring templates. These practices help improve maintainability, security, and reliability of your Bicep files. This is helpful additional context if you've been asked to generate Bicep code.
-- `list_az_resource_types_for_provider`: Lists all available Azure resource types for a specific provider. The return value is a newline-separated list of resource types including their API version, e.g. `Microsoft.KeyVault/vaults@2024-11-01`. Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs.
-- `get_az_resource_type_schema`: Gets the schema for a specific Azure resource type and API version. Such information is the most accurate and up-to-date as it is sourced from the Azure Resource Provider APIs.
+- `list_azure_resource_types`: Lists all available Azure resource types and their API versions for a specific Azure resource provider namespace. Data is sourced from Azure Resource Provider APIs.
+- `get_azure_resource_type_schema`: Gets the schema for a specific Azure resource type and API version. Data is sourced from Azure Resource Provider APIs.
+- `list_extension_resource_types`: Lists all available resource types for a Bicep extension. Accepts a canonical OCI artifact reference (e.g., `br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0`).
+- `get_extension_resource_type_schema`: Gets the schema for a specific extension resource type. Accepts a canonical OCI artifact reference, resource type, and API version.
+- `list_well_known_extensions`: Lists well-known Bicep extensions (e.g., Microsoft Graph) with their dynamically-discovered version tags from MCR. This is not an exhaustive list; other extensions may exist. Use this to discover extensions and their versions for use with the extension resource type tools.
 - `list_avm_metadata`: Lists up-to-date metadata for all Azure Verified Modules (AVM). The return value is a newline-separated list of AVM metadata. Each line includes the module name, description, versions, and documentation URI for a specific module.
 - `get_bicep_file_diagnostics`: Analyzes a Bicep file (`.bicep`) or Bicep parameters file (`.bicepparam`) and returns all compilation diagnostics including errors, warnings, and informational messages.
 - `format_bicep_file`: Formats a Bicep file (`.bicep`) or Bicep parameters file (`.bicepparam`) according to official Bicep formatting standards, respecting `bicepconfig.json` settings.
@@ -17,54 +20,11 @@ We have built a Bicep MCP server with agentic tools to support Bicep code genera
 - `decompile_arm_parameters_file`: Converts an ARM template parameters JSON file into Bicep parameters syntax (`.bicepparam`). Accepts files with `.json`, `.jsonc`, or `.arm` extensions.
 - `get_deployment_snapshot`: Creates a deployment snapshot from a Bicep parameters file (`.bicepparam`) by compiling and pre-expanding the ARM template, allowing you to preview predicted resources without running a deployment.
 
-Please see below on how to contribute to the Bicep best practices tool.
+## Transport
 
-## Transports
+The Bicep MCP Server uses **stdio** transport, launched locally by a client process (e.g., VS Code, Claude Desktop). This is provided by the `Azure.Bicep.McpServer` NuGet tool.
 
-The Bicep MCP Server supports two transports:
-
-- **stdio** (default): Used when the server is launched locally by a client process (e.g., VS Code, Claude Desktop). This is the default behavior.
-- **HTTP** (Streamable HTTP): Used for remote hosting scenarios. Start the server with the `--transport http` flag to enable HTTP transport on port 8080.
-
-To run the server locally with HTTP transport:
-
-```
-dnx Azure.Bicep.McpServer --transport http
-```
-
-Then configure your MCP client to connect to `http://localhost:8080/`.
-
-## Self-hosting with Docker
-
-You can self-host the Bicep MCP Server as a container using the published NuGet tool package. Create a `Dockerfile` with the following contents:
-
-```dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS install
-
-RUN dotnet tool install --global Azure.Bicep.McpServer
-
-FROM mcr.microsoft.com/dotnet/aspnet:10.0
-
-COPY --from=install /root/.dotnet/tools /opt/tools
-
-ENV PATH="$PATH:/opt/tools"
-
-USER $APP_UID
-
-EXPOSE 8080
-
-ENTRYPOINT ["Azure.Bicep.McpServer", "--transport", "http"]
-```
-
-Build and run the container:
-
-```bash
-docker build -t bicep-mcp-server .
-docker run -p 8080:8080 bicep-mcp-server
-```
-
-> [!NOTE]
-> No authentication is included. If hosting on a network or in the cloud, secure the endpoint using a reverse proxy, VNet integration, or other infrastructure-level controls.
+For remote hosting scenarios, you can build your own MCP server with HTTP transport using the `Azure.Bicep.McpServer.Core` NuGet library (see [Building a Remote MCP Server](#building-a-remote-mcp-server) below).
 
 ## Where can I use it?
 
@@ -109,6 +69,57 @@ Please refer to [this step by step tutorial](https://github.com/johnlokerse/azur
 This article has all the tools you need to run the Bicep MCP Server locally, with pre-written commands, helper scripts, and client setup guides.
 
 Note: This is contributed by our community member [@johnlokerse](https://github.com/johnlokerse). Thanks John!
+
+## Building a Remote MCP Server
+
+The `Azure.Bicep.McpServer.Core` NuGet library provides the `AddBicepMcpServer()` extension method and all Bicep tool definitions, allowing you to build your own MCP server with any transport (HTTP, stdio, etc.).
+
+Create a new ASP.NET Core project and add the required packages:
+
+```xml
+<ItemGroup>
+  <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  <PackageReference Include="Azure.Bicep.McpServer.Core" />
+  <PackageReference Include="ModelContextProtocol.AspNetCore" />
+</ItemGroup>
+```
+
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+builder.Services
+    .AddBicepMcpServer()
+    .WithHttpTransport(options => options.Stateless = true);
+var app = builder.Build();
+app.MapMcp();
+await app.RunAsync();
+```
+
+### Self-hosting with Docker
+
+Publish your project and create a `Dockerfile`:
+
+```bash
+dotnet publish -c Release -o ./publish
+```
+
+```dockerfile
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /app
+COPY publish/ .
+USER $APP_UID
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "MyBicepMcpServer.dll"]
+```
+
+Build and run:
+
+```bash
+docker build -t bicep-mcp-server .
+docker run -p 8080:8080 bicep-mcp-server
+```
+
+> [!NOTE]
+> No authentication is included. If hosting on a network or in the cloud, secure the endpoint using a reverse proxy, VNet integration, or other infrastructure-level controls.
 
 ## Limitations
 

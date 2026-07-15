@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Configuration;
+using Bicep.Core.Registry.Oci;
 using Microsoft.Win32;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
@@ -13,8 +14,8 @@ namespace Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
 /// </summary>
 public class PrivateAcrModuleMetadataProviderFactory : IPrivateAcrModuleMetadataProviderFactory
 {
-    public IRegistryModuleMetadataProvider Create(CloudConfiguration cloud, string registry, IContainerRegistryClientFactory containerRegistryClientFactory)
+    public IRegistryModuleMetadataProvider Create(CloudConfiguration cloud, string registry, IOciRegistryTransportFactory transportFactory)
     {
-        return new PrivateAcrModuleMetadataProvider(cloud, registry, containerRegistryClientFactory);
+        return new PrivateAcrModuleMetadataProvider(cloud, registry, transportFactory);
     }
 }

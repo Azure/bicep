@@ -52,7 +52,6 @@ internal static class IServiceCollectionExtensions
         services.AddSingleton<ITemplateExceptionHandler, TemplateExceptionHandler>();
 
         services.AddSingleton<AzureDeploymentValidation>();
-        services.AddSingleton<IExtensionConfigSchemaDirectoryFactory, FactBasedExtensionConfigSchemaDirectoryFactory>();
         services.AddSingleton<IAzureDeploymentConfiguration, LocalDeploymentConfiguration>();
         services.AddSingleton<AzureDeploymentEngine>();
         services.AddSingleton<IDeploymentEntityFactory, VolatileDeploymentEntityFactory>();

@@ -7381,6 +7381,48 @@ output secret string = secret
     }
 
     [TestMethod]
+    public void Test_Issue19750()
+    {
+        var moduleLines = new List<string>
+        {
+            "output large object = {",
+        };
+
+        for (var i = 0; i < 12000; i++)
+        {
+            moduleLines.Add($"  p{i}: 'value{i}'");
+        }
+
+        moduleLines.Add("}");
+
+        var result = CompilationHelper.Compile(
+            Services.WithFeatureOverrides(new(LocalDeployEnabled: true)),
+            ("main.bicep", """
+targetScope = 'local'
+
+module mod 'mod.bicep' = {
+  name: 'mod'
+  scope: resourceGroup('00000000-0000-0000-0000-000000000000', 'rg')
+}
+"""),
+            ("mod.bicep", string.Join('\n', moduleLines)));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+
+        var nestedTemplateToken = result.Template!
+            .SelectTokens("$..template")
+            .FirstOrDefault(value => value.Type == JTokenType.Object);
+        Assert.IsNotNull(nestedTemplateToken);
+
+        var nestedTemplateText = nestedTemplateToken.ToJson();
+        Assert.IsNotNull(nestedTemplateText);
+        nestedTemplateText!.Length.Should().BeGreaterThan(131072);
+
+        JToken.Parse(nestedTemplateText);
+    }
+
+    [TestMethod]
     public async Task Test_Issue16748()
     {
         // https://github.com/Azure/bicep/issues/16748
@@ -7824,5 +7866,30 @@ output locations array = flatten(map(databases, database => database.properties.
             "BCP009",
             DiagnosticLevel.Error,
             "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.");
+    }
+
+    [TestMethod]
+    public void Test_Issue17102_fully_qualified_functions_flags_are_validated()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                module Foo2 'module.bicep' = {
+                    name: sys.newGuid()
+                }
+
+                param foo object = az.listKeys('id', '2020-01-01')
+
+                @description(sys.utcNow())
+                param bar string
+            """),
+            ("module.bicep", """
+                param name string
+            """));
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP065", DiagnosticLevel.Error, """Function "newGuid" is not valid at this location. It can only be used as a parameter default value."""),
+            ("BCP066", DiagnosticLevel.Error, """Function "listKeys" is not valid at this location. It can only be used in resource declarations."""),
+            ("BCP065", DiagnosticLevel.Error, """Function "utcNow" is not valid at this location. It can only be used as a parameter default value."""),
+        ]);
     }
 }

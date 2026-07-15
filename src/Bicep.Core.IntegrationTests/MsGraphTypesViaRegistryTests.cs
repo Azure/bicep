@@ -299,5 +299,113 @@ resource app 'Microsoft.Graph/applications@v1.0' = {
                 ("BCP037", DiagnosticLevel.Warning, "The property \"extraNestedProp\" is not allowed on objects of type \"MicrosoftGraphSpaApplication\". Permissible properties include \"redirectUris\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.")
             });
         }
+
+        // -----------------------------------------------------------------------
+        // ReadableAtDeployTime tests (Required + DeployTimeConstant fix)
+        // -----------------------------------------------------------------------
+
+        private static BinaryData GetMsGraphTypesTgzWithApplication()
+        {
+            // Builds a minimal MS Graph extension types package that contains a single
+            // Microsoft.Graph/applications resource type with a uniqueName identifier
+            // property (flags = Required | DeployTimeConstant | Identifier, value 25)
+            // and a plain read-only property (createdDateTime) for the negative test.
+            return ExtensionTestHelper.CreateMockExtensionMockData(
+                "MicrosoftGraph",
+                "1.0.0",
+                "v1",
+                new()
+                {
+                    CreateResourceTypes = (ctx, factory) =>
+                    {
+                        var stringType = factory.Create(() => new Azure.Bicep.Types.Concrete.StringType());
+
+                        var appBody = factory.Create(() => new Azure.Bicep.Types.Concrete.ObjectType(
+                            "Microsoft.Graph/applications",
+                            new Dictionary<string, Azure.Bicep.Types.Concrete.ObjectTypeProperty>
+                            {
+                                ["uniqueName"] = new(
+                                    factory.GetReference(stringType),
+                                    Azure.Bicep.Types.Concrete.ObjectTypePropertyFlags.Required
+                                        | Azure.Bicep.Types.Concrete.ObjectTypePropertyFlags.DeployTimeConstant
+                                        | Azure.Bicep.Types.Concrete.ObjectTypePropertyFlags.Identifier,
+                                    "The unique name of the application"),
+                                ["createdDateTime"] = new(
+                                    factory.GetReference(stringType),
+                                    Azure.Bicep.Types.Concrete.ObjectTypePropertyFlags.ReadOnly,
+                                    "The date and time the application was created (read-only, server-generated)"),
+                            },
+                            null));
+
+                        return [factory.Create(() => new Azure.Bicep.Types.Concrete.ResourceType(
+                            "Microsoft.Graph/applications@v1.0",
+                            factory.GetReference(appBody),
+                            null,
+                            writableScopes_in: Azure.Bicep.Types.Concrete.ScopeType.All,
+                            readableScopes_in: Azure.Bicep.Types.Concrete.ScopeType.All))];
+                    }
+                }).TypesTgzData;
+        }
+
+        [TestMethod]
+        public async Task MsGraph_uniqueName_is_readable_at_deploy_time()
+        {
+            // ARRANGE — publish a mock MS Graph extension with an applications resource
+            var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(
+                GetMsGraphTypesTgzWithApplication(),
+                new(),
+                artifactTarget: "example.azurecr.io/microsoftgraph/v1:1.0.0");
+
+            // ACT — use graphApp.uniqueName (Required + DeployTimeConstant) as storage account name
+            var result = await CompilationHelper.RestoreAndCompile(services, """
+                extension 'br:example.azurecr.io/microsoftgraph/v1:1.0.0' as graph
+
+                resource graphApp 'Microsoft.Graph/applications@v1.0' = {
+                  uniqueName: 'myApp'
+                }
+
+                resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+                  name: graphApp.uniqueName
+                  location: 'eastus'
+                  sku: { name: 'Standard_LRS' }
+                  kind: 'StorageV2'
+                }
+                """);
+
+            // ASSERT — must compile clean, no BCP120
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public async Task MsGraph_readOnly_property_is_not_readable_at_deploy_time()
+        {
+            // ARRANGE — same extension as above
+            var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(
+                GetMsGraphTypesTgzWithApplication(),
+                new(),
+                artifactTarget: "example.azurecr.io/microsoftgraph/v1:1.0.0");
+
+            // ACT — use graphApp.createdDateTime (ReadOnly only, NOT Required+DTC) as storage account name
+            var result = await CompilationHelper.RestoreAndCompile(services, """
+                extension 'br:example.azurecr.io/microsoftgraph/v1:1.0.0' as graph
+
+                resource graphApp 'Microsoft.Graph/applications@v1.0' = {
+                  uniqueName: 'myApp'
+                }
+
+                resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+                  name: graphApp.createdDateTime
+                  location: 'eastus'
+                  sku: { name: 'Standard_LRS' }
+                  kind: 'StorageV2'
+                }
+                """);
+
+            // ASSERT — must still produce BCP120 (createdDateTime is server-generated, not a deploy-time constant)
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
+                ("BCP120", DiagnosticLevel.Error,
+                    """This expression is being used in an assignment to the "name" property of the "Microsoft.Storage/storageAccounts" type, which requires a value that can be calculated at the start of the deployment. Properties of graphApp which can be calculated at the start include "uniqueName".""")
+            ]);
+        }
     }
 }

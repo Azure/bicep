@@ -105,6 +105,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             return new RootConfiguration(
                 original.Cloud,
                 original.ModuleAliases,
+                original.ModuleAliasesMock,
                 original.Extensions,
                 original.ImplicitExtensions,
                 new AnalyzersConfiguration(
@@ -1872,10 +1873,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     [
                         "[7] Use more recent API version for 'fake.Resources/resourceGroups'. '2419-05-10' is 1151 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2421-05-01, 2421-04-01, 2421-01-01, 2420-10-01, 2420-08-01"
                                       ]);
-                             }
+            }
 
-                             [TestMethod]
-                             public void SubscriptionDeployment_Pass()
+            [TestMethod]
+            public void SubscriptionDeployment_Pass()
             {
                 CompileAndTestWithFakeDateAndTypes(@"
                         targetScope='subscription'

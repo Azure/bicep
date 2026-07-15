@@ -11,6 +11,8 @@ public interface IFeatureProvider
 
     IDirectoryHandle CacheRootDirectory { get; }
 
+    bool OciEnabled { get; }
+
     bool SymbolicNameCodegenEnabled { get; }
 
     bool ResourceTypedParamsAndOutputsEnabled { get; }
@@ -27,8 +29,6 @@ public interface IFeatureProvider
 
     bool LocalDeployEnabled { get; }
 
-    bool ExtendableParamFilesEnabled { get; }
-
     bool ResourceInfoCodegenEnabled { get; }
 
     bool ModuleExtensionConfigsEnabled { get; }
@@ -37,11 +37,7 @@ public interface IFeatureProvider
 
     bool DeployCommandsEnabled { get; }
 
-    bool ThisNamespaceEnabled { get; }
-
     bool PatchEnabled { get; }
-
-    bool ExistingNullIfNotFoundEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
@@ -51,6 +47,7 @@ public interface IFeatureProvider
             // `usesExperimentalArmEngineFeature` means that the compiled JSON template will use an experimental language version and include a warning in the template metadata
             foreach (var (enabled, name, impactsCompilation, usesExperimentalArmEngineFeature) in new[]
             {
+                (OciEnabled, CoreResources.ExperimentalFeatureNames_OciEnabled, true, false),
                 (SymbolicNameCodegenEnabled, CoreResources.ExperimentalFeatureNames_SymbolicNameCodegen, false, false), // Symbolic name codegen is listed as not impacting compilation because it is GA
                 (ResourceInfoCodegenEnabled, CoreResources.ExperimentalFeatureNames_ResourceInfoCodegen, true, true),
                 (ResourceTypedParamsAndOutputsEnabled, CoreResources.ExperimentalFeatureNames_ResourceTypedParamsAndOutputs, true, false),
@@ -59,12 +56,9 @@ public interface IFeatureProvider
                 (AssertsEnabled, CoreResources.ExperimentalFeatureNames_Asserts, true, true),
                 (WaitUntilEnabled, CoreResources.ExperimentalFeatureNames_WaitUntil, true, true),
                 (LocalDeployEnabled, "Enable local deploy", true, true),
-                (ExtendableParamFilesEnabled, "Enable extendable parameters", true, false),
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
                 (UserDefinedConstraintsEnabled, "Enable @validate() decorator", true, true),
                 (DeployCommandsEnabled, "Enable deploy commands", true, true),
-                (ThisNamespaceEnabled, "Enable 'this' namespace", true, true),
-                (ExistingNullIfNotFoundEnabled, "Enable @nullIfNotFound() decorator for existing resources", true, true),
             })
             {
                 if (enabled)

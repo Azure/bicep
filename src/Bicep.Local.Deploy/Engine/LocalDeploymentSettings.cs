@@ -116,9 +116,9 @@ public class LocalDeploymentSettings : IAzureDeploymentSettings
 
     public string[] AsyncOperationCallbackAllowedProviders { get; set; } = [];
 
-    public TimeSpan ResourceMaximumRetryInterval { get; set; } = TimeSpan.FromMinutes(10);
+    public TimeSpan ResourceMaximumRetryInterval { get; set; } = TimeSpan.FromSeconds(10);
 
-    public TimeSpan ResourceMinimumRetryInterval { get; set; } = TimeSpan.FromSeconds(5);
+    public TimeSpan ResourceMinimumRetryInterval { get; set; } = TimeSpan.FromSeconds(1);
 
     public TimeSpan ResourceNotificationBasedDefaultRetryInterval { get; set; } = TimeSpan.FromMinutes(2);
 

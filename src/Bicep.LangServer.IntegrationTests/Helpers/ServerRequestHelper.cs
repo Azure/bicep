@@ -93,6 +93,15 @@ namespace Bicep.LangServer.IntegrationTests
             });
         }
 
+        public async Task<RangeOrPlaceholderRange?> RequestPrepareRename(int cursor)
+        {
+            return await client.PrepareRename(new PrepareRenameParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.Uri),
+                Position = PositionHelper.GetPosition(bicepFile.LineStarts, cursor),
+            });
+        }
+
         public async Task<CodeLensContainer?> RequestCodeLens(int cursor)
         {
             return await client.RequestCodeLens(new CodeLensParams

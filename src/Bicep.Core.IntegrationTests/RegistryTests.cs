@@ -14,7 +14,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.InMemory;
-using Bicep.TextFixtures.Utils;
+using Bicep.Testing.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -64,9 +64,9 @@ namespace Bicep.Core.IntegrationTests
             var compilation = await compiler.CreateCompilation(fileUri.ToIOUri());
 
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
-            diagnostics.Should().HaveCount(1);
+            diagnostics.Should().HaveCount(2);
             var expectedErrorMessage = "Unable to restore the artifact with reference \"{0}\": Unable to create the local artifact directory \"";
-            diagnostics.Single().Value.ExcludingLinterDiagnostics().Should().SatisfyRespectively(
+            diagnostics[compilation.SourceFileGrouping.EntryPoint].ExcludingLinterDiagnostics().Should().SatisfyRespectively(
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
@@ -253,7 +253,7 @@ namespace Bicep.Core.IntegrationTests
             using (new AssertionScope())
             {
                 failureBuilder!.Should().HaveCode("BCP192");
-                failureBuilder!.Should().HaveMessageStartWith($"Unable to restore the artifact with reference \"{moduleReferences[0].FullyQualifiedReference}\": Exceeded the timeout of \"00:00:05\" to acquire the lock on file \"");
+                failureBuilder!.Should().HaveMessageStartWith($"Unable to restore the artifact with reference \"{moduleReferences[0].FullyQualifiedReference}\": Exceeded the timeout of \"00:00:30\" to acquire the lock on file \"");
             }
 
             // all other modules should have succeeded
@@ -319,7 +319,7 @@ namespace Bicep.Core.IntegrationTests
                 dispatcher.GetArtifactRestoreStatus(moduleReferences[0], out var failureBuilder).Should().Be(ArtifactRestoreStatus.Failed);
 
                 failureBuilder!.Should().HaveCode("BCP233");
-                failureBuilder!.Should().HaveMessageStartWith($"Unable to delete the module with reference \"{moduleReferences[0].FullyQualifiedReference}\" from cache: Exceeded the timeout of \"00:00:05\" for the lock on file \"{lockFile.Uri}\" to be released.");
+                failureBuilder!.Should().HaveMessageStartWith($"Unable to delete the module with reference \"{moduleReferences[0].FullyQualifiedReference}\" from cache: Exceeded the timeout of \"00:00:30\" for the lock on file \"{lockFile.Uri}\" to be released.");
 #else
                 dispatcher.GetArtifactRestoreStatus(moduleReferences[0], out _).Should().Be(ArtifactRestoreStatus.Succeeded);
 #endif

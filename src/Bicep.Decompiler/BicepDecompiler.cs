@@ -40,18 +40,20 @@ public class BicepDecompiler
 
     public static string DecompilerDisclaimerMessage => DecompilerResources.DecompilerDisclaimerMessage;
 
+    public static string BicepGeneratedTemplateWarning => DecompilerResources.BicepGeneratedTemplateWarning;
+
     public BicepDecompiler(BicepCompiler bicepCompiler)
     {
         this.bicepCompiler = bicepCompiler;
     }
 
-    public async Task<DecompileResult> Decompile(IOUri bicepUri, string jsonContent, DecompileOptions? options = null)
+    public async Task<DecompileResult> Decompile(IOUri bicepUri, JObject templateObject, DecompileOptions? options = null)
     {
         var workspace = new ActiveSourceFileSet();
         var decompileQueue = new Queue<(IOUri, IOUri)>();
         options ??= new DecompileOptions();
 
-        var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(bicepCompiler.SourceFileFactory, workspace, bicepUri, jsonContent, options);
+        var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(bicepCompiler.SourceFileFactory, workspace, bicepUri, templateObject, options);
         var bicepFile = this.bicepCompiler.SourceFileFactory.CreateBicepFile(bicepUri, program.ToString());
         workspace.UpsertSourceFile(bicepFile);
 
@@ -72,6 +74,13 @@ public class BicepDecompiler
         return new DecompileResult(
             bicepUri,
             PrintFiles(workspace));
+    }
+
+    public async Task<DecompileResult> Decompile(IOUri bicepUri, string jsonContent, DecompileOptions? options = null)
+    {
+        options ??= new DecompileOptions();
+        var templateObject = JTokenHelpers.LoadJson(jsonContent, JObject.Load, options.IgnoreTrailingInput);
+        return await Decompile(bicepUri, templateObject, options);
     }
 
     public DecompileResult DecompileParameters(string contents, IOUri entryBicepparamUri, IOUri? bicepFileUri, DecompileParamOptions? options = null)

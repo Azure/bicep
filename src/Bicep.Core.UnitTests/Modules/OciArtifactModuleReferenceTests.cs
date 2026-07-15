@@ -258,7 +258,7 @@ namespace Bicep.Core.UnitTests.Modules
         private static (OciArtifactReference, OciArtifactReference) ParsePair(string first, string second) => (Parse(first), Parse(second));
 
         private static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseOciArtifactReference(string value, string? aliasName = null, RootConfiguration? configuration = null) =>
-            OciArtifactReference.TryParse(BicepTestConstants.CreateDummyBicepFile(configuration), ArtifactType.Module, aliasName, value);
+            OciArtifactReference.TryParse(BicepTestConstants.CreateDummyBicepFile(configuration).Features, BicepTestConstants.CreateDummyBicepFile(configuration).Configuration, ArtifactType.Module, aliasName, value);
 
         private static IEnumerable<object[]> GetValidCases()
         {
@@ -277,7 +277,7 @@ namespace Bicep.Core.UnitTests.Modules
                         ["moduleAliases.br.myModulePath.modulePath"] = "path",
                     }),
                 "BCP216",
-                "The OCI artifact module alias \"myModulePath\" in the built-in Bicep configuration is invalid. The \"registry\" property cannot be null or undefined.",
+                "The OCI artifact module alias \"myModulePath\" in the built-in Bicep configuration is invalid. The \"registry\" property must be specified.",
             };
 
             yield return new object[]
@@ -291,7 +291,7 @@ namespace Bicep.Core.UnitTests.Modules
                     },
                     "/bicepconfig.json"),
                 "BCP216",
-                "The OCI artifact module alias \"myModulePath2\" in the Bicep configuration \"/bicepconfig.json\" is invalid. The \"registry\" property cannot be null or undefined.",
+                "The OCI artifact module alias \"myModulePath2\" in the Bicep configuration \"/bicepconfig.json\" is invalid. The \"registry\" property must be specified.",
             };
         }
 

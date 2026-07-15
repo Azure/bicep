@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.CommandLine;
-using System.CommandLine.Invocation;
 using Bicep.Core.Exceptions;
 using Bicep.RegistryModuleTool.Commands;
+using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
@@ -65,14 +64,10 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()));
         }
 
-        private static Task<int> InvokeAsync(ICommandHandler handler)
+        private static Task<int> InvokeAsync(BaseCommandHandler handler)
         {
-            var command = new TestCommand()
-            {
-                Handler = handler,
-            };
-
-            return command.InvokeAsync("");
+            var console = new StringWriterConsole();
+            return handler.InvokeAsync(console, CancellationToken.None);
         }
 
         private static IEnumerable<object[]> GetExceptionData() => GetExpectedExceptionData().Concat(GetUnexpectedExceptionData());
@@ -113,12 +108,10 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
             };
         }
 
-        private class TestCommand : Command
+        private sealed class StringWriterConsole : IConsole
         {
-            public TestCommand()
-                : base("test")
-            {
-            }
+            public TextWriter Out { get; } = new StringWriter();
+            public TextWriter Error { get; } = new StringWriter();
         }
 
         private class PassThroughCommandHandler : BaseCommandHandler
@@ -131,7 +124,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
                 this.exitCode = exitCode;
             }
 
-            protected override Task<int> InvokeInternalAsync(InvocationContext context) => Task.FromResult(this.exitCode);
+            protected override Task<int> InvokeInternalAsync(IConsole console, CancellationToken cancellationToken) => Task.FromResult(this.exitCode);
         }
 
         private class ThrowExceptionCommandHandler : BaseCommandHandler
@@ -144,10 +137,11 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
                 this.exceptionToThrow = exceptionToThrow;
             }
 
-            protected override Task<int> InvokeInternalAsync(InvocationContext context)
+            protected override Task<int> InvokeInternalAsync(IConsole console, CancellationToken cancellationToken)
             {
                 throw exceptionToThrow;
             }
         }
     }
 }
+

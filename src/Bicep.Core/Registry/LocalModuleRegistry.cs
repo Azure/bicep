@@ -62,7 +62,28 @@ namespace Bicep.Core.Registry
                         continue;
                     }
 
-                    var package = ExtensionV1Archive.Read(binaryData);
+                    ExtensionPackage package;
+                    try
+                    {
+                        package = ExtensionV1Archive.Read(binaryData);
+                    }
+                    catch (InvalidDataException exception)
+                    {
+                        // The gzip/tar decompression failed - the referenced file is not a valid archive (see https://github.com/Azure/bicep/issues/19165).
+                        statuses.Add(reference, x => x.ArtifactRestoreFailedWithMessage(
+                            reference.FullyQualifiedReference,
+                            $"The file is not a valid extension package. Expected a gzip-compressed tar archive containing extension types. Error: {exception.Message}"));
+                        continue;
+                    }
+                    catch (Exception exception)
+                    {
+                        // Any other failure reading the package (e.g. missing types.tgz entry, truncated content).
+                        statuses.Add(reference, x => x.ArtifactRestoreFailedWithMessage(
+                            reference.FullyQualifiedReference,
+                            $"The file could not be read as a valid extension package. Error: {exception.Message}"));
+                        continue;
+                    }
+
                     await this.WriteArtifactContentToCacheAsync(reference, new(package));
                 }
             }
@@ -82,7 +103,7 @@ namespace Bicep.Core.Registry
         public override async Task PublishExtension(LocalModuleReference reference, ExtensionPackage package)
         {
             var archive = await ExtensionV1Archive.Build(package);
-            var fileHandle = reference.ReferencingFile.FileHandle.TryGetRelativeFile(reference.Path).Unwrap();
+            var fileHandle = reference.TryGetRelativeFile(reference.Path).Unwrap();
             fileHandle.Write(archive);
         }
 
@@ -140,7 +161,7 @@ namespace Bicep.Core.Registry
             // We must use '_' as a separator here because Windows does not allow ':' in file paths.
             var digest = OciDescriptor.ComputeDigest(OciDescriptor.AlgorithmIdentifierSha256, binaryData, separator: '_');
 
-            return reference.ReferencingFile.Features.CacheRootDirectory.GetDirectory($"local/{digest}");
+            return reference.FeatureProvider.CacheRootDirectory.GetDirectory($"local/{digest}");
         }
 
         protected override IDirectoryHandle GetArtifactDirectory(LocalModuleReference reference)
@@ -155,7 +176,7 @@ namespace Bicep.Core.Registry
 
         private static BinaryData? TryReadContent(LocalModuleReference reference)
         {
-            var moduleFileHandle = reference.ReferencingFile.FileHandle.TryGetRelativeFile(reference.Path).TryUnwrap();
+            var moduleFileHandle = reference.TryGetRelativeFile(reference.Path).TryUnwrap();
 
             return moduleFileHandle?.TryReadBinaryData().TryUnwrap();
         }

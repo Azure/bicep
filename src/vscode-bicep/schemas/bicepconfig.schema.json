@@ -155,6 +155,21 @@
         }
       }
     },
+    "bicepRegistryModuleAliasMock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mapToFilePath"
+      ],
+      "properties": {
+        "mapToFilePath": {
+          "title": "Map To File Path",
+          "description": "The path relative to bicepconfig.json used to emulate a registry alias",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
     "extensionConfig": {
       "type": "string"
     },
@@ -283,6 +298,25 @@
           "description": "Bicep Registry module alias definitions",
           "additionalProperties": {
             "$ref": "#/definitions/bicepRegistryModuleAlias",
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    "moduleAliasesMock": {
+      "title": "Module Aliases Mock",
+      "description": "Mock module aliases that supersede moduleAliases when present",
+      "type": "object",
+      "additionalProperties": false,
+      "default": {
+        "br": {}
+      },
+      "properties": {
+        "br": {
+          "title": "Bicep Registry Module Aliases Mock",
+          "description": "Mock Bicep Registry module alias definitions",
+          "additionalProperties": {
+            "$ref": "#/definitions/bicepRegistryModuleAliasMock",
             "additionalProperties": false
           }
         }
@@ -521,10 +555,30 @@
                     }
                   ]
                 },
+                "no-hardcoded-outputs": {
+                  "allOf": [
+                    {
+                      "description": "Outputs should not be used for hard-coded constants. Use exported variables instead. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#no-hardcoded-outputs"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
                 "no-loc-expr-outside-params": {
                   "allOf": [
                     {
                       "description": "Functions resourceGroup().location and deployment().location should only be used as the default value of a parameter. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#no-loc-expr-outside-params"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "no-module-name": {
+                  "allOf": [
+                    {
+                      "description": "Avoid specifying an explicit module name. This simplifies code, and avoids the risk of accidental module name re-use within a deployment. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#no-module-name"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-off"
@@ -635,6 +689,16 @@
                   "allOf": [
                     {
                       "description": "Outer-scoped nested deployment resources should not be used for secure parameters or list* functions. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#secure-params-in-nested-deploy"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "secure-params-in-parameters-file": {
+                  "allOf": [
+                    {
+                      "description": "Secure parameter values should not be assigned to insecure parameters in a parameters file. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#secure-params-in-parameters-file"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -864,9 +928,14 @@
       "type": "object",
       "description": "The experimental Bicep features that should be enabled or disabled for templates using this configuration file. See https://aka.ms/bicep/experimental-features for more information.",
       "properties": {
+        "ociEnabled": {
+          "type": "boolean",
+          "description": "Enables publishing and restoring modules from non-Azure OCI registries using the generic ORAS transport. See https://aka.ms/bicep/experimental-features#ocienabled"
+        },
         "extendableParamFiles": {
           "type": "boolean",
-          "description": "Allows the use of 'extends' keyword. See https://aka.ms/bicep/experimental-features#extendableparamfiles"
+          "description": "Accepted for compatibility. Extendable parameter files are now always enabled.",
+          "deprecated": true
         },
         "symbolicNameCodegen": {
           "type": "boolean",
@@ -916,17 +985,9 @@
           "type": "boolean",
           "description": "Allows you to access the 'deploy', 'what-if' and 'teardown' commands. See https://aka.ms/bicep/experimental-features#deploycommands"
         },
-        "thisNamespace": {
-          "type": "boolean",
-          "description": "Allows you to use this namespace to modify resource properties based on whether the resource already exists. Ex. this.exists() and this.existingResource(). See https://aka.ms/bicep/experimental-features#thisnamespace"
-        },
         "patch": {
           "type": "boolean",
           "description": "Enables the @patch() decorator for deploying resources using the PATCH HTTP method. This feature is restricted to Azure Policy DeployIfNotExists scenarios. See https://aka.ms/bicep/experimental-features#patch"
-        },
-        "existingNullIfNotFound": {
-          "type": "boolean",
-          "description": "Enables the @nullIfNotFound() decorator for existing resources, allowing them to return null if not found at deployment time. See https://aka.ms/bicep/experimental-features#existingnullifnotfound"
         }
       },
       "additionalProperties": false

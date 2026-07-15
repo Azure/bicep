@@ -10,8 +10,8 @@ using Bicep.IO.Abstraction;
 namespace Bicep.Core.Configuration;
 
 public record ExperimentalFeaturesEnabled(
+    bool OciEnabled,
     bool SymbolicNameCodegen,
-    bool ExtendableParamFiles,
     bool ResourceTypedParamsAndOutputs,
     bool SourceMapping,
     bool LegacyFormatter,
@@ -23,9 +23,7 @@ public record ExperimentalFeaturesEnabled(
     bool ModuleExtensionConfigs,
     bool UserDefinedConstraints,
     bool DeployCommands,
-    bool ThisNamespace,
-    bool Patch,
-    bool ExistingNullIfNotFound)
+    bool Patch)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();
@@ -33,8 +31,8 @@ public record ExperimentalFeaturesEnabled(
     public void WriteTo(Utf8JsonWriter writer) => JsonElementFactory.CreateElement(this).WriteTo(writer);
 
     public static readonly ExperimentalFeaturesEnabled AllDisabled = new(
+        OciEnabled: false,
         SymbolicNameCodegen: false,
-        ExtendableParamFiles: false,
         ResourceTypedParamsAndOutputs: false,
         SourceMapping: false,
         LegacyFormatter: false,
@@ -46,7 +44,5 @@ public record ExperimentalFeaturesEnabled(
         ModuleExtensionConfigs: false,
         UserDefinedConstraints: false,
         DeployCommands: false,
-        ThisNamespace: false,
-        Patch: false,
-        ExistingNullIfNotFound: false);
+        Patch: false);
 }

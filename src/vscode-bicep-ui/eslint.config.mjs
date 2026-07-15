@@ -9,7 +9,7 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   {
-    ignores: ["**/*.{js,cjs,mjs}", "**/.turbo/", "**/dist/"],
+    ignores: ["**/*.{js,cjs,mjs}", "**/.turbo/", "**/dist/", "**/e2e/.results/", "**/e2e/.report/"],
   },
   {
     files: ["**/*.ts", "**/*.tsx"],

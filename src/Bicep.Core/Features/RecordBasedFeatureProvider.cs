@@ -12,6 +12,7 @@ namespace Bicep.Core.Features
 
         public string AssemblyVersion => throw new NotImplementedException();
         public IDirectoryHandle CacheRootDirectory => throw new NotImplementedException();
+        public bool OciEnabled => features.OciEnabled;
         public bool SymbolicNameCodegenEnabled => features.SymbolicNameCodegen;
         public bool ResourceTypedParamsAndOutputsEnabled => features.ResourceTypedParamsAndOutputs;
         public bool SourceMappingEnabled => features.SourceMapping;
@@ -20,13 +21,10 @@ namespace Bicep.Core.Features
         public bool AssertsEnabled => features.Assertions;
         public bool WaitUntilEnabled => features.WaitUntil;
         public bool LocalDeployEnabled => features.LocalDeploy;
-        public bool ExtendableParamFilesEnabled => features.ExtendableParamFiles;
         public bool ResourceInfoCodegenEnabled => features.ResourceInfoCodegen;
         public bool ModuleExtensionConfigsEnabled => features.ModuleExtensionConfigs;
         public bool UserDefinedConstraintsEnabled => features.UserDefinedConstraints;
         public bool DeployCommandsEnabled => features.DeployCommands;
-        public bool ThisNamespaceEnabled => features.ThisNamespace;
         public bool PatchEnabled => features.Patch;
-        public bool ExistingNullIfNotFoundEnabled => features.ExistingNullIfNotFound;
     }
 }

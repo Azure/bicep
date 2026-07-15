@@ -7,7 +7,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Features;
 using Bicep.IO.Abstraction;
-using Bicep.TextFixtures.Mocks;
+using Bicep.Testing.Mocks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
@@ -37,7 +37,7 @@ public static class ExtensionTestHelper
 
     public static async Task<ServiceBuilder> GetServiceBuilderWithPublishedExtension(ExtensionPackage package, string target, FeatureProviderOverrides features, IFileSystem? fileSystem = null)
     {
-        var reference = OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile, ArtifactType.Module, null, target).Unwrap();
+        var reference = OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile.Features, BicepTestConstants.DummyBicepFile.Configuration, ArtifactType.Module, null, target).Unwrap();
 
         fileSystem ??= new MockFileSystem();
         var services = GetServiceBuilder(fileSystem, reference.Registry, reference.Repository, features);

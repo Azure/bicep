@@ -10,8 +10,8 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.TextFixtures.Mocks;
-using Bicep.TextFixtures.Utils;
+using Bicep.Testing.Mocks;
+using Bicep.Testing.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
@@ -86,7 +86,7 @@ public static class MockRegistry
             referenceStr = referenceStr[3..];
         }
 
-        if (!TemplateSpecModuleReference.TryParse(BicepTestConstants.DummyBicepFile, null, referenceStr).IsSuccess(out var specReference, out var errorBuilder))
+        if (!TemplateSpecModuleReference.TryParse(BicepTestConstants.DummyBicepFile.Features, BicepTestConstants.DummyBicepFile.Configuration, null, referenceStr).IsSuccess(out var specReference, out var errorBuilder))
         {
             diagnostic = errorBuilder(DiagnosticBuilder.ForDocumentStart());
 

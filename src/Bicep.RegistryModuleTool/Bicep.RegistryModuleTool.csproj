@@ -23,14 +23,12 @@
     <PackageReference Include="JsonPath.Net" />
     <PackageReference Include="JsonSchema.Net" />
     <PackageReference Include="Markdig" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Logging" />
     <PackageReference Include="Serilog.Extensions.Hosting" />
     <PackageReference Include="Serilog.Sinks.Console" />
     <PackageReference Include="Serilog.Sinks.TextWriter" />
     <PackageReference Include="System.CommandLine" />
-    <PackageReference Include="System.CommandLine.Hosting" />
-    <PackageReference Include="System.CommandLine.NamingConventionBinder" />
-    <PackageReference Include="System.CommandLine.Rendering" />
     <PackageReference Include="TestableIO.System.IO.Abstractions.Wrappers" />
   </ItemGroup>
 

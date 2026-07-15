@@ -660,7 +660,10 @@ namespace Bicep.Core.TypeSystem
                     }
                     propertyNamesEncountered.Add(propertyName);
 
-                    properties.Add(new(propertyName, propertyType, TypePropertyFlags.Required, DescriptionHelper.TryGetFromDecorator(binder, typeManager, prop)));
+                    // A property marked with '?' (NullableTypeSyntax) is optional, even if its resolved type collapses
+                    // nullability (e.g. 'any?' collapses to 'any', causing IsNullable() to return false).
+                    var propertyFlags = prop.Value is NullableTypeSyntax ? TypePropertyFlags.None : TypePropertyFlags.Required;
+                    properties.Add(new(propertyName, propertyType, propertyFlags, DescriptionHelper.TryGetFromDecorator(binder, typeManager, prop)));
                     nameBuilder.AppendProperty(propertyName, GetPropertyTypeName(prop.Value, propertyType));
                 }
                 else
@@ -1872,9 +1875,8 @@ namespace Bicep.Core.TypeSystem
                     {
                         return null;
                     }
-                    ;
 
-                    return TryCreateAssignment(parameterAssignmentTypeAssignment.Reference.Type, syntax);
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(parameterAssignmentTypeAssignment.Reference.Type, syntax), syntax);
 
                 case ExtensionConfigAssignmentSyntax:
                     if (GetDeclaredTypeAssignment(parent) is not { } extConfigAssignment)

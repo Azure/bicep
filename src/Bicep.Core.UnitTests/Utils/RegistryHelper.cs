@@ -13,8 +13,11 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Azure;
 using Bicep.Core.Registry.Extensions;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Registry.Oci.Oras;
+using Bicep.Core.Registry.Sessions;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.Core.Syntax;
@@ -26,6 +29,7 @@ using Bicep.IO.Utils;
 using FluentAssertions;
 using Google.Protobuf;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Bicep.Core.UnitTests.Registry.FakeContainerRegistryClient;
 using static Bicep.Core.UnitTests.Utils.TestContainerRegistryClientFactoryBuilder;
@@ -34,6 +38,22 @@ namespace Bicep.Core.UnitTests.Utils;
 
 public static class RegistryHelper
 {
+    private static ServiceBuilder ConfigureServiceBuilder(ServiceBuilder serviceBuilder)
+        => serviceBuilder
+            .WithFeaturesOverridden(f => f with { RegistryEnabled = true })
+            .WithRegistration(services =>
+            {
+                services.AddSingleton<IOciRegistryTransportFactory>(sp =>
+                {
+                    var azureTransport = sp.GetRequiredService<AzureContainerRegistryManager>();
+                    var dockerCredentials = sp.GetRequiredService<DockerCredentialProvider>();
+                    return new OciRegistryTransportFactory(azureTransport, dockerCredentials);
+                });
+            });
+
+    public static ServiceBuilder CreateServiceBuilderWithTransportOverride()
+        => ConfigureServiceBuilder(new ServiceBuilder());
+
     public record class RepoDescriptor(
         string Registry, // e.g. "registry.contoso.io"
         string Repository, // e.g. "test/module1"
@@ -130,7 +150,7 @@ public static class RegistryHelper
         var configurationManager = new ConfigurationManager(fileExplorer);
         var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, fileExplorer), BicepTestConstants.FeatureOverrides);
 
-        serviceBuilder = serviceBuilder
+        serviceBuilder = ConfigureServiceBuilder(serviceBuilder)
             .WithDisabledAnalyzersConfiguration()
             .WithContainerRegistryClientFactory(clientFactory)
             .WithFileSystem(fileSystem)
@@ -265,7 +285,9 @@ public static class RegistryHelper
             target = Path.GetFileName(targetUri.LocalPath);
         }
 
-        var bicepFile = bicepFileUri is not null ? sourceFileFactory.CreateBicepFile(bicepFileUri.ToIOUri(), "") : BicepTestConstants.DummyBicepFile;
+        var bicepFile = bicepFileUri is not null
+            ? sourceFileFactory.CreateBicepFile(bicepFileUri.ToIOUri(), "")
+            : BicepTestConstants.DummyBicepFile;
 
         if (!dispatcher.TryGetArtifactReference(bicepFile, ArtifactType.Extension, target).IsSuccess(out var targetReference, out var errorBuilder))
         {

@@ -20,7 +20,7 @@ using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
-using Bicep.TextFixtures.Utils;
+using Bicep.Testing.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -653,6 +653,35 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             result.Should().Fail().And.NotHaveStdout();
             result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the artifact with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");
+        }
+
+        [TestMethod]
+        public async Task Restore_InvalidPattern_UntrustedRegistry_EmitsBcp446_ExitCodeOne()
+        {
+            // module references an untrusted registry.
+            // Restore must still be blocked with BCP446.
+            var registry = "other-evil.example.com";
+            var repository = "mymodule";
+
+            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
+            var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
+            File.WriteAllText(bicepFilePath, $"module mod 'br:{registry}/{repository}:v1' = {{ name: 'mod' }}");
+
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object, registryConfiguration: new(PermitUntrustedRegistries: false));
+            var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(1);
+                output.Should().BeEmpty();
+                error.Should().Contain("BCP446");
+                error.Should().Contain(registry);
+            }
         }
 
         private static IEnumerable<object[]> GetAllDataSetsWithPublishSource()
