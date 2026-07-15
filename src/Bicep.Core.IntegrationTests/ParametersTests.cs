@@ -780,6 +780,47 @@ param stringParam =  /*TODO*/
         }
 
         [TestMethod]
+        public void Nested_base_spreads_should_not_evaluate_unreferenced_external_input()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'middle.bicepparam'
+                param tags = {
+                  ...base.tags
+                  child: 'child'
+                }
+              "),
+              ("middle.bicepparam", @"
+                using none
+                extends 'base.bicepparam'
+                param tags = {
+                  ...base.tags
+                  middle: 'middle'
+                }
+              "),
+              ("base.bicepparam", @"
+                using none
+                param external = externalInput('foo')
+                param tags = {
+                  parent: 'parent'
+                }
+              "),
+              ("main.bicep", @"
+                param external object
+                param tags object
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().HaveJsonAtPath("parameters.tags.value", @"{
+              ""parent"": ""parent"",
+              ""middle"": ""middle"",
+              ""child"": ""child""
+            }");
+            result.Parameters.Should().HaveValueAtPath("parameters.external.expression", "[externalInputs('foo_0')]");
+        }
+
+        [TestMethod]
         public void Decorators_on_using_param_and_extends_statements_should_raise_errors()
         {
             var result = CompilationHelper.CompileParams(
