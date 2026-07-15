@@ -750,6 +750,36 @@ param stringParam =  /*TODO*/
         }
 
         [TestMethod]
+        public void Base_property_accesses_should_not_evaluate_unreferenced_external_input()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+                param dotAccess = base.selected.value
+                param bracketAccess = base['selected'].value
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param external = externalInput('foo')
+                param selected = {
+                  value: 'parent'
+                }
+              "),
+              ("main.bicep", @"
+                param external object
+                param selected object
+                param dotAccess string
+                param bracketAccess string
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().HaveValueAtPath("parameters.dotAccess.value", "parent");
+            result.Parameters.Should().HaveValueAtPath("parameters.bracketAccess.value", "parent");
+            result.Parameters.Should().HaveValueAtPath("parameters.external.expression", "[externalInputs('foo_0')]");
+        }
+
+        [TestMethod]
         public void Decorators_on_using_param_and_extends_statements_should_raise_errors()
         {
             var result = CompilationHelper.CompileParams(
