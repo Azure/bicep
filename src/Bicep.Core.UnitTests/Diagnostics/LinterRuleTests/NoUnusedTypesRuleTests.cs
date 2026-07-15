@@ -100,5 +100,30 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             CompileAndTest(text, new(OnCompileErrors.Ignore), unusedTypes);
         }
+
+        [TestMethod]
+        public void Codefix_removes_unused_type() => AssertCodeFix(
+            NoUnusedTypesRule.Code,
+            "Remove unused type unusedType",
+            """
+            type unus|edType = string
+            """,
+            "");
+
+        [TestMethod]
+        public void Codefix_removes_only_the_unused_type() => AssertCodeFix(
+            NoUnusedTypesRule.Code,
+            "Remove unused type unusedType",
+            """
+            type unus|edType = string
+            type usedType = int
+            param foo usedType
+            output bar usedType = foo
+            """,
+            """
+            type usedType = int
+            param foo usedType
+            output bar usedType = foo
+            """);
     }
 }
