@@ -821,6 +821,38 @@ param stringParam =  /*TODO*/
         }
 
         [TestMethod]
+        public void Base_spread_should_preserve_function_bindings_in_selected_parent_parameter()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+                param tags = {
+                  ...base.tags
+                  child: 'child'
+                }
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param external = externalInput('foo')
+                param tags = {
+                  parent: toLower('PARENT')
+                }
+              "),
+              ("main.bicep", @"
+                param external object
+                param tags object
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().HaveJsonAtPath("parameters.tags.value", @"{
+              ""parent"": ""parent"",
+              ""child"": ""child""
+            }");
+            result.Parameters.Should().HaveValueAtPath("parameters.external.expression", "[externalInputs('foo_0')]");
+        }
+
+        [TestMethod]
         public void Decorators_on_using_param_and_extends_statements_should_raise_errors()
         {
             var result = CompilationHelper.CompileParams(
