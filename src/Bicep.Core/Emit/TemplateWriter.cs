@@ -68,10 +68,22 @@ namespace Bicep.Core.Emit
         private ExpressionBuilder ExpressionBuilder { get; }
         private ImmutableDictionary<string, DeclaredTypeExpression> declaredTypesByName;
 
-        public TemplateWriter(SemanticModel semanticModel)
+        // Shared content-addressed store for nested module templates. Non-null only when the
+        // moduleContentDeduplication experimental feature is enabled. The root writer owns the store
+        // (and emits the top-level "content" section); nested writers share the root's store.
+        private readonly ModuleContentStore? contentStore;
+        private readonly bool ownsContentStore;
+
+        public TemplateWriter(SemanticModel semanticModel, ModuleContentStore? contentStore = null)
         {
             ExpressionBuilder = new ExpressionBuilder(new EmitterContext(semanticModel));
             declaredTypesByName = [];
+
+            if (semanticModel.Features.ModuleContentDeduplicationEnabled)
+            {
+                this.contentStore = contentStore ?? new ModuleContentStore();
+                this.ownsContentStore = contentStore is null;
+            }
         }
 
         public void Write(SourceAwareJsonTextWriter writer)
@@ -143,10 +155,33 @@ namespace Bicep.Core.Emit
 
             this.EmitAssertsIfPresent(emitter, program.Asserts);
 
+            this.EmitContentStoreIfPresent(emitter, jsonWriter);
+
             jsonWriter.WriteEndObject();
 
             var content = jsonWriter.ToString();
             return (Template.FromJson<Template>(content), content.FromJson<JToken>());
+        }
+
+        private void EmitContentStoreIfPresent(ExpressionEmitter emitter, PositionTrackingJsonTextWriter jsonWriter)
+        {
+            // Only the root writer that owns the store emits the shared content section.
+            if (this.contentStore is not { } store || !this.ownsContentStore || store.IsEmpty)
+            {
+                return;
+            }
+
+            emitter.EmitObjectProperty("contentManifest", () =>
+            {
+                foreach (var (contentId, nestedTemplate) in store.Entries)
+                {
+                    emitter.EmitObjectProperty(contentId, () =>
+                    {
+                        jsonWriter.WritePropertyName("value");
+                        nestedTemplate.WriteTo(jsonWriter);
+                    });
+                }
+            });
         }
 
         private void EmitTypeDefinitionsIfPresent(ExpressionEmitter emitter, IEnumerable<DeclaredTypeExpression> types)
@@ -1564,10 +1599,14 @@ namespace Bicep.Core.Emit
 
                     var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
 
-                    // If it is a template spec module, emit templateLink instead of template contents.
-                    jsonWriter.WritePropertyName(moduleSemanticModel is TemplateSpecSemanticModel ? "templateLink" : "template");
+                    if (this.contentStore is { } store && moduleSemanticModel is not TemplateSpecSemanticModel)
                     {
-                        var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel);
+                        // Emit the nested template into the shared content store and reference it by
+                        // contentId instead of inlining it. Bicep child modules share the same store so
+                        // their own nested modules are deduplicated too; ARM template modules do not nest
+                        // further, so they are stored without a child store.
+                        var childStore = moduleSemanticModel is SemanticModel ? store : null;
+                        var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel, childStore);
                         var moduleBicepFile = (moduleSemanticModel as SemanticModel)?.SourceFile;
                         var moduleTextWriter = new StringWriter();
                         var moduleJsonWriter = new SourceAwareJsonTextWriter(moduleTextWriter, moduleBicepFile);
@@ -1576,7 +1615,29 @@ namespace Bicep.Core.Emit
                         jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
 
                         var nestedTemplate = moduleTextWriter.ToString().FromJson<JToken>();
-                        nestedTemplate.WriteTo(jsonWriter);
+                        var contentId = store.Add(nestedTemplate);
+
+                        emitter.EmitObjectProperty("templateLink", () =>
+                        {
+                            emitter.EmitProperty("contentId", contentId);
+                        });
+                    }
+                    else
+                    {
+                        // If it is a template spec module, emit templateLink instead of template contents.
+                        jsonWriter.WritePropertyName(moduleSemanticModel is TemplateSpecSemanticModel ? "templateLink" : "template");
+                        {
+                            var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel);
+                            var moduleBicepFile = (moduleSemanticModel as SemanticModel)?.SourceFile;
+                            var moduleTextWriter = new StringWriter();
+                            var moduleJsonWriter = new SourceAwareJsonTextWriter(moduleTextWriter, moduleBicepFile);
+
+                            moduleWriter.Write(moduleJsonWriter);
+                            jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
+
+                            var nestedTemplate = moduleTextWriter.ToString().FromJson<JToken>();
+                            nestedTemplate.WriteTo(jsonWriter);
+                        }
                     }
                 });
 
