@@ -258,6 +258,27 @@ invalid file
             password: getSecret('subId', 'rgName', 'kvName', 'secretName')
         }
         """)]
+    [DataRow(
+        "array element property",
+        """
+        @export()
+        type Login = {
+            username: string
+
+            @secure()
+            password: string
+        }
+
+        param input Login[]
+        """,
+        """
+        [
+            {
+                username: 'admin'
+                password: getSecret('subId', 'rgName', 'kvName', 'secretName')
+            }
+        ]
+        """)]
     public void GetSecret_nested_in_parameter_value_returns_direct_assignment_diagnostic(string scenario, string template, string parameterValue)
     {
         TestContext.WriteLine($"Scenario: {scenario}");
