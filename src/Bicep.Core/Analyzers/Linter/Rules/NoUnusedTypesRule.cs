@@ -25,8 +25,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var invertedBindings = model.Binder.Bindings.ToLookup(kvp => kvp.Value, kvp => kvp.Key);
 
             var unreferencedTypes = model.Root.TypeDeclarations
+                // exported types may be referenced by other files that this single-file analysis can't see
                 .Where(sym => !IsExported(model, sym.DeclaringType))
                 .Where(sym => sym.NameSource.IsValid)
+                // a declaration always binds to itself, so a type is unused unless something else references it
                 .Where(sym => !invertedBindings[sym].Any(x => x != sym.DeclaringSyntax));
 
             foreach (var sym in unreferencedTypes)
