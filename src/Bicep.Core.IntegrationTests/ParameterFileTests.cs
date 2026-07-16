@@ -242,6 +242,40 @@ invalid file
         });
     }
 
+    [DataTestMethod]
+    [DataRow(
+        "object property",
+        """
+        type Credentials = {
+            @secure()
+            password: string
+        }
+
+        param input Credentials
+        """,
+        """
+        {
+            password: getSecret('subId', 'rgName', 'kvName', 'secretName')
+        }
+        """)]
+    public void GetSecret_nested_in_parameter_value_returns_direct_assignment_diagnostic(string scenario, string template, string parameterValue)
+    {
+        TestContext.WriteLine($"Scenario: {scenario}");
+
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", $$"""
+            using 'main.bicep'
+
+            param input = {{parameterValue}}
+            """),
+            ("main.bicep", template));
+
+        result.Should().OnlyContainDiagnostic(
+            "BCP351",
+            DiagnosticLevel.Error,
+            "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning to a parameter.");
+    }
+
     [TestMethod]
     public void GetSecret_without_expressions_in_parameters_generates_expected_keyVault_reference()
     {
