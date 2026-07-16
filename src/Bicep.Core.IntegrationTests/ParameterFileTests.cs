@@ -356,6 +356,24 @@ invalid file
             password: true ? getSecret('subId', 'rgName', 'kvName', 'secretName') : 'fallback'
         }
         """)]
+    [DataRow(
+        "object property inside a loop",
+        """
+        type Login = {
+            username: string
+
+            @secure()
+            password: string
+        }
+
+        param input Login[]
+        """,
+        """
+        [for username in ['admin']: {
+            username: username
+            password: getSecret('subId', 'rgName', 'kvName', 'secretName')
+        }]
+        """)]
     public void GetSecret_nested_in_parameter_value_returns_direct_assignment_diagnostic(string scenario, string template, string parameterValue)
     {
         TestContext.WriteLine($"Scenario: {scenario}");
