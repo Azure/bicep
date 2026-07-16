@@ -2068,6 +2068,15 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithEvaluator(AddDecoratorConfigToResource)
                     .Build();
 
+                if (featureProvider.PatchEnabled)
+                {
+                    yield return new DecoratorBuilder(LanguageConstants.PatchDecoratorName)
+                        .WithDescription("Causes the resource to be deployed using the PATCH HTTP method. This feature is restricted to Azure Policy DeployIfNotExists scenarios.")
+                        .WithFlags(FunctionFlags.ResourceDecorator)
+                        .WithEvaluator(AddDecoratorConfigToResource)
+                        .Build();
+                }
+
                 yield return new DecoratorBuilder(LanguageConstants.NullIfNotFoundDecoratorName)
                     .WithDescription("Marks an existing resource as nullable, returning null if the resource doesn't exist at deployment time instead of failing.")
                     .WithFlags(FunctionFlags.ResourceDecorator)

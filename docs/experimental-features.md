@@ -34,6 +34,24 @@ includes enhancements for Deployment stacks extensibility integration. This feat
 
 Enables publishing and restoring Bicep modules and extensions to and from non-Azure OCI-compliant registries (e.g. GitHub Container Registry, Docker Hub, self-hosted registries) using the ORAS transport. For more information, see [Using OCI Registries](./experimental/oci-registries.md).
 
+### `patch`
+
+Enables the `@patch()` decorator for deploying resources using the PATCH HTTP method instead of PUT. This feature is restricted to Azure Policy DeployIfNotExists (DINE) scenarios, allowing policies to make incremental changes to existing resources without full redeployment.
+
+> **Note**: This feature is intended for internal Azure Policy scenarios and is not intended for general public use. It requires specific backend support that is only available in Policy-initiated deployments.
+
+```bicep
+@patch()
+resource existingVm 'Microsoft.Compute/virtualMachines@2023-01-01' = {
+  name: 'my-existing-vm'
+  properties: {
+    hardwareProfile: {
+      vmSize: 'Standard_D4s_v3'  // Only this property will be patched
+    }
+  }
+}
+```
+
 ### `resourceInfoCodegen`
 
 Enables the 'resourceInfo' function for simplified code generation.
