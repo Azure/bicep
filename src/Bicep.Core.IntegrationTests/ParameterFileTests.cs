@@ -341,6 +341,21 @@ invalid file
             password: az.getSecret('subId', 'rgName', 'kvName', 'secretName', 'secretVersion')
         }
         """)]
+    [DataRow(
+        "conditional object property",
+        """
+        type Credentials = {
+            @secure()
+            password: string
+        }
+
+        param input Credentials
+        """,
+        """
+        {
+            password: true ? getSecret('subId', 'rgName', 'kvName', 'secretName') : 'fallback'
+        }
+        """)]
     public void GetSecret_nested_in_parameter_value_returns_direct_assignment_diagnostic(string scenario, string template, string parameterValue)
     {
         TestContext.WriteLine($"Scenario: {scenario}");
