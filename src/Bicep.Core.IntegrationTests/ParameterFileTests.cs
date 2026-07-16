@@ -300,6 +300,32 @@ invalid file
             }
         }
         """)]
+    [DataRow(
+        "object property containing an array",
+        """
+        type Login = {
+            username: string
+
+            @secure()
+            password: string
+        }
+
+        type Input = {
+            logins: Login[]
+        }
+
+        param input Input
+        """,
+        """
+        {
+            logins: [
+                {
+                    username: 'admin'
+                    password: getSecret('subId', 'rgName', 'kvName', 'secretName')
+                }
+            ]
+        }
+        """)]
     public void GetSecret_nested_in_parameter_value_returns_direct_assignment_diagnostic(string scenario, string template, string parameterValue)
     {
         TestContext.WriteLine($"Scenario: {scenario}");
