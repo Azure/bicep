@@ -1318,9 +1318,14 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
 
+            static FunctionOverload MarkPureIfEvaluableInParameterFile(FunctionOverload overload) =>
+                LanguageConstants.IdentifierComparer.Equals(overload.Name, "fail") || overload.Flags.HasFlag(FunctionFlags.ParamDefaultsOnly)
+                    ? overload
+                    : overload.WithAdditionalFlags(FunctionFlags.Pure);
+
             foreach (var overload in GetAlwaysPermittedOverloads())
             {
-                yield return new(overload, (_, _) => true);
+                yield return new(MarkPureIfEvaluableInParameterFile(overload), (_, _) => true);
             }
 
             foreach (var overload in GetParamsFilePermittedOverloads(featureProvider))
