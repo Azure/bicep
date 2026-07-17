@@ -1,69 +1,32 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Buffers;
-using System.Collections.Concurrent;
-using System.IO;
+using System.Diagnostics;
 using System.IO.Pipelines;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Bicep.RpcClient.JsonRpc;
 
 internal class JsonRpcClient(PipeReader reader, PipeWriter writer) : IJsonRpcClient
 {
-    private record JsonRpcRequest<T>(
-        string Jsonrpc,
-        string Method,
-        T Params,
-        int Id);
-
-    private record MinimalJsonRpcResponse(
-        int Id);
-
-    private record JsonRpcResponse<T>(
-        string Jsonrpc,
-        T? Result,
-        JsonRpcError? Error,
-        int Id);
-
-    private record JsonRpcError(
-        int Code,
-        string Message,
-        JsonNode? Data);
-
     private int nextId = 0;
+    private int disposed = 0;
     private readonly SemaphoreSlim writeSemaphore = new(1, 1);
-    private readonly ConcurrentDictionary<int, TaskCompletionSource<byte[]>> pendingResponses = new();
-
-    private readonly JsonSerializerOptions jsonSerializerOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = false,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-    };
+    private readonly PendingRequestRegistry pendingRequests = new();
 
     public async Task<TResponse> SendRequest<TRequest, TResponse>(string method, TRequest request, CancellationToken cancellationToken)
     {
         var currentId = Interlocked.Increment(ref nextId);
+        var requestBytes = JsonRpcFormatter.GetRequestBytes(method, request, currentId);
 
-        var jsonRpcRequest = new JsonRpcRequest<TRequest>(Jsonrpc: "2.0", Method: method, Params: request, Id: currentId);
-        var requestContent = JsonSerializer.Serialize(jsonRpcRequest, jsonSerializerOptions);
-        var requestLength = Encoding.UTF8.GetByteCount(requestContent);
-        var rawRequest = $"Content-Length: {requestLength}\r\n\r\n{requestContent}";
+        // Register the pending response BEFORE writing to the wire. Otherwise the server can
+        // respond so quickly that the listen loop observes the response before we've registered
+        // the handler, silently dropping it and leaving this caller awaiting a response forever.
+        // Disposing the registration releases the slot no matter how this method unwinds.
+        using var registration = pendingRequests.Register(currentId);
 
         await writeSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            var requestBytes = Encoding.UTF8.GetBytes(rawRequest).AsMemory();
             await writer.WriteAsync(requestBytes, cancellationToken).ConfigureAwait(false);
             await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
         }
@@ -72,23 +35,8 @@ internal class JsonRpcClient(PipeReader reader, PipeWriter writer) : IJsonRpcCli
             writeSemaphore.Release();
         }
 
-        var tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
-        if (!pendingResponses.TryAdd(currentId, tcs))
-        {
-            throw new InvalidOperationException($"A request with ID {currentId} is already pending.");
-        }
-
-        var responseContent = await tcs.Task.ConfigureAwait(false);
-        var jsonRpcResponse = JsonSerializer.Deserialize<JsonRpcResponse<TResponse>>(responseContent, jsonSerializerOptions)
-            ?? throw new InvalidOperationException("Failed to deserialize JSON-RPC response");
-
-        if (jsonRpcResponse.Result is null)
-        {
-            var error = jsonRpcResponse.Error ?? throw new InvalidDataException("Failed to retrieve JSONRPC error");
-            throw new InvalidOperationException(error.Message);
-        }
-
-        return jsonRpcResponse.Result;
+        var responseContent = await registration.WaitForResponseAsync(cancellationToken).ConfigureAwait(false);
+        return JsonRpcFormatter.GetResponse<TResponse>(responseContent);
     }
 
     public Task Listen(Action onComplete, CancellationToken cancellationToken)
@@ -110,153 +58,67 @@ internal class JsonRpcClient(PipeReader reader, PipeWriter writer) : IJsonRpcCli
 
     private async Task ListenInternal(CancellationToken cancellationToken)
     {
-        while (true)
+        Exception? faultException = null;
+        try
         {
-            try
+            while (true)
             {
-                var message = await ReadMessage(cancellationToken).ConfigureAwait(false);
+                var message = await JsonRpcFormatter.ReadMessage(reader, cancellationToken).ConfigureAwait(false);
                 if (message is null)
                 {
+                    // The remote endpoint disconnected. Any outstanding callers are faulted below.
+                    faultException = new IOException("The JSON-RPC connection was closed by the remote endpoint before all responses were received.");
                     return;
                 }
 
-                var response = JsonSerializer.Deserialize<MinimalJsonRpcResponse>(message, jsonSerializerOptions)
-                    ?? throw new InvalidOperationException("Failed to deserialize JSON-RPC response");
+                var responseId = JsonRpcFormatter.GetResponseId(message);
 
-                if (pendingResponses.TryRemove(response.Id, out var tcs))
+                if (!pendingRequests.TryComplete(responseId, message))
                 {
-                    tcs.SetResult(message);
+                    // No caller is waiting on this id. This indicates a protocol bug (unknown or
+                    // duplicate id), so surface it rather than silently dropping the message.
+                    Debug.WriteLine($"Received a JSON-RPC response for unknown or already-completed request ID {responseId}.");
                 }
             }
-            catch (Exception) when (cancellationToken.IsCancellationRequested)
+        }
+        catch (Exception ex)
+        {
+            faultException = ex;
+            if (cancellationToken.IsCancellationRequested)
             {
                 await reader.CompleteAsync().ConfigureAwait(false);
                 await writer.CompleteAsync().ConfigureAwait(false);
-                break;
             }
-        }
-    }
-
-    private record Headers(
-        int ContentLength);
-
-    private async Task<Headers?> ReadHeaders(CancellationToken cancellationToken)
-    {
-        int? contentLength = null;
-        while (true)
-        {
-            var readResult = await reader.ReadAsync(cancellationToken).ConfigureAwait(false);
-
-            if (readResult.Buffer.IsEmpty && readResult.IsCompleted)
+            else
             {
-                return null; // remote end disconnected at a reasonable place.
+                // A framing/protocol error is unrecoverable for this connection. Surface it on the listen
+                // task (its established contract) after the finally block has faulted any pending callers.
+                throw;
             }
-
-            var lf = readResult.Buffer.PositionOf((byte)'\n');
-            if (!lf.HasValue)
+        }
+        finally
+        {
+            // Never leave a caller awaiting a response that can no longer arrive.
+            if (cancellationToken.IsCancellationRequested)
             {
-                if (readResult.IsCompleted)
-                {
-                    throw new EndOfStreamException();
-                }
-
-                // Indicate that we can't find what we're looking for and read again.
-                reader.AdvanceTo(readResult.Buffer.Start, readResult.Buffer.End);
-                continue;
+                pendingRequests.CancelAll(cancellationToken);
             }
-
-            var line = readResult.Buffer.Slice(0, lf.Value);
-
-            // Verify the line ends with an \r (that precedes the \n we already found)
-            var cr = line.PositionOf((byte)'\r');
-            if (!cr.HasValue || !line.GetPosition(1, cr.Value).Equals(lf))
+            else
             {
-                throw new InvalidOperationException("Header does not end with expected \r\n character sequence");
-            }
-
-            // Trim off the \r now that we confirmed it was there.
-            line = line.Slice(0, line.Length - 1);
-
-            if (line.Length > 0)
-            {
-                var lineText = Encoding.UTF8.GetString(line.ToArray());
-                var split = lineText.Split([':'], 2);
-                if (split.Length != 2)
-                {
-                    throw new InvalidOperationException("Colon not found in header.");
-                }
-
-                var headerName = split[0].Trim();
-                var headerValue = split[1].Trim();
-
-                if (headerName == "Content-Length")
-                {
-                    contentLength = int.Parse(headerValue);
-                }
-            }
-
-            // Advance to the next line.
-            reader.AdvanceTo(readResult.Buffer.GetPosition(1, lf.Value));
-
-            if (line.Length == 0)
-            {
-                // We found the empty line that constitutes the end of the HTTP headers.
-                break;
+                pendingRequests.FaultAll(faultException ?? new IOException("The JSON-RPC connection was closed before a response was received."));
             }
         }
-
-        if (!contentLength.HasValue)
-        {
-            throw new InvalidOperationException("Failed to obtain Content-Length header");
-        }
-
-        return new(contentLength.Value);
-    }
-
-    protected async ValueTask<ReadResult> ReadAtLeastAsync(int requiredBytes, bool allowEmpty, CancellationToken cancellationToken)
-    {
-        var readResult = await reader.ReadAsync(cancellationToken).ConfigureAwait(false);
-        while (readResult.Buffer.Length < requiredBytes && !readResult.IsCompleted && !readResult.IsCanceled)
-        {
-            reader.AdvanceTo(readResult.Buffer.Start, readResult.Buffer.End);
-            readResult = await reader.ReadAsync(cancellationToken).ConfigureAwait(false);
-        }
-
-        if (allowEmpty && readResult.Buffer.Length == 0)
-        {
-            return readResult;
-        }
-
-        if (readResult.Buffer.Length < requiredBytes)
-        {
-            throw readResult.IsCompleted ? new EndOfStreamException() :
-                readResult.IsCanceled ? new OperationCanceledException() :
-                throw new InvalidOperationException(); // should be unreachable
-        }
-
-        return readResult;
-    }
-
-    private async Task<byte[]?> ReadMessage(CancellationToken cancellationToken)
-    {
-        var headers = await ReadHeaders(cancellationToken).ConfigureAwait(false);
-        if (headers is null)
-        {
-            return null;
-        }
-
-        var readResult = await ReadAtLeastAsync(headers.ContentLength, allowEmpty: false, cancellationToken).ConfigureAwait(false);
-
-        var contentBuffer = readResult.Buffer.Slice(0, headers.ContentLength);
-        var output = contentBuffer.ToArray();
-
-        reader.AdvanceTo(contentBuffer.End);
-
-        return output;
     }
 
     public void Dispose()
     {
+        if (Interlocked.Exchange(ref disposed, 1) != 0)
+        {
+            return;
+        }
+
+        // Unblock any callers still awaiting responses before tearing down the pipe.
+        pendingRequests.FaultAll(new ObjectDisposedException(nameof(JsonRpcClient)));
         writer.Complete();
         reader.Complete();
     }
