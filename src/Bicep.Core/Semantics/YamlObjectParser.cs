@@ -24,7 +24,10 @@ public class YamlObjectParser : ObjectParser
     {
         try
         {
-            return YamlSerializer.Deserialize<object>(fileContent);
+            return YamlSerializer.Deserialize<object>(fileContent, new YamlSerializerOptions
+            {
+                ReferenceHandling = YamlReferenceHandling.Preserve,
+            });
         }
         catch
         {
