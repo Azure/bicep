@@ -712,6 +712,40 @@ param stringParam =  /*TODO*/
         }
 
         [TestMethod]
+        public void Base_object_spread_should_support_referenced_external_input()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", @"
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+                param B = {
+                  ...base.external
+                  something: 'something'
+                }
+              "),
+              ("shared.bicepparam", @"
+                using none
+                param external = externalInput('foo', 'bar')
+                param B = {
+                  parent: 'parent'
+                }
+              "),
+              ("main.bicep", @"
+                param external object
+                param B object
+              "));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().HaveValueAtPath("parameters.B.expression", "[shallowMerge(createArray(externalInputs('foo_0'), createObject('something', 'something')))]");
+            result.Parameters.Should().HaveJsonAtPath("externalInputDefinitions", @"{
+              ""foo_0"": {
+                ""kind"": ""foo"",
+                ""config"": ""bar""
+              }
+            }");
+        }
+
+        [TestMethod]
         public void Base_array_spread_should_not_evaluate_unreferenced_external_input()
         {
             var result = CompilationHelper.CompileParams(
