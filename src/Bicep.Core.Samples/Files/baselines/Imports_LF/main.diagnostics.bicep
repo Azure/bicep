@@ -12,6 +12,7 @@ var aliasedBar = mod2.foo
 //@[04:14) [no-unused-vars (Warning)] Variable "aliasedBar" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-vars) |aliasedBar|
 
 type fizzes = fizz[]
+//@[05:11) [no-unused-types (Warning)] Type "fizzes" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |fizzes|
 
 param fizzParam mod2.fizz
 //@[06:15) [no-unused-params (Warning)] Parameter "fizzParam" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |fizzParam|

@@ -635,6 +635,16 @@
                     }
                   ]
                 },
+                "no-unused-types": {
+                  "allOf": [
+                    {
+                      "description": "All declared types must be used. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-unused-types"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "no-unused-vars": {
                   "allOf": [
                     {
