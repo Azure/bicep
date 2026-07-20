@@ -196,6 +196,9 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             generatedTypeCache = new ResourceTypeCache();
         }
 
+        public Extensibility.ExtensionResourceTypeLoader.NamespaceConfiguration? GetNamespaceConfiguration()
+            => (resourceTypeLoader as AzResourceTypeLoader)?.LoadNamespaceConfiguration();
+
         private static ObjectType CreateGenericResourceBody(ResourceTypeReference typeReference, Func<string, bool> propertyFilter)
         {
             var properties = CreateResourceProperties(typeReference).Where(p => propertyFilter(p.Name));

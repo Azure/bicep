@@ -984,6 +984,10 @@
         "deployCommands": {
           "type": "boolean",
           "description": "Allows you to access the 'deploy', 'what-if' and 'teardown' commands. See https://aka.ms/bicep/experimental-features#deploycommands"
+        },
+        "azExtensionConfig": {
+          "type": "boolean",
+          "description": "Enables configuration for the built-in 'az' extension. See https://aka.ms/bicep/experimental-features#azextensionconfig"
         }
       },
       "additionalProperties": false

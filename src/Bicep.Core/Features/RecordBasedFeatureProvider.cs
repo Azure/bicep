@@ -25,5 +25,7 @@ namespace Bicep.Core.Features
         public bool ModuleExtensionConfigsEnabled => features.ModuleExtensionConfigs;
         public bool UserDefinedConstraintsEnabled => features.UserDefinedConstraints;
         public bool DeployCommandsEnabled => features.DeployCommands;
+
+        public bool AzExtensionConfigEnabled => features.AzExtensionConfig;
     }
 }

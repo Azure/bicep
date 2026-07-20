@@ -37,6 +37,8 @@ public interface IFeatureProvider
 
     bool DeployCommandsEnabled { get; }
 
+    bool AzExtensionConfigEnabled { get; }
+
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
         get
@@ -57,6 +59,7 @@ public interface IFeatureProvider
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
                 (UserDefinedConstraintsEnabled, "Enable @validate() decorator", true, true),
                 (DeployCommandsEnabled, "Enable deploy commands", true, true),
+                (AzExtensionConfigEnabled, "Enable configuration for the built-in 'az' extension", true, true),
             })
             {
                 if (enabled)

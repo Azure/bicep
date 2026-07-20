@@ -13,6 +13,10 @@ The following features can be optionally enabled through your `bicepconfig.json`
 
 Should be enabled in tandem with `testFramework` experimental feature flag for expected functionality. Allows you to author boolean assertions using the `assert` keyword comparing the actual value of a parameter, variable, or resource name to an expected value. Assert statements can only be written directly within the Bicep file whose resources they reference. For more information, see [Bicep Experimental Test Framework](https://github.com/Azure/bicep/issues/11967).
 
+### `azExtensionConfig`
+
+Enables configuration for the built-in `az` extension, allowing templates to specify settings (such as the list of Azure resource provider namespaces to register) via the extension's `config` property.
+
 ### `deployCommands`
 
 Enables `deploy`, `what-if` and `teardown` command groups, as well as the `with` syntax in a `.bicepparam` file. For more information, see [Using the Deploy Commands](./experimental/deploy-commands.md).

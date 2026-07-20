@@ -114,7 +114,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "resourceInfoCodegen": false,
           "userDefinedConstraints": false,
-          "deployCommands": false
+          "deployCommands": false,
+          "azExtensionConfig": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -199,7 +200,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
-          "deployCommands": false
+          "deployCommands": false,
+          "azExtensionConfig": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -306,7 +308,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
-          "deployCommands": false
+          "deployCommands": false,
+          "azExtensionConfig": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -391,7 +394,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 ResourceInfoCodegen: false,
                 ModuleExtensionConfigs: false,
                 UserDefinedConstraints: false,
-                DeployCommands: false);
+                DeployCommands: false,
+                AzExtensionConfig: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -477,7 +481,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 "resourceInfoCodegen": false,
                 "moduleExtensionConfigs": false,
                 "userDefinedConstraints": false,
-                "deployCommands": false
+                "deployCommands": false,
+                "azExtensionConfig": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -832,7 +837,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "resourceInfoCodegen": false,
                     "moduleExtensionConfigs": false,
                     "userDefinedConstraints": false,
-                    "deployCommands": false
+                    "deployCommands": false,
+                    "azExtensionConfig": false
                   },
                   "formatting": {
                     "indentKind": "Space",

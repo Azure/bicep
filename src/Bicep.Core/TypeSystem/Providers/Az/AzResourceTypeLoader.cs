@@ -5,6 +5,7 @@ using Azure.Bicep.Types;
 using Azure.Bicep.Types.Index;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
+using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.Providers.Az
@@ -15,12 +16,14 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         private readonly AzResourceTypeFactory resourceTypeFactory;
         private readonly ImmutableDictionary<ResourceTypeReference, CrossFileTypeReference> availableTypes;
         private readonly ImmutableDictionary<string, ImmutableDictionary<string, ImmutableArray<CrossFileTypeReference>>> availableFunctions;
+        private readonly TypeSettings? typeSettings;
 
         public AzResourceTypeLoader(ITypeLoader typeLoader, TypeIndex? typeIndex = null)
         {
             this.typeLoader = typeLoader;
             resourceTypeFactory = new AzResourceTypeFactory();
             var indexedTypes = typeIndex ?? typeLoader.LoadTypeIndex();
+            typeSettings = indexedTypes.Settings;
             availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
                 kvp => kvp.Value);
@@ -52,6 +55,27 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 
             var serializedResourceType = typeLoader.LoadResourceType(typeLocation);
             return resourceTypeFactory.GetResourceType(serializedResourceType, functionOverloads);
+        }
+
+        public ExtensionResourceTypeLoader.NamespaceConfiguration? LoadNamespaceConfiguration()
+        {
+            if (typeSettings?.ConfigurationType is not { } reference)
+            {
+                return null;
+            }
+
+            var serializedConfigurationType = typeLoader.LoadType(reference);
+
+            if (resourceTypeFactory.GetConfigurationType(serializedConfigurationType) is not ObjectLikeType configurationType)
+            {
+                throw new InvalidOperationException($"Extension configuration type at index {reference.Index} in \"{reference.RelativePath}\" is not a valid ObjectLikeType.");
+            }
+
+            return new(
+                typeSettings.Name,
+                typeSettings.Version,
+                typeSettings.IsSingleton,
+                configurationType);
         }
     }
 }
