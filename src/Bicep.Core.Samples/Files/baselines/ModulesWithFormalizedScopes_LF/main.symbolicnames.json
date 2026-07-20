@@ -1,0 +1,75 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "languageVersion": "2.1-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+    "_EXPERIMENTAL_FEATURES_ENABLED": [
+      "Enable formalized @scope handling"
+    ],
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "15997603757570852539"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "eastus"
+    }
+  },
+  "resources": {
+    "storageMod": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "storageMod",
+      "@scope": "[resourceGroup('my-rg')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable formalized @scope handling"
+            ],
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "11927649277441762896"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string"
+            }
+          },
+          "resources": {},
+          "outputs": {
+            "loc": {
+              "type": "string",
+              "value": "[parameters('location')]"
+            }
+          }
+        }
+      }
+    }
+  },
+  "outputs": {
+    "loc": {
+      "type": "string",
+      "value": "[reference('storageMod').outputs.loc.value]"
+    }
+  }
+}

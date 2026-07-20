@@ -31,7 +31,8 @@ namespace Bicep.Core.Emit
             SyntaxBase? ResourceGroupProperty = null,
             DeclaredResourceMetadata? ResourceScope = null,
             ImmutableArray<SyntaxBase>? ResourceScopeNameSyntaxSegments = null,
-            SyntaxBase? IndexExpression = null);
+            SyntaxBase? IndexExpression = null,
+            SyntaxBase? FormalizedScopeExpression = null);
 
         public delegate void LogInvalidScopeDiagnostic(IPositionable positionable, ResourceScope? suppliedScope, ResourceScope supportedScopes);
 
@@ -65,6 +66,22 @@ namespace Bicep.Core.Emit
             };
 
             var scopeType = semanticModel.GetTypeInfo(scopeValue);
+
+            // REP 0015: with the formalized scope feature, we no longer type-switch on the concrete
+            // *ScopeType classes or extract ID expressions positionally. The scope value's type is a
+            // member of the ResourceScope discriminated union, so the scope KIND is read from its 'type'
+            // discriminator (duck typing) and the raw scope expression is passed through to "@scope".
+            if (semanticModel.Features.FormalizedScopeEnabled &&
+                TryGetFormalizedScopeKind(scopeType, out var formalizedScope))
+            {
+                if (!supportedScopes.HasFlag(formalizedScope))
+                {
+                    logInvalidScopeFunc(scopeValue, formalizedScope, supportedScopes);
+                    return null;
+                }
+
+                return new ScopeData(formalizedScope, IndexExpression: indexExpression, FormalizedScopeExpression: scopeValue);
+            }
 
             switch (scopeType)
             {
@@ -195,6 +212,77 @@ namespace Bicep.Core.Emit
 
             // type validation should have already caught this
             return null;
+        }
+
+        // REP 0015: duck-typed scope-kind detection. Reads the string-literal "type" discriminator from
+        // the scope value's type (a ResourceScope union member) instead of matching concrete scope classes.
+        // Handles a union of members too (e.g. a ternary), provided every member shares the same discriminator -
+        // which is precisely the case that today's "magic" code generation cannot resolve at compile time.
+        private static bool TryGetFormalizedScopeKind(TypeSymbol scopeType, out ResourceScope scope)
+        {
+            scope = default;
+
+            switch (scopeType)
+            {
+                case ObjectType objectType:
+                    return TryReadScopeDiscriminator(objectType, out scope);
+
+                case UnionType unionType:
+                    ResourceScope? common = null;
+                    foreach (var member in unionType.Members)
+                    {
+                        if (member.Type is not ObjectType memberObject ||
+                            !TryReadScopeDiscriminator(memberObject, out var memberScope))
+                        {
+                            return false;
+                        }
+
+                        if (common is { } existing && existing != memberScope)
+                        {
+                            return false;
+                        }
+
+                        common = memberScope;
+                    }
+
+                    if (common is { } resolved)
+                    {
+                        scope = resolved;
+                        return true;
+                    }
+
+                    return false;
+
+                default:
+                    return false;
+            }
+        }
+
+        private static bool TryReadScopeDiscriminator(ObjectType objectType, out ResourceScope scope)
+        {
+            scope = default;
+
+            if (objectType.Properties.TryGetValue(AzResourceScopeType.DiscriminatorKey, out var discriminator) &&
+                discriminator.TypeReference.Type is StringLiteralType literal)
+            {
+                switch (literal.RawStringValue)
+                {
+                    case "tenant":
+                        scope = ResourceScope.Tenant;
+                        return true;
+                    case "managementGroup":
+                        scope = ResourceScope.ManagementGroup;
+                        return true;
+                    case "subscription":
+                        scope = ResourceScope.Subscription;
+                        return true;
+                    case "resourceGroup":
+                        scope = ResourceScope.ResourceGroup;
+                        return true;
+                }
+            }
+
+            return false;
         }
 
         public static LanguageExpression FormatFullyQualifiedResourceId(EmitterContext context, ExpressionConverter converter, ScopeData scopeData, string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
@@ -459,7 +547,7 @@ namespace Bicep.Core.Emit
                     // the immediate parent will have already been processed in this loop, so use its scope data (which has had index replacements applied) even
                     // though the scope was originally specified on the first ancestor
                     var immediateParent = ancestors.Last();
-                    var (_, parentManagementGroupName, parentSubscriptionId, parentResourceGroupName, parentResourceScope, parentResourceScopeNameSegments, parentIndexExpression) = scopeInfo[immediateParent.Resource];
+                    var (_, parentManagementGroupName, parentSubscriptionId, parentResourceGroupName, parentResourceScope, parentResourceScopeNameSegments, parentIndexExpression, _) = scopeInfo[immediateParent.Resource];
                     scopeInfo[resource] = scopeInfo[immediateParent.Resource] with
                     {
                         ManagementGroupNameProperty = parentManagementGroupName is not null
@@ -590,10 +678,16 @@ namespace Bicep.Core.Emit
                     scopeData = new(semanticModel.TargetScope);
                 }
 
-                ValidateNestedTemplateScopeRestrictions(
-                    semanticModel,
-                    scopeData,
-                    buildDiagnostic => diagnosticWriter.Write(scopeValue ?? moduleSymbol.DeclaringModule.Value, buildDiagnostic));
+                // REP 0015: the cross-scope reachability check below distinguishes cases (e.g. resourceGroup()
+                // vs resourceGroup(name)) by the extracted ID expressions - magic we no longer perform under the
+                // formalized scope feature. The deployment engine validates the duck-typed "@scope" instead.
+                if (!semanticModel.Features.FormalizedScopeEnabled)
+                {
+                    ValidateNestedTemplateScopeRestrictions(
+                        semanticModel,
+                        scopeData,
+                        buildDiagnostic => diagnosticWriter.Write(scopeValue ?? moduleSymbol.DeclaringModule.Value, buildDiagnostic));
+                }
 
                 scopeInfo[moduleSymbol] = scopeData;
             }

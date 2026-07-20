@@ -23,7 +23,8 @@ public record ExperimentalFeaturesEnabled(
     bool ModuleExtensionConfigs,
     bool UserDefinedConstraints,
     bool DeployCommands,
-    bool Patch)
+    bool Patch,
+    bool FormalizedScope = false)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();
@@ -44,5 +45,6 @@ public record ExperimentalFeaturesEnabled(
         ModuleExtensionConfigs: false,
         UserDefinedConstraints: false,
         DeployCommands: false,
-        Patch: false);
+        Patch: false,
+        FormalizedScope: false);
 }

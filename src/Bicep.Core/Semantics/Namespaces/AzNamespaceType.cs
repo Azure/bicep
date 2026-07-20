@@ -52,19 +52,32 @@ namespace Bicep.Core.Semantics.Namespaces
         }
 
         private static FunctionResult GetRestrictedResourceGroupReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
-            => new(
-                new ResourceGroupScopeType(functionCall.Arguments, []),
-                new ObjectExpression(functionCall, []));
+        {
+            var type = new ResourceGroupScopeType(functionCall.Arguments, FormalizedScopeDiscriminator(model, "resourceGroup"));
+            // REP 0015: under the formalized scope feature the scope function is emitted verbatim into
+            // "@scope" (pass-through), so it must NOT be stubbed as an empty object.
+            return model.Features.FormalizedScopeEnabled ? new(type) : new(type, new ObjectExpression(functionCall, []));
+        }
 
         private static FunctionResult GetRestrictedSubscriptionReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
-            => new(
-                new SubscriptionScopeType(functionCall.Arguments, []),
-                new ObjectExpression(functionCall, []));
+        {
+            var type = new SubscriptionScopeType(functionCall.Arguments, FormalizedScopeDiscriminator(model, "subscription"));
+            return model.Features.FormalizedScopeEnabled ? new(type) : new(type, new ObjectExpression(functionCall, []));
+        }
 
         private static FunctionResult GetRestrictedManagementGroupReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
-            => new(
-                new ManagementGroupScopeType(functionCall.Arguments, []),
-                new ObjectExpression(functionCall, []));
+        {
+            var type = new ManagementGroupScopeType(functionCall.Arguments, FormalizedScopeDiscriminator(model, "managementGroup"));
+            return model.Features.FormalizedScopeEnabled ? new(type) : new(type, new ObjectExpression(functionCall, []));
+        }
+
+        // REP 0015: under the FormalizedScope feature, scope functions return a value modeled as a
+        // member of the ResourceScope discriminated union (see AzResourceScopeType). The 'type'
+        // string-literal property is the discriminator that identifies the scope kind by shape alone.
+        private static NamedTypeProperty[] FormalizedScopeDiscriminator(SemanticModel model, string discriminator)
+            => model.Features.FormalizedScopeEnabled
+                ? [new NamedTypeProperty(AzResourceScopeType.DiscriminatorKey, TypeFactory.CreateStringLiteralType(discriminator), TypePropertyFlags.ReadOnly)]
+                : [];
 
         private static FunctionResult GetTenantReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(new TenantScopeType(functionCall.Arguments, new[]
@@ -73,7 +86,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new NamedTypeProperty("country", LanguageConstants.String),
                 new NamedTypeProperty("countryCode", LanguageConstants.String),
                 new NamedTypeProperty("displayName", LanguageConstants.String),
-            }));
+            }.Concat(FormalizedScopeDiscriminator(model, "tenant"))));
 
         private static FunctionResult GetManagementGroupReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
@@ -103,7 +116,9 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 new NamedTypeProperty("id", LanguageConstants.String),
                 new NamedTypeProperty("name", LanguageConstants.String),
-                new NamedTypeProperty("type", LanguageConstants.String),
+                model.Features.FormalizedScopeEnabled
+                    ? new NamedTypeProperty("type", TypeFactory.CreateStringLiteralType("managementGroup"), TypePropertyFlags.ReadOnly)
+                    : new NamedTypeProperty("type", LanguageConstants.String),
                 new NamedTypeProperty("properties", properties),
             }));
         }
@@ -115,11 +130,17 @@ namespace Bicep.Core.Semantics.Namespaces
                 new NamedTypeProperty("provisioningState", LanguageConstants.String),
             }, null);
 
+            // REP 0015: under the formalized scope feature, the metadata 'type' property becomes the
+            // ResourceScope discriminator literal so resourceGroup() is a member of the union.
+            var typeProperty = model.Features.FormalizedScopeEnabled
+                ? new NamedTypeProperty("type", TypeFactory.CreateStringLiteralType("resourceGroup"), TypePropertyFlags.ReadOnly)
+                : new NamedTypeProperty("type", LanguageConstants.String);
+
             return new(new ResourceGroupScopeType(functionCall.Arguments, new[]
             {
                 new NamedTypeProperty("id", LanguageConstants.String),
                 new NamedTypeProperty("name", LanguageConstants.String),
-                new NamedTypeProperty("type", LanguageConstants.String),
+                typeProperty,
                 new NamedTypeProperty("location", LanguageConstants.String),
                 new NamedTypeProperty("managedBy", LanguageConstants.String),
                 new NamedTypeProperty("tags", AzResourceTypeProvider.Tags),
@@ -135,7 +156,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new NamedTypeProperty("subscriptionId", LanguageConstants.String),
                 new NamedTypeProperty("tenantId", LanguageConstants.String),
                 new NamedTypeProperty("displayName", LanguageConstants.String),
-            }));
+            }.Concat(FormalizedScopeDiscriminator(model, "subscription"))));
         }
 
         private static ObjectType GetRoleDefinitionReturnType()

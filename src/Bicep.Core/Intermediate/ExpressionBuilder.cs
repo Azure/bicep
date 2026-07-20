@@ -1648,6 +1648,14 @@ public class ExpressionBuilder
 
     private void EmitResourceOrModuleScopeProperties(ScopeData scopeData, ExpressionEmitter expressionEmitter, SyntaxBase newContext)
     {
+        if (Context.SemanticModel.Features.FormalizedScopeEnabled)
+        {
+            // REP 0015: emit a single, duck-typed "@scope" discriminated-union object instead of
+            // the legacy subscriptionId / resourceGroup / scope properties.
+            EmitFormalizedScopeProperty(scopeData, expressionEmitter, newContext);
+            return;
+        }
+
         switch (scopeData.RequestedScope)
         {
             case ResourceScope.Tenant:
@@ -1697,6 +1705,22 @@ public class ExpressionBuilder
             default:
                 throw new InvalidOperationException($"Cannot format resourceId for scope {scopeData.RequestedScope}");
         }
+    }
+
+    // REP 0015: "Formalize handling of scope". The scope functions now return a value shaped like the
+    // ResourceScope discriminated union, so there is no compile-time decomposition into
+    // subscriptionId / resourceGroup / scope properties. We simply emit the raw scope expression verbatim
+    // into the "@scope" property (pass-through) and let the deployment engine read the discriminated
+    // object (with its "type" discriminator) at deploy time.
+    private void EmitFormalizedScopeProperty(ScopeData scopeData, ExpressionEmitter expressionEmitter, SyntaxBase newContext)
+    {
+        if (scopeData.FormalizedScopeExpression is { } scopeExpression)
+        {
+            var indexContext = TryGetReplacementContext(scopeExpression, scopeData.IndexExpression, newContext);
+            expressionEmitter.EmitProperty("@scope", () => expressionEmitter.EmitExpression(scopeExpression, indexContext));
+        }
+
+        // No explicit scope: the resource/module targets the deployment's own scope, so nothing is emitted.
     }
 
     private static long SafeConvertIntegerValue(IntegerLiteralSyntax @int, bool isNegative)
