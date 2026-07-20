@@ -216,6 +216,140 @@ public class JsonRpcClientTests
             .Should().ThrowAsync<EndOfStreamException>();
     }
 
+    [TestMethod]
+    public async Task SendRequest_completes_when_response_is_delivered_the_instant_the_request_is_sent()
+    {
+        // Regression test for a register-after-send race. If the server's response is observed by the
+        // listen loop before SendRequest registers its pending-response handler, the response used to be
+        // silently dropped and the caller hung forever. The handler MUST be registered before the request
+        // is written to the wire. This test delivers the response during the request flush (i.e. before
+        // the old code reached its registration) and asserts the caller still receives it.
+        var responsePipe = new Pipe();
+        var requestPipe = new Pipe();
+
+        async Task DeliverFirstResponse()
+        {
+            // The first request on a fresh client has id 1.
+            const string json = """{"jsonrpc":"2.0","id":1,"result":{"value":"raced"}}""";
+            var frame = Encoding.UTF8.GetBytes($"Content-Length: {Encoding.UTF8.GetByteCount(json)}\r\n\r\n{json}");
+            await responsePipe.Writer.WriteAsync(frame);
+            await responsePipe.Writer.FlushAsync();
+
+            // Yield long enough for the listen loop (parked in ReadAsync) to observe the response. Under
+            // the buggy ordering this is exactly where the response would be dropped, before registration.
+            await Task.Delay(200);
+        }
+
+        var writer = new FlushInterceptingWriter(requestPipe.Writer, DeliverFirstResponse);
+        var client = new JsonRpcClient(responsePipe.Reader, writer);
+        using var listenCts = CancellationTokenSource.CreateLinkedTokenSource(Token);
+        try
+        {
+            _ = client.Listen(() => { }, listenCts.Token);
+
+            // Drain the request pipe so the client's write never blocks on a full pipe.
+            _ = Task.Run(async () =>
+            {
+                while (true)
+                {
+                    var read = await requestPipe.Reader.ReadAsync(listenCts.Token);
+                    requestPipe.Reader.AdvanceTo(read.Buffer.End);
+                    if (read.IsCompleted)
+                    {
+                        break;
+                    }
+                }
+            }, listenCts.Token);
+
+            var result = await client.SendRequest<TestParams, TestResult>("test/method", new("foo"), Token);
+            result.Value.Should().Be("raced");
+        }
+        finally
+        {
+            await listenCts.CancelAsync();
+            client.Dispose();
+        }
+    }
+
+    [TestMethod]
+    [SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "Observing the request result; not an issue in test code.")]
+    public async Task SendRequest_faults_pending_caller_when_connection_closes_before_response()
+    {
+        using var harness = new TestHarness();
+        harness.StartListening();
+
+        var requestTask = harness.Client.SendRequest<TestParams, TestResult>("test/method", new("foo"), Token);
+        _ = await harness.ReadRequestIdAsync(Token);
+
+        // The server disconnects without ever responding; the pending caller must be faulted, not hung.
+        await harness.CompleteResponseAsync();
+
+        await FluentActions.Invoking(() => requestTask)
+            .Should().ThrowAsync<IOException>();
+    }
+
+    [TestMethod]
+    [SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "Observing the request result; not an issue in test code.")]
+    public async Task SendRequest_is_cancelled_when_its_token_is_cancelled()
+    {
+        using var harness = new TestHarness();
+        harness.StartListening();
+
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(Token);
+        var requestTask = harness.Client.SendRequest<TestParams, TestResult>("test/method", new("foo"), cts.Token);
+        _ = await harness.ReadRequestIdAsync(Token);
+
+        // No response is ever sent; cancelling the caller's token must unblock the request.
+        await cts.CancelAsync();
+
+        await FluentActions.Invoking(() => requestTask)
+            .Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [TestMethod]
+    [SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "Observing the request result; not an issue in test code.")]
+    public async Task Dispose_faults_pending_callers()
+    {
+        using var harness = new TestHarness();
+        harness.StartListening();
+
+        var requestTask = harness.Client.SendRequest<TestParams, TestResult>("test/method", new("foo"), Token);
+        _ = await harness.ReadRequestIdAsync(Token);
+
+        // Disposing while a request is in flight must fault the caller rather than leave it hanging.
+        harness.Client.Dispose();
+
+        await FluentActions.Invoking(() => requestTask)
+            .Should().ThrowAsync<ObjectDisposedException>();
+    }
+
+    // A PipeWriter wrapper that runs a callback immediately after each explicit FlushAsync, used to
+    // deliver a server response at the exact moment a request hits the wire.
+    private sealed class FlushInterceptingWriter(PipeWriter inner, Func<Task> onFlushed) : PipeWriter
+    {
+        public override void Advance(int bytes) => inner.Advance(bytes);
+
+        public override Memory<byte> GetMemory(int sizeHint = 0) => inner.GetMemory(sizeHint);
+
+        public override Span<byte> GetSpan(int sizeHint = 0) => inner.GetSpan(sizeHint);
+
+        public override void CancelPendingFlush() => inner.CancelPendingFlush();
+
+        public override void Complete(Exception? exception = null) => inner.Complete(exception);
+
+        public override ValueTask CompleteAsync(Exception? exception = null) => inner.CompleteAsync(exception);
+
+        public override ValueTask<FlushResult> WriteAsync(ReadOnlyMemory<byte> source, CancellationToken cancellationToken = default)
+            => inner.WriteAsync(source, cancellationToken);
+
+        public override async ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
+        {
+            var result = await inner.FlushAsync(cancellationToken);
+            await onFlushed();
+            return result;
+        }
+    }
+
     private sealed class TestHarness : IDisposable
     {
         // requestPipe carries client -> server bytes; responsePipe carries server -> client bytes.

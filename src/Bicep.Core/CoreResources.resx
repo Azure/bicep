@@ -284,6 +284,13 @@
     <value>Variable "{0}" is declared but never used.</value>
     <comment>{0} is the variable name</comment>
   </data>
+  <data name="UnusedTypeRuleDescription" xml:space="preserve">
+    <value>All declared types must be used.</value>
+  </data>
+  <data name="UnusedTypeRuleMessageFormat" xml:space="preserve">
+    <value>Type "{0}" is declared but never used.</value>
+    <comment>{0} is the type name</comment>
+  </data>
   <data name="ProtectCommandToExecuteSecretsRuleDescription" xml:space="preserve">
     <value>Use protectedSettings for commandToExecute secrets</value>
   </data>

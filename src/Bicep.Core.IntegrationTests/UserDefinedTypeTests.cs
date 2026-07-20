@@ -108,6 +108,7 @@ param stringParam sys.string = 'foo'
 ");
 
         result.Should().HaveDiagnostics(new[] {
+            ("no-unused-types", DiagnosticLevel.Warning, "Type \"string\" is declared but never used."),
             ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"stringParam\" is declared but never used."),
         });
     }
@@ -153,8 +154,10 @@ param intParam constrainedInt
         result.Should().HaveDiagnostics(new[] {
             ("BCP308", DiagnosticLevel.Error, "The decorator \"minLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"maxLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("no-unused-types", DiagnosticLevel.Warning, "Type \"constrainedStringAlias\" is declared but never used."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"minValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"maxValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("no-unused-types", DiagnosticLevel.Warning, "Type \"constrainedIntAlias\" is declared but never used."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"minLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"maxLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"secure\" may not be used on statements whose declared type is a reference to a user-defined type."),
@@ -529,7 +532,7 @@ type constrainedArray = array?
 param sealedObject {}?
 ");
 
-        result.Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
@@ -746,7 +749,7 @@ param myParam string
             type union = 'a' | 'a'
             """);
 
-        result.Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
         result.Template.Should().NotBeNull();
         result.Template!.Should().HaveValueAtPath("definitions.union", JToken.Parse("""
@@ -765,7 +768,7 @@ param myParam string
             type unionWithOneMember = null | 'a'
             """);
 
-        result.Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
         result.Template.Should().NotBeNull();
         result.Template!.Should().HaveValueAtPath("definitions.union", JToken.Parse("""
@@ -1201,7 +1204,7 @@ param myParam string
             type test2 = {{accessExpression}}
             """);
 
-        result.Should().HaveDiagnostics(new[]
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
         });
@@ -1308,7 +1311,7 @@ param myParam string
             type test2 = {{accessExpression}}
             """);
 
-        result.Should().HaveDiagnostics(new[]
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
         });
@@ -1377,7 +1380,7 @@ param myParam string
             type test2 = {{accessExpression}}
             """);
 
-        result.Should().HaveDiagnostics(new[]
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
         });
@@ -1487,7 +1490,7 @@ param myParam string
             type test2 = {{accessExpression}}
             """);
 
-        result.Should().HaveDiagnostics(new[]
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
         });
@@ -1654,7 +1657,7 @@ param myParam string
             new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             """type t = resourceInput""");
 
-        result.Should().HaveDiagnostics([
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
             ("BCP384", DiagnosticLevel.Error, """The "resourceInput<ResourceTypeIdentifier>" type requires 1 argument(s)."""),
         ]);
     }

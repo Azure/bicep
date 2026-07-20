@@ -635,6 +635,16 @@
                     }
                   ]
                 },
+                "no-unused-types": {
+                  "allOf": [
+                    {
+                      "description": "All declared types must be used. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-unused-types"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "no-unused-vars": {
                   "allOf": [
                     {
@@ -984,6 +994,10 @@
         "deployCommands": {
           "type": "boolean",
           "description": "Allows you to access the 'deploy', 'what-if' and 'teardown' commands. See https://aka.ms/bicep/experimental-features#deploycommands"
+        },
+        "patch": {
+          "type": "boolean",
+          "description": "Enables the @patch() decorator for deploying resources using the PATCH HTTP method. This feature is restricted to Azure Policy DeployIfNotExists scenarios. See https://aka.ms/bicep/experimental-features#patch"
         },
         "runtimeValuesInTagsAndSku": {
           "type": "boolean",

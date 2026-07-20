@@ -37,6 +37,8 @@ public interface IFeatureProvider
 
     bool DeployCommandsEnabled { get; }
 
+    bool PatchEnabled { get; }
+
     bool RuntimeValuesInTagsAndSkuEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata

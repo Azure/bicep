@@ -115,6 +115,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
+          "patch": false,
           "runtimeValuesInTagsAndSku": false
         },
         "formatting": {
@@ -201,6 +202,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
+          "patch": false,
           "runtimeValuesInTagsAndSku": false
         },
         "formatting": {
@@ -309,6 +311,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
+          "patch": false,
           "runtimeValuesInTagsAndSku": false
         },
         "formatting": {
@@ -395,6 +398,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 ModuleExtensionConfigs: false,
                 UserDefinedConstraints: false,
                 DeployCommands: false,
+                Patch: false,
                 RuntimeValuesInTagsAndSku: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
@@ -482,6 +486,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "moduleExtensionConfigs": false,
                 "userDefinedConstraints": false,
                 "deployCommands": false,
+                "patch": false,
                 "runtimeValuesInTagsAndSku": false
             },
             "formatting": {
@@ -838,6 +843,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "moduleExtensionConfigs": false,
                     "userDefinedConstraints": false,
                     "deployCommands": false,
+                    "patch": false,
                     "runtimeValuesInTagsAndSku": false
                   },
                   "formatting": {
