@@ -979,6 +979,13 @@ public class ExpressionBuilder
             }
         }
 
+        if (arrayAccess.IndexExpression is StringSyntax indexString &&
+            indexString.TryGetLiteralValue() is { } propertyName &&
+            TryGetBaseParameterAssignment(arrayAccess.BaseExpression, propertyName) is { } parentAssignment)
+        {
+            return ConvertWithoutLowering(parentAssignment.DeclaringParameterAssignment.Value);
+        }
+
         var convertedBase = ConvertWithoutLowering(arrayAccess.BaseExpression);
         var convertedIndex = ConvertWithoutLowering(arrayAccess.IndexExpression);
 
@@ -1029,6 +1036,11 @@ public class ExpressionBuilder
     private Expression ConvertPropertyAccess(PropertyAccessSyntax propertyAccess)
     {
         var flags = GetAccessExpressionFlags(propertyAccess);
+
+        if (TryGetBaseParameterAssignment(propertyAccess.BaseExpression, propertyAccess.PropertyName.IdentifierName) is { } parentAssignment)
+        {
+            return ConvertWithoutLowering(parentAssignment.DeclaringParameterAssignment.Value);
+        }
 
         // Looking for: myResource.someProp (where myResource is a resource declared in-file)
         if (Context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is DeclaredResourceMetadata resource)
@@ -1097,6 +1109,11 @@ public class ExpressionBuilder
             propertyAccess.PropertyName.IdentifierName,
             flags);
     }
+
+    private ParameterAssignmentSymbol? TryGetBaseParameterAssignment(SyntaxBase baseExpression, string propertyName)
+        => Context.SemanticModel.GetSymbolInfo(baseExpression) is BaseParametersSymbol baseParameters
+            ? baseParameters.ParentAssignments.FirstOrDefault(assignment => LanguageConstants.IdentifierComparer.Equals(assignment.Name, propertyName))
+            : null;
 
     private Expression ConvertResourceAccess(ResourceAccessSyntax resourceAccessSyntax)
     {
