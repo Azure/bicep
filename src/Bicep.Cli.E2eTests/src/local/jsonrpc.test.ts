@@ -18,10 +18,11 @@ import {
 
 describe("bicep jsonrpc", () => {
   let connection: MessageConnection;
+  const connectionSetupTimeoutMs = 60000;
 
-  beforeAll(async () => (connection = await openConnection()));
+  beforeAll(async () => (connection = await openConnection()), connectionSetupTimeoutMs);
 
-  afterAll(() => connection.dispose());
+  afterAll(() => connection?.dispose());
 
   it("should return a version number", async () => {
     const result = await version(connection);
