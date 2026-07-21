@@ -40,7 +40,11 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
 
             if (match.Success)
             {
-                var date = DateOnly.ParseExact(match.Groups["date"].Value, DateFormat, CultureInfo.InvariantCulture);
+                var year = int.Parse(match.Groups["year"].Value);
+                var month = int.Parse(match.Groups["month"].Value);
+                var day = int.Parse(match.Groups["day"].Value);
+
+                var date = new DateOnly(year, month, day);
                 var suffix = match.Groups["suffix"].Value.ToLowerInvariant();
 
                 result = new AzureResourceApiVersion(date, suffix);
@@ -53,7 +57,7 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
 
         public override string ToString() => $"{this.Date.ToString(DateFormat, CultureInfo.InvariantCulture)}{this.Suffix.ToLowerInvariant()}";
 
-        [GeneratedRegex(@"^((?<date>(\d{4}-\d{2}-\d{2}))(?<suffix>-(preview|alpha|beta|rc|privatepreview))?$)", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture)]
+        [GeneratedRegex(@"^((?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})(?<suffix>-(preview|alpha|beta|rc|privatepreview))?$)", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture)]
         private static partial Regex ApiVersionPattern();
     }
 }

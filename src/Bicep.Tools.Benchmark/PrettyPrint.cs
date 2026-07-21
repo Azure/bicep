@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.PrettyPrintV2;
@@ -12,6 +13,7 @@ using FluentAssertions;
 
 namespace Bicep.Tools.Benchmark;
 
+[Config(typeof(DiagnosticConfig))]
 [MemoryDiagnoser]
 public class PrettyPrint
 {

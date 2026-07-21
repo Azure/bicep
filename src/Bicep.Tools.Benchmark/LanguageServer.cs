@@ -4,6 +4,7 @@ using System.IO.Abstractions;
 using System.IO.Pipelines;
 using System.Reactive.Concurrency;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests;
@@ -18,6 +19,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.Tools.Benchmark;
 
+[Config(typeof(DiagnosticConfig))]
 [MemoryDiagnoser]
 public class LanguageServer
 {

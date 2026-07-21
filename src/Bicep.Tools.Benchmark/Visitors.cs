@@ -3,12 +3,14 @@
 
 using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
 using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
 
 namespace Bicep.Tools.Benchmark;
 
+[Config(typeof(DiagnosticConfig))]
 [MemoryDiagnoser]
 public class Visitors
 {

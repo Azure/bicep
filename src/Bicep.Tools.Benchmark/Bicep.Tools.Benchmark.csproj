@@ -5,6 +5,8 @@
     <RootNamespace>Bicep.Tools.Benchmark</RootNamespace>
     <IsTestingPlatformApplication>false</IsTestingPlatformApplication>
     <EnableMSTestRunner>false</EnableMSTestRunner>
+    <TestingPlatformDotnetTestSupport>false</TestingPlatformDotnetTestSupport>
+    <TestingPlatformCommandLineArguments></TestingPlatformCommandLineArguments>
   </PropertyGroup>
 
   <ItemGroup>

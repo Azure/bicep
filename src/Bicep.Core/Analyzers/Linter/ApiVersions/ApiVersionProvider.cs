@@ -13,12 +13,11 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
         private static StringComparer Comparer = LanguageConstants.ResourceTypeComparer;
 
         // One cache per target scope type
-        private readonly Dictionary<ResourceScope, ApiVersionCache> _caches = new();
-        private readonly IFeatureProvider features;
+        private readonly Dictionary<ResourceScope, ApiVersionCache> caches = new();
         private readonly IEnumerable<ResourceTypeReference> resourceTypeReferences;
-        public ApiVersionProvider(IFeatureProvider features, IEnumerable<ResourceTypeReference> resourceTypeReferences)
+
+        public ApiVersionProvider(IEnumerable<ResourceTypeReference> resourceTypeReferences)
         {
-            this.features = features;
             this.resourceTypeReferences = resourceTypeReferences;
         }
 
@@ -43,14 +42,14 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
                     throw new ArgumentException($"Unexpected ResourceScope {scope}");
             }
 
-            if (_caches.TryGetValue(scope, out ApiVersionCache? cache))
+            if (caches.TryGetValue(scope, out ApiVersionCache? cache))
             {
                 return cache;
             }
             else
             {
                 var newCache = new ApiVersionCache();
-                _caches[scope] = newCache;
+                caches[scope] = newCache;
                 return newCache;
             }
         }
@@ -84,9 +83,9 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
                 throw new InvalidCastException($"ApiVersionProvider was unable to find any resource types for scope {scope}");
             }
 
-            if (cache.apiVersionsByResourceTypeName.TryGetValue(fullyQualifiedResourceType, out List<string>? apiVersions))
+            if (cache.apiVersionsByResourceTypeName.TryGetValue(fullyQualifiedResourceType, out List<AzureResourceApiVersion>? apiVersions))
             {
-                return apiVersions.Select(AzureResourceApiVersion.Parse);
+                return apiVersions;
             }
 
             return [];
@@ -94,10 +93,22 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
 
         private class ApiVersionCache
         {
+            private static readonly IComparer<AzureResourceApiVersion> ApiVersionComparer = System.Collections.Generic.Comparer<AzureResourceApiVersion>.Create((x, y) =>
+            {
+                var dateComparison = x.Date.CompareTo(y.Date);
+
+                if (dateComparison != 0)
+                {
+                    return dateComparison;
+                }
+
+                return StringComparer.Ordinal.Compare(x.Suffix, y.Suffix);
+            });
+
             public bool typesCached;
             public ResourceTypeReference[]? injectedTypes;
 
-            public Dictionary<string, List<string>> apiVersionsByResourceTypeName = new(Comparer);
+            public Dictionary<string, List<AzureResourceApiVersion>> apiVersionsByResourceTypeName = new(Comparer);
 
             public void CacheApiVersions(IEnumerable<ResourceTypeReference> resourceTypeReferences)
             {
@@ -117,21 +128,22 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
                     }
                 }
 
-                // Sort the lists of api versions for each resource type
-                apiVersionsByResourceTypeName = apiVersionsByResourceTypeName.ToDictionary(x => x.Key, x => x.Value.OrderBy(y => y).ToList(), Comparer);
+                // Sort versions once at cache build time so lookups can return pre-parsed values.
+                foreach (var apiVersions in apiVersionsByResourceTypeName.Values)
+                {
+                    apiVersions.Sort(ApiVersionComparer);
+                }
             }
 
-            private static void AddApiVersionToCache(Dictionary<string, List<string>> listOfTypes, string apiVersion, string fullyQualifiedType)
+            private static void AddApiVersionToCache(Dictionary<string, List<AzureResourceApiVersion>> listOfTypes, AzureResourceApiVersion apiVersion, string fullyQualifiedType)
             {
-                if (listOfTypes.TryGetValue(fullyQualifiedType, out List<string>? value))
+                if (!listOfTypes.TryGetValue(fullyQualifiedType, out var value))
                 {
-                    value.Add(apiVersion);
+                    value = [];
                     listOfTypes[fullyQualifiedType] = value;
                 }
-                else
-                {
-                    listOfTypes.Add(fullyQualifiedType, new List<string> { apiVersion });
-                }
+                
+                value.Add(apiVersion);
             }
         }
     }
