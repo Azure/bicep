@@ -7,6 +7,14 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- NU5104: A stable release of a package should not have a prerelease dependency -->
     <NoWarn>$(NoWarn);NU5104</NoWarn>
+    <!-- MSTest 4.x introduces new analyzer rules that fire on existing code; suppress until code is migrated -->
+    <!-- TODO: migrate existing tests and remove these suppressions -->
+    <!-- MSTEST0044: [DataTestMethod] is obsolete, use [TestMethod] instead -->
+    <!-- MSTEST0052: Remove the DynamicDataSourceType argument (auto-detect is now the default) -->
+    <!-- MSTEST0055: Return value of string/collection method should not be ignored -->
+    <!-- MSTEST0065: Assert.AreEqual on IEnumerable does not perform element-wise comparison -->
+    <!-- MSTEST0017: Assertion arguments should be passed in the correct order (NOTE: fix any real issues before removing this suppression) -->
+    <NoWarn>$(NoWarn);MSTEST0017;MSTEST0044;MSTEST0052;MSTEST0055;MSTEST0065</NoWarn>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <!-- Bubble up all unused usings https://github.com/dotnet/roslyn/issues/41640#issuecomment-985780130 -->

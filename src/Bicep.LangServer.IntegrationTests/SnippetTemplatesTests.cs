@@ -63,7 +63,7 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 var errors = semanticModel.GetAllDiagnostics().Where(x => x.IsError());
                 var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContents, "\n", errors, diag => OutputHelper.GetDiagLoggingString(bicepContents, outputDirectory, diag));
-                Assert.Fail("Template with prefix {0} contains errors. Please fix following errors:\n {1}", completionData.Prefix, sourceTextWithDiags);
+                Assert.Fail($"Template with prefix {completionData.Prefix} contains errors. Please fix following errors:\n {sourceTextWithDiags}");
             }
         }
 
@@ -78,7 +78,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             if (children.Any(x => x is TargetScopeSyntax targetScopeSyntax && targetScopeSyntax is not null))
             {
-                Assert.Fail("Snippet templates should not contain targetScope. Please remove targetScope from template with prefix {0}.", completionData.Prefix);
+                Assert.Fail($"Snippet templates should not contain targetScope. Please remove targetScope from template with prefix {completionData.Prefix}.");
             }
         }
 
@@ -91,7 +91,7 @@ namespace Bicep.LangServer.IntegrationTests
                 || completionData.SnippetText.Contains("deployment().location")
                 )
             {
-                Assert.Fail("Snippet templates should not contain resourceGroup().location or deployment().location. Snippet: {0}.", completionData.Prefix);
+                Assert.Fail($"Snippet templates should not contain resourceGroup().location or deployment().location. Snippet: {completionData.Prefix}.");
             }
         }
 
