@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "devDependencies": {
+    "@azure/bicep-rpc-client": "^0.2.1",
     "@eslint/js": "^10.0.1",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "@types/cross-spawn": "^6.0.6",
@@ -18,8 +19,7 @@
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.62.1",
     "uuid": "^14.0.1",
-    "vitest": "^4.1.9",
-    "vscode-jsonrpc": "^9.0.1"
+    "vitest": "^4.1.9"
   },
   "scripts": {
     "check-types": "tsc --noEmit",
