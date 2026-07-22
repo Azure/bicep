@@ -242,6 +242,156 @@ invalid file
         });
     }
 
+    [DataTestMethod]
+    [DataRow(
+        "object property",
+        """
+        type Credentials = {
+            @secure()
+            password: string
+        }
+
+        param input Credentials
+        """,
+        """
+        {
+            password: getSecret('subId', 'rgName', 'kvName', 'secretName')
+        }
+        """)]
+    [DataRow(
+        "array element property",
+        """
+        @export()
+        type Login = {
+            username: string
+
+            @secure()
+            password: string
+        }
+
+        param input Login[]
+        """,
+        """
+        [
+            {
+                username: 'admin'
+                password: getSecret('subId', 'rgName', 'kvName', 'secretName')
+            }
+        ]
+        """)]
+    [DataRow(
+        "nested object property",
+        """
+        type Credentials = {
+            @secure()
+            password: string
+        }
+
+        type Input = {
+            credentials: Credentials
+        }
+
+        param input Input
+        """,
+        """
+        {
+            credentials: {
+                password: getSecret('subId', 'rgName', 'kvName', 'secretName')
+            }
+        }
+        """)]
+    [DataRow(
+        "object property containing an array",
+        """
+        type Login = {
+            username: string
+
+            @secure()
+            password: string
+        }
+
+        type Input = {
+            logins: Login[]
+        }
+
+        param input Input
+        """,
+        """
+        {
+            logins: [
+                {
+                    username: 'admin'
+                    password: getSecret('subId', 'rgName', 'kvName', 'secretName')
+                }
+            ]
+        }
+        """)]
+    [DataRow(
+        "namespaced function with a secret version",
+        """
+        type Credentials = {
+            @secure()
+            password: string
+        }
+
+        param input Credentials
+        """,
+        """
+        {
+            password: az.getSecret('subId', 'rgName', 'kvName', 'secretName', 'secretVersion')
+        }
+        """)]
+    [DataRow(
+        "conditional object property",
+        """
+        type Credentials = {
+            @secure()
+            password: string
+        }
+
+        param input Credentials
+        """,
+        """
+        {
+            password: true ? getSecret('subId', 'rgName', 'kvName', 'secretName') : 'fallback'
+        }
+        """)]
+    [DataRow(
+        "object property inside a loop",
+        """
+        type Login = {
+            username: string
+
+            @secure()
+            password: string
+        }
+
+        param input Login[]
+        """,
+        """
+        [for username in ['admin']: {
+            username: username
+            password: getSecret('subId', 'rgName', 'kvName', 'secretName')
+        }]
+        """)]
+    public void GetSecret_nested_in_parameter_value_returns_direct_assignment_diagnostic(string scenario, string template, string parameterValue)
+    {
+        TestContext.WriteLine($"Scenario: {scenario}");
+
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", $$"""
+            using 'main.bicep'
+
+            param input = {{parameterValue}}
+            """),
+            ("main.bicep", template));
+
+        result.Should().OnlyContainDiagnostic(
+            "BCP351",
+            DiagnosticLevel.Error,
+            "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning to a parameter.");
+    }
+
     [TestMethod]
     public void GetSecret_without_expressions_in_parameters_generates_expected_keyVault_reference()
     {
