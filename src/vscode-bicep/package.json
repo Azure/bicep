@@ -249,6 +249,12 @@
         "icon": "$(cloud-download)"
       },
       {
+        "command": "bicep.extractToModule",
+        "title": "Extract to Module...",
+        "category": "Bicep",
+        "icon": "$(export)"
+      },
+      {
         "command": "bicep.importKubernetesManifest",
         "title": "Import Kubernetes Manifest (EXPERIMENTAL)",
         "category": "Bicep",
@@ -386,6 +392,11 @@
           "group": "2_bicep_1_edit"
         },
         {
+          "command": "bicep.extractToModule",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_1_edit"
+        },
+        {
           "command": "bicep.pasteAsBicep",
           "when": "resourceLangId == bicep",
           "group": "9_cutcopypaste"
@@ -453,6 +464,11 @@
           "group": "2_bicep_1_edit"
         },
         {
+          "command": "bicep.extractToModule",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_1_edit"
+        },
+        {
           "command": "bicep.deploy",
           "when": "resourceLangId == bicep",
           "group": "2_bicep_2_deploy"
@@ -511,6 +527,11 @@
         },
         {
           "command": "bicep.insertResource",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_1_edit"
+        },
+        {
+          "command": "bicep.extractToModule",
           "when": "resourceLangId == bicep",
           "group": "2_bicep_1_edit"
         },
@@ -579,6 +600,10 @@
         },
         {
           "command": "bicep.insertResource",
+          "group": "0_bicep"
+        },
+        {
+          "command": "bicep.extractToModule",
           "group": "0_bicep"
         },
         {

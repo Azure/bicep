@@ -74,6 +74,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<ImportKubernetesManifestHandler>()
                     .WithHandler<BicepForceModulesRestoreCommandHandler>()
                     .WithHandler<BicepExternalSourceRequestHandler>()
+                    .WithHandler<ExtractToModuleHandler>()
                     .WithHandler<InsertResourceHandler>()
                     .WithHandler<ConfigurationSettingsHandler>()
                     .WithHandler<LocalDeployHandler>()
