@@ -420,6 +420,160 @@ param stringParam =  /*TODO*/
         }
 
         [TestMethod]
+        public void Invalid_inherited_user_defined_type_should_report_diagnostics_on_extends_path()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", """
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              """),
+              ("shared.bicepparam", """
+                using none
+
+                param person = {
+                  test: 'testing'
+                }
+              """),
+              ("main.bicep", """
+                param person personType
+
+                type personType = {
+                  name: string
+                  age: int
+                  address: string
+                }
+              """));
+
+            var extendsPath = result.Compilation.GetEntrypointSemanticModel().SourceFile.ProgramSyntax.Declarations
+                .OfType<ExtendsDeclarationSyntax>()
+                .Single()
+                .Path;
+            var diagnostics = result.ExcludingLinterDiagnostics().Diagnostics.ToArray();
+
+            diagnostics.Should().HaveDiagnostics([
+                ("BCP035", DiagnosticLevel.Error, "The specified \"param\" declaration is missing the following required properties: \"address\", \"age\", \"name\"."),
+                ("BCP037", DiagnosticLevel.Warning, "The property \"test\" is not allowed on objects of type \"{ name: string, age: int, address: string }\". Permissible properties include \"address\", \"age\", \"name\"."),
+            ]);
+            diagnostics.Should().AllSatisfy(diagnostic =>
+            {
+                diagnostic.Span.Should().Be(extendsPath.Span);
+                diagnostic.Should().BeOfType<Diagnostic>().Which.Fixes.Should().BeEmpty();
+            });
+        }
+
+        [TestMethod]
+        public void Valid_inherited_user_defined_type_should_compile()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", """
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              """),
+              ("shared.bicepparam", """
+                using none
+
+                param person = {
+                  name: 'Ada'
+                  age: 36
+                  address: 'London'
+                }
+              """),
+              ("main.bicep", """
+                param person personType
+
+                type personType = {
+                  name: string
+                  age: int
+                  address: string
+                }
+              """));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().HaveJsonAtPath("parameters.person.value", """
+              {
+                "name": "Ada",
+                "age": 36,
+                "address": "London"
+              }
+              """);
+        }
+
+        [TestMethod]
+        public void Sealed_invalid_inherited_user_defined_type_should_preserve_error_severity()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", """
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              """),
+              ("shared.bicepparam", """
+                using none
+
+                param person = {
+                  test: 'testing'
+                }
+              """),
+              ("main.bicep", """
+                param person personType
+
+                @sealed()
+                type personType = {
+                  name: string
+                }
+              """));
+
+            var extendsPath = result.Compilation.GetEntrypointSemanticModel().SourceFile.ProgramSyntax.Declarations
+                .OfType<ExtendsDeclarationSyntax>()
+                .Single()
+                .Path;
+            var diagnostics = result.ExcludingLinterDiagnostics().Diagnostics.ToArray();
+
+            diagnostics.Should().HaveDiagnostics([
+                ("BCP035", DiagnosticLevel.Error, "The specified \"param\" declaration is missing the following required properties: \"name\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"test\" is not allowed on objects of type \"{ name: string }\". Permissible properties include \"name\"."),
+            ]);
+            diagnostics.Should().AllSatisfy(diagnostic => diagnostic.Span.Should().Be(extendsPath.Span));
+        }
+
+        [TestMethod]
+        public void Nested_invalid_inherited_user_defined_type_should_report_diagnostic_on_direct_extends_path()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", """
+                using 'main.bicep'
+                extends 'middle.bicepparam'
+              """),
+              ("middle.bicepparam", """
+                using none
+                extends 'base.bicepparam'
+              """),
+              ("base.bicepparam", """
+                using none
+
+                param person = {
+                  name: 42
+                }
+              """),
+              ("main.bicep", """
+                param person personType
+
+                type personType = {
+                  name: string
+                }
+              """));
+
+            var extendsPath = result.Compilation.GetEntrypointSemanticModel().SourceFile.ProgramSyntax.Declarations
+                .OfType<ExtendsDeclarationSyntax>()
+                .Single()
+                .Path;
+            var diagnostic = result.ExcludingLinterDiagnostics().Diagnostics.Should().ContainSingle().Subject;
+
+            diagnostic.Should().HaveCodeAndSeverity("BCP036", DiagnosticLevel.Error)
+                .And.HaveMessage("The property \"name\" expected a value of type \"string\" but the provided value is of type \"42\".");
+            diagnostic.Span.Should().Be(extendsPath.Span);
+        }
+
+        [TestMethod]
         public void Invalid_extends_reference_does_not_exist_should_fail()
         {
             var result = CompilationHelper.CompileParams(
