@@ -461,6 +461,43 @@ param stringParam =  /*TODO*/
             });
         }
 
+        [TestMethod]
+        public void Valid_inherited_user_defined_type_should_compile()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", """
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              """),
+              ("shared.bicepparam", """
+                using none
+
+                param person = {
+                  name: 'Ada'
+                  age: 36
+                  address: 'London'
+                }
+              """),
+              ("main.bicep", """
+                param person personType
+
+                type personType = {
+                  name: string
+                  age: int
+                  address: string
+                }
+              """));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().HaveJsonAtPath("parameters.person.value", """
+              {
+                "name": "Ada",
+                "age": 36,
+                "address": "London"
+              }
+              """);
+        }
+
 
         [TestMethod]
         public void Invalid_extends_reference_does_not_exist_should_fail()
