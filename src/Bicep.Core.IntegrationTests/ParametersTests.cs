@@ -420,6 +420,49 @@ param stringParam =  /*TODO*/
         }
 
         [TestMethod]
+        public void Invalid_inherited_user_defined_type_should_report_diagnostics_on_extends_path()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", """
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              """),
+              ("shared.bicepparam", """
+                using none
+
+                param person = {
+                  test: 'testing'
+                }
+              """),
+              ("main.bicep", """
+                param person personType
+
+                type personType = {
+                  name: string
+                  age: int
+                  address: string
+                }
+              """));
+
+            var extendsPath = result.Compilation.GetEntrypointSemanticModel().SourceFile.ProgramSyntax.Declarations
+                .OfType<ExtendsDeclarationSyntax>()
+                .Single()
+                .Path;
+            var diagnostics = result.ExcludingLinterDiagnostics().Diagnostics.ToArray();
+
+            diagnostics.Should().HaveDiagnostics([
+                ("BCP035", DiagnosticLevel.Error, "The specified \"param\" declaration is missing the following required properties: \"address\", \"age\", \"name\"."),
+                ("BCP037", DiagnosticLevel.Warning, "The property \"test\" is not allowed on objects of type \"{ name: string, age: int, address: string }\". Permissible properties include \"address\", \"age\", \"name\"."),
+            ]);
+            diagnostics.Should().AllSatisfy(diagnostic =>
+            {
+                diagnostic.Span.Should().Be(extendsPath.Span);
+                diagnostic.Should().BeOfType<Diagnostic>().Which.Fixes.Should().BeEmpty();
+            });
+        }
+
+
+        [TestMethod]
         public void Invalid_extends_reference_does_not_exist_should_fail()
         {
             var result = CompilationHelper.CompileParams(
