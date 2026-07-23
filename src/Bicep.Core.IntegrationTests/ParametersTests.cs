@@ -498,6 +498,42 @@ param stringParam =  /*TODO*/
               """);
         }
 
+        [TestMethod]
+        public void Sealed_invalid_inherited_user_defined_type_should_preserve_error_severity()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", """
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              """),
+              ("shared.bicepparam", """
+                using none
+
+                param person = {
+                  test: 'testing'
+                }
+              """),
+              ("main.bicep", """
+                param person personType
+
+                @sealed()
+                type personType = {
+                  name: string
+                }
+              """));
+
+            var extendsPath = result.Compilation.GetEntrypointSemanticModel().SourceFile.ProgramSyntax.Declarations
+                .OfType<ExtendsDeclarationSyntax>()
+                .Single()
+                .Path;
+            var diagnostics = result.ExcludingLinterDiagnostics().Diagnostics.ToArray();
+
+            diagnostics.Should().HaveDiagnostics([
+                ("BCP035", DiagnosticLevel.Error, "The specified \"param\" declaration is missing the following required properties: \"name\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"test\" is not allowed on objects of type \"{ name: string }\". Permissible properties include \"name\"."),
+            ]);
+            diagnostics.Should().AllSatisfy(diagnostic => diagnostic.Span.Should().Be(extendsPath.Span));
+        }
 
         [TestMethod]
         public void Invalid_extends_reference_does_not_exist_should_fail()
