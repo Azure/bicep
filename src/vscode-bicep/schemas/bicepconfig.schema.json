@@ -775,6 +775,16 @@
                     }
                   ]
                 },
+                "use-parameter-descriptions": {
+                  "allOf": [
+                    {
+                      "description": "Parameters should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-parameter-descriptions"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
                 "use-safe-access": {
                   "allOf": [
                     {
