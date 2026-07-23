@@ -23,6 +23,8 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         public const string ResourceNamePropertyName = "name";
         public const string ResourceTypePropertyName = "type";
         public const string ResourceApiVersionPropertyName = "apiVersion";
+        public const string ResourceTagsPropertyName = "tags";
+        public const string ResourceSkuPropertyName = "sku";
 
         public const string ResourceTypeDeployments = "Microsoft.Resources/deployments";
         public const string ResourceTypeResourceGroup = "Microsoft.Resources/resourceGroups";
@@ -58,10 +60,10 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             "extendedLocation",
             "zones",
             "plan",
-            "sku",
+            ResourceSkuPropertyName,
             "identity",
             "managedByExtended",
-            "tags",
+            ResourceTagsPropertyName,
             "asserts",
         ];
 
@@ -308,11 +310,20 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                     properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, scopeProperty);
                 }
 
+                var permitRuntimeValuesInTagsAndSku = flags.HasFlag(ResourceTypeGenerationFlags.PermitRuntimeValuesInTagsAndSku);
+
                 // TODO: move this to the type library.
                 foreach (var propertyName in WriteOnlyDeployTimeConstantPropertyNames)
                 {
                     if (properties.TryGetValue(propertyName, out var typeProperty))
                     {
+                        if (permitRuntimeValuesInTagsAndSku &&
+                            (propertyName == ResourceTagsPropertyName || propertyName == ResourceSkuPropertyName))
+                        {
+                            // The experimental feature allows runtime values in 'tags' and 'sku', so skip marking them as deploy-time constant.
+                            continue;
+                        }
+
                         // Update tags for deploy-time constant properties that are not readable at deploy-time.
                         properties = properties.SetItem(propertyName, UpdateFlags(typeProperty, typeProperty.Flags | TypePropertyFlags.DeployTimeConstant));
                     }

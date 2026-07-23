@@ -60,6 +60,21 @@ Enables the 'resourceInfo' function for simplified code generation.
 
 Enables the type for a parameter or output to be of type resource to make it easier to pass resource references between modules. This feature is only partially implemented. See [Simplifying resource referencing](https://github.com/azure/bicep/issues/2245).
 
+### `runtimeValuesInTagsAndSku`
+
+Allows the use of runtime values (such as this.existingResource()) in `tags` and `sku` properties. By default, these properties are flagged as deploy-time constants, meaning they cannot reference runtime resource properties. Enabling this feature relaxes that restriction. (Note: This feature will not work until the backend service support has been deployed)
+
+```bicep
+resource example 'Microsoft...' = {
+  name: 'example'
+  location: resourceGroup().location
+  sku: {
+    name: this.existingResource().?sku.name ?? 'Standard'
+  }
+  tags: this.existingResource().?tags ?? {}
+}
+```
+
 ### `sourceMapping`
 
 Enables basic source mapping to map an error location returned in the ARM template layer back to the relevant location in the Bicep file.
