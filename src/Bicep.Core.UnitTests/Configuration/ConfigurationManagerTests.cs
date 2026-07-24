@@ -115,7 +115,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "resourceInfoCodegen": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "patch": false
+          "patch": false,
+          "azExtensionConfig": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -201,7 +202,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "patch": false
+          "patch": false,
+          "azExtensionConfig": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -309,7 +311,8 @@ namespace Bicep.Core.UnitTests.Configuration
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "patch": false
+          "patch": false,
+          "azExtensionConfig": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -395,7 +398,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 ModuleExtensionConfigs: false,
                 UserDefinedConstraints: false,
                 DeployCommands: false,
-                Patch: false);
+                Patch: false,
+                AzExtensionConfig: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -482,7 +486,8 @@ namespace Bicep.Core.UnitTests.Configuration
                 "moduleExtensionConfigs": false,
                 "userDefinedConstraints": false,
                 "deployCommands": false,
-                "patch": false
+                "patch": false,
+                "azExtensionConfig": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -838,7 +843,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "moduleExtensionConfigs": false,
                     "userDefinedConstraints": false,
                     "deployCommands": false,
-                    "patch": false
+                    "patch": false,
+                    "azExtensionConfig": false
                   },
                   "formatting": {
                     "indentKind": "Space",

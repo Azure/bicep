@@ -625,11 +625,15 @@ namespace Bicep.Core.Semantics.Namespaces
             }
         }
 
-        public static NamespaceType Create(string? aliasName, ResourceScope scope, IResourceTypeProvider resourceTypeProvider, BicepSourceFileKind sourceFileKind)
+        public static NamespaceType Create(string? aliasName, ResourceScope scope, IResourceTypeProvider resourceTypeProvider, BicepSourceFileKind sourceFileKind, ObjectLikeType? configurationType = null)
         {
+            var settings = configurationType is null
+                ? Settings
+                : Settings with { ConfigurationType = configurationType };
+
             return new NamespaceType(
                 aliasName ?? BuiltInName,
-                Settings,
+                settings,
                 ImmutableArray<NamedTypeProperty>.Empty,
                 Overloads.Where(x => x.IsVisible(scope, sourceFileKind)).Select(x => x.Value),
                 ImmutableArray<BannedFunction>.Empty,

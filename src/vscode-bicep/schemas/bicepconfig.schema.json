@@ -998,6 +998,10 @@
         "patch": {
           "type": "boolean",
           "description": "Enables the @patch() decorator for deploying resources using the PATCH HTTP method. This feature is restricted to Azure Policy DeployIfNotExists scenarios. See https://aka.ms/bicep/experimental-features#patch"
+        },
+        "azExtensionConfig": {
+          "type": "boolean",
+          "description": "Enables configuration for the built-in 'az' extension to register additional resource providers at the start of a deployment. (Note: This feature will not work until the backend service support has been deployed) See https://aka.ms/bicep/experimental-features#azextensionconfig"
         }
       },
       "additionalProperties": false
