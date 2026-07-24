@@ -15,7 +15,7 @@ Should be enabled in tandem with `testFramework` experimental feature flag for e
 
 ### `azExtensionConfig`
 
-Enables configuration for the built-in `az` extension, allowing templates to specify settings (such as the list of Azure resource provider namespaces to register) via the extension's `config` property.
+Enables configuration for the built-in `az` extension, allowing templates to specify settings (such as the list of Azure resource provider namespaces to register) via the extension's `config` property. (Note: This feature will not work until the backend service support has been deployed)
 
 ### `deployCommands`
 
