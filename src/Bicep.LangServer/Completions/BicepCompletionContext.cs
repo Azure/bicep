@@ -850,6 +850,18 @@ namespace Bicep.LanguageServer.Completions
             return SyntaxMatcher.IsTailMatch<ArraySyntax, ArrayItemSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(
                 matchingNodes,
                 (_, _, _, _, token) => token is { Type: TokenType.Identifier }
+            )
+            // var arr = ['a|'] var arr = ['|']
+            || SyntaxMatcher.IsTailMatch<ArraySyntax, ArrayItemSyntax, StringSyntax, Token>(
+                matchingNodes,
+                (_, arrayItem, stringSyntax, _) => ReferenceEquals(arrayItem.Value, stringSyntax) && !stringSyntax.Expressions.Any()
+            )
+            // var arr = ['|] (unterminated string is parsed as skipped trivia containing a single StringComplete token)
+            || SyntaxMatcher.IsTailMatch<ArraySyntax, ArrayItemSyntax, SkippedTriviaSyntax, Token>(
+                matchingNodes,
+                (_, arrayItem, skipped, token) => ReferenceEquals(arrayItem.Value, skipped)
+                    && skipped.Elements.Length == 1
+                    && token is { Type: TokenType.StringComplete }
             );
         }
 
