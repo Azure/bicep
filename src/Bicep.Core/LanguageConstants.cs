@@ -170,6 +170,7 @@ namespace Bicep.Core
         public const string ExportPropertyName = "export";
         public const string TypeDiscriminatorDecoratorName = "discriminator";
         public const string OnlyIfNotExistsPropertyName = "onlyIfNotExists";
+        public const string PatchDecoratorName = "patch";
         public const string NullIfNotFoundDecoratorName = "nullIfNotFound";
 
         // module properties
@@ -189,6 +190,8 @@ namespace Bicep.Core
         public const string ResourceLocationPropertyName = "location";
         public const string ResourcePropertiesPropertyName = "properties";
         public const string ResourceAssertPropertyName = "asserts";
+        public const string ResourceMethodPropertyName = "method";
+        public const string ResourceMethodPatchValue = "PATCH";
 
         // types
         public const string TypeNameString = "string";

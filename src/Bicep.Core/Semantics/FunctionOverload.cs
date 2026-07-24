@@ -74,6 +74,19 @@ namespace Bicep.Core.Semantics
             .Select(fp => fp.Signature)
             .Concat(this.VariableParameter?.GenericSignature.AsEnumerable() ?? []);
 
+        public virtual FunctionOverload WithAdditionalFlags(FunctionFlags flags) =>
+            new(
+                Name,
+                GenericDescription,
+                Description,
+                ResultBuilder,
+                TypeSignatureSymbol,
+                FixedParameters,
+                VariableParameter,
+                Evaluator,
+                ArmExpressionEvaluator,
+                Flags | flags);
+
         public bool HasParameters => this.MinimumArgumentCount > 0 || this.MaximumArgumentCount > 0;
 
         public FunctionMatchResult Match(IList<TypeSymbol> argumentTypes, out ArgumentCountMismatch? argumentCountMismatch, out ArgumentTypeMismatch? argumentTypeMismatch)

@@ -54,6 +54,8 @@ namespace Bicep.Core.Features
 
         public bool DeployCommandsEnabled => configuration.ExperimentalFeaturesEnabled.DeployCommands;
 
+        public bool PatchEnabled => configuration.ExperimentalFeaturesEnabled.Patch;
+
         public bool AzExtensionConfigEnabled => configuration.ExperimentalFeaturesEnabled.AzExtensionConfig;
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)

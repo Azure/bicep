@@ -23,6 +23,7 @@ public record ExperimentalFeaturesEnabled(
     bool ModuleExtensionConfigs,
     bool UserDefinedConstraints,
     bool DeployCommands,
+    bool Patch,
     bool AzExtensionConfig)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
@@ -44,5 +45,6 @@ public record ExperimentalFeaturesEnabled(
         ModuleExtensionConfigs: false,
         UserDefinedConstraints: false,
         DeployCommands: false,
+        Patch: false,
         AzExtensionConfig: false);
 }

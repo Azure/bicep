@@ -3,42 +3,35 @@
 
 import path from "path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { MessageConnection } from "vscode-jsonrpc";
-import { pathToExampleFile, writeTempFile } from "../utils/fs";
-import {
-  compileParamsRequestType,
-  compileRequestType,
-  formatRequestType,
-  getDeploymentGraphRequestType,
-  getFileReferencesRequestType,
-  getMetadataRequestType,
-  openConnection,
-  versionRequestType,
-} from "../utils/jsonrpc";
+import { bicepCli, pathToExampleFile, writeTempFile } from "../utils/fs";
+import { Bicep } from "@azure/bicep-rpc-client";
 
 describe("bicep jsonrpc", () => {
-  let connection: MessageConnection;
+  Bicep.initialize
+  let bicep: Bicep;
 
-  beforeAll(async () => (connection = await openConnection()));
+  beforeAll(async () => (bicep = await Bicep.initialize(bicepCli)));
 
-  afterAll(() => connection.dispose());
+  afterAll(() => bicep.dispose());
 
   it("should return a version number", async () => {
-    const result = await version(connection);
+    const result = await bicep.version();
 
-    expect(result.version).toMatch(/^\d+\.\d+\.\d+/);
+    expect(result).toMatch(/^\d+\.\d+\.\d+/);
   });
 
   it("should build a bicep file", async () => {
-    const result = await compile(connection, pathToExampleFile("101", "aks.prod", "main.bicep"));
+    const result = await bicep.compile({ path: pathToExampleFile("101", "aks.prod", "main.bicep") });
 
     expect(result.success).toBeTruthy();
     expect(result.contents?.length).toBeGreaterThan(0);
   });
 
   it("should build a bicepparam file", async () => {
-    const result = await compileParams(connection, pathToExampleFile("bicepparam", "main.bicepparam"), {
-      foo: "OVERRIDDEN",
+    const result = await bicep.compileParams({
+      path: pathToExampleFile("bicepparam", "main.bicepparam"), parameterOverrides: {
+        foo: "OVERRIDDEN",
+      }
     });
 
     expect(result.success).toBeTruthy();
@@ -67,7 +60,7 @@ describe("bicep jsonrpc", () => {
     `,
     );
 
-    const result = await getDeploymentGraph(connection, bicepPath);
+    const result = await bicep.getDeploymentGraph({ path: bicepPath });
 
     expect(result.nodes).toHaveLength(3);
     expect(result.edges).toHaveLength(2);
@@ -75,7 +68,7 @@ describe("bicep jsonrpc", () => {
 
   it("should return diagnostics if the bicep file has errors", async () => {
     const filePath = pathToExampleFile("101", "aks.prod", "flawed.bicep");
-    const result = await compile(connection, filePath);
+    const result = await bicep.compile({ path: filePath });
 
     expect(result.success).toBeFalsy();
     expect(result.contents).toBeUndefined();
@@ -110,7 +103,7 @@ describe("bicep jsonrpc", () => {
     `,
     );
 
-    const result = await getMetadata(connection, bicepPath);
+    const result = await bicep.getMetadata({ path: bicepPath });
 
     expect(result.metadata.filter((x) => x.name === "description")[0].value).toBe("my file");
     expect(result.parameters.filter((x) => x.name === "foo")[0]).toStrictEqual({
@@ -168,7 +161,7 @@ hello!
 `,
     );
 
-    const result = await getFileReferences(connection, bicepParamPath);
+    const result = await bicep.getFileReferences({ path: bicepParamPath });
 
     expect(result.filePaths).toStrictEqual([
       path.join(bicepParamPath, "../bicepconfig.json"),
@@ -198,55 +191,10 @@ kind: 'StorageV2'
     `,
     );
 
-    const result = await format(connection, bicepPath);
+    const result = await bicep.format({ path: bicepPath });
 
     expect(result.contents).toBeDefined();
     expect(result.contents.includes("param foo string")).toBeTruthy();
     expect(result.contents.includes("  name: 'mystorageaccount'")).toBeTruthy();
   });
 });
-
-async function version(connection: MessageConnection) {
-  return await connection.sendRequest(versionRequestType, {});
-}
-
-async function compile(connection: MessageConnection, bicepFile: string) {
-  return await connection.sendRequest(compileRequestType, {
-    path: bicepFile,
-  });
-}
-
-async function compileParams(
-  connection: MessageConnection,
-  filePath: string,
-  parameterOverrides: Record<string, unknown>,
-) {
-  return await connection.sendRequest(compileParamsRequestType, {
-    path: filePath,
-    parameterOverrides,
-  });
-}
-
-async function getMetadata(connection: MessageConnection, bicepFile: string) {
-  return await connection.sendRequest(getMetadataRequestType, {
-    path: bicepFile,
-  });
-}
-
-async function getDeploymentGraph(connection: MessageConnection, bicepFile: string) {
-  return await connection.sendRequest(getDeploymentGraphRequestType, {
-    path: bicepFile,
-  });
-}
-
-async function getFileReferences(connection: MessageConnection, bicepFile: string) {
-  return await connection.sendRequest(getFileReferencesRequestType, {
-    path: bicepFile,
-  });
-}
-
-async function format(connection: MessageConnection, bicepFile: string) {
-  return await connection.sendRequest(formatRequestType, {
-    path: bicepFile,
-  });
-}

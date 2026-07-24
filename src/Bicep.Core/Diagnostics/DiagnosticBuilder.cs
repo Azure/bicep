@@ -2068,6 +2068,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic InvalidOciArtifactModuleAliasMapToFilePath(string? aliasName, string path, string reason) => CoreError(
                 "BCP451",
                 $"The OCI artifact module alias{(aliasName is not null ? $" \"{aliasName}\"" : "")} has an invalid \"mapToFilePath\" path \"{path}\": {reason}");
+
+            public Diagnostic ImportedSymbolDependsOnDeploymentContextFunctions(string symbolName, IEnumerable<string> functionNames) => CoreError(
+                "BCP452",
+                @$"The imported symbol ""{symbolName}"" cannot be used in a {LanguageConstants.ParamsFileExtension} file because it depends on deployment-context functions: {ToQuotedString(functionNames)}. Imported declarations may only use functions that can be evaluated while building the parameters file.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

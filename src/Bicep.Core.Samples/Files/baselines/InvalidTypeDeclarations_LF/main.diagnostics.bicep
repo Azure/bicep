@@ -4,22 +4,27 @@ type 44
 //@[07:007) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 type noAssignment
+//@[05:017) [no-unused-types (Warning)] Type "noAssignment" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |noAssignment|
 //@[17:017) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
 //@[17:017) [BCP018 (Error)] Expected the "=" character at this location. (bicep https://aka.ms/bicep/core-diagnostics#BCP018) ||
 
 type incompleteAssignment =
+//@[05:025) [no-unused-types (Warning)] Type "incompleteAssignment" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |incompleteAssignment|
 //@[27:027) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "any", "array", "bool", "int", "object", "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP279) ||
 
 type resource = bool
 //@[05:013) [BCP301 (Error)] The type name "resource" is reserved and may not be attached to a user-defined type. (bicep https://aka.ms/bicep/core-diagnostics#BCP301) |resource|
+//@[05:013) [no-unused-types (Warning)] Type "resource" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |resource|
 
 @sealed()
 //@[00:009) [BCP124 (Error)] The decorator "sealed" can only be attached to targets of type "object", but the target has type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP124) |@sealed()|
 type sealedString = string
+//@[05:017) [no-unused-types (Warning)] Type "sealedString" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |sealedString|
 
 @sealed()
 //@[00:009) [BCP316 (Error)] The "sealed" decorator may not be used on object types with an explicit additional properties type declaration. (bicep https://aka.ms/bicep/core-diagnostics#BCP316) |@sealed()|
 type sealedDictionary = {
+//@[05:021) [no-unused-types (Warning)] Type "sealedDictionary" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |sealedDictionary|
 	*: string
 }
 
@@ -29,24 +34,30 @@ type disallowedUnion = 'foo'|21
 type validStringLiteralUnion = 'foo'|'bar'|'baz'
 
 type validUnionInvalidAddition = validStringLiteralUnion|10
+//@[05:030) [no-unused-types (Warning)] Type "validUnionInvalidAddition" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |validUnionInvalidAddition|
 //@[33:059) [BCP294 (Error)] Type unions must be reducible to a single ARM type (such as 'string', 'int', or 'bool'). (bicep https://aka.ms/bicep/core-diagnostics#BCP294) |validStringLiteralUnion|10|
 
 type invalidUnionInvalidAddition = disallowedUnion|true
+//@[05:032) [no-unused-types (Warning)] Type "invalidUnionInvalidAddition" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |invalidUnionInvalidAddition|
 //@[35:055) [BCP294 (Error)] Type unions must be reducible to a single ARM type (such as 'string', 'int', or 'bool'). (bicep https://aka.ms/bicep/core-diagnostics#BCP294) |disallowedUnion|true|
 
 type nullLiteral = null
+//@[05:016) [no-unused-types (Warning)] Type "nullLiteral" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |nullLiteral|
 //@[19:023) [BCP289 (Error)] The type definition is not valid. (bicep https://aka.ms/bicep/core-diagnostics#BCP289) |null|
 
 type unionOfNulls = null|null
+//@[05:017) [no-unused-types (Warning)] Type "unionOfNulls" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |unionOfNulls|
 //@[20:029) [BCP294 (Error)] Type unions must be reducible to a single ARM type (such as 'string', 'int', or 'bool'). (bicep https://aka.ms/bicep/core-diagnostics#BCP294) |null|null|
 
 @minLength(3)
 //@[00:013) [BCP124 (Error)] The decorator "minLength" can only be attached to targets of type "array | string", but the target has type "int". (bicep https://aka.ms/bicep/core-diagnostics#BCP124) |@minLength(3)|
 type lengthConstrainedInt = int
+//@[05:025) [no-unused-types (Warning)] Type "lengthConstrainedInt" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |lengthConstrainedInt|
 
 @minValue(3)
 //@[00:012) [BCP124 (Error)] The decorator "minValue" can only be attached to targets of type "int", but the target has type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP124) |@minValue(3)|
 type valueConstrainedString = string
+//@[05:027) [no-unused-types (Warning)] Type "valueConstrainedString" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |valueConstrainedString|
 
 type tautology = tautology
 //@[05:014) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (bicep https://aka.ms/bicep/core-diagnostics#BCP298) |tautology|
@@ -74,6 +85,7 @@ type cycleBack = cycleRoot
 //@[05:014) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("cycleBack" -> "cycleRoot" -> "connector"). (bicep https://aka.ms/bicep/core-diagnostics#BCP299) |cycleBack|
 
 type objectWithInvalidPropertyDecorators = {
+//@[05:040) [no-unused-types (Warning)] Type "objectWithInvalidPropertyDecorators" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |objectWithInvalidPropertyDecorators|
   @sealed()
 //@[02:011) [BCP124 (Error)] The decorator "sealed" can only be attached to targets of type "object", but the target has type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP124) |@sealed()|
   fooProp: string
@@ -92,6 +104,7 @@ type objectWithInvalidRecursion = {
 }
 
 type arrayWithInvalidMember = objectWithInvalidRecursion[]
+//@[05:027) [no-unused-types (Warning)] Type "arrayWithInvalidMember" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |arrayWithInvalidMember|
 
 @sealed()
 //@[00:009) [BCP124 (Error)] The decorator "sealed" can only be attached to targets of type "object", but the target has type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP124) |@sealed()|
@@ -147,64 +160,79 @@ type typeG = {
 }
 
 type primitiveUnion = | bool | bool
+//@[05:019) [no-unused-types (Warning)] Type "primitiveUnion" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |primitiveUnion|
 //@[24:028) [BCP293 (Error)] All members of a union type declaration must be literal values. (bicep https://aka.ms/bicep/core-diagnostics#BCP293) |bool|
 //@[31:035) [BCP293 (Error)] All members of a union type declaration must be literal values. (bicep https://aka.ms/bicep/core-diagnostics#BCP293) |bool|
 
 type objectUnion = typeA | typeB
+//@[05:016) [no-unused-types (Warning)] Type "objectUnion" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |objectUnion|
 //@[19:024) [BCP293 (Error)] All members of a union type declaration must be literal values. (bicep https://aka.ms/bicep/core-diagnostics#BCP293) |typeA|
 //@[27:032) [BCP293 (Error)] All members of a union type declaration must be literal values. (bicep https://aka.ms/bicep/core-diagnostics#BCP293) |typeB|
 
 @discriminator()
 //@[14:016) [BCP071 (Error)] Expected 1 argument, but got 0. (bicep https://aka.ms/bicep/core-diagnostics#BCP071) |()|
 type noDiscriminatorParam = typeA | typeB
+//@[05:025) [no-unused-types (Warning)] Type "noDiscriminatorParam" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |noDiscriminatorParam|
 
 @discriminator(true)
 //@[15:019) [BCP070 (Error)] Argument of type "true" is not assignable to parameter of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP070) |true|
 type wrongDiscriminatorParamType = typeA | typeB
+//@[05:032) [no-unused-types (Warning)] Type "wrongDiscriminatorParamType" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |wrongDiscriminatorParamType|
 
 @discriminator('nonexistent')
 type discriminatorPropertyNotExistAtAll = typeA | typeB
+//@[05:039) [no-unused-types (Warning)] Type "discriminatorPropertyNotExistAtAll" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatorPropertyNotExistAtAll|
 //@[42:047) [BCP364 (Error)] The property "nonexistent" must be a required string literal on all union member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP364) |typeA|
 //@[50:055) [BCP364 (Error)] The property "nonexistent" must be a required string literal on all union member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP364) |typeB|
 
 @discriminator('nonexistent')
 //@[00:029) [BCP366 (Error)] The discriminator property name must be "nonexistent" on all union member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP366) |@discriminator('nonexistent')|
 type discriminatorPropertyMismatch = unionAB
+//@[05:034) [no-unused-types (Warning)] Type "discriminatorPropertyMismatch" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatorPropertyMismatch|
 
 @discriminator('type')
 type discriminatorPropertyNotExistOnAtLeastOne = typeA | { value: bool }
+//@[05:046) [no-unused-types (Warning)] Type "discriminatorPropertyNotExistOnAtLeastOne" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatorPropertyNotExistOnAtLeastOne|
 //@[57:072) [BCP364 (Error)] The property "type" must be a required string literal on all union member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP364) |{ value: bool }|
 
 @discriminator('type')
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP363) |@discriminator('type')|
 type discriminatorWithOnlyOneMember = typeA
+//@[05:035) [no-unused-types (Warning)] Type "discriminatorWithOnlyOneMember" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatorWithOnlyOneMember|
 
 @discriminator('type')
 type discriminatorPropertyNotRequiredStringLiteral1 = typeA | typeF
+//@[05:051) [no-unused-types (Warning)] Type "discriminatorPropertyNotRequiredStringLiteral1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatorPropertyNotRequiredStringLiteral1|
 //@[62:067) [BCP364 (Error)] The property "type" must be a required string literal on all union member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP364) |typeF|
 
 @discriminator('type')
 type discriminatorPropertyNotRequiredStringLiteral2 = typeA | typeG
+//@[05:051) [no-unused-types (Warning)] Type "discriminatorPropertyNotRequiredStringLiteral2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatorPropertyNotRequiredStringLiteral2|
 //@[62:067) [BCP364 (Error)] The property "type" must be a required string literal on all union member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP364) |typeG|
 
 @discriminator('type')
 type discriminatorDuplicatedMember1 = typeA | typeA
+//@[05:035) [no-unused-types (Warning)] Type "discriminatorDuplicatedMember1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatorDuplicatedMember1|
 
 @discriminator('type')
 type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
+//@[05:035) [no-unused-types (Warning)] Type "discriminatorDuplicatedMember2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatorDuplicatedMember2|
 //@[46:075) [BCP365 (Error)] The value "'a'" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP365) |{ type: 'a', config: object }|
 //@[67:073) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |object|
 
 @discriminator('type')
 type discriminatorOnlyOneNonNullMember1 = typeA | null
+//@[05:039) [no-unused-types (Warning)] Type "discriminatorOnlyOneNonNullMember1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatorOnlyOneNonNullMember1|
 //@[50:054) [BCP286 (Error)] This union member is invalid because it cannot be assigned to the 'object' type. (bicep https://aka.ms/bicep/core-diagnostics#BCP286) |null|
 
 @discriminator('type')
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP363) |@discriminator('type')|
 type discriminatorOnlyOneNonNullMember2 = (typeA)?
+//@[05:039) [no-unused-types (Warning)] Type "discriminatorOnlyOneNonNullMember2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatorOnlyOneNonNullMember2|
 
 @discriminator('type')
 type discriminatorMemberHasAdditionalProperties = typeA | typeE
+//@[05:047) [no-unused-types (Warning)] Type "discriminatorMemberHasAdditionalProperties" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatorMemberHasAdditionalProperties|
 
 @discriminator('type')
 type discriminatorSelfCycle1 = typeA | discriminatorSelfCycle1
@@ -245,11 +273,13 @@ type discriminatorInnerSelfCycle2 = typeA | discriminatorInnerSelfCycle2Helper
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP363) |@discriminator('type')|
 //@[00:022) [BCP124 (Error)] The decorator "discriminator" can only be attached to targets of type "object", but the target has type "[typeA, typeB]". (bicep https://aka.ms/bicep/core-diagnostics#BCP124) |@discriminator('type')|
 type discriminatorTupleBadType1 = [typeA, typeB]
+//@[05:031) [no-unused-types (Warning)] Type "discriminatorTupleBadType1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatorTupleBadType1|
 
 @discriminator('type')
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP363) |@discriminator('type')|
 //@[00:022) [BCP124 (Error)] The decorator "discriminator" can only be attached to targets of type "object", but the target has type "[typeA | typeB]". (bicep https://aka.ms/bicep/core-diagnostics#BCP124) |@discriminator('type')|
 type discriminatorTupleBadType2 = [typeA | typeB]
+//@[05:031) [no-unused-types (Warning)] Type "discriminatorTupleBadType2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatorTupleBadType2|
 //@[35:040) [BCP293 (Error)] All members of a union type declaration must be literal values. (bicep https://aka.ms/bicep/core-diagnostics#BCP293) |typeA|
 //@[43:048) [BCP293 (Error)] All members of a union type declaration must be literal values. (bicep https://aka.ms/bicep/core-diagnostics#BCP293) |typeB|
 
@@ -257,23 +287,27 @@ type discriminatorTupleBadType2 = [typeA | typeB]
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP363) |@discriminator('type')|
 //@[00:022) [BCP124 (Error)] The decorator "discriminator" can only be attached to targets of type "object", but the target has type "[typeA | typeB, typeC | typeD]". (bicep https://aka.ms/bicep/core-diagnostics#BCP124) |@discriminator('type')|
 type discriminatorTupleBadType3 = [typeA | typeB, typeC | typeD]
+//@[05:031) [no-unused-types (Warning)] Type "discriminatorTupleBadType3" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatorTupleBadType3|
 //@[35:040) [BCP293 (Error)] All members of a union type declaration must be literal values. (bicep https://aka.ms/bicep/core-diagnostics#BCP293) |typeA|
 //@[43:048) [BCP293 (Error)] All members of a union type declaration must be literal values. (bicep https://aka.ms/bicep/core-diagnostics#BCP293) |typeB|
 //@[50:055) [BCP293 (Error)] All members of a union type declaration must be literal values. (bicep https://aka.ms/bicep/core-diagnostics#BCP293) |typeC|
 //@[58:063) [BCP293 (Error)] All members of a union type declaration must be literal values. (bicep https://aka.ms/bicep/core-diagnostics#BCP293) |typeD|
 
 type discriminatorInlineAdditionalPropsBadType1 = {
+//@[05:047) [no-unused-types (Warning)] Type "discriminatorInlineAdditionalPropsBadType1" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatorInlineAdditionalPropsBadType1|
   @discriminator('type')
 //@[02:024) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP363) |@discriminator('type')|
   *: typeA
 }
 
 type discriminatorInlineAdditionalPropsBadType2 = {
+//@[05:047) [no-unused-types (Warning)] Type "discriminatorInlineAdditionalPropsBadType2" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatorInlineAdditionalPropsBadType2|
   @discriminator('type')
   *: typeA | typeA
 }
 
 type discriminatorInlineAdditionalPropsBadType3 = {
+//@[05:047) [no-unused-types (Warning)] Type "discriminatorInlineAdditionalPropsBadType3" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatorInlineAdditionalPropsBadType3|
   @discriminator('type')
 //@[02:024) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP363) |@discriminator('type')|
 //@[02:024) [BCP124 (Error)] The decorator "discriminator" can only be attached to targets of type "object", but the target has type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP124) |@discriminator('type')|
@@ -282,10 +316,12 @@ type discriminatorInlineAdditionalPropsBadType3 = {
 
 @discriminator('type')
 type discriminatedUnionDuplicateMemberInsensitive = { type: 'a', value: string } | { type: 'A', value: int }
+//@[05:049) [no-unused-types (Warning)] Type "discriminatedUnionDuplicateMemberInsensitive" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatedUnionDuplicateMemberInsensitive|
 //@[83:108) [BCP365 (Error)] The value "'A'" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP365) |{ type: 'A', value: int }|
 
 @discriminator('TYPE')
 type discriminatedUnionCaseSensitiveDiscriminator = { type: 'a', value: string } | { type: 'b', value: int }
+//@[05:049) [no-unused-types (Warning)] Type "discriminatedUnionCaseSensitiveDiscriminator" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |discriminatedUnionCaseSensitiveDiscriminator|
 //@[52:080) [BCP364 (Error)] The property "TYPE" must be a required string literal on all union member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP364) |{ type: 'a', value: string }|
 //@[83:108) [BCP364 (Error)] The property "TYPE" must be a required string literal on all union member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP364) |{ type: 'b', value: int }|
 
@@ -312,11 +348,13 @@ output discriminatorOutputBadType2 object = { prop: 'value' }
 type strings = string[]
 
 type invalidTupleAccess = strings[0]
+//@[05:023) [no-unused-types (Warning)] Type "invalidTupleAccess" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |invalidTupleAccess|
 //@[34:035) [BCP388 (Error)] Cannot access elements of type "string[]" by index. An tuple type is required. (bicep https://aka.ms/bicep/core-diagnostics#BCP388) |0|
 
 type stringTuple = [string, string]
 
 type invalidItemTypeAccess = stringTuple[*]
+//@[05:026) [no-unused-types (Warning)] Type "invalidItemTypeAccess" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |invalidItemTypeAccess|
 //@[40:043) [BCP390 (Error)] The array item type access operator ('[*]') can only be used with typed arrays. (bicep https://aka.ms/bicep/core-diagnostics#BCP390) |[*]|
 
 type anObject = {
@@ -324,6 +362,7 @@ type anObject = {
 }
 
 type invalidAdditionalPropertiesAccess = anObject.*
+//@[05:038) [no-unused-types (Warning)] Type "invalidAdditionalPropertiesAccess" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |invalidAdditionalPropertiesAccess|
 //@[50:051) [BCP389 (Error)] The type "{ property: string }" does not declare an additional properties type. (bicep https://aka.ms/bicep/core-diagnostics#BCP389) |*|
 
 type stringDict = {
@@ -331,5 +370,6 @@ type stringDict = {
 }
 
 type invalidPropertyAccess = stringDict.property
+//@[05:026) [no-unused-types (Warning)] Type "invalidPropertyAccess" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |invalidPropertyAccess|
 //@[40:048) [BCP052 (Error)] The type "{ *: string }" does not contain property "property". (bicep https://aka.ms/bicep/core-diagnostics#BCP052) |property|
 
