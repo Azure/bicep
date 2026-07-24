@@ -27,6 +27,7 @@ namespace Bicep.Core.Emit
     {
         public const string GeneratorMetadataPath = "metadata._generator";
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
+        public const string ModuleDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeploymentModules;
         public const string TemplateHashPropertyName = "templateHash";
         public const string LanguageVersionPropertyName = "languageVersion";
 
@@ -1524,16 +1525,28 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty("condition", condition.Expression);
                 }
 
-                emitter.EmitProperty("type", NestedDeploymentResourceType);
-                emitter.EmitProperty("apiVersion", EmitConstants.NestedDeploymentResourceApiVersion);
+                var useModuleDeployments = Context.SemanticModel.Features.ModuleDeploymentsEnabled;
+
+                emitter.EmitProperty("type", useModuleDeployments ? ModuleDeploymentResourceType : NestedDeploymentResourceType);
+                emitter.EmitProperty("apiVersion", useModuleDeployments ? EmitConstants.ModuleDeploymentResourceApiVersion : EmitConstants.NestedDeploymentResourceApiVersion);
 
                 // emit all properties apart from 'params'. In practice, this currently only allows 'name', but we may choose to allow other top-level resource properties in future.
                 // params requires special handling (see below).
-                emitter.EmitObjectProperties((ObjectExpression)body);
+                var moduleBody = (ObjectExpression)body;
+                if (useModuleDeployments)
+                {
+                    // A Microsoft.Resources/deployments/modules resource is a child of the root
+                    // Microsoft.Resources/deployments resource, so its name must be qualified with the
+                    // (unqualified) root deployment name: concat(split(deployment().name, '/')[0], '/', <name>).
+                    moduleBody = QualifyModuleDeploymentName(moduleBody);
+                }
+                emitter.EmitObjectProperties(moduleBody);
 
                 ExpressionBuilder.EmitModuleScopeProperties(emitter, module);
 
-                if (module.ScopeData.RequestedScope != ResourceScope.ResourceGroup)
+                // A modules resource entity always lives under its root deployment (and therefore in the root's
+                // region), so it must not declare a location -- even when its child resources target another scope.
+                if (!useModuleDeployments && module.ScopeData.RequestedScope != ResourceScope.ResourceGroup)
                 {
                     // if we're deploying to a scope other than resource group, we need to supply a location
                     if (this.Context.SemanticModel.TargetScope == ResourceScope.ResourceGroup)
@@ -1599,6 +1612,47 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty(property);
                 }
             }, module.SourceSyntax);
+        }
+
+        /// <summary>
+        /// Rewrites a module body so that its <c>name</c> property is qualified with the (unqualified) root
+        /// deployment name, as required for a <c>Microsoft.Resources/deployments/modules</c> child resource:
+        /// <c>concat(split(deployment().name, '/')[0], '/', &lt;name&gt;)</c>.
+        /// <para>
+        /// <c>split(deployment().name, '/')[0]</c> yields the root deployment name whether the enclosing template
+        /// is running as the root <c>Microsoft.Resources/deployments</c> resource (where <c>deployment().name</c>
+        /// has no '/') or as a nested <c>modules</c> resource (where it is the fully qualified
+        /// <c>&lt;root&gt;/&lt;module&gt;</c> name).
+        /// </para>
+        /// </summary>
+        private static ObjectExpression QualifyModuleDeploymentName(ObjectExpression moduleBody)
+        {
+            var qualifiedProperties = moduleBody.Properties.Select(property =>
+                property is { Key: StringLiteralExpression { Value: LanguageConstants.ModuleNamePropertyName } }
+                    ? property with { Value = BuildQualifiedModuleDeploymentName(property.Value) }
+                    : property);
+
+            return moduleBody with { Properties = [.. qualifiedProperties] };
+        }
+
+        private static Expression BuildQualifiedModuleDeploymentName(Expression unqualifiedName)
+        {
+            var deploymentName = new PropertyAccessExpression(
+                null,
+                new FunctionCallExpression(null, "deployment", []),
+                "name",
+                AccessExpressionFlags.None);
+
+            var rootDeploymentName = new ArrayAccessExpression(
+                null,
+                new FunctionCallExpression(null, "split", [deploymentName, new StringLiteralExpression(null, "/")]),
+                new IntegerLiteralExpression(null, 0),
+                AccessExpressionFlags.None);
+
+            return new FunctionCallExpression(
+                null,
+                "concat",
+                [rootDeploymentName, new StringLiteralExpression(null, "/"), unqualifiedName]);
         }
 
         private static void EmitSymbolicNameDependsOnEntry(ExpressionEmitter emitter, ResourceDependencyExpression dependency)

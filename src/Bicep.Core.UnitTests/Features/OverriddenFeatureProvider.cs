@@ -43,6 +43,8 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool ModuleExtensionConfigsEnabled => overrides.ModuleExtensionConfigsEnabled ?? features.ModuleExtensionConfigsEnabled;
 
+    public bool ModuleDeploymentsEnabled => overrides.ModuleDeploymentsEnabled ?? features.ModuleDeploymentsEnabled;
+
     public bool UserDefinedConstraintsEnabled => overrides.UserDefinedConstraintsEnabled ?? features.UserDefinedConstraintsEnabled;
 
     public bool DeployCommandsEnabled => overrides.DeployCommandsEnabled ?? features.DeployCommandsEnabled;

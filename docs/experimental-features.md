@@ -25,6 +25,14 @@ Enables code formatting with the legacy formatter. This feature flag is introduc
 
 Enables Bicep to run deployments locally, so that you can run Bicep extensions without a dependency on Azure (for example, to run scripts, or to interact with non-Azure APIs like Kubernetes or GitHub). For more information, see [Using Local Deploy](./experimental/local-deploy.md).
 
+### `moduleDeployments`
+
+Compiles Bicep `module` declarations to the new `Microsoft.Resources/deployments/modules` child resource type
+instead of `Microsoft.Resources/deployments`. Modules emitted this way are stored under their root deployment,
+are exempt from the 800-deployments-per-scope limit (subject instead to a 10,000 resources-in-closure limit),
+and are cleaned up automatically when their root deployment is deleted. Cross-scope modules keep their entity
+under the root while targeting another scope for their child resources. This feature is not ready for use.
+
 ### `moduleExtensionConfigs`
 
 Moves defining extension configurations to the module level rather than from within a template. The feature also

@@ -21,6 +21,7 @@ public record ExperimentalFeaturesEnabled(
     bool LocalDeploy,
     bool ResourceInfoCodegen,
     bool ModuleExtensionConfigs,
+    bool ModuleDeployments,
     bool UserDefinedConstraints,
     bool DeployCommands,
     bool Patch)
@@ -42,6 +43,7 @@ public record ExperimentalFeaturesEnabled(
         LocalDeploy: false,
         ResourceInfoCodegen: false,
         ModuleExtensionConfigs: false,
+        ModuleDeployments: false,
         UserDefinedConstraints: false,
         DeployCommands: false,
         Patch: false);

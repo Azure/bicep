@@ -13,8 +13,9 @@ param deployTimeSuffix string = newGuid()
 //@        "description": "this module a"
 module modATest './modulea.bicep' = {
 //@    "modATest": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'modATest')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -22,12 +23,17 @@ module modATest './modulea.bicep' = {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "8300391961099598421"
+//@              "templateHash": "8558550026798054074"
 //@            }
 //@          },
 //@          "parameters": {
@@ -45,20 +51,20 @@ module modATest './modulea.bicep' = {
 //@              "type": "array"
 //@            }
 //@          },
-//@          "resources": [
-//@            {
+//@          "resources": {
+//@            "basicStorage": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "basicblobs",
 //@              "location": "[parameters('stringParamA')]"
 //@            },
-//@            {
+//@            "dnsZone": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "myZone",
 //@              "location": "[parameters('stringParamB')]"
 //@            }
-//@          ],
+//@          },
 //@          "outputs": {
 //@            "stringOutputA": {
 //@              "type": "string",
@@ -70,7 +76,7 @@ module modATest './modulea.bicep' = {
 //@            },
 //@            "objOutput": {
 //@              "type": "object",
-//@              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+//@              "value": "[reference('basicStorage')]"
 //@            },
 //@            "arrayOutput": {
 //@              "type": "array",
@@ -86,7 +92,6 @@ module modATest './modulea.bicep' = {
 //@      }
 //@    },
   name: 'modATest'
-//@      "name": "modATest",
   params: {
 //@        "parameters": {
 //@        },
@@ -124,8 +129,9 @@ module modATest './modulea.bicep' = {
 //@        "description": "this module b"
 module modB './child/moduleb.bicep' = {
 //@    "modB": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'modB')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -133,12 +139,17 @@ module modB './child/moduleb.bicep' = {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "13693869390953445824"
+//@              "templateHash": "8798371550198431447"
 //@            }
 //@          },
 //@          "parameters": {
@@ -146,14 +157,14 @@ module modB './child/moduleb.bicep' = {
 //@              "type": "string"
 //@            }
 //@          },
-//@          "resources": [
-//@            {
+//@          "resources": {
+//@            "myResource": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "mockResource",
 //@              "location": "[parameters('location')]"
 //@            }
-//@          ],
+//@          },
 //@          "outputs": {
 //@            "myResourceId": {
 //@              "type": "string",
@@ -166,7 +177,6 @@ module modB './child/moduleb.bicep' = {
 //@      }
 //@    },
   name: 'modB'
-//@      "name": "modB",
   params: {
 //@        "parameters": {
 //@        },
@@ -182,8 +192,9 @@ module modB './child/moduleb.bicep' = {
 module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 //@    "modBWithCondition": {
 //@      "condition": "[equals(add(1, 1), 2)]",
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'modBWithCondition')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -191,12 +202,17 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "13693869390953445824"
+//@              "templateHash": "8798371550198431447"
 //@            }
 //@          },
 //@          "parameters": {
@@ -204,14 +220,14 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 //@              "type": "string"
 //@            }
 //@          },
-//@          "resources": [
-//@            {
+//@          "resources": {
+//@            "myResource": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "mockResource",
 //@              "location": "[parameters('location')]"
 //@            }
-//@          ],
+//@          },
 //@          "outputs": {
 //@            "myResourceId": {
 //@              "type": "string",
@@ -224,7 +240,6 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 //@      }
 //@    },
   name: 'modBWithCondition'
-//@      "name": "modBWithCondition",
   params: {
 //@        "parameters": {
 //@        },
@@ -237,8 +252,9 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 
 module modBWithCondition2 './child/moduleb.bicep' =
 //@    "modBWithCondition2": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'modBWithCondition2')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -246,12 +262,17 @@ module modBWithCondition2 './child/moduleb.bicep' =
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "13693869390953445824"
+//@              "templateHash": "8798371550198431447"
 //@            }
 //@          },
 //@          "parameters": {
@@ -259,14 +280,14 @@ module modBWithCondition2 './child/moduleb.bicep' =
 //@              "type": "string"
 //@            }
 //@          },
-//@          "resources": [
-//@            {
+//@          "resources": {
+//@            "myResource": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "mockResource",
 //@              "location": "[parameters('location')]"
 //@            }
-//@          ],
+//@          },
 //@          "outputs": {
 //@            "myResourceId": {
 //@              "type": "string",
@@ -280,7 +301,6 @@ module modBWithCondition2 './child/moduleb.bicep' =
 if (1 + 1 == 2) {
 //@      "condition": "[equals(add(1, 1), 2)]",
   name: 'modBWithCondition2'
-//@      "name": "modBWithCondition2",
   params: {
 //@        "parameters": {
 //@        },
@@ -293,8 +313,9 @@ if (1 + 1 == 2) {
 
 module modC './child/modulec.json' = {
 //@    "modC": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'modC')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -327,7 +348,6 @@ module modC './child/modulec.json' = {
 //@      }
 //@    },
   name: 'modC'
-//@      "name": "modC",
   params: {
 //@        "parameters": {
 //@        },
@@ -341,8 +361,9 @@ module modC './child/modulec.json' = {
 module modCWithCondition './child/modulec.json' = if (2 - 1 == 1) {
 //@    "modCWithCondition": {
 //@      "condition": "[equals(sub(2, 1), 1)]",
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'modCWithCondition')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -375,7 +396,6 @@ module modCWithCondition './child/modulec.json' = if (2 - 1 == 1) {
 //@      }
 //@    },
   name: 'modCWithCondition'
-//@      "name": "modCWithCondition",
   params: {
 //@        "parameters": {
 //@        },
@@ -388,8 +408,9 @@ module modCWithCondition './child/modulec.json' = if (2 - 1 == 1) {
 
 module optionalWithNoParams1 './child/optionalParams.bicep'= {
 //@    "optionalWithNoParams1": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'optionalWithNoParams1')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -397,12 +418,17 @@ module optionalWithNoParams1 './child/optionalParams.bicep'= {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4191259681487754679"
+//@              "templateHash": "10637969297493573680"
 //@            }
 //@          },
 //@          "parameters": {
@@ -429,7 +455,7 @@ module optionalWithNoParams1 './child/optionalParams.bicep'= {
 //@              ]
 //@            }
 //@          },
-//@          "resources": [],
+//@          "resources": {},
 //@          "outputs": {
 //@            "outputObj": {
 //@              "type": "object",
@@ -445,13 +471,13 @@ module optionalWithNoParams1 './child/optionalParams.bicep'= {
 //@      }
 //@    },
   name: 'optionalWithNoParams1'
-//@      "name": "optionalWithNoParams1",
 }
 
 module optionalWithNoParams2 './child/optionalParams.bicep'= {
 //@    "optionalWithNoParams2": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'optionalWithNoParams2')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -459,12 +485,17 @@ module optionalWithNoParams2 './child/optionalParams.bicep'= {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4191259681487754679"
+//@              "templateHash": "10637969297493573680"
 //@            }
 //@          },
 //@          "parameters": {
@@ -491,7 +522,7 @@ module optionalWithNoParams2 './child/optionalParams.bicep'= {
 //@              ]
 //@            }
 //@          },
-//@          "resources": [],
+//@          "resources": {},
 //@          "outputs": {
 //@            "outputObj": {
 //@              "type": "object",
@@ -507,7 +538,6 @@ module optionalWithNoParams2 './child/optionalParams.bicep'= {
 //@      }
 //@    },
   name: 'optionalWithNoParams2'
-//@      "name": "optionalWithNoParams2",
   params: {
 //@        "parameters": {},
   }
@@ -515,8 +545,9 @@ module optionalWithNoParams2 './child/optionalParams.bicep'= {
 
 module optionalWithAllParams './child/optionalParams.bicep'= {
 //@    "optionalWithAllParams": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'optionalWithNoParams3')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -524,12 +555,17 @@ module optionalWithAllParams './child/optionalParams.bicep'= {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4191259681487754679"
+//@              "templateHash": "10637969297493573680"
 //@            }
 //@          },
 //@          "parameters": {
@@ -556,7 +592,7 @@ module optionalWithAllParams './child/optionalParams.bicep'= {
 //@              ]
 //@            }
 //@          },
-//@          "resources": [],
+//@          "resources": {},
 //@          "outputs": {
 //@            "outputObj": {
 //@              "type": "object",
@@ -572,7 +608,6 @@ module optionalWithAllParams './child/optionalParams.bicep'= {
 //@      }
 //@    },
   name: 'optionalWithNoParams3'
-//@      "name": "optionalWithNoParams3",
   params: {
 //@        "parameters": {
 //@        },
@@ -621,8 +656,9 @@ resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
 
 module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= {
 //@    "optionalWithAllParamsAndManualDependency": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'optionalWithAllParamsAndManualDependency')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -630,12 +666,17 @@ module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= 
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4191259681487754679"
+//@              "templateHash": "10637969297493573680"
 //@            }
 //@          },
 //@          "parameters": {
@@ -662,7 +703,7 @@ module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= 
 //@              ]
 //@            }
 //@          },
-//@          "resources": [],
+//@          "resources": {},
 //@          "outputs": {
 //@            "outputObj": {
 //@              "type": "object",
@@ -682,7 +723,6 @@ module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= 
 //@      ]
 //@    },
   name: 'optionalWithAllParamsAndManualDependency'
-//@      "name": "optionalWithAllParamsAndManualDependency",
   params: {
 //@        "parameters": {
 //@        },
@@ -711,8 +751,9 @@ module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= 
 
 module optionalWithImplicitDependency './child/optionalParams.bicep'= {
 //@    "optionalWithImplicitDependency": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'optionalWithImplicitDependency')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -720,12 +761,17 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4191259681487754679"
+//@              "templateHash": "10637969297493573680"
 //@            }
 //@          },
 //@          "parameters": {
@@ -752,7 +798,7 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
 //@              ]
 //@            }
 //@          },
-//@          "resources": [],
+//@          "resources": {},
 //@          "outputs": {
 //@            "outputObj": {
 //@              "type": "object",
@@ -772,7 +818,6 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
 //@      ]
 //@    },
   name: 'optionalWithImplicitDependency'
-//@      "name": "optionalWithImplicitDependency",
   params: {
 //@        "parameters": {
 //@        },
@@ -797,8 +842,9 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
 
 module moduleWithCalculatedName './child/optionalParams.bicep'= {
 //@    "moduleWithCalculatedName": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix')))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -806,12 +852,17 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "4191259681487754679"
+//@              "templateHash": "10637969297493573680"
 //@            }
 //@          },
 //@          "parameters": {
@@ -838,7 +889,7 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
 //@              ]
 //@            }
 //@          },
-//@          "resources": [],
+//@          "resources": {},
 //@          "outputs": {
 //@            "outputObj": {
 //@              "type": "object",
@@ -858,7 +909,6 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
 //@      ]
 //@    },
   name: '${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'
-//@      "name": "[format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))]",
   params: {
 //@        "parameters": {
 //@        },
@@ -962,8 +1012,9 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
 //@        "name": "storageResources",
 //@        "count": "[length(variables('myModules'))]"
 //@      },
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', variables('myModules')[copyIndex()].name)]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -971,12 +1022,17 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "8300391961099598421"
+//@              "templateHash": "8558550026798054074"
 //@            }
 //@          },
 //@          "parameters": {
@@ -994,20 +1050,20 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
 //@              "type": "array"
 //@            }
 //@          },
-//@          "resources": [
-//@            {
+//@          "resources": {
+//@            "basicStorage": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "basicblobs",
 //@              "location": "[parameters('stringParamA')]"
 //@            },
-//@            {
+//@            "dnsZone": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "myZone",
 //@              "location": "[parameters('stringParamB')]"
 //@            }
-//@          ],
+//@          },
 //@          "outputs": {
 //@            "stringOutputA": {
 //@              "type": "string",
@@ -1019,7 +1075,7 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
 //@            },
 //@            "objOutput": {
 //@              "type": "object",
-//@              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+//@              "value": "[reference('basicStorage')]"
 //@            },
 //@            "arrayOutput": {
 //@              "type": "array",
@@ -1033,7 +1089,6 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
 //@      }
 //@    },
   name: module.name
-//@      "name": "[variables('myModules')[copyIndex()].name]",
   params: {
 //@        "parameters": {
 //@        },
@@ -1059,8 +1114,9 @@ module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules
 //@        "name": "storageResourcesWithIndex",
 //@        "count": "[length(variables('myModules'))]"
 //@      },
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', variables('myModules')[copyIndex()].name)]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -1068,12 +1124,17 @@ module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "8300391961099598421"
+//@              "templateHash": "8558550026798054074"
 //@            }
 //@          },
 //@          "parameters": {
@@ -1091,20 +1152,20 @@ module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules
 //@              "type": "array"
 //@            }
 //@          },
-//@          "resources": [
-//@            {
+//@          "resources": {
+//@            "basicStorage": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "basicblobs",
 //@              "location": "[parameters('stringParamA')]"
 //@            },
-//@            {
+//@            "dnsZone": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "myZone",
 //@              "location": "[parameters('stringParamB')]"
 //@            }
-//@          ],
+//@          },
 //@          "outputs": {
 //@            "stringOutputA": {
 //@              "type": "string",
@@ -1116,7 +1177,7 @@ module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules
 //@            },
 //@            "objOutput": {
 //@              "type": "object",
-//@              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+//@              "value": "[reference('basicStorage')]"
 //@            },
 //@            "arrayOutput": {
 //@              "type": "array",
@@ -1130,7 +1191,6 @@ module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules
 //@      }
 //@    },
   name: module.name
-//@      "name": "[variables('myModules')[copyIndex()].name]",
   params: {
 //@        "parameters": {
 //@        },
@@ -1164,8 +1224,9 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 //@        "name": "nestedModuleLoop",
 //@        "count": "[length(variables('myModules'))]"
 //@      },
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', variables('myModules')[copyIndex()].name)]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -1173,12 +1234,17 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "8300391961099598421"
+//@              "templateHash": "8558550026798054074"
 //@            }
 //@          },
 //@          "parameters": {
@@ -1196,20 +1262,20 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 //@              "type": "array"
 //@            }
 //@          },
-//@          "resources": [
-//@            {
+//@          "resources": {
+//@            "basicStorage": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "basicblobs",
 //@              "location": "[parameters('stringParamA')]"
 //@            },
-//@            {
+//@            "dnsZone": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "myZone",
 //@              "location": "[parameters('stringParamB')]"
 //@            }
-//@          ],
+//@          },
 //@          "outputs": {
 //@            "stringOutputA": {
 //@              "type": "string",
@@ -1221,7 +1287,7 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 //@            },
 //@            "objOutput": {
 //@              "type": "object",
-//@              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+//@              "value": "[reference('basicStorage')]"
 //@            },
 //@            "arrayOutput": {
 //@              "type": "array",
@@ -1235,7 +1301,6 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 //@      }
 //@    },
   name: module.name
-//@      "name": "[variables('myModules')[copyIndex()].name]",
   params: {
 //@        "parameters": {
 //@          "arrayParam": {
@@ -1267,8 +1332,9 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
 //@        "name": "duplicateIdentifiersWithinLoop",
 //@        "count": "[length(variables('emptyArray'))]"
 //@      },
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', format('hello-{0}', variables('emptyArray')[copyIndex()]))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -1276,12 +1342,17 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "8300391961099598421"
+//@              "templateHash": "8558550026798054074"
 //@            }
 //@          },
 //@          "parameters": {
@@ -1299,20 +1370,20 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
 //@              "type": "array"
 //@            }
 //@          },
-//@          "resources": [
-//@            {
+//@          "resources": {
+//@            "basicStorage": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "basicblobs",
 //@              "location": "[parameters('stringParamA')]"
 //@            },
-//@            {
+//@            "dnsZone": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "myZone",
 //@              "location": "[parameters('stringParamB')]"
 //@            }
-//@          ],
+//@          },
 //@          "outputs": {
 //@            "stringOutputA": {
 //@              "type": "string",
@@ -1324,7 +1395,7 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
 //@            },
 //@            "objOutput": {
 //@              "type": "object",
-//@              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+//@              "value": "[reference('basicStorage')]"
 //@            },
 //@            "arrayOutput": {
 //@              "type": "array",
@@ -1338,7 +1409,6 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
 //@      }
 //@    },
   name: 'hello-${x}'
-//@      "name": "[format('hello-{0}', variables('emptyArray')[copyIndex()])]",
   params: {
 //@        "parameters": {
 //@          "arrayParam": {
@@ -1376,8 +1446,9 @@ module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes 
 //@        "name": "duplicateInGlobalAndOneLoop",
 //@        "count": "[length(createArray())]"
 //@      },
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', format('hello-{0}', createArray()[copyIndex()]))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -1385,12 +1456,17 @@ module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes 
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "8300391961099598421"
+//@              "templateHash": "8558550026798054074"
 //@            }
 //@          },
 //@          "parameters": {
@@ -1408,20 +1484,20 @@ module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes 
 //@              "type": "array"
 //@            }
 //@          },
-//@          "resources": [
-//@            {
+//@          "resources": {
+//@            "basicStorage": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "basicblobs",
 //@              "location": "[parameters('stringParamA')]"
 //@            },
-//@            {
+//@            "dnsZone": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "myZone",
 //@              "location": "[parameters('stringParamB')]"
 //@            }
-//@          ],
+//@          },
 //@          "outputs": {
 //@            "stringOutputA": {
 //@              "type": "string",
@@ -1433,7 +1509,7 @@ module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes 
 //@            },
 //@            "objOutput": {
 //@              "type": "object",
-//@              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+//@              "value": "[reference('basicStorage')]"
 //@            },
 //@            "arrayOutput": {
 //@              "type": "array",
@@ -1447,7 +1523,6 @@ module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes 
 //@      }
 //@    },
   name: 'hello-${duplicateAcrossScopes}'
-//@      "name": "[format('hello-{0}', createArray()[copyIndex()])]",
   params: {
 //@        "parameters": {
 //@          "arrayParam": {
@@ -1486,8 +1561,9 @@ module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
 //@        "name": "duplicatesEverywhere",
 //@        "count": "[length(createArray())]"
 //@      },
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', format('hello-{0}', createArray()[copyIndex()]))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -1495,12 +1571,17 @@ module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "8300391961099598421"
+//@              "templateHash": "8558550026798054074"
 //@            }
 //@          },
 //@          "parameters": {
@@ -1518,20 +1599,20 @@ module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
 //@              "type": "array"
 //@            }
 //@          },
-//@          "resources": [
-//@            {
+//@          "resources": {
+//@            "basicStorage": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "basicblobs",
 //@              "location": "[parameters('stringParamA')]"
 //@            },
-//@            {
+//@            "dnsZone": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "myZone",
 //@              "location": "[parameters('stringParamB')]"
 //@            }
-//@          ],
+//@          },
 //@          "outputs": {
 //@            "stringOutputA": {
 //@              "type": "string",
@@ -1543,7 +1624,7 @@ module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
 //@            },
 //@            "objOutput": {
 //@              "type": "object",
-//@              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+//@              "value": "[reference('basicStorage')]"
 //@            },
 //@            "arrayOutput": {
 //@              "type": "array",
@@ -1557,7 +1638,6 @@ module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
 //@      }
 //@    },
   name: 'hello-${someDuplicate}'
-//@      "name": "[format('hello-{0}', createArray()[copyIndex()])]",
   params: {
 //@        "parameters": {
 //@          "arrayParam": {
@@ -1584,8 +1664,9 @@ module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
 
 module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@    "propertyLoopInsideParameterValue": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'propertyLoopInsideParameterValue')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -1593,12 +1674,17 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "8300391961099598421"
+//@              "templateHash": "8558550026798054074"
 //@            }
 //@          },
 //@          "parameters": {
@@ -1616,20 +1702,20 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@              "type": "array"
 //@            }
 //@          },
-//@          "resources": [
-//@            {
+//@          "resources": {
+//@            "basicStorage": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "basicblobs",
 //@              "location": "[parameters('stringParamA')]"
 //@            },
-//@            {
+//@            "dnsZone": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "myZone",
 //@              "location": "[parameters('stringParamB')]"
 //@            }
-//@          ],
+//@          },
 //@          "outputs": {
 //@            "stringOutputA": {
 //@              "type": "string",
@@ -1641,7 +1727,7 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@            },
 //@            "objOutput": {
 //@              "type": "object",
-//@              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+//@              "value": "[reference('basicStorage')]"
 //@            },
 //@            "arrayOutput": {
 //@              "type": "array",
@@ -1655,7 +1741,6 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@      }
 //@    },
   name: 'propertyLoopInsideParameterValue'
-//@      "name": "propertyLoopInsideParameterValue",
   params: {
 //@        "parameters": {
 //@        },
@@ -1728,8 +1813,9 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 
 module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@    "propertyLoopInsideParameterValueWithIndexes": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'propertyLoopInsideParameterValueWithIndexes')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -1737,12 +1823,17 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "8300391961099598421"
+//@              "templateHash": "8558550026798054074"
 //@            }
 //@          },
 //@          "parameters": {
@@ -1760,20 +1851,20 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@              "type": "array"
 //@            }
 //@          },
-//@          "resources": [
-//@            {
+//@          "resources": {
+//@            "basicStorage": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "basicblobs",
 //@              "location": "[parameters('stringParamA')]"
 //@            },
-//@            {
+//@            "dnsZone": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "myZone",
 //@              "location": "[parameters('stringParamB')]"
 //@            }
-//@          ],
+//@          },
 //@          "outputs": {
 //@            "stringOutputA": {
 //@              "type": "string",
@@ -1785,7 +1876,7 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@            },
 //@            "objOutput": {
 //@              "type": "object",
-//@              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+//@              "value": "[reference('basicStorage')]"
 //@            },
 //@            "arrayOutput": {
 //@              "type": "array",
@@ -1799,7 +1890,6 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@      }
 //@    },
   name: 'propertyLoopInsideParameterValueWithIndexes'
-//@      "name": "propertyLoopInsideParameterValueWithIndexes",
   params: {
 //@        "parameters": {
 //@        },
@@ -1878,8 +1968,9 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@        "name": "propertyLoopInsideParameterValueInsideModuleLoop",
 //@        "count": "[length(range(0, 1))]"
 //@      },
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'propertyLoopInsideParameterValueInsideModuleLoop')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -1887,12 +1978,17 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "8300391961099598421"
+//@              "templateHash": "8558550026798054074"
 //@            }
 //@          },
 //@          "parameters": {
@@ -1910,20 +2006,20 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@              "type": "array"
 //@            }
 //@          },
-//@          "resources": [
-//@            {
+//@          "resources": {
+//@            "basicStorage": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "basicblobs",
 //@              "location": "[parameters('stringParamA')]"
 //@            },
-//@            {
+//@            "dnsZone": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "myZone",
 //@              "location": "[parameters('stringParamB')]"
 //@            }
-//@          ],
+//@          },
 //@          "outputs": {
 //@            "stringOutputA": {
 //@              "type": "string",
@@ -1935,7 +2031,7 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@            },
 //@            "objOutput": {
 //@              "type": "object",
-//@              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+//@              "value": "[reference('basicStorage')]"
 //@            },
 //@            "arrayOutput": {
 //@              "type": "array",
@@ -1949,7 +2045,6 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@      }
 //@    },
   name: 'propertyLoopInsideParameterValueInsideModuleLoop'
-//@      "name": "propertyLoopInsideParameterValueInsideModuleLoop",
   params: {
 //@        "parameters": {
 //@        },
@@ -2035,8 +2130,9 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 
 module secureModule1 'child/secureParams.bicep' = {
 //@    "secureModule1": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'secureModule1')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -2044,12 +2140,17 @@ module secureModule1 'child/secureParams.bicep' = {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "15522334618541518671"
+//@              "templateHash": "15202284238883124403"
 //@            }
 //@          },
 //@          "parameters": {
@@ -2061,7 +2162,7 @@ module secureModule1 'child/secureParams.bicep' = {
 //@              "defaultValue": ""
 //@            }
 //@          },
-//@          "resources": [],
+//@          "resources": {},
 //@          "outputs": {
 //@            "exposedSecureString": {
 //@              "type": "string",
@@ -2072,7 +2173,6 @@ module secureModule1 'child/secureParams.bicep' = {
 //@      }
 //@    },
   name: 'secureModule1'
-//@      "name": "secureModule1",
   params: {
 //@        "parameters": {
 //@        },
@@ -2112,8 +2212,9 @@ resource scopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 
 module secureModule2 'child/secureParams.bicep' = {
 //@    "secureModule2": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'secureModule2')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -2121,12 +2222,17 @@ module secureModule2 'child/secureParams.bicep' = {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "15522334618541518671"
+//@              "templateHash": "15202284238883124403"
 //@            }
 //@          },
 //@          "parameters": {
@@ -2138,7 +2244,7 @@ module secureModule2 'child/secureParams.bicep' = {
 //@              "defaultValue": ""
 //@            }
 //@          },
-//@          "resources": [],
+//@          "resources": {},
 //@          "outputs": {
 //@            "exposedSecureString": {
 //@              "type": "string",
@@ -2149,7 +2255,6 @@ module secureModule2 'child/secureParams.bicep' = {
 //@      }
 //@    },
   name: 'secureModule2'
-//@      "name": "secureModule2",
   params: {
 //@        "parameters": {
 //@        },
@@ -2244,8 +2349,9 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 //@        "name": "secureModuleLooped",
 //@        "count": "[length(variables('secrets'))]"
 //@      },
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', format('secureModuleLooped-{0}', copyIndex()))]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -2253,12 +2359,17 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "15522334618541518671"
+//@              "templateHash": "15202284238883124403"
 //@            }
 //@          },
 //@          "parameters": {
@@ -2270,7 +2381,7 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 //@              "defaultValue": ""
 //@            }
 //@          },
-//@          "resources": [],
+//@          "resources": {},
 //@          "outputs": {
 //@            "exposedSecureString": {
 //@              "type": "string",
@@ -2281,7 +2392,6 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 //@      }
 //@    },
   name: 'secureModuleLooped-${i}'
-//@      "name": "[format('secureModuleLooped-{0}', copyIndex())]",
   params: {
 //@        "parameters": {
 //@        },
@@ -2309,8 +2419,9 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 
 module secureModuleCondition 'child/secureParams.bicep' = {
 //@    "secureModuleCondition": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'secureModuleCondition')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -2318,12 +2429,17 @@ module secureModuleCondition 'child/secureParams.bicep' = {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "15522334618541518671"
+//@              "templateHash": "15202284238883124403"
 //@            }
 //@          },
 //@          "parameters": {
@@ -2335,7 +2451,7 @@ module secureModuleCondition 'child/secureParams.bicep' = {
 //@              "defaultValue": ""
 //@            }
 //@          },
-//@          "resources": [],
+//@          "resources": {},
 //@          "outputs": {
 //@            "exposedSecureString": {
 //@              "type": "string",
@@ -2346,7 +2462,6 @@ module secureModuleCondition 'child/secureParams.bicep' = {
 //@      }
 //@    },
   name: 'secureModuleCondition'
-//@      "name": "secureModuleCondition",
   params: {
 //@        "parameters": {
 //@        },
@@ -2361,8 +2476,9 @@ module secureModuleCondition 'child/secureParams.bicep' = {
 
 module withSpace 'module with space.bicep' = {
 //@    "withSpace": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'withSpace')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -2370,12 +2486,17 @@ module withSpace 'module with space.bicep' = {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "1347091426241151379"
+//@              "templateHash": "14548053537390858280"
 //@            }
 //@          },
 //@          "parameters": {
@@ -2384,7 +2505,7 @@ module withSpace 'module with space.bicep' = {
 //@              "defaultValue": "westus"
 //@            }
 //@          },
-//@          "resources": [],
+//@          "resources": {},
 //@          "outputs": {
 //@            "loc": {
 //@              "type": "string",
@@ -2395,13 +2516,13 @@ module withSpace 'module with space.bicep' = {
 //@      }
 //@    },
   name: 'withSpace'
-//@      "name": "withSpace",
 }
 
 module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@    "folderWithSpace": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'childWithSpace')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -2409,12 +2530,17 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "1347091426241151379"
+//@              "templateHash": "14548053537390858280"
 //@            }
 //@          },
 //@          "parameters": {
@@ -2423,7 +2549,7 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@              "defaultValue": "westus"
 //@            }
 //@          },
-//@          "resources": [],
+//@          "resources": {},
 //@          "outputs": {
 //@            "loc": {
 //@              "type": "string",
@@ -2434,7 +2560,6 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@      }
 //@    },
   name: 'childWithSpace'
-//@      "name": "childWithSpace",
 }
 
 // nameof
@@ -2446,8 +2571,9 @@ var nameofModuleParam = nameof(secureModuleCondition.outputs.exposedSecureString
 
 module moduleWithNameof 'modulea.bicep' = {
 //@    "moduleWithNameof": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'nameofModule')]",
 //@      "resourceGroup": "nameofModuleParam",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
@@ -2456,12 +2582,17 @@ module moduleWithNameof 'modulea.bicep' = {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "8300391961099598421"
+//@              "templateHash": "8558550026798054074"
 //@            }
 //@          },
 //@          "parameters": {
@@ -2479,20 +2610,20 @@ module moduleWithNameof 'modulea.bicep' = {
 //@              "type": "array"
 //@            }
 //@          },
-//@          "resources": [
-//@            {
+//@          "resources": {
+//@            "basicStorage": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "basicblobs",
 //@              "location": "[parameters('stringParamA')]"
 //@            },
-//@            {
+//@            "dnsZone": {
 //@              "type": "Mock.Rp/mockResource",
 //@              "apiVersion": "2020-01-01",
 //@              "name": "myZone",
 //@              "location": "[parameters('stringParamB')]"
 //@            }
-//@          ],
+//@          },
 //@          "outputs": {
 //@            "stringOutputA": {
 //@              "type": "string",
@@ -2504,7 +2635,7 @@ module moduleWithNameof 'modulea.bicep' = {
 //@            },
 //@            "objOutput": {
 //@              "type": "object",
-//@              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+//@              "value": "[reference('basicStorage')]"
 //@            },
 //@            "arrayOutput": {
 //@              "type": "array",
@@ -2523,7 +2654,6 @@ module moduleWithNameof 'modulea.bicep' = {
 //@      ]
 //@    },
   name: 'nameofModule'
-//@      "name": "nameofModule",
   scope: resourceGroup(nameof(nameofModuleParam))
   params:{
 //@        "parameters": {
@@ -2557,8 +2687,9 @@ module moduleWithNameof 'modulea.bicep' = {
 
 module moduleWithNullableOutputs 'child/nullableOutputs.bicep' = {
 //@    "moduleWithNullableOutputs": {
-//@      "type": "Microsoft.Resources/deployments",
+//@      "type": "Microsoft.Resources/deployments/modules",
 //@      "apiVersion": "2025-04-01",
+//@      "name": "[concat(split(deployment().name, '/')[0], '/', 'nullableOutputs')]",
 //@      "properties": {
 //@        "expressionEvaluationOptions": {
 //@          "scope": "inner"
@@ -2566,13 +2697,17 @@ module moduleWithNullableOutputs 'child/nullableOutputs.bicep' = {
 //@        "mode": "Incremental",
 //@        "template": {
 //@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-//@          "languageVersion": "2.0",
+//@          "languageVersion": "2.1-experimental",
 //@          "contentVersion": "1.0.0.0",
 //@          "metadata": {
+//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
+//@              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+//@            ],
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "9938797971770597442"
+//@              "templateHash": "10024508707212888069"
 //@            }
 //@          },
 //@          "resources": {},
@@ -2602,7 +2737,6 @@ module moduleWithNullableOutputs 'child/nullableOutputs.bicep' = {
 //@      }
 //@    }
   name: 'nullableOutputs'
-//@      "name": "nullableOutputs",
 }
 
 output nullableString string? = moduleWithNullableOutputs.outputs.?nullableString

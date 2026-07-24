@@ -1,12 +1,16 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "2.0",
+  "languageVersion": "2.1-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+    "_EXPERIMENTAL_FEATURES_ENABLED": [
+      "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+    ],
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17950883066072689290"
+      "templateHash": "5200853610297292257"
     }
   },
   "parameters": {
@@ -112,9 +116,9 @@
       "name": "[variables('vaults')[copyIndex()].vaultName]"
     },
     "modATest": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "modATest",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'modATest')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -140,12 +144,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8300391961099598421"
+              "templateHash": "8558550026798054074"
             }
           },
           "parameters": {
@@ -163,20 +172,20 @@
               "type": "array"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "basicStorage": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "basicblobs",
               "location": "[parameters('stringParamA')]"
             },
-            {
+            "dnsZone": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "myZone",
               "location": "[parameters('stringParamB')]"
             }
-          ],
+          },
           "outputs": {
             "stringOutputA": {
               "type": "string",
@@ -188,7 +197,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+              "value": "[reference('basicStorage')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -205,9 +214,9 @@
       }
     },
     "modB": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "modB",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'modB')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -220,12 +229,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13693869390953445824"
+              "templateHash": "8798371550198431447"
             }
           },
           "parameters": {
@@ -233,14 +247,14 @@
               "type": "string"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "myResource": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "mockResource",
               "location": "[parameters('location')]"
             }
-          ],
+          },
           "outputs": {
             "myResourceId": {
               "type": "string",
@@ -255,9 +269,9 @@
     },
     "modBWithCondition": {
       "condition": "[equals(add(1, 1), 2)]",
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "modBWithCondition",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'modBWithCondition')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -270,12 +284,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13693869390953445824"
+              "templateHash": "8798371550198431447"
             }
           },
           "parameters": {
@@ -283,14 +302,14 @@
               "type": "string"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "myResource": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "mockResource",
               "location": "[parameters('location')]"
             }
-          ],
+          },
           "outputs": {
             "myResourceId": {
               "type": "string",
@@ -305,9 +324,9 @@
     },
     "modBWithCondition2": {
       "condition": "[equals(add(1, 1), 2)]",
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "modBWithCondition2",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'modBWithCondition2')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -320,12 +339,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13693869390953445824"
+              "templateHash": "8798371550198431447"
             }
           },
           "parameters": {
@@ -333,14 +357,14 @@
               "type": "string"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "myResource": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "mockResource",
               "location": "[parameters('location')]"
             }
-          ],
+          },
           "outputs": {
             "myResourceId": {
               "type": "string",
@@ -351,9 +375,9 @@
       }
     },
     "modC": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "modC",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'modC')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -392,9 +416,9 @@
     },
     "modCWithCondition": {
       "condition": "[equals(sub(2, 1), 1)]",
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "modCWithCondition",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'modCWithCondition')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -432,9 +456,9 @@
       }
     },
     "optionalWithNoParams1": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "optionalWithNoParams1",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'optionalWithNoParams1')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -442,12 +466,17 @@
         "mode": "Incremental",
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4191259681487754679"
+              "templateHash": "10637969297493573680"
             }
           },
           "parameters": {
@@ -474,7 +503,7 @@
               ]
             }
           },
-          "resources": [],
+          "resources": {},
           "outputs": {
             "outputObj": {
               "type": "object",
@@ -490,9 +519,9 @@
       }
     },
     "optionalWithNoParams2": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "optionalWithNoParams2",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'optionalWithNoParams2')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -501,12 +530,17 @@
         "parameters": {},
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4191259681487754679"
+              "templateHash": "10637969297493573680"
             }
           },
           "parameters": {
@@ -533,7 +567,7 @@
               ]
             }
           },
-          "resources": [],
+          "resources": {},
           "outputs": {
             "outputObj": {
               "type": "object",
@@ -549,9 +583,9 @@
       }
     },
     "optionalWithAllParams": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "optionalWithNoParams3",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'optionalWithNoParams3')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -573,12 +607,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4191259681487754679"
+              "templateHash": "10637969297493573680"
             }
           },
           "parameters": {
@@ -605,7 +644,7 @@
               ]
             }
           },
-          "resources": [],
+          "resources": {},
           "outputs": {
             "outputObj": {
               "type": "object",
@@ -621,9 +660,9 @@
       }
     },
     "optionalWithAllParamsAndManualDependency": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "optionalWithAllParamsAndManualDependency",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'optionalWithAllParamsAndManualDependency')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -645,12 +684,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4191259681487754679"
+              "templateHash": "10637969297493573680"
             }
           },
           "parameters": {
@@ -677,7 +721,7 @@
               ]
             }
           },
-          "resources": [],
+          "resources": {},
           "outputs": {
             "outputObj": {
               "type": "object",
@@ -697,9 +741,9 @@
       ]
     },
     "optionalWithImplicitDependency": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "optionalWithImplicitDependency",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'optionalWithImplicitDependency')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -721,12 +765,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4191259681487754679"
+              "templateHash": "10637969297493573680"
             }
           },
           "parameters": {
@@ -753,7 +802,7 @@
               ]
             }
           },
-          "resources": [],
+          "resources": {},
           "outputs": {
             "outputObj": {
               "type": "object",
@@ -773,9 +822,9 @@
       ]
     },
     "moduleWithCalculatedName": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "[format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))]",
+      "name": "[concat(split(deployment().name, '/')[0], '/', format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix')))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -797,12 +846,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4191259681487754679"
+              "templateHash": "10637969297493573680"
             }
           },
           "parameters": {
@@ -829,7 +883,7 @@
               ]
             }
           },
-          "resources": [],
+          "resources": {},
           "outputs": {
             "outputObj": {
               "type": "object",
@@ -853,9 +907,9 @@
         "name": "storageResources",
         "count": "[length(variables('myModules'))]"
       },
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "[variables('myModules')[copyIndex()].name]",
+      "name": "[concat(split(deployment().name, '/')[0], '/', variables('myModules')[copyIndex()].name)]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -874,12 +928,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8300391961099598421"
+              "templateHash": "8558550026798054074"
             }
           },
           "parameters": {
@@ -897,20 +956,20 @@
               "type": "array"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "basicStorage": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "basicblobs",
               "location": "[parameters('stringParamA')]"
             },
-            {
+            "dnsZone": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "myZone",
               "location": "[parameters('stringParamB')]"
             }
-          ],
+          },
           "outputs": {
             "stringOutputA": {
               "type": "string",
@@ -922,7 +981,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+              "value": "[reference('basicStorage')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -940,9 +999,9 @@
         "name": "storageResourcesWithIndex",
         "count": "[length(variables('myModules'))]"
       },
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "[variables('myModules')[copyIndex()].name]",
+      "name": "[concat(split(deployment().name, '/')[0], '/', variables('myModules')[copyIndex()].name)]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -966,12 +1025,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8300391961099598421"
+              "templateHash": "8558550026798054074"
             }
           },
           "parameters": {
@@ -989,20 +1053,20 @@
               "type": "array"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "basicStorage": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "basicblobs",
               "location": "[parameters('stringParamA')]"
             },
-            {
+            "dnsZone": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "myZone",
               "location": "[parameters('stringParamB')]"
             }
-          ],
+          },
           "outputs": {
             "stringOutputA": {
               "type": "string",
@@ -1014,7 +1078,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+              "value": "[reference('basicStorage')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -1032,9 +1096,9 @@
         "name": "nestedModuleLoop",
         "count": "[length(variables('myModules'))]"
       },
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "[variables('myModules')[copyIndex()].name]",
+      "name": "[concat(split(deployment().name, '/')[0], '/', variables('myModules')[copyIndex()].name)]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1059,12 +1123,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8300391961099598421"
+              "templateHash": "8558550026798054074"
             }
           },
           "parameters": {
@@ -1082,20 +1151,20 @@
               "type": "array"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "basicStorage": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "basicblobs",
               "location": "[parameters('stringParamA')]"
             },
-            {
+            "dnsZone": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "myZone",
               "location": "[parameters('stringParamB')]"
             }
-          ],
+          },
           "outputs": {
             "stringOutputA": {
               "type": "string",
@@ -1107,7 +1176,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+              "value": "[reference('basicStorage')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -1125,9 +1194,9 @@
         "name": "duplicateIdentifiersWithinLoop",
         "count": "[length(variables('emptyArray'))]"
       },
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "[format('hello-{0}', variables('emptyArray')[copyIndex()])]",
+      "name": "[concat(split(deployment().name, '/')[0], '/', format('hello-{0}', variables('emptyArray')[copyIndex()]))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1155,12 +1224,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8300391961099598421"
+              "templateHash": "8558550026798054074"
             }
           },
           "parameters": {
@@ -1178,20 +1252,20 @@
               "type": "array"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "basicStorage": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "basicblobs",
               "location": "[parameters('stringParamA')]"
             },
-            {
+            "dnsZone": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "myZone",
               "location": "[parameters('stringParamB')]"
             }
-          ],
+          },
           "outputs": {
             "stringOutputA": {
               "type": "string",
@@ -1203,7 +1277,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+              "value": "[reference('basicStorage')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -1221,9 +1295,9 @@
         "name": "duplicateInGlobalAndOneLoop",
         "count": "[length(createArray())]"
       },
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "[format('hello-{0}', createArray()[copyIndex()])]",
+      "name": "[concat(split(deployment().name, '/')[0], '/', format('hello-{0}', createArray()[copyIndex()]))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1251,12 +1325,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8300391961099598421"
+              "templateHash": "8558550026798054074"
             }
           },
           "parameters": {
@@ -1274,20 +1353,20 @@
               "type": "array"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "basicStorage": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "basicblobs",
               "location": "[parameters('stringParamA')]"
             },
-            {
+            "dnsZone": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "myZone",
               "location": "[parameters('stringParamB')]"
             }
-          ],
+          },
           "outputs": {
             "stringOutputA": {
               "type": "string",
@@ -1299,7 +1378,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+              "value": "[reference('basicStorage')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -1317,9 +1396,9 @@
         "name": "duplicatesEverywhere",
         "count": "[length(createArray())]"
       },
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "[format('hello-{0}', createArray()[copyIndex()])]",
+      "name": "[concat(split(deployment().name, '/')[0], '/', format('hello-{0}', createArray()[copyIndex()]))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1344,12 +1423,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8300391961099598421"
+              "templateHash": "8558550026798054074"
             }
           },
           "parameters": {
@@ -1367,20 +1451,20 @@
               "type": "array"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "basicStorage": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "basicblobs",
               "location": "[parameters('stringParamA')]"
             },
-            {
+            "dnsZone": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "myZone",
               "location": "[parameters('stringParamB')]"
             }
-          ],
+          },
           "outputs": {
             "stringOutputA": {
               "type": "string",
@@ -1392,7 +1476,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+              "value": "[reference('basicStorage')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -1406,9 +1490,9 @@
       }
     },
     "propertyLoopInsideParameterValue": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "propertyLoopInsideParameterValue",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'propertyLoopInsideParameterValue')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1466,12 +1550,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8300391961099598421"
+              "templateHash": "8558550026798054074"
             }
           },
           "parameters": {
@@ -1489,20 +1578,20 @@
               "type": "array"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "basicStorage": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "basicblobs",
               "location": "[parameters('stringParamA')]"
             },
-            {
+            "dnsZone": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "myZone",
               "location": "[parameters('stringParamB')]"
             }
-          ],
+          },
           "outputs": {
             "stringOutputA": {
               "type": "string",
@@ -1514,7 +1603,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+              "value": "[reference('basicStorage')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -1528,9 +1617,9 @@
       }
     },
     "propertyLoopInsideParameterValueWithIndexes": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "propertyLoopInsideParameterValueWithIndexes",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'propertyLoopInsideParameterValueWithIndexes')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1589,12 +1678,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8300391961099598421"
+              "templateHash": "8558550026798054074"
             }
           },
           "parameters": {
@@ -1612,20 +1706,20 @@
               "type": "array"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "basicStorage": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "basicblobs",
               "location": "[parameters('stringParamA')]"
             },
-            {
+            "dnsZone": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "myZone",
               "location": "[parameters('stringParamB')]"
             }
-          ],
+          },
           "outputs": {
             "stringOutputA": {
               "type": "string",
@@ -1637,7 +1731,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+              "value": "[reference('basicStorage')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -1655,9 +1749,9 @@
         "name": "propertyLoopInsideParameterValueInsideModuleLoop",
         "count": "[length(range(0, 1))]"
       },
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "propertyLoopInsideParameterValueInsideModuleLoop",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'propertyLoopInsideParameterValueInsideModuleLoop')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1715,12 +1809,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8300391961099598421"
+              "templateHash": "8558550026798054074"
             }
           },
           "parameters": {
@@ -1738,20 +1837,20 @@
               "type": "array"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "basicStorage": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "basicblobs",
               "location": "[parameters('stringParamA')]"
             },
-            {
+            "dnsZone": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "myZone",
               "location": "[parameters('stringParamB')]"
             }
-          ],
+          },
           "outputs": {
             "stringOutputA": {
               "type": "string",
@@ -1763,7 +1862,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+              "value": "[reference('basicStorage')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -1777,9 +1876,9 @@
       }
     },
     "secureModule1": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "secureModule1",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'secureModule1')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1806,12 +1905,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15522334618541518671"
+              "templateHash": "15202284238883124403"
             }
           },
           "parameters": {
@@ -1823,7 +1927,7 @@
               "defaultValue": ""
             }
           },
-          "resources": [],
+          "resources": {},
           "outputs": {
             "exposedSecureString": {
               "type": "string",
@@ -1834,9 +1938,9 @@
       }
     },
     "secureModule2": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "secureModule2",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'secureModule2')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1863,12 +1967,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15522334618541518671"
+              "templateHash": "15202284238883124403"
             }
           },
           "parameters": {
@@ -1880,7 +1989,7 @@
               "defaultValue": ""
             }
           },
-          "resources": [],
+          "resources": {},
           "outputs": {
             "exposedSecureString": {
               "type": "string",
@@ -1895,9 +2004,9 @@
         "name": "secureModuleLooped",
         "count": "[length(variables('secrets'))]"
       },
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "[format('secureModuleLooped-{0}', copyIndex())]",
+      "name": "[concat(split(deployment().name, '/')[0], '/', format('secureModuleLooped-{0}', copyIndex()))]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1924,12 +2033,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15522334618541518671"
+              "templateHash": "15202284238883124403"
             }
           },
           "parameters": {
@@ -1941,7 +2055,7 @@
               "defaultValue": ""
             }
           },
-          "resources": [],
+          "resources": {},
           "outputs": {
             "exposedSecureString": {
               "type": "string",
@@ -1952,9 +2066,9 @@
       }
     },
     "secureModuleCondition": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "secureModuleCondition",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'secureModuleCondition')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1966,12 +2080,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15522334618541518671"
+              "templateHash": "15202284238883124403"
             }
           },
           "parameters": {
@@ -1983,7 +2102,7 @@
               "defaultValue": ""
             }
           },
-          "resources": [],
+          "resources": {},
           "outputs": {
             "exposedSecureString": {
               "type": "string",
@@ -1994,9 +2113,9 @@
       }
     },
     "withSpace": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "withSpace",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'withSpace')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -2004,12 +2123,17 @@
         "mode": "Incremental",
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1347091426241151379"
+              "templateHash": "14548053537390858280"
             }
           },
           "parameters": {
@@ -2018,7 +2142,7 @@
               "defaultValue": "westus"
             }
           },
-          "resources": [],
+          "resources": {},
           "outputs": {
             "loc": {
               "type": "string",
@@ -2029,9 +2153,9 @@
       }
     },
     "folderWithSpace": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "childWithSpace",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'childWithSpace')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -2039,12 +2163,17 @@
         "mode": "Incremental",
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1347091426241151379"
+              "templateHash": "14548053537390858280"
             }
           },
           "parameters": {
@@ -2053,7 +2182,7 @@
               "defaultValue": "westus"
             }
           },
-          "resources": [],
+          "resources": {},
           "outputs": {
             "loc": {
               "type": "string",
@@ -2064,9 +2193,9 @@
       }
     },
     "moduleWithNameof": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "nameofModule",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'nameofModule')]",
       "resourceGroup": "nameofModuleParam",
       "properties": {
         "expressionEvaluationOptions": {
@@ -2093,12 +2222,17 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8300391961099598421"
+              "templateHash": "8558550026798054074"
             }
           },
           "parameters": {
@@ -2116,20 +2250,20 @@
               "type": "array"
             }
           },
-          "resources": [
-            {
+          "resources": {
+            "basicStorage": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "basicblobs",
               "location": "[parameters('stringParamA')]"
             },
-            {
+            "dnsZone": {
               "type": "Mock.Rp/mockResource",
               "apiVersion": "2020-01-01",
               "name": "myZone",
               "location": "[parameters('stringParamB')]"
             }
-          ],
+          },
           "outputs": {
             "stringOutputA": {
               "type": "string",
@@ -2141,7 +2275,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
+              "value": "[reference('basicStorage')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -2160,9 +2294,9 @@
       ]
     },
     "moduleWithNullableOutputs": {
-      "type": "Microsoft.Resources/deployments",
+      "type": "Microsoft.Resources/deployments/modules",
       "apiVersion": "2025-04-01",
-      "name": "nullableOutputs",
+      "name": "[concat(split(deployment().name, '/')[0], '/', 'nullableOutputs')]",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -2170,13 +2304,17 @@
         "mode": "Incremental",
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "2.0",
+          "languageVersion": "2.1-experimental",
           "contentVersion": "1.0.0.0",
           "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type"
+            ],
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9938797971770597442"
+              "templateHash": "10024508707212888069"
             }
           },
           "resources": {},

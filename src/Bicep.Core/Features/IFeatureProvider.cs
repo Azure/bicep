@@ -33,6 +33,8 @@ public interface IFeatureProvider
 
     bool ModuleExtensionConfigsEnabled { get; }
 
+    bool ModuleDeploymentsEnabled { get; }
+
     bool UserDefinedConstraintsEnabled { get; }
 
     bool DeployCommandsEnabled { get; }
@@ -57,6 +59,7 @@ public interface IFeatureProvider
                 (WaitUntilEnabled, CoreResources.ExperimentalFeatureNames_WaitUntil, true, true),
                 (LocalDeployEnabled, "Enable local deploy", true, true),
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
+                (ModuleDeploymentsEnabled, "Enable compiling modules to the Microsoft.Resources/deployments/modules resource type", true, true),
                 (UserDefinedConstraintsEnabled, "Enable @validate() decorator", true, true),
                 (DeployCommandsEnabled, "Enable deploy commands", true, true),
             })

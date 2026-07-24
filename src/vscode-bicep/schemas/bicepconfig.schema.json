@@ -951,6 +951,10 @@
           "type": "boolean",
           "description": "Allows the ARM template layer to use a new schema to represent resources as an object dictionary rather than an array of objects. See https://aka.ms/bicep/experimental-features#symbolicnamecodegen"
         },
+        "moduleDeployments": {
+          "type": "boolean",
+          "description": "Compiles Bicep modules to the Microsoft.Resources/deployments/modules child resource type, which is exempt from the 800-deployments-per-scope limit and supports cross-scope targeting. See https://aka.ms/bicep/experimental-features#moduledeployments"
+        },
         "moduleExtensionConfigs": {
           "type": "boolean",
           "description": "Moves defining extension configurations to the module level rather than from within a template. The feature also includes enhancements for Deployment stacks extensibility integration. See https://aka.ms/bicep/experimental-features#moduleextensionconfigs"

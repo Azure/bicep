@@ -105,6 +105,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "ociEnabled": false,
           "symbolicNameCodegen": false,
           "moduleExtensionConfigs": false,
+          "moduleDeployments": false,
           "resourceTypedParamsAndOutputs": false,
           "sourceMapping": false,
           "legacyFormatter": false,
@@ -199,6 +200,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
+          "moduleDeployments": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
           "patch": false
@@ -307,6 +309,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "localDeploy": false,
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
+          "moduleDeployments": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
           "patch": false
@@ -393,6 +396,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 LocalDeploy: false,
                 ResourceInfoCodegen: false,
                 ModuleExtensionConfigs: false,
+                ModuleDeployments: false,
                 UserDefinedConstraints: false,
                 DeployCommands: false,
                 Patch: false);
@@ -480,6 +484,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "localDeploy": false,
                 "resourceInfoCodegen": false,
                 "moduleExtensionConfigs": false,
+                "moduleDeployments": false,
                 "userDefinedConstraints": false,
                 "deployCommands": false,
                 "patch": false
@@ -836,6 +841,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "localDeploy": false,
                     "resourceInfoCodegen": false,
                     "moduleExtensionConfigs": false,
+                    "moduleDeployments": false,
                     "userDefinedConstraints": false,
                     "deployCommands": false,
                     "patch": false

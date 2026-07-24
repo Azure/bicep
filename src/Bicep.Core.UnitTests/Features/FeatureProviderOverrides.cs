@@ -23,6 +23,7 @@ public record FeatureProviderOverrides(
     bool? ResourceInfoCodegenEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
     bool? ModuleExtensionConfigsEnabled = default,
+    bool? ModuleDeploymentsEnabled = default,
     bool? UserDefinedConstraintsEnabled = default,
     bool? DeployCommandsEnabled = default,
     bool? PatchEnabled = default)
@@ -43,6 +44,7 @@ public record FeatureProviderOverrides(
         bool? ResourceInfoCodegenEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
         bool? ModuleExtensionConfigsEnabled = default,
+        bool? ModuleDeploymentsEnabled = default,
         bool? UserDefinedConstraintsEnabled = default,
         bool? DeployCommandsEnabled = default,
         bool? PatchEnabled = default) : this(
@@ -61,6 +63,7 @@ public record FeatureProviderOverrides(
             ResourceInfoCodegenEnabled,
             AssemblyVersion,
             ModuleExtensionConfigsEnabled,
+            ModuleDeploymentsEnabled,
             UserDefinedConstraintsEnabled,
             DeployCommandsEnabled,
             PatchEnabled)

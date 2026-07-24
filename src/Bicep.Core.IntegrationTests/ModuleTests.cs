@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -39,6 +40,8 @@ namespace Bicep.Core.IntegrationTests
         private ServiceBuilder ServicesWithResourceTyped => new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true));
 
         private ServiceBuilder ServicesWithExtensionConfigs => new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, ModuleExtensionConfigsEnabled: true));
+
+        private ServiceBuilder ServicesWithModuleDeployments => new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, ModuleDeploymentsEnabled: true));
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -1063,6 +1066,61 @@ output runtimevalue string = 'runtime'
             var template = JToken.Parse(templateString);
             template.Should().NotBeNull();
             template.SelectToken(BicepTestConstants.GeneratorTemplateHashPath)?.ToString().Should().Be(expectedTemplateHash);
+        }
+
+        [TestMethod]
+        public void Module_compiles_to_deployments_modules_type_when_feature_enabled()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithModuleDeployments,
+("main.bicep", """
+module mod './module.bicep' = {
+    name: 'test'
+}
+"""),
+("module.bicep", """
+output out string = 'hello'
+"""));
+            result.Should().NotHaveAnyDiagnostics();
+
+            // The module compiles to the new child resource type...
+            result.Template.Should().HaveValueAtPath("$.resources.mod.type", new JValue("Microsoft.Resources/deployments/modules"));
+            result.Template.Should().HaveValueAtPath("$.resources.mod.apiVersion", new JValue(EmitConstants.ModuleDeploymentResourceApiVersion));
+
+            // ...its name is qualified with the (unqualified) root deployment name...
+            result.Template.Should().HaveValueAtPath("$.resources.mod.name", new JValue("[concat(split(deployment().name, '/')[0], '/', 'test')]"));
+
+            // ...and the entity lives under the root, so it must not declare a location.
+            result.Template.Should().NotHaveValueAtPath("$.resources.mod.location");
+        }
+
+        [TestMethod]
+        public void Cross_scope_module_keeps_entity_under_root_and_omits_location_when_feature_enabled()
+        {
+            var result = CompilationHelper.Compile(
+                ServicesWithModuleDeployments,
+("main.bicep", """
+targetScope = 'subscription'
+
+module mod './module.bicep' = {
+    name: 'test'
+    scope: resourceGroup('my-rg')
+}
+"""),
+("module.bicep", """
+targetScope = 'resourceGroup'
+
+output out string = 'hello'
+"""));
+            result.Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().HaveValueAtPath("$.resources.mod.type", new JValue("Microsoft.Resources/deployments/modules"));
+
+            // The child resources target the resource group, so the scope-targeting property is emitted...
+            result.Template.Should().HaveValueAtPath("$.resources.mod.resourceGroup", new JValue("my-rg"));
+
+            // ...but the module entity still lives under the root deployment, so it must not declare a location.
+            result.Template.Should().NotHaveValueAtPath("$.resources.mod.location");
         }
     }
 }

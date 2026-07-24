@@ -23,6 +23,7 @@ namespace Bicep.Core.Features
         public bool LocalDeployEnabled => features.LocalDeploy;
         public bool ResourceInfoCodegenEnabled => features.ResourceInfoCodegen;
         public bool ModuleExtensionConfigsEnabled => features.ModuleExtensionConfigs;
+        public bool ModuleDeploymentsEnabled => features.ModuleDeployments;
         public bool UserDefinedConstraintsEnabled => features.UserDefinedConstraints;
         public bool DeployCommandsEnabled => features.DeployCommands;
         public bool PatchEnabled => features.Patch;

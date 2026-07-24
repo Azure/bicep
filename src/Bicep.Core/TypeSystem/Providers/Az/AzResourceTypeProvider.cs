@@ -25,6 +25,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         public const string ResourceApiVersionPropertyName = "apiVersion";
 
         public const string ResourceTypeDeployments = "Microsoft.Resources/deployments";
+        public const string ResourceTypeDeploymentModules = "Microsoft.Resources/deployments/modules";
         public const string ResourceTypeResourceGroup = "Microsoft.Resources/resourceGroups";
         public const string ResourceTypeManagementGroup = "Microsoft.Management/managementGroups";
         public const string ResourceTypeKeyVault = "Microsoft.KeyVault/vaults";

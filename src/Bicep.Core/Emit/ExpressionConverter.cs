@@ -25,6 +25,14 @@ namespace Bicep.Core.Emit
         private readonly EmitterContext context;
         private readonly ExpressionBuilder expressionBuilder;
 
+        /// <summary>
+        /// The API version to use when referencing a module resource. When the <c>moduleDeployments</c> feature is
+        /// enabled, modules compile to <c>Microsoft.Resources/deployments/modules</c> and use its API version.
+        /// </summary>
+        private string ModuleResourceApiVersion => context.SemanticModel.Features.ModuleDeploymentsEnabled
+            ? EmitConstants.ModuleDeploymentResourceApiVersion
+            : EmitConstants.NestedDeploymentResourceApiVersion;
+
         public ExpressionConverter(EmitterContext context)
             : this(context, [])
         {
@@ -553,7 +561,7 @@ namespace Bicep.Core.Emit
                         var target = context.Settings.EnableSymbolicNames
                             ? GenerateSymbolicReference(reference.Module, reference.IndexContext)
                             : GetFullyQualifiedResourceId(reference.Module, reference.IndexContext?.Index);
-                        var apiVersion = new JTokenExpression(EmitConstants.NestedDeploymentResourceApiVersion);
+                        var apiVersion = new JTokenExpression(ModuleResourceApiVersion);
                         return guardOnModuleCondition(CreateFunction(secureOutputsApi, target, apiVersion));
                     }
 
@@ -695,12 +703,32 @@ namespace Bicep.Core.Emit
 
         public LanguageExpression GetFullyQualifiedResourceId(ModuleSymbol moduleSymbol, Expression? indexExpression)
         {
+            var moduleName = GetModuleNameExpression(moduleSymbol, indexExpression);
+
+            if (context.SemanticModel.Features.ModuleDeploymentsEnabled)
+            {
+                // A Microsoft.Resources/deployments/modules resource is addressed as a child of the root
+                // Microsoft.Resources/deployments resource, so its id needs two name segments:
+                // the (unqualified) root deployment name and the module name.
+                var deploymentName = AppendProperties(CreateFunction("deployment"), new JTokenExpression("name"));
+                var rootDeploymentName = AppendProperties(
+                    CreateFunction("split", deploymentName, new JTokenExpression("/")),
+                    new JTokenExpression(0));
+
+                return ScopeHelper.FormatFullyQualifiedResourceId(
+                    context,
+                    this,
+                    context.SemanticModel.ModuleScopeData[moduleSymbol],
+                    TemplateWriter.ModuleDeploymentResourceType,
+                    [rootDeploymentName, moduleName]);
+            }
+
             return ScopeHelper.FormatFullyQualifiedResourceId(
                 context,
                 this,
                 context.SemanticModel.ModuleScopeData[moduleSymbol],
                 TemplateWriter.NestedDeploymentResourceType,
-                GetModuleNameExpression(moduleSymbol, indexExpression).AsEnumerable());
+                moduleName.AsEnumerable());
         }
 
         public FunctionExpression GetModuleReferenceExpression(ModuleSymbol moduleSymbol, IndexReplacementContext? indexContext, bool isModuleOutputResource)
@@ -725,7 +753,7 @@ namespace Bicep.Core.Emit
             return CreateFunction(
                 referenceFunctionName,
                 GetConverter(indexContext).GetFullyQualifiedResourceId(moduleSymbol, indexContext?.Index),
-                new JTokenExpression(EmitConstants.NestedDeploymentResourceApiVersion));
+                new JTokenExpression(ModuleResourceApiVersion));
         }
 
         public FunctionExpression GetReferenceExpression(ResourceMetadata resource, IndexReplacementContext? indexContext, bool full)
