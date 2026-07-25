@@ -89,7 +89,7 @@ export async function createLanguageService(
       enableRegistryContent: true,
     },
     progressOnInitialization: true,
-    outputChannel,
+    outputChannelName: outputChannel.name,
     synchronize: {
       configurationSection: "bicep",
       fileEvents: [

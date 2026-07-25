@@ -91,7 +91,7 @@ const extensionConfig: webpack.Configuration = {
   ],
   resolve: {
     extensions: [".ts", ".js"],
-    conditionNames: ["import", "require"],
+    conditionNames: ["node", "import", "require", "..."],
   },
 };
 
