@@ -92,38 +92,49 @@ namespace Bicep.LangServer.IntegrationTests
                         var bicepFixes = allFixables.Where(SpansOverlapOrAbut).SelectMany(f => f.Fixes).ToHashSet();
                         var quickFixList = quickFixes!.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix).ToList();
 
-                        var bicepFixTitles = bicepFixes.Select(f => f.Title);
-                        var quickFixTitles = quickFixList.Select(f => f.CodeAction?.Title);
-                        bicepFixTitles.Should().BeEquivalentTo(quickFixTitles);
-
-                        for (int i = 0; i < quickFixList.Count; i++)
+                        // If there are no IFixable diagnostics, we don't assert on quick fixes produced by other providers.
+                        if (!bicepFixes.Any())
                         {
-                            var quickFix = quickFixList[i];
+                            continue;
+                        }
 
-                            quickFix.IsCodeAction.Should().BeTrue();
-                            quickFix.CodeAction!.Kind.Should().Be(CodeActionKind.QuickFix);
-                            quickFix.CodeAction.Edit!.Changes.Should().ContainKey(uri);
+                        var bicepFixTitles = bicepFixes.Select(f => f.Title).ToList();
+                        var quickFixTitles = quickFixList.Select(f => f.CodeAction?.Title).Where(title => title is not null).ToList();
 
-                            var textEditList = quickFix.CodeAction.Edit.Changes![uri].ToList();
+                        // Quick fix responses may include additional provider-generated fixes (e.g., undefined symbol quick fixes),
+                        // but they must always include any fixes produced by IFixable diagnostics.
+                        quickFixTitles.Should().Contain(bicepFixTitles);
 
-                            bicepFixes.RemoveWhere(fix =>
+                        var expectedFixes = bicepFixes.ToList();
+                        var mutableQuickFixes = quickFixList.ToList();
+
+                        foreach (var expectedFix in expectedFixes)
+                        {
+                            var matchingQuickFix = mutableQuickFixes.FirstOrDefault(quickFix =>
                             {
-                                if (fix.Title != quickFix.CodeAction.Title)
+                                if (quickFix.CodeAction?.Title != expectedFix.Title ||
+                                    quickFix.CodeAction.Edit?.Changes is null ||
+                                    !quickFix.CodeAction.Edit.Changes.TryGetValue(uri, out var edits))
                                 {
                                     return false;
                                 }
 
-                                var replacementSet = fix.Replacements.ToHashSet();
-                                foreach (var edit in textEditList)
+                                var replacementSet = expectedFix.Replacements.ToHashSet();
+                                foreach (var edit in edits)
                                 {
                                     replacementSet.RemoveWhere(replacement => edit.Range == replacement.ToRange(lineStarts) && edit.NewText == replacement.Text);
                                 }
 
                                 return replacementSet.Count == 0;
-                            }).Should().Be(1, "No matching fix found.");
-                        }
+                            });
 
-                        bicepFixes.Count.Should().Be(0);
+                            matchingQuickFix.Should().NotBeNull("No matching fix found.");
+
+                            if (matchingQuickFix is not null)
+                            {
+                                mutableQuickFixes.Remove(matchingQuickFix);
+                            }
+                        }
                     }
                 }
             }

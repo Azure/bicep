@@ -45,7 +45,7 @@ public static class TypeStringifier
     }
 
     // This works off of the syntax tree of the declared resource rather than the types due to type system limitations
-    public static string? TryGetResourceDerivedTypeName(SemanticModel semanticModel, ObjectPropertySyntax propertySyntax)
+    public static string? TryGetResourceDerivedTypeName(SemanticModel semanticModel, ObjectPropertySyntax propertySyntax, bool includeLeafProperties = false)
     {
         SyntaxBase? current = propertySyntax;
         string propertyAccessDotNotation = ""; // Includes leading periods
@@ -69,6 +69,19 @@ public static class TypeStringifier
 
                 if (isInterestingObjectType || declaredType is ArrayType)
                 {
+                    var propertyName = (objectPropertySyntax.Key as IdentifierSyntax)?.IdentifierName;
+                    if (propertyName is null)
+                    {
+                        return null;
+                    }
+
+                    propertyAccessDotNotation = $".{propertyName}{propertyAccessDotNotation}";
+                }
+                else if (includeLeafProperties)
+                {
+                    // When includeLeafProperties is true, include all property segments in the path
+                    // (e.g., for undefined symbol code fixes where the resource-derived type provides
+                    // better documentation and type safety than a simple primitive type).
                     var propertyName = (objectPropertySyntax.Key as IdentifierSyntax)?.IdentifierName;
                     if (propertyName is null)
                     {
@@ -346,5 +359,23 @@ public static class TypeStringifier
     {
         return
             $"{StringUtils.EscapeBicepPropertyName(property.Name)}: {StringifyCore(property.TypeReference.Type, property, strictness, visitedTypes)}";
+    }
+
+    /// <summary>
+    /// Formats a resource-derived type reference (e.g., <c>resourceInput&lt;'Microsoft.Storage/storageAccounts@2022-09-01'&gt;.sku</c>).
+    /// </summary>
+    public static string FormatResourceDerivedType(IUnresolvedResourceDerivedType unresolved)
+    {
+        var pointer = unresolved.PointerSegments.Length > 0
+            ? $".{string.Join(".", unresolved.PointerSegments)}"
+            : string.Empty;
+
+        var keyword = unresolved.Variant switch
+        {
+            ResourceDerivedTypeVariant.Output => LanguageConstants.TypeNameResourceOutput,
+            _ => LanguageConstants.TypeNameResourceInput,
+        };
+
+        return $"{keyword}<'{unresolved.TypeReference.FormatName()}'>" + pointer;
     }
 }
