@@ -172,7 +172,11 @@ Validation already run:
 dotnet test .\src\Bicep.Core.UnitTests\Bicep.Core.UnitTests.csproj --no-restore -- --filter "FullyQualifiedName~BaseParametersSymbolTests|FullyQualifiedName~SecureParamsInParametersFileRuleTests|FullyQualifiedName~PositionTrackingJsonTextWriterTests|FullyQualifiedName~SymbolContextTests|FullyQualifiedName~BicepFileTests|FullyQualifiedName~ExpressionConverterTests|FullyQualifiedName~InlineDependencyVisitorTests"
 ```
 
-Latest result: 76 passed.
+```powershell
+dotnet test .\src\Bicep.Core.IntegrationTests\Bicep.Core.IntegrationTests.csproj --no-restore -- --filter FullyQualifiedName~LoadJsonFunction_LocalDeploy_NoCharacterCountLimit
+```
+
+Latest results: 76 Core unit tests passed; `LoadJsonFunction_LocalDeploy_NoCharacterCountLimit` passed.
 
 ## Work Queue
 

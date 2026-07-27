@@ -106,17 +106,15 @@ namespace Bicep.Testing.Utils
 
         private class TestFileSetScope : IDisposable
         {
-            private readonly TestCompiler compiler;
-
             public TestFileSetScope(TestCompiler compiler, params (string FilePath, TestFileData FileData)[] files)
             {
-                this.compiler = compiler;
-                this.compiler.FileSet.Clear().AddFiles(files);
+                compiler.FileSet.Clear().AddFiles(files);
             }
 
             public void Dispose()
             {
-                this.compiler.FileSet.Clear();
+                // Keep files available for lazy TestCompilationResult properties.
+                // The next scope clears the file set before adding new files.
             }
         }
 
