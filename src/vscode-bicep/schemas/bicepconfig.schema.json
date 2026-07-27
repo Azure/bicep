@@ -998,6 +998,10 @@
         "patch": {
           "type": "boolean",
           "description": "Enables the @patch() decorator for deploying resources using the PATCH HTTP method. This feature is restricted to Azure Policy DeployIfNotExists scenarios. See https://aka.ms/bicep/experimental-features#patch"
+        },
+        "runtimeValuesInTagsAndSku": {
+          "type": "boolean",
+          "description": "Allows the use of runtime values (such as references to resources or this.existingResource()) in tags and sku properties. See https://aka.ms/bicep/experimental-features#runtimevaluesintagsandsku"
         }
       },
       "additionalProperties": false
