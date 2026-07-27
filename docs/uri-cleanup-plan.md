@@ -172,9 +172,7 @@ Validation already run:
 dotnet test .\src\Bicep.Core.UnitTests\Bicep.Core.UnitTests.csproj --no-restore -- --filter "FullyQualifiedName~BaseParametersSymbolTests|FullyQualifiedName~SecureParamsInParametersFileRuleTests|FullyQualifiedName~PositionTrackingJsonTextWriterTests|FullyQualifiedName~SymbolContextTests|FullyQualifiedName~BicepFileTests|FullyQualifiedName~ExpressionConverterTests|FullyQualifiedName~InlineDependencyVisitorTests"
 ```
 
-Latest result: 74 passed.
-
-Additional validation attempted for `AzResourceTypeProviderTests`, but local `dotnet test` is currently blocked before build by NU1903 package-audit warnings being treated as errors for `System.Security.Cryptography.Xml`.
+Latest result: 76 passed.
 
 ## Work Queue
 

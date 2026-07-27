@@ -55,7 +55,7 @@ namespace Bicep.Testing.Utils
         {
             using (this.CreateFileSetScope((DefaultEntryPointPath, sourceText)))
             {
-                return await this.CompileInternal(this.FileSet.GetUri(DefaultEntryPointPath), skipRestore: skipRestore);
+                return await this.CompileInternal(DefaultEntryPointPath, skipRestore: skipRestore);
             }
         }
 
