@@ -4,6 +4,7 @@
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.Testing.IO;
 using Bicep.Testing.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,11 +17,13 @@ namespace Bicep.Core.UnitTests.Semantics
         private static TestCompiler CreateCompiler() => TestCompiler.ForInMemoryCompilation()
             .WithEmptyAzResources();
 
+        private static async Task<Compilation> CompileParams(params (string FilePath, TestFileData FileData)[] files)
+            => (await CreateCompiler().CompileWithoutRestore("main.bicepparam", files)).Compilation;
+
         [TestMethod]
         public async Task FileSymbol_should_include_base_parameters_symbol_when_extends_is_present()
         {
-            var compilation = await CreateCompiler().CreateCompilationWithoutRestore(
-                "main.bicepparam",
+            var compilation = await CompileParams(
                 ("main.bicep", """
                     param one string = ''
                     param two string = ''
@@ -49,8 +52,7 @@ namespace Bicep.Core.UnitTests.Semantics
         [TestMethod]
         public async Task FileSymbol_should_not_include_base_parameters_symbol_when_extends_is_absent()
         {
-            var compilation = await CreateCompiler().CreateCompilationWithoutRestore(
-                "main.bicepparam",
+            var compilation = await CompileParams(
                 ("main.bicep", """
                     param one string = ''
                     param two string = ''
@@ -71,8 +73,7 @@ namespace Bicep.Core.UnitTests.Semantics
         [TestMethod]
         public async Task Base_parameters_symbol_should_include_all_inherited_assignments()
         {
-            var compilation = await CreateCompiler().CreateCompilationWithoutRestore(
-                "main.bicepparam",
+            var compilation = await CompileParams(
                 ("main.bicep", """
                     param one string = ''
                     param two string = ''
@@ -101,8 +102,7 @@ namespace Bicep.Core.UnitTests.Semantics
         [TestMethod]
         public async Task Base_variable_access_should_have_object_type_with_read_only_parent_properties()
         {
-            var compilation = await CreateCompiler().CreateCompilationWithoutRestore(
-                "main.bicepparam",
+            var compilation = await CompileParams(
                 ("main.bicep", """
                     param one string = ''
                     param two string = ''
@@ -137,8 +137,7 @@ namespace Bicep.Core.UnitTests.Semantics
         [TestMethod]
         public async Task Base_variable_access_should_not_throw_when_inherited_params_include_object_and_array_values()
         {
-            var compilation = await CreateCompiler().CreateCompilationWithoutRestore(
-                "main.bicepparam",
+            var compilation = await CompileParams(
                 ("main.bicep", """
                                         param one string = ''
                                         param two string = ''

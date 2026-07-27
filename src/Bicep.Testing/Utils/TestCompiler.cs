@@ -5,6 +5,7 @@ using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core;
 using Bicep.Core.Features;
 using Bicep.Core.Semantics;
+using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using Bicep.Testing.IO;
 
@@ -50,13 +51,15 @@ namespace Bicep.Testing.Utils
 
         public T GetService<T>() where T : notnull => this.services.Get<T>();
 
-        public async Task<TestCompilationResult> CompileInline(string sourceText, bool skipRestore = false)
+        public async Task<TestCompilationResult> Compile(string sourceText, bool skipRestore = false)
         {
             using (this.CreateFileSetScope((DefaultEntryPointPath, sourceText)))
             {
-                return await this.Compile(skipRestore: skipRestore);
+                return await this.CompileInternal(this.FileSet.GetUri(DefaultEntryPointPath), skipRestore: skipRestore);
             }
         }
+
+        public Task<TestCompilationResult> CompileWithoutRestore(string sourceText) => this.Compile(sourceText, skipRestore: true);
 
         public Task<TestCompilationResult> Compile(params (string FilePath, TestFileData FileData)[] files) => this.Compile(DefaultEntryPointPath, files);
 
@@ -64,7 +67,7 @@ namespace Bicep.Testing.Utils
         {
             using (this.CreateFileSetScope(files))
             {
-                return await this.Compile(entryPointPath, skipRestore: false);
+                return await this.CompileInternal(entryPointPath, skipRestore: false);
             }
         }
 
@@ -74,32 +77,16 @@ namespace Bicep.Testing.Utils
         {
             using (this.CreateFileSetScope(files))
             {
-                return await this.Compile(entryPointPath, skipRestore: true);
+                return await this.CompileInternal(entryPointPath, skipRestore: true);
             }
         }
 
-        public Task<Compilation> CreateCompilationWithoutRestore(params (string FilePath, TestFileData FileData)[] files) => this.CreateCompilationWithoutRestore(DefaultEntryPointPath, files);
-
-        public async Task<Compilation> CreateCompilationWithoutRestore(string entryPointPath, params (string FilePath, TestFileData FileData)[] files)
-        {
-            using (this.CreateFileSetScope(files))
-            {
-                return await this.CreateCompilation(entryPointPath, skipRestore: true);
-            }
-        }
-
-        public async Task<TestCompilationResult> Compile(string entryPointPath = DefaultEntryPointPath, bool skipRestore = false)
-        {
-            var compilation = await this.CreateCompilation(entryPointPath, skipRestore);
-
-            return TestCompilationResult.FromCompilation(compilation);
-        }
-
-        public async Task<Compilation> CreateCompilation(string entryPointPath = DefaultEntryPointPath, bool skipRestore = false)
+        private async Task<TestCompilationResult> CompileInternal(string entryPointPath, bool skipRestore)
         {
             var compiler = this.services.Get<BicepCompiler>();
+            var compilation = await compiler.CreateCompilation(this.FileSet.GetUri(entryPointPath), skipRestore: skipRestore);
 
-            return await compiler.CreateCompilation(this.FileSet.GetUri(entryPointPath), skipRestore: skipRestore);
+            return TestCompilationResult.FromCompilation(compilation);
         }
 
         // NOTE(kylealbert): Remove type params once the necessary types are migrated to this package.

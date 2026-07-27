@@ -5,7 +5,7 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -14,14 +14,15 @@ namespace Bicep.Core.UnitTests.Semantics
     [TestClass]
     public class SymbolContextTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
+        private static TestCompiler CreateCompiler() => TestCompiler.ForInMemoryCompilation()
+            .WithEmptyAzResources();
 
         [TestMethod]
-        public void LockedModeShouldBlockAccess()
+        public async Task LockedModeShouldBlockAccess()
         {
             const string expectedMessage = "Properties of the symbol context should not be accessed until name binding is completed.";
 
-            var compilation = Services.BuildCompilation("");
+            var compilation = (await CreateCompiler().CompileWithoutRestore("")).Compilation;
             var model = compilation.GetEntrypointSemanticModel();
             var bindings = new Dictionary<SyntaxBase, Symbol>();
             var cyclesBySymbol = new Dictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>>();
@@ -38,7 +39,7 @@ namespace Bicep.Core.UnitTests.Semantics
         }
 
         [TestMethod]
-        public void TestHoverOnQuotedPropertyReturnsPropertySymbol()
+        public async Task TestHoverOnQuotedPropertyReturnsPropertySymbol()
         {
             var text = @"
 resource storage 'Microsoft.Storage/storageAccounts@2021-02-01' = {
@@ -53,7 +54,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2021-02-01' = {
             var namePropertyIndex = text.IndexOf("'name'", skuIndex);
             var cursor = namePropertyIndex + 2;
 
-            var compilation = CompilationHelper.Compile(text).Compilation;
+            var compilation = (await CreateCompiler().CompileWithoutRestore(text)).Compilation;
             var model = compilation.GetEntrypointSemanticModel();
 
             var programSyntax = model.SourceFile.ProgramSyntax;

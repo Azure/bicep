@@ -216,7 +216,7 @@ module modulea 'modulea.bicep' = {
   }
 }
 ";
-            var result = await this.compiler.CompileInline(mainFileText);
+            var result = await this.compiler.Compile(mainFileText);
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{TestFileUri.FromMockFileSystemPath("modulea.bicep")}'."),

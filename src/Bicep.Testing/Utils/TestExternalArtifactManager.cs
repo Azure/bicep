@@ -33,7 +33,7 @@ namespace Bicep.Testing.Utils
             var sourceFileFactory = compiler.GetService<ISourceFileFactory>();
             var dummyFile = sourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
             var targetReference = dispatcher.TryGetArtifactReference(dummyFile, ArtifactType.Module, moduleArtifactId).Unwrap();
-            var compilationResult = await compiler.CompileInline(moduleContent);
+            var compilationResult = await compiler.Compile(moduleContent);
 
             if (compilationResult.Template is null)
             {

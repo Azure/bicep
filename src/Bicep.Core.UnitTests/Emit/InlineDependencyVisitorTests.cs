@@ -4,7 +4,7 @@
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,7 +13,8 @@ namespace Bicep.Core.UnitTests.Emit
     [TestClass]
     public class InlineDependencyVisitorTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
+        private static TestCompiler CreateCompiler() => TestCompiler.ForInMemoryCompilation()
+            .WithEmptyAzResources();
 
         private const string Text = @"
 var things = ''
@@ -24,9 +25,9 @@ var runtimeLoop = [for (item, index) in []: indirection]
 var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
 ";
         [TestMethod]
-        public void VisitorShouldCalculateInliningInBulk()
+        public async Task VisitorShouldCalculateInliningInBulk()
         {
-            var compilation = Services.BuildCompilation(Text);
+            var compilation = (await CreateCompiler().CompileWithoutRestore(Text)).Compilation;
 
             var inlineVariables = InlineDependencyVisitor.GetSymbolsToInline(compilation.GetEntrypointSemanticModel()).VariablesToInline;
 
@@ -41,9 +42,9 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
 
         [DataRow("things")]
         [DataTestMethod]
-        public void VisitorShouldProduceNoChainForNonInlinedVariables(string variableName)
+        public async Task VisitorShouldProduceNoChainForNonInlinedVariables(string variableName)
         {
-            var compilation = Services.BuildCompilation(Text);
+            var compilation = (await CreateCompiler().CompileWithoutRestore(Text)).Compilation;
             VariableDeclarationSyntax variable = GetVariableByName(compilation, variableName);
 
             InlineDependencyVisitor.ShouldInlineVariable(compilation.GetEntrypointSemanticModel(), variable, out var chain).Should().BeFalse();
@@ -55,9 +56,9 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
         [DataRow("runtimeLoop", "indirection,keys")]
         [DataRow("runtimeLoop2", "indirection,keys")]
         [DataTestMethod]
-        public void VisitorShouldProduceCorrectChainForInlinedVariables(string variableName, string expectedChain)
+        public async Task VisitorShouldProduceCorrectChainForInlinedVariables(string variableName, string expectedChain)
         {
-            var compilation = Services.BuildCompilation(Text);
+            var compilation = (await CreateCompiler().CompileWithoutRestore(Text)).Compilation;
             VariableDeclarationSyntax variable = GetVariableByName(compilation, variableName);
 
             InlineDependencyVisitor.ShouldInlineVariable(compilation.GetEntrypointSemanticModel(), variable, out var chain).Should().BeTrue();

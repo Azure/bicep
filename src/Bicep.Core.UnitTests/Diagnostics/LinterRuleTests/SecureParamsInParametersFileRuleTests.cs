@@ -25,12 +25,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private static async Task<Compilation> Compile(string mainBicep, string paramsBicep)
         {
-            var compilation = await CreateCompiler().CreateCompilationWithoutRestore(
+            var result = await CreateCompiler().CompileWithoutRestore(
                 "main.bicepparam",
                 ("main.bicep", mainBicep),
                 ("main.bicepparam", paramsBicep));
 
-            return compilation;
+            return result.Compilation;
         }
 
         [TestMethod]
@@ -189,15 +189,15 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public async Task Rule_DoesNotRunOnBicepFiles()
         {
-            var compilation = await CreateCompiler().CreateCompilationWithoutRestore(
-                ("main.bicep", """
+            var compilation = (await CreateCompiler().CompileWithoutRestore(
+                """
                     @secure()
                     param secureParam string
 
                     var insecureVar = secureParam
 
                     output insecureOutput string = insecureVar
-                    """));
+            """)).Compilation;
 
             compilation.GetSourceFileDiagnostics(MainUri).Should().NotContainDiagnostic(SecureParamsInParametersFileRule.Code);
         }
