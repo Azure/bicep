@@ -39,6 +39,8 @@ public interface IFeatureProvider
 
     bool PatchEnabled { get; }
 
+    bool RuntimeValuesInTagsAndSkuEnabled { get; }
+
     bool AzExtensionConfigEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
@@ -61,6 +63,7 @@ public interface IFeatureProvider
                 (ModuleExtensionConfigsEnabled, "Enable defining extension configs for modules", true, true),
                 (UserDefinedConstraintsEnabled, "Enable @validate() decorator", true, true),
                 (DeployCommandsEnabled, "Enable deploy commands", true, true),
+                (RuntimeValuesInTagsAndSkuEnabled, "Enable runtime values in tags and SKU", true, true),
                 (AzExtensionConfigEnabled, "Enable configuration for the built-in 'az' extension", true, true),
             })
             {

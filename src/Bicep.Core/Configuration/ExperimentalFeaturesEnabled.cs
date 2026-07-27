@@ -24,6 +24,7 @@ public record ExperimentalFeaturesEnabled(
     bool UserDefinedConstraints,
     bool DeployCommands,
     bool Patch,
+    bool RuntimeValuesInTagsAndSku,
     bool AzExtensionConfig)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
@@ -46,5 +47,6 @@ public record ExperimentalFeaturesEnabled(
         UserDefinedConstraints: false,
         DeployCommands: false,
         Patch: false,
+        RuntimeValuesInTagsAndSku: false,
         AzExtensionConfig: false);
 }
