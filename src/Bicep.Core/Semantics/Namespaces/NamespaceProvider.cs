@@ -152,7 +152,7 @@ public class NamespaceProvider : INamespaceProvider
             };
 
             var configurationType = sourceFile.Features.AzExtensionConfigEnabled && typeProvider is AzResourceTypeProvider azProvider
-                ? azProvider.GetNamespaceConfiguration()?.ConfigurationType
+                ? azProvider.GetConfigurationType()
                 : null;
 
             return AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind, configurationType);
@@ -191,7 +191,7 @@ public class NamespaceProvider : INamespaceProvider
                 targetScope,
                 azResourceTypeProvider,
                 sourceFile.FileKind,
-                sourceFile.Features.AzExtensionConfigEnabled ? azResourceTypeProvider.GetNamespaceConfiguration()?.ConfigurationType : null)),
+                sourceFile.Features.AzExtensionConfigEnabled ? azResourceTypeProvider.GetConfigurationType() : null)),
             ExtensionResourceTypeProvider extensionResourceTypeProvider => new(ExtensionNamespaceType.Create(aliasName, extensionResourceTypeProvider, artifact.Reference, sourceFile.Features, sourceFile.FileKind)),
             _ => throw new InvalidOperationException($"Unexpected resource type provider type: {typeProvider.GetType().Name}."),
         };

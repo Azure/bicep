@@ -5,7 +5,6 @@ using Azure.Bicep.Types;
 using Azure.Bicep.Types.Index;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
-using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.Providers.Az
@@ -57,7 +56,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             return resourceTypeFactory.GetResourceType(serializedResourceType, functionOverloads);
         }
 
-        public ExtensionResourceTypeLoader.NamespaceConfiguration? LoadNamespaceConfiguration()
+        public ObjectLikeType? LoadConfigurationType()
         {
             if (typeSettings?.ConfigurationType is not { } reference)
             {
@@ -71,11 +70,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 throw new InvalidOperationException($"Extension configuration type at index {reference.Index} in \"{reference.RelativePath}\" is not a valid ObjectLikeType.");
             }
 
-            return new(
-                typeSettings.Name,
-                typeSettings.Version,
-                typeSettings.IsSingleton,
-                configurationType);
+            return configurationType;
         }
     }
 }
