@@ -4,7 +4,7 @@ using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Serializers;
 using Bicep.Core.Emit;
 using Bicep.Core.Syntax;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,7 +13,8 @@ namespace Bicep.Core.UnitTests.Emit
     [TestClass]
     public class ExpressionConverterTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
+        private static TestCompiler CreateCompiler() => TestCompiler.ForInMemoryCompilation()
+            .WithEmptyAzResources();
 
         [DataTestMethod]
         [DataRow("null", "[null()]")]
@@ -64,10 +65,10 @@ namespace Bicep.Core.UnitTests.Emit
         [DataRow("{fizz: 'buzz'}.key.and.nested.property.accesses[0]['stringKey']", "[createObject('fizz', 'buzz').key.and.nested.property.accesses[0].stringKey]")]
         [DataRow("{fizz: 'buzz'}.?key.and.nested.?property.accesses[0]['stringKey']", "[tryGet(tryGet(createObject('fizz', 'buzz'), 'key', 'and', 'nested'), 'property', 'accesses', 0, 'stringKey')]")]
         [DataRow("({fizz: 'buzz'}.?key.and.nested).property.accesses[0]['stringKey']", "[tryGet(createObject('fizz', 'buzz'), 'key', 'and', 'nested').property.accesses[0].stringKey]")]
-        public void ShouldConvertExpressionsCorrectly(string text, string expected)
+        public async Task ShouldConvertExpressionsCorrectly(string text, string expected)
         {
             var programText = $"var test = {text}";
-            var compilation = Services.BuildCompilation(programText);
+            var compilation = (await CreateCompiler().CompileWithoutRestore(programText)).Compilation;
 
             var programSyntax = compilation.SourceFileGrouping.EntryPoint.ProgramSyntax;
             var variableDeclarationSyntax = programSyntax.Children.OfType<VariableDeclarationSyntax>().First();

@@ -5,7 +5,9 @@ using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
+using Bicep.Testing.IO;
+using Bicep.Testing.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -14,28 +16,27 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class SecureParamsInParametersFileRuleTests : LinterRuleTestsBase
     {
-        private static readonly Uri MainUri = new("file:///main.bicep");
-        private static readonly Uri ParamsUri = new("file:///main.bicepparam");
+        private static readonly IOUri MainUri = TestFileUri.FromInMemoryPath("main.bicep");
+        private static readonly IOUri ParamsUri = TestFileUri.FromInMemoryPath("main.bicepparam");
 
-        private static ServiceBuilder ServiceBuilder => new ServiceBuilder()
+        private static TestCompiler CreateCompiler() => TestCompiler.ForInMemoryCompilation()
             .WithConfiguration(BicepTestConstants.BuiltInConfigurationWithStableAnalyzers)
             .WithEmptyAzResources();
 
-        private static Compilation Compile(string mainBicep, string paramsBicep)
+        private static async Task<Compilation> Compile(string mainBicep, string paramsBicep)
         {
-            var files = new Dictionary<Uri, string>
-            {
-                [MainUri] = mainBicep,
-                [ParamsUri] = paramsBicep,
-            };
+            var result = await CreateCompiler().CompileWithoutRestore(
+                "main.bicepparam",
+                ("main.bicep", mainBicep),
+                ("main.bicepparam", paramsBicep));
 
-            return ServiceBuilder.BuildCompilation(files, ParamsUri);
+            return result.Compilation;
         }
 
         [TestMethod]
-        public void InsecureParamAssignedSecureParamValue_IsFlagged()
+        public async Task InsecureParamAssignedSecureParamValue_IsFlagged()
         {
-            var compilation = Compile(
+            var compilation = await Compile(
                 """
                 @secure()
                 param secureParam string
@@ -56,9 +57,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestMethod]
-        public void SecureParamAssignedSecureParamValue_IsNotFlagged()
+        public async Task SecureParamAssignedSecureParamValue_IsNotFlagged()
         {
-            var compilation = Compile(
+            var compilation = await Compile(
                 """
                 @secure()
                 param secureParam string
@@ -77,9 +78,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestMethod]
-        public void InsecureParamAssignedLiteralValue_IsNotFlagged()
+        public async Task InsecureParamAssignedLiteralValue_IsNotFlagged()
         {
-            var compilation = Compile(
+            var compilation = await Compile(
                 """
                 @secure()
                 param secureParam string
@@ -97,9 +98,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestMethod]
-        public void InsecureParamAssignedInsecureParamValue_IsNotFlagged()
+        public async Task InsecureParamAssignedInsecureParamValue_IsNotFlagged()
         {
-            var compilation = Compile(
+            var compilation = await Compile(
                 """
                 param firstParam string
 
@@ -116,9 +117,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestMethod]
-        public void InsecureParamTransitivelyReferencingSecureParam_IsFlagged()
+        public async Task InsecureParamTransitivelyReferencingSecureParam_IsFlagged()
         {
-            var compilation = Compile(
+            var compilation = await Compile(
                 """
                 @secure()
                 param secureParam string
@@ -140,9 +141,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestMethod]
-        public void InsecureParamAssignedSecureParamInInterpolation_IsFlagged()
+        public async Task InsecureParamAssignedSecureParamInInterpolation_IsFlagged()
         {
-            var compilation = Compile(
+            var compilation = await Compile(
                 """
                 @secure()
                 param secureParam string
@@ -163,9 +164,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestMethod]
-        public void SecureObjectParam_ReferencedByInsecureParam_IsFlagged()
+        public async Task SecureObjectParam_ReferencedByInsecureParam_IsFlagged()
         {
-            var compilation = Compile(
+            var compilation = await Compile(
                 """
                 @secure()
                 param secureObj object
@@ -186,21 +187,17 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestMethod]
-        public void Rule_DoesNotRunOnBicepFiles()
+        public async Task Rule_DoesNotRunOnBicepFiles()
         {
-            var compilation = ServiceBuilder.BuildCompilation(
-                new Dictionary<Uri, string>
-                {
-                    [MainUri] = """
-                        @secure()
-                        param secureParam string
+            var compilation = (await CreateCompiler().CompileWithoutRestore(
+                """
+                    @secure()
+                    param secureParam string
 
-                        var insecureVar = secureParam
+                    var insecureVar = secureParam
 
-                        output insecureOutput string = insecureVar
-                        """,
-                },
-                MainUri);
+                    output insecureOutput string = insecureVar
+            """)).Compilation;
 
             compilation.GetSourceFileDiagnostics(MainUri).Should().NotContainDiagnostic(SecureParamsInParametersFileRule.Code);
         }

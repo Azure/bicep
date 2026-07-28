@@ -15,6 +15,7 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.IO.Abstraction;
+using Bicep.Testing.IO;
 using Bicep.Testing.Utils;
 
 namespace Bicep.Core.UnitTests.Utils;
@@ -97,7 +98,7 @@ public static class ServiceBuilderExtensions
     public static Compilation BuildCompilation(this ServiceBuilder services, IReadOnlyDictionary<IOUri, string> fileContentsByUri, IOUri entryFileUri)
     {
         var compiler = services.Build().GetCompiler();
-        var workspace = CompilationHelper.CreateWorkspace(compiler.SourceFileFactory, fileContentsByUri.ToDictionary(x => x.Key.ToUri(), x => x.Value));
+        var workspace = CompilationHelper.CreateWorkspace(compiler.SourceFileFactory, fileContentsByUri);
 
         return compiler.CreateCompilationWithoutRestore(entryFileUri, workspace);
     }
@@ -112,8 +113,8 @@ public static class ServiceBuilderExtensions
 
     public static Compilation BuildCompilation(this ServiceBuilder services, string text)
     {
-        var entryFileUri = new Uri("file:///main.bicep");
+        var entryFileUri = TestFileUri.FromInMemoryPath("main.bicep");
 
-        return BuildCompilation(services, new Dictionary<Uri, string> { [entryFileUri] = text }, entryFileUri);
+        return BuildCompilation(services, new Dictionary<IOUri, string> { [entryFileUri] = text }, entryFileUri);
     }
 }

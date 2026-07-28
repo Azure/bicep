@@ -125,8 +125,8 @@ namespace Bicep.Core.IntegrationTests
             var sourceArchive = SourceArchive.CreateFrom(sourceFileGrouping);
 
             // Assert.
-            var bicepRegistryModule1Template = (await this.compiler.CompileInline(SampleData.BicepRegistryModule1Text)).Template!;
-            var bicepRegistryModule2Template = (await this.compiler.CompileInline(SampleData.BicepRegistryModule2Text)).Template!;
+            var bicepRegistryModule1Template = (await this.compiler.Compile(SampleData.BicepRegistryModule1Text)).Template!;
+            var bicepRegistryModule2Template = (await this.compiler.Compile(SampleData.BicepRegistryModule2Text)).Template!;
 
             sourceArchive.Should().HaveMetadataAndFiles($$"""
                 {
@@ -374,7 +374,7 @@ namespace Bicep.Core.IntegrationTests
         {
             // Arrange.
             var moduleText = "param p1 bool";
-            var moduleTemplate = (await this.compiler.CompileInline(moduleText)).Template!;
+            var moduleTemplate = (await this.compiler.Compile(moduleText)).Template!;
             var moduleTemplateText = moduleTemplate.ToString(Newtonsoft.Json.Formatting.Indented);
             await this.artifactManager.PublishRegistryModule("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true);
 

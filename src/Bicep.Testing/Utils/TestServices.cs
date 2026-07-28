@@ -19,6 +19,7 @@ using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
 using Bicep.Testing.Fakes.TypeSystem;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Bicep.Testing.Utils
 {
@@ -45,6 +46,16 @@ namespace Bicep.Testing.Utils
             where TService : class
         {
             this.services.AddSingleton<TService>(implementationInstance);
+            this.dirty = true;
+
+            return this;
+        }
+
+        public TestServices RemoveAll<TService>()
+            where TService : class
+        {
+            this.services.RemoveAll<TService>();
+
             this.dirty = true;
 
             return this;

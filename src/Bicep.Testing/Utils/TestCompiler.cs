@@ -4,6 +4,8 @@
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core;
 using Bicep.Core.Features;
+using Bicep.Core.Semantics;
+using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using Bicep.Testing.IO;
 
@@ -30,15 +32,6 @@ namespace Bicep.Testing.Utils
 
         public TestFileSet FileSet { get; }
 
-        public static TestCompiler ForRealFileSystemCompilation()
-        {
-            var fileSet = new MockFileSystemTestFileSet();
-
-            return new TestCompiler(fileSet).ConfigureServices(services => services
-                .AddFileSystem(fileSet.FileSystem)
-                .AddFileExplorer(fileSet.FileExplorer));
-        }
-
         public static TestCompiler ForMockFileSystemCompilation()
         {
             var fileSet = new MockFileSystemTestFileSet();
@@ -58,13 +51,15 @@ namespace Bicep.Testing.Utils
 
         public T GetService<T>() where T : notnull => this.services.Get<T>();
 
-        public async Task<TestCompilationResult> CompileInline(string sourceText, bool skipRestore = false)
+        public async Task<TestCompilationResult> Compile(string sourceText, bool skipRestore = false)
         {
             using (this.CreateFileSetScope((DefaultEntryPointPath, sourceText)))
             {
-                return await this.Compile(skipRestore: skipRestore);
+                return await this.CompileInternal(DefaultEntryPointPath, skipRestore: skipRestore);
             }
         }
+
+        public Task<TestCompilationResult> CompileWithoutRestore(string sourceText) => this.Compile(sourceText, skipRestore: true);
 
         public Task<TestCompilationResult> Compile(params (string FilePath, TestFileData FileData)[] files) => this.Compile(DefaultEntryPointPath, files);
 
@@ -72,7 +67,7 @@ namespace Bicep.Testing.Utils
         {
             using (this.CreateFileSetScope(files))
             {
-                return await this.Compile(entryPointPath, skipRestore: false);
+                return await this.CompileInternal(entryPointPath, skipRestore: false);
             }
         }
 
@@ -82,11 +77,11 @@ namespace Bicep.Testing.Utils
         {
             using (this.CreateFileSetScope(files))
             {
-                return await this.Compile(entryPointPath, skipRestore: true);
+                return await this.CompileInternal(entryPointPath, skipRestore: true);
             }
         }
 
-        public async Task<TestCompilationResult> Compile(string entryPointPath = DefaultEntryPointPath, bool skipRestore = false)
+        private async Task<TestCompilationResult> CompileInternal(string entryPointPath, bool skipRestore)
         {
             var compiler = this.services.Get<BicepCompiler>();
             var compilation = await compiler.CreateCompilation(this.FileSet.GetUri(entryPointPath), skipRestore: skipRestore);
@@ -111,17 +106,15 @@ namespace Bicep.Testing.Utils
 
         private class TestFileSetScope : IDisposable
         {
-            private readonly TestCompiler compiler;
-
             public TestFileSetScope(TestCompiler compiler, params (string FilePath, TestFileData FileData)[] files)
             {
-                this.compiler = compiler;
-                this.compiler.FileSet.Clear().AddFiles(files);
+                compiler.FileSet.Clear().AddFiles(files);
             }
 
             public void Dispose()
             {
-                this.compiler.FileSet.Clear();
+                // Keep files available for lazy TestCompilationResult properties.
+                // The next scope clears the file set before adding new files.
             }
         }
 

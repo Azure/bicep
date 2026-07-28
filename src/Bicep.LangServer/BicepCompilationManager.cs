@@ -159,7 +159,7 @@ namespace Bicep.LanguageServer
             CloseCompilationInternal(documentUri, 0, []);
         }
 
-        public void RefreshChangedFiles(IEnumerable<Uri> files)
+        public void RefreshChangedFiles(IEnumerable<DocumentUri> files)
             => HandleFileChanges(files.Select(uri => new FileEvent
             {
                 Uri = uri,

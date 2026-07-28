@@ -11,6 +11,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Extensions;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
@@ -84,8 +85,8 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             // refresh all compilations with a reference to this file or cached artifacts
-            var artifactUris = artifactsToRestore.Select(x => x.Result.Transform(x => x.Uri.ToUri()).TryUnwrap()).WhereNotNull();
-            compilationManager.RefreshChangedFiles(artifactUris.Concat(documentUri.ToUriEncoded()));
+            var artifactUris = artifactsToRestore.Select(x => x.Result.Transform(x => x.Uri.ToDocumentUri()).TryUnwrap()).WhereNotNull();
+            compilationManager.RefreshChangedFiles(artifactUris.Concat(documentUri));
             return $"Restore (force) summary: {sbRestoreSummary}";
         }
     }
