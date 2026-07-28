@@ -27,5 +27,6 @@ namespace Bicep.Core.Features
         public bool DeployCommandsEnabled => features.DeployCommands;
         public bool PatchEnabled => features.Patch;
         public bool RuntimeValuesInTagsAndSkuEnabled => features.RuntimeValuesInTagsAndSku;
+        public bool AzExtensionConfigEnabled => features.AzExtensionConfig;
     }
 }

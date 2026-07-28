@@ -22,6 +22,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -136,6 +137,181 @@ extension
             result.Should().HaveDiagnostics(new[] {
                 ("BCP205", DiagnosticLevel.Error, "Extension \"az\" does not support configuration."),
             });
+        }
+
+        [TestMethod]
+        public async Task Az_extension_config_is_supported_when_feature_is_enabled()
+        {
+            var services = (await GetServices())
+                .WithFeatureOverrides(new(AzExtensionConfigEnabled: true));
+
+            var result = await CompilationHelper.RestoreAndCompile(services, """
+            extension az with {
+              providers: ['Microsoft.Storage', 'Microsoft.Compute']
+            }
+            """);
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            // Emits under the classic imports path (no moduleExtensionConfigs). Verify the version
+            // matches the version derived from the embedded Azure.Bicep.Types.Az assembly, and that
+            // the shipped provider list is faithfully round-tripped into the template.
+            result.Template.Should().NotBeNull();
+            result.Template.Should().HaveValueAtPath("$.imports.az.version", AzNamespaceType.Settings.TemplateExtensionVersion);
+            result.Template.Should().HaveValueAtPath("$.imports.az.config.providers", JArray.Parse("""["Microsoft.Storage", "Microsoft.Compute"]"""));
+        }
+
+        [TestMethod]
+        public async Task Az_extension_config_with_module_extension_configs_emits_under_extensions_path()
+        {
+            var services = (await GetServices())
+                .WithFeatureOverrides(new(AzExtensionConfigEnabled: true, ModuleExtensionConfigsEnabled: true));
+
+            var result = await CompilationHelper.RestoreAndCompile(services, """
+            extension az with {
+              providers: ['Microsoft.Storage', 'Microsoft.Compute']
+            }
+            """);
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            // With moduleExtensionConfigs enabled the extension is emitted under $.extensions instead
+            // of $.imports, each config property wraps its value in { defaultValue: <expr> }, and the
+            // template opts into the experimental languageVersion.
+            result.Template.Should().NotBeNull();
+            result.Template.Should().HaveValueAtPath("$.extensions.az.name", "AzureResourceManager");
+            result.Template.Should().HaveValueAtPath("$.extensions.az.version", AzNamespaceType.Settings.TemplateExtensionVersion);
+            result.Template.Should().HaveValueAtPath("$.extensions.az.config.providers.defaultValue", JArray.Parse("""["Microsoft.Storage", "Microsoft.Compute"]"""));
+            result.Template.Should().NotHaveValueAtPath("$.imports.az");
+        }
+
+        [TestMethod]
+        public async Task Az_extension_config_with_module_extension_configs_rejects_unknown_provider()
+        {
+            var services = (await GetServices())
+                .WithFeatureOverrides(new(AzExtensionConfigEnabled: true, ModuleExtensionConfigsEnabled: true));
+
+            var result = await CompilationHelper.RestoreAndCompile(services, """
+            extension az with {
+              providers: ['NotARealProvider']
+            }
+            """);
+
+            // Validation of the string-literal union should behave identically regardless of which
+            // emit path (imports vs. extensions) is in use.
+            result.ExcludingLinterDiagnostics().Diagnostics
+                .Should().Contain(d => d.Code == "BCP034", "unknown providers should still surface as BCP034 even under moduleExtensionConfigs");
+        }
+
+        [TestMethod]
+        public async Task Az_extension_config_does_not_change_resource_emit_under_imports_path()
+        {
+            var services = (await GetServices())
+                .WithFeatureOverrides(new(AzExtensionConfigEnabled: true));
+
+            var result = await CompilationHelper.RestoreAndCompile(services, """
+            extension az with {
+              providers: ['Microsoft.Storage']
+            }
+
+            resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+              name: 'mystorage'
+              location: 'eastus'
+              sku: { name: 'Standard_LRS' }
+              kind: 'StorageV2'
+            }
+            """);
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().NotBeNull();
+
+            // The extension config appears where expected...
+            result.Template.Should().HaveValueAtPath("$.imports.az.config.providers", JArray.Parse("""["Microsoft.Storage"]"""));
+
+            // ...and the resource is still emitted with all top-level fields intact. Under the
+            // imports path resources are keyed by symbolic name and carry `import: 'az'` so the
+            // deployment engine knows which import owns them.
+            result.Template.Should().HaveValueAtPath("$.resources.storage.import", "az");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.type", "Microsoft.Storage/storageAccounts");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.apiVersion", "2023-01-01");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.name", "mystorage");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.location", "eastus");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.kind", "StorageV2");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.sku.name", "Standard_LRS");
+        }
+
+        [TestMethod]
+        public async Task Az_extension_config_does_not_change_resource_emit_under_extensions_path()
+        {
+            var services = (await GetServices())
+                .WithFeatureOverrides(new(AzExtensionConfigEnabled: true, ModuleExtensionConfigsEnabled: true));
+
+            var result = await CompilationHelper.RestoreAndCompile(services, """
+            extension az with {
+              providers: ['Microsoft.Storage']
+            }
+
+            resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+              name: 'mystorage'
+              location: 'eastus'
+              sku: { name: 'Standard_LRS' }
+              kind: 'StorageV2'
+            }
+            """);
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().NotBeNull();
+
+            // The extension config appears under $.extensions with the defaultValue wrapper...
+            result.Template.Should().HaveValueAtPath("$.extensions.az.config.providers.defaultValue", JArray.Parse("""["Microsoft.Storage"]"""));
+
+            // ...and the resource is emitted under $.resources keyed by symbolic name, tagged with
+            // `extension: 'az'` (matching the extension key under $.extensions). Core resource fields
+            // are preserved at the top level exactly as they'd be without any config wiring.
+            result.Template.Should().HaveValueAtPath("$.resources.storage.extension", "az");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.type", "Microsoft.Storage/storageAccounts");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.apiVersion", "2023-01-01");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.name", "mystorage");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.location", "eastus");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.kind", "StorageV2");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.sku.name", "Standard_LRS");
+        }
+
+        [TestMethod]
+        public async Task Az_extension_config_rejects_unknown_provider_when_feature_is_enabled()
+        {
+            var services = (await GetServices())
+                .WithFeatureOverrides(new(AzExtensionConfigEnabled: true));
+
+            var result = await CompilationHelper.RestoreAndCompile(services, """
+            extension az with {
+              providers: ['NotARealProvider']
+            }
+            """);
+
+            // 'NotARealProvider' is not a member of the string-literal union shipped in bicep-types-az.
+            // Asserted by code only because the full message enumerates ~283 provider namespaces and would
+            // churn every time bicep-types-az adds one.
+            result.ExcludingLinterDiagnostics().Diagnostics
+                .Should().Contain(d => d.Code == "BCP034", "unknown providers should surface as BCP034 array-item-type mismatch");
+        }
+
+        [TestMethod]
+        public async Task Az_extension_config_rejects_unknown_property_when_feature_is_enabled()
+        {
+            var services = (await GetServices())
+                .WithFeatureOverrides(new(AzExtensionConfigEnabled: true));
+
+            var result = await CompilationHelper.RestoreAndCompile(services, """
+            extension az with {
+              providers: ['Microsoft.Storage']
+              bogus: true
+            }
+            """);
+
+            // The configuration object type declares only 'providers'; extras should surface as BCP037.
+            result.ExcludingLinterDiagnostics().Diagnostics
+                .Should().Contain(d => d.Code == "BCP037", "unknown properties on the az configuration should surface as BCP037");
         }
 
         [TestMethod]

@@ -198,6 +198,9 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             generatedTypeCache = new ResourceTypeCache();
         }
 
+        public ObjectLikeType? GetConfigurationType()
+            => (resourceTypeLoader as AzResourceTypeLoader)?.LoadConfigurationType();
+
         private static ObjectType CreateGenericResourceBody(ResourceTypeReference typeReference, Func<string, bool> propertyFilter)
         {
             var properties = CreateResourceProperties(typeReference).Where(p => propertyFilter(p.Name));
