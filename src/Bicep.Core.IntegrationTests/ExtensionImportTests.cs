@@ -204,6 +204,80 @@ extension
         }
 
         [TestMethod]
+        public async Task Az_extension_config_does_not_change_resource_emit_under_imports_path()
+        {
+            var services = (await GetServices())
+                .WithFeatureOverrides(new(AzExtensionConfigEnabled: true));
+
+            var result = await CompilationHelper.RestoreAndCompile(services, """
+            extension az with {
+              providers: ['Microsoft.Storage']
+            }
+
+            resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+              name: 'mystorage'
+              location: 'eastus'
+              sku: { name: 'Standard_LRS' }
+              kind: 'StorageV2'
+            }
+            """);
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().NotBeNull();
+
+            // The extension config appears where expected...
+            result.Template.Should().HaveValueAtPath("$.imports.az.config.providers", JArray.Parse("""["Microsoft.Storage"]"""));
+
+            // ...and the resource is still emitted with all top-level fields intact. Under the
+            // imports path resources are keyed by symbolic name and carry `import: 'az'` so the
+            // deployment engine knows which import owns them.
+            result.Template.Should().HaveValueAtPath("$.resources.storage.import", "az");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.type", "Microsoft.Storage/storageAccounts");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.apiVersion", "2023-01-01");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.name", "mystorage");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.location", "eastus");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.kind", "StorageV2");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.sku.name", "Standard_LRS");
+        }
+
+        [TestMethod]
+        public async Task Az_extension_config_does_not_change_resource_emit_under_extensions_path()
+        {
+            var services = (await GetServices())
+                .WithFeatureOverrides(new(AzExtensionConfigEnabled: true, ModuleExtensionConfigsEnabled: true));
+
+            var result = await CompilationHelper.RestoreAndCompile(services, """
+            extension az with {
+              providers: ['Microsoft.Storage']
+            }
+
+            resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+              name: 'mystorage'
+              location: 'eastus'
+              sku: { name: 'Standard_LRS' }
+              kind: 'StorageV2'
+            }
+            """);
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().NotBeNull();
+
+            // The extension config appears under $.extensions with the defaultValue wrapper...
+            result.Template.Should().HaveValueAtPath("$.extensions.az.config.providers.defaultValue", JArray.Parse("""["Microsoft.Storage"]"""));
+
+            // ...and the resource is emitted under $.resources keyed by symbolic name, tagged with
+            // `extension: 'az'` (matching the extension key under $.extensions). Core resource fields
+            // are preserved at the top level exactly as they'd be without any config wiring.
+            result.Template.Should().HaveValueAtPath("$.resources.storage.extension", "az");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.type", "Microsoft.Storage/storageAccounts");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.apiVersion", "2023-01-01");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.name", "mystorage");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.location", "eastus");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.kind", "StorageV2");
+            result.Template.Should().HaveValueAtPath("$.resources.storage.sku.name", "Standard_LRS");
+        }
+
+        [TestMethod]
         public async Task Az_extension_config_rejects_unknown_provider_when_feature_is_enabled()
         {
             var services = (await GetServices())
