@@ -15,7 +15,20 @@ Should be enabled in tandem with `testFramework` experimental feature flag for e
 
 ### `azExtensionConfig`
 
-Enables configuration for the built-in `az` extension, allowing templates to specify settings (such as the list of Azure resource provider namespaces to register) via the extension's `config` property. (Note: This feature will not work until the backend service support has been deployed)
+Enables configuration for the built-in `az` extension. This allows templates to specify a list of Azure resource provider namespaces via the `providers` property, which are registered at the start of a deployment. ARM will trigger a provider registration for each listed namespace on the target subscription.
+
+Example:
+
+```bicep
+extension az with {
+  providers: [
+    'Microsoft.Storage' 
+    'Microsoft.Compute'
+  ]
+}
+```
+
+(Note: This feature will not work until the backend service support has been deployed.)
 
 ### `deployCommands`
 
