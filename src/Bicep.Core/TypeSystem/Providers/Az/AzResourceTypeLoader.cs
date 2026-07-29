@@ -6,6 +6,7 @@ using Azure.Bicep.Types.Index;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.TypeSystem.Providers.Az
 {
@@ -50,7 +51,9 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 functions = [];
             }
 
-            var functionOverloads = functions.SelectMany(typeLocation => resourceTypeFactory.GetResourceFunctionOverloads(typeLoader.LoadResourceFunctionType(typeLocation)));
+            var functionOverloads = functions
+                .SelectMany(typeLocation => resourceTypeFactory.GetResourceFunctionOverloads(typeLoader.LoadResourceFunctionType(typeLocation)))
+                .Where(x => x.Name.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix));
 
             var serializedResourceType = typeLoader.LoadResourceType(typeLocation);
             return resourceTypeFactory.GetResourceType(serializedResourceType, functionOverloads);
