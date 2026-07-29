@@ -22,9 +22,9 @@ namespace Bicep.Core.UnitTests.Emit
         private readonly string Text = $"{LeadingNodes}{BicepStatement}";
 
         [TestMethod]
-        public async Task SourceMapShouldAccountForDecoratorsInStatementSyntax()
+        public void SourceMapShouldAccountForDecoratorsInStatementSyntax()
         {
-            var compilation = (await CreateCompiler().CompileWithoutRestore(Text)).Compilation;
+            var compilation = CreateCompiler().CompileWithoutRestore(Text).Compilation;
             var semanticModel = compilation.GetEntrypointSemanticModel();
             var parameterSymbol = semanticModel.Root.ParameterDeclarations.First();
 

@@ -18,11 +18,11 @@ namespace Bicep.Core.UnitTests.Semantics
             .WithEmptyAzResources();
 
         [TestMethod]
-        public async Task LockedModeShouldBlockAccess()
+        public void LockedModeShouldBlockAccess()
         {
             const string expectedMessage = "Properties of the symbol context should not be accessed until name binding is completed.";
 
-            var compilation = (await CreateCompiler().CompileWithoutRestore("")).Compilation;
+            var compilation = CreateCompiler().CompileWithoutRestore("").Compilation;
             var model = compilation.GetEntrypointSemanticModel();
             var bindings = new Dictionary<SyntaxBase, Symbol>();
             var cyclesBySymbol = new Dictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>>();
@@ -39,7 +39,7 @@ namespace Bicep.Core.UnitTests.Semantics
         }
 
         [TestMethod]
-        public async Task TestHoverOnQuotedPropertyReturnsPropertySymbol()
+        public void TestHoverOnQuotedPropertyReturnsPropertySymbol()
         {
             var text = @"
 resource storage 'Microsoft.Storage/storageAccounts@2021-02-01' = {
@@ -54,7 +54,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2021-02-01' = {
             var namePropertyIndex = text.IndexOf("'name'", skuIndex);
             var cursor = namePropertyIndex + 2;
 
-            var compilation = (await CreateCompiler().CompileWithoutRestore(text)).Compilation;
+            var compilation = CreateCompiler().CompileWithoutRestore(text).Compilation;
             var model = compilation.GetEntrypointSemanticModel();
 
             var programSyntax = model.SourceFile.ProgramSyntax;

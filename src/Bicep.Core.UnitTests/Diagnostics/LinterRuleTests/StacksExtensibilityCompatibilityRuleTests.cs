@@ -4,9 +4,14 @@
 using Azure.Bicep.Types.Concrete;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
+using Bicep.Testing.IO;
 using Bicep.Testing.Mocks;
+using Bicep.Testing.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
@@ -14,6 +19,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class StacksExtensibilityCompatibilityRuleTests : LinterRuleTestsBase
     {
+        private static readonly IOUri MainUri = TestFileUri.FromInMemoryPath("main.bicep");
+        private static readonly IOUri ParamsUri = TestFileUri.FromInMemoryPath("main.bicepparam");
+
         public TestContext TestContext { get; set; } = null!;
 
         [DataTestMethod]
@@ -34,46 +42,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         )]
         public async Task Does_not_flag_stack_compatible_assignments(string scenario, string extConfigAssignments, string moduleBody)
         {
-            var paramsUri = new Uri("file:///main.bicepparam");
-            var mainUri = new Uri("file:///main.bicep");
-            var moduleAUri = new Uri("file:///modulea.bicep");
-
-            var extDeclarations =
-                """
-                extension 'br:mcr.microsoft.com/bicep/extensions/mockext/v1:1.2.3' as mockExt
-                """;
-
-            var files = new Dictionary<Uri, string>
-            {
-                [paramsUri] =
-                    $$"""
-                      using 'main.bicep'
-
-                      {{extConfigAssignments}}
-                      """,
-                [mainUri] =
-                    $$"""
-                      {{extDeclarations}}
-
-                      resource kv 'Microsoft.KeyVault/vaults@2021-06-01-preview' existing = {
-                        name: 'kv'
-                      }
-
-                      module modulea 'modulea.bicep' = {
-                        {{moduleBody}}
-                      }
-                      """,
-                [moduleAUri] =
-                    $$"""
-                      {{extDeclarations}}
-                      """
-            };
-
-            var services = CreateServiceBuilder();
-
-            await ExtensionTestHelper.AddMockExtensions(services, TestContext, CreateMockExt());
-
-            var compilation = await services.BuildCompilationWithRestore(files, paramsUri);
+            var compilation = await Compile(extConfigAssignments, moduleBody);
 
             compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError() || d.Code == StacksExtensibilityCompatibilityRule.Code);
         }
@@ -120,46 +89,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         )]
         public async Task Provides_diagnostic_for_stacks_incompatible_assignments(string scenario, string extConfigAssignments, string moduleBody, bool paramsFileDiagExpected, bool mainFileDiagExpected, bool expectError)
         {
-            var paramsUri = new Uri("file:///main.bicepparam");
-            var mainUri = new Uri("file:///main.bicep");
-            var moduleAUri = new Uri("file:///modulea.bicep");
-
-            var extDeclarations =
-                """
-                extension 'br:mcr.microsoft.com/bicep/extensions/mockext/v1:1.2.3' as mockExt
-                """;
-
-            var files = new Dictionary<Uri, string>
-            {
-                [paramsUri] =
-                    $$"""
-                      using 'main.bicep'
-
-                      {{extConfigAssignments}}
-                      """,
-                [mainUri] =
-                    $$"""
-                      {{extDeclarations}}
-
-                      resource kv 'Microsoft.KeyVault/vaults@2021-06-01-preview' existing = {
-                        name: 'kv'
-                      }
-
-                      module modulea 'modulea.bicep' = {
-                        {{moduleBody}}
-                      }
-                      """,
-                [moduleAUri] =
-                    $$"""
-                      {{extDeclarations}}
-                      """
-            };
-
-            var services = CreateServiceBuilder();
-
-            await ExtensionTestHelper.AddMockExtensions(services, TestContext, CreateMockExt());
-
-            var compilation = await services.BuildCompilationWithRestore(files, paramsUri);
+            var compilation = await Compile(extConfigAssignments, moduleBody);
 
             if (!expectError)
             {
@@ -168,7 +98,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             if (scenario is "NonSecurePropertyReferencesAreCoveredByGetSecretValidation_MainFile")
             {
-                compilation.GetSourceFileDiagnostics(mainUri).Should().ContainSingleDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator or a secure extension configuration property.", because: "param files should have this validation");
+                compilation.GetSourceFileDiagnostics(MainUri).Should().ContainSingleDiagnostic("BCP180", DiagnosticLevel.Error, "Function \"getSecret\" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator or a secure extension configuration property.", because: "param files should have this validation");
 
                 return;
             }
@@ -182,27 +112,62 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             if (paramsFileDiagExpected)
             {
-                compilation.GetSourceFileDiagnostics(paramsUri).Should().ContainSingleDiagnostic(StacksExtensibilityCompatibilityRule.Code, DiagnosticLevel.Info, expectedMessage, because: "param files should have this validation");
+                compilation.GetSourceFileDiagnostics(ParamsUri).Should().ContainSingleDiagnostic(StacksExtensibilityCompatibilityRule.Code, DiagnosticLevel.Info, expectedMessage, because: "param files should have this validation");
             }
             else
             {
-                compilation.GetSourceFileDiagnostics(paramsUri).Should().NotContainDiagnostic(StacksExtensibilityCompatibilityRule.Code);
+                compilation.GetSourceFileDiagnostics(ParamsUri).Should().NotContainDiagnostic(StacksExtensibilityCompatibilityRule.Code);
             }
 
             if (mainFileDiagExpected)
             {
-                compilation.GetSourceFileDiagnostics(mainUri).Should().ContainSingleDiagnostic(StacksExtensibilityCompatibilityRule.Code, DiagnosticLevel.Info, expectedMessage, because: "bicep files should have this validation");
+                compilation.GetSourceFileDiagnostics(MainUri).Should().ContainSingleDiagnostic(StacksExtensibilityCompatibilityRule.Code, DiagnosticLevel.Info, expectedMessage, because: "bicep files should have this validation");
             }
             else
             {
-                compilation.GetSourceFileDiagnostics(mainUri).Should().NotContainDiagnostic(StacksExtensibilityCompatibilityRule.Code);
+                compilation.GetSourceFileDiagnostics(MainUri).Should().NotContainDiagnostic(StacksExtensibilityCompatibilityRule.Code);
             }
         }
 
         #region Helpers
 
-        private static ServiceBuilder CreateServiceBuilder() => new ServiceBuilder()
-            .WithFeaturesOverridden(f => f with { ModuleExtensionConfigsEnabled = true });
+        private async Task<Compilation> Compile(string extConfigAssignments, string moduleBody)
+        {
+            const string extDeclarations = """
+                extension 'br:mcr.microsoft.com/bicep/extensions/mockext/v1:1.2.3' as mockExt
+                """;
+
+            var compiler = TestCompiler
+                .ForInMemoryCompilation()
+                .WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(
+                    new(TestContext, ModuleExtensionConfigsEnabled: true));
+            var artifactManager = new TestExternalArtifactManager(compiler);
+            await artifactManager.PublishExtension(CreateMockExt());
+
+            var result = await compiler.Compile(
+                "main.bicepparam",
+                ("main.bicepparam", $$"""
+                    using 'main.bicep'
+
+                    {{extConfigAssignments}}
+                    """),
+                ("main.bicep", $$"""
+                    {{extDeclarations}}
+
+                    resource kv 'Microsoft.KeyVault/vaults@2021-06-01-preview' existing = {
+                      name: 'kv'
+                    }
+
+                    module modulea 'modulea.bicep' = {
+                      {{moduleBody}}
+                    }
+                    """),
+                ("modulea.bicep", $$"""
+                    {{extDeclarations}}
+                    """));
+
+            return result.Compilation;
+        }
 
         private static MockExtensionData CreateMockExt(string extName = "mockext") =>
             ExtensionTestHelper.CreateMockExtensionMockData(

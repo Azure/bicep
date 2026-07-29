@@ -25,9 +25,9 @@ var runtimeLoop = [for (item, index) in []: indirection]
 var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
 ";
         [TestMethod]
-        public async Task VisitorShouldCalculateInliningInBulk()
+        public void VisitorShouldCalculateInliningInBulk()
         {
-            var compilation = (await CreateCompiler().CompileWithoutRestore(Text)).Compilation;
+            var compilation = CreateCompiler().CompileWithoutRestore(Text).Compilation;
 
             var inlineVariables = InlineDependencyVisitor.GetSymbolsToInline(compilation.GetEntrypointSemanticModel()).VariablesToInline;
 
@@ -42,9 +42,9 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
 
         [DataRow("things")]
         [DataTestMethod]
-        public async Task VisitorShouldProduceNoChainForNonInlinedVariables(string variableName)
+        public void VisitorShouldProduceNoChainForNonInlinedVariables(string variableName)
         {
-            var compilation = (await CreateCompiler().CompileWithoutRestore(Text)).Compilation;
+            var compilation = CreateCompiler().CompileWithoutRestore(Text).Compilation;
             VariableDeclarationSyntax variable = GetVariableByName(compilation, variableName);
 
             InlineDependencyVisitor.ShouldInlineVariable(compilation.GetEntrypointSemanticModel(), variable, out var chain).Should().BeFalse();
@@ -56,9 +56,9 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
         [DataRow("runtimeLoop", "indirection,keys")]
         [DataRow("runtimeLoop2", "indirection,keys")]
         [DataTestMethod]
-        public async Task VisitorShouldProduceCorrectChainForInlinedVariables(string variableName, string expectedChain)
+        public void VisitorShouldProduceCorrectChainForInlinedVariables(string variableName, string expectedChain)
         {
-            var compilation = (await CreateCompiler().CompileWithoutRestore(Text)).Compilation;
+            var compilation = CreateCompiler().CompileWithoutRestore(Text).Compilation;
             VariableDeclarationSyntax variable = GetVariableByName(compilation, variableName);
 
             InlineDependencyVisitor.ShouldInlineVariable(compilation.GetEntrypointSemanticModel(), variable, out var chain).Should().BeTrue();
