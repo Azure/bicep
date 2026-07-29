@@ -13,14 +13,18 @@ namespace Bicep.Testing.Utils
     public class TestCompilationResult
     {
         private readonly Lazy<ImmutableArray<IDiagnostic>> diagnostics;
+        private readonly Lazy<JToken?> parameters;
         private readonly Lazy<JToken?> template;
 
         private TestCompilationResult(Compilation compilation)
         {
             this.Compilation = compilation;
             this.diagnostics = new(this.GetDiagnostics);
+            this.parameters = new(this.GetParameters);
             this.template = new(this.GetTemplate);
         }
+
+        public JToken? Parameters => this.parameters.Value;
 
         public JToken? Template => this.template.Value;
 
@@ -35,6 +39,28 @@ namespace Bicep.Testing.Utils
 
         private ImmutableArray<IDiagnostic> GetDiagnostics()
             => this.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
+
+        private JToken? GetParameters()
+        {
+            var semanticModel = this.Compilation.GetEntrypointSemanticModel();
+            if (semanticModel.SourceFileKind is not BicepSourceFileKind.ParamsFile)
+            {
+                return null;
+            }
+
+            var emitter = new ParametersEmitter(semanticModel);
+            if (semanticModel.HasErrors())
+            {
+                return null;
+            }
+
+            var stringWriter = new StringWriter();
+            var result = emitter.Emit(stringWriter);
+
+            return result.Status != EmitStatus.Failed
+                ? JToken.Parse(stringWriter.ToString())
+                : null;
+        }
 
         private JToken? GetTemplate()
         {
