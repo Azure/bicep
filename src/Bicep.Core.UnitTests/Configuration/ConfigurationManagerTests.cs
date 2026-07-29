@@ -12,6 +12,7 @@ using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;
 using Bicep.Testing.IO;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

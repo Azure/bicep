@@ -29,10 +29,12 @@ using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;
 using Bicep.LanguageServer.Telemetry;
+using Bicep.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Moq;
 using OnDiskFileSystem = System.IO.Abstractions.FileSystem;
+using TestEnvironment = Bicep.Core.UnitTests.Utils.TestEnvironment;
 
 namespace Bicep.Core.UnitTests
 {
@@ -66,16 +68,10 @@ namespace Bicep.Core.UnitTests
 
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
-        // Linter rules added to this list will be automatically disabled for most tests.
-        public static readonly string[] NonStableAnalyzerRules = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code, NoHardcodedOutputsRule.Code];
-
         // Rules that are currently skipped due to configuration for ProgramsShouldProduceExpectedDiagnostics
         public static readonly string[] TestAnalyzersToSkip = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code, NoHardcodedLocationRule.Code, ExplicitValuesForLocationParamsRule.Code, NoLocationExprOutsideParamsRule.Code, NoModuleNameRule.Code, NoHardcodedOutputsRule.Code];
 
-        public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersDisabled = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
-        public static readonly RootConfiguration BuiltInConfigurationWithStableAnalyzers = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzers().WithAnalyzersDisabled(NonStableAnalyzerRules);
-
-        public static readonly RootConfiguration BuiltInConfiguration = BuiltInConfigurationWithStableAnalyzers;
+        public static readonly RootConfiguration BuiltInConfiguration = TestConfigurations.BuiltInWithStableAnalyzers;
 
         public static readonly IConfigurationManager BuiltInOnlyConfigurationManager = IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration);
 

@@ -11,7 +11,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.Testing.IO;
 using Bicep.Testing.Mocks;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests

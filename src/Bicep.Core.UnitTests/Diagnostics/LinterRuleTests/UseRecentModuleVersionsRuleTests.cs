@@ -8,7 +8,6 @@ using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.CodeAction;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Json;
 using Bicep.Core.Parsing;
@@ -17,12 +16,10 @@ using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using static Bicep.Core.UnitTests.Utils.CompilationHelper;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
@@ -31,13 +28,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public partial class UseRecentModuleVersionsRuleTests : LinterRuleTestsBase
     {
-        private static readonly ServiceBuilder Services = new ServiceBuilder()
-            .WithRegistration(x => x.AddSingleton(
-                IConfigurationManager.WithStaticConfiguration(
-                    IConfigurationManager.GetBuiltInConfiguration()
-                    .WithAllAnalyzers())));
-
-        private static CompilationResult Compile(
+        private static TestCompilationResult Compile(
             string bicep,
             string[] availableModules,
             string[] availableVersions, // for simplicity, mock returns these same versions for all available modules
@@ -61,9 +52,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             publicModuleMetadataProvider.Setup(x => x.DownloadError)
                 .Returns(downloadError);
 
-            var services = Services.WithRegistration(x => x.AddSingleton(publicModuleMetadataProvider.Object));
-            var result = CompilationHelper.Compile(services, [("main.bicep", bicep)]);
-            return result;
+            return TestCompiler
+                .ForInMemoryCompilation()
+                .WithConfiguration(TestConfigurationBuilder.Create().WithAllAnalyzers().Build())
+                .ConfigureServices(services => services.ReplaceSingleton<IPublicModuleMetadataProvider>(publicModuleMetadataProvider.Object))
+                .CompileWithoutRestore(bicep);
         }
 
         [TestMethod]

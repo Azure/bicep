@@ -14,7 +14,7 @@ using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing.Assertions;
 using Bicep.Testing.IO;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;

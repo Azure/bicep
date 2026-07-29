@@ -3,7 +3,7 @@
 
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Testing.Assertions;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 

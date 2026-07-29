@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Rules;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
@@ -11,7 +11,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 public class NoModuleNameRuleTests : LinterRuleTestsBase
 {
     // The rule is off by default; supply a bicepconfig.json to enable it for code-fix tests.
-    private static readonly CompilationHelper.InputFile BicepConfigEnablingRule = new(
+    private static readonly (string FilePath, TestFileData FileData) BicepConfigEnablingRule = new(
         "bicepconfig.json",
         """{"analyzers":{"core":{"rules":{"no-module-name":{"level":"warning"}}}}}""");
 

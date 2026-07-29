@@ -15,7 +15,7 @@ using Bicep.Core.Text;
 using Bicep.Testing.Assertions;
 using FluentAssertions;
 
-namespace Bicep.Testing.Utils
+namespace Bicep.Testing
 {
     public class TestSourcePrinter
     {

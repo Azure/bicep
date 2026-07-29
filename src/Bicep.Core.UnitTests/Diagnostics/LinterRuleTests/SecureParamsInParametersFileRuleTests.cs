@@ -6,8 +6,8 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.IO.Abstraction;
+using Bicep.Testing;
 using Bicep.Testing.IO;
-using Bicep.Testing.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -20,7 +20,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         private static readonly IOUri ParamsUri = TestFileUri.FromInMemoryPath("main.bicepparam");
 
         private static TestCompiler CreateCompiler() => TestCompiler.ForInMemoryCompilation()
-            .WithConfiguration(BicepTestConstants.BuiltInConfigurationWithStableAnalyzers)
+            .WithConfiguration(TestConfigurations.BuiltInWithStableAnalyzers)
             .WithEmptyAzResources();
 
         private static Compilation Compile(string mainBicep, string paramsBicep)

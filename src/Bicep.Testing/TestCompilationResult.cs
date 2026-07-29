@@ -8,7 +8,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.Testing.Utils
+namespace Bicep.Testing
 {
     public class TestCompilationResult
     {

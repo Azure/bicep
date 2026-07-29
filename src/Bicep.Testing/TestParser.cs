@@ -6,7 +6,7 @@ using Bicep.Core.Features;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 
-namespace Bicep.Testing.Utils
+namespace Bicep.Testing
 {
     public static class TestParser
     {

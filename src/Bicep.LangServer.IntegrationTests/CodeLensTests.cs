@@ -18,7 +18,7 @@ using Bicep.IO.Abstraction;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Handlers;
 using Bicep.Testing.Dummies;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;

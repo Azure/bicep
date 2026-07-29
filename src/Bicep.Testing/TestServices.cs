@@ -17,11 +17,12 @@ using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
+using Bicep.Testing.Fakes;
 using Bicep.Testing.Fakes.TypeSystem;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Bicep.Testing.Utils
+namespace Bicep.Testing
 {
     public class TestServices
     {
@@ -34,7 +35,7 @@ namespace Bicep.Testing.Utils
             // Don't register the file IO types. We are abusing the real file system for tests which
             // causes a lot of TestResults garbages. Tests should be more explicit about the file IO types they use.
             this.services = new ServiceCollection()
-                .AddSingleton<IEnvironment>(TestEnvironment.Default)
+                .AddSingleton<IEnvironment>(FakeEnvironment.Default)
                 .AddBicepCore()
                 .AddBicepDecompiler()
                 .AddSingleton<RegistryConfiguration>(new RegistryConfiguration(PermitUntrustedRegistries: true))
@@ -60,6 +61,10 @@ namespace Bicep.Testing.Utils
 
             return this;
         }
+
+        public TestServices ReplaceSingleton<TService>(TService implementationInstance)
+            where TService : class =>
+            this.RemoveAll<TService>().AddSingleton(implementationInstance);
 
         public TestServices AddSingleton<TInterface, TImpl>()
             where TInterface : class
@@ -87,6 +92,8 @@ namespace Bicep.Testing.Utils
         }
 
         public TestServices AddResourceTypeProviderFactory(IResourceTypeProviderFactory resourceTypeProviderFactory) => this.AddSingleton(resourceTypeProviderFactory);
+
+        public TestServices AddAzureResourceTypeLoader(IResourceTypeLoader resourceTypeLoader) => this.AddResourceTypeProviderFactory(FakeResourceTypeProviderFactory.ForAzureResourceTypeLoader(resourceTypeLoader));
 
         public TestServices AddAzureResourceTypes(IEnumerable<ResourceTypeComponents> resourceTypes) => this.AddResourceTypeProviderFactory(FakeResourceTypeProviderFactory.ForAzureResourceTypes(resourceTypes));
 

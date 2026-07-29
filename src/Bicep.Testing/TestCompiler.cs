@@ -9,7 +9,7 @@ using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using Bicep.Testing.IO;
 
-namespace Bicep.Testing.Utils
+namespace Bicep.Testing
 {
     public class TestCompiler
     {

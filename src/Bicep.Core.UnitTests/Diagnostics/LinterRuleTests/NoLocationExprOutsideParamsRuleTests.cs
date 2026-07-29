@@ -4,7 +4,7 @@
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -28,7 +28,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         // This linter rule is "Off" by default
         private static TestCompilationResult Compile(string fileContents) => TestCompiler
             .ForInMemoryCompilation()
-            .WithConfiguration(BicepTestConstants.BuiltInConfigurationWithStableAnalyzers)
+            .WithConfiguration(TestConfigurations.BuiltInWithStableAnalyzers)
             .CompileWithoutRestore(fileContents);
 
         protected void ExpectPass(string bicepText, Options? options = null)

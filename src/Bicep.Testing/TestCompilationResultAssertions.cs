@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
-using Bicep.Testing.Utils;
+using Bicep.Testing.Assertions;
 using FluentAssertions;
 using FluentAssertions.Primitives;
 
-namespace Bicep.Testing.Assertions
+namespace Bicep.Testing
 {
     public static class TestCompilationResultExtensions
     {

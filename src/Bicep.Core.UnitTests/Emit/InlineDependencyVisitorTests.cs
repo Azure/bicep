@@ -4,7 +4,7 @@
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

@@ -24,13 +24,13 @@ using Bicep.LanguageServer.Handlers;
 using Bicep.Testing.Assertions;
 using Bicep.Testing.IO;
 using Bicep.Testing.Mocks;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using static Bicep.Testing.Utils.TestExternalArtifactManager;
+using static Bicep.Testing.TestExternalArtifactManager;
 
 namespace Bicep.Core.IntegrationTests
 {
