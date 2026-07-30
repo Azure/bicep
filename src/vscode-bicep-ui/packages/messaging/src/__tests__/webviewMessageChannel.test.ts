@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { WebviewNotificationCallback, WebviewRequestMessage, WebviewResponseMessage } from "../webviewMessageChannel";
+import type { WebviewRequestMessage, WebviewResponseMessage } from "../webviewMessageChannel";
 
 import { waitFor } from "@testing-library/dom";
 import { afterAll, describe, expect, it, vi } from "vitest";
@@ -54,10 +54,10 @@ describe("WebviewMessageChannel", () => {
     it("should add a notification subscriber", async () => {
       const dummyNotification = { method: "notification/dummy", params: "nothing" };
       const numberOfSubscribers = 5;
-      const callbacks: Array<ReturnType<typeof vi.fn<WebviewNotificationCallback>>> = [];
+      const callbacks: Array<ReturnType<typeof vi.fn>> = [];
 
       for (let i = 0; i < numberOfSubscribers; i++) {
-        callbacks.push(vi.fn<WebviewNotificationCallback>());
+        callbacks.push(vi.fn());
         sut.subscribeToNotification(dummyNotification.method, callbacks[i]);
       }
 
@@ -75,10 +75,10 @@ describe("WebviewMessageChannel", () => {
     it("should remove a notification subscriber", async () => {
       const dummyNotification = { method: "notification/dummy", params: "nothing" };
       const numberOfSubscribers = 5;
-      const callbacks: Array<ReturnType<typeof vi.fn<WebviewNotificationCallback>>> = [];
+      const callbacks: Array<ReturnType<typeof vi.fn>> = [];
 
       for (let i = 0; i < numberOfSubscribers; i++) {
-        callbacks.push(vi.fn<WebviewNotificationCallback>());
+        callbacks.push(vi.fn());
         sut.subscribeToNotification(dummyNotification.method, callbacks[i]);
       }
 
