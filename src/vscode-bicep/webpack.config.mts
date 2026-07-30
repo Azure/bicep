@@ -3,7 +3,6 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import CopyPlugin from "copy-webpack-plugin";
-import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 import TerserPlugin from "terser-webpack-plugin";
 import type webpack from "webpack";
 
@@ -89,7 +88,6 @@ const extensionConfig: webpack.Configuration = {
         },
       ],
     }),
-    new ForkTsCheckerWebpackPlugin(),
   ],
   resolve: {
     extensions: [".ts", ".js"],
