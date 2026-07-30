@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import * as path from "path";
-import { MESSAGE } from "triple-beam";
 import vscode from "vscode";
 import * as winston from "winston";
 import Transport from "winston-transport";
@@ -85,8 +84,13 @@ class outputChannelTransport extends Transport {
     super();
   }
 
-  public log(entry: { [MESSAGE]: string }, next: () => void) {
-    setImmediate(() => this.outputChannel.appendLine(entry[MESSAGE]));
+  public log(entry: winston.Logform.TransformableInfo, next: () => void) {
+    const message = entry[Symbol.for("message")];
+    if (typeof message !== "string") {
+      throw new Error("Expected a formatted Winston log entry.");
+    }
+
+    setImmediate(() => this.outputChannel.appendLine(message));
     next();
   }
 }

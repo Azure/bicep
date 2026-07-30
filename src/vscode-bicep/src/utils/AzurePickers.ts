@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 import { ManagementGroupInfo } from "@azure/arm-managementgroups";
-import { ResourceGroup, ResourceManagementClient } from "@azure/arm-resources";
+import { ResourceGroup } from "@azure/arm-resources";
+import type { ResourceManagementClient } from "@azure/arm-resources" with { "resolution-mode": "import" };
 import { AzureSubscription, VSCodeAzureSubscriptionProvider } from "@microsoft/vscode-azext-azureauth";
 import {
   IResourceGroupWizardContext,
@@ -72,8 +73,7 @@ export class AzurePickers extends Disposable {
   public async pickResourceGroup(context: IActionContext, subscription: AzureSubscription): Promise<ResourceGroup> {
     await this.EnsureSignedIn();
 
-    const subscriptionContext = createSubscriptionContext(subscription);
-    const client: ResourceManagementClient = await createResourceManagementClient([context, subscriptionContext]);
+    const client: ResourceManagementClient = await createResourceManagementClient(subscription);
     const rgs: ResourceGroup[] = await uiUtils.listAllIterator(client.resourceGroups.list());
 
     rgs.sort((a, b) => nonNullProp(a, "name").localeCompare(nonNullProp(b, "name")));
@@ -111,7 +111,7 @@ export class AzurePickers extends Disposable {
   public async pickLocation(context: IActionContext, subscription: AzureSubscription): Promise<string> {
     await this.EnsureSignedIn();
 
-    const client = await createSubscriptionClient([context, createSubscriptionContext(subscription)]);
+    const client = await createSubscriptionClient(subscription);
     const locations = (
       await uiUtils.listAllIterator(client.subscriptions.listLocations(subscription.subscriptionId))
     ).map((l) => nonNullProp(l, "name"));
@@ -134,7 +134,7 @@ export class AzurePickers extends Disposable {
   ): Promise<ManagementGroupInfo> {
     await this.EnsureSignedIn();
 
-    const client = await createManagementGroupsClient([context, createSubscriptionContext(subscription)]);
+    const client = await createManagementGroupsClient(subscription);
 
     let managementGroups: ManagementGroupInfo[];
     try {
@@ -191,7 +191,7 @@ export class AzurePickers extends Disposable {
 
     this.outputChannelManager.appendToOutputChannel(`Created resource group "${newResourceGroupName}"`);
 
-    const client: ResourceManagementClient = await createResourceManagementClient([context, subscriptionContext]);
+    const client: ResourceManagementClient = await createResourceManagementClient(subscription);
     const rgs: ResourceGroup[] = await uiUtils.listAllIterator(client.resourceGroups.list());
     const newResourceGroup =
       rgs.find((rg) => rg.name === newResourceGroupName) ??
