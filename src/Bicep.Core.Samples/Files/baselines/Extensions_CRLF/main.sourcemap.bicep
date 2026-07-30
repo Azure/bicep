@@ -32,7 +32,7 @@ var strParamVar1 = strParam1
 extension az
 //@    "az": {
 //@      "name": "AzureResourceManager",
-//@      "version": "0.2.891"
+//@      "version": "0.2.896"
 //@    },
 extension kubernetes as k8s
 //@    "k8s": {
