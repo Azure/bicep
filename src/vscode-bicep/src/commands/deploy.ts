@@ -27,7 +27,6 @@ import {
 } from "../language";
 import { AzurePickers } from "../utils/AzurePickers";
 import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
-import { localize } from "../utils/localize";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { minutesToMs } from "../utils/time";
 import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
@@ -35,14 +34,14 @@ import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 import { Command } from "./types";
 
 export class DeployCommand implements Command {
-  private _none = localize("none", "$(circle-slash) None");
-  private _browse = localize("browse", "$(file-directory) Browse...");
+  private _none = "$(circle-slash) None";
+  private _browse = "$(file-directory) Browse...";
   private _yes: IAzureQuickPickItem = {
-    label: localize("yes", "Yes"),
+    label: "Yes",
     data: undefined,
   };
   private _no: IAzureQuickPickItem = {
-    label: localize("no", "No"),
+    label: "No",
     data: undefined,
     priority: "highest",
   };
@@ -165,7 +164,7 @@ export class DeployCommand implements Command {
         context.errorHandling.suppressReportIssue = true;
         context.errorHandling.buttons = [
           {
-            title: localize("reloadWindow", "Reload Window"),
+            title: "Reload Window",
             callback: async (): Promise<void> => {
               await commands.executeCommand("workbench.action.reloadWindow");
             },
@@ -586,13 +585,13 @@ export class DeployCommand implements Command {
     const quickPickItems: IAzureQuickPickItem[] = [];
     if (paramValue) {
       const useExpressionValue: IAzureQuickPickItem = {
-        label: localize("useExpressionValue", `Use value of "${paramValue}"`),
+        label: `Use value of "${paramValue}"`,
         data: undefined,
       };
       quickPickItems.push(useExpressionValue);
     }
     const enterNewValue: IAzureQuickPickItem = {
-      label: localize("enterNewValueForParameter", `Enter value for "${paramName}"`),
+      label: `Enter value for "${paramName}"`,
       data: undefined,
     };
     quickPickItems.push(enterNewValue);

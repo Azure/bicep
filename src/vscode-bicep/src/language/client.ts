@@ -65,7 +65,7 @@ function getServerStartupOptions(
 
 export async function createLanguageService(
   context: vscode.ExtensionContext,
-  outputChannel: vscode.OutputChannel,
+  outputChannel: vscode.LogOutputChannel,
   dotnetCommandPath: string,
 ): Promise<lsp.LanguageClient> {
   getLogger().info("Launching Bicep language service...");
