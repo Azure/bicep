@@ -12,7 +12,7 @@ using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using AzConcreteTypes = Azure.Bicep.Types.Concrete;

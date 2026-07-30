@@ -16,7 +16,7 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.IO.Abstraction;
 using Bicep.Testing.IO;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 
 namespace Bicep.Core.UnitTests.Utils;
 

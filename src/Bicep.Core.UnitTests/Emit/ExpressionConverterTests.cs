@@ -4,7 +4,7 @@ using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Serializers;
 using Bicep.Core.Emit;
 using Bicep.Core.Syntax;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

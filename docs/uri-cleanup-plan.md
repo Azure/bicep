@@ -127,6 +127,9 @@ Leave these categories alone unless a PR explicitly targets their owning behavio
 - `[x]` LangServer refresh APIs use `DocumentUri` without `System.Uri` round-trips (`9f6498394`).
 - `[x]` `TestCompiler` provides in-memory and mock-file-system compilation, synchronous no-restore compilation, restore-capable compilation, and lazy template/parameters/diagnostics results.
 - `[x]` Initial Core unit-test slices use `TestCompiler`, including params emission and linter/extension scenarios.
+- `[x]` All linter rule tests use `TestCompiler`, `TestFileData`, and test-owned configuration APIs.
+- `[x]` `TestConfigurations` and `TestConfigurationBuilder` own shared test configuration presets and mutations.
+- `[x]` Public `Test*` toolkit types live in the `Bicep.Testing` root namespace; `FakeEnvironment` lives under `Bicep.Testing.Fakes` and the `Utils` namespace is removed.
 - `[ ]` Replace all `CompilationHelper` call sites with `TestCompiler` and delete `CompilationHelper` and its result types.
 - `[ ]` Replace `ServiceBuilder`, `ServiceBuilderExtensions`, and related Core-unit-test DI extensions with `TestCompiler`, `TestServices`, or focused fixtures, then delete them.
 - `[ ]` Consolidate reusable assertions, feature fixtures, mocks, and data builders in `Bicep.Testing`; rewrite or remove obsolete helpers instead of moving them wholesale.
@@ -139,10 +142,10 @@ Leave these categories alone unless a PR explicitly targets their owning behavio
 
 Completed in this PR:
 
-- Added lazy params emission and made no-restore compilation synchronous.
-- Migrated the planned Core unit-test slice to `TestCompiler`, including extension restore setup.
+- Removed `CompilationHelper` and `ServiceBuilder` usage from the entire linter rule test directory.
+- Added test-owned configuration presets/builders and custom Azure resource type loader support.
 
-Validation: all 6,808 Core unit tests passed; full solution build succeeded.
+Validation: all 6,811 Core unit tests passed; full solution build succeeded.
 
 ## Work Queue
 
@@ -152,26 +155,24 @@ Goal: remove the shared test infrastructure owned by `Bicep.Core.UnitTests`. `Co
 
 This is an umbrella workstream, not one PR. Pick one package below and keep each PR scoped to a coherent test area or helper boundary.
 
-#### Next PR: Linter Test Infrastructure
+#### Next PR: Simple Core Unit-Test Callers
 
-Migrate the shared linter compilation path before taking more individual linter classes:
+Replace direct `CompilationHelper.Compile(...)` calls in:
 
-- Replace `CompilationHelper` and `ServiceBuilder` in `LinterRuleTestsBase` with `TestCompiler`.
-- Add focused `TestCompiler` configuration for configuration patches, feature overrides, custom analyzers, and resource type loaders as required.
-- Replace `CompilationHelper.InputFile` with `TestFileData` tuples in code-fix helpers.
-- Migrate the linter tests coupled to those helper signatures, starting with:
-  - `ExplicitValuesForLocationParamsRuleTests`
-  - `NoHardcodedOutputsRuleTests`
-  - `NoModuleNameRuleTests`
-  - `NoUnusedImportsRuleTests`
-  - `UseSafeAccessRuleTests`
-- Preserve diagnostic annotations and code-fix assertion behavior.
+- `Diagnostics/ErrorBuilderTests`
+- `Diagnostics/Linter/Common/FindPossibleSecretsVisitorTests`
+- `Diagnostics/LinterAnalyzerTests`
+- `Highlighting/SemanticTokenVisitorTests`
+- `Semantics/Namespaces/RoleDefinitionFunctionTests`
+- `Semantics/ResourceDeclarationDiagnosticTests`
+- `TestTests/PrintHelperTests`
+- `TypeSystem/FunctionResolverTests`
+- `TypeSystem/TypeValidatorAssignabilityTests`
 
 Validation:
 
-- Run `LinterRuleTestsBase` consumers touched by the signature changes using `FullyQualifiedName` filters.
-- Run one unchanged neighboring linter class to detect shared-helper regressions.
-- Build `Bicep.Core.UnitTests` and use zero-result searches for `CompilationHelper.InputFile` in migrated files.
+- Run all touched classes by `FullyQualifiedName` filter and build `Bicep.Core.UnitTests`.
+- Require zero direct `CompilationHelper` references in the migrated files.
 
 #### B1: Close `Bicep.Testing` API Gaps
 
@@ -182,7 +183,7 @@ Add only the capabilities required to remove callers of the legacy helpers:
 - Use explicit entry-point paths and `TestFileSet`/`TestFileData` instead of `InputFile`, `CreateFileDictionary`, or workspace-building helpers.
 - Extend `TestCompilationResult` and its assertions when callers need template, parameters, diagnostics, source-file, or filtered-diagnostic behavior. Do not retain parallel `CompilationResult` and `ParamsCompilationResult` types.
 - Add focused `TestCompiler` or `TestServices` customization for configuration patches, feature overrides, analyzers, namespaces, resource types, environment variables, and artifact managers as migration needs arise.
-- Prefer replacing an existing service registration over stacking another singleton registration.
+- Use `TestServices.ReplaceSingleton(...)` when overriding an existing service registration; do not stack another singleton registration.
 
 Do not add a `Bicep.Testing.CompilationHelper`, a generic compatibility facade, or forwarding overloads that preserve the old API shape.
 
@@ -241,10 +242,14 @@ Do not move the whole assertions directory unchanged. Classify each assertion by
 
 Treat each family separately:
 
+- Keep the public `Test*` toolkit types in the `Bicep.Testing` root namespace. Keep `Fake*`, `Mock*`, and `Dummy*` implementations in their corresponding domain namespaces; for example, use `Bicep.Testing.Fakes.FakeEnvironment` rather than `TestEnvironment`.
+- Do not recreate a catch-all `Bicep.Testing.Utils` namespace.
 - Move feature overrides and their provider factory to `Bicep.Testing` if they remain the shared way to configure compiler features. This should allow `TestCompiler.WithFeatureOverrides(...)` to become non-generic.
 - Delete the Core `StrictMock` duplicate and use `Bicep.Testing.Mocks.StrictMock`.
 - Prefer `TestExternalArtifactManager` and `Bicep.Testing.Fakes.ContainerRegistry` over moving registry mocks and `RegistryHelper` wholesale.
 - Split `BicepTestConstants` by responsibility. Move only shared configuration, feature, registry, and test-type fixtures; keep Core-specific constants local or inline them.
+- Use `Bicep.Testing.Configuration.TestConfigurations` for canonical `RootConfiguration` variants; migrate and remove the corresponding `BicepTestConstants` fields as consumers move.
+- Migrate the remaining test consumers of `AnalyzersConfigurationExtensions`, `ExtensionsConfigurationExtensions`, and `ExperimentalFeaturesExtensions` to `TestConfigurationBuilder`, then delete those test-only extension files from `Bicep.Core`.
 - Replace compiler-file uses of `FileHelper` with `TestFileSet`. Move only reusable temporary-directory, output-file, or cache-root behavior that intentionally uses the real file system.
 - Move reusable type builders from `TestTypeHelper` and `FakeResourceTypes` into `Bicep.Testing.Fakes.TypeSystem`; remove overlapping implementations.
 - Rewrite or delete helpers whose only purpose was adapting `ServiceBuilder`, `CompilationHelper`, `System.Uri`, or `MockFileSystem`.

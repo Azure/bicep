@@ -19,7 +19,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.Testing.Assertions;
 using Bicep.Testing.Dummies;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;

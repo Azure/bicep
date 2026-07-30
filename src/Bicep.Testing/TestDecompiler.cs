@@ -6,7 +6,7 @@ using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 
-namespace Bicep.Testing.Utils
+namespace Bicep.Testing
 {
     public class TestDecompiler
     {

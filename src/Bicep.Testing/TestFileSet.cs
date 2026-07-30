@@ -4,7 +4,7 @@
 using Bicep.Core.Extensions;
 using Bicep.IO.Abstraction;
 
-namespace Bicep.Testing.IO
+namespace Bicep.Testing
 {
     public abstract class TestFileSet
     {

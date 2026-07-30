@@ -7,7 +7,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -38,12 +38,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             {
                 ExpectedFunctionInfo typedExpected = new(expectedFunctionCall, expectedResourceType, expectedApiVerion);
                 var mockTypeLoader = FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(FakeResourceTypes.ResourceScopeTypes).Object;
-                var result = CompilationHelper.Compile(
-                    new ServiceBuilder().WithAzResourceTypeLoader(mockTypeLoader),
-                    bicep);
-                using (new AssertionScope().WithFullSource(result.BicepFile))
+                var result = TestCompiler
+                    .ForInMemoryCompilation()
+                    .WithAzResourceTypeLoader(mockTypeLoader)
+                    .CompileWithoutRestore(bicep);
+                using (new AssertionScope().WithFullSource(result.EntryPointFile))
                 {
-                    UseRecentApiVersionRuleTests.VerifyAllTypesAndDatesAreFake(result.BicepFile.Text);
+                    UseRecentApiVersionRuleTests.VerifyAllTypesAndDatesAreFake(result.EntryPointFile.Text);
 
                     var actual = UseRecentApiVersionRule.GetFunctionCallInfos(result.Compilation.GetEntrypointSemanticModel()).ToArray();
                     actual.Should().HaveCount(1, "Expecting a single function call per test");

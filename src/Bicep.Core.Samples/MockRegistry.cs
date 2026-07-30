@@ -11,7 +11,7 @@ using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing.Mocks;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;

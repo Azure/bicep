@@ -5,7 +5,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Testing.IO;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

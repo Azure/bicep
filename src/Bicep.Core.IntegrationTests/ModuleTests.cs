@@ -20,7 +20,7 @@ using Bicep.IO.InMemory;
 using Bicep.Testing.Assertions;
 using Bicep.Testing.IO;
 using Bicep.Testing.Mocks;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

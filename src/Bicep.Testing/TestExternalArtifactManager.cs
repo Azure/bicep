@@ -10,7 +10,7 @@ using Bicep.Testing.Fakes.TemplateSpec;
 using Bicep.Testing.IO;
 using Bicep.Testing.Mocks;
 
-namespace Bicep.Testing.Utils
+namespace Bicep.Testing
 {
     public class TestExternalArtifactManager
     {

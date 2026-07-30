@@ -3,7 +3,7 @@
 
 using System.Text;
 
-namespace Bicep.Testing.IO
+namespace Bicep.Testing
 {
     public record TestFileData
     {
