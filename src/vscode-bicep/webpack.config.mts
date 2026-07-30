@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import path from "path";
+import { fileURLToPath } from "url";
 import CopyPlugin from "copy-webpack-plugin";
 import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 import TerserPlugin from "terser-webpack-plugin";
-import webpack from "webpack";
+import type webpack from "webpack";
 
-const outputPath = path.resolve(__dirname, "out");
+const configDirectory = path.dirname(fileURLToPath(import.meta.url));
+const outputPath = path.resolve(configDirectory, "out");
 
 const extensionConfig: webpack.Configuration = {
   target: "node",
@@ -53,7 +55,7 @@ const extensionConfig: webpack.Configuration = {
       patterns: [
         {
           from: "../vscode-bicep-ui/apps/deploy-pane/dist",
-          to: path.join(__dirname, "out/deploy-pane"),
+          to: path.join(configDirectory, "out/deploy-pane"),
           globOptions: {
             ignore: ["**/index.html"],
           },
@@ -64,7 +66,7 @@ const extensionConfig: webpack.Configuration = {
       patterns: [
         {
           from: "../vscode-bicep-ui/apps/visual-designer/dist",
-          to: path.join(__dirname, "out/visual-designer"),
+          to: path.join(configDirectory, "out/visual-designer"),
           globOptions: {
             ignore: ["**/index.html"],
           },
@@ -75,7 +77,7 @@ const extensionConfig: webpack.Configuration = {
       patterns: [
         {
           from: "../textmate/bicep.tmlanguage",
-          to: path.join(__dirname, "syntaxes/bicep.tmlanguage"),
+          to: path.join(configDirectory, "syntaxes/bicep.tmlanguage"),
         },
       ],
     }),
@@ -83,7 +85,7 @@ const extensionConfig: webpack.Configuration = {
       patterns: [
         {
           from: "../textmate/language-configuration.json",
-          to: path.join(__dirname, "syntaxes/language-configuration.json"),
+          to: path.join(configDirectory, "syntaxes/language-configuration.json"),
         },
       ],
     }),
@@ -95,6 +97,6 @@ const extensionConfig: webpack.Configuration = {
   },
 };
 
-module.exports = () => {
+export default () => {
   return [extensionConfig];
 };
