@@ -6,6 +6,7 @@ import * as os from "os";
 import * as path from "path";
 import { downloadAndUnzipVSCode, resolveCliArgsFromVSCodeExecutablePath, runTests } from "@vscode/test-electron";
 import { minVersion } from "semver";
+import { ensureElectronBinaryCompatibility } from "./ensureElectronBinaryCompatibility";
 
 async function go() {
   try {
@@ -25,6 +26,7 @@ async function go() {
       console.log(`Running tests against VSCode-${vscodeVersion}`);
 
       const vscodeExecutablePath = await downloadAndUnzipVSCode(vscodeVersion);
+      ensureElectronBinaryCompatibility(vscodeExecutablePath);
       const [cliRawPath, ...cliArguments] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
       const cliPath = `"${cliRawPath}"`;
 
