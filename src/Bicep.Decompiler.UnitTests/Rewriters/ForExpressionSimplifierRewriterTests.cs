@@ -2,8 +2,9 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Decompiler.Rewriters;
-using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Semantics;
+using Bicep.Testing;
+using Bicep.Testing.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -25,11 +26,11 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
                 ]
                 """;
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new ForExpressionSimplifierRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().BeEquivalentToIgnoringNewlines(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepTextIgnoringNewlines(
                 """
                 var items = ['a', 'b', 'c']
                 output test array = [
@@ -56,11 +57,11 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
                 ]
                 """;
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new ForExpressionSimplifierRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().BeEquivalentToIgnoringNewlines(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepTextIgnoringNewlines(
                 """
                 var items = ['a', 'b', 'c']
                 output test array = [
@@ -118,11 +119,11 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
                 ]
                 """;
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new ForExpressionSimplifierRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepText(
                 """
                 var vmNames = ['vm1', 'vm2']
 
@@ -187,7 +188,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
 
                 """;
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new ForExpressionSimplifierRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
@@ -210,11 +211,11 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
 
                 """;
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new ForExpressionSimplifierRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepText(
                 """
                 var items = ['a', 'b', 'c']
                 output test array = [
@@ -244,7 +245,7 @@ output test array = [for i in az.range(0, az.length(items)): {
 }]
 ";
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new ForExpressionSimplifierRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
@@ -252,5 +253,8 @@ output test array = [for i in az.range(0, az.length(items)): {
             // Reference equality check to ensure syntax has not been modified
             newProgramSyntax.Should().BeSameAs(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
         }
+
+        private static Compilation Compile(string bicepFile) =>
+            TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(bicepFile).Compilation;
     }
 }

@@ -7,6 +7,13 @@ Typical imports are:
 ```csharp
 using Bicep.Testing;
 using Bicep.Testing.Assertions;
+using Bicep.Testing.Mocks;
+```
+
+JSON token assertions use their own namespace to avoid conflicts with other FluentAssertions extensions:
+
+```csharp
+using Bicep.Testing.Assertions.Json;
 ```
 
 ## Choose The Right API
@@ -24,6 +31,11 @@ using Bicep.Testing.Assertions;
 | Assert a stable synthetic file identifier | `TestFileUri` |
 | Control environment variables and current directory | `Bicep.Testing.Fakes.FakeEnvironment` |
 | Parse syntax without compiling | `TestParser` |
+| Print syntax | `TestPrinter.Print(...)` |
+| Validate and compare printed Bicep text | `BeValidBicepText(...)` |
+| Assert JSON tokens | `Bicep.Testing.Assertions.Json` |
+| Create strict Moq mocks | `Bicep.Testing.Mocks.StrictMock` |
+| Override the reported compiler assembly version | `TestFeatureProviderFactory.WithAssemblyVersion(...)` |
 | Decompile templates or parameters | `TestDecompiler` |
 
 ## Compiler Recipes
@@ -125,6 +137,31 @@ Do not add test-only `With...Configuration` extension methods to `Bicep.Core`.
 
 Template, parameters, and diagnostics are lazy. Prefer assertions from `Bicep.Testing` and `Bicep.Testing.Assertions` so failures include source annotations.
 
+### Print and validate Bicep
+
+`TestPrinter.Print(...)` only formats syntax. Validate the resulting string separately while comparing it with the expected output:
+
+```csharp
+var actual = TestPrinter.Print(programSyntax);
+
+actual.Should().BeValidBicepText("""
+    param location string
+    """);
+```
+
+Use `BeValidBicepTextIgnoringNewlines(...)` only when the test intentionally permits platform newline differences. Both assertions remain case-sensitive.
+
+### JSON tokens
+
+Import `Bicep.Testing.Assertions.Json` for the canonical `JToken.Should()` assertions:
+
+```csharp
+template.Should().HaveValueAtPath("$.outputs.name.value", "test");
+actual.Should().DeepEqual(expected);
+```
+
+Reusable JSON assertions belong in `Bicep.Testing`. Baseline file updates and other repository-specific behavior stay in the owning test project.
+
 ## Service Customization
 
 Prefer focused `TestCompiler` extensions such as `WithConfiguration`, `WithAzResources`, and `WithAzResourceTypeLoader`. For a test-specific service replacement:
@@ -136,6 +173,17 @@ var compiler = TestCompiler
 ```
 
 Use `ReplaceSingleton` when overriding an existing registration. Use `AddSingleton` only for a service that is not already registered.
+
+For a focused assembly-version override, decorate the normal feature provider factory instead of replacing the entire feature set:
+
+```csharp
+services
+    .AddSingleton<FeatureProviderFactory>()
+    .AddSingleton<IFeatureProviderFactory>(provider =>
+        TestFeatureProviderFactory.WithAssemblyVersion(
+            provider.GetRequiredService<FeatureProviderFactory>(),
+            "dev"));
+```
 
 ## Namespace And Naming Conventions
 
@@ -154,7 +202,16 @@ When migrating existing tests:
 - Replace `CompilationHelper.InputFile` with `(string FilePath, TestFileData FileData)` tuples.
 - Replace `CompilationHelper.CompilationResult` and `ParamsCompilationResult` with `TestCompilationResult`.
 - Replace compilation-oriented `ServiceBuilder` setup with `TestCompiler` configuration.
+- Replace `Bicep.Core.UnitTests.Mock.StrictMock` with `Bicep.Testing.Mocks.StrictMock`.
 - Keep direct file-system setup only when the test intentionally validates file-system behavior.
 - Do not introduce compatibility wrappers that preserve legacy helper shapes.
+
+Treat removal of a `Bicep.Core.UnitTests` project reference as the migration gate for a consuming project:
+
+1. Inventory the exact helpers and assertions the project consumes.
+2. Move only broadly reusable capabilities into `Bicep.Testing`; keep one-off behavior local.
+3. Replace the project reference with a direct `Bicep.Testing` reference when needed.
+4. Require a zero-result search for `Bicep.Core.UnitTests` imports in that project.
+5. Build and test the consuming project.
 
 Validate the touched test classes and build every changed consuming project. At shared API or deletion milestones, build the full solution.

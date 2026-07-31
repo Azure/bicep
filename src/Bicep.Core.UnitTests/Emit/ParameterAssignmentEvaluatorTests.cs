@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Assertions;
 using Bicep.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;

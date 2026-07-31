@@ -18,6 +18,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -236,7 +237,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
 
         private static void ExpectDiagnosticWithFixedText(string text, string expectedText)
         {
-            var result = CompilationHelper.Compile(text);
+            var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(text);
             result.Diagnostics.Should().HaveCount(1);
 
             var diagnostic = result.Diagnostics.Single();
@@ -321,7 +322,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                          name: 'D1'
 
                        }
-                       
+
                        location:
                        name:// comment
                  }"

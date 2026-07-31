@@ -26,6 +26,7 @@ using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.IO.FileSystem;
 using Bicep.IO.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Google.Protobuf;
 using Microsoft.Extensions.DependencyInjection;
@@ -165,7 +166,19 @@ public static class RegistryHelper
         var targetReference = dispatcher.TryGetArtifactReference(dummyFile, ArtifactType.Module, module.PublishTarget).IsSuccess(out var @ref) ? @ref
             : throw new InvalidOperationException($"Module '{module.ModuleName}' has an invalid target reference '{module.PublishTarget}'. Specify a reference to an OCI artifact.");
 
-        var result = await CompilationHelper.RestoreAndCompile(serviceBuilder, module.BicepSource);
+        var compiler = TestCompiler
+            .ForMockFileSystemCompilation()
+            .WithConfiguration(TestConfigurations.BuiltInWithAllAnalyzersDisabled)
+            .WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(BicepTestConstants.FeatureOverrides)
+            .ConfigureServices(testServices => testServices
+                .ReplaceSingleton<IContainerRegistryClientFactory>(clientFactory)
+                .ReplaceSingleton<ITemplateSpecRepositoryFactory>(BicepTestConstants.TemplateSpecRepositoryFactory));
+        var transportFactory = new OciRegistryTransportFactory(
+            compiler.GetService<AzureContainerRegistryManager>(),
+            compiler.GetService<DockerCredentialProvider>());
+        compiler.ConfigureServices(testServices => testServices.ReplaceSingleton<IOciRegistryTransportFactory>(transportFactory));
+
+        var result = await compiler.Compile(module.BicepSource);
         if (result.Template is null)
         {
             throw new InvalidOperationException($"Module {module.ModuleName} failed to produce a template.");
