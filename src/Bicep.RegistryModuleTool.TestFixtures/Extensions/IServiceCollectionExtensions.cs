@@ -3,19 +3,17 @@
 
 using System.IO.Abstractions;
 using Bicep.Core.Features;
-using Bicep.Core.UnitTests.Features;
 using Bicep.RegistryModuleTool.Extensions;
+using Bicep.Testing;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Bicep.RegistryModuleTool.TestFixtures.Extensions
 {
     public static class IServiceCollectionExtensions
     {
         public static IServiceCollection AddBicepCompilerWithFileSystem(this IServiceCollection serviceCollection, IFileSystem fileSystem) => serviceCollection
-            .AddSingleton<IFeatureProviderFactory, OverriddenFeatureProviderFactory>()
             .AddSingleton<FeatureProviderFactory>()
-            .AddSingleton(new FeatureProviderOverrides())
+            .AddSingleton<IFeatureProviderFactory>(services => TestFeatureProviderFactory.WithAssemblyVersion(services.GetRequiredService<FeatureProviderFactory>(), "dev"))
             .AddSingleton(fileSystem)
             .AddBicepCore();
     }

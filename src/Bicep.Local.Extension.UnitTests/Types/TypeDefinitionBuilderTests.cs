@@ -9,7 +9,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.UnitTests.Mock;
+using Bicep.Testing.Mocks;
 using Bicep.Local.Extension.Builder.Models;
 using Bicep.Local.Extension.Types;
 using Bicep.Local.Extension.Types.Attributes;

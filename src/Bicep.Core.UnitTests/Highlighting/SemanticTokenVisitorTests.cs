@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Highlighting;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -15,7 +15,7 @@ public class SemanticTokenVisitorTests
     public void Build_WithEscapeSequences_ExcludesEscapesFromStringTokens()
     {
         var bicepText = @"var foo = 'a\\b\'c\${d\n\r\t\u{1F600}z'";
-        var result = CompilationHelper.Compile(bicepText);
+        var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(bicepText);
 
         var stringTokenTexts = SemanticTokenVisitor.Build(result.Compilation.GetEntrypointSemanticModel())
             .Where(token => token.TokenType == SemanticTokenType.String)

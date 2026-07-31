@@ -130,6 +130,11 @@ Leave these categories alone unless a PR explicitly targets their owning behavio
 - `[x]` All linter rule tests use `TestCompiler`, `TestFileData`, and test-owned configuration APIs.
 - `[x]` `TestConfigurations` and `TestConfigurationBuilder` own shared test configuration presets and mutations.
 - `[x]` Public `Test*` toolkit types live in the `Bicep.Testing` root namespace; `FakeEnvironment` lives under `Bicep.Testing.Fakes` and the `Utils` namespace is removed.
+- `[x]` Simple Core unit-test callers use `TestCompiler` directly.
+- `[x]` No synchronous `CompilationHelper.Compile(...)` call sites remain in `Bicep.Core.UnitTests`.
+- `[x]` `Bicep.Decompiler.UnitTests` references `Bicep.Testing` instead of `Bicep.Core.UnitTests`.
+- `[x]` `Bicep.Local.Extension.UnitTests` and `Bicep.RegistryModuleTool.TestFixtures` no longer reference `Bicep.Core.UnitTests`.
+- `[x]` Reusable JToken assertions have one canonical implementation in `Bicep.Testing.Assertions.Json`; Core retains only baseline-update behavior.
 - `[ ]` Replace all `CompilationHelper` call sites with `TestCompiler` and delete `CompilationHelper` and its result types.
 - `[ ]` Replace `ServiceBuilder`, `ServiceBuilderExtensions`, and related Core-unit-test DI extensions with `TestCompiler`, `TestServices`, or focused fixtures, then delete them.
 - `[ ]` Consolidate reusable assertions, feature fixtures, mocks, and data builders in `Bicep.Testing`; rewrite or remove obsolete helpers instead of moving them wholesale.
@@ -137,15 +142,6 @@ Leave these categories alone unless a PR explicitly targets their owning behavio
 - `[ ]` Core integration test URI dictionaries.
 - `[ ]` Incidental `MockFileSystem` usage that only creates compiler-visible files.
 - `[ ]` `DocumentUriExtensions.ToUriEncoded` deprecation and removal.
-
-## Current PR Baseline
-
-Completed in this PR:
-
-- Removed `CompilationHelper` and `ServiceBuilder` usage from the entire linter rule test directory.
-- Added test-owned configuration presets/builders and custom Azure resource type loader support.
-
-Validation: all 6,811 Core unit tests passed; full solution build succeeded.
 
 ## Work Queue
 
@@ -155,7 +151,7 @@ Goal: remove the shared test infrastructure owned by `Bicep.Core.UnitTests`. `Co
 
 This is an umbrella workstream, not one PR. Pick one package below and keep each PR scoped to a coherent test area or helper boundary.
 
-#### Next PR: Simple Core Unit-Test Callers
+#### [x] Simple Core Unit-Test Callers
 
 Replace direct `CompilationHelper.Compile(...)` calls in:
 
@@ -173,6 +169,17 @@ Validation:
 
 - Run all touched classes by `FullyQualifiedName` filter and build `Bicep.Core.UnitTests`.
 - Require zero direct `CompilationHelper` references in the migrated files.
+
+Completed validation: all 420 focused tests passed, and migrated-file searches for `CompilationHelper` return no results.
+
+#### [x] Remaining Synchronous Core Unit-Test Callers
+
+- Migrated the dependency, read-only property, and type-casing rewriter tests.
+- Migrated the shared Bicep-formatting string assertion.
+- Migrated `ThisNamespaceTests`, including feature overrides and restore-capable extension archive tests.
+- Kept mock-file-system compilation for binary extension archives; ordinary synthetic files use in-memory compilation.
+
+Validation: all 10 rewriter tests and all 26 `ThisNamespaceTests` passed. A zero-result search confirms that `Bicep.Core.UnitTests` has no remaining `CompilationHelper.Compile(...)` calls.
 
 #### B1: Close `Bicep.Testing` API Gaps
 
@@ -232,6 +239,8 @@ Deletion targets include:
 Do not move the whole assertions directory unchanged. Classify each assertion by its subject and consumers:
 
 - Merge duplicate implementations already present in `Bicep.Testing`, such as diagnostic assertion infrastructure.
+- Keep focused reusable assertions in `Bicep.Testing.Assertions`; do not move baseline-management or Core-specific assertion APIs with them.
+- Use `TestPrinter.Print(...)` only for printing and `BeValidBicepText()` for string syntax validation; keep source annotation rendering separate.
 - Expand `TestCompilationResultAssertions` to replace legacy compilation-result assertions, including template/parameters emission and diagnostic filtering where still useful.
 - Move broadly reusable assertions such as diagnostics, syntax, JSON tokens, strings, code fixes, and configuration assertions when non-Core projects consume them.
 - Keep Core-unit-test-only assertions local when no other project needs them.
@@ -248,7 +257,7 @@ Treat each family separately:
 - Delete the Core `StrictMock` duplicate and use `Bicep.Testing.Mocks.StrictMock`.
 - Prefer `TestExternalArtifactManager` and `Bicep.Testing.Fakes.ContainerRegistry` over moving registry mocks and `RegistryHelper` wholesale.
 - Split `BicepTestConstants` by responsibility. Move only shared configuration, feature, registry, and test-type fixtures; keep Core-specific constants local or inline them.
-- Use `Bicep.Testing.Configuration.TestConfigurations` for canonical `RootConfiguration` variants; migrate and remove the corresponding `BicepTestConstants` fields as consumers move.
+- Use `Bicep.Testing.TestConfigurations` for canonical `RootConfiguration` variants; migrate and remove the corresponding `BicepTestConstants` fields as consumers move.
 - Migrate the remaining test consumers of `AnalyzersConfigurationExtensions`, `ExtensionsConfigurationExtensions`, and `ExperimentalFeaturesExtensions` to `TestConfigurationBuilder`, then delete those test-only extension files from `Bicep.Core`.
 - Replace compiler-file uses of `FileHelper` with `TestFileSet`. Move only reusable temporary-directory, output-file, or cache-root behavior that intentionally uses the real file system.
 - Move reusable type builders from `TestTypeHelper` and `FakeResourceTypes` into `Bicep.Testing.Fakes.TypeSystem`; remove overlapping implementations.
@@ -274,6 +283,29 @@ Validation for every package:
 
 Goal: no test project except `Bicep.Core.UnitTests` should reference `Bicep.Core.UnitTests` for shared helpers.
 
+Use project references as migration gates:
+
+1. Inventory the exact `Bicep.Core.UnitTests` symbols consumed by one project.
+2. Replace local compilation and service setup with `TestCompiler` or `TestServices`.
+3. Move only focused, broadly reusable capabilities into `Bicep.Testing`; keep one-off behavior local.
+4. Remove the project reference and require a zero-result namespace search.
+5. Build and test the consuming project before selecting the next project.
+
+Prioritize by dependency shape:
+
+- Start with low-fanout projects whose remaining dependencies are compilation, printing, or focused assertions.
+- Treat `CompilationHelper` and `ServiceBuilder` in Core integration tests as one high-leverage compilation-fixture workstream.
+- Decompose `RegistryHelper` and `ExtensionTestHelper` by capability: artifact publishing, fake registry transport, extension packages, and source archives.
+- Split `BicepTestConstants`, `FileHelper`, `TestTypeHelper`, and assertions according to their actual consumers rather than moving their files wholesale.
+
+Completed:
+
+- `[x]` `Bicep.Decompiler.UnitTests`: migrated to `TestCompiler`, `TestPrinter`, and focused string/JSON assertions; all 52 tests passed.
+- `[x]` `Bicep.Local.Extension.UnitTests`: migrated to `Bicep.Testing.Mocks.StrictMock` and focused JSON assertions; all 99 tests passed.
+- `[x]` `Bicep.RegistryModuleTool.TestFixtures`: replaced default Core feature overrides with a focused assembly-version decorator; all 18 consuming integration tests passed.
+
+Validation: the full solution builds after all three project-reference removals and assertion consolidation.
+
 Current project-reference cleanup candidates:
 
 - `src/Bicep.Cli.IntegrationTests/Bicep.Cli.IntegrationTests.csproj`
@@ -281,12 +313,9 @@ Current project-reference cleanup candidates:
 - `src/Bicep.Core.IntegrationTests/Bicep.Core.IntegrationTests.csproj`
 - `src/Bicep.Core.Samples/Bicep.Core.Samples.csproj`
 - `src/Bicep.Decompiler.IntegrationTests/Bicep.Decompiler.IntegrationTests.csproj`
-- `src/Bicep.Decompiler.UnitTests/Bicep.Decompiler.UnitTests.csproj`
 - `src/Bicep.LangServer.IntegrationTests/Bicep.LangServer.IntegrationTests.csproj`
 - `src/Bicep.Local.Deploy.IntegrationTests/Bicep.Local.Deploy.IntegrationTests.csproj`
-- `src/Bicep.Local.Extension.UnitTests/Bicep.Local.Extension.UnitTests.csproj`
 - `src/Bicep.McpServer.UnitTests/Bicep.McpServer.UnitTests.csproj`
-- `src/Bicep.RegistryModuleTool.TestFixtures/Bicep.RegistryModuleTool.TestFixtures.csproj`
 - `src/Bicep.RpcClient.Tests/Bicep.RpcClient.Tests.csproj`
 - `src/Bicep.Wasm.UnitTests/Bicep.Wasm.UnitTests.csproj`
 

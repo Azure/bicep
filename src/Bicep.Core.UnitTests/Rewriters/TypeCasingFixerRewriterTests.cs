@@ -2,9 +2,13 @@
 // Licensed under the MIT License.
 using Bicep.Core.Extensions;
 using Bicep.Core.Rewriters;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
+using Bicep.Testing.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -21,7 +25,7 @@ resource resA 'My.Rp/resA@2020-01-01' = {
   name: 'resA'
 }";
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
@@ -65,11 +69,11 @@ resource resA 'My.Rp/resA@2020-01-01' = {
                 new NamedTypeProperty("pascalCaseEnumUnionProp", TypeHelper.CreateTypeUnion(TypeFactory.CreateStringLiteralType("MyEnum"), TypeFactory.CreateStringLiteralType("BlahBlah"))));
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
-            var (_, _, compilation) = CompilationHelper.Compile(typeLoader, ("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile, typeLoader);
             var rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepText(
                 """
                 resource resA 'My.Rp/resA@2020-01-01' = {
                   name: 'resA'
@@ -117,12 +121,12 @@ resource resA 'My.Rp/resA@2020-01-01' = {
                 }, null)));
             var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
-            var (_, _, compilation) = CompilationHelper.Compile(typeLoader, ("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile, typeLoader);
             var rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            var firstPassBicepFile = PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax);
-            firstPassBicepFile.Should().Be(
+            var firstPassBicepFile = TestPrinter.Print(newProgramSyntax);
+            firstPassBicepFile.Should().BeValidBicepText(
                 """
                 resource resA 'My.Rp/resA@2020-01-01' = {
                   name: 'resA'
@@ -139,11 +143,11 @@ resource resA 'My.Rp/resA@2020-01-01' = {
 
                 """);
 
-            (_, _, compilation) = CompilationHelper.Compile(typeLoader, ("main.bicep", firstPassBicepFile));
+            compilation = Compile(firstPassBicepFile, typeLoader);
             rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
             newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepText(
                 """
                 resource resA 'My.Rp/resA@2020-01-01' = {
                   name: 'resA'
@@ -160,5 +164,14 @@ resource resA 'My.Rp/resA@2020-01-01' = {
 
                 """);
         }
+
+        private static Compilation Compile(string bicepFile) =>
+            TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(bicepFile).Compilation;
+
+        private static Compilation Compile(string bicepFile, IResourceTypeLoader typeLoader) => TestCompiler
+            .ForInMemoryCompilation()
+            .WithAzResourceTypeLoader(typeLoader)
+            .CompileWithoutRestore(bicepFile)
+            .Compilation;
     }
 }
