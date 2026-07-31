@@ -181,13 +181,6 @@ Completed validation: all 420 focused tests passed, and migrated-file searches f
 
 Validation: all 10 rewriter tests and all 26 `ThisNamespaceTests` passed. A zero-result search confirms that `Bicep.Core.UnitTests` has no remaining `CompilationHelper.Compile(...)` calls.
 
-#### [x] Registry Publishing Compilation
-
-- Migrated `RegistryHelper` module compilation from `CompilationHelper.RestoreAndCompile(...)` to a restore-capable `TestCompiler`.
-- Preserved the existing shared publishing signatures while carrying forward registry transport, feature, template-spec, and analyzer configuration.
-
-Validation: all 10 `PrivateAcrModuleMetadataProviderTests` passed.
-
 #### B1: Close `Bicep.Testing` API Gaps
 
 Add only the capabilities required to remove callers of the legacy helpers:
