@@ -6,14 +6,15 @@ import { readFile, writeFile } from 'fs/promises';
 import { IOnigLib, IToken, parseRawGrammar, Registry } from 'vscode-textmate';
 import { createOnigScanner, createOnigString, loadWASM } from 'vscode-oniguruma';
 import path, { dirname, basename, extname } from 'path';
-import { grammarPath, BicepScope } from '../src/bicep';
+import { grammarPath, BicepScope } from '../src/bicep.js';
 import { spawnSync } from 'child_process';
 import { escape } from 'html-escaper';
 import { env } from 'process';
-import { expectFileContents, baselineRecordEnabled } from './utils';
+import { fileURLToPath } from 'url';
+import { expectFileContents, baselineRecordEnabled } from './utils.js';
 
 async function createOnigLib(): Promise<IOnigLib> {
-  const onigWasm = await readFile(`${path.dirname(require.resolve('vscode-oniguruma'))}/onig.wasm`);
+  const onigWasm = await readFile(new URL('./onig.wasm', import.meta.resolve('vscode-oniguruma')));
 
   await loadWASM(onigWasm.buffer);
 
@@ -143,7 +144,7 @@ ${html}
   };
 }
 
-const baselinesDir = `${__dirname}/baselines`;
+const baselinesDir = fileURLToPath(new URL('./baselines', import.meta.url));
 
 const baselineFiles = readdirSync(baselinesDir)
   .filter(p => extname(p) === '.bicep' || extname(p) === '.bicepparam')
@@ -155,9 +156,8 @@ for (const filePath of baselineFiles) {
       // skip the invalid files - we don't expect them to compile
 
       it('can be compiled', async () => {
-        const cliCsproj = `${__dirname}/../../Bicep.Cli/Bicep.Cli.csproj`;
+        const cliCsproj = fileURLToPath(new URL('../../Bicep.Cli/Bicep.Cli.csproj', import.meta.url));
 
-        // eslint-disable-next-line jest/no-conditional-in-test
         if (!existsSync(cliCsproj)) {
           throw new Error(`Unable to find '${cliCsproj}'`);
         }
