@@ -7,7 +7,6 @@ import { bicepCli, pathToExampleFile, writeTempFile } from "../utils/fs";
 import { Bicep } from "@azure/bicep-rpc-client";
 
 describe("bicep jsonrpc", () => {
-  Bicep.initialize
   let bicep: Bicep;
 
   beforeAll(async () => (bicep = await Bicep.initialize(bicepCli)));
