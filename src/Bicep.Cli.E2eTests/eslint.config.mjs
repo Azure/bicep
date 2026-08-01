@@ -2,11 +2,40 @@
 // Licensed under the MIT License.
 
 // @ts-check
-import { fixupPluginRules } from "@eslint/compat";
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 import vitest from "@vitest/eslint-plugin";
-import notice from "eslint-plugin-notice";
+import { readFileSync } from "fs";
+
+const copyrightTemplate = readFileSync(new URL("../copyright-template.js", import.meta.url), "utf8")
+  .replace(/\r\n/g, "\n")
+  .trimEnd();
+
+const copyrightNoticeRule = {
+  meta: {
+    type: "problem",
+    fixable: "code",
+    messages: {
+      missingHeader: "Missing copyright notice header.",
+    },
+  },
+  create(context) {
+    return {
+      Program(node) {
+        const text = context.sourceCode.getText().replace(/\r\n/g, "\n");
+        if (!text.startsWith(copyrightTemplate)) {
+          context.report({
+            node,
+            messageId: "missingHeader",
+            fix(fixer) {
+              return fixer.insertTextBefore(node, copyrightTemplate + "\n\n");
+            },
+          });
+        }
+      },
+    };
+  },
+};
 
 export default tseslint.config(
   {
@@ -18,14 +47,12 @@ export default tseslint.config(
         ...vitest.environments.env.globals,
       },
     },
-    plugins: { notice: fixupPluginRules(notice), vitest },
+    plugins: {
+      copyright: { rules: { notice: copyrightNoticeRule } },
+      vitest,
+    },
     rules: {
-      "notice/notice": [
-        "error",
-        {
-          templateFile: "../copyright-template.js",
-        },
-      ],
+      "copyright/notice": "error",
       ...vitest.configs.recommended.rules,
       "vitest/expect-expect": [
         "error",
