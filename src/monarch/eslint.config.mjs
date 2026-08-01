@@ -4,7 +4,7 @@
 // @ts-check
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
-import pluginJest from 'eslint-plugin-jest';
+import vitest from "@vitest/eslint-plugin";
 import headers from "eslint-plugin-headers";
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 
@@ -12,15 +12,15 @@ export default tseslint.config({
   files: ["src/**/*.ts", "test/**/*.ts", "test-live/**/*.ts"],
   extends: [
     eslint.configs.recommended,
-    pluginJest.configs['flat/recommended'],
     eslintPluginPrettierRecommended,
     ...tseslint.configs.recommended,
   ],
   languageOptions: {
     ecmaVersion: 2020,
   },
-  plugins: { headers },
+  plugins: { headers, vitest },
   rules: {
+    ...vitest.configs.recommended.rules,
     "headers/header-format": [
       "error",
       {
