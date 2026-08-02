@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { ResourceManagementClient } from "@azure/arm-resources" with { "resolution-mode": "import" };
+
 import { ManagementGroupInfo } from "@azure/arm-managementgroups";
 import { ResourceGroup } from "@azure/arm-resources";
-import type { ResourceManagementClient } from "@azure/arm-resources" with { "resolution-mode": "import" };
 import { AzureSubscription, VSCodeAzureSubscriptionProvider } from "@microsoft/vscode-azext-azureauth";
 import {
   IResourceGroupWizardContext,

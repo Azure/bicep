@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using Bicep.Testing.Mocks;
 using Bicep.Local.Extension.Host.CommandLineArguments;
+using Bicep.Testing.Mocks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

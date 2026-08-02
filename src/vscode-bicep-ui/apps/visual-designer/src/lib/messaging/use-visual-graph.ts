@@ -362,14 +362,6 @@ export function useApplyVisualGraph(getViewportCenter: () => Point) {
       // applyGraphLayout once the server returns the computed layout. The visibility
       // gate set above is preserved until then.
     },
-    [
-      setEdgesAtom,
-      addAtomicNode,
-      addCompoundNode,
-      addEdge,
-      removeNodes,
-      setLayoutReady,
-      getViewportCenter,
-    ],
+    [setEdgesAtom, addAtomicNode, addCompoundNode, addEdge, removeNodes, setLayoutReady, getViewportCenter],
   );
 }
