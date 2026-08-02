@@ -17,12 +17,7 @@ import { bicepFileExtension, bicepLanguageId, bicepParamLanguageId } from "../la
 import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
 
 type TargetFile =
-  | "rightClickOrMenu"
-  | "singleInWorkspace"
-  | "singleInVisibleEditors"
-  | "quickPick"
-  | "new"
-  | "activeEditor";
+  "rightClickOrMenu" | "singleInWorkspace" | "singleInVisibleEditors" | "quickPick" | "new" | "activeEditor";
 type Properties = TelemetryProperties & { targetFile: TargetFile };
 
 /**

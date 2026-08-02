@@ -15,8 +15,8 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.IO.Abstraction;
-using Bicep.Testing.IO;
 using Bicep.Testing;
+using Bicep.Testing.IO;
 
 namespace Bicep.Core.UnitTests.Utils;
 

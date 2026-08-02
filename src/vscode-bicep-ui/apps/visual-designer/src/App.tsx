@@ -31,11 +31,7 @@ import { ModuleDeclaration, ResourceDeclaration } from "./features/visualization
 import { GlobalStyle } from "./GlobalStyle";
 import { Canvas, Graph, nodeConfigAtom } from "./lib/graph";
 import { useFitViewToBounds } from "./lib/graph/hooks";
-import {
-  DOCUMENT_DID_CHANGE_NOTIFICATION,
-  READY_NOTIFICATION,
-  useGraphUpdate,
-} from "./lib/messaging";
+import { DOCUMENT_DID_CHANGE_NOTIFICATION, READY_NOTIFICATION, useGraphUpdate } from "./lib/messaging";
 import { useTheme } from "./lib/theming";
 
 const DevAppShell = loadDevAppShell();
