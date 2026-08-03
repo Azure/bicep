@@ -3,9 +3,11 @@
 
 using System.IO.Abstractions;
 using System.Net;
+using Azure.Bicep.Types.Az;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
@@ -19,6 +21,7 @@ using Bicep.Core.Registry.Oci.Oras;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
@@ -34,6 +37,8 @@ public static class BicepCoreServiceCollectionExtensions
     public static IServiceCollection AddBicepCore(this IServiceCollection services)
     {
         services.TryAddSingleton<INamespaceProvider, NamespaceProvider>();
+        services.TryAddSingleton<AzResourceTypeProvider>(_ => AzResourceTypeProvider.Instance);
+        services.TryAddSingleton<AzApiVersionProvider>();
         services.TryAddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>();
         services.TryAddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>();
         services.TryAddSingleton<AzureContainerRegistryManager>();

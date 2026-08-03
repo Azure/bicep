@@ -3,6 +3,7 @@
 
 using System.IO.Abstractions;
 using Azure.Containers.ContainerRegistry;
+using Azure.Bicep.Types.Az;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
@@ -21,6 +22,7 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
@@ -62,7 +64,9 @@ namespace Bicep.Core.UnitTests
 
         public static readonly BicepFile DummyBicepFile = CreateDummyBicepFile();
 
-        public static readonly IResourceTypeProviderFactory ResourceTypeProviderFactory = new ResourceTypeProviderFactory();
+        public static readonly AzResourceTypeProvider AzResourceTypeProvider = new(new AzResourceTypeLoader(new AzTypeLoader()));
+
+        public static readonly IResourceTypeProviderFactory ResourceTypeProviderFactory = new ResourceTypeProviderFactory(AzResourceTypeProvider);
 
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 
@@ -96,7 +100,7 @@ namespace Bicep.Core.UnitTests
         public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) => new ModuleDispatcher(CreateRegistryProvider(services));
 
         public static readonly NamespaceResolver DefaultNamespaceResolver = NamespaceResolver.Create([
-            new("az", AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzNamespaceType.BuiltInTypeProvider, BicepSourceFileKind.BicepFile), null),
+            new("az", AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzResourceTypeProvider, BicepSourceFileKind.BicepFile), null),
             new("sys", SystemNamespaceType.Create("sys", Features, BicepSourceFileKind.BicepFile), null),
         ]);
 

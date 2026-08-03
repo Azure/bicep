@@ -114,7 +114,7 @@ public class LinterRuleTestsBase
             ? options.ConfigurationPatch(TestConfigurations.BuiltInWithStableAnalyzers)
             : TestConfigurations.BuiltInWithStableAnalyzers;
         var compiler = TestCompiler.ForInMemoryCompilation().WithConfiguration(configuration);
-        compiler = options.AzResourceTypeLoader is { } ? compiler.WithAzResourceTypeLoader(options.AzResourceTypeLoader) : compiler;
+        compiler = options.AzResourceTypeLoader is { } ? compiler.WithAzOverrides(options.AzResourceTypeLoader) : compiler;
         compiler = options.FeatureOverrides is not null
             ? compiler.WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(options.FeatureOverrides)
             : compiler;

@@ -14,6 +14,14 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 {
     public class AzResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
     {
+        /// <summary>
+        /// This is very computationally expensive to construct, so we keep a static instance to share across the product. It is immutable, so it is safe to share.
+        /// The reason we're not just using DI for this is that it's also used in a lot of tests, and we don't want to have multiple constructions take place.
+        /// </summary>
+        private static readonly Lazy<AzResourceTypeProvider> LazyInstance = new(() => new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader())));
+
+        public static AzResourceTypeProvider Instance => LazyInstance.Value;
+
         private static readonly RegexOptions PatternRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant;
         private static readonly Regex ResourceTypePattern = new(@"^(?<namespace>[a-z0-9][a-z0-9\.]*)(/(?<type>[a-z0-9\-]+))+$", PatternRegexOptions);
         private static readonly Regex ApiVersionPattern = new(@"^\d{4}-\d{2}-\d{2}(|-(preview|alpha|beta|rc|privatepreview))$", PatternRegexOptions);
