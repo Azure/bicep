@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Reflection;
 using Azure.Bicep.Types.Az;
 using Azure.Deployments.Core.Definitions.Identifiers;
+using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
@@ -24,11 +25,6 @@ namespace Bicep.Core.Semantics.Namespaces
         public const string ResourceIdFunctionName = "resourceId";
         private static readonly string EmbeddedAzExtensionVersion = typeof(AzTypeLoader).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version
             ?? throw new UnreachableException("The 'Azure.Bicep.Types.Az' assembly should always have a file version attribute.");
-
-        private static readonly Lazy<IResourceTypeProvider> TypeProviderLazy
-            = new(() => new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader())));
-
-        public static IResourceTypeProvider BuiltInTypeProvider => TypeProviderLazy.Value;
 
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
