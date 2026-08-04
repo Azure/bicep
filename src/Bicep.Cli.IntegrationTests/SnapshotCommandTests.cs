@@ -125,7 +125,7 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
     [TestMethod]
     [TestEmbeddedFileData(@"Files/SnapshotCommandTests/.*/main\.bicepparam")]
     [TestCategory(TestCategories.Baseline)]
-    public async Task Snapshot_generates_correct_format(TestEmbeddedFile paramFile)
+    public async Task Snapshot_generates_correct_format(EmbeddedFile paramFile)
     {
         var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ExtensionResourceTypeHelper.GetHttpExtensionTypesTgz(), new(), artifactTarget: "example.azurecr.io/extensions/snapshot:1.2.3");
         var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();

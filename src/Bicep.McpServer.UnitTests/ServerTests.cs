@@ -27,7 +27,7 @@ public class ServerTests
     [TestMethod]
     [TestEmbeddedFileData(@"Files/ServerTests/tools.json")]
     [TestCategory(TestCategories.Baseline)]
-    public async Task List_tools_returns_full_list_of_tools(TestEmbeddedFile toolsJson)
+    public async Task List_tools_returns_full_list_of_tools(EmbeddedFile toolsJson)
     {
         var baselineFiles = TestContext.MaterializeBaseline(toolsJson);
         var toolsJsonFile = baselineFiles.EntryFile;

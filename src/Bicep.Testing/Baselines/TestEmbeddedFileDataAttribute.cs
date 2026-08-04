@@ -3,6 +3,7 @@
 
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -15,7 +16,7 @@ public sealed class TestEmbeddedFileDataAttribute(string regexFilter) : Attribut
 
     public IEnumerable<object[]> GetData(MethodInfo methodInfo)
     {
-        var files = TestEmbeddedFile.LoadAll(methodInfo.DeclaringType!.Assembly, new Regex(RegexFilter));
+        var files = EmbeddedFile.LoadAll(methodInfo.DeclaringType!.Assembly, new Regex(RegexFilter));
 
         methodInfo.GetCustomAttributes().OfType<TestCategoryAttribute>()
             .Should().Contain(
@@ -28,7 +29,7 @@ public sealed class TestEmbeddedFileDataAttribute(string regexFilter) : Attribut
 
     public string? GetDisplayName(MethodInfo methodInfo, object?[]? data)
     {
-        var file = (data?[0] as TestEmbeddedFile)!;
+        var file = (data?[0] as EmbeddedFile)!;
 
         return $"{methodInfo.Name} ({file.StreamPath})";
     }

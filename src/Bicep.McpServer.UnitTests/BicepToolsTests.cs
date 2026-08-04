@@ -50,7 +50,7 @@ public class BicepToolsTests
     [TestMethod]
     [TestEmbeddedFileData(@"Files/GetAzResourceSchema/.*\.json")]
     [TestCategory(TestCategories.Baseline)]
-    public void GetAzureResourceTypeSchema_returns_resource_schema(TestEmbeddedFile jsonFile)
+    public void GetAzureResourceTypeSchema_returns_resource_schema(EmbeddedFile jsonFile)
     {
         var baselineFile = TestContext.MaterializeBaseline(jsonFile).EntryFile;
         var split = Path.GetFileNameWithoutExtension(jsonFile.FileName).Split("@");
@@ -65,7 +65,7 @@ public class BicepToolsTests
     [TestMethod]
     [TestEmbeddedFileData(@"Files/GetAzResourceSchemaTrimmed/.*\.json")]
     [TestCategory(TestCategories.Baseline)]
-    public void GetAzureResourceTypeSchema_returns_trimmed_resource_schema(TestEmbeddedFile jsonFile)
+    public void GetAzureResourceTypeSchema_returns_trimmed_resource_schema(EmbeddedFile jsonFile)
     {
         var baselineFile = TestContext.MaterializeBaseline(jsonFile).EntryFile;
         var split = Path.GetFileNameWithoutExtension(jsonFile.FileName).Split("@");
@@ -97,7 +97,7 @@ public class BicepToolsTests
     [TestMethod]
     [TestEmbeddedFileData(@"Files/GetExtensionResourceSchema/.*\.json")]
     [TestCategory(TestCategories.Baseline)]
-    public async Task GetExtensionResourceTypeSchema_returns_resource_schema(TestEmbeddedFile jsonFile)
+    public async Task GetExtensionResourceTypeSchema_returns_resource_schema(EmbeddedFile jsonFile)
     {
         var baselineFile = TestContext.MaterializeBaseline(jsonFile).EntryFile;
         var fileName = Path.GetFileNameWithoutExtension(jsonFile.FileName);
@@ -123,7 +123,7 @@ public class BicepToolsTests
     [TestMethod]
     [TestEmbeddedFileData(@"Files/GetExtensionResourceSchemaTrimmed/.*\.json")]
     [TestCategory(TestCategories.Baseline)]
-    public async Task GetExtensionResourceTypeSchema_returns_trimmed_resource_schema(TestEmbeddedFile jsonFile)
+    public async Task GetExtensionResourceTypeSchema_returns_trimmed_resource_schema(EmbeddedFile jsonFile)
     {
         var baselineFile = TestContext.MaterializeBaseline(jsonFile).EntryFile;
         var fileName = Path.GetFileNameWithoutExtension(jsonFile.FileName);

@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.Testing;
+namespace Bicep.Testing.IO;
 
 public static class TestFileSetExtensions
 {
-    public static T AddEmbeddedFiles<T>(this T fileSet, TestEmbeddedFile entryFile)
+    public static T AddEmbeddedFiles<T>(this T fileSet, EmbeddedFile entryFile)
         where T : TestFileSet
     {
         fileSet.AddFiles(entryFile.GetDirectoryFiles()

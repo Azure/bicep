@@ -8,6 +8,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Testing.Baselines;
+using Bicep.Testing.IO;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Decompiler;
 using Bicep.Decompiler.Exceptions;
@@ -30,7 +31,7 @@ namespace Bicep.Decompiler.IntegrationTests
         [DataTestMethod]
         [TestEmbeddedFileData(@"Files/Working/.*\.json")]
         [TestCategory(TestCategories.Baseline)]
-        public async Task Decompiler_generates_expected_bicep_files_with_diagnostics(TestEmbeddedFile embeddedJson)
+        public async Task Decompiler_generates_expected_bicep_files_with_diagnostics(EmbeddedFile embeddedJson)
         {
             var baselineFiles = TestContext.MaterializeBaseline(embeddedJson);
             var jsonFile = baselineFiles.EntryFile;
@@ -59,7 +60,7 @@ namespace Bicep.Decompiler.IntegrationTests
         [DataTestMethod]
         [TestEmbeddedFileData(@"Files/Parameters/.*\.json")]
         [TestCategory(TestCategories.Baseline)]
-        public void Decompiler_generates_expected_bicepparam_files_with_diagnostics(TestEmbeddedFile embeddedJson)
+        public void Decompiler_generates_expected_bicepparam_files_with_diagnostics(EmbeddedFile embeddedJson)
         {
             var baselineFiles = TestContext.MaterializeBaseline(embeddedJson);
             var jsonFile = baselineFiles.EntryFile;

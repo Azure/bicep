@@ -3,13 +3,14 @@
 
 using System.Text;
 using Bicep.Testing.Baselines;
+using Bicep.Testing.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Testing;
 
 public static class TestContextExtensions
 {
-    public static BaselineDirectory MaterializeBaseline(this TestContext testContext, TestEmbeddedFile embeddedFile)
+    public static BaselineDirectory MaterializeBaseline(this TestContext testContext, EmbeddedFile embeddedFile)
         => BaselineDirectory.Materialize(testContext, embeddedFile);
 
     public static string GetUniqueOutputPath(this TestContext testContext)

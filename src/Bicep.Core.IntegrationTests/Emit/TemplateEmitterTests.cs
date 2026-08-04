@@ -131,7 +131,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         [DataTestMethod]
         [TestEmbeddedFileData(@"Files/SourceMapping/.*/main.bicep")]
         [TestCategory(TestCategories.Baseline)]
-        public async Task Source_map_generation_should_work(TestEmbeddedFile file)
+        public async Task Source_map_generation_should_work(EmbeddedFile file)
         {
             var baselineFiles = TestContext.MaterializeBaseline(file);
             var bicepFile = baselineFiles.EntryFile;

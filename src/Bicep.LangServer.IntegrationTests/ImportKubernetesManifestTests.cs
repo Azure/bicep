@@ -25,7 +25,7 @@ namespace Bicep.LangServer.IntegrationTests
         [DataTestMethod]
         [TestEmbeddedFileData(@"Files/ImportKubernetesManifest/.*/.*\.yml")]
         [TestCategory(TestCategories.Baseline)]
-        public async Task ImportKubernetesManifest_generates_valid_bicep_files_from_kubernetes_manifests(TestEmbeddedFile embeddedYml)
+        public async Task ImportKubernetesManifest_generates_valid_bicep_files_from_kubernetes_manifests(EmbeddedFile embeddedYml)
         {
             var telemetryEventsListener = new MultipleMessageListener<TelemetryEventParams>();
             var baselineFiles = TestContext.MaterializeBaseline(embeddedYml);

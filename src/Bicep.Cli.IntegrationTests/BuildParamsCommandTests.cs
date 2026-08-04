@@ -1448,7 +1448,7 @@ param objParam object
         [TestMethod]
         [TestEmbeddedFileData(@"Files/BuildParamsCommandTests/.*/main\.bicepparam")]
         [TestCategory(TestCategories.Baseline)]
-        public async Task Build_params_to_stdout_with_non_bicep_references_should_succeed(TestEmbeddedFile paramFile)
+        public async Task Build_params_to_stdout_with_non_bicep_references_should_succeed(EmbeddedFile paramFile)
         {
             var baselineFiles = TestContext.MaterializeBaseline(paramFile);
             var outputFile = baselineFiles.GetFile("output.json");
@@ -1535,7 +1535,7 @@ param objParam object
         [TestMethod]
         [TestEmbeddedFileData(@"Files/BuildParamsCommandTests/Registry/main\.bicepparam")]
         [TestCategory(TestCategories.Baseline)]
-        public async Task Build_params_to_stdout_with_registry_should_succeed_after_restore(TestEmbeddedFile paramFile)
+        public async Task Build_params_to_stdout_with_registry_should_succeed_after_restore(EmbeddedFile paramFile)
         {
             var baselineFiles = TestContext.MaterializeBaseline(paramFile);
             var outputFile = baselineFiles.GetFile("output.json");

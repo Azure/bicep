@@ -26,7 +26,7 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        public static async Task RunExampleTest(TestContext testContext, TestEmbeddedFile embeddedBicep, FeatureProviderOverrides? features = null, string jsonFileExtension = ".json")
+        public static async Task RunExampleTest(TestContext testContext, EmbeddedFile embeddedBicep, FeatureProviderOverrides? features = null, string jsonFileExtension = ".json")
         {
             features ??= new(testContext);
             FileHelper.GetCacheRootDirectory(testContext).EnsureExists();
@@ -72,19 +72,19 @@ namespace Bicep.Core.IntegrationTests
         [DataTestMethod]
         [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]
         [TestCategory(TestCategories.Baseline)]
-        public Task ExampleIsValid(TestEmbeddedFile embeddedBicep)
+        public Task ExampleIsValid(EmbeddedFile embeddedBicep)
             => RunExampleTest(TestContext, embeddedBicep, new(TestContext), ".json");
 
         [DataTestMethod]
         [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]
         [TestCategory(TestCategories.Baseline)]
-        public Task ExampleIsValid_using_experimental_symbolic_names(TestEmbeddedFile embeddedBicep)
+        public Task ExampleIsValid_using_experimental_symbolic_names(EmbeddedFile embeddedBicep)
             => RunExampleTest(TestContext, embeddedBicep, new(TestContext, SymbolicNameCodegenEnabled: true), ".symbolicnames.json");
 
         [DataTestMethod]
         [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]
         [TestCategory(TestCategories.Baseline)]
-        public void Example_uses_consistent_formatting(TestEmbeddedFile embeddedBicep)
+        public void Example_uses_consistent_formatting(EmbeddedFile embeddedBicep)
         {
             var baselineFiles = TestContext.MaterializeBaseline(embeddedBicep);
             var bicepFile = baselineFiles.EntryFile;
@@ -123,11 +123,11 @@ namespace Bicep.Core.IntegrationTests
         }
 
         public record ExampleData(
-            TestEmbeddedFile BicepFile)
+            EmbeddedFile BicepFile)
         {
             public static IEnumerable<ExampleData> GetAllExampleData()
             {
-                var embeddedFiles = TestEmbeddedFile.LoadAll(
+                var embeddedFiles = EmbeddedFile.LoadAll(
                     typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly,
                     "user_submitted",
                     streamName => Path.GetExtension(streamName) == ".bicep");

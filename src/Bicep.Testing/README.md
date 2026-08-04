@@ -8,6 +8,7 @@ Typical imports are:
 using Bicep.Testing;
 using Bicep.Testing.Assertions;
 using Bicep.Testing.Baselines;
+using Bicep.Testing.IO;
 using Bicep.Testing.Mocks;
 ```
 
@@ -50,7 +51,7 @@ Use `TestEmbeddedFileData` for embedded baseline test data and materialize its f
 [TestMethod]
 [TestCategory(TestCategories.Baseline)]
 [TestEmbeddedFileData(@"Files/Scenarios/.*/main\.bicep")]
-public void Produces_expected_output(TestEmbeddedFile inputFile)
+public void Produces_expected_output(EmbeddedFile inputFile)
 {
     var files = TestContext.MaterializeBaseline(inputFile);
     var outputFile = files.GetFile("main.json");
@@ -211,10 +212,10 @@ services
 
 ## Namespace And Naming Conventions
 
-- Public `Test*` toolkit types live in the `Bicep.Testing` root namespace.
+- Public compiler and service test toolkit types live in the `Bicep.Testing` root namespace.
 - `Fake*`, `Mock*`, and `Dummy*` implementations live under `Fakes`, `Mocks`, and `Dummies`.
 - Assertion infrastructure that is not itself a public `Test*` type lives under `Assertions`.
-- In-memory and mock-file-system implementations that back `TestFileSet` live under `IO`.
+- `EmbeddedFile`, `TestFileData`, `TestFileSet`, `TestFileUri`, and virtual file-set implementations live under `IO`.
 - Do not create a catch-all `Bicep.Testing.Utils` namespace.
 
 ## Migration Rules

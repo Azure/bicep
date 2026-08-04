@@ -4,6 +4,7 @@
 using System.Reflection;
 using Bicep.Testing;
 using Bicep.Testing.Baselines;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -62,11 +63,11 @@ namespace Bicep.Core.Samples
             BaselineFile Syntax,
             BaselineFile Formatted);
 
-        private readonly TestEmbeddedFile paramsFile;
+        private readonly EmbeddedFile paramsFile;
 
         public bool IsValid => !paramsFile.StreamPath.StartsWith("Files/baselines_bicepparam/Invalid_");
 
-        public BaselineData_Bicepparam(TestEmbeddedFile paramsFile)
+        public BaselineData_Bicepparam(EmbeddedFile paramsFile)
         {
             this.paramsFile = paramsFile;
         }
@@ -92,7 +93,7 @@ namespace Bicep.Core.Samples
 
         private static IEnumerable<BaselineData_Bicepparam> GetAllExampleData()
         {
-            var embeddedFiles = TestEmbeddedFile.LoadAll(
+            var embeddedFiles = EmbeddedFile.LoadAll(
                 typeof(AssemblyInitializer).Assembly,
                 "baselines_bicepparam",
                 streamName => Path.GetFileName(streamName) == "parameters.bicepparam");

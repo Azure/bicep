@@ -129,7 +129,7 @@ Leave these categories alone unless a PR explicitly targets their owning behavio
 - `[x]` Initial Core unit-test slices use `TestCompiler`, including params emission and linter/extension scenarios.
 - `[x]` All linter rule tests use `TestCompiler`, `TestFileData`, and test-owned configuration APIs.
 - `[x]` `TestConfigurations` and `TestConfigurationBuilder` own shared test configuration presets and mutations.
-- `[x]` Public `Test*` toolkit types live in the `Bicep.Testing` root namespace; `FakeEnvironment` lives under `Bicep.Testing.Fakes` and the `Utils` namespace is removed.
+- `[x]` Compiler and service toolkit types live in the `Bicep.Testing` root namespace; virtual-file types live under `Bicep.Testing.IO`, `FakeEnvironment` lives under `Bicep.Testing.Fakes`, and the `Utils` namespace is removed.
 - `[x]` Simple Core unit-test callers use `TestCompiler` directly.
 - `[x]` No synchronous `CompilationHelper.Compile(...)` call sites remain in `Bicep.Core.UnitTests`.
 - `[x]` `Bicep.Decompiler.UnitTests` references `Bicep.Testing` instead of `Bicep.Core.UnitTests`.
@@ -252,7 +252,7 @@ Do not move the whole assertions directory unchanged. Classify each assertion by
 
 Treat each family separately:
 
-- Keep the public `Test*` toolkit types in the `Bicep.Testing` root namespace. Keep `Fake*`, `Mock*`, and `Dummy*` implementations in their corresponding domain namespaces; for example, use `Bicep.Testing.Fakes.FakeEnvironment` rather than `TestEnvironment`.
+- Keep compiler and service toolkit types in the `Bicep.Testing` root namespace. Keep virtual-file types under `Bicep.Testing.IO`, and `Fake*`, `Mock*`, and `Dummy*` implementations in their corresponding domain namespaces; for example, use `Bicep.Testing.Fakes.FakeEnvironment` rather than `TestEnvironment`.
 - Do not recreate a catch-all `Bicep.Testing.Utils` namespace.
 - Move feature overrides and their provider factory to `Bicep.Testing` if they remain the shared way to configure compiler features. This should allow `TestCompiler.WithFeatureOverrides(...)` to become non-generic.
 - Delete the Core `StrictMock` duplicate and use `Bicep.Testing.Mocks.StrictMock`.

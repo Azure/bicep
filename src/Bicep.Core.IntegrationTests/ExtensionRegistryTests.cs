@@ -33,7 +33,7 @@ public class ExtensionRegistryTests : TestBase
     [TestMethod]
     [TestCategory(TestCategories.Baseline)]
     [TestEmbeddedFileData(@"Files/ExtensionRegistryTests/http/types/index.json")]
-    public void Http_extension_can_be_generated(TestEmbeddedFile indexJson)
+    public void Http_extension_can_be_generated(EmbeddedFile indexJson)
     {
         var baselineFiles = TestContext.MaterializeBaseline(indexJson);
         var httpTypes = ExtensionResourceTypeHelper.GetHttpExtensionTypes();
@@ -990,7 +990,7 @@ resource bazRes 'bar:fooType@v1' = {
         var repository = "bicep/extensions/microsoftgraph/v1.0";
 
         var services = ExtensionTestHelper.GetServiceBuilder(new MockFileSystem(), registry, repository, AllFeaturesEnabled);
-        var typesTgz = new TestEmbeddedFile(typeof(ExtensionRegistryTests).Assembly, "Files/ExtensionTypes/msgraph-1.0.0-types.tgz");
+        var typesTgz = new EmbeddedFile(typeof(ExtensionRegistryTests).Assembly, "Files/ExtensionTypes/msgraph-1.0.0-types.tgz");
         await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.0.0", typesTgz.BinaryData);
 
         var result = await CompilationHelper.RestoreAndCompile(services, """

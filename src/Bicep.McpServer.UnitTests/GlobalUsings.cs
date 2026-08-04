@@ -4,3 +4,4 @@
 global using Bicep.Testing;
 global using Bicep.Testing.Assertions.Json;
 global using Bicep.Testing.Baselines;
+global using Bicep.Testing.IO;

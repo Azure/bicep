@@ -38,7 +38,7 @@ namespace Bicep.Cli.IntegrationTests.Commands;
 [TestClass]
 public class LocalDeployCommandTests : TestBase
 {
-    private async Task<(MockFileSystemTestFileSet Files, InvocationSettings Settings)> CreateTestSettings(TestEmbeddedFile paramFile)
+    private async Task<(MockFileSystemTestFileSet Files, InvocationSettings Settings)> CreateTestSettings(EmbeddedFile paramFile)
     {
         var files = new MockFileSystemTestFileSet().AddEmbeddedFiles(paramFile);
         var cacheDirectory = files.FileExplorer.GetDirectory(files.GetUri("cache")).EnsureExists();
@@ -150,7 +150,7 @@ public class LocalDeployCommandTests : TestBase
     [TestMethod]
     public async Task Local_deploy_should_succeed()
     {
-        var paramFile = new TestEmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/main.bicepparam");
+        var paramFile = new EmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/main.bicepparam");
         var (files, settings) = await CreateTestSettings(paramFile);
 
         var result = await Bicep(
@@ -195,7 +195,7 @@ public class LocalDeployCommandTests : TestBase
     [TestMethod]
     public async Task Local_deploy_should_report_failures()
     {
-        var paramFile = new TestEmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/main.bicepparam");
+        var paramFile = new EmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/main.bicepparam");
         var (files, settings) = await CreateTestSettings(paramFile);
 
         var result = await Bicep(
@@ -222,7 +222,7 @@ public class LocalDeployCommandTests : TestBase
     [TestMethod]
     public async Task Local_deploy_should_succeed_with_json_output()
     {
-        var paramFile = new TestEmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/main.bicepparam");
+        var paramFile = new EmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/main.bicepparam");
         var (files, settings) = await CreateTestSettings(paramFile);
 
         var result = await Bicep(
@@ -264,7 +264,7 @@ public class LocalDeployCommandTests : TestBase
     [DataRow(false)]
     public async Task Local_deploy_with_azure_should_succeed(bool async)
     {
-        var paramFile = new TestEmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/azure/main.bicepparam");
+        var paramFile = new EmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/azure/main.bicepparam");
         var (files, settings) = await CreateTestSettings(paramFile);
 
         var extensionMock = StrictMock.Of<ILocalExtension>();
@@ -350,7 +350,7 @@ public class LocalDeployCommandTests : TestBase
     [TestMethod]
     public async Task Local_deploy_should_report_nested_operations()
     {
-        var paramFile = new TestEmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/nested.bicepparam");
+        var paramFile = new EmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/nested.bicepparam");
         var (files, settings) = await CreateTestSettings(paramFile);
 
         var result = await Bicep(
@@ -377,7 +377,7 @@ public class LocalDeployCommandTests : TestBase
     [TestMethod]
     public async Task Local_deploy_should_report_nested_operation_failures()
     {
-        var paramFile = new TestEmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/nested.bicepparam");
+        var paramFile = new EmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/nested.bicepparam");
         var (files, settings) = await CreateTestSettings(paramFile);
 
         var result = await Bicep(

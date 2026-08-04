@@ -3,6 +3,7 @@
 
 using Bicep.Testing;
 using Bicep.Testing.Baselines;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using PublicApiGenerator;
 
@@ -16,7 +17,7 @@ public class PublicApiTests
     [TestMethod]
     [TestCategory(TestCategories.Baseline)]
     [TestEmbeddedFileData(@"^Files\/PublicApis\/Azure.Bicep.RpcClient.txt$")]
-    public void PublicApi_should_be_up_to_date(TestEmbeddedFile publicApiFile)
+    public void PublicApi_should_be_up_to_date(EmbeddedFile publicApiFile)
     {
         var baselineFiles = TestContext.MaterializeBaseline(publicApiFile);
         var result = baselineFiles.GetFile(publicApiFile.FileName);
