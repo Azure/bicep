@@ -15,7 +15,9 @@ using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
+using Bicep.IO.Abstraction;
 using Bicep.Testing;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -83,6 +85,25 @@ namespace Bicep.Cli.IntegrationTests
         protected static Task<CliResult> Bicep(InvocationSettings settings, Action<IServiceCollection>? registerAction, CancellationToken cancellationToken, params string?[] args /*null args are ignored*/)
             => BicepInternal(settings, registerAction, null, cancellationToken, args);
 
+        protected Task<CliResult> Bicep(InvocationSettings settings, MockFileSystemTestFileSet files, params string[] args)
+            => Bicep(settings, files, _ => { }, args);
+
+        protected Task<CliResult> Bicep(InvocationSettings settings, MockFileSystemTestFileSet files, Action<IServiceCollection> registerAction, params string[] args)
+            => Bicep(
+                settings,
+                services =>
+                {
+                    services
+                        .WithFileSystem(files.FileSystem)
+                        .WithFileExplorer(files.FileExplorer);
+                    registerAction(services);
+                },
+                TestContext.CancellationTokenSource.Token,
+                args);
+
+        protected Task<CliResult> Bicep(MockFileSystemTestFileSet files, params string[] args)
+            => Bicep(InvocationSettings.Default, files, args);
+
         protected static Task<CliResult> Bicep(params string[] args) => Bicep(InvocationSettings.Default, args);
 
         protected static Task<CliResult> Bicep(Action<IServiceCollection> registerAction, params string[] args)
@@ -145,6 +166,14 @@ namespace Bicep.Cli.IntegrationTests
 
         protected async Task<InvocationSettings> CreateDefaultSettingsWithDefaultMockRegistry()
             => CreateDefaultSettings().WithArtifactManager(await CreateDefaultExternalArtifactManager(), TestContext);
+
+        protected async Task<InvocationSettings> CreateDefaultSettingsWithDefaultMockRegistry(IDirectoryHandle cacheRootDirectory)
+        {
+            var featureOverrides = new FeatureProviderOverrides(CacheRootDirectory: cacheRootDirectory);
+
+            return new InvocationSettings(FeatureOverrides: featureOverrides)
+                .WithArtifactManager(await MockRegistry.CreateDefaultExternalArtifactManager(featureOverrides), TestContext);
+        }
 
         protected InvocationSettings CreateDefaultSettings(Func<FeatureProviderOverrides, FeatureProviderOverrides>? featureOverrides = null) =>
             new()

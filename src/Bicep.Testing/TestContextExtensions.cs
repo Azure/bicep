@@ -9,8 +9,8 @@ namespace Bicep.Testing;
 
 public static class TestContextExtensions
 {
-    public static BaselineFileSet MaterializeBaseline(this TestContext testContext, TestEmbeddedFile embeddedFile)
-        => BaselineFileSet.Materialize(testContext, embeddedFile);
+    public static BaselineDirectory MaterializeBaseline(this TestContext testContext, TestEmbeddedFile embeddedFile)
+        => BaselineDirectory.Materialize(testContext, embeddedFile);
 
     public static string GetUniqueOutputPath(this TestContext testContext)
         => Path.Combine(testContext.ResultsDirectory!, Guid.NewGuid().ToString());

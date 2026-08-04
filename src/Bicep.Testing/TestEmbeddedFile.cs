@@ -4,7 +4,7 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace Bicep.Testing.Baselines;
+namespace Bicep.Testing;
 
 public record TestEmbeddedFile(Assembly Assembly, string StreamPath)
 {
@@ -18,6 +18,14 @@ public record TestEmbeddedFile(Assembly Assembly, string StreamPath)
     public string FileName => Path.GetFileName(StreamPath);
 
     public string RelativeSourcePath => Path.Combine("src", Assembly.GetName().Name!, StreamPath);
+
+    public string StreamDirectoryPath => Path.GetDirectoryName(StreamPath)!.Replace('\\', '/');
+
+    public string GetPathRelativeToDirectory(string streamDirectoryPath)
+        => StreamPath[streamDirectoryPath.Length..].TrimStart('/');
+
+    public IEnumerable<TestEmbeddedFile> GetDirectoryFiles()
+        => LoadAll(Assembly, streamPath => streamPath.StartsWith($"{StreamDirectoryPath}/", StringComparison.Ordinal));
 
     public static IEnumerable<TestEmbeddedFile> LoadAll(Assembly assembly, string streamPathPrefix, Func<string, bool> shouldLoad)
     {

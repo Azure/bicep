@@ -14,6 +14,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.CodeAnalysis.Sarif;
@@ -1420,7 +1421,6 @@ param objParam object
 
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.InvalidOnly)]
-        [TestCategory(TestCategories.Baseline)]
         public async Task Build_Invalid_Single_Params_File_ShouldFail_WithExpectedErrorMessage(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
@@ -1463,35 +1463,26 @@ param objParam object
         }
 
         [TestMethod]
-        [TestCategory(TestCategories.Baseline)]
         public async Task Build_params_to_stdout_with_empty_bicepconfig_should_succeed()
         {
-            var mainBicepParamPath = FileHelper.SaveResultFile(
-                TestContext,
-                "main.bicepparam",
-                """
+            var files = MockFileSystemTestFileSet.Create(
+                ("main.bicepparam", """
                 using 'br:mockregistry.io/parameters/basic:v1'
                 extends 'shared.bicepparam'
                 param intParam = 123
                 param boolParam = false
                 param arrayParam = []
                 param objectParam = {}
-                """);
-
-            _ = FileHelper.SaveResultFile(
-                TestContext,
-                "shared.bicepparam", """
+                """),
+                ("shared.bicepparam", """
                 using none
                 param stringParam = 'foo'
-                """,
-                Path.GetDirectoryName(mainBicepParamPath));
+                """),
+                ("bicepconfig.json", "{}"));
+            var cacheRoot = files.FileExplorer.GetDirectory(files.GetUri("cache")).EnsureExists();
+            var settings = await CreateDefaultSettingsWithDefaultMockRegistry(cacheRoot);
 
-            _ = FileHelper.SaveResultFile(
-                TestContext,
-                "bicepconfig.json", "{}",
-                Path.GetDirectoryName(mainBicepParamPath));
-
-            var result = await Bicep(await CreateDefaultSettingsWithDefaultMockRegistry(), "build-params", mainBicepParamPath, "--stdout");
+            var result = await Bicep(settings, files, "build-params", files.GetUri("main.bicepparam").GetFilePath(), "--stdout");
 
             result.Should().Succeed();
             result.Stderr.Should().NotContain("experimental Bicep features");
@@ -1502,41 +1493,43 @@ param objParam object
         }
 
         [TestMethod]
-        [TestEmbeddedFileData(@"Files/BuildParamsCommandTests/.*/main\.bicepparam")]
-        [TestCategory(TestCategories.Baseline)]
-        public async Task Build_params_returns_intuitive_error_if_invoked_with_bicep_file_param(TestEmbeddedFile paramFile)
+        public async Task Build_params_returns_intuitive_error_if_invoked_with_bicep_file_param()
         {
-            var baselineFiles = TestContext.MaterializeBaseline(paramFile);
-            var bicepFile = baselineFiles.WriteFile("main.bicep", "");
+            var files = MockFileSystemTestFileSet.Create(
+                ("main.bicepparam", """
+                using 'br:mockregistry.io/parameters/basic:v1'
 
-            var result = await Bicep(await CreateDefaultSettingsWithDefaultMockRegistry(), "build-params", baselineFiles.EntryFile.OutputFilePath, "--bicep-file", bicepFile, "--stdout");
+                param stringParam = 'foo'
+                param intParam = 123
+                param boolParam = false
+                param objectParam = { abc: 'def' }
+                param arrayParam = ['abc', 'def']
+                """),
+                ("main.bicep", ""));
+            var cacheRoot = files.FileExplorer.GetDirectory(files.GetUri("cache")).EnsureExists();
+            var settings = await CreateDefaultSettingsWithDefaultMockRegistry(cacheRoot);
+
+            var result = await Bicep(settings, files, "build-params", files.GetUri("main.bicepparam").GetFilePath(), "--bicep-file", files.GetUri("main.bicep").GetFilePath(), "--stdout");
             result.Should().Fail().And.HaveStderrMatch($"Bicep file * provided with --bicep-file can only be used if the Bicep parameters \"using\" declaration refers to a Bicep file on disk.*");
         }
 
         [TestMethod]
-        [TestCategory(TestCategories.Baseline)]
         public async Task Build_params_works_with_using_none()
         {
-            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-
-            var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", @"
+            var files = MockFileSystemTestFileSet.Create(
+                ("main.bicep", @"
                 param unusedParam int
-                ", outputPath);
-
-            var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicepparam", @"
+                "),
+                ("main.bicepparam", @"
                 using none
 
                 param unusedParam = 3
-                ", outputPath);
+                "));
 
-            var (output, error, result) = await Bicep(["build-params", inputFile, "--bicep-file", bicepFile]);
+            var result = await Bicep(files, "build-params", files.GetUri("main.bicepparam").GetFilePath(), "--bicep-file", files.GetUri("main.bicep").GetFilePath());
 
-            var expectedOutputFile = FileHelper.GetResultFilePath(TestContext, "main.json", outputPath);
-
-            File.Exists(expectedOutputFile).Should().BeTrue();
-            output.Should().BeEmpty();
-            error.Should().BeEmpty();
-            result.Should().Be(0);
+            result.Should().Succeed().And.NotHaveStdout().And.NotHaveStderr();
+            files.FileExplorer.GetFile(files.GetUri("main.json")).Exists().Should().BeTrue();
         }
 
         [TestMethod]
@@ -1562,11 +1555,10 @@ param objParam object
         }
 
         [TestMethod]
-        [TestEmbeddedFileData(@"Files/BuildParamsCommandTests/Registry/main\.bicepparam")]
-        [TestCategory(TestCategories.Baseline)]
-        public async Task Build_bicepparam_should_fail_with_error_diagnostics_for_registry_failure(TestEmbeddedFile paramFile)
+        public async Task Build_bicepparam_should_fail_with_error_diagnostics_for_registry_failure()
         {
-            var baselineFiles = TestContext.MaterializeBaseline(paramFile);
+            var files = MockFileSystemTestFileSet.Create(("main.bicepparam", "using 'br:mockregistry.io/parameters/basic:v1'"));
+            var cacheRoot = files.FileExplorer.GetDirectory(files.GetUri("cache")).EnsureExists();
 
             var client = StrictMock.Of<ContainerRegistryContentClient>();
             client
@@ -1580,8 +1572,8 @@ param objParam object
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
-            var result = await Bicep(settings, "build-params", baselineFiles.EntryFile.OutputFilePath, "--stdout");
+            var settings = new InvocationSettings(new(CacheRootDirectory: cacheRoot, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var result = await Bicep(settings, files, "build-params", files.GetUri("main.bicepparam").GetFilePath(), "--stdout");
 
             result.Should().Fail().And.NotHaveStdout();
             result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the artifact with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");

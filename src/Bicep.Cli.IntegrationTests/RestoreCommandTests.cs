@@ -21,6 +21,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using Bicep.Testing;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -143,19 +144,17 @@ module mod 'br:mockregistry.io/test/foo:1.1' = {
         }
 
         [TestMethod]
-        [TestEmbeddedFileData(@"Files/BuildParamsCommandTests/Registry/main\.bicepparam")]
-        [TestCategory(TestCategories.Baseline)]
-        public async Task Restore_should_succeed_for_bicepparam_file_with_registry_reference(TestEmbeddedFile paramFile)
+        public async Task Restore_should_succeed_for_bicepparam_file_with_registry_reference()
         {
-            var baselineFiles = TestContext.MaterializeBaseline(paramFile);
+            var files = MockFileSystemTestFileSet.Create(("main.bicepparam", "using 'br:mockregistry.io/parameters/basic:v1'"));
+            var cacheRoot = files.FileExplorer.GetDirectory(files.GetUri("cache")).EnsureExists();
+            var settings = await CreateDefaultSettingsWithDefaultMockRegistry(cacheRoot);
 
-            var settings = await CreateDefaultSettingsWithDefaultMockRegistry();
-
-            var result = await Bicep(settings, "restore", baselineFiles.EntryFile.OutputFilePath);
+            var result = await Bicep(settings, files, "restore", files.GetUri("main.bicepparam").GetFilePath());
             result.Should().Succeed().And.NotHaveStdout().And.NotHaveStderr();
 
             // ensure something got restored
-            CachedModules.GetCachedModules(BicepTestConstants.FileSystem, settings.FeatureOverrides!.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+            CachedModules.GetCachedModules(files.FileSystem, cacheRoot).Should().HaveCountGreaterThan(0)
                 .And.AllSatisfy(m => m.Should().NotHaveSource());
         }
 
@@ -630,11 +629,10 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
         }
 
         [TestMethod]
-        [TestEmbeddedFileData(@"Files/BuildParamsCommandTests/Registry/main\.bicepparam")]
-        [TestCategory(TestCategories.Baseline)]
-        public async Task Restore_bicepparam_should_fail_with_error_diagnostics_for_registry_failure(TestEmbeddedFile paramFile)
+        public async Task Restore_bicepparam_should_fail_with_error_diagnostics_for_registry_failure()
         {
-            var baselineFiles = TestContext.MaterializeBaseline(paramFile);
+            var files = MockFileSystemTestFileSet.Create(("main.bicepparam", "using 'br:mockregistry.io/parameters/basic:v1'"));
+            var cacheRoot = files.FileExplorer.GetDirectory(files.GetUri("cache")).EnsureExists();
 
             var client = StrictMock.Of<ContainerRegistryContentClient>();
             client
@@ -648,8 +646,8 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
-            var result = await Bicep(settings, "restore", baselineFiles.EntryFile.OutputFilePath);
+            var settings = new InvocationSettings(new(CacheRootDirectory: cacheRoot, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var result = await Bicep(settings, files, "restore", files.GetUri("main.bicepparam").GetFilePath());
 
             result.Should().Fail().And.NotHaveStdout();
             result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the artifact with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");

@@ -52,7 +52,7 @@ namespace Bicep.Core.Samples
         }
 
         public record BaselineData(
-            BaselineFileSet FileSet,
+            BaselineDirectory FileSet,
             BaselineFile Parameters,
             BaselineFile? Compiled,
             BaselineFile Bicep,

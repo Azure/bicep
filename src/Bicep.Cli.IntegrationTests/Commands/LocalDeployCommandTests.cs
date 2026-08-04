@@ -17,7 +17,6 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
@@ -25,6 +24,7 @@ using Bicep.IO.Abstraction;
 using Bicep.Local.Deploy;
 using Bicep.Local.Deploy.Azure;
 using Bicep.Local.Deploy.Extensibility;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -38,6 +38,17 @@ namespace Bicep.Cli.IntegrationTests.Commands;
 [TestClass]
 public class LocalDeployCommandTests : TestBase
 {
+    private async Task<(MockFileSystemTestFileSet Files, InvocationSettings Settings)> CreateTestSettings(TestEmbeddedFile paramFile)
+    {
+        var files = new MockFileSystemTestFileSet().AddEmbeddedFiles(paramFile);
+        var cacheDirectory = files.FileExplorer.GetDirectory(files.GetUri("cache")).EnsureExists();
+        var features = new FeatureProviderOverrides(CacheRootDirectory: cacheDirectory, LocalDeployEnabled: true);
+        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), features, files.FileSystem);
+        var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
+
+        return (files, new InvocationSettings(ClientFactory: clientFactory, FeatureOverrides: features));
+    }
+
     private static ExtensionPackage GetMockLocalDeployPackage(BinaryData? tgzData = null)
     {
         tgzData ??= ExtensionResourceTypeHelper.GetHttpExtensionTypesTgz();
@@ -140,18 +151,14 @@ public class LocalDeployCommandTests : TestBase
     public async Task Local_deploy_should_succeed()
     {
         var paramFile = new TestEmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/main.bicepparam");
-        var baselineFiles = TestContext.MaterializeBaseline(paramFile);
-
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
-        var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
-
-        var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+        var (files, settings) = await CreateTestSettings(paramFile);
 
         var result = await Bicep(
-            new InvocationSettings(ClientFactory: clientFactory, FeatureOverrides: new(CacheRootDirectory: cacheDirectory)),
+            settings,
+            files,
             services => RegisterExtensionMocks(services, GetExtensionMock()),
-            TestContext.CancellationTokenSource.Token,
-            ["local-deploy", baselineFiles.EntryFile.OutputFilePath]);
+            "local-deploy",
+            files.GetUri(paramFile.FileName).GetFilePath());
 
         result.Should().NotHaveStderr().And.Succeed();
 
@@ -189,18 +196,14 @@ public class LocalDeployCommandTests : TestBase
     public async Task Local_deploy_should_report_failures()
     {
         var paramFile = new TestEmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/main.bicepparam");
-        var baselineFiles = TestContext.MaterializeBaseline(paramFile);
-
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
-        var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
-
-        var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+        var (files, settings) = await CreateTestSettings(paramFile);
 
         var result = await Bicep(
-            new InvocationSettings(ClientFactory: clientFactory, FeatureOverrides: new(CacheRootDirectory: cacheDirectory)),
+            settings,
+            files,
             services => RegisterExtensionMocks(services, GetFailingExtensionMock()),
-            TestContext.CancellationTokenSource.Token,
-            ["local-deploy", baselineFiles.EntryFile.OutputFilePath]);
+            "local-deploy",
+            files.GetUri(paramFile.FileName).GetFilePath());
 
         result.Should().NotHaveStderr().And.Fail();
 
@@ -220,18 +223,16 @@ public class LocalDeployCommandTests : TestBase
     public async Task Local_deploy_should_succeed_with_json_output()
     {
         var paramFile = new TestEmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/main.bicepparam");
-        var baselineFiles = TestContext.MaterializeBaseline(paramFile);
-
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
-        var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
-
-        var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+        var (files, settings) = await CreateTestSettings(paramFile);
 
         var result = await Bicep(
-            new InvocationSettings(ClientFactory: clientFactory, FeatureOverrides: new(CacheRootDirectory: cacheDirectory)),
+            settings,
+            files,
             services => RegisterExtensionMocks(services, GetExtensionMock()),
-            TestContext.CancellationTokenSource.Token,
-            ["local-deploy", baselineFiles.EntryFile.OutputFilePath, "--format", "json"]);
+            "local-deploy",
+            files.GetUri(paramFile.FileName).GetFilePath(),
+            "--format",
+            "json");
 
         result.Should().NotHaveStderr().And.Succeed();
 
@@ -264,7 +265,7 @@ public class LocalDeployCommandTests : TestBase
     public async Task Local_deploy_with_azure_should_succeed(bool async)
     {
         var paramFile = new TestEmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/azure/main.bicepparam");
-        var baselineFiles = TestContext.MaterializeBaseline(paramFile);
+        var (files, settings) = await CreateTestSettings(paramFile);
 
         var extensionMock = StrictMock.Of<ILocalExtension>();
         extensionMock.Setup(x => x.CreateOrUpdate(It.IsAny<ResourceSpecification>(), It.IsAny<CancellationToken>()))
@@ -321,16 +322,12 @@ public class LocalDeployCommandTests : TestBase
                     [], []);
             });
 
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
-        var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
-
-        var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
-
         var result = await Bicep(
-            new InvocationSettings(ClientFactory: clientFactory, FeatureOverrides: new(CacheRootDirectory: cacheDirectory)),
+            settings,
+            files,
             services => RegisterExtensionMocks(services, extensionMock.Object, deploymentProviderMock.Object),
-            TestContext.CancellationTokenSource.Token,
-            ["local-deploy", baselineFiles.EntryFile.OutputFilePath]);
+            "local-deploy",
+            files.GetUri(paramFile.FileName).GetFilePath());
 
         result.Should().NotHaveStderr().And.Succeed();
 
@@ -354,18 +351,14 @@ public class LocalDeployCommandTests : TestBase
     public async Task Local_deploy_should_report_nested_operations()
     {
         var paramFile = new TestEmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/nested.bicepparam");
-        var baselineFiles = TestContext.MaterializeBaseline(paramFile);
-
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
-        var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
-
-        var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+        var (files, settings) = await CreateTestSettings(paramFile);
 
         var result = await Bicep(
-            new InvocationSettings(ClientFactory: clientFactory, FeatureOverrides: new(CacheRootDirectory: cacheDirectory)),
+            settings,
+            files,
             services => RegisterExtensionMocks(services, GetExtensionMock()),
-            TestContext.CancellationTokenSource.Token,
-            ["local-deploy", baselineFiles.EntryFile.OutputFilePath]);
+            "local-deploy",
+            files.GetUri(paramFile.FileName).GetFilePath());
 
         result.Should().NotHaveStderr().And.Succeed();
 
@@ -385,18 +378,14 @@ public class LocalDeployCommandTests : TestBase
     public async Task Local_deploy_should_report_nested_operation_failures()
     {
         var paramFile = new TestEmbeddedFile(typeof(LocalDeployCommandTests).Assembly, "Files/LocalDeployCommandTests/weather/nested.bicepparam");
-        var baselineFiles = TestContext.MaterializeBaseline(paramFile);
-
-        var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(GetMockLocalDeployPackage(), new(LocalDeployEnabled: true));
-        var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
-
-        var cacheDirectory = FileHelper.GetCacheRootDirectory(TestContext).EnsureExists();
+        var (files, settings) = await CreateTestSettings(paramFile);
 
         var result = await Bicep(
-            new InvocationSettings(ClientFactory: clientFactory, FeatureOverrides: new(CacheRootDirectory: cacheDirectory)),
+            settings,
+            files,
             services => RegisterExtensionMocks(services, GetFailingExtensionMock()),
-            TestContext.CancellationTokenSource.Token,
-            ["local-deploy", baselineFiles.EntryFile.OutputFilePath]);
+            "local-deploy",
+            files.GetUri(paramFile.FileName).GetFilePath());
 
         result.Should().NotHaveStderr().And.Fail();
 
