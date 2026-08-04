@@ -8,6 +8,7 @@ using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -52,7 +53,7 @@ namespace Bicep.Core.IntegrationTests
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void Parser_should_produce_expected_syntax(DataSet dataSet)
         {
             var program = ParserHelper.Parse(dataSet.Bicep);
@@ -64,7 +65,7 @@ namespace Bicep.Core.IntegrationTests
             var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, syntaxList, getSpan, syntax => GetSyntaxLoggingString(syntaxByParent, syntax));
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainSyntax), sourceTextWithDiags);
 
-            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+            sourceTextWithDiags.Should().MatchTextBaseline(
                 TestContext,
                 dataSet.Syntax,
                 expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSyntax),
@@ -73,7 +74,7 @@ namespace Bicep.Core.IntegrationTests
 
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData()]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void Params_Parser_should_produce_expected_syntax(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
@@ -85,8 +86,7 @@ namespace Bicep.Core.IntegrationTests
 
             var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.Contents, "\n", syntaxList, getSpan, syntax => GetSyntaxLoggingString(syntaxByParent, syntax));
 
-            data.Syntax.WriteToOutputFolder(sourceTextWithDiags);
-            data.Syntax.ShouldHaveExpectedValue();
+            sourceTextWithDiags.Should().MatchTextBaseline(data.Syntax);
         }
 
         private static IEnumerable<object[]> GetData()

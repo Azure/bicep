@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -19,7 +20,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         [DataTestMethod]
         [DataRow(40)]
         [DataRow(80)]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void Print_VariousWidths_OptimizesLayoutAccordingly(int width)
         {
             var dataSet = DataSets.PrettyPrint_LF;
@@ -31,7 +32,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             var outputFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, outputFileName), output);
             var expected = dataSet.ReadDataSetFile(outputFileName);
 
-            output.Should().EqualWithLineByLineDiffOutput(
+            output.Should().MatchTextBaseline(
                 TestContext,
                 expected,
                 expectedPath: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
@@ -42,14 +43,14 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void Print_DataSet_ProducesExpectedOutput(DataSet dataSet)
         {
             var output = Print(dataSet.Bicep, PrettyPrinterV2Options.Default);
             var outputFileName = DataSet.TestFileMainFormatted;
             var outputFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, outputFileName), output);
 
-            output.Should().EqualWithLineByLineDiffOutput(
+            output.Should().MatchTextBaseline(
                 TestContext,
                 dataSet.Formatted,
                 expectedPath: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
@@ -60,7 +61,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void Print_DataSet_ProducesConsistentNewlines(DataSet dataSet)
         {
             var output = Print(dataSet.Bicep, PrettyPrinterV2Options.Default);
@@ -74,21 +75,20 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
 
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData()]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void Print_ParamDataSet_ProducesExpectedOutput(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
             var output = Print(data.Parameters.EmbeddedFile.Contents, PrettyPrinterV2Options.Default, isParamFile: true);
 
-            data.Formatted.WriteToOutputFolder(output);
-            data.Formatted.ShouldHaveExpectedValue();
+            output.Should().MatchTextBaseline(data.Formatted);
 
             AssertConsistentParamsOutput(output, PrettyPrinterV2Options.Default);
         }
 
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData()]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void Print_ParamDataSet_ProducesConsistentNewlines(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);

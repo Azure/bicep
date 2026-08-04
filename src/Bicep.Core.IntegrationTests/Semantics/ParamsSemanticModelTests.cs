@@ -9,6 +9,8 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Testing.Baselines;
+using FluentAssertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -30,7 +32,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData()]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task ProgramsShouldProduceExpectedDiagnostic(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
@@ -45,15 +47,14 @@ namespace Bicep.Core.IntegrationTests.Semantics
                 .ThenBy(x => x.Message, StringComparer.Ordinal);
 
             var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.Contents, "\n", diagnostics,
-                diag => OutputHelper.GetDiagLoggingString(data.Parameters.EmbeddedFile.Contents, data.OutputFolder.OutputFolderPath, diag));
+                diag => OutputHelper.GetDiagLoggingString(data.Parameters.EmbeddedFile.Contents, data.FileSet.OutputDirectoryPath, diag));
 
-            data.Diagnostics.WriteToOutputFolder(sourceTextWithDiags);
-            data.Diagnostics.ShouldHaveExpectedValue();
+            sourceTextWithDiags.Should().MatchTextBaseline(data.Diagnostics);
         }
 
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData()]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task ProgramsShouldProduceExpectedUserDeclaredSymbols(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
@@ -74,8 +75,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
             var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.Contents, "\n", symbols, symb => symb.NameSource.Span, getLoggingString);
 
-            data.Symbols.WriteToOutputFolder(sourceTextWithDiags);
-            data.Symbols.ShouldHaveExpectedValue();
+            sourceTextWithDiags.Should().MatchTextBaseline(data.Symbols);
         }
 
         [TestMethod]

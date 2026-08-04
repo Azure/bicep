@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Reflection;
-using Bicep.Core.UnitTests.Baselines;
+using Bicep.Testing;
+using Bicep.Testing.Baselines;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -51,7 +52,7 @@ namespace Bicep.Core.Samples
         }
 
         public record BaselineData(
-            BaselineFolder OutputFolder,
+            BaselineFileSet FileSet,
             BaselineFile Parameters,
             BaselineFile? Compiled,
             BaselineFile Bicep,
@@ -61,37 +62,37 @@ namespace Bicep.Core.Samples
             BaselineFile Syntax,
             BaselineFile Formatted);
 
-        private readonly EmbeddedFile paramsFile;
+        private readonly TestEmbeddedFile paramsFile;
 
         public bool IsValid => !paramsFile.StreamPath.StartsWith("Files/baselines_bicepparam/Invalid_");
 
-        public BaselineData_Bicepparam(EmbeddedFile paramsFile)
+        public BaselineData_Bicepparam(TestEmbeddedFile paramsFile)
         {
             this.paramsFile = paramsFile;
         }
 
         public BaselineData GetData(TestContext testContext)
         {
-            var outputFolder = BaselineFolder.BuildOutputFolder(testContext, paramsFile);
+            var outputFolder = testContext.MaterializeBaseline(paramsFile);
 
             using (new AssertionScope())
             {
                 return new(
-                    OutputFolder: outputFolder,
-                    Parameters: outputFolder.GetFileOrEnsureCheckedIn("parameters.bicepparam"),
+                    FileSet: outputFolder,
+                    Parameters: outputFolder.GetFile("parameters.bicepparam"),
                     Compiled: outputFolder.TryGetFile("parameters.json"),
-                    Bicep: outputFolder.GetFileOrEnsureCheckedIn("main.bicep"),
-                    Tokens: outputFolder.GetFileOrEnsureCheckedIn("parameters.tokens.bicepparam"),
-                    Diagnostics: outputFolder.GetFileOrEnsureCheckedIn("parameters.diagnostics.bicepparam"),
-                    Symbols: outputFolder.GetFileOrEnsureCheckedIn("parameters.symbols.bicepparam"),
-                    Syntax: outputFolder.GetFileOrEnsureCheckedIn("parameters.syntax.bicepparam"),
-                    Formatted: outputFolder.GetFileOrEnsureCheckedIn("parameters.formatted.bicepparam"));
+                    Bicep: outputFolder.GetFile("main.bicep"),
+                    Tokens: outputFolder.GetFile("parameters.tokens.bicepparam"),
+                    Diagnostics: outputFolder.GetFile("parameters.diagnostics.bicepparam"),
+                    Symbols: outputFolder.GetFile("parameters.symbols.bicepparam"),
+                    Syntax: outputFolder.GetFile("parameters.syntax.bicepparam"),
+                    Formatted: outputFolder.GetFile("parameters.formatted.bicepparam"));
             }
         }
 
         private static IEnumerable<BaselineData_Bicepparam> GetAllExampleData()
         {
-            var embeddedFiles = EmbeddedFile.LoadAll(
+            var embeddedFiles = TestEmbeddedFile.LoadAll(
                 typeof(AssemblyInitializer).Assembly,
                 "baselines_bicepparam",
                 streamName => Path.GetFileName(streamName) == "parameters.bicepparam");

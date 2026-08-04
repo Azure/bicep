@@ -11,6 +11,7 @@ using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -36,7 +37,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         //   Problematic ones that should be disabled in this and most other tests by default can be added to BicepTestConstants.AnalyzerRulesToDisableInTests
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task ProgramsShouldProduceExpectedDiagnostics(DataSet dataSet)
         {
             var (compilation, outputDirectory, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
@@ -52,7 +53,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileMainDiagnostics);
             File.WriteAllText(resultsFile, sourceTextWithDiags);
 
-            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+            sourceTextWithDiags.Should().MatchTextBaseline(
                 TestContext,
                 dataSet.Diagnostics,
                 expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainDiagnostics),
@@ -69,7 +70,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task ProgramsShouldProduceExpectedUserDeclaredSymbols(DataSet dataSet)
         {
             var (compilation, outputDirectory, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
@@ -91,7 +92,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileMainDiagnostics);
             File.WriteAllText(resultsFile, sourceTextWithDiags);
 
-            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+            sourceTextWithDiags.Should().MatchTextBaseline(
                 TestContext,
                 dataSet.Symbols,
                 expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSymbols),
@@ -320,7 +321,7 @@ param storageAccount string = 'testStorageAccount'";
 
         [DataTestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task ProgramsShouldProduceExpectedIrTree(DataSet dataSet)
         {
             var (compilation, outputDirectory, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
@@ -337,7 +338,7 @@ param storageAccount string = 'testStorageAccount'";
             var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, expressionList, getSpan, expression => ExpressionCollectorVisitor.GetExpressionLoggingString(expressionByParent, expression));
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainIr), sourceTextWithDiags);
 
-            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+            sourceTextWithDiags.Should().MatchTextBaseline(
                 TestContext,
                 dataSet.Ir ?? "",
                 expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainIr),

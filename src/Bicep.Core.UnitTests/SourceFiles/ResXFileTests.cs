@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Testing;
+using Bicep.Testing.Baselines;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -18,7 +20,7 @@ namespace Bicep.Core.UnitTests.SourceFiles
         const string Info = "If this test fails, it may indicate that the file was formatted directly in the editor instead of the Resource Editor in Visual Studio. (In VSCode or VS Mac, there is no Resource Editor, so be sure you haven't allowed the editor to format the file after editing.)";
         private string GetRelativeFileContents(string relativePath)
         {
-            var path = BaselineHelper.GetAbsolutePathRelativeToRepoRoot(relativePath);
+            var path = TestRepository.GetAbsolutePath(relativePath);
             return File.ReadAllText(path);
         }
 
@@ -33,7 +35,7 @@ namespace Bicep.Core.UnitTests.SourceFiles
         [TestMethod]
         public void ResXAndDesignerFilesShouldBeConsistentAndNotCauseUnnecessaryMergeConflicts()
         {
-            string[] resxFiles = System.IO.Directory.GetFiles(BaselineHelper.GetAbsolutePathRelativeToRepoRoot("src"), "*.resx", SearchOption.AllDirectories)
+            string[] resxFiles = System.IO.Directory.GetFiles(TestRepository.GetAbsolutePath("src"), "*.resx", SearchOption.AllDirectories)
                 .Where(path => !path.ContainsOrdinally("packages"))
                 .ToArray();
             resxFiles.Should().HaveCountGreaterThan(2, "There should be at least 3 ResX files found in the project");

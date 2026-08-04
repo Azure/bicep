@@ -15,7 +15,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
+using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.FileSystem;
@@ -123,9 +123,9 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
     }
 
     [TestMethod]
-    [EmbeddedFilesTestData(@"Files/SnapshotCommandTests/.*/main\.bicepparam")]
-    [TestCategory(BaselineHelper.BaselineTestCategory)]
-    public async Task Snapshot_generates_correct_format(EmbeddedFile paramFile)
+    [TestEmbeddedFileData(@"Files/SnapshotCommandTests/.*/main\.bicepparam")]
+    [TestCategory(TestCategories.Baseline)]
+    public async Task Snapshot_generates_correct_format(TestEmbeddedFile paramFile)
     {
         var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(ExtensionResourceTypeHelper.GetHttpExtensionTypesTgz(), new(), artifactTarget: "example.azurecr.io/extensions/snapshot:1.2.3");
         var clientFactory = services.Build().Construct<IContainerRegistryClientFactory>();
@@ -133,15 +133,15 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
         var subscriptionId = new Guid().ToString();
         var resourceGroupName = "myRg";
 
-        var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
-        var snapshotFile = baselineFolder.GetFileOrEnsureCheckedIn("main.snapshot.json");
+        var baselineFiles = TestContext.MaterializeBaseline(paramFile);
+        var snapshotFile = baselineFiles.GetFile("main.snapshot.json");
 
         var result = await Bicep(
             services => services.WithContainerRegistryClientFactory(clientFactory),
-            "snapshot", baselineFolder.EntryFile.OutputFilePath, "--mode", "overwrite", "--subscription-id", subscriptionId, "--resource-group", resourceGroupName);
+            "snapshot", baselineFiles.EntryFile.OutputFilePath, "--mode", "overwrite", "--subscription-id", subscriptionId, "--resource-group", resourceGroupName);
         result.Should().Succeed();
 
-        snapshotFile.ShouldHaveExpectedJsonValue();
+        snapshotFile.Read().Should().MatchJsonBaseline(snapshotFile);
     }
 
     [TestMethod]
@@ -251,7 +251,7 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
             "main.bicep",
             """
                 module mod 'mod.bicep' = {}
-                                
+
                 module mod2 'mod2.bicep' = {
                   params: {
                     vnetName: mod.outputs.static
@@ -271,7 +271,7 @@ Scope: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg
             "mod2.bicep",
             """
                 param vnetName string
-                                
+
                 resource vnet 'Microsoft.Network/virtualNetworks@2024-07-01' = {
                   name: vnetName
                 }

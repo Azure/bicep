@@ -9,6 +9,7 @@ using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -92,7 +93,7 @@ namespace Bicep.Core.IntegrationTests
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void LexerShouldProduceExpectedTokens(DataSet dataSet)
         {
             var lexer = new Lexer(new SlidingTextWindow(dataSet.Bicep), ToListDiagnosticWriter.Create());
@@ -106,7 +107,7 @@ namespace Bicep.Core.IntegrationTests
             var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, lexer.GetTokens(), getLoggingString);
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainTokens), sourceTextWithDiags);
 
-            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
+            sourceTextWithDiags.Should().MatchTextBaseline(
                 TestContext,
                 dataSet.Tokens,
                 expectedPath: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainTokens),
@@ -118,7 +119,7 @@ namespace Bicep.Core.IntegrationTests
 
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData()]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void ParamsFile_LexerShouldProduceExpectedTokens(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
@@ -133,8 +134,7 @@ namespace Bicep.Core.IntegrationTests
 
             var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.Contents, "\n", lexer.GetTokens(), getLoggingString);
 
-            data.Tokens.WriteToOutputFolder(sourceTextWithDiags);
-            data.Tokens.ShouldHaveExpectedValue();
+            sourceTextWithDiags.Should().MatchTextBaseline(data.Tokens);
 
             lexer.GetTokens().Count(token => token.Type == TokenType.EndOfFile).Should().Be(1, "because there should only be 1 EOF token");
             lexer.GetTokens().Last().Type.Should().Be(TokenType.EndOfFile, "because the last token should always be EOF.");

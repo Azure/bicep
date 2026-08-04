@@ -12,7 +12,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
+using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -1356,7 +1356,7 @@ param objParam object
 
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task Build_Valid_Params_File_Should_Succeed(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
@@ -1371,12 +1371,12 @@ param objParam object
             }
 
             data.Compiled.Should().NotBeNull();
-            data.Compiled!.ShouldHaveExpectedJsonValue();
+            data.Compiled!.Read().Should().MatchJsonBaseline(data.Compiled);
         }
 
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task Build_Valid_Params_File_To_Outdir_Should_Succeed(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
@@ -1391,13 +1391,13 @@ param objParam object
             }
 
             data.Compiled.Should().NotBeNull();
-            data.Compiled!.ReadFromOutputFolder().Should().OnlyContainLFNewline();
-            data.Compiled!.ShouldHaveExpectedJsonValue();
+            data.Compiled!.Read().Should().OnlyContainLFNewline();
+            data.Compiled.Read().Should().MatchJsonBaseline(data.Compiled);
         }
 
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task Build_Valid_Params_File_ToStdOut_Should_Succeed(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
@@ -1415,13 +1415,12 @@ param objParam object
             parametersStdout.parametersJson.Should().OnlyContainLFNewline();
 
             data.Compiled.Should().NotBeNull();
-            data.Compiled!.WriteToOutputFolder(parametersStdout.parametersJson);
-            data.Compiled.ShouldHaveExpectedJsonValue();
+            parametersStdout.parametersJson.Should().MatchJsonBaseline(data.Compiled!);
         }
 
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.InvalidOnly)]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task Build_Invalid_Single_Params_File_ShouldFail_WithExpectedErrorMessage(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
@@ -1447,25 +1446,24 @@ param objParam object
         }
 
         [TestMethod]
-        [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/.*/main\.bicepparam")]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public async Task Build_params_to_stdout_with_non_bicep_references_should_succeed(EmbeddedFile paramFile)
+        [TestEmbeddedFileData(@"Files/BuildParamsCommandTests/.*/main\.bicepparam")]
+        [TestCategory(TestCategories.Baseline)]
+        public async Task Build_params_to_stdout_with_non_bicep_references_should_succeed(TestEmbeddedFile paramFile)
         {
-            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
-            var outputFile = baselineFolder.GetFileOrEnsureCheckedIn("output.json");
+            var baselineFiles = TestContext.MaterializeBaseline(paramFile);
+            var outputFile = baselineFiles.GetFile("output.json");
 
-            var result = await Bicep(await CreateDefaultSettingsWithDefaultMockRegistry(), "build-params", baselineFolder.EntryFile.OutputFilePath, "--stdout");
+            var result = await Bicep(await CreateDefaultSettingsWithDefaultMockRegistry(), "build-params", baselineFiles.EntryFile.OutputFilePath, "--stdout");
             result.Should().Succeed();
 
             var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
             // Force consistency for escaped newlines.
             parametersStdout = parametersStdout with { templateJson = parametersStdout?.templateJson?.ReplaceLineEndings("\n") };
-            outputFile.WriteJsonToOutputFolder(parametersStdout);
-            outputFile.ShouldHaveExpectedJsonValue();
+            JsonConvert.SerializeObject(parametersStdout, Formatting.Indented).Should().MatchJsonBaseline(outputFile);
         }
 
         [TestMethod]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task Build_params_to_stdout_with_empty_bicepconfig_should_succeed()
         {
             var mainBicepParamPath = FileHelper.SaveResultFile(
@@ -1504,20 +1502,20 @@ param objParam object
         }
 
         [TestMethod]
-        [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/.*/main\.bicepparam")]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public async Task Build_params_returns_intuitive_error_if_invoked_with_bicep_file_param(EmbeddedFile paramFile)
+        [TestEmbeddedFileData(@"Files/BuildParamsCommandTests/.*/main\.bicepparam")]
+        [TestCategory(TestCategories.Baseline)]
+        public async Task Build_params_returns_intuitive_error_if_invoked_with_bicep_file_param(TestEmbeddedFile paramFile)
         {
-            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
-            var bicepFile = Path.Combine(baselineFolder.OutputFolderPath, "main.bicep");
+            var baselineFiles = TestContext.MaterializeBaseline(paramFile);
+            var bicepFile = Path.Combine(baselineFiles.OutputDirectoryPath, "main.bicep");
             File.WriteAllText(bicepFile, "");
 
-            var result = await Bicep(await CreateDefaultSettingsWithDefaultMockRegistry(), "build-params", baselineFolder.EntryFile.OutputFilePath, "--bicep-file", bicepFile, "--stdout");
+            var result = await Bicep(await CreateDefaultSettingsWithDefaultMockRegistry(), "build-params", baselineFiles.EntryFile.OutputFilePath, "--bicep-file", bicepFile, "--stdout");
             result.Should().Fail().And.HaveStderrMatch($"Bicep file * provided with --bicep-file can only be used if the Bicep parameters \"using\" declaration refers to a Bicep file on disk.*");
         }
 
         [TestMethod]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public async Task Build_params_works_with_using_none()
         {
             var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
@@ -1543,34 +1541,33 @@ param objParam object
         }
 
         [TestMethod]
-        [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/Registry/main\.bicepparam")]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public async Task Build_params_to_stdout_with_registry_should_succeed_after_restore(EmbeddedFile paramFile)
+        [TestEmbeddedFileData(@"Files/BuildParamsCommandTests/Registry/main\.bicepparam")]
+        [TestCategory(TestCategories.Baseline)]
+        public async Task Build_params_to_stdout_with_registry_should_succeed_after_restore(TestEmbeddedFile paramFile)
         {
-            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
-            var outputFile = baselineFolder.GetFileOrEnsureCheckedIn("output.json");
+            var baselineFiles = TestContext.MaterializeBaseline(paramFile);
+            var outputFile = baselineFiles.GetFile("output.json");
 
             var settings = await CreateDefaultSettingsWithDefaultMockRegistry();
 
-            var result = await Bicep(settings, "restore", baselineFolder.EntryFile.OutputFilePath);
+            var result = await Bicep(settings, "restore", baselineFiles.EntryFile.OutputFilePath);
             result.Should().Succeed().And.NotHaveStdout().And.NotHaveStderr();
 
-            result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--no-restore", "--stdout");
+            result = await Bicep(settings, "build-params", baselineFiles.EntryFile.OutputFilePath, "--no-restore", "--stdout");
             result.Should().Succeed().And.NotHaveStderr();
 
             var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
             // Force consistency for escaped newlines.
             parametersStdout = parametersStdout with { templateJson = parametersStdout?.templateJson?.ReplaceLineEndings("\n") };
-            outputFile.WriteJsonToOutputFolder(parametersStdout);
-            outputFile.ShouldHaveExpectedJsonValue();
+            JsonConvert.SerializeObject(parametersStdout, Formatting.Indented).Should().MatchJsonBaseline(outputFile);
         }
 
         [TestMethod]
-        [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/Registry/main\.bicepparam")]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public async Task Build_bicepparam_should_fail_with_error_diagnostics_for_registry_failure(EmbeddedFile paramFile)
+        [TestEmbeddedFileData(@"Files/BuildParamsCommandTests/Registry/main\.bicepparam")]
+        [TestCategory(TestCategories.Baseline)]
+        public async Task Build_bicepparam_should_fail_with_error_diagnostics_for_registry_failure(TestEmbeddedFile paramFile)
         {
-            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
+            var baselineFiles = TestContext.MaterializeBaseline(paramFile);
 
             var client = StrictMock.Of<ContainerRegistryContentClient>();
             client
@@ -1585,7 +1582,7 @@ param objParam object
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
-            var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--stdout");
+            var result = await Bicep(settings, "build-params", baselineFiles.EntryFile.OutputFilePath, "--stdout");
 
             result.Should().Fail().And.NotHaveStdout();
             result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the artifact with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");

@@ -7,6 +7,7 @@ Typical imports are:
 ```csharp
 using Bicep.Testing;
 using Bicep.Testing.Assertions;
+using Bicep.Testing.Baselines;
 using Bicep.Testing.Mocks;
 ```
 
@@ -35,8 +36,30 @@ using Bicep.Testing.Assertions.Json;
 | Validate and compare printed Bicep text | `BeValidBicepText(...)` |
 | Assert JSON tokens | `Bicep.Testing.Assertions.Json` |
 | Create strict Moq mocks | `Bicep.Testing.Mocks.StrictMock` |
+| Create and attach real test output files | `TestContext.SaveResultFile(...)` |
+| Materialize and assert embedded baselines | `TestContext.MaterializeBaseline(...)` |
 | Override the reported compiler assembly version | `TestFeatureProviderFactory.WithAssemblyVersion(...)` |
 | Decompile templates or parameters | `TestDecompiler` |
+
+## Baselines
+
+Use `TestEmbeddedFileData` for embedded baseline test data and materialize its file set through the test context:
+
+```csharp
+[TestMethod]
+[TestCategory(TestCategories.Baseline)]
+[TestEmbeddedFileData(@"Files/Scenarios/.*/main\.bicep")]
+public void Produces_expected_output(TestEmbeddedFile inputFile)
+{
+    var files = TestContext.MaterializeBaseline(inputFile);
+    var outputFile = files.GetFile("main.json");
+
+    GenerateOutput(files.EntryFile.OutputFilePath)
+        .Should().MatchJsonBaseline(outputFile);
+}
+```
+
+Use `MatchTextBaseline(...)` for text and `MatchJsonBaseline(...)` for JSON. Both write the actual result to `OutputFilePath`, support baseline updates, and report a diff against the checked-in embedded file. `BaselineFileSet` exposes `EntryFile`, `OutputDirectoryPath`, `GetFile(...)`, and `GetFileForPath(...)` without introducing URI conversions.
 
 ## Compiler Recipes
 

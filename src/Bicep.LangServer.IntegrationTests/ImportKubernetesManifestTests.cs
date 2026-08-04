@@ -4,7 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
+using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LanguageServer.Handlers;
@@ -23,14 +23,14 @@ namespace Bicep.LangServer.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         [DataTestMethod]
-        [EmbeddedFilesTestData(@"Files/ImportKubernetesManifest/.*/.*\.yml")]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public async Task ImportKubernetesManifest_generates_valid_bicep_files_from_kubernetes_manifests(EmbeddedFile embeddedYml)
+        [TestEmbeddedFileData(@"Files/ImportKubernetesManifest/.*/.*\.yml")]
+        [TestCategory(TestCategories.Baseline)]
+        public async Task ImportKubernetesManifest_generates_valid_bicep_files_from_kubernetes_manifests(TestEmbeddedFile embeddedYml)
         {
             var telemetryEventsListener = new MultipleMessageListener<TelemetryEventParams>();
-            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, embeddedYml);
-            var yamlFile = baselineFolder.EntryFile;
-            var bicepFile = baselineFolder.GetFileOrEnsureCheckedIn(Path.ChangeExtension(embeddedYml.FileName, ".bicep"));
+            var baselineFiles = TestContext.MaterializeBaseline(embeddedYml);
+            var yamlFile = baselineFiles.EntryFile;
+            var bicepFile = baselineFiles.GetFile(Path.ChangeExtension(embeddedYml.FileName, ".bicep"));
 
             using var helper = await LanguageServerHelper.StartServer(
                 this.TestContext,
@@ -46,9 +46,9 @@ namespace Bicep.LangServer.IntegrationTests
                 ["success"] = "true",
             });
 
-            bicepFile.ShouldHaveExpectedValue();
+            bicepFile.Read().Should().MatchTextBaseline(bicepFile);
 
-            CompilationHelper.Compile(bicepFile.ReadFromOutputFolder()).Should().GenerateATemplate();
+            CompilationHelper.Compile(bicepFile.Read()).Should().GenerateATemplate();
         }
 
         [TestMethod]

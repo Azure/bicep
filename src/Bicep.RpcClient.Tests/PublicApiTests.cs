@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
+using Bicep.Testing;
+using Bicep.Testing.Baselines;
 using FluentAssertions;
 using PublicApiGenerator;
 
@@ -14,22 +14,18 @@ public class PublicApiTests
     public TestContext TestContext { get; set; } = null!;
 
     [TestMethod]
-    [TestCategory(BaselineHelper.BaselineTestCategory)]
-    [EmbeddedFilesTestData(@"^Files\/PublicApis\/Azure.Bicep.RpcClient.txt$")]
-    public void PublicApi_should_be_up_to_date(EmbeddedFile publicApiFile)
+    [TestCategory(TestCategories.Baseline)]
+    [TestEmbeddedFileData(@"^Files\/PublicApis\/Azure.Bicep.RpcClient.txt$")]
+    public void PublicApi_should_be_up_to_date(TestEmbeddedFile publicApiFile)
     {
-        // This test just asserts that the public API surface of the assembly as defined in Azure.Bicep.RpcClient.txt is up to date.
-        // This ensures that any changes to the public API are reviewed.
-        var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, publicApiFile);
-        var result = baselineFolder.GetFileOrEnsureCheckedIn(publicApiFile.FileName);
+        var baselineFiles = TestContext.MaterializeBaseline(publicApiFile);
+        var result = baselineFiles.GetFile(publicApiFile.FileName);
 
         var publicApi = typeof(BicepClientConfiguration).Assembly.GeneratePublicApi();
 
-        // Normalize line endings so the baseline is consistent across Windows and Linux CI agents.
         publicApi = publicApi.Replace("\r\n", "\n");
 
-        result.WriteToOutputFolder(publicApi);
-        result.ShouldHaveExpectedValue();
+        publicApi.Should().MatchTextBaseline(result);
     }
 
     [TestMethod]
