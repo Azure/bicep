@@ -14,9 +14,7 @@ jobs:
       github.actor != 'dependabot[bot]' &&
       !github.event.pull_request.draft &&
       github.event.pull_request.author_association != 'MEMBER' &&
-      github.event.pull_request.author_association != 'OWNER' &&
-      github.event.pull_request.author_association != 'COLLABORATOR' &&
-      github.event.pull_request.head.repo.fork
+      github.event.pull_request.author_association != 'OWNER'
     runs-on: ubuntu-latest
     # The job below will use the built-in "Request reviewers for a pull request" script to assign reviewers
     steps:
