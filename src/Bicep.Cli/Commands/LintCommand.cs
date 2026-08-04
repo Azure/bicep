@@ -7,6 +7,7 @@ using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
@@ -20,7 +21,8 @@ public class LintCommand(
     ILogger logger,
     DiagnosticLogger diagnosticLogger,
     BicepCompiler compiler,
-    InputOutputArgumentsResolver inputOutputArgumentsResolver) : ICommand
+    InputOutputArgumentsResolver inputOutputArgumentsResolver,
+    IConfigurationManager configurationManager) : ICommand
 {
     public async Task<int> RunAsync(LintArguments args)
     {
@@ -30,16 +32,20 @@ public class LintCommand(
         {
             ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
 
-            var result = await Lint(inputUri, args.NoRestore, args.DiagnosticsFormat);
+            var result = await Lint(inputUri, args.NoRestore, args.DiagnosticsFormat, args.Config);
             hasErrors |= result.HasErrors;
         }
 
         return CommandHelper.GetExitCode(new(hasErrors));
     }
 
-    private async Task<DiagnosticSummary> Lint(IOUri inputUri, bool noRestore, DiagnosticsFormat? diagnosticsFormat)
+    private async Task<DiagnosticSummary> Lint(IOUri inputUri, bool noRestore, DiagnosticsFormat? diagnosticsFormat, string? config)
     {
-        var compilation = await compiler.CreateCompilation(inputUri, skipRestore: noRestore);
+
+        var lintCompiler = GetCompiler(config);
+
+        var compilation = await lintCompiler.CreateCompilation(inputUri, skipRestore: noRestore);
+
         CommandHelper.LogExperimentalWarning(logger, compilation);
 
         var summary = diagnosticLogger.LogDiagnostics(ArgumentHelper.GetDiagnosticOptions(diagnosticsFormat) with { SarifToStdout = true }, compilation);
@@ -68,11 +74,16 @@ public class LintCommand(
         {
             Description = "Sets the diagnostics format. Valid values are (Default, SARIF).",
         };
+        var configOption = new System.CommandLine.Option<string?>(Option.Config)
+        {
+            Description = "Specifies the path to a bicepconfig.json file to use.",
+        };
 
         command.Add(inputFileArgument);
         command.Add(filePatternOption);
         command.Add(noRestoreOption);
         command.Add(diagnosticsFormatOption);
+        command.Add(configOption);
         command.Validators.Add((System.CommandLine.Parsing.CommandResult result) => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
 
         command.SetAction((result, ct) => context.RunCommandAsync(async () =>
@@ -82,11 +93,30 @@ public class LintCommand(
                 result.GetValue(inputFileArgument),
                 result.GetValue(filePatternOption),
                 diagnosticsFormat,
-                result.GetValue(noRestoreOption));
+                result.GetValue(noRestoreOption),
+                result.GetValue(configOption));
 
             return await context.GetCommand<LintCommand>().RunAsync(args);
         }));
 
         return command;
+    }
+
+    private BicepCompiler GetCompiler(string? config)
+    {
+        if (config is null)
+        {
+            return compiler;
+        }
+
+        var configUri = IOUri.FromFilePath(config);
+
+        var configuration = configurationManager.LoadConfiguration(configUri);
+
+        return BicepCompiler.Create(services =>
+        {
+            services.AddSingleton<IConfigurationManager>(
+                IConfigurationManager.WithStaticConfiguration(configuration));
+        });
     }
 }

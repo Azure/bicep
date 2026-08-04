@@ -2,10 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Concurrent;
-using System.Collections.Immutable;
-using System.IO.Abstractions;
-using System.Security;
-using System.ServiceModel;
 using System.Text.Json;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -46,12 +42,35 @@ namespace Bicep.Core.Configuration
                 return GetDefaultConfiguration();
             }
 
-            if (!loadedConfigCache.GetOrAdd(configFileHandle, LoadConfiguration).IsSuccess(out var configuration, out var loadDiagnostic))
+            if (!loadedConfigCache.GetOrAdd(configFileHandle, LoadConfigurationInternal).IsSuccess(out var configuration, out var diagnostic))
             {
-                return GetDefaultConfiguration().With(diagnostics: [loadDiagnostic]);
+                return GetDefaultConfiguration()
+                    .With(diagnostics: [diagnostic]);
             }
 
-            return configuration;
+            return configuration!;
+        }
+
+        public RootConfiguration LoadConfiguration(IOUri configFileUri)
+        {
+            var configFileHandle = this.fileExplorer.GetFile(configFileUri);
+
+            if (!configFileHandle.Exists())
+            {
+                return GetDefaultConfiguration()
+                    .With(diagnostics:
+                    [
+                        ConfigDiagnosticBuilder.ConfigurationFileNotFound(configFileHandle.Uri)
+                    ]);
+            }
+
+            if (!loadedConfigCache.GetOrAdd(configFileHandle, LoadConfigurationInternal).IsSuccess(out var configuration, out var diagnostic))
+            {
+                return GetDefaultConfiguration()
+                    .With(diagnostics: [diagnostic]);
+            }
+
+            return configuration!;
         }
 
         public void PurgeCache()
@@ -66,13 +85,14 @@ namespace Bicep.Core.Configuration
         {
             (RootConfiguration, RootConfiguration)? returnVal = null;
             var configFileHandle = this.fileExplorer.GetFile(configFileIdentifier);
-            loadedConfigCache.AddOrUpdate(configFileHandle, LoadConfiguration, (handle, prev) =>
+            loadedConfigCache.AddOrUpdate(configFileHandle, LoadConfigurationInternal, (handle, prev) =>
             {
-                var reloaded = LoadConfiguration(handle);
+                var reloaded = LoadConfigurationInternal(handle);
                 if (prev.IsSuccess(out var prevConfig) && reloaded.IsSuccess(out var newConfig))
                 {
                     returnVal = (prevConfig, newConfig);
                 }
+
                 return reloaded;
             });
 
@@ -91,7 +111,7 @@ namespace Bicep.Core.Configuration
 
         private static RootConfiguration GetDefaultConfiguration() => IConfigurationManager.GetBuiltInConfiguration();
 
-        private static ResultWithDiagnostic<RootConfiguration> LoadConfiguration(IFileHandle configFileHandle)
+        private static ResultWithDiagnostic<RootConfiguration> LoadConfigurationInternal(IFileHandle configFileHandle)
         {
             try
             {
