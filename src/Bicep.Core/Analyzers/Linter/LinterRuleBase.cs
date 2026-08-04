@@ -66,12 +66,13 @@ namespace Bicep.Core.Analyzers.Linter
 
         public IEnumerable<IDiagnostic> Analyze(SemanticModel model, IServiceProvider serviceProvider)
         {
-            if (GetDiagnosticLevel(model) == DiagnosticLevel.Off)
+            var diagnosticLevel = GetDiagnosticLevel(model);
+            if (diagnosticLevel == DiagnosticLevel.Off)
             {
                 return [];
             }
 
-            return AnalyzeInternal(model, serviceProvider, GetDiagnosticLevel(model));
+            return AnalyzeInternal(model, serviceProvider, diagnosticLevel);
         }
 
         /// <summary>
