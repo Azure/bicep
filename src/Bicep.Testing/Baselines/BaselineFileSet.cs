@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Text;
 using Bicep.Core.Extensions;
 using Bicep.Testing.Assertions;
 using FluentAssertions;
@@ -52,6 +53,9 @@ public record BaselineFileSet(
 
     public BaselineFile? TryGetFile(string relativePath)
         => Files.TryGetValue(relativePath);
+
+    public string WriteFile(string relativePath, string contents, Encoding? encoding = null)
+        => EntryFile.TestContext.SaveResultFile(relativePath, contents, OutputDirectoryPath, encoding);
 
     public BaselineFile GetFileForPath(string filePath) => GetFile(GetBaselineStreamRelativePath(filePath));
 

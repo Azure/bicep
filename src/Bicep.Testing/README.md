@@ -59,7 +59,7 @@ public void Produces_expected_output(TestEmbeddedFile inputFile)
 }
 ```
 
-Use `MatchTextBaseline(...)` for text and `MatchJsonBaseline(...)` for JSON. Both write the actual result to `OutputFilePath`, support baseline updates, and report a diff against the checked-in embedded file. `BaselineFileSet` exposes `EntryFile`, `OutputDirectoryPath`, `GetFile(...)`, and `GetFileForPath(...)` without introducing URI conversions.
+Use `MatchTextBaseline(...)` for text and `MatchJsonBaseline(...)` for JSON. Both write the actual result to `OutputFilePath`, support baseline updates, and report a diff against the checked-in embedded file. `BaselineFileSet` exposes `EntryFile`, `OutputDirectoryPath`, `GetFile(...)`, `GetFileForPath(...)`, and `WriteFile(...)` without introducing URI conversions or manual path construction.
 
 ## Compiler Recipes
 

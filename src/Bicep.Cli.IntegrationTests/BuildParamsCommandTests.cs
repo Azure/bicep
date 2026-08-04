@@ -1507,8 +1507,7 @@ param objParam object
         public async Task Build_params_returns_intuitive_error_if_invoked_with_bicep_file_param(TestEmbeddedFile paramFile)
         {
             var baselineFiles = TestContext.MaterializeBaseline(paramFile);
-            var bicepFile = Path.Combine(baselineFiles.OutputDirectoryPath, "main.bicep");
-            File.WriteAllText(bicepFile, "");
+            var bicepFile = baselineFiles.WriteFile("main.bicep", "");
 
             var result = await Bicep(await CreateDefaultSettingsWithDefaultMockRegistry(), "build-params", baselineFiles.EntryFile.OutputFilePath, "--bicep-file", bicepFile, "--stdout");
             result.Should().Fail().And.HaveStderrMatch($"Bicep file * provided with --bicep-file can only be used if the Bicep parameters \"using\" declaration refers to a Bicep file on disk.*");
