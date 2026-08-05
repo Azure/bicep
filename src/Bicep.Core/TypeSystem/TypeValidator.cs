@@ -16,7 +16,7 @@ namespace Bicep.Core.TypeSystem
 {
     public class TypeValidator
     {
-        private delegate void TypeMismatchDiagnosticWriter(TypeSymbol targetType, TypeSymbol expressionType, SyntaxBase expression);
+        private delegate void TypeMismatchDiagnosticWriter(TypeSymbol targetType, TypeSymbol expressionType, SyntaxBase expression, bool warnInsteadOfError);
 
         private readonly ITypeManager typeManager;
 
@@ -287,17 +287,20 @@ namespace Bicep.Core.TypeSystem
                     return NarrowType(config, expression, nonNullableExpressionType, targetType);
                 }
 
+                var narrowedStringLiteralType = TryNarrowStringTypeToFixedStringLiteralType(expressionType, targetType);
+                var warnInsteadOfError = narrowedStringLiteralType is not null;
+
                 // fundamentally different types - cannot assign
                 if (config.OnTypeMismatch is not null)
                 {
-                    config.OnTypeMismatch(targetType, expressionType, expression);
+                    config.OnTypeMismatch(targetType, expressionType, expression, warnInsteadOfError);
                 }
                 else
                 {
-                    diagnosticWriter.Write(config.OriginSyntax ?? expression, x => x.ExpectedValueTypeMismatch(ShouldWarn(targetType), targetType, expressionType));
+                    diagnosticWriter.Write(config.OriginSyntax ?? expression, x => x.ExpectedValueTypeMismatch(ShouldWarn(targetType) || warnInsteadOfError, targetType, expressionType));
                 }
 
-                return targetType;
+                return narrowedStringLiteralType ?? targetType;
             }
 
             if (targetType is ResourceParameterType)
@@ -394,6 +397,52 @@ namespace Bicep.Core.TypeSystem
             }
 
             return true;
+        }
+
+        private static TypeSymbol? TryNarrowStringTypeToFixedStringLiteralType(TypeSymbol expressionType, TypeSymbol targetType)
+        {
+            if (expressionType is not StringType expressionString)
+            {
+                return null;
+            }
+
+            var targetLiteralTypes = GetFixedStringLiteralTypes(targetType);
+            if (targetLiteralTypes.IsEmpty)
+            {
+                return null;
+            }
+
+            var overlappingLiteralTypes = targetLiteralTypes
+                .Where(targetLiteral => IsStringLiteralInDomain(expressionString, targetLiteral))
+                .ToImmutableArray();
+
+            return overlappingLiteralTypes.IsEmpty
+                ? null
+                : TypeHelper.CreateTypeUnion(overlappingLiteralTypes);
+        }
+
+        private static ImmutableArray<StringLiteralType> GetFixedStringLiteralTypes(TypeSymbol targetType) => targetType switch
+        {
+            StringLiteralType stringLiteral => [stringLiteral],
+            UnionType union when union.Members.All(member => member.Type is StringLiteralType or NullType) =>
+                union.Members.Select(member => member.Type).OfType<StringLiteralType>().ToImmutableArray(),
+            _ => [],
+        };
+
+        private static bool IsStringLiteralInDomain(StringType stringType, StringLiteralType stringLiteralType)
+        {
+            var stringLength = stringLiteralType.RawStringValue.Length;
+            if (stringType.MinLength.HasValue && stringLength < stringType.MinLength.Value)
+            {
+                return false;
+            }
+
+            if (stringType.MaxLength.HasValue && stringLength > stringType.MaxLength.Value)
+            {
+                return false;
+            }
+
+            return stringType.Pattern is null || TypeHelper.MatchesPattern(stringType.Pattern, stringLiteralType.RawStringValue);
         }
 
         private TypeSymbol NarrowIntegerAssignmentType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, IntegerType targetType)
@@ -686,7 +735,7 @@ namespace Bicep.Core.TypeSystem
                     var newConfig = config with
                     {
                         SkipTypeErrors = true,
-                        OnTypeMismatch = (expected, actual, position) => diagnosticWriter.Write(position, x => x.ArrayTypeMismatch(ShouldWarn(targetType), expected, actual)),
+                        OnTypeMismatch = (expected, actual, position, warnInsteadOfError) => diagnosticWriter.Write(position, x => x.ArrayTypeMismatch(ShouldWarn(targetType) || warnInsteadOfError, expected, actual)),
                     };
 
                     var narrowedItem = NarrowType(newConfig, item.Value, itemTarget);
@@ -700,7 +749,7 @@ namespace Bicep.Core.TypeSystem
                     var newConfig = config with
                     {
                         SkipTypeErrors = true,
-                        OnTypeMismatch = (expected, actual, position) => diagnosticWriter.Write(position, x => x.ArrayTypeMismatchSpread(ShouldWarn(targetType), expected, actual)),
+                        OnTypeMismatch = (expected, actual, position, warnInsteadOfError) => diagnosticWriter.Write(position, x => x.ArrayTypeMismatchSpread(ShouldWarn(targetType) || warnInsteadOfError, expected, actual)),
                     };
 
                     var narrowedSpread = NarrowType(newConfig, spread.Expression, spreadTarget);
@@ -1313,26 +1362,27 @@ namespace Bicep.Core.TypeSystem
 
         private TypeMismatchDiagnosticWriter GetPropertyMismatchDiagnosticWriter(TypeValidatorConfig config, bool shouldWarn, string propertyName, bool showTypeInaccuracyClause)
         {
-            return (expectedType, actualType, errorExpression) =>
+            return (expectedType, actualType, errorExpression, warnInsteadOfError) =>
             {
                 diagnosticWriter.Write(
                     config.OriginSyntax ?? errorExpression,
                     x =>
                     {
+                        var shouldWarnForMismatch = shouldWarn || warnInsteadOfError;
                         var sourceDeclaration = TryGetSourceDeclaration(config);
 
                         if (sourceDeclaration is not null)
                         {
                             // only look up suggestions if we're not sourcing this type from another declaration.
-                            return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, propertyName, expectedType, actualType, showTypeInaccuracyClause);
+                            return x.PropertyTypeMismatch(shouldWarnForMismatch, sourceDeclaration, propertyName, expectedType, actualType, showTypeInaccuracyClause);
                         }
 
                         if (actualType is StringLiteralType actualStringLiteral && TryGetStringLiteralSuggestion(actualStringLiteral, expectedType) is { } suggestion)
                         {
-                            return x.PropertyStringLiteralMismatchWithSuggestion(shouldWarn, propertyName, expectedType, actualType.Name, suggestion);
+                            return x.PropertyStringLiteralMismatchWithSuggestion(shouldWarnForMismatch, propertyName, expectedType, actualType.Name, suggestion);
                         }
 
-                        return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, propertyName, expectedType, actualType, showTypeInaccuracyClause);
+                        return x.PropertyTypeMismatch(shouldWarnForMismatch, sourceDeclaration, propertyName, expectedType, actualType, showTypeInaccuracyClause);
                     });
             };
         }
