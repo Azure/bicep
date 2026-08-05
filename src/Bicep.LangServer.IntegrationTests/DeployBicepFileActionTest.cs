@@ -322,7 +322,6 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task StartDeploymentAsync_WithNoParameterFile_Succeeds()
         {
             var bicepFileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
-            var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", "invalid_parameters_file");
 
             var fileTextsByUri = new Dictionary<DocumentUri, string>()
             {

@@ -9,9 +9,10 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
 using Bicep.Testing.Baselines;
 using FluentAssertions;
-using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.IntegrationTests.Semantics
@@ -102,14 +103,17 @@ namespace Bicep.Core.IntegrationTests.Semantics
             var artifactManager = await MockRegistry.CreateDefaultExternalArtifactManager(TestContext);
             await artifactManager.PublishRegistryModule(moduleRef, moduleContent);
 
-            var paramsFilePath = FileHelper.SaveResultFile(TestContext, "main.bicepparam", paramsContent);
-            var fileUri = PathHelper.FilePathToFileUrl(paramsFilePath);
+            var files = MockFileSystemTestFileSet.Create(("main.bicepparam", paramsContent));
+            var cacheRoot = files.FileExplorer.GetDirectory(files.GetUri("cache")).EnsureExists();
 
-            var services = await CreateServicesAsync();
+            var services = await CreateServicesAsync(cacheRoot);
             services = services.WithTestArtifactManager(artifactManager);
+            services = services
+                .WithFileSystem(files.FileSystem)
+                .WithFileExplorer(files.FileExplorer);
 
             var compiler = services.Build().GetCompiler();
-            var compilation = await compiler.CreateCompilation(fileUri.ToIOUri());
+            var compilation = await compiler.CreateCompilation(files.GetUri("main.bicepparam"));
 
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().ExcludingLinterDiagnostics();
 
@@ -117,8 +121,11 @@ namespace Bicep.Core.IntegrationTests.Semantics
         }
 
         private async Task<ServiceBuilder> CreateServicesAsync()
+            => await CreateServicesAsync(FileHelper.GetCacheRootDirectory(TestContext));
+
+        private async Task<ServiceBuilder> CreateServicesAsync(IDirectoryHandle cacheRootDirectory)
             => new ServiceBuilder()
-                .WithFeatureOverrides(new(TestContext))
+                .WithFeatureOverrides(new(CacheRootDirectory: cacheRootDirectory))
                 .WithEnvironmentVariables(
                     ("stringEnvVariableName", "test"),
                     ("intEnvVariableName", "100"),

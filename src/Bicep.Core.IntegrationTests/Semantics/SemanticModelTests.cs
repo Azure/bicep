@@ -204,8 +204,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         {
             var bicepFileContents = @"#disable-next-line BCP029 BCP068
 resource test";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
-            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var documentUri = DocumentUri.FromFileSystemPath(TestFileUri.FromInMemoryPath("main.bicep").GetFilePath());
             var uri = documentUri.ToUriEncoded();
 
             var files = new Dictionary<Uri, string>
@@ -245,8 +244,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 #disable-next-line BCP036 BCP037
   properties: vmProperties
 }";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
-            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var documentUri = DocumentUri.FromFileSystemPath(TestFileUri.FromInMemoryPath("main.bicep").GetFilePath());
             var uri = documentUri.ToUriEncoded();
 
             var files = new Dictionary<Uri, string>
@@ -264,8 +262,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
         {
             var bicepFileContents = @"#disable-next-line no-unused-params
 param storageAccount string = 'testStorageAccount'";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
-            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var documentUri = DocumentUri.FromFileSystemPath(TestFileUri.FromInMemoryPath("main.bicep").GetFilePath());
             var uri = documentUri.ToUriEncoded();
 
             var files = new Dictionary<Uri, string>
@@ -284,8 +281,7 @@ param storageAccount string = 'testStorageAccount'";
             var bicepFileContents = @"#disable-next-line no-unused-params
 
 param storageAccount string = 'testStorageAccount'";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
-            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var documentUri = DocumentUri.FromFileSystemPath(TestFileUri.FromInMemoryPath("main.bicep").GetFilePath());
             var uri = documentUri.ToUriEncoded();
 
             var files = new Dictionary<Uri, string>

@@ -231,8 +231,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var bicepFileContents = @"#disable-next-line BCP029 BCP068
 resource test";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
-            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var documentUri = DocumentUri.From(InMemoryFileResolver.GetFileUri("/path/to/main.bicep"));
             var uri = documentUri.ToUriEncoded();
 
             var files = new Dictionary<Uri, string>
@@ -288,8 +287,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   location: 'West US'
   properties: vmProperties
 }";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
-            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var documentUri = DocumentUri.From(InMemoryFileResolver.GetFileUri("/path/to/main.bicep"));
             var uri = documentUri.ToUriEncoded();
 
             var files = new Dictionary<Uri, string>
