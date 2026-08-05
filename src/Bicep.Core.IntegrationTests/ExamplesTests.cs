@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -20,6 +21,10 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ExamplesTests
     {
+        private const string MsGraphSampleExtensionVersion = "0.1.8-preview";
+        private const string MsGraphBetaRepository = "bicep/extensions/microsoftgraph/beta";
+        private const string MsGraphV1Repository = "bicep/extensions/microsoftgraph/v1.0";
+
         private static ServiceBuilder Services => new ServiceBuilder().WithDisabledAnalyzersConfiguration();
 
         [NotNull]
@@ -33,7 +38,13 @@ namespace Bicep.Core.IntegrationTests
             var bicepFile = baselineFolder.EntryFile;
             var jsonFile = baselineFolder.GetFileOrEnsureCheckedIn(Path.ChangeExtension(embeddedBicep.FileName, jsonFileExtension));
 
-            var compiler = Services.WithFeatureOverrides(features).Build().GetCompiler();
+            var services = Services.WithFeatureOverrides(features);
+            if (RequiresMockMsGraphExtensions(embeddedBicep))
+            {
+                services = await AddMockMsGraphExtensions(services);
+            }
+
+            var compiler = services.Build().GetCompiler();
             var compilation = await compiler.CreateCompilation(bicepFile.OutputFileUri.ToIOUri());
             var model = compilation.GetEntrypointSemanticModel();
 
@@ -106,6 +117,29 @@ namespace Bicep.Core.IntegrationTests
 
         private static IEnumerable<object[]> GetAllExampleData()
             => ExampleData.GetAllExampleData().Select(x => new object[] { x.BicepFile });
+
+        private static bool RequiresMockMsGraphExtensions(EmbeddedFile embeddedBicep)
+            => embeddedBicep.StreamPath.StartsWith("Files/user_submitted/extensibility/microsoftGraph/", StringComparison.Ordinal);
+
+        private static async Task<ServiceBuilder> AddMockMsGraphExtensions(ServiceBuilder services)
+        {
+            services = services.WithContainerRegistryClientFactory(RegistryHelper.CreateMockRegistryClient(
+                new RegistryHelper.RepoDescriptor(LanguageConstants.BicepPublicMcrRegistry, MsGraphBetaRepository, [MsGraphSampleExtensionVersion]),
+                new RegistryHelper.RepoDescriptor(LanguageConstants.BicepPublicMcrRegistry, MsGraphV1Repository, [MsGraphSampleExtensionVersion])));
+
+            var serviceProvider = services.Build();
+            await RegistryHelper.PublishExtensionToRegistryAsync(
+                serviceProvider,
+                $"br:{LanguageConstants.BicepPublicMcrRegistry}/{MsGraphBetaRepository}:{MsGraphSampleExtensionVersion}",
+                ExtensionResourceTypeHelper.GetMockMsGraphTypesTgz("MicrosoftGraphBeta", MsGraphSampleExtensionVersion, "beta"));
+
+            await RegistryHelper.PublishExtensionToRegistryAsync(
+                serviceProvider,
+                $"br:{LanguageConstants.BicepPublicMcrRegistry}/{MsGraphV1Repository}:{MsGraphSampleExtensionVersion}",
+                ExtensionResourceTypeHelper.GetMockMsGraphTypesTgz("MicrosoftGraph", MsGraphSampleExtensionVersion, "v1.0"));
+
+            return services;
+        }
 
         private static bool IsPermittedMissingTypeDiagnostic(IDiagnostic diagnostic)
         {
