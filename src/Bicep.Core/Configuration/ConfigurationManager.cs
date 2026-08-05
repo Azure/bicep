@@ -18,6 +18,7 @@ namespace Bicep.Core.Configuration
     public class ConfigurationManager : IConfigurationManager
     {
         private readonly static DiagnosticBuilder.DiagnosticBuilderInternal ConfigDiagnosticBuilder = DiagnosticBuilder.ForDocumentStart();
+        private readonly ConcurrentDictionary<IOUri, IDirectoryHandle> directoryHandleCache = new();
         private readonly ConcurrentDictionary<IDirectoryHandle, ResultWithDiagnostic<IFileHandle?>> configFileLookupCache = new(); // Source file directory handle -> config file handle.
         private readonly ConcurrentDictionary<IFileHandle, ResultWithDiagnostic<RootConfiguration>> loadedConfigCache = new();     // Config file handle -> RootConfiguration.
         private readonly IFileExplorer fileExplorer;
@@ -34,7 +35,11 @@ namespace Bicep.Core.Configuration
                 return GetDefaultConfiguration();
             }
 
-            var sourceDirectory = this.fileExplorer.GetFile(sourceFileUri).GetParent();
+            // GetParent() is computationally expensive, and this gets called a lot during linting,
+            // so let's cache the result.
+            var sourceDirectory = directoryHandleCache.GetOrAdd(
+                sourceFileUri,
+                uri => this.fileExplorer.GetFile(uri).GetParent());
 
             if (!configFileLookupCache.GetOrAdd(sourceDirectory, LookupConfigurationFile).IsSuccess(out var configFileHandle, out var lookupDiagnostic))
             {
