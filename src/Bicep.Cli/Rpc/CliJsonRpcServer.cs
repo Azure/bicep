@@ -248,15 +248,15 @@ public class CliJsonRpcServer(
 
         string formattedContent;
 
-        if (sourceFile.Features.LegacyFormatterEnabled)
+        if (sourceFile.LoadFeatures().LegacyFormatterEnabled)
         {
-            var v2Options = sourceFile.Configuration.Formatting.Data;
+            var v2Options = sourceFile.LoadConfiguration().Formatting.Data;
             var legacyOptions = PrettyPrintOptions.FromV2Options(v2Options);
             formattedContent = PrettyPrinter.PrintProgram(sourceFile.ProgramSyntax, legacyOptions, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
         }
         else
         {
-            var options = sourceFile.Configuration.Formatting.Data;
+            var options = sourceFile.LoadConfiguration().Formatting.Data;
             var context = PrettyPrinterV2Context.Create(options, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
 
             using var writer = new StringWriter();

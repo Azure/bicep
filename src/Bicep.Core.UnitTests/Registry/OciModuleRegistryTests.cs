@@ -681,7 +681,7 @@ namespace Bicep.Core.UnitTests.Registry
             var template = BinaryData.FromString(jsonContentsV1);
 
             var featureProviderFactoryMock = StrictMock.Of<IFeatureProviderFactory>();
-            featureProviderFactoryMock.Setup(x => x.GetFeatureProvider(bicepFile.FileHandle.Uri)).Returns(bicepFile.Features);
+            featureProviderFactoryMock.Setup(x => x.GetFeatureProvider(bicepFile.FileHandle.Uri)).Returns(bicepFile.LoadFeatures());
 
             SourceArchive? sourceArchive = null;
             if (publishSource)
@@ -703,7 +703,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             await RestoreModule(ociRegistry, moduleReference);
 
-            var modules = CachedModules.GetCachedModules(BicepTestConstants.FileSystem, bicepFile.Features.CacheRootDirectory);
+            var modules = CachedModules.GetCachedModules(BicepTestConstants.FileSystem, bicepFile.LoadFeatures().CacheRootDirectory);
             modules.Should().HaveCountGreaterThan(0);
 
             if (publishSource)
@@ -743,7 +743,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         private OciArtifactReference CreateModuleReference(BicepSourceFile referencingFile, string registry, string repository, string? tag, string? digest)
         {
-            OciArtifactReference.TryParse(referencingFile.Features, referencingFile.Configuration, ArtifactType.Module, null, $"{registry}/{repository}:{tag}").IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), ArtifactType.Module, null, $"{registry}/{repository}:{tag}").IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 

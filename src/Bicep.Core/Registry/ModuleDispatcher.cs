@@ -122,7 +122,7 @@ namespace Bicep.Core.Registry
 
                     return new(pathValue);
                 case IdentifierSyntax configSpec:
-                    var config = referencingFile.Configuration;
+                    var config = referencingFile.LoadConfiguration();
                     var extensionPathResult = config.Extensions.TryGetExtensionSource(configSpec.IdentifierName).Transform(x => x.Value);
 
                     if (extensionPathResult.IsSuccess(out var extensionPath, out var error))

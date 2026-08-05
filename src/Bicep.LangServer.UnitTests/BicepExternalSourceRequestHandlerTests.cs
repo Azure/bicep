@@ -396,7 +396,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var referencingFile = BicepTestConstants.DummyBicepFile;
 
             TemplateSpecModuleReference
-                .TryParse(referencingFile.Features, referencingFile.Configuration, null, referenceValue)
+                .TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), null, referenceValue)
                 .IsSuccess(out var reference, out var errorBuilder)
                 .Should()
                 .BeTrue();
@@ -410,8 +410,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             Uri? entrypointUri = testData.SourceEntrypoint is { } ? PathHelper.FilePathToFileUrl(testData.SourceEntrypoint) : null;
             OciArtifactReference reference = new(
-                BicepTestConstants.DummyBicepFile.Features,
-                BicepTestConstants.DummyBicepFile.Configuration,
+                BicepTestConstants.DummyBicepFile.LoadFeatures(),
+                BicepTestConstants.DummyBicepFile.LoadConfiguration(),
                 ArtifactType.Module,
                 testData.Registry,
                 testData.Repository,
@@ -555,7 +555,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 throw new ArgumentException("Module reference is not fully qualified.");
             }
 
-            return OciArtifactReference.TryParse(referencingFile.Features, referencingFile.Configuration, ArtifactType.Module, aliasName, fullyQualifiedReference[3..]).Unwrap();
+            return OciArtifactReference.TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), ArtifactType.Module, aliasName, fullyQualifiedReference[3..]).Unwrap();
         }
     }
 }
