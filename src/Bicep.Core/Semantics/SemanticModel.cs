@@ -65,6 +65,8 @@ namespace Bicep.Core.Semantics
             this.SourceFileGrouping = sourceFileGrouping;
             this.SourceFile = sourceFile;
             this.Environment = environment;
+            this.Features = sourceFile.LoadFeatures();
+            this.Configuration = sourceFile.LoadConfiguration();
             TraceBuildOperation(sourceFile, Features, Configuration);
 
             // create this in locked mode by default
@@ -234,9 +236,9 @@ namespace Bicep.Core.Semantics
 
         public BicepSourceFileKind SourceFileKind => this.SourceFile.FileKind;
 
-        public RootConfiguration Configuration => this.SourceFile.Configuration;
+        public RootConfiguration Configuration { get; }
 
-        public IFeatureProvider Features => this.SourceFile.Features;
+        public IFeatureProvider Features { get; }
 
         public IBinder Binder { get; }
 
@@ -687,7 +689,7 @@ namespace Bicep.Core.Semantics
             {
                 yield return DiagnosticBuilder.ForPosition(usingDeclarationSyntax.Path!)
                     .MissingExtensionConfigAssignments(missingRequiredAssignments.Select(kvp => kvp.Key))
-                    .WithAppendedFixes(CodeFixHelper.GetCodeFixForMissingBicepExtensionConfigAssignments(Root.Syntax, SourceFile, missingRequiredAssignments));
+                    .WithAppendedFixes(CodeFixHelper.GetCodeFixForMissingBicepExtensionConfigAssignments(Root.Syntax, this, missingRequiredAssignments));
             }
 
             foreach (var assignmentAlias in assignmentAliasesWithMissingExtension)

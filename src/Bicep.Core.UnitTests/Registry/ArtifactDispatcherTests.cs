@@ -224,7 +224,7 @@ namespace Bicep.Core.UnitTests.Registry
         private class MockModuleReference : ArtifactReference
         {
             public MockModuleReference(BicepSourceFile referencingFile, string reference)
-                : base(referencingFile.Features, referencingFile.Configuration, "mock")
+                : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), "mock")
             {
                 this.Reference = reference;
             }
