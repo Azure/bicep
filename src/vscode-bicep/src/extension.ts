@@ -29,6 +29,7 @@ import { WalkthroughCopyToClipboardCommand } from "./commands/gettingStarted/Wal
 import { WalkthroughCreateBicepFileCommand } from "./commands/gettingStarted/WalkthroughCreateBicepFileCommand";
 import { WalkthroughOpenBicepFileCommand } from "./commands/gettingStarted/WalkthroughOpenBicepFileCommand";
 import { ImportKubernetesManifestCommand } from "./commands/importKubernetesManifest";
+import { ExtractToModuleCommand } from "./commands/extractToModule";
 import { InsertResourceCommand } from "./commands/insertResource";
 import { PasteAsBicepCommand } from "./commands/pasteAsBicep";
 import { PostExtractionCommand } from "./commands/PostExtractionCommand";
@@ -152,6 +153,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
             new DecompileCommand(languageClient, outputChannelManager),
             new DecompileParamsCommand(languageClient, outputChannelManager),
             new ForceModulesRestoreCommand(languageClient, outputChannelManager),
+            new ExtractToModuleCommand(languageClient),
             new InsertResourceCommand(languageClient),
             pasteAsBicepCommand,
             new ShowDeployPaneCommand(deployPaneViewManager),
