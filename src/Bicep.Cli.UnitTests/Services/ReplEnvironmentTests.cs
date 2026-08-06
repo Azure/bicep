@@ -155,7 +155,7 @@ public class ReplEnvironmentTests
     }
 
     [TestMethod]
-    public void Expression_evaluation_handles_nested_collection_lambdas()
+    public void Long_expressions_over_terminal_width_are_printed_correctly()
     {
         var outputs = EvaluateInputs([
             """
