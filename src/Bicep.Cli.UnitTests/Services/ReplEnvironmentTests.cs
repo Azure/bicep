@@ -155,6 +155,22 @@ public class ReplEnvironmentTests
     }
 
     [TestMethod]
+    public void Expression_evaluation_handles_nested_collection_lambdas()
+    {
+        var outputs = EvaluateInputs([
+            """
+            join(map(sort(filter(range(1, 50), x => x % 3 == 0 && x % 5 != 0), (a, b) => b < a), x => '${x}:${padLeft(string(x * x), 4, '0')}'), '|')
+            """
+        ]);
+
+        outputs.Should().ContainSingle()
+            .Which.Should().BeEquivalentToIgnoringNewlines("""
+                [Orange]'48:2304|42:1764|39:1521|36:1296|33:1089|27:0729|24:0576|21:0441|18:0324|12:0144|9:0081|6:0036|3:0009'[Reset]
+
+                """);
+    }
+
+    [TestMethod]
     public void Expression_evaluation_succeeds_issue_18316()
     {
         // https://github.com/Azure/bicep/issues/18316
