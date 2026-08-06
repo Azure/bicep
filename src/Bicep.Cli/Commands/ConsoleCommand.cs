@@ -219,7 +219,7 @@ public class ConsoleCommand(
 
     private readonly record struct InputLine(string Text, bool StartedWithBufferedInput, bool HasBufferedInputAfterEnter);
 
-    private async Task<bool> PrintHistory(StringBuilder buffer, LineEditor editor, bool backwards)
+    private async Task<bool> PrintHistory(StringBuilder buffer, LineEditor editor, bool backwards, int previousCursorOffset)
     {
         if (replEnvironment.TryGetHistory(backwards) is not { } history)
         {
@@ -235,7 +235,7 @@ public class ConsoleCommand(
         buffer.Append(history[..lineStart]);
         editor.Reset(GetRunes(history[lineStart..]));
 
-        var output = replEnvironment.HighlightInputLine(FirstLinePrefix, buffer.ToString(), editor.Buffer, editor.Cursor, printPrevLines: true);
+        var output = replEnvironment.HighlightInputLine(FirstLinePrefix, buffer.ToString(), editor.Buffer, editor.Cursor, printPrevLines: true, Console.WindowWidth, previousCursorOffset);
         await io.Output.Writer.WriteAsync(PrintHelper.MoveCursorUp(prevBufferLineCount));
         await io.Output.Writer.WriteAsync(output);
         return true;
@@ -254,12 +254,13 @@ public class ConsoleCommand(
         while (true)
         {
             var keyInfo = Console.ReadKey(intercept: true);
+            var previousCursorOffset = editor.Buffer.Take(editor.Cursor).Sum(rune => rune.Utf16SequenceLength);
 
             switch ((keyInfo.Modifiers, keyInfo.Key))
             {
                 case (_, UpArrow) or (_, DownArrow):
                     // History navigation re-renders the whole line itself, so skip the redraw below when it handled the key.
-                    if (await PrintHistory(buffer, editor, backwards: keyInfo.Key == UpArrow))
+                    if (await PrintHistory(buffer, editor, backwards: keyInfo.Key == UpArrow, previousCursorOffset))
                     {
                         continue;
                     }
@@ -333,7 +334,7 @@ public class ConsoleCommand(
             editor.Track();
 
             await io.Output.Writer.WriteAsync(
-                replEnvironment.HighlightInputLine(GetPrefix(buffer), buffer.ToString(), editor.Buffer, editor.Cursor, printPrevLines: false));
+                replEnvironment.HighlightInputLine(GetPrefix(buffer), buffer.ToString(), editor.Buffer, editor.Cursor, printPrevLines: false, Console.WindowWidth, previousCursorOffset));
         }
     }
 }
