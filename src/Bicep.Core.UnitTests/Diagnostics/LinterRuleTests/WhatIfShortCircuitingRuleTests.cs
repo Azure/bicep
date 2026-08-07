@@ -76,6 +76,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 [
                     ("createSA.bicep", SAModuleContent),
                     ("main.bicep", """
+                        @description('Parameter description.')
                         param input string
                         module creatingSA 'createSA.bicep' = {
                           params: {
