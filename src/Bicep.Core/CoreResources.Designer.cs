@@ -954,18 +954,36 @@ namespace Bicep.Core {
         /// <summary>
         ///   Looks up a localized string similar to Parameters should have non-empty descriptions..
         /// </summary>
-        internal static string UseParameterDescriptionsRuleDescription {
+        internal static string UseDescriptionParametersRuleDescription {
             get {
-                return ResourceManager.GetString("UseParameterDescriptionsRule_Description", resourceCulture);
+                return ResourceManager.GetString("UseDescriptionParametersRule_Description", resourceCulture);
             }
         }
 
         /// <summary>
         ///   Looks up a localized string similar to Parameter &quot;{0}&quot; must have a non-empty description..
         /// </summary>
-        internal static string UseParameterDescriptionsRuleMessageFormat {
+        internal static string UseDescriptionParametersRuleMessageFormat {
             get {
-                return ResourceManager.GetString("UseParameterDescriptionsRule_MessageFormat", resourceCulture);
+                return ResourceManager.GetString("UseDescriptionParametersRule_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Variables should have non-empty descriptions..
+        /// </summary>
+        internal static string UseDescriptionVarsRuleDescription {
+            get {
+                return ResourceManager.GetString("UseDescriptionVarsRule_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Variable &quot;{0}&quot; must have a non-empty description..
+        /// </summary>
+        internal static string UseDescriptionVarsRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("UseDescriptionVarsRule_MessageFormat", resourceCulture);
             }
         }
 

@@ -12,23 +12,23 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 
 [TestClass]
-public class UseParameterDescriptionsRuleTests : LinterRuleTestsBase
+public class UseDescriptionVarsRuleTests : LinterRuleTestsBase
 {
     private static readonly Options RuleOptions = new(ConfigurationPatch: EnableRule);
 
     private static RootConfiguration EnableRule(RootConfiguration configuration) =>
         configuration.WithAnalyzersConfiguration(
-            configuration.Analyzers.SetValue($"core.rules.{UseParameterDescriptionsRule.Code}.level", "warning"));
+            configuration.Analyzers.SetValue($"core.rules.{UseDescriptionVarsRule.Code}.level", "warning"));
 
     private void AssertDiagnostics(string inputFile, int expectedCount = 1)
-        => AssertLinterRuleDiagnostics(UseParameterDescriptionsRule.Code, inputFile, expectedCount, RuleOptions);
+        => AssertLinterRuleDiagnostics(UseDescriptionVarsRule.Code, inputFile, expectedCount, RuleOptions);
 
     private void AssertDiagnostics(string inputFile, string[] expectedMessages)
-        => AssertLinterRuleDiagnostics(UseParameterDescriptionsRule.Code, inputFile, expectedMessages, RuleOptions);
+        => AssertLinterRuleDiagnostics(UseDescriptionVarsRule.Code, inputFile, expectedMessages, RuleOptions);
 
     private void AssertNoDiagnostics(string inputFile, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         => AssertLinterRuleDiagnostics(
-            UseParameterDescriptionsRule.Code,
+            UseDescriptionVarsRule.Code,
             inputFile,
             [],
             RuleOptions with
@@ -41,35 +41,35 @@ public class UseParameterDescriptionsRuleTests : LinterRuleTestsBase
     public void Rule_defaults_to_off()
     {
         var result = CompilationHelper.Compile("""
-            param input string
+            var input = 'value'
             """);
 
-        result.ExcludingDiagnostics("no-unused-params").Should().NotHaveAnyDiagnostics();
+        result.ExcludingDiagnostics("no-unused-vars").Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
-    public void Parameters_without_descriptions_are_reported()
+    public void Variables_without_descriptions_are_reported()
     {
         AssertDiagnostics(
             """
-            param first string
+            var first = 'value'
 
-            @secure()
-            param second string
+            @export()
+            var second = 'value'
             """,
             [
-                """[1] Parameter "first" must have a non-empty description.""",
-                """[4] Parameter "second" must have a non-empty description.""",
+                """[1] Variable "first" must have a non-empty description.""",
+                """[4] Variable "second" must have a non-empty description.""",
             ]);
     }
 
     [DataRow("""
-        @description('Parameter description.')
-        param input string
+        @description('Variable description.')
+        var input = 'value'
         """)]
     [DataRow("""
-        @sys.description('Parameter description.')
-        param input string
+        @sys.description('Variable description.')
+        var input = 'value'
         """)]
     [DataTestMethod]
     public void Non_empty_descriptions_are_accepted(string text)
@@ -79,21 +79,21 @@ public class UseParameterDescriptionsRuleTests : LinterRuleTestsBase
 
     [DataRow("""
         @description('')
-        param input string
+        var input = 'value'
         """)]
     [DataRow("""
         @description('   ')
-        param input string
+        var input = 'value'
         """)]
     [DataRow("""
         @sys.description('')
-        param input string
+        var input = 'value'
         """)]
     [DataRow("""
         @sys.description('''
 
         ''')
-        param input string
+        var input = 'value'
         """)]
     [DataTestMethod]
     public void Empty_and_whitespace_descriptions_are_reported(string text)
@@ -102,19 +102,18 @@ public class UseParameterDescriptionsRuleTests : LinterRuleTestsBase
     }
 
     [TestMethod]
-    public void Metadata_description_does_not_satisfy_the_rule()
+    public void Loop_variables_are_reported()
     {
         AssertDiagnostics(
             """
-            @metadata({ description: 'Metadata description.' })
-            param input string
+            var items = [for i in range(0, 3): i]
             """,
-            ["""[2] Parameter "input" must have a non-empty description."""]);
+            ["""[1] Variable "items" must have a non-empty description."""]);
     }
 
     [DataRow("""
-        @description('Variable description.')
-        var value = 'value'
+        @description('Parameter description.')
+        param input string
         """)]
     [DataRow("""
         @description('Output description.')
@@ -127,8 +126,8 @@ public class UseParameterDescriptionsRuleTests : LinterRuleTestsBase
     }
 
     [TestMethod]
-    public void Malformed_parameter_without_a_name_is_ignored()
+    public void Malformed_variable_without_a_name_is_ignored()
     {
-        AssertNoDiagnostics("param", OnCompileErrors.Ignore);
+        AssertNoDiagnostics("var", OnCompileErrors.Ignore);
     }
 }
