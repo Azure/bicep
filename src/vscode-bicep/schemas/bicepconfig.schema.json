@@ -765,6 +765,56 @@
                     }
                   ]
                 },
+                "use-description-output": {
+                  "allOf": [
+                    {
+                      "description": "Outputs should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-output"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "use-description-parameters": {
+                  "allOf": [
+                    {
+                      "description": "Parameters should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-parameters"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "use-description-type": {
+                  "allOf": [
+                    {
+                      "description": "User-defined types should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-type"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "use-description-type-property": {
+                  "allOf": [
+                    {
+                      "description": "Properties of user-defined types should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-type-property"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "use-description-vars": {
+                  "allOf": [
+                    {
+                      "description": "Variables should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-vars"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
                 "use-parent-property": {
                   "allOf": [
                     {
