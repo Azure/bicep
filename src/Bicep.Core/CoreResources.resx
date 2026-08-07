@@ -395,6 +395,27 @@
     <value>Variable "{0}" must have a non-empty description.</value>
     <comment>{0} is the variable name</comment>
   </data>
+  <data name="UseDescriptionOutputRule_Description" xml:space="preserve">
+    <value>Outputs should have non-empty descriptions.</value>
+  </data>
+  <data name="UseDescriptionOutputRule_MessageFormat" xml:space="preserve">
+    <value>Output "{0}" must have a non-empty description.</value>
+    <comment>{0} is the output name</comment>
+  </data>
+  <data name="UseDescriptionTypeRule_Description" xml:space="preserve">
+    <value>User-defined types should have non-empty descriptions.</value>
+  </data>
+  <data name="UseDescriptionTypeRule_MessageFormat" xml:space="preserve">
+    <value>Type "{0}" must have a non-empty description.</value>
+    <comment>{0} is the type name</comment>
+  </data>
+  <data name="UseDescriptionTypePropertyRule_Description" xml:space="preserve">
+    <value>Properties of user-defined types should have non-empty descriptions.</value>
+  </data>
+  <data name="UseDescriptionTypePropertyRule_MessageFormat" xml:space="preserve">
+    <value>Type property "{0}" must have a non-empty description.</value>
+    <comment>{0} is the type property name</comment>
+  </data>
   <data name="UseSecureValueForSecureInputsRule_MessageFormat" xml:space="preserve">
     <value>Property '{0}' expects a secure value, but the value provided may not be secure.</value>
     <comment>{0} property name</comment>

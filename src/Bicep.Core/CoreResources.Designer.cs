@@ -988,6 +988,60 @@ namespace Bicep.Core {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Outputs should have non-empty descriptions..
+        /// </summary>
+        internal static string UseDescriptionOutputRuleDescription {
+            get {
+                return ResourceManager.GetString("UseDescriptionOutputRule_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Output &quot;{0}&quot; must have a non-empty description..
+        /// </summary>
+        internal static string UseDescriptionOutputRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("UseDescriptionOutputRule_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to User-defined types should have non-empty descriptions..
+        /// </summary>
+        internal static string UseDescriptionTypeRuleDescription {
+            get {
+                return ResourceManager.GetString("UseDescriptionTypeRule_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Type &quot;{0}&quot; must have a non-empty description..
+        /// </summary>
+        internal static string UseDescriptionTypeRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("UseDescriptionTypeRule_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Properties of user-defined types should have non-empty descriptions..
+        /// </summary>
+        internal static string UseDescriptionTypePropertyRuleDescription {
+            get {
+                return ResourceManager.GetString("UseDescriptionTypePropertyRule_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Type property &quot;{0}&quot; must have a non-empty description..
+        /// </summary>
+        internal static string UseDescriptionTypePropertyRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("UseDescriptionTypePropertyRule_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Acceptable versions: {0}.
         /// </summary>
         internal static string UseRecentApiVersionRule_AcceptableVersions {
