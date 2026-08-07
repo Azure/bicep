@@ -23,7 +23,6 @@ public sealed class UseDescriptionTypeRule : UseDescriptionRuleBase
             .Where(type => type.NameSource.IsValid && !HasDiscriminator(model, type))
             .Select(type => new DescriptionTarget(type.DeclaringType, type.Name, type.NameSource.Span));
 
-    // A discriminated union documents itself through its members, so it is exempt from the rule.
     private static bool HasDiscriminator(SemanticModel model, TypeAliasSymbol type)
         => SemanticModelHelper.TryGetDecoratorInNamespace(
             model,

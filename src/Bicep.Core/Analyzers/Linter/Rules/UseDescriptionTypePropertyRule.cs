@@ -25,8 +25,6 @@ public sealed class UseDescriptionTypePropertyRule : UseDescriptionRuleBase
     {
         foreach (var type in model.Root.TypeDeclarations)
         {
-            // Aggregating over the whole declaration also covers properties of nested object types
-            // and of object types that are members of a union.
             var members = SyntaxAggregator.Aggregate(
                 type.DeclaringType,
                 syntax => syntax is ObjectTypePropertySyntax or ObjectTypeAdditionalPropertiesSyntax);
