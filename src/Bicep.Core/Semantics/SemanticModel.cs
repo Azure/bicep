@@ -41,7 +41,6 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableSortedDictionary<string, ExtensionMetadata>> extensionsLazy;
         private readonly Lazy<ImmutableSortedDictionary<string, ExportMetadata>> exportsLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
-        private readonly Lazy<IApiVersionProvider> apiVersionProviderLazy;
         private readonly Lazy<EmitterSettings> emitterSettingsLazy;
         private readonly Lazy<ImportClosureInfo> importClosureInfoLazy;
         private readonly Lazy<InlineDependencyVisitor.SymbolsToInline> symbolsToInlineLazy;
@@ -66,6 +65,8 @@ namespace Bicep.Core.Semantics
             this.SourceFileGrouping = sourceFileGrouping;
             this.SourceFile = sourceFile;
             this.Environment = environment;
+            this.Features = sourceFile.LoadFeatures();
+            this.Configuration = sourceFile.LoadConfiguration();
             TraceBuildOperation(sourceFile, Features, Configuration);
 
             // create this in locked mode by default
@@ -78,9 +79,6 @@ namespace Bicep.Core.Semantics
             var cycleBlockingModelLookup = ISemanticModelLookup.Excluding(modelLookup, sourceFile);
             this.SymbolContext = symbolContext;
             this.Binder = new Binder(namespaceProvider, sourceFileGrouping, cycleBlockingModelLookup, sourceFile, this.SymbolContext);
-
-            // TODO(#13239): ApiVersionProvider is only used by UseRecentApiVersionRule. Coupling the linter with the semantic model is suboptimal. A better approach would be to integrate ApiVersionProvider into IResourceTypeProvider.
-            this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(Features, this.Binder.NamespaceResolver.GetAvailableAzureResourceTypes()));
 
             this.TypeManager = new TypeManager(this, this.Binder);
 
@@ -238,12 +236,9 @@ namespace Bicep.Core.Semantics
 
         public BicepSourceFileKind SourceFileKind => this.SourceFile.FileKind;
 
-        public RootConfiguration Configuration => this.SourceFile.Configuration;
+        public RootConfiguration Configuration { get; }
 
-        public IFeatureProvider Features => this.SourceFile.Features;
-
-        public IApiVersionProvider ApiVersionProvider =>
-            this.apiVersionProviderLazy.Value;
+        public IFeatureProvider Features { get; }
 
         public IBinder Binder { get; }
 
@@ -694,7 +689,7 @@ namespace Bicep.Core.Semantics
             {
                 yield return DiagnosticBuilder.ForPosition(usingDeclarationSyntax.Path!)
                     .MissingExtensionConfigAssignments(missingRequiredAssignments.Select(kvp => kvp.Key))
-                    .WithAppendedFixes(CodeFixHelper.GetCodeFixForMissingBicepExtensionConfigAssignments(Root.Syntax, SourceFile, missingRequiredAssignments));
+                    .WithAppendedFixes(CodeFixHelper.GetCodeFixForMissingBicepExtensionConfigAssignments(Root.Syntax, this, missingRequiredAssignments));
             }
 
             foreach (var assignmentAlias in assignmentAliasesWithMissingExtension)

@@ -12,9 +12,9 @@ using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.TextFixtures.Assertions;
-using Bicep.TextFixtures.IO;
-using Bicep.TextFixtures.Utils;
+using Bicep.Testing.Assertions;
+using Bicep.Testing.IO;
+using Bicep.Testing;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -233,7 +233,7 @@ resource fooRes 'fooType@v1' = {
     public async Task Missing_extension_file_raises_a_diagnostic()
     {
         // See https://github.com/Azure/bicep/issues/14770 for context
-        var result = await this.compiler.CompileInline("extension './non_existent.tgz'");
+        var result = await this.compiler.Compile("extension './non_existent.tgz'");
 
         result.Should().HaveDiagnostics([
             ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{TestFileUri.FromMockFileSystemPath("./non_existent.tgz")}'."),
@@ -257,6 +257,41 @@ resource fooRes 'fooType@v1' = {
         //var sourceUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
         result.Should().HaveDiagnostics([
             ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{TestFileUri.FromMockFileSystemPath("../non_existent.tgz")}'."),
+        ]);
+    }
+
+    [TestMethod]
+    public async Task Referencing_a_non_archive_file_as_an_extension_reports_a_clear_error()
+    {
+        // See https://github.com/Azure/bicep/issues/19165 for context.
+        // The user mistakenly references the bicepconfig.json file directly as an extension package.
+        var result = await this.compiler.Compile(
+            ("main.bicep", "extension 'bicepconfig.json'"),
+            ("bicepconfig.json", """
+                {
+                  "extensions": {
+                    "microsoftGraphV1": "br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0"
+                  }
+                }
+                """));
+
+        // Should be a clean diagnostic instead of an unhandled exception.
+        result.Should().HaveDiagnostics([
+            ("BCP192", DiagnosticLevel.Error, """Unable to restore the artifact with reference "bicepconfig.json": The file is not a valid extension package.*"""),
+        ]);
+    }
+
+    [TestMethod]
+    public async Task Referencing_an_arbitrary_garbage_file_as_an_extension_reports_a_clear_error()
+    {
+        // See https://github.com/Azure/bicep/issues/19165 for context.
+        // Any arbitrary non-package content must produce a clear diagnostic, not crash.
+        var result = await this.compiler.Compile(
+            ("main.bicep", "extension 'garbage.tgz'"),
+            ("garbage.tgz", "this is not a valid tgz archive"));
+
+        result.Should().HaveDiagnostics([
+            ("BCP192", DiagnosticLevel.Error, """Unable to restore the artifact with reference "garbage.tgz": The file is not a valid extension package.*"""),
         ]);
     }
 

@@ -2082,6 +2082,61 @@ extension kubernetes with {
         }
 
         [TestMethod]
+        public async Task Az_extension_config_completions_require_only_AzExtensionConfigEnabled()
+        {
+            // Only enable AzExtensionConfig — deliberately leave ModuleExtensionConfigs OFF to
+            // prove that authoring the `with { … }` clause doesn't require the latter flag.
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
+                TestContext,
+                services => services.WithFeatureOverrides(new(TestContext, AzExtensionConfigEnabled: true)));
+
+            // Property-key completion inside the with-clause body should suggest `providers`.
+            {
+                var fileWithCursors = @"
+extension az with {
+  |
+}
+";
+                var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+                var file = await new ServerRequestHelper(TestContext, helper).OpenFile(text);
+                var completions = await file.RequestAndResolveCompletions(cursor);
+
+                completions.Should().Contain(x => x.Label == "providers");
+            }
+
+            // Value completion inside the `providers` array should surface known provider namespaces
+            // as EnumMember completions sourced from the string-literal union in bicep-types-az.
+            {
+                var fileWithCursors = @"
+extension az with {
+  providers: [|]
+}
+";
+                var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+                var file = await new ServerRequestHelper(TestContext, helper).OpenFile(text);
+                var completions = await file.RequestAndResolveCompletions(cursor);
+
+                completions.Should().Contain(x => x.Label == "'Microsoft.Storage'" && x.Kind == CompletionItemKind.EnumMember);
+                completions.Should().Contain(x => x.Label == "'Microsoft.Compute'" && x.Kind == CompletionItemKind.EnumMember);
+            }
+
+            // Value completion inside an empty string literal (the shape VS Code auto-inserts when
+            // the user types `'`) should also surface provider completions.
+            {
+                var fileWithCursors = @"
+extension az with {
+  providers: ['|']
+}
+";
+                var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+                var file = await new ServerRequestHelper(TestContext, helper).OpenFile(text);
+                var completions = await file.RequestAndResolveCompletions(cursor);
+
+                completions.Should().Contain(x => x.Label == "'Microsoft.Storage'" && x.Kind == CompletionItemKind.EnumMember);
+            }
+        }
+
+        [TestMethod]
         public async Task TypeCompletionsIncludeAmbientTypes()
         {
             var fileWithCursors = @"

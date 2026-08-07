@@ -9,7 +9,8 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.TextFixtures.Mocks;
+using Bicep.Testing.IO;
+using Bicep.Testing.Mocks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -834,51 +835,55 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
             """{ "kubernetes": { "kubeConfig": "[if(equals(parameters('inputa'), 'a'), extensions('k8s').config.kubeConfig, createObject('value', 'b'))]", "namespace": "[if(equals(parameters('inputa'), 'a'), extensions('k8s').config.namespace, createObject('value', 'c'))]" } }""")]
         public async Task Modules_can_inherit_parent_module_extension_configs(string scenario, string moduleExtensionConfigsStr, string expectedExtConfigJson)
         {
-            var paramsUri = new Uri("file:///main.bicepparam");
-            var mainUri = new Uri("file:///main.bicep");
-            var moduleAUri = new Uri("file:///modulea.bicep");
+            var paramsFileContents =
+                """
+                using 'main.bicep'
 
-            var files = new Dictionary<Uri, string>
-            {
-                [paramsUri] =
-                    """
-                    using 'main.bicep'
+                param inputa = 'abc'
 
-                    param inputa = 'abc'
+                extensionConfig k8s with {
+                  kubeConfig: 'abc'
+                  namespace: 'other'
+                }
+                """;
 
-                    extensionConfig k8s with {
-                      kubeConfig: 'abc'
-                      namespace: 'other'
-                    }
-                    """,
-                [mainUri] =
-                    $$"""
-                      param inputa string
+            var mainFileContents =
+                $$"""
+                param inputa string
 
-                      extension kubernetes as k8s
+                extension kubernetes as k8s
 
-                      module modulea 'modulea.bicep' = {
-                        name: 'modulea'
-                        params: {
-                          inputa: inputa
-                        }
-                        {{moduleExtensionConfigsStr}}
-                      }
+                module modulea 'modulea.bicep' = {
+                  name: 'modulea'
+                  params: {
+                    inputa: inputa
+                  }
+                  {{moduleExtensionConfigsStr}}
+                }
 
-                      output outputa string = modulea.outputs.outputa
-                      """,
-                [moduleAUri] =
-                    """
-                    param inputa string
+                output outputa string = modulea.outputs.outputa
+                """;
 
-                    extension kubernetes
+            var moduleAFileContents =
+                """
+                param inputa string
 
-                    output outputa string = inputa
-                    """
-            };
+                extension kubernetes
+
+                output outputa string = inputa
+                """;
+
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicepparam", paramsFileContents),
+                ("main.bicep", mainFileContents),
+                ("modulea.bicep", moduleAFileContents));
+
+            var paramsUri = fileSet.GetUri("main.bicepparam");
+            var mainUri = fileSet.GetUri("main.bicep");
 
             var services = await CreateServiceBuilderWithMockMsGraph(moduleExtensionConfigsEnabled: true);
-            var compilation = services.BuildCompilation(files, paramsUri);
+            var compiler = services.WithFileExplorer(fileSet.FileExplorer).Build().GetCompiler();
+            var compilation = compiler.CreateCompilationWithoutRestore(paramsUri);
 
             compilation.Should().NotHaveAnyDiagnostics_WithAssertionScoping(d => d.IsError());
 

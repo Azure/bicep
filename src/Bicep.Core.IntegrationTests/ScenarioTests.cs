@@ -7892,4 +7892,39 @@ output locations array = flatten(map(databases, database => database.properties.
             ("BCP065", DiagnosticLevel.Error, """Function "utcNow" is not valid at this location. It can only be used as a parameter default value."""),
         ]);
     }
+
+    [TestMethod]
+    // https://github.com/azure/bicep/issues/20067
+    public void Test_Issue20067_yaml_anchors_and_aliases_work()
+    {
+        var result = CompilationHelper.Compile(
+            ("settings.yaml", """
+            definitions:
+              example: &EXAMPLE
+                name: example
+                displayName: Example
+                enabled: true
+            
+            items:
+              example: *EXAMPLE
+            """),
+            ("main.bicep", """
+            var settings object = loadYamlContent('settings.yaml', 'items')
+            
+            output result object = settings
+            """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+        evaluated.Should().HaveJsonAtPath("$.outputs['result'].value", """
+        {
+          "example": {
+            "name": "example",
+            "displayName": "Example",
+            "enabled": true
+          }
+        }
+        """);
+    }
 }

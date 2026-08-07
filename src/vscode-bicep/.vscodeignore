@@ -9,7 +9,7 @@ readme-links/
 .gitignore
 .eslintrc.js
 .vscodeignore
-webpack.config.ts
+webpack.config.mts
 tsconfig.e2e.json
 tsconfig.json
 package.params.json

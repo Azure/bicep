@@ -27,5 +27,10 @@ namespace Bicep.Core.TypeSystem
         /// Generating a definition for a syntactically nested resource. Do not use this flag for resources that need the "parent" property.
         /// </summary>
         NestedResource = 1 << 2,
+
+        /// <summary>
+        /// Do not mark the top-level 'tags' and 'sku' properties as deploy-time constant, allowing runtime values to be assigned to them.
+        /// </summary>
+        PermitRuntimeValuesInTagsAndSku = 1 << 3,
     }
 }

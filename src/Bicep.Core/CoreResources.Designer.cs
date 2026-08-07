@@ -923,6 +923,24 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UnusedVariableRuleMessageFormat", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All declared types must be used..
+        /// </summary>
+        internal static string UnusedTypeRuleDescription {
+            get {
+                return ResourceManager.GetString("UnusedTypeRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type &quot;{0}&quot; is declared but never used..
+        /// </summary>
+        internal static string UnusedTypeRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("UnusedTypeRuleMessageFormat", resourceCulture);
+            }
+        }
 
         /// <summary>
         ///   Looks up a localized string similar to Use parent property.

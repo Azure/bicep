@@ -4,6 +4,7 @@
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -322,7 +323,7 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
     [DataTestMethod]
     public void Codefix_recommends_remove_unused_imports(string text, string importFileText, string expectedResultText, string importToRemove)
     {
-        CompilationHelper.InputFile[] additionalFiles =
+        (string FilePath, TestFileData FileData)[] additionalFiles =
         [
             new("mod.bicep", importFileText)
         ];
@@ -331,7 +332,7 @@ public class NoUnusedImportsRuleTests : LinterRuleTestsBase
     }
 
 
-    private static void AssertCodeFix(string inputFile, string resultFile, string importNameToFix, CompilationHelper.InputFile[]? supportingFiles = null)
+    private static void AssertCodeFix(string inputFile, string resultFile, string importNameToFix, (string FilePath, TestFileData FileData)[]? supportingFiles = null)
         => AssertCodeFix(NoUnusedImportsRule.Code, $"Remove unused import {importNameToFix}", inputFile, resultFile, supportingFiles);
 
     [DataRow(@"import", "mod.bicep", "")] // Don't show as unused - no imported symbol or file name

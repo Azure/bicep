@@ -4,7 +4,7 @@
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.CodeAction;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -27,7 +27,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void HasFix()
         {
-            var result = CompilationHelper.Compile(@"#disable-next-line no-unused-params
+            var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(@"#disable-next-line no-unused-params
                 param password string
             ");
             var diagnostics = result.Diagnostics;

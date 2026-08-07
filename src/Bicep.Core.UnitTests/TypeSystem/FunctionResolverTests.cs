@@ -13,6 +13,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -26,7 +27,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
 
         private static SemanticModel CreateDummySemanticModel()
-            => CompilationHelper.Compile("").Compilation.GetEntrypointSemanticModel();
+            => TestCompiler.ForInMemoryCompilation().CompileWithoutRestore("").Compilation.GetEntrypointSemanticModel();
 
         [DataTestMethod]
         [DynamicData(nameof(GetExactMatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]

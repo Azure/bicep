@@ -56,7 +56,7 @@ namespace Bicep.LanguageServer.Completions
         ];
 
         private BicepCompletionContext(
-            BicepSourceFile sourceFile,
+            SemanticModel model,
             BicepCompletionContextKind kind,
             Range replacementRange,
             SyntaxBase replacementTarget,
@@ -76,7 +76,9 @@ namespace Bicep.LanguageServer.Completions
             IndexedSyntaxContext<ParameterizedTypeInstantiationSyntaxBase>? typeArgument,
             ImmutableArray<ILanguageScope> activeScopes)
         {
-            this.SourceFile = sourceFile;
+            this.SourceFile = model.SourceFile;
+            this.Configuration = model.Configuration;
+            this.Features = model.Features;
             this.Kind = kind;
             this.ReplacementRange = replacementRange;
             this.ReplacementTarget = replacementTarget;
@@ -135,13 +137,14 @@ namespace Bicep.LanguageServer.Completions
 
         public SyntaxBase ReplacementTarget { get; }
 
-        public RootConfiguration Configuration => this.SourceFile.Configuration;
+        public RootConfiguration Configuration { get; }
 
-        public IFeatureProvider Features => this.SourceFile.Features;
+        public IFeatureProvider Features { get; }
 
         public static BicepCompletionContext Create(Compilation compilation, int offset)
         {
-            var bicepFile = compilation.SourceFileGrouping.EntryPoint;
+            var model = compilation.GetEntrypointSemanticModel();
+            var bicepFile = model.SourceFile;
             var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(bicepFile.ProgramSyntax, offset);
             if (!matchingNodes.Any())
             {
@@ -172,7 +175,7 @@ namespace Bicep.LanguageServer.Completions
                                 _ => BicepCompletionContextKind.None,
                             };
 
-                            return new BicepCompletionContext(bicepFile, contextKind, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                            return new BicepCompletionContext(model, contextKind, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
                         }
                     }
                     break;
@@ -187,18 +190,18 @@ namespace Bicep.LanguageServer.Completions
                             DiagnosticsPragmaSyntaxTrivia { PragmaType: DiagnosticsPragmaType.Restore } => BicepCompletionContextKind.RestoreDiagnosticsCodes,
                             _ => BicepCompletionContextKind.None,
                         };
-                        return new BicepCompletionContext(bicepFile, contextKind, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                        return new BicepCompletionContext(model, contextKind, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
                     }
-                    return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                    return new BicepCompletionContext(model, BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
                 case SyntaxTriviaType.SingleLineComment when offset > triviaMatchingOffset.Span.Position:
                 case SyntaxTriviaType.MultiLineComment when offset > triviaMatchingOffset.Span.Position && offset < triviaMatchingOffset.Span.Position + triviaMatchingOffset.Span.Length:
                     // we're in a comment, no hints here
-                    return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                    return new BicepCompletionContext(model, BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
             }
 
             if (IsDisableNextLineDiagnosticsDirectiveStartContext(bicepFile, offset, matchingNodes))
             {
-                return new BicepCompletionContext(bicepFile, BicepCompletionContextKind.DirectiveStart, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
+                return new BicepCompletionContext(model, BicepCompletionContextKind.DirectiveStart, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, null, null, null, null, null, []);
             }
 
             var pattern = SyntaxPattern.Create(bicepFile.ProgramSyntax, offset);
@@ -215,7 +218,7 @@ namespace Bicep.LanguageServer.Completions
             var typeArrayAccessInfo = SyntaxMatcher.FindLastNodeOfType<TypeArrayAccessSyntax, TypeArrayAccessSyntax>(matchingNodes);
             var arrayTypeInfo = SyntaxMatcher.FindLastNodeOfType<ArrayTypeSyntax, ArrayTypeSyntax>(matchingNodes);
             var targetScopeInfo = SyntaxMatcher.FindLastNodeOfType<TargetScopeSyntax, TargetScopeSyntax>(matchingNodes);
-            var activeScopes = ActiveScopesVisitor.GetActiveScopes(compilation.GetEntrypointSemanticModel().Root, offset);
+            var activeScopes = ActiveScopesVisitor.GetActiveScopes(model.Root, offset);
             var functionArgumentContext = TryGetFunctionArgumentContext(matchingNodes, offset);
             var typeArgumentContext = TryGetTypeArgumentContext(matchingNodes, offset);
 
@@ -268,7 +271,7 @@ namespace Bicep.LanguageServer.Completions
                 ConvertFlag(IsUsingFollowerContext(matchingNodes, offset), BicepCompletionContextKind.UsingFollower) |
                 ConvertFlag(IsUsingWithFollowerContext(matchingNodes, offset), BicepCompletionContextKind.UsingWithFollower);
 
-            if (bicepFile.Features.AssertsEnabled)
+            if (model.Features.AssertsEnabled)
             {
                 kind |= ConvertFlag(IsAssertValueContext(matchingNodes, offset), BicepCompletionContextKind.AssertValue | BicepCompletionContextKind.Expression);
             }
@@ -297,7 +300,7 @@ namespace Bicep.LanguageServer.Completions
             kind |= ConvertFlag(IsResourceDependsOnArrayItemContext(kind, propertyKey, topLevelDeclarationInfo.node), BicepCompletionContextKind.ExpectsResourceSymbolicReference);
 
             return new BicepCompletionContext(
-                bicepFile,
+                model,
                 kind,
                 replacementRange,
                 replacementTarget,
@@ -850,6 +853,18 @@ namespace Bicep.LanguageServer.Completions
             return SyntaxMatcher.IsTailMatch<ArraySyntax, ArrayItemSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(
                 matchingNodes,
                 (_, _, _, _, token) => token is { Type: TokenType.Identifier }
+            )
+            // var arr = ['a|'] var arr = ['|']
+            || SyntaxMatcher.IsTailMatch<ArraySyntax, ArrayItemSyntax, StringSyntax, Token>(
+                matchingNodes,
+                (_, arrayItem, stringSyntax, _) => ReferenceEquals(arrayItem.Value, stringSyntax) && !stringSyntax.Expressions.Any()
+            )
+            // var arr = ['|] (unterminated string is parsed as skipped trivia containing a single StringComplete token)
+            || SyntaxMatcher.IsTailMatch<ArraySyntax, ArrayItemSyntax, SkippedTriviaSyntax, Token>(
+                matchingNodes,
+                (_, arrayItem, skipped, token) => ReferenceEquals(arrayItem.Value, skipped)
+                    && skipped.Elements.Length == 1
+                    && token is { Type: TokenType.StringComplete }
             );
         }
 

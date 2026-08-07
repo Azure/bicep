@@ -99,9 +99,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.IO", "src\Bicep.IO\Bi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.IO.UnitTests", "src\Bicep.IO.UnitTests\Bicep.IO.UnitTests.csproj", "{69FC508E-6FE7-4C01-942F-F3BF0F3C68E3}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestFixtures", "TestFixtures", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.TextFixtures", "src\Bicep.TestFixtures\Bicep.TextFixtures\Bicep.TextFixtures.csproj", "{AA960E8F-4186-4AFD-85FC-55996FAF70D8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Testing", "src\Bicep.Testing\Bicep.Testing.csproj", "{AA960E8F-4186-4AFD-85FC-55996FAF70D8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.Local.Extension.UnitTests", "src\Bicep.Local.Extension.UnitTests\Bicep.Local.Extension.UnitTests.csproj", "{DB318A8A-4E80-4D70-A53C-1E69310C5E49}"
 EndProject

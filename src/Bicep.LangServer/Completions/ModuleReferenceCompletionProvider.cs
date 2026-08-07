@@ -164,7 +164,7 @@ namespace Bicep.LanguageServer.Completions
                 replacementText = token.Text;
             }
 
-            var rootConfiguration = sourceFile.Configuration;
+            var rootConfiguration = context.Configuration;
             var completions = GetTopLevelCompletions(context, replacementText, rootConfiguration);
 
             var startsWithSingleQuote = replacementText.StartsWith('\'');

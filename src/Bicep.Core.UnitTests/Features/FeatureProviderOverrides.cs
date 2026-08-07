@@ -24,7 +24,10 @@ public record FeatureProviderOverrides(
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
     bool? ModuleExtensionConfigsEnabled = default,
     bool? UserDefinedConstraintsEnabled = default,
-    bool? DeployCommandsEnabled = default)
+    bool? DeployCommandsEnabled = default,
+    bool? PatchEnabled = default,
+    bool? RuntimeValuesInTagsAndSkuEnabled = default,
+    bool? AzExtensionConfigEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -43,7 +46,10 @@ public record FeatureProviderOverrides(
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion,
         bool? ModuleExtensionConfigsEnabled = default,
         bool? UserDefinedConstraintsEnabled = default,
-        bool? DeployCommandsEnabled = default) : this(
+        bool? DeployCommandsEnabled = default,
+        bool? PatchEnabled = default,
+        bool? RuntimeValuesInTagsAndSkuEnabled = default,
+        bool? AzExtensionConfigEnabled = default) : this(
             FileHelper.GetCacheRootDirectory(testContext),
             RegistryEnabled,
             OciEnabled,
@@ -60,6 +66,10 @@ public record FeatureProviderOverrides(
             AssemblyVersion,
             ModuleExtensionConfigsEnabled,
             UserDefinedConstraintsEnabled,
-            DeployCommandsEnabled)
+            DeployCommandsEnabled,
+            PatchEnabled,
+            RuntimeValuesInTagsAndSkuEnabled,
+            AzExtensionConfigEnabled)
     { }
 }
+

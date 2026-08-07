@@ -242,6 +242,15 @@ export class DeployPaneView extends Disposable {
     }
   }
 
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   private createWebviewHtml() {
     const { cspSource } = this.webviewPanel.webview;
     const nonce = crypto.randomBytes(16).toString("hex");
@@ -280,17 +289,20 @@ export class DeployPaneView extends Disposable {
   }
 
   private createDocumentNotFoundHtml() {
+    const { cspSource } = this.webviewPanel.webview;
     const documentName = path.basename(this.documentUri.fsPath);
+    const escapedDocumentName = this.escapeHtml(documentName);
 
     return `
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; font-src data: ${cspSource};">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
       <body>
-        <div class="vscode-body">${documentName} not found. It might be deleted or renamed.</div>
+        <div class="vscode-body">${escapedDocumentName} not found. It might be deleted or renamed.</div>
       </body>
       </html>`;
   }

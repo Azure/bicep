@@ -8,7 +8,7 @@ namespace Bicep.LanguageServer.CompilationManager
 {
     public interface ICompilationManager
     {
-        void RefreshChangedFiles(IEnumerable<Uri> files);
+        void RefreshChangedFiles(IEnumerable<DocumentUri> files);
 
         void HandleFileChanges(IEnumerable<FileEvent> fileEvents);
 

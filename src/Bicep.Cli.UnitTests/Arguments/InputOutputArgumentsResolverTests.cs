@@ -6,7 +6,7 @@ using System.IO.Abstractions.TestingHelpers;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Core.Utils;
-using Bicep.TextFixtures.Mocks;
+using Bicep.Testing.Mocks;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

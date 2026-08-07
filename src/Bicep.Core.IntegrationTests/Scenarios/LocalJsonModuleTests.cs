@@ -6,6 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -123,8 +124,7 @@ module mod 'module.json' = {
             }
         }
 
-        // TODO(file-io-abstraction): Need migration.
         private static ImmutableDictionary<string, ImmutableArray<IDiagnostic>> GetDiagnosticsByFileName(Compilation compilation) =>
-            compilation.GetAllDiagnosticsByBicepFile().ToImmutableDictionary(kvp => Path.GetFileName(kvp.Key.Uri.LocalPath), kvp => kvp.Value);
+            compilation.GetAllDiagnosticsByBicepFile().ToImmutableDictionary(kvp => kvp.Key.FileHandle.Uri.GetFileName(), kvp => kvp.Value);
     }
 }

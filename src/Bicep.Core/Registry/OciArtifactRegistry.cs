@@ -69,7 +69,7 @@ namespace Bicep.Core.Registry
             // Check if the alias resolves to a mocked alias
             if (aliasName is not null)
             {
-                if (referencingFile.Configuration.ModuleAliasesMock.TryGetOciArtifactModuleAliasMock(aliasName).IsSuccess(out var mockAlias, out var _))
+                if (referencingFile.LoadConfiguration().ModuleAliasesMock.TryGetOciArtifactModuleAliasMock(aliasName).IsSuccess(out var mockAlias, out var _))
                 {
                     // Mock aliases only support modules, not extensions.
                     if (artifactType != ArtifactType.Module)
@@ -77,20 +77,20 @@ namespace Bicep.Core.Registry
                         return new(x => x.OciArtifactModuleAliasMapToFilePathOnlySupportsModules(aliasName));
                     }
 
-                    if (referencingFile.Configuration.ConfigFileUri is null)
+                    if (referencingFile.LoadConfiguration().ConfigFileUri is not {} configFileUri)
                     {
                         return new(x => x.ConfigurationFileNotFound("OciModuleAliasesMock"));
                     }
 
                     if (mockAlias.MapToFilePath is null)
                     {
-                        return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, referencingFile.Configuration.ConfigFileUri));
+                        return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, configFileUri));
                     }
 
                     if (!OciArtifactMockedReference.TryParse(
                         referencingFile,
                         mockAlias.MapToFilePath,
-                        referencingFile.Configuration.ConfigFileUri,
+                        configFileUri,
                         reference,
                         this.fileExplorer,
                         aliasName).IsSuccess(out var mockedRef, out var mockedFailureBuilder))
@@ -102,7 +102,7 @@ namespace Bicep.Core.Registry
                 }
             }
 
-            if (!OciArtifactReference.TryParse(referencingFile.Features, referencingFile.Configuration, artifactType, aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
+            if (!OciArtifactReference.TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), artifactType, aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
             {
                 return new(failureBuilder);
             }

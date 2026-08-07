@@ -424,7 +424,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             settingsProviderMock.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(true);
 
             var azureContainerRegistriesProvider = StrictMock.Of<IAzureContainerRegistriesProvider>();
-            var cloud = sourceFile.Configuration.Cloud;
+            var cloud = sourceFile.LoadConfiguration().Cloud;
             azureContainerRegistriesProvider.Setup(x => x.GetContainerRegistriesAccessibleFromAzure(cloud, CancellationToken.None)).Returns(new List<string> { "testacr3.azurecr.io", "testacr4.azurecr.io" }.ToAsyncEnumerable());
 
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
@@ -477,7 +477,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             settingsProviderMock.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(true);
 
             var azureContainerRegistriesProvider = StrictMock.Of<IAzureContainerRegistriesProvider>();
-            var cloud = sourceFile.Configuration.Cloud;
+            var cloud = sourceFile.LoadConfiguration().Cloud;
             azureContainerRegistriesProvider.Setup(x => x.GetContainerRegistriesAccessibleFromAzure(cloud, CancellationToken.None)).Returns(new List<string>().ToAsyncEnumerable());
 
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(

@@ -18,7 +18,8 @@ using Bicep.IO.InMemory;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Telemetry;
-using Bicep.TextFixtures.Dummies;
+using Bicep.Testing;
+using Bicep.Testing.Dummies;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -391,11 +392,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var version = "v1";
             var referenceValue = $"{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}";
 
-            var configurationManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
+            var configurationManager = IConfigurationManager.WithStaticConfiguration(TestConfigurations.BuiltInWithAllAnalyzersDisabled);
             var referencingFile = BicepTestConstants.DummyBicepFile;
 
             TemplateSpecModuleReference
-                .TryParse(referencingFile.Features, referencingFile.Configuration, null, referenceValue)
+                .TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), null, referenceValue)
                 .IsSuccess(out var reference, out var errorBuilder)
                 .Should()
                 .BeTrue();
@@ -409,8 +410,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             Uri? entrypointUri = testData.SourceEntrypoint is { } ? PathHelper.FilePathToFileUrl(testData.SourceEntrypoint) : null;
             OciArtifactReference reference = new(
-                BicepTestConstants.DummyBicepFile.Features,
-                BicepTestConstants.DummyBicepFile.Configuration,
+                BicepTestConstants.DummyBicepFile.LoadFeatures(),
+                BicepTestConstants.DummyBicepFile.LoadConfiguration(),
                 ArtifactType.Module,
                 testData.Registry,
                 testData.Repository,
@@ -554,7 +555,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 throw new ArgumentException("Module reference is not fully qualified.");
             }
 
-            return OciArtifactReference.TryParse(referencingFile.Features, referencingFile.Configuration, ArtifactType.Module, aliasName, fullyQualifiedReference[3..]).Unwrap();
+            return OciArtifactReference.TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), ArtifactType.Module, aliasName, fullyQualifiedReference[3..]).Unwrap();
         }
     }
 }

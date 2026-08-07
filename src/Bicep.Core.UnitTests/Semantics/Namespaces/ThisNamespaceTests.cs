@@ -5,7 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry.Extensions;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,7 +24,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
         public void ThisNamespace_ExistsFunction_ShouldBeRecognized()
         {
             // Test that this.exists() function is recognized
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
                 resource test 'Microsoft.Storage/storageAccounts@2021-04-01' = {
                   name: 'test'
                   location: 'westus'
@@ -41,7 +43,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
         [TestMethod]
         public void ThisNamespace_VariableNamedThis_ShouldFailWithReservedName()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
                 var this = false
                 resource test 'Microsoft.Storage/storageAccounts@2021-04-01' = {
                   name: 'test'
@@ -66,7 +68,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
         [TestMethod]
         public void ThisNamespace_CompilationGeneratesCorrectArmFunctions()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
   location: 'westus'
@@ -94,7 +96,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         [TestMethod]
         public void ThisNamespace_CompilationGeneratesCorrectArmFunctionsInForLoops()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = [for i in range(0, 3): {
   name: 'testStorage-${i}'
   location: 'westus'
@@ -122,7 +124,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = [for i in
         [TestMethod]
         public void ThisNamespace_CompilationGeneratesCorrectArmFunctionsNested()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
   location: 'westus'
@@ -165,7 +167,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         [TestMethod]
         public void ThisNamespace_InTopLevelResourceProperties_ShouldFail()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: this.exists() ? 'testStorage' : 'defaultStorage'
   location: 'westus'
@@ -188,7 +190,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         [TestMethod]
         public void ThisNamespace_InModuleParameters_ShouldFail()
         {
-            var result = CompilationHelper.Compile(("main.bicep", @"
+            var result = Compile(("main.bicep", @"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
   location: 'westus'
@@ -221,7 +223,7 @@ output sto bool = storageExists
         [TestMethod]
         public void ThisNamespace_InNestedAndResourceProperty_ShouldSucceed()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
   location: 'westus'
@@ -251,7 +253,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         [TestMethod]
         public void ThisNamespace_MultiplePropertiesInSameResource_ShouldSucceed()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
   location: 'westus'
@@ -283,7 +285,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         [TestMethod]
         public void ThisNamespace_ExistingResource_CompilationGeneratesCorrectArmFunctionsWithTryGet()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
   location: 'westus'
@@ -313,7 +315,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         [TestMethod]
         public void ThisNamespace_AllSupportedFunctions_ShouldWork()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'testStorage'
   location: 'westus'
@@ -356,7 +358,7 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2024-12-01-preview' = {
             var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
             var extensionTgz = await ExtensionV1Archive.Build(new(typesTgz, false, []));
 
-            var result = await CompilationHelper.RestoreAndCompile(new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
+            var result = await CreateCompiler(useMockFileSystem: true).Compile(
               ("main.bicep", new("""
                   extension '../extension.tgz'
 
@@ -387,7 +389,7 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2024-12-01-preview' = {
             var typesTgz = ExtensionResourceTypeHelper.GetTestTypesTgz();
             var extensionTgz = await ExtensionV1Archive.Build(new(typesTgz, false, []));
 
-            var result = await CompilationHelper.RestoreAndCompile(new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
+            var result = await CreateCompiler(useMockFileSystem: true).Compile(
               ("main.bicep", new("""
                   extension '../extension.tgz'
 
@@ -412,7 +414,7 @@ resource secret 'Microsoft.KeyVault/vaults/secrets@2024-12-01-preview' = {
         [TestMethod]
         public void ThisNamespace_VariableThisShouldRaiseDiagnosticWhenFeatureEnabled_ShouldFail()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
 var this = 'test'
 
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
@@ -439,30 +441,30 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
         [TestMethod]
         public void ThisNamespace_ThisInExisting_ShouldFail()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
   name: this.exists() ? 'testStorage' : 'defaultStorage'
 }
 
 ");
 
-            result.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"this\" does not exist in the current context.");
+            result.Diagnostics.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"this\" does not exist in the current context.");
         }
 
         [TestMethod]
         public void ThisNamespace_ParamNamedThis_ShouldFail()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
 param this string
 ");
 
-            result.Should().ContainDiagnostic("BCP084", DiagnosticLevel.Error, "The symbolic name \"this\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\", \"this\".");
+            result.Diagnostics.Should().ContainDiagnostic("BCP084", DiagnosticLevel.Error, "The symbolic name \"this\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\", \"this\".");
         }
 
         [TestMethod]
         public void ThisNamespace_ResourceNamedThis_ShouldFail()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
 resource this 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: 'test'
   location: 'westus'
@@ -473,45 +475,45 @@ resource this 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 }
 ");
 
-            result.Should().ContainDiagnostic("BCP084", DiagnosticLevel.Error, "The symbolic name \"this\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\", \"this\".");
+            result.Diagnostics.Should().ContainDiagnostic("BCP084", DiagnosticLevel.Error, "The symbolic name \"this\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\", \"this\".");
         }
 
         [TestMethod]
         public void ThisNamespace_TypeNamedThis_ShouldFail()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
 type this = string
 ");
 
-            result.Should().ContainDiagnostic("BCP084", DiagnosticLevel.Error, "The symbolic name \"this\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\", \"this\".");
+            result.Diagnostics.Should().ContainDiagnostic("BCP084", DiagnosticLevel.Error, "The symbolic name \"this\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\", \"this\".");
         }
 
         [TestMethod]
         public void ThisNamespace_InOutputValue_ShouldFail()
         {
             // this.exists() should not be accessible outside of a resource body
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
 output test bool = this.exists()
 ");
 
-            result.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"this\" does not exist in the current context.");
+            result.Diagnostics.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"this\" does not exist in the current context.");
         }
 
         [TestMethod]
         public void ThisNamespace_InVariableValue_ShouldFail()
         {
             // this.exists() should not be accessible outside of a resource body
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
 var test = this.exists()
 ");
 
-            result.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"this\" does not exist in the current context.");
+            result.Diagnostics.Should().ContainDiagnostic("BCP057", DiagnosticLevel.Error, "The name \"this\" does not exist in the current context.");
         }
 
         [TestMethod]
         public void ThisNamespace_ForLoopNamedThis_ShouldSucceed()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = Compile(@"
 resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = [for this in range(0,2): {
   name: 'testStorage${this}'
   location: 'westus'
@@ -534,5 +536,162 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = [for this
                 template.Should().HaveValueAtPath("$.resources[0].name", "[format('testStorage{0}', range(0, 2)[copyIndex()])]");
             }
         }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingResourceInTags_WithFeatureEnabled_ShouldSucceed()
+        {
+            var result = CreateCompiler(runtimeValuesInTagsAndSkuEnabled: true).CompileWithoutRestore(@"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'testStorage'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  tags: {
+    previousAccessTier: this.existingResource().?properties.accessTier ?? 'unknown'
+  }
+  properties: {
+    allowBlobPublicAccess: this.exists()
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                template.Should().HaveValueAtPath("$.resources.testResource.tags.previousAccessTier", "[coalesce(tryGet(target('full'), 'properties', 'accessTier'), 'unknown')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
+                template.Should().HaveValueAtPath("$.languageVersion", "2.1-experimental");
+            }
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingResourceInSku_WithFeatureEnabled_ShouldSucceed()
+        {
+            var result = CreateCompiler(runtimeValuesInTagsAndSkuEnabled: true).CompileWithoutRestore(@"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'testStorage'
+  location: 'westus'
+  sku: {
+    name: this.existingResource().?sku.name ?? 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    allowBlobPublicAccess: this.exists()
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                template.Should().HaveValueAtPath("$.resources.testResource.sku.name", "[coalesce(tryGet(target('full'), 'sku', 'name'), 'Standard_LRS')]");
+                template.Should().HaveValueAtPath("$.languageVersion", "2.1-experimental");
+            }
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingResourceInTags_WithFeatureDisabled_ShouldFail()
+        {
+            var result = CreateCompiler(runtimeValuesInTagsAndSkuEnabled: false).CompileWithoutRestore(@"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'testStorage'
+  location: 'westus'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  tags: {
+    previousAccessTier: this.existingResource().?properties.accessTier ?? 'unknown'
+  }
+  properties: {
+    allowBlobPublicAccess: this.exists()
+  }
+}
+");
+
+            result.Diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            {
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"tags\" property of the \"Microsoft.Storage/storageAccounts\" type, which requires a value that can be calculated at the start of the deployment."),
+            });
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingResourceInTagsAndSku_WithFeatureEnabled_OtherDtcPropertiesStillEnforced()
+        {
+            var result = CreateCompiler(runtimeValuesInTagsAndSkuEnabled: true).CompileWithoutRestore(@"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: this.exists() ? 'testStorage' : 'defaultStorage'
+  location: 'westus'
+  sku: {
+    name: this.existingResource().?sku.name ?? 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  tags: {
+    previousAccessTier: this.existingResource().?properties.accessTier ?? 'unknown'
+  }
+  properties: {
+    allowBlobPublicAccess: this.exists()
+  }
+}
+");
+
+            result.Diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            {
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"name\" property of the \"Microsoft.Storage/storageAccounts\" type, which requires a value that can be calculated at the start of the deployment."),
+            });
+        }
+
+        [TestMethod]
+        public void ThisNamespace_ExistingResourceInTagsAndSku_ForLoop_WithFeatureEnabled_ShouldSucceed()
+        {
+            var result = CreateCompiler(runtimeValuesInTagsAndSkuEnabled: true).CompileWithoutRestore(@"
+resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = [for i in range(0, 3): {
+  name: 'testStorage-${i}'
+  location: 'westus'
+  sku: {
+    name: this.existingResource().?sku.name ?? 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  tags: {
+    previousAccessTier: this.existingResource().?properties.accessTier ?? 'unknown'
+  }
+  properties: {
+    allowBlobPublicAccess: this.exists()
+  }
+}]
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            using (new AssertionScope())
+            {
+                var template = result.Template;
+
+                template.Should().HaveValueAtPath("$.resources.testResource.tags.previousAccessTier", "[coalesce(tryGet(target('full'), 'properties', 'accessTier'), 'unknown')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.sku.name", "[coalesce(tryGet(target('full'), 'sku', 'name'), 'Standard_LRS')]");
+                template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
+                template.Should().HaveValueAtPath("$.languageVersion", "2.1-experimental");
+            }
+        }
+
+        private static TestCompilationResult Compile(string sourceText) =>
+            TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(sourceText);
+
+        private static TestCompilationResult Compile(params (string FilePath, TestFileData FileData)[] files) =>
+            TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(files);
+
+        private TestCompiler CreateCompiler(bool? runtimeValuesInTagsAndSkuEnabled = null, bool useMockFileSystem = false) => (useMockFileSystem
+            ? TestCompiler.ForMockFileSystemCompilation()
+            : TestCompiler.ForInMemoryCompilation())
+            .WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(
+                new(TestContext, RuntimeValuesInTagsAndSkuEnabled: runtimeValuesInTagsAndSkuEnabled));
     }
 }

@@ -1250,7 +1250,7 @@
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
-    "flags": "argumentValueIndependent, pure",
+    "flags": "isArgumentValueIndependent, pure",
     "typeSignature": "(symbol: any): string",
     "parameterTypeSignatures": [
       "symbol: any"

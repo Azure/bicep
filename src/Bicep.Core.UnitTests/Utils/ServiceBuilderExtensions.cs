@@ -4,6 +4,7 @@
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Analyzers.Interfaces;
+using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -13,14 +14,27 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.IO.Abstraction;
-using Bicep.TextFixtures.Utils;
+using Bicep.Testing.IO;
+using Bicep.Testing;
+using Bicep.Testing.Fakes.TypeSystem;
 
 namespace Bicep.Core.UnitTests.Utils;
 
 public static class ServiceBuilderExtensions
 {
+    public static TestCompiler WithAzOverrides(this TestCompiler compiler, IResourceTypeLoader resourceTypeLoader)
+    {
+        var resourceTypeProvider = new AzResourceTypeProvider(resourceTypeLoader);
+
+        return compiler.ConfigureServices(services => services
+            .ReplaceSingleton<AzResourceTypeProvider>(resourceTypeProvider)
+            .ReplaceSingleton<AzApiVersionProvider>(new(resourceTypeProvider))
+            .ReplaceSingleton<IResourceTypeProviderFactory>(new FakeResourceTypeProviderFactory(resourceTypeProvider)));
+    }
+
     public static ServiceBuilder WithFileExplorer(this ServiceBuilder serviceBuilder, IFileExplorer fileExplorer)
         => serviceBuilder.WithRegistration(x => x.WithFileExplorer(fileExplorer));
 
@@ -97,7 +111,7 @@ public static class ServiceBuilderExtensions
     public static Compilation BuildCompilation(this ServiceBuilder services, IReadOnlyDictionary<IOUri, string> fileContentsByUri, IOUri entryFileUri)
     {
         var compiler = services.Build().GetCompiler();
-        var workspace = CompilationHelper.CreateWorkspace(compiler.SourceFileFactory, fileContentsByUri.ToDictionary(x => x.Key.ToUri(), x => x.Value));
+        var workspace = CompilationHelper.CreateWorkspace(compiler.SourceFileFactory, fileContentsByUri);
 
         return compiler.CreateCompilationWithoutRestore(entryFileUri, workspace);
     }
@@ -112,8 +126,8 @@ public static class ServiceBuilderExtensions
 
     public static Compilation BuildCompilation(this ServiceBuilder services, string text)
     {
-        var entryFileUri = new Uri("file:///main.bicep");
+        var entryFileUri = TestFileUri.FromInMemoryPath("main.bicep");
 
-        return BuildCompilation(services, new Dictionary<Uri, string> { [entryFileUri] = text }, entryFileUri);
+        return BuildCompilation(services, new Dictionary<IOUri, string> { [entryFileUri] = text }, entryFileUri);
     }
 }

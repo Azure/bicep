@@ -13,6 +13,23 @@ The following features can be optionally enabled through your `bicepconfig.json`
 
 Should be enabled in tandem with `testFramework` experimental feature flag for expected functionality. Allows you to author boolean assertions using the `assert` keyword comparing the actual value of a parameter, variable, or resource name to an expected value. Assert statements can only be written directly within the Bicep file whose resources they reference. For more information, see [Bicep Experimental Test Framework](https://github.com/Azure/bicep/issues/11967).
 
+### `azExtensionConfig`
+
+Enables configuration for the built-in `az` extension. This allows templates to specify a list of Azure resource provider namespaces via the `providers` property, which are registered at the start of a deployment. ARM will trigger a provider registration for each listed namespace on the target subscription.
+
+Example:
+
+```bicep
+extension az with {
+  providers: [
+    'Microsoft.Storage' 
+    'Microsoft.Compute'
+  ]
+}
+```
+
+(Note: This feature will not work until the backend service support has been deployed.)
+
 ### `deployCommands`
 
 Enables `deploy`, `what-if` and `teardown` command groups, as well as the `with` syntax in a `.bicepparam` file. For more information, see [Using the Deploy Commands](./experimental/deploy-commands.md).
@@ -34,6 +51,24 @@ includes enhancements for Deployment stacks extensibility integration. This feat
 
 Enables publishing and restoring Bicep modules and extensions to and from non-Azure OCI-compliant registries (e.g. GitHub Container Registry, Docker Hub, self-hosted registries) using the ORAS transport. For more information, see [Using OCI Registries](./experimental/oci-registries.md).
 
+### `patch`
+
+Enables the `@patch()` decorator for deploying resources using the PATCH HTTP method instead of PUT. This feature is restricted to Azure Policy DeployIfNotExists (DINE) scenarios, allowing policies to make incremental changes to existing resources without full redeployment.
+
+> **Note**: This feature is intended for internal Azure Policy scenarios and is not intended for general public use. It requires specific backend support that is only available in Policy-initiated deployments.
+
+```bicep
+@patch()
+resource existingVm 'Microsoft.Compute/virtualMachines@2023-01-01' = {
+  name: 'my-existing-vm'
+  properties: {
+    hardwareProfile: {
+      vmSize: 'Standard_D4s_v3'  // Only this property will be patched
+    }
+  }
+}
+```
+
 ### `resourceInfoCodegen`
 
 Enables the 'resourceInfo' function for simplified code generation.
@@ -41,6 +76,21 @@ Enables the 'resourceInfo' function for simplified code generation.
 ### `resourceTypedParamsAndOutputs`
 
 Enables the type for a parameter or output to be of type resource to make it easier to pass resource references between modules. This feature is only partially implemented. See [Simplifying resource referencing](https://github.com/azure/bicep/issues/2245).
+
+### `runtimeValuesInTagsAndSku`
+
+Allows the use of runtime values (such as this.existingResource()) in `tags` and `sku` properties. By default, these properties are flagged as deploy-time constants, meaning they cannot reference runtime resource properties. Enabling this feature relaxes that restriction. (Note: This feature will not work until the backend service support has been deployed)
+
+```bicep
+resource example 'Microsoft...' = {
+  name: 'example'
+  location: resourceGroup().location
+  sku: {
+    name: this.existingResource().?sku.name ?? 'Standard'
+  }
+  tags: this.existingResource().?tags ?? {}
+}
+```
 
 ### `sourceMapping`
 

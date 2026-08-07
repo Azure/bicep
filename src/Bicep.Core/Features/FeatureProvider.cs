@@ -54,6 +54,12 @@ namespace Bicep.Core.Features
 
         public bool DeployCommandsEnabled => configuration.ExperimentalFeaturesEnabled.DeployCommands;
 
+        public bool PatchEnabled => configuration.ExperimentalFeaturesEnabled.Patch;
+
+        public bool RuntimeValuesInTagsAndSkuEnabled => configuration.ExperimentalFeaturesEnabled.RuntimeValuesInTagsAndSku;
+
+        public bool AzExtensionConfigEnabled => configuration.ExperimentalFeaturesEnabled.AzExtensionConfig;
+
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;
 
