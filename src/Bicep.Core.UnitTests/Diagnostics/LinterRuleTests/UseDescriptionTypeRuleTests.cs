@@ -126,6 +126,28 @@ public class UseDescriptionTypeRuleTests : LinterRuleTestsBase
     }
 
     [TestMethod]
+    public void Discriminated_unions_are_exempt_from_the_rule()
+    {
+        AssertNoDiagnostics("""
+            @export()
+            @description('Foo config.')
+            type fooConfig = {
+              type: 'foo'
+            }
+
+            @export()
+            @description('Bar config.')
+            type barConfig = {
+              type: 'bar'
+            }
+
+            @export()
+            @discriminator('type')
+            type serviceConfig = fooConfig | barConfig
+            """);
+    }
+
+    [TestMethod]
     public void Malformed_type_without_a_name_is_ignored()
     {
         AssertNoDiagnostics("type", OnCompileErrors.Ignore);

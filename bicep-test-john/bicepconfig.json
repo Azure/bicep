@@ -1,0 +1,20 @@
+{
+  "analyzers": {
+    "core": {
+      "enabled": true,
+      "rules": {
+        "no-unused-params": {
+          "level": "off"
+        },
+        "no-unused-vars": {
+          "level": "off"
+        },
+        "use-description-parameters": { "level": "warning" },
+        "use-description-vars": { "level": "warning" },
+        "use-description-output": { "level": "warning" },
+        "use-description-type": { "level": "warning" },
+        "use-description-type-property": { "level": "warning" }
+      }
+    }
+  }
+}

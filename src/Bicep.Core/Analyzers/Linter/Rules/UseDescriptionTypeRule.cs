@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.Core.Analyzers.Linter.Rules;
 
@@ -19,6 +20,14 @@ public sealed class UseDescriptionTypeRule : UseDescriptionRuleBase
 
     protected override IEnumerable<DescriptionTarget> GetTargets(SemanticModel model)
         => model.Root.TypeDeclarations
-            .Where(type => type.NameSource.IsValid)
+            .Where(type => type.NameSource.IsValid && !HasDiscriminator(model, type))
             .Select(type => new DescriptionTarget(type.DeclaringType, type.Name, type.NameSource.Span));
+
+    // A discriminated union documents itself through its members, so it is exempt from the rule.
+    private static bool HasDiscriminator(SemanticModel model, TypeAliasSymbol type)
+        => SemanticModelHelper.TryGetDecoratorInNamespace(
+            model,
+            type.DeclaringType,
+            SystemNamespaceType.BuiltInName,
+            LanguageConstants.TypeDiscriminatorDecoratorName) is not null;
 }

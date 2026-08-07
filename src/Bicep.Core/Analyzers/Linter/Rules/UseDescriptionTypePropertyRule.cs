@@ -11,6 +11,8 @@ public sealed class UseDescriptionTypePropertyRule : UseDescriptionRuleBase
 {
     public new const string Code = "use-description-type-property";
 
+    private const string AdditionalPropertiesName = "*";
+
     public UseDescriptionTypePropertyRule() : base(
         code: Code,
         description: CoreResources.UseDescriptionTypePropertyRuleDescription)
@@ -23,12 +25,25 @@ public sealed class UseDescriptionTypePropertyRule : UseDescriptionRuleBase
     {
         foreach (var type in model.Root.TypeDeclarations)
         {
-            // Aggregating over the whole declaration also covers properties of nested object types.
-            foreach (var property in SyntaxAggregator.AggregateByType<ObjectTypePropertySyntax>(type.DeclaringType))
+            // Aggregating over the whole declaration also covers properties of nested object types
+            // and of object types that are members of a union.
+            var members = SyntaxAggregator.Aggregate(
+                type.DeclaringType,
+                syntax => syntax is ObjectTypePropertySyntax or ObjectTypeAdditionalPropertiesSyntax);
+
+            foreach (var member in members)
             {
-                if (property.TryGetKeyText() is { } name)
+                switch (member)
                 {
-                    yield return new DescriptionTarget(property, name, property.Key.Span);
+                    case ObjectTypePropertySyntax property when property.TryGetKeyText() is { } name:
+                        yield return new DescriptionTarget(property, name, property.Key.Span);
+                        break;
+                    case ObjectTypeAdditionalPropertiesSyntax additionalProperties:
+                        yield return new DescriptionTarget(
+                            additionalProperties,
+                            AdditionalPropertiesName,
+                            additionalProperties.Asterisk.Span);
+                        break;
                 }
             }
         }

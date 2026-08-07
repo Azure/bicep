@@ -151,6 +151,68 @@ public class UseDescriptionTypePropertyRuleTests : LinterRuleTestsBase
     }
 
     [TestMethod]
+    public void Additional_properties_without_descriptions_are_reported()
+    {
+        AssertDiagnostics(
+            """
+            @export()
+            type myType = {
+              *: string
+            }
+            """,
+            ["""[3] Type property "*" must have a non-empty description."""]);
+    }
+
+    [TestMethod]
+    public void Additional_properties_with_descriptions_are_accepted()
+    {
+        AssertNoDiagnostics("""
+            @export()
+            type myType = {
+              @description('Any additional value.')
+              *: string
+            }
+            """);
+    }
+
+    [TestMethod]
+    public void Additional_properties_with_empty_descriptions_are_reported()
+    {
+        AssertDiagnostics("""
+            @export()
+            type myType = {
+              @description('  ')
+              *: string
+            }
+            """);
+    }
+
+    [TestMethod]
+    public void Properties_of_object_types_in_a_discriminated_union_are_reported()
+    {
+        AssertDiagnostics(
+            """
+            @export()
+            @description('Foo config.')
+            type fooConfig = {
+              @description('Discriminator value.')
+              type: 'foo'
+            }
+
+            @export()
+            @discriminator('type')
+            type serviceConfig = fooConfig | {
+              type: 'baz'
+              *: string
+            }
+            """,
+            [
+                """[11] Type property "type" must have a non-empty description.""",
+                """[12] Type property "*" must have a non-empty description.""",
+            ]);
+    }
+
+    [TestMethod]
     public void Object_type_properties_outside_type_declarations_are_ignored()
     {
         AssertNoDiagnostics("""
