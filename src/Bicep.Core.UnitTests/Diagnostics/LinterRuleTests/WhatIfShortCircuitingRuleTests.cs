@@ -19,10 +19,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             .WithRegistration(x => x.AddSingleton(
                 IConfigurationManager.WithStaticConfiguration(
                     IConfigurationManager.GetBuiltInConfiguration()
-                    .WithAllAnalyzers()
-                    // Rules that are off by default would otherwise be promoted to warnings here
-                    // and pollute the assertions of this rule's tests.
-                    .WithAnalyzersDisabled(BicepTestConstants.NonStableAnalyzerRules))));
+                    .WithAllAnalyzers())));
 
         private readonly string SAModuleContent = """
             param test string
