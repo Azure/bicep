@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.LanguageServer.Configuration
 {
-    public class BicepConfigChangeHandler : IBicepConfigChangeHandler
+    public class BicepConfigLifecycleManager : IBicepConfigLifecycleManager
     {
         private readonly ICompilationManager compilationManager;
         private readonly ConfigurationManager configurationManager;
@@ -18,11 +18,11 @@ namespace Bicep.LanguageServer.Configuration
         private readonly ITelemetryProvider telemetryProvider;
         private readonly IActiveSourceFileSet workspace;
 
-        public BicepConfigChangeHandler(ICompilationManager compilationManager,
-                                        ConfigurationManager configurationManager,
-                                        ILinterRulesProvider linterRulesProvider,
-                                        ITelemetryProvider telemetryProvider,
-                                        IActiveSourceFileSet workspace)
+        public BicepConfigLifecycleManager(ICompilationManager compilationManager,
+                           ConfigurationManager configurationManager,
+                           ILinterRulesProvider linterRulesProvider,
+                           ITelemetryProvider telemetryProvider,
+                           IActiveSourceFileSet workspace)
         {
             this.compilationManager = compilationManager;
             this.configurationManager = configurationManager;

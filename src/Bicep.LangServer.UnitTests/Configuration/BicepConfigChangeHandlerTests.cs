@@ -25,7 +25,7 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 namespace Bicep.LangServer.UnitTests.Configuration
 {
     [TestClass]
-    public class BicepConfigChangeHandlerTests
+    public class BicepConfigLifecycleManagerTests
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -260,13 +260,13 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 BicepTestConstants.AuxiliaryFileCache);
             bicepCompilationManager.OpenCompilation(DocumentUri.From(InMemoryFileResolver.GetFileUri(bicepFilePath)), null, bicepFileContents, LanguageConstants.LanguageId);
 
-            var bicepConfigChangeHandler = new BicepConfigChangeHandler(bicepCompilationManager,
-                                                                        configurationManager,
-                                                                        LinterRulesProvider,
-                                                                        BicepTestConstants.CreateMockTelemetryProvider().Object,
-                                                                        workspace);
+            var bicepConfigLifecycleManager = new BicepConfigLifecycleManager(bicepCompilationManager,
+                                                                                configurationManager,
+                                                                                LinterRulesProvider,
+                                                                                BicepTestConstants.CreateMockTelemetryProvider().Object,
+                                                                                workspace);
 
-            bicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace();
+            bicepConfigLifecycleManager.RefreshCompilationOfSourceFilesInWorkspace();
 
             diagnostics = receivedParams?.Diagnostics;
         }

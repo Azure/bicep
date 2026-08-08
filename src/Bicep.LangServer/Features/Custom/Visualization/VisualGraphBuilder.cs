@@ -17,10 +17,9 @@ using Bicep.LanguageServer.Features.Custom.Visualization.Models;
 namespace Bicep.LanguageServer.Features.Custom.Visualization
 {
     /// <summary>
-    /// Builds the canonical <see cref="CanonicalGraph"/> from a Bicep compilation. The traversal mirrors
-    /// <see cref="Bicep.LanguageServer.Handlers.BicepDeploymentGraphHandler"/> (the compatibility path) but
-    /// emits the richer canonical model: nodes carry a <c>kind</c>, a <c>parentId</c>, and a symbol name, and
-    /// edges carry a stable id. No layout is computed here; positions are added later by the layout engine.
+    /// Builds the canonical <see cref="CanonicalGraph"/> from a Bicep compilation. Nodes carry a <c>kind</c>,
+    /// a <c>parentId</c>, and a symbol name, and edges carry a stable id. No layout is computed here; positions
+    /// are added later by the layout engine.
     /// </summary>
     public static class VisualGraphBuilder
     {

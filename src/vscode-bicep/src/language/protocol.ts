@@ -8,39 +8,6 @@ import {
   TextDocumentIdentifier,
 } from "vscode-languageserver-protocol";
 
-export interface DeploymentGraphParams {
-  textDocument: TextDocumentIdentifier;
-}
-
-export interface DeploymentGraphNode {
-  id: string;
-  type: string;
-  isCollection: boolean;
-  range: Range;
-  hasChildren: boolean;
-  hasError: boolean;
-  filePath: string | null;
-}
-
-export interface DeploymentGraphEdge {
-  sourceId: string;
-  targetId: string;
-}
-
-export interface DeploymentGraph {
-  nodes: DeploymentGraphNode[];
-  edges: DeploymentGraphEdge[];
-  errorCount: number;
-}
-
-export const deploymentGraphRequestType = new ProtocolRequestType<
-  DeploymentGraphParams,
-  DeploymentGraph | null,
-  never,
-  void,
-  void
->("textDocument/deploymentGraph");
-
 // ── Server-driven visual graph layout ──
 // The webview submits the graph it currently displays; the server returns a complete patch
 // delta transforming it into the latest graph. Patches are forwarded to the webview as-is, so

@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 namespace Bicep.LanguageServer.Settings
 {
     /// <summary>
-    /// Provider used to cache settings information received from <see cref="ConfigurationSettingsHandler"/>
+    /// Provider used to cache settings information received from <see cref="BicepDidChangeConfigurationHandler"/>.
     /// </summary>
     public class SettingsProvider : ISettingsProvider
     {
