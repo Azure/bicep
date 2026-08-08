@@ -14,11 +14,11 @@ namespace Bicep.LanguageServer.Handlers
     public sealed class BicepDidChangeWatchedFilesHandler : DidChangeWatchedFilesHandlerBase
     {
         private readonly ICompilationManager compilationManager;
-        private readonly IBicepConfigChangeHandler bicepConfigChangeHandler;
+        private readonly IBicepConfigLifecycleManager bicepConfigLifecycleManager;
 
-        public BicepDidChangeWatchedFilesHandler(ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler)
+        public BicepDidChangeWatchedFilesHandler(ICompilationManager compilationManager, IBicepConfigLifecycleManager bicepConfigLifecycleManager)
         {
-            this.bicepConfigChangeHandler = bicepConfigChangeHandler;
+            this.bicepConfigLifecycleManager = bicepConfigLifecycleManager;
             this.compilationManager = compilationManager;
         }
 
@@ -32,7 +32,7 @@ namespace Bicep.LanguageServer.Handlers
             // Refresh compilation of source files in workspace when local bicepconfig.json file is created, deleted or changed
             if (bicepConfigFileChangeEvents.Any())
             {
-                bicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace();
+                bicepConfigLifecycleManager.RefreshCompilationOfSourceFilesInWorkspace();
             }
 
             compilationManager.HandleFileChanges(fileEvents);

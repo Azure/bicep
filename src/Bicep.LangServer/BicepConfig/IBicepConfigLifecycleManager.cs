@@ -5,7 +5,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.LanguageServer.Configuration
 {
-    public interface IBicepConfigChangeHandler
+    public interface IBicepConfigLifecycleManager
     {
         void RefreshCompilationOfSourceFilesInWorkspace();
 

@@ -9,25 +9,22 @@ using OmniSharp.Extensions.JsonRpc;
 namespace Bicep.LanguageServer.Settings
 {
     [Method("workspace/didChangeConfiguration", Direction.ClientToServer)]
-    public record DidChangeConfigurationObjectParams : IRequest
+    public record DidChangeConfigurationParams : IRequest
     {
         [JsonProperty("settings")]
         public JToken? Settings;
     }
 
-    /// <summary>
-    /// Handles settings change notification from client.
-    /// </summary>
-    public class ConfigurationSettingsHandler : IJsonRpcNotificationHandler<DidChangeConfigurationObjectParams>
+    public class BicepDidChangeConfigurationHandler : IJsonRpcNotificationHandler<DidChangeConfigurationParams>
     {
         private readonly ISettingsProvider settingsProvider;
 
-        public ConfigurationSettingsHandler(ISettingsProvider settingsProvider)
+        public BicepDidChangeConfigurationHandler(ISettingsProvider settingsProvider)
         {
             this.settingsProvider = settingsProvider;
         }
 
-        Task<Unit> IRequestHandler<DidChangeConfigurationObjectParams, Unit>.Handle(DidChangeConfigurationObjectParams request, CancellationToken cancellationToken)
+        Task<Unit> IRequestHandler<DidChangeConfigurationParams, Unit>.Handle(DidChangeConfigurationParams request, CancellationToken cancellationToken)
         {
             var jObject = JObject.FromObject(request);
 

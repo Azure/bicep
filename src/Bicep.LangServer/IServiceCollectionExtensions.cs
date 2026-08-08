@@ -53,7 +53,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<ICompletionProvider, BicepCompletionProvider>()
         .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>()
         .AddSingleton<IAzResourceProvider, AzResourceProvider>()
-        .AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>()
+        .AddSingleton<IBicepConfigLifecycleManager, BicepConfigLifecycleManager>()
         .AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>()
         .AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>()
         .AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>()
