@@ -18,4 +18,6 @@ public class PatchingConfigurationManager : IConfigurationManager
     }
 
     public RootConfiguration GetConfiguration(IOUri sourceFileUri) => patchFunc(configurationManager.GetConfiguration(sourceFileUri));
+
+    public RootConfiguration LoadConfiguration(IOUri configFileUri) => patchFunc(configurationManager.LoadConfiguration(configFileUri));
 }

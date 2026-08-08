@@ -958,5 +958,45 @@ namespace Bicep.Core.UnitTests.Configuration
             configuration.ModuleAliases.TryGetOciArtifactModuleAlias("myAlias").IsSuccess(out var alias).Should().BeTrue();
             alias!.Registry.Should().Be("real.azurecr.io");
         }
+
+        [TestMethod]
+        public void LoadConfiguration_LoadsExplicitConfigFile()
+        {
+            // Arrange.
+            var fileExplorer = new InMemoryFileExplorer();
+            var configFileUri = TestFileUri.FromInMemoryPath("path/to/bicepconfig.json");
+
+            var configFile = fileExplorer.GetFile(configFileUri);
+
+            using (var stream = configFile.OpenWrite())
+            using (var writer = new StreamWriter(stream))
+            {
+                writer.Write("{}");
+            }
+
+            var sut = new ConfigurationManager(fileExplorer);
+
+            // Act.
+            var configuration = sut.LoadConfiguration(configFileUri);
+
+            // Assert.
+            configuration.Should().NotBeNull();
+        }
+
+        [TestMethod]
+        public void LoadConfiguration_MissingFileReturnsDiagnostic()
+        {
+            // Arrange.
+            var fileExplorer = new InMemoryFileExplorer();
+            var sut = new ConfigurationManager(fileExplorer);
+
+            var configFileUri = TestFileUri.FromInMemoryPath("path/to/missing/bicepconfig.json");
+
+            // Act.
+            var configuration = sut.LoadConfiguration(configFileUri);
+
+            // Assert.
+            configuration.Diagnostics.Should().NotBeEmpty();
+        }
     }
 }

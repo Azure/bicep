@@ -63,6 +63,9 @@ namespace Bicep.Cli.Constants
         public const string IndentSize = "--indent-size";
         public const string InsertFinalNewline = "--insert-final-newline";
 
+        // Lint
+        public const string Config = "--config";
+
         // Publish
         public const string Target = "--target";
         public const string DocumentationUri = "--documentation-uri";

@@ -7,4 +7,5 @@ public record LintArguments(
     string? InputFile,
     string? FilePattern,
     DiagnosticsFormat? DiagnosticsFormat,
-    bool NoRestore) : IFilePatternInputArguments;
+    bool NoRestore,
+    string? Config) : IFilePatternInputArguments;
