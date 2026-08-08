@@ -7,7 +7,8 @@ using Bicep.Core;
 using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
+using Bicep.Testing.Baselines;
+using Bicep.Testing.IO;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Decompiler;
 using Bicep.Decompiler.Exceptions;
@@ -28,12 +29,12 @@ namespace Bicep.Decompiler.IntegrationTests
         private TestDecompiler CreateDecompilerWithEmptyAzResourceTypes() => new TestDecompiler().ConfigureServices(services => services.AddAzureResourceTypes([]));
 
         [DataTestMethod]
-        [EmbeddedFilesTestData(@"Files/Working/.*\.json")]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestEmbeddedFileData(@"Files/Working/.*\.json")]
+        [TestCategory(TestCategories.Baseline)]
         public async Task Decompiler_generates_expected_bicep_files_with_diagnostics(EmbeddedFile embeddedJson)
         {
-            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, embeddedJson);
-            var jsonFile = baselineFolder.EntryFile;
+            var baselineFiles = TestContext.MaterializeBaseline(embeddedJson);
+            var jsonFile = baselineFiles.EntryFile;
 
             var jsonUri = IOUri.FromFilePath(jsonFile.OutputFilePath);
             var (bicepUri, filesToSave) = await new TestDecompiler().Decompile(jsonUri.WithExtension(LanguageConstants.LanguageFileExtension), jsonFile.EmbeddedFile.Contents);
@@ -45,33 +46,31 @@ namespace Bicep.Decompiler.IntegrationTests
             {
                 foreach (var (bicepFile, diagnostics) in diagnosticsByBicepFile)
                 {
-                    var baselineFile = baselineFolder.GetFileOrEnsureCheckedIn(bicepFile.FileHandle.Uri);
+                    var baselineFile = baselineFiles.GetFileForPath(bicepFile.FileHandle.Uri.GetFilePath());
                     var bicepOutput = filesToSave[bicepFile.FileHandle.Uri];
 
-                    var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepOutput, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepOutput, baselineFolder.OutputFolderPath, diag));
+                    var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepOutput, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepOutput, baselineFiles.OutputDirectoryPath, diag));
 
                     var decompiler = new TestDecompiler();
-                    baselineFile.WriteToOutputFolder(sourceTextWithDiags);
-                    baselineFile.ShouldHaveExpectedValue();
+                    sourceTextWithDiags.Should().MatchTextBaseline(baselineFile);
                 }
             }
         }
 
         [DataTestMethod]
-        [EmbeddedFilesTestData(@"Files/Parameters/.*\.json")]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestEmbeddedFileData(@"Files/Parameters/.*\.json")]
+        [TestCategory(TestCategories.Baseline)]
         public void Decompiler_generates_expected_bicepparam_files_with_diagnostics(EmbeddedFile embeddedJson)
         {
-            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, embeddedJson);
-            var jsonFile = baselineFolder.EntryFile;
+            var baselineFiles = TestContext.MaterializeBaseline(embeddedJson);
+            var jsonFile = baselineFiles.EntryFile;
 
             var jsonUri = IOUri.FromFilePath(jsonFile.OutputFilePath);
 
             var (entryPointUri, filesToSave) = new TestDecompiler().DecompileParameters(jsonFile.EmbeddedFile.Contents, jsonUri.WithExtension(LanguageConstants.ParamsFileExtension), null);
 
-            var baselineFile = baselineFolder.GetFileOrEnsureCheckedIn(entryPointUri);
-            baselineFile.WriteToOutputFolder(filesToSave[entryPointUri]);
-            baselineFile.ShouldHaveExpectedValue();
+            var baselineFile = baselineFiles.GetFileForPath(entryPointUri.GetFilePath());
+            filesToSave[entryPointUri].Should().MatchTextBaseline(baselineFile);
         }
 
         private static string ReadResourceFile(string resourcePath)

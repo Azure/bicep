@@ -8,6 +8,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Completions;
 using FluentAssertions;
@@ -25,7 +26,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         [DataTestMethod]
         [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void VerifySnippetTemplatesAreErrorFree(CompletionData completionData)
         {
             string pathPrefix = $"Files/SnippetTemplates/{completionData.Prefix}";
@@ -69,7 +70,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         [DataTestMethod]
         [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void VerifySnippetTemplatesDoNotContainTargetScope(CompletionData completionData)
         {
             var parser = new Parser(completionData.SnippetText);

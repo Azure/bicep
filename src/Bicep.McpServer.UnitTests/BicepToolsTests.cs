@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
+using Bicep.Testing.Baselines;
 using Bicep.McpServer.Core;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,35 +48,33 @@ public class BicepToolsTests
     }
 
     [TestMethod]
-    [EmbeddedFilesTestData(@"Files/GetAzResourceSchema/.*\.json")]
-    [TestCategory(BaselineHelper.BaselineTestCategory)]
+    [TestEmbeddedFileData(@"Files/GetAzResourceSchema/.*\.json")]
+    [TestCategory(TestCategories.Baseline)]
     public void GetAzureResourceTypeSchema_returns_resource_schema(EmbeddedFile jsonFile)
     {
-        var baselineFile = BaselineFolder.BuildOutputFolder(TestContext, jsonFile).EntryFile;
+        var baselineFile = TestContext.MaterializeBaseline(jsonFile).EntryFile;
         var split = Path.GetFileNameWithoutExtension(jsonFile.FileName).Split("@");
         var resourceType = split[0].Replace("-", "/");
         var apiVersion = split[1];
 
         var response = tools.GetAzureResourceTypeSchema(resourceType, apiVersion);
 
-        baselineFile.WriteToOutputFolder(response.Schema);
-        baselineFile.ShouldHaveExpectedJsonValue();
+        response.Schema.Should().MatchJsonBaseline(baselineFile);
     }
 
     [TestMethod]
-    [EmbeddedFilesTestData(@"Files/GetAzResourceSchemaTrimmed/.*\.json")]
-    [TestCategory(BaselineHelper.BaselineTestCategory)]
+    [TestEmbeddedFileData(@"Files/GetAzResourceSchemaTrimmed/.*\.json")]
+    [TestCategory(TestCategories.Baseline)]
     public void GetAzureResourceTypeSchema_returns_trimmed_resource_schema(EmbeddedFile jsonFile)
     {
-        var baselineFile = BaselineFolder.BuildOutputFolder(TestContext, jsonFile).EntryFile;
+        var baselineFile = TestContext.MaterializeBaseline(jsonFile).EntryFile;
         var split = Path.GetFileNameWithoutExtension(jsonFile.FileName).Split("@");
         var resourceType = split[0].Replace("-", "/");
         var apiVersion = split[1];
 
         var response = tools.GetAzureResourceTypeSchema(resourceType, apiVersion, excludeDescriptions: true, excludeReadOnlyProperties: true);
 
-        baselineFile.WriteToOutputFolder(response.Schema);
-        baselineFile.ShouldHaveExpectedJsonValue();
+        response.Schema.Should().MatchJsonBaseline(baselineFile);
     }
 
     [TestMethod]
@@ -97,11 +95,11 @@ public class BicepToolsTests
     }
 
     [TestMethod]
-    [EmbeddedFilesTestData(@"Files/GetExtensionResourceSchema/.*\.json")]
-    [TestCategory(BaselineHelper.BaselineTestCategory)]
+    [TestEmbeddedFileData(@"Files/GetExtensionResourceSchema/.*\.json")]
+    [TestCategory(TestCategories.Baseline)]
     public async Task GetExtensionResourceTypeSchema_returns_resource_schema(EmbeddedFile jsonFile)
     {
-        var baselineFile = BaselineFolder.BuildOutputFolder(TestContext, jsonFile).EntryFile;
+        var baselineFile = TestContext.MaterializeBaseline(jsonFile).EntryFile;
         var fileName = Path.GetFileNameWithoutExtension(jsonFile.FileName);
 
         // File name format: {repoPath}#{tag}#{resourceType}@{apiVersion}
@@ -119,16 +117,15 @@ public class BicepToolsTests
 
         var response = await tools.GetExtensionResourceTypeSchema(extensionReference, resourceType, apiVersion);
 
-        baselineFile.WriteToOutputFolder(response.Schema);
-        baselineFile.ShouldHaveExpectedJsonValue();
+        response.Schema.Should().MatchJsonBaseline(baselineFile);
     }
 
     [TestMethod]
-    [EmbeddedFilesTestData(@"Files/GetExtensionResourceSchemaTrimmed/.*\.json")]
-    [TestCategory(BaselineHelper.BaselineTestCategory)]
+    [TestEmbeddedFileData(@"Files/GetExtensionResourceSchemaTrimmed/.*\.json")]
+    [TestCategory(TestCategories.Baseline)]
     public async Task GetExtensionResourceTypeSchema_returns_trimmed_resource_schema(EmbeddedFile jsonFile)
     {
-        var baselineFile = BaselineFolder.BuildOutputFolder(TestContext, jsonFile).EntryFile;
+        var baselineFile = TestContext.MaterializeBaseline(jsonFile).EntryFile;
         var fileName = Path.GetFileNameWithoutExtension(jsonFile.FileName);
 
         // File name format: {repoPath}#{tag}#{resourceType}@{apiVersion}
@@ -146,8 +143,7 @@ public class BicepToolsTests
 
         var response = await tools.GetExtensionResourceTypeSchema(extensionReference, resourceType, apiVersion, excludeDescriptions: true, excludeReadOnlyProperties: true);
 
-        baselineFile.WriteToOutputFolder(response.Schema);
-        baselineFile.ShouldHaveExpectedJsonValue();
+        response.Schema.Should().MatchJsonBaseline(baselineFile);
     }
 
     [TestMethod]

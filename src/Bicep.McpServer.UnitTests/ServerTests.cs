@@ -7,7 +7,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
+using Bicep.Testing.Baselines;
 using Bicep.McpServer.Core;
 using Bicep.McpServer.UnitTests.Helpers;
 using FluentAssertions;
@@ -25,12 +25,12 @@ public class ServerTests
     public TestContext? TestContext { get; set; }
 
     [TestMethod]
-    [EmbeddedFilesTestData(@"Files/ServerTests/tools.json")]
-    [TestCategory(BaselineHelper.BaselineTestCategory)]
+    [TestEmbeddedFileData(@"Files/ServerTests/tools.json")]
+    [TestCategory(TestCategories.Baseline)]
     public async Task List_tools_returns_full_list_of_tools(EmbeddedFile toolsJson)
     {
-        var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, toolsJson);
-        var toolsJsonFile = baselineFolder.EntryFile;
+        var baselineFiles = TestContext.MaterializeBaseline(toolsJson);
+        var toolsJsonFile = baselineFiles.EntryFile;
         await using var helper = await McpServerHelper.StartServer(TestContext);
 
         var tools = await helper.Client.ListToolsAsync();
@@ -45,8 +45,7 @@ public class ServerTests
             .OrderByAscending(x => x.Name)
             .ToImmutableArray();
 
-        toolsJsonFile.WriteStjJsonToOutputFolder(toolDefinitions);
-        toolsJsonFile.ShouldHaveExpectedJsonValue();
+        TestJsonSerializer.Serialize(toolDefinitions).Should().MatchJsonBaseline(toolsJsonFile);
     }
 
     [TestMethod]

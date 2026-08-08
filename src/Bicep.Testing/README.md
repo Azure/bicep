@@ -7,6 +7,8 @@ Typical imports are:
 ```csharp
 using Bicep.Testing;
 using Bicep.Testing.Assertions;
+using Bicep.Testing.Baselines;
+using Bicep.Testing.IO;
 using Bicep.Testing.Mocks;
 ```
 
@@ -35,8 +37,31 @@ using Bicep.Testing.Assertions.Json;
 | Validate and compare printed Bicep text | `BeValidBicepText(...)` |
 | Assert JSON tokens | `Bicep.Testing.Assertions.Json` |
 | Create strict Moq mocks | `Bicep.Testing.Mocks.StrictMock` |
+| Create and attach real test output files | `TestContext.SaveResultFile(...)` |
+| Populate a virtual file set from embedded resources | `fileSet.AddEmbeddedFiles(...)` |
+| Materialize and assert embedded baselines | `TestContext.MaterializeBaseline(...)` |
 | Override the reported compiler assembly version | `TestFeatureProviderFactory.WithAssemblyVersion(...)` |
 | Decompile templates or parameters | `TestDecompiler` |
+
+## Baselines
+
+Use `TestEmbeddedFileData` for embedded baseline test data and materialize its file set through the test context:
+
+```csharp
+[TestMethod]
+[TestCategory(TestCategories.Baseline)]
+[TestEmbeddedFileData(@"Files/Scenarios/.*/main\.bicep")]
+public void Produces_expected_output(EmbeddedFile inputFile)
+{
+    var files = TestContext.MaterializeBaseline(inputFile);
+    var outputFile = files.GetFile("main.json");
+
+    GenerateOutput(files.EntryFile.OutputFilePath)
+        .Should().MatchJsonBaseline(outputFile);
+}
+```
+
+Use `MatchTextBaseline(...)` for text and `MatchJsonBaseline(...)` for JSON. Both write the actual result to `OutputFilePath`, support baseline updates, and report a diff against the checked-in embedded file. `BaselineDirectory` exposes `EntryFile`, `OutputDirectoryPath`, `GetFile(...)`, and `GetFileForPath(...)` without introducing URI conversions.
 
 ## Compiler Recipes
 
@@ -187,10 +212,10 @@ services
 
 ## Namespace And Naming Conventions
 
-- Public `Test*` toolkit types live in the `Bicep.Testing` root namespace.
+- Public compiler and service test toolkit types live in the `Bicep.Testing` root namespace.
 - `Fake*`, `Mock*`, and `Dummy*` implementations live under `Fakes`, `Mocks`, and `Dummies`.
 - Assertion infrastructure that is not itself a public `Test*` type lives under `Assertions`.
-- In-memory and mock-file-system implementations that back `TestFileSet` live under `IO`.
+- `EmbeddedFile`, `TestFileData`, `TestFileSet`, `TestFileUri`, and virtual file-set implementations live under `IO`.
 - Do not create a catch-all `Bicep.Testing.Utils` namespace.
 
 ## Migration Rules

@@ -6,8 +6,9 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Handlers;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,9 +23,10 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static BicepDecompileParamsCommandHandler CreateHandler()
+        private static BicepDecompileParamsCommandHandler CreateHandler(TestFileSet files)
         {
             var helper = ServiceBuilder.Create(services => services
+                .WithFileExplorer(files.FileExplorer)
                 .AddSingleton(StrictMock.Of<ISerializer>().Object)
                 .AddSingleton<BicepDecompileParamsCommandHandler>());
 
@@ -54,12 +56,13 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
                 """;
 
-            var paramFilePath = FileHelper.SaveResultFile(TestContext, "param.json", paramFile);
-            var bicepPath = PathHelper.ResolvePath("./main.bicep", Path.GetDirectoryName(paramFilePath));
+            var files = new InMemoryTestFileSet().AddFile("param.json", paramFile);
+            var paramFileUri = files.GetUri("param.json");
+            var bicepFileUri = files.GetUri("main.bicep");
 
-            var requestParams = new BicepDecompileParamsCommandParams(DocumentUri.File(paramFilePath), DocumentUri.File(bicepPath));
+            var requestParams = new BicepDecompileParamsCommandParams(paramFileUri.ToDocumentUri(), bicepFileUri.ToDocumentUri());
 
-            var decompileParamsCommandHandler = CreateHandler();
+            var decompileParamsCommandHandler = CreateHandler(files);
 
             var result = await decompileParamsCommandHandler.Handle(
                 requestParams,
@@ -84,11 +87,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
 }";
             var expectedErrorMsg = "Decompilation failed. Please fix the following problems and try again: [5:10]: No value found parameter foo";
 
-            var paramFilePath = FileHelper.SaveResultFile(TestContext, "param.json", paramFile);
+            var files = new InMemoryTestFileSet().AddFile("param.json", paramFile);
 
-            var requestParams = new BicepDecompileParamsCommandParams(DocumentUri.File(paramFilePath), "/main.bicep");
+            var requestParams = new BicepDecompileParamsCommandParams(files.GetUri("param.json").ToDocumentUri(), "/main.bicep");
 
-            var decompileParamsCommandHandler = CreateHandler();
+            var decompileParamsCommandHandler = CreateHandler(files);
 
             var result = await decompileParamsCommandHandler.Handle(
                 requestParams,

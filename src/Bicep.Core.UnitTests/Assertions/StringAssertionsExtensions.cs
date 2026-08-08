@@ -9,6 +9,7 @@ using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing;
+using Bicep.Testing.Baselines;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using FluentAssertions;
@@ -90,30 +91,6 @@ namespace Bicep.Core.UnitTests.Assertions
                     expected.Length,
                     expected,
                     lineDiff ?? "differences in newlines only");
-
-            return new AndConstraint<StringAssertions>(instance);
-        }
-
-        public static AndConstraint<StringAssertions> EqualWithLineByLineDiffOutput(this StringAssertions instance, TestContext testContext, string expected, string expectedPath, string actualPath, string because = "", params object[] becauseArgs)
-        {
-            var lineDiff = CalculateDiff(expected, instance.Subject);
-            var hasNewlineDiffsOnly = lineDiff is null && !expected.Equals(instance.Subject, System.StringComparison.Ordinal);
-            var testPassed = lineDiff is null && !hasNewlineDiffsOnly;
-
-            var isBaselineUpdate = !testPassed && BaselineHelper.ShouldSetBaseline(testContext);
-            if (isBaselineUpdate)
-            {
-                BaselineHelper.SetBaseline(actualPath, expectedPath);
-            }
-
-            Execute.Assertion
-                .BecauseOf(because, becauseArgs)
-                .ForCondition(testPassed)
-                .FailWith(
-                    BaselineHelper.GetAssertionFormatString(isBaselineUpdate),
-                    lineDiff ?? "differences in newlines only",
-                    BaselineHelper.GetAbsolutePathRelativeToRepoRoot(actualPath),
-                    BaselineHelper.GetAbsolutePathRelativeToRepoRoot(expectedPath));
 
             return new AndConstraint<StringAssertions>(instance);
         }

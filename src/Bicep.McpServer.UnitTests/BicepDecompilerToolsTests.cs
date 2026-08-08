@@ -3,8 +3,9 @@
 
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
+using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.McpServer.Core;
@@ -19,21 +20,21 @@ public class BicepDecompilerToolsTests
     [NotNull]
     public TestContext? TestContext { get; set; }
 
-    private static IServiceProvider GetServiceProvider()
+    private static BicepDecompilerTools CreateTools(MockFileSystemTestFileSet files)
     {
         var services = new ServiceCollection();
+        services.AddBicepMcpServer();
         services
-            .AddBicepMcpServer();
+            .WithFileSystem(files.FileSystem)
+            .WithFileExplorer(files.FileExplorer);
 
-        return services.BuildServiceProvider();
+        return services.BuildServiceProvider().GetRequiredService<BicepDecompilerTools>();
     }
-
-    private readonly BicepDecompilerTools tools = GetServiceProvider().GetRequiredService<BicepDecompilerTools>();
 
     [TestMethod]
     public async Task DecompileArmParametersFile_returns_bicep_parameters()
     {
-        var paramsFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", """
+        var files = MockFileSystemTestFileSet.Create(("parameters.json", """
             {
               "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
               "contentVersion": "1.0.0.0",
@@ -46,9 +47,9 @@ public class BicepDecompilerToolsTests
                 }
               }
             }
-            """);
+            """));
 
-        var response = await tools.DecompileArmParametersFile(paramsFilePath);
+        var response = await CreateTools(files).DecompileArmParametersFile(files.GetUri("parameters.json").GetFilePath());
         response.FilesToSave[response.EntrypointUri].Should().Contain("param adminUsername = 'tim'");
         response.FilesToSave[response.EntrypointUri].Should().Contain("param dnsLabelPrefix = 'newvm79347a'");
     }
@@ -56,7 +57,7 @@ public class BicepDecompilerToolsTests
     [TestMethod]
     public async Task DecompileArmTemplateFile_returns_bicep()
     {
-        var templateFilePath = FileHelper.SaveResultFile(TestContext, "template.json", """
+        var files = MockFileSystemTestFileSet.Create(("template.json", """
             {
               "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
               "contentVersion": "1.0.0.0",
@@ -73,9 +74,9 @@ public class BicepDecompilerToolsTests
                 }
               }
             }
-            """);
+            """));
 
-        var response = await tools.DecompileArmTemplateFile(templateFilePath);
+        var response = await CreateTools(files).DecompileArmTemplateFile(files.GetUri("template.json").GetFilePath());
         response.FilesToSave[response.EntrypointUri].Should().Contain("param inputObject object");
         response.FilesToSave[response.EntrypointUri].Should().Contain("output outputObject object = inputObject");
     }

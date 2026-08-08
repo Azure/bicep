@@ -9,6 +9,7 @@ using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -25,7 +26,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
         [DataTestMethod]
         [DynamicData(nameof(GetNamespaces), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void FunctionsShouldHaveExpectedSignatures(INamespaceSymbol @namespace)
         {
             var knownOverloads = @namespace.TryGetNamespaceType()!.MethodResolver.GetKnownFunctions().Values
@@ -46,7 +47,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
             var expected = JToken.Parse(expectedStr);
             var expectedPath = DataSet.GetBaselineUpdatePath(DataSet.TestFunctionsDirectory, fileName);
-            actual.Should().EqualWithJsonDiffOutput(TestContext, expected, expectedPath, actualLocation);
+            actual.Should().MatchJsonBaseline(TestContext, expected, expectedPath, actualLocation);
         }
 
         private static IEnumerable<object[]> GetNamespaces()

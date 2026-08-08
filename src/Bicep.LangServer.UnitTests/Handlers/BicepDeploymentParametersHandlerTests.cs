@@ -11,6 +11,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Handlers;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -47,8 +48,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
   },
   ""resources"": []
 }";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
-            var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, string.Empty);
+            var bicepFilePath = TestFileUri.FromInMemoryPath("input.bicep").GetFilePath();
+            var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, bicepFileContents);
 
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
@@ -78,7 +79,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
   },
   ""resources"": []
 }";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var bicepFilePath = TestFileUri.FromInMemoryPath("input.bicep").GetFilePath();
             var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, bicepFileContents);
 
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
@@ -133,7 +134,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
     }
   ]
 }";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var bicepFilePath = TestFileUri.FromInMemoryPath("input.bicep").GetFilePath();
             var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, bicepFileContents);
 
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
@@ -197,7 +198,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
       ""value"": ""westus""
     }
 }";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var bicepFilePath = TestFileUri.FromInMemoryPath("input.bicep").GetFilePath();
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", parametersFileContents);
             var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, bicepFileContents);
 
@@ -249,7 +250,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
     }
   ]
 }";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var bicepFilePath = TestFileUri.FromInMemoryPath("input.bicep").GetFilePath();
             var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, bicepFileContents);
 
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
@@ -313,7 +314,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
       ""value"": ""westus""
     }
 }";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var bicepFilePath = TestFileUri.FromInMemoryPath("input.bicep").GetFilePath();
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", parametersFileContents);
             var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, bicepFileContents);
 
@@ -372,8 +373,8 @@ param testProperties object = {
     }
   ]
 }";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
-            var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, string.Empty);
+            var bicepFilePath = TestFileUri.FromInMemoryPath("input.bicep").GetFilePath();
+            var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, bicepFileContents);
 
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
@@ -422,8 +423,8 @@ param allowedOrigins array = [
     }
   ]
 }";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
-            var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, string.Empty);
+            var bicepFilePath = TestFileUri.FromInMemoryPath("input.bicep").GetFilePath();
+            var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, bicepFileContents);
 
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
@@ -469,7 +470,7 @@ param testProperties object";
     }
   ]
 }";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var bicepFilePath = TestFileUri.FromInMemoryPath("input.bicep").GetFilePath();
             var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, bicepFileContents);
 
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
@@ -534,7 +535,7 @@ resource blueprintName_policyArtifact 'Microsoft.Blueprint/blueprints/artifacts@
     }
   ]
 }";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var bicepFilePath = TestFileUri.FromInMemoryPath("input.bicep").GetFilePath();
             var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, bicepFileContents);
 
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
@@ -613,9 +614,9 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
     ""location"": {
       ""value"": ""westus""
 }";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var bicepFilePath = TestFileUri.FromInMemoryPath("input.bicep").GetFilePath();
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", parametersFileContents);
-            var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, string.Empty);
+            var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, bicepFileContents);
 
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, parametersFilePath, template, CancellationToken.None);
 
@@ -673,7 +674,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
     }
   ]
 }";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var bicepFilePath = TestFileUri.FromInMemoryPath("input.bicep").GetFilePath();
             var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, bicepFileContents);
 
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
@@ -744,7 +745,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
     }
   ]
 }";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var bicepFilePath = TestFileUri.FromInMemoryPath("input.bicep").GetFilePath();
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
             var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
@@ -776,13 +777,13 @@ param test foo", ParameterType.Array)]
         [DataRow("param test ", null)]
         public async Task VerifyParameterType(string bicepFileContents, ParameterType? expected)
         {
-            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, outputPath);
-            var compiler = new ServiceBuilder().Build().GetCompiler();
-            var compilation = await compiler.CreateCompilation(PathHelper.FilePathToFileUrl(bicepFilePath).ToIOUri());
+            var files = InMemoryTestFileSet.Create(("input.bicep", bicepFileContents));
+            var bicepFileUri = files.GetUri("input.bicep");
+            var compiler = new ServiceBuilder().WithFileExplorer(files.FileExplorer).Build().GetCompiler();
+            var compilation = await compiler.CreateCompilation(bicepFileUri);
             var parameterSymbol = compilation.GetEntrypointSemanticModel().Binder.FileSymbol.ParameterDeclarations.Single();
 
-            var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, string.Empty);
+            var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFileUri.GetFilePath(), string.Empty);
 
             var result = bicepDeploymentParametersHandler.GetParameterType(parameterSymbol);
 
@@ -796,7 +797,7 @@ param test foo", ParameterType.Array)]
         [DataRow("some_path")]
         public void GetParametersInfoFromProvidedFile_WithInvalidInput_ShouldReturnNull(string parametersFilePath)
         {
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty);
+            var bicepFilePath = TestFileUri.FromInMemoryPath("input.bicep").GetFilePath();
             var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, string.Empty);
 
             var result = bicepDeploymentParametersHandler.GetParametersInfoFromProvidedFile(parametersFilePath);
@@ -816,7 +817,7 @@ param test foo", ParameterType.Array)]
     }
 }";
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", parametersFileContents);
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty);
+            var bicepFilePath = TestFileUri.FromInMemoryPath("input.bicep").GetFilePath();
             var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, string.Empty);
 
             var result = bicepDeploymentParametersHandler.GetParametersInfoFromProvidedFile(parametersFilePath);
@@ -868,7 +869,7 @@ param test foo", ParameterType.Array)]
   }
 }";
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", parametersFileContents);
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty);
+            var bicepFilePath = TestFileUri.FromInMemoryPath("input.bicep").GetFilePath();
             var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, string.Empty);
 
             var result = bicepDeploymentParametersHandler.GetParametersInfoFromProvidedFile(parametersFilePath);

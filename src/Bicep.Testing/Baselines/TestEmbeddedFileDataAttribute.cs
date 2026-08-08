@@ -3,30 +3,25 @@
 
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Bicep.Core.UnitTests.Assertions;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.UnitTests.Baselines;
+namespace Bicep.Testing.Baselines;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-public sealed class EmbeddedFilesTestDataAttribute : Attribute, ITestDataSource
+public sealed class TestEmbeddedFileDataAttribute(string regexFilter) : Attribute, ITestDataSource
 {
-    public EmbeddedFilesTestDataAttribute(string regexFilter)
-    {
-        RegexFilter = regexFilter;
-    }
-
-    public string RegexFilter { get; }
+    public string RegexFilter { get; } = regexFilter;
 
     public IEnumerable<object[]> GetData(MethodInfo methodInfo)
     {
         var files = EmbeddedFile.LoadAll(methodInfo.DeclaringType!.Assembly, new Regex(RegexFilter));
 
-        var testCategories = methodInfo.GetCustomAttributes().OfType<TestCategoryAttribute>()
+        methodInfo.GetCustomAttributes().OfType<TestCategoryAttribute>()
             .Should().Contain(
-                x => x.TestCategories.Contains(BaselineHelper.BaselineTestCategory),
-                $"Expected test method to have the {BaselineHelper.BaselineTestCategory} category");
+                x => x.TestCategories.Contains(TestCategories.Baseline),
+                $"Expected test method to have the {TestCategories.Baseline} category");
         files.Should().NotBeEmpty($"Expected filter {RegexFilter} to match at least 1 file");
 
         return files.Select(x => new object[] { x });

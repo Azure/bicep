@@ -8,6 +8,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

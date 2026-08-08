@@ -129,12 +129,13 @@ Leave these categories alone unless a PR explicitly targets their owning behavio
 - `[x]` Initial Core unit-test slices use `TestCompiler`, including params emission and linter/extension scenarios.
 - `[x]` All linter rule tests use `TestCompiler`, `TestFileData`, and test-owned configuration APIs.
 - `[x]` `TestConfigurations` and `TestConfigurationBuilder` own shared test configuration presets and mutations.
-- `[x]` Public `Test*` toolkit types live in the `Bicep.Testing` root namespace; `FakeEnvironment` lives under `Bicep.Testing.Fakes` and the `Utils` namespace is removed.
+- `[x]` Compiler and service toolkit types live in the `Bicep.Testing` root namespace; virtual-file types live under `Bicep.Testing.IO`, `FakeEnvironment` lives under `Bicep.Testing.Fakes`, and the `Utils` namespace is removed.
 - `[x]` Simple Core unit-test callers use `TestCompiler` directly.
 - `[x]` No synchronous `CompilationHelper.Compile(...)` call sites remain in `Bicep.Core.UnitTests`.
 - `[x]` `Bicep.Decompiler.UnitTests` references `Bicep.Testing` instead of `Bicep.Core.UnitTests`.
 - `[x]` `Bicep.Local.Extension.UnitTests` and `Bicep.RegistryModuleTool.TestFixtures` no longer reference `Bicep.Core.UnitTests`.
-- `[x]` Reusable JToken assertions have one canonical implementation in `Bicep.Testing.Assertions.Json`; Core retains only baseline-update behavior.
+- `[x]` `Bicep.RpcClient.Tests` references `Bicep.Testing` instead of `Bicep.Core.UnitTests`.
+- `[x]` Embedded baseline data, materialization, updates, and fluent text/JSON assertions have one canonical implementation in `Bicep.Testing.Baselines`.
 - `[ ]` Replace all `CompilationHelper` call sites with `TestCompiler` and delete `CompilationHelper` and its result types.
 - `[ ]` Replace `ServiceBuilder`, `ServiceBuilderExtensions`, and related Core-unit-test DI extensions with `TestCompiler`, `TestServices`, or focused fixtures, then delete them.
 - `[ ]` Consolidate reusable assertions, feature fixtures, mocks, and data builders in `Bicep.Testing`; rewrite or remove obsolete helpers instead of moving them wholesale.
@@ -239,7 +240,7 @@ Deletion targets include:
 Do not move the whole assertions directory unchanged. Classify each assertion by its subject and consumers:
 
 - Merge duplicate implementations already present in `Bicep.Testing`, such as diagnostic assertion infrastructure.
-- Keep focused reusable assertions in `Bicep.Testing.Assertions`; do not move baseline-management or Core-specific assertion APIs with them.
+- Keep focused reusable assertions in `Bicep.Testing.Assertions`; keep embedded baseline management and baseline-specific assertions together in `Bicep.Testing.Baselines`.
 - Use `TestPrinter.Print(...)` only for printing and `BeValidBicepText()` for string syntax validation; keep source annotation rendering separate.
 - Expand `TestCompilationResultAssertions` to replace legacy compilation-result assertions, including template/parameters emission and diagnostic filtering where still useful.
 - Move broadly reusable assertions such as diagnostics, syntax, JSON tokens, strings, code fixes, and configuration assertions when non-Core projects consume them.
@@ -251,7 +252,7 @@ Do not move the whole assertions directory unchanged. Classify each assertion by
 
 Treat each family separately:
 
-- Keep the public `Test*` toolkit types in the `Bicep.Testing` root namespace. Keep `Fake*`, `Mock*`, and `Dummy*` implementations in their corresponding domain namespaces; for example, use `Bicep.Testing.Fakes.FakeEnvironment` rather than `TestEnvironment`.
+- Keep compiler and service toolkit types in the `Bicep.Testing` root namespace. Keep virtual-file types under `Bicep.Testing.IO`, and `Fake*`, `Mock*`, and `Dummy*` implementations in their corresponding domain namespaces; for example, use `Bicep.Testing.Fakes.FakeEnvironment` rather than `TestEnvironment`.
 - Do not recreate a catch-all `Bicep.Testing.Utils` namespace.
 - Move feature overrides and their provider factory to `Bicep.Testing` if they remain the shared way to configure compiler features. This should allow `TestCompiler.WithFeatureOverrides(...)` to become non-generic.
 - Delete the Core `StrictMock` duplicate and use `Bicep.Testing.Mocks.StrictMock`.
@@ -303,6 +304,7 @@ Completed:
 - `[x]` `Bicep.Decompiler.UnitTests`: migrated to `TestCompiler`, `TestPrinter`, and focused string/JSON assertions; all 52 tests passed.
 - `[x]` `Bicep.Local.Extension.UnitTests`: migrated to `Bicep.Testing.Mocks.StrictMock` and focused JSON assertions; all 99 tests passed.
 - `[x]` `Bicep.RegistryModuleTool.TestFixtures`: replaced default Core feature overrides with a focused assembly-version decorator; all 18 consuming integration tests passed.
+- `[x]` `Bicep.RpcClient.Tests`: migrated result-file handling and its public API baseline to focused `Bicep.Testing` APIs; the full 91-test suite completed with 90 passed and 1 skipped.
 
 Validation: the full solution builds after all three project-reference removals and assertion consolidation.
 
@@ -316,7 +318,6 @@ Current project-reference cleanup candidates:
 - `src/Bicep.LangServer.IntegrationTests/Bicep.LangServer.IntegrationTests.csproj`
 - `src/Bicep.Local.Deploy.IntegrationTests/Bicep.Local.Deploy.IntegrationTests.csproj`
 - `src/Bicep.McpServer.UnitTests/Bicep.McpServer.UnitTests.csproj`
-- `src/Bicep.RpcClient.Tests/Bicep.RpcClient.Tests.csproj`
 - `src/Bicep.Wasm.UnitTests/Bicep.Wasm.UnitTests.csproj`
 
 Likely import cleanup areas:

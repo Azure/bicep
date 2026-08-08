@@ -4,10 +4,8 @@
 using System.IO.Pipes;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Registry.Oci;
-using Bicep.Core.UnitTests.Utils;
 using Bicep.RpcClient.Helpers;
+using Bicep.Testing;
 using FluentAssertions;
 using RichardSzalay.MockHttp;
 
@@ -59,7 +57,7 @@ public class BicepClientTests
     {
         var osPlatform = OSPlatform.Create(osPlatformString);
         var exeSuffix = osPlatform == OSPlatform.Windows ? ".exe" : string.Empty;
-        var outputDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var outputDir = TestContext.GetUniqueOutputPath();
 
         MockHttpMessageHandler mockHandler = new();
         mockHandler.When(HttpMethod.Get, "https://downloads.bicep.azure.com/releases/latest")
@@ -96,7 +94,7 @@ public class BicepClientTests
     [TestMethod]
     public async Task Download_uses_specified_BicepVersion_without_querying_latest()
     {
-        var outputDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var outputDir = TestContext.GetUniqueOutputPath();
 
         MockHttpMessageHandler mockHandler = new();
         // Any request other than the pinned-version artifact (e.g. releases/latest) should fail the test.
@@ -123,7 +121,7 @@ public class BicepClientTests
     [TestMethod]
     public async Task Download_skips_download_when_cli_is_already_installed()
     {
-        var outputDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var outputDir = TestContext.GetUniqueOutputPath();
         var existingPath = Path.Combine(outputDir, "v9.8.7", "bicep");
         Directory.CreateDirectory(Path.GetDirectoryName(existingPath)!);
         await File.WriteAllTextAsync(existingPath, "already-installed");
@@ -149,7 +147,7 @@ public class BicepClientTests
     [TestMethod]
     public async Task Download_falls_back_to_obsolete_InstallPath_when_InstallBasePath_is_not_set()
     {
-        var outputDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var outputDir = TestContext.GetUniqueOutputPath();
 
         MockHttpMessageHandler mockHandler = new();
         var randomBytes = Guid.NewGuid().ToByteArray();
@@ -256,7 +254,7 @@ public class BicepClientTests
     [TestMethod]
     public async Task Initialize_validates_path_existence()
     {
-        var nonExistentPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var nonExistentPath = TestContext.GetUniqueOutputPath();
         var clientFactory = new BicepClientFactory();
         await FluentActions.Invoking(() => clientFactory.Initialize(new() { ExistingCliPath = nonExistentPath }, default))
             .Should().ThrowAsync<FileNotFoundException>().WithMessage($"The specified Bicep CLI path does not exist: '{nonExistentPath}'.");
@@ -308,7 +306,7 @@ public class BicepClientTests
     [TestMethod]
     public async Task Compile_runs_successfully()
     {
-        var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", """
+        var bicepFile = TestContext.SaveResultFile("main.bicep", """
         param location string
         """);
 
@@ -330,7 +328,7 @@ public class BicepClientTests
             new() { ExistingCliPath = cliPath, ConnectionMode = BicepConnectionMode.Stdio },
             TestContext.CancellationTokenSource.Token);
 
-        var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", """
+        var bicepFile = TestContext.SaveResultFile("main.bicep", """
         param location string
         """);
 
@@ -344,7 +342,7 @@ public class BicepClientTests
     [TestMethod]
     public async Task CompileParams_runs_successfully()
     {
-        var outputPath = FileHelper.SaveResultFiles(TestContext, [
+        var outputPath = TestContext.SaveResultFiles([
             new("main.bicep", """
             param location string
             """),
@@ -366,7 +364,7 @@ public class BicepClientTests
     [TestMethod]
     public async Task Format_runs_successfully()
     {
-        var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", """
+        var bicepFile = TestContext.SaveResultFile("main.bicep", """
         param location      string
         """);
 
@@ -381,10 +379,10 @@ public class BicepClientTests
     [TestMethod]
     public async Task GetSnapshot_runs_successfully()
     {
-        var outputPath = FileHelper.SaveResultFiles(TestContext, [
+        var outputPath = TestContext.SaveResultFiles([
             new("main.bicep", """
             param sku string
-            
+
             resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
               name: 'myStgAct'
               location: resourceGroup().location
@@ -396,7 +394,7 @@ public class BicepClientTests
             """),
             new("main.bicepparam", """
             using 'main.bicep'
-            
+
             param sku = 'Premium_LRS'
             """),
         ]);
@@ -414,7 +412,7 @@ public class BicepClientTests
     [TestMethod]
     public async Task GetMetadataResponse_runs_successfully()
     {
-        var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", """
+        var bicepFile = TestContext.SaveResultFile("main.bicep", """
             @export()
             @description('A foo object')
             type foo = {
@@ -430,7 +428,7 @@ public class BicepClientTests
     [TestMethod]
     public async Task GetDeploymentGraph_runs_successfully()
     {
-        var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", """
+        var bicepFile = TestContext.SaveResultFile("main.bicep", """
             resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
               name: 'myStgAct'
               location: 'westus'
@@ -456,7 +454,7 @@ public class BicepClientTests
     [TestMethod]
     public async Task GetFileReferences_runs_successfully()
     {
-        var outputPath = FileHelper.SaveResultFiles(TestContext, [
+        var outputPath = TestContext.SaveResultFiles([
             new("main.bicep", """
             module mod 'mod.bicep' = {
               name: 'mod'

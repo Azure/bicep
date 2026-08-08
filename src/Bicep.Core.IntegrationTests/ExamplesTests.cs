@@ -8,9 +8,10 @@ using Bicep.Core.Extensions;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
+using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -29,12 +30,12 @@ namespace Bicep.Core.IntegrationTests
         {
             features ??= new(testContext);
             FileHelper.GetCacheRootDirectory(testContext).EnsureExists();
-            var baselineFolder = BaselineFolder.BuildOutputFolder(testContext, embeddedBicep);
-            var bicepFile = baselineFolder.EntryFile;
-            var jsonFile = baselineFolder.GetFileOrEnsureCheckedIn(Path.ChangeExtension(embeddedBicep.FileName, jsonFileExtension));
+            var baselineFiles = testContext.MaterializeBaseline(embeddedBicep);
+            var bicepFile = baselineFiles.EntryFile;
+            var jsonFile = baselineFiles.GetFile(Path.ChangeExtension(embeddedBicep.FileName, jsonFileExtension));
 
             var compiler = Services.WithFeatureOverrides(features).Build().GetCompiler();
-            var compilation = await compiler.CreateCompilation(bicepFile.OutputFileUri.ToIOUri());
+            var compilation = await compiler.CreateCompilation(IOUri.FromFilePath(bicepFile.OutputFilePath));
             var model = compilation.GetEntrypointSemanticModel();
 
             var emitter = new TemplateEmitter(model);
@@ -60,8 +61,7 @@ namespace Bicep.Core.IntegrationTests
 
                 if (result.Status == EmitStatus.Succeeded)
                 {
-                    jsonFile.WriteToOutputFolder(stringWriter.ToString());
-                    jsonFile.ShouldHaveExpectedJsonValue();
+                    stringWriter.ToString().Should().MatchJsonBaseline(jsonFile);
 
                     // validate that the template is parseable by the deployment engine
                     UnitTests.Utils.TemplateHelper.TemplateShouldBeValid(stringWriter.ToString(), model.Features);
@@ -71,31 +71,30 @@ namespace Bicep.Core.IntegrationTests
 
         [DataTestMethod]
         [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public Task ExampleIsValid(EmbeddedFile embeddedBicep)
             => RunExampleTest(TestContext, embeddedBicep, new(TestContext), ".json");
 
         [DataTestMethod]
         [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public Task ExampleIsValid_using_experimental_symbolic_names(EmbeddedFile embeddedBicep)
             => RunExampleTest(TestContext, embeddedBicep, new(TestContext, SymbolicNameCodegenEnabled: true), ".symbolicnames.json");
 
         [DataTestMethod]
         [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        [TestCategory(TestCategories.Baseline)]
         public void Example_uses_consistent_formatting(EmbeddedFile embeddedBicep)
         {
-            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, embeddedBicep);
-            var bicepFile = baselineFolder.EntryFile;
+            var baselineFiles = TestContext.MaterializeBaseline(embeddedBicep);
+            var bicepFile = baselineFiles.EntryFile;
 
             var program = ParserHelper.Parse(embeddedBicep.Contents, out var lexingErrorLookup, out var parsingErrorLookup);
             var context = PrettyPrinterV2Context.Create(PrettyPrinterV2Options.Default, lexingErrorLookup, parsingErrorLookup);
             var formattedContents = PrettyPrinterV2.Print(program, context);
             formattedContents.Should().NotBeNull();
 
-            bicepFile.WriteToOutputFolder(formattedContents);
-            bicepFile.ShouldHaveExpectedValue();
+            formattedContents.Should().MatchTextBaseline(bicepFile);
         }
 
         [TestMethod]

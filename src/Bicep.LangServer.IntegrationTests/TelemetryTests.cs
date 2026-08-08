@@ -146,8 +146,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task VerifyDisableNextLineCodeActionInvocationFiresTelemetryEvent()
         {
             var bicepFileContents = @"param storageAccount string = 'testStorageAccount'";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
-            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var documentUri = DocumentUri.From(InMemoryFileResolver.GetFileUri("/path/to/main.bicep"));
             var uri = documentUri.ToUriEncoded();
 
             var files = new Dictionary<Uri, string>

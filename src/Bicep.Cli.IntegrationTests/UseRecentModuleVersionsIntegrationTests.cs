@@ -19,7 +19,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
+using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Mock.Registry;
 using Bicep.Core.UnitTests.Mock.Registry.Catalog;
 using Bicep.Core.UnitTests.Registry;

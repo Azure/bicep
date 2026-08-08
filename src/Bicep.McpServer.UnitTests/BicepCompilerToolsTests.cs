@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.McpServer.Core;
 using FluentAssertions;
@@ -15,25 +16,25 @@ public class BicepCompilerToolsTests
     [NotNull]
     public TestContext? TestContext { get; set; }
 
-    private static IServiceProvider GetServiceProvider()
+    private static BicepCompilerTools CreateTools(MockFileSystemTestFileSet files)
     {
         var services = new ServiceCollection();
+        services.AddBicepMcpServer();
         services
-            .AddBicepMcpServer();
+            .WithFileSystem(files.FileSystem)
+            .WithFileExplorer(files.FileExplorer);
 
-        return services.BuildServiceProvider();
+        return services.BuildServiceProvider().GetRequiredService<BicepCompilerTools>();
     }
-
-    private readonly BicepCompilerTools tools = GetServiceProvider().GetRequiredService<BicepCompilerTools>();
 
     [TestMethod]
     public async Task FormatBicepFile_returns_formatted_bicep_content()
     {
-        var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", """
+        var files = MockFileSystemTestFileSet.Create(("main.bicep", """
             param          foo          string
-            """);
+            """));
 
-        var response = await tools.FormatBicepFile(bicepFilePath);
+        var response = await CreateTools(files).FormatBicepFile(files.GetUri("main.bicep").GetFilePath());
 
         response.Content.Should().Contain("param foo string");
     }
@@ -41,23 +42,22 @@ public class BicepCompilerToolsTests
     [TestMethod]
     public async Task GetFileReferences_returns_referenced_files()
     {
-        var outputFolder = FileHelper.SaveResultFiles(TestContext, [
-            new("main.bicep", """
+        var files = MockFileSystemTestFileSet.Create(
+            ("main.bicep", """
                 param location string
                 """),
-            new("main.bicepparam", """
+            ("main.bicepparam", """
                 using 'main.bicep'
 
                 param location = loadTextContent('location.txt')
                 """),
-            new("location.txt", "westus"),
-            new("bicepconfig.json", """
+            ("location.txt", "westus"),
+            ("bicepconfig.json", """
                 {
                 }
-                """),
-        ]);
+                """));
 
-        var response = await tools.GetFileReferences(Path.Combine(outputFolder, "main.bicepparam"));
+        var response = await CreateTools(files).GetFileReferences(files.GetUri("main.bicepparam").GetFilePath());
         response.FileUris.Select(u => u.AbsoluteUri.Split('/').Last()).Should().BeEquivalentTo([
             "main.bicep",
             "main.bicepparam",
@@ -69,12 +69,12 @@ public class BicepCompilerToolsTests
     [TestMethod]
     public async Task BuildBicep_returns_compiled_template()
     {
-        var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", """
+        var files = MockFileSystemTestFileSet.Create(("main.bicep", """
             param location string = 'westus'
             output loc string = location
-            """);
+            """));
 
-        var response = await tools.BuildBicep(bicepFilePath);
+        var response = await CreateTools(files).BuildBicep(files.GetUri("main.bicep").GetFilePath());
 
         response.Success.Should().BeTrue();
         response.Template.Should().NotBeNullOrEmpty();
@@ -85,11 +85,11 @@ public class BicepCompilerToolsTests
     [TestMethod]
     public async Task BuildBicep_returns_diagnostics_on_error()
     {
-        var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", """
+        var files = MockFileSystemTestFileSet.Create(("main.bicep", """
             var foo string = 123
-            """);
+            """));
 
-        var response = await tools.BuildBicep(bicepFilePath);
+        var response = await CreateTools(files).BuildBicep(files.GetUri("main.bicep").GetFilePath());
 
         response.Success.Should().BeFalse();
         response.Template.Should().BeNull();
@@ -101,19 +101,18 @@ public class BicepCompilerToolsTests
     [TestMethod]
     public async Task BuildBicepparam_returns_compiled_parameters()
     {
-        var outputFolder = FileHelper.SaveResultFiles(TestContext, [
-            new("main.bicep", """
+        var files = MockFileSystemTestFileSet.Create(
+            ("main.bicep", """
                 param location string
                 output loc string = location
                 """),
-            new("main.bicepparam", """
+            ("main.bicepparam", """
                 using 'main.bicep'
 
                 param location = 'westus'
-                """),
-        ]);
+                """));
 
-        var response = await tools.BuildBicepparam(Path.Combine(outputFolder, "main.bicepparam"));
+        var response = await CreateTools(files).BuildBicepparam(files.GetUri("main.bicepparam").GetFilePath());
 
         response.Success.Should().BeTrue();
         response.Parameters.Should().NotBeNullOrEmpty();
@@ -126,18 +125,17 @@ public class BicepCompilerToolsTests
     [TestMethod]
     public async Task BuildBicepparam_returns_diagnostics_on_error()
     {
-        var outputFolder = FileHelper.SaveResultFiles(TestContext, [
-            new("main.bicep", """
+        var files = MockFileSystemTestFileSet.Create(
+            ("main.bicep", """
                 param location string
                 """),
-            new("main.bicepparam", """
+            ("main.bicepparam", """
                 using 'main.bicep'
 
                 param location = 123
-                """),
-        ]);
+                """));
 
-        var response = await tools.BuildBicepparam(Path.Combine(outputFolder, "main.bicepparam"));
+        var response = await CreateTools(files).BuildBicepparam(files.GetUri("main.bicepparam").GetFilePath());
 
         response.Success.Should().BeFalse();
         response.Parameters.Should().BeNull();

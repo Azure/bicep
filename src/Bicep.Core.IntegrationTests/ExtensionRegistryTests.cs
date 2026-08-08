@@ -8,7 +8,8 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry.Extensions;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
+using Bicep.Testing.Baselines;
+using FluentAssertions;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
@@ -30,21 +31,20 @@ public class ExtensionRegistryTests : TestBase
     private readonly TestCompiler compiler = TestCompiler.ForMockFileSystemCompilation();
 
     [TestMethod]
-    [TestCategory(BaselineHelper.BaselineTestCategory)]
-    [EmbeddedFilesTestData(@"Files/ExtensionRegistryTests/http/types/index.json")]
+    [TestCategory(TestCategories.Baseline)]
+    [TestEmbeddedFileData(@"Files/ExtensionRegistryTests/http/types/index.json")]
     public void Http_extension_can_be_generated(EmbeddedFile indexJson)
     {
-        var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, indexJson);
+        var baselineFiles = TestContext.MaterializeBaseline(indexJson);
         var httpTypes = ExtensionResourceTypeHelper.GetHttpExtensionTypes();
 
         using (new AssertionScope())
         {
             foreach (var (relativePath, contents) in httpTypes)
             {
-                var jsonFile = baselineFolder.GetFileOrEnsureCheckedIn(PathHelper.ResolvePath(relativePath, Path.GetDirectoryName(indexJson.FileName)));
+                var jsonFile = baselineFiles.GetFile(PathHelper.ResolvePath(relativePath, Path.GetDirectoryName(indexJson.FileName)));
 
-                jsonFile.WriteToOutputFolder(contents);
-                jsonFile.ShouldHaveExpectedJsonValue();
+                contents.Should().MatchJsonBaseline(jsonFile);
             }
         }
     }

@@ -127,12 +127,12 @@ namespace Bicep.Cli.IntegrationTests
         {
             var data = baselineData.GetData(TestContext);
 
-            data.Formatted.WriteToOutputFolder(data.Parameters.EmbeddedFile.Contents);
+            data.Formatted.Write(data.Parameters.EmbeddedFile.Contents);
             var result = await Bicep("format", data.Formatted.OutputFilePath);
 
             AssertSuccess(result);
 
-            data.Formatted.ShouldHaveExpectedValue();
+            data.Formatted.Read().Should().MatchTextBaseline(data.Formatted);
         }
 
         [DataTestMethod]

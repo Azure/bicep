@@ -4,10 +4,11 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
+using Bicep.Testing.IO;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests;
-using Bicep.Core.UnitTests.Baselines;
+using Bicep.Testing.Baselines;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing.Mocks;
@@ -128,6 +129,6 @@ public static class MockRegistry
         return manager;
     }
 
-    private static async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager(FeatureProviderOverrides overrides)
+    public static async Task<TestExternalArtifactManager> CreateDefaultExternalArtifactManager(FeatureProviderOverrides overrides)
         => await CreateDefaultExternalArtifactManager(TestCompiler.ForMockFileSystemCompilation().WithFeatureOverrides<FeatureProviderOverrides, OverriddenFeatureProviderFactory>(overrides));
 }

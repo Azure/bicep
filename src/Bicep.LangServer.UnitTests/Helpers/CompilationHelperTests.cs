@@ -6,6 +6,8 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer;
+using Bicep.LanguageServer.Extensions;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -26,9 +28,9 @@ namespace Bicep.LangServer.UnitTests.Helpers
   name: 'dnsZone'
   location: 'global'
 }";
-            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
-            DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            var bicepCompiler = ServiceBuilder.Create().GetCompiler();
+            var files = InMemoryTestFileSet.Create(("input.bicep", bicepFileContents));
+            DocumentUri documentUri = files.GetUri("input.bicep").ToDocumentUri();
+            var bicepCompiler = new ServiceBuilder().WithFileExplorer(files.FileExplorer).Build().GetCompiler();
 
             // Do not upsert compilation. This will cause CompilationContext to be null
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, upsertCompilation: false);
@@ -48,9 +50,9 @@ namespace Bicep.LangServer.UnitTests.Helpers
   name: 'dnsZone'
   location: 'global'
 }";
-            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
-            DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            var bicepCompiler = ServiceBuilder.Create().GetCompiler();
+            var files = InMemoryTestFileSet.Create(("input.bicep", bicepFileContents));
+            DocumentUri documentUri = files.GetUri("input.bicep").ToDocumentUri();
+            var bicepCompiler = new ServiceBuilder().WithFileExplorer(files.FileExplorer).Build().GetCompiler();
 
             // Upsert compilation. This will cause CompilationContext to be non null
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, upsertCompilation: true);

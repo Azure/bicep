@@ -2,14 +2,17 @@
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
+    <IsTestProject>false</IsTestProject>
 
     <!-- Workaround for https://github.com/microsoft/testfx/issues/4945 -->
     <TestingPlatformDotnetTestSupport>false</TestingPlatformDotnetTestSupport>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DiffPlex" />
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="JsonDiffPatch.Net" />
+    <PackageReference Include="MSTest" />
     <PackageReference Include="Moq" />
     <PackageReference Include="TestableIO.System.IO.Abstractions.TestingHelpers" />
   </ItemGroup>
