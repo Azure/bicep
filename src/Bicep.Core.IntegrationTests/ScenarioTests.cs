@@ -7927,4 +7927,30 @@ output locations array = flatten(map(databases, database => database.properties.
         }
         """);
     }
+
+    [TestMethod]
+    // https://github.com/azure/bicep/issues/20119
+    public void Test_Issue20119_yaml_scalar_anchors_and_aliases_work()
+    {
+        var result = CompilationHelper.Compile(
+            ("settings.yaml", """
+            source: &CIDR 10.0.0.0/17
+            alias: *CIDR
+            """),
+            ("main.bicep", """
+            var settings = loadYamlContent('settings.yaml')
+
+            output result object = settings
+            """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+        evaluated.Should().HaveJsonAtPath("$.outputs['result'].value", """
+        {
+          "source": "10.0.0.0/17",
+          "alias": "10.0.0.0/17"
+        }
+        """);
+    }
 }
