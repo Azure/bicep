@@ -194,9 +194,9 @@ public class BicepTextDocumentSyncHandlerTests
 
         var compilationManager = BicepCompilationManagerHelper.CreateCompilationManager(bicepConfigUri, prevBicepConfigFileContents);
         var fileExplorer = new FileSystemFileExplorer(fileSystem);
-        var bicepConfigChangeHandler = new BicepConfigChangeHandler(compilationManager, new ConfigurationManager(fileExplorer), linterRulesProvider, telemetryProvider.Object, new ActiveSourceFileSet());
+        var bicepConfigLifecycleManager = new BicepConfigLifecycleManager(compilationManager, new ConfigurationManager(fileExplorer), linterRulesProvider, telemetryProvider.Object, new ActiveSourceFileSet());
 
-        var bicepTextDocumentSyncHandler = new BicepTextDocumentSyncHandler(compilationManager, bicepConfigChangeHandler, new DocumentSelectorFactory(BicepLangServerOptions.Default));
+        var bicepTextDocumentSyncHandler = new BicepTextDocumentSyncHandler(compilationManager, bicepConfigLifecycleManager, new DocumentSelectorFactory(BicepLangServerOptions.Default));
 
         await bicepTextDocumentSyncHandler.Handle(TextDocumentParamHelper.CreateDidOpenDocumentParams(bicepConfigUri, prevBicepConfigFileContents, 1), CancellationToken.None);
 

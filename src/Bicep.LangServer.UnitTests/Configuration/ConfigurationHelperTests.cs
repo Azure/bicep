@@ -15,7 +15,7 @@ using LocalFileSystem = System.IO.Abstractions.FileSystem;
 namespace Bicep.LangServer.UnitTests.Configuration
 {
     [TestClass]
-    public class ConfigurationHelperTests
+    public class DocumentUriExtensionsTests
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -25,7 +25,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         {
             var documentUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
 
-            ConfigurationHelper.IsBicepConfigFile(documentUri).Should().Be(false);
+            documentUri.IsBicepConfigFile().Should().Be(false);
         }
 
         [TestMethod]
@@ -33,7 +33,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         {
             var documentUri = DocumentUri.FromFileSystemPath("/path/to/bicepconfig.json");
 
-            ConfigurationHelper.IsBicepConfigFile(documentUri).Should().Be(true);
+            documentUri.IsBicepConfigFile().Should().Be(true);
         }
     }
 }
