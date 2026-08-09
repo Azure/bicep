@@ -13,13 +13,13 @@
   "devDependencies": {
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.4",
-    "vite": "^8.1.5"
+    "@vitejs/plugin-react": "^6.0.5",
+    "vite": "^8.2.0"
   },
   "dependencies": {
     "@vscode-bicep-ui/components": "^0.0.0",
     "@vscode-bicep-ui/messaging": "^0.0.0",
-    "motion": "^12.38.0",
+    "motion": "^12.43.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "styled-components": "^6.3.11"
