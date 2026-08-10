@@ -136,12 +136,14 @@ public record GetSnapshotRequest(
     /// All fields are optional and may be <see langword="null"/> if not applicable.
     /// </summary>
     /// <param name="TenantId">The Azure Active Directory tenant ID (e.g., <c>"00000000-0000-0000-0000-000000000001"</c>).</param>
+    /// <param name="ManagementGroupId">The target management group ID (e.g., <c>"my-management-group"</c>).</param>
     /// <param name="SubscriptionId">The Azure subscription ID (e.g., <c>"00000000-0000-0000-0000-000000000002"</c>).</param>
     /// <param name="ResourceGroup">The target resource group name (e.g., <c>"my-rg"</c>).</param>
     /// <param name="Location">The Azure region for the deployment (e.g., <c>"eastus"</c>).</param>
     /// <param name="DeploymentName">The name of the deployment (e.g., <c>"my-deployment"</c>).</param>
     public record MetadataDefinition(
         string? TenantId,
+        string? ManagementGroupId,
         string? SubscriptionId,
         string? ResourceGroup,
         string? Location,

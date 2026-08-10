@@ -64,7 +64,7 @@ public class BicepClientUnitTests
         using var client = new BicepClient(rpc);
 
         await FluentActions.Invoking(() => client.GetSnapshot(
-                new("main.bicepparam", new(null, null, null, null, null), null), Token))
+                new("main.bicepparam", new(null, null, null, null, null, null), null), Token))
             .Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*requires Bicep CLI version '0.36.1' or later*0.36.0*");
 
@@ -80,7 +80,7 @@ public class BicepClientUnitTests
         using var client = new BicepClient(rpc);
 
         var result = await client.GetSnapshot(
-            new("main.bicepparam", new(null, null, null, null, null), null), Token);
+            new("main.bicepparam", new(null, null, null, null, null, null), null), Token);
 
         result.Snapshot.Should().Be("snapshot-contents");
         rpc.CallCount("bicep/getSnapshot").Should().Be(1);
