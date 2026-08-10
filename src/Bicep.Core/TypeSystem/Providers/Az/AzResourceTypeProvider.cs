@@ -67,6 +67,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             "managedBy",
             "extendedLocation",
             "zones",
+            "placement",
             "plan",
             ResourceSkuPropertyName,
             "identity",
@@ -161,6 +162,20 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             }, null));
 
             yield return new NamedTypeProperty("zones", stringArray);
+
+            var zonePlacementPolicyType = TypeHelper.CreateTypeUnion(
+                TypeFactory.CreateStringLiteralType("NotSpecified"),
+                TypeFactory.CreateStringLiteralType("Any"),
+                TypeFactory.CreateStringLiteralType("None"),
+                TypeFactory.CreateStringLiteralType("Auto"),
+                LanguageConstants.String);
+
+            yield return new NamedTypeProperty("placement", new ObjectType("placement", TypeSymbolValidationFlags.Default, new[]
+            {
+                new NamedTypeProperty("zonePlacementPolicy", zonePlacementPolicyType, TypePropertyFlags.Required),
+                new NamedTypeProperty("includeZones", stringArray),
+                new NamedTypeProperty("excludeZones", stringArray),
+            }, null));
 
             yield return new NamedTypeProperty("plan", LanguageConstants.Object);
 

@@ -32,6 +32,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
                 yield return new object[] { "managedByExtended", "[]" };
                 yield return new object[] { "extendedLocation", "{'type': 'NotSpecified'}" };
                 yield return new object[] { "zones", "[]" };
+                yield return new object[] { "placement", "{'zonePlacementPolicy': 'Any'}" };
                 yield return new object[] { "plan", "{}" };
                 yield return new object[] { "eTag", "''" };
                 yield return new object[] { "scale", "{'capacity': 1}" };
@@ -49,6 +50,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
                 yield return new object[] { "managedByExtended", "[]" };
                 yield return new object[] { "extendedLocation", "{'type': 'NotSpecified'}" };
                 yield return new object[] { "zones", "[]" };
+                yield return new object[] { "placement", "{'zonePlacementPolicy': 'Any'}" };
                 yield return new object[] { "plan", "{}" };
                 yield return new object[] { "eTag", "''" };
                 yield return new object[] { "scale", "{'capacity': 1}" };
