@@ -163,8 +163,8 @@ var result = await bicep.GetSnapshot(new(
     "./main.bicepparam",
     new(
         TenantId: null,
-        SubscriptionId: "00000000-0000-0000-0000-000000000000",
         ManagementGroupId: null,
+        SubscriptionId: "00000000-0000-0000-0000-000000000000",
         ResourceGroup: "my-rg",
         Location: "eastus",
         DeploymentName: "my-deployment"),

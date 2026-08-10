@@ -403,8 +403,8 @@ public class BicepClientTests
 
         var result = await Bicep.GetSnapshot(new(Path.Combine(outputPath, "main.bicepparam"), new(
             TenantId: null,
-            SubscriptionId: "0910bc80-1614-479b-a3f4-07178d3ea77b",
             ManagementGroupId: null,
+            SubscriptionId: "0910bc80-1614-479b-a3f4-07178d3ea77b",
             ResourceGroup: "ant-test",
             Location: "West US",
             DeploymentName: "main"), []));
@@ -437,8 +437,8 @@ public class BicepClientTests
 
         var result = await Bicep.GetSnapshot(new(Path.Combine(outputPath, "main.bicepparam"), new(
             TenantId: null,
-            SubscriptionId: null,
             ManagementGroupId: "myManagementGroup",
+            SubscriptionId: null,
             ResourceGroup: null,
             Location: "West US",
             DeploymentName: "main"), []));

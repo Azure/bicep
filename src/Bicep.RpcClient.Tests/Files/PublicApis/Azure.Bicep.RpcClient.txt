@@ -205,7 +205,7 @@ namespace Bicep.RpcClient.Models
         }
         public class MetadataDefinition : System.IEquatable<Bicep.RpcClient.Models.GetSnapshotRequest.MetadataDefinition>
         {
-            public MetadataDefinition(string? TenantId, string? SubscriptionId, string? ManagementGroupId, string? ResourceGroup, string? Location, string? DeploymentName) { }
+            public MetadataDefinition(string? TenantId, string? ManagementGroupId, string? SubscriptionId, string? ResourceGroup, string? Location, string? DeploymentName) { }
             public string? DeploymentName { get; init; }
             public string? Location { get; init; }
             public string? ManagementGroupId { get; init; }
