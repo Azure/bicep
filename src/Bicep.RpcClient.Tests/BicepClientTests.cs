@@ -404,11 +404,47 @@ public class BicepClientTests
         var result = await Bicep.GetSnapshot(new(Path.Combine(outputPath, "main.bicepparam"), new(
             TenantId: null,
             SubscriptionId: "0910bc80-1614-479b-a3f4-07178d3ea77b",
+            ManagementGroupId: null,
             ResourceGroup: "ant-test",
             Location: "West US",
             DeploymentName: "main"), []));
 
         result.Snapshot.Should().Contain("/subscriptions/0910bc80-1614-479b-a3f4-07178d3ea77b/resourceGroups/ant-test/providers/Microsoft.Storage/storageAccounts/myStgAct");
+    }
+
+    [TestMethod]
+    public async Task GetSnapshot_supports_management_group_scope()
+    {
+        var outputPath = FileHelper.SaveResultFiles(TestContext, [
+            new("main.bicep", """
+            targetScope = 'managementGroup'
+
+            param policyAssignmentName string
+
+            resource policyAssignment 'Microsoft.Authorization/policyAssignments@2022-06-01' = {
+              name: policyAssignmentName
+              properties: {
+                policyDefinitionId: '/providers/Microsoft.Management/managementGroups/${managementGroup().name}/providers/Microsoft.Authorization/policyDefinitions/00000000-0000-0000-0000-000000000000'
+              }
+            }
+            """),
+            new("main.bicepparam", """
+            using 'main.bicep'
+
+            param policyAssignmentName = 'myAssignment'
+            """),
+        ]);
+
+        var result = await Bicep.GetSnapshot(new(Path.Combine(outputPath, "main.bicepparam"), new(
+            TenantId: null,
+            SubscriptionId: null,
+            ManagementGroupId: "myManagementGroup",
+            ResourceGroup: null,
+            Location: "West US",
+            DeploymentName: "main"), []));
+
+        result.Snapshot.Should().Contain("/providers/Microsoft.Management/managementGroups/myManagementGroup/providers/Microsoft.Authorization/policyAssignments/myAssignment");
+        result.Snapshot.Should().Contain("/providers/Microsoft.Management/managementGroups/myManagementGroup/providers/Microsoft.Authorization/policyDefinitions/00000000-0000-0000-0000-000000000000");
     }
 
     [TestMethod]
