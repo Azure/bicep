@@ -8,6 +8,8 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
+using LspCodeLens = OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeLens;
 
 namespace Bicep.LanguageServer.Features.Language.CodeLens
 {
@@ -34,12 +36,12 @@ namespace Bicep.LanguageServer.Features.Language.CodeLens
             return Task.FromResult<CodeLensContainer?>(new CodeLensContainer(lenses));
         }
 
-        public override Task<global::OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeLens> Handle(global::OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeLens request, CancellationToken cancellationToken)
+        public override Task<LspCodeLens> Handle(LspCodeLens request, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        protected override CodeLensRegistrationOptions CreateRegistrationOptions(CodeLensCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
+        protected override CodeLensRegistrationOptions CreateRegistrationOptions(CodeLensCapability capability, LspClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = new(
                 documentSelectorFactory.CreateForAllSupportedLangIds()

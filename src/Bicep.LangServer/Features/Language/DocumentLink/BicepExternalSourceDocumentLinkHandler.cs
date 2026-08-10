@@ -20,6 +20,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 using static Bicep.LanguageServer.Features.Custom.Telemetry.BicepTelemetryEvent;
+using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
+using LspDocumentLink = OmniSharp.Extensions.LanguageServer.Protocol.Models.DocumentLink;
 
 namespace Bicep.LanguageServer.Features.Language.DocumentLink
 {
@@ -61,7 +63,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             return await ResolveDocumentLink(request, ModuleDispatcher, sourceFileFactory, Server, TelemetryProvider);
         }
 
-        protected override DocumentLinkRegistrationOptions CreateRegistrationOptions(DocumentLinkCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
+        protected override DocumentLinkRegistrationOptions CreateRegistrationOptions(DocumentLinkCapability capability, LspClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = TextDocumentSelector.ForScheme(LangServerConstants.ExternalSourceFileScheme),
             ResolveProvider = true,
@@ -118,7 +120,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
                         }
                         else
                         {
-                            yield return new global::OmniSharp.Extensions.LanguageServer.Protocol.Models.DocumentLink()
+                            yield return new LspDocumentLink()
                             {
                                 // This is a link to a file that we don't have source for, so we'll just display the main.json file
                                 Range = nestedLink.Range.ToRange(),

@@ -7,6 +7,7 @@ using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
 
 namespace Bicep.LanguageServer.Features.Language.PrepareRename
 {
@@ -38,7 +39,7 @@ namespace Bicep.LanguageServer.Features.Language.PrepareRename
             });
         }
 
-        protected override RenameRegistrationOptions CreateRegistrationOptions(RenameCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
+        protected override RenameRegistrationOptions CreateRegistrationOptions(RenameCapability capability, LspClientCapabilities clientCapabilities) => new()
         {
             // textDocument/prepareRename is advertised through renameProvider.prepareProvider.
             // BicepRenameHandler owns that advertisement; registering a second document selector here

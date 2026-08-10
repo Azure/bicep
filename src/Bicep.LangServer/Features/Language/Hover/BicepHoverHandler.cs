@@ -19,6 +19,8 @@ using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
+using LspHover = OmniSharp.Extensions.LanguageServer.Protocol.Models.Hover;
 
 namespace Bicep.LanguageServer.Features.Language.Hover
 {
@@ -44,7 +46,7 @@ namespace Bicep.LanguageServer.Features.Language.Hover
             this.documentSelectorFactory = documentSelectorFactory;
         }
 
-        public override async Task<global::OmniSharp.Extensions.LanguageServer.Protocol.Models.Hover?> Handle(HoverParams request, CancellationToken cancellationToken)
+        public override async Task<LspHover?> Handle(HoverParams request, CancellationToken cancellationToken)
         {
             // ResolveSymbol returns null over a resource type string; fall back to show the resource hover there.
             var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position)
@@ -60,7 +62,7 @@ namespace Bicep.LanguageServer.Features.Language.Hover
                 return null;
             }
 
-            return new global::OmniSharp.Extensions.LanguageServer.Protocol.Models.Hover
+            return new LspHover
             {
                 Contents = markdown,
                 Range = PositionHelper.GetNameRange(result.Context.LineStarts, result.Origin)
@@ -373,7 +375,7 @@ namespace Bicep.LanguageServer.Features.Language.Hover
         private static MarkedStringsOrMarkupContent AsMarkdown(IEnumerable<string> markdown)
             => new(markdown.Select(md => new MarkedString(md)));
 
-        protected override HoverRegistrationOptions CreateRegistrationOptions(HoverCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
+        protected override HoverRegistrationOptions CreateRegistrationOptions(HoverCapability capability, LspClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
         };

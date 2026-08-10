@@ -12,6 +12,7 @@ using Bicep.LanguageServer.Features.Language.DocumentLink;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+using LspCodeLens = OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeLens;
 
 namespace Bicep.LanguageServer.Features.Language.CodeLens
 {
@@ -20,7 +21,7 @@ namespace Bicep.LanguageServer.Features.Language.CodeLens
     {
         private static readonly Range DocumentStart = new(new Position(0, 0), new Position(0, 0));
 
-        public static IEnumerable<global::OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeLens> GetCodeLenses(IModuleDispatcher moduleDispatcher, ISourceFileFactory sourceFileFactory, CodeLensParams request, CancellationToken cancellationToken)
+        public static IEnumerable<LspCodeLens> GetCodeLenses(IModuleDispatcher moduleDispatcher, ISourceFileFactory sourceFileFactory, CodeLensParams request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -104,15 +105,15 @@ namespace Bicep.LanguageServer.Features.Language.CodeLens
                 }
             }
 
-            global::OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeLens CreateErrorLens(string message)
+            LspCodeLens CreateErrorLens(string message)
             {
                 return CreateCodeLens(DocumentStart, message);
             }
         }
 
-        private static global::OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeLens CreateCodeLens(Range range, string title, string? commandName = null, params string[] commandArguments)
+        private static LspCodeLens CreateCodeLens(Range range, string title, string? commandName = null, params string[] commandArguments)
         {
-            return new global::OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeLens
+            return new LspCodeLens
             {
                 Range = range,
                 Command = new Command
@@ -126,7 +127,7 @@ namespace Bicep.LanguageServer.Features.Language.CodeLens
         }
 
         // Allows tests to filter to just code lenses that were created by this provider
-        public static bool IsExternalSourceCodeLens(this global::OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeLens codeLens)
+        public static bool IsExternalSourceCodeLens(this LspCodeLens codeLens)
         {
             return codeLens.Data?.Value<string>() == nameof(ExternalSourceCodeLensProvider);
         }

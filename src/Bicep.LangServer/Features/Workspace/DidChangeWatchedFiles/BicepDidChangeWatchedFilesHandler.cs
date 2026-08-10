@@ -8,6 +8,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using FileSystemWatcher = OmniSharp.Extensions.LanguageServer.Protocol.Models.FileSystemWatcher;
+using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
 
 namespace Bicep.LanguageServer.Features.Workspace.DidChangeWatchedFiles
 {
@@ -40,7 +41,7 @@ namespace Bicep.LanguageServer.Features.Workspace.DidChangeWatchedFiles
             return Unit.Task;
         }
 
-        protected override DidChangeWatchedFilesRegistrationOptions CreateRegistrationOptions(DidChangeWatchedFilesCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
+        protected override DidChangeWatchedFilesRegistrationOptions CreateRegistrationOptions(DidChangeWatchedFilesCapability capability, LspClientCapabilities clientCapabilities) => new()
         {
             Watchers = new Container<FileSystemWatcher>(
                     new FileSystemWatcher()

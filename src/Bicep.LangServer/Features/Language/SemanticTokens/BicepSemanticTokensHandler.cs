@@ -10,6 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using BicepTokenType = Bicep.Core.Highlighting.SemanticTokenType;
 using LspTokenType = OmniSharp.Extensions.LanguageServer.Protocol.Models.SemanticTokenType;
+using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
 
 namespace Bicep.LanguageServer.Features.Language.SemanticTokens
 {
@@ -81,7 +82,7 @@ namespace Bicep.LanguageServer.Features.Language.SemanticTokens
             _ => throw new NotImplementedException($"No mapping for token type {tokenType}"),
         };
 
-        protected override SemanticTokensRegistrationOptions CreateRegistrationOptions(SemanticTokensCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
+        protected override SemanticTokensRegistrationOptions CreateRegistrationOptions(SemanticTokensCapability capability, LspClientCapabilities clientCapabilities) => new()
         {
             // the semantic tokens handler requests don't get routed like other handlers
             // it seems we can only have one and it must be shared between all the language IDs we support

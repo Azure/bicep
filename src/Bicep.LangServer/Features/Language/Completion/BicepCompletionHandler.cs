@@ -9,6 +9,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
 
 namespace Bicep.LanguageServer.Features.Language.Completion
 {
@@ -59,7 +60,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             return this.completionProvider.Resolve(request, cancellationToken);
         }
 
-        protected override CompletionRegistrationOptions CreateRegistrationOptions(CompletionCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
+        protected override CompletionRegistrationOptions CreateRegistrationOptions(CompletionCapability capability, LspClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
             AllCommitCharacters = new Container<string>(),

@@ -12,6 +12,7 @@ using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using BicepCompilation = Bicep.Core.Semantics.Compilation;
 
 namespace Bicep.LanguageServer.Compilation
 {
@@ -76,7 +77,7 @@ namespace Bicep.LanguageServer.Compilation
             SourceFileGrouping syntaxTreeGrouping,
             ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
-            var compilation = new global::Bicep.Core.Semantics.Compilation(
+            var compilation = new BicepCompilation(
                 environment,
                 namespaceProvider,
                 syntaxTreeGrouping,

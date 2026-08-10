@@ -35,6 +35,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
 
 namespace Bicep.LanguageServer.Features.Language.Definition
 {
@@ -87,7 +88,7 @@ namespace Bicep.LanguageServer.Features.Language.Definition
             };
         }
 
-        protected override DefinitionRegistrationOptions CreateRegistrationOptions(DefinitionCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
+        protected override DefinitionRegistrationOptions CreateRegistrationOptions(DefinitionCapability capability, LspClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
         };

@@ -7,6 +7,8 @@ using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
+using LspDocumentHighlight = OmniSharp.Extensions.LanguageServer.Protocol.Models.DocumentHighlight;
 
 namespace Bicep.LanguageServer.Features.Language.DocumentHighlight
 {
@@ -22,7 +24,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentHighlight
 
             var highlights = result.Context.Compilation.GetEntrypointSemanticModel()
                 .FindReferences(result.Symbol)
-                .Select(referenceSyntax => new global::OmniSharp.Extensions.LanguageServer.Protocol.Models.DocumentHighlight
+                .Select(referenceSyntax => new LspDocumentHighlight
                 {
                     Range = PositionHelper.GetNameRange(result.Context.LineStarts, referenceSyntax),
                     Kind = referenceSyntax switch
@@ -36,7 +38,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentHighlight
             return Task.FromResult<DocumentHighlightContainer?>(new DocumentHighlightContainer(highlights));
         }
 
-        protected override DocumentHighlightRegistrationOptions CreateRegistrationOptions(DocumentHighlightCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
+        protected override DocumentHighlightRegistrationOptions CreateRegistrationOptions(DocumentHighlightCapability capability, LspClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
         };

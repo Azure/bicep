@@ -25,6 +25,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
+using LspCodeAction = OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeAction;
 
 namespace Bicep.LanguageServer.Features.Language.CodeAction
 {
@@ -185,7 +187,7 @@ namespace Bicep.LanguageServer.Features.Language.CodeAction
                 args: JArray.FromObject(new List<object> { telemetryEvent })
             );
 
-            return new global::OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeAction
+            return new LspCodeAction
             {
                 Title = string.Format(LangServerResources.DisableDiagnosticForThisLine, diagnosticCode.String),
                 Edit = new WorkspaceEdit
@@ -201,7 +203,7 @@ namespace Bicep.LanguageServer.Features.Language.CodeAction
 
         private static CommandOrCodeAction CreateEditLinterRuleAction(DocumentUri documentUri, string ruleName, IOUri? configFileIdentifier)
         {
-            return new global::OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeAction
+            return new LspCodeAction
             {
                 Title = String.Format(LangServerResources.EditLinterRuleActionTitle, ruleName),
                 Command = TelemetryHelper.CreateCommand
@@ -213,7 +215,7 @@ namespace Bicep.LanguageServer.Features.Language.CodeAction
             };
         }
 
-        public override Task<global::OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeAction> Handle(global::OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeAction request, CancellationToken cancellationToken)
+        public override Task<LspCodeAction> Handle(LspCodeAction request, CancellationToken cancellationToken)
         {
             // we are currently precomputing our quickfixes, so there's no need to resolve them after they are chosen
             // this shouldn't be called because registration options disabled the resolve functionality
@@ -230,7 +232,7 @@ namespace Bicep.LanguageServer.Features.Language.CodeAction
                 _ => CodeActionKind.Empty,
             };
 
-            return new global::OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeAction
+            return new LspCodeAction
             {
                 Kind = codeActionKind,
                 Title = fix.Title,
@@ -250,7 +252,7 @@ namespace Bicep.LanguageServer.Features.Language.CodeAction
             };
         }
 
-        protected override CodeActionRegistrationOptions CreateRegistrationOptions(CodeActionCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
+        protected override CodeActionRegistrationOptions CreateRegistrationOptions(CodeActionCapability capability, LspClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
             CodeActionKinds = new Container<CodeActionKind>(CodeActionKind.QuickFix),

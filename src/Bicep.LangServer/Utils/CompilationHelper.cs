@@ -5,6 +5,7 @@ using Bicep.Core;
 using Bicep.Core.Semantics;
 using Bicep.LanguageServer.Compilation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using BicepCompilation = Bicep.Core.Semantics.Compilation;
 
 namespace Bicep.LanguageServer.Utils
 {
@@ -19,7 +20,7 @@ namespace Bicep.LanguageServer.Utils
             this.compilationManager = compilationManager;
         }
 
-        public async Task<global::Bicep.Core.Semantics.Compilation> GetRefreshedCompilation(DocumentUri documentUri)
+        public async Task<BicepCompilation> GetRefreshedCompilation(DocumentUri documentUri)
         {
             // Bicep file could contain load functions like loadTextContent(..). We'll refresh compilation to detect changes in files referenced in load functions.
             compilationManager.RefreshCompilation(documentUri, forceReloadAuxiliaryFiles: true);

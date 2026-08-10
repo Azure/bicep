@@ -15,6 +15,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using BicepCompilation = Bicep.Core.Semantics.Compilation;
 
 namespace Bicep.LanguageServer.Features.Custom.Deployments
 {
@@ -74,7 +75,7 @@ namespace Bicep.LanguageServer.Features.Custom.Deployments
             _ => resourceScope.ToString()
         };
 
-        private string GetCompiledFile(global::Bicep.Core.Semantics.Compilation compilation, DocumentUri documentUri)
+        private string GetCompiledFile(BicepCompilation compilation, DocumentUri documentUri)
         {
             if (compilation.HasErrors())
             {
