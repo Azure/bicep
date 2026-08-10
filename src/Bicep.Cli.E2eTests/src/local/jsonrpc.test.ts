@@ -9,7 +9,7 @@ import { Bicep } from "@azure/bicep-rpc-client";
 describe("bicep jsonrpc", () => {
   let bicep: Bicep;
 
-  beforeAll(async () => (bicep = await Bicep.initialize(bicepCli)));
+  beforeAll(async () => (bicep = await Bicep.initialize(bicepCli)), 30_000);
 
   afterAll(() => bicep.dispose());
 
