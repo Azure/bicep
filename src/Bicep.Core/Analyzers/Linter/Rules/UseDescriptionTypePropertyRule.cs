@@ -9,7 +9,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules;
 
 public sealed class UseDescriptionTypePropertyRule : UseDescriptionRuleBase
 {
-    public new const string Code = "use-description-type-property";
+    public new const string Code = "use-description-type-properties";
 
     private const string AdditionalPropertiesName = "*";
 

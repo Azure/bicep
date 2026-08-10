@@ -7,7 +7,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules;
 
 public sealed class UseDescriptionParametersRule : UseDescriptionRuleBase
 {
-    public new const string Code = "use-description-parameters";
+    public new const string Code = "use-description-params";
 
     public UseDescriptionParametersRule() : base(
         code: Code,

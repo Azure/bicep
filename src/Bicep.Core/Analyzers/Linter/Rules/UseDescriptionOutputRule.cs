@@ -7,7 +7,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules;
 
 public sealed class UseDescriptionOutputRule : UseDescriptionRuleBase
 {
-    public new const string Code = "use-description-output";
+    public new const string Code = "use-description-outputs";
 
     public UseDescriptionOutputRule() : base(
         code: Code,

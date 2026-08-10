@@ -765,40 +765,40 @@
                     }
                   ]
                 },
-                "use-description-output": {
+                "use-description-outputs": {
                   "allOf": [
                     {
-                      "description": "Outputs should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-output"
+                      "description": "Outputs should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-outputs"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-off"
                     }
                   ]
                 },
-                "use-description-parameters": {
+                "use-description-params": {
                   "allOf": [
                     {
-                      "description": "Parameters should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-parameters"
+                      "description": "Parameters should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-params"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-off"
                     }
                   ]
                 },
-                "use-description-type": {
+                "use-description-type-properties": {
                   "allOf": [
                     {
-                      "description": "User-defined types should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-type"
+                      "description": "Properties of user-defined types should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-type-properties"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-off"
                     }
                   ]
                 },
-                "use-description-type-property": {
+                "use-description-types": {
                   "allOf": [
                     {
-                      "description": "Properties of user-defined types should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-type-property"
+                      "description": "User-defined types should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-types"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-off"
