@@ -9,7 +9,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.LanguageServer.Refactor;
+namespace Bicep.LanguageServer.Features.Language.CodeAction;
 
 public static class TypeStringifier
 {

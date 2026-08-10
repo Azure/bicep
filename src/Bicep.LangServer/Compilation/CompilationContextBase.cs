@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using Bicep.Core.SourceGraph;
 
-namespace Bicep.LanguageServer.CompilationManager
+namespace Bicep.LanguageServer.Compilation
 {
     /// <summary>
     /// Base class for both successful and unsafe compilation contexts.

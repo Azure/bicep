@@ -12,13 +12,13 @@ using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
-using Bicep.LanguageServer.Completions.SyntaxPatterns;
 using Bicep.LanguageServer.Extensions;
+using Bicep.LanguageServer.Features.Language.Completion.SyntaxPatterns;
 using Bicep.LanguageServer.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
-namespace Bicep.LanguageServer.Completions
+namespace Bicep.LanguageServer.Features.Language.Completion
 {
     public class BicepCompletionContext
     {
@@ -141,7 +141,7 @@ namespace Bicep.LanguageServer.Completions
 
         public IFeatureProvider Features { get; }
 
-        public static BicepCompletionContext Create(Compilation compilation, int offset)
+        public static BicepCompletionContext Create(global::Bicep.Core.Semantics.Compilation compilation, int offset)
         {
             var model = compilation.GetEntrypointSemanticModel();
             var bicepFile = model.SourceFile;

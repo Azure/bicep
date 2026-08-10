@@ -4,7 +4,7 @@
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
-namespace Bicep.LanguageServer.Providers
+namespace Bicep.LanguageServer.ClientCapabilities
 {
     public class ClientCapabilitiesProvider : IClientCapabilitiesProvider
     {
@@ -17,14 +17,14 @@ namespace Bicep.LanguageServer.Providers
 
         public bool DoesClientSupportWorkspaceFolders()
         {
-            return server.Workspace.ClientSettings.Capabilities is ClientCapabilities clientCapabilitites &&
+            return server.Workspace.ClientSettings.Capabilities is global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilitites &&
                 clientCapabilitites.Workspace is WorkspaceClientCapabilities workspaceClientCapabilities &&
                 workspaceClientCapabilities.WorkspaceFolders.IsSupported;
         }
 
         public bool DoesClientSupportShowDocumentRequest()
         {
-            return server.ClientSettings.Capabilities is ClientCapabilities clientCapabilities &&
+            return server.ClientSettings.Capabilities is global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities &&
                 clientCapabilities.Window is WindowClientCapabilities windowClientCapabilities &&
                 windowClientCapabilities.ShowDocument.IsSupported;
         }

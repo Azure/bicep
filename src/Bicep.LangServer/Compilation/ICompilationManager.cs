@@ -4,7 +4,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 
-namespace Bicep.LanguageServer.CompilationManager
+namespace Bicep.LanguageServer.Compilation
 {
     public interface ICompilationManager
     {

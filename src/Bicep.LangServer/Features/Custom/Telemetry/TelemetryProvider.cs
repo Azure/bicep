@@ -4,7 +4,7 @@
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
-namespace Bicep.LanguageServer.Telemetry
+namespace Bicep.LanguageServer.Features.Custom.Telemetry
 {
     public class TelemetryProvider : ITelemetryProvider
     {

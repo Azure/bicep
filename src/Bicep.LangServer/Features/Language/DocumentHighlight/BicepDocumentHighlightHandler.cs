@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Features.Language.Definition;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Language.DocumentHighlight
 {
     public class BicepDocumentHighlightHandler(ISymbolResolver symbolResolver, DocumentSelectorFactory documentSelectorFactory) : DocumentHighlightHandlerBase
     {
@@ -22,7 +22,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var highlights = result.Context.Compilation.GetEntrypointSemanticModel()
                 .FindReferences(result.Symbol)
-                .Select(referenceSyntax => new DocumentHighlight
+                .Select(referenceSyntax => new global::OmniSharp.Extensions.LanguageServer.Protocol.Models.DocumentHighlight
                 {
                     Range = PositionHelper.GetNameRange(result.Context.LineStarts, referenceSyntax),
                     Kind = referenceSyntax switch
@@ -36,7 +36,7 @@ namespace Bicep.LanguageServer.Handlers
             return Task.FromResult<DocumentHighlightContainer?>(new DocumentHighlightContainer(highlights));
         }
 
-        protected override DocumentHighlightRegistrationOptions CreateRegistrationOptions(DocumentHighlightCapability capability, ClientCapabilities clientCapabilities) => new()
+        protected override DocumentHighlightRegistrationOptions CreateRegistrationOptions(DocumentHighlightCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
         };

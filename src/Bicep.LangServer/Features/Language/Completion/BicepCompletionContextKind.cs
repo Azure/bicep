@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.LanguageServer.Completions
+namespace Bicep.LanguageServer.Features.Language.Completion
 {
     // TODO: investigating using https://learn.microsoft.com/en-us/dotnet/api/system.collections.bitarray?redirectedfrom=MSDN&view=net-6.0.
     [Flags]

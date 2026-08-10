@@ -7,8 +7,8 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Deploy;
+using Bicep.LanguageServer.Compilation;
+using Bicep.LanguageServer.Features.Custom.Deployments.Services;
 using Bicep.LanguageServer.Utils;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
@@ -16,7 +16,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Custom.Deployments
 {
     public record BicepDeploymentScopeParams(TextDocumentIdentifier TextDocument) : ITextDocumentIdentifierParams, IRequest<BicepDeploymentScopeResponse>;
 
@@ -74,7 +74,7 @@ namespace Bicep.LanguageServer.Handlers
             _ => resourceScope.ToString()
         };
 
-        private string GetCompiledFile(Compilation compilation, DocumentUri documentUri)
+        private string GetCompiledFile(global::Bicep.Core.Semantics.Compilation compilation, DocumentUri documentUri)
         {
             if (compilation.HasErrors())
             {

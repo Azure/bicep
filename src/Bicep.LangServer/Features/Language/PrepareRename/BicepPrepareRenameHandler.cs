@@ -1,13 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Features.Language.Definition;
+using Bicep.LanguageServer.Features.Language.Rename;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Language.PrepareRename
 {
     public class BicepPrepareRenameHandler : PrepareRenameHandlerBase
     {
@@ -37,7 +38,7 @@ namespace Bicep.LanguageServer.Handlers
             });
         }
 
-        protected override RenameRegistrationOptions CreateRegistrationOptions(RenameCapability capability, ClientCapabilities clientCapabilities) => new()
+        protected override RenameRegistrationOptions CreateRegistrationOptions(RenameCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
         {
             // textDocument/prepareRename is advertised through renameProvider.prepareProvider.
             // BicepRenameHandler owns that advertisement; registering a second document selector here

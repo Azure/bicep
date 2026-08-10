@@ -3,7 +3,7 @@
 
 using Bicep.Core.Configuration;
 
-namespace Bicep.LanguageServer.Providers
+namespace Bicep.LanguageServer.Features.Language.Completion
 {
     public interface IAzureContainerRegistriesProvider
     {

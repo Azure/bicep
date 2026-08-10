@@ -15,9 +15,9 @@ using Bicep.Core.Resources;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.LanguageServer.Completions;
+using Bicep.LanguageServer.Features.Language.Completion;
 
-namespace Bicep.LanguageServer.Snippets;
+namespace Bicep.LanguageServer.Features.Language.Completion.Snippets;
 
 public class SnippetsProvider : ISnippetsProvider
 {

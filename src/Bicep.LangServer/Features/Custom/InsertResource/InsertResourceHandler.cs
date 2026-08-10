@@ -21,10 +21,9 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.IO.InMemory;
-using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Providers;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Bicep.LanguageServer.Utils;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
@@ -33,7 +32,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Custom.InsertResource
 {
     [Method("textDocument/insertResource", Direction.ClientToServer)]
     public record InsertResourceParams : TextDocumentPositionParams, IRequest

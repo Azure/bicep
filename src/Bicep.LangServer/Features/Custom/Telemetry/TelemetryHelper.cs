@@ -6,7 +6,7 @@ using Bicep.Core.Configuration;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace Bicep.LanguageServer.Telemetry
+namespace Bicep.LanguageServer.Features.Custom.Telemetry
 {
     public class TelemetryHelper
     {

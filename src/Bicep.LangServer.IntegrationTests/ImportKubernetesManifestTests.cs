@@ -7,7 +7,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Features.Custom.ImportKubernetesManifest;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;

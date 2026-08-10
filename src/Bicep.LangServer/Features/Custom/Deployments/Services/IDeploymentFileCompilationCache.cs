@@ -4,12 +4,12 @@
 using Bicep.Core.Semantics;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 
-namespace Bicep.LanguageServer.Deploy
+namespace Bicep.LanguageServer.Features.Custom.Deployments.Services
 {
     public interface IDeploymentFileCompilationCache
     {
-        public void CacheCompilation(DocumentUri documentUri, Compilation compilation);
+        public void CacheCompilation(DocumentUri documentUri, global::Bicep.Core.Semantics.Compilation compilation);
 
-        public Compilation? FindAndRemoveCompilation(DocumentUri documentUri);
+        public global::Bicep.Core.Semantics.Compilation? FindAndRemoveCompilation(DocumentUri documentUri);
     }
 }

@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Configuration;
+using Bicep.LanguageServer.BicepConfig;
+using Bicep.LanguageServer.Compilation;
 using MediatR;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using FileSystemWatcher = OmniSharp.Extensions.LanguageServer.Protocol.Models.FileSystemWatcher;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Workspace.DidChangeWatchedFiles
 {
     public sealed class BicepDidChangeWatchedFilesHandler : DidChangeWatchedFilesHandlerBase
     {
@@ -40,7 +40,7 @@ namespace Bicep.LanguageServer.Handlers
             return Unit.Task;
         }
 
-        protected override DidChangeWatchedFilesRegistrationOptions CreateRegistrationOptions(DidChangeWatchedFilesCapability capability, ClientCapabilities clientCapabilities) => new()
+        protected override DidChangeWatchedFilesRegistrationOptions CreateRegistrationOptions(DidChangeWatchedFilesCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
         {
             Watchers = new Container<FileSystemWatcher>(
                     new FileSystemWatcher()

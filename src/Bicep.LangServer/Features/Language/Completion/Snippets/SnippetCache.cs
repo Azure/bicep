@@ -6,7 +6,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using Bicep.Core.Resources;
 
-namespace Bicep.LanguageServer.Snippets;
+namespace Bicep.LanguageServer.Features.Language.Completion.Snippets;
 
 public record SnippetCache(
     ImmutableDictionary<ResourceTypeReference, SnippetCache.SnippetCacheSnippet> ResourceTypeReferenceInfoMap,

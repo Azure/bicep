@@ -9,7 +9,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Language.CodeLens
 {
     // Provides code lenses for a range in a Bicep document
     public class BicepCodeLensHandler : CodeLensHandlerBase
@@ -34,12 +34,12 @@ namespace Bicep.LanguageServer.Handlers
             return Task.FromResult<CodeLensContainer?>(new CodeLensContainer(lenses));
         }
 
-        public override Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken)
+        public override Task<global::OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeLens> Handle(global::OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeLens request, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        protected override CodeLensRegistrationOptions CreateRegistrationOptions(CodeLensCapability capability, ClientCapabilities clientCapabilities) => new()
+        protected override CodeLensRegistrationOptions CreateRegistrationOptions(CodeLensCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = new(
                 documentSelectorFactory.CreateForAllSupportedLangIds()

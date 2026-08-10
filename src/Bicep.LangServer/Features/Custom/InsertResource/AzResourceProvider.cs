@@ -7,7 +7,7 @@ using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
 using Bicep.Core.Tracing;
 
-namespace Bicep.LanguageServer.Providers
+namespace Bicep.LanguageServer.Features.Custom.InsertResource
 {
     public class AzResourceProvider : IAzResourceProvider
     {

@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Compilation;
 
-namespace Bicep.LanguageServer.Providers
+namespace Bicep.LanguageServer.Features.Language.Definition
 {
     public class SymbolResolutionResult
     {

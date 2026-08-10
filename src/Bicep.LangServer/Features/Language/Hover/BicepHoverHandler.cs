@@ -12,15 +12,15 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Completions;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Compilation;
+using Bicep.LanguageServer.Features.Language.Completion;
+using Bicep.LanguageServer.Features.Language.Definition;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Language.Hover
 {
     public class BicepHoverHandler : HoverHandlerBase
     {
@@ -44,7 +44,7 @@ namespace Bicep.LanguageServer.Handlers
             this.documentSelectorFactory = documentSelectorFactory;
         }
 
-        public override async Task<Hover?> Handle(HoverParams request, CancellationToken cancellationToken)
+        public override async Task<global::OmniSharp.Extensions.LanguageServer.Protocol.Models.Hover?> Handle(HoverParams request, CancellationToken cancellationToken)
         {
             // ResolveSymbol returns null over a resource type string; fall back to show the resource hover there.
             var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position)
@@ -60,7 +60,7 @@ namespace Bicep.LanguageServer.Handlers
                 return null;
             }
 
-            return new Hover
+            return new global::OmniSharp.Extensions.LanguageServer.Protocol.Models.Hover
             {
                 Contents = markdown,
                 Range = PositionHelper.GetNameRange(result.Context.LineStarts, result.Origin)
@@ -373,7 +373,7 @@ namespace Bicep.LanguageServer.Handlers
         private static MarkedStringsOrMarkupContent AsMarkdown(IEnumerable<string> markdown)
             => new(markdown.Select(md => new MarkedString(md)));
 
-        protected override HoverRegistrationOptions CreateRegistrationOptions(HoverCapability capability, ClientCapabilities clientCapabilities) => new()
+        protected override HoverRegistrationOptions CreateRegistrationOptions(HoverCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
         };

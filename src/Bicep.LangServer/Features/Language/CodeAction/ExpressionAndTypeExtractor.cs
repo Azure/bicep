@@ -19,19 +19,17 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Completions;
-using Bicep.LanguageServer.Model;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Features.Custom.Telemetry;
+using Bicep.LanguageServer.Features.Language.Completion;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using static Bicep.LanguageServer.Completions.BicepCompletionContext;
-using static Bicep.LanguageServer.Refactor.TypeStringifier;
-using static Bicep.LanguageServer.Telemetry.BicepTelemetryEvent;
+using static Bicep.LanguageServer.Features.Custom.Telemetry.BicepTelemetryEvent;
+using static Bicep.LanguageServer.Features.Language.CodeAction.TypeStringifier;
+using static Bicep.LanguageServer.Features.Language.Completion.BicepCompletionContext;
 using static Google.Protobuf.Reflection.ExtensionRangeOptions.Types;
 using Type = System.Type;
 
-namespace Bicep.LanguageServer.Refactor;
+namespace Bicep.LanguageServer.Features.Language.CodeAction;
 
 // Provides code actions/fixes for extracting variables, parameters and types in a Bicep document
 public class ExpressionAndTypeExtractor : ICodeFixProvider

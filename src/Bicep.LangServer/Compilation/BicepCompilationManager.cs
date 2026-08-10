@@ -13,11 +13,9 @@ using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.IO.Abstraction;
-using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Providers;
-using Bicep.LanguageServer.Registry;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Features.Custom.ModuleRestore;
+using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -27,7 +25,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using static Bicep.Core.Diagnostics.DisabledDiagnosticsCache;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
-namespace Bicep.LanguageServer
+namespace Bicep.LanguageServer.Compilation
 {
     public class BicepCompilationManager : ICompilationManager
     {

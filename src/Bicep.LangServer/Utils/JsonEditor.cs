@@ -8,7 +8,7 @@ using Bicep.Core.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.LanguageServer.Configuration
+namespace Bicep.LanguageServer.Utils
 {
     /// <summary>
     /// Allows for some limited JSON text manipulation without destroying commands or existing whitespace

@@ -6,7 +6,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 
-namespace Bicep.LanguageServer.Completions.SyntaxPatterns
+namespace Bicep.LanguageServer.Features.Language.Completion.SyntaxPatterns
 {
     public class SyntaxPattern
     {

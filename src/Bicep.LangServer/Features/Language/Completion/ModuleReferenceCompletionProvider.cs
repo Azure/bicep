@@ -16,9 +16,8 @@ using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Bicep.LanguageServer.Settings;
-using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
 using Microsoft.VisualBasic;
 using Microsoft.Win32;
@@ -27,7 +26,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace Bicep.LanguageServer.Completions
+namespace Bicep.LanguageServer.Features.Language.Completion
 {
     /// <summary>
     /// Provides completions for OCI (public or private) module references, e.g. br/public:modulePath:version

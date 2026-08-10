@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 using Bicep.Core;
 using Bicep.Core.Extensions;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Configuration;
+using Bicep.LanguageServer.BicepConfig;
+using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Utils;
 using MediatR;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -12,7 +12,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Language.TextDocumentSync
 {
     public class BicepTextDocumentSyncHandler : TextDocumentSyncHandlerBase
     {
@@ -107,7 +107,7 @@ namespace Bicep.LanguageServer.Handlers
             return Unit.Task;
         }
 
-        protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(TextSynchronizationCapability capability, ClientCapabilities clientCapabilities) => new()
+        protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(TextSynchronizationCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
         {
             Change = TextDocumentSyncKind.Full,
             DocumentSelector = documentSelectorFactory.CreateForAllSupportedLangIds()

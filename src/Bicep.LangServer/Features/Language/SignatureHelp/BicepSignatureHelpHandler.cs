@@ -9,15 +9,15 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Completions;
+using Bicep.LanguageServer.Compilation;
+using Bicep.LanguageServer.Features.Language.Completion;
 using Bicep.LanguageServer.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Language.SignatureHelp
 {
     public class BicepSignatureHelpHandler(ICompilationManager compilationManager, DocumentSelectorFactory documentSelectorFactory) : SignatureHelpHandlerBase
     {
@@ -26,7 +26,7 @@ namespace Bicep.LanguageServer.Handlers
         private const string TypeArgumentsStart = "<";
         private const string TypeArgumentsEnd = ">";
 
-        public override Task<SignatureHelp?> Handle(SignatureHelpParams request, CancellationToken cancellationToken)
+        public override Task<global::OmniSharp.Extensions.LanguageServer.Protocol.Models.SignatureHelp?> Handle(SignatureHelpParams request, CancellationToken cancellationToken)
         {
             // local function
 
@@ -48,7 +48,7 @@ namespace Bicep.LanguageServer.Handlers
             };
         }
 
-        private static Task<SignatureHelp?> NoHelp() => Task.FromResult<SignatureHelp?>(null);
+        private static Task<global::OmniSharp.Extensions.LanguageServer.Protocol.Models.SignatureHelp?> NoHelp() => Task.FromResult<global::OmniSharp.Extensions.LanguageServer.Protocol.Models.SignatureHelp?>(null);
 
         private static SyntaxBase? GetActiveSyntaxInNeedOfSignatureHelp(ProgramSyntax syntax, int offset)
         {
@@ -80,7 +80,7 @@ namespace Bicep.LanguageServer.Handlers
             return null;
         }
 
-        private static Task<SignatureHelp?> Handle(CompilationContext context,
+        private static Task<global::OmniSharp.Extensions.LanguageServer.Protocol.Models.SignatureHelp?> Handle(CompilationContext context,
             FunctionCallSyntaxBase functionCall,
             int offset,
             SignatureHelpParams request)
@@ -106,10 +106,10 @@ namespace Bicep.LanguageServer.Handlers
             var signatureHelp = CreateSignatureHelp(functionCall.Arguments, normalizedArgumentTypes, functionSymbol, offset, includeReturnType);
             signatureHelp = TryReuseActiveSignature(request.Context, signatureHelp);
 
-            return Task.FromResult<SignatureHelp?>(signatureHelp);
+            return Task.FromResult<global::OmniSharp.Extensions.LanguageServer.Protocol.Models.SignatureHelp?>(signatureHelp);
         }
 
-        private static SignatureHelp TryReuseActiveSignature(SignatureHelpContext? context, SignatureHelp signatureHelp)
+        private static global::OmniSharp.Extensions.LanguageServer.Protocol.Models.SignatureHelp TryReuseActiveSignature(SignatureHelpContext? context, global::OmniSharp.Extensions.LanguageServer.Protocol.Models.SignatureHelp signatureHelp)
         {
             if (context?.ActiveSignatureHelp == null ||
                 string.Equals(context.TriggerCharacter, FunctionArgumentStart, StringComparison.Ordinal) ||
@@ -133,7 +133,7 @@ namespace Bicep.LanguageServer.Handlers
             return signatureHelp;
         }
 
-        private static bool CheckIfSignatureHelpSimilar(SignatureHelp active, SignatureHelp @new)
+        private static bool CheckIfSignatureHelpSimilar(global::OmniSharp.Extensions.LanguageServer.Protocol.Models.SignatureHelp active, global::OmniSharp.Extensions.LanguageServer.Protocol.Models.SignatureHelp @new)
         {
             // local function
             static string GetFunctionName(SignatureInformation info)
@@ -165,7 +165,7 @@ namespace Bicep.LanguageServer.Handlers
                 .ToList();
         }
 
-        private static SignatureHelp CreateSignatureHelp(ImmutableArray<FunctionArgumentSyntax> arguments, List<TypeSymbol> normalizedArgumentTypes, IFunctionSymbol symbol, int offset, bool includeReturnType)
+        private static global::OmniSharp.Extensions.LanguageServer.Protocol.Models.SignatureHelp CreateSignatureHelp(ImmutableArray<FunctionArgumentSyntax> arguments, List<TypeSymbol> normalizedArgumentTypes, IFunctionSymbol symbol, int offset, bool includeReturnType)
         {
             // exclude overloads where the specified arguments have exceeded the maximum
             // allow count mismatches because the user may not have started typing the arguments yet
@@ -181,7 +181,7 @@ namespace Bicep.LanguageServer.Handlers
                 activeSignatureIndex = matchingOverloads.IndexOf(tuple => tuple.result == FunctionMatchResult.PotentialMatch);
             }
 
-            return new SignatureHelp
+            return new global::OmniSharp.Extensions.LanguageServer.Protocol.Models.SignatureHelp
             {
                 Signatures = new Container<SignatureInformation>(matchingOverloads.Select(tuple => CreateSignature(tuple.overload, arguments, includeReturnType))),
                 ActiveSignature = activeSignatureIndex < 0 ? (int?)null : activeSignatureIndex,
@@ -277,7 +277,7 @@ namespace Bicep.LanguageServer.Handlers
             });
         }
 
-        private static Task<SignatureHelp?> Handle(CompilationContext context,
+        private static Task<global::OmniSharp.Extensions.LanguageServer.Protocol.Models.SignatureHelp?> Handle(CompilationContext context,
             ParameterizedTypeInstantiationSyntaxBase typeInstantiation,
             int offset)
         {
@@ -295,7 +295,7 @@ namespace Bicep.LanguageServer.Handlers
                 _ => null,
             };
 
-            return Task.FromResult<SignatureHelp?>(CreateSignatureHelp(parameterizable, documentation, typeInstantiation.Arguments, offset));
+            return Task.FromResult<global::OmniSharp.Extensions.LanguageServer.Protocol.Models.SignatureHelp?>(CreateSignatureHelp(parameterizable, documentation, typeInstantiation.Arguments, offset));
         }
 
         private static TypeSymbol? GetSymbolType(Symbol? symbol) => symbol switch
@@ -306,9 +306,9 @@ namespace Bicep.LanguageServer.Handlers
             _ => null,
         };
 
-        private static SignatureHelp CreateSignatureHelp(TypeTemplate typeTemplate, string? documentation, ImmutableArray<ParameterizedTypeArgumentSyntax> arguments, int offset)
+        private static global::OmniSharp.Extensions.LanguageServer.Protocol.Models.SignatureHelp CreateSignatureHelp(TypeTemplate typeTemplate, string? documentation, ImmutableArray<ParameterizedTypeArgumentSyntax> arguments, int offset)
         {
-            return new SignatureHelp
+            return new global::OmniSharp.Extensions.LanguageServer.Protocol.Models.SignatureHelp
             {
                 Signatures = new Container<SignatureInformation>(CreateSignature(typeTemplate, documentation)),
                 ActiveSignature = 0,
@@ -362,7 +362,7 @@ namespace Bicep.LanguageServer.Handlers
             };
         }
 
-        protected override SignatureHelpRegistrationOptions CreateRegistrationOptions(SignatureHelpCapability capability, ClientCapabilities clientCapabilities) => new()
+        protected override SignatureHelpRegistrationOptions CreateRegistrationOptions(SignatureHelpCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
             /*

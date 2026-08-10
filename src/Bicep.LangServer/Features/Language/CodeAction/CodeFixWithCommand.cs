@@ -6,10 +6,10 @@ using System.Collections.Immutable;
 using System.Security.Policy;
 using Bicep.Core.CodeAction;
 using Bicep.IO.Abstraction;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Features.Custom.Telemetry;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace Bicep.LanguageServer.Model;
+namespace Bicep.LanguageServer.Features.Language.CodeAction;
 
 public class CodeFixWithCommand : CodeFix
 {

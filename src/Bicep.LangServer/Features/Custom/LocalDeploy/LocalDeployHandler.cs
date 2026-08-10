@@ -11,7 +11,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.IO.Abstraction;
-using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Compilation;
 using Bicep.Local.Deploy;
 using Bicep.Local.Deploy.Extensibility;
 using MediatR;
@@ -22,7 +22,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
-namespace Bicep.LanguageServer.Handlers;
+namespace Bicep.LanguageServer.Features.Custom.LocalDeploy;
 
 [Method("bicep/localDeploy", Direction.ClientToServer)]
 public record LocalDeployRequest(TextDocumentIdentifier TextDocument)

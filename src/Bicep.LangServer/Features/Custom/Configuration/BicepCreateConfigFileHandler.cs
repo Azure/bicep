@@ -2,14 +2,15 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Configuration;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.ClientCapabilities;
+using Bicep.LanguageServer.Features.Custom.Linter;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Custom.Configuration
 {
     public class BicepCreateConfigParams : IRequest<bool>
     {

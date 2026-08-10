@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Features.Language.Definition;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Language.References
 {
     public class BicepReferencesHandler(ISymbolResolver symbolResolver, DocumentSelectorFactory documentSelectorFactory) : ReferencesHandlerBase
     {
@@ -39,7 +39,7 @@ namespace Bicep.LanguageServer.Handlers
             return new(references);
         }
 
-        protected override ReferenceRegistrationOptions CreateRegistrationOptions(ReferenceCapability capability, ClientCapabilities clientCapabilities) => new()
+        protected override ReferenceRegistrationOptions CreateRegistrationOptions(ReferenceCapability capability, global::OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
         };

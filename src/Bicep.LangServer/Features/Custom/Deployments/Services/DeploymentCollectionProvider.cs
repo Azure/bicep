@@ -6,7 +6,7 @@ using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Bicep.Core;
 
-namespace Bicep.LanguageServer.Deploy
+namespace Bicep.LanguageServer.Features.Custom.Deployments.Services
 {
     public class DeploymentCollectionProvider : IDeploymentCollectionProvider
     {

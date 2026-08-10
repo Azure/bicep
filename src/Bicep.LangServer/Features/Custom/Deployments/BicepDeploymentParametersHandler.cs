@@ -5,14 +5,14 @@ using Bicep.Core;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.LanguageServer.Deploy;
+using Bicep.LanguageServer.Features.Custom.Deployments.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Custom.Deployments
 {
     public record BicepDeploymentParametersResponse(List<BicepDeploymentParameter> deploymentParameters, string parametersFileName, string? errorMessage);
 
