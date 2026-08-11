@@ -73,7 +73,7 @@ namespace Bicep.Core.UnitTests
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
         // Rules that are currently skipped due to configuration for ProgramsShouldProduceExpectedDiagnostics
-        public static readonly string[] TestAnalyzersToSkip = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code, NoHardcodedLocationRule.Code, ExplicitValuesForLocationParamsRule.Code, NoLocationExprOutsideParamsRule.Code, NoModuleNameRule.Code, NoHardcodedOutputsRule.Code];
+        public static readonly string[] TestAnalyzersToSkip = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code, NoHardcodedLocationRule.Code, ExplicitValuesForLocationParamsRule.Code, NoLocationExprOutsideParamsRule.Code, NoModuleNameRule.Code, NoHardcodedOutputsRule.Code, UseDescriptionParametersRule.Code, UseDescriptionVarsRule.Code, UseDescriptionOutputRule.Code, UseDescriptionTypeRule.Code, UseDescriptionTypePropertyRule.Code];
 
         public static readonly RootConfiguration BuiltInConfiguration = TestConfigurations.BuiltInWithStableAnalyzers;
 

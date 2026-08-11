@@ -21,6 +21,11 @@ public static class TestConfigurations
         .WithAnalyzersDisabled(
             UseRecentApiVersionRule.Code,
             UseRecentModuleVersionsRule.Code,
-            NoHardcodedOutputsRule.Code)
+            NoHardcodedOutputsRule.Code,
+            UseDescriptionParametersRule.Code,
+            UseDescriptionVarsRule.Code,
+            UseDescriptionOutputRule.Code,
+            UseDescriptionTypeRule.Code,
+            UseDescriptionTypePropertyRule.Code)
         .Build();
 }
