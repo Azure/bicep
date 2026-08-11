@@ -7,7 +7,7 @@ import * as vscode from "vscode";
 import * as lsp from "vscode-languageclient/node";
 import { Message, TransportKind } from "vscode-languageclient/node";
 import { writeDeploymentOutputMessageToBicepOperationsOutputChannel } from "../commands/deployHelper";
-import { getLogger } from "../utils/logger";
+import { getLogger } from "../infrastructure/logging";
 import { bicepLanguageId } from "./constants";
 
 const dotnetRuntimeVersion = "10.0";

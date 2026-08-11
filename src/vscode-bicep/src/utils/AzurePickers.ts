@@ -27,8 +27,8 @@ import {
   createResourceManagementClient,
   createSubscriptionClient,
 } from "../azure/azureClients";
-import { Disposable } from "./disposable";
-import { OutputChannelManager } from "./OutputChannelManager";
+import { Disposable } from "../infrastructure/lifecycle";
+import { OutputChannelManager } from "../infrastructure/logging";
 
 export class AzurePickers extends Disposable {
   private vsCodeAzureSubscriptionProvider = new VSCodeAzureSubscriptionProvider();

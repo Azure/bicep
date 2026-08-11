@@ -3,7 +3,7 @@
 import * as vscode from "vscode";
 import { Range } from "vscode";
 import { Position } from "vscode";
-import { sleep } from "../../utils/time";
+import { sleep } from "../../infrastructure/timing";
 import { expectDefined } from "../utils/assert";
 import { retryWhile } from "../utils/time";
 import { executeCloseAllEditors, executeCompletionItemProvider } from "./commands";

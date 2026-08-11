@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 import vscode from "vscode";
 import { BicepVisualizerViewManager } from "../visualizer";
-import { Command } from "./types";
+import { Command } from "../infrastructure/commands";
 
 export class ShowSourceFromVisualizerCommand implements Command {
   public static readonly CommandId = "bicep.showSourceFromVisualizer";

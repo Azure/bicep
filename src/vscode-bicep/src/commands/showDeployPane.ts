@@ -3,8 +3,8 @@
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import vscode from "vscode";
 import { DeployPaneViewManager } from "../panes/deploy";
-import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
-import { Command } from "./types";
+import { Command } from "../infrastructure/commands";
+import { findOrCreateActiveBicepFile } from "../infrastructure/editor";
 
 async function showDeployPane(
   context: IActionContext,

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { ConfigurationTarget, WorkspaceConfiguration } from "vscode";
-import { getBicepConfiguration } from "../language/getBicepConfiguration";
+import { getBicepConfiguration } from "../infrastructure/configuration";
 
 export class SuppressedWarningsManager {
   public static readonly suppressedWarningsConfigurationKey = "suppressedWarnings";

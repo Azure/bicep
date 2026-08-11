@@ -82,12 +82,30 @@ Infrastructure must not import from `features`.
 
 ### Avoid generic buckets
 
-Do not introduce generic `types.ts`, `models.ts`, `helpers.ts`, `common.ts`, or `index.ts` files.
+Do not introduce generic `types.ts`, `models.ts`, `helpers.ts`, or `common.ts` files.
 Types should live with the behavior that gives them meaning. A separate type module is justified
 only when the types form a substantial, independently understandable contract.
 
-Barrel files obscure dependency direction and make accidental cross-feature dependencies easier.
-Import concrete modules directly.
+### Use barrels as public APIs
+
+Every feature and infrastructure domain exposes its public API through an `index.ts` barrel. Code
+outside that folder imports from the barrel rather than reaching into implementation modules. This
+keeps imports concise and makes each domain's supported surface explicit.
+
+Barrels must contain named re-exports only. Do not add side effects, default exports, wildcard
+exports, or implementation logic. Internal modules import siblings directly instead of importing
+their own barrel, which avoids self-referential cycles. Do not add a root `features/index.ts` or
+`infrastructure/index.ts` that flattens unrelated domains and obscures ownership.
+
+For example:
+
+```ts
+// extension.ts
+import { activateBuildFeature } from "./features/build";
+
+// features/build/index.ts
+export { activateBuildFeature, BuildCommand, BuildParamsCommand } from "./commands";
+```
 
 ### Avoid one-function utility files
 
@@ -134,9 +152,10 @@ features/paste-as-bicep/
   text-formatting.test.ts
 ```
 
-E2E tests remain under `src/test/e2e` because they exercise the assembled extension rather than a
-single source module. Test harnesses, fakes, and mocks remain under `src/test` until a later test-only
-cleanup.
+E2E tests exercise the assembled extension rather than a single source module, so their final home
+is a top-level `e2e` directory beside `src`. The E2E runner, environment, examples, and E2E-only
+support code move with them. This physical move is deferred to PR 2; PR 1 only normalizes their file
+names to kebab-case.
 
 ## Dependency Rules
 
@@ -286,11 +305,17 @@ src/
     walkthrough/
       commands.ts
 
-  test/
-    e2e/
-    fakes/
-    mocks/
-    support/
+e2e/
+  examples/
+  support/
+  commands.ts
+  environment.ts
+  index.ts
+  run-tests.ts
+  runner.ts
+  setup.ts
+  test-reporter.ts
+  *.test.ts
 ```
 
 ### Deliberate module merges
@@ -356,18 +381,18 @@ the module readable. Their shared editor context behavior moves from `updateUiCo
 Delete the monolithic `src/language/protocol.ts`. Move each request, response, and protocol type to
 the feature that owns it:
 
-| Protocol ownership | Destination |
-| --- | --- |
-| Visual graph update, layout, and node source | `features/visualization/protocol.ts` |
-| Deployment data, deployment commands, and local deploy | `features/deployments/protocol.ts` |
-| External module source | `features/external-source/protocol.ts` |
-| Recommended configuration location | `features/configuration/protocol.ts` |
-| Decompile for paste | `features/paste-as-bicep/protocol.ts` |
-| Insert resource | `features/insert-resource/protocol.ts` |
-| Import Kubernetes manifest | `features/import-kubernetes-manifest/protocol.ts` |
+| Protocol ownership                                     | Destination                                       |
+| ------------------------------------------------------ | ------------------------------------------------- |
+| Visual graph update, layout, and node source           | `features/visualization/protocol.ts`              |
+| Deployment data, deployment commands, and local deploy | `features/deployments/protocol.ts`                |
+| External module source                                 | `features/external-source/protocol.ts`            |
+| Recommended configuration location                     | `features/configuration/protocol.ts`              |
+| Decompile for paste                                    | `features/paste-as-bicep/protocol.ts`             |
+| Insert resource                                        | `features/insert-resource/protocol.ts`            |
+| Import Kubernetes manifest                             | `features/import-kubernetes-manifest/protocol.ts` |
 
-Delete `src/language/index.ts`; features import their protocol modules and language client types
-directly.
+Delete `src/language/index.ts`; it is a broad legacy barrel spanning unrelated responsibilities.
+Each replacement feature and infrastructure domain exposes a narrow `index.ts` public API.
 
 #### Global state
 
@@ -406,65 +431,65 @@ split the interface into a separate file from its only implementation.
 
 ## Current-to-Target Ownership Map
 
-| Current path | Target ownership |
-| --- | --- |
-| `extension.ts` | Remains the composition root; reduce it to lifecycle and feature activation |
-| `commands/commandManager.ts`, `commands/types.ts` | `infrastructure/commands/command-manager.ts` |
-| `commands/findOrCreateActiveBicepFile.ts` | `infrastructure/editor/bicep-documents.ts` |
-| `commands/build.ts`, `commands/buildParams.ts` | `features/build/commands.ts` |
-| `commands/generateParams.ts` | `features/parameters/commands.ts` |
-| `commands/createConfigurationFile.ts` | `features/configuration/create-configuration.ts` |
-| `commands/decompile.ts`, `commands/decompileParams.ts` | `features/decompile/commands.ts` |
-| `updateUiContext.ts` | `features/decompile/editor-context.ts` |
-| `commands/pasteAsBicep.ts` | `features/paste-as-bicep/paste-as-bicep.ts` |
-| `commands/SuppressedWarningsManager.ts` | `features/paste-as-bicep/suppressed-warnings.ts` |
-| Paste-related text utilities | `features/paste-as-bicep/text-formatting.ts` |
-| `commands/deploy.ts` | `features/deployments/commands.ts` |
-| `commands/deployHelper.ts` | `features/deployments/deployment-output.ts` |
-| `commands/showDeployPane.ts` | `features/deployments/commands.ts` |
-| `panes/deploy/view.ts` | `features/deployments/pane/deploy-pane.ts` |
-| `panes/deploy/viewManager.ts` | `features/deployments/pane/deploy-pane-manager.ts` |
-| `panes/deploy/models.ts`, `panes/deploy/messages.ts` | Merge into the pane module or `deploy-pane-state.ts` according to ownership |
-| `panes/deploy/index.ts` | Delete |
-| `azure/azureClients.ts` | `features/deployments/azure/azure-clients.ts` |
-| `azure/AzureUiManager.ts` | `features/deployments/azure/azure-ui-manager.ts` |
-| `azure/types.ts` | Split between `deployment-scope.ts` and `azure-ui-manager.ts` |
-| `utils/AzurePickers.ts` | `features/deployments/azure/azure-pickers.ts` |
-| `visualizer/view.ts` | `features/visualization/visualizer.ts` |
-| `visualizer/viewManager.ts` | `features/visualization/visualizer-manager.ts` |
-| Visualizer commands | `features/visualization/commands.ts` |
-| `visualizer/index.ts` | Delete |
-| External source provider, decoder, and command | `features/external-source` |
-| `commands/insertResource.ts` | `features/insert-resource/insert-resource.ts` |
-| `commands/importKubernetesManifest.ts` | `features/import-kubernetes-manifest/import-kubernetes-manifest.ts` |
-| `commands/forceModulesRestore.ts` | `features/module-restore/commands.ts` |
-| `commands/PostExtractionCommand.ts` | `features/refactoring/post-extraction.ts` |
-| `commands/gettingStarted/*` | `features/walkthrough/commands.ts` |
-| `feedback/surveys.ts` | `features/surveys/surveys.ts` |
-| `globalState.ts` | Split between survey and deployment pane state |
-| `language/client.ts` | Split between language client infrastructure, deployments, and MCP |
-| `language/protocol.ts` | Split among owning features |
-| `language/constants.ts` | Split among editor metadata, configuration, paste, and surveys as described below |
-| `language/getBicepConfiguration.ts` | `infrastructure/configuration/extension-configuration.ts` |
-| `language/index.ts` | Delete |
-| `utils/disposable.ts` | `infrastructure/lifecycle/disposable.ts` |
-| `utils/logger.ts`, `utils/telemetry.ts` | `infrastructure/logging/logging.ts` where cohesion permits |
-| Output channel utilities | Split between logging infrastructure and deployment output policy |
-| `utils/time.ts` | `infrastructure/timing/timing.ts` |
-| `utils/compareStringsOrdinal.ts` | Delete; use private ordinal comparators in `bicep-documents.ts` and deployment commands |
+| Current path                                           | Target ownership                                                                        |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| `extension.ts`                                         | Remains the composition root; reduce it to lifecycle and feature activation             |
+| `commands/commandManager.ts`, `commands/types.ts`      | `infrastructure/commands/command-manager.ts`                                            |
+| `commands/findOrCreateActiveBicepFile.ts`              | `infrastructure/editor/bicep-documents.ts`                                              |
+| `commands/build.ts`, `commands/buildParams.ts`         | `features/build/commands.ts`                                                            |
+| `commands/generateParams.ts`                           | `features/parameters/commands.ts`                                                       |
+| `commands/createConfigurationFile.ts`                  | `features/configuration/create-configuration.ts`                                        |
+| `commands/decompile.ts`, `commands/decompileParams.ts` | `features/decompile/commands.ts`                                                        |
+| `updateUiContext.ts`                                   | `features/decompile/editor-context.ts`                                                  |
+| `commands/pasteAsBicep.ts`                             | `features/paste-as-bicep/paste-as-bicep.ts`                                             |
+| `commands/SuppressedWarningsManager.ts`                | `features/paste-as-bicep/suppressed-warnings.ts`                                        |
+| Paste-related text utilities                           | `features/paste-as-bicep/text-formatting.ts`                                            |
+| `commands/deploy.ts`                                   | `features/deployments/commands.ts`                                                      |
+| `commands/deployHelper.ts`                             | `features/deployments/deployment-output.ts`                                             |
+| `commands/showDeployPane.ts`                           | `features/deployments/commands.ts`                                                      |
+| `panes/deploy/view.ts`                                 | `features/deployments/pane/deploy-pane.ts`                                              |
+| `panes/deploy/viewManager.ts`                          | `features/deployments/pane/deploy-pane-manager.ts`                                      |
+| `panes/deploy/models.ts`, `panes/deploy/messages.ts`   | Merge into the pane module or `deploy-pane-state.ts` according to ownership             |
+| `panes/deploy/index.ts`                                | Replace with the narrow `features/deployments/index.ts` public API                      |
+| `azure/azureClients.ts`                                | `features/deployments/azure/azure-clients.ts`                                           |
+| `azure/AzureUiManager.ts`                              | `features/deployments/azure/azure-ui-manager.ts`                                        |
+| `azure/types.ts`                                       | Split between `deployment-scope.ts` and `azure-ui-manager.ts`                           |
+| `utils/AzurePickers.ts`                                | `features/deployments/azure/azure-pickers.ts`                                           |
+| `visualizer/view.ts`                                   | `features/visualization/visualizer.ts`                                                  |
+| `visualizer/viewManager.ts`                            | `features/visualization/visualizer-manager.ts`                                          |
+| Visualizer commands                                    | `features/visualization/commands.ts`                                                    |
+| `visualizer/index.ts`                                  | Replace with the narrow `features/visualization/index.ts` public API                    |
+| External source provider, decoder, and command         | `features/external-source`                                                              |
+| `commands/insertResource.ts`                           | `features/insert-resource/insert-resource.ts`                                           |
+| `commands/importKubernetesManifest.ts`                 | `features/import-kubernetes-manifest/import-kubernetes-manifest.ts`                     |
+| `commands/forceModulesRestore.ts`                      | `features/module-restore/commands.ts`                                                   |
+| `commands/PostExtractionCommand.ts`                    | `features/refactoring/post-extraction.ts`                                               |
+| `commands/gettingStarted/*`                            | `features/walkthrough/commands.ts`                                                      |
+| `feedback/surveys.ts`                                  | `features/surveys/surveys.ts`                                                           |
+| `globalState.ts`                                       | Split between survey and deployment pane state                                          |
+| `language/client.ts`                                   | Split between language client infrastructure, deployments, and MCP                      |
+| `language/protocol.ts`                                 | Split among owning features                                                             |
+| `language/constants.ts`                                | Split among editor metadata, configuration, paste, and surveys as described below       |
+| `language/getBicepConfiguration.ts`                    | `infrastructure/configuration/extension-configuration.ts`                               |
+| `language/index.ts`                                    | Replace with feature and infrastructure-domain barrels                                  |
+| `utils/disposable.ts`                                  | `infrastructure/lifecycle/disposable.ts`                                                |
+| `utils/logger.ts`, `utils/telemetry.ts`                | `infrastructure/logging/logging.ts` where cohesion permits                              |
+| Output channel utilities                               | Split between logging infrastructure and deployment output policy                       |
+| `utils/time.ts`                                        | `infrastructure/timing/timing.ts`                                                       |
+| `utils/compareStringsOrdinal.ts`                       | Delete; use private ordinal comparators in `bicep-documents.ts` and deployment commands |
 
 ### Constants ownership
 
 Delete `src/language/constants.ts` and move each value to the domain that owns it:
 
-| Current value | Destination |
-| --- | --- |
-| `bicepFileExtension` | `infrastructure/editor/bicep-documents.ts` |
-| `bicepLanguageId` | `infrastructure/editor/bicep-documents.ts` |
-| `bicepParamLanguageId` | `infrastructure/editor/bicep-documents.ts` |
-| `bicepConfigurationPrefix` | `infrastructure/configuration/extension-configuration.ts` |
+| Current value                             | Destination                                                                   |
+| ----------------------------------------- | ----------------------------------------------------------------------------- |
+| `bicepFileExtension`                      | `infrastructure/editor/bicep-documents.ts`                                    |
+| `bicepLanguageId`                         | `infrastructure/editor/bicep-documents.ts`                                    |
+| `bicepParamLanguageId`                    | `infrastructure/editor/bicep-documents.ts`                                    |
+| `bicepConfigurationPrefix`                | `infrastructure/configuration/extension-configuration.ts`                     |
 | `bicepConfigurationKeys.decompileOnPaste` | Private paste setting constant in `features/paste-as-bicep/paste-as-bicep.ts` |
-| `bicepConfigurationKeys.enableSurveys` | Private survey setting constant in `features/surveys/surveys.ts` |
+| `bicepConfigurationKeys.enableSurveys`    | Private survey setting constant in `features/surveys/surveys.ts`              |
 
 Language client infrastructure may import the Bicep language ID from editor infrastructure. The
 paste and walkthrough features may import document language IDs and the file extension from editor
@@ -485,27 +510,27 @@ Change the unit Jest configuration to discover co-located tests:
 
 ```js
 testMatch: ["<rootDir>/src/**/*.test.ts"],
-testPathIgnorePatterns: ["<rootDir>/src/test/e2e/"],
 ```
 
+After E2E moves outside `src`, unit Jest discovery is naturally isolated to co-located source tests.
 Retain the unit setup file under `src/test/unit/setup.ts` during the migration unless moving it is
 required by Jest configuration. Move existing unit tests as follows:
 
-| Current test | Destination |
-| --- | --- |
-| Formatting utility tests | `features/paste-as-bicep/text-formatting.test.ts` |
-| `SuppressedWarningsManager.test.ts` | `features/paste-as-bicep/suppressed-warnings.test.ts` |
-| `withProgressAfterDelay.test.ts` | Paste feature or timing infrastructure, matching final ownership |
-| `surveys.unit.test.ts` | `features/surveys/surveys.test.ts` |
-| `logger.test.ts` | `infrastructure/logging/logging.test.ts` |
-| `removePropertiesWithPossibleUserInfo.test.ts` | `features/deployments/deployment-output.test.ts` |
-| `packageJson.test.ts` | Keep under `src/test/unit`; it validates the assembled extension manifest |
+| Current test                                   | Destination                                                               |
+| ---------------------------------------------- | ------------------------------------------------------------------------- |
+| Formatting utility tests                       | `features/paste-as-bicep/text-formatting.test.ts`                         |
+| `SuppressedWarningsManager.test.ts`            | `features/paste-as-bicep/suppressed-warnings.test.ts`                     |
+| `withProgressAfterDelay.test.ts`               | Paste feature or timing infrastructure, matching final ownership          |
+| `surveys.unit.test.ts`                         | `features/surveys/surveys.test.ts`                                        |
+| `logger.test.ts`                               | `infrastructure/logging/logging.test.ts`                                  |
+| `removePropertiesWithPossibleUserInfo.test.ts` | `features/deployments/deployment-output.test.ts`                          |
+| `packageJson.test.ts`                          | Keep under `src/test/unit`; it validates the assembled extension manifest |
 
-Rename all moved tests to kebab-case. Do not move E2E tests beside source modules. Rename all E2E
-test and harness files to kebab-case during PR 1, including `runTests.ts`, `testReporter.ts`,
-`expectedNewConfigFileContents.ts`, `testScope.ts`, and the current camel-cased feature test files.
-Update script and configuration entry points in the same commit. This is a naming-only change; runner
-behavior and ownership remain unchanged.
+Rename all moved tests to kebab-case. Rename all E2E test and harness files to kebab-case during PR
+1, including `runTests.ts`, `testReporter.ts`, `expectedNewConfigFileContents.ts`, `testScope.ts`,
+and the current camel-cased feature test files. Update script and configuration entry points in the
+same commit. This is a naming-only change; runner behavior and ownership remain unchanged until the
+top-level move in PR 2.
 
 Update `coveragePathIgnorePatterns` before moving visualization. The current `/visualizer/` exclusion
 is path-dependent and would silently stop applying after the move. Preserve or deliberately revise
@@ -571,7 +596,7 @@ Changes:
    Kubernetes manifest, refactoring, surveys, and walkthrough.
 8. Apply kebab-case to every file moved in this PR.
 9. Rename the remaining test and E2E harness TypeScript files to kebab-case without changing runner
-  behavior.
+   behavior.
 10. Introduce feature activation functions for moved features while preserving command behavior.
 
 Avoid changing deployment, visualization, decompile, paste, and external source ownership in this
@@ -579,7 +604,7 @@ PR except for import updates required by infrastructure moves.
 
 Exit criteria:
 
-- No new generic type, helper, model, or barrel modules.
+- No new generic type, helper, or model modules; each moved domain has a narrow public barrel.
 - Moved unit tests execute from their co-located paths.
 - All existing command IDs remain unchanged.
 - `npm run lint`
@@ -603,14 +628,17 @@ Changes:
 6. Split `language/protocol.ts` among all owning features, including protocol destinations needed by
    deployment and visualization in PR 3.
 7. Split `language/constants.ts` by ownership.
-8. Delete `language/index.ts` and use direct imports.
+8. Delete the broad `language/index.ts` and use narrow feature and infrastructure-domain barrels.
 9. Separate MCP provider ownership from language client startup.
 10. Reduce language client infrastructure to client-wide behavior only.
-11. Apply kebab-case to every file moved in this PR.
+11. Move `src/test/e2e` to top-level `e2e`, including its runner, environment, examples, and
+    E2E-only support code. Update TypeScript, Jest, package script, and VS Code task paths together.
+12. Apply kebab-case to every file moved in this PR.
 
 Exit criteria:
 
 - `src/language/protocol.ts` and `src/language/index.ts` no longer exist.
+- E2E tests and their runner live under top-level `e2e`, beside `src`.
 - Language client infrastructure does not import any feature implementation except the temporary
   deployment notification dependency scheduled for PR 3.
 - Paste formatting no longer exists under `utils`.
@@ -634,7 +662,7 @@ Changes:
    deployment feature.
 5. Move visualization commands, views, manager, and protocol to `features/visualization`.
 6. Add the diagnostics router and migrate both webview features to subscriptions.
-7. Delete deployment and visualization barrel files.
+7. Replace the legacy deployment and visualization barrels with explicit feature public APIs.
 8. Complete feature activation and reduce `extension.ts` to composition and lifecycle.
 9. Delete empty `commands`, `language`, `panes`, `azure`, `feedback`, `visualizer`, and `utils`
    directories.
@@ -648,7 +676,8 @@ Exit criteria:
 - A feature can be located from one top-level folder.
 - Infrastructure has no imports from `features`.
 - Features have no direct imports from sibling features.
-- No generic barrel, type, model, helper, or one-function utility files remain from the old layout.
+- No broad cross-domain barrel, generic type, model, helper, or one-function utility files remain
+  from the old layout.
 - Command IDs, context keys, protocol method names, persisted state keys, and webview view types are
   byte-for-byte unchanged.
 - Webview serializers revive existing deploy and visualization panels.
@@ -671,6 +700,37 @@ The two-PR shape is therefore:
 
 1. Infrastructure, low-risk features, language workflows, test co-location, and protocol split.
 2. Deployment, visualization, diagnostics routing, final composition, and boundary enforcement.
+
+## Deferred Package-Root Cleanup
+
+Organization outside `src` is deliberately deferred until after this migration. A follow-up should
+consider consolidating tracked package resources by purpose:
+
+```text
+resources/
+  icons/
+  language/
+  configuration/
+  walkthrough/
+
+docs/
+  assets/
+
+scripts/
+```
+
+Candidate moves include the current `icons`, `media`, `schemas`, `syntaxes`, `vscode-snippets`,
+`readme-links`, and `npm-install.*` paths. Generated language server, MCP server, E2E log, coverage,
+and build output should also use an explicit ignored artifacts layout rather than accumulating at the
+package root.
+
+Keep conventional tool entry points at the package root, including `package.json`, TypeScript,
+Jest, webpack, ESLint, and Prettier configuration. Resource moves must update `package.json`,
+webpack copy paths, README links, `.gitignore`, and `.vscodeignore` together. They must preserve the
+final VSIX paths expected by VS Code contributions and runtime server lookup.
+
+The `docs` directory is repository-only engineering documentation and is excluded from the VSIX by
+`.vscodeignore`.
 
 ## Compatibility Invariants
 
@@ -716,6 +776,7 @@ order:
 
 - [ ] All production TypeScript files use kebab-case.
 - [ ] All feature unit tests are co-located.
+- [ ] E2E tests and their runner live under top-level `e2e`, beside `src`.
 - [ ] E2E tests remain isolated from unit Jest discovery.
 - [ ] `IAzureUIManager` uses the required acronym casing.
 - [ ] Deployment scope types are no longer in a generic Azure type bucket.

@@ -744,7 +744,7 @@
     "lint:fix": "eslint . --report-unused-disable-directives --fix",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "$test:e2e.comment": "use testlocal:e2e to run on a local Mac/Linux/Windows (not PowerShell) machine",
-    "test:e2e": "node ./out/test/e2e/runTests.js",
+    "test:e2e": "node ./out/test/e2e/run-tests.js",
     "test:unit": "jest --config jest.config.unit.js",
     "testlocal:e2e": "(export BICEP_LANGUAGE_SERVER_PATH=${INIT_CWD}/../Bicep.LangServer/bin/Debug/net10.0/Bicep.LangServer.dll || set BICEP_LANGUAGE_SERVER_PATH=%INIT_CWD%/../Bicep.LangServer/bin/Debug/net10.0/Bicep.LangServer.dll) && npm run build && npm run build:e2e && npm run test:e2e",
     "clean": "rimraf ./out ./coverage",

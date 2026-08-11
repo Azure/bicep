@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { sleep } from "../../utils/time";
+import { sleep } from "../../infrastructure/timing";
 
 export async function retryWhile<T>(
   func: () => Promise<T>,

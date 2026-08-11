@@ -3,7 +3,7 @@
 
 /* eslint-disable jest/expect-expect */
 import * as vscode from "vscode";
-import { sleep } from "../../utils/time";
+import { sleep } from "../../infrastructure/timing";
 import { expectDefined, expectRange } from "../utils/assert";
 import { retryWhile } from "../utils/time";
 import { executeCloseAllEditors, executeHoverProvider } from "./commands";
