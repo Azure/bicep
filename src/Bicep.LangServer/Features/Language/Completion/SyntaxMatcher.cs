@@ -8,7 +8,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 
-namespace Bicep.LanguageServer.Completions
+namespace Bicep.LanguageServer.Features.Language.Completion
 {
     public static class SyntaxMatcher
     {

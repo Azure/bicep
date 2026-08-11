@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.LanguageServer.Telemetry
+namespace Bicep.LanguageServer.Features.Custom.Telemetry
 {
     public static class TelemetryConstants
     {

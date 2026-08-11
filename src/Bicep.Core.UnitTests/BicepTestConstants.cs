@@ -30,7 +30,7 @@ using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Bicep.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;

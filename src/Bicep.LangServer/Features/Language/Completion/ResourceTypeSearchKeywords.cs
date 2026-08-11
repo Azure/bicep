@@ -10,9 +10,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
-using Bicep.LanguageServer.Snippets;
+using Bicep.LanguageServer.Features.Language.Completion.Snippets;
 
-namespace Bicep.LanguageServer.Completions
+namespace Bicep.LanguageServer.Features.Language.Completion
 {
     public partial class ResourceTypeSearchKeywords
     {

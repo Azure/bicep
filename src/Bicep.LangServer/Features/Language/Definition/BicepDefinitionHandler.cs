@@ -22,10 +22,10 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Completions;
+using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Features.Language.Completion;
+using Bicep.LanguageServer.Features.Language.DocumentLink;
 using Bicep.LanguageServer.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -35,8 +35,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Language.Definition
 {
     public class BicepDefinitionHandler(
         ISymbolResolver symbolResolver,
@@ -87,7 +88,7 @@ namespace Bicep.LanguageServer.Handlers
             };
         }
 
-        protected override DefinitionRegistrationOptions CreateRegistrationOptions(DefinitionCapability capability, ClientCapabilities clientCapabilities) => new()
+        protected override DefinitionRegistrationOptions CreateRegistrationOptions(DefinitionCapability capability, LspClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
         };

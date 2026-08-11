@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using Bicep.Core.Text;
 
-namespace Bicep.LanguageServer.Snippets
+namespace Bicep.LanguageServer.Features.Language.Completion.Snippets
 {
     public class SnippetPlaceholder
     {

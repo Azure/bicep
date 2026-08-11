@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Custom.Telemetry
 {
     // This handler is used to send a request from the client to the server(E.g. command sent as part
     // of completion item of top level declaration snippet) which in turn triggers a request from server to client,

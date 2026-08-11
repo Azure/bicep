@@ -9,10 +9,8 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
-using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Providers;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -21,9 +19,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
-using static Bicep.LanguageServer.Telemetry.BicepTelemetryEvent;
+using static Bicep.LanguageServer.Features.Custom.Telemetry.BicepTelemetryEvent;
+using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
+using LspDocumentLink = OmniSharp.Extensions.LanguageServer.Protocol.Models.DocumentLink;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Language.DocumentLink
 {
 #nullable disable // The generated code is not yet nullable-aware, this disables #nullable for the generated code to fix that
 
@@ -63,7 +63,7 @@ namespace Bicep.LanguageServer.Handlers
             return await ResolveDocumentLink(request, ModuleDispatcher, sourceFileFactory, Server, TelemetryProvider);
         }
 
-        protected override DocumentLinkRegistrationOptions CreateRegistrationOptions(DocumentLinkCapability capability, ClientCapabilities clientCapabilities) => new()
+        protected override DocumentLinkRegistrationOptions CreateRegistrationOptions(DocumentLinkCapability capability, LspClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = TextDocumentSelector.ForScheme(LangServerConstants.ExternalSourceFileScheme),
             ResolveProvider = true,
@@ -120,7 +120,7 @@ namespace Bicep.LanguageServer.Handlers
                         }
                         else
                         {
-                            yield return new DocumentLink()
+                            yield return new LspDocumentLink()
                             {
                                 // This is a link to a file that we don't have source for, so we'll just display the main.json file
                                 Range = nestedLink.Range.ToRange(),

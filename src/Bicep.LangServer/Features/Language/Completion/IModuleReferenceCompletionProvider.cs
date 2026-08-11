@@ -4,7 +4,7 @@
 using Bicep.Core.SourceGraph;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace Bicep.LanguageServer.Completions
+namespace Bicep.LanguageServer.Features.Language.Completion
 {
     public interface IModuleReferenceCompletionProvider
     {

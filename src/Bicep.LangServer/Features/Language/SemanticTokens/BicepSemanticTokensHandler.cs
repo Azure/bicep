@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using Bicep.Core.Highlighting;
 using Bicep.Core.Semantics;
-using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -10,8 +10,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using BicepTokenType = Bicep.Core.Highlighting.SemanticTokenType;
 using LspTokenType = OmniSharp.Extensions.LanguageServer.Protocol.Models.SemanticTokenType;
+using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Language.SemanticTokens
 {
     public class BicepSemanticTokensHandler(ICompilationManager compilationManager, DocumentSelectorFactory documentSelectorFactory) : SemanticTokensHandlerBase
     {
@@ -81,7 +82,7 @@ namespace Bicep.LanguageServer.Handlers
             _ => throw new NotImplementedException($"No mapping for token type {tokenType}"),
         };
 
-        protected override SemanticTokensRegistrationOptions CreateRegistrationOptions(SemanticTokensCapability capability, ClientCapabilities clientCapabilities) => new()
+        protected override SemanticTokensRegistrationOptions CreateRegistrationOptions(SemanticTokensCapability capability, LspClientCapabilities clientCapabilities) => new()
         {
             // the semantic tokens handler requests don't get routed like other handlers
             // it seems we can only have one and it must be shared between all the language IDs we support

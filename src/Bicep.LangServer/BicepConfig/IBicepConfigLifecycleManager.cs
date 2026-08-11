@@ -3,7 +3,7 @@
 
 using OmniSharp.Extensions.LanguageServer.Protocol;
 
-namespace Bicep.LanguageServer.Configuration
+namespace Bicep.LanguageServer.BicepConfig
 {
     public interface IBicepConfigLifecycleManager
     {

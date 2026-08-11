@@ -4,21 +4,22 @@
 using System.Collections.Concurrent;
 using Bicep.Core.Semantics;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using BicepCompilation = Bicep.Core.Semantics.Compilation;
 
-namespace Bicep.LanguageServer.Deploy
+namespace Bicep.LanguageServer.Features.Custom.Deployments.Services
 {
     public class DeploymentFileCompilationCache : IDeploymentFileCompilationCache
     {
-        private readonly ConcurrentDictionary<DocumentUri, Compilation> compilationCache = new();
+        private readonly ConcurrentDictionary<DocumentUri, BicepCompilation> compilationCache = new();
 
-        public void CacheCompilation(DocumentUri documentUri, Compilation compilation)
+        public void CacheCompilation(DocumentUri documentUri, BicepCompilation compilation)
         {
             compilationCache.TryAdd(documentUri, compilation);
         }
 
-        public Compilation? FindAndRemoveCompilation(DocumentUri documentUri)
+        public BicepCompilation? FindAndRemoveCompilation(DocumentUri documentUri)
         {
-            if (compilationCache.TryRemove(documentUri, out Compilation? compilation) && compilation is not null)
+            if (compilationCache.TryRemove(documentUri, out BicepCompilation? compilation) && compilation is not null)
             {
                 return compilation;
             }

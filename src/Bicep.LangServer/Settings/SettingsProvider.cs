@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Concurrent;
+using Bicep.LanguageServer.Features.Workspace.DidChangeConfiguration;
 
 namespace Bicep.LanguageServer.Settings
 {

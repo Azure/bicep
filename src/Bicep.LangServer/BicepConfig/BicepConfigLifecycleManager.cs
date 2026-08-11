@@ -4,11 +4,11 @@
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.SourceGraph;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Compilation;
+using Bicep.LanguageServer.Features.Custom.Telemetry;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 
-namespace Bicep.LanguageServer.Configuration
+namespace Bicep.LanguageServer.BicepConfig
 {
     public class BicepConfigLifecycleManager : IBicepConfigLifecycleManager
     {

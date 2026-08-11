@@ -13,7 +13,7 @@ using Bicep.Core.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Language.DocumentLink
 {
     /// <summary>
     /// Represents a URI to request displaying a source file from an external module

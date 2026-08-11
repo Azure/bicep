@@ -17,7 +17,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Refactor;
+using Bicep.LanguageServer.Features.Language.CodeAction;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;

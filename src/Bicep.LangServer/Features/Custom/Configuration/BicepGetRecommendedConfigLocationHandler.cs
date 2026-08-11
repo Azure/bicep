@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Runtime.InteropServices;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.ClientCapabilities;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Custom.Configuration
 {
     [Method("bicep/getRecommendedConfigLocation", Direction.ClientToServer)]
     public record BicepGetRecommendedConfigLocationParams : IRequest<BicepGetRecommendedConfigLocationResult>

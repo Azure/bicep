@@ -2,16 +2,16 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Features;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Completions;
+using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Language.Completion
 {
     public class BicepCompletionHandler : CompletionHandlerBase
     {
@@ -60,7 +60,7 @@ namespace Bicep.LanguageServer.Handlers
             return this.completionProvider.Resolve(request, cancellationToken);
         }
 
-        protected override CompletionRegistrationOptions CreateRegistrationOptions(CompletionCapability capability, ClientCapabilities clientCapabilities) => new()
+        protected override CompletionRegistrationOptions CreateRegistrationOptions(CompletionCapability capability, LspClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
             AllCommitCharacters = new Container<string>(),

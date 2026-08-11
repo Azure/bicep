@@ -8,9 +8,9 @@ using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
 using Bicep.Core;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Features.Custom.Deployments;
 
-namespace Bicep.LanguageServer.Deploy
+namespace Bicep.LanguageServer.Features.Custom.Deployments.Services
 {
 
     public class DeploymentHelper : IDeploymentHelper

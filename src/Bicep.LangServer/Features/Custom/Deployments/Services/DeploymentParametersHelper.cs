@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.LanguageServer.Configuration;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Features.Custom.Deployments;
+using Bicep.LanguageServer.Utils;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.LanguageServer.Deploy
+namespace Bicep.LanguageServer.Features.Custom.Deployments.Services
 {
     public class DeploymentParametersHelper
     {

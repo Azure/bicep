@@ -3,12 +3,13 @@
 
 using Bicep.Core.Semantics;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using BicepCompilation = Bicep.Core.Semantics.Compilation;
 
-namespace Bicep.LanguageServer.Completions
+namespace Bicep.LanguageServer.Features.Language.Completion
 {
     public interface ICompletionProvider
     {
-        Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context, CancellationToken cancellationToken);
+        Task<IEnumerable<CompletionItem>> GetFilteredCompletions(BicepCompilation compilation, BicepCompletionContext context, CancellationToken cancellationToken);
 
         Task<CompletionItem> Resolve(CompletionItem completionItem, CancellationToken cancellationToken)
         {

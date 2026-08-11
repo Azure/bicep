@@ -5,7 +5,8 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Features.Language.Definition;
+using Bicep.LanguageServer.Features.Language.PrepareRename;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
@@ -13,8 +14,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Language.Rename
 {
     public class BicepRenameHandler : RenameHandlerBase
     {
@@ -95,7 +97,7 @@ namespace Bicep.LanguageServer.Handlers
             }
         }
 
-        protected override RenameRegistrationOptions CreateRegistrationOptions(RenameCapability capability, ClientCapabilities clientCapabilities) => new()
+        protected override RenameRegistrationOptions CreateRegistrationOptions(RenameCapability capability, LspClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = this.documentSelectorFactory.CreateForBicepAndParams(),
             PrepareProvider = true

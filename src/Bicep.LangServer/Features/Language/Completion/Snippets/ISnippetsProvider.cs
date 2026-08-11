@@ -6,7 +6,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.LanguageServer.Snippets
+namespace Bicep.LanguageServer.Features.Language.Completion.Snippets
 {
     public interface ISnippetsProvider
     {

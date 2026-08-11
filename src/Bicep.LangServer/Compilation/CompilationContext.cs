@@ -3,8 +3,9 @@
 using System.Collections.Immutable;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using BicepCompilation = Bicep.Core.Semantics.Compilation;
 
-namespace Bicep.LanguageServer.CompilationManager
+namespace Bicep.LanguageServer.Compilation
 {
     /// <summary>
     /// Represents a compilation context that successfully produced a compilation
@@ -12,14 +13,14 @@ namespace Bicep.LanguageServer.CompilationManager
     /// </summary>
     public class CompilationContext : CompilationContextBase
     {
-        public CompilationContext(Compilation compilation)
+        public CompilationContext(BicepCompilation compilation)
             // on a successful compilation, we can reuse the entry point file kind
             : base(compilation.SourceFileGrouping.EntryPoint.FileKind)
         {
             this.Compilation = compilation;
         }
 
-        public Compilation Compilation { get; }
+        public BicepCompilation Compilation { get; }
 
         public ProgramSyntax ProgramSyntax => Compilation.SourceFileGrouping.EntryPoint.ProgramSyntax;
 

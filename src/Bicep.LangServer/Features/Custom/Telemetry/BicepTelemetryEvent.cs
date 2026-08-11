@@ -5,7 +5,7 @@ using Bicep.Core.Parsing;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace Bicep.LanguageServer.Telemetry
+namespace Bicep.LanguageServer.Features.Custom.Telemetry
 {
     public static class EventResult
     {

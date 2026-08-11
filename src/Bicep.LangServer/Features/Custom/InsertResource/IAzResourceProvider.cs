@@ -3,7 +3,7 @@
 using System.Text.Json;
 using Bicep.Core.Configuration;
 
-namespace Bicep.LanguageServer.Providers
+namespace Bicep.LanguageServer.Features.Custom.InsertResource
 {
     public interface IAzResourceProvider
     {

@@ -6,9 +6,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Text;
-using Bicep.LanguageServer.Completions;
+using Bicep.LanguageServer.Features.Language.Completion;
 
-namespace Bicep.LanguageServer.Snippets
+namespace Bicep.LanguageServer.Features.Language.Completion.Snippets
 {
     public sealed class Snippet
     {

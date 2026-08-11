@@ -7,10 +7,9 @@ using Bicep.Core.AzureApi;
 using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.Core.Tracing;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Deploy;
-using Bicep.LanguageServer.Providers;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Compilation;
+using Bicep.LanguageServer.Features.Custom.Deployments.Services;
+using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Bicep.LanguageServer.Utils;
 using MediatR;
 using Newtonsoft.Json.Linq;
@@ -18,7 +17,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Custom.Deployments
 {
     public record BicepUpdatedDeploymentParameter(string name, string value, bool isSecure, ParameterType? parameterType);
 

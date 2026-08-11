@@ -10,7 +10,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Custom.Decompile
 {
     public record BicepDecompileParamsCommandParams(
         DocumentUri jsonUri,

@@ -11,12 +11,13 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Features.Custom.Telemetry;
+using Bicep.LanguageServer.Features.Language.Definition;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
-using static Bicep.LanguageServer.Telemetry.BicepTelemetryEvent;
+using static Bicep.LanguageServer.Features.Custom.Telemetry.BicepTelemetryEvent;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Language.DocumentLink
 {
     [Method(BicepExternalSourceRequestHandler.BicepExternalSourceLspMethodName, Direction.ClientToServer)]
     public record BicepExternalSourceParams(

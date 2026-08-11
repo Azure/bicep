@@ -9,14 +9,14 @@ using Bicep.Core.Extensions;
 using Bicep.Decompiler;
 using Bicep.Decompiler.ArmHelpers;
 using Bicep.IO.Abstraction;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Custom.Decompile
 {
     public record DecompiledFile(
         // absolute path to overwrite - could be outside input file's folder/subfolders (e.g. ".." in module path)

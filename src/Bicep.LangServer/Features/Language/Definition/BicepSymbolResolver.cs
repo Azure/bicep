@@ -4,13 +4,13 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace Bicep.LanguageServer.Providers
+namespace Bicep.LanguageServer.Features.Language.Definition
 {
     public class BicepSymbolResolver : ISymbolResolver
     {

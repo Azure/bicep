@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.LanguageServer.Settings;
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 
-namespace Bicep.LanguageServer.Settings
+namespace Bicep.LanguageServer.Features.Workspace.DidChangeConfiguration
 {
     [Method("workspace/didChangeConfiguration", Direction.ClientToServer)]
     public record DidChangeConfigurationParams : IRequest

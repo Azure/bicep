@@ -8,7 +8,7 @@ using Bicep.Core.Emit.Options;
 using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.IO.Abstraction;
-using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
@@ -17,7 +17,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Custom.Build
 {
     // This handler is used to build compiled parameters.json file for given a bicep file path.
     // It returns build-params succeeded/failed message, which can be displayed appropriately in IDE output window

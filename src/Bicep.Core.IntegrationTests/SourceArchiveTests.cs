@@ -20,7 +20,6 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.Utils;
-using Bicep.LanguageServer.Handlers;
 using Bicep.Testing.Assertions;
 using Bicep.Testing.IO;
 using Bicep.Testing.Mocks;

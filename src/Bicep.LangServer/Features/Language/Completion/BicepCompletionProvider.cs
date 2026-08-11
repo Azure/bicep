@@ -23,15 +23,16 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Snippets;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Features.Custom.Telemetry;
+using Bicep.LanguageServer.Features.Language.Completion.Snippets;
 using Bicep.LanguageServer.Utils;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
+using BicepCompilation = Bicep.Core.Semantics.Compilation;
 
-namespace Bicep.LanguageServer.Completions
+namespace Bicep.LanguageServer.Features.Language.Completion
 {
     public partial class BicepCompletionProvider : ICompletionProvider
     {
@@ -50,7 +51,7 @@ namespace Bicep.LanguageServer.Completions
             this.moduleReferenceCompletionProvider = moduleReferenceCompletionProvider;
         }
 
-        public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context, CancellationToken cancellationToken)
+        public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(BicepCompilation compilation, BicepCompletionContext context, CancellationToken cancellationToken)
         {
             var model = compilation.GetEntrypointSemanticModel();
 
@@ -1219,7 +1220,7 @@ namespace Bicep.LanguageServer.Completions
             };
         }
 
-        private static IEnumerable<CompletionItem> GetMemberAccessCompletions(Compilation compilation, BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetMemberAccessCompletions(BicepCompilation compilation, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.MemberAccess) || context.PropertyAccess == null)
             {
@@ -1252,7 +1253,7 @@ namespace Bicep.LanguageServer.Completions
                 .Select(m => CreateSymbolCompletion(m, context.ReplacementRange, model)));
         }
 
-        private static IEnumerable<CompletionItem> GetTypeMemberAccessCompletions(Compilation compilation, BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetTypeMemberAccessCompletions(BicepCompilation compilation, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.TypeMemberAccess) || context.TypePropertyAccess is null)
             {
@@ -1286,7 +1287,7 @@ namespace Bicep.LanguageServer.Completions
             return completions;
         }
 
-        private static IEnumerable<CompletionItem> GetTypeArrayIndexCompletions(Compilation compilation, BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetTypeArrayIndexCompletions(BicepCompilation compilation, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.TypeArrayIndex))
             {
@@ -1339,7 +1340,7 @@ namespace Bicep.LanguageServer.Completions
             return [];
         }
 
-        private static IEnumerable<CompletionItem> GetResourceAccessCompletions(Compilation compilation, BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetResourceAccessCompletions(BicepCompilation compilation, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ResourceAccess) || context.ResourceAccess == null)
             {
@@ -1361,7 +1362,7 @@ namespace Bicep.LanguageServer.Completions
                 .Select(entry => CreateSymbolCompletion(entry.symbol!, context.ReplacementRange, model));
         }
 
-        private static IEnumerable<CompletionItem> GetArrayIndexCompletions(Compilation compilation, BicepCompletionContext context)
+        private static IEnumerable<CompletionItem> GetArrayIndexCompletions(BicepCompilation compilation, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ArrayIndex) || context.ArrayAccess == null)
             {

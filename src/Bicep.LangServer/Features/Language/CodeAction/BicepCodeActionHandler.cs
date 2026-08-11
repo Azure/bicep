@@ -13,13 +13,11 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.IO.Abstraction;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Completions;
+using Bicep.LanguageServer.ClientCapabilities;
+using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Model;
-using Bicep.LanguageServer.Providers;
-using Bicep.LanguageServer.Refactor;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Features.Custom.Telemetry;
+using Bicep.LanguageServer.Features.Language.Completion;
 using Bicep.LanguageServer.Utils;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -27,8 +25,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
+using LspCodeAction = OmniSharp.Extensions.LanguageServer.Protocol.Models.CodeAction;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Language.CodeAction
 {
     // Provides code actions/fixes for a range in a Bicep document
     public class BicepCodeActionHandler : CodeActionHandlerBase
@@ -187,7 +187,7 @@ namespace Bicep.LanguageServer.Handlers
                 args: JArray.FromObject(new List<object> { telemetryEvent })
             );
 
-            return new CodeAction
+            return new LspCodeAction
             {
                 Title = string.Format(LangServerResources.DisableDiagnosticForThisLine, diagnosticCode.String),
                 Edit = new WorkspaceEdit
@@ -203,7 +203,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private static CommandOrCodeAction CreateEditLinterRuleAction(DocumentUri documentUri, string ruleName, IOUri? configFileIdentifier)
         {
-            return new CodeAction
+            return new LspCodeAction
             {
                 Title = String.Format(LangServerResources.EditLinterRuleActionTitle, ruleName),
                 Command = TelemetryHelper.CreateCommand
@@ -215,7 +215,7 @@ namespace Bicep.LanguageServer.Handlers
             };
         }
 
-        public override Task<CodeAction> Handle(CodeAction request, CancellationToken cancellationToken)
+        public override Task<LspCodeAction> Handle(LspCodeAction request, CancellationToken cancellationToken)
         {
             // we are currently precomputing our quickfixes, so there's no need to resolve them after they are chosen
             // this shouldn't be called because registration options disabled the resolve functionality
@@ -232,7 +232,7 @@ namespace Bicep.LanguageServer.Handlers
                 _ => CodeActionKind.Empty,
             };
 
-            return new CodeAction
+            return new LspCodeAction
             {
                 Kind = codeActionKind,
                 Title = fix.Title,
@@ -252,7 +252,7 @@ namespace Bicep.LanguageServer.Handlers
             };
         }
 
-        protected override CodeActionRegistrationOptions CreateRegistrationOptions(CodeActionCapability capability, ClientCapabilities clientCapabilities) => new()
+        protected override CodeActionRegistrationOptions CreateRegistrationOptions(CodeActionCapability capability, LspClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = documentSelectorFactory.CreateForBicepAndParams(),
             CodeActionKinds = new Container<CodeActionKind>(CodeActionKind.QuickFix),

@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 
-namespace Bicep.LanguageServer.Deploy
+namespace Bicep.LanguageServer.Features.Custom.Deployments.Services
 {
     public class DeploymentOperationsCache : IDeploymentOperationsCache
     {

@@ -11,14 +11,14 @@ using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.IO.Abstraction;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Features.Custom.Telemetry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using SharpYaml;
 using SharpYaml.Model;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Custom.ImportKubernetesManifest
 {
     [Method("bicep/importKubernetesManifest", Direction.ClientToServer)]
     public record ImportKubernetesManifestRequest(string ManifestFilePath)

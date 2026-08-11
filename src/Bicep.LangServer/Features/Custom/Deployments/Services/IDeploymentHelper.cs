@@ -3,9 +3,9 @@
 
 using System.Text.Json;
 using Azure.ResourceManager;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Features.Custom.Deployments;
 
-namespace Bicep.LanguageServer.Deploy
+namespace Bicep.LanguageServer.Features.Custom.Deployments.Services
 {
     public interface IDeploymentHelper
     {

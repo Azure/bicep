@@ -4,7 +4,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.Logging;
@@ -12,8 +12,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using SymbolKind = OmniSharp.Extensions.LanguageServer.Protocol.Models.SymbolKind;
+using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
+using LspDocumentSymbol = OmniSharp.Extensions.LanguageServer.Protocol.Models.DocumentSymbol;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Language.DocumentSymbol
 {
     public class BicepDocumentSymbolHandler : DocumentSymbolHandlerBase
     {
@@ -51,9 +53,9 @@ namespace Bicep.LanguageServer.Handlers
                 .Select(symbol => new SymbolInformationOrDocumentSymbol(CreateDocumentSymbol(model, symbol, context.LineStarts)));
         }
 
-        private DocumentSymbol CreateDocumentSymbol(SemanticModel model, DeclaredSymbol symbol, ImmutableArray<int> lineStarts)
+        private LspDocumentSymbol CreateDocumentSymbol(SemanticModel model, DeclaredSymbol symbol, ImmutableArray<int> lineStarts)
         {
-            var children = Enumerable.Empty<DocumentSymbol>();
+            var children = Enumerable.Empty<LspDocumentSymbol>();
             if (symbol is ResourceSymbol resourceSymbol &&
                 resourceSymbol.DeclaringResource.TryGetBody() is ObjectSyntax body)
             {
@@ -63,12 +65,12 @@ namespace Bicep.LanguageServer.Handlers
                     .Select(s => CreateDocumentSymbol(model, s!, lineStarts));
             }
 
-            return new DocumentSymbol
+            return new LspDocumentSymbol
             {
                 Name = symbol.Name,
                 Kind = SelectSymbolKind(symbol),
                 Detail = FormatDetail(symbol),
-                Children = new Container<DocumentSymbol>(children),
+                Children = new Container<LspDocumentSymbol>(children),
                 Range = symbol.DeclaringSyntax.ToRange(lineStarts),
                 // use the name node span with fallback to entire declaration span
                 SelectionRange = symbol.NameSource.ToRange(lineStarts)
@@ -107,7 +109,7 @@ namespace Bicep.LanguageServer.Handlers
             _ => string.Empty,
         };
 
-        protected override DocumentSymbolRegistrationOptions CreateRegistrationOptions(DocumentSymbolCapability capability, ClientCapabilities clientCapabilities) => new()
+        protected override DocumentSymbolRegistrationOptions CreateRegistrationOptions(DocumentSymbolCapability capability, LspClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = documentSelectorFactory.CreateForBicepAndParams()
         };

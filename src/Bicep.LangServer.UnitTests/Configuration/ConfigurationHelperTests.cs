@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Configuration;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.FileSystem;
-using Bicep.LanguageServer.Configuration;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;

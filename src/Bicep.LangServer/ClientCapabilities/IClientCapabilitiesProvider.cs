@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.LanguageServer.Providers
+namespace Bicep.LanguageServer.ClientCapabilities
 {
     public interface IClientCapabilitiesProvider
     {

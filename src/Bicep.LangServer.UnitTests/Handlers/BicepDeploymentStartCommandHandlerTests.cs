@@ -8,10 +8,9 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Deploy;
-using Bicep.LanguageServer.Handlers;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Compilation;
+using Bicep.LanguageServer.Features.Custom.Deployments;
+using Bicep.LanguageServer.Features.Custom.Deployments.Services;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -101,7 +100,6 @@ using './main.bicep'
 param foo = 'something'
 param bar = '1'
             ";
-
             var expectedError = @"Error BCP033: Expected a value of type ""int"" but the provided value is of type ""'1'""";
 
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);

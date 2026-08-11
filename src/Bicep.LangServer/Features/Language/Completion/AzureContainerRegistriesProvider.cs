@@ -12,7 +12,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Tracing;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.LanguageServer.Providers
+namespace Bicep.LanguageServer.Features.Language.Completion
 {
     /// <summary>
     /// This provider fetches all the Azure Container Registries (ACR) names that the user has access to via Azure

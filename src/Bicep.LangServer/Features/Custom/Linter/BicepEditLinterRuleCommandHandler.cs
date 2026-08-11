@@ -3,9 +3,10 @@
 
 using Bicep.Core;
 using Bicep.Core.Configuration;
-using Bicep.LanguageServer.Configuration;
-using Bicep.LanguageServer.Providers;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.ClientCapabilities;
+using Bicep.LanguageServer.Features.Custom.Configuration;
+using Bicep.LanguageServer.Features.Custom.Telemetry;
+using Bicep.LanguageServer.Utils;
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -16,7 +17,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Custom.Linter
 {
     /// <summary>
     /// Handles the internal command for code actions to edit a particular linter rule in the bicepconfig.json file

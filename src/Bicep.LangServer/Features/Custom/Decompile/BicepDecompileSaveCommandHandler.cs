@@ -4,15 +4,15 @@
 using System.Diagnostics;
 using System.Text;
 using Bicep.Decompiler;
-using Bicep.LanguageServer.Providers;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.ClientCapabilities;
+using Bicep.LanguageServer.Features.Custom.Telemetry;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using Path = System.IO.Path;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Custom.Decompile
 {
     public record BicepDecompileSaveCommandParams(
         string decompileId,

@@ -4,13 +4,14 @@
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
-using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Compilation;
+using Bicep.LanguageServer.Features.Language.DocumentSymbol;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Features.Custom.Deployments
 {
     [Method("bicep/getDeploymentData", Direction.ClientToServer)]
     public record GetDeploymentDataRequest(TextDocumentIdentifier TextDocument)

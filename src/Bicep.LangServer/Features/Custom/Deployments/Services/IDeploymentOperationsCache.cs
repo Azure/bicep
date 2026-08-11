@@ -4,7 +4,7 @@
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 
-namespace Bicep.LanguageServer.Deploy
+namespace Bicep.LanguageServer.Features.Custom.Deployments.Services
 {
     public interface IDeploymentOperationsCache
     {

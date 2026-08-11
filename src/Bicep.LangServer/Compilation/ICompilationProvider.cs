@@ -3,10 +3,9 @@
 using System.Collections.Immutable;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
-using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 
-namespace Bicep.LanguageServer.Providers
+namespace Bicep.LanguageServer.Compilation
 {
     public interface ICompilationProvider
     {

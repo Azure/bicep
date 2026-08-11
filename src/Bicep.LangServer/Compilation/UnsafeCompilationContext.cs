@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using Bicep.Core.SourceGraph;
 
-namespace Bicep.LanguageServer.CompilationManager
+namespace Bicep.LanguageServer.Compilation
 {
     /// <summary>
     /// Represents a compilation context that failed to produce a compilation
