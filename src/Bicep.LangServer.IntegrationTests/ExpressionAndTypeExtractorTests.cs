@@ -2655,6 +2655,11 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                   managedByExtended: string[]
                   name: string
                   parent: object? /* Microsoft.Compute/virtualMachines */
+                  placement: {
+                    excludeZones: string[]
+                    includeZones: string[]
+                    zonePlacementPolicy: string /* 'Any' | 'Auto' | 'None' | 'NotSpecified' | string */
+                  }
                   plan: object
                   properties: {
                     autoUpgradeMinorVersion: bool?
