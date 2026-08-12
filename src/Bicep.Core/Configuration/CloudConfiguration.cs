@@ -28,7 +28,7 @@ namespace Bicep.Core.Configuration
 
     public record ManagedIdentity(ManagedIdentityType Type, string? ClientId, string? ResourceId);
 
-    public class CloudConfiguration : ConfigurationSection<Cloud>, IEquatable<CloudConfiguration>
+    public class CloudConfiguration : ConfigurationSection<Cloud>, IBicepCloudConfiguration, IEquatable<CloudConfiguration>
     {
         public CloudConfiguration(Cloud data, Uri resourceManagerEndpointUri, Uri activeDirectoryAuthorityUri)
             : base(data)
