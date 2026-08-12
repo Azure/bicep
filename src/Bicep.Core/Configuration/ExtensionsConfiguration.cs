@@ -26,7 +26,7 @@ public record ExtensionConfigEntry
         => Value;
 }
 
-public partial class ExtensionsConfiguration : ConfigurationSection<ImmutableDictionary<string, ExtensionConfigEntry>>
+public partial class ExtensionsConfiguration : ConfigurationSection<ImmutableDictionary<string, ExtensionConfigEntry>>, IBicepExtensionsConfiguration
 {
     private ExtensionsConfiguration(ImmutableDictionary<string, ExtensionConfigEntry> data) : base(data) { }
 
