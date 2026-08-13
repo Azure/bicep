@@ -19,18 +19,20 @@ import {
 import { LanguageClient } from "vscode-languageclient/node";
 import { BicepDecompileForPasteCommandParams, BicepDecompileForPasteCommandResult } from "../language";
 import { bicepConfigurationKeys, bicepLanguageId, bicepParamLanguageId } from "../language/constants";
-import { getBicepConfiguration } from "../language/getBicepConfiguration";
+import { Command } from "../infrastructure/commands";
+import { getBicepConfiguration } from "../infrastructure/configuration";
+import { findOrCreateActiveBicepFile } from "../infrastructure/editor";
+import { Disposable } from "../infrastructure/lifecycle";
+import {
+  callWithTelemetryAndErrorHandlingOnlyOnErrors,
+  getLogger,
+  OutputChannelManager,
+} from "../infrastructure/logging";
 import { areEqualIgnoringWhitespace } from "../utils/areEqualIgnoringWhitespace";
-import { Disposable } from "../utils/disposable";
 import { getTextAfterFormattingChanges } from "../utils/getTextAfterFormattingChanges";
 import { isEmptyOrWhitespace } from "../utils/isEmptyOrWhitespace";
-import { getLogger } from "../utils/logger";
-import { OutputChannelManager } from "../utils/OutputChannelManager";
-import { callWithTelemetryAndErrorHandlingOnlyOnErrors } from "../utils/telemetry";
 import { withProgressAfterDelay } from "../utils/withProgressAfterDelay";
-import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 import { SuppressedWarningsManager } from "./SuppressedWarningsManager";
-import { Command } from "./types";
 
 export class PasteAsBicepCommand implements Command {
   public readonly id = "bicep.pasteAsBicep";

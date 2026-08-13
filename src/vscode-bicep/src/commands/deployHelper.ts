@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { OutputChannelManager } from "../utils/OutputChannelManager";
+import { OutputChannelManager } from "../infrastructure/logging";
 
 let _outputChannelManager: OutputChannelManager;
 

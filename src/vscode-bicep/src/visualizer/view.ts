@@ -13,9 +13,9 @@ import {
   visualGraphUpdateRequestType,
   VisualGraphUpdateResult,
 } from "../language";
-import { Disposable } from "../utils/disposable";
-import { getLogger } from "../utils/logger";
-import { debounce } from "../utils/time";
+import { Disposable } from "../infrastructure/lifecycle";
+import { getLogger } from "../infrastructure/logging";
+import { debounce } from "../infrastructure/timing";
 
 export class BicepVisualizerView extends Disposable {
   public static viewType = "bicep.visualizer";

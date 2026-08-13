@@ -3,8 +3,8 @@
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import vscode from "vscode";
 import { BicepVisualizerViewManager } from "../visualizer";
-import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
-import { Command } from "./types";
+import { Command } from "../infrastructure/commands";
+import { findOrCreateActiveBicepFile } from "../infrastructure/editor";
 
 async function openView(
   context: IActionContext,

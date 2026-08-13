@@ -1,4 +1,5 @@
 .vscode/
+docs/
 node_modules/
 src/
 # links for the extension readme (https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-bicep)

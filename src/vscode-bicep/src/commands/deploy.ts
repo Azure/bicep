@@ -27,11 +27,11 @@ import {
 } from "../language";
 import { AzurePickers } from "../utils/AzurePickers";
 import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
-import { OutputChannelManager } from "../utils/OutputChannelManager";
-import { minutesToMs } from "../utils/time";
+import { Command } from "../infrastructure/commands";
+import { findOrCreateActiveBicepFile } from "../infrastructure/editor";
+import { OutputChannelManager } from "../infrastructure/logging";
+import { minutesToMs } from "../infrastructure/timing";
 import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
-import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
-import { Command } from "./types";
 
 export class DeployCommand implements Command {
   private _none = "$(circle-slash) None";

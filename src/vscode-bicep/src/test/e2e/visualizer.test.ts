@@ -4,8 +4,8 @@
 import fs from "fs";
 import path from "path";
 import vscode from "vscode";
-import { e2eLogName } from "../../utils/logger";
-import { sleep } from "../../utils/time";
+import { e2eLogName } from "../../infrastructure/logging";
+import { sleep } from "../../infrastructure/timing";
 import { expectDefined } from "../utils/assert";
 import { until } from "../utils/time";
 import {

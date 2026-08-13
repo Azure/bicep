@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 import vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
-import { Disposable } from "../utils/disposable";
+import { Disposable } from "../infrastructure/lifecycle";
 import { BicepVisualizerView } from "./view";
 
 export class BicepVisualizerViewManager extends Disposable implements vscode.WebviewPanelSerializer {

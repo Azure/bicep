@@ -5,7 +5,7 @@ import path from "path";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import vscode, { Uri } from "vscode";
 import { decodeExternalSourceUri } from "../language/decodeExternalSourceUri";
-import { Command } from "./types";
+import { Command } from "../infrastructure/commands";
 
 export class ShowModuleSourceFileCommand implements Command {
   public readonly id = "bicep.internal.showModuleSourceFile";

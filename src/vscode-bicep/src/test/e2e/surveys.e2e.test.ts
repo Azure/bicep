@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { Survey } from "../../feedback/surveys";
-import { createActionContextMock } from "../mocks/actionContextMock";
+import { Survey } from "../../features/surveys";
+import { createActionContextMock } from "../mocks/action-context-mock";
 
 describe("surveys-e2etests", () => {
   describe("getIsSurveyAvailable", () => {

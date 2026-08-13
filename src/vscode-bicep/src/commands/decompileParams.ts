@@ -6,8 +6,8 @@ import { IActionContext, IAzureQuickPickItem, UserCancelledError } from "@micros
 import * as fse from "fs-extra";
 import vscode, { MessageItem, Uri, window } from "vscode";
 import { DocumentUri, LanguageClient } from "vscode-languageclient/node";
-import { OutputChannelManager } from "../utils/OutputChannelManager";
-import { Command } from "./types";
+import { Command } from "../infrastructure/commands";
+import { OutputChannelManager } from "../infrastructure/logging";
 
 interface DecompileParamsCommandParams {
   jsonUri: DocumentUri;

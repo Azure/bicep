@@ -4,7 +4,7 @@ import { IActionContext } from "@microsoft/vscode-azext-utils";
 import vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { IAzureUiManager } from "../../azure/types";
-import { Disposable } from "../../utils/disposable";
+import { Disposable } from "../../infrastructure/lifecycle";
 import { DeployPaneView } from "./view";
 
 export class DeployPaneViewManager extends Disposable implements vscode.WebviewPanelSerializer {

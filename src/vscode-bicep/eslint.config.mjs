@@ -11,6 +11,8 @@ export default tseslint.config(
     {
         ignores: [
             "out/**/*",
+            ".vscode-test/**/*",
+            "coverage/**/*",
             "**/.eslintrc.cjs",
             "**/webpack.config.ts",
             "**/jest.config.*.js",
@@ -18,6 +20,13 @@ export default tseslint.config(
     },
     js.configs.recommended,
     ...tseslint.configs.recommended,
+    {
+        languageOptions: {
+            parserOptions: {
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+    },
     jest.configs["flat/recommended"],
     jest.configs["flat/style"],
     {

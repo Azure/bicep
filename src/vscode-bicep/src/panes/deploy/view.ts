@@ -10,9 +10,9 @@ import { LanguageClient } from "vscode-languageclient/node";
 import { IAzureUiManager } from "../../azure/types";
 import { GlobalStateKeys } from "../../globalState";
 import { getDeploymentDataRequestType, localDeployRequestType } from "../../language";
-import { Disposable } from "../../utils/disposable";
-import { getLogger } from "../../utils/logger";
-import { debounce } from "../../utils/time";
+import { Disposable } from "../../infrastructure/lifecycle";
+import { getLogger } from "../../infrastructure/logging";
+import { debounce } from "../../infrastructure/timing";
 import {
   createDeploymentDataMessage,
   createGetAccessTokenResultMessage,

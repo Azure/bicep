@@ -3,7 +3,7 @@
 
 import * as vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
-import { Disposable } from "../utils/disposable";
+import { Disposable } from "../infrastructure/lifecycle";
 import { decodeExternalSourceUri } from "./decodeExternalSourceUri";
 import { BicepExternalSourceParams, bicepExternalSourceRequestType } from "./protocol";
 
