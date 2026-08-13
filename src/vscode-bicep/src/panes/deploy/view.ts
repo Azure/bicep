@@ -9,7 +9,7 @@ import vscode, { ExtensionContext } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { IAzureUiManager } from "../../azure/types";
 import { GlobalStateKeys } from "../../globalState";
-import { getDeploymentDataRequestType, localDeployRequestType } from "../../language";
+import { getDeploymentDataRequestType, localDeployRequestType } from "../../features/deployments";
 import { Disposable } from "../../infrastructure/lifecycle";
 import { getLogger } from "../../infrastructure/logging";
 import { debounce } from "../../infrastructure/timing";

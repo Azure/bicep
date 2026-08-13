@@ -11,7 +11,7 @@ import {
   CreateBicepConfigParams,
   getRecommendedConfigLocationRequestType,
   GetRecommendedConfigLocationResult,
-} from "../../language/protocol";
+} from "./protocol";
 
 const bicepConfig = "bicepconfig.json";
 

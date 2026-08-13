@@ -13,7 +13,10 @@ import {
 } from "@microsoft/vscode-azext-utils";
 import * as fse from "fs-extra";
 import { TextDocument, TextEditor, Uri, window, workspace } from "vscode";
-import { bicepFileExtension, bicepLanguageId, bicepParamLanguageId } from "../../language/constants";
+
+export const bicepFileExtension = "bicep";
+export const bicepLanguageId = "bicep";
+export const bicepParamLanguageId = "bicep-params";
 
 type TargetFile =
   | "rightClickOrMenu"

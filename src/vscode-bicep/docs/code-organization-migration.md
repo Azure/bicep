@@ -2,16 +2,31 @@
 
 ## Status
 
-Proposed.
+In progress. PR 1 is complete; PR 2 is implemented and under validation.
+
+## Progress
+
+Last updated: August 12, 2026.
+
+| Phase                                                         | Status                  | Notes                                                                                                                                                                                                                                                                  |
+| ------------------------------------------------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PR 1: Conventions, infrastructure, and low-risk features      | Complete                | Established infrastructure domains, feature activation, co-located unit tests, and kebab-case naming for the first migration slice.                                                                                                                                    |
+| PR 2: Language workflows and protocol ownership               | Implementation complete | Decompile, paste-as-Bicep, external source, MCP, language client, constants, protocol contracts, and E2E ownership have moved. Lint, unit tests, product type checking, and E2E compilation pass. Production webpack and the E2E runtime suite remain to be validated. |
+| PR 3: Deployment, visualization, composition, and enforcement | Not started             | Deployment and visualization implementations intentionally remain in their legacy folders until this phase. PR 2 moved only their protocol contracts to establish feature ownership without combining the high-risk webview and Azure changes.                         |
+
+Deployment commands such as `src/commands/deploy.ts` remain under `commands` during PR 2 by
+design. PR 3 moves the deployment commands together with Azure integration, pane state, output
+policy, notification registration, and diagnostics routing to `features/deployments`; moving the
+command alone earlier would split one coupled review surface across PRs.
 
 ## Motivation
 
-The extension is currently organized primarily by implementation type. Commands are placed in
-`src/commands`, language client code is placed in `src/language`, webviews are split between
-`src/panes` and `src/visualizer`, and unrelated code accumulates in `src/utils`. A single user
-workflow therefore spans several top-level folders.
+Before this migration, the extension was organized primarily by implementation type. Commands were
+placed in `src/commands`, language client code was placed in `src/language`, webviews were split
+between `src/panes` and `src/visualizer`, and unrelated code accumulated in `src/utils`. A single
+user workflow therefore spanned several top-level folders.
 
-For example, deployment currently spans:
+For example, deployment initially spanned:
 
 - `src/commands/deploy.ts`
 - `src/commands/deployHelper.ts`
@@ -617,35 +632,38 @@ Exit criteria:
 Purpose: remove the generic language and utility buckets and establish feature-owned protocol
 contracts.
 
+Implementation status: complete. Validation status: lint, unit tests, product type checking, and
+E2E compilation pass; production webpack and the E2E runtime suite remain pending.
+
 Changes:
 
-1. Move decompile and its editor context handling to `features/decompile`.
-2. Make `paste-as-bicep` a top-level feature.
-3. Merge paste formatting functions and tests into cohesive modules.
-4. Move suppressed warning state and delayed progress behavior into the paste feature.
-5. Move external source content, URI decoding, command handling, and protocol to
-   `features/external-source`.
-6. Split `language/protocol.ts` among all owning features, including protocol destinations needed by
-   deployment and visualization in PR 3.
-7. Split `language/constants.ts` by ownership.
-8. Delete the broad `language/index.ts` and use narrow feature and infrastructure-domain barrels.
-9. Separate MCP provider ownership from language client startup.
-10. Reduce language client infrastructure to client-wide behavior only.
-11. Move `src/test/e2e` to top-level `e2e`, including its runner, environment, examples, and
-    E2E-only support code. Update TypeScript, Jest, package script, and VS Code task paths together.
-12. Apply kebab-case to every file moved in this PR.
+1. [x] Move decompile and its editor context handling to `features/decompile`.
+2. [x] Make `paste-as-bicep` a top-level feature.
+3. [x] Merge paste formatting functions and tests into cohesive modules.
+4. [x] Move suppressed warning state and delayed progress behavior into the paste feature.
+5. [x] Move external source content, URI decoding, command handling, and protocol to
+       `features/external-source`.
+6. [x] Split `language/protocol.ts` among all owning features, including protocol destinations needed by
+       deployment and visualization in PR 3.
+7. [x] Split `language/constants.ts` by ownership.
+8. [x] Delete the broad `language/index.ts` and use narrow feature and infrastructure-domain barrels.
+9. [x] Separate MCP provider ownership from language client startup.
+10. [x] Reduce language client infrastructure to client-wide behavior only.
+11. [x] Move `src/test/e2e` to top-level `e2e`, including its runner, environment, examples, and
+        E2E-only support code. Update TypeScript, Jest, package script, and VS Code task paths together.
+12. [x] Apply kebab-case to every file moved in this PR.
 
 Exit criteria:
 
-- `src/language/protocol.ts` and `src/language/index.ts` no longer exist.
-- E2E tests and their runner live under top-level `e2e`, beside `src`.
-- Language client infrastructure does not import any feature implementation except the temporary
-  deployment notification dependency scheduled for PR 3.
-- Paste formatting no longer exists under `utils`.
-- `npm run lint`
-- `npm run test:unit`
-- `npm run build:prod`
-- Decompile, paste-as-Bicep, and external-source E2E tests pass.
+- [x] `src/language/protocol.ts` and `src/language/index.ts` no longer exist.
+- [x] E2E tests and their runner live under top-level `e2e`, beside `src`.
+- [x] Language client infrastructure does not import any feature implementation except the temporary
+      deployment notification dependency scheduled for PR 3.
+- [x] Paste formatting no longer exists under `utils`.
+- [x] `npm run lint`
+- [x] `npm run test:unit`
+- [ ] `npm run build:prod` (TypeScript passes; webpack is blocked by `.mts` config loading under the current Node runtime.)
+- [ ] Decompile, paste-as-Bicep, and external-source E2E tests pass.
 
 ### PR 3: Deployment, visualization, composition, and enforcement
 

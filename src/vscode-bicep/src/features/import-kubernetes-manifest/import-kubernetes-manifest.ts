@@ -5,7 +5,7 @@ import { IActionContext, parseError } from "@microsoft/vscode-azext-utils";
 import vscode, { ViewColumn } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Command, CommandManager } from "../../infrastructure/commands";
-import { importKubernetesManifestRequestType } from "../../language/protocol";
+import { importKubernetesManifestRequestType } from "./protocol";
 
 export class ImportKubernetesManifestCommand implements Command {
   public readonly id = "bicep.importKubernetesManifest";

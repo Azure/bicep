@@ -38,7 +38,7 @@ export default tseslint.config(
 
         languageOptions: {
             parserOptions: {
-                project: true,
+                project: ["./tsconfig.json", "./tsconfig.e2e.json"],
             },
         },
 

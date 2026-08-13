@@ -5,47 +5,35 @@ import { registerAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-az
 import { registerUIExtensionVariables } from "@microsoft/vscode-azext-utils";
 import {
   ExtensionContext,
-  lm,
-  McpStdioServerDefinition,
   ProgressLocation,
-  TextDocument,
-  TextEditor,
   Uri,
   window,
-  workspace,
 } from "vscode";
 import * as lsp from "vscode-languageclient/node";
 import { AzureUiManager } from "./azure/AzureUiManager";
 import { CommandManager } from "./infrastructure/commands";
-import { DecompileCommand } from "./commands/decompile";
-import { DecompileParamsCommand } from "./commands/decompileParams";
 import { DeployCommand } from "./commands/deploy";
-import { PasteAsBicepCommand } from "./commands/pasteAsBicep";
 import { ShowDeployPaneCommand, ShowDeployPaneToSideCommand } from "./commands/showDeployPane";
-import { ShowModuleSourceFileCommand } from "./commands/ShowModuleSourceFileCommand";
 import { ShowSourceFromVisualizerCommand } from "./commands/showSourceFromVisualizer";
 import { ShowVisualizerCommand, ShowVisualizerToSideCommand } from "./commands/showVisualizer";
-import { SuppressedWarningsManager } from "./commands/SuppressedWarningsManager";
 import { activateBuildFeature } from "./features/build";
 import { activateConfigurationFeature } from "./features/configuration";
+import { activateDecompileFeature } from "./features/decompile";
+import { activateExternalSourceFeature } from "./features/external-source";
 import { activateImportKubernetesManifestFeature } from "./features/import-kubernetes-manifest";
 import { activateInsertResourceFeature } from "./features/insert-resource";
 import { activateModuleRestoreFeature } from "./features/module-restore";
+import { activateMcpFeature } from "./features/mcp";
 import { activateParametersFeature } from "./features/parameters";
+import { activatePasteAsBicepFeature } from "./features/paste-as-bicep";
 import { activateRefactoringFeature } from "./features/refactoring";
 import * as surveys from "./features/surveys";
 import { activateWalkthroughFeature } from "./features/walkthrough";
 import { setGlobalStateKeysToSyncBetweenMachines } from "./globalState";
-import {
-  BicepExternalSourceContentProvider,
-  createLanguageService,
-  ensureDotnetRuntimeInstalled,
-  ensureMcpServerExists,
-} from "./language";
-import { bicepConfigurationPrefix, bicepLanguageId } from "./language/constants";
-import { BicepExternalSourceScheme } from "./language/decodeExternalSourceUri";
+import { bicepConfigurationPrefix } from "./infrastructure/configuration";
+import { bicepLanguageId } from "./infrastructure/editor";
+import { createLanguageService, ensureDotnetRuntimeInstalled } from "./infrastructure/language-client";
 import { DeployPaneViewManager } from "./panes/deploy";
-import { updateUiContext } from "./updateUiContext";
 import { Disposable } from "./infrastructure/lifecycle";
 import {
   activateWithTelemetryAndErrorHandling,
@@ -101,16 +89,6 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
         languageClient = await createLanguageService(extensionContext, outputChannel, dotnetCommandPath);
 
         progress.report({ message: "Registering commands" });
-        // go2def links that point to the bicep cache will have the bicep-extsrc scheme in their document URIs
-        // this content provider will allow VS code to understand that scheme
-        // and surface the content as a read-only file
-        extension.register(
-          workspace.registerTextDocumentContentProvider(
-            BicepExternalSourceScheme,
-            new BicepExternalSourceContentProvider(languageClient),
-          ),
-        );
-
         setGlobalStateKeysToSyncBetweenMachines(extensionContext.globalState);
 
         // Show appropriate surveys
@@ -134,27 +112,16 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
           ),
         );
 
-        const suppressedWarningsManager = new SuppressedWarningsManager();
-
         // Register commands.
-        const pasteAsBicepCommand = new PasteAsBicepCommand(
-          languageClient,
-          outputChannelManager,
-          suppressedWarningsManager,
-        );
         const commandManager = extension.register(new CommandManager(extensionContext));
         await activateBuildFeature(commandManager, languageClient, outputChannelManager);
         await activateParametersFeature(commandManager, languageClient, outputChannelManager);
         await activateConfigurationFeature(commandManager, languageClient);
-        await commandManager.registerCommands(
-          new DeployCommand(languageClient, outputChannelManager, azurePickers),
-          new DecompileCommand(languageClient, outputChannelManager),
-          new DecompileParamsCommand(languageClient, outputChannelManager),
-        );
+        await commandManager.registerCommands(new DeployCommand(languageClient, outputChannelManager, azurePickers));
+        await activateDecompileFeature(extension, commandManager, languageClient, outputChannelManager);
         await activateModuleRestoreFeature(commandManager, languageClient, outputChannelManager);
         await activateInsertResourceFeature(commandManager, languageClient);
         await commandManager.registerCommands(
-          pasteAsBicepCommand,
           new ShowDeployPaneCommand(deployPaneViewManager),
           new ShowDeployPaneToSideCommand(deployPaneViewManager),
           new ShowVisualizerCommand(viewManager),
@@ -162,54 +129,16 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
           new ShowSourceFromVisualizerCommand(viewManager),
         );
         await activateWalkthroughFeature(commandManager);
+        await activatePasteAsBicepFeature(extension, commandManager, languageClient, outputChannelManager);
         await activateImportKubernetesManifestFeature(commandManager, languageClient);
-        await commandManager.registerCommands(new ShowModuleSourceFileCommand());
+        await activateExternalSourceFeature(extension, commandManager, languageClient);
         await activateRefactoringFeature(commandManager);
-
-        // Register events
-        pasteAsBicepCommand.registerForPasteEvents(extension);
-
-        extension.register(
-          window.onDidChangeActiveTextEditor(async (editor: TextEditor | undefined) => {
-            await updateUiContext(editor?.document);
-          }),
-        );
-
-        extension.register(
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          workspace.onDidCloseTextDocument(async (_d: TextDocument) => {
-            await updateUiContext(window.activeTextEditor?.document);
-          }),
-        );
-
-        extension.register(
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          workspace.onDidOpenTextDocument(async (_d: TextDocument) => {
-            await updateUiContext(window.activeTextEditor?.document);
-          }),
-        );
-
-        extension.register(
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          workspace.onDidSaveTextDocument(async (_d: TextDocument) => {
-            await updateUiContext(window.activeTextEditor?.document);
-          }),
-        );
 
         await languageClient.start();
         getLogger().info("Bicep language service started.");
 
-        extension.register(
-          lm.registerMcpServerDefinitionProvider("bicep", {
-            provideMcpServerDefinitions: async () => {
-              const mcpServerPath = await ensureMcpServerExists(extensionContext);
-              return [new McpStdioServerDefinition("Bicep", dotnetCommandPath, [mcpServerPath])];
-            },
-          }),
-        );
+        activateMcpFeature(extension, extensionContext, dotnetCommandPath);
 
-        // Set initial UI context
-        await updateUiContext(window.activeTextEditor?.document);
       },
     );
   });

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 module.exports = {
   testMatch: ["<rootDir>/src/**/*.test.ts"],
-  testPathIgnorePatterns: ["<rootDir>/src/test/e2e/"],
   transform: {
     "^.+\\.tsx?$": "ts-jest",
   },
