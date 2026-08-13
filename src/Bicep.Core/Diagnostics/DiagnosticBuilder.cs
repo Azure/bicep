@@ -2072,6 +2072,18 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic ImportedSymbolDependsOnDeploymentContextFunctions(string symbolName, IEnumerable<string> functionNames) => CoreError(
                 "BCP452",
                 @$"The imported symbol ""{symbolName}"" cannot be used in a {LanguageConstants.ParamsFileExtension} file because it depends on deployment-context functions: {ToQuotedString(functionNames)}. Imported declarations may only use functions that can be evaluated while building the parameters file.");
+
+            public Diagnostic BicepConfigExtendsAbsolutePath(IOUri configFileUri) => CoreError(
+                "BCP453",
+                $"The \"extends\" value in the Bicep configuration file \"{configFileUri}\" must be a relative path. Absolute paths are not allowed.");
+
+            public Diagnostic BicepConfigExtendsCycle(IOUri configFileUri, string cycle) => CoreError(
+                "BCP454",
+                $"A cycle was detected in the Bicep configuration \"extends\" chain starting from \"{configFileUri}\": {cycle}.");
+
+            public Diagnostic BicepConfigExtendsChainTooDeep(IOUri configFileUri) => CoreError(
+                "BCP455",
+                $"The Bicep configuration \"extends\" chain starting from \"{configFileUri}\" exceeds the maximum allowed depth of 64.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
