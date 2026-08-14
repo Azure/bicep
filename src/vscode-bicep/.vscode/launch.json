@@ -58,7 +58,7 @@
       "args": [
         "--enable-proposed-api=ms-azuretools.vscode-bicep",
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/out/e2e/index"
+        "--extensionTestsPath=${workspaceFolder}/out/test-e2e/index"
       ],
       "preLaunchTask": "build:e2e",
       "env": {
@@ -73,7 +73,7 @@
       "args": [
         "--enable-proposed-api=ms-azuretools.vscode-bicep",
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/out/e2e/index"
+        "--extensionTestsPath=${workspaceFolder}/out/test-e2e/index"
       ],
       "preLaunchTask": "build:e2e:dev",
       "env": {

@@ -4,7 +4,7 @@ import { readFileSync } from "fs";
 import * as path from "path";
 
 // Cannot use __dirname because the .bicep files won't be copied to /out.
-const examplesRoot = path.resolve(__dirname, "../../../e2e/examples");
+const examplesRoot = path.resolve(__dirname, "../../../test-e2e/examples");
 
 export function resolveExamplePath(exampleCategory: string, exampleFolder: string, exampleFile = "main.bicep"): string {
   return path.resolve(examplesRoot, exampleCategory, exampleFolder, exampleFile);

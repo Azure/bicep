@@ -4,5 +4,5 @@
   "compilerOptions": {
     "rootDir": "."
   },
-  "include": ["e2e"]
+  "include": ["test-e2e"]
 }

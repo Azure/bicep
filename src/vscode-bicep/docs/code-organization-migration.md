@@ -168,7 +168,7 @@ features/paste-as-bicep/
 ```
 
 E2E tests exercise the assembled extension rather than a single source module, so their final home
-is a top-level `e2e` directory beside `src`. The E2E runner, environment, examples, and E2E-only
+is a top-level `test-e2e` directory beside `src`. The E2E runner, environment, examples, and E2E-only
 support code move with them. This physical move is deferred to PR 2; PR 1 only normalizes their file
 names to kebab-case.
 
@@ -320,7 +320,7 @@ src/
     walkthrough/
       commands.ts
 
-e2e/
+test-e2e/
   examples/
   support/
   commands.ts
@@ -649,14 +649,14 @@ Changes:
 8. [x] Delete the broad `language/index.ts` and use narrow feature and infrastructure-domain barrels.
 9. [x] Separate MCP provider ownership from language client startup.
 10. [x] Reduce language client infrastructure to client-wide behavior only.
-11. [x] Move `src/test/e2e` to top-level `e2e`, including its runner, environment, examples, and
+11. [x] Move `src/test/e2e` to top-level `test-e2e`, including its runner, environment, examples, and
         E2E-only support code. Update TypeScript, Jest, package script, and VS Code task paths together.
 12. [x] Apply kebab-case to every file moved in this PR.
 
 Exit criteria:
 
 - [x] `src/language/protocol.ts` and `src/language/index.ts` no longer exist.
-- [x] E2E tests and their runner live under top-level `e2e`, beside `src`.
+- [x] E2E tests and their runner live under top-level `test-e2e`, beside `src`.
 - [x] Language client infrastructure does not import any feature implementation except the temporary
       deployment notification dependency scheduled for PR 3.
 - [x] Paste formatting no longer exists under `utils`.
@@ -794,7 +794,7 @@ order:
 
 - [ ] All production TypeScript files use kebab-case.
 - [ ] All feature unit tests are co-located.
-- [ ] E2E tests and their runner live under top-level `e2e`, beside `src`.
+- [ ] E2E tests and their runner live under top-level `test-e2e`, beside `src`.
 - [ ] E2E tests remain isolated from unit Jest discovery.
 - [ ] `IAzureUIManager` uses the required acronym casing.
 - [ ] Deployment scope types are no longer in a generic Azure type bucket.
