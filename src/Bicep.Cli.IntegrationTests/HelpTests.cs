@@ -25,6 +25,7 @@ namespace Bicep.Cli.IntegrationTests
                     "build-params",
                     "decompile",
                     "decompile-params",
+                    "docs",
                     "format",
                     "generate-params",
                     "lint",
@@ -34,6 +35,45 @@ namespace Bicep.Cli.IntegrationTests
                     "--version",
                     "--license",
                     "--third-party-notices");
+            }
+        }
+
+        [TestMethod]
+        public async Task Docs_Help_ShouldSucceed_WithExpectedOutput()
+        {
+            var (groupOutput, groupError, groupResult) = await Bicep("docs", "--help");
+            var (generateOutput, generateError, generateResult) = await Bicep("docs", "generate", "--help");
+            var (outputOutput, outputError, outputResult) = await Bicep("docs", "output", "--help");
+
+            using (new AssertionScope())
+            {
+                groupResult.Should().Be(0);
+                groupError.Should().BeEmpty();
+                groupOutput.Should().ContainAll("docs", "generate", "output");
+
+                generateResult.Should().Be(0);
+                generateError.Should().BeEmpty();
+                generateOutput.Should().ContainAll(
+                    "--preset",
+                    "--template-file",
+                    "--template-root",
+                    "--set",
+                    "--output-file",
+                    "--pattern",
+                    "--no-restore",
+                    "--diagnostics-format");
+
+                outputResult.Should().Be(0);
+                outputError.Should().BeEmpty();
+                outputOutput.Should().ContainAll(
+                    "--preset",
+                    "--template-file",
+                    "--template-root",
+                    "--set",
+                    "--no-restore",
+                    "--diagnostics-format");
+                outputOutput.Should().NotContain("--pattern");
+                outputOutput.Should().NotContain("--output-file");
             }
         }
 

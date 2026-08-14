@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Configuration\bicepconfig.json" WithCulture="false" />
+    <EmbeddedResource Include="Documentation\Templates\Markdown.scriban" WithCulture="false" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,6 +52,7 @@
     <PackageReference Include="Microsoft.Extensions.Http" />
     <PackageReference Include="Microsoft.VisualStudio.Threading" />
     <PackageReference Include="OrasProject.Oras" />
+    <PackageReference Include="Scriban" />
   </ItemGroup>
 
   <ItemGroup>

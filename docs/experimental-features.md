@@ -34,6 +34,10 @@ extension az with {
 
 Enables `deploy`, `what-if` and `teardown` command groups, as well as the `with` syntax in a `.bicepparam` file. For more information, see [Using the Deploy Commands](./experimental/deploy-commands.md).
 
+### `docsGeneration`
+
+Enables the `bicep docs generate` and `bicep docs output` commands for generating module documentation.
+
 ### `legacyFormatter`
 
 Enables code formatting with the legacy formatter. This feature flag is introduced to ensure a safer transition to the v2 formatter that implements a pretty-printing algorithm. It is intended for temporary use and will be phased out soon.

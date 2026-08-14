@@ -126,6 +126,62 @@ public class BicepClientUnitTests
     }
 
     [TestMethod]
+    public async Task GenerateDocs_forwards_request_to_the_expected_method()
+    {
+        var rpc = new FakeJsonRpcClient();
+        rpc.SetResponse("bicep/version", new VersionResponse("0.46.0"));
+        rpc.SetResponse("bicep/generateDocs", new GenerateDocsResponse([]));
+        using var client = new BicepClient(rpc);
+
+        var result = await client.GenerateDocs(
+            new(["main.bicep"], null, null, null, null, null, NoRestore: false),
+            Token);
+
+        result.Results.Should().BeEmpty();
+        rpc.CallCount("bicep/generateDocs").Should().Be(1);
+    }
+
+    [TestMethod]
+    public async Task OutputDocs_forwards_request_to_the_expected_method()
+    {
+        var rpc = new FakeJsonRpcClient();
+        rpc.SetResponse("bicep/version", new VersionResponse("0.46.0"));
+        rpc.SetResponse(
+            "bicep/outputDocs",
+            new OutputDocsResponse(new("main.bicep", null, true, [], "# Module\n")));
+        using var client = new BicepClient(rpc);
+
+        var result = await client.OutputDocs(
+            new("main.bicep", null, null, null, null, NoRestore: false),
+            Token);
+
+        result.Result.Contents.Should().Be("# Module\n");
+        rpc.CallCount("bicep/outputDocs").Should().Be(1);
+    }
+
+    [TestMethod]
+    public async Task Docs_methods_throw_when_cli_version_is_below_minimum()
+    {
+        var rpc = new FakeJsonRpcClient();
+        rpc.SetResponse("bicep/version", new VersionResponse("0.45.0"));
+        using var client = new BicepClient(rpc);
+
+        await FluentActions.Invoking(() => client.GenerateDocs(
+                new(["main.bicep"], null, null, null, null, null, NoRestore: false),
+                Token))
+            .Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*requires Bicep CLI version '0.46.0' or later*");
+        await FluentActions.Invoking(() => client.OutputDocs(
+                new("main.bicep", null, null, null, null, NoRestore: false),
+                Token))
+            .Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*requires Bicep CLI version '0.46.0' or later*");
+
+        rpc.CallCount("bicep/generateDocs").Should().Be(0);
+        rpc.CallCount("bicep/outputDocs").Should().Be(0);
+    }
+
+    [TestMethod]
     public void Dispose_disposes_the_underlying_rpc_client()
     {
         var rpc = new FakeJsonRpcClient();

@@ -27,7 +27,8 @@ public record FeatureProviderOverrides(
     bool? DeployCommandsEnabled = default,
     bool? PatchEnabled = default,
     bool? RuntimeValuesInTagsAndSkuEnabled = default,
-    bool? AzExtensionConfigEnabled = default)
+    bool? AzExtensionConfigEnabled = default,
+    bool? DocsGenerationEnabled = default)
 {
     public FeatureProviderOverrides(
         TestContext testContext,
@@ -49,7 +50,8 @@ public record FeatureProviderOverrides(
         bool? DeployCommandsEnabled = default,
         bool? PatchEnabled = default,
         bool? RuntimeValuesInTagsAndSkuEnabled = default,
-        bool? AzExtensionConfigEnabled = default) : this(
+        bool? AzExtensionConfigEnabled = default,
+        bool? DocsGenerationEnabled = default) : this(
             FileHelper.GetCacheRootDirectory(testContext),
             RegistryEnabled,
             OciEnabled,
@@ -69,7 +71,7 @@ public record FeatureProviderOverrides(
             DeployCommandsEnabled,
             PatchEnabled,
             RuntimeValuesInTagsAndSkuEnabled,
-            AzExtensionConfigEnabled)
+            AzExtensionConfigEnabled,
+            DocsGenerationEnabled)
     { }
 }
-

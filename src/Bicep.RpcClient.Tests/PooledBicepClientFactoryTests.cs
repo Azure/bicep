@@ -283,6 +283,29 @@ public class PooledBicepClientFactoryTests
         wrapper.Dispose();
     }
 
+    [TestMethod]
+    public async Task Docs_requests_are_forwarded_through_the_pool()
+    {
+        var inner = new FakeBicepClientFactory();
+        using var factory = CreatePooledFactory(inner);
+        var wrapper = await factory.Initialize(new BicepClientConfiguration(), Token);
+
+        var docsClient = (IBicepDocumentationClient)wrapper;
+        var generated = await docsClient.GenerateDocs(
+            new(["main.bicep"], null, null, null, null, null, NoRestore: false),
+            Token);
+        var output = await docsClient.OutputDocs(
+            new("main.bicep", null, null, null, null, NoRestore: false),
+            Token);
+
+        generated.Results.Should().BeEmpty();
+        output.Result.Success.Should().BeTrue();
+        output.Result.Contents.Should().Be("# Module\n");
+        inner.CreatedClients.Single().DocsRequestCount.Should().Be(2);
+
+        wrapper.Dispose();
+    }
+
     private CancellationToken Token => TestContext.CancellationTokenSource.Token;
 
     private static PooledBicepClientFactory CreatePooledFactory(FakeBicepClientFactory inner, TimeSpan? inactivityInterval = null, TimeSpan? pollInterval = null)
@@ -339,13 +362,16 @@ public class PooledBicepClientFactoryTests
             => throw new NotSupportedException();
     }
 
-    private sealed class FakeBicepClient(Func<CancellationToken, Task>? onRequest = null) : IBicepClient
+    private sealed class FakeBicepClient(Func<CancellationToken, Task>? onRequest = null) : IBicepClient, IBicepDocumentationClient
     {
         public const string Version = "1.2.3";
 
         private int disposeCount;
+        private int docsRequestCount;
 
         public bool IsDisposed => Volatile.Read(ref disposeCount) > 0;
+
+        public int DocsRequestCount => Volatile.Read(ref docsRequestCount);
 
         public async Task<string> GetVersion(CancellationToken cancellationToken = default)
         {
@@ -365,6 +391,18 @@ public class PooledBicepClientFactoryTests
 
         public Task<FormatResponse> Format(FormatRequest request, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
+
+        public Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken = default)
+        {
+            Interlocked.Increment(ref docsRequestCount);
+            return Task.FromResult(new GenerateDocsResponse([]));
+        }
+
+        public Task<OutputDocsResponse> OutputDocs(OutputDocsRequest request, CancellationToken cancellationToken = default)
+        {
+            Interlocked.Increment(ref docsRequestCount);
+            return Task.FromResult(new OutputDocsResponse(new(request.Path, null, true, [], "# Module\n")));
+        }
 
         public Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();

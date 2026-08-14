@@ -158,6 +158,7 @@ namespace Bicep.Cli
             rootCommand.Add(WhatIfCommand.CreateCommand(context));
             rootCommand.Add(TeardownCommand.CreateCommand(context));
             rootCommand.Add(ConsoleCommand.CreateCommand(context));
+            rootCommand.Add(DocsCommand.CreateCommand(context));
 
             return rootCommand;
         }
@@ -205,6 +206,8 @@ namespace Bicep.Cli
                 .AddSingleton<InputOutputArgumentsResolver>()
                 .AddSingleton<DiagnosticLogger>()
                 .AddSingleton<OutputWriter>()
+                .AddSingleton<DocsCommandRunner>()
+                .AddSingleton<DocsModuleScanner>()
                 .AddSingleton<PlaceholderParametersWriter>()
                 .AddSingleton(io)
                 .AddSingleton<ReplEnvironment>()

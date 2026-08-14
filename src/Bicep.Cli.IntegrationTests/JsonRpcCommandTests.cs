@@ -8,14 +8,19 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Bicep.Cli.Rpc;
 using Bicep.Core.Json;
+using Bicep.Core.Exceptions;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
+using Moq;
 using StreamJsonRpc;
 
 namespace Bicep.Cli.IntegrationTests;
@@ -150,6 +155,260 @@ output bar string = foo
                 response.Exports.Should().Equal([
                     new(new(new(11, 0), new(15, 1)), "asdf", "TypeAlias", "asdf type"),
                 ]);
+            });
+    }
+
+    [TestMethod]
+    public async Task OutputDocs_returns_rendered_documentation()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/main.bicep"] = """
+                metadata name = 'RPC Module'
+                metadata description = 'Rendered through JSON-RPC.'
+
+                @description('Example value.')
+                param value string = 'default'
+                """,
+        });
+
+        await RunServerTest(
+            services => services
+                .WithFileSystem(fileSystem)
+                .WithFeatureOverrides(new(DocsGenerationEnabled: true)),
+            async (client, token) =>
+            {
+                var response = await client.OutputDocs(
+                    new("/main.bicep", null, null, null, null, NoRestore: false),
+                    token);
+
+                response.Result.Success.Should().BeTrue();
+                response.Result.Path.Should().Be(fileSystem.Path.GetFullPath("/main.bicep"));
+                response.Result.OutputPath.Should().BeNull();
+                response.Result.Diagnostics.Should().ContainSingle(diagnostic =>
+                    diagnostic.Level == "Warning" &&
+                    diagnostic.Code == "no-unused-params");
+                response.Result.Contents.Should().ContainAll("# RPC Module", "Rendered through JSON-RPC.", "`value`");
+                fileSystem.File.Exists("/README.md").Should().BeFalse();
+            });
+    }
+
+    [TestMethod]
+    public async Task OutputDocs_custom_template_supports_includes_and_custom_values()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/main.bicep"] = "metadata name = 'RPC Module'",
+            ["/template.scriban"] = "{{ include \"_header.md\" }} {{ module.name }} {{ custom.owner }}",
+            ["/_header.md"] = "Header",
+        });
+
+        await RunServerTest(
+            services => services
+                .WithFileSystem(fileSystem)
+                .WithFeatureOverrides(new(DocsGenerationEnabled: true)),
+            async (client, token) =>
+            {
+                var response = await client.OutputDocs(
+                    new(
+                        "/main.bicep",
+                        "markdown",
+                        "/template.scriban",
+                        "/",
+                        new() { ["owner"] = "Platform" },
+                        NoRestore: true),
+                    token);
+
+                response.Result.Success.Should().BeTrue();
+                response.Result.Contents.Should().Be("Header RPC Module Platform\n");
+            });
+    }
+
+    [TestMethod]
+    public async Task GenerateDocs_writes_successful_modules_and_continues_failures()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/valid/main.bicep"] = "metadata name = 'Valid'",
+            ["/invalid/main.bicep"] = "param value invalidType",
+        });
+
+        await RunServerTest(
+            services => services
+                .WithFileSystem(fileSystem)
+                .WithFeatureOverrides(new(DocsGenerationEnabled: true)),
+            async (client, token) =>
+            {
+                var response = await client.GenerateDocs(
+                    new(
+                        ["/valid/main.bicep", "/invalid/main.bicep"],
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        NoRestore: false),
+                    token);
+
+                response.Results.Should().HaveCount(2);
+                response.Results[0].Success.Should().BeTrue();
+                response.Results[0].OutputPath.Should().Be(fileSystem.Path.GetFullPath("/valid/README.md"));
+                response.Results[0].Contents.Should().Be(fileSystem.File.ReadAllText("/valid/README.md"));
+                response.Results[1].Success.Should().BeFalse();
+                response.Results[1].Contents.Should().BeNull();
+                response.Results[1].Diagnostics.Should().Contain(diagnostic => diagnostic.Level == "Error");
+                fileSystem.File.Exists("/invalid/README.md").Should().BeFalse();
+            });
+    }
+
+    [TestMethod]
+    public async Task Docs_methods_return_structured_failures()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/main.bicep"] = "metadata name = 'Disabled'",
+            ["/main.txt"] = "not bicep",
+            ["/invalid.scriban"] = "{{ if module.name }}",
+            ["/a.bicep"] = "metadata name = 'A'",
+            ["/b.bicep"] = "metadata name = 'B'",
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var disabled = await client.OutputDocs(
+                    new("/main.bicep", null, null, null, null, NoRestore: false),
+                    token);
+                disabled.Result.Success.Should().BeFalse();
+                disabled.Result.Diagnostics.Should().ContainSingle(diagnostic =>
+                    diagnostic.Code == "DOCS001" &&
+                    diagnostic.Message.Contains("DocsGeneration"));
+            });
+
+        await RunServerTest(
+            services => services
+                .WithFileSystem(fileSystem)
+                .WithFeatureOverrides(new(DocsGenerationEnabled: true)),
+            async (client, token) =>
+            {
+                var invalidPreset = await client.OutputDocs(
+                    new("/main.bicep", "html", null, null, null, NoRestore: false),
+                    token);
+                invalidPreset.Result.Success.Should().BeFalse();
+                invalidPreset.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
+
+                var invalidExtension = await client.OutputDocs(
+                    new("/main.txt", null, null, null, null, NoRestore: false),
+                    token);
+                invalidExtension.Result.Success.Should().BeFalse();
+                invalidExtension.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
+
+                var missingPath = await client.OutputDocs(
+                    new("/missing", null, null, null, null, NoRestore: false),
+                    token);
+                missingPath.Result.Success.Should().BeFalse();
+                missingPath.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
+
+                var invalidTemplate = await client.OutputDocs(
+                    new("/main.bicep", null, "/invalid.scriban", null, null, NoRestore: false),
+                    token);
+                invalidTemplate.Result.Success.Should().BeFalse();
+                invalidTemplate.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS003");
+
+                var invalidOutput = await client.GenerateDocs(
+                    new(["/main.bicep"], null, null, null, null, "nested/README.md", NoRestore: false),
+                    token);
+                invalidOutput.Results.Should().ContainSingle();
+                invalidOutput.Results[0].Success.Should().BeFalse();
+                invalidOutput.Results[0].Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
+
+                var inputOverwrite = await client.GenerateDocs(
+                    new(["/main.bicep"], null, null, null, null, "main.bicep", NoRestore: false),
+                    token);
+                inputOverwrite.Results.Should().ContainSingle();
+                inputOverwrite.Results[0].Success.Should().BeFalse();
+
+                var outputCollision = await client.GenerateDocs(
+                    new(["/missing", "/a.bicep", "/b.bicep"], null, null, null, null, null, NoRestore: false),
+                    token);
+                outputCollision.Results.Should().HaveCount(3);
+                outputCollision.Results.Should().OnlyContain(result => !result.Success);
+
+                var mixedResult = await client.GenerateDocs(
+                    new(["/missing", "/main.bicep"], null, null, null, null, "MIXED.md", NoRestore: false),
+                    token);
+                mixedResult.Results.Should().HaveCount(2);
+                mixedResult.Results[0].Success.Should().BeFalse();
+                mixedResult.Results[1].Success.Should().BeTrue();
+            });
+    }
+
+    [TestMethod]
+    public async Task GenerateDocs_returns_structured_write_failures()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [
+                new("main.bicep", "metadata name = 'Example'"),
+                new("README.md", "preserve me"),
+            ]);
+        var outputFile = Path.Combine(root, "README.md");
+        await using var lockStream = new FileStream(outputFile, FileMode.Open, FileAccess.Read, FileShare.None);
+
+        await RunServerTest(
+            services => services.WithFeatureOverrides(new(DocsGenerationEnabled: true)),
+            async (client, token) =>
+            {
+                var response = await client.GenerateDocs(
+                    new([Path.Combine(root, "main.bicep")], null, null, null, null, null, NoRestore: false),
+                    token);
+
+                response.Results.Should().ContainSingle();
+                response.Results[0].Success.Should().BeFalse();
+                response.Results[0].Diagnostics.Should().ContainSingle(diagnostic =>
+                    diagnostic.Code == "DOCS002");
+            });
+
+        await lockStream.DisposeAsync();
+        File.ReadAllText(outputFile).Should().Be("preserve me");
+        Directory.EnumerateFiles(root, "*.tmp").Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public async Task OutputDocs_returns_structured_compilation_exceptions()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/main.bicep"] = "metadata name = 'Example'",
+        });
+        var innerExplorer = new FileSystemFileExplorer(fileSystem);
+        var mainFile = IOUri.FromFilePath(fileSystem.Path.GetFullPath("/main.bicep"));
+        var explorer = new Mock<IFileExplorer>(MockBehavior.Strict);
+        explorer
+            .Setup(fileExplorer => fileExplorer.GetDirectory(It.IsAny<IOUri>()))
+            .Returns((IOUri uri) => innerExplorer.GetDirectory(uri));
+        explorer
+            .Setup(fileExplorer => fileExplorer.GetFile(It.IsAny<IOUri>()))
+            .Returns((IOUri uri) => uri.Equals(mainFile)
+                ? throw new BicepException("compilation failed")
+                : innerExplorer.GetFile(uri));
+
+        await RunServerTest(
+            services => services
+                .WithFileSystem(fileSystem)
+                .WithFileExplorer(explorer.Object)
+                .WithFeatureOverrides(new(DocsGenerationEnabled: true)),
+            async (client, token) =>
+            {
+                var response = await client.OutputDocs(
+                    new("/main.bicep", null, null, null, null, NoRestore: false),
+                    token);
+
+                response.Result.Success.Should().BeFalse();
+                response.Result.Diagnostics.Should().ContainSingle(diagnostic =>
+                    diagnostic.Code == "DOCS001" &&
+                    diagnostic.Message == "compilation failed");
             });
     }
 

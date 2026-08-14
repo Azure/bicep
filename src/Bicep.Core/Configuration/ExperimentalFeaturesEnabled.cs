@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Json;
@@ -9,6 +10,7 @@ using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Configuration;
 
+[method: JsonConstructor]
 public record ExperimentalFeaturesEnabled(
     bool OciEnabled,
     bool SymbolicNameCodegen,
@@ -25,8 +27,47 @@ public record ExperimentalFeaturesEnabled(
     bool DeployCommands,
     bool Patch,
     bool RuntimeValuesInTagsAndSku,
-    bool AzExtensionConfig)
+    bool AzExtensionConfig,
+    bool DocsGeneration)
 {
+    public ExperimentalFeaturesEnabled(
+        bool OciEnabled,
+        bool SymbolicNameCodegen,
+        bool ResourceTypedParamsAndOutputs,
+        bool SourceMapping,
+        bool LegacyFormatter,
+        bool TestFramework,
+        bool Assertions,
+        bool WaitUntil,
+        bool LocalDeploy,
+        bool ResourceInfoCodegen,
+        bool ModuleExtensionConfigs,
+        bool UserDefinedConstraints,
+        bool DeployCommands,
+        bool Patch,
+        bool RuntimeValuesInTagsAndSku,
+        bool AzExtensionConfig)
+        : this(
+            OciEnabled,
+            SymbolicNameCodegen,
+            ResourceTypedParamsAndOutputs,
+            SourceMapping,
+            LegacyFormatter,
+            TestFramework,
+            Assertions,
+            WaitUntil,
+            LocalDeploy,
+            ResourceInfoCodegen,
+            ModuleExtensionConfigs,
+            UserDefinedConstraints,
+            DeployCommands,
+            Patch,
+            RuntimeValuesInTagsAndSku,
+            AzExtensionConfig,
+            DocsGeneration: false)
+    {
+    }
+
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();
 
@@ -48,5 +89,6 @@ public record ExperimentalFeaturesEnabled(
         DeployCommands: false,
         Patch: false,
         RuntimeValuesInTagsAndSku: false,
-        AzExtensionConfig: false);
+        AzExtensionConfig: false,
+        DocsGeneration: false);
 }
