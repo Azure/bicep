@@ -26,7 +26,7 @@ public class JsonRpcCommand(
     IEnvironment environment,
     IBicepDocumentationGenerator documentationGenerator,
     DocsModuleScanner docsModuleScanner,
-    OutputWriter writer) : ICommand
+    IDocsFileWriter writer) : ICommand
 {
     public async Task<int> RunAsync(JsonRpcArguments args, CancellationToken cancellationToken)
     {

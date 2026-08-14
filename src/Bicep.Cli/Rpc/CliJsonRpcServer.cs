@@ -33,7 +33,7 @@ public class CliJsonRpcServer(
     IEnvironment environment,
     IBicepDocumentationGenerator documentationGenerator,
     DocsModuleScanner docsModuleScanner,
-    OutputWriter writer) : ICliJsonRpcProtocol
+    IDocsFileWriter writer) : ICliJsonRpcProtocol
 {
     public static IJsonRpcMessageHandler CreateMessageHandler(Stream inputStream, Stream outputStream)
     {
@@ -345,7 +345,7 @@ public class CliJsonRpcServer(
 
             try
             {
-                await writer.WriteToFileAtomicallyAsync(target.OutputUri, result.Contents, cancellationToken);
+                await writer.WriteAsync(target.OutputUri, result.Contents, cancellationToken);
                 results.Add(result with { OutputPath = target.OutputUri.GetFilePath() });
             }
             catch (BicepException exception)

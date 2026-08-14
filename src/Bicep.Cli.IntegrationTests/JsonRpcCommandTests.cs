@@ -7,6 +7,7 @@ using System.IO.Pipes;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Bicep.Cli.Rpc;
+using Bicep.Cli.Services;
 using Bicep.Core.Json;
 using Bicep.Core.Exceptions;
 using Bicep.Core.UnitTests;
@@ -354,10 +355,18 @@ output bar string = foo
                 new("README.md", "preserve me"),
             ]);
         var outputFile = Path.Combine(root, "README.md");
-        await using var lockStream = new FileStream(outputFile, FileMode.Open, FileAccess.Read, FileShare.None);
+        var writer = new Mock<IDocsFileWriter>(MockBehavior.Strict);
+        writer
+            .Setup(fileWriter => fileWriter.WriteAsync(
+                It.IsAny<IOUri>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new BicepException("write failed"));
 
         await RunServerTest(
-            services => services.WithFeatureOverrides(new(DocsGenerationEnabled: true)),
+            services => services
+                .WithFeatureOverrides(new(DocsGenerationEnabled: true))
+                .AddSingleton(writer.Object),
             async (client, token) =>
             {
                 var response = await client.GenerateDocs(
@@ -367,12 +376,11 @@ output bar string = foo
                 response.Results.Should().ContainSingle();
                 response.Results[0].Success.Should().BeFalse();
                 response.Results[0].Diagnostics.Should().ContainSingle(diagnostic =>
-                    diagnostic.Code == "DOCS002");
+                    diagnostic.Code == "DOCS002" &&
+                    diagnostic.Message == "write failed");
             });
 
-        await lockStream.DisposeAsync();
         File.ReadAllText(outputFile).Should().Be("preserve me");
-        Directory.EnumerateFiles(root, "*.tmp").Should().BeEmpty();
     }
 
     [TestMethod]

@@ -11,8 +11,10 @@ using Bicep.Core.Exceptions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -163,21 +165,27 @@ public class DocsCommandTests : TestBase
             TestContext,
             [
                 new("main.bicep", "metadata name = 'Example'"),
-                new("README.md", "locked"),
+                new("README.md", "preserve me"),
             ]);
-        await using var lockStream = new FileStream(
-            Path.Combine(root, "README.md"),
-            FileMode.Open,
-            FileAccess.Read,
-            FileShare.None);
+        var writer = new Mock<IDocsFileWriter>(MockBehavior.Strict);
+        writer
+            .Setup(fileWriter => fileWriter.WriteAsync(
+                It.IsAny<IOUri>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new BicepException("write failed"));
 
-        var result = await Bicep(DocsEnabledSettings(), "docs", "generate", root);
+        var result = await Bicep(
+            DocsEnabledSettings(),
+            services => services.AddSingleton(writer.Object),
+            TestContext.CancellationTokenSource.Token,
+            "docs",
+            "generate",
+            root);
 
         result.ExitCode.Should().Be(1);
-        result.Stderr.Should().NotBeEmpty();
-        await lockStream.DisposeAsync();
-        File.ReadAllText(Path.Combine(root, "README.md")).Should().Be("locked");
-        Directory.EnumerateFiles(root, "*.tmp").Should().BeEmpty();
+        result.Stderr.Should().Contain("write failed");
+        File.ReadAllText(Path.Combine(root, "README.md")).Should().Be("preserve me");
     }
 
     [TestMethod]
@@ -506,5 +514,28 @@ public class DocsCommandTests : TestBase
         await FluentActions.Invoking(() => writer.WriteToFileAtomicallyAsync(outputUri, "contents"))
             .Should().ThrowAsync<BicepException>()
             .WithMessage("denied");
+    }
+
+    [TestMethod]
+    public async Task OutputWriter_AtomicWrite_CleansUpTemporaryFileWhenMoveFails()
+    {
+        var root = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var outputDirectory = Path.Combine(root, "output");
+        Directory.CreateDirectory(outputDirectory);
+        var fileSystem = new System.IO.Abstractions.FileSystem();
+        var writer = new OutputWriter(
+            new(
+                new(new StringReader(string.Empty), false),
+                new(new StringWriter(), false),
+                new(new StringWriter(), false)),
+            fileSystem,
+            new FileSystemFileExplorer(fileSystem));
+
+        await FluentActions.Invoking(() => writer.WriteToFileAtomicallyAsync(
+                IOUri.FromFilePath(outputDirectory),
+                "contents"))
+            .Should().ThrowAsync<BicepException>();
+
+        Directory.EnumerateFiles(root, "*.tmp").Should().BeEmpty();
     }
 }

@@ -14,7 +14,7 @@ public class DocsGenerateCommand(
     IOContext io,
     DocsModuleScanner moduleScanner,
     DocsCommandRunner runner,
-    OutputWriter writer) : ICommand
+    IDocsFileWriter writer) : ICommand
 {
     public async Task<int> RunAsync(DocsGenerateArguments arguments)
     {
@@ -45,7 +45,7 @@ public class DocsGenerateCommand(
 
             try
             {
-                await writer.WriteToFileAtomicallyAsync(outputUri, result.Contents);
+                await writer.WriteAsync(outputUri, result.Contents);
             }
             catch (BicepException exception)
             {
