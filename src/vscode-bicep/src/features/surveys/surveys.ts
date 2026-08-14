@@ -8,7 +8,8 @@ import { commands, MessageItem, Uri, window } from "vscode";
 import { GlobalState, GlobalStateKeys } from "../../globalState";
 import { getBicepConfiguration } from "../../infrastructure/configuration";
 import { daysToMs, monthsToDays } from "../../infrastructure/timing";
-import { bicepConfigurationKeys } from "../../language/constants";
+
+const enableSurveysSetting = "enableSurveys";
 
 // ======================================================
 // DEBUGGING
@@ -314,7 +315,7 @@ export class Survey {
   }
 
   public areSurveysEnabled(): boolean {
-    return this.inject.provideBicepConfiguration().get<boolean>(bicepConfigurationKeys.enableSurveys, true);
+    return this.inject.provideBicepConfiguration().get<boolean>(enableSurveysSetting, true);
   }
 
   public async clearGlobalState(): Promise<void> {

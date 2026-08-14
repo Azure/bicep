@@ -2,6 +2,7 @@
 docs/
 node_modules/
 src/
+test-e2e/
 # links for the extension readme (https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-bicep)
 # These are converted into github.com links, and not bundled with the extension
 readme-links/

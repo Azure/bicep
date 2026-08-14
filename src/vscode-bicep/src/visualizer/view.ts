@@ -12,7 +12,7 @@ import {
   VisualGraphRendered,
   visualGraphUpdateRequestType,
   VisualGraphUpdateResult,
-} from "../language";
+} from "../features/visualization";
 import { Disposable } from "../infrastructure/lifecycle";
 import { getLogger } from "../infrastructure/logging";
 import { debounce } from "../infrastructure/timing";

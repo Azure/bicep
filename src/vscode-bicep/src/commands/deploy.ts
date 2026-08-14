@@ -24,7 +24,7 @@ import {
   BicepDeploymentWaitForCompletionParams,
   BicepUpdatedDeploymentParameter,
   ParametersFileUpdateOption,
-} from "../language";
+} from "../features/deployments";
 import { AzurePickers } from "../utils/AzurePickers";
 import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
 import { Command } from "../infrastructure/commands";

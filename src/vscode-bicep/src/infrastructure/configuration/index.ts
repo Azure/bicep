@@ -1,4 +1,4 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-export { getBicepConfiguration } from "./extension-configuration";
+export { bicepConfigurationPrefix, getBicepConfiguration } from "./extension-configuration";

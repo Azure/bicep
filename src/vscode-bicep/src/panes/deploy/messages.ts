@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 import { AccessToken } from "@azure/identity";
 import { TelemetryProperties } from "@microsoft/vscode-azext-utils";
-import { LocalDeployResponse } from "../../language";
+import { LocalDeployResponse } from "../../features/deployments";
 import { DeploymentScope, DeploymentScopeType, DeployPaneState, UntypedError } from "./models";
 
 interface SimpleMessage<T> {

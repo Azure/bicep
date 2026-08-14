@@ -5,3 +5,4 @@ export {
   activateImportKubernetesManifestFeature,
   ImportKubernetesManifestCommand,
 } from "./import-kubernetes-manifest";
+export { importKubernetesManifestRequestType } from "./protocol";

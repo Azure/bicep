@@ -7,7 +7,7 @@ import { IActionContext, IAzureQuickPickItem, UserCancelledError } from "@micros
 import * as fse from "fs-extra";
 import vscode, { TextDocument, TextEditor, Uri, ViewColumn, window, workspace } from "vscode";
 import { Command, CommandManager } from "../../infrastructure/commands";
-import { bicepFileExtension } from "../../language/constants";
+import { bicepFileExtension } from "../../infrastructure/editor";
 
 const paramsCode =
   "param location string = resourceGroup().location\n" +

@@ -6,7 +6,7 @@ import vscode, { Uri, window, workspace } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
-import { insertResourceRequestType } from "../../language";
+import { insertResourceRequestType } from "./protocol";
 
 export class InsertResourceCommand implements Command {
   public readonly id = "bicep.insertResource";
