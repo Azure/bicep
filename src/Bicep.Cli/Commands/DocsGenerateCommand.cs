@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.CommandLine;
+using System.IO.Abstractions;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
@@ -18,7 +20,8 @@ public class DocsGenerateCommand(
     DocsModuleScanner moduleScanner,
     DocsCommandRunner runner,
     IDocsFileWriter writer,
-    DiagnosticLogger diagnosticLogger) : ICommand
+    DiagnosticLogger diagnosticLogger,
+    IFileSystem fileSystem) : ICommand
 {
     public async Task<int> RunAsync(DocsGenerateArguments arguments, CancellationToken cancellationToken = default)
     {
@@ -26,7 +29,7 @@ public class DocsGenerateCommand(
         var inputOutputPairs = moduleScanner.ResolveOutputFiles(modules, arguments.OutputFile);
         var templateFile = moduleScanner.ResolveOptionalFile(arguments.TemplateFile);
         var templateRoot = moduleScanner.ResolveOptionalDirectory(arguments.TemplateRoot);
-        var customValues = DocsCommand.ParseCustomValues(arguments.CustomValues);
+        var customValues = arguments.CustomValues;
         var workspace = new ActiveSourceFileSet();
         var sarifResults = new List<(
             Bicep.IO.Abstraction.IOUri SourceUri,
@@ -101,6 +104,16 @@ public class DocsGenerateCommand(
         return hasErrors ? 1 : 0;
     }
 
+    private ImmutableSortedDictionary<string, string> ParseCustomValues(
+        System.CommandLine.ParseResult result,
+        System.CommandLine.Option<string[]> customTemplateValueOption,
+        System.CommandLine.Option<string[]> customTemplateValueFilePathOption) =>
+        DocsCommand.ParseCustomValues(
+            result,
+            customTemplateValueOption,
+            customTemplateValueFilePathOption,
+            fileSystem);
+
     internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
     {
         var command = new System.CommandLine.Command(Constants.Command.DocsGenerate, "[Experimental] Generates documentation files for Bicep modules.")
@@ -124,6 +137,13 @@ public class DocsGenerateCommand(
         {
             Description = "Supplies a custom template value in key=value form. May be repeated.",
             Arity = ArgumentArity.ZeroOrMore,
+            AllowMultipleArgumentsPerToken = false,
+        };
+        var customTemplateValueFilePathOption = new System.CommandLine.Option<string[]>(Option.CustomTemplateValueFilePath)
+        {
+            Description = "Loads custom template string values from a JSON object file. May be repeated.",
+            Arity = ArgumentArity.ZeroOrMore,
+            AllowMultipleArgumentsPerToken = false,
         };
         var outputFileOption = new System.CommandLine.Option<string?>(Option.OutputFile)
         {
@@ -146,6 +166,7 @@ public class DocsGenerateCommand(
         command.Add(templateFileOption);
         command.Add(templateRootOption);
         command.Add(customTemplateValueOption);
+        command.Add(customTemplateValueFilePathOption);
         command.Add(outputFileOption);
         command.Add(patternOption);
         command.Add(noRestoreOption);
@@ -161,20 +182,22 @@ public class DocsGenerateCommand(
 
         command.SetAction((result, ct) => context.RunCommandAsync(async () =>
         {
-            DocsCommand.ValidateCustomTemplateValueOption(result, customTemplateValueOption);
-            var customValues = result.GetValue(customTemplateValueOption);
-            ArgumentNullException.ThrowIfNull(customValues);
+            var handler = context.GetCommand<DocsGenerateCommand>();
+            var customValues = handler.ParseCustomValues(
+                result,
+                customTemplateValueOption,
+                customTemplateValueFilePathOption);
             var arguments = new DocsGenerateArguments(
                 result.GetValue(inputFileArgument),
                 result.GetValue(patternOption),
                 result.GetValue(templateFileOption),
                 result.GetValue(templateRootOption),
-                [.. customValues],
+                customValues,
                 result.GetValue(outputFileOption) ?? "README.md",
                 result.GetValue(noRestoreOption),
                 result.GetValue(diagnosticsFormatOption));
 
-            return await context.GetCommand<DocsGenerateCommand>().RunAsync(arguments, ct);
+            return await handler.RunAsync(arguments, ct);
         }));
 
         return command;

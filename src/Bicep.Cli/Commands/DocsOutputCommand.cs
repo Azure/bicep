@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.CommandLine;
+using System.IO.Abstractions;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
@@ -14,7 +16,8 @@ public class DocsOutputCommand(
     IOContext io,
     DocsModuleScanner moduleScanner,
     DocsCommandRunner runner,
-    DiagnosticLogger diagnosticLogger) : ICommand
+    DiagnosticLogger diagnosticLogger,
+    IFileSystem fileSystem) : ICommand
 {
     public async Task<int> RunAsync(DocsOutputArguments arguments, CancellationToken cancellationToken = default)
     {
@@ -26,7 +29,7 @@ public class DocsOutputCommand(
             module,
             moduleScanner.ResolveOptionalFile(arguments.TemplateFile),
             moduleScanner.ResolveOptionalDirectory(arguments.TemplateRoot),
-            DocsCommand.ParseCustomValues(arguments.CustomValues),
+            arguments.CustomValues,
             arguments.NoRestore,
             arguments.DiagnosticsFormat,
             logDiagnostics: !aggregateSarif,
@@ -58,6 +61,16 @@ public class DocsOutputCommand(
         return 0;
     }
 
+    private ImmutableSortedDictionary<string, string> ParseCustomValues(
+        System.CommandLine.ParseResult result,
+        System.CommandLine.Option<string[]> customTemplateValueOption,
+        System.CommandLine.Option<string[]> customTemplateValueFilePathOption) =>
+        DocsCommand.ParseCustomValues(
+            result,
+            customTemplateValueOption,
+            customTemplateValueFilePathOption,
+            fileSystem);
+
     internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
     {
         var command = new System.CommandLine.Command(Constants.Command.DocsOutput, "[Experimental] Renders documentation for one Bicep module to stdout.")
@@ -81,6 +94,13 @@ public class DocsOutputCommand(
         {
             Description = "Supplies a custom template value in key=value form. May be repeated.",
             Arity = ArgumentArity.ZeroOrMore,
+            AllowMultipleArgumentsPerToken = false,
+        };
+        var customTemplateValueFilePathOption = new System.CommandLine.Option<string[]>(Option.CustomTemplateValueFilePath)
+        {
+            Description = "Loads custom template string values from a JSON object file. May be repeated.",
+            Arity = ArgumentArity.ZeroOrMore,
+            AllowMultipleArgumentsPerToken = false,
         };
         var noRestoreOption = new System.CommandLine.Option<bool>(Option.NoRestore)
         {
@@ -95,24 +115,27 @@ public class DocsOutputCommand(
         command.Add(templateFileOption);
         command.Add(templateRootOption);
         command.Add(customTemplateValueOption);
+        command.Add(customTemplateValueFilePathOption);
         command.Add(noRestoreOption);
         command.Add(diagnosticsFormatOption);
         command.Validators.Add(result => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
 
         command.SetAction((result, ct) => context.RunCommandAsync(async () =>
         {
-            DocsCommand.ValidateCustomTemplateValueOption(result, customTemplateValueOption);
-            var customValues = result.GetValue(customTemplateValueOption);
-            ArgumentNullException.ThrowIfNull(customValues);
+            var handler = context.GetCommand<DocsOutputCommand>();
+            var customValues = handler.ParseCustomValues(
+                result,
+                customTemplateValueOption,
+                customTemplateValueFilePathOption);
             var arguments = new DocsOutputArguments(
                 result.GetValue(inputFileArgument),
                 result.GetValue(templateFileOption),
                 result.GetValue(templateRootOption),
-                [.. customValues],
+                customValues,
                 result.GetValue(noRestoreOption),
                 result.GetValue(diagnosticsFormatOption));
 
-            return await context.GetCommand<DocsOutputCommand>().RunAsync(arguments, ct);
+            return await handler.RunAsync(arguments, ct);
         }));
 
         return command;

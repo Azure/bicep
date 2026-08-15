@@ -10,7 +10,7 @@ public record DocsGenerateArguments(
     string? FilePattern,
     string? TemplateFile,
     string? TemplateRoot,
-    ImmutableArray<string> CustomValues,
+    ImmutableSortedDictionary<string, string> CustomValues,
     string OutputFile,
     bool NoRestore,
     DiagnosticsFormat? DiagnosticsFormat) : IFilePatternInputArguments;

@@ -54,6 +54,7 @@ namespace Bicep.Cli.Constants
         public const string DiagnosticsFormat = "--diagnostics-format";
         public const string OutputFile = "--output-file";
         public const string CustomTemplateValue = "--custom-template-value";
+        public const string CustomTemplateValueFilePath = "--custom-template-value-file-path";
         public const string TemplateFile = "--template-file";
         public const string TemplateRoot = "--template-root";
 

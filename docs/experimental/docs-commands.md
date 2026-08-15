@@ -27,6 +27,7 @@ Both commands accept:
 - `--template-file <path>`
 - `--template-root <path>`
 - repeatable `--custom-template-value key=value`
+- repeatable `--custom-template-value-file-path <path>`
 - `--no-restore`
 - `--diagnostics-format default|sarif`
 
@@ -69,6 +70,27 @@ Use includes for authored Markdown:
 Includes resolve from the module directory unless `--template-root` is supplied. Relative traversal such as `../shared/notes.md` is supported.
 
 Values supplied with `--custom-template-value owner=Platform` are available as both `custom.owner` and `module.custom.owner`.
+
+Value files must contain a JSON object whose values are strings:
+
+```json
+{
+  "owner": "Platform Team",
+  "supportUrl": "https://contoso.example/support"
+}
+```
+
+Files and individual values may be repeated and interleaved. They are applied from left to right, so the last occurrence of a key wins:
+
+```powershell
+bicep docs output .\main.bicep `
+  --template-file .\readme.scriban `
+  --custom-template-value-file-path .\defaults.json `
+  --custom-template-value owner="Application Team" `
+  --custom-template-value-file-path .\environment.json
+```
+
+In this example, `environment.json` has the final precedence for keys it contains.
 
 ## Template model
 

@@ -62,6 +62,7 @@ namespace Bicep.Cli.IntegrationTests
                     "--template-file",
                     "--template-root",
                     "--custom-template-value",
+                    "--custom-template-value-file-path",
                     "--output-file",
                     "--pattern",
                     "--no-restore",
@@ -74,6 +75,7 @@ namespace Bicep.Cli.IntegrationTests
                     "--template-file",
                     "--template-root",
                     "--custom-template-value",
+                    "--custom-template-value-file-path",
                     "--no-restore",
                     "--diagnostics-format");
                 outputOutput.Should().NotContain("--pattern");

@@ -9,6 +9,6 @@ public record DocsOutputArguments(
     string? InputFile,
     string? TemplateFile,
     string? TemplateRoot,
-    ImmutableArray<string> CustomValues,
+    ImmutableSortedDictionary<string, string> CustomValues,
     bool NoRestore,
     DiagnosticsFormat? DiagnosticsFormat) : IInputArguments;

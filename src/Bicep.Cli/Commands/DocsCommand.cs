@@ -2,12 +2,16 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.CommandLine.Parsing;
+using System.IO.Abstractions;
+using System.Text.Json;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Documentation;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
+using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands;
 
@@ -28,35 +32,137 @@ public static class DocsCommand
         return command;
     }
 
-    internal static ImmutableSortedDictionary<string, string> ParseCustomValues(IEnumerable<string> values)
+    internal static ImmutableSortedDictionary<string, string> ParseCustomValues(
+        System.CommandLine.ParseResult result,
+        System.CommandLine.Option<string[]> customTemplateValueOption,
+        System.CommandLine.Option<string[]> customTemplateValueFilePathOption,
+        IFileSystem fileSystem)
     {
         var customValues = ImmutableSortedDictionary.CreateBuilder<string, string>(StringComparer.Ordinal);
-
-        foreach (var value in values)
+        var tokens = result.Tokens;
+        for (var index = 0; index < tokens.Count; index++)
         {
-            var separatorIndex = value.IndexOf('=');
-            if (separatorIndex <= 0)
+            var token = tokens[index];
+            if (token.Type != TokenType.Option)
             {
-                throw new CommandLineException($"The --custom-template-value value \"{value}\" must use the format key=value.");
+                continue;
             }
 
-            var key = value[..separatorIndex];
-            if (!customValues.TryAdd(key, value[(separatorIndex + 1)..]))
+            if (token.Value.Equals(customTemplateValueOption.Name, StringComparison.Ordinal))
             {
-                throw new CommandLineException($"The --custom-template-value key \"{key}\" cannot be specified more than once.");
+                SetValue(customValues, GetOptionValue(tokens, ref index, Option.CustomTemplateValue));
+            }
+            else if (token.Value.Equals(customTemplateValueFilePathOption.Name, StringComparison.Ordinal))
+            {
+                LoadValuesFile(
+                    customValues,
+                    GetOptionValue(tokens, ref index, Option.CustomTemplateValueFilePath),
+                    fileSystem);
             }
         }
 
         return customValues.ToImmutable();
     }
 
-    internal static void ValidateCustomTemplateValueOption(
-        System.CommandLine.ParseResult result,
-        System.CommandLine.Option<string[]> setOption)
+    private static string GetOptionValue(
+        IReadOnlyList<Token> tokens,
+        ref int optionIndex,
+        string optionName)
     {
-        if (result.GetResult(setOption) is { Implicit: false, Tokens.Count: 0 })
+        if (optionIndex + 1 >= tokens.Count || tokens[optionIndex + 1].Type != TokenType.Argument)
         {
-            throw new CommandLineException("The --custom-template-value parameter expects a key=value argument.");
+            throw new CommandLineException($"The {optionName} parameter expects an argument.");
+        }
+
+        return tokens[++optionIndex].Value;
+    }
+
+    private static void SetValue(
+        ImmutableSortedDictionary<string, string>.Builder customValues,
+        string value)
+    {
+        var separatorIndex = value.IndexOf('=');
+        if (separatorIndex <= 0)
+        {
+            throw new CommandLineException(
+                $"The {Option.CustomTemplateValue} value \"{value}\" must use the format key=value.");
+        }
+
+        customValues[value[..separatorIndex]] = value[(separatorIndex + 1)..];
+    }
+
+    private static void LoadValuesFile(
+        ImmutableSortedDictionary<string, string>.Builder customValues,
+        string path,
+        IFileSystem fileSystem)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            throw new CommandLineException(
+                $"The {Option.CustomTemplateValueFilePath} parameter expects a nonempty path.");
+        }
+
+        string fullPath;
+        try
+        {
+            fullPath = fileSystem.Path.GetFullPath(path);
+        }
+        catch (Exception exception) when (exception is ArgumentException or NotSupportedException)
+        {
+            throw new CommandLineException(
+                $"The custom template value file path \"{path}\" is invalid: {exception.Message}",
+                exception);
+        }
+
+        if (!fileSystem.File.Exists(fullPath))
+        {
+            throw new CommandLineException($"The custom template value file \"{fullPath}\" does not exist.");
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(fileSystem.File.ReadAllText(fullPath));
+            if (document.RootElement.ValueKind != JsonValueKind.Object)
+            {
+                throw new CommandLineException(
+                    $"The custom template value file \"{fullPath}\" must contain a JSON object.");
+            }
+
+            var keys = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var property in document.RootElement.EnumerateObject())
+            {
+                if (property.Name.Length == 0)
+                {
+                    throw new CommandLineException(
+                        $"The custom template value file \"{fullPath}\" contains an empty key.");
+                }
+
+                if (!keys.Add(property.Name))
+                {
+                    throw new CommandLineException(
+                        $"The custom template value file \"{fullPath}\" contains the duplicate key \"{property.Name}\".");
+                }
+
+                if (property.Value.ValueKind != JsonValueKind.String)
+                {
+                    throw new CommandLineException(
+                        $"The custom template value file \"{fullPath}\" value for \"{property.Name}\" must be a string.");
+                }
+
+                customValues[property.Name] = property.Value.ToString();
+            }
+        }
+        catch (JsonException exception)
+        {
+            throw new CommandLineException(
+                $"The custom template value file \"{fullPath}\" is not valid JSON: {exception.Message}",
+                exception);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            throw new CommandLineException(
+                $"Unable to read custom template value file \"{fullPath}\": {exception.Message}",
+                exception);
         }
     }
 

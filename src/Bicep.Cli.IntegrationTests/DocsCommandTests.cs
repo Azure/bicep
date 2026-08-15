@@ -100,6 +100,165 @@ public class DocsCommandTests : TestBase
     }
 
     [TestMethod]
+    public async Task Output_CustomTemplateValues_MergeFilesAndIndividualValuesInCommandLineOrder()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [
+                new("main.bicep", "metadata name = 'Custom values'"),
+                new("template.scriban", "{{ custom.owner }}|{{ custom.fromFirst }}|{{ custom.fromSecond }}|{{ custom.inlineOnly }}"),
+                new("first.json", """{ "owner": "first file", "fromFirst": "one" }"""),
+                new("second.json", """{ "owner": "second file", "fromSecond": "two" }"""),
+            ]);
+        var mainFile = Path.Combine(root, "main.bicep");
+        var templateFile = Path.Combine(root, "template.scriban");
+        var firstFile = Path.Combine(root, "first.json");
+        var secondFile = Path.Combine(root, "second.json");
+
+        var fileLast = await Bicep(
+            "docs",
+            "output",
+            mainFile,
+            "--template-file",
+            templateFile,
+            "--custom-template-value-file-path",
+            firstFile,
+            "--custom-template-value",
+            "owner=first inline",
+            "--custom-template-value",
+            "owner=second inline",
+            "--custom-template-value-file-path",
+            secondFile,
+            "--custom-template-value",
+            "inlineOnly=three");
+        var inlineLast = await Bicep(
+            "docs",
+            "output",
+            mainFile,
+            "--template-file",
+            templateFile,
+            "--custom-template-value-file-path",
+            secondFile,
+            "--custom-template-value",
+            "owner=last inline");
+
+        fileLast.ExitCode.Should().Be(0);
+        fileLast.Stdout.Should().Be("second file|one|two|three\n");
+        inlineLast.ExitCode.Should().Be(0);
+        inlineLast.Stdout.Should().Be("last inline||two|\n");
+    }
+
+    [DataTestMethod]
+    [DataRow("[]", "must contain a JSON object")]
+    [DataRow("""{ "count": 1 }""", "value for \"count\" must be a string")]
+    [DataRow("""{ "value": null }""", "value for \"value\" must be a string")]
+    [DataRow("""{ "": "value" }""", "contains an empty key")]
+    [DataRow("""{ "value": "first", "value": "second" }""", "contains the duplicate key \"value\"")]
+    [DataRow("{ invalid", "is not valid JSON")]
+    public async Task Output_CustomTemplateValueFile_RejectsInvalidContent(string contents, string expectedError)
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [
+                new("main.bicep", "metadata name = 'Invalid values'"),
+                new("values.json", contents),
+            ]);
+
+        var result = await Bicep(
+            "docs",
+            "output",
+            Path.Combine(root, "main.bicep"),
+            "--custom-template-value-file-path",
+            Path.Combine(root, "values.json"));
+
+        result.ExitCode.Should().Be(1);
+        result.Stderr.Should().Contain(expectedError);
+    }
+
+    [TestMethod]
+    public async Task Output_CustomTemplateValueFile_RejectsMissingFile()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [new("main.bicep", "metadata name = 'Missing values'")]);
+
+        var result = await Bicep(
+            "docs",
+            "output",
+            Path.Combine(root, "main.bicep"),
+            "--custom-template-value-file-path",
+            Path.Combine(root, "missing.json"));
+
+        result.ExitCode.Should().Be(1);
+        result.Stderr.Should().Contain("does not exist");
+    }
+
+    [TestMethod]
+    public async Task Output_CustomTemplateValueFile_RejectsEmptyPath()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [new("main.bicep", "metadata name = 'Empty path'")]);
+
+        var result = await Bicep(
+            "docs",
+            "output",
+            Path.Combine(root, "main.bicep"),
+            "--custom-template-value-file-path",
+            "");
+
+        result.ExitCode.Should().Be(1);
+        result.Stderr.Should().Contain("expects a nonempty path");
+    }
+
+    [TestMethod]
+    public async Task Output_CustomTemplateValueFile_WrapsInvalidPath()
+    {
+        var fileSystem = new Mock<IFileSystem>(MockBehavior.Strict);
+        var path = new Mock<IPath>(MockBehavior.Strict);
+        fileSystem.SetupGet(system => system.Path).Returns(path.Object);
+        path.Setup(systemPath => systemPath.GetFullPath("invalid")).Throws(new ArgumentException("invalid path"));
+
+        var result = await Bicep(
+            DocsEnabledSettings(),
+            services => services.AddSingleton(fileSystem.Object),
+            TestContext.CancellationTokenSource.Token,
+            "docs",
+            "output",
+            "main.bicep",
+            "--custom-template-value-file-path",
+            "invalid");
+
+        result.ExitCode.Should().Be(1);
+        result.Stderr.Should().ContainAll("is invalid", "invalid path");
+    }
+
+    [TestMethod]
+    public async Task Output_CustomTemplateValueFile_WrapsReadFailures()
+    {
+        var fileSystem = new Mock<IFileSystem>(MockBehavior.Strict);
+        var path = new Mock<IPath>(MockBehavior.Strict);
+        var file = new Mock<IFile>(MockBehavior.Strict);
+        fileSystem.SetupGet(system => system.Path).Returns(path.Object);
+        fileSystem.SetupGet(system => system.File).Returns(file.Object);
+        path.Setup(systemPath => systemPath.GetFullPath("values.json")).Returns("C:\\values.json");
+        file.Setup(systemFile => systemFile.Exists("C:\\values.json")).Returns(true);
+        file.Setup(systemFile => systemFile.ReadAllText("C:\\values.json")).Throws(new IOException("read failed"));
+        var result = await Bicep(
+            DocsEnabledSettings(),
+            services => services.AddSingleton(fileSystem.Object),
+            TestContext.CancellationTokenSource.Token,
+            "docs",
+            "output",
+            "main.bicep",
+            "--custom-template-value-file-path",
+            "values.json");
+
+        result.ExitCode.Should().Be(1);
+        result.Stderr.Should().ContainAll("Unable to read", "read failed");
+    }
+
+    [TestMethod]
     public async Task Generate_Pattern_ContinuesAfterCompilationFailure()
     {
         var root = FileHelper.SaveResultFiles(
@@ -480,7 +639,7 @@ public class DocsCommandTests : TestBase
     [DataTestMethod]
     [DataRow(["docs", "generate", "main.bicep", "--custom-template-value"])]
     [DataRow(["docs", "generate", "main.bicep", "--custom-template-value", "invalid"])]
-    [DataRow(["docs", "generate", "main.bicep", "--custom-template-value", "key=one", "--custom-template-value", "key=two"])]
+    [DataRow(["docs", "generate", "main.bicep", "--custom-template-value-file-path"])]
     [DataRow(["docs", "generate", "main.bicep", "--output-file", "nested/README.md"])]
     [DataRow(["docs", "output", "main.bicep", "--pattern", "**/main.bicep"])]
     public async Task InvalidArguments_ReturnNonZero(string[] arguments)
@@ -574,7 +733,7 @@ public class DocsCommandTests : TestBase
             null,
             null,
             null,
-            [],
+            System.Collections.Immutable.ImmutableSortedDictionary<string, string>.Empty,
             "README.md",
             false,
             null);
