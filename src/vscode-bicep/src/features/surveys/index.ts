@@ -2,6 +2,10 @@
 // Licensed under the MIT License.
 
 export {
+  type GlobalState,
+  setGlobalStateKeysToSyncBetweenMachines,
+} from "./survey-state";
+export {
   checkShowSurvey,
   showSurveys,
   Survey,

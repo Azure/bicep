@@ -3,10 +3,9 @@
 
 import fs from "fs";
 import path from "path";
-import { TextEditor, Uri, window } from "vscode";
-import { createUniqueTempFolder } from "./support/create-unique-temp-folder";
-import { normalizeMultilineString } from "./support/normalize-multiline-string";
-import { testScope } from "./support/test-scope";
+import { Uri, window } from "vscode";
+import { createUniqueTempFolder } from "../test-support/temp-folder";
+import { normalizeMultilineString } from "../test-support/text-normalization";
 import { executeCloseAllEditors, executeCreateConfigFileCommand } from "./commands";
 import { expectedNewConfigFileContents } from "./expected-new-config-file-contents";
 
@@ -20,66 +19,26 @@ describe("bicep.createConfigFile", (): void => {
     const fakeBicepPath = path.join(tempFolder, "main.bicep");
 
     try {
-      let newConfigPath: string;
+      const newConfigPath = await executeCreateConfigFileCommand(Uri.file(fakeBicepPath));
+      if (!newConfigPath) {
+        throw new Error(`Language server returned ${String(newConfigPath)} for bicep.createConfigFile`);
+      }
 
-      await testScope("Execute Create Config command", async () => {
-        const newConfigPathOrUndefined = await executeCreateConfigFileCommand(Uri.file(fakeBicepPath));
+      expect(path.basename(newConfigPath)).toBe("bicepconfig.json");
+      expect(fs.existsSync(newConfigPath)).toBe(true);
+      expect(fs.readFileSync(newConfigPath, "utf8")).toContain("rules");
+      expect(path.dirname(newConfigPath).toLowerCase()).toBe(path.dirname(fakeBicepPath).toLowerCase());
 
-        if (!newConfigPathOrUndefined) {
-          throw new Error(`Language server returned ${String(newConfigPathOrUndefined)} for bicep.createConfigFile`);
-        }
-
-        newConfigPath = newConfigPathOrUndefined!;
-
-        expect(path.basename(newConfigPath)).toBe("bicepconfig.json");
-        if (!fileExists(newConfigPath)) {
-          throw new Error(`Expected file ${newConfigPath} to exist but it doesn't`);
-        }
-
-        expect(fileContains(newConfigPath, "rules")).toBeTruthy();
-
-        // Since the test instance of vscode does not have any workspace folders, the new file should be opened
-        //   in the same folder as the bicep file
-        expect(path.dirname(newConfigPath).toLowerCase()).toBe(path.dirname(fakeBicepPath).toLowerCase());
-      });
-
-      let editorOrUndefined: TextEditor | undefined;
-      await testScope("Make sure the new config file has been opened in an editor", async () => {
-        editorOrUndefined = window.visibleTextEditors.find(
-          (ed) => ed.document.uri.fsPath.toLowerCase() === newConfigPath?.toLowerCase(),
-        );
-        if (!editorOrUndefined) {
-          throw new Error("New config file should be opened in a visible editor");
-        }
-      });
-      const editor = editorOrUndefined!;
-
-      await testScope("Verify text", () => {
-        const expectedText = expectedNewConfigFileContents;
-        const actualText = editor.document.getText();
-        const expectedTextNormalized = normalizeMultilineString(expectedText);
-        const actualTextNormalized = normalizeMultilineString(actualText);
-        expect(actualTextNormalized).toBe(expectedTextNormalized);
-      });
-
-      /* TODO: DISABLED (FLAKY) - see https://github.com/Azure/bicep/issues/6766
-      await testScope(
-        `Verify that vscode is in an "insertion" state with the dropdown for the first rule open to show the available diagnostic levels (the current one should be "warning"). Verify this by moving down to the next suggestion ("off") and selecting it`,
-        async () => {
-          const expectedAfterSelectingOffInsteadOfWarning =
-            expectedNewConfigFileContents.replace(/warning/, "off");
-          await executeSelectNextSuggestion();
-          await executeAcceptSelectedSuggestion();
-          const textAfterSelectingOffInsteadOfWarningtext =
-            editor.document.getText();
-          expect(
-            normalizeMultilineString(textAfterSelectingOffInsteadOfWarningtext)
-          ).toBe(
-            normalizeMultilineString(expectedAfterSelectingOffInsteadOfWarning)
-          );
-        }
+      const editor = window.visibleTextEditors.find(
+        (candidate) => candidate.document.uri.fsPath.toLowerCase() === newConfigPath.toLowerCase(),
       );
-      */
+      if (!editor) {
+        throw new Error("New config file should be opened in a visible editor");
+      }
+
+      expect(normalizeMultilineString(editor.document.getText())).toBe(
+        normalizeMultilineString(expectedNewConfigFileContents),
+      );
     } finally {
       try {
         fs.rmSync(tempFolder, {
@@ -93,12 +52,4 @@ describe("bicep.createConfigFile", (): void => {
     }
   });
 
-  function fileExists(path: string): boolean {
-    return fs.existsSync(path);
-  }
-
-  function fileContains(path: string, pattern: RegExp | string): boolean {
-    const contents: string = fs.readFileSync(path).toString();
-    return !!contents.match(pattern);
-  }
 });

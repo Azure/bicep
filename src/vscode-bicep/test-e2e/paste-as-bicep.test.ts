@@ -10,23 +10,46 @@ import vscode, { ConfigurationTarget, Selection, TextDocument } from "vscode";
 import { SuppressedWarningsManager } from "../src/features/paste-as-bicep";
 import { getBicepConfiguration } from "../src/infrastructure/configuration";
 import { e2eLogName } from "../src/infrastructure/logging";
-import { normalizeMultilineString } from "./support/normalize-multiline-string";
-import { until } from "./support/time";
+import { until } from "../test-support/polling";
+import { normalizeMultilineString } from "../test-support/text-normalization";
 import { executeCloseAllEditors, executeEditorPasteCommand, executePasteAsBicepCommand } from "./commands";
 
 const extensionLogPath = path.join(__dirname, `../../${e2eLogName}`);
 
 describe("pasteAsBicep", (): void => {
+  const configuration = getBicepConfiguration();
+  let originalClipboard: string;
+  let originalDecompileOnPaste: boolean | undefined;
+  let originalSuppressedWarnings: unknown;
+
+  beforeAll(async () => {
+    originalClipboard = await vscode.env.clipboard.readText();
+    originalDecompileOnPaste = configuration.inspect<boolean>("decompileOnPaste")?.globalValue;
+    originalSuppressedWarnings = configuration.inspect(
+      SuppressedWarningsManager.suppressedWarningsConfigurationKey,
+    )?.globalValue;
+  });
+
   afterEach(async () => {
     await executeCloseAllEditors();
   });
 
+  afterAll(async () => {
+    await configuration.update("decompileOnPaste", originalDecompileOnPaste, ConfigurationTarget.Global);
+    await configuration.update(
+      SuppressedWarningsManager.suppressedWarningsConfigurationKey,
+      originalSuppressedWarnings,
+      ConfigurationTarget.Global,
+    );
+    await vscode.env.clipboard.writeText(originalClipboard);
+  });
+
   async function configureSettings(): Promise<void> {
     // Make sure Decompile on Paste is on
-    await getBicepConfiguration().update("decompileOnPaste", true, ConfigurationTarget.Global);
+    await configuration.update("decompileOnPaste", true, ConfigurationTarget.Global);
 
     // Make sure decompile on paste warning is on
-    await getBicepConfiguration().update(
+    await configuration.update(
       SuppressedWarningsManager.suppressedWarningsConfigurationKey,
       [],
       ConfigurationTarget.Global,
@@ -86,16 +109,16 @@ describe("pasteAsBicep", (): void => {
     if (action === "copy/paste") {
       await executeEditorPasteCommand();
 
-      const expected = `PasteAsBicep (command): Result: "${jsonToPaste}"`;
+      const expected = `PasteAsBicep (copy/paste): Result: "${jsonToPaste}"`;
       await waitForPasteAsBicep(expected);
     } else {
       await executePasteAsBicepCommand(editor.document.uri);
 
-      const expected = `PasteAsBicep (copy/paste): Result: "${jsonToPaste}"`;
+      const expected = `PasteAsBicep (command): Result: "${jsonToPaste}"`;
       await waitForPasteAsBicep(expected);
     }
     if (expected.error) {
-      const match = new RegExp(`Exception occurred: .*${escapeRegexReplacement(expected.error)}`);
+      const match = new RegExp(`Exception occurred: .*${escapeRegex(expected.error)}`);
       expect(getRecentLogContents()).toMatch(match);
     } else {
       expect(getRecentLogContents()).not.toMatch(`Exception occurred`);
@@ -126,15 +149,13 @@ describe("pasteAsBicep", (): void => {
       }
 
       function isReady(): boolean {
-        const readyMessage = jsonToPaste;
-        const logContents = getRecentLogContents();
-        return logContents.indexOf(readyMessage) >= 0;
+        return getRecentLogContents().includes(expectedSubstring);
       }
     }
   }
 
-  function escapeRegexReplacement(s: string) {
-    return s.replace(/\$/g, "$$$$");
+  function escapeRegex(value: string) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   }
 
   //////////////////////////////////////////////////

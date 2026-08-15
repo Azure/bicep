@@ -5,9 +5,8 @@ import fs from "fs";
 import path from "path";
 import vscode from "vscode";
 import { e2eLogName } from "../src/infrastructure/logging";
-import { sleep } from "../src/infrastructure/timing";
-import { expectDefined } from "../src/test/utils/assert";
-import { until } from "./support/time";
+import { expectDefined } from "../test-support/assert";
+import { until } from "../test-support/polling";
 import {
   executeCloseAllEditors,
   executeShowSourceCommand,
@@ -18,7 +17,7 @@ import { resolveExamplePath } from "./examples";
 
 const extensionLogPath = path.join(__dirname, `../../${e2eLogName}`);
 
-// Each test opens a document (2s sleep) and waits up to 20s for the visualizer to be ready.
+// Each test waits up to 20s for the visualizer to be ready.
 jest.setTimeout(30000);
 
 describe("visualizer", (): void => {
@@ -28,9 +27,6 @@ describe("visualizer", (): void => {
     const examplePath = resolveExamplePath("101", "vm-simple-linux");
     const document = await vscode.workspace.openTextDocument(examplePath);
     const editor = await vscode.window.showTextDocument(document);
-
-    // Give the language server some time to finish compilation.
-    await sleep(2000);
 
     const viewColumn = await executeShowVisualizerCommand(document.uri);
     await until(() => visualizerIsReady(document.uri), {
@@ -49,8 +45,6 @@ describe("visualizer", (): void => {
     const document = await vscode.workspace.openTextDocument(examplePath);
     await vscode.window.showTextDocument(document);
 
-    // Give the language server some time to finish compilation.
-    await sleep(2000);
     const viewColumn = await executeShowVisualizerToSideCommand(document.uri);
     await until(() => visualizerIsReady(document.uri), {
       interval: 100,

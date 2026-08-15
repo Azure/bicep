@@ -7,6 +7,24 @@ import jest from "eslint-plugin-jest";
 import notice from "eslint-plugin-notice";
 import tseslint from "typescript-eslint";
 
+const featureNames = [
+    "build",
+    "configuration",
+    "decompile",
+    "deployments",
+    "external-source",
+    "import-kubernetes-manifest",
+    "insert-resource",
+    "mcp",
+    "module-restore",
+    "parameters",
+    "paste-as-bicep",
+    "refactoring",
+    "surveys",
+    "visualization",
+    "walkthrough",
+];
+
 export default tseslint.config(
     {
         ignores: [
@@ -38,7 +56,7 @@ export default tseslint.config(
 
         languageOptions: {
             parserOptions: {
-                project: ["./tsconfig.json", "./tsconfig.e2e.json"],
+                project: ["./tsconfig.json", "./tsconfig.e2e.json", "./tsconfig.unit.json"],
             },
         },
 
@@ -51,4 +69,36 @@ export default tseslint.config(
             ],
         },
     },
+    {
+        files: ["src/infrastructure/**/*.ts"],
+        rules: {
+            "no-restricted-imports": [
+                "error",
+                {
+                    patterns: [
+                        {
+                            regex: "^(?:\\.\\./)+features(?:/|$)",
+                            message: "Infrastructure must not import feature implementations.",
+                        },
+                    ],
+                },
+            ],
+        },
+    },
+    ...featureNames.map((featureName) => ({
+        files: [`src/features/${featureName}/**/*.ts`],
+        rules: {
+            "no-restricted-imports": [
+                "error",
+                {
+                    patterns: [
+                        {
+                            regex: `^(?:\\.\\./)+(?:${featureNames.filter((name) => name !== featureName).join("|")})(?:/|$)`,
+                            message: "Features must not import sibling feature implementations.",
+                        },
+                    ],
+                },
+            ],
+        },
+    })),
 );

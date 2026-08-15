@@ -1,50 +1,61 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ConfigurationTarget } from "vscode";
+import { ConfigurationTarget, WorkspaceConfiguration } from "vscode";
 import { SuppressedWarningsManager } from "./suppressed-warnings";
-import { WorkspaceConfigurationFake } from "../../test/fakes/workspace-configuration-fake";
 
-describe("suppressedWarningsManager", () => {
-  it("should not suppress by default", () => {
-    const config = new WorkspaceConfigurationFake();
+function createConfiguration(initialValue?: unknown): Pick<WorkspaceConfiguration, "get" | "update"> {
+  let value = initialValue;
+
+  function get<T>(): T | undefined;
+  function get<T>(_section: string, defaultValue: T): T;
+  function get<T>(_section?: string, defaultValue?: T): T | undefined {
+    return value === undefined ? defaultValue : (value as T);
+  }
+
+  return {
+    get,
+    update: async (_section, updatedValue, target) => {
+      expect(target).toBe(ConfigurationTarget.Global);
+      value = updatedValue;
+    },
+  };
+}
+
+describe("SuppressedWarningsManager", () => {
+  it("doesn't suppress warnings by default", () => {
+    const config = createConfiguration();
     const manager = new SuppressedWarningsManager(() => config);
 
-    expect(manager.isWarningSuppressed("test")).toBeFalsy();
+    expect(manager.isWarningSuppressed("test")).toBe(false);
   });
 
-  it("should suppress when requested", async () => {
-    const config = new WorkspaceConfigurationFake();
+  it("suppresses a requested warning", async () => {
+    const config = createConfiguration();
     const manager = new SuppressedWarningsManager(() => config);
 
     await manager.suppressWarning("test");
-    expect(manager.isWarningSuppressed("test")).toBeTruthy();
+    expect(manager.isWarningSuppressed("test")).toBe(true);
   });
 
-  it("should reset when requested", async () => {
-    const config = new WorkspaceConfigurationFake();
+  it("resets a suppressed warning", async () => {
+    const config = createConfiguration();
     const manager = new SuppressedWarningsManager(() => config);
 
     await manager.suppressWarning("test");
-    expect(manager.isWarningSuppressed("test")).toBeTruthy();
+    expect(manager.isWarningSuppressed("test")).toBe(true);
 
     await manager.resetWarning("test");
-    expect(manager.isWarningSuppressed("test")).toBeFalsy();
+    expect(manager.isWarningSuppressed("test")).toBe(false);
   });
 
-  it("should handle bad configuration", async () => {
-    const config = new WorkspaceConfigurationFake();
+  it("recovers from invalid configuration", async () => {
+    const config = createConfiguration(123456);
     const manager = new SuppressedWarningsManager(() => config);
 
-    await config.update(
-      SuppressedWarningsManager.suppressedWarningsConfigurationKey,
-      123456,
-      ConfigurationTarget.Global,
-    );
-
-    expect(manager.isWarningSuppressed("test")).toBeFalsy();
+    expect(manager.isWarningSuppressed("test")).toBe(false);
 
     await manager.suppressWarning("test");
-    expect(manager.isWarningSuppressed("test")).toBeTruthy();
+    expect(manager.isWarningSuppressed("test")).toBe(true);
   });
 });

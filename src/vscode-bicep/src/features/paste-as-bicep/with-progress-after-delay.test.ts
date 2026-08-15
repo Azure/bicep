@@ -1,124 +1,130 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { CancellationToken, ProgressLocation } from "vscode";
-import { sleep } from "../../infrastructure/timing";
-import { WithProgress, withProgressAfterDelay } from "./with-progress-after-delay";
+import { ProgressLocation } from "vscode";
+import type { CancellationToken } from "vscode";
+import { Schedule, WithProgress, withProgressAfterDelay } from "./with-progress-after-delay";
 
-function createWithProgressMock<T>(): WithProgress<T> {
-  return jest.fn().mockImplementation((_options, task) => {
+function createDeferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (error: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+
+  return { promise, reject, resolve };
+}
+
+function createProgressHarness<T>() {
+  let scheduledCallback: (() => Promise<void>) | undefined;
+  let progressCount = 0;
+
+  const schedule: Schedule = (callback) => {
+    scheduledCallback = callback;
+    return { dispose: () => (scheduledCallback = undefined) };
+  };
+  const withProgress: WithProgress<T> = (_options, task) => {
+    progressCount++;
     const cancellationToken: CancellationToken = {
       isCancellationRequested: false,
-      onCancellationRequested: jest.fn(),
+      onCancellationRequested: () => ({ dispose: () => undefined }),
     };
-    return new Promise((resolve, reject) => {
-      task({ report: jest.fn() }, cancellationToken).then(resolve, reject);
-    });
-  });
+    return task({ report: () => undefined }, cancellationToken);
+  };
+
+  return {
+    elapseDelay: async () => await scheduledCallback?.(),
+    get progressCount() {
+      return progressCount;
+    },
+    schedule,
+    withProgress,
+  };
 }
 
 describe("withProgressAfterDelay", () => {
-  it("should not show progress notification if task is short - default delay", async () => {
-    const withProgressMock = createWithProgressMock<string>();
-    let isDone = false;
+  it("doesn't show progress when the task finishes before the default delay", async () => {
+    const harness = createProgressHarness<string>();
 
-    const result: string = await withProgressAfterDelay<string>(
+    const result = await withProgressAfterDelay(
       {
         location: ProgressLocation.Notification,
-        inject: { withProgress: withProgressMock },
+        inject: harness,
       },
-      async () => {
-        await sleep(1);
-        isDone = true;
-        return "hi";
-      },
+      async () => "hi",
     );
 
-    expect(isDone).toBeTruthy();
-    expect(withProgressMock).toHaveBeenCalledTimes(0);
     expect(result).toBe("hi");
+    expect(harness.progressCount).toBe(0);
   });
 
-  it("should not show progress notification if task is short (using short delay)", async () => {
-    const withProgressMock = createWithProgressMock<string>();
-    let isDone = false;
+  it("doesn't show progress when the task finishes before a custom delay", async () => {
+    const harness = createProgressHarness<string>();
 
-    const result: string = await withProgressAfterDelay<string>(
+    const result = await withProgressAfterDelay(
       {
         location: ProgressLocation.Notification,
         delayBeforeShowingMs: 10,
-        inject: { withProgress: withProgressMock },
+        inject: harness,
       },
-      async () => {
-        await sleep(1);
-        isDone = true;
-        return "hi";
-      },
+      async () => "hi",
     );
 
-    expect(isDone).toBeTruthy();
-    expect(withProgressMock).toHaveBeenCalledTimes(0);
     expect(result).toBe("hi");
+    expect(harness.progressCount).toBe(0);
   });
 
-  it("should show progress notification if task takes longer than delay", async () => {
-    const withProgressMock = createWithProgressMock<number>();
-    let isDone = false;
+  it("shows progress when the task outlasts the delay", async () => {
+    const harness = createProgressHarness<number>();
+    const task = createDeferred<number>();
 
-    const result: number = await withProgressAfterDelay(
+    const result = withProgressAfterDelay(
       {
         location: ProgressLocation.Notification,
-        delayBeforeShowingMs: 1,
-        inject: { withProgress: withProgressMock },
+        inject: harness,
+      },
+      async () => await task.promise,
+    );
+
+    await harness.elapseDelay();
+    expect(harness.progressCount).toBe(1);
+    task.resolve(123);
+    await expect(result).resolves.toBe(123);
+  });
+
+  it("propagates errors before progress appears", async () => {
+    const harness = createProgressHarness<never>();
+
+    const result = withProgressAfterDelay(
+      {
+        location: ProgressLocation.Notification,
+        inject: harness,
       },
       async () => {
-        await sleep(10);
-        isDone = true;
-        return 123;
+        throw new Error("hah!");
       },
     );
 
-    expect(isDone).toBeTruthy();
-    expect(withProgressMock).toHaveBeenCalledTimes(1);
-    expect(result).toBe(123);
+    await expect(result).rejects.toThrow("hah!");
+    expect(harness.progressCount).toBe(0);
   });
 
-  it("should handle throw before notification shows", async () => {
-    const withProgressMock = createWithProgressMock();
+  it("propagates errors after progress appears", async () => {
+    const harness = createProgressHarness<never>();
+    const task = createDeferred<never>();
 
-    const func = async () =>
-      withProgressAfterDelay(
+    const result = withProgressAfterDelay(
         {
           location: ProgressLocation.Notification,
-          inject: { withProgress: withProgressMock },
+          inject: harness,
         },
-        async () => {
-          throw new Error("hah!");
-        },
+        async () => await task.promise,
       );
-    await expect(func).rejects.toThrow("hah!");
 
-    expect(withProgressMock).toHaveBeenCalledTimes(0);
-  });
-
-  it("should handle throw after notification shows", async () => {
-    const withProgressMock = createWithProgressMock();
-
-    const func = async () =>
-      withProgressAfterDelay(
-        {
-          location: ProgressLocation.Notification,
-          delayBeforeShowingMs: 1,
-          inject: { withProgress: withProgressMock },
-        },
-        async () => {
-          await sleep(10);
-          expect(withProgressMock).toHaveBeenCalledTimes(1);
-          throw new Error("hah!");
-        },
-      );
-    await expect(func).rejects.toThrow("hah!");
-
-    expect(withProgressMock).toHaveBeenCalledTimes(1);
+    await harness.elapseDelay();
+    expect(harness.progressCount).toBe(1);
+    task.reject(new Error("hah!"));
+    await expect(result).rejects.toThrow("hah!");
   });
 });

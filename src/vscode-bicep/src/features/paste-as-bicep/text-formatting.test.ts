@@ -8,9 +8,9 @@ describe("areEqualIgnoringWhitespace", () => {
     const first = `\n\n    Hi, Mom\nJust\rcalled\tto\n\r\n\t   say\n    I love you\n\n    `;
     const second = `\n\t\n\n    Hi,Mom\nJ  ust    called\tt\r\n\r o\n\r\n\t say  \t\nI love you`;
 
-    expect(areEqualIgnoringWhitespace(first, second)).toBeTruthy();
-    expect(areEqualIgnoringWhitespace(first, second + "!")).toBeFalsy();
-    expect(areEqualIgnoringWhitespace(first, first.toUpperCase())).toBeFalsy();
+    expect(areEqualIgnoringWhitespace(first, second)).toBe(true);
+    expect(areEqualIgnoringWhitespace(first, second + "!")).toBe(false);
+    expect(areEqualIgnoringWhitespace(first, first.toUpperCase())).toBe(false);
   });
 });
 

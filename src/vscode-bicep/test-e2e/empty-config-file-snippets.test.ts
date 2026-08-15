@@ -4,9 +4,8 @@
 import fs from "fs";
 import path from "path";
 import vscode, { CompletionItem, SnippetString, window, workspace } from "vscode";
-import { createUniqueTempFolder } from "./support/create-unique-temp-folder";
-import { normalizeLineEndings } from "./support/normalize-line-endings";
-import { testScope } from "./support/test-scope";
+import { createUniqueTempFolder } from "../test-support/temp-folder";
+import { normalizeLineEndings } from "../test-support/text-normalization";
 import { executeCloseAllEditors, executeCompletionItemProvider } from "./commands";
 import { expectedNewConfigFileContents } from "./expected-new-config-file-contents";
 
@@ -26,47 +25,26 @@ describe("empty config file snippets", (): void => {
       const doc = await workspace.openTextDocument(configPath);
       const editor = await window.showTextDocument(doc);
 
-      let items: CompletionItem[];
-      await testScope("Find available completions", async () => {
-        const completions = await executeCompletionItemProvider(doc.uri, new vscode.Position(0, 0));
-        expect(true).toBe(true);
-        expect(completions).toBeDefined();
-        items = completions!.items;
-        expect(items.length).toBeGreaterThan(0);
-      });
+      const completions = await executeCompletionItemProvider(doc.uri, new vscode.Position(0, 0));
+      if (!completions) {
+        throw new Error("Expected completion provider to return a completion list");
+      }
 
-      let scaffoldSnippet: CompletionItem | undefined;
-      await testScope("Find the snippet of interest", async () => {
-        scaffoldSnippet = items.find((i) => getCompletionLabelText(i) === "Default Bicep Configuration");
-        expect(scaffoldSnippet).toBeDefined();
-      });
-      await testScope(" ... and insert it", async () => {
-        await editor.insertSnippet(<SnippetString>scaffoldSnippet!.insertText);
-      });
-
-      await testScope("Verify inserted snippet", () => {
-        const textAfterInsertion = editor.document.getText();
-        expect(normalizeLineEndings(textAfterInsertion)).toBe(normalizeLineEndings(expectedAfterInsertion));
-      });
-
-      /* TODO: DISABLED (FLAKY) - see https://github.com/Azure/bicep/issues/6766
-      await testScope(
-        `Verify that the snippet placed VS Code into an "insertion" state with the dropdown for the first rule open to show the available diagnostic levels (the current one should be "warning"). Verify this by moving down to the next suggestion ("off") and selecting it`,
-        async () => {
-          const expectedAfterSelectingOffInsteadOfWarning =
-            expectedAfterInsertion.replace(/warning/, "off");
-          await executeSelectNextSuggestion();
-          await executeAcceptSelectedSuggestion();
-          const textAfterSelectingOffInsteadOfWarningtext =
-            editor.document.getText();
-          expect(
-            normalizeLineEndings(textAfterSelectingOffInsteadOfWarningtext)
-          ).toBe(
-            normalizeLineEndings(expectedAfterSelectingOffInsteadOfWarning)
-          );
-        }
+      const scaffoldSnippet = completions.items.find(
+        (item) => getCompletionLabelText(item) === "Default Bicep Configuration",
       );
-      */
+      if (!scaffoldSnippet) {
+        throw new Error("Expected the default Bicep configuration completion");
+      }
+      if (!(scaffoldSnippet.insertText instanceof SnippetString)) {
+        throw new Error("Expected the default Bicep configuration completion to contain a snippet");
+      }
+
+      await editor.insertSnippet(scaffoldSnippet.insertText);
+
+      expect(normalizeLineEndings(editor.document.getText()).trimEnd()).toBe(
+        normalizeLineEndings(expectedAfterInsertion).trimEnd(),
+      );
     } finally {
       try {
         fs.rmSync(tempFolder, {

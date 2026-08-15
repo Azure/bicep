@@ -3,18 +3,23 @@ docs/
 node_modules/
 src/
 test-e2e/
-# links for the extension readme (https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-bicep)
-# These are converted into github.com links, and not bundled with the extension
-readme-links/
+test-support/
+scripts/
+coverage/
+out/**/*.map
+out/e2e/
+out/src/
+out/test-e2e/
+out/test-support/
 
-.editorconfig
 .gitignore
-.eslintrc.js
+.prettierrc
 .vscodeignore
-webpack.config.mts
-tsconfig.e2e.json
-tsconfig.json
-package.params.json
+eslint.config.mjs
+package.test.ts
+webpack.config.mjs
 jest.config.e2e.js
 jest.config.unit.js
-jest.config.snapshot.js
+tsconfig.e2e.json
+tsconfig.json
+tsconfig.unit.json

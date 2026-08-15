@@ -5,15 +5,14 @@ import fs from "fs";
 import path from "path";
 import vscode from "vscode";
 import { e2eLogName } from "../src/infrastructure/logging";
-import { sleep } from "../src/infrastructure/timing";
-import { expectDefined } from "../src/test/utils/assert";
-import { until } from "./support/time";
+import { expectDefined } from "../test-support/assert";
+import { until } from "../test-support/polling";
 import { executeCloseAllEditors, executeShowDeployPaneCommand, executeShowDeployPaneToSideCommand } from "./commands";
 import { resolveExamplePath } from "./examples";
 
 const extensionLogPath = path.join(__dirname, `../../${e2eLogName}`);
 
-// Each test opens a document (2s sleep) and waits up to 30s for the webview to be ready.
+// Each test waits up to 30s for the webview to be ready.
 jest.setTimeout(60000);
 
 describe("deploypane", (): void => {
@@ -59,16 +58,13 @@ async function waitForWebViewReady(documentUri: vscode.Uri) {
     timeoutMs: 30000,
   });
   if (!webViewReady(documentUri)) {
-    throw `Expected deployment pane to be ready`;
+    throw new Error("Expected deployment pane to be ready");
   }
 }
 
 async function openDocument(path: string) {
   const document = await vscode.workspace.openTextDocument(path);
   const editor = await vscode.window.showTextDocument(document);
-
-  // Give the language server some time to finish compilation.
-  await sleep(2000);
 
   return { document, editor };
 }
