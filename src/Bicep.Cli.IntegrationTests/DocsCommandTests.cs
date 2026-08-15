@@ -82,7 +82,7 @@ public class DocsCommandTests : TestBase
             templateFile,
             "--template-root",
             moduleRoot,
-            "--set",
+            "--custom-template-value",
             "owner=Platform Team",
             "--no-restore");
 
@@ -478,9 +478,9 @@ public class DocsCommandTests : TestBase
     }
 
     [DataTestMethod]
-    [DataRow(["docs", "generate", "main.bicep", "--set"])]
-    [DataRow(["docs", "generate", "main.bicep", "--set", "invalid"])]
-    [DataRow(["docs", "generate", "main.bicep", "--set", "key=one", "--set", "key=two"])]
+    [DataRow(["docs", "generate", "main.bicep", "--custom-template-value"])]
+    [DataRow(["docs", "generate", "main.bicep", "--custom-template-value", "invalid"])]
+    [DataRow(["docs", "generate", "main.bicep", "--custom-template-value", "key=one", "--custom-template-value", "key=two"])]
     [DataRow(["docs", "generate", "main.bicep", "--output-file", "nested/README.md"])]
     [DataRow(["docs", "output", "main.bicep", "--pattern", "**/main.bicep"])]
     public async Task InvalidArguments_ReturnNonZero(string[] arguments)

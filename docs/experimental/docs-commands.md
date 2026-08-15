@@ -26,7 +26,7 @@ Both commands accept:
 
 - `--template-file <path>`
 - `--template-root <path>`
-- repeatable `--set key=value`
+- repeatable `--custom-template-value key=value`
 - `--no-restore`
 - `--diagnostics-format default|sarif`
 
@@ -68,7 +68,7 @@ Use includes for authored Markdown:
 
 Includes resolve from the module directory unless `--template-root` is supplied. Relative traversal such as `../shared/notes.md` is supported.
 
-Values supplied with `--set owner=Platform` are available as both `custom.owner` and `module.custom.owner`.
+Values supplied with `--custom-template-value owner=Platform` are available as both `custom.owner` and `module.custom.owner`.
 
 ## Template model
 
@@ -80,14 +80,14 @@ The root object contains `module` and `custom`.
 | `module.description` | string or null | Module description. |
 | `module.path` | string | Module entrypoint path. |
 | `module.targetScope` | string | Bicep target scope. |
-| `module.custom` | object | Values supplied with `--set`. |
+| `module.custom` | object | Values supplied with `--custom-template-value`. |
 | `module.resourceTypes` | array | Declared Azure resource types. |
 | `module.parameters` | array | Module parameters and nested properties. |
 | `module.outputs` | array | Module outputs. |
 | `module.exportedFunctions` | array | Exported functions. |
 | `module.references` | array | Referenced local modules. |
 | `module.usageExamples` | array | Discovered local examples and tests. |
-| `custom` | object | Values supplied with `--set`. |
+| `custom` | object | Values supplied with `--custom-template-value`. |
 
 ### Resource types
 

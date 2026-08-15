@@ -37,26 +37,26 @@ public static class DocsCommand
             var separatorIndex = value.IndexOf('=');
             if (separatorIndex <= 0)
             {
-                throw new CommandLineException($"The --set value \"{value}\" must use the format key=value.");
+                throw new CommandLineException($"The --custom-template-value value \"{value}\" must use the format key=value.");
             }
 
             var key = value[..separatorIndex];
             if (!customValues.TryAdd(key, value[(separatorIndex + 1)..]))
             {
-                throw new CommandLineException($"The --set key \"{key}\" cannot be specified more than once.");
+                throw new CommandLineException($"The --custom-template-value key \"{key}\" cannot be specified more than once.");
             }
         }
 
         return customValues.ToImmutable();
     }
 
-    internal static void ValidateSetOption(
+    internal static void ValidateCustomTemplateValueOption(
         System.CommandLine.ParseResult result,
         System.CommandLine.Option<string[]> setOption)
     {
         if (result.GetResult(setOption) is { Implicit: false, Tokens.Count: 0 })
         {
-            throw new CommandLineException("The --set parameter expects a key=value argument.");
+            throw new CommandLineException("The --custom-template-value parameter expects a key=value argument.");
         }
     }
 

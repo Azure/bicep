@@ -120,7 +120,7 @@ public class DocsGenerateCommand(
         {
             Description = "Sets the root directory for template includes. Defaults to the module directory.",
         };
-        var setOption = new System.CommandLine.Option<string[]>(Option.Set)
+        var customTemplateValueOption = new System.CommandLine.Option<string[]>(Option.CustomTemplateValue)
         {
             Description = "Supplies a custom template value in key=value form. May be repeated.",
             Arity = ArgumentArity.ZeroOrMore,
@@ -145,7 +145,7 @@ public class DocsGenerateCommand(
         command.Add(inputFileArgument);
         command.Add(templateFileOption);
         command.Add(templateRootOption);
-        command.Add(setOption);
+        command.Add(customTemplateValueOption);
         command.Add(outputFileOption);
         command.Add(patternOption);
         command.Add(noRestoreOption);
@@ -161,8 +161,8 @@ public class DocsGenerateCommand(
 
         command.SetAction((result, ct) => context.RunCommandAsync(async () =>
         {
-            DocsCommand.ValidateSetOption(result, setOption);
-            var customValues = result.GetValue(setOption);
+            DocsCommand.ValidateCustomTemplateValueOption(result, customTemplateValueOption);
+            var customValues = result.GetValue(customTemplateValueOption);
             ArgumentNullException.ThrowIfNull(customValues);
             var arguments = new DocsGenerateArguments(
                 result.GetValue(inputFileArgument),
