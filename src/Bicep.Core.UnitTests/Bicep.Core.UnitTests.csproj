@@ -23,8 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Documentation\Files\ExpectedMarkdown.md" />
-    <EmbeddedResource Include="Documentation\Files\ExpectedMarkdown.md" WithCulture="false" />
+    <None Remove="./Files/**/*.*" />
+    <EmbeddedResource Include="./Files/**/*.*" LogicalName="$([System.String]::new('Files/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" WithCulture="false" />
   </ItemGroup>
 
   <ItemGroup>

@@ -53,14 +53,12 @@ namespace Bicep.Cli.IntegrationTests
                     "docs",
                     "generate",
                     "output",
-                    "[Experimental]",
-                    "experimentalFeaturesEnabled.docsGeneration");
+                    "[Experimental]");
 
                 generateResult.Should().Be(0);
                 generateError.Should().BeEmpty();
                 generateOutput.Should().ContainAll(
                     "[Experimental]",
-                    "--preset",
                     "--template-file",
                     "--template-root",
                     "--set",
@@ -73,7 +71,6 @@ namespace Bicep.Cli.IntegrationTests
                 outputError.Should().BeEmpty();
                 outputOutput.Should().ContainAll(
                     "[Experimental]",
-                    "--preset",
                     "--template-file",
                     "--template-root",
                     "--set",

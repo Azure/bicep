@@ -24,7 +24,6 @@ public class DocsOutputCommand(
         var aggregateSarif = arguments.DiagnosticsFormat is DiagnosticsFormat.Sarif;
         var result = await runner.RenderAsync(
             module,
-            arguments.Preset,
             moduleScanner.ResolveOptionalFile(arguments.TemplateFile),
             moduleScanner.ResolveOptionalDirectory(arguments.TemplateRoot),
             DocsCommand.ParseCustomValues(arguments.CustomValues),
@@ -70,10 +69,6 @@ public class DocsOutputCommand(
             Description = "The path to a .bicep file or module directory. Defaults to the current directory.",
             Arity = ArgumentArity.ZeroOrOne,
         };
-        var presetOption = new System.CommandLine.Option<string?>(Option.Preset)
-        {
-            Description = "Selects a built-in preset. The only supported value is markdown.",
-        };
         var templateFileOption = new System.CommandLine.Option<string?>(Option.TemplateFile)
         {
             Description = "Uses a custom Scriban template file.",
@@ -97,7 +92,6 @@ public class DocsOutputCommand(
         };
 
         command.Add(inputFileArgument);
-        command.Add(presetOption);
         command.Add(templateFileOption);
         command.Add(templateRootOption);
         command.Add(setOption);
@@ -112,7 +106,6 @@ public class DocsOutputCommand(
             ArgumentNullException.ThrowIfNull(customValues);
             var arguments = new DocsOutputArguments(
                 result.GetValue(inputFileArgument),
-                DocsCommand.ParsePreset(result.GetValue(presetOption)),
                 result.GetValue(templateFileOption),
                 result.GetValue(templateRootOption),
                 [.. customValues],

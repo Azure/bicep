@@ -53,5 +53,4 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool AzExtensionConfigEnabled => overrides.AzExtensionConfigEnabled ?? features.AzExtensionConfigEnabled;
 
-    public bool DocsGenerationEnabled => overrides.DocsGenerationEnabled ?? features.DocsGenerationEnabled;
 }

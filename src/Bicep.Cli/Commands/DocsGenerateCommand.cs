@@ -42,7 +42,6 @@ public class DocsGenerateCommand(
             ArgumentHelper.ValidateBicepFile(module);
             var result = await runner.RenderAsync(
                 module,
-                arguments.Preset,
                 templateFile,
                 templateRoot,
                 customValues,
@@ -113,10 +112,6 @@ public class DocsGenerateCommand(
             Description = "The path to a .bicep file or module directory. Defaults to the current directory.",
             Arity = ArgumentArity.ZeroOrOne,
         };
-        var presetOption = new System.CommandLine.Option<string?>(Option.Preset)
-        {
-            Description = "Selects a built-in preset. The only supported value is markdown.",
-        };
         var templateFileOption = new System.CommandLine.Option<string?>(Option.TemplateFile)
         {
             Description = "Uses a custom Scriban template file.",
@@ -148,7 +143,6 @@ public class DocsGenerateCommand(
         };
 
         command.Add(inputFileArgument);
-        command.Add(presetOption);
         command.Add(templateFileOption);
         command.Add(templateRootOption);
         command.Add(setOption);
@@ -173,7 +167,6 @@ public class DocsGenerateCommand(
             var arguments = new DocsGenerateArguments(
                 result.GetValue(inputFileArgument),
                 result.GetValue(patternOption),
-                DocsCommand.ParsePreset(result.GetValue(presetOption)),
                 result.GetValue(templateFileOption),
                 result.GetValue(templateRootOption),
                 [.. customValues],

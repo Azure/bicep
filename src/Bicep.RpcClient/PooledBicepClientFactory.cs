@@ -242,7 +242,7 @@ public class PooledBicepClientFactory : IBicepClientFactory, IDisposable
         }
     }
 
-    private class PooledBicepClient(ClientPoolEntry poolEntry) : IBicepClient, IBicepDocumentationClient
+    private class PooledBicepClient(ClientPoolEntry poolEntry) : IBicepClient
     {
         private readonly CancellationTokenSource disposedCts = new();
 
@@ -256,10 +256,10 @@ public class PooledBicepClientFactory : IBicepClientFactory, IDisposable
             => MakeRequest((client, ct) => client.Format(request, ct), cancellationToken);
 
         public Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken = default)
-            => MakeRequest((client, ct) => GetDocumentationClient(client).GenerateDocs(request, ct), cancellationToken);
+            => MakeRequest((client, ct) => client.GenerateDocs(request, ct), cancellationToken);
 
         public Task<OutputDocsResponse> OutputDocs(OutputDocsRequest request, CancellationToken cancellationToken = default)
-            => MakeRequest((client, ct) => GetDocumentationClient(client).OutputDocs(request, ct), cancellationToken);
+            => MakeRequest((client, ct) => client.OutputDocs(request, ct), cancellationToken);
 
         public Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken = default)
             => MakeRequest((client, ct) => client.GetDeploymentGraph(request, ct), cancellationToken);
@@ -298,7 +298,5 @@ public class PooledBicepClientFactory : IBicepClientFactory, IDisposable
             disposedCts.Cancel();
         }
 
-        private static IBicepDocumentationClient GetDocumentationClient(IBicepClient client) =>
-            (IBicepDocumentationClient)client;
     }
 }

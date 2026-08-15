@@ -286,7 +286,6 @@ public record FormatResponse(
 /// Requests documentation files for one or more Bicep modules.
 /// </summary>
 /// <param name="Paths">Bicep file or module-directory paths to process.</param>
-/// <param name="Preset">The built-in preset name. Omit to use Markdown.</param>
 /// <param name="TemplateFile">An optional custom Scriban template path.</param>
 /// <param name="TemplateRoot">An optional root directory for template includes.</param>
 /// <param name="Custom">Optional string values exposed to the template.</param>
@@ -294,7 +293,6 @@ public record FormatResponse(
 /// <param name="NoRestore">Whether external artifact restore is skipped.</param>
 public record GenerateDocsRequest(
     ImmutableArray<string> Paths,
-    string? Preset,
     string? TemplateFile,
     string? TemplateRoot,
     Dictionary<string, string>? Custom,
@@ -305,14 +303,12 @@ public record GenerateDocsRequest(
 /// Requests rendered documentation for one Bicep module.
 /// </summary>
 /// <param name="Path">A Bicep file or module-directory path.</param>
-/// <param name="Preset">The built-in preset name. Omit to use Markdown.</param>
 /// <param name="TemplateFile">An optional custom Scriban template path.</param>
 /// <param name="TemplateRoot">An optional root directory for template includes.</param>
 /// <param name="Custom">Optional string values exposed to the template.</param>
 /// <param name="NoRestore">Whether external artifact restore is skipped.</param>
 public record OutputDocsRequest(
     string Path,
-    string? Preset,
     string? TemplateFile,
     string? TemplateRoot,
     Dictionary<string, string>? Custom,

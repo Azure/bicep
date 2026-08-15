@@ -32,7 +32,6 @@ public class CliJsonRpcServer(
     BicepCompiler compiler,
     InputOutputArgumentsResolver inputOutputArgumentsResolver,
     IEnvironment environment,
-    IFeatureProviderFactory featureProviderFactory,
     IBicepDocumentationGenerator documentationGenerator,
     DocsModuleScanner docsModuleScanner,
     IDocsFileWriter writer) : ICliJsonRpcProtocol
@@ -339,7 +338,6 @@ public class CliJsonRpcServer(
 
             var result = await RenderDocs(
                 target.InputUri,
-                request.Preset,
                 request.TemplateFile,
                 request.TemplateRoot,
                 request.Custom,
@@ -371,7 +369,6 @@ public class CliJsonRpcServer(
     public async Task<OutputDocsResponse> OutputDocs(OutputDocsRequest request, CancellationToken cancellationToken) =>
         new(await RenderDocs(
             request.Path,
-            request.Preset,
             request.TemplateFile,
             request.TemplateRoot,
             request.Custom,
@@ -381,7 +378,6 @@ public class CliJsonRpcServer(
 
     private async Task<DocsResult> RenderDocs(
         string path,
-        string? preset,
         string? templateFile,
         string? templateRoot,
         IReadOnlyDictionary<string, string>? custom,
@@ -399,12 +395,11 @@ public class CliJsonRpcServer(
             return CreateDocsFailure(path, "DOCS001", exception.Message);
         }
 
-        return await RenderDocs(inputUri, preset, templateFile, templateRoot, custom, noRestore, cancellationToken, workspace);
+        return await RenderDocs(inputUri, templateFile, templateRoot, custom, noRestore, cancellationToken, workspace);
     }
 
     private async Task<DocsResult> RenderDocs(
         IOUri inputUri,
-        string? preset,
         string? templateFile,
         string? templateRoot,
         IReadOnlyDictionary<string, string>? custom,
@@ -419,26 +414,10 @@ public class CliJsonRpcServer(
             return CreateDocsFailure(inputUri.GetFilePath(), "DOCS001", $"Invalid Bicep file path: {inputUri}");
         }
 
-        try
-        {
-            if (!featureProviderFactory.GetFeatureProvider(inputUri).DocsGenerationEnabled)
-            {
-                return CreateDocsFailure(
-                    inputUri.GetFilePath(),
-                    "DOCS001",
-                    $"The '{nameof(Bicep.Core.Configuration.ExperimentalFeaturesEnabled.DocsGeneration)}' experimental feature must be enabled.");
-            }
-        }
-        catch (BicepException exception)
-        {
-            return CreateDocsFailure(inputUri.GetFilePath(), "DOCS001", exception.Message);
-        }
-
         BicepDocumentationGenerationOptions options;
         try
         {
             options = new(
-                DocsCommand.ParsePreset(preset),
                 docsModuleScanner.ResolveOptionalFile(templateFile),
                 docsModuleScanner.ResolveOptionalDirectory(templateRoot),
                 custom);

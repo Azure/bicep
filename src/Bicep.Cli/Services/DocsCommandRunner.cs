@@ -37,12 +37,10 @@ public class DocsCommandRunner(
     IOContext io,
     DiagnosticLogger diagnosticLogger,
     BicepCompiler compiler,
-    IFeatureProviderFactory featureProviderFactory,
     IBicepDocumentationGenerator documentationGenerator)
 {
     public async Task<DocsRenderResult> RenderAsync(
         IOUri inputUri,
-        BicepDocumentationPreset preset,
         IOUri? templateFile,
         IOUri? templateRoot,
         IReadOnlyDictionary<string, string> customValues,
@@ -54,34 +52,6 @@ public class DocsCommandRunner(
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-
-        try
-        {
-            if (!featureProviderFactory.GetFeatureProvider(inputUri).DocsGenerationEnabled)
-            {
-                var message =
-                    $"The '{nameof(Bicep.Core.Configuration.ExperimentalFeaturesEnabled.DocsGeneration)}' experimental feature must be enabled for \"{inputUri}\".";
-                if (diagnosticsFormat is not DiagnosticsFormat.Sarif)
-                {
-                    await io.Error.Writer.WriteLineAsync(message);
-                }
-
-                return new DocsRenderResult.Failed(
-                    inputUri,
-                    DocumentationDiagnostic: DocsCommand.CreateDiagnostic(DocsCommand.InputFailureCode, message));
-            }
-        }
-        catch (BicepException exception)
-        {
-            if (diagnosticsFormat is not DiagnosticsFormat.Sarif)
-            {
-                await io.Error.Writer.WriteLineAsync(exception.Message);
-            }
-
-            return new DocsRenderResult.Failed(
-                inputUri,
-                DocumentationDiagnostic: DocsCommand.CreateDiagnostic(DocsCommand.InputFailureCode, exception.Message));
-        }
 
         Compilation compilation;
         try
@@ -119,14 +89,14 @@ public class DocsCommandRunner(
         {
             logger.LogWarning(string.Format(
                 CliResources.ExperimentalFeaturesDisclaimerMessage,
-                nameof(Bicep.Core.Configuration.ExperimentalFeaturesEnabled.DocsGeneration)));
+                "docs"));
         }
 
         cancellationToken.ThrowIfCancellationRequested();
 
         try
         {
-            var options = new BicepDocumentationGenerationOptions(preset, templateFile, templateRoot, customValues);
+            var options = new BicepDocumentationGenerationOptions(templateFile, templateRoot, customValues);
             return new DocsRenderResult.Succeeded(
                 inputUri,
                 compilation,

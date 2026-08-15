@@ -32,7 +32,6 @@ internal static class BicepDocumentationScriptModelFactory
         { "exportedFunctions", CreateArray(model.ExportedFunctions, CreateFunction) },
         { "references", CreateArray(model.References, CreateReference) },
         { "usageExamples", CreateArray(model.UsageExamples, CreateUsageExample) },
-        { "dataCollection", model.DataCollection is { } dataCollection ? CreateDataCollection(dataCollection) : null },
     };
 
     private static ScriptObject CreateCustom(ImmutableSortedDictionary<string, string> custom)
@@ -121,12 +120,6 @@ internal static class BicepDocumentationScriptModelFactory
         { "description", example.Description },
         { "contents", example.Contents },
         { "fence", GetCodeFence(example.Contents) },
-    };
-
-    private static ScriptObject CreateDataCollection(BicepDocumentationDataCollection dataCollection) => new()
-    {
-        { "enabled", dataCollection.Enabled },
-        { "note", dataCollection.Note },
     };
 
     private static ScriptArray CreateParameters(ImmutableArray<BicepDocumentationParameter> parameters)

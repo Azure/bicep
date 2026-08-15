@@ -11,8 +11,8 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;
-using Bicep.Testing.IO;
 using Bicep.Testing;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -118,8 +118,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "deployCommands": false,
           "patch": false,
           "runtimeValuesInTagsAndSku": false,
-          "azExtensionConfig": false,
-          "docsGeneration": false
+          "azExtensionConfig": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -207,8 +206,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "deployCommands": false,
           "patch": false,
           "runtimeValuesInTagsAndSku": false,
-          "azExtensionConfig": false,
-          "docsGeneration": false
+          "azExtensionConfig": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -318,8 +316,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "deployCommands": false,
           "patch": false,
           "runtimeValuesInTagsAndSku": false,
-          "azExtensionConfig": false,
-          "docsGeneration": false
+          "azExtensionConfig": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -407,8 +404,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 DeployCommands: false,
                 Patch: false,
                 RuntimeValuesInTagsAndSku: false,
-                AzExtensionConfig: false,
-                DocsGeneration: false);
+                AzExtensionConfig: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -497,8 +493,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "deployCommands": false,
                 "patch": false,
                 "runtimeValuesInTagsAndSku": false,
-                "azExtensionConfig": false,
-                "docsGeneration": false
+                "azExtensionConfig": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -856,8 +851,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "deployCommands": false,
                     "patch": false,
                     "runtimeValuesInTagsAndSku": false,
-                    "azExtensionConfig": false,
-                    "docsGeneration": false
+                    "azExtensionConfig": false
                   },
                   "formatting": {
                     "indentKind": "Space",

@@ -176,13 +176,11 @@ output bar string = foo
         });
 
         await RunServerTest(
-            services => services
-                .WithFileSystem(fileSystem)
-                .WithFeatureOverrides(new(DocsGenerationEnabled: true)),
+            services => services.WithFileSystem(fileSystem),
             async (client, token) =>
             {
                 var response = await client.OutputDocs(
-                    new("/main.bicep", null, null, null, null, NoRestore: false),
+                    new("/main.bicep", null, null, null, NoRestore: false),
                     token);
 
                 response.Result.Success.Should().BeTrue();
@@ -207,15 +205,12 @@ output bar string = foo
         });
 
         await RunServerTest(
-            services => services
-                .WithFileSystem(fileSystem)
-                .WithFeatureOverrides(new(DocsGenerationEnabled: true)),
+            services => services.WithFileSystem(fileSystem),
             async (client, token) =>
             {
                 var response = await client.OutputDocs(
                     new(
                         "/main.bicep",
-                        "markdown",
                         "/template.scriban",
                         "/",
                         new() { ["owner"] = "Platform" },
@@ -237,15 +232,12 @@ output bar string = foo
         });
 
         await RunServerTest(
-            services => services
-                .WithFileSystem(fileSystem)
-                .WithFeatureOverrides(new(DocsGenerationEnabled: true)),
+            services => services.WithFileSystem(fileSystem),
             async (client, token) =>
             {
                 var response = await client.GenerateDocs(
                     new(
                         ["/valid/main.bicep", "/invalid/main.bicep"],
-                        null,
                         null,
                         null,
                         null,
@@ -280,60 +272,39 @@ output bar string = foo
             services => services.WithFileSystem(fileSystem),
             async (client, token) =>
             {
-                var disabled = await client.OutputDocs(
-                    new("/main.bicep", null, null, null, null, NoRestore: false),
-                    token);
-                disabled.Result.Success.Should().BeFalse();
-                disabled.Result.Diagnostics.Should().ContainSingle(diagnostic =>
-                    diagnostic.Code == "DOCS001" &&
-                    diagnostic.Message.Contains("DocsGeneration"));
-            });
-
-        await RunServerTest(
-            services => services
-                .WithFileSystem(fileSystem)
-                .WithFeatureOverrides(new(DocsGenerationEnabled: true)),
-            async (client, token) =>
-            {
-                var invalidPreset = await client.OutputDocs(
-                    new("/main.bicep", "html", null, null, null, NoRestore: false),
-                    token);
-                invalidPreset.Result.Success.Should().BeFalse();
-                invalidPreset.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
-
                 var invalidExtension = await client.OutputDocs(
-                    new("/main.txt", null, null, null, null, NoRestore: false),
+                    new("/main.txt", null, null, null, NoRestore: false),
                     token);
                 invalidExtension.Result.Success.Should().BeFalse();
                 invalidExtension.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
 
                 var missingPath = await client.OutputDocs(
-                    new("/missing", null, null, null, null, NoRestore: false),
+                    new("/missing", null, null, null, NoRestore: false),
                     token);
                 missingPath.Result.Success.Should().BeFalse();
                 missingPath.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
 
                 var invalidTemplate = await client.OutputDocs(
-                    new("/main.bicep", null, "/invalid.scriban", null, null, NoRestore: false),
+                    new("/main.bicep", "/invalid.scriban", null, null, NoRestore: false),
                     token);
                 invalidTemplate.Result.Success.Should().BeFalse();
                 invalidTemplate.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS003");
 
                 var invalidOutput = await client.GenerateDocs(
-                    new(["/main.bicep"], null, null, null, null, "nested/README.md", NoRestore: false),
+                    new(["/main.bicep"], null, null, null, "nested/README.md", NoRestore: false),
                     token);
                 invalidOutput.Results.Should().ContainSingle();
                 invalidOutput.Results[0].Success.Should().BeFalse();
                 invalidOutput.Results[0].Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
 
                 var inputOverwrite = await client.GenerateDocs(
-                    new(["/main.bicep"], null, null, null, null, "main.bicep", NoRestore: false),
+                    new(["/main.bicep"], null, null, null, "main.bicep", NoRestore: false),
                     token);
                 inputOverwrite.Results.Should().ContainSingle();
                 inputOverwrite.Results[0].Success.Should().BeFalse();
 
                 var outputCollision = await client.GenerateDocs(
-                    new(["/missing", "/a.bicep", "/b.bicep"], null, null, null, null, null, NoRestore: false),
+                    new(["/missing", "/a.bicep", "/b.bicep"], null, null, null, null, NoRestore: false),
                     token);
                 outputCollision.Results.Should().HaveCount(3);
                 outputCollision.Results[0].Success.Should().BeFalse();
@@ -344,7 +315,7 @@ output bar string = foo
                     diagnostic.Message.Contains("Multiple input modules"));
 
                 var mixedResult = await client.GenerateDocs(
-                    new(["/missing", "/main.bicep"], null, null, null, null, "MIXED.md", NoRestore: false),
+                    new(["/missing", "/main.bicep"], null, null, null, "MIXED.md", NoRestore: false),
                     token);
                 mixedResult.Results.Should().HaveCount(2);
                 mixedResult.Results[0].Success.Should().BeFalse();
@@ -371,13 +342,11 @@ output bar string = foo
             .ThrowsAsync(new BicepException("write failed"));
 
         await RunServerTest(
-            services => services
-                .WithFeatureOverrides(new(DocsGenerationEnabled: true))
-                .AddSingleton(writer.Object),
+            services => services.AddSingleton(writer.Object),
             async (client, token) =>
             {
                 var response = await client.GenerateDocs(
-                    new([Path.Combine(root, "main.bicep")], null, null, null, null, null, NoRestore: false),
+                    new([Path.Combine(root, "main.bicep")], null, null, null, null, NoRestore: false),
                     token);
 
                 response.Results.Should().ContainSingle();
@@ -412,50 +381,17 @@ output bar string = foo
         await RunServerTest(
             services => services
                 .WithFileSystem(fileSystem)
-                .WithFileExplorer(explorer.Object)
-                .AddSingleton<IFeatureProviderFactory>(
-                    IFeatureProviderFactory.WithStaticFeatureProvider(
-                        new RecordBasedFeatureProvider(
-                            ExperimentalFeaturesEnabled.AllDisabled with { DocsGeneration = true }))),
+                .WithFileExplorer(explorer.Object),
             async (client, token) =>
             {
                 var response = await client.OutputDocs(
-                    new("/main.bicep", null, null, null, null, NoRestore: false),
+                    new("/main.bicep", null, null, null, NoRestore: false),
                     token);
 
                 response.Result.Success.Should().BeFalse();
                 response.Result.Diagnostics.Should().ContainSingle(diagnostic =>
                     diagnostic.Code == "DOCS001" &&
                     diagnostic.Message == "compilation failed");
-            });
-    }
-
-    [TestMethod]
-    public async Task OutputDocs_returns_structured_feature_provider_exceptions()
-    {
-        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
-        {
-            ["/main.bicep"] = "metadata name = 'Example'",
-        });
-        var featureProviderFactory = new Mock<IFeatureProviderFactory>(MockBehavior.Strict);
-        featureProviderFactory
-            .Setup(factory => factory.GetFeatureProvider(It.IsAny<IOUri>()))
-            .Throws(new BicepException("feature lookup failed"));
-
-        await RunServerTest(
-            services => services
-                .WithFileSystem(fileSystem)
-                .AddSingleton(featureProviderFactory.Object),
-            async (client, token) =>
-            {
-                var response = await client.OutputDocs(
-                    new("/main.bicep", null, null, null, null, NoRestore: false),
-                    token);
-
-                response.Result.Success.Should().BeFalse();
-                response.Result.Diagnostics.Should().ContainSingle(diagnostic =>
-                    diagnostic.Code == "DOCS001" &&
-                    diagnostic.Message == "feature lookup failed");
             });
     }
 

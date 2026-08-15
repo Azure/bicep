@@ -199,9 +199,6 @@ public class BicepDocumentationGeneratorTests
         reference.Path.Should().Be("modules/logging.bicep");
         reference.Description.Should().BeNull();
 
-        model.DataCollection.Should().NotBeNull();
-        model.DataCollection!.Enabled.Should().BeTrue();
-        model.DataCollection.Note.Should().NotBeNullOrWhiteSpace();
     }
 
     [TestMethod]
@@ -262,7 +259,6 @@ public class BicepDocumentationGeneratorTests
 
         var generator = compiler.GetService<IBicepDocumentationGenerator>();
         var options = new BicepDocumentationGenerationOptions(
-            BicepDocumentationPreset.Markdown,
             TemplateFile: compiler.FileSet.GetUri("readme.scriban"),
             TemplateRoot: null,
             CustomValues: null);
@@ -277,13 +273,13 @@ public class BicepDocumentationGeneratorTests
     {
         var options = BicepDocumentationGenerationOptions.Default;
         var clone = options with { };
-        var different = options with { Preset = (BicepDocumentationPreset)1 };
+        var different = options with { TemplateFile = IOUri.FromFilePath(Path.GetFullPath("readme.scriban")) };
 
         options.Should().Be(clone);
         (options == clone).Should().BeTrue();
         options.Should().NotBe(different);
         options.GetHashCode().Should().Be(clone.GetHashCode());
-        options.ToString().Should().Contain("Markdown");
+        options.ToString().Should().Contain("TemplateFile");
     }
 
     [TestMethod]
@@ -327,7 +323,6 @@ public class BicepDocumentationGeneratorTests
         var model = generator.BuildModel(result.Compilation, new Dictionary<string, string> { ["ownerDisplayName"] = "Old Team" });
 
         var options = new BicepDocumentationGenerationOptions(
-            BicepDocumentationPreset.Markdown,
             TemplateFile: compiler.FileSet.GetUri("readme.scriban"),
             TemplateRoot: null,
             CustomValues: new Dictionary<string, string> { ["ownerDisplayName"] = "Platform Team" });
@@ -349,7 +344,6 @@ public class BicepDocumentationGeneratorTests
 
         var generator = compiler.GetService<IBicepDocumentationGenerator>();
         var options = new BicepDocumentationGenerationOptions(
-            BicepDocumentationPreset.Markdown,
             TemplateFile: compiler.FileSet.GetUri("readme.scriban"),
             TemplateRoot: null,
             CustomValues: null);
@@ -369,7 +363,6 @@ public class BicepDocumentationGeneratorTests
 
         var generator = compiler.GetService<IBicepDocumentationGenerator>();
         var options = new BicepDocumentationGenerationOptions(
-            BicepDocumentationPreset.Markdown,
             TemplateFile: compiler.FileSet.GetUri("readme.scriban"),
             TemplateRoot: null,
             CustomValues: null);
@@ -409,18 +402,6 @@ public class BicepDocumentationGeneratorTests
 
         rendered.Should().Contain("### Example 1: _same_");
         rendered.Should().Contain("### Example 2: _Same_");
-    }
-
-    [TestMethod]
-    public async Task BuildModel_NonBooleanEnableTelemetryParameter_DoesNotAddDataCollection()
-    {
-        var compiler = TestCompiler.ForMockFileSystemCompilation();
-        var result = await compiler.Compile("param enableTelemetry string = 'not telemetry'");
-
-        var generator = compiler.GetService<IBicepDocumentationGenerator>();
-        var model = generator.BuildModel(result.Compilation);
-
-        model.DataCollection.Should().BeNull();
     }
 
     [TestMethod]
@@ -484,7 +465,6 @@ public class BicepDocumentationGeneratorTests
         var model = generator.BuildModel(result.Compilation);
 
         var options = new BicepDocumentationGenerationOptions(
-            BicepDocumentationPreset.Markdown,
             TemplateFile: compiler.FileSet.GetUri("readme.scriban"),
             TemplateRoot: null,
             CustomValues: null);
@@ -506,7 +486,6 @@ public class BicepDocumentationGeneratorTests
         var model = generator.BuildModel(result.Compilation);
 
         var options = new BicepDocumentationGenerationOptions(
-            BicepDocumentationPreset.Markdown,
             TemplateFile: compiler.FileSet.GetUri("readme.scriban"),
             TemplateRoot: null,
             CustomValues: null);
@@ -543,22 +522,6 @@ public class BicepDocumentationGeneratorTests
     }
 
     [TestMethod]
-    public async Task Render_UnsupportedPreset_ThrowsBicepDocumentationException()
-    {
-        var compiler = TestCompiler.ForMockFileSystemCompilation();
-        var result = await compiler.Compile("param foo string = 'bar'");
-
-        var generator = compiler.GetService<IBicepDocumentationGenerator>();
-        var model = generator.BuildModel(result.Compilation);
-
-        var options = new BicepDocumentationGenerationOptions((BicepDocumentationPreset)999, TemplateFile: null, TemplateRoot: null, CustomValues: null);
-
-        var act = () => generator.Render(model, options);
-
-        act.Should().Throw<BicepDocumentationException>().WithMessage("*999*");
-    }
-
-    [TestMethod]
     public async Task Render_MissingCustomTemplateFile_ThrowsBicepDocumentationException()
     {
         var compiler = TestCompiler.ForMockFileSystemCompilation();
@@ -568,7 +531,6 @@ public class BicepDocumentationGeneratorTests
         var model = generator.BuildModel(result.Compilation);
 
         var options = new BicepDocumentationGenerationOptions(
-            BicepDocumentationPreset.Markdown,
             TemplateFile: compiler.FileSet.GetUri("missing.scriban"),
             TemplateRoot: null,
             CustomValues: null);
@@ -591,7 +553,6 @@ public class BicepDocumentationGeneratorTests
 
         var throwingGenerator = new BicepDocumentationGenerator(new ThrowingFileExplorer(new IOException("disk error")));
         var options = new BicepDocumentationGenerationOptions(
-            BicepDocumentationPreset.Markdown,
             TemplateFile: compiler.FileSet.GetUri("readme.scriban"),
             TemplateRoot: null,
             CustomValues: null);
@@ -618,7 +579,6 @@ public class BicepDocumentationGeneratorTests
         var throwingExplorer = new SelectivelyThrowingFileExplorer(compiler.FileSet.FileExplorer, compiler.FileSet.GetUri("_header.md"), new IOException("disk error"));
         var throwingGenerator = new BicepDocumentationGenerator(throwingExplorer);
         var options = new BicepDocumentationGenerationOptions(
-            BicepDocumentationPreset.Markdown,
             TemplateFile: compiler.FileSet.GetUri("readme.scriban"),
             TemplateRoot: null,
             CustomValues: null);
@@ -641,7 +601,6 @@ public class BicepDocumentationGeneratorTests
         var model = generator.BuildModel(result.Compilation);
 
         var options = new BicepDocumentationGenerationOptions(
-            BicepDocumentationPreset.Markdown,
             TemplateFile: compiler.FileSet.GetUri("readme.scriban"),
             TemplateRoot: compiler.FileSet.GetUri("overrideRoot"),
             CustomValues: null);
@@ -678,7 +637,6 @@ public class BicepDocumentationGeneratorTests
 
         compiler.FileSet.AddFile("readme.scriban", "{{ include \"_header.md\" }}");
         var options = new BicepDocumentationGenerationOptions(
-            BicepDocumentationPreset.Markdown,
             TemplateFile: compiler.FileSet.GetUri("readme.scriban"),
             TemplateRoot: compiler.FileSet.FileExplorer.GetDirectory(compiler.FileSet.GetUri("overrideRoot")).Uri,
             CustomValues: null);
@@ -698,7 +656,6 @@ public class BicepDocumentationGeneratorTests
         var model = MinimalModel();
 
         var options = new BicepDocumentationGenerationOptions(
-            BicepDocumentationPreset.Markdown,
             TemplateFile: compiler.FileSet.GetUri("readme.scriban"),
             TemplateRoot: compiler.FileSet.FileExplorer.GetDirectory(compiler.FileSet.GetUri("")).Uri,
             CustomValues: null);
@@ -723,7 +680,6 @@ public class BicepDocumentationGeneratorTests
         model.ExportedFunctions.Should().BeEmpty();
         model.References.Should().BeEmpty();
         model.UsageExamples.Should().BeEmpty();
-        model.DataCollection.Should().BeNull();
 
         var rendered = generator.Render(model);
 
@@ -785,44 +741,6 @@ public class BicepDocumentationGeneratorTests
         var model = generator.BuildModel(result.Compilation);
 
         model.TargetScope.Should().Be("local");
-    }
-
-    [TestMethod]
-    public async Task BuildModel_EnableTelemetryDefaultsFalse_ProjectsDisabledDataCollection()
-    {
-        var compiler = TestCompiler.ForMockFileSystemCompilation();
-        var result = await compiler.Compile("param enableTelemetry bool = false\n");
-
-        var generator = compiler.GetService<IBicepDocumentationGenerator>();
-        var model = generator.BuildModel(result.Compilation);
-
-        model.DataCollection.Should().NotBeNull();
-        model.DataCollection!.Enabled.Should().BeFalse();
-    }
-
-    [TestMethod]
-    public async Task BuildModel_EnableTelemetryWithoutDefault_ProjectsEnabledDataCollection()
-    {
-        var compiler = TestCompiler.ForMockFileSystemCompilation();
-        var result = await compiler.Compile("param enableTelemetry bool\n");
-
-        var generator = compiler.GetService<IBicepDocumentationGenerator>();
-        var model = generator.BuildModel(result.Compilation, new Dictionary<string, string>());
-
-        model.DataCollection.Should().NotBeNull();
-        model.DataCollection!.Enabled.Should().BeTrue();
-    }
-
-    [TestMethod]
-    public async Task BuildModel_NoEnableTelemetryParameter_DataCollectionIsAbsent()
-    {
-        var compiler = TestCompiler.ForMockFileSystemCompilation();
-        var result = await compiler.Compile("param foo string = 'bar'");
-
-        var generator = compiler.GetService<IBicepDocumentationGenerator>();
-        var model = generator.BuildModel(result.Compilation);
-
-        model.DataCollection.Should().BeNull();
     }
 
     [TestMethod]
@@ -909,12 +827,11 @@ public class BicepDocumentationGeneratorTests
         Outputs: [],
         ExportedFunctions: [],
         References: [],
-        UsageExamples: [],
-        DataCollection: null);
+        UsageExamples: []);
 
     private static string GetEmbeddedFixture(string name)
     {
-        var resourceName = $"Bicep.Core.UnitTests.Documentation.Files.{name}";
+        var resourceName = $"Files/Documentation/{name}";
         using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName)
             ?? throw new InvalidOperationException($"Could not find embedded fixture '{resourceName}'.");
         using var reader = new StreamReader(stream);

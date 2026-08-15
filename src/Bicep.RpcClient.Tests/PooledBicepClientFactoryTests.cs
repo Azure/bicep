@@ -290,12 +290,11 @@ public class PooledBicepClientFactoryTests
         using var factory = CreatePooledFactory(inner);
         var wrapper = await factory.Initialize(new BicepClientConfiguration(), Token);
 
-        var docsClient = (IBicepDocumentationClient)wrapper;
-        var generated = await docsClient.GenerateDocs(
-            new(["main.bicep"], null, null, null, null, null, NoRestore: false),
+        var generated = await wrapper.GenerateDocs(
+            new(["main.bicep"], null, null, null, null, NoRestore: false),
             Token);
-        var output = await docsClient.OutputDocs(
-            new("main.bicep", null, null, null, null, NoRestore: false),
+        var output = await wrapper.OutputDocs(
+            new("main.bicep", null, null, null, NoRestore: false),
             Token);
 
         generated.Results.Should().BeEmpty();
@@ -362,7 +361,7 @@ public class PooledBicepClientFactoryTests
             => throw new NotSupportedException();
     }
 
-    private sealed class FakeBicepClient(Func<CancellationToken, Task>? onRequest = null) : IBicepClient, IBicepDocumentationClient
+    private sealed class FakeBicepClient(Func<CancellationToken, Task>? onRequest = null) : IBicepClient
     {
         public const string Version = "1.2.3";
 

@@ -34,10 +34,6 @@ extension az with {
 
 Enables `deploy`, `what-if` and `teardown` command groups, as well as the `with` syntax in a `.bicepparam` file. For more information, see [Using the Deploy Commands](./experimental/deploy-commands.md).
 
-### `docsGeneration`
-
-Enables the `bicep docs generate` and `bicep docs output` commands. For command and template model details, see [Generate module documentation](./experimental/docs-commands.md).
-
 ### `legacyFormatter`
 
 Enables code formatting with the legacy formatter. This feature flag is introduced to ensure a safer transition to the v2 formatter that implements a pretty-printing algorithm. It is intended for temporary use and will be phased out soon.
@@ -129,3 +125,7 @@ Command that allows the publishing of extensions to container registries. For mo
 ### Bicep MCP Server
 
 See [Using Bicep MCP Server in VS Code (Preview!)](./experimental/mcp-tools.md).
+
+### `docs` CLI Command
+
+Generates module documentation. For command and template model details, see [Generate module documentation](./experimental/docs-commands.md).

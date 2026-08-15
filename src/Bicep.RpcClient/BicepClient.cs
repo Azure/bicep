@@ -14,7 +14,7 @@ using Bicep.RpcClient.Models;
 
 namespace Bicep.RpcClient;
 
-internal class BicepClient : IBicepClient, IBicepDocumentationClient
+internal class BicepClient : IBicepClient
 {
     private readonly Process? cliProcess;
     private readonly IJsonRpcClient jsonRpcClient;

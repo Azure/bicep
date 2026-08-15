@@ -21,21 +21,11 @@ public static class DocsCommand
     {
         var command = new System.CommandLine.Command(
             Constants.Command.Docs,
-            "[Experimental] Generates documentation for Bicep modules. Requires experimentalFeaturesEnabled.docsGeneration.");
+            "[Experimental] Generates documentation for Bicep modules.");
         command.Add(DocsGenerateCommand.CreateCommand(context));
         command.Add(DocsOutputCommand.CreateCommand(context));
 
         return command;
-    }
-
-    internal static BicepDocumentationPreset ParsePreset(string? value)
-    {
-        if (value is null || value.Equals("markdown", StringComparison.OrdinalIgnoreCase))
-        {
-            return BicepDocumentationPreset.Markdown;
-        }
-
-        throw new CommandLineException($"The preset \"{value}\" is not supported. The only supported preset is \"markdown\".");
     }
 
     internal static ImmutableSortedDictionary<string, string> ParseCustomValues(IEnumerable<string> values)

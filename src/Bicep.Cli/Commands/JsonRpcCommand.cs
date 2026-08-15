@@ -24,7 +24,6 @@ public class JsonRpcCommand(
     BicepCompiler compiler,
     InputOutputArgumentsResolver inputOutputArgumentsResolver,
     IEnvironment environment,
-    IFeatureProviderFactory featureProviderFactory,
     IBicepDocumentationGenerator documentationGenerator,
     DocsModuleScanner docsModuleScanner,
     IDocsFileWriter writer) : ICommand
@@ -72,7 +71,6 @@ public class JsonRpcCommand(
             compiler,
             inputOutputArgumentsResolver,
             environment,
-            featureProviderFactory,
             documentationGenerator,
             docsModuleScanner,
             writer);

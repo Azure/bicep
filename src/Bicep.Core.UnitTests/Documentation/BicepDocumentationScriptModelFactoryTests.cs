@@ -44,8 +44,7 @@ public class BicepDocumentationScriptModelFactoryTests
             Outputs: [new BicepDocumentationOutput("out1", "string", IsSecure: true, Description: "An output.")],
             ExportedFunctions: [new BicepDocumentationFunction("fn", [new BicepDocumentationFunctionParameter("p", "int", "A param.")], "bool", "A function.")],
             References: [new BicepDocumentationReference("logging", "modules/logging.bicep", "A reference.")],
-            UsageExamples: [new BicepDocumentationUsageExample("default", "examples/default/main.bicep", "An example.", "// contents")],
-            DataCollection: new BicepDocumentationDataCollection(true, "A note."));
+            UsageExamples: [new BicepDocumentationUsageExample("default", "examples/default/main.bicep", "An example.", "// contents")]);
 
         var scriptObject = BicepDocumentationScriptModelFactory.Create(model);
 
@@ -101,13 +100,10 @@ public class BicepDocumentationScriptModelFactoryTests
         usageExample.GetSafeValue<string>("contents").Should().Be("// contents");
         usageExample.GetSafeValue<string>("fence").Should().Be("```");
 
-        var dataCollection = module.GetSafeValue<ScriptObject>("dataCollection")!;
-        dataCollection.GetSafeValue<bool>("enabled").Should().BeTrue();
-        dataCollection.GetSafeValue<string>("note").Should().Be("A note.");
     }
 
     [TestMethod]
-    public void Create_MinimalModel_ProjectsNullDataCollectionDiscriminatorAndEmptyArrays()
+    public void Create_MinimalModel_ProjectsNullDiscriminatorAndEmptyArrays()
     {
         var model = new BicepDocumentationModel(
             Name: "Empty",
@@ -120,15 +116,13 @@ public class BicepDocumentationScriptModelFactoryTests
             Outputs: [],
             ExportedFunctions: [],
             References: [],
-            UsageExamples: [],
-            DataCollection: null);
+            UsageExamples: []);
 
         var scriptObject = BicepDocumentationScriptModelFactory.Create(model);
         var module = scriptObject.GetSafeValue<ScriptObject>("module")!;
 
         module.GetSafeValue<object>("description").Should().BeNull();
         module.GetSafeValue<ScriptArray>("resourceTypes").Should().BeEmpty();
-        module.GetSafeValue<object>("dataCollection").Should().BeNull();
 
         var parameter = module.GetSafeValue<ScriptArray>("parameters")![0] as ScriptObject;
         parameter!.GetSafeValue<object>("discriminator").Should().BeNull();

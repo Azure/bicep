@@ -134,7 +134,7 @@ public class BicepClientUnitTests
         using var client = new BicepClient(rpc);
 
         var result = await client.GenerateDocs(
-            new(["main.bicep"], null, null, null, null, null, NoRestore: false),
+            new(["main.bicep"], null, null, null, null, NoRestore: false),
             Token);
 
         result.Results.Should().BeEmpty();
@@ -152,7 +152,7 @@ public class BicepClientUnitTests
         using var client = new BicepClient(rpc);
 
         var result = await client.OutputDocs(
-            new("main.bicep", null, null, null, null, NoRestore: false),
+            new("main.bicep", null, null, null, NoRestore: false),
             Token);
 
         result.Result.Contents.Should().Be("# Module\n");
@@ -167,12 +167,12 @@ public class BicepClientUnitTests
         using var client = new BicepClient(rpc);
 
         await FluentActions.Invoking(() => client.GenerateDocs(
-                new(["main.bicep"], null, null, null, null, null, NoRestore: false),
+                new(["main.bicep"], null, null, null, null, NoRestore: false),
                 Token))
             .Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*requires Bicep CLI version '0.46.0' or later*");
         await FluentActions.Invoking(() => client.OutputDocs(
-                new("main.bicep", null, null, null, null, NoRestore: false),
+                new("main.bicep", null, null, null, NoRestore: false),
                 Token))
             .Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*requires Bicep CLI version '0.46.0' or later*");

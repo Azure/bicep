@@ -1,16 +1,6 @@
 # Generate module documentation
 
-The experimental `docsGeneration` feature adds commands for rendering documentation from a compiled Bicep module.
-
-Enable it in `bicepconfig.json`:
-
-```json
-{
-  "experimentalFeaturesEnabled": {
-    "docsGeneration": true
-  }
-}
-```
+The experimental `docs` command group renders documentation from a compiled Bicep module.
 
 ## Commands
 
@@ -34,7 +24,6 @@ bicep docs output .\main.bicep
 
 Both commands accept:
 
-- `--preset markdown`
 - `--template-file <path>`
 - `--template-root <path>`
 - repeatable `--set key=value`
@@ -98,7 +87,6 @@ The root object contains `module` and `custom`.
 | `module.exportedFunctions` | array | Exported functions. |
 | `module.references` | array | Referenced local modules. |
 | `module.usageExamples` | array | Discovered local examples and tests. |
-| `module.dataCollection` | object or null | Data collection information. |
 | `custom` | object | Values supplied with `--set`. |
 
 ### Resource types
@@ -150,10 +138,6 @@ Each `module.references` item contains `symbolicName`, `path`, and `description`
 ### Usage examples
 
 Each `module.usageExamples` item contains `name`, `path`, `description`, `contents`, and a Markdown-safe `fence`.
-
-### Data collection
-
-When a Boolean parameter named `enableTelemetry` is present, `module.dataCollection` contains `enabled` and `note`. Otherwise it is null.
 
 ## JSON-RPC
 

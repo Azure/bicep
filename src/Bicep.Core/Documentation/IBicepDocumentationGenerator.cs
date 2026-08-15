@@ -36,16 +36,29 @@ public interface IBicepDocumentationGenerator
         BicepDocumentationGenerationOptions? options = null,
         CancellationToken cancellationToken = default);
 
+}
+
+/// <summary>
+/// Provides composed documentation generation operations.
+/// </summary>
+public static class BicepDocumentationGeneratorExtensions
+{
     /// <summary>
-    /// Builds the documentation model for the entrypoint module of the given compilation and renders it.
+    /// Builds and renders documentation for a compiled Bicep module.
     /// </summary>
+    /// <param name="generator">The documentation generator.</param>
     /// <param name="compilation">The module compilation.</param>
     /// <param name="options">Optional rendering settings.</param>
     /// <param name="cancellationToken">A token that cancels generation.</param>
     /// <returns>The rendered document.</returns>
     /// <exception cref="BicepDocumentationException">The model cannot be built or rendered.</exception>
-    string Generate(
+    public static string Generate(
+        this IBicepDocumentationGenerator generator,
         Compilation compilation,
         BicepDocumentationGenerationOptions? options = null,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default)
+    {
+        var model = generator.BuildModel(compilation, options?.CustomValues, cancellationToken);
+        return generator.Render(model, options, cancellationToken);
+    }
 }

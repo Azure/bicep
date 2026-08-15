@@ -43,8 +43,6 @@ public interface IFeatureProvider
 
     bool AzExtensionConfigEnabled { get; }
 
-    bool DocsGenerationEnabled { get; }
-
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
         get
@@ -67,7 +65,6 @@ public interface IFeatureProvider
                 (DeployCommandsEnabled, "Enable deploy commands", true, true),
                 (RuntimeValuesInTagsAndSkuEnabled, "Enable runtime values in tags and SKU", true, true),
                 (AzExtensionConfigEnabled, "Enable configuration for the built-in 'az' extension", true, true),
-                (DocsGenerationEnabled, "Enable module documentation generation", false, false),
             })
             {
                 if (enabled)

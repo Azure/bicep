@@ -68,25 +68,4 @@ public class FeatureProviderTests
         subDirFeatures.SymbolicNameCodegenEnabled.Should().BeTrue();
     }
 
-    [TestMethod]
-    public void DocsGeneration_feature_is_exposed_by_feature_providers()
-    {
-        var enabled = ExperimentalFeaturesEnabled.AllDisabled with { DocsGeneration = true };
-        var recordProvider = new RecordBasedFeatureProvider(enabled);
-
-        recordProvider.DocsGenerationEnabled.Should().BeTrue();
-
-        var overridden = new OverriddenFeatureProvider(
-            recordProvider,
-            new(DocsGenerationEnabled: false));
-        overridden.DocsGenerationEnabled.Should().BeFalse();
-
-        var assemblyVersionFactory = TestFeatureProviderFactory.WithAssemblyVersion(
-            IFeatureProviderFactory.WithStaticFeatureProvider(recordProvider),
-            "test");
-        var sourceFileUri = InMemoryTestFileSet.Create(("main.bicep", "")).GetUri("main.bicep");
-        assemblyVersionFactory.GetFeatureProvider(sourceFileUri)
-            .DocsGenerationEnabled.Should().BeTrue();
-
-    }
 }

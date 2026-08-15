@@ -38,11 +38,13 @@ namespace Bicep.RpcClient
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.CompileResponse> Compile(Bicep.RpcClient.Models.CompileRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.CompileParamsResponse> CompileParams(Bicep.RpcClient.Models.CompileParamsRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.FormatResponse> Format(Bicep.RpcClient.Models.FormatRequest request, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<Bicep.RpcClient.Models.GenerateDocsResponse> GenerateDocs(Bicep.RpcClient.Models.GenerateDocsRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.GetDeploymentGraphResponse> GetDeploymentGraph(Bicep.RpcClient.Models.GetDeploymentGraphRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.GetFileReferencesResponse> GetFileReferences(Bicep.RpcClient.Models.GetFileReferencesRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.GetMetadataResponse> GetMetadata(Bicep.RpcClient.Models.GetMetadataRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.GetSnapshotResponse> GetSnapshot(Bicep.RpcClient.Models.GetSnapshotRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<string> GetVersion(System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<Bicep.RpcClient.Models.OutputDocsResponse> OutputDocs(Bicep.RpcClient.Models.OutputDocsRequest request, System.Threading.CancellationToken cancellationToken = default);
     }
     public interface IBicepClientFactory
     {
@@ -52,11 +54,6 @@ namespace Bicep.RpcClient
         [System.Obsolete("Use Initialize with a BicepClientConfiguration that has ExistingCliPath set inste" +
             "ad.")]
         System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> InitializeFromPath(string bicepCliPath, System.Threading.CancellationToken cancellationToken = default);
-    }
-    public interface IBicepDocumentationClient
-    {
-        System.Threading.Tasks.Task<Bicep.RpcClient.Models.GenerateDocsResponse> GenerateDocs(Bicep.RpcClient.Models.GenerateDocsRequest request, System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task<Bicep.RpcClient.Models.OutputDocsResponse> OutputDocs(Bicep.RpcClient.Models.OutputDocsRequest request, System.Threading.CancellationToken cancellationToken = default);
     }
     public class PooledBicepClientFactory : Bicep.RpcClient.IBicepClientFactory, System.IDisposable
     {
@@ -129,12 +126,11 @@ namespace Bicep.RpcClient.Models
     }
     public class GenerateDocsRequest : System.IEquatable<Bicep.RpcClient.Models.GenerateDocsRequest>
     {
-        public GenerateDocsRequest(System.Collections.Immutable.ImmutableArray<string> Paths, string? Preset, string? TemplateFile, string? TemplateRoot, System.Collections.Generic.Dictionary<string, string>? Custom, string? OutputFile, bool NoRestore) { }
+        public GenerateDocsRequest(System.Collections.Immutable.ImmutableArray<string> Paths, string? TemplateFile, string? TemplateRoot, System.Collections.Generic.Dictionary<string, string>? Custom, string? OutputFile, bool NoRestore) { }
         public System.Collections.Generic.Dictionary<string, string>? Custom { get; init; }
         public bool NoRestore { get; init; }
         public string? OutputFile { get; init; }
         public System.Collections.Immutable.ImmutableArray<string> Paths { get; init; }
-        public string? Preset { get; init; }
         public string? TemplateFile { get; init; }
         public string? TemplateRoot { get; init; }
     }
@@ -251,11 +247,10 @@ namespace Bicep.RpcClient.Models
     }
     public class OutputDocsRequest : System.IEquatable<Bicep.RpcClient.Models.OutputDocsRequest>
     {
-        public OutputDocsRequest(string Path, string? Preset, string? TemplateFile, string? TemplateRoot, System.Collections.Generic.Dictionary<string, string>? Custom, bool NoRestore) { }
+        public OutputDocsRequest(string Path, string? TemplateFile, string? TemplateRoot, System.Collections.Generic.Dictionary<string, string>? Custom, bool NoRestore) { }
         public System.Collections.Generic.Dictionary<string, string>? Custom { get; init; }
         public bool NoRestore { get; init; }
         public string Path { get; init; }
-        public string? Preset { get; init; }
         public string? TemplateFile { get; init; }
         public string? TemplateRoot { get; init; }
     }

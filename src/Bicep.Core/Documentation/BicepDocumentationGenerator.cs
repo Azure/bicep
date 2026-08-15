@@ -22,12 +22,6 @@ public class BicepDocumentationGenerator(
 {
     private const string BuiltInTemplateResourceName = "Bicep.Core.Documentation.Templates.Markdown.scriban";
 
-    private const string EnableTelemetryParameterName = "enableTelemetry";
-
-    private const string DataCollectionNote =
-        "This module uses the `enableTelemetry` parameter to report anonymized module usage to Microsoft, " +
-        "in support of continued investment in the Bicep and Azure Verified Modules ecosystems. No resource-specific data is collected.";
-
     private const string MetadataNamePropertyName = "name";
 
     private static readonly Lazy<string> BuiltInTemplateSource = new(LoadBuiltInTemplateSource);
@@ -74,8 +68,7 @@ public class BicepDocumentationGenerator(
             References: BuildReferences(semanticModel),
             UsageExamples: BicepDocumentationExampleDiscovery.Discover(
                 moduleRoot,
-                fileSystem is null ? null : uri => IsReparsePoint(fileSystem, uri)),
-            DataCollection: BuildDataCollection(semanticModel));
+                fileSystem is null ? null : uri => IsReparsePoint(fileSystem, uri)));
     }
 
     public string Render(
@@ -85,11 +78,6 @@ public class BicepDocumentationGenerator(
     {
         cancellationToken.ThrowIfCancellationRequested();
         options ??= BicepDocumentationGenerationOptions.Default;
-
-        if (!Enum.IsDefined(options.Preset))
-        {
-            throw new BicepDocumentationException($"The documentation preset '{options.Preset}' is not supported.");
-        }
 
         var (template, templateSourcePath) = GetTemplate(options);
 
@@ -114,16 +102,6 @@ public class BicepDocumentationGenerator(
         }
 
         return NormalizeOutput(rendered);
-    }
-
-    public string Generate(
-        Compilation compilation,
-        BicepDocumentationGenerationOptions? options = null,
-        CancellationToken cancellationToken = default)
-    {
-        var model = BuildModel(compilation, options?.CustomValues, cancellationToken);
-
-        return Render(model, options, cancellationToken);
     }
 
     private static ImmutableSortedDictionary<string, string> BuildCustom(IReadOnlyDictionary<string, string>? customValues) =>
@@ -347,27 +325,6 @@ public class BicepDocumentationGenerator(
             .ToImmutableArray();
 
         return BicepDocumentationOrdering.SortByName(references, r => r.SymbolicName);
-    }
-
-    private static BicepDocumentationDataCollection? BuildDataCollection(SemanticModel semanticModel)
-    {
-        var enableTelemetryParameter = semanticModel.Root.ParameterDeclarations
-            .FirstOrDefault(symbol => LanguageConstants.IdentifierComparer.Equals(symbol.Name, EnableTelemetryParameterName));
-
-        if (enableTelemetryParameter is null)
-        {
-            return null;
-        }
-
-        var parameterType = semanticModel.Parameters[enableTelemetryParameter.Name].TypeReference.Type;
-        if ((TypeHelper.TryRemoveNullability(parameterType) ?? parameterType) is not BooleanType)
-        {
-            return null;
-        }
-
-        var enabledByDefault = enableTelemetryParameter.DeclaringParameter.Modifier is not ParameterDefaultValueSyntax { DefaultValue: BooleanLiteralSyntax { Value: false } };
-
-        return new BicepDocumentationDataCollection(enabledByDefault, DataCollectionNote);
     }
 
     private static string? NormalizeText(string? value) => value?.Trim();

@@ -134,7 +134,6 @@ public record FormatResponse(
 /// </summary>
 public record GenerateDocsRequest(
     ImmutableArray<string> Paths,
-    string? Preset,
     string? TemplateFile,
     string? TemplateRoot,
     Dictionary<string, string>? Custom,
@@ -146,7 +145,6 @@ public record GenerateDocsRequest(
 /// </summary>
 public record OutputDocsRequest(
     string Path,
-    string? Preset,
     string? TemplateFile,
     string? TemplateRoot,
     Dictionary<string, string>? Custom,

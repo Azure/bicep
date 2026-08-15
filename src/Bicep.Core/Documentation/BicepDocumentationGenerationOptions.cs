@@ -8,12 +8,10 @@ namespace Bicep.Core.Documentation;
 /// <summary>
 /// Options controlling how <see cref="IBicepDocumentationGenerator"/> renders documentation for a module.
 /// </summary>
-/// <param name="Preset">The built-in preset. Only Markdown is supported.</param>
 /// <param name="TemplateFile">An optional Scriban template file.</param>
 /// <param name="TemplateRoot">An optional root directory for template includes.</param>
 /// <param name="CustomValues">Optional string values exposed to the template.</param>
 public record BicepDocumentationGenerationOptions(
-    BicepDocumentationPreset Preset,
     IOUri? TemplateFile,
     IOUri? TemplateRoot,
     IReadOnlyDictionary<string, string>? CustomValues)
@@ -22,7 +20,6 @@ public record BicepDocumentationGenerationOptions(
     /// Gets the built-in Markdown options.
     /// </summary>
     public static BicepDocumentationGenerationOptions Default { get; } = new(
-        Preset: BicepDocumentationPreset.Markdown,
         TemplateFile: null,
         TemplateRoot: null,
         CustomValues: null);

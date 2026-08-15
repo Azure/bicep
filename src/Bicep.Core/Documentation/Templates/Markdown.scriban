@@ -69,9 +69,6 @@
 {{~ if module.references.size > 0 ~}}
 - [Cross-referenced Modules](#cross-referenced-modules)
 {{~ end ~}}
-{{~ if module.dataCollection ~}}
-- [Data Collection](#data-collection)
-{{~ end ~}}
 
 ## Resource Types
 {{~ if module.resourceTypes.size > 0 ~}}
@@ -221,10 +218,4 @@ _No outputs are declared in this module._
 {{~ for reference in module.references ~}}
 | `{{ reference.symbolicName }}` | {{ if reference.path }}`{{ md_cell reference.path }}`{{ end }} | {{ md_cell reference.description }} |
 {{~ end ~}}
-{{~ end ~}}
-{{~ if module.dataCollection ~}}
-
-## Data Collection
-
-{{ module.dataCollection.note }}
 {{~ end ~}}

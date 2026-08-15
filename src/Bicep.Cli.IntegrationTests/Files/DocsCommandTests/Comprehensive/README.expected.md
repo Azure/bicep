@@ -11,7 +11,6 @@ Second line.
 - [Exported Functions](#exported-functions)
 - [Outputs](#outputs)
 - [Cross-referenced Modules](#cross-referenced-modules)
-- [Data Collection](#data-collection)
 
 ## Resource Types
 
@@ -184,7 +183,3 @@ Returns: `string`
 | Symbolic Name | Path | Description |
 | :-- | :-- | :-- |
 | `logging` | `modules/logging.bicep` | Configures diagnostic logging. |
-
-## Data Collection
-
-This module uses the `enableTelemetry` parameter to report anonymized module usage to Microsoft, in support of continued investment in the Bicep and Azure Verified Modules ecosystems. No resource-specific data is collected.

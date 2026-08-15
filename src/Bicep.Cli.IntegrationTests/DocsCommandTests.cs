@@ -9,7 +9,6 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Services;
 using Bicep.Core.Documentation;
 using Bicep.Core.Exceptions;
-using Bicep.Core.Features;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
@@ -27,8 +26,7 @@ public class DocsCommandTests : TestBase
 {
     private const string FixturePrefix = "Files/DocsCommandTests/Comprehensive/";
 
-    private InvocationSettings DocsEnabledSettings() =>
-        CreateDefaultSettings(overrides => overrides with { DocsGenerationEnabled = true });
+    private static InvocationSettings DocsEnabledSettings() => InvocationSettings.Default;
 
     private string SaveComprehensiveFixture() =>
         FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, Assembly.GetExecutingAssembly(), FixturePrefix);
@@ -48,7 +46,7 @@ public class DocsCommandTests : TestBase
         {
             result.ExitCode.Should().Be(0);
             result.Stdout.Should().BeEmpty();
-            result.Stderr.Should().Contain("DocsGeneration");
+            result.Stderr.Should().Contain("docs");
             File.ReadAllText(outputFile).Should().Be(File.ReadAllText(expectedFile));
             File.ReadAllText(outputFile).Should().NotContain("stale content");
         }
@@ -387,13 +385,12 @@ public class DocsCommandTests : TestBase
     [TestMethod]
     public async Task CommandRunner_ObservesCancellationBeforeCompilation()
     {
-        var runner = new DocsCommandRunner(null!, null!, null!, null!, null!, null!);
+        var runner = new DocsCommandRunner(null!, null!, null!, null!, null!);
         using var cancellation = new CancellationTokenSource();
         await cancellation.CancelAsync();
 
         await FluentActions.Invoking(() => runner.RenderAsync(
                 IOUri.FromFilePath(Path.GetFullPath("main.bicep")),
-                BicepDocumentationPreset.Markdown,
                 null,
                 null,
                 new Dictionary<string, string>(),
@@ -415,41 +412,6 @@ public class DocsCommandTests : TestBase
     }
 
     [TestMethod]
-    public async Task Generate_FeatureProviderFailure_UsesTheSelectedDiagnosticsFormat()
-    {
-        var root = FileHelper.SaveResultFiles(
-            TestContext,
-            [new("main.bicep", "metadata name = 'Example'")]);
-        var featureProviderFactory = new Mock<IFeatureProviderFactory>(MockBehavior.Strict);
-        featureProviderFactory
-            .Setup(factory => factory.GetFeatureProvider(It.IsAny<IOUri>()))
-            .Throws(new BicepException("feature lookup failed"));
-
-        var defaultResult = await Bicep(
-            DocsEnabledSettings(),
-            services => services.AddSingleton(featureProviderFactory.Object),
-            TestContext.CancellationTokenSource.Token,
-            "docs",
-            "generate",
-            root);
-        var sarifResult = await Bicep(
-            DocsEnabledSettings(),
-            services => services.AddSingleton(featureProviderFactory.Object),
-            TestContext.CancellationTokenSource.Token,
-            "docs",
-            "generate",
-            root,
-            "--diagnostics-format",
-            "sarif");
-
-        defaultResult.ExitCode.Should().Be(1);
-        defaultResult.Stderr.Should().Contain("feature lookup failed");
-        sarifResult.ExitCode.Should().Be(1);
-        using var document = JsonDocument.Parse(sarifResult.Stderr);
-        document.RootElement.ToString().Should().ContainAll("DOCS001", "feature lookup failed");
-    }
-
-    [TestMethod]
     public async Task Generate_CompilationSetupFailure_UsesTheSelectedDiagnosticsFormat()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -467,13 +429,9 @@ public class DocsCommandTests : TestBase
             .Returns((IOUri uri) => uri.Equals(mainFile)
                 ? throw new BicepException("compilation setup failed")
                 : innerExplorer.GetFile(uri));
-        var featureProviderFactory = IFeatureProviderFactory.WithStaticFeatureProvider(
-            new RecordBasedFeatureProvider(
-                global::Bicep.Core.Configuration.ExperimentalFeaturesEnabled.AllDisabled with { DocsGeneration = true }));
         Action<IServiceCollection> registerServices = services => services
             .AddSingleton<System.IO.Abstractions.IFileSystem>(fileSystem)
-            .AddSingleton(fileExplorer.Object)
-            .AddSingleton(featureProviderFactory);
+            .AddSingleton(fileExplorer.Object);
 
         var defaultResult = await Bicep(
             DocsEnabledSettings(),
@@ -499,40 +457,6 @@ public class DocsCommandTests : TestBase
         document.RootElement.ToString().Should().ContainAll("DOCS001", "compilation setup failed");
     }
 
-    [TestMethod]
-    public async Task Commands_RequireTheExperimentalFeature()
-    {
-        var root = FileHelper.SaveResultFiles(
-            TestContext,
-            [new("main.bicep", "param value string = 'ok'")]);
-
-        var result = await Bicep("docs", "output", root);
-
-        result.ExitCode.Should().Be(1);
-        result.Stdout.Should().BeEmpty();
-        result.Stderr.Should().Contain("DocsGeneration");
-    }
-
-    [TestMethod]
-    public async Task Output_FeatureDisabledWithSarif_EmitsOneValidLog()
-    {
-        var root = FileHelper.SaveResultFiles(
-            TestContext,
-            [new("main.bicep", "metadata name = 'Example'")]);
-
-        var result = await Bicep(
-            "docs",
-            "output",
-            root,
-            "--diagnostics-format",
-            "sarif");
-
-        result.ExitCode.Should().Be(1);
-        result.Stdout.Should().BeEmpty();
-        using var document = JsonDocument.Parse(result.Stderr);
-        document.RootElement.ToString().Should().ContainAll("DOCS001", "DocsGeneration");
-    }
-
     [DataTestMethod]
     [DataRow("missing.bicep")]
     [DataRow("module.txt")]
@@ -554,7 +478,6 @@ public class DocsCommandTests : TestBase
     }
 
     [DataTestMethod]
-    [DataRow(["docs", "generate", "main.bicep", "--preset", "html"])]
     [DataRow(["docs", "generate", "main.bicep", "--set"])]
     [DataRow(["docs", "generate", "main.bicep", "--set", "invalid"])]
     [DataRow(["docs", "generate", "main.bicep", "--set", "key=one", "--set", "key=two"])]
@@ -649,7 +572,6 @@ public class DocsCommandTests : TestBase
         var directArguments = new DocsGenerateArguments(
             "/module/main.bicep",
             null,
-            BicepDocumentationPreset.Markdown,
             null,
             null,
             [],
