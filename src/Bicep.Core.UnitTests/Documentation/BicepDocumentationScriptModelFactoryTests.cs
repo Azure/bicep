@@ -30,14 +30,15 @@ public class BicepDocumentationScriptModelFactoryTests
                     IsRequired: false,
                     IsSecure: false,
                     Description: "A parameter.",
-                    DefaultValue: "{}",
+                    DefaultValue: "````",
                     AllowedValues: ["a", "b"],
                     MinValue: 1,
                     MaxValue: 10,
                     MinLength: 1,
                     MaxLength: 10,
                     Pattern: "^[a-z]+$",
-                    NestedProperties: [new BicepDocumentationParameter("nested", "string", true, false, null, null, [], null, null, null, null, null, [], null)],
+                    IsTruncated: true,
+                    NestedProperties: [new BicepDocumentationParameter("nested", "string", true, false, null, null, [], null, null, null, null, null, false, [], null)],
                     Discriminator: new BicepDocumentationDiscriminator("type", [new BicepDocumentationDiscriminatorCase("allowAll", [])])),
             ],
             Outputs: [new BicepDocumentationOutput("out1", "string", IsSecure: true, Description: "An output.")],
@@ -70,6 +71,8 @@ public class BicepDocumentationScriptModelFactoryTests
         parameter.GetSafeValue<long>("minLength").Should().Be(1);
         parameter.GetSafeValue<long>("maxLength").Should().Be(10);
         parameter.GetSafeValue<string>("pattern").Should().Be("^[a-z]+$");
+        parameter.GetSafeValue<bool>("truncated").Should().BeTrue();
+        parameter.GetSafeValue<string>("defaultValueFence").Should().Be("`````");
         (parameter.GetSafeValue<ScriptArray>("allowedValues")!).Should().Equal("a", "b");
 
         var nested = parameter.GetSafeValue<ScriptArray>("properties")![0] as ScriptObject;
@@ -96,6 +99,7 @@ public class BicepDocumentationScriptModelFactoryTests
         var usageExample = module.GetSafeValue<ScriptArray>("usageExamples")![0] as ScriptObject;
         usageExample!.GetSafeValue<string>("name").Should().Be("default");
         usageExample.GetSafeValue<string>("contents").Should().Be("// contents");
+        usageExample.GetSafeValue<string>("fence").Should().Be("```");
 
         var dataCollection = module.GetSafeValue<ScriptObject>("dataCollection")!;
         dataCollection.GetSafeValue<bool>("enabled").Should().BeTrue();
@@ -112,7 +116,7 @@ public class BicepDocumentationScriptModelFactoryTests
             TargetScope: "resourceGroup",
             Custom: ImmutableSortedDictionary<string, string>.Empty,
             ResourceTypes: [],
-            Parameters: [new BicepDocumentationParameter("p", "string", false, false, null, null, [], null, null, null, null, null, [], null)],
+            Parameters: [new BicepDocumentationParameter("p", "string", false, false, null, null, [], null, null, null, null, null, false, [], null)],
             Outputs: [],
             ExportedFunctions: [],
             References: [],
@@ -128,6 +132,8 @@ public class BicepDocumentationScriptModelFactoryTests
 
         var parameter = module.GetSafeValue<ScriptArray>("parameters")![0] as ScriptObject;
         parameter!.GetSafeValue<object>("discriminator").Should().BeNull();
+        parameter.GetSafeValue<object>("defaultValueFence").Should().BeNull();
+        parameter.GetSafeValue<bool>("truncated").Should().BeFalse();
         parameter.GetSafeValue<ScriptArray>("properties").Should().BeEmpty();
     }
 }

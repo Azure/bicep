@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.IO.Abstractions;
 using System.Reflection;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.IO.Abstraction;
 using Scriban;
 using Scriban.Parsing;
@@ -14,7 +16,9 @@ using Scriban.Syntax;
 
 namespace Bicep.Core.Documentation;
 
-public class BicepDocumentationGenerator(IFileExplorer fileExplorer) : IBicepDocumentationGenerator
+public class BicepDocumentationGenerator(
+    IFileExplorer fileExplorer,
+    IFileSystem? fileSystem = null) : IBicepDocumentationGenerator
 {
     private const string BuiltInTemplateResourceName = "Bicep.Core.Documentation.Templates.Markdown.scriban";
 
@@ -28,6 +32,9 @@ public class BicepDocumentationGenerator(IFileExplorer fileExplorer) : IBicepDoc
 
     private static readonly Lazy<string> BuiltInTemplateSource = new(LoadBuiltInTemplateSource);
 
+    private static readonly Lazy<Template> BuiltInTemplate = new(() =>
+        ParseTemplate(BuiltInTemplateSource.Value, BuiltInTemplateResourceName));
+
     private static readonly ImmutableDictionary<ResourceScope, string> TargetScopeNames =
         new Dictionary<ResourceScope, string>
         {
@@ -37,9 +44,14 @@ public class BicepDocumentationGenerator(IFileExplorer fileExplorer) : IBicepDoc
             [ResourceScope.Local] = LanguageConstants.TargetScopeTypeLocal,
         }.ToImmutableDictionary();
 
-    public BicepDocumentationModel BuildModel(Compilation compilation, IReadOnlyDictionary<string, string>? customValues = null)
+    public BicepDocumentationModel BuildModel(
+        Compilation compilation,
+        IReadOnlyDictionary<string, string>? customValues = null,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var semanticModel = compilation.GetEntrypointSemanticModel();
+        var typeAnalyzer = new BicepDocumentationTypeAnalyzer(cancellationToken);
 
         if (semanticModel.HasErrors())
         {
@@ -51,21 +63,27 @@ public class BicepDocumentationGenerator(IFileExplorer fileExplorer) : IBicepDoc
 
         return new BicepDocumentationModel(
             Name: GetModuleName(semanticModel, moduleRoot),
-            Description: DescriptionHelper.TryGetFromSemanticModel(semanticModel),
+            Description: NormalizeText(DescriptionHelper.TryGetFromSemanticModel(semanticModel)),
             Path: entryFile.Uri.GetFilePath(),
             TargetScope: GetTargetScopeName(semanticModel.TargetScope),
             Custom: BuildCustom(customValues),
             ResourceTypes: BuildResourceTypes(semanticModel),
-            Parameters: BuildParameters(semanticModel),
-            Outputs: BuildOutputs(semanticModel),
-            ExportedFunctions: BuildExportedFunctions(semanticModel),
+            Parameters: BuildParameters(semanticModel, typeAnalyzer),
+            Outputs: BuildOutputs(semanticModel, typeAnalyzer),
+            ExportedFunctions: BuildExportedFunctions(semanticModel, typeAnalyzer),
             References: BuildReferences(semanticModel),
-            UsageExamples: BicepDocumentationExampleDiscovery.Discover(moduleRoot),
+            UsageExamples: BicepDocumentationExampleDiscovery.Discover(
+                moduleRoot,
+                fileSystem is null ? null : uri => IsReparsePoint(fileSystem, uri)),
             DataCollection: BuildDataCollection(semanticModel));
     }
 
-    public string Render(BicepDocumentationModel model, BicepDocumentationGenerationOptions? options = null)
+    public string Render(
+        BicepDocumentationModel model,
+        BicepDocumentationGenerationOptions? options = null,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         options ??= BicepDocumentationGenerationOptions.Default;
 
         if (!Enum.IsDefined(options.Preset))
@@ -73,19 +91,14 @@ public class BicepDocumentationGenerator(IFileExplorer fileExplorer) : IBicepDoc
             throw new BicepDocumentationException($"The documentation preset '{options.Preset}' is not supported.");
         }
 
-        var (templateSource, templateSourcePath) = GetTemplateSource(options);
-
-        var template = Template.Parse(templateSource, templateSourcePath);
-
-        if (template.HasErrors)
-        {
-            throw new BicepDocumentationException($"Failed to parse the documentation template '{templateSourcePath}':{System.Environment.NewLine}{template.Messages}");
-        }
+        var (template, templateSourcePath) = GetTemplate(options);
 
         var scriptObject = BicepDocumentationScriptModelFactory.Create(ApplyCustomValues(model, options.CustomValues));
         var context = new TemplateContext
         {
             TemplateLoader = new BicepDocumentationTemplateLoader(fileExplorer, GetIncludeRoot(options, model)),
+            LimitToString = 0,
+            LoopLimit = 100_000,
         };
         context.PushGlobal(scriptObject);
 
@@ -93,6 +106,7 @@ public class BicepDocumentationGenerator(IFileExplorer fileExplorer) : IBicepDoc
         try
         {
             rendered = template.Render(context);
+            cancellationToken.ThrowIfCancellationRequested();
         }
         catch (ScriptRuntimeException ex)
         {
@@ -102,17 +116,40 @@ public class BicepDocumentationGenerator(IFileExplorer fileExplorer) : IBicepDoc
         return NormalizeOutput(rendered);
     }
 
-    public string Generate(Compilation compilation, BicepDocumentationGenerationOptions? options = null)
+    public string Generate(
+        Compilation compilation,
+        BicepDocumentationGenerationOptions? options = null,
+        CancellationToken cancellationToken = default)
     {
-        var model = BuildModel(compilation, options?.CustomValues);
+        var model = BuildModel(compilation, options?.CustomValues, cancellationToken);
 
-        return Render(model, options);
+        return Render(model, options, cancellationToken);
     }
 
     private static ImmutableSortedDictionary<string, string> BuildCustom(IReadOnlyDictionary<string, string>? customValues) =>
         customValues is null
             ? ImmutableSortedDictionary.Create<string, string>(StringComparer.Ordinal)
             : customValues.ToImmutableSortedDictionary(StringComparer.Ordinal);
+
+    private (Template Template, string SourcePath) GetTemplate(BicepDocumentationGenerationOptions options)
+    {
+        var (templateSource, templateSourcePath) = GetTemplateSource(options);
+        return options.TemplateFile is null
+            ? (BuiltInTemplate.Value, templateSourcePath)
+            : (ParseTemplate(templateSource, templateSourcePath), templateSourcePath);
+    }
+
+    private static Template ParseTemplate(string source, string sourcePath)
+    {
+        var template = Template.Parse(source, sourcePath);
+        if (template.HasErrors)
+        {
+            throw new BicepDocumentationException(
+                $"Failed to parse the documentation template '{sourcePath}':{System.Environment.NewLine}{template.Messages}");
+        }
+
+        return template;
+    }
 
     private static BicepDocumentationModel ApplyCustomValues(
         BicepDocumentationModel model,
@@ -232,7 +269,9 @@ public class BicepDocumentationGenerator(IFileExplorer fileExplorer) : IBicepDoc
         return BicepDocumentationOrdering.SortByName(resourceTypes, r => r.Type);
     }
 
-    private static ImmutableArray<BicepDocumentationParameter> BuildParameters(SemanticModel semanticModel)
+    private static ImmutableArray<BicepDocumentationParameter> BuildParameters(
+        SemanticModel semanticModel,
+        BicepDocumentationTypeAnalyzer typeAnalyzer)
     {
         var parameters = semanticModel.Root.ParameterDeclarations
             .Select(symbol =>
@@ -242,27 +281,36 @@ public class BicepDocumentationGenerator(IFileExplorer fileExplorer) : IBicepDoc
                     ? SyntaxStringifier.Stringify(defaultValueSyntax.DefaultValue)
                     : null;
 
-                return BicepDocumentationTypeAnalyzer.BuildParameter(symbol.Name, metadata.TypeReference.Type, metadata.IsRequired, metadata.Description, defaultValue);
+                return typeAnalyzer.BuildParameter(
+                    symbol.Name,
+                    metadata.TypeReference.Type,
+                    metadata.IsRequired,
+                    NormalizeText(metadata.Description),
+                    defaultValue);
             })
             .ToImmutableArray();
 
         return BicepDocumentationOrdering.SortByName(parameters, p => p.Name);
     }
 
-    private static ImmutableArray<BicepDocumentationOutput> BuildOutputs(SemanticModel semanticModel)
+    private static ImmutableArray<BicepDocumentationOutput> BuildOutputs(
+        SemanticModel semanticModel,
+        BicepDocumentationTypeAnalyzer typeAnalyzer)
     {
         var outputs = semanticModel.Outputs
             .Select(output => new BicepDocumentationOutput(
                 output.Name,
-                BicepDocumentationTypeAnalyzer.GetTypeName(output.TypeReference.Type),
+                typeAnalyzer.GetTypeName(output.TypeReference.Type),
                 output.TypeReference.Type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure),
-                output.Description))
+                NormalizeText(output.Description)))
             .ToImmutableArray();
 
         return BicepDocumentationOrdering.SortByName(outputs, o => o.Name);
     }
 
-    private static ImmutableArray<BicepDocumentationFunction> BuildExportedFunctions(SemanticModel semanticModel)
+    private static ImmutableArray<BicepDocumentationFunction> BuildExportedFunctions(
+        SemanticModel semanticModel,
+        BicepDocumentationTypeAnalyzer typeAnalyzer)
     {
         var functions = semanticModel.Exports.Values
             .OfType<ExportedFunctionMetadata>()
@@ -271,11 +319,11 @@ public class BicepDocumentationGenerator(IFileExplorer fileExplorer) : IBicepDoc
                 function.Parameters
                     .Select(parameter => new BicepDocumentationFunctionParameter(
                         parameter.Name,
-                        BicepDocumentationTypeAnalyzer.GetTypeName(parameter.TypeReference.Type),
-                        parameter.Description))
+                        typeAnalyzer.GetTypeName(parameter.TypeReference.Type),
+                        NormalizeText(parameter.Description)))
                     .ToImmutableArray(),
-                BicepDocumentationTypeAnalyzer.GetTypeName(function.Return.TypeReference.Type),
-                function.Description))
+                typeAnalyzer.GetTypeName(function.Return.TypeReference.Type),
+                NormalizeText(function.Description)))
             .ToImmutableArray();
 
         return BicepDocumentationOrdering.SortByName(functions, f => f.Name);
@@ -291,7 +339,7 @@ public class BicepDocumentationGenerator(IFileExplorer fileExplorer) : IBicepDoc
 
                 if (module.TryGetSemanticModel().IsSuccess(out var referencedModel))
                 {
-                    description = DescriptionHelper.TryGetFromSemanticModel(referencedModel);
+                    description = NormalizeText(DescriptionHelper.TryGetFromSemanticModel(referencedModel));
                 }
 
                 return new BicepDocumentationReference(module.Name, path, description);
@@ -311,8 +359,19 @@ public class BicepDocumentationGenerator(IFileExplorer fileExplorer) : IBicepDoc
             return null;
         }
 
+        var parameterType = semanticModel.Parameters[enableTelemetryParameter.Name].TypeReference.Type;
+        if ((TypeHelper.TryRemoveNullability(parameterType) ?? parameterType) is not BooleanType)
+        {
+            return null;
+        }
+
         var enabledByDefault = enableTelemetryParameter.DeclaringParameter.Modifier is not ParameterDefaultValueSyntax { DefaultValue: BooleanLiteralSyntax { Value: false } };
 
         return new BicepDocumentationDataCollection(enabledByDefault, DataCollectionNote);
     }
+
+    private static string? NormalizeText(string? value) => value?.Trim();
+
+    private static bool IsReparsePoint(IFileSystem fileSystem, IOUri uri) =>
+        fileSystem.File.GetAttributes(uri.GetFilePath()).HasFlag(FileAttributes.ReparsePoint);
 }

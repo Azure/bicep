@@ -3,7 +3,6 @@
 Exercises every documentation feature | with multiline details.
 Second line.
 
-
 ## Navigation
 
 - [Resource Types](#resource-types)
@@ -23,7 +22,7 @@ Second line.
 
 ## Usage Examples
 
-### default
+### Example 1: _default_
 
 Deploys the module with its default settings.
 
@@ -39,10 +38,9 @@ module example '../../main.bicep' = {
     secret: 'example'
   }
 }
-
 ```
 
-### e2e
+### Example 2: _restricted_
 
 Exercises restricted network access.
 
@@ -62,7 +60,6 @@ module test '../../../main.bicep' = {
     }
   }
 }
-
 ```
 
 ## Parameters
@@ -73,7 +70,7 @@ module test '../../../main.bicep' = {
 | `location` | `string` | No | Deployment location. |
 | `names` | `array` | No | Names assigned to the deployment. |
 | `networkAccess` | `object` | No | Network access configuration. |
-| `resourceGroupName` | `string` | Yes | Resource group \| name. Second line.  |
+| `resourceGroupName` | `string` | Yes | Resource group \| name. Second line. |
 | `retentionInDays` | `int` | No | Retention period in days. |
 | `secret` | `securestring` | Yes | Secret used by the child module. |
 | `settings` | `object` | No | Nested settings. |
@@ -89,9 +86,13 @@ module test '../../../main.bicep' = {
 
 ### `names`
 
-- Default value: `[
+- Default value:
+
+```bicep
+[
   'default'
-]`
+]
+```
 
 - Min length: 1
 
@@ -99,16 +100,22 @@ module test '../../../main.bicep' = {
 
 ### `networkAccess`
 
-- Default value: `{
+- Default value:
+
+```bicep
+{
   kind: 'public'
-}`
+}
+```
 
 - Discriminator: `kind`
   - `public`:
-    - `kind` (`'public'`), required
+    - `kind` (`string`), required
+      - Allowed values: `public`
   - `restricted`:
     - `allowedCidrs` (`array`), required: Allowed CIDR ranges.
-    - `kind` (`'restricted'`), required
+    - `kind` (`string`), required
+      - Allowed values: `restricted`
 
 ### `resourceGroupName`
 
@@ -130,12 +137,16 @@ module test '../../../main.bicep' = {
 
 ### `settings`
 
-- Default value: `{
+- Default value:
+
+```bicep
+{
   enabled: true
   labels: {
     environment: 'test'
   }
-}`
+}
+```
 
 - Properties:
   - `enabled` (`bool`), required: Whether the feature is enabled.

@@ -178,10 +178,12 @@ namespace Bicep.Cli.Services
         {
             var outputPath = fileUri.GetFilePath();
             var directory = fileUri.Resolve(".").GetFilePath();
-            var temporaryPath = Path.Combine(
+            var temporaryPath = fileSystem.Path.Combine(
                 directory,
-                $".{Path.GetFileName(outputPath)}.{Guid.NewGuid():N}.tmp");
+                $".{fileSystem.Path.GetFileName(outputPath)}.{Guid.NewGuid():N}.tmp");
             var temporaryUri = IOUri.FromFilePath(temporaryPath);
+            BicepException? operationException = null;
+            OperationCanceledException? cancellationException = null;
 
             try
             {
@@ -190,14 +192,41 @@ namespace Bicep.Cli.Services
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
-                throw new BicepException(exception.Message, exception);
+                operationException = new BicepException(exception.Message, exception);
+            }
+            catch (OperationCanceledException exception)
+            {
+                cancellationException = exception;
+                throw;
             }
             finally
             {
-                if (fileSystem.File.Exists(temporaryPath))
+                try
                 {
                     fileSystem.File.Delete(temporaryPath);
                 }
+                catch (Exception cleanupException) when (cleanupException is IOException or UnauthorizedAccessException)
+                {
+                    if (cancellationException is not null)
+                    {
+                        cancellationException.Data["TemporaryFileCleanupError"] = cleanupException.Message;
+                    }
+                    else if (operationException is null)
+                    {
+                        throw new BicepException(cleanupException.Message, cleanupException);
+                    }
+                    else
+                    {
+                        operationException = new BicepException(
+                            operationException.Message,
+                            new AggregateException(operationException, cleanupException));
+                    }
+                }
+            }
+
+            if (operationException is not null)
+            {
+                throw operationException;
             }
         }
     }

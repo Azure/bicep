@@ -15,25 +15,37 @@ public interface IBicepDocumentationGenerator
     /// </summary>
     /// <param name="compilation">A successfully-compiled module. Compilations with errors are rejected.</param>
     /// <param name="customValues">Optional string values exposed to templates.</param>
+    /// <param name="cancellationToken">A token that cancels model construction.</param>
     /// <returns>The typed documentation model.</returns>
     /// <exception cref="BicepDocumentationException">The compilation contains errors.</exception>
-    BicepDocumentationModel BuildModel(Compilation compilation, IReadOnlyDictionary<string, string>? customValues = null);
+    BicepDocumentationModel BuildModel(
+        Compilation compilation,
+        IReadOnlyDictionary<string, string>? customValues = null,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Renders a previously-built documentation model using the built-in template or a caller-supplied template file.
     /// </summary>
     /// <param name="model">The documentation model.</param>
     /// <param name="options">Optional rendering settings.</param>
+    /// <param name="cancellationToken">A token that cancels rendering.</param>
     /// <returns>The rendered document.</returns>
     /// <exception cref="BicepDocumentationException">The template cannot be loaded or rendered.</exception>
-    string Render(BicepDocumentationModel model, BicepDocumentationGenerationOptions? options = null);
+    string Render(
+        BicepDocumentationModel model,
+        BicepDocumentationGenerationOptions? options = null,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Builds the documentation model for the entrypoint module of the given compilation and renders it.
     /// </summary>
     /// <param name="compilation">The module compilation.</param>
     /// <param name="options">Optional rendering settings.</param>
+    /// <param name="cancellationToken">A token that cancels generation.</param>
     /// <returns>The rendered document.</returns>
     /// <exception cref="BicepDocumentationException">The model cannot be built or rendered.</exception>
-    string Generate(Compilation compilation, BicepDocumentationGenerationOptions? options = null);
+    string Generate(
+        Compilation compilation,
+        BicepDocumentationGenerationOptions? options = null,
+        CancellationToken cancellationToken = default);
 }

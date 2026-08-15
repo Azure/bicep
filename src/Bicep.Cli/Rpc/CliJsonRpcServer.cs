@@ -4,13 +4,14 @@
 using System.Collections.Immutable;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Commands;
-using Bicep.Cli.Services;
-using Bicep.Core.Exceptions;
 using Bicep.Cli.Helpers;
+using Bicep.Cli.Services;
 using Bicep.Core;
-using Bicep.Core.Emit;
 using Bicep.Core.Documentation;
+using Bicep.Core.Emit;
+using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrintV2;
@@ -31,6 +32,7 @@ public class CliJsonRpcServer(
     BicepCompiler compiler,
     InputOutputArgumentsResolver inputOutputArgumentsResolver,
     IEnvironment environment,
+    IFeatureProviderFactory featureProviderFactory,
     IBicepDocumentationGenerator documentationGenerator,
     DocsModuleScanner docsModuleScanner,
     IDocsFileWriter writer) : ICliJsonRpcProtocol
@@ -295,19 +297,25 @@ public class CliJsonRpcServer(
             }
         }
 
-        DocsTarget[] targets = [];
+        var targets = new List<DocsTarget>();
         try
         {
-            var validInputs = validTargets.Select(target => target.InputUri).ToArray();
-            var outputFiles = docsModuleScanner.ResolveOutputFiles(validInputs, outputFile)
-                .ToDictionary(pair => pair.InputUri, pair => pair.OutputUri);
+            docsModuleScanner.ValidateOutputFileName(outputFile);
+            var outputUris = new HashSet<IOUri>();
+            foreach (var target in validTargets)
+            {
+                var outputUri = target.InputUri.Resolve(outputFile);
+                if (!outputUris.Add(outputUri))
+                {
+                    failures[target.Index] = CreateDocsFailure(
+                        target.RequestedPath,
+                        "DOCS001",
+                        $"Multiple input modules resolve to the output file '{outputUri.GetFilePath()}'.");
+                    continue;
+                }
 
-            targets = validTargets
-                .Select(target => new DocsTarget(
-                    target.Index,
-                    target.InputUri,
-                    outputFiles[target.InputUri]))
-                .ToArray();
+                targets.Add(new DocsTarget(target.Index, target.InputUri, outputUri));
+            }
         }
         catch (BicepException exception)
         {
@@ -318,6 +326,7 @@ public class CliJsonRpcServer(
         }
 
         var targetsByIndex = targets.ToDictionary(target => target.Index);
+        var workspace = new ActiveSourceFileSet();
         for (var index = 0; index < request.Paths.Length; index++)
         {
             if (failures.TryGetValue(index, out var failure))
@@ -335,7 +344,8 @@ public class CliJsonRpcServer(
                 request.TemplateRoot,
                 request.Custom,
                 request.NoRestore,
-                cancellationToken);
+                cancellationToken,
+                workspace);
 
             if (!result.Success || result.Contents is null)
             {
@@ -366,7 +376,8 @@ public class CliJsonRpcServer(
             request.TemplateRoot,
             request.Custom,
             request.NoRestore,
-            cancellationToken));
+            cancellationToken,
+            workspace: null));
 
     private async Task<DocsResult> RenderDocs(
         string path,
@@ -375,7 +386,8 @@ public class CliJsonRpcServer(
         string? templateRoot,
         IReadOnlyDictionary<string, string>? custom,
         bool noRestore,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        ActiveSourceFileSet? workspace = null)
     {
         IOUri inputUri;
         try
@@ -387,7 +399,7 @@ public class CliJsonRpcServer(
             return CreateDocsFailure(path, "DOCS001", exception.Message);
         }
 
-        return await RenderDocs(inputUri, preset, templateFile, templateRoot, custom, noRestore, cancellationToken);
+        return await RenderDocs(inputUri, preset, templateFile, templateRoot, custom, noRestore, cancellationToken, workspace);
     }
 
     private async Task<DocsResult> RenderDocs(
@@ -397,11 +409,29 @@ public class CliJsonRpcServer(
         string? templateRoot,
         IReadOnlyDictionary<string, string>? custom,
         bool noRestore,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        ActiveSourceFileSet? workspace = null)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (!inputUri.HasBicepExtension())
         {
             return CreateDocsFailure(inputUri.GetFilePath(), "DOCS001", $"Invalid Bicep file path: {inputUri}");
+        }
+
+        try
+        {
+            if (!featureProviderFactory.GetFeatureProvider(inputUri).DocsGenerationEnabled)
+            {
+                return CreateDocsFailure(
+                    inputUri.GetFilePath(),
+                    "DOCS001",
+                    $"The '{nameof(Bicep.Core.Configuration.ExperimentalFeaturesEnabled.DocsGeneration)}' experimental feature must be enabled.");
+            }
+        }
+        catch (BicepException exception)
+        {
+            return CreateDocsFailure(inputUri.GetFilePath(), "DOCS001", exception.Message);
         }
 
         BicepDocumentationGenerationOptions options;
@@ -421,7 +451,8 @@ public class CliJsonRpcServer(
         Compilation compilation;
         try
         {
-            compilation = await compiler.CreateCompilation(inputUri, skipRestore: noRestore);
+            compilation = await compiler.CreateCompilation(inputUri, workspace, skipRestore: noRestore);
+            workspace?.UpsertSourceFiles(compilation.SourceFileGrouping.SourceFiles);
         }
         catch (BicepException exception)
         {
@@ -431,14 +462,6 @@ public class CliJsonRpcServer(
         var diagnostics = GetDiagnostics(compilation).ToImmutableArray();
         var model = compilation.GetEntrypointSemanticModel();
 
-        if (!model.Features.DocsGenerationEnabled)
-        {
-            return AddDocsFailure(
-                new(inputUri.GetFilePath(), null, false, diagnostics, null),
-                "DOCS001",
-                $"The '{nameof(Bicep.Core.Configuration.ExperimentalFeaturesEnabled.DocsGeneration)}' experimental feature must be enabled.");
-        }
-
         if (model.HasErrors())
         {
             return new(inputUri.GetFilePath(), null, false, diagnostics, null);
@@ -446,6 +469,7 @@ public class CliJsonRpcServer(
 
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
             return new(inputUri.GetFilePath(), null, true, diagnostics, documentationGenerator.Generate(compilation, options));
         }
         catch (BicepDocumentationException exception)

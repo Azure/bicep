@@ -49,11 +49,17 @@ namespace Bicep.Cli.IntegrationTests
             {
                 groupResult.Should().Be(0);
                 groupError.Should().BeEmpty();
-                groupOutput.Should().ContainAll("docs", "generate", "output");
+                groupOutput.Should().ContainAll(
+                    "docs",
+                    "generate",
+                    "output",
+                    "[Experimental]",
+                    "experimentalFeaturesEnabled.docsGeneration");
 
                 generateResult.Should().Be(0);
                 generateError.Should().BeEmpty();
                 generateOutput.Should().ContainAll(
+                    "[Experimental]",
                     "--preset",
                     "--template-file",
                     "--template-root",
@@ -66,6 +72,7 @@ namespace Bicep.Cli.IntegrationTests
                 outputResult.Should().Be(0);
                 outputError.Should().BeEmpty();
                 outputOutput.Should().ContainAll(
+                    "[Experimental]",
                     "--preset",
                     "--template-file",
                     "--template-root",

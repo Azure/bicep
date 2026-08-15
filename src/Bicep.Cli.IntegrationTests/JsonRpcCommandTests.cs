@@ -8,8 +8,10 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Bicep.Cli.Rpc;
 using Bicep.Cli.Services;
-using Bicep.Core.Json;
+using Bicep.Core.Configuration;
 using Bicep.Core.Exceptions;
+using Bicep.Core.Features;
+using Bicep.Core.Json;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
@@ -20,8 +22,8 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
-using Newtonsoft.Json.Linq;
 using Moq;
+using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
 
 namespace Bicep.Cli.IntegrationTests;
@@ -334,7 +336,12 @@ output bar string = foo
                     new(["/missing", "/a.bicep", "/b.bicep"], null, null, null, null, null, NoRestore: false),
                     token);
                 outputCollision.Results.Should().HaveCount(3);
-                outputCollision.Results.Should().OnlyContain(result => !result.Success);
+                outputCollision.Results[0].Success.Should().BeFalse();
+                outputCollision.Results[1].Success.Should().BeTrue();
+                outputCollision.Results[2].Success.Should().BeFalse();
+                outputCollision.Results[2].Diagnostics.Should().ContainSingle(diagnostic =>
+                    diagnostic.Code == "DOCS001" &&
+                    diagnostic.Message.Contains("Multiple input modules"));
 
                 var mixedResult = await client.GenerateDocs(
                     new(["/missing", "/main.bicep"], null, null, null, null, "MIXED.md", NoRestore: false),
@@ -406,7 +413,10 @@ output bar string = foo
             services => services
                 .WithFileSystem(fileSystem)
                 .WithFileExplorer(explorer.Object)
-                .WithFeatureOverrides(new(DocsGenerationEnabled: true)),
+                .AddSingleton<IFeatureProviderFactory>(
+                    IFeatureProviderFactory.WithStaticFeatureProvider(
+                        new RecordBasedFeatureProvider(
+                            ExperimentalFeaturesEnabled.AllDisabled with { DocsGeneration = true }))),
             async (client, token) =>
             {
                 var response = await client.OutputDocs(
@@ -417,6 +427,35 @@ output bar string = foo
                 response.Result.Diagnostics.Should().ContainSingle(diagnostic =>
                     diagnostic.Code == "DOCS001" &&
                     diagnostic.Message == "compilation failed");
+            });
+    }
+
+    [TestMethod]
+    public async Task OutputDocs_returns_structured_feature_provider_exceptions()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/main.bicep"] = "metadata name = 'Example'",
+        });
+        var featureProviderFactory = new Mock<IFeatureProviderFactory>(MockBehavior.Strict);
+        featureProviderFactory
+            .Setup(factory => factory.GetFeatureProvider(It.IsAny<IOUri>()))
+            .Throws(new BicepException("feature lookup failed"));
+
+        await RunServerTest(
+            services => services
+                .WithFileSystem(fileSystem)
+                .AddSingleton(featureProviderFactory.Object),
+            async (client, token) =>
+            {
+                var response = await client.OutputDocs(
+                    new("/main.bicep", null, null, null, null, NoRestore: false),
+                    token);
+
+                response.Result.Success.Should().BeFalse();
+                response.Result.Diagnostics.Should().ContainSingle(diagnostic =>
+                    diagnostic.Code == "DOCS001" &&
+                    diagnostic.Message == "feature lookup failed");
             });
     }
 

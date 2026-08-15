@@ -2,16 +2,26 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Documentation;
 using Bicep.Core.Exceptions;
+using Bicep.Core.Semantics;
+using Bicep.Core.SourceGraph;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Cli.Commands;
 
 public static class DocsCommand
 {
+    internal const string InputFailureCode = "DOCS001";
+    internal const string WriteFailureCode = "DOCS002";
+    internal const string RenderFailureCode = "DOCS003";
+
     internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
     {
-        var command = new System.CommandLine.Command(Constants.Command.Docs, "Generates documentation for Bicep modules.");
+        var command = new System.CommandLine.Command(
+            Constants.Command.Docs,
+            "[Experimental] Generates documentation for Bicep modules. Requires experimentalFeaturesEnabled.docsGeneration.");
         command.Add(DocsGenerateCommand.CreateCommand(context));
         command.Add(DocsOutputCommand.CreateCommand(context));
 
@@ -59,4 +69,48 @@ public static class DocsCommand
             throw new CommandLineException("The --set parameter expects a key=value argument.");
         }
     }
+
+    internal static IDiagnostic CreateDiagnostic(string code, string message) =>
+        new Diagnostic(new(0, 0), DiagnosticLevel.Error, DiagnosticSource.Compiler, code, message);
+
+    internal static DocsDiagnostics MergeDiagnostics(
+        IEnumerable<(IOUri SourceUri, Compilation? Compilation, IDiagnostic? DocumentationDiagnostic)> results)
+    {
+        var byUri = new Dictionary<IOUri, (BicepSourceFile File, ImmutableArray<IDiagnostic>.Builder Diagnostics)>();
+        var additionalDiagnostics = ImmutableArray.CreateBuilder<(IOUri SourceUri, IDiagnostic Diagnostic)>();
+        foreach (var (sourceUri, compilation, documentationDiagnostic) in results)
+        {
+            if (compilation is not null)
+            {
+                foreach (var (file, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
+                {
+                    if (!byUri.ContainsKey(file.FileHandle.Uri))
+                    {
+                        byUri[file.FileHandle.Uri] = (file, diagnostics.ToBuilder());
+                    }
+                }
+            }
+
+            if (documentationDiagnostic is not null)
+            {
+                if (compilation is null)
+                {
+                    additionalDiagnostics.Add((sourceUri, documentationDiagnostic));
+                }
+                else
+                {
+                    var entryFile = compilation.GetEntrypointSemanticModel().SourceFile;
+                    byUri[entryFile.FileHandle.Uri].Diagnostics.Add(documentationDiagnostic);
+                }
+            }
+        }
+
+        return new(
+            byUri.Values.ToImmutableDictionary(item => item.File, item => item.Diagnostics.ToImmutable()),
+            additionalDiagnostics.ToImmutable());
+    }
+
+    internal record DocsDiagnostics(
+        ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> ByFile,
+        ImmutableArray<(IOUri SourceUri, IDiagnostic Diagnostic)> Additional);
 }

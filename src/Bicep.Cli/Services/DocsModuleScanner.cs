@@ -67,7 +67,7 @@ public class DocsModuleScanner(IFileSystem fileSystem, InputOutputArgumentsResol
                 throw new CommandLineException($"The template root directory \"{fullPath}\" does not exist.");
             }
 
-            var normalizedPath = Path.EndsInDirectorySeparator(fullPath)
+            var normalizedPath = fileSystem.Path.EndsInDirectorySeparator(fullPath)
                 ? fullPath
                 : fullPath + fileSystem.Path.DirectorySeparatorChar;
 
@@ -115,10 +115,12 @@ public class DocsModuleScanner(IFileSystem fileSystem, InputOutputArgumentsResol
         }
     }
 
-    private static bool IsReservedWindowsFileName(string outputFile)
+    private bool IsReservedWindowsFileName(string outputFile)
     {
-        var name = Path.GetFileNameWithoutExtension(outputFile);
+        var name = fileSystem.Path.GetFileNameWithoutExtension(outputFile);
         return name.Equals("CON", StringComparison.OrdinalIgnoreCase) ||
+            name.Equals("CONIN$", StringComparison.OrdinalIgnoreCase) ||
+            name.Equals("CONOUT$", StringComparison.OrdinalIgnoreCase) ||
             name.Equals("PRN", StringComparison.OrdinalIgnoreCase) ||
             name.Equals("AUX", StringComparison.OrdinalIgnoreCase) ||
             name.Equals("NUL", StringComparison.OrdinalIgnoreCase) ||

@@ -21,6 +21,7 @@ public record BicepDocumentationParameter(
     long? MinLength,
     long? MaxLength,
     string? Pattern,
+    bool IsTruncated,
     ImmutableArray<BicepDocumentationParameter> NestedProperties,
     BicepDocumentationDiscriminator? Discriminator);
 

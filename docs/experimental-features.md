@@ -36,7 +36,7 @@ Enables `deploy`, `what-if` and `teardown` command groups, as well as the `with`
 
 ### `docsGeneration`
 
-Enables the `bicep docs generate` and `bicep docs output` commands for generating module documentation.
+Enables the `bicep docs generate` and `bicep docs output` commands. For command and template model details, see [Generate module documentation](./experimental/docs-commands.md).
 
 ### `legacyFormatter`
 

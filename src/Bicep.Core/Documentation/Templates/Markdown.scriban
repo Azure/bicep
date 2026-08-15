@@ -16,8 +16,11 @@
 {{~ if item.maxLength != null ~}}
 {{ indent }}  - Max length: {{ item.maxLength }}
 {{~ end ~}}
-{{~ if item.pattern ~}}
+{{~ if item.pattern != null ~}}
 {{ indent }}  - Pattern: `{{ item.pattern }}`
+{{~ end ~}}
+{{~ if item.truncated ~}}
+{{ indent }}  - Nested properties omitted because the type is recursive or exceeds the expansion limit.
 {{~ end ~}}
 {{~ if item.properties.size > 0 ~}}
 {{~ render_properties item.properties (indent + "  ") ~}}
@@ -87,15 +90,15 @@ _No resources are declared in this module._
 ## Usage Examples
 {{~ for example in module.usageExamples ~}}
 
-### {{ example.name }}
+### Example {{ for.index + 1 }}: _{{ example.name }}_
 {{~ if example.description ~}}
 
 {{ example.description }}
 {{~ end ~}}
 
-```bicep
+{{ example.fence }}bicep
 {{ example.contents }}
-```
+{{ example.fence }}
 {{~ end ~}}
 {{~ end ~}}
 
@@ -108,7 +111,7 @@ _No resources are declared in this module._
 | `{{ parameter.name }}` | `{{ md_cell (doc_type parameter) }}` | {{ if parameter.required }}Yes{{ else }}No{{ end }} | {{ md_cell parameter.description }} |
 {{~ end ~}}
 {{~ for parameter in module.parameters ~}}
-{{~ if parameter.secure || parameter.defaultValue || parameter.allowedValues.size > 0 || parameter.minValue != null || parameter.maxValue != null || parameter.minLength != null || parameter.maxLength != null || parameter.pattern || parameter.properties.size > 0 || parameter.discriminator ~}}
+{{~ if parameter.secure || parameter.defaultValue || parameter.allowedValues.size > 0 || parameter.minValue != null || parameter.maxValue != null || parameter.minLength != null || parameter.maxLength != null || parameter.pattern != null || parameter.truncated || parameter.properties.size > 0 || parameter.discriminator ~}}
 
 ### `{{ parameter.name }}`
 {{~ if parameter.secure ~}}
@@ -117,7 +120,15 @@ _No resources are declared in this module._
 {{~ end ~}}
 {{~ if parameter.defaultValue ~}}
 
+{{~ if parameter.defaultValue | string.contains "\n" ~}}
+- Default value:
+
+{{ parameter.defaultValueFence }}bicep
+{{ parameter.defaultValue }}
+{{ parameter.defaultValueFence }}
+{{~ else ~}}
 - Default value: `{{ parameter.defaultValue }}`
+{{~ end ~}}
 {{~ end ~}}
 {{~ if parameter.allowedValues.size > 0 ~}}
 
@@ -139,9 +150,13 @@ _No resources are declared in this module._
 
 - Max length: {{ parameter.maxLength }}
 {{~ end ~}}
-{{~ if parameter.pattern ~}}
+{{~ if parameter.pattern != null ~}}
 
 - Pattern: `{{ parameter.pattern }}`
+{{~ end ~}}
+{{~ if parameter.truncated ~}}
+
+- Nested properties omitted because the type is recursive or exceeds the expansion limit.
 {{~ end ~}}
 {{~ if parameter.properties.size > 0 ~}}
 

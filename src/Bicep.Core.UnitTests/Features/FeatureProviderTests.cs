@@ -88,48 +88,5 @@ public class FeatureProviderTests
         assemblyVersionFactory.GetFeatureProvider(sourceFileUri)
             .DocsGenerationEnabled.Should().BeTrue();
 
-        IFeatureProvider legacyProvider = new LegacyFeatureProvider();
-        legacyProvider.DocsGenerationEnabled.Should().BeFalse();
-
-        var legacyConfiguration = new ExperimentalFeaturesEnabled(
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false);
-        legacyConfiguration.DocsGeneration.Should().BeFalse();
-    }
-
-    private sealed class LegacyFeatureProvider : IFeatureProvider
-    {
-        public string AssemblyVersion => throw new NotImplementedException();
-        public Bicep.IO.Abstraction.IDirectoryHandle CacheRootDirectory => throw new NotImplementedException();
-        public bool OciEnabled => false;
-        public bool SymbolicNameCodegenEnabled => false;
-        public bool ResourceTypedParamsAndOutputsEnabled => false;
-        public bool SourceMappingEnabled => false;
-        public bool LegacyFormatterEnabled => false;
-        public bool TestFrameworkEnabled => false;
-        public bool AssertsEnabled => false;
-        public bool WaitUntilEnabled => false;
-        public bool LocalDeployEnabled => false;
-        public bool ResourceInfoCodegenEnabled => false;
-        public bool ModuleExtensionConfigsEnabled => false;
-        public bool UserDefinedConstraintsEnabled => false;
-        public bool DeployCommandsEnabled => false;
-        public bool PatchEnabled => false;
-        public bool RuntimeValuesInTagsAndSkuEnabled => false;
-        public bool AzExtensionConfigEnabled => false;
     }
 }

@@ -21,7 +21,7 @@ internal sealed class BicepDocumentationTemplateLoader(IFileExplorer fileExplore
         {
             resolved = root.Resolve(templateName);
         }
-        catch (IOException ex)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or UriFormatException)
         {
             throw new ScriptRuntimeException(callerSpan, $"Unable to resolve include path '{templateName}': {ex.Message}", ex);
         }

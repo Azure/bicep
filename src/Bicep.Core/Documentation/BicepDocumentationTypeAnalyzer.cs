@@ -8,17 +8,49 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Documentation;
 
-internal static class BicepDocumentationTypeAnalyzer
+internal sealed class BicepDocumentationTypeAnalyzer
 {
-    // Bicep type declarations cannot be cyclic, so a depth limit alone is enough to bound recursion.
+    // Bounds expansion of large acyclic type graphs.
     private const int MaxDepth = 20;
+    private const int MaxExpandedNodeCount = 10_000;
+    private readonly Dictionary<TypeSymbol, TypeAnalysis> rootAnalysisCache = new(ReferenceEqualityComparer.Instance);
+    private readonly CancellationToken cancellationToken;
+    private int remainingNodeCount = MaxExpandedNodeCount;
 
-    public static string GetTypeName(TypeSymbol type) => Analyze(GetEffectiveType(type), MaxDepth).TypeName;
+    public BicepDocumentationTypeAnalyzer(CancellationToken cancellationToken = default)
+    {
+        this.cancellationToken = cancellationToken;
+    }
 
-    public static BicepDocumentationParameter BuildParameter(string name, TypeSymbol type, bool isRequired, string? description, string? defaultValue)
+    public string GetTypeName(TypeSymbol type)
     {
         var effectiveType = GetEffectiveType(type);
-        var analysis = Analyze(effectiveType, 0);
+        return effectiveType switch
+        {
+            UnionType union when union.Members.Length > 0 && union.Members.All(member => IsSimpleLiteral(member.Type)) =>
+                GetLiteralUnionTypeName(union),
+            StringLiteralType or IntegerLiteralType or BooleanLiteralType => GetLiteralBaseTypeName(effectiveType),
+            IntegerType => LanguageConstants.TypeNameInt,
+            StringType => LanguageConstants.TypeNameString,
+            ArrayType => LanguageConstants.ArrayType,
+            DiscriminatedObjectType or ObjectType => LanguageConstants.ObjectType,
+            _ => effectiveType.Name,
+        };
+    }
+
+    public BicepDocumentationParameter BuildParameter(string name, TypeSymbol type, bool isRequired, string? description, string? defaultValue)
+    {
+        var effectiveType = GetEffectiveType(type);
+        if (!TryConsumeNode())
+        {
+            return BuildTruncatedParameter(name, effectiveType, isRequired, description, defaultValue);
+        }
+
+        if (!this.rootAnalysisCache.TryGetValue(effectiveType, out var analysis))
+        {
+            analysis = Analyze(effectiveType, new(ReferenceEqualityComparer.Instance), 0);
+            this.rootAnalysisCache[effectiveType] = analysis;
+        }
 
         return new BicepDocumentationParameter(
             name,
@@ -33,14 +65,29 @@ internal static class BicepDocumentationTypeAnalyzer
             analysis.MinLength,
             analysis.MaxLength,
             analysis.Pattern,
+            analysis.IsTruncated,
             analysis.NestedProperties,
             analysis.Discriminator);
     }
 
-    private static BicepDocumentationParameter BuildProperty(string name, NamedTypeProperty property, int depth)
+    private BicepDocumentationParameter BuildProperty(
+        string name,
+        NamedTypeProperty property,
+        HashSet<TypeSymbol> visited,
+        int depth)
     {
         var effectiveType = GetEffectiveType(property.TypeReference.Type);
-        var analysis = Analyze(effectiveType, depth);
+        if (!TryConsumeNode())
+        {
+            return BuildTruncatedParameter(
+                name,
+                effectiveType,
+                TypeHelper.IsRequired(property),
+                property.Description,
+                defaultValue: null);
+        }
+
+        var analysis = Analyze(effectiveType, visited, depth);
 
         return new BicepDocumentationParameter(
             name,
@@ -55,23 +102,58 @@ internal static class BicepDocumentationTypeAnalyzer
             analysis.MinLength,
             analysis.MaxLength,
             analysis.Pattern,
+            analysis.IsTruncated,
             analysis.NestedProperties,
             analysis.Discriminator);
     }
 
     private static TypeSymbol GetEffectiveType(TypeSymbol type) => TypeHelper.TryRemoveNullability(type) ?? type;
 
-    private static TypeAnalysis Analyze(TypeSymbol type, int depth)
+    private bool TryConsumeNode()
+    {
+        this.cancellationToken.ThrowIfCancellationRequested();
+        if (this.remainingNodeCount == 0)
+        {
+            return false;
+        }
+
+        this.remainingNodeCount--;
+        return true;
+    }
+
+    private BicepDocumentationParameter BuildTruncatedParameter(
+        string name,
+        TypeSymbol type,
+        bool isRequired,
+        string? description,
+        string? defaultValue) =>
+        new(
+            name,
+            GetTypeName(type),
+            isRequired,
+            type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure),
+            description,
+            defaultValue,
+            [],
+            null,
+            null,
+            null,
+            null,
+            null,
+            true,
+            [],
+            null);
+
+    private TypeAnalysis Analyze(TypeSymbol type, HashSet<TypeSymbol> visited, int depth)
     {
         switch (type)
         {
             case UnionType union when union.Members.Length > 0 && union.Members.All(m => IsSimpleLiteral(m.Type)):
                 var literalTypes = union.Members.Select(m => m.Type).ToImmutableArray();
-                var baseTypeName = literalTypes.Select(t => t.GetType()).Distinct().Count() == 1
-                    ? GetLiteralBaseTypeName(literalTypes[0])
-                    : union.Name;
+                return TypeAnalysis.Simple(GetLiteralUnionTypeName(union)) with { AllowedValues = SortLiteralValues(literalTypes) };
 
-                return TypeAnalysis.Simple(baseTypeName) with { AllowedValues = SortLiteralValues(literalTypes) };
+            case StringLiteralType or IntegerLiteralType or BooleanLiteralType:
+                return TypeAnalysis.Simple(GetLiteralBaseTypeName(type)) with { AllowedValues = [GetLiteralRawValue(type)] };
 
             case IntegerType integer:
                 return TypeAnalysis.Simple(LanguageConstants.TypeNameInt) with
@@ -89,48 +171,97 @@ internal static class BicepDocumentationTypeAnalyzer
                 };
 
             case ArrayType array:
-                return TypeAnalysis.Simple(LanguageConstants.ArrayType) with
+                if (depth >= MaxDepth || !visited.Add(type))
                 {
-                    MinLength = array.MinLength,
-                    MaxLength = array.MaxLength,
-                    AllowedValues = GetLiteralUnionAllowedValues(GetEffectiveType(array.Item.Type)),
-                };
+                    return TypeAnalysis.Truncated(LanguageConstants.ArrayType);
+                }
+
+                try
+                {
+                    var itemAnalysis = Analyze(GetEffectiveType(array.Item.Type), visited, depth + 1);
+                    return TypeAnalysis.Simple(LanguageConstants.ArrayType) with
+                    {
+                        MinLength = array.MinLength,
+                        MaxLength = array.MaxLength,
+                        AllowedValues = GetLiteralAllowedValues(GetEffectiveType(array.Item.Type)),
+                        IsTruncated = itemAnalysis.IsTruncated,
+                        NestedProperties = itemAnalysis.NestedProperties,
+                        Discriminator = itemAnalysis.Discriminator,
+                    };
+                }
+                finally
+                {
+                    visited.Remove(type);
+                }
 
             case DiscriminatedObjectType discriminated:
-                if (depth >= MaxDepth)
+                if (depth >= MaxDepth || !visited.Add(type))
                 {
-                    return TypeAnalysis.Simple(LanguageConstants.ObjectType);
+                    return TypeAnalysis.Truncated(LanguageConstants.ObjectType);
                 }
 
-                var discriminator = BuildDiscriminator(discriminated, depth + 1);
-
-                return TypeAnalysis.Simple(LanguageConstants.ObjectType) with { Discriminator = discriminator };
+                try
+                {
+                    return TypeAnalysis.Simple(LanguageConstants.ObjectType) with
+                    {
+                        Discriminator = BuildDiscriminator(discriminated, visited, depth + 1),
+                    };
+                }
+                finally
+                {
+                    visited.Remove(type);
+                }
 
             case ObjectType obj:
-                if (depth >= MaxDepth)
+                if (depth >= MaxDepth || !visited.Add(type))
                 {
-                    return TypeAnalysis.Simple(LanguageConstants.ObjectType);
+                    return TypeAnalysis.Truncated(LanguageConstants.ObjectType);
                 }
 
-                var nestedProperties = BuildProperties(obj, depth + 1);
-
-                return TypeAnalysis.Simple(LanguageConstants.ObjectType) with { NestedProperties = nestedProperties };
+                try
+                {
+                    return TypeAnalysis.Simple(LanguageConstants.ObjectType) with
+                    {
+                        NestedProperties = BuildProperties(obj, visited, depth + 1),
+                    };
+                }
+                finally
+                {
+                    visited.Remove(type);
+                }
 
             default:
                 return TypeAnalysis.Simple(type.Name);
         }
     }
 
-    private static ImmutableArray<BicepDocumentationParameter> BuildProperties(ObjectType obj, int depth)
+    private ImmutableArray<BicepDocumentationParameter> BuildProperties(
+        ObjectType obj,
+        HashSet<TypeSymbol> visited,
+        int depth)
     {
         var properties = obj.Properties
-            .Select(kvp => BuildProperty(kvp.Key, kvp.Value, depth))
+            .Select(kvp => BuildProperty(kvp.Key, kvp.Value, visited, depth))
+            .Concat(obj.HasExplicitAdditionalPropertiesType && obj.AdditionalProperties is { } additionalProperties
+                ? [BuildProperty(
+                    ">Any_other_property<",
+                    new NamedTypeProperty(
+                        ">Any_other_property<",
+                        additionalProperties.TypeReference,
+                        additionalProperties.Flags,
+                        additionalProperties.Description),
+                    visited,
+                    depth)]
+                : [])
             .ToImmutableArray();
 
         return BicepDocumentationOrdering.SortByName(properties, p => p.Name);
     }
 
-    private static BicepDocumentationDiscriminator BuildDiscriminator(DiscriminatedObjectType discriminated, int depth)
+    private BicepDocumentationDiscriminator BuildDiscriminator(
+        DiscriminatedObjectType discriminated,
+        HashSet<TypeSymbol> visited,
+        int depth)
     {
         // UnionMembersByKey keys are escaped Bicep string literals; DiscriminatorKeysUnionType exposes the
         // unescaped raw values instead.
@@ -145,13 +276,21 @@ internal static class BicepDocumentationTypeAnalyzer
             .Where(literal => discriminated.UnionMembersByKey.ContainsKey(literal.Name))
             .Select(literal => new BicepDocumentationDiscriminatorCase(
                 literal.RawStringValue,
-                BuildProperties(discriminated.UnionMembersByKey[literal.Name], depth)))
+                BuildProperties(discriminated.UnionMembersByKey[literal.Name], visited, depth)))
             .ToImmutableArray();
 
         return new BicepDocumentationDiscriminator(discriminated.DiscriminatorKey, BicepDocumentationOrdering.SortByName(cases, c => c.Value));
     }
 
     private static bool IsSimpleLiteral(TypeSymbol type) => type is StringLiteralType or IntegerLiteralType or BooleanLiteralType;
+
+    private static string GetLiteralUnionTypeName(UnionType union)
+    {
+        var literalTypes = union.Members.Select(member => member.Type).ToImmutableArray();
+        return literalTypes.Select(literal => literal.GetType()).Distinct().Count() == 1
+            ? GetLiteralBaseTypeName(literalTypes[0])
+            : union.Name;
+    }
 
     private static string GetLiteralBaseTypeName(TypeSymbol literal) => literal switch
     {
@@ -174,10 +313,11 @@ internal static class BicepDocumentationTypeAnalyzer
             .ThenBy(value => value, StringComparer.Ordinal)
             .ToImmutableArray();
 
-    private static ImmutableArray<string> GetLiteralUnionAllowedValues(TypeSymbol itemType) => itemType switch
+    private static ImmutableArray<string> GetLiteralAllowedValues(TypeSymbol itemType) => itemType switch
     {
         UnionType union when union.Members.Length > 0 && union.Members.All(m => IsSimpleLiteral(m.Type)) =>
             SortLiteralValues(union.Members.Select(m => m.Type)),
+        var literal when IsSimpleLiteral(literal) => [GetLiteralRawValue(literal)],
         _ => [],
     };
 
@@ -189,6 +329,7 @@ internal static class BicepDocumentationTypeAnalyzer
         long? MinLength,
         long? MaxLength,
         string? Pattern,
+        bool IsTruncated,
         ImmutableArray<BicepDocumentationParameter> NestedProperties,
         BicepDocumentationDiscriminator? Discriminator)
     {
@@ -200,7 +341,10 @@ internal static class BicepDocumentationTypeAnalyzer
             null,
             null,
             null,
+            false,
             [],
             null);
+
+        public static TypeAnalysis Truncated(string typeName) => Simple(typeName) with { IsTruncated = true };
     }
 }

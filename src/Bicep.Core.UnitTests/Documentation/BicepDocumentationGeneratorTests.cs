@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using Bicep.IO.Abstraction;
 using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Bicep.Core.UnitTests.Documentation;
 
@@ -333,6 +335,141 @@ public class BicepDocumentationGeneratorTests
         var rendered = generator.Render(model, options);
 
         rendered.Should().Be("> Header content.\n# to\nOwner: Platform Team / Platform Team\n");
+    }
+
+    [TestMethod]
+    public async Task Render_CustomTemplate_SupportsLargeRepeatedIncludesWithoutTruncation()
+    {
+        var compiler = TestCompiler.ForMockFileSystemCompilation();
+        var result = await compiler.Compile("param foo string = 'bar'");
+        var included = new string('x', 600_000);
+
+        compiler.FileSet.AddFile("readme.scriban", "{{ include \"_large.md\" }}{{ include \"_large.md\" }}");
+        compiler.FileSet.AddFile("_large.md", included);
+
+        var generator = compiler.GetService<IBicepDocumentationGenerator>();
+        var options = new BicepDocumentationGenerationOptions(
+            BicepDocumentationPreset.Markdown,
+            TemplateFile: compiler.FileSet.GetUri("readme.scriban"),
+            TemplateRoot: null,
+            CustomValues: null);
+
+        var rendered = generator.Generate(result.Compilation, options);
+
+        rendered.Should().Be(included + included + "\n");
+    }
+
+    [TestMethod]
+    public async Task Render_CustomTemplate_AllowsMoreThanTheScribanDefaultLoopLimit()
+    {
+        var compiler = TestCompiler.ForMockFileSystemCompilation();
+        var result = await compiler.Compile("param foo string = 'bar'");
+
+        compiler.FileSet.AddFile("readme.scriban", "{{ for i in 0..1001 }}x{{ end }}");
+
+        var generator = compiler.GetService<IBicepDocumentationGenerator>();
+        var options = new BicepDocumentationGenerationOptions(
+            BicepDocumentationPreset.Markdown,
+            TemplateFile: compiler.FileSet.GetUri("readme.scriban"),
+            TemplateRoot: null,
+            CustomValues: null);
+
+        var rendered = generator.Generate(result.Compilation, options);
+
+        rendered.Should().Be(new string('x', 1002) + "\n");
+    }
+
+    [TestMethod]
+    public async Task Render_BuiltInTemplate_UsesFenceLongerThanEmbeddedExampleFence()
+    {
+        var compiler = TestCompiler.ForMockFileSystemCompilation();
+        var result = await compiler.Compile(
+            ("main.bicep", "metadata name = 'Fence example'"),
+            ("examples/default/main.bicep", "var markdown = '''\n````\ncontent\n````\n'''"));
+
+        var generator = compiler.GetService<IBicepDocumentationGenerator>();
+        var rendered = generator.Generate(result.Compilation);
+
+        rendered.Should().Contain("`````bicep\nvar markdown");
+        rendered.Should().Contain("\n````\ncontent\n````\n");
+        rendered.Should().Contain("\n`````\n");
+    }
+
+    [TestMethod]
+    public async Task Render_BuiltInTemplate_NumbersDuplicateExampleNames()
+    {
+        var compiler = TestCompiler.ForMockFileSystemCompilation();
+        var result = await compiler.Compile(
+            ("main.bicep", "metadata name = 'Duplicate examples'"),
+            ("examples/first/main.bicep", "metadata name = 'same'"),
+            ("examples/second/main.bicep", "metadata name = 'Same'"));
+
+        var generator = compiler.GetService<IBicepDocumentationGenerator>();
+        var rendered = generator.Generate(result.Compilation);
+
+        rendered.Should().Contain("### Example 1: _same_");
+        rendered.Should().Contain("### Example 2: _Same_");
+    }
+
+    [TestMethod]
+    public async Task BuildModel_NonBooleanEnableTelemetryParameter_DoesNotAddDataCollection()
+    {
+        var compiler = TestCompiler.ForMockFileSystemCompilation();
+        var result = await compiler.Compile("param enableTelemetry string = 'not telemetry'");
+
+        var generator = compiler.GetService<IBicepDocumentationGenerator>();
+        var model = generator.BuildModel(result.Compilation);
+
+        model.DataCollection.Should().BeNull();
+    }
+
+    [TestMethod]
+    public async Task BuildModel_ReparsePointExample_IsNotRead()
+    {
+        var compiler = TestCompiler.ForMockFileSystemCompilation();
+        var result = await compiler.Compile(
+            ("main.bicep", "metadata name = 'Safe'"),
+            ("examples/leak/main.bicep", "sensitive contents"));
+        var fileSystem = new Mock<IFileSystem>(MockBehavior.Strict);
+        var file = new Mock<IFile>(MockBehavior.Strict);
+        fileSystem.SetupGet(system => system.File).Returns(file.Object);
+        file.Setup(systemFile => systemFile.GetAttributes(It.IsAny<string>()))
+            .Returns((string path) => path.EndsWith("main.bicep", StringComparison.OrdinalIgnoreCase)
+                ? FileAttributes.ReparsePoint
+                : FileAttributes.Normal);
+        var generator = new BicepDocumentationGenerator(compiler.FileSet.FileExplorer, fileSystem.Object);
+
+        var model = generator.BuildModel(result.Compilation);
+
+        model.UsageExamples.Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public async Task BuildModel_WithoutFileSystem_StillDiscoversExamples()
+    {
+        var compiler = TestCompiler.ForMockFileSystemCompilation();
+        var result = await compiler.Compile(
+            ("main.bicep", "metadata name = 'Example'"),
+            ("examples/default/main.bicep", "metadata name = 'Default'"));
+        var generator = new BicepDocumentationGenerator(compiler.FileSet.FileExplorer);
+
+        var model = generator.BuildModel(result.Compilation);
+
+        model.UsageExamples.Should().ContainSingle();
+    }
+
+    [TestMethod]
+    public async Task BuildModel_ObservesCancellation()
+    {
+        var compiler = TestCompiler.ForMockFileSystemCompilation();
+        var result = await compiler.Compile("param value string");
+        var generator = compiler.GetService<IBicepDocumentationGenerator>();
+        using var cancellation = new CancellationTokenSource();
+        await cancellation.CancelAsync();
+
+        var action = () => generator.BuildModel(result.Compilation, cancellationToken: cancellation.Token);
+
+        action.Should().Throw<OperationCanceledException>();
     }
 
     [TestMethod]

@@ -21,7 +21,7 @@ Creates a storage account with example telemetry and diagnostics settings.
 
 ## Usage Examples
 
-### default
+### Example 1: _default_
 
 Deploys the module with default settings.
 
@@ -30,7 +30,6 @@ Deploys the module with default settings.
 module example '../../main.bicep' = {
   name: 'example'
 }
-
 ```
 
 ## Parameters
@@ -59,16 +58,22 @@ module example '../../main.bicep' = {
 
 ### `networkRule`
 
-- Default value: `{
+- Default value:
+
+```bicep
+{
   type: 'allowAll'
-}`
+}
+```
 
 - Discriminator: `type`
   - `allowAll`:
-    - `type` (`'allowAll'`), required
+    - `type` (`string`), required
+      - Allowed values: `allowAll`
   - `ipRestricted`:
     - `allowedIpRanges` (`array`), required: Allowed IP ranges in CIDR notation.
-    - `type` (`'ipRestricted'`), required
+    - `type` (`string`), required
+      - Allowed values: `ipRestricted`
 
 ### `retentionInDays`
 

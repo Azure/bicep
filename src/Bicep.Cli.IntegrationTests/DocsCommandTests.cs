@@ -1,13 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions.TestingHelpers;
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;
+using System.Text.Json;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Services;
 using Bicep.Core.Documentation;
 using Bicep.Core.Exceptions;
+using Bicep.Core.Features;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
@@ -159,6 +161,31 @@ public class DocsCommandTests : TestBase
     }
 
     [TestMethod]
+    public async Task Generate_TemplateFailureWithSarif_EmitsOneValidLog()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [
+                new("main.bicep", "metadata name = 'Example'"),
+                new("invalid.scriban", "{{ if module.name }}"),
+            ]);
+
+        var result = await Bicep(
+            DocsEnabledSettings(),
+            "docs",
+            "generate",
+            root,
+            "--template-file",
+            Path.Combine(root, "invalid.scriban"),
+            "--diagnostics-format",
+            "sarif");
+
+        result.ExitCode.Should().Be(1);
+        using var document = JsonDocument.Parse(result.Stderr);
+        document.RootElement.ToString().Should().ContainAll("DOCS003", "Failed to parse");
+    }
+
+    [TestMethod]
     public async Task Generate_WriteFailure_ReturnsNonZero()
     {
         var root = FileHelper.SaveResultFiles(
@@ -186,6 +213,35 @@ public class DocsCommandTests : TestBase
         result.ExitCode.Should().Be(1);
         result.Stderr.Should().Contain("write failed");
         File.ReadAllText(Path.Combine(root, "README.md")).Should().Be("preserve me");
+    }
+
+    [TestMethod]
+    public async Task Generate_WriteFailureWithSarif_EmitsOneValidLog()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [new("main.bicep", "metadata name = 'Example'")]);
+        var writer = new Mock<IDocsFileWriter>(MockBehavior.Strict);
+        writer
+            .Setup(fileWriter => fileWriter.WriteAsync(
+                It.IsAny<IOUri>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new BicepException("write failed"));
+
+        var result = await Bicep(
+            DocsEnabledSettings(),
+            services => services.AddSingleton(writer.Object),
+            TestContext.CancellationTokenSource.Token,
+            "docs",
+            "generate",
+            root,
+            "--diagnostics-format",
+            "sarif");
+
+        result.ExitCode.Should().Be(1);
+        using var document = JsonDocument.Parse(result.Stderr);
+        document.RootElement.ToString().Should().ContainAll("DOCS002", "write failed");
     }
 
     [TestMethod]
@@ -274,6 +330,176 @@ public class DocsCommandTests : TestBase
     }
 
     [TestMethod]
+    public async Task Output_TemplateFailureWithSarif_EmitsOneValidLog()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [
+                new("main.bicep", "metadata name = 'Example'"),
+                new("invalid.scriban", "{{ if module.name }}"),
+            ]);
+
+        var result = await Bicep(
+            DocsEnabledSettings(),
+            "docs",
+            "output",
+            root,
+            "--template-file",
+            Path.Combine(root, "invalid.scriban"),
+            "--diagnostics-format",
+            "sarif");
+
+        result.ExitCode.Should().Be(1);
+        result.Stdout.Should().BeEmpty();
+        using var document = JsonDocument.Parse(result.Stderr);
+        document.RootElement.ToString().Should().ContainAll("DOCS003", "Failed to parse");
+    }
+
+    [TestMethod]
+    public async Task Generate_PatternSarifDiagnostics_EmitsOneValidLog()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [
+                new("valid/main.bicep", "metadata name = 'Valid'"),
+                new("invalid/main.bicep", "param value invalidType"),
+            ]);
+
+        var result = await Bicep(
+            DocsEnabledSettings(),
+            "docs",
+            "generate",
+            "--pattern",
+            Path.Combine(root, "*", "main.bicep"),
+            "--diagnostics-format",
+            "sarif");
+
+        result.ExitCode.Should().Be(1);
+        result.Stdout.Should().BeEmpty();
+        using var document = JsonDocument.Parse(result.Stderr);
+        document.RootElement.GetProperty("runs").GetArrayLength().Should().Be(1);
+        result.Stderr.Should().Contain("invalidType");
+        result.Stderr.Should().NotContain("WARNING:");
+        File.Exists(Path.Combine(root, "valid", "README.md")).Should().BeTrue();
+        File.Exists(Path.Combine(root, "invalid", "README.md")).Should().BeFalse();
+    }
+
+    [TestMethod]
+    public async Task CommandRunner_ObservesCancellationBeforeCompilation()
+    {
+        var runner = new DocsCommandRunner(null!, null!, null!, null!, null!, null!);
+        using var cancellation = new CancellationTokenSource();
+        await cancellation.CancelAsync();
+
+        await FluentActions.Invoking(() => runner.RenderAsync(
+                IOUri.FromFilePath(Path.GetFullPath("main.bicep")),
+                BicepDocumentationPreset.Markdown,
+                null,
+                null,
+                new Dictionary<string, string>(),
+                noRestore: false,
+                diagnosticsFormat: null,
+                cancellationToken: cancellation.Token))
+            .Should().ThrowAsync<OperationCanceledException>();
+    }
+
+    [TestMethod]
+    public void DocsRenderFailure_BehavesAsAValueRecord()
+    {
+        var sourceUri = IOUri.FromFilePath(Path.GetFullPath("main.bicep"));
+        var result = new DocsRenderResult.Failed(sourceUri);
+        var clone = result with { };
+
+        result.Compilation.Should().BeNull();
+        result.Should().Be(clone);
+    }
+
+    [TestMethod]
+    public async Task Generate_FeatureProviderFailure_UsesTheSelectedDiagnosticsFormat()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [new("main.bicep", "metadata name = 'Example'")]);
+        var featureProviderFactory = new Mock<IFeatureProviderFactory>(MockBehavior.Strict);
+        featureProviderFactory
+            .Setup(factory => factory.GetFeatureProvider(It.IsAny<IOUri>()))
+            .Throws(new BicepException("feature lookup failed"));
+
+        var defaultResult = await Bicep(
+            DocsEnabledSettings(),
+            services => services.AddSingleton(featureProviderFactory.Object),
+            TestContext.CancellationTokenSource.Token,
+            "docs",
+            "generate",
+            root);
+        var sarifResult = await Bicep(
+            DocsEnabledSettings(),
+            services => services.AddSingleton(featureProviderFactory.Object),
+            TestContext.CancellationTokenSource.Token,
+            "docs",
+            "generate",
+            root,
+            "--diagnostics-format",
+            "sarif");
+
+        defaultResult.ExitCode.Should().Be(1);
+        defaultResult.Stderr.Should().Contain("feature lookup failed");
+        sarifResult.ExitCode.Should().Be(1);
+        using var document = JsonDocument.Parse(sarifResult.Stderr);
+        document.RootElement.ToString().Should().ContainAll("DOCS001", "feature lookup failed");
+    }
+
+    [TestMethod]
+    public async Task Generate_CompilationSetupFailure_UsesTheSelectedDiagnosticsFormat()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/main.bicep"] = "metadata name = 'Example'",
+        });
+        var mainFile = IOUri.FromFilePath(fileSystem.Path.GetFullPath("/main.bicep"));
+        var innerExplorer = new FileSystemFileExplorer(fileSystem);
+        var fileExplorer = new Mock<IFileExplorer>(MockBehavior.Strict);
+        fileExplorer
+            .Setup(explorer => explorer.GetDirectory(It.IsAny<IOUri>()))
+            .Returns((IOUri uri) => innerExplorer.GetDirectory(uri));
+        fileExplorer
+            .Setup(explorer => explorer.GetFile(It.IsAny<IOUri>()))
+            .Returns((IOUri uri) => uri.Equals(mainFile)
+                ? throw new BicepException("compilation setup failed")
+                : innerExplorer.GetFile(uri));
+        var featureProviderFactory = IFeatureProviderFactory.WithStaticFeatureProvider(
+            new RecordBasedFeatureProvider(
+                global::Bicep.Core.Configuration.ExperimentalFeaturesEnabled.AllDisabled with { DocsGeneration = true }));
+        Action<IServiceCollection> registerServices = services => services
+            .AddSingleton<System.IO.Abstractions.IFileSystem>(fileSystem)
+            .AddSingleton(fileExplorer.Object)
+            .AddSingleton(featureProviderFactory);
+
+        var defaultResult = await Bicep(
+            DocsEnabledSettings(),
+            registerServices,
+            TestContext.CancellationTokenSource.Token,
+            "docs",
+            "generate",
+            "/main.bicep");
+        var sarifResult = await Bicep(
+            DocsEnabledSettings(),
+            registerServices,
+            TestContext.CancellationTokenSource.Token,
+            "docs",
+            "generate",
+            "/main.bicep",
+            "--diagnostics-format",
+            "sarif");
+
+        defaultResult.ExitCode.Should().Be(1);
+        defaultResult.Stderr.Should().Contain("compilation setup failed");
+        sarifResult.ExitCode.Should().Be(1);
+        using var document = JsonDocument.Parse(sarifResult.Stderr);
+        document.RootElement.ToString().Should().ContainAll("DOCS001", "compilation setup failed");
+    }
+
+    [TestMethod]
     public async Task Commands_RequireTheExperimentalFeature()
     {
         var root = FileHelper.SaveResultFiles(
@@ -285,6 +511,26 @@ public class DocsCommandTests : TestBase
         result.ExitCode.Should().Be(1);
         result.Stdout.Should().BeEmpty();
         result.Stderr.Should().Contain("DocsGeneration");
+    }
+
+    [TestMethod]
+    public async Task Output_FeatureDisabledWithSarif_EmitsOneValidLog()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [new("main.bicep", "metadata name = 'Example'")]);
+
+        var result = await Bicep(
+            "docs",
+            "output",
+            root,
+            "--diagnostics-format",
+            "sarif");
+
+        result.ExitCode.Should().Be(1);
+        result.Stdout.Should().BeEmpty();
+        using var document = JsonDocument.Parse(result.Stderr);
+        document.RootElement.ToString().Should().ContainAll("DOCS001", "DocsGeneration");
     }
 
     [DataTestMethod]
@@ -451,6 +697,8 @@ public class DocsCommandTests : TestBase
     [DataRow("NUL.md")]
     [DataRow("COM1")]
     [DataRow("LPT9.txt")]
+    [DataRow("CONIN$")]
+    [DataRow("CONOUT$.md")]
     [DataRow("module.bicep")]
     [DataRow("module.bicepparam")]
     public void ModuleScanner_RejectsInvalidOutputFileNames(string outputFile)
@@ -492,16 +740,22 @@ public class DocsCommandTests : TestBase
     {
         var fileSystem = new Mock<IFileSystem>(MockBehavior.Strict);
         var file = new Mock<IFile>(MockBehavior.Strict);
+        var path = new Mock<IPath>(MockBehavior.Strict);
         var fileExplorer = new Mock<IFileExplorer>(MockBehavior.Strict);
         var temporaryFile = new Mock<IFileHandle>(MockBehavior.Strict);
         fileSystem.SetupGet(system => system.File).Returns(file.Object);
+        fileSystem.SetupGet(system => system.Path).Returns(path.Object);
+        path.Setup(systemPath => systemPath.Combine(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns((string left, string right) => Path.Combine(left, right));
+        path.Setup(systemPath => systemPath.GetFileName(It.IsAny<string>()))
+            .Returns((string value) => Path.GetFileName(value));
         fileExplorer
             .Setup(explorer => explorer.GetFile(It.IsAny<IOUri>()))
             .Returns(temporaryFile.Object);
         temporaryFile
             .Setup(handle => handle.WriteAllTextAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new UnauthorizedAccessException("denied"));
-        file.Setup(systemFile => systemFile.Exists(It.IsAny<string>())).Returns(false);
+        file.Setup(systemFile => systemFile.Delete(It.IsAny<string>()));
         var writer = new OutputWriter(
             new(
                 new(new StringReader(string.Empty), false),
@@ -537,5 +791,117 @@ public class DocsCommandTests : TestBase
             .Should().ThrowAsync<BicepException>();
 
         Directory.EnumerateFiles(root, "*.tmp").Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public async Task OutputWriter_AtomicWrite_PreservesPrimaryFailureWhenCleanupAlsoFails()
+    {
+        var fileSystem = new Mock<IFileSystem>(MockBehavior.Strict);
+        var file = new Mock<IFile>(MockBehavior.Strict);
+        var path = new Mock<IPath>(MockBehavior.Strict);
+        var fileExplorer = new Mock<IFileExplorer>(MockBehavior.Strict);
+        var temporaryFile = new Mock<IFileHandle>(MockBehavior.Strict);
+        fileSystem.SetupGet(system => system.File).Returns(file.Object);
+        fileSystem.SetupGet(system => system.Path).Returns(path.Object);
+        path.Setup(systemPath => systemPath.Combine(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns((string left, string right) => Path.Combine(left, right));
+        path.Setup(systemPath => systemPath.GetFileName(It.IsAny<string>()))
+            .Returns((string value) => Path.GetFileName(value));
+        fileExplorer.Setup(explorer => explorer.GetFile(It.IsAny<IOUri>())).Returns(temporaryFile.Object);
+        temporaryFile
+            .Setup(handle => handle.WriteAllTextAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new IOException("write failed"));
+        file.Setup(systemFile => systemFile.Delete(It.IsAny<string>())).Throws(new IOException("cleanup failed"));
+        var writer = new OutputWriter(
+            new(
+                new(new StringReader(string.Empty), false),
+                new(new StringWriter(), false),
+                new(new StringWriter(), false)),
+            fileSystem.Object,
+            fileExplorer.Object);
+
+        var exception = await FluentActions.Invoking(() => writer.WriteToFileAtomicallyAsync(
+                IOUri.FromFilePath(Path.GetFullPath("README.md")),
+                "contents"))
+            .Should().ThrowAsync<BicepException>()
+            .WithMessage("write failed");
+
+        exception.Which.InnerException.Should().BeOfType<AggregateException>()
+            .Which.InnerExceptions.Select(inner => inner.Message)
+            .Should().Equal("write failed", "cleanup failed");
+    }
+
+    [TestMethod]
+    public async Task OutputWriter_AtomicWrite_ReportsCleanupFailureAfterSuccessfulWrite()
+    {
+        var fileSystem = new Mock<IFileSystem>(MockBehavior.Strict);
+        var file = new Mock<IFile>(MockBehavior.Strict);
+        var path = new Mock<IPath>(MockBehavior.Strict);
+        var fileExplorer = new Mock<IFileExplorer>(MockBehavior.Strict);
+        var temporaryFile = new Mock<IFileHandle>(MockBehavior.Strict);
+        fileSystem.SetupGet(system => system.File).Returns(file.Object);
+        fileSystem.SetupGet(system => system.Path).Returns(path.Object);
+        path.Setup(systemPath => systemPath.Combine(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns((string left, string right) => Path.Combine(left, right));
+        path.Setup(systemPath => systemPath.GetFileName(It.IsAny<string>()))
+            .Returns((string value) => Path.GetFileName(value));
+        fileExplorer.Setup(explorer => explorer.GetFile(It.IsAny<IOUri>())).Returns(temporaryFile.Object);
+        temporaryFile
+            .Setup(handle => handle.WriteAllTextAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        file.Setup(systemFile => systemFile.Move(It.IsAny<string>(), It.IsAny<string>(), true));
+        file.Setup(systemFile => systemFile.Delete(It.IsAny<string>())).Throws(new IOException("cleanup failed"));
+        var writer = new OutputWriter(
+            new(
+                new(new StringReader(string.Empty), false),
+                new(new StringWriter(), false),
+                new(new StringWriter(), false)),
+            fileSystem.Object,
+            fileExplorer.Object);
+
+        await FluentActions.Invoking(() => writer.WriteToFileAtomicallyAsync(
+                IOUri.FromFilePath(Path.GetFullPath("README.md")),
+                "contents"))
+            .Should().ThrowAsync<BicepException>()
+            .WithMessage("cleanup failed");
+    }
+
+    [TestMethod]
+    public async Task OutputWriter_AtomicWrite_CleansUpWithoutMaskingCancellation()
+    {
+        var fileSystem = new Mock<IFileSystem>(MockBehavior.Strict);
+        var file = new Mock<IFile>(MockBehavior.Strict);
+        var path = new Mock<IPath>(MockBehavior.Strict);
+        var fileExplorer = new Mock<IFileExplorer>(MockBehavior.Strict);
+        var temporaryFile = new Mock<IFileHandle>(MockBehavior.Strict);
+        using var cancellation = new CancellationTokenSource();
+        await cancellation.CancelAsync();
+        var canceled = new OperationCanceledException(cancellation.Token);
+        fileSystem.SetupGet(system => system.File).Returns(file.Object);
+        fileSystem.SetupGet(system => system.Path).Returns(path.Object);
+        path.Setup(systemPath => systemPath.Combine(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns((string left, string right) => Path.Combine(left, right));
+        path.Setup(systemPath => systemPath.GetFileName(It.IsAny<string>()))
+            .Returns((string value) => Path.GetFileName(value));
+        fileExplorer.Setup(explorer => explorer.GetFile(It.IsAny<IOUri>())).Returns(temporaryFile.Object);
+        temporaryFile
+            .Setup(handle => handle.WriteAllTextAsync(It.IsAny<string>(), cancellation.Token))
+            .ThrowsAsync(canceled);
+        file.Setup(systemFile => systemFile.Delete(It.IsAny<string>())).Throws(new IOException("cleanup failed"));
+        var writer = new OutputWriter(
+            new(
+                new(new StringReader(string.Empty), false),
+                new(new StringWriter(), false),
+                new(new StringWriter(), false)),
+            fileSystem.Object,
+            fileExplorer.Object);
+
+        var exception = await FluentActions.Invoking(() => writer.WriteToFileAtomicallyAsync(
+                IOUri.FromFilePath(Path.GetFullPath("README.md")),
+                "contents",
+                cancellation.Token))
+            .Should().ThrowAsync<OperationCanceledException>();
+
+        exception.Which.Data["TemporaryFileCleanupError"].Should().Be("cleanup failed");
     }
 }

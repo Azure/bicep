@@ -60,12 +60,14 @@ internal static class BicepDocumentationScriptModelFactory
         { "secure", parameter.IsSecure },
         { "description", parameter.Description },
         { "defaultValue", parameter.DefaultValue },
+        { "defaultValueFence", parameter.DefaultValue is { } defaultValue ? GetCodeFence(defaultValue) : null },
         { "allowedValues", CreateStrings(parameter.AllowedValues) },
         { "minValue", parameter.MinValue },
         { "maxValue", parameter.MaxValue },
         { "minLength", parameter.MinLength },
         { "maxLength", parameter.MaxLength },
         { "pattern", parameter.Pattern },
+        { "truncated", parameter.IsTruncated },
         { "properties", CreateParameters(parameter.NestedProperties) },
         { "discriminator", parameter.Discriminator is { } discriminator ? CreateDiscriminator(discriminator) : null },
     };
@@ -118,6 +120,7 @@ internal static class BicepDocumentationScriptModelFactory
         { "path", example.RelativePath },
         { "description", example.Description },
         { "contents", example.Contents },
+        { "fence", GetCodeFence(example.Contents) },
     };
 
     private static ScriptObject CreateDataCollection(BicepDocumentationDataCollection dataCollection) => new()
@@ -168,5 +171,18 @@ internal static class BicepDocumentationScriptModelFactory
         }
 
         return array;
+    }
+
+    private static string GetCodeFence(string contents)
+    {
+        var longestRun = 0;
+        var currentRun = 0;
+        foreach (var character in contents)
+        {
+            currentRun = character == '`' ? currentRun + 1 : 0;
+            longestRun = Math.Max(longestRun, currentRun);
+        }
+
+        return new string('`', Math.Max(3, longestRun + 1));
     }
 }

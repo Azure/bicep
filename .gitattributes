@@ -10,3 +10,4 @@
 /src/Bicep.RpcClient.Tests/Files/PublicApis/*.txt text eol=lf
 /src/Bicep.Core.UnitTests/Documentation/Files/*.md text eol=lf
 /src/Bicep.Cli.IntegrationTests/Files/DocsCommandTests/**/*.md text eol=lf
+/.gitattributes whitespace=cr-at-eol
