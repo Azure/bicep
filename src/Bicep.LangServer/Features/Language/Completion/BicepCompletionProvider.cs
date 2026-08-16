@@ -28,9 +28,9 @@ using Bicep.LanguageServer.Features.Language.Completion.Snippets;
 using Bicep.LanguageServer.Utils;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using BicepCompilation = Bicep.Core.Semantics.Compilation;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
-using BicepCompilation = Bicep.Core.Semantics.Compilation;
 
 namespace Bicep.LanguageServer.Features.Language.Completion
 {

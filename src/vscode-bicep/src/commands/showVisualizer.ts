@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import vscode from "vscode";
-import { BicepVisualizerViewManager } from "../visualizer";
 import { Command } from "../infrastructure/commands";
 import { findOrCreateActiveBicepFile } from "../infrastructure/editor";
+import { BicepVisualizerViewManager } from "../visualizer";
 
 async function openView(
   context: IActionContext,

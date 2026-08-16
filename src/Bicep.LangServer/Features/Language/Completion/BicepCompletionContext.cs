@@ -16,8 +16,8 @@ using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Features.Language.Completion.SyntaxPatterns;
 using Bicep.LanguageServer.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using BicepCompilation = Bicep.Core.Semantics.Compilation;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer.Features.Language.Completion
 {

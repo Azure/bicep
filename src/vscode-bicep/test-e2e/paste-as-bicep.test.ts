@@ -10,9 +10,9 @@ import vscode, { ConfigurationTarget, Selection, TextDocument } from "vscode";
 import { SuppressedWarningsManager } from "../src/features/paste-as-bicep";
 import { getBicepConfiguration } from "../src/infrastructure/configuration";
 import { e2eLogName } from "../src/infrastructure/logging";
+import { executeCloseAllEditors, executeEditorPasteCommand, executePasteAsBicepCommand } from "./commands";
 import { normalizeMultilineString } from "./support/normalize-multiline-string";
 import { until } from "./support/time";
-import { executeCloseAllEditors, executeEditorPasteCommand, executePasteAsBicepCommand } from "./commands";
 
 const extensionLogPath = path.join(__dirname, `../../${e2eLogName}`);
 

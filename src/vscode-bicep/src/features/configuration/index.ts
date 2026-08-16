@@ -3,7 +3,7 @@
 
 export { activateConfigurationFeature, CreateBicepConfigurationFile } from "./create-configuration";
 export {
-	type CreateBicepConfigParams,
-	getRecommendedConfigLocationRequestType,
-	type GetRecommendedConfigLocationResult,
+  type CreateBicepConfigParams,
+  getRecommendedConfigLocationRequestType,
+  type GetRecommendedConfigLocationResult,
 } from "./protocol";

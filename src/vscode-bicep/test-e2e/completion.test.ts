@@ -5,9 +5,9 @@ import { Range } from "vscode";
 import { Position } from "vscode";
 import { sleep } from "../src/infrastructure/timing";
 import { expectDefined } from "../src/test/utils/assert";
-import { retryWhile } from "./support/time";
 import { executeCloseAllEditors, executeCompletionItemProvider } from "./commands";
 import { readExampleFile } from "./examples";
+import { retryWhile } from "./support/time";
 
 describe("completion", (): void => {
   let document: vscode.TextDocument;

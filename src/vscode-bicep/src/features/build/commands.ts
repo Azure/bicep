@@ -5,10 +5,7 @@ import { IActionContext, parseError } from "@microsoft/vscode-azext-utils";
 import vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Command, CommandManager } from "../../infrastructure/commands";
-import {
-  findOrCreateActiveBicepFile,
-  findOrCreateActiveBicepParamFile,
-} from "../../infrastructure/editor";
+import { findOrCreateActiveBicepFile, findOrCreateActiveBicepParamFile } from "../../infrastructure/editor";
 import { OutputChannelManager } from "../../infrastructure/logging";
 
 export class BuildCommand implements Command {

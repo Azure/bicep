@@ -1,20 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Azure;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Registry.Oci.Oras;
 using Bicep.Core.Registry.Sessions;
 using Bicep.Core.SourceGraph;
-using Bicep.Core.Utils;
-using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using FluentAssertions;
@@ -120,7 +120,7 @@ namespace Bicep.Core.UnitTests.Utils
             );
 
             return (client, clientFactory);
-    }
+        }
 
-}
+    }
 }

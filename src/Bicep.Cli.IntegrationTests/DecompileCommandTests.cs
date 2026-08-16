@@ -116,7 +116,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Decompile_BicepGeneratedTemplate_ShouldShowBicepGeneratedWarning()
         {
-            var (jsonPath, _) = Setup(TestContext); 
+            var (jsonPath, _) = Setup(TestContext);
 
             var (output, error, result) = await Bicep("decompile", "--force", jsonPath);
 

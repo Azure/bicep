@@ -5,9 +5,9 @@
 import * as vscode from "vscode";
 import { sleep } from "../src/infrastructure/timing";
 import { expectDefined, expectRange } from "../src/test/utils/assert";
-import { retryWhile } from "./support/time";
 import { executeCloseAllEditors, executeHoverProvider } from "./commands";
 import { readExampleFile } from "./examples";
+import { retryWhile } from "./support/time";
 
 describe("hover", (): void => {
   let document: vscode.TextDocument;

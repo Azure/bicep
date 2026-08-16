@@ -44,15 +44,15 @@ describe("getTextAfterFormattingChanges", () => {
     const textToMatch = `\n    \n    This has whitespace\t\r\n\n    before and after\n    \n    `;
     const editorText = `\nThis is text\nbefore the pattern\n\n    \n    \n\r\n\tThis has\n  whitespace\nbefore\nand\n\tafter    \n\n`;
     const expected = `\r\n\tThis has\n  whitespace\nbefore\nand\n\tafter    \n\n`;
-    expect(getTextAfterFormattingChanges(textToMatch, editorText, editorText.indexOf("\r\n\tThis has"))).toBe(
-      expected,
-    );
+    expect(getTextAfterFormattingChanges(textToMatch, editorText, editorText.indexOf("\r\n\tThis has"))).toBe(expected);
   });
 
   it("returns undefined when the pattern does not match", () => {
     const textToMatch = `\n    \n    This is text to match\n    \n    `;
     const editorText = `\nThis is text\nbefore the pattern\n\nThis is text that won't match\n\n`;
-    expect(getTextAfterFormattingChanges(textToMatch, editorText, editorText.indexOf("This is text that"))).toBeUndefined();
+    expect(
+      getTextAfterFormattingChanges(textToMatch, editorText, editorText.indexOf("This is text that")),
+    ).toBeUndefined();
   });
 
   it("returns undefined when the editor runs out", () => {

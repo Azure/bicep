@@ -283,9 +283,13 @@ export async function activateDecompileFeature(
     new DecompileParamsCommand(client, outputChannelManager),
   );
 
-  extension.register(window.onDidChangeActiveTextEditor(async (editor) => updateDecompileEditorContext(editor?.document)));
   extension.register(
-    vscode.workspace.onDidCloseTextDocument(async () => updateDecompileEditorContext(window.activeTextEditor?.document)),
+    window.onDidChangeActiveTextEditor(async (editor) => updateDecompileEditorContext(editor?.document)),
+  );
+  extension.register(
+    vscode.workspace.onDidCloseTextDocument(async () =>
+      updateDecompileEditorContext(window.activeTextEditor?.document),
+    ),
   );
   extension.register(
     vscode.workspace.onDidOpenTextDocument(async () => updateDecompileEditorContext(window.activeTextEditor?.document)),

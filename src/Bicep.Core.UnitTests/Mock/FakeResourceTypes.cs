@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Moq;
 
 namespace Bicep.Core.UnitTests.Mock

@@ -19,11 +19,7 @@ import {
 import { LanguageClient } from "vscode-languageclient/node";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { getBicepConfiguration } from "../../infrastructure/configuration";
-import {
-  bicepLanguageId,
-  bicepParamLanguageId,
-  findOrCreateActiveBicepFile,
-} from "../../infrastructure/editor";
+import { bicepLanguageId, bicepParamLanguageId, findOrCreateActiveBicepFile } from "../../infrastructure/editor";
 import { Disposable } from "../../infrastructure/lifecycle";
 import {
   callWithTelemetryAndErrorHandlingOnlyOnErrors,
