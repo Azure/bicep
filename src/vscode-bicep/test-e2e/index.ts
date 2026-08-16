@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { createTestRunner } from "./runner";
+import { createExtensionHostTestRunner } from "./test-runner";
+import { VitestTestRunner } from "./vitest/vitest-test-runner";
 
-export const run = createTestRunner("jest.config.e2e.js");
+// VS Code requires this module to export a function named `run` with the ExtensionHostTestRunner shape.
+export const run = createExtensionHostTestRunner(new VitestTestRunner());

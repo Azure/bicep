@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/* eslint-disable jest/expect-expect */
 import * as vscode from "vscode";
 import { expectDefined, expectRange } from "../test-support/assert";
 import { retryWhile } from "../test-support/polling";

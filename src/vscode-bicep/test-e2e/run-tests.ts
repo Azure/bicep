@@ -9,9 +9,14 @@ import { minVersion } from "semver";
 
 async function go() {
   try {
+    // This script runs in regular Node.js. It launches VS Code, which then loads the compiled
+    // test-e2e/index module inside the extension host and calls its exported run() function.
+    const useLocalServers = process.argv.includes("--local");
+
     // Do not import the json file directly because it's not under /src.
     // We also don't want it to be included in the /out folder.
     const packageJsonPath = path.resolve(__dirname, "../../package.json");
+    const extensionDevelopmentPath = path.dirname(packageJsonPath);
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, { encoding: "utf-8" }));
     const minSupportedVSCodeSemver = minVersion(packageJson.engines.vscode);
 
@@ -65,9 +70,12 @@ async function go() {
 
       await runTests({
         vscodeExecutablePath,
-        extensionDevelopmentPath: path.resolve(__dirname, "../.."),
+        extensionDevelopmentPath,
         extensionTestsPath: path.resolve(__dirname, "index"),
-        extensionTestsEnv: { TEST_MODE: "e2e" },
+        extensionTestsEnv: {
+          TEST_MODE: "e2e",
+          ...(useLocalServers ? getLocalServerEnvironment(extensionDevelopmentPath) : {}),
+        },
         launchArgs: [
           "--no-sandbox",
           "--disable-gpu-sandbox",
@@ -82,6 +90,27 @@ async function go() {
     console.error(err);
     process.exit(1);
   }
+}
+
+function getLocalServerEnvironment(extensionPath: string): NodeJS.ProcessEnv {
+  return {
+    BICEP_LANGUAGE_SERVER_PATH: requireFile(
+      path.resolve(extensionPath, "../Bicep.LangServer/bin/Debug/net10.0/Bicep.LangServer.dll"),
+      "dotnet build ../Bicep.LangServer/Bicep.LangServer.csproj",
+    ),
+    BICEP_MCP_SERVER_PATH: requireFile(
+      path.resolve(extensionPath, "../Bicep.McpServer/bin/Debug/net10.0/Azure.Bicep.McpServer.dll"),
+      "dotnet build ../Bicep.McpServer/Bicep.McpServer.csproj",
+    ),
+  };
+}
+
+function requireFile(filePath: string, buildCommand: string): string {
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Required local server does not exist at '${filePath}'. Run: ${buildCommand}`);
+  }
+
+  return filePath;
 }
 
 void go();

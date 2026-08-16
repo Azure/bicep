@@ -93,8 +93,11 @@ export async function executeForceModulesRestoreCommand(documentUri: vscode.Uri)
   return await vscode.commands.executeCommand("bicep.forceModulesRestore", documentUri);
 }
 
-export async function executePasteAsBicepCommand(documentUri: vscode.Uri): Promise<void> {
-  return await vscode.commands.executeCommand("bicep.pasteAsBicep", documentUri);
+export async function executePasteAsBicepCommand(
+  documentUri: vscode.Uri,
+  suppressErrorDisplay = false,
+): Promise<void> {
+  return await vscode.commands.executeCommand("bicep.pasteAsBicep", documentUri, suppressErrorDisplay);
 }
 
 export async function executeEditorPasteCommand(): Promise<void> {

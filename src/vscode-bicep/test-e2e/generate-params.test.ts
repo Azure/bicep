@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 import fs from "fs";
 import path from "path";
-import { afterEach, describe, expect, it } from "@jest/globals";
+import type { MockInstance } from "vitest" with { "resolution-mode": "import" };
 import vscode from "vscode";
 import { sleep } from "../src/infrastructure/timing";
 import { createUniqueTempFolder } from "../test-support/temp-folder";
@@ -16,7 +16,7 @@ type ShowStringQuickPick = (
 
 describe("generateParams", (): void => {
   afterEach(async () => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
     await executeCloseAllEditors();
   });
 
@@ -39,10 +39,7 @@ describe("generateParams", (): void => {
       // Give the language server some time to finish compilation.
       await sleep(2000);
 
-      const showQuickPick = jest.spyOn(
-        vscode.window,
-        "showQuickPick",
-      ) as unknown as jest.SpiedFunction<ShowStringQuickPick>;
+      const showQuickPick = vi.spyOn(vscode.window, "showQuickPick") as unknown as MockInstance<ShowStringQuickPick>;
       showQuickPick.mockResolvedValueOnce("json").mockResolvedValueOnce("requiredonly");
 
       await executeGenerateParamsCommand(textDocument.uri);

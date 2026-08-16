@@ -2,18 +2,14 @@
 // Licensed under the MIT License.
 
 import fs from "fs";
-import path from "path";
 import vscode from "vscode";
-import { e2eLogName } from "../src/infrastructure/logging";
 import { expectDefined } from "../test-support/assert";
 import { until } from "../test-support/polling";
 import { executeCloseAllEditors, executeShowDeployPaneCommand, executeShowDeployPaneToSideCommand } from "./commands";
+import { getE2eLogPath } from "./e2e-log";
 import { resolveExamplePath } from "./examples";
 
-const extensionLogPath = path.join(__dirname, `../../${e2eLogName}`);
-
-// Each test waits up to 30s for the webview to be ready.
-jest.setTimeout(60000);
+const extensionLogPath = getE2eLogPath();
 
 describe("deploypane", (): void => {
   afterEach(executeCloseAllEditors);

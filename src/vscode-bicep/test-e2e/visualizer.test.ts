@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 import fs from "fs";
-import path from "path";
 import vscode from "vscode";
-import { e2eLogName } from "../src/infrastructure/logging";
 import { expectDefined } from "../test-support/assert";
 import { until } from "../test-support/polling";
 import {
@@ -13,12 +11,10 @@ import {
   executeShowVisualizerCommand,
   executeShowVisualizerToSideCommand,
 } from "./commands";
+import { getE2eLogPath } from "./e2e-log";
 import { resolveExamplePath } from "./examples";
 
-const extensionLogPath = path.join(__dirname, `../../${e2eLogName}`);
-
-// Each test waits up to 20s for the visualizer to be ready.
-jest.setTimeout(30000);
+const extensionLogPath = getE2eLogPath();
 
 describe("visualizer", (): void => {
   afterEach(executeCloseAllEditors);
@@ -58,8 +54,6 @@ describe("visualizer", (): void => {
   });
 
   it("should open source", async () => {
-    expect(vscode.window.activeTextEditor).toBeUndefined();
-
     const examplePath = resolveExamplePath("000", "empty");
     const document = await vscode.workspace.openTextDocument(examplePath);
 
@@ -77,6 +71,7 @@ describe("visualizer", (): void => {
     const sourceEditor = await executeShowSourceCommand();
 
     expectDefined(sourceEditor);
+    expect(sourceEditor.document).toBe(document);
     expect(sourceEditor).toBe(vscode.window.activeTextEditor);
   });
 

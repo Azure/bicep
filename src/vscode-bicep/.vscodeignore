@@ -18,7 +18,6 @@ out/test-support/
 eslint.config.mjs
 package.test.ts
 webpack.config.mjs
-jest.config.e2e.js
 jest.config.unit.js
 tsconfig.e2e.json
 tsconfig.json

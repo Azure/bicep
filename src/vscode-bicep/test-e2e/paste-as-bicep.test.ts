@@ -1,20 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-/* eslint-disable jest/expect-expect */
-
 import assert from "assert";
-import * as path from "path";
 import * as fse from "fs-extra";
 import vscode, { ConfigurationTarget, Selection, TextDocument } from "vscode";
 import { SuppressedWarningsManager } from "../src/features/paste-as-bicep";
 import { getBicepConfiguration } from "../src/infrastructure/configuration";
-import { e2eLogName } from "../src/infrastructure/logging";
 import { until } from "../test-support/polling";
 import { normalizeMultilineString } from "../test-support/text-normalization";
 import { executeCloseAllEditors, executeEditorPasteCommand, executePasteAsBicepCommand } from "./commands";
+import { getE2eLogPath } from "./e2e-log";
 
-const extensionLogPath = path.join(__dirname, `../../${e2eLogName}`);
+const extensionLogPath = getE2eLogPath();
 
 describe("pasteAsBicep", (): void => {
   const configuration = getBicepConfiguration();
@@ -109,13 +106,13 @@ describe("pasteAsBicep", (): void => {
     if (action === "copy/paste") {
       await executeEditorPasteCommand();
 
-      const expected = `PasteAsBicep (copy/paste): Result: "${jsonToPaste}"`;
-      await waitForPasteAsBicep(expected);
+      const expectedLog = `PasteAsBicep (copy/paste): Result: "${jsonToPaste}"`;
+      await waitForPasteAsBicep(expectedLog);
     } else {
-      await executePasteAsBicepCommand(editor.document.uri);
+      await executePasteAsBicepCommand(editor.document.uri, expected.error !== undefined);
 
-      const expected = `PasteAsBicep (command): Result: "${jsonToPaste}"`;
-      await waitForPasteAsBicep(expected);
+      const expectedLog = `PasteAsBicep (command): Result: "${jsonToPaste}"`;
+      await waitForPasteAsBicep(expectedLog);
     }
     if (expected.error) {
       const match = new RegExp(`Exception occurred: .*${escapeRegex(expected.error)}`);

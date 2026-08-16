@@ -45,8 +45,14 @@ export default tseslint.config(
             },
         },
     },
-    jest.configs["flat/recommended"],
-    jest.configs["flat/style"],
+    {
+        ...jest.configs["flat/recommended"],
+        files: ["src/**/*.test.ts", "test-support/**/*.test.ts", "package.test.ts", "test-support/setup.ts"],
+    },
+    {
+        ...jest.configs["flat/style"],
+        files: ["src/**/*.test.ts", "test-support/**/*.test.ts", "package.test.ts", "test-support/setup.ts"],
+    },
     {
         files: ["**/*.ts", "**/*.tsx"],
 

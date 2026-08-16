@@ -7,18 +7,16 @@
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
-      "args": [
-        "--enable-proposed-api=ms-azuretools.vscode-bicep",
-        "--extensionDevelopmentPath=${workspaceRoot}"
-      ],
+      "args": ["--enable-proposed-api=ms-azuretools.vscode-bicep", "--extensionDevelopmentPath=${workspaceRoot}"],
       "sourceMaps": true,
       "preLaunchTask": "${defaultBuildTask}",
       "env": {
         "BICEP_TRACING_ENABLED": "true",
         "BICEP_TRACING_VERBOSITY": "basic",
         "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net10.0/Bicep.LangServer.dll",
+        "BICEP_MCP_SERVER_PATH": "${workspaceRoot}/../Bicep.McpServer/bin/Debug/net10.0/Azure.Bicep.McpServer.dll",
         // Defaulting to "verbose" when debugging so that new telemetry IDs during development aren't accidentally sent and created before they're finalized
-        "DEBUGTELEMETRY": "v", // "" or "0" or "false": send telemetry as normal; "1": debug mode (no telemetry sent); "verbose": telemetry in console, don't send (from microsoft/vscode-azext-utils)
+        "DEBUGTELEMETRY": "v" // "" or "0" or "false": send telemetry as normal; "1": debug mode (no telemetry sent); "verbose": telemetry in console, don't send (from microsoft/vscode-azext-utils)
       }
     },
     {
@@ -26,14 +24,12 @@
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
-      "args": [
-        "--enable-proposed-api=ms-azuretools.vscode-bicep",
-        "--extensionDevelopmentPath=${workspaceRoot}"
-      ],
+      "args": ["--enable-proposed-api=ms-azuretools.vscode-bicep", "--extensionDevelopmentPath=${workspaceRoot}"],
       "sourceMaps": true,
       "preLaunchTask": "build:prod",
       "env": {
-        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net10.0/Bicep.LangServer.dll"
+        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net10.0/Bicep.LangServer.dll",
+        "BICEP_MCP_SERVER_PATH": "${workspaceRoot}/../Bicep.McpServer/bin/Debug/net10.0/Azure.Bicep.McpServer.dll"
       }
     },
     {
@@ -41,14 +37,12 @@
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
-      "args": [
-        "--enable-proposed-api=ms-azuretools.vscode-bicep",
-        "--extensionDevelopmentPath=${workspaceRoot}"
-      ],
+      "args": ["--enable-proposed-api=ms-azuretools.vscode-bicep", "--extensionDevelopmentPath=${workspaceRoot}"],
       "sourceMaps": true,
       "preLaunchTask": "watch",
       "env": {
-        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net10.0/Bicep.LangServer.dll"
+        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net10.0/Bicep.LangServer.dll",
+        "BICEP_MCP_SERVER_PATH": "${workspaceRoot}/../Bicep.McpServer/bin/Debug/net10.0/Azure.Bicep.McpServer.dll"
       }
     },
     {
@@ -63,6 +57,7 @@
       "preLaunchTask": "build:e2e",
       "env": {
         "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net10.0/Bicep.LangServer.dll",
+        "BICEP_MCP_SERVER_PATH": "${workspaceRoot}/../Bicep.McpServer/bin/Debug/net10.0/Azure.Bicep.McpServer.dll",
         "TEST_MODE": "e2e"
       }
     },
@@ -78,6 +73,7 @@
       "preLaunchTask": "build:e2e:dev",
       "env": {
         "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net10.0/Bicep.LangServer.dll",
+        "BICEP_MCP_SERVER_PATH": "${workspaceRoot}/../Bicep.McpServer/bin/Debug/net10.0/Azure.Bicep.McpServer.dll",
         "TEST_MODE": "e2e"
       }
     },
@@ -86,11 +82,7 @@
       "type": "node",
       "request": "launch",
       "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": [
-        "--config",
-        "jest.config.unit.js",
-        "--testTimeout=600000",
-      ],
+      "args": ["--config", "jest.config.unit.js", "--testTimeout=600000"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "windows": {
@@ -107,7 +99,7 @@
         "--config",
         "jest.config.unit.js",
         "--coverage=false",
-        "--testTimeout=600000",
+        "--testTimeout=600000"
       ],
       "console": "integratedTerminal",
       "windows": {
