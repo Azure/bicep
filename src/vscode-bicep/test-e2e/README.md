@@ -124,7 +124,8 @@ Both E2E commands run the suite against:
 - the minimum version from `engines.vscode`;
 - stable VS Code.
 
-Unit tests continue to use Jest through `npm run test:unit`; Jest is not part of the E2E runner.
+Unit and E2E tests both use Vitest. Unit tests run in regular Node.js through `npm run test:unit`; only E2E tests
+need the custom Extension Host pool described here.
 
 ## Writing Tests
 

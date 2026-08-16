@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es6",
     "lib": ["dom", "dom.iterable", "es2020", "ES2021.String", "ES2022.Error"],
-    "types": ["node", "jest"],
+    "types": ["node"],
     "module": "node16",
     "moduleResolution": "node16",
     "esModuleInterop": true,

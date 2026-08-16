@@ -3,7 +3,7 @@
 
 import js from "@eslint/js";
 import { fixupPluginRules } from "@eslint/compat";
-import jest from "eslint-plugin-jest";
+import vitest from "@vitest/eslint-plugin";
 import notice from "eslint-plugin-notice";
 import tseslint from "typescript-eslint";
 
@@ -33,7 +33,7 @@ export default tseslint.config(
             "coverage/**/*",
             "**/.eslintrc.cjs",
             "**/webpack.config.ts",
-            "**/jest.config.*.js",
+            "**/vitest.config.mts",
         ],
     },
     js.configs.recommended,
@@ -46,12 +46,9 @@ export default tseslint.config(
         },
     },
     {
-        ...jest.configs["flat/recommended"],
-        files: ["src/**/*.test.ts", "test-support/**/*.test.ts", "package.test.ts", "test-support/setup.ts"],
-    },
-    {
-        ...jest.configs["flat/style"],
-        files: ["src/**/*.test.ts", "test-support/**/*.test.ts", "package.test.ts", "test-support/setup.ts"],
+        ...vitest.configs.recommended,
+        files: ["src/**/*.test.ts", "test-support/**/*.test.ts", "package.test.ts"],
+        languageOptions: vitest.configs.env.languageOptions,
     },
     {
         files: ["**/*.ts", "**/*.tsx"],

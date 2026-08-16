@@ -3,7 +3,8 @@
   "compilerOptions": {
     "isolatedModules": true,
     "noEmit": true,
-    "rootDir": "."
+    "rootDir": ".",
+    "types": ["node", "vitest/globals"]
   },
   "include": ["src", "test-support", "package.test.ts"],
   "exclude": []

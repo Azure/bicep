@@ -81,30 +81,18 @@
       "name": "Launch Tests: Unit Tests",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": ["--config", "jest.config.unit.js", "--testTimeout=600000"],
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "--config", "vitest.config.mts", "--testTimeout=600000"],
       "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "windows": {
-        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
-      }
+      "internalConsoleOptions": "neverOpen"
     },
     {
       "name": "Launch Tests: Unit Tests: Current File",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": [
-        "${fileBasenameNoExtension}",
-        "--config",
-        "jest.config.unit.js",
-        "--coverage=false",
-        "--testTimeout=600000"
-      ],
-      "console": "integratedTerminal",
-      "windows": {
-        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
-      }
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "${file}", "--config", "vitest.config.mts", "--coverage.enabled=false", "--testTimeout=600000"],
+      "console": "integratedTerminal"
     }
   ]
 }

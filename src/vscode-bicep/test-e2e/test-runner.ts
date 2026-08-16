@@ -7,7 +7,7 @@ export interface TestRunResult {
   totalSuiteCount: number;
 }
 
-// Framework adapters hide Jest/Vitest-specific APIs behind counts that the VS Code entry point understands.
+// Framework adapters hide test-runner-specific APIs behind counts that the VS Code entry point understands.
 export interface TestFrameworkRunner {
   run(): Promise<TestRunResult>;
 }
