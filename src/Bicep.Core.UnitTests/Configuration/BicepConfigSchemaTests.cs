@@ -16,7 +16,7 @@ using Newtonsoft.Json.Schema;
 
 namespace Bicep.Core.UnitTests.Configuration
 {
-    // Tests the src/vscode-bicep/schemas/bicepconfig.schema.json file
+    // Tests the src/vscode-bicep/resources/configuration/bicepconfig.schema.json file
 
     [TestClass]
     public class BicepConfigSchemaTests
@@ -44,7 +44,7 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         private const string BicepRootConfigFilePath = "src/Bicep.Core/Configuration/bicepconfig.json";
-        private const string BicepConfigSchemaFilePath = "src/vscode-bicep/schemas/bicepconfig.schema.json";
+        private const string BicepConfigSchemaFilePath = "src/vscode-bicep/resources/configuration/bicepconfig.schema.json";
 
         private const string HelpFileName = "experimental-features.md";
 
