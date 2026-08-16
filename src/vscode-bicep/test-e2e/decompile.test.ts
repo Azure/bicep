@@ -4,8 +4,8 @@
 import fs from "fs";
 import path from "path";
 import vscode from "vscode";
-import { createUniqueTempFolder } from "./support/create-unique-temp-folder";
 import { executeCloseAllEditors, executeDecompileCommand } from "./commands";
+import { createUniqueTempFolder } from "./support/create-unique-temp-folder";
 
 const json = `
 {

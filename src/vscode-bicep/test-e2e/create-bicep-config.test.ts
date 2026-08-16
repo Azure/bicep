@@ -4,11 +4,11 @@
 import fs from "fs";
 import path from "path";
 import { TextEditor, Uri, window } from "vscode";
+import { executeCloseAllEditors, executeCreateConfigFileCommand } from "./commands";
+import { expectedNewConfigFileContents } from "./expected-new-config-file-contents";
 import { createUniqueTempFolder } from "./support/create-unique-temp-folder";
 import { normalizeMultilineString } from "./support/normalize-multiline-string";
 import { testScope } from "./support/test-scope";
-import { executeCloseAllEditors, executeCreateConfigFileCommand } from "./commands";
-import { expectedNewConfigFileContents } from "./expected-new-config-file-contents";
 
 describe("bicep.createConfigFile", (): void => {
   afterEach(async () => {

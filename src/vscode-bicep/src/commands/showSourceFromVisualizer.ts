@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import vscode from "vscode";
-import { BicepVisualizerViewManager } from "../visualizer";
 import { Command } from "../infrastructure/commands";
+import { BicepVisualizerViewManager } from "../visualizer";
 
 export class ShowSourceFromVisualizerCommand implements Command {
   public static readonly CommandId = "bicep.showSourceFromVisualizer";

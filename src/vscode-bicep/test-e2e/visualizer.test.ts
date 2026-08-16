@@ -7,7 +7,6 @@ import vscode from "vscode";
 import { e2eLogName } from "../src/infrastructure/logging";
 import { sleep } from "../src/infrastructure/timing";
 import { expectDefined } from "../src/test/utils/assert";
-import { until } from "./support/time";
 import {
   executeCloseAllEditors,
   executeShowSourceCommand,
@@ -15,6 +14,7 @@ import {
   executeShowVisualizerToSideCommand,
 } from "./commands";
 import { resolveExamplePath } from "./examples";
+import { until } from "./support/time";
 
 const extensionLogPath = path.join(__dirname, `../../${e2eLogName}`);
 

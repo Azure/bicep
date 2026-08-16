@@ -5,8 +5,8 @@ import path from "path";
 import { afterEach, describe, expect, it } from "@jest/globals";
 import vscode from "vscode";
 import { sleep } from "../src/infrastructure/timing";
-import { createUniqueTempFolder } from "./support/create-unique-temp-folder";
 import { executeCloseAllEditors, executeGenerateParamsCommand } from "./commands";
+import { createUniqueTempFolder } from "./support/create-unique-temp-folder";
 
 type ShowStringQuickPick = (
   items: readonly string[],

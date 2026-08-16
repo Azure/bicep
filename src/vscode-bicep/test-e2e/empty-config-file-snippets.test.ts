@@ -4,11 +4,11 @@
 import fs from "fs";
 import path from "path";
 import vscode, { CompletionItem, SnippetString, window, workspace } from "vscode";
+import { executeCloseAllEditors, executeCompletionItemProvider } from "./commands";
+import { expectedNewConfigFileContents } from "./expected-new-config-file-contents";
 import { createUniqueTempFolder } from "./support/create-unique-temp-folder";
 import { normalizeLineEndings } from "./support/normalize-line-endings";
 import { testScope } from "./support/test-scope";
-import { executeCloseAllEditors, executeCompletionItemProvider } from "./commands";
-import { expectedNewConfigFileContents } from "./expected-new-config-file-contents";
 
 describe("empty config file snippets", (): void => {
   afterEach(async () => {

@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import { ConfigurationTarget } from "vscode";
-import { SuppressedWarningsManager } from "./suppressed-warnings";
 import { WorkspaceConfigurationFake } from "../../test/fakes/workspace-configuration-fake";
+import { SuppressedWarningsManager } from "./suppressed-warnings";
 
 describe("suppressedWarningsManager", () => {
   it("should not suppress by default", () => {

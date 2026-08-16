@@ -25,12 +25,12 @@ import {
   BicepUpdatedDeploymentParameter,
   ParametersFileUpdateOption,
 } from "../features/deployments";
-import { AzurePickers } from "../utils/AzurePickers";
-import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
 import { Command } from "../infrastructure/commands";
 import { findOrCreateActiveBicepFile } from "../infrastructure/editor";
 import { OutputChannelManager } from "../infrastructure/logging";
 import { minutesToMs } from "../infrastructure/timing";
+import { AzurePickers } from "../utils/AzurePickers";
+import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
 import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
 
 export class DeployCommand implements Command {

@@ -24,9 +24,7 @@ export function activateMcpFeature(
 }
 
 function ensureMcpServerExists(context: ExtensionContext): string {
-  const mcpServerPath =
-    process.env.BICEP_MCP_SERVER_PATH ??
-    context.asAbsolutePath(packagedMcpServerPath);
+  const mcpServerPath = process.env.BICEP_MCP_SERVER_PATH ?? context.asAbsolutePath(packagedMcpServerPath);
 
   if (!existsSync(mcpServerPath)) {
     throw new Error(`MCP server does not exist at '${mcpServerPath}'.`);

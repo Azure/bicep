@@ -19,12 +19,7 @@ export const bicepLanguageId = "bicep";
 export const bicepParamLanguageId = "bicep-params";
 
 type TargetFile =
-  | "rightClickOrMenu"
-  | "singleInWorkspace"
-  | "singleInVisibleEditors"
-  | "quickPick"
-  | "new"
-  | "activeEditor";
+  "rightClickOrMenu" | "singleInWorkspace" | "singleInVisibleEditors" | "quickPick" | "new" | "activeEditor";
 type Properties = TelemetryProperties & { targetFile: TargetFile };
 
 /**

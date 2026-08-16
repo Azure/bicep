@@ -4,11 +4,11 @@
 import path from "path";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import vscode, { Uri } from "vscode";
+import { LanguageClient } from "vscode-languageclient/node";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { Disposable } from "../../infrastructure/lifecycle";
 import { BicepExternalSourceContentProvider } from "./external-source-content";
 import { BicepExternalSourceScheme, decodeExternalSourceUri } from "./external-source-uri";
-import { LanguageClient } from "vscode-languageclient/node";
 
 export class ShowModuleSourceFileCommand implements Command {
   public readonly id = "bicep.internal.showModuleSourceFile";

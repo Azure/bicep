@@ -3,15 +3,9 @@
 
 import { registerAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
 import { registerUIExtensionVariables } from "@microsoft/vscode-azext-utils";
-import {
-  ExtensionContext,
-  ProgressLocation,
-  Uri,
-  window,
-} from "vscode";
+import { ExtensionContext, ProgressLocation, Uri, window } from "vscode";
 import * as lsp from "vscode-languageclient/node";
 import { AzureUiManager } from "./azure/AzureUiManager";
-import { CommandManager } from "./infrastructure/commands";
 import { DeployCommand } from "./commands/deploy";
 import { ShowDeployPaneCommand, ShowDeployPaneToSideCommand } from "./commands/showDeployPane";
 import { ShowSourceFromVisualizerCommand } from "./commands/showSourceFromVisualizer";
@@ -22,18 +16,18 @@ import { activateDecompileFeature } from "./features/decompile";
 import { activateExternalSourceFeature } from "./features/external-source";
 import { activateImportKubernetesManifestFeature } from "./features/import-kubernetes-manifest";
 import { activateInsertResourceFeature } from "./features/insert-resource";
-import { activateModuleRestoreFeature } from "./features/module-restore";
 import { activateMcpFeature } from "./features/mcp";
+import { activateModuleRestoreFeature } from "./features/module-restore";
 import { activateParametersFeature } from "./features/parameters";
 import { activatePasteAsBicepFeature } from "./features/paste-as-bicep";
 import { activateRefactoringFeature } from "./features/refactoring";
 import * as surveys from "./features/surveys";
 import { activateWalkthroughFeature } from "./features/walkthrough";
 import { setGlobalStateKeysToSyncBetweenMachines } from "./globalState";
+import { CommandManager } from "./infrastructure/commands";
 import { bicepConfigurationPrefix } from "./infrastructure/configuration";
 import { bicepLanguageId } from "./infrastructure/editor";
 import { createLanguageService, ensureDotnetRuntimeInstalled } from "./infrastructure/language-client";
-import { DeployPaneViewManager } from "./panes/deploy";
 import { Disposable } from "./infrastructure/lifecycle";
 import {
   activateWithTelemetryAndErrorHandling,
@@ -43,6 +37,7 @@ import {
   OutputChannelManager,
   resetLogger,
 } from "./infrastructure/logging";
+import { DeployPaneViewManager } from "./panes/deploy";
 import { AzurePickers } from "./utils/AzurePickers";
 import { BicepVisualizerViewManager } from "./visualizer";
 
@@ -138,7 +133,6 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
         getLogger().info("Bicep language service started.");
 
         activateMcpFeature(extension, extensionContext, dotnetCommandPath);
-
       },
     );
   });
