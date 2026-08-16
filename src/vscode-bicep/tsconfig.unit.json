@@ -6,6 +6,6 @@
     "rootDir": ".",
     "types": ["node", "vitest/globals"]
   },
-  "include": ["src", "test-support", "package.test.ts"],
+  "include": ["src", "tests/setup", "tests/e2e/**/__tests__/**/*.ts", "package.test.ts"],
   "exclude": []
 }

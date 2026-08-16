@@ -44,6 +44,7 @@ const debugSurveyLinkKeyPrefix = "debug.surveys.link:";
 type MessageItemWithId = MessageItem & { id: string };
 type ShowSurveyPrompt = (message: string, ...items: MessageItemWithId[]) => Thenable<MessageItemWithId | undefined>;
 type GetSurveyLinkStatus = (fullLink: string) => Promise<number | undefined>;
+export type SurveyContext = Pick<IActionContext, "errorHandling" | "telemetry">;
 
 export function showSurveys(globalState: GlobalState): void {
   checkShowSurvey(globalState, hatsAlwaysOnSurveyInfo);
@@ -120,7 +121,7 @@ export class Survey {
   /**
    * Shows the survey if it's available and timely, and the user doesn't opt out.
    */
-  public async checkShowSurvey(context: IActionContext, now: Date): Promise<void> {
+  public async checkShowSurvey(context: SurveyContext, now: Date): Promise<void> {
     context.errorHandling.suppressDisplay = true;
     context.telemetry.properties.isActivationEvent = "true";
     context.telemetry.properties.akaLink = this.surveyInfo.akaLinkToSurvey.replace("/", "-");
@@ -143,7 +144,7 @@ export class Survey {
   }
 
   private async shouldAskToTakeSurvey(
-    context: IActionContext,
+    context: SurveyContext,
     state: ISurveyState,
     now: Date,
   ): Promise<"ask" | "never" | "postponed" | "unavailable" | "alreadyTaken"> {
@@ -182,7 +183,7 @@ export class Survey {
     }
   }
 
-  private getPersistedSurveyState(context: IActionContext, now: Date): ISurveyState {
+  private getPersistedSurveyState(context: SurveyContext, now: Date): ISurveyState {
     let retrievedState: ISurveyState;
     const key = this.surveyInfo.surveyStateKey;
 
@@ -225,7 +226,7 @@ export class Survey {
 
   // TODO: If the user never responds, the telemetry event isn't sent - can fix this with a different event
   private async askToTakeSurvey(
-    context: IActionContext,
+    context: SurveyContext,
     state: ISurveyState, // this is modified
     now: Date,
   ): Promise<void> {
@@ -259,7 +260,7 @@ export class Survey {
     }
   }
 
-  private static async launchSurvey(this: void, context: IActionContext, surveyInfo: ISurveyInfo): Promise<void> {
+  private static async launchSurvey(this: void, context: SurveyContext, surveyInfo: ISurveyInfo): Promise<void> {
     context.telemetry.properties.launchSurvey = "true";
 
     await commands.executeCommand(
@@ -282,7 +283,7 @@ export class Survey {
 
   public static async getIsSurveyAvailable(
     this: void,
-    context: IActionContext,
+    context: SurveyContext,
     fullLink: string,
     getSurveyLinkStatus: GetSurveyLinkStatus = getHttpsStatus,
   ): Promise<boolean> {

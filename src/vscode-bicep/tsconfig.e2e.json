@@ -5,12 +5,5 @@
     "rootDir": ".",
     "types": ["node", "vitest/globals"]
   },
-  "include": [
-    "test-e2e",
-    "test-support/action-context.ts",
-    "test-support/assert.ts",
-    "test-support/polling.ts",
-    "test-support/temp-folder.ts",
-    "test-support/text-normalization.ts"
-  ]
+  "include": ["tests/e2e"]
 }

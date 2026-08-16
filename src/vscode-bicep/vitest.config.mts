@@ -25,18 +25,18 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      vscode: path.resolve(configDirectory, "test-support/vscode-mock.ts"),
+      vscode: path.resolve(configDirectory, "tests/setup/unit.ts"),
     },
   },
   test: {
     globals: true,
-    include: ["src/**/*.test.ts", "test-support/**/*.test.ts", "package.test.ts"],
-    setupFiles: ["test-support/vitest-setup.ts"],
+    include: ["src/**/__tests__/**/*.test.ts", "tests/e2e/**/__tests__/**/*.test.ts", "package.test.ts"],
+    setupFiles: ["tests/setup/unit.ts"],
     coverage: {
       enabled: true,
       provider: "v8",
       include: ["src/**/*.ts"],
-      exclude: ["src/**/*.test.ts", "src/features/visualization/**", "**/.svg/**"],
+      exclude: ["src/**/__tests__/**", "src/features/visualization/**", "**/.svg/**"],
       reporter: ["clover", "json", "lcov", "text"],
     },
   },

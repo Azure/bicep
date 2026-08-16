@@ -2,15 +2,13 @@
 docs/
 node_modules/
 src/
-test-e2e/
-test-support/
+tests/
 scripts/
 coverage/
 out/**/*.map
 out/e2e/
 out/src/
-out/test-e2e/
-out/test-support/
+out/tests/
 
 .gitignore
 .prettierrc

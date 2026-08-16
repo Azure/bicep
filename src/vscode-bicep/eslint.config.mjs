@@ -47,8 +47,17 @@ export default tseslint.config(
     },
     {
         ...vitest.configs.recommended,
-        files: ["src/**/*.test.ts", "test-support/**/*.test.ts", "package.test.ts"],
+        files: ["src/**/__tests__/**/*.test.ts", "tests/e2e/**/*.test.ts", "package.test.ts"],
         languageOptions: vitest.configs.env.languageOptions,
+    },
+    {
+        files: ["tests/e2e/**/*.test.ts"],
+        rules: {
+            "vitest/expect-expect": [
+                "error",
+                { assertFunctionNames: ["expect", "assert", "expectHovers", "runTest"] },
+            ],
+        },
     },
     {
         files: ["**/*.ts", "**/*.tsx"],
