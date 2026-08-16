@@ -31,10 +31,10 @@
     "styled-components": "^6.1.11"
   },
   "devDependencies": {
-    "@storybook/addon-docs": "^10.3.4",
-    "@storybook/addon-links": "^10.3.4",
-    "@storybook/addon-themes": "^10.3.4",
-    "@storybook/react-vite": "^10.3.4",
+    "@storybook/addon-docs": "^10.5.7",
+    "@storybook/addon-links": "^10.5.7",
+    "@storybook/addon-themes": "^10.5.7",
+    "@storybook/react-vite": "^10.5.7",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.0",
@@ -44,15 +44,15 @@
     "@types/d3-zoom": "^3.0.8",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.4",
+    "@vitejs/plugin-react": "^6.0.5",
     "@vitest/coverage-v8": "^4.1.10",
     "@vscode/codicons": "^0.0.45",
-    "eslint-plugin-storybook": "^10.3.1",
-    "happy-dom": "^20.8.9",
+    "eslint-plugin-storybook": "^10.5.7",
+    "happy-dom": "^20.11.2",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "storybook": "^10.3.4",
-    "styled-components": "^6.3.11",
-    "vite": "^8.1.5",
+    "styled-components": "^6.5.1",
+    "vite": "^8.2.1",
     "vite-plugin-dts": "^5.0.3",
     "vite-plugin-lib-inject-css": "^2.2.1",
     "vite-plugin-svgr": "^5.2.0",
@@ -60,6 +60,6 @@
   },
   "dependencies": {
     "@react-hook/resize-observer": "^2.0.2",
-    "motion": "^12.38.0"
+    "motion": "^13.0.0"
   }
 }
