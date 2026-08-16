@@ -46,6 +46,15 @@ export default tseslint.config(
         },
     },
     {
+        files: ["scripts/**/*.mjs"],
+        languageOptions: {
+            globals: {
+                console: "readonly",
+                process: "readonly",
+            },
+        },
+    },
+    {
         ...vitest.configs.recommended,
         files: ["src/**/__tests__/**/*.test.ts", "tests/e2e/**/*.test.ts", "package.test.ts"],
         languageOptions: vitest.configs.env.languageOptions,

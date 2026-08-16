@@ -745,10 +745,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "test:e2e": "node ./out/tests/e2e/runner/launch.js",
     "test:unit": "vitest run --config vitest.config.mts",
-    "testlocal:e2e": "npm run build && npm run build:e2e && node ./out/tests/e2e/runner/launch.js --local",
     "clean": "rimraf ./out ./coverage",
-    "package": "npm run clean && nbgv-setversion && vsce package --no-dependencies --githubBranch main --out ./vscode-bicep.vsix && nbgv-setversion --reset && vsce generate-manifest -i ./vscode-bicep.vsix -o ./vscode-bicep.manifest",
-    "package:local": "rimraf ./bicepLanguageServer && cp -r ../Bicep.LangServer/bin/Debug/net10.0 ./bicepLanguageServer && rimraf ./bicepMcpServer && cp -r ../Bicep.McpServer/bin/Debug/net10.0 ./bicepMcpServer && npm run package"
+    "package": "npm run clean && nbgv-setversion && vsce package --no-dependencies --githubBranch main --out ./vscode-bicep.vsix && nbgv-setversion --reset && vsce generate-manifest -i ./vscode-bicep.vsix -o ./vscode-bicep.manifest"
   },
   "devDependencies": {
     "@eslint/compat": "^2.0.5",

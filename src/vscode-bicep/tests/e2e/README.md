@@ -112,16 +112,21 @@ Run against prepared/package-layout servers:
 npm run test:e2e
 ```
 
-For local development, build the language and MCP servers first:
+For local development, run the dedicated orchestration script:
 
 ```sh
-dotnet build ../Bicep.LangServer/Bicep.LangServer.csproj
-dotnet build ../Bicep.McpServer/Bicep.McpServer.csproj
-npm run testlocal:e2e
+node ./scripts/run-e2e-tests.mjs
 ```
 
-`testlocal:e2e` builds the extension and E2E bootstrap, validates both local DLL paths, and passes them into the
-Extension Development Host through `BICEP_LANGUAGE_SERVER_PATH` and `BICEP_MCP_SERVER_PATH`.
+The script reuses `setup-development.mjs` to install extension and UI dependencies, build the UI, and build the
+language and MCP servers. It then builds the extension bundle and E2E bootstrap before launching the Extension
+Development Host with `BICEP_LANGUAGE_SERVER_PATH` and `BICEP_MCP_SERVER_PATH`.
+
+To prepare dependencies without running tests:
+
+```sh
+node ./scripts/setup-development.mjs
+```
 
 Both E2E commands run the suite against:
 
