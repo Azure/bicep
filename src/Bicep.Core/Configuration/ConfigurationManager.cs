@@ -29,10 +29,10 @@ namespace Bicep.Core.Configuration
         public void PurgeCache()
         {
             loadedConfigCache.Clear();
-            this.bicepConfigurationManager.PurgeChainCache();
+            this.bicepConfigurationManager.PurgeAllCaches();
         }
 
-        public void PurgeLookupCache() => this.bicepConfigurationManager.PurgeChainCache();
+        public void PurgeLookupCache() => this.bicepConfigurationManager.PurgeAllCaches();
 
         public (RootConfiguration prevConfiguration, RootConfiguration newConfiguration)? RefreshConfigCacheEntry(IOUri configFileIdentifier)
         {

@@ -57,6 +57,14 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         return chain;
     }
 
+    public void PurgeAllCaches()
+    {
+        this.directoryHandleCache.Clear();
+        this.configFileLookupCache.Clear();
+        this.chainCache.Clear();
+        this.chainDependencies.Clear();
+    }
+
     public void PurgeCache()
     {
         PurgeLookupCache();

@@ -34,6 +34,13 @@ public interface IBicepConfigurationManager
     void PurgeCacheForAffectedChains(IOUri changedFileUri);
 
     /// <summary>
+    /// Purges all internal caches: chain cache, dependency map, config file lookup cache,
+    /// and directory handle cache. Use when a config file is created or deleted so that
+    /// discovery re-runs from scratch on the next request.
+    /// </summary>
+    void PurgeAllCaches();
+
+    /// <summary>
     /// Purges the chain cache. Call this when any config file in the workspace changes
     /// so stale chains are not reused.
     /// </summary>

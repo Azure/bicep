@@ -218,7 +218,7 @@ public class ConfigurationInheritanceTests
         WriteFile(fileExplorer, "/main.bicep", "param unused string");
         WriteFile(fileExplorer, "/bicepconfig.json", """
         {
-          "extends": "/base/bicepconfig.base.json",
+          "extends": "./base/bicepconfig.base.json",
           "experimentalFeaturesWarning": true
         }
         """);
