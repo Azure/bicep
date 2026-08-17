@@ -149,7 +149,11 @@ namespace Bicep.Core.UnitTests
             return RootConfiguration.Bind(element, configFileIdentifier);
         }
 
-        public static ConfigurationManager CreateFilesystemConfigurationManager() => new(new FileSystemFileExplorer(new OnDiskFileSystem()));
+        public static ConfigurationManager CreateFilesystemConfigurationManager()
+        {
+            var fileExplorer = new FileSystemFileExplorer(new OnDiskFileSystem());
+            return new(fileExplorer, new BicepConfigurationManager(fileExplorer));
+        }
 
         public static IFeatureProviderFactory CreateFeatureProviderFactory(FeatureProviderOverrides featureOverrides, IConfigurationManager? configurationManager = null)
             => new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager ?? CreateFilesystemConfigurationManager(), FileExplorer), featureOverrides);

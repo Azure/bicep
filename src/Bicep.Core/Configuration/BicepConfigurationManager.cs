@@ -20,6 +20,7 @@ public class BicepConfigurationManager : IBicepConfigurationManager
     private readonly ConcurrentDictionary<IOUri, IDirectoryHandle> directoryHandleCache = new();
     private readonly ConcurrentDictionary<IDirectoryHandle, ResultWithDiagnostic<IFileHandle?>> configFileLookupCache = new();
     private readonly ConcurrentDictionary<IFileHandle, ResultWithDiagnostic<IBicepConfigurationChain>> chainCache = new();
+    private readonly ConcurrentDictionary<IFileHandle, ImmutableHashSet<IOUri>> chainDependencies = new();
     private readonly IFileExplorer fileExplorer;
 
     public BicepConfigurationManager(IFileExplorer fileExplorer)
@@ -60,9 +61,53 @@ public class BicepConfigurationManager : IBicepConfigurationManager
     {
         PurgeLookupCache();
         this.chainCache.Clear();
+        this.chainDependencies.Clear();
     }
 
     public void PurgeLookupCache() => this.configFileLookupCache.Clear();
+
+    public void PurgeChainCache()
+    {
+        this.chainCache.Clear();
+        this.chainDependencies.Clear();
+    }
+
+    public void PurgeCacheForAffectedChains(IOUri changedFileUri)
+    {
+        foreach (var (leafHandle, deps) in this.chainDependencies)
+        {
+            if (deps.Contains(changedFileUri))
+            {
+                this.chainCache.TryRemove(leafHandle, out _);
+                this.chainDependencies.TryRemove(leafHandle, out _);
+                // Lookup cache must also be cleared so the next GetConfigurationChain
+                // re-resolves the leaf file from its source directory.
+                this.configFileLookupCache.Clear();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Returns the set of config file URIs that the chain rooted at <paramref name="leafUri"/> depends on.
+    /// Exposed internally for testing.
+    /// </summary>
+    internal ImmutableHashSet<IOUri> GetDependenciesForLeaf(IOUri leafUri)
+    {
+        var leafHandle = this.fileExplorer.GetFile(leafUri);
+        return this.chainDependencies.TryGetValue(leafHandle, out var deps) ? deps : [];
+    }
+
+    public RootConfiguration GetMergedConfiguration(IOUri sourceFileUri)
+    {
+        var chain = GetConfigurationChain(sourceFileUri);
+
+        if (chain.GetEffectiveConfiguration() is BicepConfigurationAdapter adapter)
+        {
+            return adapter.InnerConfiguration;
+        }
+
+        return IConfigurationManager.GetBuiltInConfiguration();
+    }
 
     public void RemoveChainCacheEntry(IOUri configFileUri)
     {
@@ -154,6 +199,11 @@ public class BicepConfigurationManager : IBicepConfigurationManager
 
             currentFileHandle = nextFileHandle;
         }
+
+        // Record all config files this chain depends on for targeted cache invalidation.
+        this.chainDependencies[leafFileHandle] = rawLayers
+            .Select(layer => layer.FileHandle.Uri)
+            .ToImmutableHashSet();
 
         return new(BuildChain(leafUri, rawLayers));
     }
