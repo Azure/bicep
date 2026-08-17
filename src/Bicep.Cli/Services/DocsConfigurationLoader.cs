@@ -147,7 +147,9 @@ internal static class DocsConfigurationLoader
         }
 
         var rootPath = inputPath is null ? targetDirectory : resolver.GetFullPath(inputPath);
-        var rootUriForSelection = resolver.PathToUri(rootPath + Path.DirectorySeparatorChar);
+        var rootUriForSelection = resolver
+            .PathToUri(Path.Combine(rootPath, ConventionalFileName))
+            .Resolve(".");
         var inputs = resolver
             .ResolveFilePatterns(
                 rootPath,
