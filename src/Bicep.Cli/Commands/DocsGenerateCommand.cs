@@ -78,7 +78,6 @@ public class DocsGenerateCommand(
             if (result.CompilationResult is { } compilation)
             {
                 sarifResults.Add((result.SourceUri, compilation, result.DocumentationDiagnostic));
-                experimentalWarningLogged = true;
             }
             else if (aggregateSarif)
             {
@@ -87,10 +86,16 @@ public class DocsGenerateCommand(
 
             if (result is not DocsRenderResult.Succeeded success)
             {
+                if (result.DocumentationDiagnostic?.Code == DocsCommand.RenderFailureCode)
+                {
+                    experimentalWarningLogged = true;
+                }
+
                 hasErrors = true;
                 continue;
             }
 
+            experimentalWarningLogged = true;
             try
             {
                 await writer.WriteToFileAtomicallyAsync(outputUri, success.Contents, cancellationToken);

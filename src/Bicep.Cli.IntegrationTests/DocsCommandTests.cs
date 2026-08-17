@@ -32,6 +32,27 @@ public class DocsCommandTests : TestBase
         FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, Assembly.GetExecutingAssembly(), FixturePrefix);
 
     [TestMethod]
+    public async Task DocsCommand_IsAvailableWithoutBicepConfigFeatureFlag()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [
+                new("main.bicep", "metadata name = 'No feature flag'"),
+                new("bicepconfig.json", "{}"),
+            ]);
+
+        var result = await Bicep(
+            "docs",
+            "output",
+            Path.Combine(root, "main.bicep"));
+
+        result.ExitCode.Should().Be(0);
+        result.Stdout.Should().Contain("# No feature flag");
+        result.Stderr.Should().Contain(
+            "following experimental Bicep features have been enabled: docs");
+    }
+
+    [TestMethod]
     public async Task Generate_ComprehensiveFixture_PerformsRealIoAndMatchesGoldenFile()
     {
         var moduleRoot = SaveComprehensiveFixture();
@@ -999,6 +1020,31 @@ public class DocsCommandTests : TestBase
         result.Stderr.Should().NotContain("WARNING:");
         File.Exists(Path.Combine(root, "valid", "README.md")).Should().BeTrue();
         File.Exists(Path.Combine(root, "invalid", "README.md")).Should().BeFalse();
+    }
+
+    [TestMethod]
+    public async Task Generate_PatternCompilationFailureThenSuccess_LogsExperimentalDisclaimerOnce()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [
+                new("a-invalid/main.bicep", "param value invalidType"),
+                new("b-valid/main.bicep", "metadata name = 'Valid'"),
+            ]);
+
+        var result = await Bicep(
+            "docs",
+            "generate",
+            "--pattern",
+            Path.Combine(root, "*", "main.bicep"));
+
+        result.ExitCode.Should().Be(1);
+        result.Stderr.Split(
+                "following experimental Bicep features have been enabled: docs",
+                StringSplitOptions.None)
+            .Should().HaveCount(2);
+        File.Exists(Path.Combine(root, "a-invalid", "README.md")).Should().BeFalse();
+        File.Exists(Path.Combine(root, "b-valid", "README.md")).Should().BeTrue();
     }
 
     [TestMethod]
