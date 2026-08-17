@@ -797,7 +797,7 @@ public class DocsCommandTests : TestBase
         var fileSystem = new Mock<IFileSystem>(MockBehavior.Strict);
         var path = new Mock<IPath>(MockBehavior.Strict);
         fileSystem.SetupGet(system => system.Path).Returns(path.Object);
-        path.Setup(systemPath => systemPath.GetFullPath("main.bicep")).Returns("C:\\main.bicep");
+        path.Setup(systemPath => systemPath.GetFullPath("main.bicep")).Returns(Path.GetFullPath("main.bicep"));
         path.Setup(systemPath => systemPath.GetFullPath("invalid")).Throws(new IOException("invalid template path"));
 
         var result = await Bicep(
