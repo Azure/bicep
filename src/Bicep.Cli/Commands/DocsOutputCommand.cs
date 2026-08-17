@@ -14,21 +14,21 @@ namespace Bicep.Cli.Commands;
 
 public class DocsOutputCommand(
     IOContext io,
-    DocsModuleScanner moduleScanner,
+    InputOutputArgumentsResolver argumentsResolver,
     DocsCommandRunner runner,
     DiagnosticLogger diagnosticLogger,
     IFileSystem fileSystem) : ICommand
 {
     public async Task<int> RunAsync(DocsOutputArguments arguments, CancellationToken cancellationToken = default)
     {
-        var module = moduleScanner.ResolveModule(arguments.InputFile);
+        var module = argumentsResolver.ResolveInputArguments(arguments);
         ArgumentHelper.ValidateBicepFile(module);
 
         var aggregateSarif = arguments.DiagnosticsFormat is DiagnosticsFormat.Sarif;
         var result = await runner.RenderAsync(
             module,
-            moduleScanner.ResolveOptionalFile(arguments.TemplateFile),
-            moduleScanner.ResolveOptionalDirectory(arguments.TemplateRoot),
+            arguments.TemplateFile is null ? null : argumentsResolver.PathToUri(arguments.TemplateFile),
+            DocsCommand.ResolveTemplateRoot(arguments.TemplateRoot, argumentsResolver, fileSystem),
             arguments.CustomValues,
             arguments.NoRestore,
             arguments.DiagnosticsFormat,
@@ -79,8 +79,8 @@ public class DocsOutputCommand(
         };
         var inputFileArgument = new System.CommandLine.Argument<string?>(Constants.Argument.InputFile)
         {
-            Description = "The path to a .bicep file or module directory. Defaults to the current directory.",
-            Arity = ArgumentArity.ZeroOrOne,
+            Description = "The path to the input .bicep file.",
+            Arity = ArgumentArity.ExactlyOne,
         };
         var templateFileOption = new System.CommandLine.Option<string?>(Option.TemplateFile)
         {

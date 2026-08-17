@@ -31,13 +31,13 @@ Both commands accept:
 - `--no-restore`
 - `--diagnostics-format default|sarif`
 
-`docs generate` also accepts `--pattern` and `--output-file`. The output value must be a file name without a directory or Bicep source extension.
+`docs generate` also accepts `--pattern`, `--outdir`, and `--outfile`. Without an output option, it writes `README.md` beside each input module. With `--pattern`, `--outdir` preserves the matched relative directory structure and writes `README.md` in each destination directory.
 
-When a directory is supplied, the command uses its `main.bicep`. The default template root is the module directory.
+Inputs are `.bicep` file paths. The default template root is the input file's directory.
 
 ## Usage examples
 
-The built-in Markdown template discovers Bicep files below `examples` and `tests`. Files named `dependencies.bicep` are excluded.
+The built-in Markdown template discovers direct `.bicep` files and nested `main.bicep` files below `examples`, plus `*.test.bicep` files below `tests`. Files whose names start with `dependencies` are excluded.
 
 An example name is selected in this order:
 

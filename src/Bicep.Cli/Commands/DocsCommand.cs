@@ -5,9 +5,11 @@ using System.Collections.Immutable;
 using System.CommandLine.Parsing;
 using System.IO.Abstractions;
 using System.Text.Json;
+using Bicep.Cli.Arguments;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Documentation;
 using Bicep.Core.Exceptions;
+using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
@@ -209,4 +211,48 @@ public static class DocsCommand
     internal record DocsDiagnostics(
         ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> ByFile,
         ImmutableArray<(IOUri SourceUri, IDiagnostic Diagnostic)> Additional);
+
+    internal static void ValidateOutputPaths(IReadOnlyList<(IOUri InputUri, IOUri OutputUri)> paths)
+    {
+        var outputUris = new HashSet<IOUri>();
+        foreach (var (inputUri, outputUri) in paths)
+        {
+            if (inputUri.Equals(outputUri))
+            {
+                throw new CommandLineException("The documentation output path cannot overwrite the input Bicep file.");
+            }
+
+            if (outputUri.HasBicepExtension() || outputUri.HasBicepParamExtension())
+            {
+                throw new CommandLineException("Documentation output cannot use a Bicep source file extension.");
+            }
+
+            if (!outputUris.Add(outputUri))
+            {
+                throw new CommandLineException($"Multiple input files resolve to the output file \"{outputUri}\".");
+            }
+        }
+    }
+
+    internal static IOUri? ResolveTemplateRoot(
+        string? path,
+        InputOutputArgumentsResolver resolver,
+        IFileSystem fileSystem)
+    {
+        if (path is null)
+        {
+            return null;
+        }
+
+        var fullPath = resolver.GetFullPath(path);
+        if (!fileSystem.Directory.Exists(fullPath))
+        {
+            throw new CommandLineException($"The template root directory \"{fullPath}\" does not exist.");
+        }
+
+        var normalizedPath = fileSystem.Path.EndsInDirectorySeparator(fullPath)
+            ? fullPath
+            : fullPath + fileSystem.Path.DirectorySeparatorChar;
+        return resolver.PathToUri(normalizedPath);
+    }
 }

@@ -160,6 +160,43 @@ public class BicepClientUnitTests
     }
 
     [TestMethod]
+    public void Docs_models_expose_constructor_values()
+    {
+        var custom = new Dictionary<string, string> { ["owner"] = "Platform" };
+        var generateRequest = new GenerateDocsRequest(
+            ["main.bicep"],
+            "template.scriban",
+            "templates",
+            custom,
+            "docs.md",
+            NoRestore: true);
+        var outputRequest = new OutputDocsRequest(
+            "main.bicep",
+            "template.scriban",
+            "templates",
+            custom,
+            NoRestore: true);
+        var result = new DocsResult("main.bicep", "docs.md", true, [], "# Module\n");
+
+        generateRequest.Paths.Should().Equal("main.bicep");
+        generateRequest.TemplateFile.Should().Be("template.scriban");
+        generateRequest.TemplateRoot.Should().Be("templates");
+        generateRequest.Custom.Should().BeSameAs(custom);
+        generateRequest.OutputFile.Should().Be("docs.md");
+        generateRequest.NoRestore.Should().BeTrue();
+        outputRequest.Path.Should().Be("main.bicep");
+        outputRequest.TemplateFile.Should().Be("template.scriban");
+        outputRequest.TemplateRoot.Should().Be("templates");
+        outputRequest.Custom.Should().BeSameAs(custom);
+        outputRequest.NoRestore.Should().BeTrue();
+        result.Path.Should().Be("main.bicep");
+        result.OutputPath.Should().Be("docs.md");
+        result.Success.Should().BeTrue();
+        result.Diagnostics.Should().BeEmpty();
+        result.Contents.Should().Be("# Module\n");
+    }
+
+    [TestMethod]
     public async Task Docs_methods_throw_when_cli_version_is_below_minimum()
     {
         var rpc = new FakeJsonRpcClient();

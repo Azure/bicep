@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.IO.Abstractions;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
@@ -33,8 +34,8 @@ public class CliJsonRpcServer(
     InputOutputArgumentsResolver inputOutputArgumentsResolver,
     IEnvironment environment,
     IBicepDocumentationGenerator documentationGenerator,
-    DocsModuleScanner docsModuleScanner,
-    IDocsFileWriter writer) : ICliJsonRpcProtocol
+    IFileSystem fileSystem,
+    OutputWriter writer) : ICliJsonRpcProtocol
 {
     public static IJsonRpcMessageHandler CreateMessageHandler(Stream inputStream, Stream outputStream)
     {
@@ -288,39 +289,71 @@ public class CliJsonRpcServer(
             var path = request.Paths[index];
             try
             {
-                validTargets.Add((index, path, docsModuleScanner.ResolveModule(path)));
+                var inputUri = inputOutputArgumentsResolver.PathToUri(path);
+                if (!inputUri.HasBicepExtension())
+                {
+                    failures[index] = CreateDocsFailure(path, "DOCS001", $"Invalid Bicep file path: {inputUri}");
+                    continue;
+                }
+
+                if (!fileSystem.File.Exists(inputUri.GetFilePath()))
+                {
+                    failures[index] = CreateDocsFailure(path, "DOCS001", $"The input file \"{inputUri}\" does not exist.");
+                    continue;
+                }
+
+                validTargets.Add((index, path, inputUri));
             }
-            catch (BicepException exception)
+            catch (Exception exception) when (exception is BicepException or IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
             {
                 failures[index] = CreateDocsFailure(path, "DOCS001", exception.Message);
             }
         }
 
         var targets = new List<DocsTarget>();
-        try
+        var outputUris = new HashSet<IOUri>();
+        foreach (var target in validTargets)
         {
-            docsModuleScanner.ValidateOutputFileName(outputFile);
-            var outputUris = new HashSet<IOUri>();
-            foreach (var target in validTargets)
+            try
             {
-                var outputUri = target.InputUri.Resolve(outputFile);
+                ValidateDocsOutputFileName(outputFile);
+                var outputUri = inputOutputArgumentsResolver.PathToUri(target.InputUri.Resolve(outputFile).GetFilePath());
+
+                if (outputUri.Equals(target.InputUri))
+                {
+                    failures[target.Index] = CreateDocsFailure(
+                        target.RequestedPath,
+                        "DOCS001",
+                        "The documentation output path cannot overwrite the input Bicep file.");
+                    continue;
+                }
+
+                if (outputUri.HasBicepExtension() || outputUri.HasBicepParamExtension())
+                {
+                    failures[target.Index] = CreateDocsFailure(
+                        target.RequestedPath,
+                        "DOCS001",
+                        "Documentation output cannot use a Bicep source file extension.");
+                    continue;
+                }
+
                 if (!outputUris.Add(outputUri))
                 {
                     failures[target.Index] = CreateDocsFailure(
                         target.RequestedPath,
                         "DOCS001",
-                        $"Multiple input modules resolve to the output file '{outputUri.GetFilePath()}'.");
+                        $"Multiple input files resolve to the output file \"{outputUri}\".");
                     continue;
                 }
 
                 targets.Add(new DocsTarget(target.Index, target.InputUri, outputUri));
             }
-        }
-        catch (BicepException exception)
-        {
-            foreach (var target in validTargets)
+            catch (Exception exception) when (exception is BicepException or IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
             {
-                failures[target.Index] = CreateDocsFailure(target.RequestedPath, "DOCS001", exception.Message);
+                failures[target.Index] = CreateDocsFailure(
+                    target.RequestedPath,
+                    "DOCS001",
+                    exception.Message);
             }
         }
 
@@ -353,10 +386,10 @@ public class CliJsonRpcServer(
 
             try
             {
-                await writer.WriteAsync(target.OutputUri, result.Contents, cancellationToken);
+                await writer.WriteToFileAtomicallyAsync(target.OutputUri, result.Contents, cancellationToken);
                 results.Add(result with { OutputPath = target.OutputUri.GetFilePath() });
             }
-            catch (BicepException exception)
+            catch (Exception exception) when (exception is BicepException or IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
             {
                 results.Add(AddDocsFailure(result, "DOCS002", exception.Message));
             }
@@ -388,9 +421,9 @@ public class CliJsonRpcServer(
         IOUri inputUri;
         try
         {
-            inputUri = docsModuleScanner.ResolveModule(path);
+            inputUri = inputOutputArgumentsResolver.PathToUri(path);
         }
-        catch (BicepException exception)
+        catch (Exception exception) when (exception is BicepException or IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
         {
             return CreateDocsFailure(path, "DOCS001", exception.Message);
         }
@@ -418,8 +451,8 @@ public class CliJsonRpcServer(
         try
         {
             options = new(
-                docsModuleScanner.ResolveOptionalFile(templateFile),
-                docsModuleScanner.ResolveOptionalDirectory(templateRoot),
+                templateFile is null ? null : inputOutputArgumentsResolver.PathToUri(templateFile),
+                DocsCommand.ResolveTemplateRoot(templateRoot, inputOutputArgumentsResolver, fileSystem),
                 custom);
         }
         catch (BicepException exception)
@@ -471,6 +504,19 @@ public class CliJsonRpcServer(
 
     private static DocsResult CreateDocsFailure(string path, string code, string message) =>
         new(path, null, false, [CreateDocsDiagnostic(path, code, message)], null);
+
+    private static void ValidateDocsOutputFileName(string outputFile)
+    {
+        if (string.IsNullOrWhiteSpace(outputFile) ||
+            outputFile is "." or ".." ||
+            outputFile.Contains('/') ||
+            outputFile.Any(FilePathFacts.IsForbiddenPathCharacter) ||
+            FilePathFacts.IsForbiddenPathTerminatorCharacter(outputFile[^1]) ||
+            FilePathFacts.ContainsWindowsReservedFileName(outputFile))
+        {
+            throw new CommandLineException("The documentation output file must be a file name without a directory path.");
+        }
+    }
 
     private static DiagnosticDefinition CreateDocsDiagnostic(string path, string code, string message) =>
         new(path, new(new(0, 0), new(0, 0)), "Error", code, message);

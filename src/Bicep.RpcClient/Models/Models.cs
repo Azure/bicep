@@ -285,7 +285,7 @@ public record FormatResponse(
 /// <summary>
 /// Requests documentation files for one or more Bicep modules.
 /// </summary>
-/// <param name="Paths">Bicep file or module-directory paths to process.</param>
+/// <param name="Paths">Bicep file paths to process.</param>
 /// <param name="TemplateFile">An optional custom Scriban template path.</param>
 /// <param name="TemplateRoot">An optional root directory for template includes.</param>
 /// <param name="Custom">Optional string values exposed to the template.</param>
@@ -302,7 +302,7 @@ public record GenerateDocsRequest(
 /// <summary>
 /// Requests rendered documentation for one Bicep module.
 /// </summary>
-/// <param name="Path">A Bicep file or module-directory path.</param>
+/// <param name="Path">A Bicep file path.</param>
 /// <param name="TemplateFile">An optional custom Scriban template path.</param>
 /// <param name="TemplateRoot">An optional root directory for template includes.</param>
 /// <param name="Custom">Optional string values exposed to the template.</param>

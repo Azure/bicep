@@ -97,6 +97,18 @@ public class DocsCommandTests : TestBase
             Parameters: 9
             Documentation footer.
             """.ReplaceLineEndings("\n") + "\n");
+
+        var trailingSeparatorResult = await Bicep(
+            "docs",
+            "output",
+            mainFile,
+            "--template-file",
+            templateFile,
+            "--template-root",
+            moduleRoot + Path.DirectorySeparatorChar,
+            "--custom-template-value",
+            "owner=Platform Team");
+        trailingSeparatorResult.ExitCode.Should().Be(0);
     }
 
     [TestMethod]
@@ -278,6 +290,50 @@ public class DocsCommandTests : TestBase
     }
 
     [TestMethod]
+    public async Task Generate_PatternWithOutDir_PreservesRelativeDirectories()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [
+                new("modules/a/main.bicep", "metadata name = 'A'"),
+                new("modules/b/main.bicep", "metadata name = 'B'"),
+            ]);
+        var outputRoot = Path.Combine(root, "generated");
+
+        var result = await Bicep(
+            "docs",
+            "generate",
+            "--pattern",
+            Path.Combine(root, "modules", "**", "main.bicep"),
+            "--outdir",
+            outputRoot);
+
+        result.ExitCode.Should().Be(0);
+        File.Exists(Path.Combine(outputRoot, "a", "README.md")).Should().BeTrue();
+        File.Exists(Path.Combine(outputRoot, "b", "README.md")).Should().BeTrue();
+    }
+
+    [TestMethod]
+    public async Task Generate_RootPatternWithOutDir_WritesReadmeAtOutputRoot()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [new("main.bicep", "metadata name = 'Root'")]);
+        var outputRoot = Path.Combine(root, "generated");
+
+        var result = await Bicep(
+            "docs",
+            "generate",
+            "--pattern",
+            Path.Combine(root, "*.bicep"),
+            "--outdir",
+            outputRoot);
+
+        result.ExitCode.Should().Be(0);
+        File.Exists(Path.Combine(outputRoot, "README.md")).Should().BeTrue();
+    }
+
+    [TestMethod]
     public async Task Generate_CompilationFailure_DoesNotOverwriteExistingOutput()
     {
         var root = FileHelper.SaveResultFiles(
@@ -287,7 +343,7 @@ public class DocsCommandTests : TestBase
                 new("README.md", "preserve me"),
             ]);
 
-        var result = await Bicep(DocsEnabledSettings(), "docs", "generate", root);
+        var result = await Bicep(DocsEnabledSettings(), "docs", "generate", Path.Combine(root, "main.bicep"));
 
         result.ExitCode.Should().Be(1);
         File.ReadAllText(Path.Combine(root, "README.md")).Should().Be("preserve me");
@@ -308,7 +364,7 @@ public class DocsCommandTests : TestBase
             DocsEnabledSettings(),
             "docs",
             "generate",
-            root,
+            Path.Combine(root, "main.bicep"),
             "--template-file",
             Path.Combine(root, "invalid.scriban"));
 
@@ -331,7 +387,7 @@ public class DocsCommandTests : TestBase
             DocsEnabledSettings(),
             "docs",
             "generate",
-            root,
+            Path.Combine(root, "main.bicep"),
             "--template-file",
             Path.Combine(root, "invalid.scriban"),
             "--diagnostics-format",
@@ -351,21 +407,21 @@ public class DocsCommandTests : TestBase
                 new("main.bicep", "metadata name = 'Example'"),
                 new("README.md", "preserve me"),
             ]);
-        var writer = new Mock<IDocsFileWriter>(MockBehavior.Strict);
-        writer
-            .Setup(fileWriter => fileWriter.WriteAsync(
-                It.IsAny<IOUri>(),
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new BicepException("write failed"));
+        var fileSystem = new System.IO.Abstractions.FileSystem();
+        var fileExplorer = new WriteFailingFileExplorer(
+            new FileSystemFileExplorer(fileSystem),
+            "README.md",
+            new IOException("write failed"));
 
         var result = await Bicep(
             DocsEnabledSettings(),
-            services => services.AddSingleton(writer.Object),
+            services => services
+                .AddSingleton<IFileSystem>(fileSystem)
+                .AddSingleton<IFileExplorer>(fileExplorer),
             TestContext.CancellationTokenSource.Token,
             "docs",
             "generate",
-            root);
+            Path.Combine(root, "main.bicep"));
 
         result.ExitCode.Should().Be(1);
         result.Stderr.Should().Contain("write failed");
@@ -378,21 +434,21 @@ public class DocsCommandTests : TestBase
         var root = FileHelper.SaveResultFiles(
             TestContext,
             [new("main.bicep", "metadata name = 'Example'")]);
-        var writer = new Mock<IDocsFileWriter>(MockBehavior.Strict);
-        writer
-            .Setup(fileWriter => fileWriter.WriteAsync(
-                It.IsAny<IOUri>(),
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new BicepException("write failed"));
+        var fileSystem = new System.IO.Abstractions.FileSystem();
+        var fileExplorer = new WriteFailingFileExplorer(
+            new FileSystemFileExplorer(fileSystem),
+            "README.md",
+            new IOException("write failed"));
 
         var result = await Bicep(
             DocsEnabledSettings(),
-            services => services.AddSingleton(writer.Object),
+            services => services
+                .AddSingleton<IFileSystem>(fileSystem)
+                .AddSingleton<IFileExplorer>(fileExplorer),
             TestContext.CancellationTokenSource.Token,
             "docs",
             "generate",
-            root,
+            Path.Combine(root, "main.bicep"),
             "--diagnostics-format",
             "sarif");
 
@@ -408,14 +464,14 @@ public class DocsCommandTests : TestBase
             TestContext,
             [new("main.bicep", "metadata name = 'Example'\nparam value string = 'ok'")]);
 
-        var defaultResult = await Bicep(DocsEnabledSettings(), "docs", "output", root);
+        var defaultResult = await Bicep(DocsEnabledSettings(), "docs", "output", Path.Combine(root, "main.bicep"));
         var generateResult = await Bicep(
             DocsEnabledSettings(),
             "docs",
             "generate",
-            root,
-            "--output-file",
-            "MODULE.md");
+            Path.Combine(root, "main.bicep"),
+            "--outfile",
+            Path.Combine(root, "MODULE.md"));
 
         generateResult.ExitCode.Should().Be(0);
         File.ReadAllText(Path.Combine(root, "MODULE.md")).Should().Be(defaultResult.Stdout);
@@ -423,26 +479,87 @@ public class DocsCommandTests : TestBase
     }
 
     [TestMethod]
-    public async Task Generate_OutputFileCannotOverwriteAnUnselectedBicepDependency()
+    public async Task Generate_RejectsBicepOutputExtension()
     {
-        const string childSource = "metadata name = 'Child'";
         var root = FileHelper.SaveResultFiles(
             TestContext,
-            [
-                new("main.bicep", "module child 'child.bicep' = { name: 'child' }"),
-                new("child.bicep", childSource),
-            ]);
+            [new("main.bicep", "metadata name = 'Example'")]);
 
         var result = await Bicep(
-            DocsEnabledSettings(),
             "docs",
             "generate",
-            root,
-            "--output-file",
-            "child.bicep");
+            Path.Combine(root, "main.bicep"),
+            "--outfile",
+            Path.Combine(root, "output.bicep"));
 
         result.ExitCode.Should().Be(1);
-        File.ReadAllText(Path.Combine(root, "child.bicep")).Should().Be(childSource);
+        result.Stderr.Should().Contain("cannot use a Bicep source file extension");
+        File.Exists(Path.Combine(root, "output.bicep")).Should().BeFalse();
+    }
+
+    [TestMethod]
+    public async Task Generate_RejectsInputOverwrite()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [new("main.bicep", "metadata name = 'Example'")]);
+        var mainFile = Path.Combine(root, "main.bicep");
+
+        var result = await Bicep(
+            "docs",
+            "generate",
+            mainFile,
+            "--outfile",
+            mainFile);
+
+        result.ExitCode.Should().Be(1);
+        result.Stderr.Should().Contain("cannot overwrite the input");
+        File.ReadAllText(mainFile).Should().Contain("metadata name");
+
+        if (OperatingSystem.IsWindows())
+        {
+            var aliasedResult = await Bicep(
+                "docs",
+                "generate",
+                mainFile,
+                "--outfile",
+                $"{mainFile}.");
+
+            aliasedResult.ExitCode.Should().Be(1);
+            aliasedResult.Stderr.Should().Contain("cannot overwrite the input");
+            File.ReadAllText(mainFile).Should().Contain("metadata name");
+        }
+    }
+
+    [TestMethod]
+    public async Task Commands_RejectReservedWindowsPathsWithoutCrashing()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [new("main.bicep", "metadata name = 'Example'")]);
+
+        var outputResult = await Bicep(
+            "docs",
+            "output",
+            Path.Combine(root, "CON"));
+        var generateResult = await Bicep(
+            "docs",
+            "generate",
+            Path.Combine(root, "main.bicep"),
+            "--outfile",
+            Path.Combine(root, "CON.md"));
+
+        outputResult.ExitCode.Should().Be(1);
+        outputResult.Stderr.Should().Contain("reserved file name");
+        outputResult.Stderr.Should().NotContain("Unhandled exception");
+        generateResult.ExitCode.Should().Be(1);
+        generateResult.Stderr.Should().Contain("reserved file name");
+        generateResult.Stderr.Should().NotContain("Unhandled exception");
     }
 
     [TestMethod]
@@ -456,13 +573,13 @@ public class DocsCommandTests : TestBase
             ]);
 
         var result = await Bicep(
-            DocsEnabledSettings(),
             "docs",
             "generate",
             "--pattern",
             Path.Combine(root, "*.bicep"));
 
         result.ExitCode.Should().Be(1);
+        result.Stderr.Should().Contain("resolve to the output file");
         File.Exists(Path.Combine(root, "README.md")).Should().BeFalse();
     }
 
@@ -477,7 +594,7 @@ public class DocsCommandTests : TestBase
             DocsEnabledSettings(),
             "docs",
             "output",
-            root,
+            Path.Combine(root, "main.bicep"),
             "--diagnostics-format",
             "sarif");
 
@@ -500,7 +617,7 @@ public class DocsCommandTests : TestBase
             DocsEnabledSettings(),
             "docs",
             "output",
-            root,
+            Path.Combine(root, "main.bicep"),
             "--template-file",
             Path.Combine(root, "invalid.scriban"),
             "--diagnostics-format",
@@ -608,12 +725,25 @@ public class DocsCommandTests : TestBase
             "/main.bicep",
             "--diagnostics-format",
             "sarif");
+        var outputSarifResult = await Bicep(
+            DocsEnabledSettings(),
+            registerServices,
+            TestContext.CancellationTokenSource.Token,
+            "docs",
+            "output",
+            "/main.bicep",
+            "--diagnostics-format",
+            "sarif");
 
         defaultResult.ExitCode.Should().Be(1);
         defaultResult.Stderr.Should().Contain("compilation setup failed");
         sarifResult.ExitCode.Should().Be(1);
         using var document = JsonDocument.Parse(sarifResult.Stderr);
         document.RootElement.ToString().Should().ContainAll("DOCS001", "compilation setup failed");
+        outputSarifResult.ExitCode.Should().Be(1);
+        outputSarifResult.Stdout.Should().BeEmpty();
+        using var outputDocument = JsonDocument.Parse(outputSarifResult.Stderr);
+        outputDocument.RootElement.ToString().Should().ContainAll("DOCS001", "compilation setup failed");
     }
 
     [DataTestMethod]
@@ -637,10 +767,58 @@ public class DocsCommandTests : TestBase
     }
 
     [DataTestMethod]
+    [DataRow(typeof(IOException))]
+    [DataRow(typeof(UnauthorizedAccessException))]
+    [DataRow(typeof(ArgumentException))]
+    [DataRow(typeof(NotSupportedException))]
+    public async Task Output_WrapsInputPathExceptions(Type exceptionType)
+    {
+        var exception = (Exception)Activator.CreateInstance(exceptionType, "invalid path")!;
+        var fileSystem = new Mock<IFileSystem>(MockBehavior.Strict);
+        var path = new Mock<IPath>(MockBehavior.Strict);
+        fileSystem.SetupGet(system => system.Path).Returns(path.Object);
+        path.Setup(systemPath => systemPath.GetFullPath("invalid")).Throws(exception);
+
+        var result = await Bicep(
+            DocsEnabledSettings(),
+            services => services.AddSingleton(fileSystem.Object),
+            TestContext.CancellationTokenSource.Token,
+            "docs",
+            "output",
+            "invalid");
+
+        result.ExitCode.Should().Be(1);
+        result.Stderr.Should().Contain("invalid path");
+    }
+
+    [TestMethod]
+    public async Task Output_WrapsTemplateFilePathExceptions()
+    {
+        var fileSystem = new Mock<IFileSystem>(MockBehavior.Strict);
+        var path = new Mock<IPath>(MockBehavior.Strict);
+        fileSystem.SetupGet(system => system.Path).Returns(path.Object);
+        path.Setup(systemPath => systemPath.GetFullPath("main.bicep")).Returns("C:\\main.bicep");
+        path.Setup(systemPath => systemPath.GetFullPath("invalid")).Throws(new IOException("invalid template path"));
+
+        var result = await Bicep(
+            DocsEnabledSettings(),
+            services => services.AddSingleton(fileSystem.Object),
+            TestContext.CancellationTokenSource.Token,
+            "docs",
+            "output",
+            "main.bicep",
+            "--template-file",
+            "invalid");
+
+        result.ExitCode.Should().Be(1);
+        result.Stderr.Should().Contain("invalid template path");
+    }
+
+    [DataTestMethod]
     [DataRow(["docs", "generate", "main.bicep", "--custom-template-value"])]
     [DataRow(["docs", "generate", "main.bicep", "--custom-template-value", "invalid"])]
     [DataRow(["docs", "generate", "main.bicep", "--custom-template-value-file-path"])]
-    [DataRow(["docs", "generate", "main.bicep", "--output-file", "nested/README.md"])]
+    [DataRow(["docs", "generate", "main.bicep", "--pattern", "**/main.bicep", "--outfile", "README.md"])]
     [DataRow(["docs", "output", "main.bicep", "--pattern", "**/main.bicep"])]
     public async Task InvalidArguments_ReturnNonZero(string[] arguments)
     {
@@ -676,7 +854,7 @@ public class DocsCommandTests : TestBase
             DocsEnabledSettings(),
             "docs",
             "output",
-            root,
+            Path.Combine(root, "main.bicep"),
             "--template-root",
             Path.Combine(root, "missing"));
 
@@ -685,135 +863,62 @@ public class DocsCommandTests : TestBase
     }
 
     [TestMethod]
-    [DoNotParallelize]
-    public async Task Generate_WithoutPath_UsesCurrentDirectory()
-    {
-        var root = FileHelper.SaveResultFiles(
-            TestContext,
-            [new("main.bicep", "metadata name = 'Current Directory'")]);
-        var previousDirectory = Directory.GetCurrentDirectory();
-
-        try
-        {
-            Directory.SetCurrentDirectory(root);
-            var result = await Bicep(DocsEnabledSettings(), "docs", "generate");
-
-            result.ExitCode.Should().Be(0);
-            File.Exists(Path.Combine(root, "README.md")).Should().BeTrue();
-        }
-        finally
-        {
-            Directory.SetCurrentDirectory(previousDirectory);
-        }
-    }
-
-    [TestMethod]
-    public void ModuleScanner_ValidatesResolutionEdgeCases()
+    public void InputOutputResolver_UsesFixedReadmeNameForDocs()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
             ["/module/main.bicep"] = "metadata name = 'Example'",
-            ["/module/other.bicep"] = "metadata name = 'Other'",
-            ["/template.scriban"] = "# Example",
         });
         var resolver = new InputOutputArgumentsResolver(fileSystem);
-        var scanner = new DocsModuleScanner(fileSystem, resolver);
-
-        scanner.ResolveModule("/module").GetFilePath().Should().Be(fileSystem.Path.GetFullPath("/module/main.bicep"));
-        scanner.ResolveModule("/module/main.bicep").GetFilePath().Should().Be(fileSystem.Path.GetFullPath("/module/main.bicep"));
-        scanner.ResolveOptionalFile(null).Should().BeNull();
-        scanner.ResolveOptionalFile("/template.scriban").Should().NotBeNull();
-        scanner.ResolveOptionalDirectory(null).Should().BeNull();
-        scanner.ResolveOptionalDirectory("/module").Should().NotBeNull();
-        scanner.ResolveOptionalDirectory("/module/").Should().NotBeNull();
-        scanner.ValidateOutputFileName("README.md");
-
-        var directArguments = new DocsGenerateArguments(
+        var arguments = new DocsGenerateArguments(
             "/module/main.bicep",
             null,
             null,
             null,
             System.Collections.Immutable.ImmutableSortedDictionary<string, string>.Empty,
-            "README.md",
+            null,
+            null,
             false,
             null);
-        scanner.ResolveModules(directArguments).Should().ContainSingle();
-        var mainUri = scanner.ResolveModule("/module/main.bicep");
-        var otherUri = scanner.ResolveModule("/module/other.bicep");
-        scanner.ResolveOutputFiles([mainUri], "MODULE.md")
-            .Should().ContainSingle(pair => Path.GetFileName(pair.OutputUri.GetFilePath()) == "MODULE.md");
-        FluentActions.Invoking(() => scanner.ResolveOutputFiles([mainUri], "main.bicep"))
-            .Should().Throw<Exception>().WithMessage("*source file extension*");
-        FluentActions.Invoking(() => scanner.ResolveOutputFiles([mainUri, otherUri], "README.md"))
-            .Should().Throw<Exception>().WithMessage("*same output file*");
 
-        var conflictingArguments = directArguments with { FilePattern = "**/main.bicep" };
-        FluentActions.Invoking(() => scanner.ResolveModules(conflictingArguments))
-            .Should().Throw<Exception>().WithMessage("*cannot both be specified*");
+        var defaultOutput = resolver.ResolveFilePatternInputOutputArguments(arguments, (_, _) => "README.md");
+        var explicitOutput = resolver.ResolveFilePatternInputOutputArguments(
+            arguments with { OutputFile = "/docs/custom.md" },
+            (_, _) => "README.md");
+        var fixedOutDir = resolver.ResolveFilePatternInputOutputArguments(
+            arguments with { OutputDir = "/docs" },
+            (_, _) => "README.md");
+        var extensionOutput = resolver.ResolveFilePatternInputOutputArguments(arguments);
 
-        FluentActions.Invoking(() => scanner.ResolveModule("/missing"))
-            .Should().Throw<Exception>().WithMessage("*does not exist*");
-        FluentActions.Invoking(() => scanner.ResolveOptionalDirectory("/missing"))
-            .Should().Throw<Exception>().WithMessage("*does not exist*");
-        FluentActions.Invoking(() => scanner.ValidateOutputFileName(""))
-            .Should().Throw<Exception>();
-        FluentActions.Invoking(() => scanner.ValidateOutputFileName("nested/README.md"))
-            .Should().Throw<Exception>();
-        FluentActions.Invoking(() => scanner.ValidateOutputFileName("invalid\0.md"))
-            .Should().Throw<Exception>();
-    }
-
-    [DataTestMethod]
-    [DataRow("")]
-    [DataRow(" ")]
-    [DataRow(".")]
-    [DataRow("..")]
-    [DataRow("nested/README.md")]
-    [DataRow(@"nested\README.md")]
-    [DataRow("README.md ")]
-    [DataRow("README.md.")]
-    [DataRow("CON")]
-    [DataRow("PRN.txt")]
-    [DataRow("AUX")]
-    [DataRow("NUL.md")]
-    [DataRow("COM1")]
-    [DataRow("LPT9.txt")]
-    [DataRow("CONIN$")]
-    [DataRow("CONOUT$.md")]
-    [DataRow("module.bicep")]
-    [DataRow("module.bicepparam")]
-    public void ModuleScanner_RejectsInvalidOutputFileNames(string outputFile)
-    {
-        var fileSystem = new MockFileSystem();
-        var scanner = new DocsModuleScanner(fileSystem, new(fileSystem));
-
-        FluentActions.Invoking(() => scanner.ValidateOutputFileName(outputFile))
-            .Should().Throw<Exception>();
+        Path.GetFileName(defaultOutput.Single().OutputUri.GetFilePath()).Should().Be("README.md");
+        explicitOutput.Single().OutputUri.GetFilePath().Should().Be(fileSystem.Path.GetFullPath("/docs/custom.md"));
+        fixedOutDir.Single().OutputUri.GetFilePath().Should().Be(fileSystem.Path.GetFullPath("/docs/README.md"));
+        Path.GetFileName(extensionOutput.Single().OutputUri.GetFilePath()).Should().Be("main.md");
     }
 
     [TestMethod]
-    public void ModuleScanner_ConvertsPathExceptionsToCommandLineErrors()
+    public void InputOutputResolver_PreservesExtensionBehaviorWithoutFixedName()
     {
-        Exception[] exceptions =
-        [
-            new IOException("io"),
-            new UnauthorizedAccessException("unauthorized"),
-            new ArgumentException("argument"),
-            new NotSupportedException("unsupported"),
-        ];
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [new("nested/main.bicep", "metadata name = 'Nested'")]);
+        var fileSystem = new System.IO.Abstractions.FileSystem();
+        var resolver = new InputOutputArgumentsResolver(fileSystem);
+        var arguments = new DocsGenerateArguments(
+            null,
+            Path.Combine(root, "*", "main.bicep"),
+            null,
+            null,
+            System.Collections.Immutable.ImmutableSortedDictionary<string, string>.Empty,
+            null,
+            null,
+            false,
+            null);
 
-        foreach (var exception in exceptions)
-        {
-            var fileSystem = new Mock<IFileSystem>(MockBehavior.Strict);
-            var path = new Mock<IPath>(MockBehavior.Strict);
-            fileSystem.SetupGet(system => system.Path).Returns(path.Object);
-            path.Setup(systemPath => systemPath.GetFullPath("invalid")).Throws(exception);
-            var scanner = new DocsModuleScanner(fileSystem.Object, new(fileSystem.Object));
+        var output = resolver.ResolveFilePatternInputOutputArguments(arguments);
 
-            FluentActions.Invoking(() => scanner.ResolveModule("invalid"))
-                .Should().Throw<Exception>()
-                .WithMessage(exception.Message);
-        }
+        output.Should().ContainSingle();
+        output.Single().OutputUri.GetFilePath().Should().Be(Path.Combine(root, "nested", "main.md"));
     }
 
     [TestMethod]
@@ -875,7 +980,7 @@ public class DocsCommandTests : TestBase
     }
 
     [TestMethod]
-    public async Task OutputWriter_AtomicWrite_PreservesPrimaryFailureWhenCleanupAlsoFails()
+    public async Task OutputWriter_AtomicWrite_PreservesPrimaryFailureWhenCleanupFails()
     {
         var fileSystem = new Mock<IFileSystem>(MockBehavior.Strict);
         var file = new Mock<IFile>(MockBehavior.Strict);
@@ -907,13 +1012,12 @@ public class DocsCommandTests : TestBase
             .Should().ThrowAsync<BicepException>()
             .WithMessage("write failed");
 
-        exception.Which.InnerException.Should().BeOfType<AggregateException>()
-            .Which.InnerExceptions.Select(inner => inner.Message)
-            .Should().Equal("write failed", "cleanup failed");
+        exception.Which.InnerException.Should().BeOfType<IOException>()
+            .Which.Message.Should().Be("write failed");
     }
 
     [TestMethod]
-    public async Task OutputWriter_AtomicWrite_ReportsCleanupFailureAfterSuccessfulWrite()
+    public async Task OutputWriter_AtomicWrite_IgnoresCleanupFailureAfterSuccessfulWrite()
     {
         var fileSystem = new Mock<IFileSystem>(MockBehavior.Strict);
         var file = new Mock<IFile>(MockBehavior.Strict);
@@ -940,11 +1044,9 @@ public class DocsCommandTests : TestBase
             fileSystem.Object,
             fileExplorer.Object);
 
-        await FluentActions.Invoking(() => writer.WriteToFileAtomicallyAsync(
-                IOUri.FromFilePath(Path.GetFullPath("README.md")),
-                "contents"))
-            .Should().ThrowAsync<BicepException>()
-            .WithMessage("cleanup failed");
+        await writer.WriteToFileAtomicallyAsync(
+            IOUri.FromFilePath(Path.GetFullPath("README.md")),
+            "contents");
     }
 
     [TestMethod]
@@ -977,12 +1079,10 @@ public class DocsCommandTests : TestBase
             fileSystem.Object,
             fileExplorer.Object);
 
-        var exception = await FluentActions.Invoking(() => writer.WriteToFileAtomicallyAsync(
+        await FluentActions.Invoking(() => writer.WriteToFileAtomicallyAsync(
                 IOUri.FromFilePath(Path.GetFullPath("README.md")),
                 "contents",
                 cancellation.Token))
             .Should().ThrowAsync<OperationCanceledException>();
-
-        exception.Which.Data["TemporaryFileCleanupError"].Should().Be("cleanup failed");
     }
 }

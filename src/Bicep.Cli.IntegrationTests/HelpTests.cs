@@ -63,7 +63,8 @@ namespace Bicep.Cli.IntegrationTests
                     "--template-root",
                     "--custom-template-value",
                     "--custom-template-value-file-path",
-                    "--output-file",
+                    "--outdir",
+                    "--outfile",
                     "--pattern",
                     "--no-restore",
                     "--diagnostics-format");
@@ -79,7 +80,8 @@ namespace Bicep.Cli.IntegrationTests
                     "--no-restore",
                     "--diagnostics-format");
                 outputOutput.Should().NotContain("--pattern");
-                outputOutput.Should().NotContain("--output-file");
+                outputOutput.Should().NotContain("--outdir");
+                outputOutput.Should().NotContain("--outfile");
             }
         }
 

@@ -19,12 +19,31 @@ namespace Bicep.Cli.Arguments
 
         public IOUri PathToUri(string path)
         {
+            try
+            {
+                return IOUri.FromFilePath(GetFullPath(path));
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+            {
+                throw new CommandLineException(exception.Message, exception);
+            }
+        }
+
+        public string GetFullPath(string path)
+        {
             if (!OperatingSystem.IsWindows() && path.Contains('\\'))
             {
                 throw new CommandLineException(string.Format(CliResources.FilePathContainsBackslash, path));
             }
 
-            return IOUri.FromFilePath(GetFullPath(path));
+            try
+            {
+                return this.fileSystem.Path.GetFullPath(path);
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+            {
+                throw new CommandLineException(exception.Message, exception);
+            }
         }
 
         public IOUri ResolveInputArguments(IInputArguments arguments)
@@ -68,12 +87,21 @@ namespace Bicep.Cli.Arguments
             throw new CommandLineException("Either the input file path or the --pattern parameter must be specified");
         }
 
-        public IReadOnlyList<(IOUri InputUri, IOUri OutputUri)> ResolveFilePatternInputOutputArguments<T>(T arguments)
+        public IReadOnlyList<(IOUri InputUri, IOUri OutputUri)> ResolveFilePatternInputOutputArguments<T>(
+            T arguments,
+            Func<T, IOUri, string>? outputFileNameResolver = null)
             where T : IFilePatternInputOutputArguments<T>
         {
             if (arguments.InputFile is not null)
             {
-                return [this.ResolveInputOutputArguments(arguments)];
+                var inputUri = this.ResolveInputArguments(arguments);
+                var outputUri = this.ResolveOutputUri(
+                    inputUri,
+                    arguments.OutputDir,
+                    arguments.OutputFile,
+                    T.OutputFileExtensionResolver.Invoke(arguments, inputUri),
+                    outputFileNameResolver?.Invoke(arguments, inputUri));
+                return [(inputUri, outputUri)];
             }
 
             if (arguments.FilePattern is not null)
@@ -85,7 +113,11 @@ namespace Bicep.Cli.Arguments
                 {
                     var inputUri = rootUri.Resolve(inputRelativePath);
                     var outputRootPath = arguments.OutputDir ?? rootUri.GetFilePath();
-                    var outputRelativePath = this.fileSystem.Path.ChangeExtension(inputRelativePath, T.OutputFileExtensionResolver.Invoke(arguments, inputUri));
+                    var outputRelativePath = outputFileNameResolver is null
+                        ? this.fileSystem.Path.ChangeExtension(inputRelativePath, T.OutputFileExtensionResolver.Invoke(arguments, inputUri))
+                        : this.fileSystem.Path.Combine(
+                            inputRelativePath[..^this.fileSystem.Path.GetFileName(inputRelativePath).Length],
+                            outputFileNameResolver(arguments, inputUri));
                     var outputPath = this.fileSystem.Path.Combine(outputRootPath, outputRelativePath);
                     var outputUri = this.PathToUri(outputPath);
 
@@ -98,26 +130,31 @@ namespace Bicep.Cli.Arguments
             throw new CommandLineException("Either the input file path or the --pattern parameter must be specified");
         }
 
-        private IOUri ResolveOutputUri(IOUri inputUri, string? outputDir, string? outputFile, string outputFileExtension)
+        private IOUri ResolveOutputUri(
+            IOUri inputUri,
+            string? outputDir,
+            string? outputFile,
+            string outputFileExtension,
+            string? outputFileName = null)
         {
             if (outputDir is not null)
             {
-                outputDir = this.fileSystem.Path.GetFullPath(outputDir);
-                var outputFileName = inputUri.GetFileNameWithoutExtension().ToString() + outputFileExtension;
-                var outputPath = this.fileSystem.Path.Combine(outputDir, outputFileName);
+                outputDir = this.GetFullPath(outputDir);
+                var resolvedOutputFileName = outputFileName ?? inputUri.GetFileNameWithoutExtension().ToString() + outputFileExtension;
+                var outputPath = this.fileSystem.Path.Combine(outputDir, resolvedOutputFileName);
 
                 return this.PathToUri(outputPath);
             }
 
             if (outputFile is not null)
             {
-                return this.PathToUri(this.fileSystem.Path.GetFullPath(outputFile));
+                return this.PathToUri(outputFile);
             }
 
-            return inputUri.WithExtension(outputFileExtension);
+            return outputFileName is null
+                ? inputUri.WithExtension(outputFileExtension)
+                : inputUri.Resolve(outputFileName);
         }
-
-        private string GetFullPath(string path) => this.fileSystem.Path.GetFullPath(path);
 
         private (IOUri rootUri, IReadOnlyList<string> relativePaths) ResolveFilePattern(string filePattern)
         {

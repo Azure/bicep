@@ -141,11 +141,7 @@ internal static class BicepDocumentationExampleDiscovery
                 continue;
             }
 
-            if (!metadataValues.TryAdd(metadata.Name.IdentifierName, value))
-            {
-                throw new BicepDocumentationException(
-                    $"Usage example metadata '{metadata.Name.IdentifierName}' is declared more than once.");
-            }
+            metadataValues[metadata.Name.IdentifierName] = value;
         }
 
         return metadataValues.ToImmutable();

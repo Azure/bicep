@@ -3,6 +3,7 @@
 
 using System.CommandLine;
 using System.Diagnostics;
+using System.IO.Abstractions;
 using System.IO.Pipes;
 using System.Net;
 using System.Net.Sockets;
@@ -24,9 +25,9 @@ public class JsonRpcCommand(
     BicepCompiler compiler,
     InputOutputArgumentsResolver inputOutputArgumentsResolver,
     IEnvironment environment,
+    IFileSystem fileSystem,
     IBicepDocumentationGenerator documentationGenerator,
-    DocsModuleScanner docsModuleScanner,
-    IDocsFileWriter writer) : ICommand
+    OutputWriter writer) : ICommand
 {
     public async Task<int> RunAsync(JsonRpcArguments args, CancellationToken cancellationToken)
     {
@@ -72,7 +73,7 @@ public class JsonRpcCommand(
             inputOutputArgumentsResolver,
             environment,
             documentationGenerator,
-            docsModuleScanner,
+            fileSystem,
             writer);
         jsonRpc.AddLocalRpcTarget<ICliJsonRpcProtocol>(server, null);
 

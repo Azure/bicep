@@ -278,6 +278,24 @@ output bar string = foo
                 invalidExtension.Result.Success.Should().BeFalse();
                 invalidExtension.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
 
+                var invalidPath = await client.OutputDocs(
+                    new("invalid\0path", null, null, null, NoRestore: false),
+                    token);
+                invalidPath.Result.Success.Should().BeFalse();
+                invalidPath.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
+
+                var invalidGeneratePath = await client.GenerateDocs(
+                    new(["invalid\0path"], null, null, null, null, NoRestore: false),
+                    token);
+                invalidGeneratePath.Results.Should().ContainSingle();
+                invalidGeneratePath.Results[0].Success.Should().BeFalse();
+
+                var missingGeneratePath = await client.GenerateDocs(
+                    new(["/missing.bicep"], null, null, null, null, NoRestore: false),
+                    token);
+                missingGeneratePath.Results.Should().ContainSingle();
+                missingGeneratePath.Results[0].Success.Should().BeFalse();
+
                 var missingPath = await client.OutputDocs(
                     new("/missing", null, null, null, NoRestore: false),
                     token);
@@ -290,12 +308,11 @@ output bar string = foo
                 invalidTemplate.Result.Success.Should().BeFalse();
                 invalidTemplate.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS003");
 
-                var invalidOutput = await client.GenerateDocs(
-                    new(["/main.bicep"], null, null, null, "nested/README.md", NoRestore: false),
+                var missingTemplateRoot = await client.OutputDocs(
+                    new("/main.bicep", null, "/missing", null, NoRestore: false),
                     token);
-                invalidOutput.Results.Should().ContainSingle();
-                invalidOutput.Results[0].Success.Should().BeFalse();
-                invalidOutput.Results[0].Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
+                missingTemplateRoot.Result.Success.Should().BeFalse();
+                missingTemplateRoot.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
 
                 var inputOverwrite = await client.GenerateDocs(
                     new(["/main.bicep"], null, null, null, "main.bicep", NoRestore: false),
@@ -303,23 +320,73 @@ output bar string = foo
                 inputOverwrite.Results.Should().ContainSingle();
                 inputOverwrite.Results[0].Success.Should().BeFalse();
 
-                var outputCollision = await client.GenerateDocs(
-                    new(["/missing", "/a.bicep", "/b.bicep"], null, null, null, null, NoRestore: false),
+                var sourceExtension = await client.GenerateDocs(
+                    new(["/main.bicep"], null, null, null, "child.bicep", NoRestore: false),
                     token);
-                outputCollision.Results.Should().HaveCount(3);
-                outputCollision.Results[0].Success.Should().BeFalse();
-                outputCollision.Results[1].Success.Should().BeTrue();
-                outputCollision.Results[2].Success.Should().BeFalse();
-                outputCollision.Results[2].Diagnostics.Should().ContainSingle(diagnostic =>
+                sourceExtension.Results.Should().ContainSingle();
+                sourceExtension.Results[0].Success.Should().BeFalse();
+
+                foreach (var invalidOutputFile in new[] { "", " ", ".", "..", "../README.md", @"..\README.md", "bad?.md", "README.md.", "CON.md" })
+                {
+                    var invalidOutput = await client.GenerateDocs(
+                        new(["/main.bicep"], null, null, null, invalidOutputFile, NoRestore: false),
+                        token);
+                    invalidOutput.Results.Should().ContainSingle();
+                    invalidOutput.Results[0].Success.Should().BeFalse();
+                    invalidOutput.Results[0].Diagnostics.Should().ContainSingle(diagnostic =>
+                        diagnostic.Code == "DOCS001" &&
+                        diagnostic.Message.Contains("must be a file name"));
+                }
+
+                var outputCollision = await client.GenerateDocs(
+                    new(["/a.bicep", "/b.bicep"], null, null, null, null, NoRestore: false),
+                    token);
+                outputCollision.Results.Should().HaveCount(2);
+                outputCollision.Results[0].Success.Should().BeTrue();
+                outputCollision.Results[1].Success.Should().BeFalse();
+                outputCollision.Results[1].Diagnostics.Should().ContainSingle(diagnostic =>
                     diagnostic.Code == "DOCS001" &&
-                    diagnostic.Message.Contains("Multiple input modules"));
+                    diagnostic.Message.Contains("resolve to the output file"));
 
                 var mixedResult = await client.GenerateDocs(
-                    new(["/missing", "/main.bicep"], null, null, null, "MIXED.md", NoRestore: false),
+                    new(["/missing", "/main.bicep"], null, null, null, null, NoRestore: false),
                     token);
                 mixedResult.Results.Should().HaveCount(2);
                 mixedResult.Results[0].Success.Should().BeFalse();
                 mixedResult.Results[1].Success.Should().BeTrue();
+            });
+    }
+
+    [TestMethod]
+    public async Task GenerateDocs_rejects_windows_aliased_and_reserved_output_paths()
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [new("main.bicep", "metadata name = 'Safe'")]);
+        var mainFile = Path.Combine(root, "main.bicep");
+
+        await RunServerTest(
+            services => { },
+            async (client, token) =>
+            {
+                var aliasedOutput = await client.GenerateDocs(
+                    new([mainFile], null, null, null, "main.bicep.", NoRestore: false),
+                    token);
+                aliasedOutput.Results.Should().ContainSingle();
+                aliasedOutput.Results[0].Success.Should().BeFalse();
+                File.ReadAllText(mainFile).Should().Contain("metadata name");
+
+                var reservedOutput = await client.GenerateDocs(
+                    new([mainFile], null, null, null, "CON.md", NoRestore: false),
+                    token);
+                reservedOutput.Results.Should().ContainSingle();
+                reservedOutput.Results[0].Success.Should().BeFalse();
+                reservedOutput.Results[0].Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
             });
     }
 
@@ -333,16 +400,16 @@ output bar string = foo
                 new("README.md", "preserve me"),
             ]);
         var outputFile = Path.Combine(root, "README.md");
-        var writer = new Mock<IDocsFileWriter>(MockBehavior.Strict);
-        writer
-            .Setup(fileWriter => fileWriter.WriteAsync(
-                It.IsAny<IOUri>(),
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new BicepException("write failed"));
+        var fileSystem = new System.IO.Abstractions.FileSystem();
+        var fileExplorer = new WriteFailingFileExplorer(
+            new FileSystemFileExplorer(fileSystem),
+            "README.md",
+            new IOException("write failed"));
 
         await RunServerTest(
-            services => services.AddSingleton(writer.Object),
+            services => services
+                .WithFileSystem(fileSystem)
+                .WithFileExplorer(fileExplorer),
             async (client, token) =>
             {
                 var response = await client.GenerateDocs(
@@ -392,6 +459,37 @@ output bar string = foo
                 response.Result.Diagnostics.Should().ContainSingle(diagnostic =>
                     diagnostic.Code == "DOCS001" &&
                     diagnostic.Message == "compilation failed");
+            });
+    }
+
+    [TestMethod]
+    public async Task Docs_methods_return_structured_path_exceptions()
+    {
+        var fileSystem = new Mock<System.IO.Abstractions.IFileSystem>(MockBehavior.Strict);
+        var path = new Mock<System.IO.Abstractions.IPath>(MockBehavior.Strict);
+        fileSystem.SetupGet(system => system.Path).Returns(path.Object);
+        path.Setup(systemPath => systemPath.GetFullPath("invalid")).Throws(new ArgumentException("invalid path"));
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem.Object),
+            async (client, token) =>
+            {
+                var output = await client.OutputDocs(
+                    new("invalid", null, null, null, NoRestore: false),
+                    token);
+                var generate = await client.GenerateDocs(
+                    new(["invalid"], null, null, null, null, NoRestore: false),
+                    token);
+
+                output.Result.Success.Should().BeFalse();
+                output.Result.Diagnostics.Should().ContainSingle(diagnostic =>
+                    diagnostic.Code == "DOCS001" &&
+                    diagnostic.Message == "invalid path");
+                generate.Results.Should().ContainSingle();
+                generate.Results[0].Success.Should().BeFalse();
+                generate.Results[0].Diagnostics.Should().ContainSingle(diagnostic =>
+                    diagnostic.Code == "DOCS001" &&
+                    diagnostic.Message == "invalid path");
             });
     }
 

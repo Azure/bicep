@@ -87,15 +87,15 @@ public class BicepDocumentationExampleDiscoveryTests
     }
 
     [TestMethod]
-    public void Discover_DuplicateStringMetadata_ThrowsDocumentationException()
+    public void Discover_DuplicateStringMetadata_UsesLastValue()
     {
         var fileSet = MockFileSystemTestFileSet.Create(
             ("examples/default/main.bicep", "metadata name = 'first'\nmetadata name = 'second'"));
 
-        var action = () => BicepDocumentationExampleDiscovery.Discover(GetModuleRoot(fileSet));
+        var examples = BicepDocumentationExampleDiscovery.Discover(GetModuleRoot(fileSet));
 
-        action.Should().Throw<BicepDocumentationException>()
-            .WithMessage("*metadata 'name' is declared more than once*");
+        examples.Should().ContainSingle();
+        examples[0].Name.Should().Be("second");
     }
 
     [TestMethod]

@@ -182,8 +182,6 @@ namespace Bicep.Cli.Services
                 directory,
                 $".{fileSystem.Path.GetFileName(outputPath)}.{Guid.NewGuid():N}.tmp");
             var temporaryUri = IOUri.FromFilePath(temporaryPath);
-            BicepException? operationException = null;
-            OperationCanceledException? cancellationException = null;
 
             try
             {
@@ -192,12 +190,7 @@ namespace Bicep.Cli.Services
             }
             catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
-                operationException = new BicepException(exception.Message, exception);
-            }
-            catch (OperationCanceledException exception)
-            {
-                cancellationException = exception;
-                throw;
+                throw new BicepException(exception.Message, exception);
             }
             finally
             {
@@ -205,28 +198,9 @@ namespace Bicep.Cli.Services
                 {
                     fileSystem.File.Delete(temporaryPath);
                 }
-                catch (Exception cleanupException) when (cleanupException is IOException or UnauthorizedAccessException)
+                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
                 {
-                    if (cancellationException is not null)
-                    {
-                        cancellationException.Data["TemporaryFileCleanupError"] = cleanupException.Message;
-                    }
-                    else if (operationException is null)
-                    {
-                        throw new BicepException(cleanupException.Message, cleanupException);
-                    }
-                    else
-                    {
-                        operationException = new BicepException(
-                            operationException.Message,
-                            new AggregateException(operationException, cleanupException));
-                    }
                 }
-            }
-
-            if (operationException is not null)
-            {
-                throw operationException;
             }
         }
     }

@@ -17,18 +17,20 @@ namespace Bicep.Cli.Commands;
 
 public class DocsGenerateCommand(
     IOContext io,
-    DocsModuleScanner moduleScanner,
+    InputOutputArgumentsResolver argumentsResolver,
     DocsCommandRunner runner,
-    IDocsFileWriter writer,
+    OutputWriter writer,
     DiagnosticLogger diagnosticLogger,
     IFileSystem fileSystem) : ICommand
 {
     public async Task<int> RunAsync(DocsGenerateArguments arguments, CancellationToken cancellationToken = default)
     {
-        var modules = moduleScanner.ResolveModules(arguments);
-        var inputOutputPairs = moduleScanner.ResolveOutputFiles(modules, arguments.OutputFile);
-        var templateFile = moduleScanner.ResolveOptionalFile(arguments.TemplateFile);
-        var templateRoot = moduleScanner.ResolveOptionalDirectory(arguments.TemplateRoot);
+        var inputOutputPairs = argumentsResolver.ResolveFilePatternInputOutputArguments(
+            arguments,
+            (_, _) => "README.md");
+        DocsCommand.ValidateOutputPaths(inputOutputPairs);
+        var templateFile = arguments.TemplateFile is null ? null : argumentsResolver.PathToUri(arguments.TemplateFile);
+        var templateRoot = DocsCommand.ResolveTemplateRoot(arguments.TemplateRoot, argumentsResolver, fileSystem);
         var customValues = arguments.CustomValues;
         var workspace = new ActiveSourceFileSet();
         var sarifResults = new List<(
@@ -73,7 +75,7 @@ public class DocsGenerateCommand(
 
             try
             {
-                await writer.WriteAsync(outputUri, success.Contents, cancellationToken);
+                await writer.WriteToFileAtomicallyAsync(outputUri, success.Contents, cancellationToken);
             }
             catch (BicepException exception)
             {
@@ -122,7 +124,7 @@ public class DocsGenerateCommand(
         };
         var inputFileArgument = new System.CommandLine.Argument<string?>(Constants.Argument.InputFile)
         {
-            Description = "The path to a .bicep file or module directory. Defaults to the current directory.",
+            Description = "The path to the input .bicep file.",
             Arity = ArgumentArity.ZeroOrOne,
         };
         var templateFileOption = new System.CommandLine.Option<string?>(Option.TemplateFile)
@@ -145,9 +147,13 @@ public class DocsGenerateCommand(
             Arity = ArgumentArity.ZeroOrMore,
             AllowMultipleArgumentsPerToken = false,
         };
-        var outputFileOption = new System.CommandLine.Option<string?>(Option.OutputFile)
+        var outDirOption = new System.CommandLine.Option<string?>(Option.OutDir)
         {
-            Description = "Sets the output file name without a directory or Bicep source extension. Defaults to README.md.",
+            Description = "Saves the generated README.md files beneath the specified directory.",
+        };
+        var outFileOption = new System.CommandLine.Option<string?>(Option.OutFile)
+        {
+            Description = "Saves the generated documentation as the specified file path.",
         };
         var patternOption = new System.CommandLine.Option<string?>(Option.Pattern)
         {
@@ -167,7 +173,8 @@ public class DocsGenerateCommand(
         command.Add(templateRootOption);
         command.Add(customTemplateValueOption);
         command.Add(customTemplateValueFilePathOption);
-        command.Add(outputFileOption);
+        command.Add(outDirOption);
+        command.Add(outFileOption);
         command.Add(patternOption);
         command.Add(noRestoreOption);
         command.Add(diagnosticsFormatOption);
@@ -187,13 +194,18 @@ public class DocsGenerateCommand(
                 result,
                 customTemplateValueOption,
                 customTemplateValueFilePathOption);
+            var outputDir = result.GetValue(outDirOption);
+            var outputFile = result.GetValue(outFileOption);
+            var filePattern = result.GetValue(patternOption);
+            ArgumentHelper.ValidateOutputOptions(false, outputDir, outputFile, filePattern);
             var arguments = new DocsGenerateArguments(
                 result.GetValue(inputFileArgument),
-                result.GetValue(patternOption),
+                filePattern,
                 result.GetValue(templateFileOption),
                 result.GetValue(templateRootOption),
                 customValues,
-                result.GetValue(outputFileOption) ?? "README.md",
+                outputDir,
+                outputFile,
                 result.GetValue(noRestoreOption),
                 result.GetValue(diagnosticsFormatOption));
 
