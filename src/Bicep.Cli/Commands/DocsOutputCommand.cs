@@ -21,13 +21,31 @@ public class DocsOutputCommand(
 {
     public async Task<int> RunAsync(DocsOutputArguments arguments, CancellationToken cancellationToken = default)
     {
-        var configuration = DocsConfigurationLoader.Load(arguments.ConfigFilePath, argumentsResolver, fileSystem);
-        var modulePath = DocsConfigurationLoader.ResolveModulePath(
+        var configuration = arguments.ConfigFilePath is not null
+            ? DocsConfigurationLoader.Load(arguments.ConfigFilePath, argumentsResolver, fileSystem)
+            : null;
+        var targetDirectory = DocsConfigurationLoader.ResolveTargetDirectory(
             arguments.InputFile,
-            configuration,
+            filePattern: null,
             argumentsResolver,
             fileSystem);
-        var module = argumentsResolver.ResolveInputArguments(arguments with { InputFile = modulePath });
+        configuration ??= DocsConfigurationLoader.Discover(
+            targetDirectory,
+            argumentsResolver,
+            fileSystem);
+        var inputs = DocsConfigurationLoader.ResolveInputs(
+            arguments.InputFile,
+            filePattern: null,
+            targetDirectory,
+            configuration,
+            argumentsResolver);
+        if (inputs.InputUris.Count != 1)
+        {
+            throw new CommandLineException(
+                $"The docs output command requires exactly one input file, but the docs configuration selected {inputs.InputUris.Count}.");
+        }
+
+        var module = inputs.InputUris[0];
         ArgumentHelper.ValidateBicepFile(module);
 
         var aggregateSarif = arguments.DiagnosticsFormat is DiagnosticsFormat.Sarif;
@@ -95,7 +113,7 @@ public class DocsOutputCommand(
         var inputFileArgument = new System.CommandLine.Argument<string?>(Constants.Argument.InputFile)
         {
             Description = "The path to an input .bicep file or module directory.",
-            Arity = ArgumentArity.ExactlyOne,
+            Arity = ArgumentArity.ZeroOrOne,
         };
         var configFilePathOption = new System.CommandLine.Option<string?>(Option.ConfigFilePath)
         {

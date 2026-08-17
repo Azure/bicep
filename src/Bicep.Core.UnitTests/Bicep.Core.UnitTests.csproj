@@ -32,6 +32,10 @@
       <Link>bicepconfig.schema.json</Link>
       <WithCulture>false</WithCulture>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\vscode-bicep\schemas\bicepdocsconfig.schema.json">
+      <Link>bicepdocsconfig.schema.json</Link>
+      <WithCulture>false</WithCulture>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

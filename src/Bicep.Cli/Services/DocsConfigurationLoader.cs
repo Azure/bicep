@@ -14,6 +14,8 @@ namespace Bicep.Cli.Services;
 
 internal static class DocsConfigurationLoader
 {
+    public const string ConventionalFileName = "bicepdocsconfig.json";
+
     private static readonly JsonDocumentOptions DocumentOptions = new()
     {
         AllowTrailingCommas = true,
@@ -36,6 +38,25 @@ internal static class DocsConfigurationLoader
             throw new CommandLineException($"The docs configuration file \"{fullPath}\" does not exist.");
         }
 
+        return LoadExisting(fullPath, resolver, fileSystem);
+    }
+
+    public static DocsConfigurationContext Discover(
+        string targetDirectory,
+        InputOutputArgumentsResolver resolver,
+        IFileSystem fileSystem)
+    {
+        var fullPath = resolver.GetFullPath(Path.Combine(targetDirectory, ConventionalFileName));
+        return fileSystem.File.Exists(fullPath)
+            ? LoadExisting(fullPath, resolver, fileSystem)
+            : new(new(), resolver.PathToUri(fullPath));
+    }
+
+    private static DocsConfigurationContext LoadExisting(
+        string fullPath,
+        InputOutputArgumentsResolver resolver,
+        IFileSystem fileSystem)
+    {
         try
         {
             var contents = fileSystem.File.ReadAllText(fullPath);
@@ -47,7 +68,15 @@ internal static class DocsConfigurationLoader
                 ?? throw new CommandLineException($"The docs configuration file \"{fullPath}\" must contain a JSON object.");
             configuration = NormalizeAndValidate(configuration);
 
-            return new(configuration, resolver.PathToUri(fullPath));
+            return new(
+                configuration,
+                resolver.PathToUri(fullPath));
+        }
+        catch (CommandLineException exception)
+        {
+            throw new CommandLineException(
+                $"The docs configuration file \"{fullPath}\" is invalid: {exception.Message}",
+                exception);
         }
         catch (JsonException exception)
         {
@@ -61,6 +90,80 @@ internal static class DocsConfigurationLoader
                 $"Unable to read docs configuration file \"{fullPath}\": {exception.Message}",
                 exception);
         }
+    }
+
+    public static string ResolveTargetDirectory(
+        string? inputPath,
+        string? filePattern,
+        InputOutputArgumentsResolver resolver,
+        IFileSystem fileSystem)
+    {
+        if (filePattern is not null)
+        {
+            return resolver.SplitFilePatternOnWildcard(filePattern).rootPath;
+        }
+
+        if (inputPath is null)
+        {
+            return resolver.GetFullPath(fileSystem.Directory.GetCurrentDirectory());
+        }
+
+        var fullPath = resolver.GetFullPath(inputPath);
+        var containingDirectory = Path.GetDirectoryName(fullPath)
+            ?? resolver.GetFullPath(fileSystem.Directory.GetCurrentDirectory());
+        if (Path.GetExtension(inputPath).Equals(".bicep", StringComparison.OrdinalIgnoreCase))
+        {
+            return containingDirectory;
+        }
+
+        if (fileSystem.Directory.Exists(fullPath))
+        {
+            return fullPath;
+        }
+
+        return containingDirectory;
+    }
+
+    public static DocsInputSelection ResolveInputs(
+        string? inputPath,
+        string? filePattern,
+        string targetDirectory,
+        DocsConfigurationContext context,
+        InputOutputArgumentsResolver resolver)
+    {
+        if (filePattern is not null)
+        {
+            var (rootUri, relativePaths) = resolver.ResolveFilePattern(filePattern);
+            return new(
+                rootUri,
+                relativePaths.Select(rootUri.Resolve).ToArray());
+        }
+
+        if (inputPath is not null &&
+            Path.GetExtension(inputPath).Equals(".bicep", StringComparison.OrdinalIgnoreCase))
+        {
+            var inputUri = resolver.PathToUri(inputPath);
+            return new(inputUri.Resolve("."), [inputUri]);
+        }
+
+        var rootPath = inputPath is null ? targetDirectory : resolver.GetFullPath(inputPath);
+        var rootUriForSelection = resolver.PathToUri(rootPath + Path.DirectorySeparatorChar);
+        var inputs = resolver
+            .ResolveFilePatterns(
+                rootPath,
+                context.Configuration.Input.Include,
+                context.Configuration.Input.Exclude)
+            .Select(rootUriForSelection.Resolve)
+            .OrderBy(uri => uri.ToString(), StringComparer.OrdinalIgnoreCase)
+            .ThenBy(uri => uri.ToString(), StringComparer.Ordinal)
+            .ToArray();
+        if (inputs.Length == 0)
+        {
+            throw new CommandLineException(
+                $"No Bicep input files matched the docs configuration in target folder \"{rootPath}\".");
+        }
+
+        return new(rootUriForSelection, inputs);
     }
 
     public static IOUri ResolvePath(
@@ -82,28 +185,6 @@ internal static class DocsConfigurationLoader
         }
 
         return resolver.GetFullPath(fileSystem.Path.Combine(context.FileUri.Resolve(".").GetFilePath(), path));
-    }
-
-    public static string? ResolveModulePath(
-        string? path,
-        DocsConfigurationContext context,
-        InputOutputArgumentsResolver resolver,
-        IFileSystem fileSystem)
-    {
-        if (path is null)
-        {
-            return null;
-        }
-
-        if (Path.GetExtension(path).Equals(".bicep", StringComparison.OrdinalIgnoreCase))
-        {
-            return path;
-        }
-
-        var fullPath = resolver.GetFullPath(path);
-        return fileSystem.Directory.Exists(fullPath)
-            ? fileSystem.Path.Combine(fullPath, context.Configuration.EntryPoint)
-            : fullPath;
     }
 
     public static IOUri? ResolveTemplateFile(
@@ -163,13 +244,18 @@ internal static class DocsConfigurationLoader
     {
         configuration = configuration with
         {
-            EntryPoint = configuration.EntryPoint ?? "main.bicep",
+            Input = configuration.Input ?? new(),
             Output = configuration.Output ?? new(),
             Template = configuration.Template ?? new(),
             Examples = configuration.Examples ?? new(),
         };
         configuration = configuration with
         {
+            Input = configuration.Input with
+            {
+                Include = configuration.Input.Include.IsDefault ? ["main.bicep"] : configuration.Input.Include,
+                Exclude = configuration.Input.Exclude.IsDefault ? [] : configuration.Input.Exclude,
+            },
             Output = configuration.Output with
             {
                 File = configuration.Output.File ?? "README.md",
@@ -213,10 +299,15 @@ internal static class DocsConfigurationLoader
             },
         };
 
-        ValidateRelativePath(configuration.EntryPoint, "entryPoint", allowNested: true);
-        if (!configuration.EntryPoint.EndsWith(".bicep", StringComparison.OrdinalIgnoreCase))
+        if (configuration.Schema is not null)
         {
-            throw new CommandLineException("The docs configuration entryPoint must identify a .bicep file.");
+            ValidateNonempty(configuration.Schema, "$schema");
+        }
+
+        ValidatePatterns(configuration.Input.Include, configuration.Input.Exclude, "input");
+        foreach (var pattern in configuration.Input.Include.Concat(configuration.Input.Exclude))
+        {
+            ValidateRelativePath(pattern, "input pattern", allowNested: true);
         }
 
         ValidateFileName(configuration.Output.File, "output.file");
@@ -365,6 +456,10 @@ internal static class DocsConfigurationLoader
 internal sealed record DocsConfigurationContext(
     BicepDocumentationConfiguration Configuration,
     IOUri FileUri);
+
+internal sealed record DocsInputSelection(
+    IOUri RootUri,
+    IReadOnlyList<IOUri> InputUris);
 
 [JsonSourceGenerationOptions(
     AllowDuplicateProperties = true,

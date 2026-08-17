@@ -232,7 +232,9 @@ output bar string = foo
             ["/template.scriban"] = "{{ module.name }}|{{ custom.owner }}|{{ module.usageExamples.size }}",
             ["/docs.json"] = """
                 {
-                  "entryPoint": "main.bicep",
+                  "input": {
+                    "include": ["main.bicep"]
+                  },
                   "output": {
                     "file": "RPC.md"
                   },
@@ -287,6 +289,34 @@ output bar string = foo
     }
 
     [TestMethod]
+    public async Task Docs_methods_do_not_auto_discover_configuration()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/module/main.bicep"] = "metadata name = 'RPC defaults'",
+            ["/module/bicepdocsconfig.json"] = "{ invalid",
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var output = await client.OutputDocs(
+                    new("/module", null, null, null, NoRestore: false),
+                    token);
+                var generated = await client.GenerateDocs(
+                    new(["/module"], null, null, null, null, NoRestore: false),
+                    token);
+
+                output.Result.Success.Should().BeTrue();
+                output.Result.Contents.Should().Contain("# RPC defaults");
+                generated.Results.Should().ContainSingle(result =>
+                    result.Success &&
+                    result.OutputPath == fileSystem.Path.GetFullPath("/module/README.md"));
+            });
+    }
+
+    [TestMethod]
     public async Task GenerateDocs_writes_successful_modules_and_continues_failures()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -330,6 +360,8 @@ output bar string = foo
             ["/invalid.scriban"] = "{{ if module.name }}",
             ["/a.bicep"] = "metadata name = 'A'",
             ["/b.bicep"] = "metadata name = 'B'",
+            ["/nonbicep.json"] = """{ "input": { "include": ["main.txt"] } }""",
+            ["/multiple.json"] = """{ "input": { "include": ["*.bicep"] } }""",
         });
 
         await RunServerTest(
@@ -341,6 +373,50 @@ output bar string = foo
                     token);
                 invalidExtension.Result.Success.Should().BeFalse();
                 invalidExtension.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
+
+                var configuredInvalidExtension = await client.OutputDocs(
+                    new("/", null, null, null, NoRestore: false)
+                    {
+                        ConfigFilePath = "/nonbicep.json",
+                    },
+                    token);
+                configuredInvalidExtension.Result.Success.Should().BeFalse();
+                configuredInvalidExtension.Result.Diagnostics.Should().ContainSingle();
+                configuredInvalidExtension.Result.Diagnostics.Single().Code.Should().Be("DOCS001");
+                configuredInvalidExtension.Result.Diagnostics.Single().Message.Should().Contain("Invalid Bicep file path");
+                var configuredInvalidGenerateExtension = await client.GenerateDocs(
+                    new(["/"], null, null, null, null, NoRestore: false)
+                    {
+                        ConfigFilePath = "/nonbicep.json",
+                    },
+                    token);
+                configuredInvalidGenerateExtension.Results.Should().ContainSingle(result =>
+                    !result.Success &&
+                    result.Diagnostics.Any(diagnostic =>
+                        diagnostic.Code == "DOCS001" &&
+                        diagnostic.Message.Contains("Invalid Bicep file path")));
+
+                var configuredMultipleOutput = await client.OutputDocs(
+                    new("/", null, null, null, NoRestore: false)
+                    {
+                        ConfigFilePath = "/multiple.json",
+                    },
+                    token);
+                configuredMultipleOutput.Result.Success.Should().BeFalse();
+                configuredMultipleOutput.Result.Diagnostics.Should().ContainSingle(diagnostic =>
+                    diagnostic.Code == "DOCS001" &&
+                    diagnostic.Message.Contains("requires each path to select exactly one input file"));
+                var configuredMultipleGenerate = await client.GenerateDocs(
+                    new(["/"], null, null, null, null, NoRestore: false)
+                    {
+                        ConfigFilePath = "/multiple.json",
+                    },
+                    token);
+                configuredMultipleGenerate.Results.Should().ContainSingle(result =>
+                    !result.Success &&
+                    result.Diagnostics.Any(diagnostic =>
+                        diagnostic.Code == "DOCS001" &&
+                        diagnostic.Message.Contains("requires each path to select exactly one input file")));
 
                 var invalidPath = await client.OutputDocs(
                     new("invalid\0path", null, null, null, NoRestore: false),

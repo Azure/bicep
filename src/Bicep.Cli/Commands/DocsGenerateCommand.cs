@@ -25,17 +25,28 @@ public class DocsGenerateCommand(
 {
     public async Task<int> RunAsync(DocsGenerateArguments arguments, CancellationToken cancellationToken = default)
     {
-        var configuration = DocsConfigurationLoader.Load(arguments.ConfigFilePath, argumentsResolver, fileSystem);
-        var effectiveArguments = arguments with
-        {
-            InputFile = DocsConfigurationLoader.ResolveModulePath(
-                arguments.InputFile,
-                configuration,
-                argumentsResolver,
-                fileSystem),
-        };
-        var inputOutputPairs = argumentsResolver.ResolveFilePatternInputOutputArguments(
-            effectiveArguments,
+        var configuration = arguments.ConfigFilePath is not null
+            ? DocsConfigurationLoader.Load(arguments.ConfigFilePath, argumentsResolver, fileSystem)
+            : null;
+        var targetDirectory = DocsConfigurationLoader.ResolveTargetDirectory(
+            arguments.InputFile,
+            arguments.FilePattern,
+            argumentsResolver,
+            fileSystem);
+        configuration ??= DocsConfigurationLoader.Discover(
+            targetDirectory,
+            argumentsResolver,
+            fileSystem);
+        var inputs = DocsConfigurationLoader.ResolveInputs(
+            arguments.InputFile,
+            arguments.FilePattern,
+            targetDirectory,
+            configuration,
+            argumentsResolver);
+        var inputOutputPairs = argumentsResolver.ResolveFileSetInputOutputArguments(
+            arguments,
+            inputs.RootUri,
+            inputs.InputUris,
             (_, _) => configuration.Configuration.Output.File);
         DocsCommand.ValidateOutputPaths(inputOutputPairs);
         var templateFile = DocsConfigurationLoader.ResolveTemplateFile(

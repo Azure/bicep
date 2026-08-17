@@ -42,7 +42,7 @@ The `experimentalFeaturesWarning` setting in `bicepconfig.json` controls warning
 bicep docs generate [<inputFile>] [options]
 ```
 
-Renders documentation and writes it to a file. Exactly one of the positional input path or `--pattern` must be supplied; supplying neither fails with `Either the input file path or the --pattern parameter must be specified`.
+Renders documentation and writes it to one or more files. The input path is optional. When it is omitted, the current directory is the target folder and module files are selected by `input.include` and `input.exclude`.
 
 Generate `README.md` next to one module:
 
@@ -56,6 +56,12 @@ Generate documentation for a module directory:
 bicep docs generate .\modules\storage
 ```
 
+Generate documentation from the current directory:
+
+```powershell
+bicep docs generate
+```
+
 Generate documentation for multiple module entrypoints:
 
 ```powershell
@@ -67,10 +73,10 @@ With `--pattern`, every matched file is processed in turn. A failure for one mod
 ### `docs output`
 
 ```text
-bicep docs output <inputFile> [options]
+bicep docs output [<inputFile>] [options]
 ```
 
-Renders exactly one module and writes the result to stdout. No file is created, and the output options (`--pattern`, `--outdir`, `--outfile`) are not available.
+Renders exactly one selected module and writes the result to stdout. The input path is optional. No file is created, and the output options (`--pattern`, `--outdir`, `--outfile`) are not available. Directory or omitted input must select exactly one module.
 
 ```powershell
 bicep docs output .\main.bicep
@@ -84,13 +90,22 @@ Both commands reject unmatched tokens, so an unrecognized option is an error rat
 
 ## Input resolution
 
-The positional input path is resolved as follows.
+The command first determines one **target folder**. Configuration discovery probes only this folder.
 
-1. If the path ends with `.bicep` (case-insensitive), it is used directly as the module entrypoint.
-2. Otherwise, if the path is an existing directory, the configured `entryPoint` is appended. The default `entryPoint` is `main.bicep`.
-3. Otherwise, the path is used as-is and then validated. A path that is neither an existing directory nor a `.bicep` file fails validation.
+| Invocation | Target folder |
+| :-- | :-- |
+| No positional input | Current directory |
+| Directory input | That directory |
+| `.bicep` file input | The file's containing directory |
+| `--pattern` | The pattern root: the longest path prefix before the first wildcard |
 
-`--pattern` matches entrypoint files directly; it does not accept directories. The pattern root (the longest literal prefix of the pattern) becomes the default output root.
+Files are then selected in this precedence order:
+
+1. An explicit `.bicep` file is used directly. `input.include` and `input.exclude` are ignored.
+2. An explicit `--pattern` selects matching files directly. Configured input patterns are ignored.
+3. A directory or omitted input uses `input.include` and `input.exclude`, relative to the target folder. The built-in selection is `include: ["main.bicep"]` and `exclude: []`.
+
+Configured input matching is recursive when the pattern is recursive and is case-insensitive. `docs generate` processes every selected file. `docs output` fails unless exactly one file is selected. Selecting no files is an error for both commands.
 
 ## Output resolution
 
@@ -118,7 +133,7 @@ Output paths are validated before anything is written:
 
 | Option | Argument | Description |
 | :-- | :-- | :-- |
-| `--config-file-path` | path | Path to a docs configuration JSON file. Resolved relative to the current directory. |
+| `--config-file-path` | path | Explicit docs configuration JSON file. Resolved relative to the current directory and takes precedence over automatic discovery. |
 | `--template-file` | path | Scriban template used instead of the built-in Markdown template. Resolved relative to the current directory. |
 | `--template-root` | path | Root directory used to resolve template includes. Resolved relative to the current directory. Must exist. |
 | `--custom-template-value` | `key=value` | Repeatable inline custom value. |
@@ -145,7 +160,6 @@ Output paths are validated before anything is written:
 | positional input **and** `--pattern` | `The input path and --pattern parameter cannot both be specified.` |
 | `--outdir` **and** `--outfile` | `The --outdir and --outfile parameters cannot both be used` |
 | `--outfile` **and** `--pattern` | `The --outfile parameter cannot be used with the --pattern parameter` |
-| neither input nor `--pattern` (`docs generate`) | `Either the input file path or the --pattern parameter must be specified` |
 
 ### Configuration versus CLI
 
@@ -153,7 +167,7 @@ Explicit CLI options override configuration values, and configuration values ove
 
 | Setting | Built-in default | Configuration | CLI override |
 | :-- | :-- | :-- | :-- |
-| Directory entrypoint | `main.bicep` | `entryPoint` | none — pass an explicit `.bicep` path instead |
+| Input selection | `include: ["main.bicep"]`, `exclude: []` | `input.include`, `input.exclude` | explicit `.bicep` input or `--pattern` |
 | Generated file name | `README.md` | `output.file` | `--outfile` (whole path) or `--outdir` (directory only) |
 | Template | built-in Markdown template | `template.file` | `--template-file` |
 | Include root | the module's own directory | `template.includeRoot` | `--template-root` |
@@ -173,7 +187,33 @@ Inline values and value files may be interleaved and repeated; the last occurren
 
 ## Configuration file
 
-Configuration is optional and is loaded only when `--config-file-path` is supplied. The path is resolved relative to the current working directory and the file must exist.
+The conventional file name is `bicepdocsconfig.json`. Configuration is resolved once per invocation in this order:
+
+1. An explicit `--config-file-path`, resolved relative to the current working directory.
+2. `bicepdocsconfig.json` in the target folder.
+3. Built-in defaults.
+
+Automatic discovery checks the target folder only. It never walks up to ancestor directories and never probes the folders of individual modules selected by `--pattern` or configured input patterns. Every selected module therefore uses the same invocation-scoped settings.
+
+The three missing or invalid file cases are intentionally different:
+
+| Situation | Behaviour |
+| :-- | :-- |
+| Explicit `--config-file-path` does not exist | Hard error naming the requested file. |
+| No conventional file exists in the target folder | Silently use built-in defaults. |
+| A discovered conventional file exists but is malformed or invalid | Hard error naming the discovered file. |
+
+Docs settings use a dedicated file rather than `bicepconfig.json` by design. The file holds static settings that must be consistent across every module in a repository; dynamic choices are supplied per invocation on the command line. `bicepconfig.json` uses nearest-file-wins resolution with no ancestor merging, so a module with its own `bicepconfig.json` would silently lose repository-level docs settings and fall back to defaults.
+
+Use the published schema for validation and editor completion:
+
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/bicep/main/src/vscode-bicep/schemas/bicepdocsconfig.schema.json"
+}
+```
+
+VS Code associates this schema automatically with files named `bicepdocsconfig.json`. Keep the `$schema` property when using another file name through `--config-file-path`.
 
 ### Syntax and strictness
 
@@ -199,7 +239,9 @@ Representative failures:
 
 | JSON path | Type | Required | Default | Notes |
 | :-- | :-- | :-- | :-- | :-- |
-| `entryPoint` | string | no | `main.bicep` | Used only when the input path is a directory. Must be relative, must not traverse with `..`, and must end with `.bicep`. Nested segments are allowed. |
+| `$schema` | string | no | — | JSON schema URI used by editors. |
+| `input.include` | array of string | no | `["main.bicep"]` | Case-insensitive glob patterns that select module files relative to the target folder. Patterns must be nonempty and relative and must not traverse with `..`. |
+| `input.exclude` | array of string | no | `[]` | Case-insensitive glob patterns removed from the included files. Uses the same target-folder anchor and validation as `input.include`. |
 | `output.file` | string | no | `README.md` | Generated file name only. Must be a single portable file name: no directory separators, no invalid or reserved characters, no trailing dot or space, and not a reserved device name. |
 | `template.file` | string | no | built-in template | Scriban template path. Must be nonempty. Relative paths are anchored to the configuration file's directory. |
 | `template.includeRoot` | string | no | module directory | Root for template includes. Must be nonempty and must exist. Relative paths are anchored to the configuration file's directory. |
@@ -212,6 +254,20 @@ Representative failures:
 | `examples.reassignments[].from.include` | array of string | **yes** | — | Must contain at least one pattern. Matched against example paths relative to their discovery source. |
 | `examples.reassignments[].from.exclude` | array of string | no | `[]` | Matched against example paths relative to their discovery source. |
 | `examples.reassignments[].to` | string | **yes** | — | Exactly one direct child directory segment. Must not contain separators or traverse with `..`. |
+
+`input.include` and `input.exclude` apply only to directory or omitted input. An empty `input.include` selects no files and causes an error. Exclusions are applied after all inclusions. For example:
+
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/Azure/bicep/main/src/vscode-bicep/schemas/bicepdocsconfig.schema.json",
+  "input": {
+    "include": ["modules/**/*.bicep"],
+    "exclude": ["**/*.test.bicep", "**/dependencies/**"]
+  }
+}
+```
+
+`docs generate .` processes every selected module. `docs output .` reports an error if this configuration selects more than one module. Passing `.\modules\storage\main.bicep` or `--pattern` bypasses these configured input patterns.
 
 The default `examples.sources` value is:
 
@@ -245,13 +301,14 @@ Within a supplied source, an omitted `include` defaults to `[]`, which matches n
 | Value | Anchor |
 | :-- | :-- |
 | `--config-file-path` | Current working directory. |
+| Discovered `bicepdocsconfig.json` | The invocation's target folder. |
+| `input.include`, `input.exclude` | The target folder. |
 | `template.file`, `template.includeRoot` | The configuration file's directory. Rooted paths are used as-is. |
 | `--template-file`, `--template-root` | Current working directory. These bypass configuration anchoring entirely. |
-| `entryPoint` | The directory supplied as the input path. |
 | `examples.sources[].path` | Each module's own root directory. |
 | `examples.reassignments[].to` | The parent module's root directory. |
 
-This means one configuration file can be shared by many modules: template settings stay pinned to the configuration file, while entrypoints and example sources are re-resolved per module.
+This means one configuration file can be shared by many modules: input selection is evaluated once from the target folder, template settings stay pinned to the configuration file, and example sources are re-resolved per module.
 
 ### Replaceable defaults
 
@@ -259,7 +316,7 @@ This means one configuration file can be shared by many modules: template settin
 
 | Default | Replace with |
 | :-- | :-- |
-| `main.bicep` entrypoint | `entryPoint` |
+| `main.bicep` input | `input.include` and `input.exclude` |
 | `README.md` output name | `output.file`, `--outfile` |
 | `examples` and `tests` directories | `examples.sources[].path` |
 | `*.bicep`, `**/main.bicep`, `**/*.test.bicep` | `examples.sources[].include` |
@@ -305,11 +362,15 @@ A reassignment conditionally moves examples from a parent module to one direct c
 
 ### 1. Defaults-equivalent configuration
 
-This configuration is behaviourally identical to running with no `--config-file-path`. It is a useful starting point for customization.
+Save this as `bicepdocsconfig.json` in the target folder. It is behaviourally identical to using built-in defaults.
 
 ```json
 {
-  "entryPoint": "main.bicep",
+  "$schema": "https://raw.githubusercontent.com/Azure/bicep/main/src/vscode-bicep/schemas/bicepdocsconfig.schema.json",
+  "input": {
+    "include": ["main.bicep"],
+    "exclude": []
+  },
   "output": {
     "file": "README.md"
   },
@@ -331,18 +392,20 @@ This configuration is behaviourally identical to running with no `--config-file-
 ```
 
 ```powershell
-bicep docs generate --pattern '.\modules\**\main.bicep' `
-  --config-file-path .\docs\bicep-docs.json
+bicep docs generate .
 ```
 
-### 2. Nonstandard folders, entrypoint, and extensions
+### 2. Nonstandard folders, module files, and extensions
 
-A repository that keeps its entrypoint at `deploy/module.bicep`, its samples under `samples`, and its integration tests under `verify`, and that publishes `DOCUMENTATION.md`.
+A repository that keeps module files at `deploy/module.bicep`, samples under `samples`, and integration tests under `verify`, and that publishes `DOCUMENTATION.md`.
 
 ```json
 {
-  // Entrypoint used whenever a directory is passed to the command.
-  "entryPoint": "deploy/module.bicep",
+  "$schema": "https://raw.githubusercontent.com/Azure/bicep/main/src/vscode-bicep/schemas/bicepdocsconfig.schema.json",
+  "input": {
+    "include": ["deploy/module.bicep"],
+    "exclude": []
+  },
   "output": {
     "file": "DOCUMENTATION.md"
   },
@@ -364,11 +427,10 @@ A repository that keeps its entrypoint at `deploy/module.bicep`, its samples und
 ```
 
 ```powershell
-bicep docs generate .\services\payments `
-  --config-file-path .\docs\bicep-docs.json
+bicep docs generate .\services\payments
 ```
 
-Because the input is a directory, the module entrypoint resolves to `.\services\payments\deploy\module.bicep` and the output is written to `.\services\payments\DOCUMENTATION.md`.
+With `bicepdocsconfig.json` in `.\services\payments`, the directory input selects `.\services\payments\deploy\module.bicep` and writes `.\services\payments\deploy\DOCUMENTATION.md`. Use `--outdir` or `--outfile` when documentation should be written somewhere else.
 
 ### 3. Disabling usage examples
 
@@ -376,6 +438,7 @@ An explicitly empty `sources` array turns discovery off. This is different from 
 
 ```json
 {
+  "$schema": "https://raw.githubusercontent.com/Azure/bicep/main/src/vscode-bicep/schemas/bicepdocsconfig.schema.json",
   "examples": {
     "sources": []
   }
@@ -393,6 +456,7 @@ The configuration file supplies stable values; the pipeline overrides the volati
 
 ```json
 {
+  "$schema": "https://raw.githubusercontent.com/Azure/bicep/main/src/vscode-bicep/schemas/bicepdocsconfig.schema.json",
   "template": {
     "file": "templates/readme.scriban",
     "includeRoot": "templates",
@@ -420,7 +484,11 @@ An Azure Verified Modules pattern module keeps scope-specific tests beside the p
 
 ```json
 {
-  "entryPoint": "main.bicep",
+  "$schema": "https://raw.githubusercontent.com/Azure/bicep/main/src/vscode-bicep/schemas/bicepdocsconfig.schema.json",
+  "input": {
+    "include": ["**/main.bicep"],
+    "exclude": []
+  },
   "output": {
     "file": "README.md"
   },
@@ -454,7 +522,7 @@ An Azure Verified Modules pattern module keeps scope-specific tests beside the p
 ```
 
 ```powershell
-bicep docs generate --pattern '.\avm\res\authorization\policy-assignment\**\main.bicep' `
+bicep docs generate .\avm\res\authorization\policy-assignment `
   --config-file-path .\docs\avm-docs.json
 ```
 
@@ -537,7 +605,7 @@ Compilation errors are reported as normal Bicep diagnostics, the module fails, a
 | Output write | The generated file could not be written or replaced | `DOCS002` |
 | Model or template | Template parse failure, render failure, invalid glob, depth limit | `DOCS003` |
 
-Any failure sets the process exit code to `1`. Under `--pattern`, the run continues with the remaining modules and reports the failures collectively.
+Any failure sets the process exit code to `1`. For multi-module generation through `--pattern` or configured input patterns, the run continues with the remaining modules and reports the failures collectively.
 
 ### Existing output is preserved
 
@@ -637,6 +705,10 @@ Long-lived clients can use:
 - `bicep/outputDocs` for one string-oriented result.
 
 Both requests accept the same customization as the CLI: an optional template file, template root, custom values, configuration file path, and a no-restore flag. `bicep/generateDocs` takes a list of paths and an optional output file; `bicep/outputDocs` takes a single path.
+
+JSON-RPC does not auto-discover `bicepdocsconfig.json`. Tooling clients must pass the configuration file path explicitly. This difference is intentional because a `bicep/generateDocs` request can contain unrelated paths with no unambiguous shared target folder.
+
+Each JSON-RPC path must resolve to exactly one module. An explicit `.bicep` path always identifies that module. A directory path uses `input.include` and `input.exclude` from the explicitly supplied configuration, or the built-in `main.bicep` selection when no configuration path is supplied. A directory that selects zero or multiple files returns a structured `DOCS001` failure. CLI `docs generate` differs here because one CLI target folder can intentionally select multiple modules.
 
 Each result contains the input path, optional output path, success state, diagnostics, and rendered contents. The same generation pipeline is available directly from `Bicep.Core` for hosts that embed the compiler.
 

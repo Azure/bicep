@@ -334,7 +334,12 @@ public class BicepDocumentationGeneratorTests
         };
         var custom = new BicepDocumentationConfiguration
         {
-            EntryPoint = "entry.bicep",
+            Schema = "https://example.com/bicepdocsconfig.schema.json",
+            Input = new()
+            {
+                Include = ["**/*.module.bicep"],
+                Exclude = ["**/*.test.bicep"],
+            },
             Output = new() { File = "DOCS.md" },
             Template = new()
             {
@@ -368,7 +373,9 @@ public class BicepDocumentationGeneratorTests
             },
         };
 
-        configuration.EntryPoint.Should().Be("main.bicep");
+        configuration.Schema.Should().BeNull();
+        configuration.Input.Include.Should().Equal("main.bicep");
+        configuration.Input.Exclude.Should().BeEmpty();
         configuration.Output.File.Should().Be("README.md");
         configuration.Template.File.Should().BeNull();
         configuration.Template.IncludeRoot.Should().BeNull();
@@ -377,7 +384,9 @@ public class BicepDocumentationGeneratorTests
         configuration.Examples.Reassignments.Should().BeEmpty();
         configuration.Should().Be(clone);
         configuration.Should().NotBe(withoutExamples);
-        custom.EntryPoint.Should().Be("entry.bicep");
+        custom.Schema.Should().Be("https://example.com/bicepdocsconfig.schema.json");
+        custom.Input.Include.Should().Equal("**/*.module.bicep");
+        custom.Input.Exclude.Should().Equal("**/*.test.bicep");
         custom.Output.File.Should().Be("DOCS.md");
         custom.Template.File.Should().Be("readme.scriban");
         custom.Template.IncludeRoot.Should().Be("templates");

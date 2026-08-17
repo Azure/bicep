@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 
 namespace Bicep.Core.Documentation;
 
@@ -11,9 +12,15 @@ namespace Bicep.Core.Documentation;
 public sealed record BicepDocumentationConfiguration
 {
     /// <summary>
-    /// Gets the entrypoint used when the input path is a directory.
+    /// Gets the optional JSON schema identifier.
     /// </summary>
-    public string EntryPoint { get; init; } = "main.bicep";
+    [JsonPropertyName("$schema")]
+    public string? Schema { get; init; }
+
+    /// <summary>
+    /// Gets input discovery settings.
+    /// </summary>
+    public BicepDocumentationInputConfiguration Input { get; init; } = new();
 
     /// <summary>
     /// Gets output settings.
@@ -29,6 +36,22 @@ public sealed record BicepDocumentationConfiguration
     /// Gets usage-example settings.
     /// </summary>
     public BicepDocumentationExamplesConfiguration Examples { get; init; } = new();
+}
+
+/// <summary>
+/// Configures module input discovery.
+/// </summary>
+public sealed record BicepDocumentationInputConfiguration
+{
+    /// <summary>
+    /// Gets included module entrypoint globs.
+    /// </summary>
+    public ImmutableArray<string> Include { get; init; } = ["main.bicep"];
+
+    /// <summary>
+    /// Gets excluded module entrypoint globs.
+    /// </summary>
+    public ImmutableArray<string> Exclude { get; init; } = [];
 }
 
 /// <summary>

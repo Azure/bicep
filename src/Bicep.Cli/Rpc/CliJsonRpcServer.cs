@@ -293,7 +293,7 @@ public class CliJsonRpcServer(
         catch (BicepException exception)
         {
             return new(request.Paths
-                .Select(path => CreateDocsFailure(path, "DOCS001", exception.Message))
+                .Select(path => CreateDocsFailure(path, DocsCommand.InputFailureCode, exception.Message))
                 .ToImmutableArray());
         }
 
@@ -304,21 +304,16 @@ public class CliJsonRpcServer(
             var path = request.Paths[index];
             try
             {
-                var modulePath = DocsConfigurationLoader.ResolveModulePath(
-                    path,
-                    configuration,
-                    inputOutputArgumentsResolver,
-                    fileSystem);
-                var inputUri = inputOutputArgumentsResolver.PathToUri(modulePath!);
+                var inputUri = ResolveSingleDocsInput(path, configuration);
                 if (!inputUri.HasBicepExtension())
                 {
-                    failures[index] = CreateDocsFailure(path, "DOCS001", $"Invalid Bicep file path: {inputUri}");
+                    failures[index] = CreateDocsFailure(path, DocsCommand.InputFailureCode, $"Invalid Bicep file path: {inputUri}");
                     continue;
                 }
 
                 if (!fileSystem.File.Exists(inputUri.GetFilePath()))
                 {
-                    failures[index] = CreateDocsFailure(path, "DOCS001", $"The input file \"{inputUri}\" does not exist.");
+                    failures[index] = CreateDocsFailure(path, DocsCommand.InputFailureCode, $"The input file \"{inputUri}\" does not exist.");
                     continue;
                 }
 
@@ -326,7 +321,7 @@ public class CliJsonRpcServer(
             }
             catch (Exception exception) when (exception is BicepException or IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
             {
-                failures[index] = CreateDocsFailure(path, "DOCS001", exception.Message);
+                failures[index] = CreateDocsFailure(path, DocsCommand.InputFailureCode, exception.Message);
             }
         }
 
@@ -343,7 +338,7 @@ public class CliJsonRpcServer(
                 {
                     failures[target.Index] = CreateDocsFailure(
                         target.RequestedPath,
-                        "DOCS001",
+                        DocsCommand.InputFailureCode,
                         "The documentation output path cannot overwrite the input Bicep file.");
                     continue;
                 }
@@ -352,7 +347,7 @@ public class CliJsonRpcServer(
                 {
                     failures[target.Index] = CreateDocsFailure(
                         target.RequestedPath,
-                        "DOCS001",
+                        DocsCommand.InputFailureCode,
                         "Documentation output cannot use a Bicep source file extension.");
                     continue;
                 }
@@ -361,7 +356,7 @@ public class CliJsonRpcServer(
                 {
                     failures[target.Index] = CreateDocsFailure(
                         target.RequestedPath,
-                        "DOCS001",
+                        DocsCommand.InputFailureCode,
                         $"Multiple input files resolve to the output file \"{outputUri}\".");
                     continue;
                 }
@@ -372,7 +367,7 @@ public class CliJsonRpcServer(
             {
                 failures[target.Index] = CreateDocsFailure(
                     target.RequestedPath,
-                    "DOCS001",
+                    DocsCommand.InputFailureCode,
                     exception.Message);
             }
         }
@@ -412,7 +407,7 @@ public class CliJsonRpcServer(
             }
             catch (Exception exception) when (exception is BicepException or IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
             {
-                results.Add(AddDocsFailure(result, "DOCS002", exception.Message));
+                results.Add(AddDocsFailure(result, DocsCommand.WriteFailureCode, exception.Message));
             }
         }
 
@@ -432,7 +427,7 @@ public class CliJsonRpcServer(
         }
         catch (BicepException exception)
         {
-            return new(CreateDocsFailure(request.Path, "DOCS001", exception.Message));
+            return new(CreateDocsFailure(request.Path, DocsCommand.InputFailureCode, exception.Message));
         }
 
         return new(await RenderDocs(
@@ -459,16 +454,11 @@ public class CliJsonRpcServer(
         IOUri inputUri;
         try
         {
-            var modulePath = DocsConfigurationLoader.ResolveModulePath(
-                path,
-                configuration,
-                inputOutputArgumentsResolver,
-                fileSystem);
-            inputUri = inputOutputArgumentsResolver.PathToUri(modulePath!);
+            inputUri = ResolveSingleDocsInput(path, configuration);
         }
         catch (Exception exception) when (exception is BicepException or IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
         {
-            return CreateDocsFailure(path, "DOCS001", exception.Message);
+            return CreateDocsFailure(path, DocsCommand.InputFailureCode, exception.Message);
         }
 
         return await RenderDocs(
@@ -496,7 +486,7 @@ public class CliJsonRpcServer(
 
         if (!inputUri.HasBicepExtension())
         {
-            return CreateDocsFailure(inputUri.GetFilePath(), "DOCS001", $"Invalid Bicep file path: {inputUri}");
+            return CreateDocsFailure(inputUri.GetFilePath(), DocsCommand.InputFailureCode, $"Invalid Bicep file path: {inputUri}");
         }
 
         BicepDocumentationGenerationOptions options;
@@ -522,7 +512,7 @@ public class CliJsonRpcServer(
         }
         catch (BicepException exception)
         {
-            return CreateDocsFailure(inputUri.GetFilePath(), "DOCS001", exception.Message);
+            return CreateDocsFailure(inputUri.GetFilePath(), DocsCommand.InputFailureCode, exception.Message);
         }
 
         Compilation compilation;
@@ -533,7 +523,7 @@ public class CliJsonRpcServer(
         }
         catch (BicepException exception)
         {
-            return CreateDocsFailure(inputUri.GetFilePath(), "DOCS001", exception.Message);
+            return CreateDocsFailure(inputUri.GetFilePath(), DocsCommand.InputFailureCode, exception.Message);
         }
 
         var diagnostics = GetDiagnostics(compilation).ToImmutableArray();
@@ -553,11 +543,34 @@ public class CliJsonRpcServer(
         {
             return AddDocsFailure(
                 new(inputUri.GetFilePath(), null, false, diagnostics, null),
-                "DOCS003",
+                DocsCommand.RenderFailureCode,
                 exception.Message);
         }
     }
 
+    private IOUri ResolveSingleDocsInput(string path, DocsConfigurationContext configuration)
+    {
+        var targetDirectory = DocsConfigurationLoader.ResolveTargetDirectory(
+            path,
+            filePattern: null,
+            inputOutputArgumentsResolver,
+            fileSystem);
+        var inputs = DocsConfigurationLoader.ResolveInputs(
+            path,
+            filePattern: null,
+            targetDirectory,
+            configuration,
+            inputOutputArgumentsResolver);
+        if (inputs.InputUris.Count != 1)
+        {
+            throw new CommandLineException(
+                $"The JSON-RPC docs method requires each path to select exactly one input file, but \"{path}\" selected {inputs.InputUris.Count}.");
+        }
+
+        return inputs.InputUris[0];
+    }
+
+    // These codes describe CLI and RPC orchestration failures that have no source position.
     private static DocsResult AddDocsFailure(DocsResult result, string code, string message) =>
         result with
         {
