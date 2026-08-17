@@ -41,6 +41,20 @@ public class BicepDocumentationGenerator(
     public BicepDocumentationModel BuildModel(
         Compilation compilation,
         IReadOnlyDictionary<string, string>? customValues = null,
+        CancellationToken cancellationToken = default) =>
+        BuildModel(compilation, customValues, new(), cancellationToken);
+
+    /// <inheritdoc/>
+    public BicepDocumentationModel BuildModelWithOptions(
+        Compilation compilation,
+        BicepDocumentationGenerationOptions options,
+        CancellationToken cancellationToken = default) =>
+        BuildModel(compilation, options.CustomValues, options.Examples, cancellationToken);
+
+    private BicepDocumentationModel BuildModel(
+        Compilation compilation,
+        IReadOnlyDictionary<string, string>? customValues,
+        BicepDocumentationExamplesConfiguration examples,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -68,6 +82,7 @@ public class BicepDocumentationGenerator(
             References: BuildReferences(semanticModel),
             UsageExamples: BicepDocumentationExampleDiscovery.Discover(
                 moduleRoot,
+                examples,
                 fileSystem is null ? null : uri => IsReparsePoint(fileSystem, uri)));
     }
 

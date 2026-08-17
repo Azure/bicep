@@ -164,7 +164,9 @@ public class BicepDocumentationExampleDiscoveryTests
         var fileSet = MockFileSystemTestFileSet.Create(
             ("tests/e2e/defaults/main.test.bicep", "param foo string"),
             ("tests/e2e/waf-aligned/main.test.bicep", "param foo string"),
-            ("tests/e2e/defaults/dependencies.bicep", "param ignored string"));
+            ("tests/e2e/defaults/dependencies.bicep", "param ignored string"),
+            ("tests/dependencies.test.bicep", "param ignored string"),
+            ("examples/dependencies.bicep", "param ignored string"));
 
         var examples = BicepDocumentationExampleDiscovery.Discover(GetModuleRoot(fileSet));
 
@@ -182,6 +184,296 @@ public class BicepDocumentationExampleDiscoveryTests
         var examples = BicepDocumentationExampleDiscovery.Discover(GetModuleRoot(fileSet));
 
         examples.Select(example => example.Name).Should().Equal("same", "Same");
+    }
+
+    [TestMethod]
+    public void Discover_CustomSourcesReplaceDefaultsAndDeduplicateOverlaps()
+    {
+        var fileSet = MockFileSystemTestFileSet.Create(
+            ("examples/default/main.bicep", "metadata name = 'default'"),
+            ("samples/kept/example.sample", "metadata name = 'kept'"),
+            ("samples/ignored/example.sample", "metadata name = 'ignored'"));
+        var configuration = new BicepDocumentationExamplesConfiguration
+        {
+            Sources =
+            [
+                new()
+                {
+                    Path = "samples",
+                    Include = ["**/*.sample"],
+                    Exclude = ["**/ignored/**"],
+                },
+                new()
+                {
+                    Path = ".",
+                    Include = ["samples/kept/*.sample"],
+                },
+            ],
+        };
+
+        var examples = BicepDocumentationExampleDiscovery.Discover(
+            GetModuleRoot(fileSet),
+            configuration);
+
+        examples.Should().ContainSingle();
+        examples[0].Name.Should().Be("kept");
+    }
+
+    [TestMethod]
+    public void Discover_ExplicitEmptySourcesDisableDiscovery()
+    {
+        var fileSet = MockFileSystemTestFileSet.Create(
+            ("examples/default/main.bicep", "metadata name = 'default'"));
+        var configuration = new BicepDocumentationExamplesConfiguration
+        {
+            Sources = [],
+        };
+
+        var examples = BicepDocumentationExampleDiscovery.Discover(
+            GetModuleRoot(fileSet),
+            configuration);
+
+        examples.Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public void Discover_DefaultImmutableArraysUseBuiltInSources()
+    {
+        var fileSet = MockFileSystemTestFileSet.Create(
+            ("examples/default/main.bicep", "metadata name = 'default'"));
+        var configuration = new BicepDocumentationExamplesConfiguration
+        {
+            Sources = default,
+            Reassignments = default,
+        };
+
+        var examples = BicepDocumentationExampleDiscovery.Discover(
+            GetModuleRoot(fileSet),
+            configuration);
+
+        examples.Should().ContainSingle();
+        examples[0].Name.Should().Be("default");
+    }
+
+    [TestMethod]
+    public void Discover_CustomExtensionAtSourceRootUsesCompleteFileNameFallback()
+    {
+        var fileSet = MockFileSystemTestFileSet.Create(
+            ("samples/example.demo", "param value string"));
+        var configuration = new BicepDocumentationExamplesConfiguration
+        {
+            Sources =
+            [
+                new()
+                {
+                    Path = "samples",
+                    Include = ["*.demo"],
+                },
+            ],
+        };
+
+        var examples = BicepDocumentationExampleDiscovery.Discover(
+            GetModuleRoot(fileSet),
+            configuration);
+
+        examples.Should().ContainSingle();
+        examples[0].Name.Should().Be("example.demo");
+    }
+
+    [TestMethod]
+    public void Discover_DefaultPatternArraysMatchNothing()
+    {
+        var fileSet = MockFileSystemTestFileSet.Create(
+            ("samples/example.bicep", "metadata name = 'ignored'"));
+        var configuration = new BicepDocumentationExamplesConfiguration
+        {
+            Sources =
+            [
+                new()
+                {
+                    Path = "samples",
+                    Include = default,
+                    Exclude = default,
+                },
+            ],
+        };
+
+        var examples = BicepDocumentationExampleDiscovery.Discover(
+            GetModuleRoot(fileSet),
+            configuration);
+
+        examples.Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public void Discover_ReassignmentMovesParentExamplesToMatchingChildAndMergesLocalExamples()
+    {
+        var fileSet = MockFileSystemTestFileSet.Create(
+            ("main.bicep", "metadata name = 'parent'"),
+            ("mg-scope/main.bicep", "metadata name = 'child'"),
+            ("mg-scope/examples/local/main.bicep", "metadata name = 'local'"),
+            ("tests/e2e/mg-scope.defaults/main.test.bicep", "metadata name = 'mapped'"),
+            ("tests/e2e/mg-scope.skip/main.test.bicep", "metadata name = 'excluded'"),
+            ("tests/e2e/unmapped/main.test.bicep", "metadata name = 'unmapped'"));
+        var configuration = new BicepDocumentationExamplesConfiguration
+        {
+            Reassignments =
+            [
+                new()
+                {
+                    From = new()
+                    {
+                        Include = ["**/mg-scope.*/**"],
+                        Exclude = ["**/*.skip/**"],
+                    },
+                    To = "mg-scope",
+                },
+            ],
+        };
+        var parentRoot = GetModuleRoot(fileSet);
+        var childRoot = fileSet.FileExplorer.GetDirectory(fileSet.GetUri("mg-scope/"));
+
+        var parentExamples = BicepDocumentationExampleDiscovery.Discover(parentRoot, configuration);
+        var childExamples = BicepDocumentationExampleDiscovery.Discover(childRoot, configuration);
+
+        parentExamples.Select(example => example.Name).Should().Equal("excluded", "unmapped");
+        childExamples.Select(example => example.Name).Should().Equal("mapped", "local");
+        childExamples.Single(example => example.Name == "mapped").RelativePath
+            .Should().Be("../tests/e2e/mg-scope.defaults/main.test.bicep");
+    }
+
+    [TestMethod]
+    public void Discover_ReassignmentWithoutMatchingChildIsNoOp()
+    {
+        var fileSet = MockFileSystemTestFileSet.Create(
+            ("tests/e2e/mg-scope.defaults/main.test.bicep", "metadata name = 'kept'"));
+        var configuration = new BicepDocumentationExamplesConfiguration
+        {
+            Reassignments =
+            [
+                new()
+                {
+                    From = new() { Include = ["**/mg-scope.*/**"] },
+                    To = "mg-scope",
+                },
+            ],
+        };
+
+        var examples = BicepDocumentationExampleDiscovery.Discover(
+            GetModuleRoot(fileSet),
+            configuration);
+
+        examples.Should().ContainSingle();
+        examples[0].Name.Should().Be("kept");
+    }
+
+    [TestMethod]
+    public void Discover_ReassignmentAtFilesystemRootIsNoOp()
+    {
+        var moduleRoot = new Mock<IDirectoryHandle>(MockBehavior.Strict);
+        var target = new Mock<IDirectoryHandle>(MockBehavior.Strict);
+        moduleRoot.Setup(handle => handle.GetDirectory("child")).Returns(target.Object);
+        moduleRoot.Setup(handle => handle.GetParent()).Returns((IDirectoryHandle?)null);
+        target.Setup(handle => handle.Exists()).Returns(false);
+        var configuration = new BicepDocumentationExamplesConfiguration
+        {
+            Sources = [],
+            Reassignments =
+            [
+                new()
+                {
+                    From = new() { Include = ["**/*"] },
+                    To = "child",
+                },
+            ],
+        };
+
+        var examples = BicepDocumentationExampleDiscovery.Discover(
+            moduleRoot.Object,
+            configuration);
+
+        examples.Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public void Discover_InvalidConfigurationThrowsActionableException()
+    {
+        var fileSet = MockFileSystemTestFileSet.Create(
+            ("samples/example.bicep", "param value string"));
+        var invalidConfigurations = new BicepDocumentationExamplesConfiguration[]
+        {
+            new() { Sources = [null!] },
+            new() { Sources = [new() { Path = "" }] },
+            new()
+            {
+                Sources =
+                [
+                    new()
+                    {
+                        Path = "samples",
+                        Include = [null!],
+                    },
+                ],
+            },
+            new() { Sources = [], Reassignments = [null!] },
+            new()
+            {
+                Sources = [],
+                Reassignments =
+                [
+                    new()
+                    {
+                        From = null!,
+                        To = "child",
+                    },
+                ],
+            },
+            new()
+            {
+                Sources = [],
+                Reassignments =
+                [
+                    new()
+                    {
+                        From = new() { Include = ["**/*"] },
+                        To = "",
+                    },
+                ],
+            },
+            new()
+            {
+                Sources = [],
+                Reassignments =
+                [
+                    new()
+                    {
+                        From = new() { Include = ["**/*"] },
+                        To = "nested/child",
+                    },
+                ],
+            },
+            new()
+            {
+                Sources = [],
+                Reassignments =
+                [
+                    new()
+                    {
+                        From = new() { Include = ["**/*"] },
+                        To = ".",
+                    },
+                ],
+            },
+        };
+
+        foreach (var configuration in invalidConfigurations)
+        {
+            var action = () => BicepDocumentationExampleDiscovery.Discover(
+                GetModuleRoot(fileSet),
+                configuration);
+
+            action.Should().Throw<BicepDocumentationException>();
+        }
     }
 
     [TestMethod]

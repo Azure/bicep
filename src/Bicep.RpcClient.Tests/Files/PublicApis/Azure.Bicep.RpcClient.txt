@@ -127,6 +127,7 @@ namespace Bicep.RpcClient.Models
     public class GenerateDocsRequest : System.IEquatable<Bicep.RpcClient.Models.GenerateDocsRequest>
     {
         public GenerateDocsRequest(System.Collections.Immutable.ImmutableArray<string> Paths, string? TemplateFile, string? TemplateRoot, System.Collections.Generic.Dictionary<string, string>? Custom, string? OutputFile, bool NoRestore) { }
+        public string? ConfigFilePath { get; init; }
         public System.Collections.Generic.Dictionary<string, string>? Custom { get; init; }
         public bool NoRestore { get; init; }
         public string? OutputFile { get; init; }
@@ -248,6 +249,7 @@ namespace Bicep.RpcClient.Models
     public class OutputDocsRequest : System.IEquatable<Bicep.RpcClient.Models.OutputDocsRequest>
     {
         public OutputDocsRequest(string Path, string? TemplateFile, string? TemplateRoot, System.Collections.Generic.Dictionary<string, string>? Custom, bool NoRestore) { }
+        public string? ConfigFilePath { get; init; }
         public System.Collections.Generic.Dictionary<string, string>? Custom { get; init; }
         public bool NoRestore { get; init; }
         public string Path { get; init; }

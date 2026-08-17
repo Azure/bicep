@@ -25,13 +25,30 @@ public class DocsGenerateCommand(
 {
     public async Task<int> RunAsync(DocsGenerateArguments arguments, CancellationToken cancellationToken = default)
     {
+        var configuration = DocsConfigurationLoader.Load(arguments.ConfigFilePath, argumentsResolver, fileSystem);
+        var effectiveArguments = arguments with
+        {
+            InputFile = DocsConfigurationLoader.ResolveModulePath(
+                arguments.InputFile,
+                configuration,
+                argumentsResolver,
+                fileSystem),
+        };
         var inputOutputPairs = argumentsResolver.ResolveFilePatternInputOutputArguments(
-            arguments,
-            (_, _) => "README.md");
+            effectiveArguments,
+            (_, _) => configuration.Configuration.Output.File);
         DocsCommand.ValidateOutputPaths(inputOutputPairs);
-        var templateFile = arguments.TemplateFile is null ? null : argumentsResolver.PathToUri(arguments.TemplateFile);
-        var templateRoot = DocsCommand.ResolveTemplateRoot(arguments.TemplateRoot, argumentsResolver, fileSystem);
-        var customValues = arguments.CustomValues;
+        var templateFile = DocsConfigurationLoader.ResolveTemplateFile(
+            arguments.TemplateFile,
+            configuration,
+            argumentsResolver,
+            fileSystem);
+        var templateRoot = DocsConfigurationLoader.ResolveTemplateRoot(
+            arguments.TemplateRoot,
+            configuration,
+            argumentsResolver,
+            fileSystem);
+        var customValues = DocsConfigurationLoader.MergeCustomValues(configuration, arguments.CustomValues);
         var workspace = new ActiveSourceFileSet();
         var sarifResults = new List<(
             Bicep.IO.Abstraction.IOUri SourceUri,
@@ -50,6 +67,7 @@ public class DocsGenerateCommand(
                 templateFile,
                 templateRoot,
                 customValues,
+                configuration.Configuration.Examples,
                 arguments.NoRestore,
                 arguments.DiagnosticsFormat,
                 workspace,
@@ -124,8 +142,12 @@ public class DocsGenerateCommand(
         };
         var inputFileArgument = new System.CommandLine.Argument<string?>(Constants.Argument.InputFile)
         {
-            Description = "The path to the input .bicep file.",
+            Description = "The path to an input .bicep file or module directory.",
             Arity = ArgumentArity.ZeroOrOne,
+        };
+        var configFilePathOption = new System.CommandLine.Option<string?>(Option.ConfigFilePath)
+        {
+            Description = "Loads docs configuration from a JSON file.",
         };
         var templateFileOption = new System.CommandLine.Option<string?>(Option.TemplateFile)
         {
@@ -169,6 +191,7 @@ public class DocsGenerateCommand(
         };
 
         command.Add(inputFileArgument);
+        command.Add(configFilePathOption);
         command.Add(templateFileOption);
         command.Add(templateRootOption);
         command.Add(customTemplateValueOption);
@@ -201,6 +224,7 @@ public class DocsGenerateCommand(
             var arguments = new DocsGenerateArguments(
                 result.GetValue(inputFileArgument),
                 filePattern,
+                result.GetValue(configFilePathOption),
                 result.GetValue(templateFileOption),
                 result.GetValue(templateRootOption),
                 customValues,

@@ -223,6 +223,70 @@ output bar string = foo
     }
 
     [TestMethod]
+    public async Task Docs_methods_apply_configuration_and_request_overrides()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/module/main.bicep"] = "metadata name = 'RPC Config'",
+            ["/module/examples/default/main.bicep"] = "metadata name = 'ignored'",
+            ["/template.scriban"] = "{{ module.name }}|{{ custom.owner }}|{{ module.usageExamples.size }}",
+            ["/docs.json"] = """
+                {
+                  "entryPoint": "main.bicep",
+                  "output": {
+                    "file": "RPC.md"
+                  },
+                  "template": {
+                    "file": "template.scriban",
+                    "values": {
+                      "owner": "Config"
+                    }
+                  },
+                  "examples": {
+                    "sources": []
+                  }
+                }
+                """,
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var output = await client.OutputDocs(
+                    new(
+                        "/module",
+                        null,
+                        null,
+                        new() { ["owner"] = "Request" },
+                        NoRestore: false)
+                    {
+                        ConfigFilePath = "/docs.json",
+                    },
+                    token);
+                var generated = await client.GenerateDocs(
+                    new(
+                        ["/module"],
+                        null,
+                        null,
+                        new() { ["owner"] = "Request" },
+                        null,
+                        NoRestore: false)
+                    {
+                        ConfigFilePath = "/docs.json",
+                    },
+                    token);
+
+                output.Result.Success.Should().BeTrue();
+                output.Result.Contents.Should().Be("RPC Config|Request|0\n");
+                generated.Results.Should().ContainSingle();
+                generated.Results[0].Success.Should().BeTrue();
+                generated.Results[0].OutputPath.Should().Be(fileSystem.Path.GetFullPath("/module/RPC.md"));
+                fileSystem.File.ReadAllText("/module/RPC.md").Should().Be(output.Result.Contents);
+            });
+    }
+
+    [TestMethod]
     public async Task GenerateDocs_writes_successful_modules_and_continues_failures()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
@@ -307,6 +371,27 @@ output bar string = foo
                     token);
                 invalidTemplate.Result.Success.Should().BeFalse();
                 invalidTemplate.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS003");
+
+                var missingConfig = await client.OutputDocs(
+                    new("/main.bicep", null, null, null, NoRestore: false)
+                    {
+                        ConfigFilePath = "/missing.json",
+                    },
+                    token);
+                missingConfig.Result.Success.Should().BeFalse();
+                missingConfig.Result.Diagnostics.Should().ContainSingle(diagnostic =>
+                    diagnostic.Code == "DOCS001" &&
+                    diagnostic.Message.Contains("does not exist"));
+                var missingGenerateConfig = await client.GenerateDocs(
+                    new(["/main.bicep", "/a.bicep"], null, null, null, null, NoRestore: false)
+                    {
+                        ConfigFilePath = "/missing.json",
+                    },
+                    token);
+                missingGenerateConfig.Results.Should().HaveCount(2);
+                missingGenerateConfig.Results.Should().OnlyContain(result =>
+                    !result.Success &&
+                    result.Diagnostics.Any(diagnostic => diagnostic.Code == "DOCS001"));
 
                 var missingTemplateRoot = await client.OutputDocs(
                     new("/main.bicep", null, "/missing", null, NoRestore: false),

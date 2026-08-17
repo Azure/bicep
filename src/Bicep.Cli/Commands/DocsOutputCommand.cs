@@ -21,15 +21,30 @@ public class DocsOutputCommand(
 {
     public async Task<int> RunAsync(DocsOutputArguments arguments, CancellationToken cancellationToken = default)
     {
-        var module = argumentsResolver.ResolveInputArguments(arguments);
+        var configuration = DocsConfigurationLoader.Load(arguments.ConfigFilePath, argumentsResolver, fileSystem);
+        var modulePath = DocsConfigurationLoader.ResolveModulePath(
+            arguments.InputFile,
+            configuration,
+            argumentsResolver,
+            fileSystem);
+        var module = argumentsResolver.ResolveInputArguments(arguments with { InputFile = modulePath });
         ArgumentHelper.ValidateBicepFile(module);
 
         var aggregateSarif = arguments.DiagnosticsFormat is DiagnosticsFormat.Sarif;
         var result = await runner.RenderAsync(
             module,
-            arguments.TemplateFile is null ? null : argumentsResolver.PathToUri(arguments.TemplateFile),
-            DocsCommand.ResolveTemplateRoot(arguments.TemplateRoot, argumentsResolver, fileSystem),
-            arguments.CustomValues,
+            DocsConfigurationLoader.ResolveTemplateFile(
+                arguments.TemplateFile,
+                configuration,
+                argumentsResolver,
+                fileSystem),
+            DocsConfigurationLoader.ResolveTemplateRoot(
+                arguments.TemplateRoot,
+                configuration,
+                argumentsResolver,
+                fileSystem),
+            DocsConfigurationLoader.MergeCustomValues(configuration, arguments.CustomValues),
+            configuration.Configuration.Examples,
             arguments.NoRestore,
             arguments.DiagnosticsFormat,
             logDiagnostics: !aggregateSarif,
@@ -79,8 +94,12 @@ public class DocsOutputCommand(
         };
         var inputFileArgument = new System.CommandLine.Argument<string?>(Constants.Argument.InputFile)
         {
-            Description = "The path to the input .bicep file.",
+            Description = "The path to an input .bicep file or module directory.",
             Arity = ArgumentArity.ExactlyOne,
+        };
+        var configFilePathOption = new System.CommandLine.Option<string?>(Option.ConfigFilePath)
+        {
+            Description = "Loads docs configuration from a JSON file.",
         };
         var templateFileOption = new System.CommandLine.Option<string?>(Option.TemplateFile)
         {
@@ -112,6 +131,7 @@ public class DocsOutputCommand(
         };
 
         command.Add(inputFileArgument);
+        command.Add(configFilePathOption);
         command.Add(templateFileOption);
         command.Add(templateRootOption);
         command.Add(customTemplateValueOption);
@@ -129,6 +149,7 @@ public class DocsOutputCommand(
                 customTemplateValueFilePathOption);
             var arguments = new DocsOutputArguments(
                 result.GetValue(inputFileArgument),
+                result.GetValue(configFilePathOption),
                 result.GetValue(templateFileOption),
                 result.GetValue(templateRootOption),
                 customValues,

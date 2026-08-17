@@ -17,6 +17,11 @@ public record BicepDocumentationGenerationOptions(
     IReadOnlyDictionary<string, string>? CustomValues)
 {
     /// <summary>
+    /// Gets usage-example discovery settings.
+    /// </summary>
+    public BicepDocumentationExamplesConfiguration Examples { get; init; } = new();
+
+    /// <summary>
     /// Gets the built-in Markdown options.
     /// </summary>
     public static BicepDocumentationGenerationOptions Default { get; } = new(

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
@@ -269,17 +270,132 @@ public class BicepDocumentationGeneratorTests
     }
 
     [TestMethod]
+    public async Task Generate_WithConfiguredExampleSources_UsesOptionsDuringModelConstruction()
+    {
+        var compiler = TestCompiler.ForMockFileSystemCompilation();
+        var result = await compiler.Compile(
+            ("main.bicep", "metadata name = 'Configured examples'"),
+            ("examples/default/main.bicep", "metadata name = 'default'"),
+            ("samples/custom/example.bicep", "metadata name = 'custom'"));
+        compiler.FileSet.AddFile(
+            "readme.scriban",
+            "{{ for example in module.usageExamples }}{{ example.name }}{{ end }}");
+        var generator = compiler.GetService<IBicepDocumentationGenerator>();
+        var options = new BicepDocumentationGenerationOptions(
+            TemplateFile: compiler.FileSet.GetUri("readme.scriban"),
+            TemplateRoot: null,
+            CustomValues: null)
+        {
+            Examples = new()
+            {
+                Sources =
+                [
+                    new()
+                    {
+                        Path = "samples",
+                        Include = ["**/*.bicep"],
+                    },
+                ],
+            },
+        };
+
+        var rendered = generator.Generate(result.Compilation, options);
+
+        rendered.Should().Be("custom\n");
+    }
+
+    [TestMethod]
     public void GenerationOptions_EqualityAndWith_BehaveAsValueRecord()
     {
         var options = BicepDocumentationGenerationOptions.Default;
         var clone = options with { };
         var different = options with { TemplateFile = IOUri.FromFilePath(Path.GetFullPath("readme.scriban")) };
+        var differentExamples = options with
+        {
+            Examples = new() { Sources = [] },
+        };
 
         options.Should().Be(clone);
         (options == clone).Should().BeTrue();
         options.Should().NotBe(different);
+        options.Should().NotBe(differentExamples);
         options.GetHashCode().Should().Be(clone.GetHashCode());
         options.ToString().Should().Contain("TemplateFile");
+    }
+
+    [TestMethod]
+    public void DocumentationConfiguration_DefaultsAreCompleteAndReplaceable()
+    {
+        var configuration = new BicepDocumentationConfiguration();
+        var clone = configuration with { };
+        var withoutExamples = configuration with
+        {
+            Examples = configuration.Examples with { Sources = [] },
+        };
+        var custom = new BicepDocumentationConfiguration
+        {
+            EntryPoint = "entry.bicep",
+            Output = new() { File = "DOCS.md" },
+            Template = new()
+            {
+                File = "readme.scriban",
+                IncludeRoot = "templates",
+                Values = ImmutableSortedDictionary<string, string>.Empty.Add("owner", "Platform"),
+            },
+            Examples = new()
+            {
+                Sources =
+                [
+                    new()
+                    {
+                        Path = "samples",
+                        Include = ["**/*.demo"],
+                        Exclude = ["**/ignored/**"],
+                    },
+                ],
+                Reassignments =
+                [
+                    new()
+                    {
+                        From = new()
+                        {
+                            Include = ["**/parent/**"],
+                            Exclude = ["**/ignored/**"],
+                        },
+                        To = "child",
+                    },
+                ],
+            },
+        };
+
+        configuration.EntryPoint.Should().Be("main.bicep");
+        configuration.Output.File.Should().Be("README.md");
+        configuration.Template.File.Should().BeNull();
+        configuration.Template.IncludeRoot.Should().BeNull();
+        configuration.Template.Values.Should().BeEmpty();
+        configuration.Examples.Sources.Should().HaveCount(2);
+        configuration.Examples.Reassignments.Should().BeEmpty();
+        configuration.Should().Be(clone);
+        configuration.Should().NotBe(withoutExamples);
+        custom.EntryPoint.Should().Be("entry.bicep");
+        custom.Output.File.Should().Be("DOCS.md");
+        custom.Template.File.Should().Be("readme.scriban");
+        custom.Template.IncludeRoot.Should().Be("templates");
+        custom.Template.Values.Should().ContainKey("owner");
+        custom.Examples.Sources.Single().Path.Should().Be("samples");
+        custom.Examples.Sources.Single().Include.Should().ContainSingle();
+        custom.Examples.Sources.Single().Exclude.Should().ContainSingle();
+        custom.Examples.Reassignments.Single().From.Include.Should().ContainSingle();
+        custom.Examples.Reassignments.Single().From.Exclude.Should().ContainSingle();
+        custom.Examples.Reassignments.Single().To.Should().Be("child");
+        custom.Should().Be(custom with { });
+        (custom.Output == (custom.Output with { })).Should().BeTrue();
+        (custom.Template == (custom.Template with { })).Should().BeTrue();
+        (custom.Examples.Sources.Single() == (custom.Examples.Sources.Single() with { })).Should().BeTrue();
+        (custom.Examples.Reassignments.Single() == (custom.Examples.Reassignments.Single() with { })).Should().BeTrue();
+        (custom.Examples.Reassignments.Single().From == (custom.Examples.Reassignments.Single().From with { })).Should().BeTrue();
+        custom.Output.GetHashCode().Should().Be((custom.Output with { }).GetHashCode());
+        custom.Template.ToString().Should().Contain("readme.scriban");
     }
 
     [TestMethod]
@@ -816,6 +932,20 @@ public class BicepDocumentationGeneratorTests
         model.Custom.Should().BeEmpty();
     }
 
+    [TestMethod]
+    public void Generate_LegacyInterfaceImplementationUsesCompatibilityModelBuilder()
+    {
+        IBicepDocumentationGenerator generator = new LegacyDocumentationGenerator();
+        var options = new BicepDocumentationGenerationOptions(
+            TemplateFile: null,
+            TemplateRoot: null,
+            CustomValues: new Dictionary<string, string> { ["value"] = "configured" });
+
+        var rendered = generator.Generate(null!, options);
+
+        rendered.Should().Be("configured");
+    }
+
     private static BicepDocumentationModel MinimalModel() => new(
         Name: "minimal",
         Description: null,
@@ -837,5 +967,25 @@ public class BicepDocumentationGeneratorTests
         using var reader = new StreamReader(stream);
 
         return reader.ReadToEnd();
+    }
+
+    private sealed class LegacyDocumentationGenerator : IBicepDocumentationGenerator
+    {
+        public BicepDocumentationModel BuildModel(
+            Bicep.Core.Semantics.Compilation compilation,
+            IReadOnlyDictionary<string, string>? customValues = null,
+            CancellationToken cancellationToken = default) =>
+            MinimalModel() with
+            {
+                Custom = customValues is null
+                    ? ImmutableSortedDictionary<string, string>.Empty
+                    : customValues.ToImmutableSortedDictionary(StringComparer.Ordinal),
+            };
+
+        public string Render(
+            BicepDocumentationModel model,
+            BicepDocumentationGenerationOptions? options = null,
+            CancellationToken cancellationToken = default) =>
+            model.Custom["value"];
     }
 }

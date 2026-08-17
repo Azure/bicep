@@ -412,6 +412,31 @@ public class BicepDocumentationTypeAnalyzerTests
     }
 
     [TestMethod]
+    public async Task BuildModel_SecureObjectProperty_ExpandsSchemaWithoutValues()
+    {
+        var compiler = TestCompiler.ForMockFileSystemCompilation();
+        var result = await compiler.Compile("""
+            type settings = {
+              @secure()
+              protectedSettings: {
+                token: string
+              }
+            }
+            param configuration settings
+            """);
+
+        result.Diagnostics.Should().NotContain(d => d.Level == Bicep.Core.Diagnostics.DiagnosticLevel.Error);
+
+        var generator = compiler.GetService<IBicepDocumentationGenerator>();
+        var model = generator.BuildModel(result.Compilation);
+        var protectedSettings = model.Parameters.Single().NestedProperties.Single();
+
+        protectedSettings.IsSecure.Should().BeTrue();
+        protectedSettings.NestedProperties.Select(property => property.Name).Should().Equal("token");
+        protectedSettings.NestedProperties.Single().DefaultValue.Should().BeNull();
+    }
+
+    [TestMethod]
     public async Task BuildModel_DeeplyNestedObjectParameter_StopsExpandingBeyondMaxDepthAndUsesObjectTypeName()
     {
         var compiler = TestCompiler.ForMockFileSystemCompilation();

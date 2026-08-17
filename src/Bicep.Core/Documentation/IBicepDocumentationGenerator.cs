@@ -24,6 +24,19 @@ public interface IBicepDocumentationGenerator
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Builds the documentation model using generation options.
+    /// </summary>
+    /// <param name="compilation">A successfully-compiled module.</param>
+    /// <param name="options">Generation options.</param>
+    /// <param name="cancellationToken">A token that cancels model construction.</param>
+    /// <returns>The typed documentation model.</returns>
+    BicepDocumentationModel BuildModelWithOptions(
+        Compilation compilation,
+        BicepDocumentationGenerationOptions options,
+        CancellationToken cancellationToken = default) =>
+        BuildModel(compilation, options.CustomValues, cancellationToken);
+
+    /// <summary>
     /// Renders a previously-built documentation model using the built-in template or a caller-supplied template file.
     /// </summary>
     /// <param name="model">The documentation model.</param>
@@ -58,7 +71,8 @@ public static class BicepDocumentationGeneratorExtensions
         BicepDocumentationGenerationOptions? options = null,
         CancellationToken cancellationToken = default)
     {
-        var model = generator.BuildModel(compilation, options?.CustomValues, cancellationToken);
+        options ??= BicepDocumentationGenerationOptions.Default;
+        var model = generator.BuildModelWithOptions(compilation, options, cancellationToken);
         return generator.Render(model, options, cancellationToken);
     }
 }

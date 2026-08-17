@@ -234,25 +234,4 @@ public static class DocsCommand
         }
     }
 
-    internal static IOUri? ResolveTemplateRoot(
-        string? path,
-        InputOutputArgumentsResolver resolver,
-        IFileSystem fileSystem)
-    {
-        if (path is null)
-        {
-            return null;
-        }
-
-        var fullPath = resolver.GetFullPath(path);
-        if (!fileSystem.Directory.Exists(fullPath))
-        {
-            throw new CommandLineException($"The template root directory \"{fullPath}\" does not exist.");
-        }
-
-        var normalizedPath = fileSystem.Path.EndsInDirectorySeparator(fullPath)
-            ? fullPath
-            : fullPath + fileSystem.Path.DirectorySeparatorChar;
-        return resolver.PathToUri(normalizedPath);
-    }
 }

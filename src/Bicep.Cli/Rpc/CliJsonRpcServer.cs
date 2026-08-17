@@ -280,16 +280,36 @@ public class CliJsonRpcServer(
     public async Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken)
     {
         var results = ImmutableArray.CreateBuilder<DocsResult>();
-        var outputFile = request.OutputFile ?? "README.md";
         var failures = new Dictionary<int, DocsResult>();
         var validTargets = new List<(int Index, string RequestedPath, IOUri InputUri)>();
+        DocsConfigurationContext configuration;
+        try
+        {
+            configuration = DocsConfigurationLoader.Load(
+                request.ConfigFilePath,
+                inputOutputArgumentsResolver,
+                fileSystem);
+        }
+        catch (BicepException exception)
+        {
+            return new(request.Paths
+                .Select(path => CreateDocsFailure(path, "DOCS001", exception.Message))
+                .ToImmutableArray());
+        }
+
+        var outputFile = request.OutputFile ?? configuration.Configuration.Output.File;
 
         for (var index = 0; index < request.Paths.Length; index++)
         {
             var path = request.Paths[index];
             try
             {
-                var inputUri = inputOutputArgumentsResolver.PathToUri(path);
+                var modulePath = DocsConfigurationLoader.ResolveModulePath(
+                    path,
+                    configuration,
+                    inputOutputArgumentsResolver,
+                    fileSystem);
+                var inputUri = inputOutputArgumentsResolver.PathToUri(modulePath!);
                 if (!inputUri.HasBicepExtension())
                 {
                     failures[index] = CreateDocsFailure(path, "DOCS001", $"Invalid Bicep file path: {inputUri}");
@@ -376,7 +396,8 @@ public class CliJsonRpcServer(
                 request.Custom,
                 request.NoRestore,
                 cancellationToken,
-                workspace);
+                workspace,
+                configuration);
 
             if (!result.Success || result.Contents is null)
             {
@@ -399,15 +420,31 @@ public class CliJsonRpcServer(
     }
 
     /// <inheritdoc/>
-    public async Task<OutputDocsResponse> OutputDocs(OutputDocsRequest request, CancellationToken cancellationToken) =>
-        new(await RenderDocs(
+    public async Task<OutputDocsResponse> OutputDocs(OutputDocsRequest request, CancellationToken cancellationToken)
+    {
+        DocsConfigurationContext configuration;
+        try
+        {
+            configuration = DocsConfigurationLoader.Load(
+                request.ConfigFilePath,
+                inputOutputArgumentsResolver,
+                fileSystem);
+        }
+        catch (BicepException exception)
+        {
+            return new(CreateDocsFailure(request.Path, "DOCS001", exception.Message));
+        }
+
+        return new(await RenderDocs(
             request.Path,
             request.TemplateFile,
             request.TemplateRoot,
             request.Custom,
             request.NoRestore,
             cancellationToken,
-            workspace: null));
+            workspace: null,
+            configuration: configuration));
+    }
 
     private async Task<DocsResult> RenderDocs(
         string path,
@@ -416,19 +453,33 @@ public class CliJsonRpcServer(
         IReadOnlyDictionary<string, string>? custom,
         bool noRestore,
         CancellationToken cancellationToken,
-        ActiveSourceFileSet? workspace = null)
+        ActiveSourceFileSet? workspace,
+        DocsConfigurationContext configuration)
     {
         IOUri inputUri;
         try
         {
-            inputUri = inputOutputArgumentsResolver.PathToUri(path);
+            var modulePath = DocsConfigurationLoader.ResolveModulePath(
+                path,
+                configuration,
+                inputOutputArgumentsResolver,
+                fileSystem);
+            inputUri = inputOutputArgumentsResolver.PathToUri(modulePath!);
         }
         catch (Exception exception) when (exception is BicepException or IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
         {
             return CreateDocsFailure(path, "DOCS001", exception.Message);
         }
 
-        return await RenderDocs(inputUri, templateFile, templateRoot, custom, noRestore, cancellationToken, workspace);
+        return await RenderDocs(
+            inputUri,
+            templateFile,
+            templateRoot,
+            custom,
+            noRestore,
+            cancellationToken,
+            workspace,
+            configuration);
     }
 
     private async Task<DocsResult> RenderDocs(
@@ -438,7 +489,8 @@ public class CliJsonRpcServer(
         IReadOnlyDictionary<string, string>? custom,
         bool noRestore,
         CancellationToken cancellationToken,
-        ActiveSourceFileSet? workspace = null)
+        ActiveSourceFileSet? workspace,
+        DocsConfigurationContext configuration)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -451,9 +503,22 @@ public class CliJsonRpcServer(
         try
         {
             options = new(
-                templateFile is null ? null : inputOutputArgumentsResolver.PathToUri(templateFile),
-                DocsCommand.ResolveTemplateRoot(templateRoot, inputOutputArgumentsResolver, fileSystem),
-                custom);
+                DocsConfigurationLoader.ResolveTemplateFile(
+                    templateFile,
+                    configuration,
+                    inputOutputArgumentsResolver,
+                    fileSystem),
+                DocsConfigurationLoader.ResolveTemplateRoot(
+                    templateRoot,
+                    configuration,
+                    inputOutputArgumentsResolver,
+                    fileSystem),
+                DocsConfigurationLoader.MergeCustomValues(
+                    configuration,
+                    custom ?? ImmutableDictionary<string, string>.Empty))
+            {
+                Examples = configuration.Configuration.Examples,
+            };
         }
         catch (BicepException exception)
         {

@@ -44,6 +44,7 @@ public class DocsCommandRunner(
         IOUri? templateFile,
         IOUri? templateRoot,
         IReadOnlyDictionary<string, string> customValues,
+        BicepDocumentationExamplesConfiguration examples,
         bool noRestore,
         DiagnosticsFormat? diagnosticsFormat,
         ActiveSourceFileSet? workspace = null,
@@ -96,7 +97,10 @@ public class DocsCommandRunner(
 
         try
         {
-            var options = new BicepDocumentationGenerationOptions(templateFile, templateRoot, customValues);
+            var options = new BicepDocumentationGenerationOptions(templateFile, templateRoot, customValues)
+            {
+                Examples = examples,
+            };
             return new DocsRenderResult.Succeeded(
                 inputUri,
                 compilation,

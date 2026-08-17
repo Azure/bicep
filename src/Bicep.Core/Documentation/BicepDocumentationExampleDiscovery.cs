@@ -5,55 +5,36 @@ using System.Collections.Immutable;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.IO.Abstraction;
+using Microsoft.Extensions.FileSystemGlobbing;
 
 namespace Bicep.Core.Documentation;
 
 internal static class BicepDocumentationExampleDiscovery
 {
-    private static readonly ImmutableArray<string> CategoryFolderNames = ["examples", "tests"];
     private const int MaxDirectoryDepth = 100;
 
     public static ImmutableArray<BicepDocumentationUsageExample> Discover(
         IDirectoryHandle moduleRoot,
+        Func<IOUri, bool>? shouldSkip = null) =>
+        Discover(moduleRoot, new(), shouldSkip);
+
+    public static ImmutableArray<BicepDocumentationUsageExample> Discover(
+        IDirectoryHandle moduleRoot,
+        BicepDocumentationExamplesConfiguration configuration,
         Func<IOUri, bool>? shouldSkip = null)
     {
         try
         {
-            var examples = ImmutableArray.CreateBuilder<BicepDocumentationUsageExample>();
+            var sources = configuration.Sources.IsDefault
+                ? new BicepDocumentationExamplesConfiguration().Sources
+                : configuration.Sources;
+            var discovered = DiscoverLocalFiles(moduleRoot, sources, shouldSkip);
+            ApplyParentReassignments(moduleRoot, configuration, discovered);
+            ApplyChildReassignments(moduleRoot, configuration, sources, discovered, shouldSkip);
 
-            foreach (var categoryFolderName in CategoryFolderNames)
-            {
-                var categoryRoot = moduleRoot.GetDirectory(categoryFolderName);
-                if (!categoryRoot.Exists())
-                {
-                    continue;
-                }
-
-                foreach (var file in EnumerateBicepFiles(categoryRoot, categoryFolderName, shouldSkip))
-                {
-                    var relativePath = file.Uri.GetPathRelativeTo(moduleRoot.Uri);
-                    string contents;
-                    try
-                    {
-                        contents = file.ReadAllText();
-                    }
-                    catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-                    {
-                        throw new BicepDocumentationException($"Unable to read usage example '{file.Uri}': {exception.Message}", exception);
-                    }
-
-                    var metadata = GetStringMetadata(contents);
-                    var name = metadata.GetValueOrDefault("name") ?? GetExampleName(categoryRoot.Uri, file.Uri);
-
-                    examples.Add(new BicepDocumentationUsageExample(
-                        name,
-                        relativePath,
-                        metadata.GetValueOrDefault("description") ?? TryGetLeadingComment(contents),
-                        contents.TrimEnd()));
-                }
-            }
-
-            return BicepDocumentationOrdering.SortByName(examples.ToImmutable(), e => e.RelativePath);
+            return BicepDocumentationOrdering.SortByName(
+                discovered.Values.Select(item => BuildExample(moduleRoot, item)).ToImmutableArray(),
+                example => example.RelativePath);
         }
         catch (BicepDocumentationException)
         {
@@ -67,9 +48,166 @@ internal static class BicepDocumentationExampleDiscovery
         }
     }
 
-    private static IEnumerable<IFileHandle> EnumerateBicepFiles(
+    private static Dictionary<IOUri, DiscoveredFile> DiscoverLocalFiles(
+        IDirectoryHandle moduleRoot,
+        ImmutableArray<BicepDocumentationExampleSource> sources,
+        Func<IOUri, bool>? shouldSkip)
+    {
+        var discovered = new Dictionary<IOUri, DiscoveredFile>();
+        foreach (var source in sources)
+        {
+            if (source is null || string.IsNullOrWhiteSpace(source.Path))
+            {
+                throw new BicepDocumentationException("Usage-example source paths cannot be empty.");
+            }
+
+            var sourceRoot = moduleRoot.GetDirectory(source.Path);
+            if (!sourceRoot.Exists())
+            {
+                continue;
+            }
+
+            var matcher = CreateMatcher(source.Include, source.Exclude);
+            foreach (var file in EnumerateFiles(sourceRoot, shouldSkip))
+            {
+                var sourceRelativePath = file.Uri.GetPathRelativeTo(sourceRoot.Uri);
+                if (matcher.Match(sourceRelativePath).HasMatches)
+                {
+                    discovered.TryAdd(file.Uri, new(file, sourceRoot.Uri, sourceRelativePath));
+                }
+            }
+        }
+
+        return discovered;
+    }
+
+    private static Matcher CreateMatcher(ImmutableArray<string> includes, ImmutableArray<string> excludes)
+    {
+        try
+        {
+            var matcher = new Matcher(StringComparison.OrdinalIgnoreCase);
+            foreach (var include in includes.IsDefault ? [] : includes)
+            {
+                matcher.AddInclude(include);
+            }
+
+            foreach (var exclude in excludes.IsDefault ? [] : excludes)
+            {
+                matcher.AddExclude(exclude);
+            }
+
+            return matcher;
+        }
+        catch (ArgumentException exception)
+        {
+            throw new BicepDocumentationException($"Invalid usage-example glob: {exception.Message}", exception);
+        }
+    }
+
+    private static void ApplyParentReassignments(
+        IDirectoryHandle moduleRoot,
+        BicepDocumentationExamplesConfiguration configuration,
+        Dictionary<IOUri, DiscoveredFile> discovered)
+    {
+        if (configuration.Reassignments.IsDefaultOrEmpty)
+        {
+            return;
+        }
+
+        foreach (var reassignment in configuration.Reassignments)
+        {
+            ValidateReassignment(reassignment);
+            if (!moduleRoot.GetDirectory(reassignment.To).Exists())
+            {
+                continue;
+            }
+
+            var matcher = CreateMatcher(reassignment.From.Include, reassignment.From.Exclude);
+            foreach (var fileUri in discovered
+                .Where(item => matcher.Match(item.Value.SourceRelativePath).HasMatches)
+                .Select(item => item.Key)
+                .ToArray())
+            {
+                discovered.Remove(fileUri);
+            }
+        }
+    }
+
+    private static void ApplyChildReassignments(
+        IDirectoryHandle moduleRoot,
+        BicepDocumentationExamplesConfiguration configuration,
+        ImmutableArray<BicepDocumentationExampleSource> sources,
+        Dictionary<IOUri, DiscoveredFile> discovered,
+        Func<IOUri, bool>? shouldSkip)
+    {
+        if (configuration.Reassignments.IsDefaultOrEmpty)
+        {
+            return;
+        }
+
+        if (moduleRoot.GetParent() is not { } parentRoot)
+        {
+            return;
+        }
+
+        ImmutableDictionary<IOUri, DiscoveredFile>? parentFiles = null;
+        foreach (var reassignment in configuration.Reassignments)
+        {
+            ValidateReassignment(reassignment);
+            if (!parentRoot.GetDirectory(reassignment.To).Uri.Equals(moduleRoot.Uri))
+            {
+                continue;
+            }
+
+            parentFiles ??= DiscoverLocalFiles(parentRoot, sources, shouldSkip).ToImmutableDictionary();
+            var matcher = CreateMatcher(reassignment.From.Include, reassignment.From.Exclude);
+            foreach (var item in parentFiles.Where(item => matcher.Match(item.Value.SourceRelativePath).HasMatches))
+            {
+                discovered.TryAdd(item.Key, item.Value);
+            }
+        }
+    }
+
+    private static void ValidateReassignment(BicepDocumentationExampleReassignment reassignment)
+    {
+        if (reassignment is null ||
+            reassignment.From is null ||
+            string.IsNullOrWhiteSpace(reassignment.To) ||
+            reassignment.To.IndexOfAny(['/', '\\']) >= 0 ||
+            reassignment.To is "." or "..")
+        {
+            throw new BicepDocumentationException("Usage-example reassignments must identify one child module directory.");
+        }
+    }
+
+    private static BicepDocumentationUsageExample BuildExample(
+        IDirectoryHandle moduleRoot,
+        DiscoveredFile discovered)
+    {
+        string contents;
+        try
+        {
+            contents = discovered.File.ReadAllText();
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            throw new BicepDocumentationException(
+                $"Unable to read usage example '{discovered.File.Uri}': {exception.Message}",
+                exception);
+        }
+
+        var metadata = GetStringMetadata(contents);
+        var name = metadata.GetValueOrDefault("name") ?? GetExampleName(discovered.SourceRoot, discovered.File.Uri);
+
+        return new(
+            name,
+            discovered.File.Uri.GetPathRelativeTo(moduleRoot.Uri),
+            metadata.GetValueOrDefault("description") ?? TryGetLeadingComment(contents),
+            contents.TrimEnd());
+    }
+
+    private static IEnumerable<IFileHandle> EnumerateFiles(
         IDirectoryHandle directory,
-        string categoryFolderName,
         Func<IOUri, bool>? shouldSkip)
     {
         var pending = new Stack<(IDirectoryHandle Directory, int Depth)>();
@@ -83,12 +221,12 @@ internal static class BicepDocumentationExampleDiscovery
                     $"Usage example discovery exceeded the maximum directory depth of {MaxDirectoryDepth} under '{directory.Uri}'.");
             }
 
-            foreach (var file in current.Directory.EnumerateFiles("*")
-                .Where(file =>
-                    shouldSkip?.Invoke(file.Uri) != true &&
-                    IsExampleEntrypoint(file, categoryFolderName, current.Depth)))
+            foreach (var file in current.Directory.EnumerateFiles("*"))
             {
-                yield return file;
+                if (shouldSkip?.Invoke(file.Uri) != true)
+                {
+                    yield return file;
+                }
             }
 
             foreach (var subdirectory in current.Directory.EnumerateDirectories("*"))
@@ -101,24 +239,10 @@ internal static class BicepDocumentationExampleDiscovery
         }
     }
 
-    private static bool IsExampleEntrypoint(IFileHandle file, string categoryFolderName, int depth)
+    private static string GetExampleName(IOUri sourceRoot, IOUri file)
     {
-        var fileName = file.Uri.GetFileName();
-        if (!fileName.EndsWith(".bicep", StringComparison.OrdinalIgnoreCase) ||
-            fileName.StartsWith("dependencies", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        return categoryFolderName.Equals("tests", StringComparison.OrdinalIgnoreCase)
-            ? fileName.EndsWith(".test.bicep", StringComparison.OrdinalIgnoreCase)
-            : depth == 0 || fileName.Equals("main.bicep", StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static string GetExampleName(IOUri categoryRoot, IOUri file)
-    {
-        var relativeToCategory = file.GetPathRelativeTo(categoryRoot);
-        var segments = relativeToCategory.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        var relativeToSource = file.GetPathRelativeTo(sourceRoot);
+        var segments = relativeToSource.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
         if (segments.Length > 1)
         {
@@ -126,8 +250,9 @@ internal static class BicepDocumentationExampleDiscovery
         }
 
         var fileName = segments[^1];
-
-        return fileName[..^".bicep".Length];
+        return fileName.EndsWith(".bicep", StringComparison.OrdinalIgnoreCase)
+            ? fileName[..^".bicep".Length]
+            : fileName;
     }
 
     private static ImmutableDictionary<string, string> GetStringMetadata(string contents)
@@ -135,13 +260,11 @@ internal static class BicepDocumentationExampleDiscovery
         var metadataValues = ImmutableDictionary.CreateBuilder<string, string>(LanguageConstants.IdentifierComparer);
         foreach (var metadata in new Parser(contents).Program().Declarations.OfType<MetadataDeclarationSyntax>())
         {
-            if (metadata.Value is not StringSyntax stringSyntax ||
-                stringSyntax.TryGetLiteralValue() is not { } value)
+            if (metadata.Value is StringSyntax stringSyntax &&
+                stringSyntax.TryGetLiteralValue() is { } value)
             {
-                continue;
+                metadataValues[metadata.Name.IdentifierName] = value;
             }
-
-            metadataValues[metadata.Name.IdentifierName] = value;
         }
 
         return metadataValues.ToImmutable();
@@ -159,4 +282,9 @@ internal static class BicepDocumentationExampleDiscovery
 
         return leadingComment.Length > 0 ? string.Join(' ', leadingComment) : null;
     }
+
+    private sealed record DiscoveredFile(
+        IFileHandle File,
+        IOUri SourceRoot,
+        string SourceRelativePath);
 }

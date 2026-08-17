@@ -112,6 +112,349 @@ public class DocsCommandTests : TestBase
     }
 
     [TestMethod]
+    public async Task Config_AppliesEntrypointOutputTemplateValuesSourcesAndCliPrecedence()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [
+                new("module.bicep", "metadata name = 'Configured module'"),
+                new("templates/readme.scriban", "{{ include \"_header.md\" }}\n{{ module.name }}|{{ custom.owner }}|{{ custom.configOnly }}|{{ for example in module.usageExamples }}{{ example.name }}{{ end }}"),
+                new("templates/_header.md", "Header"),
+                new("override.scriban", "Override|{{ custom.configOnly }}"),
+                new("samples/kept/example.demo", "metadata name = 'sample'"),
+                new("samples/ignored/example.demo", "metadata name = 'ignored'"),
+                new("docs.json", """
+                    {
+                      // Paths are relative to this file.
+                      "entryPoint": "module.bicep",
+                      "output": {
+                        "file": "GENERATED.md",
+                      },
+                      "template": {
+                        "file": "templates/readme.scriban",
+                        "includeRoot": "templates",
+                        "values": {
+                          "owner": "Config",
+                          "configOnly": "retained"
+                        }
+                      },
+                      "examples": {
+                        "sources": [
+                          {
+                            "path": "samples",
+                            "include": ["**/*.demo"],
+                            "exclude": ["**/ignored/**"]
+                          }
+                        ]
+                      }
+                    }
+                    """),
+            ]);
+        var configPath = Path.Combine(root, "docs.json");
+
+        var generateResult = await Bicep(
+            "docs",
+            "generate",
+            root,
+            "--config-file-path",
+            configPath,
+            "--custom-template-value",
+            "owner=CLI");
+        var outputResult = await Bicep(
+            "docs",
+            "output",
+            root,
+            "--config-file-path",
+            configPath,
+            "--custom-template-value",
+            "owner=CLI");
+
+        generateResult.ExitCode.Should().Be(0);
+        outputResult.ExitCode.Should().Be(0);
+        var expected = "Header\nConfigured module|CLI|retained|sample\n";
+        File.ReadAllText(Path.Combine(root, "GENERATED.md")).Should().Be(expected);
+        outputResult.Stdout.Should().Be(expected);
+        File.Exists(Path.Combine(root, "README.md")).Should().BeFalse();
+
+        var overrideResult = await Bicep(
+            "docs",
+            "generate",
+            root,
+            "--config-file-path",
+            configPath,
+            "--outfile",
+            Path.Combine(root, "OVERRIDE.md"),
+            "--template-file",
+            Path.Combine(root, "override.scriban"));
+        overrideResult.ExitCode.Should().Be(0);
+        File.ReadAllText(Path.Combine(root, "OVERRIDE.md")).Should().Be("Override|retained\n");
+    }
+
+    [TestMethod]
+    public async Task Config_ReassignsParentExamplesToChildrenAndIsNoOpForOrdinaryModules()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [
+                new("main.bicep", "metadata name = 'Parent'"),
+                new("mg-scope/main.bicep", "metadata name = 'Child'"),
+                new("tests/e2e/mg-scope.defaults/main.test.bicep", "metadata name = 'mapped'"),
+                new("tests/e2e/unmapped/main.test.bicep", "metadata name = 'unmapped'"),
+                new("ordinary/main.bicep", "metadata name = 'Ordinary'"),
+                new("ordinary/tests/e2e/default/main.test.bicep", "metadata name = 'ordinary'"),
+                new("examples.scriban", "{{ for example in module.usageExamples }}{{ example.name }}|{{ example.path }}\n{{ end }}"),
+                new("docs.json", """
+                    {
+                      "examples": {
+                        "reassignments": [
+                          {
+                            "from": {
+                              "include": ["**/mg-scope.*/**"],
+                              "exclude": ["**/*.skip/**"]
+                            },
+                            "to": "mg-scope"
+                          }
+                        ]
+                      }
+                    }
+                    """),
+            ]);
+        var configPath = Path.Combine(root, "docs.json");
+        var templatePath = Path.Combine(root, "examples.scriban");
+
+        var parentResult = await Bicep(
+            "docs",
+            "output",
+            Path.Combine(root, "main.bicep"),
+            "--config-file-path",
+            configPath,
+            "--template-file",
+            templatePath);
+        var childResult = await Bicep(
+            "docs",
+            "output",
+            Path.Combine(root, "mg-scope"),
+            "--config-file-path",
+            configPath,
+            "--template-file",
+            templatePath);
+        var ordinaryResult = await Bicep(
+            "docs",
+            "output",
+            Path.Combine(root, "ordinary"),
+            "--config-file-path",
+            configPath,
+            "--template-file",
+            templatePath);
+
+        parentResult.ExitCode.Should().Be(0);
+        parentResult.Stdout.Should().Be("unmapped|tests/e2e/unmapped/main.test.bicep\n");
+        childResult.ExitCode.Should().Be(0);
+        childResult.Stdout.Should().Be("mapped|../tests/e2e/mg-scope.defaults/main.test.bicep\n");
+        ordinaryResult.ExitCode.Should().Be(0);
+        ordinaryResult.Stdout.Should().Be("ordinary|tests/e2e/default/main.test.bicep\n");
+    }
+
+    [DataTestMethod]
+    [DataRow("null", "must contain a JSON object")]
+    [DataRow("""{ "entryPoint": "../main.bicep" }""", "cannot traverse")]
+    [DataRow("""{ "entryPoint": "/main.bicep" }""", "relative path")]
+    [DataRow("""{ "entryPoint": "C:\\main.bicep" }""", "relative path")]
+    [DataRow("""{ "entryPoint": "main.txt" }""", ".bicep file")]
+    [DataRow("""{ "output": { "file": "nested/README.md" } }""", "cannot traverse")]
+    [DataRow("""{ "output": { "file": "CON.md" } }""", "portable file name")]
+    [DataRow("""{ "output": { "file": "README.md." } }""", "portable file name")]
+    [DataRow("""{ "template": { "file": "" } }""", "cannot be empty")]
+    [DataRow("""{ "template": { "includeRoot": "" } }""", "cannot be empty")]
+    [DataRow("""{ "template": { "values": { "": "value" } } }""", "cannot be empty")]
+    [DataRow("""{ "examples": null }""", "cannot be null")]
+    [DataRow("""{ "examples": { "sources": [null] } }""", "cannot be null")]
+    [DataRow("""{ "examples": { "reassignments": [null] } }""", "cannot be null")]
+    [DataRow("""{ "examples": { "reassignments": [{ "from": null, "to": "child" }] } }""", "cannot be null")]
+    [DataRow("""{ "examples": { "sources": [{ "path": "../samples" }] } }""", "cannot traverse")]
+    [DataRow("""{ "examples": { "sources": [{ "path": "samples", "include": [""] }] } }""", "cannot be empty")]
+    [DataRow("""{ "examples": { "reassignments": [{ "from": {}, "to": "child" }] } }""", "must contain")]
+    [DataRow("""{ "examples": { "reassignments": [{ "from": { "include": ["**/*"] }, "to": "nested/child" }] } }""", "cannot traverse")]
+    [DataRow("""{ "entryPoint": "main.bicep", "entryPoint": "other.bicep" }""", "duplicate property")]
+    [DataRow("""{ "unknown": true }""", "invalid")]
+    public async Task Config_InvalidValuesReturnActionableErrors(string contents, string expected)
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [
+                new("main.bicep", "metadata name = 'Example'"),
+                new("docs.json", contents),
+            ]);
+
+        var result = await Bicep(
+            "docs",
+            "output",
+            Path.Combine(root, "main.bicep"),
+            "--config-file-path",
+            Path.Combine(root, "docs.json"));
+
+        result.ExitCode.Should().Be(1);
+        result.Stderr.Should().Contain(expected);
+        result.Stderr.Should().NotContain("Unhandled exception");
+    }
+
+    [TestMethod]
+    public async Task Config_MissingFileReturnsActionableError()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [new("main.bicep", "metadata name = 'Example'")]);
+
+        var result = await Bicep(
+            "docs",
+            "output",
+            Path.Combine(root, "main.bicep"),
+            "--config-file-path",
+            Path.Combine(root, "missing.json"));
+
+        result.ExitCode.Should().Be(1);
+        result.Stderr.Should().Contain("does not exist");
+    }
+
+    [DataTestMethod]
+    [DataRow(typeof(IOException))]
+    [DataRow(typeof(UnauthorizedAccessException))]
+    public async Task Config_ReadFailureReturnsActionableError(Type exceptionType)
+    {
+        var exception = (Exception)Activator.CreateInstance(exceptionType, "config read failed")!;
+        var fileSystem = new Mock<IFileSystem>(MockBehavior.Strict);
+        var file = new Mock<IFile>(MockBehavior.Strict);
+        var path = new Mock<IPath>(MockBehavior.Strict);
+        fileSystem.SetupGet(system => system.File).Returns(file.Object);
+        fileSystem.SetupGet(system => system.Path).Returns(path.Object);
+        path.Setup(systemPath => systemPath.GetFullPath("docs.json")).Returns(Path.GetFullPath("docs.json"));
+        file.Setup(systemFile => systemFile.Exists(It.IsAny<string>())).Returns(true);
+        file.Setup(systemFile => systemFile.ReadAllText(It.IsAny<string>())).Throws(exception);
+        var result = await Bicep(
+            DocsEnabledSettings(),
+            services => services.AddSingleton(fileSystem.Object),
+            TestContext.CancellationTokenSource.Token,
+            "docs",
+            "output",
+            "main.bicep",
+            "--config-file-path",
+            "docs.json");
+
+        result.ExitCode.Should().Be(1);
+        result.Stderr.Should().Contain("config read failed");
+    }
+
+    [TestMethod]
+    public async Task Config_AbsoluteTemplatePathIsSupported()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [
+                new("main.bicep", "metadata name = 'Absolute template'"),
+                new("readme.scriban", "{{ module.name }}"),
+            ]);
+        var configPath = Path.Combine(root, "docs.json");
+        File.WriteAllText(
+            configPath,
+            JsonSerializer.Serialize(new
+            {
+                template = new
+                {
+                    file = Path.Combine(root, "readme.scriban"),
+                },
+            }));
+
+        var result = await Bicep(
+            "docs",
+            "output",
+            Path.Combine(root, "main.bicep"),
+            "--config-file-path",
+            configPath);
+
+        result.ExitCode.Should().Be(0);
+        result.Stdout.Should().Be("Absolute template\n");
+    }
+
+    [TestMethod]
+    public async Task Config_EmptyObjectUsesBuiltInDefaults()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [
+                new("main.bicep", "metadata name = 'Defaults'"),
+                new("docs.json", "{}"),
+            ]);
+
+        var result = await Bicep(
+            "docs",
+            "generate",
+            root,
+            "--config-file-path",
+            Path.Combine(root, "docs.json"));
+
+        result.ExitCode.Should().Be(0);
+        File.Exists(Path.Combine(root, "README.md")).Should().BeTrue();
+    }
+
+    [TestMethod]
+    public async Task Config_EmptyNestedSettingsUseTheirDefaults()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [
+                new("main.bicep", "metadata name = 'Nested defaults'"),
+                new("docs.json", """
+                    {
+                      "output": {},
+                      "template": {},
+                      "examples": {
+                        "sources": [
+                          {
+                            "path": "missing"
+                          }
+                        ]
+                      }
+                    }
+                    """),
+            ]);
+
+        var result = await Bicep(
+            "docs",
+            "generate",
+            root,
+            "--config-file-path",
+            Path.Combine(root, "docs.json"));
+
+        result.ExitCode.Should().Be(0);
+        File.Exists(Path.Combine(root, "README.md")).Should().BeTrue();
+    }
+
+    [TestMethod]
+    public async Task Config_PatternGenerationUsesConfiguredOutputForEveryModule()
+    {
+        var root = FileHelper.SaveResultFiles(
+            TestContext,
+            [
+                new("modules/a/main.bicep", "metadata name = 'A'"),
+                new("modules/b/main.bicep", "metadata name = 'B'"),
+                new("docs.json", """{ "output": { "file": "DOCS.md" } }"""),
+            ]);
+
+        var result = await Bicep(
+            "docs",
+            "generate",
+            "--pattern",
+            Path.Combine(root, "modules", "*", "main.bicep"),
+            "--config-file-path",
+            Path.Combine(root, "docs.json"));
+
+        result.ExitCode.Should().Be(0);
+        File.Exists(Path.Combine(root, "modules", "a", "DOCS.md")).Should().BeTrue();
+        File.Exists(Path.Combine(root, "modules", "b", "DOCS.md")).Should().BeTrue();
+        Directory.EnumerateFiles(root, "README.md", SearchOption.AllDirectories).Should().BeEmpty();
+    }
+
+    [TestMethod]
     public async Task Output_CustomTemplateValues_MergeFilesAndIndividualValuesInCommandLineOrder()
     {
         var root = FileHelper.SaveResultFiles(
@@ -670,6 +1013,7 @@ public class DocsCommandTests : TestBase
                 null,
                 null,
                 new Dictionary<string, string>(),
+                new(),
                 noRestore: false,
                 diagnosticsFormat: null,
                 cancellationToken: cancellation.Token))
@@ -875,6 +1219,7 @@ public class DocsCommandTests : TestBase
             null,
             null,
             null,
+            null,
             System.Collections.Immutable.ImmutableSortedDictionary<string, string>.Empty,
             null,
             null,
@@ -907,6 +1252,7 @@ public class DocsCommandTests : TestBase
         var arguments = new DocsGenerateArguments(
             null,
             Path.Combine(root, "*", "main.bicep"),
+            null,
             null,
             null,
             System.Collections.Immutable.ImmutableSortedDictionary<string, string>.Empty,

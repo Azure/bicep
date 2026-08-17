@@ -24,6 +24,7 @@ bicep docs output .\main.bicep
 
 Both commands accept:
 
+- `--config-file-path <path>`
 - `--template-file <path>`
 - `--template-root <path>`
 - repeatable `--custom-template-value key=value`
@@ -33,11 +34,75 @@ Both commands accept:
 
 `docs generate` also accepts `--pattern`, `--outdir`, and `--outfile`. Without an output option, it writes `README.md` beside each input module. With `--pattern`, `--outdir` preserves the matched relative directory structure and writes `README.md` in each destination directory.
 
-Inputs are `.bicep` file paths. The default template root is the input file's directory.
+Inputs may be `.bicep` files or module directories. Directory inputs use the configured `entryPoint`, which defaults to `main.bicep`. The default template root is the input file's directory.
+
+## Docs configuration
+
+`--config-file-path` loads optional JSON configuration. Explicit CLI options override configuration values, and configuration values override built-in defaults.
+
+```json
+{
+  "entryPoint": "main.bicep",
+  "output": {
+    "file": "README.md"
+  },
+  "template": {
+    "file": "templates/readme.scriban",
+    "includeRoot": ".",
+    "values": {
+      "owner": "Platform Team"
+    }
+  },
+  "examples": {
+    "sources": [
+      {
+        "path": "examples",
+        "include": [
+          "*.bicep",
+          "**/main.bicep"
+        ],
+        "exclude": [
+          "**/dependencies*.bicep"
+        ]
+      },
+      {
+        "path": "tests",
+        "include": [
+          "**/*.test.bicep"
+        ],
+        "exclude": [
+          "**/dependencies*.bicep"
+        ]
+      }
+    ],
+    "reassignments": [
+      {
+        "from": {
+          "include": [
+            "**/rg-scope.*/**"
+          ]
+        },
+        "to": "rg-scope"
+      }
+    ]
+  }
+}
+```
+
+Configuration sections are optional:
+
+- `entryPoint` is used only when the input is a directory.
+- `output.file` sets the generated file name. `--outfile` and `--outdir` still take precedence.
+- `template.file` and `template.includeRoot` are resolved relative to the configuration file.
+- `template.values` supplies baseline string values. Repeatable CLI value files and inline values are applied afterward in command-line order.
+- `examples.sources` replaces the default sources when present. An empty array disables discovery.
+- Source paths are relative to each module root. Include and exclude values are case-insensitive glob patterns.
+- `examples.reassignments[].from` matches discovered example paths relative to their source.
+- `examples.reassignments[].to` identifies one direct child module directory. Matching examples are removed from the parent and added to that child. A reassignment with no matching structure is a no-op.
 
 ## Usage examples
 
-The built-in Markdown template discovers direct `.bicep` files and nested `main.bicep` files below `examples`, plus `*.test.bicep` files below `tests`. Files whose names start with `dependencies` are excluded.
+By default, the built-in Markdown template discovers direct `.bicep` files and nested `main.bicep` files below `examples`, plus `*.test.bicep` files below `tests`. Files whose names start with `dependencies` are excluded. These defaults can be replaced through `examples.sources`.
 
 An example name is selected in this order:
 
@@ -144,6 +209,8 @@ Each `module.parameters` item and nested `properties` item contains:
 | `discriminator` | object or null | Discriminated object details. |
 
 A discriminator contains `propertyName` and `cases`. Each case contains `value` and `properties`.
+
+Secure object schemas are expanded so templates can document property names, types, and descriptions. Runtime parameter values are never part of the documentation model.
 
 ### Outputs
 
