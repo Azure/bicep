@@ -57,7 +57,9 @@ public class BicepDocumentationScriptModelFactoryTests
                     null,
                     false,
                     [new BicepDocumentationParameter("enabled", "bool", true, false, null, null, [], null, null, null, null, null, false, [], null)],
-                    null),
+                    new BicepDocumentationDiscriminator(
+                        "kind",
+                        [new BicepDocumentationDiscriminatorCase("default", [])])),
             ],
             ExportedVariables:
             [
