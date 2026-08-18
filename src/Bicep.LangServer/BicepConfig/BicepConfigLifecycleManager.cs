@@ -77,22 +77,38 @@ namespace Bicep.LanguageServer.BicepConfig
         private void PublishConfigDiagnostics(DocumentUri documentUri)
         {
             var chain = bicepConfigurationManager.GetConfigurationChain(documentUri.ToIOUri());
-            var diagnostics = chain.GetEffectiveConfiguration().GetDiagnostics();
+            var diagnostics = chain.GetEffectiveConfiguration().GetDiagnostics().ToList();
 
-            var lspDiagnostics = diagnostics.Select(d => new LspDiagnostic
+            if (diagnostics.Count == 0)
             {
-                Severity = ToLspSeverity(d.Level),
-                Code = new DiagnosticCode(d.Code),
-                Message = d.Message,
-                Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range(0, 0, 0, 0),
-                Source = "bicep"
-            });
+                // Clear any stale squiggles on the active file.
+                server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
+                {
+                    Uri = documentUri,
+                    Diagnostics = new Container<LspDiagnostic>()
+                });
+                return;
+            }
 
-            server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
+            // Group by IDiagnostic.Uri so each bicepconfig.json in the chain gets its own
+            // PublishDiagnostics call — squiggles appear on the specific file that has the
+            // error, not always on the leaf.
+            // Diagnostics without a URI fall back to the active documentUri.
+            foreach (var group in diagnostics.GroupBy(d => d.Uri is { } u ? DocumentUri.From(u) : documentUri))
             {
-                Uri = documentUri,
-                Diagnostics = new Container<LspDiagnostic>(lspDiagnostics)
-            });
+                server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
+                {
+                    Uri = group.Key,
+                    Diagnostics = new Container<LspDiagnostic>(group.Select(d => new LspDiagnostic
+                    {
+                        Severity = ToLspSeverity(d.Level),
+                        Code = new DiagnosticCode(d.Code),
+                        Message = d.Message,
+                        Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range(0, 0, 0, 0),
+                        Source = "bicep"
+                    }))
+                });
+            }
         }
 
         private static DiagnosticSeverity ToLspSeverity(DiagnosticLevel level) => level switch
