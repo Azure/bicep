@@ -170,7 +170,7 @@ The lookup starts in the source file's directory and walks toward the filesystem
 > [!IMPORTANT]
 > `bicepconfig.json` is nearest-file-wins and does not merge ancestor configuration files. If a module has its own `bicepconfig.json`, it does not inherit repository-level `documentation` settings. Omitted settings fall back to built-in defaults.
 
-For repositories that require identical documentation settings across every module, enforce a policy that prevents nested `bicepconfig.json` files until Bicep supports configuration inheritance.
+For repositories that require identical documentation settings across every module, enforce a policy that prevents nested `bicepconfig.json` files. Configuration inheritance is designed in [REP 0023](https://github.com/Azure/bicep-reps/blob/main/active/0023-bicep-configuration-inheritance.md), which adds an `extends` property to `bicepconfig.json`; once implemented, a nested configuration will be able to inherit repository-level `documentation` settings explicitly.
 
 ### Precedence
 
