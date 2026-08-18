@@ -246,7 +246,8 @@ namespace Bicep.LangServer.UnitTests.Configuration
 
             var workspace = new ActiveSourceFileSet();
             var fileExplorer = new FileSystemFileExplorer(mockFileSystem);
-            var configurationManager = new ConfigurationManager(fileExplorer, new BicepConfigurationManager(fileExplorer));
+            var bicepConfigManager = new BicepConfigurationManager(fileExplorer);
+            var configurationManager = new ConfigurationManager(fileExplorer, bicepConfigManager);
             var sourceFileFactory = new SourceFileFactory(configurationManager, BicepTestConstants.FeatureProviderFactory, BicepTestConstants.AuxiliaryFileCache, BicepTestConstants.FileExplorer);
             var bicepCompilationManager = new BicepCompilationManager(
                 server,
@@ -259,7 +260,9 @@ namespace Bicep.LangServer.UnitTests.Configuration
 
             var bicepConfigLifecycleManager = new BicepConfigLifecycleManager(
                 bicepCompilationManager,
-                configurationManager);
+                configurationManager,
+                bicepConfigManager,
+                server);
 
             bicepConfigLifecycleManager.RefreshCompilationOfSourceFilesInWorkspace();
 
