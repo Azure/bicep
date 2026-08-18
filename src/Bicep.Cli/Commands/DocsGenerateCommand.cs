@@ -25,42 +25,9 @@ public class DocsGenerateCommand(
 {
     public async Task<int> RunAsync(DocsGenerateArguments arguments, CancellationToken cancellationToken = default)
     {
-        var configuration = arguments.ConfigFilePath is not null
-            ? DocsConfigurationLoader.Load(arguments.ConfigFilePath, argumentsResolver, fileSystem)
-            : null;
-        var targetDirectory = DocsConfigurationLoader.ResolveTargetDirectory(
-            arguments.InputFile,
-            arguments.FilePattern,
-            argumentsResolver,
-            fileSystem);
-        configuration ??= DocsConfigurationLoader.Discover(
-            targetDirectory,
-            argumentsResolver,
-            fileSystem);
-        var inputs = DocsConfigurationLoader.ResolveInputs(
-            arguments.InputFile,
-            arguments.FilePattern,
-            targetDirectory,
-            configuration,
-            argumentsResolver);
-        var inputOutputPairs = argumentsResolver.ResolveFileSetInputOutputArguments(
-            arguments,
-            inputs.RootUri,
-            inputs.InputUris,
-            (_, _) => configuration.Configuration.Output.File);
-        DocsCommand.ValidateOutputPaths(inputOutputPairs);
-        var templateFile = DocsConfigurationLoader.ResolveTemplateFile(
-            arguments.TemplateFile,
-            configuration,
-            argumentsResolver,
-            fileSystem);
-        var templateRoot = DocsConfigurationLoader.ResolveTemplateRoot(
-            arguments.TemplateRoot,
-            configuration,
-            argumentsResolver,
-            fileSystem);
-        var customValues = DocsConfigurationLoader.MergeCustomValues(configuration, arguments.CustomValues);
+        var (inputRoot, inputUris) = ResolveInputs(arguments);
         var workspace = new ActiveSourceFileSet();
+        var successes = new Dictionary<Bicep.IO.Abstraction.IOUri, DocsRenderResult.Succeeded>();
         var sarifResults = new List<(
             Bicep.IO.Abstraction.IOUri SourceUri,
             Compilation? Compilation,
@@ -69,16 +36,15 @@ public class DocsGenerateCommand(
         var experimentalWarningLogged = false;
         var hasErrors = false;
 
-        foreach (var (module, outputUri) in inputOutputPairs)
+        foreach (var module in inputUris)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ArgumentHelper.ValidateBicepFile(module);
             var result = await runner.RenderAsync(
                 module,
-                templateFile,
-                templateRoot,
-                customValues,
-                configuration.Configuration.Examples,
+                arguments.TemplateFile,
+                arguments.TemplateRoot,
+                arguments.CustomValues,
                 arguments.NoRestore,
                 arguments.DiagnosticsFormat,
                 workspace,
@@ -107,25 +73,48 @@ public class DocsGenerateCommand(
             }
 
             experimentalWarningLogged = true;
-            try
-            {
-                await writer.WriteToFileAtomicallyAsync(outputUri, success.Contents, cancellationToken);
-            }
-            catch (BicepException exception)
-            {
-                if (aggregateSarif)
-                {
-                    sarifResults.Add((
-                        success.SourceUri,
-                        success.Compilation,
-                        DocsCommand.CreateDiagnostic(DocsCommand.WriteFailureCode, exception.Message)));
-                }
-                else
-                {
-                    await io.Error.Writer.WriteLineAsync(exception.Message);
-                }
+            successes.Add(module, success);
+        }
 
-                hasErrors = true;
+        if (arguments.OutputToStdOut)
+        {
+            if (successes.Values.SingleOrDefault() is { } success)
+            {
+                await io.Output.Writer.WriteAsync(success.Contents.AsMemory(), cancellationToken);
+            }
+        }
+        else if (successes.Count > 0)
+        {
+            var inputOutputPairs = argumentsResolver.ResolveFileSetInputOutputArguments(
+                arguments,
+                inputRoot,
+                successes.Keys.ToArray(),
+                (_, inputUri) => successes[inputUri].Configuration.Documentation.Data.Output.File);
+            DocsCommand.ValidateOutputPaths(inputOutputPairs);
+
+            foreach (var (inputUri, outputUri) in inputOutputPairs)
+            {
+                var success = successes[inputUri];
+                try
+                {
+                    await writer.WriteToFileAsync(outputUri, success.Contents);
+                }
+                catch (BicepException exception)
+                {
+                    if (aggregateSarif)
+                    {
+                        sarifResults.Add((
+                            success.SourceUri,
+                            success.Compilation,
+                            DocsCommand.CreateDiagnostic(DocsCommand.WriteFailureCode, exception.Message)));
+                    }
+                    else
+                    {
+                        await io.Error.Writer.WriteLineAsync(exception.Message);
+                    }
+
+                    hasErrors = true;
+                }
             }
         }
 
@@ -138,6 +127,24 @@ public class DocsGenerateCommand(
         }
 
         return hasErrors ? 1 : 0;
+    }
+
+    private (Bicep.IO.Abstraction.IOUri RootUri, IReadOnlyList<Bicep.IO.Abstraction.IOUri> InputUris) ResolveInputs(
+        DocsGenerateArguments arguments)
+    {
+        if (arguments.InputFile is not null)
+        {
+            var inputUri = argumentsResolver.ResolveInputArguments(arguments);
+            return (inputUri.Resolve("."), [inputUri]);
+        }
+
+        if (arguments.FilePattern is not null)
+        {
+            var (rootUri, relativePaths) = argumentsResolver.ResolveFilePattern(arguments.FilePattern);
+            return (rootUri, relativePaths.Select(rootUri.Resolve).ToArray());
+        }
+
+        throw new CommandLineException("Either the input file path or the --pattern parameter must be specified");
     }
 
     private ImmutableSortedDictionary<string, string> ParseCustomValues(
@@ -158,12 +165,12 @@ public class DocsGenerateCommand(
         };
         var inputFileArgument = new System.CommandLine.Argument<string?>(Constants.Argument.InputFile)
         {
-            Description = "The path to an input .bicep file or module directory.",
+            Description = "The path to an input .bicep file.",
             Arity = ArgumentArity.ZeroOrOne,
         };
-        var configFilePathOption = new System.CommandLine.Option<string?>(Option.ConfigFilePath)
+        var stdoutOption = new System.CommandLine.Option<bool>(Option.Stdout)
         {
-            Description = "Loads docs configuration from a JSON file.",
+            Description = "Prints the generated documentation to stdout.",
         };
         var templateFileOption = new System.CommandLine.Option<string?>(Option.TemplateFile)
         {
@@ -207,7 +214,7 @@ public class DocsGenerateCommand(
         };
 
         command.Add(inputFileArgument);
-        command.Add(configFilePathOption);
+        command.Add(stdoutOption);
         command.Add(templateFileOption);
         command.Add(templateRootOption);
         command.Add(customTemplateValueOption);
@@ -236,14 +243,15 @@ public class DocsGenerateCommand(
             var outputDir = result.GetValue(outDirOption);
             var outputFile = result.GetValue(outFileOption);
             var filePattern = result.GetValue(patternOption);
-            ArgumentHelper.ValidateOutputOptions(false, outputDir, outputFile, filePattern);
+            var outputToStdOut = result.GetValue(stdoutOption);
+            ArgumentHelper.ValidateOutputOptions(outputToStdOut, outputDir, outputFile, filePattern);
             var arguments = new DocsGenerateArguments(
                 result.GetValue(inputFileArgument),
                 filePattern,
-                result.GetValue(configFilePathOption),
                 result.GetValue(templateFileOption),
                 result.GetValue(templateRootOption),
                 customValues,
+                outputToStdOut,
                 outputDir,
                 outputFile,
                 result.GetValue(noRestoreOption),

@@ -29,7 +29,6 @@ public static class DocsCommand
             Constants.Command.Docs,
             "[Experimental] Generates documentation for Bicep modules.");
         command.Add(DocsGenerateCommand.CreateCommand(context));
-        command.Add(DocsOutputCommand.CreateCommand(context));
 
         return command;
     }
@@ -160,7 +159,7 @@ public static class DocsCommand
                 $"The custom template value file \"{fullPath}\" is not valid JSON: {exception.Message}",
                 exception);
         }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        catch (Exception exception) when (exception.IsFileSystemException())
         {
             throw new CommandLineException(
                 $"Unable to read custom template value file \"{fullPath}\": {exception.Message}",

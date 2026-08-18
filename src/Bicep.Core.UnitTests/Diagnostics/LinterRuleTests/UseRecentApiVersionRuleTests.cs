@@ -135,6 +135,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     SymbolicNameCodegen = true,
                 },
                 original.Formatting,
+                original.Documentation,
                 null,
                 null);
         }

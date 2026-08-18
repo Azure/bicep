@@ -70,6 +70,26 @@ internal sealed class BicepDocumentationTypeAnalyzer
             analysis.Discriminator);
     }
 
+    public BicepDocumentationExport BuildExport(string name, TypeSymbol type, string? description)
+    {
+        var parameter = BuildParameter(name, type, isRequired: true, description, defaultValue: null);
+
+        return new(
+            parameter.Name,
+            parameter.TypeName,
+            parameter.IsSecure,
+            parameter.Description,
+            parameter.AllowedValues,
+            parameter.MinValue,
+            parameter.MaxValue,
+            parameter.MinLength,
+            parameter.MaxLength,
+            parameter.Pattern,
+            parameter.IsTruncated,
+            parameter.NestedProperties,
+            parameter.Discriminator);
+    }
+
     private BicepDocumentationParameter BuildProperty(
         string name,
         NamedTypeProperty property,

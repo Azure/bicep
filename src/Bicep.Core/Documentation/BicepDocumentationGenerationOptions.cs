@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Documentation;
@@ -19,7 +20,7 @@ public record BicepDocumentationGenerationOptions(
     /// <summary>
     /// Gets usage-example discovery settings.
     /// </summary>
-    public BicepDocumentationExamplesConfiguration Examples { get; init; } = new();
+    public DocumentationExamples Examples { get; init; } = new();
 
     /// <summary>
     /// Gets the built-in Markdown options.

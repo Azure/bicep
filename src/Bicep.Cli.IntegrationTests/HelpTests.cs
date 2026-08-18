@@ -43,7 +43,6 @@ namespace Bicep.Cli.IntegrationTests
         {
             var (groupOutput, groupError, groupResult) = await Bicep("docs", "--help");
             var (generateOutput, generateError, generateResult) = await Bicep("docs", "generate", "--help");
-            var (outputOutput, outputError, outputResult) = await Bicep("docs", "output", "--help");
 
             using (new AssertionScope())
             {
@@ -52,8 +51,8 @@ namespace Bicep.Cli.IntegrationTests
                 groupOutput.Should().ContainAll(
                     "docs",
                     "generate",
-                    "output",
                     "[Experimental]");
+                groupOutput.Should().NotContain("output");
 
                 generateResult.Should().Be(0);
                 generateError.Should().BeEmpty();
@@ -65,23 +64,10 @@ namespace Bicep.Cli.IntegrationTests
                     "--custom-template-value-file-path",
                     "--outdir",
                     "--outfile",
+                    "--stdout",
                     "--pattern",
                     "--no-restore",
                     "--diagnostics-format");
-
-                outputResult.Should().Be(0);
-                outputError.Should().BeEmpty();
-                outputOutput.Should().ContainAll(
-                    "[Experimental]",
-                    "--template-file",
-                    "--template-root",
-                    "--custom-template-value",
-                    "--custom-template-value-file-path",
-                    "--no-restore",
-                    "--diagnostics-format");
-                outputOutput.Should().NotContain("--pattern");
-                outputOutput.Should().NotContain("--outdir");
-                outputOutput.Should().NotContain("--outfile");
             }
         }
 

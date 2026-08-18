@@ -5,21 +5,22 @@ using System.Collections.Immutable;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Bicep.Core.Documentation;
+using Bicep.Core.Configuration;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Schema;
+using DocumentationSettings = Bicep.Core.Configuration.Documentation;
 
 namespace Bicep.Core.UnitTests.Configuration;
 
 [TestClass]
-public class BicepDocsConfigSchemaTests
+public class DocumentationConfigSchemaTests
 {
     private static string GetSchemaContents()
     {
-        using var stream = typeof(BicepDocsConfigSchemaTests).Assembly.GetManifestResourceStream(
-            $"{typeof(BicepDocsConfigSchemaTests).Assembly.GetName().Name}.bicepdocsconfig.schema.json");
+        using var stream = typeof(DocumentationConfigSchemaTests).Assembly.GetManifestResourceStream(
+            $"{typeof(DocumentationConfigSchemaTests).Assembly.GetName().Name}.bicepconfig.schema.json");
         Assert.IsNotNull(stream);
 
         using var reader = new StreamReader(stream);
@@ -38,8 +39,10 @@ public class BicepDocsConfigSchemaTests
     public void Schema_should_cover_every_configuration_property()
     {
         var schema = JObject.Parse(GetSchemaContents());
+        var documentationSchema = schema.SelectToken("properties.documentation")
+            .Should().BeOfType<JObject>().Subject;
 
-        AssertPropertiesHaveSchema(typeof(BicepDocumentationConfiguration), schema, schema);
+        AssertPropertiesHaveSchema(typeof(DocumentationSettings), documentationSchema, schema);
     }
 
     [TestMethod]
@@ -47,7 +50,10 @@ public class BicepDocsConfigSchemaTests
     {
         var schema = JSchema.Parse(GetSchemaContents());
         var json = JsonSerializer.Serialize(
-            new BicepDocumentationConfiguration(),
+            new
+            {
+                documentation = new DocumentationSettings(),
+            },
             new JsonSerializerOptions
             {
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -55,8 +61,9 @@ public class BicepDocsConfigSchemaTests
             });
         var document = JObject.Parse(json);
 
-        document.SelectToken("input.include[0]")!.Value<string>().Should().Be("main.bicep");
-        document.SelectToken("output.file")!.Value<string>().Should().Be("README.md");
+        document.SelectToken("documentation.output.file")!.Value<string>().Should().Be("README.md");
+        (document.SelectToken("documentation.examples.sources") as JArray)!
+            .Count.Should().Be(2);
         document.IsValid(schema, out IList<string> errors).Should().BeTrue(string.Join(Environment.NewLine, errors));
     }
 
@@ -96,7 +103,10 @@ public class BicepDocsConfigSchemaTests
             type = type.GetGenericArguments()[0];
         }
 
-        return type.Namespace == typeof(BicepDocumentationConfiguration).Namespace ? type : null;
+        return type.Namespace == typeof(DocumentationSettings).Namespace &&
+            (type == typeof(DocumentationSettings) || type.Name.StartsWith(nameof(DocumentationSettings), StringComparison.Ordinal))
+                ? type
+                : null;
     }
 
     private static JObject ResolveReference(JObject schemaNode, JObject rootSchema)

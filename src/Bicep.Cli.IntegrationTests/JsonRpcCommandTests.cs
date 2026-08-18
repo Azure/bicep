@@ -9,9 +9,11 @@ using System.Text.Json.Nodes;
 using Bicep.Cli.Rpc;
 using Bicep.Cli.Services;
 using Bicep.Core.Configuration;
+using Bicep.Core.Documentation;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
 using Bicep.Core.Json;
+using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
@@ -230,22 +232,21 @@ output bar string = foo
             ["/module/main.bicep"] = "metadata name = 'RPC Config'",
             ["/module/examples/default/main.bicep"] = "metadata name = 'ignored'",
             ["/template.scriban"] = "{{ module.name }}|{{ custom.owner }}|{{ module.usageExamples.size }}",
-            ["/docs.json"] = """
+            ["/bicepconfig.json"] = """
                 {
-                  "input": {
-                    "include": ["main.bicep"]
-                  },
-                  "output": {
-                    "file": "RPC.md"
-                  },
-                  "template": {
-                    "file": "template.scriban",
-                    "values": {
-                      "owner": "Config"
+                  "documentation": {
+                    "output": {
+                      "file": "RPC.md"
+                    },
+                    "template": {
+                      "file": "template.scriban",
+                      "values": {
+                        "owner": "Config"
+                      }
+                    },
+                    "examples": {
+                      "sources": []
                     }
-                  },
-                  "examples": {
-                    "sources": []
                   }
                 }
                 """,
@@ -257,26 +258,20 @@ output bar string = foo
             {
                 var output = await client.OutputDocs(
                     new(
-                        "/module",
+                        "/module/main.bicep",
                         null,
                         null,
                         new() { ["owner"] = "Request" },
-                        NoRestore: false)
-                    {
-                        ConfigFilePath = "/docs.json",
-                    },
+                        NoRestore: false),
                     token);
                 var generated = await client.GenerateDocs(
                     new(
-                        ["/module"],
+                        ["/module/main.bicep"],
                         null,
                         null,
                         new() { ["owner"] = "Request" },
                         null,
-                        NoRestore: false)
-                    {
-                        ConfigFilePath = "/docs.json",
-                    },
+                        NoRestore: false),
                     token);
 
                 output.Result.Success.Should().BeTrue();
@@ -289,12 +284,20 @@ output bar string = foo
     }
 
     [TestMethod]
-    public async Task Docs_methods_do_not_auto_discover_configuration()
+    public async Task Docs_methods_use_discovered_bicep_configuration()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
             ["/module/main.bicep"] = "metadata name = 'RPC defaults'",
-            ["/module/bicepdocsconfig.json"] = "{ invalid",
+            ["/bicepconfig.json"] = """
+                {
+                  "documentation": {
+                    "output": {
+                      "file": "RPC.md"
+                    }
+                  }
+                }
+                """,
         });
 
         await RunServerTest(
@@ -302,17 +305,17 @@ output bar string = foo
             async (client, token) =>
             {
                 var output = await client.OutputDocs(
-                    new("/module", null, null, null, NoRestore: false),
+                    new("/module/main.bicep", null, null, null, NoRestore: false),
                     token);
                 var generated = await client.GenerateDocs(
-                    new(["/module"], null, null, null, null, NoRestore: false),
+                    new(["/module/main.bicep"], null, null, null, null, NoRestore: false),
                     token);
 
                 output.Result.Success.Should().BeTrue();
                 output.Result.Contents.Should().Contain("# RPC defaults");
                 generated.Results.Should().ContainSingle(result =>
                     result.Success &&
-                    result.OutputPath == fileSystem.Path.GetFullPath("/module/README.md"));
+                    result.OutputPath == fileSystem.Path.GetFullPath("/module/RPC.md"));
             });
     }
 
@@ -360,8 +363,6 @@ output bar string = foo
             ["/invalid.scriban"] = "{{ if module.name }}",
             ["/a.bicep"] = "metadata name = 'A'",
             ["/b.bicep"] = "metadata name = 'B'",
-            ["/nonbicep.json"] = """{ "input": { "include": ["main.txt"] } }""",
-            ["/multiple.json"] = """{ "input": { "include": ["*.bicep"] } }""",
         });
 
         await RunServerTest(
@@ -373,50 +374,6 @@ output bar string = foo
                     token);
                 invalidExtension.Result.Success.Should().BeFalse();
                 invalidExtension.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
-
-                var configuredInvalidExtension = await client.OutputDocs(
-                    new("/", null, null, null, NoRestore: false)
-                    {
-                        ConfigFilePath = "/nonbicep.json",
-                    },
-                    token);
-                configuredInvalidExtension.Result.Success.Should().BeFalse();
-                configuredInvalidExtension.Result.Diagnostics.Should().ContainSingle();
-                configuredInvalidExtension.Result.Diagnostics.Single().Code.Should().Be("DOCS001");
-                configuredInvalidExtension.Result.Diagnostics.Single().Message.Should().Contain("Invalid Bicep file path");
-                var configuredInvalidGenerateExtension = await client.GenerateDocs(
-                    new(["/"], null, null, null, null, NoRestore: false)
-                    {
-                        ConfigFilePath = "/nonbicep.json",
-                    },
-                    token);
-                configuredInvalidGenerateExtension.Results.Should().ContainSingle(result =>
-                    !result.Success &&
-                    result.Diagnostics.Any(diagnostic =>
-                        diagnostic.Code == "DOCS001" &&
-                        diagnostic.Message.Contains("Invalid Bicep file path")));
-
-                var configuredMultipleOutput = await client.OutputDocs(
-                    new("/", null, null, null, NoRestore: false)
-                    {
-                        ConfigFilePath = "/multiple.json",
-                    },
-                    token);
-                configuredMultipleOutput.Result.Success.Should().BeFalse();
-                configuredMultipleOutput.Result.Diagnostics.Should().ContainSingle(diagnostic =>
-                    diagnostic.Code == "DOCS001" &&
-                    diagnostic.Message.Contains("requires each path to select exactly one input file"));
-                var configuredMultipleGenerate = await client.GenerateDocs(
-                    new(["/"], null, null, null, null, NoRestore: false)
-                    {
-                        ConfigFilePath = "/multiple.json",
-                    },
-                    token);
-                configuredMultipleGenerate.Results.Should().ContainSingle(result =>
-                    !result.Success &&
-                    result.Diagnostics.Any(diagnostic =>
-                        diagnostic.Code == "DOCS001" &&
-                        diagnostic.Message.Contains("requires each path to select exactly one input file")));
 
                 var invalidPath = await client.OutputDocs(
                     new("invalid\0path", null, null, null, NoRestore: false),
@@ -447,27 +404,6 @@ output bar string = foo
                     token);
                 invalidTemplate.Result.Success.Should().BeFalse();
                 invalidTemplate.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS003");
-
-                var missingConfig = await client.OutputDocs(
-                    new("/main.bicep", null, null, null, NoRestore: false)
-                    {
-                        ConfigFilePath = "/missing.json",
-                    },
-                    token);
-                missingConfig.Result.Success.Should().BeFalse();
-                missingConfig.Result.Diagnostics.Should().ContainSingle(diagnostic =>
-                    diagnostic.Code == "DOCS001" &&
-                    diagnostic.Message.Contains("does not exist"));
-                var missingGenerateConfig = await client.GenerateDocs(
-                    new(["/main.bicep", "/a.bicep"], null, null, null, null, NoRestore: false)
-                    {
-                        ConfigFilePath = "/missing.json",
-                    },
-                    token);
-                missingGenerateConfig.Results.Should().HaveCount(2);
-                missingGenerateConfig.Results.Should().OnlyContain(result =>
-                    !result.Success &&
-                    result.Diagnostics.Any(diagnostic => diagnostic.Code == "DOCS001"));
 
                 var missingTemplateRoot = await client.OutputDocs(
                     new("/main.bicep", null, "/missing", null, NoRestore: false),
@@ -651,6 +587,31 @@ output bar string = foo
                 generate.Results[0].Diagnostics.Should().ContainSingle(diagnostic =>
                     diagnostic.Code == "DOCS001" &&
                     diagnostic.Message == "invalid path");
+            });
+    }
+
+    [TestMethod]
+    public async Task OutputDocs_passes_request_cancellation_to_generation()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/main.bicep"] = "metadata name = 'Cancellation'",
+        });
+        var generator = new CancellationObservingDocumentationGenerator();
+
+        await RunServerTest(
+            services => services
+                .WithFileSystem(fileSystem)
+                .AddSingleton<IBicepDocumentationGenerator>(generator),
+            async (client, token) =>
+            {
+                var response = await client.OutputDocs(
+                    new("/main.bicep", null, null, null, NoRestore: false),
+                    token);
+
+                response.Result.Success.Should().BeTrue();
+                generator.BuildObserved.Should().BeTrue();
+                generator.RenderObserved.Should().BeTrue();
             });
     }
 
@@ -973,5 +934,47 @@ kind: 'StorageV2'
                 response.Contents.Should().Contain("  name: 'mystorageaccount'");
                 response.Contents.Should().Contain("  location: 'East US'");
             });
+    }
+
+    private sealed class CancellationObservingDocumentationGenerator : IBicepDocumentationGenerator
+    {
+        public bool BuildObserved { get; private set; }
+
+        public bool RenderObserved { get; private set; }
+
+        public BicepDocumentationModel BuildModel(
+            Compilation compilation,
+            IReadOnlyDictionary<string, string>? customValues = null,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.CanBeCanceled.Should().BeTrue();
+            BuildObserved = true;
+
+            return new(
+                "Cancellation",
+                null,
+                compilation.SourceFileGrouping.EntryPoint.FileHandle.Uri.GetFilePath(),
+                "resourceGroup",
+                ImmutableSortedDictionary<string, string>.Empty,
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                []);
+        }
+
+        public string Render(
+            BicepDocumentationModel model,
+            BicepDocumentationGenerationOptions? options = null,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.CanBeCanceled.Should().BeTrue();
+            RenderObserved = true;
+
+            return "# Cancellation\n";
+        }
     }
 }

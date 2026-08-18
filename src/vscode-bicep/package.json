@@ -112,10 +112,6 @@
       {
         "fileMatch": "bicepconfig.json",
         "url": "./schemas/bicepconfig.schema.json"
-      },
-      {
-        "fileMatch": "bicepdocsconfig.json",
-        "url": "./schemas/bicepdocsconfig.schema.json"
       }
     ],
     "languages": [

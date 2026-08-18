@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Documentation;
 using Bicep.IO.Abstraction;
 using Bicep.Testing;
@@ -193,7 +194,7 @@ public class BicepDocumentationExampleDiscoveryTests
             ("examples/default/main.bicep", "metadata name = 'default'"),
             ("samples/kept/example.sample", "metadata name = 'kept'"),
             ("samples/ignored/example.sample", "metadata name = 'ignored'"));
-        var configuration = new BicepDocumentationExamplesConfiguration
+        var configuration = new DocumentationExamples
         {
             Sources =
             [
@@ -224,7 +225,7 @@ public class BicepDocumentationExampleDiscoveryTests
     {
         var fileSet = MockFileSystemTestFileSet.Create(
             ("examples/default/main.bicep", "metadata name = 'default'"));
-        var configuration = new BicepDocumentationExamplesConfiguration
+        var configuration = new DocumentationExamples
         {
             Sources = [],
         };
@@ -241,7 +242,7 @@ public class BicepDocumentationExampleDiscoveryTests
     {
         var fileSet = MockFileSystemTestFileSet.Create(
             ("examples/default/main.bicep", "metadata name = 'default'"));
-        var configuration = new BicepDocumentationExamplesConfiguration
+        var configuration = new DocumentationExamples
         {
             Sources = default,
             Reassignments = default,
@@ -260,7 +261,7 @@ public class BicepDocumentationExampleDiscoveryTests
     {
         var fileSet = MockFileSystemTestFileSet.Create(
             ("samples/example.demo", "param value string"));
-        var configuration = new BicepDocumentationExamplesConfiguration
+        var configuration = new DocumentationExamples
         {
             Sources =
             [
@@ -285,7 +286,7 @@ public class BicepDocumentationExampleDiscoveryTests
     {
         var fileSet = MockFileSystemTestFileSet.Create(
             ("samples/example.bicep", "metadata name = 'ignored'"));
-        var configuration = new BicepDocumentationExamplesConfiguration
+        var configuration = new DocumentationExamples
         {
             Sources =
             [
@@ -315,7 +316,7 @@ public class BicepDocumentationExampleDiscoveryTests
             ("tests/e2e/mg-scope.defaults/main.test.bicep", "metadata name = 'mapped'"),
             ("tests/e2e/mg-scope.skip/main.test.bicep", "metadata name = 'excluded'"),
             ("tests/e2e/unmapped/main.test.bicep", "metadata name = 'unmapped'"));
-        var configuration = new BicepDocumentationExamplesConfiguration
+        var configuration = new DocumentationExamples
         {
             Reassignments =
             [
@@ -347,7 +348,7 @@ public class BicepDocumentationExampleDiscoveryTests
     {
         var fileSet = MockFileSystemTestFileSet.Create(
             ("tests/e2e/mg-scope.defaults/main.test.bicep", "metadata name = 'kept'"));
-        var configuration = new BicepDocumentationExamplesConfiguration
+        var configuration = new DocumentationExamples
         {
             Reassignments =
             [
@@ -375,7 +376,7 @@ public class BicepDocumentationExampleDiscoveryTests
         moduleRoot.Setup(handle => handle.GetDirectory("child")).Returns(target.Object);
         moduleRoot.Setup(handle => handle.GetParent()).Returns((IDirectoryHandle?)null);
         target.Setup(handle => handle.Exists()).Returns(false);
-        var configuration = new BicepDocumentationExamplesConfiguration
+        var configuration = new DocumentationExamples
         {
             Sources = [],
             Reassignments =
@@ -400,7 +401,7 @@ public class BicepDocumentationExampleDiscoveryTests
     {
         var fileSet = MockFileSystemTestFileSet.Create(
             ("samples/example.bicep", "param value string"));
-        var invalidConfigurations = new BicepDocumentationExamplesConfiguration[]
+        var invalidConfigurations = new DocumentationExamples[]
         {
             new() { Sources = [null!] },
             new() { Sources = [new() { Path = "" }] },

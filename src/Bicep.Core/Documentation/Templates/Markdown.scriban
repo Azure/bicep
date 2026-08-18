@@ -34,6 +34,56 @@
 {{~ end ~}}
 {{~ end ~}}
 {{~ end ~}}
+{{~ func has_type_details(item) ~}}
+{{~ ret (item.secure || item.allowedValues.size > 0 || item.minValue != null || item.maxValue != null || item.minLength != null || item.maxLength != null || item.pattern != null || item.truncated || item.properties.size > 0 || item.discriminator) ~}}
+{{~ end ~}}
+{{~ func render_type_details(item) ~}}
+{{~ if item.secure ~}}
+
+- Secure: Yes
+{{~ end ~}}
+{{~ if item.allowedValues.size > 0 ~}}
+
+- Allowed values: {{ for value in item.allowedValues }}`{{ value }}`{{ if !for.last }}, {{ end }}{{ end }}
+{{~ end ~}}
+{{~ if item.minValue != null ~}}
+
+- Min value: {{ item.minValue }}
+{{~ end ~}}
+{{~ if item.maxValue != null ~}}
+
+- Max value: {{ item.maxValue }}
+{{~ end ~}}
+{{~ if item.minLength != null ~}}
+
+- Min length: {{ item.minLength }}
+{{~ end ~}}
+{{~ if item.maxLength != null ~}}
+
+- Max length: {{ item.maxLength }}
+{{~ end ~}}
+{{~ if item.pattern != null ~}}
+
+- Pattern: `{{ item.pattern }}`
+{{~ end ~}}
+{{~ if item.truncated ~}}
+
+- Nested properties omitted because the type is recursive or exceeds the expansion limit.
+{{~ end ~}}
+{{~ if item.properties.size > 0 ~}}
+
+- Properties:
+{{~ render_properties item.properties "  " ~}}
+{{~ end ~}}
+{{~ if item.discriminator ~}}
+
+- Discriminator: `{{ item.discriminator.propertyName }}`
+{{~ for discriminatorCase in item.discriminator.cases ~}}
+  - `{{ discriminatorCase.value }}`:
+{{~ render_properties discriminatorCase.properties "    " ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
 {{~ func md_cell(value) ~}}
 {{~ if value == null ~}}
 {{~ ret "" ~}}
@@ -62,6 +112,12 @@
 - [Usage Examples](#usage-examples)
 {{~ end ~}}
 - [Parameters](#parameters)
+{{~ if module.exportedTypes.size > 0 ~}}
+- [Exported Types](#exported-types)
+{{~ end ~}}
+{{~ if module.exportedVariables.size > 0 ~}}
+- [Exported Variables](#exported-variables)
+{{~ end ~}}
 {{~ if module.exportedFunctions.size > 0 ~}}
 - [Exported Functions](#exported-functions)
 {{~ end ~}}
@@ -173,6 +229,40 @@ _No resources are declared in this module._
 {{~ else ~}}
 
 _No parameters are declared in this module._
+{{~ end ~}}
+{{~ if module.exportedTypes.size > 0 ~}}
+
+## Exported Types
+
+| Name | Type | Description |
+| :-- | :-- | :-- |
+{{~ for exportedType in module.exportedTypes ~}}
+| `{{ exportedType.name }}` | `{{ md_cell (doc_type exportedType) }}` | {{ md_cell exportedType.description }} |
+{{~ end ~}}
+{{~ for exportedType in module.exportedTypes ~}}
+{{~ if has_type_details exportedType ~}}
+
+### `{{ exportedType.name }}`
+{{~ render_type_details exportedType ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ end ~}}
+{{~ if module.exportedVariables.size > 0 ~}}
+
+## Exported Variables
+
+| Name | Type | Description |
+| :-- | :-- | :-- |
+{{~ for exportedVariable in module.exportedVariables ~}}
+| `{{ exportedVariable.name }}` | `{{ md_cell (doc_type exportedVariable) }}` | {{ md_cell exportedVariable.description }} |
+{{~ end ~}}
+{{~ for exportedVariable in module.exportedVariables ~}}
+{{~ if has_type_details exportedVariable ~}}
+
+### `{{ exportedVariable.name }}`
+{{~ render_type_details exportedVariable ~}}
+{{~ end ~}}
+{{~ end ~}}
 {{~ end ~}}
 {{~ if module.exportedFunctions.size > 0 ~}}
 

@@ -8,6 +8,8 @@ Second line.
 - [Resource Types](#resource-types)
 - [Usage Examples](#usage-examples)
 - [Parameters](#parameters)
+- [Exported Types](#exported-types)
+- [Exported Variables](#exported-variables)
 - [Exported Functions](#exported-functions)
 - [Outputs](#outputs)
 - [Cross-referenced Modules](#cross-referenced-modules)
@@ -157,6 +159,56 @@ module test '../../../main.bicep' = {
 - Default value: `'Standard'`
 
 - Allowed values: `Premium`, `Standard`
+
+## Exported Types
+
+| Name | Type | Description |
+| :-- | :-- | :-- |
+| `networkAccessType` | `object` |  |
+| `publicAccessType` | `object` |  |
+| `restrictedAccessType` | `object` |  |
+| `settingsType` | `object` | Nested module settings. |
+
+### `networkAccessType`
+
+- Discriminator: `kind`
+  - `public`:
+    - `kind` (`string`), required
+      - Allowed values: `public`
+  - `restricted`:
+    - `allowedCidrs` (`array`), required: Allowed CIDR ranges.
+    - `kind` (`string`), required
+      - Allowed values: `restricted`
+
+### `publicAccessType`
+
+- Properties:
+  - `kind` (`string`), required
+    - Allowed values: `public`
+
+### `restrictedAccessType`
+
+- Properties:
+  - `allowedCidrs` (`array`), required: Allowed CIDR ranges.
+  - `kind` (`string`), required
+    - Allowed values: `restricted`
+
+### `settingsType`
+
+- Properties:
+  - `enabled` (`bool`), required: Whether the feature is enabled.
+  - `labels` (`object`), required: Labels applied to resources.
+    - `environment` (`string`), required: Environment label.
+
+## Exported Variables
+
+| Name | Type | Description |
+| :-- | :-- | :-- |
+| `defaultDeploymentPrefix` | `string` | The default deployment prefix. |
+
+### `defaultDeploymentPrefix`
+
+- Allowed values: `sample`
 
 ## Exported Functions
 

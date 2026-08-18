@@ -169,19 +169,13 @@ public class BicepClientUnitTests
             "templates",
             custom,
             "docs.md",
-            NoRestore: true)
-        {
-            ConfigFilePath = "docs.json",
-        };
+            NoRestore: true);
         var outputRequest = new OutputDocsRequest(
             "main.bicep",
             "template.scriban",
             "templates",
             custom,
-            NoRestore: true)
-        {
-            ConfigFilePath = "docs.json",
-        };
+            NoRestore: true);
         var result = new DocsResult("main.bicep", "docs.md", true, [], "# Module\n");
 
         generateRequest.Paths.Should().Equal("main.bicep");
@@ -190,13 +184,11 @@ public class BicepClientUnitTests
         generateRequest.Custom.Should().BeSameAs(custom);
         generateRequest.OutputFile.Should().Be("docs.md");
         generateRequest.NoRestore.Should().BeTrue();
-        generateRequest.ConfigFilePath.Should().Be("docs.json");
         outputRequest.Path.Should().Be("main.bicep");
         outputRequest.TemplateFile.Should().Be("template.scriban");
         outputRequest.TemplateRoot.Should().Be("templates");
         outputRequest.Custom.Should().BeSameAs(custom);
         outputRequest.NoRestore.Should().BeTrue();
-        outputRequest.ConfigFilePath.Should().Be("docs.json");
         result.Path.Should().Be("main.bicep");
         result.OutputPath.Should().Be("docs.md");
         result.Success.Should().BeTrue();

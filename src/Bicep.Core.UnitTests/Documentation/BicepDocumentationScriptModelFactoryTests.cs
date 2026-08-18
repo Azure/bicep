@@ -42,6 +42,40 @@ public class BicepDocumentationScriptModelFactoryTests
                     Discriminator: new BicepDocumentationDiscriminator("type", [new BicepDocumentationDiscriminatorCase("allowAll", [])])),
             ],
             Outputs: [new BicepDocumentationOutput("out1", "string", IsSecure: true, Description: "An output.")],
+            ExportedTypes:
+            [
+                new BicepDocumentationExport(
+                    "settingsType",
+                    "object",
+                    false,
+                    "Settings.",
+                    [],
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    false,
+                    [new BicepDocumentationParameter("enabled", "bool", true, false, null, null, [], null, null, null, null, null, false, [], null)],
+                    null),
+            ],
+            ExportedVariables:
+            [
+                new BicepDocumentationExport(
+                    "defaultName",
+                    "string",
+                    false,
+                    "Default name.",
+                    ["default"],
+                    null,
+                    null,
+                    1,
+                    20,
+                    "^[a-z]+$",
+                    false,
+                    [],
+                    null),
+            ],
             ExportedFunctions: [new BicepDocumentationFunction("fn", [new BicepDocumentationFunctionParameter("p", "int", "A param.")], "bool", "A function.")],
             References: [new BicepDocumentationReference("logging", "modules/logging.bicep", "A reference.")],
             UsageExamples: [new BicepDocumentationUsageExample("default", "examples/default/main.bicep", "An example.", "// contents")]);
@@ -87,6 +121,14 @@ public class BicepDocumentationScriptModelFactoryTests
         output!.GetSafeValue<string>("name").Should().Be("out1");
         output.GetSafeValue<bool>("secure").Should().BeTrue();
 
+        var exportedType = module.GetSafeValue<ScriptArray>("exportedTypes")![0] as ScriptObject;
+        exportedType!.GetSafeValue<string>("name").Should().Be("settingsType");
+        exportedType.GetSafeValue<ScriptArray>("properties").Should().ContainSingle();
+
+        var exportedVariable = module.GetSafeValue<ScriptArray>("exportedVariables")![0] as ScriptObject;
+        exportedVariable!.GetSafeValue<string>("name").Should().Be("defaultName");
+        exportedVariable.GetSafeValue<string>("pattern").Should().Be("^[a-z]+$");
+
         var function = module.GetSafeValue<ScriptArray>("exportedFunctions")![0] as ScriptObject;
         function!.GetSafeValue<string>("returnType").Should().Be("bool");
         var functionParameter = function.GetSafeValue<ScriptArray>("parameters")![0] as ScriptObject;
@@ -114,6 +156,8 @@ public class BicepDocumentationScriptModelFactoryTests
             ResourceTypes: [],
             Parameters: [new BicepDocumentationParameter("p", "string", false, false, null, null, [], null, null, null, null, null, false, [], null)],
             Outputs: [],
+            ExportedTypes: [],
+            ExportedVariables: [],
             ExportedFunctions: [],
             References: [],
             UsageExamples: []);

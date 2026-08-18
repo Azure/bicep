@@ -16,8 +16,7 @@ internal sealed class WriteFailingFileExplorer(
     {
         var file = inner.GetFile(uri);
         var fileName = uri.GetFileName();
-        return fileName.StartsWith($".{outputFileName}.", StringComparison.OrdinalIgnoreCase) &&
-            fileName.EndsWith(".tmp", StringComparison.OrdinalIgnoreCase)
+        return fileName.Equals(outputFileName, StringComparison.OrdinalIgnoreCase)
             ? new WriteFailingFileHandle(file, exception)
             : file;
     }

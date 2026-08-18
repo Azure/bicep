@@ -84,6 +84,7 @@ public sealed class TestConfigurationBuilder
             this.configuration.ExperimentalFeaturesWarning,
             experimentalFeaturesEnabled ?? this.configuration.ExperimentalFeaturesEnabled,
             this.configuration.Formatting,
+            this.configuration.Documentation,
             this.configuration.ConfigFileUri,
             this.configuration.Diagnostics);
 

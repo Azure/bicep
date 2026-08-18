@@ -138,13 +138,7 @@ public record GenerateDocsRequest(
     string? TemplateRoot,
     Dictionary<string, string>? Custom,
     string? OutputFile,
-    bool NoRestore)
-{
-    /// <summary>
-    /// Gets an optional docs configuration file path.
-    /// </summary>
-    public string? ConfigFilePath { get; init; }
-}
+    bool NoRestore);
 
 /// <summary>
 /// Requests rendered documentation for one module.
@@ -154,13 +148,7 @@ public record OutputDocsRequest(
     string? TemplateFile,
     string? TemplateRoot,
     Dictionary<string, string>? Custom,
-    bool NoRestore)
-{
-    /// <summary>
-    /// Gets an optional docs configuration file path.
-    /// </summary>
-    public string? ConfigFilePath { get; init; }
-}
+    bool NoRestore);
 
 /// <summary>
 /// Contains documentation content and diagnostics for one module.

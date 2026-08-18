@@ -7,6 +7,8 @@ Creates a storage account with example telemetry and diagnostics settings.
 - [Resource Types](#resource-types)
 - [Usage Examples](#usage-examples)
 - [Parameters](#parameters)
+- [Exported Types](#exported-types)
+- [Exported Variables](#exported-variables)
 - [Exported Functions](#exported-functions)
 - [Outputs](#outputs)
 - [Cross-referenced Modules](#cross-referenced-modules)
@@ -93,6 +95,53 @@ module example '../../main.bicep' = {
 - Min length: 3
 
 - Max length: 24
+
+## Exported Types
+
+| Name | Type | Description |
+| :-- | :-- | :-- |
+| `allowAllNetworkRule` | `object` | An allow-all network rule. |
+| `ipRestrictedNetworkRule` | `object` | An IP-restricted network rule. |
+| `networkRuleUnion` | `object` |  |
+
+### `allowAllNetworkRule`
+
+- Properties:
+  - `type` (`string`), required
+    - Allowed values: `allowAll`
+
+### `ipRestrictedNetworkRule`
+
+- Properties:
+  - `allowedIpRanges` (`array`), required: Allowed IP ranges in CIDR notation.
+  - `type` (`string`), required
+    - Allowed values: `ipRestricted`
+
+### `networkRuleUnion`
+
+- Discriminator: `type`
+  - `allowAll`:
+    - `type` (`string`), required
+      - Allowed values: `allowAll`
+  - `ipRestricted`:
+    - `allowedIpRanges` (`array`), required: Allowed IP ranges in CIDR notation.
+    - `type` (`string`), required
+      - Allowed values: `ipRestricted`
+
+## Exported Variables
+
+| Name | Type | Description |
+| :-- | :-- | :-- |
+| `defaultReplication` | `string` | The default replication mode. |
+| `defaultStorageTier` | `string` | The default storage tier. |
+
+### `defaultReplication`
+
+- Allowed values: `LRS`
+
+### `defaultStorageTier`
+
+- Allowed values: `Standard`
 
 ## Exported Functions
 

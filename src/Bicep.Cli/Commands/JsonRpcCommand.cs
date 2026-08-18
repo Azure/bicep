@@ -27,6 +27,7 @@ public class JsonRpcCommand(
     IEnvironment environment,
     IFileSystem fileSystem,
     IBicepDocumentationGenerator documentationGenerator,
+    DocsGenerationOptionsResolver docsOptionsResolver,
     OutputWriter writer) : ICommand
 {
     public async Task<int> RunAsync(JsonRpcArguments args, CancellationToken cancellationToken)
@@ -73,6 +74,7 @@ public class JsonRpcCommand(
             inputOutputArgumentsResolver,
             environment,
             documentationGenerator,
+            docsOptionsResolver,
             fileSystem,
             writer);
         jsonRpc.AddLocalRpcTarget<ICliJsonRpcProtocol>(server, null);

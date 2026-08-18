@@ -6,6 +6,7 @@ using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Documentation;
 using Bicep.Core.Exceptions;
@@ -22,7 +23,11 @@ public abstract record DocsRenderResult(
     Compilation? CompilationResult,
     IDiagnostic? DocumentationDiagnostic)
 {
-    public sealed record Succeeded(IOUri SourceUri, Compilation Compilation, string Contents)
+    public sealed record Succeeded(
+        IOUri SourceUri,
+        Compilation Compilation,
+        RootConfiguration Configuration,
+        string Contents)
         : DocsRenderResult(SourceUri, Compilation, null);
 
     public sealed record Failed(
@@ -37,17 +42,17 @@ public class DocsCommandRunner(
     IOContext io,
     DiagnosticLogger diagnosticLogger,
     BicepCompiler compiler,
-    IBicepDocumentationGenerator documentationGenerator)
+    IBicepDocumentationGenerator documentationGenerator,
+    DocsGenerationOptionsResolver optionsResolver)
 {
     public async Task<DocsRenderResult> RenderAsync(
         IOUri inputUri,
-        IOUri? templateFile,
-        IOUri? templateRoot,
+        string? templateFile,
+        string? templateRoot,
         IReadOnlyDictionary<string, string> customValues,
-        BicepDocumentationExamplesConfiguration examples,
         bool noRestore,
         DiagnosticsFormat? diagnosticsFormat,
-        ActiveSourceFileSet? workspace = null,
+        ActiveSourceFileSet workspace,
         bool logExperimentalWarning = true,
         bool logDiagnostics = true,
         CancellationToken cancellationToken = default)
@@ -58,7 +63,7 @@ public class DocsCommandRunner(
         try
         {
             compilation = await compiler.CreateCompilation(inputUri, workspace, skipRestore: noRestore);
-            workspace?.UpsertSourceFiles(compilation.SourceFileGrouping.SourceFiles);
+            workspace.UpsertSourceFiles(compilation.SourceFileGrouping.SourceFiles);
         }
         catch (BicepException exception)
         {
@@ -97,14 +102,29 @@ public class DocsCommandRunner(
 
         try
         {
-            var options = new BicepDocumentationGenerationOptions(templateFile, templateRoot, customValues)
-            {
-                Examples = examples,
-            };
+            var configuration = compilation.GetEntrypointSemanticModel().Configuration;
+            var options = optionsResolver.Resolve(
+                configuration,
+                templateFile,
+                templateRoot,
+                customValues);
             return new DocsRenderResult.Succeeded(
                 inputUri,
                 compilation,
+                configuration,
                 documentationGenerator.Generate(compilation, options, cancellationToken));
+        }
+        catch (CommandLineException exception)
+        {
+            if (diagnosticsFormat is not DiagnosticsFormat.Sarif)
+            {
+                await io.Error.Writer.WriteLineAsync(exception.Message);
+            }
+
+            return new DocsRenderResult.Failed(
+                inputUri,
+                compilation,
+                DocsCommand.CreateDiagnostic(DocsCommand.InputFailureCode, exception.Message));
         }
         catch (BicepDocumentationException exception)
         {

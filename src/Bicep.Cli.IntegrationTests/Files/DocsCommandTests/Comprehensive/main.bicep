@@ -109,6 +109,10 @@ module logging 'modules/logging.bicep' = {
 }
 
 @export()
+@description('The default deployment prefix.')
+var defaultDeploymentPrefix = 'sample'
+
+@export()
 @description('Builds a display name.')
 func buildDisplayName(prefix string) string => '${prefix}-deployment'
 

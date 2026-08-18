@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.Reflection;
+using Bicep.Core.Configuration;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
@@ -54,7 +55,7 @@ public class BicepDocumentationGenerator(
     private BicepDocumentationModel BuildModel(
         Compilation compilation,
         IReadOnlyDictionary<string, string>? customValues,
-        BicepDocumentationExamplesConfiguration examples,
+        DocumentationExamples examples,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -78,6 +79,8 @@ public class BicepDocumentationGenerator(
             ResourceTypes: BuildResourceTypes(semanticModel),
             Parameters: BuildParameters(semanticModel, typeAnalyzer),
             Outputs: BuildOutputs(semanticModel, typeAnalyzer),
+            ExportedTypes: BuildExportedTypes(semanticModel, typeAnalyzer),
+            ExportedVariables: BuildExportedVariables(semanticModel, typeAnalyzer),
             ExportedFunctions: BuildExportedFunctions(semanticModel, typeAnalyzer),
             References: BuildReferences(semanticModel),
             UsageExamples: BicepDocumentationExampleDiscovery.Discover(
@@ -197,7 +200,7 @@ public class BicepDocumentationGenerator(
         {
             contents = file.ReadAllText();
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex.IsFileSystemException())
         {
             throw new BicepDocumentationException($"Unable to read template file '{templateFileUri}': {ex.Message}", ex);
         }
@@ -320,6 +323,36 @@ public class BicepDocumentationGenerator(
             .ToImmutableArray();
 
         return BicepDocumentationOrdering.SortByName(functions, f => f.Name);
+    }
+
+    private static ImmutableArray<BicepDocumentationExport> BuildExportedTypes(
+        SemanticModel semanticModel,
+        BicepDocumentationTypeAnalyzer typeAnalyzer)
+    {
+        var types = semanticModel.Exports.Values
+            .OfType<ExportedTypeMetadata>()
+            .Select(type => typeAnalyzer.BuildExport(
+                type.Name,
+                ((TypeType)type.TypeReference.Type).Unwrapped,
+                NormalizeText(type.Description)))
+            .ToImmutableArray();
+
+        return BicepDocumentationOrdering.SortByName(types, type => type.Name);
+    }
+
+    private static ImmutableArray<BicepDocumentationExport> BuildExportedVariables(
+        SemanticModel semanticModel,
+        BicepDocumentationTypeAnalyzer typeAnalyzer)
+    {
+        var variables = semanticModel.Exports.Values
+            .OfType<ExportedVariableMetadata>()
+            .Select(variable => typeAnalyzer.BuildExport(
+                variable.Name,
+                variable.TypeReference.Type,
+                NormalizeText(variable.Description)))
+            .ToImmutableArray();
+
+        return BicepDocumentationOrdering.SortByName(variables, variable => variable.Name);
     }
 
     private static ImmutableArray<BicepDocumentationReference> BuildReferences(SemanticModel semanticModel)

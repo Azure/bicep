@@ -29,6 +29,8 @@ internal static class BicepDocumentationScriptModelFactory
         { "resourceTypes", CreateArray(model.ResourceTypes, CreateResourceType) },
         { "parameters", CreateParameters(model.Parameters) },
         { "outputs", CreateArray(model.Outputs, CreateOutput) },
+        { "exportedTypes", CreateExports(model.ExportedTypes) },
+        { "exportedVariables", CreateExports(model.ExportedVariables) },
         { "exportedFunctions", CreateArray(model.ExportedFunctions, CreateFunction) },
         { "references", CreateArray(model.References, CreateReference) },
         { "usageExamples", CreateArray(model.UsageExamples, CreateUsageExample) },
@@ -98,6 +100,34 @@ internal static class BicepDocumentationScriptModelFactory
         { "returnType", function.ReturnTypeName },
         { "description", function.Description },
     };
+
+    private static ScriptObject CreateExport(BicepDocumentationExport export) => new()
+    {
+        { "name", export.Name },
+        { "type", export.TypeName },
+        { "secure", export.IsSecure },
+        { "description", export.Description },
+        { "allowedValues", CreateStrings(export.AllowedValues) },
+        { "minValue", export.MinValue },
+        { "maxValue", export.MaxValue },
+        { "minLength", export.MinLength },
+        { "maxLength", export.MaxLength },
+        { "pattern", export.Pattern },
+        { "truncated", export.IsTruncated },
+        { "properties", CreateParameters(export.NestedProperties) },
+        { "discriminator", export.Discriminator is { } discriminator ? CreateDiscriminator(discriminator) : null },
+    };
+
+    private static ScriptArray CreateExports(ImmutableArray<BicepDocumentationExport> exports)
+    {
+        var array = new ScriptArray();
+        foreach (var export in exports)
+        {
+            array.Add(CreateExport(export));
+        }
+
+        return array;
+    }
 
     private static ScriptObject CreateFunctionParameter(BicepDocumentationFunctionParameter parameter) => new()
     {

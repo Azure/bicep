@@ -6,6 +6,7 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Bicep.Core.Configuration;
 using Bicep.Core.Documentation;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
@@ -100,6 +101,14 @@ public class BicepDocumentationGeneratorTests
         }
 
         @export()
+        @description('The default storage tier.')
+        var defaultStorageTier = 'Standard'
+
+        @export()
+        @description('The default replication mode.')
+        var defaultReplication = 'LRS'
+
+        @export()
         @description('Builds a resource tag object from an environment name.')
         func buildTags(environmentName string) object => {
           environment: environmentName
@@ -188,6 +197,20 @@ public class BicepDocumentationGeneratorTests
         model.Outputs.Select(o => o.Name).Should().Equal("storageAccountId");
         model.Outputs.Single().TypeName.Should().Be("string");
 
+        model.ExportedTypes.Select(type => type.Name).Should().Equal(
+            "allowAllNetworkRule",
+            "ipRestrictedNetworkRule",
+            "networkRuleUnion");
+        model.ExportedTypes.Single(type => type.Name == "networkRuleUnion")
+            .Discriminator!.Cases.Select(discriminatorCase => discriminatorCase.Value)
+            .Should().Equal("allowAll", "ipRestricted");
+
+        model.ExportedVariables.Select(variable => variable.Name).Should().Equal(
+            "defaultReplication",
+            "defaultStorageTier");
+        model.ExportedVariables.Single(variable => variable.Name == "defaultStorageTier")
+            .AllowedValues.Should().Equal("Standard");
+
         model.ExportedFunctions.Select(f => f.Name).Should().Equal("buildTags");
         var buildTags = model.ExportedFunctions.Single();
         buildTags.Parameters.Select(p => p.Name).Should().Equal("environmentName");
@@ -213,6 +236,35 @@ public class BicepDocumentationGeneratorTests
 
         model.Name.Should().Be("to");
         model.Description.Should().BeNull();
+    }
+
+    [TestMethod]
+    public async Task BuildModel_SortsMultipleFunctionsAndReferences()
+    {
+        var compiler = TestCompiler.ForMockFileSystemCompilation();
+        var result = await compiler.Compile(
+            ("main.bicep", """
+                @export()
+                func zebra() string => 'z'
+
+                @export()
+                func alpha() string => 'a'
+
+                module zebraModule 'zebra.bicep' = {
+                  name: 'zebra'
+                }
+
+                module alphaModule 'alpha.bicep' = {
+                  name: 'alpha'
+                }
+                """),
+            ("zebra.bicep", "metadata description = 'Zebra'"),
+            ("alpha.bicep", "metadata description = 'Alpha'"));
+
+        var model = compiler.GetService<IBicepDocumentationGenerator>().BuildModel(result.Compilation);
+
+        model.ExportedFunctions.Select(function => function.Name).Should().Equal("alpha", "zebra");
+        model.References.Select(reference => reference.SymbolicName).Should().Equal("alphaModule", "zebraModule");
     }
 
     [TestMethod]
@@ -326,20 +378,14 @@ public class BicepDocumentationGeneratorTests
     [TestMethod]
     public void DocumentationConfiguration_DefaultsAreCompleteAndReplaceable()
     {
-        var configuration = new BicepDocumentationConfiguration();
+        var configuration = new Bicep.Core.Configuration.Documentation();
         var clone = configuration with { };
         var withoutExamples = configuration with
         {
             Examples = configuration.Examples with { Sources = [] },
         };
-        var custom = new BicepDocumentationConfiguration
+        var custom = new Bicep.Core.Configuration.Documentation
         {
-            Schema = "https://example.com/bicepdocsconfig.schema.json",
-            Input = new()
-            {
-                Include = ["**/*.module.bicep"],
-                Exclude = ["**/*.test.bicep"],
-            },
             Output = new() { File = "DOCS.md" },
             Template = new()
             {
@@ -373,9 +419,6 @@ public class BicepDocumentationGeneratorTests
             },
         };
 
-        configuration.Schema.Should().BeNull();
-        configuration.Input.Include.Should().Equal("main.bicep");
-        configuration.Input.Exclude.Should().BeEmpty();
         configuration.Output.File.Should().Be("README.md");
         configuration.Template.File.Should().BeNull();
         configuration.Template.IncludeRoot.Should().BeNull();
@@ -384,9 +427,6 @@ public class BicepDocumentationGeneratorTests
         configuration.Examples.Reassignments.Should().BeEmpty();
         configuration.Should().Be(clone);
         configuration.Should().NotBe(withoutExamples);
-        custom.Schema.Should().Be("https://example.com/bicepdocsconfig.schema.json");
-        custom.Input.Include.Should().Equal("**/*.module.bicep");
-        custom.Input.Exclude.Should().Equal("**/*.test.bicep");
         custom.Output.File.Should().Be("DOCS.md");
         custom.Template.File.Should().Be("readme.scriban");
         custom.Template.IncludeRoot.Should().Be("templates");
@@ -802,6 +842,8 @@ public class BicepDocumentationGeneratorTests
         model.ResourceTypes.Should().BeEmpty();
         model.Parameters.Should().BeEmpty();
         model.Outputs.Should().BeEmpty();
+        model.ExportedTypes.Should().BeEmpty();
+        model.ExportedVariables.Should().BeEmpty();
         model.ExportedFunctions.Should().BeEmpty();
         model.References.Should().BeEmpty();
         model.UsageExamples.Should().BeEmpty();
@@ -812,6 +854,8 @@ public class BicepDocumentationGeneratorTests
         rendered.Should().Contain("_No parameters are declared in this module._");
         rendered.Should().Contain("_No outputs are declared in this module._");
         rendered.Should().NotContain("Usage Examples");
+        rendered.Should().NotContain("Exported Types");
+        rendered.Should().NotContain("Exported Variables");
         rendered.Should().NotContain("Exported Functions");
         rendered.Should().NotContain("Cross-referenced Modules");
         rendered.Should().NotContain("Data Collection");
@@ -964,6 +1008,8 @@ public class BicepDocumentationGeneratorTests
         ResourceTypes: [],
         Parameters: [],
         Outputs: [],
+        ExportedTypes: [],
+        ExportedVariables: [],
         ExportedFunctions: [],
         References: [],
         UsageExamples: []);

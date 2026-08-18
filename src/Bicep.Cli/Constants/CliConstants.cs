@@ -25,7 +25,6 @@ namespace Bicep.Cli.Constants
         public const string Console = "console";
         public const string Docs = "docs";
         public const string DocsGenerate = "generate";
-        public const string DocsOutput = "output";
         public const string Root = "";
     }
 
@@ -54,7 +53,6 @@ namespace Bicep.Cli.Constants
         public const string DiagnosticsFormat = "--diagnostics-format";
         public const string CustomTemplateValue = "--custom-template-value";
         public const string CustomTemplateValueFilePath = "--custom-template-value-file-path";
-        public const string ConfigFilePath = "--config-file-path";
         public const string TemplateFile = "--template-file";
         public const string TemplateRoot = "--template-root";
 

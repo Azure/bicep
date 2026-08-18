@@ -17,6 +17,8 @@ public record BicepDocumentationModel(
     ImmutableArray<BicepDocumentationResourceType> ResourceTypes,
     ImmutableArray<BicepDocumentationParameter> Parameters,
     ImmutableArray<BicepDocumentationOutput> Outputs,
+    ImmutableArray<BicepDocumentationExport> ExportedTypes,
+    ImmutableArray<BicepDocumentationExport> ExportedVariables,
     ImmutableArray<BicepDocumentationFunction> ExportedFunctions,
     ImmutableArray<BicepDocumentationReference> References,
     ImmutableArray<BicepDocumentationUsageExample> UsageExamples);
@@ -64,6 +66,24 @@ public record BicepDocumentationDiscriminatorCase(
 /// A module output.
 /// </summary>
 public record BicepDocumentationOutput(string Name, string TypeName, bool IsSecure, string? Description);
+
+/// <summary>
+/// An exported type or variable.
+/// </summary>
+public record BicepDocumentationExport(
+    string Name,
+    string TypeName,
+    bool IsSecure,
+    string? Description,
+    ImmutableArray<string> AllowedValues,
+    long? MinValue,
+    long? MaxValue,
+    long? MinLength,
+    long? MaxLength,
+    string? Pattern,
+    bool IsTruncated,
+    ImmutableArray<BicepDocumentationParameter> NestedProperties,
+    BicepDocumentationDiscriminator? Discriminator);
 
 /// <summary>
 /// A user-defined function exported from a module.

@@ -171,37 +171,5 @@ namespace Bicep.Cli.Services
             }
         }
 
-        public async Task WriteToFileAtomicallyAsync(
-            IOUri fileUri,
-            string contents,
-            CancellationToken cancellationToken = default)
-        {
-            var outputPath = fileUri.GetFilePath();
-            var directory = fileUri.Resolve(".").GetFilePath();
-            var temporaryPath = fileSystem.Path.Combine(
-                directory,
-                $".{fileSystem.Path.GetFileName(outputPath)}.{Guid.NewGuid():N}.tmp");
-            var temporaryUri = IOUri.FromFilePath(temporaryPath);
-
-            try
-            {
-                await fileExplorer.GetFile(temporaryUri).WriteAllTextAsync(contents, cancellationToken);
-                fileSystem.File.Move(temporaryPath, outputPath, overwrite: true);
-            }
-            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-            {
-                throw new BicepException(exception.Message, exception);
-            }
-            finally
-            {
-                try
-                {
-                    fileSystem.File.Delete(temporaryPath);
-                }
-                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-                {
-                }
-            }
-        }
     }
 }

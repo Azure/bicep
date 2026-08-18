@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Configuration;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.IO.Abstraction;
@@ -20,13 +21,13 @@ internal static class BicepDocumentationExampleDiscovery
 
     public static ImmutableArray<BicepDocumentationUsageExample> Discover(
         IDirectoryHandle moduleRoot,
-        BicepDocumentationExamplesConfiguration configuration,
+        DocumentationExamples configuration,
         Func<IOUri, bool>? shouldSkip = null)
     {
         try
         {
             var sources = configuration.Sources.IsDefault
-                ? new BicepDocumentationExamplesConfiguration().Sources
+                ? new DocumentationExamples().Sources
                 : configuration.Sources;
             var discovered = DiscoverLocalFiles(moduleRoot, sources, shouldSkip);
             ApplyParentReassignments(moduleRoot, configuration, discovered);
@@ -40,7 +41,7 @@ internal static class BicepDocumentationExampleDiscovery
         {
             throw;
         }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        catch (Exception exception) when (exception.IsFileSystemException())
         {
             throw new BicepDocumentationException(
                 $"Unable to discover usage examples under '{moduleRoot.Uri}': {exception.Message}",
@@ -50,7 +51,7 @@ internal static class BicepDocumentationExampleDiscovery
 
     private static Dictionary<IOUri, DiscoveredFile> DiscoverLocalFiles(
         IDirectoryHandle moduleRoot,
-        ImmutableArray<BicepDocumentationExampleSource> sources,
+        ImmutableArray<DocumentationExampleSource> sources,
         Func<IOUri, bool>? shouldSkip)
     {
         var discovered = new Dictionary<IOUri, DiscoveredFile>();
@@ -106,7 +107,7 @@ internal static class BicepDocumentationExampleDiscovery
 
     private static void ApplyParentReassignments(
         IDirectoryHandle moduleRoot,
-        BicepDocumentationExamplesConfiguration configuration,
+        DocumentationExamples configuration,
         Dictionary<IOUri, DiscoveredFile> discovered)
     {
         if (configuration.Reassignments.IsDefaultOrEmpty)
@@ -135,8 +136,8 @@ internal static class BicepDocumentationExampleDiscovery
 
     private static void ApplyChildReassignments(
         IDirectoryHandle moduleRoot,
-        BicepDocumentationExamplesConfiguration configuration,
-        ImmutableArray<BicepDocumentationExampleSource> sources,
+        DocumentationExamples configuration,
+        ImmutableArray<DocumentationExampleSource> sources,
         Dictionary<IOUri, DiscoveredFile> discovered,
         Func<IOUri, bool>? shouldSkip)
     {
@@ -168,7 +169,7 @@ internal static class BicepDocumentationExampleDiscovery
         }
     }
 
-    private static void ValidateReassignment(BicepDocumentationExampleReassignment reassignment)
+    private static void ValidateReassignment(DocumentationExampleReassignment reassignment)
     {
         if (reassignment is null ||
             reassignment.From is null ||
@@ -189,7 +190,7 @@ internal static class BicepDocumentationExampleDiscovery
         {
             contents = discovered.File.ReadAllText();
         }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        catch (Exception exception) when (exception.IsFileSystemException())
         {
             throw new BicepDocumentationException(
                 $"Unable to read usage example '{discovered.File.Uri}': {exception.Message}",

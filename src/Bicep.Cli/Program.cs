@@ -206,6 +206,7 @@ namespace Bicep.Cli
                 .AddSingleton<InputOutputArgumentsResolver>()
                 .AddSingleton<DiagnosticLogger>()
                 .AddSingleton<OutputWriter>()
+                .AddSingleton<DocsGenerationOptionsResolver>()
                 .AddSingleton<DocsCommandRunner>()
                 .AddSingleton<PlaceholderParametersWriter>()
                 .AddSingleton(io)

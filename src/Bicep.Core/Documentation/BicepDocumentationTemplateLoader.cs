@@ -21,7 +21,7 @@ internal sealed class BicepDocumentationTemplateLoader(IFileExplorer fileExplore
         {
             resolved = root.Resolve(templateName);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException or UriFormatException)
+        catch (Exception ex) when (ex.IsPathException() || ex is UriFormatException)
         {
             throw new ScriptRuntimeException(callerSpan, $"Unable to resolve include path '{templateName}': {ex.Message}", ex);
         }
@@ -49,7 +49,7 @@ internal sealed class BicepDocumentationTemplateLoader(IFileExplorer fileExplore
         {
             return file.ReadAllText();
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex.IsFileSystemException())
         {
             throw new ScriptRuntimeException(callerSpan, $"Unable to read include file '{templatePath}': {ex.Message}", ex);
         }

@@ -23,7 +23,7 @@ namespace Bicep.Cli.Arguments
             {
                 return IOUri.FromFilePath(GetFullPath(path));
             }
-            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+            catch (Exception exception) when (exception.IsPathException())
             {
                 throw new CommandLineException(exception.Message, exception);
             }
@@ -40,7 +40,7 @@ namespace Bicep.Cli.Arguments
             {
                 return this.fileSystem.Path.GetFullPath(path);
             }
-            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
+            catch (Exception exception) when (exception.IsPathException())
             {
                 throw new CommandLineException(exception.Message, exception);
             }
@@ -219,41 +219,6 @@ namespace Bicep.Cli.Arguments
             }
 
             return (rootUri, relativePaths);
-        }
-
-        internal IReadOnlyList<string> ResolveFilePatterns(
-            string rootPath,
-            IEnumerable<string> includePatterns,
-            IEnumerable<string> excludePatterns)
-        {
-            var matcher = new Matcher(StringComparison.OrdinalIgnoreCase);
-            foreach (var pattern in includePatterns)
-            {
-                matcher.AddInclude(pattern);
-            }
-
-            foreach (var pattern in excludePatterns)
-            {
-                matcher.AddExclude(pattern);
-            }
-
-            if (!this.fileSystem.Directory.Exists(rootPath))
-            {
-                return [];
-            }
-
-            try
-            {
-                return this.fileSystem.Directory
-                    .EnumerateFiles(rootPath, "*", SearchOption.AllDirectories)
-                    .Select(path => this.fileSystem.Path.GetRelativePath(rootPath, path).Replace('\\', '/'))
-                    .Where(path => matcher.Match(path).HasMatches)
-                    .ToArray();
-            }
-            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
-            {
-                throw new CommandLineException(exception.Message, exception);
-            }
         }
 
         public (string rootPath, string relativePattern) SplitFilePatternOnWildcard(string filePattern)
