@@ -31,10 +31,10 @@ jobs:
           echo "Restoring dependencies for BicepInVisualStudio.sln"
           dotnet restore src/vs-bicep/BicepInVisualStudio.sln --force-evaluate
 
-      - name: Restore npm dependencies
+      - name: Set up VS Code dependencies
         run: |
-          echo "Restoring npm dependencies for vscode-bicep and related projects"
-          & .\scripts\install-dependencies.bat
+          echo "Setting up dependencies for vscode-bicep and related projects"
+          node .\scripts\setup-development.mjs
         working-directory: src/vscode-bicep
 
       - uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7
