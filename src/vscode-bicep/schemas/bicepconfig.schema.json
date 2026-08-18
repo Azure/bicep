@@ -13,12 +13,7 @@
       "title": "Diagnostic Level",
       "description": "Type of diagnostic to display, most rules default to warning",
       "type": "string",
-      "enum": [
-        "off",
-        "info",
-        "warning",
-        "error"
-      ]
+      "enum": ["off", "info", "warning", "error"]
     },
     "rule-def-level-warning": {
       "type": "object",
@@ -30,9 +25,7 @@
           "$ref": "#/definitions/level"
         }
       },
-      "required": [
-        "level"
-      ]
+      "required": ["level"]
     },
     "rule-def-level-error": {
       "type": "object",
@@ -44,9 +37,7 @@
           "$ref": "#/definitions/level"
         }
       },
-      "required": [
-        "level"
-      ]
+      "required": ["level"]
     },
     "rule-def-level-info": {
       "type": "object",
@@ -58,9 +49,7 @@
           "$ref": "#/definitions/level"
         }
       },
-      "required": [
-        "level"
-      ]
+      "required": ["level"]
     },
     "rule-def-level-off": {
       "type": "object",
@@ -72,17 +61,12 @@
           "$ref": "#/definitions/level"
         }
       },
-      "required": [
-        "level"
-      ]
+      "required": ["level"]
     },
     "cloudProfile": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "resourceManagerEndpoint",
-        "activeDirectoryAuthority"
-      ],
+      "required": ["resourceManagerEndpoint", "activeDirectoryAuthority"],
       "properties": {
         "resourceManagerEndpoint": {
           "title": "Resource Manager Endpoint",
@@ -100,22 +84,12 @@
       "title": "Credential Type",
       "description": "Type of credential to use for authentication when restoring external modules",
       "type": "string",
-      "enum": [
-        "Environment",
-        "ManagedIdentity",
-        "VisualStudio",
-        "VisualStudioCode",
-        "AzureCLI",
-        "AzurePowerShell"
-      ]
+      "enum": ["Environment", "ManagedIdentity", "VisualStudio", "VisualStudioCode", "AzureCLI", "AzurePowerShell"]
     },
     "templateSpecModuleAlias": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "subscription",
-        "resourceGroup"
-      ],
+      "required": ["subscription", "resourceGroup"],
       "properties": {
         "subscription": {
           "title": "Subscription ID",
@@ -136,9 +110,7 @@
     "bicepRegistryModuleAlias": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "registry"
-      ],
+      "required": ["registry"],
       "properties": {
         "registry": {
           "title": "Registry",
@@ -158,9 +130,7 @@
     "bicepRegistryModuleAliasMock": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "mapToFilePath"
-      ],
+      "required": ["mapToFilePath"],
       "properties": {
         "mapToFilePath": {
           "title": "Map To File Path",
@@ -180,9 +150,7 @@
           "type": "boolean"
         }
       },
-      "required": [
-        "builtIn"
-      ],
+      "required": ["builtIn"],
       "additionalProperties": false
     }
   },
@@ -193,20 +161,14 @@
       "title": "Cloud",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "currentProfile"
-      ],
+      "required": ["currentProfile"],
       "properties": {
         "currentProfile": {
           "title": "Current Profile",
           "description": "The current cloud profile",
           "anyOf": [
             {
-              "enum": [
-                "AzureCloud",
-                "AzureChinaCloud",
-                "AzureUSGovernment"
-              ]
+              "enum": ["AzureCloud", "AzureChinaCloud", "AzureUSGovernment"]
             },
             {
               "type": "string"
@@ -248,15 +210,9 @@
                   "title": "Managed Identity Type",
                   "description": "The managed identity type",
                   "type": "string",
-                  "enum": [
-                    "SystemAssigned",
-                    "UserAssigned"
-                  ],
+                  "enum": ["SystemAssigned", "UserAssigned"],
                   "default": "SystemAssigned",
-                  "enumDescriptions": [
-                    "Use a system-assigned managed identity",
-                    "Use a user-assigned managed identity"
-                  ]
+                  "enumDescriptions": ["Use a system-assigned managed identity", "Use a user-assigned managed identity"]
                 },
                 "clientId": {
                   "title": "Client ID",
@@ -341,9 +297,7 @@
       "title": "Implicit Bicep Extensions",
       "description": "Bicep extensions that should be used implicitly",
       "type": "array",
-      "default": [
-        "az"
-      ],
+      "default": ["az"],
       "items": {
         "type": "string"
       },
@@ -529,7 +483,7 @@
                         "excludedhosts": {
                           "description": "Customize the list of hosts to allow even if they contain an excluded host as a substring",
                           "type": "array",
-                          "default": [ "schema.management.azure.com" ],
+                          "default": ["schema.management.azure.com"],
                           "items": {
                             "$id": "#/analyzers/core/rules/no-hardcoded-env-urls/excludedhosts/items",
                             "title": "Items",
@@ -1067,19 +1021,12 @@
         "indentKind": {
           "type": "string",
           "description": "The indentation kind",
-          "enum": [
-            "Space",
-            "Tab"
-          ]
+          "enum": ["Space", "Tab"]
         },
         "newlineKind": {
           "type": "string",
           "description": "The newline kind",
-          "enum": [
-            "LF",
-            "CRLF",
-            "CR"
-          ]
+          "enum": ["LF", "CRLF", "CR"]
         },
         "indentSize": {
           "type": "integer",
@@ -1092,6 +1039,150 @@
         "insertFinalNewline": {
           "type": "boolean",
           "description": ""
+        }
+      }
+    },
+    "documentation": {
+      "type": "object",
+      "description": "The module documentation generation settings.",
+      "additionalProperties": false,
+      "properties": {
+        "output": {
+          "type": "object",
+          "description": "Configures generated documentation output.",
+          "additionalProperties": false,
+          "default": {
+            "file": "README.md"
+          },
+          "properties": {
+            "file": {
+              "description": "The generated documentation file name.",
+              "type": "string",
+              "default": "README.md",
+              "minLength": 1
+            }
+          }
+        },
+        "template": {
+          "type": "object",
+          "description": "Configures custom Scriban rendering.",
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "description": "The Scriban template file path.",
+              "type": "string",
+              "minLength": 1
+            },
+            "includeRoot": {
+              "description": "The root directory for Scriban includes.",
+              "type": "string",
+              "minLength": 1
+            },
+            "values": {
+              "description": "The baseline custom template values.",
+              "type": "object",
+              "default": {},
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "examples": {
+          "type": "object",
+          "description": "Configures usage-example discovery and reassignment.",
+          "additionalProperties": false,
+          "properties": {
+            "sources": {
+              "description": "The ordered example sources. The first source that resolves a file wins.",
+              "type": "array",
+              "default": [
+                {
+                  "path": "examples",
+                  "include": ["*.bicep", "**/main.bicep"],
+                  "exclude": ["**/dependencies*.bicep"]
+                },
+                {
+                  "path": "tests",
+                  "include": ["**/*.test.bicep"],
+                  "exclude": ["**/dependencies*.bicep"]
+                }
+              ],
+              "items": {
+                "type": "object",
+                "description": "Configures one usage-example source.",
+                "additionalProperties": false,
+                "required": ["path"],
+                "properties": {
+                  "path": {
+                    "description": "The source directory path relative to the module root.",
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "include": {
+                    "description": "Case-insensitive include globs relative to the source directory.",
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "exclude": {
+                    "description": "Case-insensitive exclude globs relative to the source directory.",
+                    "type": "array",
+                    "default": [],
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            },
+            "reassignments": {
+              "description": "The ordered rules that reassign parent examples to direct child modules.",
+              "type": "array",
+              "default": [],
+              "items": {
+                "type": "object",
+                "description": "Reassigns matching parent examples to one direct child module.",
+                "additionalProperties": false,
+                "required": ["from", "to"],
+                "properties": {
+                  "from": {
+                    "type": "object",
+                    "description": "Selects parent example paths for reassignment.",
+                    "additionalProperties": false,
+                    "required": ["include"],
+                    "properties": {
+                      "include": {
+                        "description": "Case-insensitive include globs relative to the example source.",
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "exclude": {
+                        "description": "Case-insensitive exclude globs relative to the example source.",
+                        "type": "array",
+                        "default": [],
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    }
+                  },
+                  "to": {
+                    "description": "The direct child module directory name.",
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

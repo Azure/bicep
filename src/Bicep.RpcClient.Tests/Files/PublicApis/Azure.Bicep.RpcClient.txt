@@ -38,11 +38,13 @@ namespace Bicep.RpcClient
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.CompileResponse> Compile(Bicep.RpcClient.Models.CompileRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.CompileParamsResponse> CompileParams(Bicep.RpcClient.Models.CompileParamsRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.FormatResponse> Format(Bicep.RpcClient.Models.FormatRequest request, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<Bicep.RpcClient.Models.GenerateDocsResponse> GenerateDocs(Bicep.RpcClient.Models.GenerateDocsRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.GetDeploymentGraphResponse> GetDeploymentGraph(Bicep.RpcClient.Models.GetDeploymentGraphRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.GetFileReferencesResponse> GetFileReferences(Bicep.RpcClient.Models.GetFileReferencesRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.GetMetadataResponse> GetMetadata(Bicep.RpcClient.Models.GetMetadataRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.GetSnapshotResponse> GetSnapshot(Bicep.RpcClient.Models.GetSnapshotRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<string> GetVersion(System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<Bicep.RpcClient.Models.OutputDocsResponse> OutputDocs(Bicep.RpcClient.Models.OutputDocsRequest request, System.Threading.CancellationToken cancellationToken = default);
     }
     public interface IBicepClientFactory
     {
@@ -103,6 +105,15 @@ namespace Bicep.RpcClient.Models
         public Bicep.RpcClient.Models.Range Range { get; init; }
         public string Source { get; init; }
     }
+    public class DocsResult : System.IEquatable<Bicep.RpcClient.Models.DocsResult>
+    {
+        public DocsResult(string Path, string? OutputPath, bool Success, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DiagnosticDefinition> Diagnostics, string? Contents) { }
+        public string? Contents { get; init; }
+        public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DiagnosticDefinition> Diagnostics { get; init; }
+        public string? OutputPath { get; init; }
+        public string Path { get; init; }
+        public bool Success { get; init; }
+    }
     public class FormatRequest : System.IEquatable<Bicep.RpcClient.Models.FormatRequest>
     {
         public FormatRequest(string Path) { }
@@ -112,6 +123,21 @@ namespace Bicep.RpcClient.Models
     {
         public FormatResponse(string Contents) { }
         public string Contents { get; init; }
+    }
+    public class GenerateDocsRequest : System.IEquatable<Bicep.RpcClient.Models.GenerateDocsRequest>
+    {
+        public GenerateDocsRequest(System.Collections.Immutable.ImmutableArray<string> Paths, string? TemplateFile, string? TemplateRoot, System.Collections.Generic.Dictionary<string, string>? Custom, string? OutputFile, bool NoRestore) { }
+        public System.Collections.Generic.Dictionary<string, string>? Custom { get; init; }
+        public bool NoRestore { get; init; }
+        public string? OutputFile { get; init; }
+        public System.Collections.Immutable.ImmutableArray<string> Paths { get; init; }
+        public string? TemplateFile { get; init; }
+        public string? TemplateRoot { get; init; }
+    }
+    public class GenerateDocsResponse : System.IEquatable<Bicep.RpcClient.Models.GenerateDocsResponse>
+    {
+        public GenerateDocsResponse(System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsResult> Results) { }
+        public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsResult> Results { get; init; }
     }
     public class GetDeploymentGraphRequest : System.IEquatable<Bicep.RpcClient.Models.GetDeploymentGraphRequest>
     {
@@ -218,6 +244,20 @@ namespace Bicep.RpcClient.Models
     {
         public GetSnapshotResponse(string Snapshot) { }
         public string Snapshot { get; init; }
+    }
+    public class OutputDocsRequest : System.IEquatable<Bicep.RpcClient.Models.OutputDocsRequest>
+    {
+        public OutputDocsRequest(string Path, string? TemplateFile, string? TemplateRoot, System.Collections.Generic.Dictionary<string, string>? Custom, bool NoRestore) { }
+        public System.Collections.Generic.Dictionary<string, string>? Custom { get; init; }
+        public bool NoRestore { get; init; }
+        public string Path { get; init; }
+        public string? TemplateFile { get; init; }
+        public string? TemplateRoot { get; init; }
+    }
+    public class OutputDocsResponse : System.IEquatable<Bicep.RpcClient.Models.OutputDocsResponse>
+    {
+        public OutputDocsResponse(Bicep.RpcClient.Models.DocsResult Result) { }
+        public Bicep.RpcClient.Models.DocsResult Result { get; init; }
     }
     public class Position : System.IEquatable<Bicep.RpcClient.Models.Position>
     {

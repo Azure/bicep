@@ -11,8 +11,8 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;
-using Bicep.Testing.IO;
 using Bicep.Testing;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -126,6 +126,25 @@ namespace Bicep.Core.UnitTests.Configuration
           "insertFinalNewline": true,
           "indentSize": 2,
           "width": 120
+        },
+        "documentation": {
+          "output": { "file": "README.md" },
+          "template": { "values": {} },
+          "examples": {
+            "sources": [
+              {
+                "path": "examples",
+                "include": ["*.bicep", "**/main.bicep"],
+                "exclude": ["**/dependencies*.bicep"]
+              },
+              {
+                "path": "tests",
+                "include": ["**/*.test.bicep"],
+                "exclude": ["**/dependencies*.bicep"]
+              }
+            ],
+            "reassignments": []
+          }
         }
       }
       """);
@@ -214,6 +233,25 @@ namespace Bicep.Core.UnitTests.Configuration
           "insertFinalNewline": true,
           "indentSize": 2,
           "width": 120
+        },
+        "documentation": {
+          "output": { "file": "README.md" },
+          "template": { "values": {} },
+          "examples": {
+            "sources": [
+              {
+                "path": "examples",
+                "include": ["*.bicep", "**/main.bicep"],
+                "exclude": ["**/dependencies*.bicep"]
+              },
+              {
+                "path": "tests",
+                "include": ["**/*.test.bicep"],
+                "exclude": ["**/dependencies*.bicep"]
+              }
+            ],
+            "reassignments": []
+          }
         }
       }
       """);
@@ -324,6 +362,25 @@ namespace Bicep.Core.UnitTests.Configuration
           "insertFinalNewline": true,
           "indentSize": 2,
           "width": 120
+        },
+        "documentation": {
+          "output": { "file": "README.md" },
+          "template": { "values": {} },
+          "examples": {
+            "sources": [
+              {
+                "path": "examples",
+                "include": ["*.bicep", "**/main.bicep"],
+                "exclude": ["**/dependencies*.bicep"]
+              },
+              {
+                "path": "tests",
+                "include": ["**/*.test.bicep"],
+                "exclude": ["**/dependencies*.bicep"]
+              }
+            ],
+            "reassignments": []
+          }
         }
       }
       """);
@@ -501,6 +558,25 @@ namespace Bicep.Core.UnitTests.Configuration
                 "insertFinalNewline": true,
                 "indentSize": 2,
                 "width": 120
+            },
+            "documentation": {
+                "output": { "file": "README.md" },
+                "template": { "values": {} },
+                "examples": {
+                    "sources": [
+                        {
+                            "path": "examples",
+                            "include": ["*.bicep", "**/main.bicep"],
+                            "exclude": ["**/dependencies*.bicep"]
+                        },
+                        {
+                            "path": "tests",
+                            "include": ["**/*.test.bicep"],
+                            "exclude": ["**/dependencies*.bicep"]
+                        }
+                    ],
+                    "reassignments": []
+                }
             }
             }
             """);
@@ -859,6 +935,25 @@ namespace Bicep.Core.UnitTests.Configuration
                     "insertFinalNewline": true,
                     "indentSize": 2,
                     "width": 80
+                  },
+                  "documentation": {
+                    "output": { "file": "README.md" },
+                    "template": { "values": {} },
+                    "examples": {
+                      "sources": [
+                        {
+                          "path": "examples",
+                          "include": ["*.bicep", "**/main.bicep"],
+                          "exclude": ["**/dependencies*.bicep"]
+                        },
+                        {
+                          "path": "tests",
+                          "include": ["**/*.test.bicep"],
+                          "exclude": ["**/dependencies*.bicep"]
+                        }
+                      ],
+                      "reassignments": []
+                    }
                   }
                 }
                 """);

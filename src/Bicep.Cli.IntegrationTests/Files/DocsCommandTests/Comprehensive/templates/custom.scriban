@@ -1,0 +1,7 @@
+{{ include "_header.md" }}
+# {{ module.name }}
+
+Owner: {{ custom.owner }}
+Scope: {{ module.targetScope }}
+Parameters: {{ module.parameters.size }}
+{{ include "shared/_footer.md" }}

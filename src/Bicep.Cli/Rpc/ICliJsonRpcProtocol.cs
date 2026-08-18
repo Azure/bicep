@@ -130,6 +130,49 @@ public record FormatResponse(
     string Contents);
 
 /// <summary>
+/// Requests documentation files for one or more modules.
+/// </summary>
+public record GenerateDocsRequest(
+    ImmutableArray<string> Paths,
+    string? TemplateFile,
+    string? TemplateRoot,
+    Dictionary<string, string>? Custom,
+    string? OutputFile,
+    bool NoRestore);
+
+/// <summary>
+/// Requests rendered documentation for one module.
+/// </summary>
+public record OutputDocsRequest(
+    string Path,
+    string? TemplateFile,
+    string? TemplateRoot,
+    Dictionary<string, string>? Custom,
+    bool NoRestore);
+
+/// <summary>
+/// Contains documentation content and diagnostics for one module.
+/// </summary>
+public record DocsResult(
+    string Path,
+    string? OutputPath,
+    bool Success,
+    ImmutableArray<DiagnosticDefinition> Diagnostics,
+    string? Contents);
+
+/// <summary>
+/// Contains results for all requested modules.
+/// </summary>
+public record GenerateDocsResponse(
+    ImmutableArray<DocsResult> Results);
+
+/// <summary>
+/// Contains the result for one rendered module.
+/// </summary>
+public record OutputDocsResponse(
+    DocsResult Result);
+
+/// <summary>
 /// The definition for the Bicep CLI JSONRPC interface.
 /// </summary>
 /// <remarks>
@@ -184,4 +227,16 @@ public interface ICliJsonRpcProtocol
     /// </summary>
     [JsonRpcMethod("bicep/format", UseSingleObjectParameterDeserialization = true)]
     Task<FormatResponse> Format(FormatRequest request, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Generates documentation files for Bicep modules.
+    /// </summary>
+    [JsonRpcMethod("bicep/generateDocs", UseSingleObjectParameterDeserialization = true)]
+    Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Renders documentation for one Bicep module.
+    /// </summary>
+    [JsonRpcMethod("bicep/outputDocs", UseSingleObjectParameterDeserialization = true)]
+    Task<OutputDocsResponse> OutputDocs(OutputDocsRequest request, CancellationToken cancellationToken);
 }

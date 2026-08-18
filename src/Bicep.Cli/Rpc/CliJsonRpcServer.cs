@@ -2,11 +2,18 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.IO.Abstractions;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
+using Bicep.Cli.Services;
 using Bicep.Core;
+using Bicep.Core.Configuration;
+using Bicep.Core.Documentation;
 using Bicep.Core.Emit;
+using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrintV2;
@@ -26,7 +33,11 @@ namespace Bicep.Cli.Rpc;
 public class CliJsonRpcServer(
     BicepCompiler compiler,
     InputOutputArgumentsResolver inputOutputArgumentsResolver,
-    IEnvironment environment) : ICliJsonRpcProtocol
+    IEnvironment environment,
+    IBicepDocumentationGenerator documentationGenerator,
+    DocsGenerationOptionsResolver docsOptionsResolver,
+    IFileSystem fileSystem,
+    OutputWriter writer) : ICliJsonRpcProtocol
 {
     public static IJsonRpcMessageHandler CreateMessageHandler(Stream inputStream, Stream outputStream)
     {
@@ -266,6 +277,289 @@ public class CliJsonRpcServer(
 
         return new(formattedContent);
     }
+
+    /// <inheritdoc/>
+    public async Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken)
+    {
+        var results = ImmutableArray.CreateBuilder<DocsResult>();
+        var failures = new Dictionary<int, DocsResult>();
+        var validTargets = new List<(int Index, string RequestedPath, IOUri InputUri)>();
+
+        for (var index = 0; index < request.Paths.Length; index++)
+        {
+            var path = request.Paths[index];
+            try
+            {
+                var inputUri = inputOutputArgumentsResolver.PathToUri(path);
+                if (!inputUri.HasBicepExtension())
+                {
+                    failures[index] = CreateDocsFailure(path, DocsCommand.InputFailureCode, $"Invalid Bicep file path: {inputUri}");
+                    continue;
+                }
+
+                if (!fileSystem.File.Exists(inputUri.GetFilePath()))
+                {
+                    failures[index] = CreateDocsFailure(path, DocsCommand.InputFailureCode, $"The input file \"{inputUri}\" does not exist.");
+                    continue;
+                }
+
+                validTargets.Add((index, path, inputUri));
+            }
+            catch (Exception exception) when (exception is BicepException || exception.IsPathException())
+            {
+                failures[index] = CreateDocsFailure(path, DocsCommand.InputFailureCode, exception.Message);
+            }
+        }
+
+        var rendered = new Dictionary<int, RenderedDocsResult>();
+        var workspace = new ActiveSourceFileSet();
+        foreach (var target in validTargets)
+        {
+            rendered[target.Index] = await RenderDocs(
+                target.InputUri,
+                request.TemplateFile,
+                request.TemplateRoot,
+                request.Custom,
+                request.NoRestore,
+                cancellationToken,
+                workspace);
+        }
+
+        var targets = new List<DocsTarget>();
+        var outputUris = new HashSet<IOUri>();
+        foreach (var target in validTargets)
+        {
+            var renderedResult = rendered[target.Index];
+            if (!renderedResult.Result.Success || renderedResult.Result.Contents is null)
+            {
+                continue;
+            }
+
+            try
+            {
+                var outputFile = request.OutputFile ??
+                    renderedResult.Configuration!.Documentation.Data.Output.File;
+                ValidateDocsOutputFileName(outputFile);
+                var outputUri = inputOutputArgumentsResolver.PathToUri(target.InputUri.Resolve(outputFile).GetFilePath());
+
+                if (outputUri.Equals(target.InputUri))
+                {
+                    failures[target.Index] = CreateDocsFailure(
+                        target.RequestedPath,
+                        DocsCommand.InputFailureCode,
+                        "The documentation output path cannot overwrite the input Bicep file.");
+                    continue;
+                }
+
+                if (outputUri.HasBicepExtension() || outputUri.HasBicepParamExtension())
+                {
+                    failures[target.Index] = CreateDocsFailure(
+                        target.RequestedPath,
+                        DocsCommand.InputFailureCode,
+                        "Documentation output cannot use a Bicep source file extension.");
+                    continue;
+                }
+
+                if (!outputUris.Add(outputUri))
+                {
+                    failures[target.Index] = CreateDocsFailure(
+                        target.RequestedPath,
+                        DocsCommand.InputFailureCode,
+                        $"Multiple input files resolve to the output file \"{outputUri}\".");
+                    continue;
+                }
+
+                targets.Add(new DocsTarget(target.Index, target.InputUri, outputUri));
+            }
+            catch (Exception exception) when (exception is BicepException || exception.IsPathException())
+            {
+                failures[target.Index] = CreateDocsFailure(
+                    target.RequestedPath,
+                    DocsCommand.InputFailureCode,
+                    exception.Message);
+            }
+        }
+        var targetsByIndex = targets.ToDictionary(target => target.Index);
+        for (var index = 0; index < request.Paths.Length; index++)
+        {
+            if (failures.TryGetValue(index, out var failure))
+            {
+                results.Add(failure);
+                continue;
+            }
+
+            var result = rendered[index].Result;
+            if (!result.Success || result.Contents is null)
+            {
+                results.Add(result);
+                continue;
+            }
+
+            var target = targetsByIndex[index];
+            try
+            {
+                await writer.WriteToFileAsync(target.OutputUri, result.Contents);
+                results.Add(result with { OutputPath = target.OutputUri.GetFilePath() });
+            }
+            catch (Exception exception) when (exception is BicepException || exception.IsPathException())
+            {
+                results.Add(AddDocsFailure(result, DocsCommand.WriteFailureCode, exception.Message));
+            }
+        }
+
+        return new(results.ToImmutable());
+    }
+
+    /// <inheritdoc/>
+    public async Task<OutputDocsResponse> OutputDocs(OutputDocsRequest request, CancellationToken cancellationToken)
+        => new((await RenderDocs(
+            request.Path,
+            request.TemplateFile,
+            request.TemplateRoot,
+            request.Custom,
+            request.NoRestore,
+            cancellationToken,
+            workspace: null)).Result);
+
+    private async Task<RenderedDocsResult> RenderDocs(
+        string path,
+        string? templateFile,
+        string? templateRoot,
+        IReadOnlyDictionary<string, string>? custom,
+        bool noRestore,
+        CancellationToken cancellationToken,
+        ActiveSourceFileSet? workspace)
+    {
+        IOUri inputUri;
+        try
+        {
+            inputUri = inputOutputArgumentsResolver.PathToUri(path);
+        }
+        catch (Exception exception) when (exception is BicepException || exception.IsPathException())
+        {
+            return new(CreateDocsFailure(path, DocsCommand.InputFailureCode, exception.Message), null);
+        }
+
+        return await RenderDocs(
+            inputUri,
+            templateFile,
+            templateRoot,
+            custom,
+            noRestore,
+            cancellationToken,
+            workspace);
+    }
+
+    private async Task<RenderedDocsResult> RenderDocs(
+        IOUri inputUri,
+        string? templateFile,
+        string? templateRoot,
+        IReadOnlyDictionary<string, string>? custom,
+        bool noRestore,
+        CancellationToken cancellationToken,
+        ActiveSourceFileSet? workspace)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (!inputUri.HasBicepExtension())
+        {
+            return new(
+                CreateDocsFailure(inputUri.GetFilePath(), DocsCommand.InputFailureCode, $"Invalid Bicep file path: {inputUri}"),
+                null);
+        }
+
+        Compilation compilation;
+        try
+        {
+            compilation = await compiler.CreateCompilation(inputUri, workspace, skipRestore: noRestore);
+            workspace?.UpsertSourceFiles(compilation.SourceFileGrouping.SourceFiles);
+        }
+        catch (BicepException exception)
+        {
+            return new(CreateDocsFailure(inputUri.GetFilePath(), DocsCommand.InputFailureCode, exception.Message), null);
+        }
+
+        var diagnostics = GetDiagnostics(compilation).ToImmutableArray();
+        var model = compilation.GetEntrypointSemanticModel();
+
+        if (model.HasErrors())
+        {
+            return new(
+                new(inputUri.GetFilePath(), null, false, diagnostics, null),
+                model.Configuration);
+        }
+
+        BicepDocumentationGenerationOptions options;
+        try
+        {
+            options = docsOptionsResolver.Resolve(
+                model.Configuration,
+                templateFile,
+                templateRoot,
+                custom ?? ImmutableDictionary<string, string>.Empty);
+        }
+        catch (CommandLineException exception)
+        {
+            return new(
+                CreateDocsFailure(inputUri.GetFilePath(), DocsCommand.InputFailureCode, exception.Message),
+                model.Configuration);
+        }
+
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return new(
+                new(
+                    inputUri.GetFilePath(),
+                    null,
+                    true,
+                    diagnostics,
+                    documentationGenerator.Generate(compilation, options, cancellationToken)),
+                model.Configuration);
+        }
+        catch (BicepDocumentationException exception)
+        {
+            return new(
+                AddDocsFailure(
+                    new(inputUri.GetFilePath(), null, false, diagnostics, null),
+                    DocsCommand.RenderFailureCode,
+                    exception.Message),
+                model.Configuration);
+        }
+    }
+
+    // These codes describe CLI and RPC orchestration failures that have no source position.
+    private static DocsResult AddDocsFailure(DocsResult result, string code, string message) =>
+        result with
+        {
+            Success = false,
+            OutputPath = null,
+            Contents = null,
+            Diagnostics = [.. result.Diagnostics, CreateDocsDiagnostic(result.Path, code, message)],
+        };
+
+    private static DocsResult CreateDocsFailure(string path, string code, string message) =>
+        new(path, null, false, [CreateDocsDiagnostic(path, code, message)], null);
+
+    private static void ValidateDocsOutputFileName(string outputFile)
+    {
+        if (string.IsNullOrWhiteSpace(outputFile) ||
+            outputFile is "." or ".." ||
+            outputFile.Contains('/') ||
+            outputFile.Any(FilePathFacts.IsForbiddenPathCharacter) ||
+            FilePathFacts.IsForbiddenPathTerminatorCharacter(outputFile[^1]) ||
+            FilePathFacts.ContainsWindowsReservedFileName(outputFile))
+        {
+            throw new CommandLineException("The documentation output file must be a file name without a directory path.");
+        }
+    }
+
+    private static DiagnosticDefinition CreateDocsDiagnostic(string path, string code, string message) =>
+        new(path, new(new(0, 0), new(0, 0)), "Error", code, message);
+
+    private record DocsTarget(int Index, IOUri InputUri, IOUri OutputUri);
+
+    private record RenderedDocsResult(DocsResult Result, RootConfiguration? Configuration);
 
     private async Task<Compilation> GetCompilation(BicepCompiler compiler, string filePath)
     {
