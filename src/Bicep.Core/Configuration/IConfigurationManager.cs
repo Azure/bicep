@@ -21,6 +21,14 @@ namespace Bicep.Core.Configuration
         RootConfiguration GetConfiguration(IOUri sourceFileUri);
 
         /// <summary>
+        /// Gets the configuration from the specified configuration file.
+        /// If the configuration file cannot be loaded, the built-in configuration is returned with diagnostics.
+        /// </summary>
+        /// <param name="configFileUri">The URI of the configuration file to load.</param>
+        /// <returns>The configuration loaded from the specified file.</returns>
+        RootConfiguration LoadConfiguration(IOUri configFileUri);
+
+        /// <summary>
         /// Gets the built-in configuration.
         /// </summary>
         /// <returns>The built-in configuration.</returns>
@@ -56,6 +64,8 @@ namespace Bicep.Core.Configuration
             }
 
             public RootConfiguration GetConfiguration(IOUri sourceFileUri) => configuration;
+
+            public RootConfiguration LoadConfiguration(IOUri configFileUri) => configuration;
         }
     }
 }

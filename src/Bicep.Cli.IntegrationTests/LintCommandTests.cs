@@ -257,6 +257,81 @@ param notUsedParm = 'string'
     }
 
     [TestMethod]
+    public async Task Lint_with_config_option_should_override_discovered_configuration()
+    {
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+        var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicep", """
+    param unusedParam string
+    """, outputPath);
+
+        // This config will be discovered automatically and should produce a warning.
+        FileHelper.SaveResultFile(TestContext, "bicepconfig.json", """
+    {
+    "analyzers": {
+        "core": {
+        "rules": {
+            "no-unused-params": {
+            "level": "warning"
+            }
+        }
+        }
+    }
+    }
+    """, outputPath);
+
+        // This config is supplied explicitly and disables the rule.
+        var overrideConfig = FileHelper.SaveResultFile(TestContext, "override.json", """
+    {
+    "analyzers": {
+        "core": {
+        "rules": {
+            "no-unused-params": {
+            "level": "off"
+            }
+        }
+        }
+    }
+    }
+    """, outputPath);
+
+        var (output, error, result) = await Bicep(
+            "lint",
+            inputFile,
+            "--config",
+            overrideConfig);
+
+        result.Should().Be(0);
+        output.Should().BeEmpty();
+
+        // Rule should NOT fire because override.json was used.
+        error.Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public async Task Lint_with_missing_config_should_report_configuration_error()
+    {
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+        var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicep", """
+    param foo string
+    """, outputPath);
+
+        var missingConfig = Path.Combine(outputPath, "doesnotexist.json");
+
+        var (output, error, result) = await Bicep(
+            "lint",
+            inputFile,
+            "--config",
+            missingConfig);
+
+        result.Should().Be(1);
+        output.Should().BeEmpty();
+
+        error.Should().Contain("doesnotexist.json");
+    }
+
+    [TestMethod]
     public async Task Lint_with_sarif_diagnostics_format_should_output_valid_sarif()
     {
         var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", @"param storageAccountName string = 'test'");
