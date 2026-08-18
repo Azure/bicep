@@ -791,7 +791,7 @@ jobs:
     name: Check secret access
     runs-on: ubuntu-latest
     outputs:
-      access_verified: ${{ steps.check-access.outputs.verified && (github.base_ref == 'refs/head/main' || github.ref == 'refs/head/main') }}
+      access_verified: ${{ steps.check-access.outputs.verified && (github.base_ref == 'main' || github.ref == 'refs/heads/main') }}
 
     steps:
       - id: check-access

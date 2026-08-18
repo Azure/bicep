@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Diagnostics;
+
 namespace Bicep.Core.Configuration;
 
 /// <summary>
@@ -14,4 +16,9 @@ public interface IBicepConfigurationChain
     /// with leaf settings winning over base settings.
     /// </summary>
     IBicepConfiguration GetEffectiveConfiguration();
+
+    /// <summary>
+    /// The number of configuration files in the chain.
+    /// </summary>
+    int LayerCount { get; }
 }

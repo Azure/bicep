@@ -23,6 +23,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="./Files/**/*.*" />
+    <EmbeddedResource Include="./Files/**/*.*" LogicalName="$([System.String]::new('Files/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" WithCulture="false" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="..\vscode-bicep\resources\configuration\bicepconfig.schema.json">
       <Link>bicepconfig.schema.json</Link>
       <WithCulture>false</WithCulture>

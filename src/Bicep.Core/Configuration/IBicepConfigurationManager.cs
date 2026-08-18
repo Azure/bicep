@@ -19,4 +19,30 @@ public interface IBicepConfigurationManager
     /// Falls back to the built-in configuration if no bicepconfig.json is found.
     /// </summary>
     IBicepConfigurationChain GetConfigurationChain(IOUri sourceFileUri);
+
+    /// <summary>
+    /// Returns the fully merged <see cref="RootConfiguration"/> for the given source file.
+    /// Equivalent to walking the "extends" chain and returning the effective merged result.
+    /// This allows <see cref="IConfigurationManager"/> to delegate to this manager
+    /// without changing the return type expected by existing consumers.
+    /// </summary>
+    RootConfiguration GetMergedConfiguration(IOUri sourceFileUri);
+
+    /// <summary>
+    /// Invalidates only the chains that include <paramref name="changedFileUri"/> as a dependency.
+    /// </summary>
+    void PurgeCacheForAffectedChains(IOUri changedFileUri);
+
+    /// <summary>
+    /// Purges all internal caches: chain cache, dependency map, config file lookup cache,
+    /// and directory handle cache. Use when a config file is created or deleted so that
+    /// discovery re-runs from scratch on the next request.
+    /// </summary>
+    void PurgeAllCaches();
+
+    /// <summary>
+    /// Purges the chain cache. Call this when any config file in the workspace changes
+    /// so stale chains are not reused.
+    /// </summary>
+    void PurgeChainCache();
 }

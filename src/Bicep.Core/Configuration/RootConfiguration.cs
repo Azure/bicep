@@ -34,6 +34,8 @@ namespace Bicep.Core.Configuration
 
         public const string FormattingKey = "formatting";
 
+        public const string DocumentationKey = "documentation";
+
         public RootConfiguration(
             CloudConfiguration cloud,
             ModuleAliasesConfiguration moduleAliases,
@@ -45,6 +47,7 @@ namespace Bicep.Core.Configuration
             bool experimentalFeaturesWarning,
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
             FormattingConfiguration formatting,
+            DocumentationConfiguration documentation,
             IOUri? configFileUri,
             IEnumerable<IDiagnostic>? diagnostics)
         {
@@ -58,6 +61,7 @@ namespace Bicep.Core.Configuration
             this.ExperimentalFeaturesWarning = experimentalFeaturesWarning;
             this.ExperimentalFeaturesEnabled = experimentalFeaturesEnabled;
             this.Formatting = formatting;
+            this.Documentation = documentation;
             this.ConfigFileUri = configFileUri;
             this.Diagnostics = diagnostics?.ToImmutableArray() ?? [];
         }
@@ -74,11 +78,14 @@ namespace Bicep.Core.Configuration
             var experimentalFeaturesWarning = element.TryGetProperty(ExperimentalFeaturesWarningKey, out var value) && value.GetBoolean();
             var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey));
             var formatting = FormattingConfiguration.Bind(element.GetProperty(FormattingKey));
+            var documentation = element.TryGetProperty(DocumentationKey, out var documentationElement)
+                ? DocumentationConfiguration.Bind(documentationElement)
+                : new DocumentationConfiguration(new());
 
             var extensions = ExtensionsConfiguration.Bind(element.GetProperty(ExtensionsKey));
             var implicitExtensions = ImplicitExtensionsConfiguration.Bind(element.GetProperty(ImplicitExtensionsKey));
 
-            return new(cloud, moduleAliases, moduleAliasesMock, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesWarning, experimentalFeaturesEnabled, formatting, configFileUri, null);
+            return new(cloud, moduleAliases, moduleAliasesMock, extensions, implicitExtensions, analyzers, cacheRootDirectory, experimentalFeaturesWarning, experimentalFeaturesEnabled, formatting, documentation, configFileUri, null);
         }
 
         public CloudConfiguration Cloud { get; }
@@ -101,6 +108,8 @@ namespace Bicep.Core.Configuration
 
         public FormattingConfiguration Formatting { get; }
 
+        public DocumentationConfiguration Documentation { get; }
+
         public IOUri? ConfigFileUri { get; }
 
         public ImmutableArray<IDiagnostic> Diagnostics { get; }
@@ -118,6 +127,7 @@ namespace Bicep.Core.Configuration
             bool? experimentalFeaturesWarning = null,
             ExperimentalFeaturesEnabled? experimentalFeaturesEnabled = null,
             FormattingConfiguration? formatting = null,
+            DocumentationConfiguration? documentation = null,
             IOUri? configFileIdentifier = null,
             IEnumerable<IDiagnostic>? diagnostics = null)
         {
@@ -132,6 +142,7 @@ namespace Bicep.Core.Configuration
                 experimentalFeaturesWarning ?? this.ExperimentalFeaturesWarning,
                 experimentalFeaturesEnabled ?? this.ExperimentalFeaturesEnabled,
                 formatting ?? this.Formatting,
+                documentation ?? this.Documentation,
                 configFileIdentifier ?? this.ConfigFileUri,
                 diagnostics ?? this.Diagnostics);
         }
@@ -173,6 +184,9 @@ namespace Bicep.Core.Configuration
 
                 writer.WritePropertyName(FormattingKey);
                 this.Formatting.WriteTo(writer);
+
+                writer.WritePropertyName(DocumentationKey);
+                this.Documentation.WriteTo(writer);
 
                 writer.WriteEndObject();
             }

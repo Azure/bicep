@@ -8,6 +8,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.IO.FileSystem;
+using Bicep.Testing;
 using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -29,7 +30,7 @@ public class FeatureProviderTests
             }
             """));
 
-        var configManager = new ConfigurationManager(fileSet.FileExplorer);
+        var configManager = new ConfigurationManager(fileSet.FileExplorer, new BicepConfigurationManager(fileSet.FileExplorer));
         var configuration = configManager.GetConfiguration(fileSet.GetUri("repo/main.bicep"));
         var fpm = new FeatureProviderFactory(configManager, fileSet.FileExplorer);
 
@@ -55,7 +56,7 @@ public class FeatureProviderTests
                 }
                 """));
 
-        var configManager = new ConfigurationManager(fileSet.FileExplorer);
+        var configManager = new ConfigurationManager(fileSet.FileExplorer, new BicepConfigurationManager(fileSet.FileExplorer));
         var configuration = configManager.GetConfiguration(fileSet.GetUri("repo/main.bicep"));
         var fpm = new FeatureProviderFactory(configManager, fileSet.FileExplorer);
 
@@ -66,4 +67,5 @@ public class FeatureProviderTests
         var subDirFeatures = fpm.GetFeatureProvider(fileSet.GetUri("repo/subdir/module.bicep"));
         subDirFeatures.SymbolicNameCodegenEnabled.Should().BeTrue();
     }
+
 }

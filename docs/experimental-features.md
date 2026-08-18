@@ -125,3 +125,7 @@ Command that allows the publishing of extensions to container registries. For mo
 ### Bicep MCP Server
 
 See [Using Bicep MCP Server in VS Code (Preview!)](./experimental/mcp-tools.md).
+
+### `docs` CLI Command
+
+Generates module documentation. For command and template model details, see [Generate module documentation](./experimental/docs-commands.md).
