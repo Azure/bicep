@@ -45,10 +45,13 @@ namespace Bicep.LanguageServer.BicepConfig
 
         public void HandleBicepConfigChangeEvent(DocumentUri documentUri)
         {
+            // A change event can represent file creation, modification, or deletion.
+            // Creation and deletion change config file discovery (the lookup cache), so we
+            // must do a full purge rather than a targeted invalidation.
+            // For modification, RefreshConfigCacheEntry is also called so the loaded config
+            // cache stays warm and telemetry can compare prev vs new on the next save.
+            configurationManager.PurgeCache();
             HandleBicepConfigOpenOrChangeEvent(documentUri);
-            // The change may have rendered a config file invalid, or the event itself may have represented a file creation or deletion.
-            // In either case, the lookup cache would be stale.
-            configurationManager.PurgeLookupCache();
         }
 
         private void HandleBicepConfigOpenOrChangeEvent(DocumentUri documentUri)

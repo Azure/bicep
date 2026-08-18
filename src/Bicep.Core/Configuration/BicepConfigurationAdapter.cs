@@ -22,6 +22,8 @@ internal sealed class BicepConfigurationAdapter : IBicepConfiguration
         this.inner = inner;
     }
 
+    internal RootConfiguration InnerConfiguration => this.inner;
+
     public IBicepCloudConfiguration Cloud => this.inner.Cloud;
 
     public IBicepModuleAliasesConfiguration ModuleAliases => this.inner.ModuleAliases;
