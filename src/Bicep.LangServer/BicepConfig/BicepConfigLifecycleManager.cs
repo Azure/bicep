@@ -51,7 +51,6 @@ namespace Bicep.LanguageServer.BicepConfig
             // must do a full purge rather than a targeted invalidation.
             configurationManager.PurgeCache();
             HandleBicepConfigOpenOrChangeEvent(documentUri);
-            PublishConfigDiagnostics(documentUri);
         }
 
         private void HandleBicepConfigOpenOrChangeEvent(DocumentUri documentUri)
