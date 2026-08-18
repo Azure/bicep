@@ -62,7 +62,7 @@ jobs:
         run:  mkdir ./src/Bicep.Cli.Nuget/tools && copy ./src/Bicep.Cli/obj/project.assets.json ./src/Bicep.Cli.Nuget/tools/ && copy ./src/Bicep.Cli/bin/Release/net10.0/bicep.* ./src/Bicep.Cli.Nuget/tools/
 
       - name: Build CLI Package
-        run: dotnet build --configuration Release /p:RuntimeSuffix=win-x64 ./src/Bicep.Cli.Nuget/nuget.proj
+        run: dotnet pack --configuration Release /p:RuntimeSuffix=win-x64 ./src/Bicep.Cli.Nuget/nuget.proj
 
       - name: VSIX Notice prerequisites
         run: |
