@@ -4,10 +4,10 @@
 import assert from "assert";
 import https from "https";
 import { callWithTelemetryAndErrorHandling, IActionContext, parseError } from "@microsoft/vscode-azext-utils";
-import { commands, MessageItem, Uri, window } from "vscode";
-import { GlobalState, GlobalStateKeys } from "../../globalState";
+import { commands, Memento, MessageItem, Uri, window, WorkspaceConfiguration } from "vscode";
 import { getBicepConfiguration } from "../../infrastructure/configuration";
 import { daysToMs, monthsToDays } from "../../infrastructure/timing";
+import { annualSurveyStateKey, GlobalState } from "./survey-state";
 
 const enableSurveysSetting = "enableSurveys";
 
@@ -34,7 +34,7 @@ const hatsAlwaysOnSurveyInfo: ISurveyInfo = {
   postponeAfterTakenInDays: monthsToDays(6),
   surveyPrompt: "Do you have a few minutes to tell us about your experience with Bicep?",
   postponeForLaterInDays: 7,
-  surveyStateKey: GlobalStateKeys.annualSurveyStateKey,
+  surveyStateKey: annualSurveyStateKey,
 };
 
 const debugClearStateKey = "debug.surveys.clearState";
@@ -42,6 +42,8 @@ const debugNowDateKey = "debug.surveys.now";
 const debugSurveyLinkKeyPrefix = "debug.surveys.link:";
 
 type MessageItemWithId = MessageItem & { id: string };
+type ShowSurveyPrompt = (message: string, ...items: MessageItemWithId[]) => Thenable<MessageItemWithId | undefined>;
+type GetSurveyLinkStatus = (fullLink: string) => Promise<number | undefined>;
 
 export function showSurveys(globalState: GlobalState): void {
   checkShowSurvey(globalState, hatsAlwaysOnSurveyInfo);
@@ -98,15 +100,15 @@ export interface IPersistedSurveyState {
 
 export class Survey {
   public constructor(
-    private readonly globalState: GlobalState,
+    private readonly globalState: Memento,
     private readonly surveyInfo: ISurveyInfo,
     private inject: {
-      showInformationMessage: typeof window.showInformationMessage;
+      showInformationMessage: ShowSurveyPrompt;
       getIsSurveyAvailable: typeof Survey.getIsSurveyAvailable;
       launchSurvey: typeof Survey.launchSurvey;
-      provideBicepConfiguration: typeof getBicepConfiguration;
+      provideBicepConfiguration: () => Pick<WorkspaceConfiguration, "get">;
     } = {
-      showInformationMessage: window.showInformationMessage,
+      showInformationMessage: async (message, ...items) => await window.showInformationMessage(message, ...items),
       getIsSurveyAvailable: Survey.getIsSurveyAvailable,
       launchSurvey: Survey.launchSurvey,
       provideBicepConfiguration: getBicepConfiguration,
@@ -278,21 +280,16 @@ export class Survey {
     state.postponedUntil = newDate;
   }
 
-  public static async getIsSurveyAvailable(this: void, context: IActionContext, fullLink: string): Promise<boolean> {
+  public static async getIsSurveyAvailable(
+    this: void,
+    context: IActionContext,
+    fullLink: string,
+    getSurveyLinkStatus: GetSurveyLinkStatus = getHttpsStatus,
+  ): Promise<boolean> {
     let linkStatus = "unknown";
 
     try {
-      const statusCode: number | undefined = await new Promise((resolve, reject) => {
-        https
-          .get(fullLink, function (res) {
-            resolve(res.statusCode);
-            res.resume(); // Allow the response to be garbage collected
-          })
-          .on("error", function (err) {
-            // Among other errors, we end up here if the Internet is not available
-            reject(err);
-          });
-      });
+      const statusCode = await getSurveyLinkStatus(fullLink);
 
       if (statusCode === 301 /* moved permanently */) {
         // The aka link exists and is active
@@ -322,4 +319,15 @@ export class Survey {
     console.info(`Clearing global state for ${this.surveyInfo.surveyStateKey}`);
     await this.globalState.update(this.surveyInfo.surveyStateKey, undefined);
   }
+}
+
+async function getHttpsStatus(fullLink: string): Promise<number | undefined> {
+  return await new Promise((resolve, reject) => {
+    https
+      .get(fullLink, (response) => {
+        resolve(response.statusCode);
+        response.resume();
+      })
+      .on("error", reject);
+  });
 }

@@ -21,15 +21,25 @@ export interface Logger extends vscode.Disposable {
 }
 
 export type LogLevel = keyof Logger;
+type WinstonLoggerSink = {
+  clear(): unknown;
+  close(): unknown;
+  log(level: string, message: unknown): unknown;
+};
+type WinstonLoggerFactory = (options: winston.LoggerOptions) => WinstonLoggerSink;
 
 let logger: Logger | undefined;
 
 export class WinstonLogger implements Logger {
-  private readonly logger: winston.Logger;
+  private readonly logger: WinstonLoggerSink;
   private disposed = false;
 
-  constructor(outputChannel: vscode.OutputChannel, logLevel: LogLevel) {
-    this.logger = winston.createLogger({
+  constructor(
+    outputChannel: Pick<vscode.OutputChannel, "appendLine">,
+    logLevel: LogLevel,
+    createWinstonLogger: WinstonLoggerFactory = winston.createLogger,
+  ) {
+    this.logger = createWinstonLogger({
       level: logLevel,
       format: winston.format.combine(
         winston.format.timestamp(),
@@ -81,7 +91,7 @@ export class WinstonLogger implements Logger {
 }
 
 class outputChannelTransport extends Transport {
-  constructor(private readonly outputChannel: vscode.OutputChannel) {
+  constructor(private readonly outputChannel: Pick<vscode.OutputChannel, "appendLine">) {
     super();
   }
 
@@ -96,11 +106,15 @@ class outputChannelTransport extends Transport {
   }
 }
 
-export function createLogger(context: vscode.ExtensionContext, outputChannel: vscode.OutputChannel): Logger {
+export function createLogger(
+  context: Pick<vscode.ExtensionContext, "subscriptions">,
+  outputChannel: Pick<vscode.OutputChannel, "appendLine">,
+  createWinstonLogger?: WinstonLoggerFactory,
+): Logger {
   // TODO:
   // - make log level configurable
   // - Default log level should be info
-  const winstonLogger = new WinstonLogger(outputChannel, "debug");
+  const winstonLogger = new WinstonLogger(outputChannel, "debug", createWinstonLogger);
 
   logger = winstonLogger;
   logger.info("Current log level: debug.");

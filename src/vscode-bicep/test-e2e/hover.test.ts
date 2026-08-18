@@ -3,9 +3,8 @@
 
 /* eslint-disable jest/expect-expect */
 import * as vscode from "vscode";
-import { sleep } from "../src/infrastructure/timing";
-import { expectDefined, expectRange } from "../src/test/utils/assert";
-import { retryWhile } from "./support/time";
+import { expectDefined, expectRange } from "../test-support/assert";
+import { retryWhile } from "../test-support/polling";
 import { executeCloseAllEditors, executeHoverProvider } from "./commands";
 import { readExampleFile } from "./examples";
 
@@ -21,9 +20,6 @@ describe("hover", (): void => {
 
     await vscode.window.showTextDocument(document);
 
-    // Give the language server some time to finish compilation. If this is the first test
-    // to run it may take long for the compilation to complete because JIT is not "warmed up".
-    await sleep(2000);
   });
 
   afterAll(async () => {

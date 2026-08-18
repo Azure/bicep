@@ -4,7 +4,7 @@
 // This is the expected new config whether created by snippet, light-bulb-edit a rule, or create new config command
 //
 // This is defined in two places in source code:
-//   Snippet: bicep\src\vscode-bicep\vscode-snippets\jsonc-snippets.jsonc
+//   Snippet: bicep\src\vscode-bicep\resources\configuration\jsonc-snippets.jsonc
 //   Language server: bicep\src\Bicep.Core\Configuration\DefaultBicepConfigHelper.cs (without no-unused-params)
 
 export const expectedNewConfigFileContents = `{

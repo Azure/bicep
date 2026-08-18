@@ -12,7 +12,8 @@ export class SuppressedWarningsManager {
   };
 
   public constructor(
-    private readonly provideBicepConfiguration: () => WorkspaceConfiguration = getBicepConfiguration, // override for unit testing
+    private readonly provideBicepConfiguration: () => Pick<WorkspaceConfiguration, "get" | "update"> =
+      getBicepConfiguration,
   ) {
     // noop
   }

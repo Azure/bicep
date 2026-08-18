@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "isolatedModules": true,
+    "noEmit": true,
+    "rootDir": "."
+  },
+  "include": ["src", "test-support", "package.test.ts"],
+  "exclude": []
+}

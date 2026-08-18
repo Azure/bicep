@@ -10,15 +10,14 @@ import {
   window,
 } from "vscode";
 import * as lsp from "vscode-languageclient/node";
-import { AzureUiManager } from "./azure/AzureUiManager";
 import { CommandManager } from "./infrastructure/commands";
-import { DeployCommand } from "./commands/deploy";
-import { ShowDeployPaneCommand, ShowDeployPaneToSideCommand } from "./commands/showDeployPane";
-import { ShowSourceFromVisualizerCommand } from "./commands/showSourceFromVisualizer";
-import { ShowVisualizerCommand, ShowVisualizerToSideCommand } from "./commands/showVisualizer";
 import { activateBuildFeature } from "./features/build";
 import { activateConfigurationFeature } from "./features/configuration";
 import { activateDecompileFeature } from "./features/decompile";
+import {
+  activateDeploymentFeature,
+  removePropertiesWithPossibleUserInfoInDeployParams,
+} from "./features/deployments";
 import { activateExternalSourceFeature } from "./features/external-source";
 import { activateImportKubernetesManifestFeature } from "./features/import-kubernetes-manifest";
 import { activateInsertResourceFeature } from "./features/insert-resource";
@@ -28,12 +27,11 @@ import { activateParametersFeature } from "./features/parameters";
 import { activatePasteAsBicepFeature } from "./features/paste-as-bicep";
 import { activateRefactoringFeature } from "./features/refactoring";
 import * as surveys from "./features/surveys";
+import { activateVisualizationFeature } from "./features/visualization";
 import { activateWalkthroughFeature } from "./features/walkthrough";
-import { setGlobalStateKeysToSyncBetweenMachines } from "./globalState";
 import { bicepConfigurationPrefix } from "./infrastructure/configuration";
 import { bicepLanguageId } from "./infrastructure/editor";
-import { createLanguageService, ensureDotnetRuntimeInstalled } from "./infrastructure/language-client";
-import { DeployPaneViewManager } from "./panes/deploy";
+import { createLanguageService, DiagnosticsRouter, ensureDotnetRuntimeInstalled } from "./infrastructure/language-client";
 import { Disposable } from "./infrastructure/lifecycle";
 import {
   activateWithTelemetryAndErrorHandling,
@@ -43,8 +41,6 @@ import {
   OutputChannelManager,
   resetLogger,
 } from "./infrastructure/logging";
-import { AzurePickers } from "./utils/AzurePickers";
-import { BicepVisualizerViewManager } from "./visualizer";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -63,7 +59,11 @@ class BicepExtension extends Disposable {
 
 export async function activate(extensionContext: ExtensionContext): Promise<void> {
   const extension = BicepExtension.create(extensionContext);
-  const outputChannel = createAzExtOutputChannel("Bicep", bicepConfigurationPrefix);
+  const outputChannel = createAzExtOutputChannel(
+    "Bicep",
+    bicepConfigurationPrefix,
+    removePropertiesWithPossibleUserInfoInDeployParams,
+  );
 
   extension.register(outputChannel);
   extension.register(createLogger(extensionContext, outputChannel));
@@ -89,45 +89,45 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
         languageClient = await createLanguageService(extensionContext, outputChannel, dotnetCommandPath);
 
         progress.report({ message: "Registering commands" });
-        setGlobalStateKeysToSyncBetweenMachines(extensionContext.globalState);
+        surveys.setGlobalStateKeysToSyncBetweenMachines(extensionContext.globalState);
 
         // Show appropriate surveys
         surveys.showSurveys(extensionContext.globalState);
 
-        const viewManager = extension.register(new BicepVisualizerViewManager(extension.extensionUri, languageClient));
+        const diagnosticsRouter = extension.register(new DiagnosticsRouter(languageClient.clientOptions));
 
         const outputChannelManager = extension.register(
-          new OutputChannelManager("Bicep Operations", bicepConfigurationPrefix),
-        );
-
-        const azurePickers = extension.register(new AzurePickers(outputChannelManager));
-
-        const deployPaneViewManager = extension.register(
-          new DeployPaneViewManager(
-            actionContext,
-            extensionContext,
-            extension.extensionUri,
-            languageClient,
-            new AzureUiManager(actionContext, azurePickers),
+          new OutputChannelManager(
+            "Bicep Operations",
+            bicepConfigurationPrefix,
+            removePropertiesWithPossibleUserInfoInDeployParams,
           ),
         );
 
         // Register commands.
         const commandManager = extension.register(new CommandManager(extensionContext));
+        await activateVisualizationFeature(
+          extension,
+          extension.extensionUri,
+          commandManager,
+          languageClient,
+          diagnosticsRouter,
+        );
+        await activateDeploymentFeature(
+          extension,
+          actionContext,
+          extensionContext,
+          commandManager,
+          languageClient,
+          outputChannelManager,
+          diagnosticsRouter,
+        );
         await activateBuildFeature(commandManager, languageClient, outputChannelManager);
         await activateParametersFeature(commandManager, languageClient, outputChannelManager);
         await activateConfigurationFeature(commandManager, languageClient);
-        await commandManager.registerCommands(new DeployCommand(languageClient, outputChannelManager, azurePickers));
         await activateDecompileFeature(extension, commandManager, languageClient, outputChannelManager);
         await activateModuleRestoreFeature(commandManager, languageClient, outputChannelManager);
         await activateInsertResourceFeature(commandManager, languageClient);
-        await commandManager.registerCommands(
-          new ShowDeployPaneCommand(deployPaneViewManager),
-          new ShowDeployPaneToSideCommand(deployPaneViewManager),
-          new ShowVisualizerCommand(viewManager),
-          new ShowVisualizerToSideCommand(viewManager),
-          new ShowSourceFromVisualizerCommand(viewManager),
-        );
         await activateWalkthroughFeature(commandManager);
         await activatePasteAsBicepFeature(extension, commandManager, languageClient, outputChannelManager);
         await activateImportKubernetesManifestFeature(commandManager, languageClient);

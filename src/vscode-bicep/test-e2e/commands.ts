@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
-import { ShowSourceFromVisualizerCommand } from "../src/commands/showSourceFromVisualizer";
+import { ShowSourceFromVisualizerCommand } from "../src/features/visualization";
 
 // More can be added as needed: https://code.visualstudio.com/api/references/commands.
 

@@ -6,7 +6,6 @@ import { callWithTelemetryAndErrorHandlingSync, IActionContext, parseError } fro
 import * as vscode from "vscode";
 import * as lsp from "vscode-languageclient/node";
 import { Message, TransportKind } from "vscode-languageclient/node";
-import { writeDeploymentOutputMessageToBicepOperationsOutputChannel } from "../../commands/deployHelper";
 import { bicepLanguageId } from "../editor";
 import { getLogger } from "../logging";
 
@@ -107,8 +106,6 @@ export async function createLanguageService(
 
   // To enable language server tracing, you MUST have a package setting named 'bicep.trace.server'; I was unable to find a way to enable it through code.
   // See https://github.com/microsoft/vscode-languageserver-node/blob/77c3a10a051ac619e4e3ef62a3865717702b64a3/client/src/common/client.ts#L3268
-
-  client.onNotification("deploymentComplete", writeDeploymentOutputMessageToBicepOperationsOutputChannel);
 
   client.onNotification("bicep/triggerEditorCompletion", async () => {
     await vscode.commands.executeCommand("editor.action.triggerSuggest");

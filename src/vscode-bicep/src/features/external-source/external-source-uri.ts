@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import * as vscode from "vscode";
+import type { Uri } from "vscode";
 
 export const BicepExternalSourceScheme = "bicep-extsrc";
 
@@ -21,7 +21,7 @@ export type ExternalSource = {
 
 // NOTE: This should match the logic in BicepExternalSourceRequestHandler.GetExternalSourceLinkUri and
 // also bicep\src\Bicep.LangServer.UnitTests\BicepExternalSourceRequestHandlerTests.cs.DecodeExternalSourceUri
-export function decodeExternalSourceUri(uri: vscode.Uri): ExternalSource {
+export function decodeExternalSourceUri(uri: Pick<Uri, "path" | "query" | "fragment">): ExternalSource {
   // The uri passed in has this format (encoded):
   //   bicep-extsrc:{title}?{module-reference}[#{source-file-relative-path}]
   const title = decodeURIComponent(uri.path);

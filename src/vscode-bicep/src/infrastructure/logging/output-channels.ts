@@ -2,15 +2,17 @@
 // Licensed under the MIT License.
 import { IAzExtLogOutputChannel, IAzExtOutputChannel } from "@microsoft/vscode-azext-utils";
 import { LogOutputChannel, ViewColumn, window } from "vscode";
-import { removePropertiesWithPossibleUserInfoInDeployParams } from "../../utils/removePropertiesWithPossibleUserInfo";
 import { getBicepConfiguration } from "../configuration";
 import { Disposable } from "../lifecycle";
 
-// https://github.com/microsoft/vscode-azuretools/blob/main/utils/src/AzExtOutputChannel.ts
-// with support to remove properties with possible user info before appendLine(..) is invoked on output channel.
-// TODO: revisit this when https://github.com/Azure/azure-sdk-for-net/issues/27263 is resolved.
-export function createAzExtOutputChannel(name: string, extensionConfigurationPrefix: string): IAzExtLogOutputChannel {
-  return new AzExtOutputChannel(name, extensionConfigurationPrefix);
+type OutputSanitizer = (value: string) => string;
+
+export function createAzExtOutputChannel(
+  name: string,
+  extensionConfigurationPrefix: string,
+  sanitize: OutputSanitizer = (value) => value,
+): IAzExtLogOutputChannel {
+  return new AzExtOutputChannel(name, extensionConfigurationPrefix, sanitize);
 }
 
 class AzExtOutputChannel implements IAzExtLogOutputChannel {
@@ -18,7 +20,11 @@ class AzExtOutputChannel implements IAzExtLogOutputChannel {
   public readonly extensionConfigurationPrefix: string;
   private _outputChannel: LogOutputChannel;
 
-  constructor(name: string, extensionConfigurationPrefix: string) {
+  constructor(
+    name: string,
+    extensionConfigurationPrefix: string,
+    private readonly sanitize: OutputSanitizer,
+  ) {
     this.name = name;
     this.extensionConfigurationPrefix = extensionConfigurationPrefix;
     this._outputChannel = window.createOutputChannel(this.name, { log: true });
@@ -41,31 +47,27 @@ class AzExtOutputChannel implements IAzExtLogOutputChannel {
   }
 
   public appendLine(value: string): void {
-    const updatedValue = removePropertiesWithPossibleUserInfoInDeployParams(value);
-    this._outputChannel.appendLine(updatedValue);
+    this._outputChannel.appendLine(this.sanitize(value));
   }
 
   public trace(message: string, ...args: unknown[]): void {
-    this._outputChannel.trace(removePropertiesWithPossibleUserInfoInDeployParams(message), ...args);
+    this._outputChannel.trace(this.sanitize(message), ...args);
   }
 
   public debug(message: string, ...args: unknown[]): void {
-    this._outputChannel.debug(removePropertiesWithPossibleUserInfoInDeployParams(message), ...args);
+    this._outputChannel.debug(this.sanitize(message), ...args);
   }
 
   public info(message: string, ...args: unknown[]): void {
-    this._outputChannel.info(removePropertiesWithPossibleUserInfoInDeployParams(message), ...args);
+    this._outputChannel.info(this.sanitize(message), ...args);
   }
 
   public warn(message: string, ...args: unknown[]): void {
-    this._outputChannel.warn(removePropertiesWithPossibleUserInfoInDeployParams(message), ...args);
+    this._outputChannel.warn(this.sanitize(message), ...args);
   }
 
   public error(error: string | Error, ...args: unknown[]): void {
-    this._outputChannel.error(
-      typeof error === "string" ? removePropertiesWithPossibleUserInfoInDeployParams(error) : error,
-      ...args,
-    );
+    this._outputChannel.error(typeof error === "string" ? this.sanitize(error) : error, ...args);
   }
 
   public appendLog(value: string, options?: { resourceName?: string; date?: Date }): void {
@@ -106,9 +108,9 @@ class AzExtOutputChannel implements IAzExtLogOutputChannel {
 export class OutputChannelManager extends Disposable {
   private _azExtOutputChannel: IAzExtOutputChannel;
 
-  constructor(name: string, extensionConfigurationPrefix: string) {
+  constructor(name: string, extensionConfigurationPrefix: string, sanitize?: OutputSanitizer) {
     super();
-    this._azExtOutputChannel = this.register(createAzExtOutputChannel(name, extensionConfigurationPrefix));
+    this._azExtOutputChannel = this.register(createAzExtOutputChannel(name, extensionConfigurationPrefix, sanitize));
   }
 
   appendToOutputChannel(text: string, noFocus = false): void {

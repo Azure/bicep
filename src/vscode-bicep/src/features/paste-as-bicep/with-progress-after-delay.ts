@@ -10,6 +10,13 @@ export type WithProgress<TResult> = (
   task: (progress: Progress<{ message?: string; increment?: number }>, token: CancellationToken) => Thenable<TResult>,
 ) => Thenable<TResult>;
 
+export type Schedule = (callback: () => Promise<void>, delayMs: number) => { dispose(): void };
+
+const scheduleTimeout: Schedule = (callback, delayMs) => {
+  const timeout = setTimeout(callback, delayMs);
+  return { dispose: () => clearTimeout(timeout) };
+};
+
 /**
  * Executes a task, and displays a progress notification only if the action takes longer than a given amount of time
  */
@@ -17,12 +24,14 @@ export async function withProgressAfterDelay<T>(
   options: ProgressOptions & {
     delayBeforeShowingMs?: number;
     inject?: {
+      schedule?: Schedule;
       withProgress?: WithProgress<T>;
     };
   },
   task: () => Promise<T>,
 ): Promise<T> {
   const withProgress = options.inject?.withProgress ?? window.withProgress;
+  const schedule = options.inject?.schedule ?? scheduleTimeout;
   const delayBeforeShowingMs = options.delayBeforeShowingMs ?? defaultMsBeforeShowing;
 
   let taskDone = false;
@@ -44,7 +53,7 @@ export async function withProgressAfterDelay<T>(
       );
     }
   }
-  const timeoutHandle = setTimeout(onTimerDone, delayBeforeShowingMs);
+  const scheduledProgress = schedule(onTimerDone, delayBeforeShowingMs);
 
   // Wait for the task to complete
   try {
@@ -52,6 +61,6 @@ export async function withProgressAfterDelay<T>(
     taskDone = true;
     return taskResult;
   } finally {
-    clearInterval(timeoutHandle);
+    scheduledProgress.dispose();
   }
 }
