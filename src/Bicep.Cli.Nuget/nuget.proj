@@ -13,9 +13,10 @@
     <!-- NoTargets SDK no longer sets Language, which is required by NerdBank.GitVersioning -->
     <Language>C#</Language>
 
-    <NugetExePath>$(PkgNuGet_CommandLine)\tools\NuGet.exe</NugetExePath>
-    <NugetExePath Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">mono $(NugetExePath)</NugetExePath>
-    <NugetExePath Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">mono $(NugetExePath)</NugetExePath>
+    <IsPackable>true</IsPackable>
+    <NuspecFile>Package.nuspec</NuspecFile>
+    <PackageOutputPath>$(MSBuildProjectDirectory)</PackageOutputPath>
+    <BeforePack>PrepareForPack</BeforePack>
 
     <BicepBinariesDirectory>$(MSBuildProjectDirectory)\tools</BicepBinariesDirectory>
     <BicepExePathWindows>$(BicepBinariesDirectory)\bicep.exe</BicepExePathWindows>
@@ -25,19 +26,11 @@
     <NoticeFileName>ThirdPartyNotices.txt</NoticeFileName>
     <GenerateNoticeLocalFilePath>$(MSBuildProjectDirectory)\local-tpn.txt</GenerateNoticeLocalFilePath>
 
-    <GenerateNoticeBeforeTargets>RunTool</GenerateNoticeBeforeTargets>
+    <GenerateNoticeBeforeTargets>PrepareForPack</GenerateNoticeBeforeTargets>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NuGet.CommandLine">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Azure.Deployments.Internal.GenerateNotice" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <NuSpec Include="Package.nuspec" />
   </ItemGroup>
 
   <ItemGroup>
@@ -54,12 +47,12 @@
     </PropertyGroup>
   </Target>
 
-  <Target Name="RunTool" AfterTargets="Build" DependsOnTargets="GetBuildVersion">
-    <Error Text="This project requires the RuntimeSuffix property (/p:RuntimeSuffix=rid in dotnet build) to set explicitly." Condition=" $(RuntimeSuffix) == '' " />
+  <Target Name="PrepareForPack" DependsOnTargets="GetBuildVersion">
+    <Error Text="This project requires the RuntimeSuffix property (/p:RuntimeSuffix=rid in dotnet pack) to set explicitly." Condition=" $(RuntimeSuffix) == '' " />
     <Error Text="Unexpected number of bicep executables found: @(BicepExecutable->Count())" Condition=" @(BicepExecutable->Count()) != 1 " />
-
-    <!-- the Properties parameter value must be enclosed in quotes to avoid build breaks on non-windows machines -->
-    <Exec Command="$(NugetExePath) pack @(NuSpec) -Version $(NuGetPackageVersion) -NonInteractive -Properties &quot;rid=$(RuntimeSuffix);NoticeFileName=$(NoticeFileName);Configuration=$(Configuration);TargetFramework=$(TargetFramework)&quot;"
-          WorkingDirectory="$(MSBuildProjectDirectory)" />
+    <PropertyGroup>
+      <PackageVersion>$(NuGetPackageVersion)</PackageVersion>
+      <NuspecProperties>version=$(NuGetPackageVersion);rid=$(RuntimeSuffix);NoticeFileName=$(NoticeFileName);Configuration=$(Configuration);TargetFramework=$(TargetFramework)</NuspecProperties>
+    </PropertyGroup>
   </Target>
 </Project>
