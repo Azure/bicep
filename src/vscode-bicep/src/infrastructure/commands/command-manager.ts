@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import * as fse from "fs-extra";
+import { readFileSync } from "fs";
 import { commands, ExtensionContext, Uri } from "vscode";
 import { runWithErrorHandling } from "../errors";
 import { Disposable } from "../lifecycle";
@@ -48,7 +48,9 @@ export class CommandManager extends Disposable {
 
   private validateCommand<T extends Command>(command: T): void {
     if (!this._packageJson) {
-      this._packageJson = <IPackageJson>fse.readJsonSync(this.extensionContext.asAbsolutePath("package.json"));
+      this._packageJson = JSON.parse(
+        readFileSync(this.extensionContext.asAbsolutePath("package.json"), "utf8"),
+      ) as IPackageJson;
     }
 
     assert(command.id.startsWith("bicep."), `Command ID doesn't start with 'bicep.': ${command.id}`);

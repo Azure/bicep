@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { existsSync } from "fs";
 import path from "path";
-import * as fse from "fs-extra";
 import { Uri, window, workspace } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Command, CommandManager } from "../../infrastructure/commands";
@@ -77,7 +77,7 @@ export class CreateBicepConfigurationFile implements Command {
       ],
     });
 
-    if (await fse.pathExists(selectedPath)) {
+    if (existsSync(selectedPath)) {
       const textDocument = await workspace.openTextDocument(selectedPath);
       await window.showTextDocument(textDocument);
       return selectedPath;

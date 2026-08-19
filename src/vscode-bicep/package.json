@@ -740,14 +740,13 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "test:e2e": "node ./out/tests/e2e/runner/launch.js",
     "test:unit": "vitest run --config vitest.config.mts",
-    "clean": "rimraf ./out ./coverage",
+    "clean": "node -e \"const fs = require('fs'); for (const path of ['out', 'coverage']) fs.rmSync(path, { recursive: true, force: true });\"",
     "package": "npm run clean && nbgv-setversion && vsce package --no-dependencies --githubBranch main --out ./vscode-bicep.vsix && nbgv-setversion --reset && vsce generate-manifest -i ./vscode-bicep.vsix -o ./vscode-bicep.manifest"
   },
   "devDependencies": {
     "@eslint/compat": "^2.0.5",
     "@eslint/js": "^10.0.1",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.2",
-    "@types/fs-extra": "^11.0.4",
     "@types/mock-require": "^3.0.0",
     "@types/node": "^25.9.5",
     "@types/semver": "^7.7.0",
@@ -765,7 +764,6 @@
     "mock-require": "^3.0.3",
     "nerdbank-gitversioning": "^3.10.91",
     "prettier": "^3.9.6",
-    "rimraf": "^6.0.1",
     "semver": "^7.8.5",
     "terser-webpack-plugin": "^5.6.1",
     "ts-node": "^10.9.2",
@@ -780,7 +778,6 @@
     "@azure/arm-resources": "^8.0.0",
     "@azure/arm-resources-subscriptions": "^3.0.0",
     "@azure/core-auth": "^1.10.1",
-    "fs-extra": "^11.3.6",
     "vscode-languageclient": "^10.1.0",
     "winston": "^3.17.0",
     "winston-transport": "^4.9.0"

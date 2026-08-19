@@ -3,7 +3,7 @@
 
 import * as os from "os";
 import * as path from "path";
-import * as fse from "fs-extra";
+import { writeFile } from "fs/promises";
 import { TextDocument, TextEditor, Uri, window, workspace } from "vscode";
 import { UserCancelledError } from "../errors";
 import { PromptItem, Prompts } from "../prompts";
@@ -176,7 +176,7 @@ async function queryCreateBicepFile(prompts: Prompts): Promise<Uri> {
     throw new Error(`Can't save file to location ${uri.toString()}`);
   }
 
-  await fse.writeFile(
+  await writeFile(
     path,
     "@description('Location of all resources')\nparam location string = resourceGroup().location\n",
     { encoding: "utf-8" },

@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import crypto from "crypto";
+import { readFile } from "fs/promises";
 import path from "path";
-import fse from "fs-extra";
 import vscode, { ExtensionContext } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Disposable } from "../../../infrastructure/lifecycle";
@@ -216,7 +216,7 @@ export class DeployPaneView extends Disposable {
           openLabel: "Select Parameters file",
           filters: { "Parameters files": ["json"] },
         });
-        const parameterFile = await fse.readFile(parametersFileUri[0].fsPath, "utf-8");
+        const parameterFile = await readFile(parametersFileUri[0].fsPath, "utf-8");
         await this.webviewPanel.webview.postMessage(
           createPickParamsFileResultMessage(parametersFileUri[0].fsPath, parameterFile),
         );

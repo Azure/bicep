@@ -3,7 +3,7 @@
 
 import * as os from "os";
 import path from "path";
-import * as fse from "fs-extra";
+import { writeFile } from "fs/promises";
 import vscode, { TextDocument, TextEditor, Uri, ViewColumn, window, workspace } from "vscode";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { bicepFileExtension } from "../../infrastructure/editor";
@@ -91,7 +91,7 @@ async function createAndOpenBicepFile(fileContents: string): Promise<vscode.Text
     throw new Error(`Can't save file to location ${uri.toString()}`);
   }
 
-  await fse.writeFile(filePath, fileContents, { encoding: "utf-8" });
+  await writeFile(filePath, fileContents, { encoding: "utf-8" });
 
   const document: TextDocument = await workspace.openTextDocument(uri);
   return await vscode.window.showTextDocument(document, vscode.ViewColumn.Beside);

@@ -2,8 +2,9 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
+import { existsSync } from "fs";
+import { readFile, writeFile } from "fs/promises";
 import * as path from "path";
-import * as fse from "fs-extra";
 import vscode, { MessageItem, Uri, window } from "vscode";
 import { DocumentUri, LanguageClient } from "vscode-languageclient/node";
 import { Command, CommandManager } from "../../infrastructure/commands";
@@ -107,7 +108,7 @@ export class DecompileCommand implements Command {
 
   public static async mightBeArmTemplateNoThrow(documentUri: Uri): Promise<boolean> {
     try {
-      const contents = await (await fse.readFile(documentUri.fsPath)).toString();
+      const contents = await readFile(documentUri.fsPath, "utf8");
       return /\$schema.*deploymenttemplate\.json/i.test(contents);
     } catch {
       return false;
@@ -181,7 +182,7 @@ export class DecompileParamsCommand implements Command {
 
     assert(result.decompiledBicepparamFile !== undefined);
     let bicepparamPath = this.client.protocol2CodeConverter.asUri(result.decompiledBicepparamFile.uri).fsPath;
-    if (await fse.pathExists(bicepparamPath)) {
+    if (existsSync(bicepparamPath)) {
       const fileSaveOption = await this.getFileSaveOption();
       if (fileSaveOption === "Copy") {
         bicepparamPath = await DecompileParamsCommand.getUniquePath(bicepparamPath);
@@ -193,12 +194,12 @@ export class DecompileParamsCommand implements Command {
       this.outputChannelManager.appendToOutputChannel(`Saving Decompiled file: ${bicepparamPath}`);
     }
 
-    await fse.writeFile(bicepparamPath, result.decompiledBicepparamFile.contents);
+    await writeFile(bicepparamPath, result.decompiledBicepparamFile.contents);
   }
 
   public static async mightBeArmParametersNoThrow(documentUri: Uri): Promise<boolean> {
     try {
-      const contents = await (await fse.readFile(documentUri.fsPath)).toString();
+      const contents = await readFile(documentUri.fsPath, "utf8");
       return /\$schema.*deploymentParameters\.json/i.test(contents);
     } catch {
       return false;
@@ -253,7 +254,7 @@ export class DecompileParamsCommand implements Command {
     let appendNumber = 2;
     while (true) {
       const uniquePath = path.join(parsedPath.dir, `${parsedPath.name}${appendNumber}${parsedPath.ext}`);
-      if (!(await fse.pathExists(uniquePath))) {
+      if (!existsSync(uniquePath)) {
         return uniquePath;
       }
       appendNumber++;

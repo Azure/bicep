@@ -4,8 +4,8 @@
 import type { AccessToken } from "@azure/core-auth";
 
 import assert from "assert";
+import { existsSync, readFileSync } from "fs";
 import * as path from "path";
-import * as fse from "fs-extra";
 import vscode, { commands, Uri } from "vscode";
 import { LanguageClient, TextDocumentIdentifier } from "vscode-languageclient/node";
 import { Command } from "../../infrastructure/commands";
@@ -291,7 +291,7 @@ export class DeployCommand implements Command {
         if (updatedDeploymentParameters.length > 0 && !updatedDeploymentParameters.every((x) => x.isSecure)) {
           parametersFileUpdateOption = await this.askToUpdateParametersFile(
             documentPath,
-            await fse.pathExists(parametersFilePath),
+            existsSync(parametersFilePath),
             parametersFileName,
           );
         }
@@ -426,7 +426,7 @@ export class DeployCommand implements Command {
     let message: string | undefined;
     let json: { $schema?: unknown } | undefined;
     try {
-      json = fse.readJsonSync(path);
+      json = JSON.parse(readFileSync(path, "utf8").replace(/^\uFEFF/, ""));
     } catch (err) {
       message = parseError(err).message;
     }
@@ -521,7 +521,7 @@ export class DeployCommand implements Command {
     } else {
       const folderContainingSourceFile = path.dirname(documentPath);
       const parametersFilePath = path.join(folderContainingSourceFile, parametersFileName);
-      if (fse.existsSync(parametersFilePath)) {
+      if (existsSync(parametersFilePath)) {
         parametersFileUpdateOption = ParametersFileUpdateOption.Overwrite;
         placeholder = `File ${parametersFileName} already exists. Do you want to overwrite it?`;
       } else {
