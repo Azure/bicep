@@ -39,16 +39,18 @@ export class BicepVisualizerViewManager extends Disposable implements vscode.Web
 
     if (existingView) {
       existingView.reveal();
+      await existingView.waitUntilReady();
       return;
     }
 
-    this.registerView(
+    const view = this.registerView(
       documentUri,
       BicepVisualizerView.create(this.languageClient, viewColumn, this.extensionUri, documentUri),
     );
 
     await this.setVisualizerActiveContext(true);
     this.activeUri = documentUri;
+    await view.waitUntilReady();
   }
 
   public async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, documentPath: string): Promise<void> {

@@ -2,15 +2,13 @@
 docs/
 node_modules/
 src/
-test-e2e/
-test-support/
+tests/
 scripts/
 coverage/
 out/**/*.map
 out/e2e/
 out/src/
-out/test-e2e/
-out/test-support/
+out/tests/
 
 .gitignore
 .prettierrc
@@ -18,8 +16,7 @@ out/test-support/
 eslint.config.mjs
 package.test.ts
 webpack.config.mjs
-jest.config.e2e.js
-jest.config.unit.js
+vitest.config.mts
 tsconfig.e2e.json
 tsconfig.json
 tsconfig.unit.json

@@ -49,7 +49,7 @@ export class PasteAsBicepCommand implements Command {
     // Nothing to do
   }
 
-  public async execute(context: IActionContext, documentUri?: Uri): Promise<void> {
+  public async execute(context: IActionContext, documentUri?: Uri, suppressErrorDisplay = false): Promise<void> {
     const logPrefix = "PasteAsBicep (command)";
     let clipboardText: string | undefined;
     let finalPastedBicep: string | undefined;
@@ -122,6 +122,7 @@ export class PasteAsBicepCommand implements Command {
         builder.replace(editor.selection, finalPastedBicep ?? "");
       });
     } catch (err) {
+      context.errorHandling.suppressDisplay = suppressErrorDisplay;
       getLogger().debug(`${logPrefix}: Exception occurred: ${parseError(err).message}"`);
       throw err;
     } finally {

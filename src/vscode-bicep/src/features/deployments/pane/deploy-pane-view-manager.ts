@@ -44,10 +44,11 @@ export class DeployPaneViewManager extends Disposable implements vscode.WebviewP
 
     if (existingView) {
       existingView.reveal();
+      await existingView.waitUntilReady();
       return;
     }
 
-    this.registerView(
+    const view = this.registerView(
       documentUri,
       DeployPaneView.create(
         this.extensionContext,
@@ -62,6 +63,7 @@ export class DeployPaneViewManager extends Disposable implements vscode.WebviewP
 
     await this.setDeployPaneActiveContext(true);
     this.activeUri = documentUri;
+    await view.waitUntilReady();
   }
 
   public async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, documentPath: string): Promise<void> {

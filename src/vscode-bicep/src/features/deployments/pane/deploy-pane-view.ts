@@ -30,6 +30,8 @@ export class DeployPaneView extends Disposable {
 
   private readonly onDidDisposeEmitter: vscode.EventEmitter<void>;
   private readonly onDidChangeViewStateEmitter: vscode.EventEmitter<vscode.WebviewPanelOnDidChangeViewStateEvent>;
+  private readonly ready: Promise<void>;
+  private resolveReady!: () => void;
 
   private readyToRender = false;
   private document?: vscode.TextDocument;
@@ -49,6 +51,7 @@ export class DeployPaneView extends Disposable {
     this.onDidChangeViewStateEmitter = this.register(
       new vscode.EventEmitter<vscode.WebviewPanelOnDidChangeViewStateEvent>(),
     );
+    this.ready = new Promise((resolve) => (this.resolveReady = resolve));
 
     this.register(this.webviewPanel.webview.onDidReceiveMessage(this.handleDidReceiveMessage, this));
 
@@ -120,10 +123,18 @@ export class DeployPaneView extends Disposable {
     this.webviewPanel.reveal();
   }
 
+  public async waitUntilReady(): Promise<void> {
+    await this.ready;
+    if (this.isDisposed) {
+      throw new Error("The deployment pane was disposed before it became ready.");
+    }
+  }
+
   public dispose(): void {
     super.dispose();
 
     this.webviewPanel.dispose();
+    this.resolveReady();
 
     // Final cleanup.
     this.onDidDisposeEmitter.fire();
@@ -179,6 +190,7 @@ export class DeployPaneView extends Disposable {
       case "READY": {
         getLogger().debug(`Deployment Pane for ${this.documentUri.fsPath} is ready.`);
         this.readyToRender = true;
+        this.resolveReady();
         this.render();
         return;
       }

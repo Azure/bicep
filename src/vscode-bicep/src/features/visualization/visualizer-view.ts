@@ -5,6 +5,9 @@ import path from "path";
 import { parseError } from "@microsoft/vscode-azext-utils";
 import vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
+import { Disposable } from "../../infrastructure/lifecycle";
+import { getLogger } from "../../infrastructure/logging";
+import { debounce } from "../../infrastructure/timing";
 import {
   visualGraphLayoutRequestType,
   VisualGraphLayoutResult,
@@ -13,15 +16,14 @@ import {
   visualGraphUpdateRequestType,
   VisualGraphUpdateResult,
 } from "./protocol";
-import { Disposable } from "../../infrastructure/lifecycle";
-import { getLogger } from "../../infrastructure/logging";
-import { debounce } from "../../infrastructure/timing";
 
 export class BicepVisualizerView extends Disposable {
   public static viewType = "bicep.visualizer";
 
   private readonly onDidDisposeEmitter: vscode.EventEmitter<void>;
   private readonly onDidChangeViewStateEmitter: vscode.EventEmitter<vscode.WebviewPanelOnDidChangeViewStateEvent>;
+  private readonly ready: Promise<void>;
+  private resolveReady!: () => void;
 
   private readyToRender = false;
 
@@ -37,6 +39,7 @@ export class BicepVisualizerView extends Disposable {
     this.onDidChangeViewStateEmitter = this.register(
       new vscode.EventEmitter<vscode.WebviewPanelOnDidChangeViewStateEvent>(),
     );
+    this.ready = new Promise((resolve) => (this.resolveReady = resolve));
 
     this.register(this.webviewPanel.webview.onDidReceiveMessage(this.handleDidReceiveMessage, this));
 
@@ -86,10 +89,18 @@ export class BicepVisualizerView extends Disposable {
     this.webviewPanel.reveal();
   }
 
+  public async waitUntilReady(): Promise<void> {
+    await this.ready;
+    if (this.isDisposed) {
+      throw new Error("The visualizer was disposed before it became ready.");
+    }
+  }
+
   public dispose(): void {
     super.dispose();
 
     this.webviewPanel.dispose();
+    this.resolveReady();
 
     // Final cleanup.
     this.onDidDisposeEmitter.fire();
@@ -209,6 +220,7 @@ export class BicepVisualizerView extends Disposable {
         case "ready":
           getLogger().debug(`Visualizer for ${this.documentUri.fsPath} is ready.`);
           this.readyToRender = true;
+          this.resolveReady();
           this.render();
           return;
 
