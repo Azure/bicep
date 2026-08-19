@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { AccessToken } from "@azure/identity";
-import { TelemetryProperties } from "@microsoft/vscode-azext-utils";
+import type { AccessToken } from "@azure/core-auth";
 import { LocalDeployResponse } from "../protocol";
 import { DeploymentScope, DeploymentScopeType, DeployPaneState, UntypedError } from "./models";
 
@@ -146,23 +145,6 @@ export function createGetDeploymentScopeResultMessage(scope: DeploymentScope): G
   });
 }
 
-export type PublishTelemetryMessage = MessageWithPayload<
-  "PUBLISH_TELEMETRY",
-  {
-    eventName: string;
-    properties: TelemetryProperties;
-  }
->;
-export function createPublishTelemetryMessage(
-  eventName: string,
-  properties: TelemetryProperties,
-): PublishTelemetryMessage {
-  return createMessageWithPayload("PUBLISH_TELEMETRY", {
-    eventName,
-    properties,
-  });
-}
-
 export type LocalDeployMessage = SimpleMessage<"LOCAL_DEPLOY">;
 export function createLocalDeployMessage(): LocalDeployMessage {
   return createSimpleMessage("LOCAL_DEPLOY");
@@ -188,7 +170,6 @@ export type ViewMessage =
   | PickParamsFileMessage
   | GetAccessTokenMessage
   | GetDeploymentScopeMessage
-  | PublishTelemetryMessage
   | LocalDeployMessage;
 
 function createSimpleMessage<T>(kind: T): SimpleMessage<T> {

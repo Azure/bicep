@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 import crypto from "crypto";
 import path from "path";
-import { Environment } from "@azure/ms-rest-azure-env";
-import { callWithTelemetryAndErrorHandlingSync, IActionContext } from "@microsoft/vscode-azext-utils";
 import fse from "fs-extra";
 import vscode, { ExtensionContext } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
+import { IActionContext } from "../../../infrastructure/action-context";
 import { Disposable } from "../../../infrastructure/lifecycle";
 import { getLogger } from "../../../infrastructure/logging";
 import { debounce } from "../../../infrastructure/timing";
+import { knownAzureResourceManagerEndpoints } from "../azure/azure-environment";
 import { IAzureUIManager } from "../azure/azure-ui-manager";
 import { getDeploymentDataRequestType, localDeployRequestType } from "../protocol";
 import {
@@ -237,13 +237,6 @@ export class DeployPaneView extends Disposable {
         await this.webviewPanel.webview.postMessage(createGetDeploymentScopeResultMessage(scope));
         return;
       }
-      case "PUBLISH_TELEMETRY": {
-        callWithTelemetryAndErrorHandlingSync(message.eventName, (telemetryActionContext) => {
-          telemetryActionContext.errorHandling.suppressDisplay = true;
-          telemetryActionContext.telemetry.properties = message.properties;
-        });
-        return;
-      }
       case "LOCAL_DEPLOY": {
         const result = await this.languageClient.sendRequest(localDeployRequestType, {
           textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(this.document!),
@@ -274,13 +267,6 @@ export class DeployPaneView extends Disposable {
       vscode.Uri.joinPath(this.extensionUri, "out", "deploy-pane", "assets", "index.css"),
     );
 
-    const armEndpoints = [
-      Environment.AzureCloud,
-      Environment.ChinaCloud,
-      Environment.GermanCloud,
-      Environment.USGovernment,
-    ].map((env) => env.resourceManagerEndpointUrl);
-
     return `
       <!DOCTYPE html>
       <html lang="en">
@@ -290,7 +276,7 @@ export class DeployPaneView extends Disposable {
         Use a content security policy to only allow loading images from our extension directory,
         and only allow scripts that have a specific nonce.
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' ${armEndpoints.join(" ")}; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'nonce-${nonce}' vscode-webview-resource:; font-src data: ${cspSource};">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' ${knownAzureResourceManagerEndpoints.join(" ")}; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'nonce-${nonce}' vscode-webview-resource:; font-src data: ${cspSource};">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link id="vscode-codicon-stylesheet" rel="stylesheet" nonce="${nonce}" href="${codiconCssUri}">
       </head>

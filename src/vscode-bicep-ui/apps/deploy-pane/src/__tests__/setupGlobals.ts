@@ -37,7 +37,7 @@ PolyfilledElementInternals.prototype.setValidity = function (
 };
 
 vi.spyOn(Math, "random").mockReturnValue(0.123456789);
-global.ResizeObserver = class implements ResizeObserver {
+globalThis.ResizeObserver = class implements ResizeObserver {
   observe = vi.fn();
   unobserve = vi.fn();
   disconnect = vi.fn();

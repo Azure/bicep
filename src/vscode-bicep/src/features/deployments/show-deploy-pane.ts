@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { IActionContext } from "@microsoft/vscode-azext-utils";
 import vscode from "vscode";
+import { IActionContext } from "../../infrastructure/action-context";
 import { Command } from "../../infrastructure/commands";
 import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
 import { DeployPaneViewManager } from "./pane";

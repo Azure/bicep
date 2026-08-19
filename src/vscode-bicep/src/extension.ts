@@ -1,46 +1,39 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { registerAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
-import { registerUIExtensionVariables } from "@microsoft/vscode-azext-utils";
-import {
-  ExtensionContext,
-  ProgressLocation,
-  Uri,
-  window,
-} from "vscode";
+import { ExtensionContext, ProgressLocation, Uri, window } from "vscode";
 import * as lsp from "vscode-languageclient/node";
-import { CommandManager } from "./infrastructure/commands";
 import { activateBuildFeature } from "./features/build";
 import { activateConfigurationFeature } from "./features/configuration";
 import { activateDecompileFeature } from "./features/decompile";
-import {
-  activateDeploymentFeature,
-  removePropertiesWithPossibleUserInfoInDeployParams,
-} from "./features/deployments";
+import { activateDeploymentFeature, removePropertiesWithPossibleUserInfoInDeployParams } from "./features/deployments";
 import { activateExternalSourceFeature } from "./features/external-source";
 import { activateImportKubernetesManifestFeature } from "./features/import-kubernetes-manifest";
 import { activateInsertResourceFeature } from "./features/insert-resource";
-import { activateModuleRestoreFeature } from "./features/module-restore";
 import { activateMcpFeature } from "./features/mcp";
+import { activateModuleRestoreFeature } from "./features/module-restore";
 import { activateParametersFeature } from "./features/parameters";
 import { activatePasteAsBicepFeature } from "./features/paste-as-bicep";
 import { activateRefactoringFeature } from "./features/refactoring";
 import * as surveys from "./features/surveys";
 import { activateVisualizationFeature } from "./features/visualization";
 import { activateWalkthroughFeature } from "./features/walkthrough";
-import { bicepConfigurationPrefix } from "./infrastructure/configuration";
-import { bicepLanguageId } from "./infrastructure/editor";
-import { createLanguageService, DiagnosticsRouter, ensureDotnetRuntimeInstalled } from "./infrastructure/language-client";
+import { CommandManager } from "./infrastructure/commands";
+import {
+  createLanguageService,
+  DiagnosticsRouter,
+  ensureDotnetRuntimeInstalled,
+} from "./infrastructure/language-client";
 import { Disposable } from "./infrastructure/lifecycle";
 import {
   activateWithTelemetryAndErrorHandling,
-  createAzExtOutputChannel,
   createLogger,
+  createLogOutputChannel,
   getLogger,
   OutputChannelManager,
   resetLogger,
 } from "./infrastructure/logging";
+import { BicepTelemetry } from "./infrastructure/telemetry";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -59,34 +52,29 @@ class BicepExtension extends Disposable {
 
 export async function activate(extensionContext: ExtensionContext): Promise<void> {
   const extension = BicepExtension.create(extensionContext);
-  const outputChannel = createAzExtOutputChannel(
-    "Bicep",
-    bicepConfigurationPrefix,
-    removePropertiesWithPossibleUserInfoInDeployParams,
-  );
+  const outputChannel = createLogOutputChannel("Bicep", removePropertiesWithPossibleUserInfoInDeployParams);
 
   extension.register(outputChannel);
   extension.register(createLogger(extensionContext, outputChannel));
-
-  registerUIExtensionVariables({ context: extensionContext, outputChannel });
-  registerAzureUtilsExtensionVariables({
-    context: extensionContext,
-    outputChannel,
-    prefix: bicepLanguageId,
-  });
+  const telemetry = extension.register(
+    new BicepTelemetry(
+      (extensionContext.extension.packageJSON as { aiKey: string }).aiKey,
+      process.env.BICEP_TELEMETRY_DISABLED !== "true",
+    ),
+  );
 
   // Activate and launch language server
-  await activateWithTelemetryAndErrorHandling(async (actionContext) => {
+  await activateWithTelemetryAndErrorHandling(telemetry, extensionContext.globalState, async (actionContext) => {
     await window.withProgress(
       {
         location: ProgressLocation.Window,
       },
       async (progress) => {
         progress.report({ message: "Acquiring dotnet runtime" });
-        const dotnetCommandPath = await ensureDotnetRuntimeInstalled(actionContext);
+        const dotnetCommandPath = await ensureDotnetRuntimeInstalled();
 
         progress.report({ message: "Launching language service" });
-        languageClient = await createLanguageService(extensionContext, outputChannel, dotnetCommandPath);
+        languageClient = await createLanguageService(extensionContext, outputChannel, dotnetCommandPath, telemetry);
 
         progress.report({ message: "Registering commands" });
         surveys.setGlobalStateKeysToSyncBetweenMachines(extensionContext.globalState);
@@ -97,15 +85,11 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
         const diagnosticsRouter = extension.register(new DiagnosticsRouter(languageClient.clientOptions));
 
         const outputChannelManager = extension.register(
-          new OutputChannelManager(
-            "Bicep Operations",
-            bicepConfigurationPrefix,
-            removePropertiesWithPossibleUserInfoInDeployParams,
-          ),
+          new OutputChannelManager("Bicep Operations", removePropertiesWithPossibleUserInfoInDeployParams),
         );
 
         // Register commands.
-        const commandManager = extension.register(new CommandManager(extensionContext));
+        const commandManager = extension.register(new CommandManager(extensionContext, telemetry));
         await activateVisualizationFeature(
           extension,
           extension.extensionUri,
@@ -138,7 +122,6 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
         getLogger().info("Bicep language service started.");
 
         activateMcpFeature(extension, extensionContext, dotnetCommandPath);
-
       },
     );
   });

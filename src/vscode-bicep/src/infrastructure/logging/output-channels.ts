@@ -1,73 +1,72 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { IAzExtLogOutputChannel, IAzExtOutputChannel } from "@microsoft/vscode-azext-utils";
 import { LogOutputChannel, ViewColumn, window } from "vscode";
 import { getBicepConfiguration } from "../configuration";
 import { Disposable } from "../lifecycle";
 
 type OutputSanitizer = (value: string) => string;
 
-export function createAzExtOutputChannel(
-  name: string,
-  extensionConfigurationPrefix: string,
-  sanitize: OutputSanitizer = (value) => value,
-): IAzExtLogOutputChannel {
-  return new AzExtOutputChannel(name, extensionConfigurationPrefix, sanitize);
+export interface BicepLogOutputChannel extends LogOutputChannel {
+  appendLog(value: string, options?: { resourceName?: string; date?: Date }): void;
 }
 
-class AzExtOutputChannel implements IAzExtLogOutputChannel {
+export function createLogOutputChannel(
+  name: string,
+  sanitize: OutputSanitizer = (value) => value,
+): BicepLogOutputChannel {
+  return new BicepOutputChannel(name, sanitize);
+}
+
+class BicepOutputChannel implements BicepLogOutputChannel {
   public readonly name: string;
-  public readonly extensionConfigurationPrefix: string;
-  private _outputChannel: LogOutputChannel;
+  private readonly outputChannel: LogOutputChannel;
 
   constructor(
     name: string,
-    extensionConfigurationPrefix: string,
     private readonly sanitize: OutputSanitizer,
   ) {
     this.name = name;
-    this.extensionConfigurationPrefix = extensionConfigurationPrefix;
-    this._outputChannel = window.createOutputChannel(this.name, { log: true });
+    this.outputChannel = window.createOutputChannel(this.name, { log: true });
   }
 
   public get logLevel() {
-    return this._outputChannel.logLevel;
+    return this.outputChannel.logLevel;
   }
 
   public get onDidChangeLogLevel() {
-    return this._outputChannel.onDidChangeLogLevel;
+    return this.outputChannel.onDidChangeLogLevel;
   }
 
   public replace(value: string): void {
-    this._outputChannel.replace(value);
+    this.outputChannel.replace(value);
   }
 
   public append(value: string): void {
-    this._outputChannel.append(value);
+    this.outputChannel.append(value);
   }
 
   public appendLine(value: string): void {
-    this._outputChannel.appendLine(this.sanitize(value));
+    this.outputChannel.appendLine(this.sanitize(value));
   }
 
   public trace(message: string, ...args: unknown[]): void {
-    this._outputChannel.trace(this.sanitize(message), ...args);
+    this.outputChannel.trace(this.sanitize(message), ...args);
   }
 
   public debug(message: string, ...args: unknown[]): void {
-    this._outputChannel.debug(this.sanitize(message), ...args);
+    this.outputChannel.debug(this.sanitize(message), ...args);
   }
 
   public info(message: string, ...args: unknown[]): void {
-    this._outputChannel.info(this.sanitize(message), ...args);
+    this.outputChannel.info(this.sanitize(message), ...args);
   }
 
   public warn(message: string, ...args: unknown[]): void {
-    this._outputChannel.warn(this.sanitize(message), ...args);
+    this.outputChannel.warn(this.sanitize(message), ...args);
   }
 
   public error(error: string | Error, ...args: unknown[]): void {
-    this._outputChannel.error(typeof error === "string" ? this.sanitize(error) : error, ...args);
+    this.outputChannel.error(typeof error === "string" ? this.sanitize(error) : error, ...args);
   }
 
   public appendLog(value: string, options?: { resourceName?: string; date?: Date }): void {
@@ -86,38 +85,38 @@ class AzExtOutputChannel implements IAzExtLogOutputChannel {
   }
 
   public clear(): void {
-    this._outputChannel.clear();
+    this.outputChannel.clear();
   }
 
   public show(preserveFocus?: boolean | undefined): void;
   public show(column?: ViewColumn | undefined, preserveFocus?: boolean | undefined): void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public show(_column?: any, preserveFocus?: boolean | undefined): void {
-    this._outputChannel.show(preserveFocus);
+    this.outputChannel.show(preserveFocus);
   }
 
   public hide(): void {
-    this._outputChannel.hide();
+    this.outputChannel.hide();
   }
 
   public dispose(): void {
-    this._outputChannel.dispose();
+    this.outputChannel.dispose();
   }
 }
 
 export class OutputChannelManager extends Disposable {
-  private _azExtOutputChannel: IAzExtOutputChannel;
+  private readonly outputChannel: BicepLogOutputChannel;
 
-  constructor(name: string, extensionConfigurationPrefix: string, sanitize?: OutputSanitizer) {
+  constructor(name: string, sanitize?: OutputSanitizer) {
     super();
-    this._azExtOutputChannel = this.register(createAzExtOutputChannel(name, extensionConfigurationPrefix, sanitize));
+    this.outputChannel = this.register(createLogOutputChannel(name, sanitize));
   }
 
   appendToOutputChannel(text: string, noFocus = false): void {
     if (!noFocus) {
-      this._azExtOutputChannel.show();
+      this.outputChannel.show();
     }
 
-    this._azExtOutputChannel.appendLog(text);
+    this.outputChannel.appendLog(text);
   }
 }

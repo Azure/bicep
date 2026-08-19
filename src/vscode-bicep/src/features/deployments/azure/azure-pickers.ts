@@ -1,56 +1,43 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { ResourceManagementClient } from "@azure/arm-resources" with { "resolution-mode": "import" };
+
 import { ManagementGroupInfo } from "@azure/arm-managementgroups";
 import { ResourceGroup } from "@azure/arm-resources";
-import type { ResourceManagementClient } from "@azure/arm-resources" with { "resolution-mode": "import" };
-import { AzureSubscription, VSCodeAzureSubscriptionProvider } from "@microsoft/vscode-azext-azureauth";
-import {
-  IResourceGroupWizardContext,
-  LocationListStep,
-  ResourceGroupCreateStep,
-  ResourceGroupNameStep,
-  uiUtils,
-} from "@microsoft/vscode-azext-azureutils";
-import {
-  AzureWizard,
-  AzureWizardExecuteStep,
-  AzureWizardPromptStep,
-  createSubscriptionContext,
-  IActionContext,
-  IAzureQuickPickItem,
-  nonNullProp,
-  parseError,
-} from "@microsoft/vscode-azext-utils";
+import { IActionContext, IAzureQuickPickItem, nonNullProp, parseError } from "../../../infrastructure/action-context";
+import { Disposable } from "../../../infrastructure/lifecycle";
+import { OutputChannelManager } from "../../../infrastructure/logging";
 import {
   createManagementGroupsClient,
   createResourceManagementClient,
   createSubscriptionClient,
 } from "./azure-clients";
-import { Disposable } from "../../../infrastructure/lifecycle";
-import { OutputChannelManager } from "../../../infrastructure/logging";
+import { AzureAccountManager, AzureSubscription } from "./azure-account-manager";
+
+const resourceGroupNamePattern = /^[\p{L}\p{Nd}_.()-]+$/u;
 
 export class AzurePickers extends Disposable {
-  private vsCodeAzureSubscriptionProvider = new VSCodeAzureSubscriptionProvider();
+  private readonly accountManager = new AzureAccountManager();
 
   constructor(private readonly outputChannelManager: OutputChannelManager) {
     super();
   }
 
   public async getAllSubscriptions(): Promise<AzureSubscription[]> {
-    return await this.vsCodeAzureSubscriptionProvider.getSubscriptions(false);
+    return await this.accountManager.getSubscriptions();
   }
 
-  public async EnsureSignedIn(): Promise<void> {
-    if (await this.vsCodeAzureSubscriptionProvider.isSignedIn()) {
+  public async ensureSignedIn(): Promise<void> {
+    if (await this.accountManager.isSignedIn()) {
       return;
     }
 
-    await this.vsCodeAzureSubscriptionProvider.signIn();
+    await this.accountManager.signIn();
   }
 
   public async pickSubscription(context: IActionContext): Promise<AzureSubscription> {
-    await this.EnsureSignedIn();
+    await this.ensureSignedIn();
 
     const subscriptions = await this.getAllSubscriptions();
     if (subscriptions.length === 0) {
@@ -71,10 +58,10 @@ export class AzurePickers extends Disposable {
   }
 
   public async pickResourceGroup(context: IActionContext, subscription: AzureSubscription): Promise<ResourceGroup> {
-    await this.EnsureSignedIn();
+    await this.ensureSignedIn();
 
     const client: ResourceManagementClient = await createResourceManagementClient(subscription);
-    const rgs: ResourceGroup[] = await uiUtils.listAllIterator(client.resourceGroups.list());
+    const rgs = await listAll(client.resourceGroups.list());
 
     rgs.sort((a, b) => nonNullProp(a, "name").localeCompare(nonNullProp(b, "name")));
 
@@ -109,12 +96,12 @@ export class AzurePickers extends Disposable {
   }
 
   public async pickLocation(context: IActionContext, subscription: AzureSubscription): Promise<string> {
-    await this.EnsureSignedIn();
+    await this.ensureSignedIn();
 
     const client = await createSubscriptionClient(subscription);
-    const locations = (
-      await uiUtils.listAllIterator(client.subscriptions.listLocations(subscription.subscriptionId))
-    ).map((l) => nonNullProp(l, "name"));
+    const locations = (await listAll(client.subscriptions.listLocations(subscription.subscriptionId))).map((l) =>
+      nonNullProp(l, "name"),
+    );
     locations.sort();
 
     const picks = locations.map(
@@ -132,13 +119,13 @@ export class AzurePickers extends Disposable {
     context: IActionContext,
     subscription: AzureSubscription,
   ): Promise<ManagementGroupInfo> {
-    await this.EnsureSignedIn();
+    await this.ensureSignedIn();
 
     const client = await createManagementGroupsClient(subscription);
 
     let managementGroups: ManagementGroupInfo[];
     try {
-      managementGroups = await uiUtils.listAllIterator(client.managementGroups.list());
+      managementGroups = await listAll(client.managementGroups.list());
     } catch (err) {
       throw new Error(
         `You might not have access to any management groups. Please create one in the Azure portal and try to deploy again.  Error: ${parseError(err).message}. ${await this.getTenantInfo()}`,
@@ -166,46 +153,31 @@ export class AzurePickers extends Disposable {
     context: IActionContext,
     subscription: AzureSubscription,
   ): Promise<ResourceGroup> {
-    const subscriptionContext = createSubscriptionContext(subscription);
-    const wizardContext: IResourceGroupWizardContext = {
-      ...context,
-      ...subscriptionContext,
-      ...subscription,
-      suppress403Handling: true,
-    };
-    const promptSteps: AzureWizardPromptStep<IResourceGroupWizardContext>[] = [new ResourceGroupNameStep()];
-    LocationListStep.addStep(wizardContext, promptSteps);
-    const executeSteps: AzureWizardExecuteStep<IResourceGroupWizardContext>[] = [new ResourceGroupCreateStep()];
+    const resourceGroupName = (
+      await context.ui.showInputBox({
+        title: "Create resource group",
+        prompt: "Enter a resource group name",
+        validateInput: validateResourceGroupName,
+      })
+    ).trim();
+    const location = await this.pickLocation(context, subscription);
+    const client = await createResourceManagementClient(subscription);
+    const exists = await client.resourceGroups.checkExistence(resourceGroupName);
+    if (exists.body) {
+      throw new Error(`A resource group named '${resourceGroupName}' already exists.`);
+    }
 
-    const wizard: AzureWizard<IResourceGroupWizardContext> = new AzureWizard(wizardContext, {
-      title: "Create Resource Group",
-      promptSteps,
-      executeSteps,
-    });
+    const resourceGroup = await client.resourceGroups.createOrUpdate(resourceGroupName, { location });
 
-    await wizard.prompt();
-    await wizard.execute();
-
-    const azTreeItem = nonNullProp(wizardContext, "resourceGroup");
-    const newResourceGroupName = nonNullProp(azTreeItem, "name");
-
-    this.outputChannelManager.appendToOutputChannel(`Created resource group "${newResourceGroupName}"`);
-
-    const client: ResourceManagementClient = await createResourceManagementClient(subscription);
-    const rgs: ResourceGroup[] = await uiUtils.listAllIterator(client.resourceGroups.list());
-    const newResourceGroup =
-      rgs.find((rg) => rg.name === newResourceGroupName) ??
-      (() => {
-        throw new Error(`Failed to find newly created resource group "${newResourceGroupName}"`);
-      })();
-    return newResourceGroup;
+    this.outputChannelManager.appendToOutputChannel(`Created resource group "${resourceGroupName}"`);
+    return resourceGroup;
   }
 
   private async getTenantInfo(): Promise<string> {
     try {
-      const tenants = await this.vsCodeAzureSubscriptionProvider.getTenants();
+      const tenants = await this.accountManager.getTenants();
       const signInStatusPromises = tenants.map(async (tenant) => {
-        const isSignedIn = await this.vsCodeAzureSubscriptionProvider.isSignedIn(tenant.tenantId);
+        const isSignedIn = await this.accountManager.isSignedIn(tenant.tenantId, tenant.account);
         return `${tenant.tenantId} (${isSignedIn ? "signed in" : "signed out"})`;
       });
       const signInStatus = await Promise.all(signInStatusPromises);
@@ -215,4 +187,34 @@ export class AzurePickers extends Disposable {
       return "Unable to retrieve available tenant information.";
     }
   }
+}
+
+export function validateResourceGroupName(value: string): string | undefined {
+  const name = value.trim();
+  if (name.length === 0) {
+    return "A resource group name is required.";
+  }
+
+  if (name.length > 90) {
+    return "A resource group name cannot exceed 90 characters.";
+  }
+
+  if (!resourceGroupNamePattern.test(name)) {
+    return "A resource group name can contain only letters, digits, underscores, hyphens, periods, and parentheses.";
+  }
+
+  if (name.endsWith(".")) {
+    return "A resource group name cannot end with a period.";
+  }
+
+  return undefined;
+}
+
+async function listAll<T>(items: AsyncIterable<T>): Promise<T[]> {
+  const results: T[] = [];
+  for await (const item of items) {
+    results.push(item);
+  }
+
+  return results;
 }

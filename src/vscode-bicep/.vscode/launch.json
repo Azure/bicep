@@ -15,8 +15,7 @@
         "BICEP_TRACING_VERBOSITY": "basic",
         "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net10.0/Bicep.LangServer.dll",
         "BICEP_MCP_SERVER_PATH": "${workspaceRoot}/../Bicep.McpServer/bin/Debug/net10.0/Azure.Bicep.McpServer.dll",
-        // Defaulting to "verbose" when debugging so that new telemetry IDs during development aren't accidentally sent and created before they're finalized
-        "DEBUGTELEMETRY": "v" // "" or "0" or "false": send telemetry as normal; "1": debug mode (no telemetry sent); "verbose": telemetry in console, don't send (from microsoft/vscode-azext-utils)
+        "BICEP_TELEMETRY_DISABLED": "true"
       }
     },
     {

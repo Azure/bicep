@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 import crypto from "crypto";
 import path from "path";
-import { parseError } from "@microsoft/vscode-azext-utils";
 import vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
+import { parseError } from "../../infrastructure/action-context";
 import { Disposable } from "../../infrastructure/lifecycle";
 import { getLogger } from "../../infrastructure/logging";
 import { debounce } from "../../infrastructure/timing";

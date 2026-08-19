@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IActionContext, parseError } from "@microsoft/vscode-azext-utils";
 import vscode, { ViewColumn } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
+import { IActionContext, parseError } from "../../infrastructure/action-context";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { importKubernetesManifestRequestType } from "./protocol";
 

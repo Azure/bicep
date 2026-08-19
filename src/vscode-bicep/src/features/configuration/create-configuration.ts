@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 import path from "path";
-import { IActionContext, UserCancelledError } from "@microsoft/vscode-azext-utils";
 import * as fse from "fs-extra";
 import { Uri, window, workspace } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
+import { IActionContext, UserCancelledError } from "../../infrastructure/action-context";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import {
   CreateBicepConfigParams,
@@ -66,11 +66,6 @@ export class CreateBicepConfigurationFile implements Command {
         }
       }
     }
-
-    context.telemetry.properties.usingRecommendedLocation = String(selectedPath === recommendedPath);
-    context.telemetry.properties.sameFolderAsBicep = String(
-      recommendation.recommendedFolder === path.dirname(selectedPath),
-    );
 
     await this.client.sendRequest("workspace/executeCommand", {
       command: "createConfigFile",

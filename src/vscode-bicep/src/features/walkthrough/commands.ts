@@ -3,9 +3,9 @@
 
 import * as os from "os";
 import path from "path";
-import { IActionContext, IAzureQuickPickItem, UserCancelledError } from "@microsoft/vscode-azext-utils";
 import * as fse from "fs-extra";
 import vscode, { TextDocument, TextEditor, Uri, ViewColumn, window, workspace } from "vscode";
+import { IActionContext, IAzureQuickPickItem, UserCancelledError } from "../../infrastructure/action-context";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { bicepFileExtension } from "../../infrastructure/editor";
 
@@ -38,12 +38,11 @@ export class WalkthroughCopyToClipboardCommand implements Command {
   public readonly id = "bicep.gettingStarted.copyToClipboard";
 
   public async execute(
-    context: IActionContext,
+    _context: IActionContext,
     _documentUri: Uri,
     args: { step: "params" | "resources" },
   ): Promise<void> {
     const step = args.step;
-    context.telemetry.properties.step = step;
 
     const code = step === "params" ? paramsCode : resourcesCode;
     await vscode.env.clipboard.writeText(code);

@@ -3,10 +3,10 @@
 
 import assert from "assert";
 import * as path from "path";
-import { IActionContext, IAzureQuickPickItem, UserCancelledError } from "@microsoft/vscode-azext-utils";
 import * as fse from "fs-extra";
 import vscode, { MessageItem, Uri, window } from "vscode";
 import { DocumentUri, LanguageClient } from "vscode-languageclient/node";
+import { IActionContext, IAzureQuickPickItem, UserCancelledError } from "../../infrastructure/action-context";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { Disposable } from "../../infrastructure/lifecycle";
 import { OutputChannelManager } from "../../infrastructure/logging";
@@ -85,9 +85,6 @@ export class DecompileCommand implements Command {
     });
 
     this.outputChannelManager.appendToOutputChannel(decompileResult.output.trimEnd());
-    context.telemetry.properties.decompileStatus = decompileResult.errorMessage ? "failed" : "success";
-    context.telemetry.properties.countOutputFiles = String(decompileResult.outputFiles.length);
-    context.telemetry.properties.countConflictFiles = String(decompileResult.conflictingOutputPaths.length);
 
     if (decompileResult.errorMessage) {
       context.errorHandling.suppressDisplay = true;
@@ -108,7 +105,6 @@ export class DecompileCommand implements Command {
       command: "decompileSave",
       arguments: [saveParams],
     });
-    context.telemetry.properties.saveStatus = decompileResult.errorMessage ? "failed" : "success";
     this.outputChannelManager.appendToOutputChannel(saveResult.output.trimEnd());
   }
 
@@ -149,7 +145,6 @@ export class DecompileCommand implements Command {
     assert(result === overwriteAction || result === createCopyAction);
     const overwrite = result === overwriteAction;
     this.outputChannelManager.appendToOutputChannel(`Response: ${result.title}`);
-    context.telemetry.properties.conflictResolution = overwrite ? "overwrite" : "copy";
     return overwrite;
   }
 }
@@ -283,9 +278,13 @@ export async function activateDecompileFeature(
     new DecompileParamsCommand(client, outputChannelManager),
   );
 
-  extension.register(window.onDidChangeActiveTextEditor(async (editor) => updateDecompileEditorContext(editor?.document)));
   extension.register(
-    vscode.workspace.onDidCloseTextDocument(async () => updateDecompileEditorContext(window.activeTextEditor?.document)),
+    window.onDidChangeActiveTextEditor(async (editor) => updateDecompileEditorContext(editor?.document)),
+  );
+  extension.register(
+    vscode.workspace.onDidCloseTextDocument(async () =>
+      updateDecompileEditorContext(window.activeTextEditor?.document),
+    ),
   );
   extension.register(
     vscode.workspace.onDidOpenTextDocument(async () => updateDecompileEditorContext(window.activeTextEditor?.document)),

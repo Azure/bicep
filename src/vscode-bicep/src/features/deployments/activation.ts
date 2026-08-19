@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { ExtensionContext } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
+import { IActionContext } from "../../infrastructure/action-context";
 import { CommandManager } from "../../infrastructure/commands";
 import { DiagnosticsRouter } from "../../infrastructure/language-client";
 import { Disposable } from "../../infrastructure/lifecycle";

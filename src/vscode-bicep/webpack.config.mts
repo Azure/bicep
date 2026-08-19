@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import type webpack from "webpack";
+
 import path from "path";
 import { fileURLToPath } from "url";
 import CopyPlugin from "copy-webpack-plugin";
@@ -8,7 +10,7 @@ import TerserPlugin from "terser-webpack-plugin";
 const configDirectory = path.dirname(fileURLToPath(import.meta.url));
 const outputPath = path.resolve(configDirectory, "out");
 
-const extensionConfig = {
+const extensionConfig: webpack.Configuration = {
   target: "node",
   entry: "./src/extension.ts",
   devtool: "source-map",

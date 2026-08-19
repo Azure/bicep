@@ -94,10 +94,6 @@ and restores the original property descriptor in `finally`.
 The runner uses Vitest's built-in verbose reporter and injects stdout/stderr streams that forward output through
 the Extension Host console.
 
-`@microsoft/vscode-azext-utils` currently publishes ESM files with references to source maps that are absent
-from its package. The stderr stream suppresses only warnings that identify that package, an `ENOENT` failure,
-and a missing `.js.map`. Other transform and source-map errors remain visible.
-
 ## Commands
 
 Compile the E2E sources:

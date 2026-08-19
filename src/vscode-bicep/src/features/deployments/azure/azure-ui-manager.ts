@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { AccessToken } from "@azure/identity";
-import { AzureSubscription } from "@microsoft/vscode-azext-azureauth";
-import { createSubscriptionContext, IActionContext, nonNullProp } from "@microsoft/vscode-azext-utils";
+import type { AccessToken } from "@azure/core-auth";
+import { IActionContext, nonNullProp } from "../../../infrastructure/action-context";
 import { DeploymentScope, DeploymentScopeType } from "../deployment-scope";
 import { AzurePickers } from "./azure-pickers";
+import { AzureSubscription, getAzureAccessToken } from "./azure-account-manager";
 
 export interface IAzureUIManager {
   getAccessToken(scope: DeploymentScope): Promise<AccessToken>;
@@ -19,7 +19,7 @@ export class AzureUIManager implements IAzureUIManager {
 
   public async getAccessToken(scope: DeploymentScope): Promise<AccessToken> {
     const subscription = await this.getSubscription(scope);
-    return createSubscriptionContext(subscription).credentials.getToken();
+    return await getAzureAccessToken(subscription);
   }
 
   public async pickScope(scopeType: DeploymentScopeType): Promise<DeploymentScope> {
@@ -96,7 +96,7 @@ export class AzureUIManager implements IAzureUIManager {
   }
 
   private async getSubscription(scope: DeploymentScope): Promise<AzureSubscription> {
-    await this.azurePickers.EnsureSignedIn();
+    await this.azurePickers.ensureSignedIn();
 
     const subscriptionId = this.getSubscriptionId(scope);
     const subscriptions = await this.azurePickers.getAllSubscriptions();

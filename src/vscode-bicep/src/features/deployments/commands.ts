@@ -1,20 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { AccessToken } from "@azure/core-auth";
+
 import assert from "assert";
 import * as path from "path";
-import { AccessToken } from "@azure/identity";
-import { AzureSubscription } from "@microsoft/vscode-azext-azureauth";
-import {
-  createSubscriptionContext,
-  IActionContext,
-  IAzureQuickPickItem,
-  nonNullProp,
-  parseError,
-} from "@microsoft/vscode-azext-utils";
 import * as fse from "fs-extra";
 import vscode, { commands, Uri } from "vscode";
 import { LanguageClient, TextDocumentIdentifier } from "vscode-languageclient/node";
+import { IActionContext, IAzureQuickPickItem, nonNullProp, parseError } from "../../infrastructure/action-context";
+import { Command } from "../../infrastructure/commands";
+import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
+import { OutputChannelManager } from "../../infrastructure/logging";
+import { minutesToMs } from "../../infrastructure/timing";
+import { AzurePickers } from "./azure/azure-pickers";
+import { AzureSubscription, getAzureAccessToken } from "./azure/azure-account-manager";
 import {
   BicepDeploymentParametersResponse,
   BicepDeploymentScopeParams,
@@ -25,11 +25,6 @@ import {
   BicepUpdatedDeploymentParameter,
   ParametersFileUpdateOption,
 } from "./protocol";
-import { AzurePickers } from "./azure/azure-pickers";
-import { Command } from "../../infrastructure/commands";
-import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
-import { OutputChannelManager } from "../../infrastructure/logging";
-import { minutesToMs } from "../../infrastructure/timing";
 
 export class DeployCommand implements Command {
   private _none = "$(circle-slash) None";
@@ -41,9 +36,8 @@ export class DeployCommand implements Command {
   private _no: IAzureQuickPickItem = {
     label: "No",
     data: undefined,
-    priority: "highest",
   };
-  private _yesNoQuickPickItems: IAzureQuickPickItem[] = [this._yes, this._no];
+  private _yesNoQuickPickItems: IAzureQuickPickItem[] = [this._no, this._yes];
 
   public readonly id = "bicep.deploy";
 
@@ -55,8 +49,6 @@ export class DeployCommand implements Command {
 
   public async execute(context: IActionContext, documentUri: vscode.Uri | undefined): Promise<void> {
     const deployId = Math.random().toString();
-    context.telemetry.properties.deployId = deployId;
-    context.telemetry.properties.vscodeauth = "true";
 
     documentUri = await findOrCreateActiveBicepFile(context, documentUri, "Choose which Bicep file to deploy");
 
@@ -89,12 +81,11 @@ export class DeployCommand implements Command {
         return;
       }
 
-      context.telemetry.properties.targetScope = deploymentScope;
       this.outputChannelManager.appendToOutputChannel(
         `Scope specified in ${path.basename(documentPath)}: ${deploymentScope}`,
       );
 
-      await this.azurePickers.EnsureSignedIn();
+      await this.azurePickers.ensureSignedIn();
 
       const fileName = path.basename(documentPath, ".bicep");
       const options = {
@@ -157,7 +148,6 @@ export class DeployCommand implements Command {
       // https://github.com/microsoft/vscode-azure-account/issues/53
       else if (parseError(err).message === "Entry not found in cache.") {
         errorMessage = `Deployment failed for ${documentPath}. Token cache is out of date. Please reload VS Code and try again. If this problem persists, consider changing the VS Code setting "Azure: Authentication Library" to "MSAL".`;
-        context.errorHandling.suppressReportIssue = true;
         context.errorHandling.buttons = [
           {
             title: "Reload Window",
@@ -266,13 +256,10 @@ export class DeployCommand implements Command {
     deploymentName: string,
   ): Promise<BicepDeploymentStartResponse | undefined> {
     if (!parametersFilePath) {
-      context.telemetry.properties.parameterFileProvided = "false";
       this.outputChannelManager.appendToOutputChannel(`No parameter file was provided`);
-    } else {
-      context.telemetry.properties.parameterFileProvided = "true";
     }
 
-    const accessToken: AccessToken = await createSubscriptionContext(subscription).credentials.getToken();
+    const accessToken: AccessToken = await getAzureAccessToken(subscription);
 
     if (accessToken) {
       const token = accessToken.token;
@@ -539,21 +526,17 @@ export class DeployCommand implements Command {
     parametersFileName: string,
   ) {
     let placeholder: string;
-    let parametersFileUpdateOptionString: string;
     let parametersFileUpdateOption: ParametersFileUpdateOption;
     if (parametersFileExists) {
-      parametersFileUpdateOptionString = "Update";
       parametersFileUpdateOption = ParametersFileUpdateOption.Update;
       placeholder = `Update ${parametersFileName} with values used in this deployment?`;
     } else {
       const folderContainingSourceFile = path.dirname(documentPath);
       const parametersFilePath = path.join(folderContainingSourceFile, parametersFileName);
       if (fse.existsSync(parametersFilePath)) {
-        parametersFileUpdateOptionString = "Overwrite";
         parametersFileUpdateOption = ParametersFileUpdateOption.Overwrite;
         placeholder = `File ${parametersFileName} already exists. Do you want to overwrite it?`;
       } else {
-        parametersFileUpdateOptionString = "Create";
         parametersFileUpdateOption = ParametersFileUpdateOption.Create;
         placeholder = `Create parameters file from values used in this deployment?`;
       }
@@ -565,7 +548,6 @@ export class DeployCommand implements Command {
       suppressPersistence: true,
     });
 
-    _context.telemetry.properties.parametersFileUpdateOption = parametersFileUpdateOptionString;
     if (result === this._yes) {
       return parametersFileUpdateOption;
     } else {

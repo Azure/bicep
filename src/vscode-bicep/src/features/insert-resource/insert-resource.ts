@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IActionContext } from "@microsoft/vscode-azext-utils";
 import vscode, { Uri, window, workspace } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
+import { IActionContext } from "../../infrastructure/action-context";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
 import { insertResourceRequestType } from "./protocol";

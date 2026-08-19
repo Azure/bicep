@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 import path from "path";
-import { IActionContext, parseError } from "@microsoft/vscode-azext-utils";
 import vscode, { Uri } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
+import { IActionContext, parseError } from "../../infrastructure/action-context";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
 import { OutputChannelManager } from "../../infrastructure/logging";
@@ -36,9 +36,6 @@ export class GenerateParamsCommand implements Command {
       if (outputFormat === undefined || includeParams === undefined) {
         throw new Error("Please select the output format and which parameters to include");
       }
-
-      context.telemetry.properties.format = outputFormat;
-      context.telemetry.properties.includeParams = includeParams;
 
       const generateParamsOutput: string = await this.client.sendRequest("workspace/executeCommand", {
         command: "generateParams",

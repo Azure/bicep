@@ -4,16 +4,9 @@
 import type { Memento, MessageItem, WorkspaceConfiguration } from "vscode";
 
 import { daysToMs, monthsToDays, weeksToDays } from "../../../infrastructure/timing";
-import { IPersistedSurveyState, ISurveyInfo, Survey, SurveyContext } from "../surveys";
+import { IPersistedSurveyState, ISurveyInfo, Survey } from "../surveys";
 
 type SurveyResponse = MessageItem & { id: string };
-
-function createSurveyContext(): SurveyContext {
-  return {
-    errorHandling: { issueProperties: {} },
-    telemetry: { measurements: {}, properties: {} },
-  };
-}
 
 describe("Survey", () => {
   function createEnabledConfiguration(): Pick<WorkspaceConfiguration, "get"> {
@@ -101,7 +94,7 @@ describe("Survey", () => {
       title: "Don't ask again",
       id: "dontAskAgain",
     });
-    await mocks.survey.checkShowSurvey(createSurveyContext(), now);
+    await mocks.survey.checkShowSurvey(now);
 
     expect(mocks.promptCount).toBe(1);
     expect(mocks.globalStorage.get<IPersistedSurveyState>("testSurvey")?.postponedUntilMs).toBe(
@@ -111,13 +104,13 @@ describe("Survey", () => {
     // Try again at 179 days, should not show
     now = new Date(start.valueOf() + daysToMs(179));
     mocks.resetPrompts();
-    await mocks.survey.checkShowSurvey(createSurveyContext(), now);
+    await mocks.survey.checkShowSurvey(now);
     expect(mocks.promptCount).toBe(0);
 
     // Try again at 181 days, should show
     now = new Date(start.valueOf() + daysToMs(181));
     mocks.resetPrompts();
-    await mocks.survey.checkShowSurvey(createSurveyContext(), now);
+    await mocks.survey.checkShowSurvey(now);
     expect(mocks.promptCount).toBe(1);
   });
 
@@ -127,7 +120,7 @@ describe("Survey", () => {
     });
 
     // Try to show, should not ask
-    await mocks.survey.checkShowSurvey(createSurveyContext(), new Date());
+    await mocks.survey.checkShowSurvey(new Date());
 
     expect(mocks.promptCount).toBe(0);
   });
@@ -138,7 +131,7 @@ describe("Survey", () => {
     });
 
     // Should show
-    await mocks.survey.checkShowSurvey(createSurveyContext(), new Date());
+    await mocks.survey.checkShowSurvey(new Date());
 
     expect(mocks.promptCount).toBe(1);
   });
@@ -163,8 +156,7 @@ describe("Survey", () => {
       title: "Jawohl",
       id: "yes",
     });
-    let context = createSurveyContext();
-    await mocks.survey.checkShowSurvey(context, now);
+    await mocks.survey.checkShowSurvey(now);
 
     expect(mocks.promptCount).toBe(1);
     expect(mocks.globalStorage.get<IPersistedSurveyState>("testSurvey")?.postponedUntilMs).toBeUndefined();
@@ -173,27 +165,22 @@ describe("Survey", () => {
     // Try again, right before the postponement date
     now = new Date(start.valueOf() + daysToMs(postponeAfterYes) - 1);
     mocks.resetPrompts();
-    context = createSurveyContext();
-    await mocks.survey.checkShowSurvey(context, now);
+    await mocks.survey.checkShowSurvey(now);
 
     // Shouldn't have asked
     expect(mocks.promptCount).toBe(0);
-    expect(context.telemetry.properties.shouldAsk).toBe("alreadyTaken");
 
     // Try again, on the postponement date
     now = new Date(start.valueOf() + daysToMs(postponeAfterYes));
     mocks.resetPrompts();
-    context = createSurveyContext();
-    await mocks.survey.checkShowSurvey(context, now);
+    await mocks.survey.checkShowSurvey(now);
 
     expect(mocks.promptCount).toBe(1);
-    expect(context.telemetry.properties.shouldAsk).toBe("ask");
 
     // Try again, the day after the postponement date
     now = new Date(start.valueOf() + daysToMs(postponeAfterYes + 1));
     mocks.resetPrompts();
-    context = createSurveyContext();
-    await mocks.survey.checkShowSurvey(context, now);
+    await mocks.survey.checkShowSurvey(now);
 
     // Should have been shown
     expect(mocks.promptCount).toBe(1);
@@ -219,8 +206,7 @@ describe("Survey", () => {
       title: "Maybe later",
       id: "later",
     });
-    let context = createSurveyContext();
-    await mocks.survey.checkShowSurvey(context, now);
+    await mocks.survey.checkShowSurvey(now);
 
     expect(mocks.promptCount).toBe(1);
     expect(mocks.globalStorage.get<IPersistedSurveyState>("testSurvey")?.postponedUntilMs).toBe(
@@ -230,18 +216,15 @@ describe("Survey", () => {
     // Try again, a day before the postponement date
     now = new Date(start.valueOf() + daysToMs(postponeLaterDays - 1));
     mocks.resetPrompts();
-    context = createSurveyContext();
-    await mocks.survey.checkShowSurvey(context, now);
+    await mocks.survey.checkShowSurvey(now);
 
     // Shouldn't have asked
     expect(mocks.promptCount).toBe(0);
-    expect(context.telemetry.properties.shouldAsk).toBe("postponed");
 
     // Try again, a day after the postponement date
     now = new Date(start.valueOf() + daysToMs(postponeLaterDays + 1));
     mocks.resetPrompts();
-    context = createSurveyContext();
-    await mocks.survey.checkShowSurvey(context, now);
+    await mocks.survey.checkShowSurvey(now);
 
     // Should have asked
     expect(mocks.promptCount).toBe(1);
@@ -264,8 +247,7 @@ describe("Survey", () => {
 
     // Show and dismiss
     mocks.respondWith(undefined);
-    let context = createSurveyContext();
-    await mocks.survey.checkShowSurvey(context, now);
+    await mocks.survey.checkShowSurvey(now);
 
     expect(mocks.promptCount).toBe(1);
     // Should postpone same as "later"
@@ -276,18 +258,15 @@ describe("Survey", () => {
     // Try again, a day before the postponement date
     now = new Date(start.valueOf() + daysToMs(postponeLaterDays - 1));
     mocks.resetPrompts();
-    context = createSurveyContext();
-    await mocks.survey.checkShowSurvey(context, now);
+    await mocks.survey.checkShowSurvey(now);
 
     // Shouldn't have asked
     expect(mocks.promptCount).toBe(0);
-    expect(context.telemetry.properties.shouldAsk).toBe("postponed");
 
     // Try again, a day after the postponement date
     now = new Date(start.valueOf() + daysToMs(postponeLaterDays + 1));
     mocks.resetPrompts();
-    context = createSurveyContext();
-    await mocks.survey.checkShowSurvey(context, now);
+    await mocks.survey.checkShowSurvey(now);
 
     // Should have asked
     expect(mocks.promptCount).toBe(1);
@@ -303,36 +282,27 @@ describe("Survey", () => {
       lastTakenMs: "whoops",
       postponedUntilMs: -1,
     });
-    const context = createSurveyContext();
-    await mocks.survey.checkShowSurvey(context, new Date());
+    await mocks.survey.checkShowSurvey(new Date());
 
     expect(mocks.promptCount).toBe(1);
-    expect(context.telemetry.properties.depersistStateError).toBe("Persisted survey state is invalid");
   });
 
   test.each([
-    [301, true, "available"],
-    [302, false, "unavailable"],
-    [200, false, "200"],
-    [undefined, false, "undefined"],
-  ] as const)("maps survey link status %s to availability %s", async (statusCode, expected, status) => {
-    const context = createSurveyContext();
-
-    const actual = await Survey.getIsSurveyAvailable(context, "https://example.test", async () => statusCode);
+    [301, true],
+    [302, false],
+    [200, false],
+    [undefined, false],
+  ] as const)("maps survey link status %s to availability %s", async (statusCode, expected) => {
+    const actual = await Survey.getIsSurveyAvailable("https://example.test", async () => statusCode);
 
     expect(actual).toBe(expected);
-    expect(context.telemetry.properties.surveyLinkStatus).toBe(status);
   });
 
-  test("records errors while checking survey availability", async () => {
-    const context = createSurveyContext();
-    const error = Object.assign(new Error("Host not found"), { code: "ENOTFOUND" });
-
-    const actual = await Survey.getIsSurveyAvailable(context, "https://example.test", async () => {
-      throw error;
+  test("returns false when checking survey availability fails", async () => {
+    const actual = await Survey.getIsSurveyAvailable("https://example.test", async () => {
+      throw new Error("Host not found");
     });
 
     expect(actual).toBe(false);
-    expect(context.telemetry.properties.surveyLinkStatus).toBe("ENOTFOUND");
   });
 });

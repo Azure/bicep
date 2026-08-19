@@ -3,13 +3,11 @@
 
 export {
   activateWithTelemetryAndErrorHandling,
-  callWithTelemetryAndErrorHandlingOnlyOnErrors,
   createLogger,
   e2eLogName,
   getLogger,
-  raiseErrorWithoutTelemetry,
   resetLogger,
   WinstonLogger,
 } from "./logging";
 export type { Logger, LogLevel } from "./logging";
-export { createAzExtOutputChannel, OutputChannelManager } from "./output-channels";
+export { createLogOutputChannel, OutputChannelManager } from "./output-channels";
