@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { AccessToken } from "@azure/identity";
-import type { TelemetryProperties } from "@microsoft/vscode-azext-utils";
+import type { AccessToken } from "@azure/core-auth";
 import type { LocalDeployResponse, VscodeMessage } from "../../messages";
 import type {
   DeploymentScope,
@@ -19,7 +18,6 @@ import {
   createGetStateMessage,
   createLocalDeployMessage,
   createPickParamsFileMessage,
-  createPublishTelemetryMessage,
   createReadyMessage,
   createSaveStateMessage,
 } from "../../messages";
@@ -159,10 +157,6 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
     vscode.postMessage(createGetDeploymentScopeMessage(templateMetadata.scopeType));
   }
 
-  function publishTelemetry(eventName: string, properties: TelemetryProperties) {
-    vscode.postMessage(createPublishTelemetryMessage(eventName, properties));
-  }
-
   function acquireAccessToken() {
     const promise = new Promise<AccessToken>((resolve, reject) => (accessTokenResolver = { resolve, reject }));
 
@@ -183,7 +177,6 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
     acquireAccessToken,
     pickScope,
     scope,
-    publishTelemetry,
     startLocalDeploy,
     localDeployResult,
     messageState,

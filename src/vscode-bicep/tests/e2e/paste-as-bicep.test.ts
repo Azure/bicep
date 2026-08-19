@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import * as fse from "fs-extra";
+import { readFileSync } from "fs";
 import vscode, { ConfigurationTarget, Selection, TextDocument } from "vscode";
 import { SuppressedWarningsManager } from "../../src/features/paste-as-bicep";
 import { getBicepConfiguration } from "../../src/infrastructure/configuration";
@@ -88,7 +88,7 @@ describe("pasteAsBicep", (): void => {
       error?: string;
     },
   ): Promise<{ log: string }> {
-    const initialLogContentsLength = fse.readFileSync(extensionLogPath).toString().length;
+    const initialLogContentsLength = readFileSync(extensionLogPath, "utf8").length;
 
     await configureSettings();
 
@@ -130,7 +130,7 @@ describe("pasteAsBicep", (): void => {
     return { log: getRecentLogContents() };
 
     function getRecentLogContents() {
-      const logContents = fse.readFileSync(extensionLogPath).toString().substring(initialLogContentsLength);
+      const logContents = readFileSync(extensionLogPath, "utf8").substring(initialLogContentsLength);
       return logContents;
     }
 

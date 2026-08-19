@@ -5,9 +5,6 @@ import path from "path";
 import { Writable } from "stream";
 import { createExtensionHostPool } from "./pool";
 
-const missingAzExtUtilsSourceMapWarning =
-  /Failed to load source map for .*[/\\]node_modules[/\\]@microsoft[/\\]vscode-azext-utils[/\\]dist[/\\]esm[/\\].*\.js\.[\s\S]*ENOENT:[\s\S]*\.js\.map/;
-
 // VS Code loads this module inside the Extension Host and invokes its exported run function.
 export async function run(): Promise<void> {
   const workspaceRoot = path.resolve(__dirname, "../../../..");
@@ -51,7 +48,7 @@ export async function run(): Promise<void> {
         undefined,
         {
           stdout: createExtensionHostStream(writeOutput),
-          stderr: createExtensionHostStream(writeError, (content) => !missingAzExtUtilsSourceMapWarning.test(content)),
+          stderr: createExtensionHostStream(writeError),
         },
       );
     });

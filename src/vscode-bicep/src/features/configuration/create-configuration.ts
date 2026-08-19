@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { existsSync } from "fs";
 import path from "path";
-import { IActionContext, UserCancelledError } from "@microsoft/vscode-azext-utils";
-import * as fse from "fs-extra";
 import { Uri, window, workspace } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Command, CommandManager } from "../../infrastructure/commands";
+import { OperationError, UserCancelledError } from "../../infrastructure/errors";
 import {
   CreateBicepConfigParams,
   getRecommendedConfigLocationRequestType,
@@ -20,13 +20,14 @@ export class CreateBicepConfigurationFile implements Command {
 
   public constructor(private readonly client: LanguageClient) {}
 
-  public async execute(
-    context: IActionContext,
-    documentUri?: Uri,
-    suppressQuery?: boolean,
-    rethrow?: boolean,
-  ): Promise<string | undefined> {
-    context.errorHandling.rethrow = !!rethrow;
+  public async execute(documentUri?: Uri, suppressQuery?: boolean, rethrow?: boolean): Promise<string | undefined> {
+    if (rethrow) {
+      try {
+        return await this.execute(documentUri, suppressQuery, false);
+      } catch (error) {
+        throw new OperationError(error, { rethrow: true });
+      }
+    }
 
     documentUri ??= window.activeTextEditor?.document.uri;
 
@@ -67,11 +68,6 @@ export class CreateBicepConfigurationFile implements Command {
       }
     }
 
-    context.telemetry.properties.usingRecommendedLocation = String(selectedPath === recommendedPath);
-    context.telemetry.properties.sameFolderAsBicep = String(
-      recommendation.recommendedFolder === path.dirname(selectedPath),
-    );
-
     await this.client.sendRequest("workspace/executeCommand", {
       command: "createConfigFile",
       arguments: [
@@ -81,7 +77,7 @@ export class CreateBicepConfigurationFile implements Command {
       ],
     });
 
-    if (await fse.pathExists(selectedPath)) {
+    if (existsSync(selectedPath)) {
       const textDocument = await workspace.openTextDocument(selectedPath);
       await window.showTextDocument(textDocument);
       return selectedPath;

@@ -3,11 +3,12 @@
 
 import * as os from "os";
 import path from "path";
-import { IActionContext, IAzureQuickPickItem, UserCancelledError } from "@microsoft/vscode-azext-utils";
-import * as fse from "fs-extra";
+import { writeFile } from "fs/promises";
 import vscode, { TextDocument, TextEditor, Uri, ViewColumn, window, workspace } from "vscode";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { bicepFileExtension } from "../../infrastructure/editor";
+import { UserCancelledError } from "../../infrastructure/errors";
+import { PromptItem, Prompts } from "../../infrastructure/prompts";
 
 const paramsCode =
   "param location string = resourceGroup().location\n" +
@@ -37,13 +38,8 @@ resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
 export class WalkthroughCopyToClipboardCommand implements Command {
   public readonly id = "bicep.gettingStarted.copyToClipboard";
 
-  public async execute(
-    context: IActionContext,
-    _documentUri: Uri,
-    args: { step: "params" | "resources" },
-  ): Promise<void> {
+  public async execute(_documentUri: Uri | undefined, args: { step: "params" | "resources" }): Promise<void> {
     const step = args.step;
-    context.telemetry.properties.step = step;
 
     const code = step === "params" ? paramsCode : resourcesCode;
     await vscode.env.clipboard.writeText(code);
@@ -63,16 +59,18 @@ export class WalkthroughOpenBicepFileCommand implements Command {
   public static id = "bicep.gettingStarted.openBicepFile";
   public readonly id = WalkthroughOpenBicepFileCommand.id;
 
-  public async execute(context: IActionContext): Promise<TextEditor> {
-    return await queryAndOpenBicepFile(context);
+  public constructor(private readonly prompts: Prompts) {}
+
+  public async execute(): Promise<TextEditor> {
+    return await queryAndOpenBicepFile(this.prompts);
   }
 }
 
-export async function activateWalkthroughFeature(commandManager: CommandManager): Promise<void> {
+export async function activateWalkthroughFeature(prompts: Prompts, commandManager: CommandManager): Promise<void> {
   await commandManager.registerCommands(
     new WalkthroughCopyToClipboardCommand(),
     new WalkthroughCreateBicepFileCommand(),
-    new WalkthroughOpenBicepFileCommand(),
+    new WalkthroughOpenBicepFileCommand(prompts),
   );
 }
 
@@ -93,46 +91,46 @@ async function createAndOpenBicepFile(fileContents: string): Promise<vscode.Text
     throw new Error(`Can't save file to location ${uri.toString()}`);
   }
 
-  await fse.writeFile(filePath, fileContents, { encoding: "utf-8" });
+  await writeFile(filePath, fileContents, { encoding: "utf-8" });
 
   const document: TextDocument = await workspace.openTextDocument(uri);
   return await vscode.window.showTextDocument(document, vscode.ViewColumn.Beside);
 }
 
-async function queryAndOpenBicepFile(context: IActionContext): Promise<TextEditor> {
-  const uri: Uri = await queryUserForBicepFile(context);
+async function queryAndOpenBicepFile(prompts: Prompts): Promise<TextEditor> {
+  const uri: Uri = await queryUserForBicepFile(prompts);
   const document: TextDocument = await workspace.openTextDocument(uri);
   return await window.showTextDocument(document, ViewColumn.Beside);
 }
 
-async function queryUserForBicepFile(context: IActionContext): Promise<Uri> {
+async function queryUserForBicepFile(prompts: Prompts): Promise<Uri> {
   const foundBicepFiles = (await workspace.findFiles("**/*.bicep", undefined)).filter((file) => !!file.fsPath);
 
   if (foundBicepFiles.length === 0) {
-    return await browseForFile(context);
+    return await browseForFile(prompts);
   }
 
-  const entries: IAzureQuickPickItem<Uri | undefined>[] = foundBicepFiles.map((uri) => {
+  const entries: PromptItem<Uri | undefined>[] = foundBicepFiles.map((uri) => {
     const workspaceRoot: string | undefined = workspace.getWorkspaceFolder(uri)?.uri.fsPath;
     const relativePath = workspaceRoot ? path.relative(workspaceRoot, uri.fsPath) : path.basename(uri.fsPath);
 
-    return <IAzureQuickPickItem<Uri>>{
+    return <PromptItem<Uri>>{
       label: relativePath,
       data: uri,
     };
   });
-  const browse: IAzureQuickPickItem<Uri | undefined> = {
+  const browse: PromptItem<Uri | undefined> = {
     label: "Browse...",
     data: undefined,
   };
   entries.unshift(browse);
 
-  const response = await context.ui.showQuickPick(entries, {
+  const response = await prompts.showQuickPick(entries, {
     placeHolder: "Select a Bicep file to open",
   });
 
   if (response === browse) {
-    return await browseForFile(context);
+    return await browseForFile(prompts);
   } else if (response.data) {
     return response.data;
   } else {
@@ -140,8 +138,8 @@ async function queryUserForBicepFile(context: IActionContext): Promise<Uri> {
   }
 }
 
-async function browseForFile(context: IActionContext): Promise<Uri> {
-  const browsedFile: Uri[] = await context.ui.showOpenDialog({
+async function browseForFile(prompts: Prompts): Promise<Uri> {
+  const browsedFile: Uri[] = await prompts.showOpenDialog({
     title: "Open a Bicep file",
     filters: { "Bicep files": [bicepFileExtension] },
   });

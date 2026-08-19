@@ -1,46 +1,39 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { registerAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
-import { registerUIExtensionVariables } from "@microsoft/vscode-azext-utils";
-import {
-  ExtensionContext,
-  ProgressLocation,
-  Uri,
-  window,
-} from "vscode";
+import { ExtensionContext, ProgressLocation, Uri, window } from "vscode";
 import * as lsp from "vscode-languageclient/node";
-import { CommandManager } from "./infrastructure/commands";
 import { activateBuildFeature } from "./features/build";
 import { activateConfigurationFeature } from "./features/configuration";
 import { activateDecompileFeature } from "./features/decompile";
-import {
-  activateDeploymentFeature,
-  removePropertiesWithPossibleUserInfoInDeployParams,
-} from "./features/deployments";
+import { activateDeploymentFeature, removePropertiesWithPossibleUserInfoInDeployParams } from "./features/deployments";
 import { activateExternalSourceFeature } from "./features/external-source";
 import { activateImportKubernetesManifestFeature } from "./features/import-kubernetes-manifest";
 import { activateInsertResourceFeature } from "./features/insert-resource";
-import { activateModuleRestoreFeature } from "./features/module-restore";
 import { activateMcpFeature } from "./features/mcp";
+import { activateModuleRestoreFeature } from "./features/module-restore";
 import { activateParametersFeature } from "./features/parameters";
 import { activatePasteAsBicepFeature } from "./features/paste-as-bicep";
 import { activateRefactoringFeature } from "./features/refactoring";
 import * as surveys from "./features/surveys";
 import { activateVisualizationFeature } from "./features/visualization";
 import { activateWalkthroughFeature } from "./features/walkthrough";
-import { bicepConfigurationPrefix } from "./infrastructure/configuration";
-import { bicepLanguageId } from "./infrastructure/editor";
-import { createLanguageService, DiagnosticsRouter, ensureDotnetRuntimeInstalled } from "./infrastructure/language-client";
+import { CommandManager } from "./infrastructure/commands";
+import {
+  createLanguageService,
+  DiagnosticsRouter,
+  ensureDotnetRuntimeInstalled,
+} from "./infrastructure/language-client";
 import { Disposable } from "./infrastructure/lifecycle";
 import {
-  activateWithTelemetryAndErrorHandling,
-  createAzExtOutputChannel,
+  activateWithErrorHandling,
   createLogger,
+  createLogOutputChannel,
   getLogger,
   OutputChannelManager,
   resetLogger,
 } from "./infrastructure/logging";
+import { Prompts } from "./infrastructure/prompts";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -59,31 +52,21 @@ class BicepExtension extends Disposable {
 
 export async function activate(extensionContext: ExtensionContext): Promise<void> {
   const extension = BicepExtension.create(extensionContext);
-  const outputChannel = createAzExtOutputChannel(
-    "Bicep",
-    bicepConfigurationPrefix,
-    removePropertiesWithPossibleUserInfoInDeployParams,
-  );
+  const outputChannel = createLogOutputChannel("Bicep", removePropertiesWithPossibleUserInfoInDeployParams);
 
   extension.register(outputChannel);
   extension.register(createLogger(extensionContext, outputChannel));
-
-  registerUIExtensionVariables({ context: extensionContext, outputChannel });
-  registerAzureUtilsExtensionVariables({
-    context: extensionContext,
-    outputChannel,
-    prefix: bicepLanguageId,
-  });
+  const prompts = new Prompts(extensionContext.globalState);
 
   // Activate and launch language server
-  await activateWithTelemetryAndErrorHandling(async (actionContext) => {
+  await activateWithErrorHandling(async () => {
     await window.withProgress(
       {
         location: ProgressLocation.Window,
       },
       async (progress) => {
         progress.report({ message: "Acquiring dotnet runtime" });
-        const dotnetCommandPath = await ensureDotnetRuntimeInstalled(actionContext);
+        const dotnetCommandPath = await ensureDotnetRuntimeInstalled();
 
         progress.report({ message: "Launching language service" });
         languageClient = await createLanguageService(extensionContext, outputChannel, dotnetCommandPath);
@@ -97,11 +80,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
         const diagnosticsRouter = extension.register(new DiagnosticsRouter(languageClient.clientOptions));
 
         const outputChannelManager = extension.register(
-          new OutputChannelManager(
-            "Bicep Operations",
-            bicepConfigurationPrefix,
-            removePropertiesWithPossibleUserInfoInDeployParams,
-          ),
+          new OutputChannelManager("Bicep Operations", removePropertiesWithPossibleUserInfoInDeployParams),
         );
 
         // Register commands.
@@ -109,28 +88,29 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
         await activateVisualizationFeature(
           extension,
           extension.extensionUri,
+          prompts,
           commandManager,
           languageClient,
           diagnosticsRouter,
         );
         await activateDeploymentFeature(
           extension,
-          actionContext,
+          prompts,
           extensionContext,
           commandManager,
           languageClient,
           outputChannelManager,
           diagnosticsRouter,
         );
-        await activateBuildFeature(commandManager, languageClient, outputChannelManager);
-        await activateParametersFeature(commandManager, languageClient, outputChannelManager);
+        await activateBuildFeature(prompts, commandManager, languageClient, outputChannelManager);
+        await activateParametersFeature(prompts, commandManager, languageClient, outputChannelManager);
         await activateConfigurationFeature(commandManager, languageClient);
-        await activateDecompileFeature(extension, commandManager, languageClient, outputChannelManager);
-        await activateModuleRestoreFeature(commandManager, languageClient, outputChannelManager);
-        await activateInsertResourceFeature(commandManager, languageClient);
-        await activateWalkthroughFeature(commandManager);
-        await activatePasteAsBicepFeature(extension, commandManager, languageClient, outputChannelManager);
-        await activateImportKubernetesManifestFeature(commandManager, languageClient);
+        await activateDecompileFeature(extension, prompts, commandManager, languageClient, outputChannelManager);
+        await activateModuleRestoreFeature(prompts, commandManager, languageClient, outputChannelManager);
+        await activateInsertResourceFeature(prompts, commandManager, languageClient);
+        await activateWalkthroughFeature(prompts, commandManager);
+        await activatePasteAsBicepFeature(extension, prompts, commandManager, languageClient, outputChannelManager);
+        await activateImportKubernetesManifestFeature(prompts, commandManager, languageClient);
         await activateExternalSourceFeature(extension, commandManager, languageClient);
         await activateRefactoringFeature(commandManager);
 
@@ -138,7 +118,6 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
         getLogger().info("Bicep language service started.");
 
         activateMcpFeature(extension, extensionContext, dotnetCommandPath);
-
       },
     );
   });

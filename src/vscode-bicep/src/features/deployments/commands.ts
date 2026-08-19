@@ -1,20 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { AccessToken } from "@azure/core-auth";
+
 import assert from "assert";
+import { existsSync, readFileSync } from "fs";
 import * as path from "path";
-import { AccessToken } from "@azure/identity";
-import { AzureSubscription } from "@microsoft/vscode-azext-azureauth";
-import {
-  createSubscriptionContext,
-  IActionContext,
-  IAzureQuickPickItem,
-  nonNullProp,
-  parseError,
-} from "@microsoft/vscode-azext-utils";
-import * as fse from "fs-extra";
 import vscode, { commands, Uri } from "vscode";
 import { LanguageClient, TextDocumentIdentifier } from "vscode-languageclient/node";
+import { Command } from "../../infrastructure/commands";
+import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
+import { OperationError, parseError } from "../../infrastructure/errors";
+import { OutputChannelManager } from "../../infrastructure/logging";
+import { PromptItem, Prompts } from "../../infrastructure/prompts";
+import { minutesToMs } from "../../infrastructure/timing";
+import { AzurePickers } from "./azure/azure-pickers";
+import { AzureSubscription, getAzureAccessToken } from "./azure/azure-account-manager";
 import {
   BicepDeploymentParametersResponse,
   BicepDeploymentScopeParams,
@@ -25,48 +26,39 @@ import {
   BicepUpdatedDeploymentParameter,
   ParametersFileUpdateOption,
 } from "./protocol";
-import { AzurePickers } from "./azure/azure-pickers";
-import { Command } from "../../infrastructure/commands";
-import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
-import { OutputChannelManager } from "../../infrastructure/logging";
-import { minutesToMs } from "../../infrastructure/timing";
 
 export class DeployCommand implements Command {
   private _none = "$(circle-slash) None";
   private _browse = "$(file-directory) Browse...";
-  private _yes: IAzureQuickPickItem = {
+  private _yes: PromptItem = {
     label: "Yes",
     data: undefined,
   };
-  private _no: IAzureQuickPickItem = {
+  private _no: PromptItem = {
     label: "No",
     data: undefined,
-    priority: "highest",
   };
-  private _yesNoQuickPickItems: IAzureQuickPickItem[] = [this._yes, this._no];
+  private _yesNoQuickPickItems: PromptItem[] = [this._no, this._yes];
 
   public readonly id = "bicep.deploy";
 
   public constructor(
+    private readonly prompts: Prompts,
     private readonly client: LanguageClient,
     private readonly outputChannelManager: OutputChannelManager,
     private readonly azurePickers: AzurePickers,
   ) {}
 
-  public async execute(context: IActionContext, documentUri: vscode.Uri | undefined): Promise<void> {
+  public async execute(documentUri: vscode.Uri | undefined): Promise<void> {
     const deployId = Math.random().toString();
-    context.telemetry.properties.deployId = deployId;
-    context.telemetry.properties.vscodeauth = "true";
 
-    documentUri = await findOrCreateActiveBicepFile(context, documentUri, "Choose which Bicep file to deploy");
+    documentUri = await findOrCreateActiveBicepFile(this.prompts, documentUri, "Choose which Bicep file to deploy");
 
     const documentPath = documentUri.fsPath;
     // Handle spaces/special characters in folder names.
     const textDocument = TextDocumentIdentifier.create(encodeURIComponent(documentUri.path));
     this.outputChannelManager.appendToOutputChannel("====================");
     this.outputChannelManager.appendToOutputChannel(`Preparing for deployment of ${documentPath}`);
-
-    context.errorHandling.suppressDisplay = true;
 
     try {
       const bicepDeploymentScopeParams: BicepDeploymentScopeParams = {
@@ -89,19 +81,18 @@ export class DeployCommand implements Command {
         return;
       }
 
-      context.telemetry.properties.targetScope = deploymentScope;
       this.outputChannelManager.appendToOutputChannel(
         `Scope specified in ${path.basename(documentPath)}: ${deploymentScope}`,
       );
 
-      await this.azurePickers.EnsureSignedIn();
+      await this.azurePickers.ensureSignedIn();
 
       const fileName = path.basename(documentPath, ".bicep");
       const options = {
         title: `Please enter name for deployment`,
         value: fileName.concat("-", formatDeploymentTimestamp(new Date())),
       };
-      let deploymentName = await context.ui.showInputBox(options);
+      let deploymentName = await this.prompts.showInputBox(options);
       // Replace special characters with '_'
       deploymentName = deploymentName.replace(/[^a-z0-9\-_.!~*'()]/gi, "_").substring(0, 64);
 
@@ -110,7 +101,6 @@ export class DeployCommand implements Command {
       switch (deploymentScope) {
         case "resourceGroup":
           deploymentStartResponse = await this.handleResourceGroupDeployment(
-            context,
             documentUri,
             deploymentScope,
             template,
@@ -120,7 +110,6 @@ export class DeployCommand implements Command {
           break;
         case "subscription":
           deploymentStartResponse = await this.handleSubscriptionDeployment(
-            context,
             documentUri,
             deploymentScope,
             template,
@@ -130,7 +119,6 @@ export class DeployCommand implements Command {
           break;
         case "managementGroup":
           deploymentStartResponse = await this.handleManagementGroupDeployment(
-            context,
             documentUri,
             deploymentScope,
             template,
@@ -152,46 +140,49 @@ export class DeployCommand implements Command {
 
       if (parseError(err).isUserCancelledError) {
         errorMessage = `Deployment canceled for ${documentPath}.`;
+        this.outputChannelManager.appendToOutputChannel(errorMessage);
+        throw err;
       }
       // Long-standing issue that is pretty common for all Azure calls, but can be fixed with a simple reload of VS Code.
       // https://github.com/microsoft/vscode-azure-account/issues/53
       else if (parseError(err).message === "Entry not found in cache.") {
         errorMessage = `Deployment failed for ${documentPath}. Token cache is out of date. Please reload VS Code and try again. If this problem persists, consider changing the VS Code setting "Azure: Authentication Library" to "MSAL".`;
-        context.errorHandling.suppressReportIssue = true;
-        context.errorHandling.buttons = [
-          {
-            title: "Reload Window",
-            callback: async (): Promise<void> => {
-              await commands.executeCommand("workbench.action.reloadWindow");
+        this.outputChannelManager.appendToOutputChannel(errorMessage);
+        throw new OperationError(err, {
+          message: errorMessage,
+          actions: [
+            {
+              title: "Reload Window",
+              run: async (): Promise<void> => {
+                await commands.executeCommand("workbench.action.reloadWindow");
+              },
             },
-          },
-        ];
+          ],
+        });
       } else {
         errorMessage = `Deployment failed for ${documentPath}. ${parseError(err).message}`;
+        this.outputChannelManager.appendToOutputChannel(errorMessage);
+        throw new OperationError(err, { display: false });
       }
-      this.outputChannelManager.appendToOutputChannel(errorMessage);
-      throw err;
     }
   }
 
   private async handleManagementGroupDeployment(
-    context: IActionContext,
     documentUri: vscode.Uri,
     deploymentScope: string,
     template: string,
     deployId: string,
     deploymentName: string,
   ): Promise<BicepDeploymentStartResponse | undefined> {
-    const subscription = await this.azurePickers.pickSubscription(context);
-    const managementGroup = await this.azurePickers.pickManagementGroup(context, subscription);
-    const location = await this.azurePickers.pickLocation(context, subscription);
-    const parameterFilePath = await this.selectParameterFile(context, documentUri);
+    const subscription = await this.azurePickers.pickSubscription();
+    const managementGroup = await this.azurePickers.pickManagementGroup(subscription);
+    const location = await this.azurePickers.pickLocation(subscription);
+    const parameterFilePath = await this.selectParameterFile(documentUri);
 
     return await this.sendDeployStartCommand(
-      context,
       documentUri.fsPath,
       parameterFilePath,
-      nonNullProp(managementGroup, "id"),
+      managementGroup.id,
       deploymentScope,
       location,
       template,
@@ -202,22 +193,20 @@ export class DeployCommand implements Command {
   }
 
   private async handleResourceGroupDeployment(
-    context: IActionContext,
     documentUri: vscode.Uri,
     deploymentScope: string,
     template: string,
     deployId: string,
     deploymentName: string,
   ): Promise<BicepDeploymentStartResponse | undefined> {
-    const subscription = await this.azurePickers.pickSubscription(context);
-    const resourceGroup = await this.azurePickers.pickResourceGroup(context, subscription);
-    const parameterFilePath = await this.selectParameterFile(context, documentUri);
+    const subscription = await this.azurePickers.pickSubscription();
+    const resourceGroup = await this.azurePickers.pickResourceGroup(subscription);
+    const parameterFilePath = await this.selectParameterFile(documentUri);
 
     return await this.sendDeployStartCommand(
-      context,
       documentUri.fsPath,
       parameterFilePath,
-      nonNullProp(resourceGroup, "id"),
+      resourceGroup.id,
       deploymentScope,
       "",
       template,
@@ -228,22 +217,20 @@ export class DeployCommand implements Command {
   }
 
   private async handleSubscriptionDeployment(
-    context: IActionContext,
     documentUri: vscode.Uri,
     deploymentScope: string,
     template: string,
     deployId: string,
     deploymentName: string,
   ): Promise<BicepDeploymentStartResponse | undefined> {
-    const subscription = await this.azurePickers.pickSubscription(context);
-    const location = await this.azurePickers.pickLocation(context, subscription);
-    const parameterFilePath = await this.selectParameterFile(context, documentUri);
+    const subscription = await this.azurePickers.pickSubscription();
+    const location = await this.azurePickers.pickLocation(subscription);
+    const parameterFilePath = await this.selectParameterFile(documentUri);
 
     return await this.sendDeployStartCommand(
-      context,
       documentUri.fsPath,
       parameterFilePath,
-      `/subscriptions/${nonNullProp(subscription, "subscriptionId")}`,
+      `/subscriptions/${subscription.subscriptionId}`,
       deploymentScope,
       location,
       template,
@@ -254,7 +241,6 @@ export class DeployCommand implements Command {
   }
 
   private async sendDeployStartCommand(
-    context: IActionContext,
     documentPath: string,
     parametersFilePath: string | undefined,
     id: string,
@@ -266,13 +252,10 @@ export class DeployCommand implements Command {
     deploymentName: string,
   ): Promise<BicepDeploymentStartResponse | undefined> {
     if (!parametersFilePath) {
-      context.telemetry.properties.parameterFileProvided = "false";
       this.outputChannelManager.appendToOutputChannel(`No parameter file was provided`);
-    } else {
-      context.telemetry.properties.parameterFileProvided = "true";
     }
 
-    const accessToken: AccessToken = await createSubscriptionContext(subscription).credentials.getToken();
+    const accessToken: AccessToken = await getAzureAccessToken(subscription);
 
     if (accessToken) {
       const token = accessToken.token;
@@ -299,7 +282,6 @@ export class DeployCommand implements Command {
         updatedDeploymentParameters = [];
       } else {
         [parametersFileName, updatedDeploymentParameters] = await this.handleMissingAndDefaultParams(
-          context,
           documentPath,
           parametersFilePath,
           template,
@@ -308,9 +290,8 @@ export class DeployCommand implements Command {
         // If all the parameters are of type secure, we will not show an option to create or update parameters file
         if (updatedDeploymentParameters.length > 0 && !updatedDeploymentParameters.every((x) => x.isSecure)) {
           parametersFileUpdateOption = await this.askToUpdateParametersFile(
-            context,
             documentPath,
-            await fse.pathExists(parametersFilePath),
+            existsSync(parametersFilePath),
             parametersFileName,
           );
         }
@@ -393,14 +374,14 @@ export class DeployCommand implements Command {
     }
   }
 
-  private async selectParameterFile(context: IActionContext, sourceUri: Uri): Promise<string | undefined> {
+  private async selectParameterFile(sourceUri: Uri): Promise<string | undefined> {
     while (true) {
       let parameterFilePath: string;
 
-      const quickPickItems: IAzureQuickPickItem<string>[] = await this.createParameterFileQuickPickList(
+      const quickPickItems: PromptItem<string>[] = await this.createParameterFileQuickPickList(
         path.dirname(sourceUri.fsPath),
       );
-      const result: IAzureQuickPickItem<string> = await context.ui.showQuickPick(quickPickItems, {
+      const result: PromptItem<string> = await this.prompts.showQuickPick(quickPickItems, {
         canPickMany: false,
         placeHolder: `Select a parameter file`,
         id: sourceUri.toString(),
@@ -445,7 +426,7 @@ export class DeployCommand implements Command {
     let message: string | undefined;
     let json: { $schema?: unknown } | undefined;
     try {
-      json = fse.readJsonSync(path);
+      json = JSON.parse(readFileSync(path, "utf8").replace(/^\uFEFF/, ""));
     } catch (err) {
       message = parseError(err).message;
     }
@@ -473,7 +454,6 @@ export class DeployCommand implements Command {
   }
 
   private async handleMissingAndDefaultParams(
-    _context: IActionContext,
     documentPath: string,
     parameterFilePath: string | undefined,
     template: string | undefined,
@@ -496,24 +476,20 @@ export class DeployCommand implements Command {
       const paramName = deploymentParameter.name;
       let paramValue: string | undefined;
       if (deploymentParameter.isMissingParam) {
-        paramValue = await _context.ui.showInputBox({
+        paramValue = await this.prompts.showInputBox({
           title: `Parameter: ${paramName}`,
           placeHolder: `Please enter value for parameter "${paramName}"`,
         });
       } else {
         if (deploymentParameter.isExpression) {
-          paramValue = await this.selectValueForParameterOfTypeExpression(
-            _context,
-            paramName,
-            deploymentParameter.value,
-          );
+          paramValue = await this.selectValueForParameterOfTypeExpression(paramName, deploymentParameter.value);
         } else {
           const options = {
             title: `Parameter: ${paramName}`,
             value: deploymentParameter.value,
             placeHolder: `Please enter value for parameter "${paramName}"`,
           };
-          paramValue = await _context.ui.showInputBox(options);
+          paramValue = await this.prompts.showInputBox(options);
         }
       }
 
@@ -533,39 +509,33 @@ export class DeployCommand implements Command {
   }
 
   private async askToUpdateParametersFile(
-    _context: IActionContext,
     documentPath: string,
     parametersFileExists: boolean,
     parametersFileName: string,
   ) {
     let placeholder: string;
-    let parametersFileUpdateOptionString: string;
     let parametersFileUpdateOption: ParametersFileUpdateOption;
     if (parametersFileExists) {
-      parametersFileUpdateOptionString = "Update";
       parametersFileUpdateOption = ParametersFileUpdateOption.Update;
       placeholder = `Update ${parametersFileName} with values used in this deployment?`;
     } else {
       const folderContainingSourceFile = path.dirname(documentPath);
       const parametersFilePath = path.join(folderContainingSourceFile, parametersFileName);
-      if (fse.existsSync(parametersFilePath)) {
-        parametersFileUpdateOptionString = "Overwrite";
+      if (existsSync(parametersFilePath)) {
         parametersFileUpdateOption = ParametersFileUpdateOption.Overwrite;
         placeholder = `File ${parametersFileName} already exists. Do you want to overwrite it?`;
       } else {
-        parametersFileUpdateOptionString = "Create";
         parametersFileUpdateOption = ParametersFileUpdateOption.Create;
         placeholder = `Create parameters file from values used in this deployment?`;
       }
     }
 
-    const result: IAzureQuickPickItem = await _context.ui.showQuickPick(this._yesNoQuickPickItems, {
+    const result: PromptItem = await this.prompts.showQuickPick(this._yesNoQuickPickItems, {
       canPickMany: false,
       placeHolder: placeholder,
       suppressPersistence: true,
     });
 
-    _context.telemetry.properties.parametersFileUpdateOption = parametersFileUpdateOptionString;
     if (result === this._yes) {
       return parametersFileUpdateOption;
     } else {
@@ -573,33 +543,29 @@ export class DeployCommand implements Command {
     }
   }
 
-  private async selectValueForParameterOfTypeExpression(
-    _context: IActionContext,
-    paramName: string,
-    paramValue: string | undefined,
-  ) {
-    const quickPickItems: IAzureQuickPickItem[] = [];
+  private async selectValueForParameterOfTypeExpression(paramName: string, paramValue: string | undefined) {
+    const quickPickItems: PromptItem[] = [];
     if (paramValue) {
-      const useExpressionValue: IAzureQuickPickItem = {
+      const useExpressionValue: PromptItem = {
         label: `Use value of "${paramValue}"`,
         data: undefined,
       };
       quickPickItems.push(useExpressionValue);
     }
-    const enterNewValue: IAzureQuickPickItem = {
+    const enterNewValue: PromptItem = {
       label: `Enter value for "${paramName}"`,
       data: undefined,
     };
     quickPickItems.push(enterNewValue);
 
-    const result: IAzureQuickPickItem = await _context.ui.showQuickPick(quickPickItems, {
+    const result: PromptItem = await this.prompts.showQuickPick(quickPickItems, {
       canPickMany: false,
       placeHolder: `Select value for parameter "${paramName}"`,
       suppressPersistence: true,
     });
 
     if (result === enterNewValue) {
-      const paramValue = await _context.ui.showInputBox({
+      const paramValue = await this.prompts.showInputBox({
         placeHolder: `Please enter value for parameter "${paramName}"`,
       });
 
@@ -609,12 +575,12 @@ export class DeployCommand implements Command {
     return undefined;
   }
 
-  private async createParameterFileQuickPickList(bicepFolder: string): Promise<IAzureQuickPickItem<string>[]> {
-    const noneQuickPickItem: IAzureQuickPickItem<string> = {
+  private async createParameterFileQuickPickList(bicepFolder: string): Promise<PromptItem<string>[]> {
+    const noneQuickPickItem: PromptItem<string> = {
       label: this._none,
       data: "",
     };
-    const browseQuickPickItem: IAzureQuickPickItem<string> = {
+    const browseQuickPickItem: PromptItem<string> = {
       label: this._browse,
       data: "",
     };
@@ -626,8 +592,8 @@ export class DeployCommand implements Command {
     return parameterFilesQuickPickList;
   }
 
-  private async getParameterFilesInWorkspace(bicepFolder: string): Promise<IAzureQuickPickItem<string>[]> {
-    const quickPickItems: IAzureQuickPickItem<string>[] = [];
+  private async getParameterFilesInWorkspace(bicepFolder: string): Promise<PromptItem<string>[]> {
+    const quickPickItems: PromptItem<string>[] = [];
     const workspaceParametersFiles = (
       await vscode.workspace.findFiles("**/*.{json,jsonc,bicepparam}", undefined)
     ).filter((f) => !!f.fsPath);
@@ -653,7 +619,7 @@ export class DeployCommand implements Command {
 
       const workspaceRoot: string | undefined = vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath;
       const relativePath = workspaceRoot ? path.relative(workspaceRoot, uri.fsPath) : path.basename(uri.fsPath);
-      const quickPickItem: IAzureQuickPickItem<string> = {
+      const quickPickItem: PromptItem<string> = {
         label: `${uri.fsPath.endsWith("biceppparam") ? "$(bicepparam)" : "$(json)"} ${relativePath}`,
         data: uri.fsPath,
         id: uri.toString(),

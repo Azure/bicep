@@ -6,16 +6,14 @@ import { LanguageClient } from "vscode-languageclient/node";
 import { CommandManager } from "../../infrastructure/commands";
 import { DiagnosticsRouter } from "../../infrastructure/language-client";
 import { Disposable } from "../../infrastructure/lifecycle";
-import {
-  ShowSourceFromVisualizerCommand,
-  ShowVisualizerCommand,
-  ShowVisualizerToSideCommand,
-} from "./commands";
+import { Prompts } from "../../infrastructure/prompts";
+import { ShowSourceFromVisualizerCommand, ShowVisualizerCommand, ShowVisualizerToSideCommand } from "./commands";
 import { BicepVisualizerViewManager } from "./visualizer-view-manager";
 
 export async function activateVisualizationFeature(
   extension: Disposable,
   extensionUri: Uri,
+  prompts: Prompts,
   commandManager: CommandManager,
   languageClient: LanguageClient,
   diagnosticsRouter: DiagnosticsRouter,
@@ -25,8 +23,8 @@ export async function activateVisualizationFeature(
   );
 
   await commandManager.registerCommands(
-    new ShowVisualizerCommand(viewManager),
-    new ShowVisualizerToSideCommand(viewManager),
+    new ShowVisualizerCommand(prompts, viewManager),
+    new ShowVisualizerToSideCommand(prompts, viewManager),
     new ShowSourceFromVisualizerCommand(viewManager),
   );
 }

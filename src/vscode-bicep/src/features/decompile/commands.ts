@@ -2,14 +2,16 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
+import { existsSync } from "fs";
+import { readFile, writeFile } from "fs/promises";
 import * as path from "path";
-import { IActionContext, IAzureQuickPickItem, UserCancelledError } from "@microsoft/vscode-azext-utils";
-import * as fse from "fs-extra";
 import vscode, { MessageItem, Uri, window } from "vscode";
 import { DocumentUri, LanguageClient } from "vscode-languageclient/node";
 import { Command, CommandManager } from "../../infrastructure/commands";
+import { OperationError, UserCancelledError } from "../../infrastructure/errors";
 import { Disposable } from "../../infrastructure/lifecycle";
 import { OutputChannelManager } from "../../infrastructure/logging";
+import { PromptItem, Prompts } from "../../infrastructure/prompts";
 import { updateDecompileEditorContext } from "./editor-context";
 
 interface DecompileCommandParams {
@@ -62,11 +64,12 @@ export class DecompileCommand implements Command {
   public readonly id = "bicep.decompile";
 
   public constructor(
+    private readonly prompts: Prompts,
     private readonly client: LanguageClient,
     private readonly outputChannelManager: OutputChannelManager,
   ) {}
 
-  public async execute(context: IActionContext, documentUri?: vscode.Uri): Promise<void> {
+  public async execute(documentUri?: vscode.Uri): Promise<void> {
     documentUri = documentUri ?? window.activeTextEditor?.document.uri;
     if (!documentUri) {
       throw new Error("Please open a JSON ARM Template file before running this command");
@@ -85,20 +88,12 @@ export class DecompileCommand implements Command {
     });
 
     this.outputChannelManager.appendToOutputChannel(decompileResult.output.trimEnd());
-    context.telemetry.properties.decompileStatus = decompileResult.errorMessage ? "failed" : "success";
-    context.telemetry.properties.countOutputFiles = String(decompileResult.outputFiles.length);
-    context.telemetry.properties.countConflictFiles = String(decompileResult.conflictingOutputPaths.length);
 
     if (decompileResult.errorMessage) {
-      context.errorHandling.suppressDisplay = true;
-      throw new Error("Decompilation failed");
+      throw new OperationError(new Error("Decompilation failed"), { display: false });
     }
 
-    const overwrite = await this.queryOverwrite(
-      context,
-      decompileResult.outputFiles,
-      decompileResult.conflictingOutputPaths,
-    );
+    const overwrite = await this.queryOverwrite(decompileResult.outputFiles, decompileResult.conflictingOutputPaths);
     const saveParams: BicepDecompileSaveCommandParams = {
       decompileId: decompileResult.decompileId,
       outputFiles: decompileResult.outputFiles,
@@ -108,24 +103,19 @@ export class DecompileCommand implements Command {
       command: "decompileSave",
       arguments: [saveParams],
     });
-    context.telemetry.properties.saveStatus = decompileResult.errorMessage ? "failed" : "success";
     this.outputChannelManager.appendToOutputChannel(saveResult.output.trimEnd());
   }
 
   public static async mightBeArmTemplateNoThrow(documentUri: Uri): Promise<boolean> {
     try {
-      const contents = await (await fse.readFile(documentUri.fsPath)).toString();
+      const contents = await readFile(documentUri.fsPath, "utf8");
       return /\$schema.*deploymenttemplate\.json/i.test(contents);
     } catch {
       return false;
     }
   }
 
-  private async queryOverwrite(
-    context: IActionContext,
-    outputFiles: DecompiledFile[],
-    conflictingOutputPaths: DocumentUri[],
-  ): Promise<boolean> {
+  private async queryOverwrite(outputFiles: DecompiledFile[], conflictingOutputPaths: DocumentUri[]): Promise<boolean> {
     if (conflictingOutputPaths.length === 0) {
       return true;
     }
@@ -140,7 +130,7 @@ export class DecompileCommand implements Command {
       : `There are multiple decompilation output files and the following already exist: ${conflictFilesWithQuotes}`;
     this.outputChannelManager.appendToOutputChannel(message.trimEnd());
 
-    const result = await context.ui.showWarningMessage(message, overwriteAction, createCopyAction, cancelAction);
+    const result = await this.prompts.showWarningMessage(message, overwriteAction, createCopyAction, cancelAction);
     if (result === cancelAction) {
       this.outputChannelManager.appendToOutputChannel("Canceled.");
       throw new UserCancelledError("queryOverwrite");
@@ -149,7 +139,6 @@ export class DecompileCommand implements Command {
     assert(result === overwriteAction || result === createCopyAction);
     const overwrite = result === overwriteAction;
     this.outputChannelManager.appendToOutputChannel(`Response: ${result.title}`);
-    context.telemetry.properties.conflictResolution = overwrite ? "overwrite" : "copy";
     return overwrite;
   }
 }
@@ -158,11 +147,12 @@ export class DecompileParamsCommand implements Command {
   public readonly id = "bicep.decompileParams";
 
   public constructor(
+    private readonly prompts: Prompts,
     private readonly client: LanguageClient,
     private readonly outputChannelManager: OutputChannelManager,
   ) {}
 
-  public async execute(context: IActionContext, documentUri?: vscode.Uri): Promise<void> {
+  public async execute(documentUri?: vscode.Uri): Promise<void> {
     documentUri = documentUri ?? window.activeTextEditor?.document.uri;
     if (!documentUri) {
       throw new Error("Please open a JSON Parameter file before running this command");
@@ -175,7 +165,7 @@ export class DecompileParamsCommand implements Command {
       throw new UserCancelledError("Cannot decompile input because file provided is not a parameter file");
     }
 
-    const bicepFileUri = await DecompileParamsCommand.selectBicepFile(context);
+    const bicepFileUri = await this.selectBicepFile();
     const commandParams: DecompileParamsCommandParams = {
       jsonUri: documentUri.path,
       bicepUri: bicepFileUri ? this.client.code2ProtocolConverter.asUri(bicepFileUri) : undefined,
@@ -192,8 +182,8 @@ export class DecompileParamsCommand implements Command {
 
     assert(result.decompiledBicepparamFile !== undefined);
     let bicepparamPath = this.client.protocol2CodeConverter.asUri(result.decompiledBicepparamFile.uri).fsPath;
-    if (await fse.pathExists(bicepparamPath)) {
-      const fileSaveOption = await DecompileParamsCommand.getFileSaveOption(context);
+    if (existsSync(bicepparamPath)) {
+      const fileSaveOption = await this.getFileSaveOption();
       if (fileSaveOption === "Copy") {
         bicepparamPath = await DecompileParamsCommand.getUniquePath(bicepparamPath);
         this.outputChannelManager.appendToOutputChannel(`Saving Decompiled file (copy): ${bicepparamPath}`);
@@ -204,21 +194,21 @@ export class DecompileParamsCommand implements Command {
       this.outputChannelManager.appendToOutputChannel(`Saving Decompiled file: ${bicepparamPath}`);
     }
 
-    await fse.writeFile(bicepparamPath, result.decompiledBicepparamFile.contents);
+    await writeFile(bicepparamPath, result.decompiledBicepparamFile.contents);
   }
 
   public static async mightBeArmParametersNoThrow(documentUri: Uri): Promise<boolean> {
     try {
-      const contents = await (await fse.readFile(documentUri.fsPath)).toString();
+      const contents = await readFile(documentUri.fsPath, "utf8");
       return /\$schema.*deploymentParameters\.json/i.test(contents);
     } catch {
       return false;
     }
   }
 
-  private static async selectBicepFile(context: IActionContext): Promise<Uri | undefined> {
+  private async selectBicepFile(): Promise<Uri | undefined> {
     while (true) {
-      const result: IAzureQuickPickItem<string> = await context.ui.showQuickPick(
+      const result: PromptItem<string> = await this.prompts.showQuickPick(
         [
           { label: "None", data: "" },
           { label: "Browse", data: "" },
@@ -242,11 +232,11 @@ export class DecompileParamsCommand implements Command {
     }
   }
 
-  private static async getFileSaveOption(context: IActionContext): Promise<"Overwrite" | "Copy"> {
+  private async getFileSaveOption(): Promise<"Overwrite" | "Copy"> {
     const overwriteAction: MessageItem = { title: "Overwrite" };
     const copyAction: MessageItem = { title: "Copy" };
     const cancelAction: MessageItem = { title: "Cancel", isCloseAffordance: true };
-    const optionPicked = await context.ui.showWarningMessage(
+    const optionPicked = await this.prompts.showWarningMessage(
       "The Bicep Parameters file already exist in the file system. Do you want to overwrite it or make a copy?",
       overwriteAction,
       copyAction,
@@ -264,7 +254,7 @@ export class DecompileParamsCommand implements Command {
     let appendNumber = 2;
     while (true) {
       const uniquePath = path.join(parsedPath.dir, `${parsedPath.name}${appendNumber}${parsedPath.ext}`);
-      if (!(await fse.pathExists(uniquePath))) {
+      if (!existsSync(uniquePath)) {
         return uniquePath;
       }
       appendNumber++;
@@ -274,18 +264,23 @@ export class DecompileParamsCommand implements Command {
 
 export async function activateDecompileFeature(
   extension: Disposable,
+  prompts: Prompts,
   commandManager: CommandManager,
   client: LanguageClient,
   outputChannelManager: OutputChannelManager,
 ): Promise<void> {
   await commandManager.registerCommands(
-    new DecompileCommand(client, outputChannelManager),
-    new DecompileParamsCommand(client, outputChannelManager),
+    new DecompileCommand(prompts, client, outputChannelManager),
+    new DecompileParamsCommand(prompts, client, outputChannelManager),
   );
 
-  extension.register(window.onDidChangeActiveTextEditor(async (editor) => updateDecompileEditorContext(editor?.document)));
   extension.register(
-    vscode.workspace.onDidCloseTextDocument(async () => updateDecompileEditorContext(window.activeTextEditor?.document)),
+    window.onDidChangeActiveTextEditor(async (editor) => updateDecompileEditorContext(editor?.document)),
+  );
+  extension.register(
+    vscode.workspace.onDidCloseTextDocument(async () =>
+      updateDecompileEditorContext(window.activeTextEditor?.document),
+    ),
   );
   extension.register(
     vscode.workspace.onDidOpenTextDocument(async () => updateDecompileEditorContext(window.activeTextEditor?.document)),

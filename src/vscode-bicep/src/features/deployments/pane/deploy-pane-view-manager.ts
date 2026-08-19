@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { IActionContext } from "@microsoft/vscode-azext-utils";
 import vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { DiagnosticsRouter } from "../../../infrastructure/language-client";
 import { Disposable } from "../../../infrastructure/lifecycle";
+import { Prompts } from "../../../infrastructure/prompts";
 import { IAzureUIManager } from "../azure/azure-ui-manager";
 import { DeployPaneView } from "./deploy-pane-view";
 
@@ -16,7 +16,7 @@ export class DeployPaneViewManager extends Disposable implements vscode.WebviewP
   private activeUri: vscode.Uri | undefined = undefined;
 
   constructor(
-    private readonly context: IActionContext,
+    private readonly prompts: Prompts,
     private readonly extensionContext: vscode.ExtensionContext,
     private readonly extensionUri: vscode.Uri,
     private readonly languageClient: LanguageClient,
@@ -52,7 +52,7 @@ export class DeployPaneViewManager extends Disposable implements vscode.WebviewP
       documentUri,
       DeployPaneView.create(
         this.extensionContext,
-        this.context,
+        this.prompts,
         this.azureMgr,
         this.languageClient,
         viewColumn,
@@ -73,7 +73,7 @@ export class DeployPaneViewManager extends Disposable implements vscode.WebviewP
       documentUri,
       DeployPaneView.revive(
         this.extensionContext,
-        this.context,
+        this.prompts,
         this.azureMgr,
         this.languageClient,
         webviewPanel,

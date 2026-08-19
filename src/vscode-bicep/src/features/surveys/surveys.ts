@@ -3,9 +3,9 @@
 
 import assert from "assert";
 import https from "https";
-import { callWithTelemetryAndErrorHandling, IActionContext, parseError } from "@microsoft/vscode-azext-utils";
 import { commands, Memento, MessageItem, Uri, window, WorkspaceConfiguration } from "vscode";
 import { getBicepConfiguration } from "../../infrastructure/configuration";
+import { runWithErrorHandling } from "../../infrastructure/errors";
 import { daysToMs, monthsToDays } from "../../infrastructure/timing";
 import { annualSurveyStateKey, GlobalState } from "./survey-state";
 
@@ -44,41 +44,40 @@ const debugSurveyLinkKeyPrefix = "debug.surveys.link:";
 type MessageItemWithId = MessageItem & { id: string };
 type ShowSurveyPrompt = (message: string, ...items: MessageItemWithId[]) => Thenable<MessageItemWithId | undefined>;
 type GetSurveyLinkStatus = (fullLink: string) => Promise<number | undefined>;
-export type SurveyContext = Pick<IActionContext, "errorHandling" | "telemetry">;
-
 export function showSurveys(globalState: GlobalState): void {
   checkShowSurvey(globalState, hatsAlwaysOnSurveyInfo);
 }
 
 export function checkShowSurvey(globalState: GlobalState, surveyInfo: ISurveyInfo): void {
   // Don't wait, run asynchronously
-  void callWithTelemetryAndErrorHandling("survey", async (context: IActionContext) => {
-    let now = new Date();
+  void runWithErrorHandling(
+    async () => {
+      let now = new Date();
 
-    // Check debugging settings
-    const debugNowDate = getBicepConfiguration().get<string>(debugNowDateKey);
-    if (debugNowDate) {
-      now = new Date(debugNowDate);
-      assert.ok(!isNaN(now.valueOf()), `Invalid value for ${debugNowDateKey}`);
-      console.warn(`Debugging surveys: Pretending now is ${now.toLocaleString()}`);
-      context.telemetry.properties.debugNowDate = debugNowDate;
-      context.telemetry.suppressAll = true;
-    }
+      // Check debugging settings
+      const debugNowDate = getBicepConfiguration().get<string>(debugNowDateKey);
+      if (debugNowDate) {
+        now = new Date(debugNowDate);
+        assert.ok(!isNaN(now.valueOf()), `Invalid value for ${debugNowDateKey}`);
+        console.warn(`Debugging surveys: Pretending now is ${now.toLocaleString()}`);
+      }
 
-    const debugTestLink = getBicepConfiguration().get<string>(debugSurveyLinkKeyPrefix + surveyInfo.akaLinkToSurvey);
-    if (debugTestLink) {
-      console.warn(`Debugging surveys: Replacing link ${surveyInfo.akaLinkToSurvey} with ${debugTestLink}`);
-      surveyInfo.akaLinkToSurvey = debugTestLink;
-    }
+      const debugTestLink = getBicepConfiguration().get<string>(debugSurveyLinkKeyPrefix + surveyInfo.akaLinkToSurvey);
+      if (debugTestLink) {
+        console.warn(`Debugging surveys: Replacing link ${surveyInfo.akaLinkToSurvey} with ${debugTestLink}`);
+        surveyInfo.akaLinkToSurvey = debugTestLink;
+      }
 
-    const survey = new Survey(globalState, surveyInfo);
+      const survey = new Survey(globalState, surveyInfo);
 
-    if (getBicepConfiguration().get<boolean>(debugClearStateKey, false)) {
-      await survey.clearGlobalState();
-    }
+      if (getBicepConfiguration().get<boolean>(debugClearStateKey, false)) {
+        await survey.clearGlobalState();
+      }
 
-    await survey.checkShowSurvey(context, now);
-  });
+      await survey.checkShowSurvey(now);
+    },
+    { displayErrors: false },
+  );
 }
 
 export interface ISurveyInfo {
@@ -121,19 +120,14 @@ export class Survey {
   /**
    * Shows the survey if it's available and timely, and the user doesn't opt out.
    */
-  public async checkShowSurvey(context: SurveyContext, now: Date): Promise<void> {
-    context.errorHandling.suppressDisplay = true;
-    context.telemetry.properties.isActivationEvent = "true";
-    context.telemetry.properties.akaLink = this.surveyInfo.akaLinkToSurvey.replace("/", "-");
+  public async checkShowSurvey(now: Date): Promise<void> {
+    const surveyState = this.getPersistedSurveyState(now);
 
-    const surveyState = this.getPersistedSurveyState(context, now);
-
-    const shouldAsk = await this.shouldAskToTakeSurvey(context, surveyState, now);
-    context.telemetry.properties.shouldAsk = shouldAsk;
+    const shouldAsk = await this.shouldAskToTakeSurvey(surveyState, now);
     console.info(`Ask to take survey ${this.surveyInfo.akaLinkToSurvey}? ${shouldAsk}`);
 
     if (shouldAsk === "ask") {
-      await this.askToTakeSurvey(context, surveyState, now);
+      await this.askToTakeSurvey(surveyState, now);
     }
 
     await this.updatePersistedSurveyState(surveyState);
@@ -144,19 +138,14 @@ export class Survey {
   }
 
   private async shouldAskToTakeSurvey(
-    context: SurveyContext,
     state: ISurveyState,
     now: Date,
   ): Promise<"ask" | "never" | "postponed" | "unavailable" | "alreadyTaken"> {
     {
       const areSurveysEnabled = this.areSurveysEnabled();
-      context.telemetry.properties.areSurveysEnabled = String(areSurveysEnabled);
       if (!areSurveysEnabled) {
         return "never";
       }
-
-      context.telemetry.properties.lastTaken = state.lastTaken?.toUTCString();
-      context.telemetry.properties.postonedUntil = state.postponedUntil?.toUTCString();
 
       if (state.postponedUntil && state.postponedUntil.valueOf() > now.valueOf()) {
         return "postponed";
@@ -170,10 +159,8 @@ export class Survey {
       }
 
       const isAvailable = await this.inject?.getIsSurveyAvailable(
-        context,
         Survey.getFullSurveyLink(this.surveyInfo.akaLinkToSurvey),
       );
-      context.telemetry.properties.isAvailable = String(isAvailable);
       if (!isAvailable) {
         // Try again next time
         return "unavailable";
@@ -183,7 +170,7 @@ export class Survey {
     }
   }
 
-  private getPersistedSurveyState(context: SurveyContext, now: Date): ISurveyState {
+  private getPersistedSurveyState(now: Date): ISurveyState {
     let retrievedState: ISurveyState;
     const key = this.surveyInfo.surveyStateKey;
 
@@ -203,8 +190,7 @@ export class Survey {
       }
 
       retrievedState = state;
-    } catch (err) {
-      context.telemetry.properties.depersistStateError = parseError(err).message;
+    } catch {
       retrievedState = {};
     }
 
@@ -224,9 +210,7 @@ export class Survey {
     await this.globalState.update(key, persistedState);
   }
 
-  // TODO: If the user never responds, the telemetry event isn't sent - can fix this with a different event
   private async askToTakeSurvey(
-    context: SurveyContext,
     state: ISurveyState, // this is modified
     now: Date,
   ): Promise<void> {
@@ -243,8 +227,6 @@ export class Survey {
 
     const response =
       (await this.inject?.showInformationMessage(this.surveyInfo.surveyPrompt, yes, later, dontAskAgain)) ?? dismissed;
-    context.telemetry.properties.userResponse = String(response.id);
-
     if (response.id === dontAskAgain.id) {
       await this.postponeSurvey(state, now, 180);
     } else if (response.id === later.id) {
@@ -252,7 +234,7 @@ export class Survey {
     } else if (response.id === yes.id) {
       state.lastTaken = now;
       state.postponedUntil = undefined;
-      await this.inject.launchSurvey(context, this.surveyInfo);
+      await this.inject.launchSurvey(this.surveyInfo);
     } else {
       // Dismissed/ignored - treat same as "later"
       assert(response.id === dismissed.id, `Unexpected response: ${response.id}`);
@@ -260,9 +242,7 @@ export class Survey {
     }
   }
 
-  private static async launchSurvey(this: void, context: SurveyContext, surveyInfo: ISurveyInfo): Promise<void> {
-    context.telemetry.properties.launchSurvey = "true";
-
+  private static async launchSurvey(this: void, surveyInfo: ISurveyInfo): Promise<void> {
     await commands.executeCommand(
       "vscode.open",
       Uri.parse(Survey.getFullSurveyLink(surveyInfo.akaLinkToSurvey), true /*strict*/),
@@ -283,32 +263,23 @@ export class Survey {
 
   public static async getIsSurveyAvailable(
     this: void,
-    context: SurveyContext,
     fullLink: string,
     getSurveyLinkStatus: GetSurveyLinkStatus = getHttpsStatus,
   ): Promise<boolean> {
-    let linkStatus = "unknown";
-
     try {
       const statusCode = await getSurveyLinkStatus(fullLink);
 
       if (statusCode === 301 /* moved permanently */) {
         // The aka link exists and is active
-        linkStatus = "available";
         return true;
       } else if (statusCode === 302 /* found/moved temporarily */) {
         // The aka link either exists but is inactive, or does not exist
-        linkStatus = "unavailable";
         return false;
       } else {
-        linkStatus = String(statusCode);
         return false;
       }
-    } catch (err) {
-      linkStatus = parseError(err).errorType;
+    } catch {
       return false;
-    } finally {
-      context.telemetry.properties.surveyLinkStatus = linkStatus;
     }
   }
 

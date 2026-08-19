@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { existsSync, readFileSync } from "fs";
 import * as path from "path";
-import * as fse from "fs-extra";
 
 type IPackageKeyBinding = {
   command: string;
@@ -30,7 +30,7 @@ type IPackage = {
 
 function getPackageJson(): IPackage {
   const packagePath = path.join(__dirname, "package.json");
-  return fse.readJsonSync(packagePath);
+  return JSON.parse(readFileSync(packagePath, "utf8")) as IPackage;
 }
 
 describe("package.json", () => {
@@ -59,7 +59,7 @@ describe("package.json", () => {
     ]);
     const missingResources = getResourcePaths(packageJson)
       .filter((resourcePath) => !generatedResources.has(resourcePath))
-      .filter((resourcePath) => !fse.existsSync(path.join(__dirname, resourcePath)));
+      .filter((resourcePath) => !existsSync(path.join(__dirname, resourcePath)));
 
     expect(missingResources).toEqual([]);
   });

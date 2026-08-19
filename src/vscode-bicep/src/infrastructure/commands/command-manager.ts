@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import * as azureextensionui from "@microsoft/vscode-azext-utils";
-import * as fse from "fs-extra";
-import { ExtensionContext, Uri } from "vscode";
+import { readFileSync } from "fs";
+import { commands, ExtensionContext, Uri } from "vscode";
+import { runWithErrorHandling } from "../errors";
 import { Disposable } from "../lifecycle";
 
 export interface Command {
@@ -12,14 +12,9 @@ export interface Command {
 
   /**
    * Executes the command
-   * @param context Optionally used to control telemetry and error-handling behavior
    * @param args Optional arguments that are being passed to the command
    */
-  execute(
-    context: azureextensionui.IActionContext,
-    documentUri: Uri | undefined,
-    ...args: unknown[]
-  ): unknown | Promise<unknown>;
+  execute(documentUri: Uri | undefined, ...args: unknown[]): unknown | Promise<unknown>;
 }
 
 export class CommandManager extends Disposable {
@@ -36,16 +31,9 @@ export class CommandManager extends Disposable {
   private registerCommand<T extends Command>(command: T): void {
     this.validateCommand(command);
 
-    // Prefix all command telemetry IDs with "command/" so we end up with telemetry IDs like "vscode-bicep/command/bicep.build"
-    const telemetryId = `command/${command.id}`;
-
-    // The command will be added to the extension's subscriptions and therefore disposed automatically
-    // when the extension is disposed.
-    azureextensionui.registerCommand(
-      command.id,
-      async (context: azureextensionui.IActionContext, ...args: unknown[]) => {
+    this.register(
+      commands.registerCommand(command.id, async (...args: unknown[]) => {
         let documentUri: Uri | undefined = undefined;
-        let isFromWalkthrough = false;
 
         if (args[0] instanceof Uri) {
           // First argument is a Uri (this is how VsCode communicates the target URI for a comment invoked through a menu, context menu, etc.)
@@ -53,33 +41,16 @@ export class CommandManager extends Disposable {
           args = args.slice(1);
         }
 
-        // If the command is coming from a [command:xxx] inside a markdown file (e.g. from
-        //   a walkthrough), and the command contains a query string, the query string values
-        //   will be in an object in the next argument.
-        if (args[0] instanceof Object && (<{ walkthrough?: string }>args[0])["walkthrough"] === "true") {
-          // Marked as a walkthrough via query string in markdow
-          isFromWalkthrough = true;
-        }
-
-        // Commands starting with bicep.gettingStarted are obviously from the walkthrough
-        if (command.id.startsWith("bicep.gettingStarted")) {
-          isFromWalkthrough = true;
-        }
-
-        if (isFromWalkthrough) {
-          context.telemetry.properties.contextValue = "walkthrough";
-        }
-
-        return await command.execute(context, documentUri, ...args);
-      },
-      undefined,
-      telemetryId,
+        return await runWithErrorHandling(async () => await command.execute(documentUri, ...args));
+      }),
     );
   }
 
   private validateCommand<T extends Command>(command: T): void {
     if (!this._packageJson) {
-      this._packageJson = <IPackageJson>fse.readJsonSync(this.extensionContext.asAbsolutePath("package.json"));
+      this._packageJson = JSON.parse(
+        readFileSync(this.extensionContext.asAbsolutePath("package.json"), "utf8"),
+      ) as IPackageJson;
     }
 
     assert(command.id.startsWith("bicep."), `Command ID doesn't start with 'bicep.': ${command.id}`);

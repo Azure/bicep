@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import crypto from "crypto";
+import { readFile } from "fs/promises";
 import path from "path";
-import { Environment } from "@azure/ms-rest-azure-env";
-import { callWithTelemetryAndErrorHandlingSync, IActionContext } from "@microsoft/vscode-azext-utils";
-import fse from "fs-extra";
 import vscode, { ExtensionContext } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Disposable } from "../../../infrastructure/lifecycle";
 import { getLogger } from "../../../infrastructure/logging";
+import { Prompts } from "../../../infrastructure/prompts";
 import { debounce } from "../../../infrastructure/timing";
+import { knownAzureResourceManagerEndpoints } from "../azure/azure-environment";
 import { IAzureUIManager } from "../azure/azure-ui-manager";
 import { getDeploymentDataRequestType, localDeployRequestType } from "../protocol";
 import {
@@ -38,7 +38,7 @@ export class DeployPaneView extends Disposable {
 
   private constructor(
     private readonly extensionContext: ExtensionContext,
-    private readonly context: IActionContext,
+    private readonly prompts: Prompts,
     private readonly azureMgr: IAzureUIManager,
     private readonly languageClient: LanguageClient,
     private readonly webviewPanel: vscode.WebviewPanel,
@@ -75,7 +75,7 @@ export class DeployPaneView extends Disposable {
 
   public static create(
     extensionContext: ExtensionContext,
-    context: IActionContext,
+    prompts: Prompts,
     azureMgr: IAzureUIManager,
     languageClient: LanguageClient,
     viewColumn: vscode.ViewColumn,
@@ -90,7 +90,7 @@ export class DeployPaneView extends Disposable {
 
     return new DeployPaneView(
       extensionContext,
-      context,
+      prompts,
       azureMgr,
       languageClient,
       webviewPanel,
@@ -101,7 +101,7 @@ export class DeployPaneView extends Disposable {
 
   public static revive(
     extensionContext: ExtensionContext,
-    context: IActionContext,
+    prompts: Prompts,
     azureMgr: IAzureUIManager,
     languageClient: LanguageClient,
     webviewPanel: vscode.WebviewPanel,
@@ -110,7 +110,7 @@ export class DeployPaneView extends Disposable {
   ): DeployPaneView {
     return new DeployPaneView(
       extensionContext,
-      context,
+      prompts,
       azureMgr,
       languageClient,
       webviewPanel,
@@ -211,12 +211,12 @@ export class DeployPaneView extends Disposable {
         return;
       }
       case "PICK_PARAMS_FILE": {
-        const parametersFileUri = await this.context.ui.showOpenDialog({
+        const parametersFileUri = await this.prompts.showOpenDialog({
           canSelectMany: false,
           openLabel: "Select Parameters file",
           filters: { "Parameters files": ["json"] },
         });
-        const parameterFile = await fse.readFile(parametersFileUri[0].fsPath, "utf-8");
+        const parameterFile = await readFile(parametersFileUri[0].fsPath, "utf-8");
         await this.webviewPanel.webview.postMessage(
           createPickParamsFileResultMessage(parametersFileUri[0].fsPath, parameterFile),
         );
@@ -235,13 +235,6 @@ export class DeployPaneView extends Disposable {
       case "GET_DEPLOYMENT_SCOPE": {
         const scope = await this.azureMgr.pickScope(message.scopeType);
         await this.webviewPanel.webview.postMessage(createGetDeploymentScopeResultMessage(scope));
-        return;
-      }
-      case "PUBLISH_TELEMETRY": {
-        callWithTelemetryAndErrorHandlingSync(message.eventName, (telemetryActionContext) => {
-          telemetryActionContext.errorHandling.suppressDisplay = true;
-          telemetryActionContext.telemetry.properties = message.properties;
-        });
         return;
       }
       case "LOCAL_DEPLOY": {
@@ -274,13 +267,6 @@ export class DeployPaneView extends Disposable {
       vscode.Uri.joinPath(this.extensionUri, "out", "deploy-pane", "assets", "index.css"),
     );
 
-    const armEndpoints = [
-      Environment.AzureCloud,
-      Environment.ChinaCloud,
-      Environment.GermanCloud,
-      Environment.USGovernment,
-    ].map((env) => env.resourceManagerEndpointUrl);
-
     return `
       <!DOCTYPE html>
       <html lang="en">
@@ -290,7 +276,7 @@ export class DeployPaneView extends Disposable {
         Use a content security policy to only allow loading images from our extension directory,
         and only allow scripts that have a specific nonce.
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self' ${armEndpoints.join(" ")}; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'nonce-${nonce}' vscode-webview-resource:; font-src data: ${cspSource};">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' ${knownAzureResourceManagerEndpoints.join(" ")}; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'nonce-${nonce}' vscode-webview-resource:; font-src data: ${cspSource};">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link id="vscode-codicon-stylesheet" rel="stylesheet" nonce="${nonce}" href="${codiconCssUri}">
       </head>

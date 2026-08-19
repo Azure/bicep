@@ -2,10 +2,9 @@
 // Licensed under the MIT License.
 import { existsSync } from "fs";
 import * as path from "path";
-import { callWithTelemetryAndErrorHandlingSync, IActionContext, parseError } from "@microsoft/vscode-azext-utils";
 import * as vscode from "vscode";
 import * as lsp from "vscode-languageclient/node";
-import { Message, TransportKind } from "vscode-languageclient/node";
+import { TransportKind } from "vscode-languageclient/node";
 import { bicepLanguageId } from "../editor";
 import { getLogger } from "../logging";
 
@@ -102,8 +101,6 @@ export async function createLanguageService(
 
   client.registerProposedFeatures();
 
-  configureTelemetry(client);
-
   // To enable language server tracing, you MUST have a package setting named 'bicep.trace.server'; I was unable to find a way to enable it through code.
   // See https://github.com/microsoft/vscode-languageserver-node/blob/77c3a10a051ac619e4e3ef62a3865717702b64a3/client/src/common/client.ts#L3268
 
@@ -125,7 +122,7 @@ function getCustomDotnetRuntimePathConfig() {
   return acquireConfig.filter((x) => x.extensionId === extensionId)[0];
 }
 
-export async function ensureDotnetRuntimeInstalled(actionContext: IActionContext): Promise<string> {
+export async function ensureDotnetRuntimeInstalled(): Promise<string> {
   getLogger().info("Acquiring dotnet runtime...");
 
   const customDotnetRuntimePathConfig = getCustomDotnetRuntimePathConfig();
@@ -144,9 +141,6 @@ export async function ensureDotnetRuntimeInstalled(actionContext: IActionContext
   });
 
   if (!result) {
-    // Suppress the 'Report Issue' button - we want people to use the dialog displayed by the .NET installer extension.
-    // It captures much more detail about the problem, and directs people to the correct repo (https://github.com/dotnet/vscode-dotnet-runtime).
-    actionContext.errorHandling.suppressReportIssue = true;
     const errorMessage = `Failed to install .NET runtime v${dotnetRuntimeVersion}. Please see the .NET install tool error dialog for more detailed information, or to report an issue.`;
 
     getLogger().error(errorMessage);
@@ -180,36 +174,4 @@ function ensureLanguageServerExists(context: vscode.ExtensionContext): string {
   }
 
   return path.resolve(languageServerPath);
-}
-
-function configureTelemetry(client: lsp.LanguageClient) {
-  const startTime = Date.now();
-  const defaultErrorHandler = client.createDefaultErrorHandler();
-
-  client.onTelemetry((telemetryData: { eventName: string; properties: { [key: string]: string | undefined } }) => {
-    callWithTelemetryAndErrorHandlingSync(telemetryData.eventName, (telemetryActionContext) => {
-      telemetryActionContext.errorHandling.suppressDisplay = true;
-      telemetryActionContext.telemetry.properties = telemetryData.properties;
-    });
-  });
-
-  client.clientOptions.errorHandler = {
-    error(error: Error, message: Message | undefined, count: number | undefined) {
-      callWithTelemetryAndErrorHandlingSync("bicep.lsp-error", (context: IActionContext) => {
-        context.telemetry.properties.jsonrpcMessage = message ? message.jsonrpc : "";
-        context.telemetry.measurements.secondsSinceStart = (Date.now() - startTime) / 1000;
-
-        throw new Error(`Error: ${parseError(error).message}`);
-      });
-      return defaultErrorHandler.error(error, message, count);
-    },
-    closed() {
-      callWithTelemetryAndErrorHandlingSync("bicep.lsp-error", (context: IActionContext) => {
-        context.telemetry.measurements.secondsSinceStart = (Date.now() - startTime) / 1000;
-
-        throw new Error(`Connection closed`);
-      });
-      return defaultErrorHandler.closed();
-    },
-  };
 }
