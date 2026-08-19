@@ -10,7 +10,6 @@ using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LanguageServer.Features.Custom.ImportKubernetesManifest;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
@@ -27,24 +26,17 @@ namespace Bicep.LangServer.IntegrationTests
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ImportKubernetesManifest_generates_valid_bicep_files_from_kubernetes_manifests(EmbeddedFile embeddedYml)
         {
-            var telemetryEventsListener = new MultipleMessageListener<TelemetryEventParams>();
             var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, embeddedYml);
             var yamlFile = baselineFolder.EntryFile;
             var bicepFile = baselineFolder.GetFileOrEnsureCheckedIn(Path.ChangeExtension(embeddedYml.FileName, ".bicep"));
 
             using var helper = await LanguageServerHelper.StartServer(
                 this.TestContext,
-                options => options.OnTelemetryEvent(telemetryEventsListener.AddMessage),
+                options => { },
                 services => services.WithFeatureOverrides(new(TestContext)));
             var client = helper.Client;
 
             var response = await client.SendRequest(new ImportKubernetesManifestRequest(yamlFile.OutputFilePath), default);
-
-            var telemetry = await telemetryEventsListener.WaitForAll();
-            telemetry.Should().ContainEvent("ImportKubernetesManifest/success", new JObject
-            {
-                ["success"] = "true",
-            });
 
             bicepFile.ShouldHaveExpectedValue();
 
@@ -55,7 +47,6 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task ImportKubernetesManifest_error_handling()
         {
             var messageListener = new MultipleMessageListener<ShowMessageParams>();
-            var telemetryEventsListener = new MultipleMessageListener<TelemetryEventParams>();
             var manifestFile = FileHelper.SaveResultFile(TestContext, "manifest.yml", @"
     NOT A VALID YAML FILE
 ");
@@ -64,18 +55,11 @@ namespace Bicep.LangServer.IntegrationTests
             using var helper = await LanguageServerHelper.StartServer(
                 this.TestContext,
                 options => options
-                    .OnShowMessage(messageListener.AddMessage)
-                    .OnTelemetryEvent(telemetryEventsListener.AddMessage));
+                    .OnShowMessage(messageListener.AddMessage));
             var client = helper.Client;
 
             var response = await client.SendRequest(new ImportKubernetesManifestRequest(manifestFile), default);
             response.BicepFilePath.Should().BeNull();
-
-            var telemetry = await telemetryEventsListener.WaitForAll();
-            telemetry.Should().ContainEvent("ImportKubernetesManifest/failure", new JObject
-            {
-                ["failureType"] = "DeserializeYamlFailed",
-            });
 
             var message = await messageListener.WaitNext();
             message.Should().HaveMessageAndType(

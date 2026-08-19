@@ -5,7 +5,6 @@ using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.LanguageServer.ClientCapabilities;
 using Bicep.LanguageServer.Features.Custom.Configuration;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Bicep.LanguageServer.Utils;
 using MediatR;
 using Newtonsoft.Json;
@@ -31,22 +30,17 @@ namespace Bicep.LanguageServer.Features.Custom.Linter
         private readonly string DefaultBicepConfig;
         private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
         private readonly ILanguageServerFacade server;
-        private readonly ITelemetryProvider telemetryProvider;
 
-        public BicepEditLinterRuleCommandHandler(ISerializer serializer, ILanguageServerFacade server, IClientCapabilitiesProvider clientCapabilitiesProvider, ITelemetryProvider telemetryProvider)
+        public BicepEditLinterRuleCommandHandler(ISerializer serializer, ILanguageServerFacade server, IClientCapabilitiesProvider clientCapabilitiesProvider)
             : base(LangServerConstants.EditLinterRuleCommandName, serializer)
         {
             DefaultBicepConfig = DefaultBicepConfigHelper.GetDefaultBicepConfig();
             this.clientCapabilitiesProvider = clientCapabilitiesProvider;
             this.server = server;
-            this.telemetryProvider = telemetryProvider;
         }
 
         public override async Task<Unit> Handle(DocumentUri documentUri, string ruleCode, string bicepConfigFilePath, CancellationToken cancellationToken)
         {
-            string? error = "unknown";
-            bool newConfigFile = false;
-            bool newRuleAdded = false;
             try
             {
                 // bicepConfigFilePath will be empty string if no current configuration file was found
@@ -61,31 +55,23 @@ namespace Bicep.LanguageServer.Features.Custom.Linter
                 {
                     if (!File.Exists(bicepConfigFilePath))
                     {
-                        newConfigFile = true;
                         File.WriteAllText(bicepConfigFilePath, DefaultBicepConfig);
                     }
                 }
                 catch (Exception ex)
                 {
-                    error = ex.GetType().Name;
                     server.Window.ShowError($"Unable to create configuration file \"{bicepConfigFilePath}\": {ex.Message}");
                     return Unit.Value;
                 }
 
-                newRuleAdded = await AddAndSelectRuleLevel(server, clientCapabilitiesProvider, bicepConfigFilePath, ruleCode);
+                await AddAndSelectRuleLevel(server, clientCapabilitiesProvider, bicepConfigFilePath, ruleCode);
 
-                error = null;
                 return Unit.Value;
             }
             catch (Exception ex)
             {
-                error = ex.GetType().Name;
                 server.Window.ShowError(ex.Message);
                 return Unit.Value;
-            }
-            finally
-            {
-                telemetryProvider.PostEvent(BicepTelemetryEvent.EditLinterRule(ruleCode, newConfigFile, newRuleAdded, error));
             }
         }
 

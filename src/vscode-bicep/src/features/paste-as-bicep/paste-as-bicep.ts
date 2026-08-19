@@ -83,7 +83,6 @@ export class PasteAsBicepCommand implements Command {
         rangeStart,
         rangeEnd - rangeStart,
         clipboardText,
-        false /* queryCanPaste */,
         editor.document.languageId,
       );
 
@@ -129,7 +128,6 @@ export class PasteAsBicepCommand implements Command {
     rangeOffset: number,
     rangeLength: number,
     jsonContent: string,
-    queryCanPaste: boolean,
     languageId: string,
   ): Promise<BicepDecompileForPasteCommandResult> {
     return await withProgressAfterDelay(
@@ -144,7 +142,6 @@ export class PasteAsBicepCommand implements Command {
           rangeOffset,
           rangeLength,
           jsonContent,
-          queryCanPaste,
           languageId,
         };
         const decompileResult: BicepDecompileForPasteCommandResult = await this.client.sendRequest(
@@ -219,7 +216,6 @@ export class PasteAsBicepCommand implements Command {
                 contentChange.rangeOffset,
                 formattedPastedText.length,
                 clipboardText,
-                true, // queryCanPaste
                 e.document.languageId,
               );
               if (!canPasteResult.pasteType) {

@@ -1,11 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
-using Bicep.Core.SourceGraph;
 using Bicep.LanguageServer.Compilation;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.LanguageServer.BicepConfig
@@ -14,21 +11,12 @@ namespace Bicep.LanguageServer.BicepConfig
     {
         private readonly ICompilationManager compilationManager;
         private readonly ConfigurationManager configurationManager;
-        private readonly ILinterRulesProvider linterRulesProvider;
-        private readonly ITelemetryProvider telemetryProvider;
-        private readonly IActiveSourceFileSet workspace;
 
         public BicepConfigLifecycleManager(ICompilationManager compilationManager,
-                           ConfigurationManager configurationManager,
-                           ILinterRulesProvider linterRulesProvider,
-                           ITelemetryProvider telemetryProvider,
-                           IActiveSourceFileSet workspace)
+                           ConfigurationManager configurationManager)
         {
             this.compilationManager = compilationManager;
             this.configurationManager = configurationManager;
-            this.linterRulesProvider = linterRulesProvider;
-            this.telemetryProvider = telemetryProvider;
-            this.workspace = workspace;
         }
 
         public void RefreshCompilationOfSourceFilesInWorkspace()
@@ -48,8 +36,6 @@ namespace Bicep.LanguageServer.BicepConfig
             // A change event can represent file creation, modification, or deletion.
             // Creation and deletion change config file discovery (the lookup cache), so we
             // must do a full purge rather than a targeted invalidation.
-            // For modification, RefreshConfigCacheEntry is also called so the loaded config
-            // cache stays warm and telemetry can compare prev vs new on the next save.
             configurationManager.PurgeCache();
             HandleBicepConfigOpenOrChangeEvent(documentUri);
         }
@@ -58,12 +44,7 @@ namespace Bicep.LanguageServer.BicepConfig
             => configurationManager.RefreshConfigCacheEntry(documentUri.ToIOUri());
 
         public void HandleBicepConfigSaveEvent(DocumentUri documentUri)
-        {
-            if (configurationManager.RefreshConfigCacheEntry(documentUri.ToIOUri()) is { } update)
-            {
-                TelemetryHelper.SendTelemetryOnBicepConfigChange(update.prevConfiguration, update.newConfiguration, linterRulesProvider, telemetryProvider);
-            }
-        }
+            => configurationManager.RefreshConfigCacheEntry(documentUri.ToIOUri());
 
         public void HandleBicepConfigCloseEvent(DocumentUri documentUri)
             => configurationManager.RemoveConfigCacheEntry(documentUri.ToIOUri());

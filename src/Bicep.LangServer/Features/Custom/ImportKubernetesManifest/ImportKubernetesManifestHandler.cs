@@ -11,7 +11,6 @@ using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.IO.Abstraction;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
@@ -28,27 +27,26 @@ namespace Bicep.LanguageServer.Features.Custom.ImportKubernetesManifest
 
     public class ImportKubernetesManifestHandler(
         ILanguageServerFacade server,
-        ITelemetryProvider telemetryProvider,
         IConfigurationManager configurationManager,
         IFileExplorer fileExplorer) : IJsonRpcRequestHandler<ImportKubernetesManifestRequest, ImportKubernetesManifestResponse>
     {
-        private readonly TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> helper = new(server.Window, telemetryProvider);
+        private readonly ErrorHandlingHelper<ImportKubernetesManifestResponse> helper = new(server.Window);
 
         public Task<ImportKubernetesManifestResponse> Handle(ImportKubernetesManifestRequest request, CancellationToken cancellationToken)
-            => helper.ExecuteWithTelemetryAndErrorHandling(async () =>
+            => helper.ExecuteWithErrorHandling(async () =>
             {
                 var manifestFileUri = IOUri.FromFilePath(request.ManifestFilePath);
                 var manifestContents = await fileExplorer.GetFile(manifestFileUri).ReadAllTextAsync();
 
                 var bicepFileUri = manifestFileUri.WithExtension(LanguageConstants.LanguageFileExtension);
-                var bicepContents = this.Decompile(bicepFileUri, manifestContents, this.helper);
+                var bicepContents = this.Decompile(bicepFileUri, manifestContents);
 
                 await fileExplorer.GetFile(bicepFileUri).WriteAllTextAsync(bicepContents, cancellationToken);
 
-                return new(new(bicepFileUri.GetFilePath()), BicepTelemetryEvent.ImportKubernetesManifestSuccess());
+                return new(bicepFileUri.GetFilePath());
             });
 
-        private string Decompile(IOUri bicepFileUri, string manifestContents, TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> telemetryHelper)
+        private string Decompile(IOUri bicepFileUri, string manifestContents)
         {
             var declarations = new List<SyntaxBase>
             {
@@ -83,7 +81,7 @@ namespace Bicep.LanguageServer.Features.Custom.ImportKubernetesManifest
 
                 foreach (var yamlDocument in yamlStream)
                 {
-                    var syntax = ProcessResourceYaml(yamlDocument, telemetryHelper);
+                    var syntax = ProcessResourceYaml(yamlDocument);
 
                     declarations.Add(syntax);
                 }
@@ -91,9 +89,8 @@ namespace Bicep.LanguageServer.Features.Custom.ImportKubernetesManifest
             catch (Exception ex)
             {
                 Trace.TraceError("Exception deserializing manifest: {0}", ex);
-                throw telemetryHelper.CreateException(
+                throw helper.CreateException(
                     $"Failed to deserialize kubernetes manifest YAML: {ex.Message}",
-                    BicepTelemetryEvent.ImportKubernetesManifestFailure("DeserializeYamlFailed"),
                     new ImportKubernetesManifestResponse(null));
             }
 
@@ -108,7 +105,7 @@ namespace Bicep.LanguageServer.Features.Custom.ImportKubernetesManifest
             return PrettyPrinterV2.Print(program, printerContext);
         }
 
-        private static ResourceDeclarationSyntax ProcessResourceYaml(YamlDocument yamlDocument, TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> telemetryHelper)
+        private static ResourceDeclarationSyntax ProcessResourceYaml(YamlDocument yamlDocument)
         {
             if (yamlDocument.Contents is not YamlMapping rootNode)
             {

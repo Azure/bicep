@@ -15,7 +15,6 @@ using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.UnitTests.Completions;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Bicep.LanguageServer.Features.Language.Completion;
 using Bicep.LanguageServer.Features.Language.Completion.Snippets;
 using Bicep.LanguageServer.Settings;
@@ -51,7 +50,6 @@ namespace Bicep.LangServer.UnitTests
                 .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
                 .AddHttpClient<IPublicModuleMetadataProvider, PublicModuleMetadataProvider>()
                     .ConfigurePrimaryHttpMessageHandler(() => mockHttpMessageHandler).Services
-                .AddSingleton<ITelemetryProvider, TelemetryProvider>()
                 .AddSingleton<BicepCompletionProvider>()
                 .AddSingleton(publicModuleMetadataProvider.Object)
             );

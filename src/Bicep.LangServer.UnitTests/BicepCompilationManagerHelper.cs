@@ -48,7 +48,6 @@ namespace Bicep.LangServer.UnitTests
                 .AddSingleton<ILanguageServerFacade>(server)
                 .WithAzResourceTypeLoaderFactory(TestTypeHelper.CreateEmptyResourceTypeLoader())
                 .AddSingleton(CreateMockScheduler().Object)
-                .AddSingleton(BicepTestConstants.CreateMockTelemetryProvider().Object)
                 .AddSingleton<ICompilationProvider, BicepCompilationProvider>()
                 .AddSingleton<IActiveSourceFileSet>(workspace)
                 .WithConfigurationManager(configurationManager)

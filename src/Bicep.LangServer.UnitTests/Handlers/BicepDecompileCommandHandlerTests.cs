@@ -28,7 +28,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             var helper = ServiceBuilder.Create(services => services
                 .AddSingleton(StrictMock.Of<ISerializer>().Object)
-                .AddSingleton(BicepTestConstants.CreateMockTelemetryProvider().Object)
                 .AddSingleton(server.Mock.Object)
                 .AddSingleton(server.ClientCapabilitiesProvider)
                 .AddSingleton<BicepDecompileCommandHandler>()
@@ -281,7 +280,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             result.mainBicepPath.Should().BeEquivalentToPath(expectedBicepPath);
             result.errorMessage.Should().BeNull();
 
-            var saveResult = await saveHandler.Handle(new(result.decompileId, result.outputFiles, true), CancellationToken.None);
+            var saveResult = await saveHandler.Handle(new(result.outputFiles, true), CancellationToken.None);
             var output = result.output + saveResult.output;
 
             output.Should().MatchRegex("Decompiling .*[\\\\/]main\\.json into Bicep\\.\\.\\.");
@@ -341,7 +340,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 CancellationToken.None);
             result.errorMessage.Should().BeNull();
 
-            var saveResult = await saveHandler.Handle(new(result.decompileId, result.outputFiles, true), CancellationToken.None);
+            var saveResult = await saveHandler.Handle(new(result.outputFiles, true), CancellationToken.None);
 
             showDocUri.Should().NotBeNull();
             showDocUri.Should().Be(DocumentUri.File(Path.ChangeExtension(jsonPath, ".bicep")));
@@ -366,7 +365,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             result.errorMessage.Should().BeNull();
 
-            var saveResult = await saveHandler.Handle(new(result.decompileId, result.outputFiles, true), CancellationToken.None);
+            var saveResult = await saveHandler.Handle(new(result.outputFiles, true), CancellationToken.None);
             showDocUri.Should().BeNull();
         }
 
@@ -435,7 +434,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             result.mainBicepPath.Should().BeEquivalentToPath(expectedBicepPath);
             result.errorMessage.Should().BeNull();
 
-            var saveResult = await saveHandler.Handle(new(result.decompileId, result.outputFiles, overwrite: true), CancellationToken.None);
+            var saveResult = await saveHandler.Handle(new(result.outputFiles, overwrite: true), CancellationToken.None);
             var output = result.output + saveResult.output;
 
             output.Should().MatchRegex("Decompilation complete.");
@@ -461,7 +460,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             result.conflictingOutputPaths.Should().BeEquivalentToPaths([Path.Join(testOutputPath, "main.bicep")]);
             result.errorMessage.Should().BeNull();
 
-            var saveResult = await saveHandler.Handle(new(result.decompileId, result.outputFiles, overwrite: false), CancellationToken.None);
+            var saveResult = await saveHandler.Handle(new(result.outputFiles, overwrite: false), CancellationToken.None);
             var output = result.output + saveResult.output;
 
             output.Should().MatchRegex("Decompilation complete.");
@@ -498,7 +497,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             result.mainBicepPath.Should().EndWith("main.bicep");
             result.errorMessage.Should().BeNull();
 
-            var saveResult = await saveHandler.Handle(new(result.decompileId, result.outputFiles, overwrite: false), CancellationToken.None);
+            var saveResult = await saveHandler.Handle(new(result.outputFiles, overwrite: false), CancellationToken.None);
             var output = result.output + saveResult.output;
 
             output.Should().NotMatchRegex("Overwriting");
@@ -529,7 +528,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             result.conflictingOutputPaths.Should().BeEmpty();
 
-            var saveResult = await saveHandler.Handle(new(result.decompileId, result.outputFiles, true), CancellationToken.None);
+            var saveResult = await saveHandler.Handle(new(result.outputFiles, true), CancellationToken.None);
             var output = result.output + saveResult.output;
 
             output.Should().NotMatchRegex("Overwriting");
@@ -568,7 +567,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             result.mainBicepPath.Should().BeEquivalentToPath(expectedBicepPath);
             result.errorMessage.Should().BeNull();
 
-            var saveResult = await saveHandler.Handle(new(result.decompileId, result.outputFiles, true), CancellationToken.None);
+            var saveResult = await saveHandler.Handle(new(result.outputFiles, true), CancellationToken.None);
             var output = result.output + saveResult.output;
 
             output.Should().MatchRegex("Overwriting .*[\\\\/]main file.bicep");
@@ -609,7 +608,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             result.mainBicepPath.Should().BeEquivalentToPath(expectedBicepPath);
             result.errorMessage.Should().BeNull();
 
-            var saveResult = await saveHandler.Handle(new(result.decompileId, result.outputFiles, overwrite: true), CancellationToken.None);
+            var saveResult = await saveHandler.Handle(new(result.outputFiles, overwrite: true), CancellationToken.None);
             var output = result.output + saveResult.output;
 
             output.Should().MatchRegex("Overwriting .*[\\\\/]main file.bicep");
@@ -652,7 +651,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             result.mainBicepPath.Should().BeEquivalentToPath(Path.Join(testOutputPath, "main file.bicep"));
             result.errorMessage.Should().BeNull();
 
-            var saveResult = await saveHandler.Handle(new(result.decompileId, result.outputFiles, overwrite: false), CancellationToken.None);
+            var saveResult = await saveHandler.Handle(new(result.outputFiles, overwrite: false), CancellationToken.None);
             var output = result.output + saveResult.output;
 
             result.output.Should().NotMatchRegex("Overwriting");
@@ -739,7 +738,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
 
-            var saveResult = await saveHandler.Handle(new(result.decompileId, result.outputFiles, overwrite: false), CancellationToken.None);
+            var saveResult = await saveHandler.Handle(new(result.outputFiles, overwrite: false), CancellationToken.None);
             var output = result.output + saveResult.output;
 
             output.Should().NotMatchRegex("Overwriting");

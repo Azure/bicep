@@ -23,10 +23,8 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Bicep.LanguageServer.Features.Language.Completion.Snippets;
 using Bicep.LanguageServer.Utils;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
@@ -175,19 +173,10 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                         foreach (Snippet resourceSnippet in snippetsProvider.GetTopLevelNamedDeclarationSnippets())
                         {
                             string prefix = resourceSnippet.Prefix;
-                            BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateTopLevelDeclarationSnippetInsertion(prefix);
-                            var command = TelemetryHelper.CreateCommand
-                            (
-                                title: "top level snippet completion",
-                                name: TelemetryConstants.CommandName,
-                                args: JArray.FromObject(new List<object> { telemetryEvent })
-                            );
-
                             yield return CreateContextualSnippetCompletion(prefix,
                                                                            resourceSnippet.Detail,
                                                                            resourceSnippet.Text,
                                                                            context.ReplacementRange,
-                                                                           command,
                                                                            resourceSnippet.CompletionPriority,
                                                                            filterText: ResourceTypeSearchKeywords.TryGetSnippetFilterText(resourceSnippet));
                         }
@@ -230,18 +219,10 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                     foreach (Snippet snippet in snippetsProvider.GetNestedResourceDeclarationSnippets(parentTypeReference))
                     {
                         string prefix = snippet.Prefix;
-                        BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateNestedResourceDeclarationSnippetInsertion(prefix);
-                        var command = TelemetryHelper.CreateCommand
-                        (
-                            title: "nested resource declaration completion snippet",
-                            name: TelemetryConstants.CommandName,
-                            args: JArray.FromObject(new List<object> { telemetryEvent })
-                        );
                         yield return CreateContextualSnippetCompletion(prefix,
                             snippet.Detail,
                             snippet.Text,
                             context.ReplacementRange,
-                            command,
                             snippet.CompletionPriority,
                             preselect: true);
                     }
@@ -861,19 +842,10 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                 foreach (Snippet snippet in snippets)
                 {
                     string prefix = snippet.Prefix;
-                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateResourceBodySnippetInsertion(prefix, resourceType.Type.Name);
-                    Command command = TelemetryHelper.CreateCommand
-                    (
-                        title: "resource body completion snippet",
-                        name: TelemetryConstants.CommandName,
-                        args: JArray.FromObject(new List<object> { telemetryEvent })
-                    );
-
                     yield return CreateContextualSnippetCompletion(prefix,
                         snippet.Detail,
                         snippet.Text,
                         context.ReplacementRange,
-                        command,
                         snippet.CompletionPriority,
                         preselect: true);
                 }
@@ -888,18 +860,10 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             foreach (Snippet snippet in snippets)
             {
                 string prefix = snippet.Prefix;
-                BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateModuleBodySnippetInsertion(prefix);
-                var command = TelemetryHelper.CreateCommand
-                (
-                    title: "module body completion snippet",
-                    name: TelemetryConstants.CommandName,
-                    args: JArray.FromObject(new List<object> { telemetryEvent })
-                );
                 yield return CreateContextualSnippetCompletion(prefix,
                     snippet.Detail,
                     snippet.Text,
                     context.ReplacementRange,
-                    command,
                     snippet.CompletionPriority,
                     preselect: true);
             }
@@ -913,18 +877,10 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             foreach (Snippet snippet in snippets)
             {
                 string prefix = snippet.Prefix;
-                BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateTestBodySnippetInsertion(prefix);
-                var command = TelemetryHelper.CreateCommand
-                (
-                    title: "test body completion snippet",
-                    name: TelemetryConstants.CommandName,
-                    args: JArray.FromObject(new List<object> { telemetryEvent })
-                );
                 yield return CreateContextualSnippetCompletion(prefix,
                     snippet.Detail,
                     snippet.Text,
                     context.ReplacementRange,
-                    command,
                     snippet.CompletionPriority,
                     preselect: true);
             }
@@ -1716,18 +1672,10 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             foreach (Snippet snippet in snippets)
             {
                 string prefix = snippet.Prefix;
-                BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateObjectBodySnippetInsertion(prefix);
-                var command = TelemetryHelper.CreateCommand
-                (
-                    title: "object body completion snippet",
-                    name: TelemetryConstants.CommandName,
-                    args: JArray.FromObject(new List<object> { telemetryEvent })
-                );
                 yield return CreateContextualSnippetCompletion(prefix,
                     snippet.Detail,
                     snippet.Text,
                     replacementRange,
-                    command: command,
                     snippet.CompletionPriority,
                     preselect: true);
             }
@@ -2121,22 +2069,9 @@ namespace Bicep.LanguageServer.Features.Language.Completion
         /// <summary>
         /// Creates a completion with a contextual snippet. This will look like a snippet to the user.
         /// </summary>
-        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium, bool preselect = false) =>
+        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium, bool preselect = false, string? filterText = null) =>
             CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                 .WithSnippetEdit(replacementRange, snippet)
-                .WithDetail(detail)
-                .WithDocumentation(MarkdownHelper.CodeBlock(new Snippet(snippet).FormatDocumentation()))
-                .WithSortText(GetSortText(label, priority))
-                .Preselect(preselect)
-                .Build();
-
-        /// <summary>
-        /// Creates a completion with a contextual snippet with command option. This will look like a snippet to the user.
-        /// </summary>
-        private static CompletionItem CreateContextualSnippetCompletion(string label, string detail, string snippet, Range replacementRange, Command command, CompletionPriority priority = CompletionPriority.Medium, bool preselect = false, string? filterText = null) =>
-            CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
-                .WithSnippetEdit(replacementRange, snippet)
-                .WithCommand(command)
                 .WithDetail(detail)
                 .WithDocumentation(MarkdownHelper.CodeBlock(new Snippet(snippet).FormatDocumentation()))
                 .WithSortText(GetSortText(label, priority))

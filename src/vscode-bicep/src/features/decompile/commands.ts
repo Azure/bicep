@@ -25,7 +25,6 @@ interface DecompiledFile {
 }
 
 interface BicepDecompileCommandResult {
-  decompileId: string;
   output: string;
   errorMessage?: string;
   outputFiles: DecompiledFile[];
@@ -33,7 +32,6 @@ interface BicepDecompileCommandResult {
 }
 
 interface BicepDecompileSaveCommandParams {
-  decompileId: string;
   outputFiles: DecompiledFile[];
   overwrite: boolean;
 }
@@ -95,7 +93,6 @@ export class DecompileCommand implements Command {
 
     const overwrite = await this.queryOverwrite(decompileResult.outputFiles, decompileResult.conflictingOutputPaths);
     const saveParams: BicepDecompileSaveCommandParams = {
-      decompileId: decompileResult.decompileId,
       outputFiles: decompileResult.outputFiles,
       overwrite,
     };

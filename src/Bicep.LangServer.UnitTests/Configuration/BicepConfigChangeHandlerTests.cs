@@ -31,8 +31,6 @@ namespace Bicep.LangServer.UnitTests.Configuration
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static readonly LinterRulesProvider LinterRulesProvider = new();
-
         [TestMethod]
         public void RefreshCompilationOfSourceFilesInWorkspace_WithValidBicepConfigFile_ShouldRefreshCompilation()
         {
@@ -255,17 +253,13 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 BicepCompilationManagerHelper.CreateEmptyCompilationProvider(configurationManager),
                 workspace,
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
-                BicepTestConstants.CreateMockTelemetryProvider().Object,
-                new LinterRulesProvider(),
                 sourceFileFactory,
                 BicepTestConstants.AuxiliaryFileCache);
             bicepCompilationManager.OpenCompilation(DocumentUri.From(InMemoryFileResolver.GetFileUri(bicepFilePath)), null, bicepFileContents, LanguageConstants.LanguageId);
 
-            var bicepConfigLifecycleManager = new BicepConfigLifecycleManager(bicepCompilationManager,
-                                                                                configurationManager,
-                                                                                LinterRulesProvider,
-                                                                                BicepTestConstants.CreateMockTelemetryProvider().Object,
-                                                                                workspace);
+            var bicepConfigLifecycleManager = new BicepConfigLifecycleManager(
+                bicepCompilationManager,
+                configurationManager);
 
             bicepConfigLifecycleManager.RefreshCompilationOfSourceFilesInWorkspace();
 

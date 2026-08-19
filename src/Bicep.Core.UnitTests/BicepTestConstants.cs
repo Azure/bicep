@@ -30,7 +30,6 @@ using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Bicep.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -157,14 +156,6 @@ namespace Bicep.Core.UnitTests
 
         public static IFeatureProviderFactory CreateFeatureProviderFactory(FeatureProviderOverrides featureOverrides, IConfigurationManager? configurationManager = null)
             => new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager ?? CreateFilesystemConfigurationManager(), FileExplorer), featureOverrides);
-
-        public static Mock<ITelemetryProvider> CreateMockTelemetryProvider()
-        {
-            var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
-            telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
-
-            return telemetryProvider;
-        }
 
         public static BinaryData GetBicepExtensionManifest(UploadRegistryBlobResult layer, UploadRegistryBlobResult config) =>
             BinaryData.FromString($$"""

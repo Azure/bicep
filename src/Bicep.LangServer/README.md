@@ -62,7 +62,6 @@ Features/
 | `LocalDeploy` | `bicep/localDeploy` |
 | `ModuleRestore` | `forceModulesRestore` and the module restore scheduler |
 | `Parameters` | `generateParams` |
-| `Telemetry` | Telemetry command handling and telemetry event types |
 | `Visualization` | `textDocument/visualGraphUpdate`, `textDocument/visualGraphLayout`, and `textDocument/visualGraphNodeSource` |
 
 `Deployments/Services` and `Visualization/Models` are feature-local subdomains with several supporting types. Their handlers, requests, and responses remain directly in the feature folder.

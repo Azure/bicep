@@ -22,7 +22,6 @@ using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Features.Custom.Deployments.Services;
 using Bicep.LanguageServer.Features.Custom.InsertResource;
 using Bicep.LanguageServer.Features.Custom.ModuleRestore;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Bicep.LanguageServer.Features.Custom.Visualization;
 using Bicep.LanguageServer.Features.Language.Completion;
 using Bicep.LanguageServer.Features.Language.Completion.Snippets;
@@ -48,7 +47,6 @@ public static class IServiceCollectionExtensions
         .AddBicepLocalDeploy()
         .AddSingleton<IActiveSourceFileSet, ActiveSourceFileSet>()
         .AddSingleton<ISnippetsProvider, SnippetsProvider>()
-        .AddSingleton<ITelemetryProvider, TelemetryProvider>()
         .AddSingleton<ICompilationManager, BicepCompilationManager>()
         .AddSingleton<ICompilationProvider, BicepCompilationProvider>()
         .AddSingleton<ISymbolResolver, BicepSymbolResolver>()

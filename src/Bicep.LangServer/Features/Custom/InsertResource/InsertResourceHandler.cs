@@ -23,7 +23,6 @@ using Bicep.Core.Text;
 using Bicep.IO.InMemory;
 using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Bicep.LanguageServer.Utils;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
@@ -46,30 +45,28 @@ namespace Bicep.LanguageServer.Features.Custom.InsertResource
         private readonly ILanguageServerFacade server;
         private readonly ICompilationManager compilationManager;
         private readonly IAzResourceProvider azResourceProvider;
-        private readonly TelemetryAndErrorHandlingHelper<Unit> helper;
+        private readonly ErrorHandlingHelper<Unit> helper;
 
         public InsertResourceHandler(
             BicepCompiler compiler,
             ILanguageServerFacade server,
             ICompilationManager compilationManager,
-            IAzResourceProvider azResourceProvider,
-            ITelemetryProvider telemetryProvider,
-            ISourceFileFactory sourceFileFactory)
+            IAzResourceProvider azResourceProvider)
         {
             this.compiler = compiler;
             this.server = server;
             this.compilationManager = compilationManager;
             this.azResourceProvider = azResourceProvider;
-            this.helper = new TelemetryAndErrorHandlingHelper<Unit>(server.Window, telemetryProvider);
+            this.helper = new ErrorHandlingHelper<Unit>(server.Window);
         }
 
         public Task<Unit> Handle(InsertResourceParams request, CancellationToken cancellationToken)
-            => helper.ExecuteWithTelemetryAndErrorHandling(async () =>
+            => helper.ExecuteWithErrorHandling(async () =>
             {
                 var context = compilationManager.GetCompilation(request.TextDocument.Uri);
                 if (context is null)
                 {
-                    return (Unit.Value, null);
+                    return Unit.Value;
                 }
 
                 var model = context.Compilation.GetEntrypointSemanticModel();
@@ -78,7 +75,6 @@ namespace Bicep.LanguageServer.Features.Custom.InsertResource
                 {
                     throw helper.CreateException(
                         $"Failed to parse supplied resourceId \"{request.ResourceId}\".",
-                        BicepTelemetryEvent.InsertResourceFailure("ParseResourceIdFailed"),
                         Unit.Value);
                 }
 
@@ -94,7 +90,6 @@ namespace Bicep.LanguageServer.Features.Custom.InsertResource
                 {
                     throw helper.CreateException(
                         $"Failed to find a Bicep type definition for resource of type \"{resourceId.FullyQualifiedType}\".",
-                        BicepTelemetryEvent.InsertResourceFailure($"MissingType({resourceId.FullyQualifiedType})"),
                         Unit.Value);
                 }
 
@@ -133,7 +128,6 @@ namespace Bicep.LanguageServer.Features.Custom.InsertResource
 
                     throw helper.CreateException(
                         $"Caught exception fetching resource: {exception.Message}.",
-                        BicepTelemetryEvent.InsertResourceFailure($"FetchResourceFailure"),
                         Unit.Value);
                 }
 
@@ -158,7 +152,7 @@ namespace Bicep.LanguageServer.Features.Custom.InsertResource
                     },
                 }, cancellationToken);
 
-                return (Unit.Value, BicepTelemetryEvent.InsertResourceSuccess(resourceId.FullyQualifiedType, matchedType.ApiVersion));
+                return Unit.Value;
             });
 
         private record InsertContext(

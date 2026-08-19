@@ -10,8 +10,6 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -19,7 +17,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
-using static Bicep.LanguageServer.Features.Custom.Telemetry.BicepTelemetryEvent;
 using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
 using LspDocumentLink = OmniSharp.Extensions.LanguageServer.Protocol.Models.DocumentLink;
 
@@ -45,7 +42,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
     /// <summary>
     /// This handles the case where the document is a source file from an external module, and we've been asked to return nested links within it (to files local to that module or to other external modules)
     /// </summary>
-    public class BicepExternalSourceDocumentLinkHandler(IModuleDispatcher ModuleDispatcher, ILanguageServerFacade Server, ITelemetryProvider TelemetryProvider, ISourceFileFactory sourceFileFactory)
+    public class BicepExternalSourceDocumentLinkHandler(IModuleDispatcher ModuleDispatcher, ILanguageServerFacade Server, ISourceFileFactory sourceFileFactory)
         : DocumentLinkHandlerBase<ExternalSourceDocumentLinkData>
     {
         protected override Task<DocumentLinkContainer<ExternalSourceDocumentLinkData>> HandleParams(DocumentLinkParams request, CancellationToken cancellationToken)
@@ -60,7 +57,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await ResolveDocumentLink(request, ModuleDispatcher, sourceFileFactory, Server, TelemetryProvider);
+            return await ResolveDocumentLink(request, ModuleDispatcher, sourceFileFactory, Server);
         }
 
         protected override DocumentLinkRegistrationOptions CreateRegistrationOptions(DocumentLinkCapability capability, LspClientCapabilities clientCapabilities) => new()
@@ -136,8 +133,7 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             DocumentLink<ExternalSourceDocumentLinkData> request,
             IModuleDispatcher moduleDispatcher,
             ISourceFileFactory sourceFileFactory,
-            ILanguageServerFacade server,
-            ITelemetryProvider telemetryProvider)
+            ILanguageServerFacade server)
         {
             Trace.WriteLine($"{nameof(BicepExternalSourceDocumentLinkHandler)}: Resolving external source document link: {request.Data.TargetArtifactId}");
 
@@ -147,7 +143,6 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             if (!OciArtifactReference.TryParse(dummyFile.LoadFeatures(), dummyFile.LoadConfiguration(), ArtifactType.Module, null, data.TargetArtifactId).IsSuccess(out var targetArtifactReference, out var error))
             {
                 server.Window.ShowWarning($"Unable to parse the module source ID '{data.TargetArtifactId}': {error(DiagnosticBuilder.ForDocumentStart()).Message}");
-                telemetryProvider.PostEvent(ExternalSourceDocLinkClickFailure("TryParseModule"));
                 return GetAlternateLink();
             }
 
@@ -169,14 +164,12 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
                     var diagnostic = errorBuilder?.Invoke(DiagnosticBuilder.ForDocumentStart());
                     var restoreMessage = diagnostic?.Message ?? "Unknown error";
                     server.Window.ShowWarning($"Unable to restore module {targetArtifactReference.FullyQualifiedReference}: {restoreMessage}");
-                    telemetryProvider.PostEvent(ExternalSourceDocLinkClickFailure("unableToRestore", diagnostic?.Code));
                     return GetAlternateLink();
                 }
             }
             else if (restoreStatus == ArtifactRestoreStatus.Failed)
             {
                 server.Window.ShowWarning("Restore previously failed. Force module restore or restart to try again.");
-                telemetryProvider.PostEvent(ExternalSourceDocLinkClickFailure("restorePrevFailed"));
                 return GetAlternateLink();
             }
 
@@ -184,12 +177,8 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             if (!targetArtifactReference.TryLoadSourceArchive().IsSuccess(out var sourceArchive, out var ex))
             {
                 server.Window.ShowWarning($"Unable to retrieve source code for module {targetArtifactReference.FullyQualifiedReference}. {ex.Message}");
-                telemetryProvider.PostEvent(ExternalSourceDocLinkClickFailure("tryGetModuleSources", ex.Message));
                 return GetAlternateLink();
             }
-
-            var registryType = targetArtifactReference.FullyQualifiedReference.StartsWithOrdinalInsensitively("br:mcr.microsoft.com/") ? ModuleRegistryType.MCR : ModuleRegistryType.ACR;
-            telemetryProvider.PostEvent(ExternalSourceDocLinkClickSuccess(ExternalSourceRequestType.BicepEntrypoint, registryType));
 
             return request with
             {

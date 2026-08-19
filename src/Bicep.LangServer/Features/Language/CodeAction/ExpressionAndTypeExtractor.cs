@@ -19,11 +19,9 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Bicep.LanguageServer.Features.Language.Completion;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using static Bicep.LanguageServer.Features.Custom.Telemetry.BicepTelemetryEvent;
 using static Bicep.LanguageServer.Features.Language.CodeAction.TypeStringifier;
 using static Bicep.LanguageServer.Features.Language.Completion.BicepCompletionContext;
 using static Google.Protobuf.Reflection.ExtensionRangeOptions.Types;
@@ -38,6 +36,15 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
     private static readonly Regex regexCompactWhitespace = new("\\s+", RegexOptions.Compiled);
 
     private readonly SemanticModel semanticModel;
+
+    private enum ExtractionKind
+    {
+        Variable,
+        SimpleParam,
+        UserDefParam,
+        ResDerivedParam,
+        Type,
+    }
 
     private record ExtractionContext(
         StatementSyntax ParentStatement, // The statement containing the extraction context
@@ -174,17 +181,11 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
         var simpleTypeAvailable = true;
         var userDefinedTypeAvailable = !string.Equals(stringifiedLooseType, stringifiedUserDefinedType, StringComparison.Ordinal);
 
-        ExtractKindsAvailable extractKindsAvailable = new(
-            simpleTypeAvailable: simpleTypeAvailable,
-            userDefinedTypeAvailable: userDefinedTypeAvailable,
-            resourceDerivedTypeAvailable: resourceDerivedType is not null);
-
         yield return CreateExtraction(
             extractionContext,
             ExtractionKind.Variable,
             "Extract variable",
-            null,
-            extractKindsAvailable);
+            null);
 
         if (simpleTypeAvailable)
         {
@@ -192,8 +193,7 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
                 extractionContext,
                 ExtractionKind.SimpleParam,
                 $"Extract parameter of type {GetQuotedText(stringifiedLooseType)}",
-                stringifiedLooseType,
-                extractKindsAvailable);
+                stringifiedLooseType);
         }
 
         if (userDefinedTypeAvailable)
@@ -202,8 +202,7 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
                 extractionContext,
                 ExtractionKind.UserDefParam,
                 $"Extract parameter of type {GetQuotedText(stringifiedUserDefinedType)}",
-                stringifiedUserDefinedType,
-                extractKindsAvailable);
+                stringifiedUserDefinedType);
         }
 
         if (resourceDerivedType is not null)
@@ -212,8 +211,7 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
                 extractionContext,
                 ExtractionKind.ResDerivedParam,
                 $"Extract parameter of type {GetQuotedText(resourceDerivedType!)}",
-                resourceDerivedType,
-                extractKindsAvailable);
+                resourceDerivedType);
         }
 
         if (userDefinedTypeAvailable)
@@ -222,8 +220,7 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
                 extractionContext,
                 ExtractionKind.Type,
                 $"Create user-defined type for {GetQuotedText(stringifiedUserDefinedType)}",
-                stringifiedUserDefinedType,
-                extractKindsAvailable);
+                stringifiedUserDefinedType);
         }
     }
 
@@ -231,8 +228,7 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
         ExtractionContext extractionContext,
         ExtractionKind kind,
         string title,
-        string? stringifiedType,
-        ExtractKindsAvailable extractKindsAvailable)
+        string? stringifiedType)
     {
         string defaultNoncontextualName;
         string declarationKeywordPlusSpace;
@@ -319,10 +315,7 @@ public class ExpressionAndTypeExtractor : ICodeFixProvider
             CodeFixKind.RefactorExtract,
             replacements,
             semanticModel.SourceFile.FileHandle.Uri,
-            absoluteIdentifierPosition,
-            telemetryEvent: BicepTelemetryEvent.ExtractionRefactoring(
-                kind,
-                extractKindsAvailable));
+            absoluteIdentifierPosition);
     }
 
     private ParameterDeclarationSyntax CreateNewParameterDeclaration(

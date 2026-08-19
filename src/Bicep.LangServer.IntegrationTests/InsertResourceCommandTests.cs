@@ -42,11 +42,10 @@ namespace Bicep.LangServer.IntegrationTests
         private record Listeners(
             MultipleMessageListener<PublishDiagnosticsParams> Diagnostics,
             MultipleMessageListener<ShowMessageParams> ShowMessage,
-            MultipleMessageListener<ApplyWorkspaceEditParams> ApplyWorkspaceEdit,
-            MultipleMessageListener<TelemetryEventParams> Telemetry);
+            MultipleMessageListener<ApplyWorkspaceEditParams> ApplyWorkspaceEdit);
 
         private Listeners CreateListeners()
-            => new(new(), new(), new(), new());
+            => new(new(), new(), new());
 
         private async Task<LanguageServerHelper> StartLanguageServer(
             Listeners listeners,
@@ -64,8 +63,7 @@ namespace Bicep.LangServer.IntegrationTests
 
                         await Task.Yield();
                         return new();
-                    })
-                    .OnTelemetryEvent(listeners.Telemetry.AddMessage),
+                    }),
                 services => services
                     .WithAzResourceTypeLoaderFactory(azResourceTypeLoader)
                     .WithAzResourceProvider(azResourceProvider)
@@ -179,12 +177,6 @@ namespace Bicep.LangServer.IntegrationTests
 
                 """);
 
-            var telemetry = await listeners.Telemetry.WaitForAll();
-            telemetry.Should().ContainEvent("InsertResource/success", new JObject
-            {
-                ["resourceType"] = "My.Rp/myTypes",
-                ["apiVersion"] = "2020-01-01",
-            });
         }
 
         [TestMethod]
@@ -294,12 +286,6 @@ namespace Bicep.LangServer.IntegrationTests
                 output myOutput string = 'myOutput'
                 """);
 
-            var telemetry = await listeners.Telemetry.WaitForAll();
-            telemetry.Should().ContainEvent("InsertResource/success", new JObject
-            {
-                ["resourceType"] = "Microsoft.Resources/resourceGroups",
-                ["apiVersion"] = "2020-01-01",
-            });
         }
 
         [TestMethod]
@@ -366,12 +352,6 @@ namespace Bicep.LangServer.IntegrationTests
                 output myOutput string = 'myOutput'
                 """);
 
-            var telemetry = await listeners.Telemetry.WaitForAll();
-            telemetry.Should().ContainEvent("InsertResource/success", new JObject
-            {
-                ["resourceType"] = "My.Rp/myTypes/childType",
-                ["apiVersion"] = "2020-01-01",
-            });
         }
 
         [TestMethod]
@@ -406,11 +386,6 @@ namespace Bicep.LangServer.IntegrationTests
                 "Failed to parse supplied resourceId \"this isn't a resource id!\".",
                 MessageType.Error);
 
-            var telemetry = await listeners.Telemetry.WaitForAll();
-            telemetry.Should().ContainEvent("InsertResource/failure", new JObject
-            {
-                ["failureType"] = "ParseResourceIdFailed"
-            });
         }
 
         [TestMethod]
@@ -443,11 +418,6 @@ output myOutput string = 'myOutput'
                 "Failed to find a Bicep type definition for resource of type \"MadeUp.Rp/madeUpTypes\".",
                 MessageType.Error);
 
-            var telemetry = await listeners.Telemetry.WaitForAll();
-            telemetry.Should().ContainEvent("InsertResource/failure", new JObject
-            {
-                ["failureType"] = "MissingType(MadeUp.Rp/madeUpTypes)",
-            });
         }
 
         [TestMethod]
@@ -518,12 +488,6 @@ output myOutput string = 'myOutput'
                 output myOutput string = 'myOutput'
                 """);
 
-            var telemetry = await listeners.Telemetry.WaitForAll();
-            telemetry.Should().ContainEvent("InsertResource/success", new JObject
-            {
-                ["resourceType"] = "My.Rp/myTypes",
-                ["apiVersion"] = "2020-01-01",
-            });
         }
 
         [TestMethod]
@@ -566,11 +530,6 @@ output myOutput string = 'myOutput'
                 "Caught exception fetching resource: And something went wrong again!.",
                 MessageType.Error);
 
-            var telemetry = await listeners.Telemetry.WaitForAll();
-            telemetry.Should().ContainEvent("InsertResource/failure", new JObject
-            {
-                ["failureType"] = "FetchResourceFailure",
-            });
         }
     }
 }
