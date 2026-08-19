@@ -3,11 +3,11 @@
 
 import { ExtensionContext } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
-import { IActionContext } from "../../infrastructure/action-context";
 import { CommandManager } from "../../infrastructure/commands";
 import { DiagnosticsRouter } from "../../infrastructure/language-client";
 import { Disposable } from "../../infrastructure/lifecycle";
 import { OutputChannelManager } from "../../infrastructure/logging";
+import { Prompts } from "../../infrastructure/prompts";
 import { AzurePickers } from "./azure/azure-pickers";
 import { AzureUIManager } from "./azure/azure-ui-manager";
 import { DeployCommand } from "./commands";
@@ -17,29 +17,29 @@ import { ShowDeployPaneCommand, ShowDeployPaneToSideCommand } from "./show-deplo
 
 export async function activateDeploymentFeature(
   extension: Disposable,
-  actionContext: IActionContext,
+  prompts: Prompts,
   extensionContext: ExtensionContext,
   commandManager: CommandManager,
   languageClient: LanguageClient,
   outputChannelManager: OutputChannelManager,
   diagnosticsRouter: DiagnosticsRouter,
 ): Promise<void> {
-  const azurePickers = extension.register(new AzurePickers(outputChannelManager));
+  const azurePickers = extension.register(new AzurePickers(prompts, outputChannelManager));
   const deployPaneViewManager = extension.register(
     new DeployPaneViewManager(
-      actionContext,
+      prompts,
       extensionContext,
       extensionContext.extensionUri,
       languageClient,
-      new AzureUIManager(actionContext, azurePickers),
+      new AzureUIManager(azurePickers),
       diagnosticsRouter,
     ),
   );
 
   extension.register(registerDeploymentOutputNotifications(languageClient, outputChannelManager));
   await commandManager.registerCommands(
-    new DeployCommand(languageClient, outputChannelManager, azurePickers),
-    new ShowDeployPaneCommand(deployPaneViewManager),
-    new ShowDeployPaneToSideCommand(deployPaneViewManager),
+    new DeployCommand(prompts, languageClient, outputChannelManager, azurePickers),
+    new ShowDeployPaneCommand(prompts, deployPaneViewManager),
+    new ShowDeployPaneToSideCommand(prompts, deployPaneViewManager),
   );
 }

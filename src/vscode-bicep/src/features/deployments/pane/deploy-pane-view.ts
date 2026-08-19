@@ -5,9 +5,9 @@ import path from "path";
 import fse from "fs-extra";
 import vscode, { ExtensionContext } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
-import { IActionContext } from "../../../infrastructure/action-context";
 import { Disposable } from "../../../infrastructure/lifecycle";
 import { getLogger } from "../../../infrastructure/logging";
+import { Prompts } from "../../../infrastructure/prompts";
 import { debounce } from "../../../infrastructure/timing";
 import { knownAzureResourceManagerEndpoints } from "../azure/azure-environment";
 import { IAzureUIManager } from "../azure/azure-ui-manager";
@@ -38,7 +38,7 @@ export class DeployPaneView extends Disposable {
 
   private constructor(
     private readonly extensionContext: ExtensionContext,
-    private readonly context: IActionContext,
+    private readonly prompts: Prompts,
     private readonly azureMgr: IAzureUIManager,
     private readonly languageClient: LanguageClient,
     private readonly webviewPanel: vscode.WebviewPanel,
@@ -75,7 +75,7 @@ export class DeployPaneView extends Disposable {
 
   public static create(
     extensionContext: ExtensionContext,
-    context: IActionContext,
+    prompts: Prompts,
     azureMgr: IAzureUIManager,
     languageClient: LanguageClient,
     viewColumn: vscode.ViewColumn,
@@ -90,7 +90,7 @@ export class DeployPaneView extends Disposable {
 
     return new DeployPaneView(
       extensionContext,
-      context,
+      prompts,
       azureMgr,
       languageClient,
       webviewPanel,
@@ -101,7 +101,7 @@ export class DeployPaneView extends Disposable {
 
   public static revive(
     extensionContext: ExtensionContext,
-    context: IActionContext,
+    prompts: Prompts,
     azureMgr: IAzureUIManager,
     languageClient: LanguageClient,
     webviewPanel: vscode.WebviewPanel,
@@ -110,7 +110,7 @@ export class DeployPaneView extends Disposable {
   ): DeployPaneView {
     return new DeployPaneView(
       extensionContext,
-      context,
+      prompts,
       azureMgr,
       languageClient,
       webviewPanel,
@@ -211,7 +211,7 @@ export class DeployPaneView extends Disposable {
         return;
       }
       case "PICK_PARAMS_FILE": {
-        const parametersFileUri = await this.context.ui.showOpenDialog({
+        const parametersFileUri = await this.prompts.showOpenDialog({
           canSelectMany: false,
           openLabel: "Select Parameters file",
           filters: { "Parameters files": ["json"] },

@@ -5,7 +5,8 @@ import * as os from "os";
 import * as path from "path";
 import * as fse from "fs-extra";
 import { TextDocument, TextEditor, Uri, window, workspace } from "vscode";
-import { IActionContext, IAzureQuickPickItem, IAzureUserInput, UserCancelledError } from "../action-context";
+import { UserCancelledError } from "../errors";
+import { PromptItem, Prompts } from "../prompts";
 
 export const bicepFileExtension = "bicep";
 export const bicepLanguageId = "bicep";
@@ -24,13 +25,11 @@ export const bicepParamLanguageId = "bicep-params";
  * @throws User-cancelled error
  */
 export async function findOrCreateActiveBicepFile(
-  context: IActionContext,
+  prompts: Prompts,
   documentUri: Uri | undefined,
   prompt: string,
   includeBicepParam = false,
 ): Promise<Uri> {
-  const ui = context.ui;
-
   const matchesLanguageId = (editor: TextEditor) => {
     const languageId = editor.document.languageId;
     return languageId === bicepLanguageId || (includeBicepParam && languageId === bicepParamLanguageId);
@@ -68,27 +67,25 @@ export async function findOrCreateActiveBicepFile(
 
   if (bicepFilesSorted.length === 0) {
     // Ask to create a new Bicep file...
-    return await queryCreateBicepFile(ui);
+    return await queryCreateBicepFile(prompts);
   }
 
   // We need to ask the user which existing file to use
   // Show quick pick
-  const entries: IAzureQuickPickItem<Uri>[] = [];
+  const entries: PromptItem<Uri>[] = [];
   bicepFilesSorted.forEach((u) => addFileQuickPick(entries, u));
 
-  const response = await ui.showQuickPick(entries, {
+  const response = await prompts.showQuickPick(entries, {
     placeHolder: prompt,
   });
   return response.data;
 }
 
 export async function findOrCreateActiveBicepParamFile(
-  context: IActionContext,
+  prompts: Prompts,
   documentUri: Uri | undefined,
   prompt: string,
 ): Promise<Uri> {
-  const ui = context.ui;
-
   if (documentUri) {
     // The command specified a specific URI, so act on that (right-click or context menu).
     // The only scenario where we should *not* have a documentUri is when a command is invoked through the command
@@ -119,21 +116,21 @@ export async function findOrCreateActiveBicepParamFile(
 
   if (bicepFilesSorted.length === 0) {
     // Ask to create a new Bicep file...
-    return await queryCreateBicepFile(ui);
+    return await queryCreateBicepFile(prompts);
   }
 
   // We need to ask the user which existing file to use
   // Show quick pick
-  const entries: IAzureQuickPickItem<Uri>[] = [];
+  const entries: PromptItem<Uri>[] = [];
   bicepFilesSorted.forEach((u) => addFileQuickPick(entries, u));
 
-  const response = await ui.showQuickPick(entries, {
+  const response = await prompts.showQuickPick(entries, {
     placeHolder: prompt,
   });
   return response.data;
 }
 
-function addFileQuickPick(items: IAzureQuickPickItem<Uri>[], uri: Uri): void {
+function addFileQuickPick(items: PromptItem<Uri>[], uri: Uri): void {
   if (items.find((i) => i.data === uri)) {
     return;
   }
@@ -153,8 +150,8 @@ function compareStringsOrdinal(left: string, right: string): number {
   return left < right ? -1 : left > right ? 1 : 0;
 }
 
-async function queryCreateBicepFile(ui: IAzureUserInput): Promise<Uri> {
-  const response = await ui.showWarningMessage(
+async function queryCreateBicepFile(prompts: Prompts): Promise<Uri> {
+  const response = await prompts.showWarningMessage(
     "Couldn't find any Bicep files in your workspace. Would you like to create a Bicep file?",
     "Yes",
     "Cancel",

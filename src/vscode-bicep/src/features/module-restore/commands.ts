@@ -3,21 +3,23 @@
 
 import vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
-import { IActionContext, parseError } from "../../infrastructure/action-context";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
+import { parseError } from "../../infrastructure/errors";
 import { OutputChannelManager } from "../../infrastructure/logging";
+import { Prompts } from "../../infrastructure/prompts";
 
 export class ForceModulesRestoreCommand implements Command {
   public readonly id = "bicep.forceModulesRestore";
   public constructor(
+    private readonly prompts: Prompts,
     private readonly client: LanguageClient,
     private readonly outputChannelManager: OutputChannelManager,
   ) {}
 
-  public async execute(context: IActionContext, documentUri?: vscode.Uri | undefined): Promise<void> {
+  public async execute(documentUri?: vscode.Uri | undefined): Promise<void> {
     documentUri = await findOrCreateActiveBicepFile(
-      context,
+      this.prompts,
       documentUri,
       "Choose which Bicep file to restore modules for",
     );
@@ -53,9 +55,10 @@ export class ForceModulesRestoreCommand implements Command {
 }
 
 export async function activateModuleRestoreFeature(
+  prompts: Prompts,
   commandManager: CommandManager,
   client: LanguageClient,
   outputChannelManager: OutputChannelManager,
 ): Promise<void> {
-  await commandManager.registerCommands(new ForceModulesRestoreCommand(client, outputChannelManager));
+  await commandManager.registerCommands(new ForceModulesRestoreCommand(prompts, client, outputChannelManager));
 }

@@ -1,19 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import vscode from "vscode";
-import { IActionContext } from "../../infrastructure/action-context";
 import { Command } from "../../infrastructure/commands";
 import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
+import { Prompts } from "../../infrastructure/prompts";
 import { DeployPaneViewManager } from "./pane";
 
 async function showDeployPane(
-  context: IActionContext,
+  prompts: Prompts,
   viewManager: DeployPaneViewManager,
   documentUri: vscode.Uri | undefined,
   sideBySide = false,
 ) {
   documentUri = await findOrCreateActiveBicepFile(
-    context,
+    prompts,
     documentUri,
     "Choose a .bicep or .bicepparam file to deploy",
     true,
@@ -31,25 +31,25 @@ async function showDeployPane(
 export class ShowDeployPaneCommand implements Command {
   public readonly id = "bicep.showDeployPane";
 
-  public constructor(private readonly viewManager: DeployPaneViewManager) {}
+  public constructor(
+    private readonly prompts: Prompts,
+    private readonly viewManager: DeployPaneViewManager,
+  ) {}
 
-  public async execute(
-    context: IActionContext,
-    documentUri?: vscode.Uri | undefined,
-  ): Promise<vscode.ViewColumn | undefined> {
-    return await showDeployPane(context, this.viewManager, documentUri);
+  public async execute(documentUri?: vscode.Uri | undefined): Promise<vscode.ViewColumn | undefined> {
+    return await showDeployPane(this.prompts, this.viewManager, documentUri);
   }
 }
 
 export class ShowDeployPaneToSideCommand implements Command {
   public readonly id = "bicep.showDeployPaneToSide";
 
-  public constructor(private readonly viewManager: DeployPaneViewManager) {}
+  public constructor(
+    private readonly prompts: Prompts,
+    private readonly viewManager: DeployPaneViewManager,
+  ) {}
 
-  public async execute(
-    context: IActionContext,
-    documentUri?: vscode.Uri | undefined,
-  ): Promise<vscode.ViewColumn | undefined> {
-    return await showDeployPane(context, this.viewManager, documentUri, true);
+  public async execute(documentUri?: vscode.Uri | undefined): Promise<vscode.ViewColumn | undefined> {
+    return await showDeployPane(this.prompts, this.viewManager, documentUri, true);
   }
 }

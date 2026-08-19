@@ -5,8 +5,8 @@ import path from "path";
 import * as fse from "fs-extra";
 import { Uri, window, workspace } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
-import { IActionContext, UserCancelledError } from "../../infrastructure/action-context";
 import { Command, CommandManager } from "../../infrastructure/commands";
+import { OperationError, UserCancelledError } from "../../infrastructure/errors";
 import {
   CreateBicepConfigParams,
   getRecommendedConfigLocationRequestType,
@@ -20,13 +20,14 @@ export class CreateBicepConfigurationFile implements Command {
 
   public constructor(private readonly client: LanguageClient) {}
 
-  public async execute(
-    context: IActionContext,
-    documentUri?: Uri,
-    suppressQuery?: boolean,
-    rethrow?: boolean,
-  ): Promise<string | undefined> {
-    context.errorHandling.rethrow = !!rethrow;
+  public async execute(documentUri?: Uri, suppressQuery?: boolean, rethrow?: boolean): Promise<string | undefined> {
+    if (rethrow) {
+      try {
+        return await this.execute(documentUri, suppressQuery, false);
+      } catch (error) {
+        throw new OperationError(error, { rethrow: true });
+      }
+    }
 
     documentUri ??= window.activeTextEditor?.document.uri;
 

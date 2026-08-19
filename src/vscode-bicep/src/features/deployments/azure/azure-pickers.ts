@@ -1,13 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { ResourceManagementClient } from "@azure/arm-resources" with { "resolution-mode": "import" };
+import type { ManagementGroupInfo as AzureManagementGroupInfo } from "@azure/arm-managementgroups";
+import type { ResourceGroup as AzureResourceGroup, ResourceManagementClient } from "@azure/arm-resources" with {
+  "resolution-mode": "import",
+};
 
-import { ManagementGroupInfo } from "@azure/arm-managementgroups";
-import { ResourceGroup } from "@azure/arm-resources";
-import { IActionContext, IAzureQuickPickItem, nonNullProp, parseError } from "../../../infrastructure/action-context";
+import { parseError } from "../../../infrastructure/errors";
 import { Disposable } from "../../../infrastructure/lifecycle";
 import { OutputChannelManager } from "../../../infrastructure/logging";
+import { PromptItem, Prompts } from "../../../infrastructure/prompts";
 import {
   createManagementGroupsClient,
   createResourceManagementClient,
@@ -17,10 +19,24 @@ import { AzureAccountManager, AzureSubscription } from "./azure-account-manager"
 
 const resourceGroupNamePattern = /^[\p{L}\p{Nd}_.()-]+$/u;
 
+export interface SelectedResourceGroup {
+  readonly id: string;
+  readonly name: string;
+}
+
+export interface SelectedManagementGroup {
+  readonly displayName?: string;
+  readonly id: string;
+  readonly name: string;
+}
+
 export class AzurePickers extends Disposable {
   private readonly accountManager = new AzureAccountManager();
 
-  constructor(private readonly outputChannelManager: OutputChannelManager) {
+  constructor(
+    private readonly prompts: Prompts,
+    private readonly outputChannelManager: OutputChannelManager,
+  ) {
     super();
   }
 
@@ -36,7 +52,7 @@ export class AzurePickers extends Disposable {
     await this.accountManager.signIn();
   }
 
-  public async pickSubscription(context: IActionContext): Promise<AzureSubscription> {
+  public async pickSubscription(): Promise<AzureSubscription> {
     await this.ensureSignedIn();
 
     const subscriptions = await this.getAllSubscriptions();
@@ -47,85 +63,83 @@ export class AzurePickers extends Disposable {
     subscriptions.sort((a, b) => a.name.localeCompare(b.name));
 
     const picks = subscriptions.map((s) => {
-      return <IAzureQuickPickItem<AzureSubscription>>{
+      return <PromptItem<AzureSubscription>>{
         label: s.name,
         description: s.subscriptionId,
         data: s,
       };
     });
 
-    return (await context.ui.showQuickPick(picks, { placeHolder: "Select subscription" })).data;
+    return (await this.prompts.showQuickPick(picks, { placeHolder: "Select subscription" })).data;
   }
 
-  public async pickResourceGroup(context: IActionContext, subscription: AzureSubscription): Promise<ResourceGroup> {
+  public async pickResourceGroup(subscription: AzureSubscription): Promise<SelectedResourceGroup> {
     await this.ensureSignedIn();
 
     const client: ResourceManagementClient = await createResourceManagementClient(subscription);
-    const rgs = await listAll(client.resourceGroups.list());
+    const resourceGroups: SelectedResourceGroup[] = [];
+    for (const resourceGroup of await listAll(client.resourceGroups.list())) {
+      try {
+        resourceGroups.push(toSelectedResourceGroup(resourceGroup));
+      } catch (error) {
+        this.outputChannelManager.appendToOutputChannel(parseError(error).message);
+      }
+    }
+    resourceGroups.sort((a, b) => a.name.localeCompare(b.name));
 
-    rgs.sort((a, b) => nonNullProp(a, "name").localeCompare(nonNullProp(b, "name")));
-
-    const createNewRGItem: IAzureQuickPickItem<ResourceGroup | undefined> = {
+    const createNewRGItem: PromptItem<SelectedResourceGroup | undefined> = {
       label: "$(plus) Create new resource group",
       data: undefined,
     };
 
     const picks = [
       createNewRGItem,
-      ...rgs
-        .map((rg) => {
-          try {
-            return <IAzureQuickPickItem<ResourceGroup | undefined>>{
-              label: nonNullProp(rg, "name"),
-              data: rg,
-            };
-          } catch (error) {
-            this.outputChannelManager.appendToOutputChannel(parseError(error).message);
-            return undefined;
-          }
-        })
-        .filter((p) => !!p),
+      ...resourceGroups.map((resourceGroup): PromptItem<SelectedResourceGroup | undefined> => ({
+        label: resourceGroup.name,
+        data: resourceGroup,
+      })),
     ];
 
-    const selected = await context.ui.showQuickPick(picks, { placeHolder: "Select resource group" });
+    const selected = await this.prompts.showQuickPick(picks, { placeHolder: "Select resource group" });
     if (selected === createNewRGItem) {
-      return await this.promptCreateResourceGroup(context, subscription);
-    } else {
-      return selected.data!;
+      return await this.promptCreateResourceGroup(subscription);
     }
+
+    if (!selected.data) {
+      throw new Error("The selected resource group is missing its value.");
+    }
+
+    return selected.data;
   }
 
-  public async pickLocation(context: IActionContext, subscription: AzureSubscription): Promise<string> {
+  public async pickLocation(subscription: AzureSubscription): Promise<string> {
     await this.ensureSignedIn();
 
     const client = await createSubscriptionClient(subscription);
-    const locations = (await listAll(client.subscriptions.listLocations(subscription.subscriptionId))).map((l) =>
-      nonNullProp(l, "name"),
+    const locations = (await listAll(client.subscriptions.listLocations(subscription.subscriptionId))).flatMap(
+      (location) => (location.name ? [location.name] : []),
     );
     locations.sort();
 
     const picks = locations.map(
       (l) =>
-        <IAzureQuickPickItem<string>>{
+        <PromptItem<string>>{
           label: l,
           data: l,
         },
     );
 
-    return (await context.ui.showQuickPick(picks, { placeHolder: "Select location" })).data;
+    return (await this.prompts.showQuickPick(picks, { placeHolder: "Select location" })).data;
   }
 
-  public async pickManagementGroup(
-    context: IActionContext,
-    subscription: AzureSubscription,
-  ): Promise<ManagementGroupInfo> {
+  public async pickManagementGroup(subscription: AzureSubscription): Promise<SelectedManagementGroup> {
     await this.ensureSignedIn();
 
     const client = await createManagementGroupsClient(subscription);
 
-    let managementGroups: ManagementGroupInfo[];
+    let response: AzureManagementGroupInfo[];
     try {
-      managementGroups = await listAll(client.managementGroups.list());
+      response = await listAll(client.managementGroups.list());
     } catch (err) {
       throw new Error(
         `You might not have access to any management groups. Please create one in the Azure portal and try to deploy again.  Error: ${parseError(err).message}. ${await this.getTenantInfo()}`,
@@ -133,41 +147,46 @@ export class AzurePickers extends Disposable {
       );
     }
 
-    managementGroups.sort((a, b) =>
-      (a.displayName ?? nonNullProp(a, "name")).localeCompare(b.displayName ?? nonNullProp(b, "name")),
-    );
+    const managementGroups: SelectedManagementGroup[] = [];
+    for (const managementGroup of response) {
+      try {
+        managementGroups.push(toSelectedManagementGroup(managementGroup));
+      } catch (error) {
+        this.outputChannelManager.appendToOutputChannel(parseError(error).message);
+      }
+    }
+    managementGroups.sort((a, b) => (a.displayName ?? a.name).localeCompare(b.displayName ?? b.name));
 
     const picks = managementGroups.map(
-      (mg) =>
-        <IAzureQuickPickItem<ManagementGroupInfo>>{
-          label: mg.displayName ?? mg.name,
-          description: mg.name,
-          data: mg,
+      (managementGroup) =>
+        <PromptItem<SelectedManagementGroup>>{
+          label: managementGroup.displayName ?? managementGroup.name,
+          description: managementGroup.name,
+          data: managementGroup,
         },
     );
 
-    return (await context.ui.showQuickPick(picks, { placeHolder: "Select management group" })).data;
+    return (await this.prompts.showQuickPick(picks, { placeHolder: "Select management group" })).data;
   }
 
-  private async promptCreateResourceGroup(
-    context: IActionContext,
-    subscription: AzureSubscription,
-  ): Promise<ResourceGroup> {
+  private async promptCreateResourceGroup(subscription: AzureSubscription): Promise<SelectedResourceGroup> {
     const resourceGroupName = (
-      await context.ui.showInputBox({
+      await this.prompts.showInputBox({
         title: "Create resource group",
         prompt: "Enter a resource group name",
         validateInput: validateResourceGroupName,
       })
     ).trim();
-    const location = await this.pickLocation(context, subscription);
+    const location = await this.pickLocation(subscription);
     const client = await createResourceManagementClient(subscription);
     const exists = await client.resourceGroups.checkExistence(resourceGroupName);
     if (exists.body) {
       throw new Error(`A resource group named '${resourceGroupName}' already exists.`);
     }
 
-    const resourceGroup = await client.resourceGroups.createOrUpdate(resourceGroupName, { location });
+    const resourceGroup = toSelectedResourceGroup(
+      await client.resourceGroups.createOrUpdate(resourceGroupName, { location }),
+    );
 
     this.outputChannelManager.appendToOutputChannel(`Created resource group "${resourceGroupName}"`);
     return resourceGroup;
@@ -217,4 +236,24 @@ async function listAll<T>(items: AsyncIterable<T>): Promise<T[]> {
   }
 
   return results;
+}
+
+function toSelectedResourceGroup(resourceGroup: AzureResourceGroup): SelectedResourceGroup {
+  if (!resourceGroup.id || !resourceGroup.name) {
+    throw new Error("Azure returned a resource group without an ID or name.");
+  }
+
+  return { id: resourceGroup.id, name: resourceGroup.name };
+}
+
+function toSelectedManagementGroup(managementGroup: AzureManagementGroupInfo): SelectedManagementGroup {
+  if (!managementGroup.id || !managementGroup.name) {
+    throw new Error("Azure returned a management group without an ID or name.");
+  }
+
+  return {
+    displayName: managementGroup.displayName,
+    id: managementGroup.id,
+    name: managementGroup.name,
+  };
 }

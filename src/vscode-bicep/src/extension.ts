@@ -33,6 +33,7 @@ import {
   OutputChannelManager,
   resetLogger,
 } from "./infrastructure/logging";
+import { Prompts } from "./infrastructure/prompts";
 import { BicepTelemetry } from "./infrastructure/telemetry";
 
 let languageClient: lsp.LanguageClient | null = null;
@@ -62,9 +63,10 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
       process.env.BICEP_TELEMETRY_DISABLED !== "true",
     ),
   );
+  const prompts = new Prompts(extensionContext.globalState);
 
   // Activate and launch language server
-  await activateWithTelemetryAndErrorHandling(telemetry, extensionContext.globalState, async (actionContext) => {
+  await activateWithTelemetryAndErrorHandling(telemetry, async () => {
     await window.withProgress(
       {
         location: ProgressLocation.Window,
@@ -93,28 +95,29 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
         await activateVisualizationFeature(
           extension,
           extension.extensionUri,
+          prompts,
           commandManager,
           languageClient,
           diagnosticsRouter,
         );
         await activateDeploymentFeature(
           extension,
-          actionContext,
+          prompts,
           extensionContext,
           commandManager,
           languageClient,
           outputChannelManager,
           diagnosticsRouter,
         );
-        await activateBuildFeature(commandManager, languageClient, outputChannelManager);
-        await activateParametersFeature(commandManager, languageClient, outputChannelManager);
+        await activateBuildFeature(prompts, commandManager, languageClient, outputChannelManager);
+        await activateParametersFeature(prompts, commandManager, languageClient, outputChannelManager);
         await activateConfigurationFeature(commandManager, languageClient);
-        await activateDecompileFeature(extension, commandManager, languageClient, outputChannelManager);
-        await activateModuleRestoreFeature(commandManager, languageClient, outputChannelManager);
-        await activateInsertResourceFeature(commandManager, languageClient);
-        await activateWalkthroughFeature(commandManager);
-        await activatePasteAsBicepFeature(extension, commandManager, languageClient, outputChannelManager);
-        await activateImportKubernetesManifestFeature(commandManager, languageClient);
+        await activateDecompileFeature(extension, prompts, commandManager, languageClient, outputChannelManager);
+        await activateModuleRestoreFeature(prompts, commandManager, languageClient, outputChannelManager);
+        await activateInsertResourceFeature(prompts, commandManager, languageClient);
+        await activateWalkthroughFeature(prompts, commandManager);
+        await activatePasteAsBicepFeature(extension, prompts, commandManager, languageClient, outputChannelManager);
+        await activateImportKubernetesManifestFeature(prompts, commandManager, languageClient);
         await activateExternalSourceFeature(extension, commandManager, languageClient);
         await activateRefactoringFeature(commandManager);
 

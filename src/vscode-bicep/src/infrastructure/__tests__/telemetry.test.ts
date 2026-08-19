@@ -12,7 +12,7 @@ function createReporter() {
 }
 
 describe("BicepTelemetry", () => {
-  test("BicepTelemetry_WithUsageEvent_SendsUsageTelemetry", () => {
+  test("sends usage events as usage telemetry", () => {
     const reporter = createReporter();
     const telemetry = new BicepTelemetry("connection-string", true, () => reporter);
 
@@ -22,7 +22,7 @@ describe("BicepTelemetry", () => {
     expect(reporter.sendTelemetryErrorEvent).not.toHaveBeenCalled();
   });
 
-  test("BicepTelemetry_WithError_SendsTypeWithoutMessage", () => {
+  test("sends the error type without its message", () => {
     const reporter = createReporter();
     const telemetry = new BicepTelemetry("connection-string", true, () => reporter);
 
@@ -35,7 +35,7 @@ describe("BicepTelemetry", () => {
     );
   });
 
-  test("BicepTelemetry_WhenDisabled_DoesNotCreateReporter", () => {
+  test("does not create a reporter when disabled", () => {
     const reporterFactory = vi.fn(() => createReporter());
     const telemetry = new BicepTelemetry("connection-string", false, reporterFactory);
 

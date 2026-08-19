@@ -3,7 +3,6 @@
 
 import vscode, { Uri } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
-import { IActionContext } from "../../infrastructure/action-context";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { Disposable } from "../../infrastructure/lifecycle";
 import { BicepExternalSourceContentProvider } from "./external-source-content";
@@ -13,7 +12,7 @@ export class ShowModuleSourceFileCommand implements Command {
   public readonly id = "bicep.internal.showModuleSourceFile";
   public disclaimerShownThisSession = false;
 
-  public async execute(_context: IActionContext, _documentUri: Uri, targetUri: string): Promise<void> {
+  public async execute(_documentUri: Uri | undefined, targetUri: string): Promise<void> {
     const uri = Uri.parse(targetUri, true);
     const doc = await vscode.workspace.openTextDocument(uri);
 

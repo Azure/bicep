@@ -4,8 +4,8 @@
 import assert from "assert";
 import https from "https";
 import { commands, Memento, MessageItem, Uri, window, WorkspaceConfiguration } from "vscode";
-import { runWithErrorHandling } from "../../infrastructure/action-context";
 import { getBicepConfiguration } from "../../infrastructure/configuration";
+import { runWithErrorHandling } from "../../infrastructure/errors";
 import { daysToMs, monthsToDays } from "../../infrastructure/timing";
 import { annualSurveyStateKey, GlobalState } from "./survey-state";
 
@@ -50,32 +50,34 @@ export function showSurveys(globalState: GlobalState): void {
 
 export function checkShowSurvey(globalState: GlobalState, surveyInfo: ISurveyInfo): void {
   // Don't wait, run asynchronously
-  void runWithErrorHandling(async (context) => {
-    context.errorHandling.suppressDisplay = true;
-    let now = new Date();
+  void runWithErrorHandling(
+    async () => {
+      let now = new Date();
 
-    // Check debugging settings
-    const debugNowDate = getBicepConfiguration().get<string>(debugNowDateKey);
-    if (debugNowDate) {
-      now = new Date(debugNowDate);
-      assert.ok(!isNaN(now.valueOf()), `Invalid value for ${debugNowDateKey}`);
-      console.warn(`Debugging surveys: Pretending now is ${now.toLocaleString()}`);
-    }
+      // Check debugging settings
+      const debugNowDate = getBicepConfiguration().get<string>(debugNowDateKey);
+      if (debugNowDate) {
+        now = new Date(debugNowDate);
+        assert.ok(!isNaN(now.valueOf()), `Invalid value for ${debugNowDateKey}`);
+        console.warn(`Debugging surveys: Pretending now is ${now.toLocaleString()}`);
+      }
 
-    const debugTestLink = getBicepConfiguration().get<string>(debugSurveyLinkKeyPrefix + surveyInfo.akaLinkToSurvey);
-    if (debugTestLink) {
-      console.warn(`Debugging surveys: Replacing link ${surveyInfo.akaLinkToSurvey} with ${debugTestLink}`);
-      surveyInfo.akaLinkToSurvey = debugTestLink;
-    }
+      const debugTestLink = getBicepConfiguration().get<string>(debugSurveyLinkKeyPrefix + surveyInfo.akaLinkToSurvey);
+      if (debugTestLink) {
+        console.warn(`Debugging surveys: Replacing link ${surveyInfo.akaLinkToSurvey} with ${debugTestLink}`);
+        surveyInfo.akaLinkToSurvey = debugTestLink;
+      }
 
-    const survey = new Survey(globalState, surveyInfo);
+      const survey = new Survey(globalState, surveyInfo);
 
-    if (getBicepConfiguration().get<boolean>(debugClearStateKey, false)) {
-      await survey.clearGlobalState();
-    }
+      if (getBicepConfiguration().get<boolean>(debugClearStateKey, false)) {
+        await survey.clearGlobalState();
+      }
 
-    await survey.checkShowSurvey(now);
-  });
+      await survey.checkShowSurvey(now);
+    },
+    { displayErrors: false },
+  );
 }
 
 export interface ISurveyInfo {

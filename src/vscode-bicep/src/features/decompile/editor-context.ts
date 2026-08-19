@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { commands, TextDocument } from "vscode";
-import { runWithErrorHandling } from "../../infrastructure/action-context";
+import { runWithErrorHandling } from "../../infrastructure/errors";
 import { DecompileCommand, DecompileParamsCommand } from "./commands";
 
 export async function updateDecompileEditorContext(currentDocument: TextDocument | undefined): Promise<void> {

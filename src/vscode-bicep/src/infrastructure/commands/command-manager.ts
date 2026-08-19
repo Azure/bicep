@@ -4,7 +4,7 @@
 import assert from "assert";
 import * as fse from "fs-extra";
 import { commands, ExtensionContext, Uri } from "vscode";
-import { IActionContext, runWithErrorHandling } from "../action-context";
+import { runWithErrorHandling } from "../errors";
 import { Disposable } from "../lifecycle";
 import { Telemetry } from "../telemetry";
 
@@ -13,10 +13,9 @@ export interface Command {
 
   /**
    * Executes the command
-   * @param context Provides user input and error-handling behavior
    * @param args Optional arguments that are being passed to the command
    */
-  execute(context: IActionContext, documentUri: Uri | undefined, ...args: unknown[]): unknown | Promise<unknown>;
+  execute(documentUri: Uri | undefined, ...args: unknown[]): unknown | Promise<unknown>;
 }
 
 export class CommandManager extends Disposable {
@@ -46,11 +45,9 @@ export class CommandManager extends Disposable {
           args = args.slice(1);
         }
 
-        return await runWithErrorHandling(
-          async (context) => await command.execute(context, documentUri, ...args),
-          (error) => this.telemetry.sendError("command/error", error, { commandId: command.id }),
-          this.extensionContext.globalState,
-        );
+        return await runWithErrorHandling(async () => await command.execute(documentUri, ...args), {
+          onError: (error) => this.telemetry.sendError("command/error", error, { commandId: command.id }),
+        });
       }),
     );
   }

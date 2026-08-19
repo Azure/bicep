@@ -4,7 +4,7 @@ import * as path from "path";
 import vscode from "vscode";
 import * as winston from "winston";
 import Transport from "winston-transport";
-import { createActionContext, IActionContext, parseError } from "../action-context";
+import { parseError } from "../errors";
 import { Telemetry } from "../telemetry";
 
 /**
@@ -139,14 +139,12 @@ export function resetLogger(): void {
 
 export async function activateWithTelemetryAndErrorHandling(
   telemetry: Telemetry,
-  globalState: vscode.Memento,
-  activateCallback: (actionContext: IActionContext) => Promise<void>,
+  activateCallback: () => Promise<void>,
 ): Promise<void> {
-  const actionContext = createActionContext(globalState);
   const startTime = Date.now();
 
   try {
-    await activateCallback(actionContext);
+    await activateCallback();
   } catch (error) {
     const duration = (Date.now() - startTime) / 1000;
     getLogger().error(parseError(error).message);

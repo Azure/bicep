@@ -3,19 +3,22 @@
 
 import vscode, { Uri, window, workspace } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
-import { IActionContext } from "../../infrastructure/action-context";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
+import { Prompts } from "../../infrastructure/prompts";
 import { insertResourceRequestType } from "./protocol";
 
 export class InsertResourceCommand implements Command {
   public readonly id = "bicep.insertResource";
 
-  public constructor(private readonly client: LanguageClient) {}
+  public constructor(
+    private readonly prompts: Prompts,
+    private readonly client: LanguageClient,
+  ) {}
 
-  public async execute(context: IActionContext, documentUri?: Uri): Promise<void> {
+  public async execute(documentUri?: Uri): Promise<void> {
     documentUri = await findOrCreateActiveBicepFile(
-      context,
+      this.prompts,
       documentUri,
       "Choose which Bicep file to insert a resource into",
     );
@@ -40,8 +43,9 @@ export class InsertResourceCommand implements Command {
 }
 
 export async function activateInsertResourceFeature(
+  prompts: Prompts,
   commandManager: CommandManager,
   client: LanguageClient,
 ): Promise<void> {
-  await commandManager.registerCommands(new InsertResourceCommand(client));
+  await commandManager.registerCommands(new InsertResourceCommand(prompts, client));
 }

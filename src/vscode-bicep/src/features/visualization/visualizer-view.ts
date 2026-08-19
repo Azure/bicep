@@ -4,7 +4,7 @@ import crypto from "crypto";
 import path from "path";
 import vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
-import { parseError } from "../../infrastructure/action-context";
+import { parseError } from "../../infrastructure/errors";
 import { Disposable } from "../../infrastructure/lifecycle";
 import { getLogger } from "../../infrastructure/logging";
 import { debounce } from "../../infrastructure/timing";

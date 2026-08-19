@@ -3,15 +3,13 @@
 
 import { commands, Position, Uri } from "vscode";
 import { integer } from "vscode-languageclient";
-import { IActionContext } from "../../infrastructure/action-context";
 import { Command, CommandManager } from "../../infrastructure/commands";
 
 export class PostExtractionCommand implements Command {
   public readonly id = "bicep.internal.postExtraction";
 
   public async execute(
-    _context: IActionContext,
-    _: Uri,
+    _: Uri | undefined,
     targetUri: string,
     position: { line: integer; character: integer },
   ): Promise<void> {

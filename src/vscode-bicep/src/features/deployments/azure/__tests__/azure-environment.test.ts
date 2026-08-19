@@ -1,11 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import {
-  AzureEnvironment,
-  getAzureResourceManagerClientOptions,
-  getAzureScopes,
-} from "../azure-environment";
+import { AzureEnvironment, getAzureResourceManagerClientOptions, getAzureScopes } from "../azure-environment";
 import { validateResourceGroupName } from "../azure-pickers";
 
 const environment: AzureEnvironment = {
@@ -19,17 +15,17 @@ const environment: AzureEnvironment = {
 };
 
 describe("getAzureScopes", () => {
-  test("GetAzureScopes_WithDefaultResource_AddsSlashBeforeDefaultScope", () => {
+  test("adds a slash before the default scope", () => {
     expect(getAzureScopes(environment)).toEqual(["https://management.core.example.com/.default"]);
   });
 
-  test("GetAzureScopes_WithNormalizedScope_PreservesScope", () => {
+  test("preserves an already normalized scope", () => {
     expect(getAzureScopes(environment, undefined, "https://storage.example.com/.default")).toEqual([
       "https://storage.example.com/.default",
     ]);
   });
 
-  test("GetAzureScopes_WithTenant_AddsTenantScope", () => {
+  test("adds the tenant scope", () => {
     expect(getAzureScopes(environment, "tenant-id")).toEqual([
       "https://management.core.example.com/.default",
       "VSCODE_TENANT:tenant-id",
@@ -38,7 +34,7 @@ describe("getAzureScopes", () => {
 });
 
 describe("getAzureResourceManagerClientOptions", () => {
-  test("GetAzureResourceManagerClientOptions_WithSovereignEnvironment_UsesEnvironmentAudience", () => {
+  test("uses the environment audience for a sovereign cloud", () => {
     const options = getAzureResourceManagerClientOptions(environment);
 
     expect(options.endpoint).toBe("https://management.example.com/");
@@ -47,19 +43,19 @@ describe("getAzureResourceManagerClientOptions", () => {
 });
 
 describe("validateResourceGroupName", () => {
-  test("ValidateResourceGroupName_WithValidUnicodeName_ReturnsUndefined", () => {
+  test("accepts a valid Unicode name", () => {
     expect(validateResourceGroupName("  r\u00e9gion_(1)-test  ")).toBeUndefined();
   });
 
-  test("ValidateResourceGroupName_WithInvalidCharacter_ReturnsError", () => {
+  test("rejects an invalid character", () => {
     expect(validateResourceGroupName("invalid/name")).toBeDefined();
   });
 
-  test("ValidateResourceGroupName_WithTrailingPeriod_ReturnsError", () => {
+  test("rejects a trailing period", () => {
     expect(validateResourceGroupName("invalid.")).toBeDefined();
   });
 
-  test("ValidateResourceGroupName_WithMoreThanNinetyCharacters_ReturnsError", () => {
+  test("rejects names longer than 90 characters", () => {
     expect(validateResourceGroupName("a".repeat(91))).toBeDefined();
   });
 });

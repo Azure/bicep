@@ -4,21 +4,23 @@
 import path from "path";
 import vscode, { Uri } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
-import { IActionContext, parseError } from "../../infrastructure/action-context";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
+import { parseError } from "../../infrastructure/errors";
 import { OutputChannelManager } from "../../infrastructure/logging";
+import { Prompts } from "../../infrastructure/prompts";
 
 export class GenerateParamsCommand implements Command {
   public readonly id = "bicep.generateParams";
   public constructor(
+    private readonly prompts: Prompts,
     private readonly client: LanguageClient,
     private readonly outputChannelManager: OutputChannelManager,
   ) {}
 
-  public async execute(context: IActionContext, documentUri?: vscode.Uri | undefined): Promise<void> {
+  public async execute(documentUri?: vscode.Uri | undefined): Promise<void> {
     documentUri = await findOrCreateActiveBicepFile(
-      context,
+      this.prompts,
       documentUri,
       "Choose which Bicep file to generate parameters file for",
     );
@@ -63,9 +65,10 @@ export class GenerateParamsCommand implements Command {
 }
 
 export async function activateParametersFeature(
+  prompts: Prompts,
   commandManager: CommandManager,
   client: LanguageClient,
   outputChannelManager: OutputChannelManager,
 ): Promise<void> {
-  await commandManager.registerCommands(new GenerateParamsCommand(client, outputChannelManager));
+  await commandManager.registerCommands(new GenerateParamsCommand(prompts, client, outputChannelManager));
 }
