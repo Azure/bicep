@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 export {
-  activateWithTelemetryAndErrorHandling,
+  activateWithErrorHandling,
   createLogger,
   e2eLogName,
   getLogger,

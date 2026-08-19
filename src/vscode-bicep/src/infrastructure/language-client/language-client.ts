@@ -4,10 +4,9 @@ import { existsSync } from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 import * as lsp from "vscode-languageclient/node";
-import { Message, TransportKind } from "vscode-languageclient/node";
+import { TransportKind } from "vscode-languageclient/node";
 import { bicepLanguageId } from "../editor";
 import { getLogger } from "../logging";
-import { Telemetry } from "../telemetry";
 
 const dotnetRuntimeVersion = "10.0";
 const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
@@ -65,7 +64,6 @@ export async function createLanguageService(
   context: vscode.ExtensionContext,
   outputChannel: vscode.LogOutputChannel,
   dotnetCommandPath: string,
-  telemetry: Telemetry,
 ): Promise<lsp.LanguageClient> {
   getLogger().info("Launching Bicep language service...");
 
@@ -102,8 +100,6 @@ export async function createLanguageService(
   const client = new lsp.LanguageClient(bicepLanguageId, "Bicep", serverOptions, clientOptions);
 
   client.registerProposedFeatures();
-
-  configureTelemetry(client, telemetry);
 
   // To enable language server tracing, you MUST have a package setting named 'bicep.trace.server'; I was unable to find a way to enable it through code.
   // See https://github.com/microsoft/vscode-languageserver-node/blob/77c3a10a051ac619e4e3ef62a3865717702b64a3/client/src/common/client.ts#L3268
@@ -178,108 +174,4 @@ function ensureLanguageServerExists(context: vscode.ExtensionContext): string {
   }
 
   return path.resolve(languageServerPath);
-}
-
-interface LanguageServerTelemetryRule {
-  properties?: readonly string[];
-  measurements?: readonly string[];
-}
-
-const languageServerTelemetryRules: Record<string, LanguageServerTelemetryRule> = {
-  "decompile/success": { measurements: ["countOutputFiles", "countConflictingFiles"] },
-  "decompile/failure": {},
-  "decompileSave/success": {},
-  "decompileSave/failure": { properties: ["failureType"] },
-  decompileForPaste: {
-    properties: ["pasteContext", "pasteType", "languageId"],
-    measurements: ["jsonSize", "bicepSize"],
-  },
-  "InsertResource/success": { properties: ["resourceType", "apiVersion"] },
-  "InsertResource/failure": { properties: ["failureType"] },
-  "ImportKubernetesManifest/success": {},
-  "ImportKubernetesManifest/failure": { properties: ["failureType"] },
-  "deploy/result": { properties: ["result"] },
-  "ExternalSourceRequest/success": {
-    properties: ["hasSource", "fileExtension", "requestType"],
-    measurements: ["archiveFilesCount"],
-  },
-  "ExternalSourceRequest/failure": { properties: ["failureType"] },
-  unhandledException: {},
-};
-
-const languageServerErrorEvents = new Set([
-  "decompile/failure",
-  "decompileSave/failure",
-  "InsertResource/failure",
-  "ImportKubernetesManifest/failure",
-  "ExternalSourceRequest/failure",
-  "unhandledException",
-]);
-
-function configureTelemetry(client: lsp.LanguageClient, telemetry: Telemetry) {
-  const startTime = Date.now();
-  const defaultErrorHandler = client.createDefaultErrorHandler();
-
-  client.onTelemetry((telemetryData: { eventName: string; properties: { [key: string]: string | undefined } }) => {
-    sendLanguageServerTelemetry(telemetry, telemetryData);
-  });
-
-  client.clientOptions.errorHandler = {
-    error(error: Error, message: Message | undefined, count: number | undefined) {
-      telemetry.sendError(
-        "bicep.lsp-error",
-        error,
-        undefined,
-        { secondsSinceStart: (Date.now() - startTime) / 1000 },
-      );
-      return defaultErrorHandler.error(error, message, count);
-    },
-    closed() {
-      telemetry.sendError(
-        "bicep.lsp-error",
-        undefined,
-        { reason: "closed" },
-        { secondsSinceStart: (Date.now() - startTime) / 1000 },
-      );
-      return defaultErrorHandler.closed();
-    },
-  };
-}
-
-function sendLanguageServerTelemetry(
-  telemetry: Telemetry,
-  telemetryData: { eventName: string; properties: Record<string, string | undefined> },
-): void {
-  const rule = languageServerTelemetryRules[telemetryData.eventName];
-  if (!rule) {
-    return;
-  }
-
-  const properties: Record<string, string> = {};
-  for (const propertyName of rule.properties ?? []) {
-    const value = telemetryData.properties[propertyName];
-    if (value) {
-      properties[propertyName] = value;
-    }
-  }
-
-  const measurements: Record<string, number> = {};
-  for (const measurementName of rule.measurements ?? []) {
-    const value = Number(telemetryData.properties[measurementName]);
-    if (Number.isFinite(value)) {
-      measurements[measurementName] = value;
-    }
-  }
-
-  const isError =
-    languageServerErrorEvents.has(telemetryData.eventName) ||
-    (telemetryData.eventName === "deploy/result" && telemetryData.properties.result !== "Succeeded");
-  const eventProperties = Object.keys(properties).length > 0 ? properties : undefined;
-  const eventMeasurements = Object.keys(measurements).length > 0 ? measurements : undefined;
-
-  if (isError) {
-    telemetry.sendError(telemetryData.eventName, undefined, eventProperties, eventMeasurements);
-  } else {
-    telemetry.sendEvent(telemetryData.eventName, eventProperties, eventMeasurements);
-  }
 }

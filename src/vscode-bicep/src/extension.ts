@@ -26,7 +26,7 @@ import {
 } from "./infrastructure/language-client";
 import { Disposable } from "./infrastructure/lifecycle";
 import {
-  activateWithTelemetryAndErrorHandling,
+  activateWithErrorHandling,
   createLogger,
   createLogOutputChannel,
   getLogger,
@@ -34,7 +34,6 @@ import {
   resetLogger,
 } from "./infrastructure/logging";
 import { Prompts } from "./infrastructure/prompts";
-import { BicepTelemetry } from "./infrastructure/telemetry";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -57,16 +56,10 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
 
   extension.register(outputChannel);
   extension.register(createLogger(extensionContext, outputChannel));
-  const telemetry = extension.register(
-    new BicepTelemetry(
-      (extensionContext.extension.packageJSON as { aiKey: string }).aiKey,
-      process.env.BICEP_TELEMETRY_DISABLED !== "true",
-    ),
-  );
   const prompts = new Prompts(extensionContext.globalState);
 
   // Activate and launch language server
-  await activateWithTelemetryAndErrorHandling(telemetry, async () => {
+  await activateWithErrorHandling(async () => {
     await window.withProgress(
       {
         location: ProgressLocation.Window,
@@ -76,7 +69,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
         const dotnetCommandPath = await ensureDotnetRuntimeInstalled();
 
         progress.report({ message: "Launching language service" });
-        languageClient = await createLanguageService(extensionContext, outputChannel, dotnetCommandPath, telemetry);
+        languageClient = await createLanguageService(extensionContext, outputChannel, dotnetCommandPath);
 
         progress.report({ message: "Registering commands" });
         surveys.setGlobalStateKeysToSyncBetweenMachines(extensionContext.globalState);
@@ -91,7 +84,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
         );
 
         // Register commands.
-        const commandManager = extension.register(new CommandManager(extensionContext, telemetry));
+        const commandManager = extension.register(new CommandManager(extensionContext));
         await activateVisualizationFeature(
           extension,
           extension.extensionUri,

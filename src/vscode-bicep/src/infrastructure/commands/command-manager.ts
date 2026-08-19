@@ -6,7 +6,6 @@ import * as fse from "fs-extra";
 import { commands, ExtensionContext, Uri } from "vscode";
 import { runWithErrorHandling } from "../errors";
 import { Disposable } from "../lifecycle";
-import { Telemetry } from "../telemetry";
 
 export interface Command {
   readonly id: string;
@@ -21,10 +20,7 @@ export interface Command {
 export class CommandManager extends Disposable {
   private _packageJson: IPackageJson | undefined;
 
-  public constructor(
-    private readonly extensionContext: ExtensionContext,
-    private readonly telemetry: Telemetry,
-  ) {
+  public constructor(private readonly extensionContext: ExtensionContext) {
     super();
   }
 
@@ -45,9 +41,7 @@ export class CommandManager extends Disposable {
           args = args.slice(1);
         }
 
-        return await runWithErrorHandling(async () => await command.execute(documentUri, ...args), {
-          onError: (error) => this.telemetry.sendError("command/error", error, { commandId: command.id }),
-        });
+        return await runWithErrorHandling(async () => await command.execute(documentUri, ...args));
       }),
     );
   }

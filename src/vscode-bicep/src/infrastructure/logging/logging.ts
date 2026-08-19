@@ -5,7 +5,6 @@ import vscode from "vscode";
 import * as winston from "winston";
 import Transport from "winston-transport";
 import { parseError } from "../errors";
-import { Telemetry } from "../telemetry";
 
 /**
  * This logfile is written during to E2E tests. It serves as a way to watch for events from the code
@@ -137,22 +136,16 @@ export function resetLogger(): void {
   logger = undefined;
 }
 
-export async function activateWithTelemetryAndErrorHandling(
-  telemetry: Telemetry,
-  activateCallback: () => Promise<void>,
-): Promise<void> {
+export async function activateWithErrorHandling(activateCallback: () => Promise<void>): Promise<void> {
   const startTime = Date.now();
 
   try {
     await activateCallback();
   } catch (error) {
-    const duration = (Date.now() - startTime) / 1000;
     getLogger().error(parseError(error).message);
-    telemetry.sendError("bicep.activate", error, undefined, { duration });
     throw error;
   }
 
   const duration = (Date.now() - startTime) / 1000;
   getLogger().info(`Bicep extension activated in ${duration}s.`);
-  telemetry.sendEvent("bicep.activate", undefined, { duration });
 }
