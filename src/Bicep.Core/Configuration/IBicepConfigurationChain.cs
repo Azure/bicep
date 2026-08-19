@@ -18,6 +18,12 @@ public interface IBicepConfigurationChain
     IBicepConfiguration GetEffectiveConfiguration();
 
     /// <summary>
+    /// Returns diagnostics grouped by the config file URI they originated from.
+    /// Only user-defined config files are included (built-in defaults are excluded).
+    /// </summary>
+    DiagnosticsPerFile GetDiagnosticsByConfigFile();
+
+    /// <summary>
     /// The number of configuration files in the chain.
     /// </summary>
     int LayerCount { get; }

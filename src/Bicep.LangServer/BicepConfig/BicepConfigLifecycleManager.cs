@@ -77,22 +77,37 @@ namespace Bicep.LanguageServer.BicepConfig
         private void PublishConfigDiagnostics(DocumentUri documentUri)
         {
             var chain = bicepConfigurationManager.GetConfigurationChain(documentUri.ToIOUri());
-            var diagnostics = chain.GetEffectiveConfiguration().GetDiagnostics();
+            var diagnosticsByFile = chain.GetDiagnosticsByConfigFile().ToList();
 
-            var lspDiagnostics = diagnostics.Select(d => new LspDiagnostic
+            if (diagnosticsByFile.All(kvp => kvp.Value.IsEmpty))
             {
-                Severity = ToLspSeverity(d.Level),
-                Code = new DiagnosticCode(d.Code),
-                Message = d.Message,
-                Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range(0, 0, 0, 0),
-                Source = "bicep"
-            });
+                // No diagnostics in any layer — clear stale squiggles on the active file.
+                server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
+                {
+                    Uri = documentUri,
+                    Diagnostics = new Container<LspDiagnostic>()
+                });
+                return;
+            }
 
-            server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
+            // Publish squiggles to each config file that has diagnostics.
+            foreach (var (fileUri, diagnostics) in diagnosticsByFile)
             {
-                Uri = documentUri,
-                Diagnostics = new Container<LspDiagnostic>(lspDiagnostics)
-            });
+                if (diagnostics.IsEmpty) { continue; }
+
+                server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
+                {
+                    Uri = DocumentUri.From(fileUri.ToUri()),
+                    Diagnostics = new Container<LspDiagnostic>(diagnostics.Select(d => new LspDiagnostic
+                    {
+                        Severity = ToLspSeverity(d.Level),
+                        Code = new DiagnosticCode(d.Code),
+                        Message = d.Message,
+                        Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range(0, 0, 0, 0),
+                        Source = "bicep"
+                    }))
+                });
+            }
         }
 
         private static DiagnosticSeverity ToLspSeverity(DiagnosticLevel level) => level switch
