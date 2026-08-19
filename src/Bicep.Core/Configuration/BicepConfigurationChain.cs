@@ -74,7 +74,7 @@ public class BicepConfigurationChain : IBicepConfigurationChain
     /// Returns diagnostics grouped by the config file URI they originated from.
     /// Built-in default layers (no <see cref="IBicepConfiguration.ConfigFileUri"/>) are excluded.
     /// </summary>
-    public DiagnosticsPerFile GetDiagnosticsByConfigFile()
+    public DiagnosticsPerFile EnumerateDiagnosticsPerFile()
         => this.layers
             .Where(layer => !layer.IsBuiltIn)
             .Select(layer => new KeyValuePair<IOUri, ImmutableArray<IDiagnostic>>(

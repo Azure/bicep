@@ -195,6 +195,42 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
+        public void HandleBicepConfigOpenEvent_WithCyclicExtends_PublishesBCP454ToConfigFileUri()
+        {
+            var mockFileSystem = new MockFileSystem();
+            mockFileSystem.AddFile("/a/bicepconfig.json", """{ "extends": "./b/bicepconfig.json" }""");
+            mockFileSystem.AddFile("/a/b/bicepconfig.json", """{ "extends": "../bicepconfig.json" }""");
+
+            PublishDiagnosticsParams? receivedParams = null;
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
+            ILanguageServerFacade server = BicepCompilationManagerHelper.CreateMockServer(document).Object;
+
+            var fileExplorer = new FileSystemFileExplorer(mockFileSystem);
+            var bicepConfigManager = new BicepConfigurationManager(fileExplorer);
+            var configurationManager = new ConfigurationManager(fileExplorer, bicepConfigManager);
+            var workspace = new ActiveSourceFileSet();
+            var bicepCompilationManager = new BicepCompilationManager(
+                server,
+                BicepCompilationManagerHelper.CreateEmptyCompilationProvider(configurationManager),
+                workspace,
+                BicepCompilationManagerHelper.CreateMockScheduler().Object,
+                new SourceFileFactory(configurationManager, BicepTestConstants.FeatureProviderFactory, BicepTestConstants.AuxiliaryFileCache, BicepTestConstants.FileExplorer),
+                BicepTestConstants.AuxiliaryFileCache);
+
+            var lifecycleManager = new BicepConfigLifecycleManager(
+                bicepCompilationManager,
+                configurationManager,
+                bicepConfigManager,
+                server);
+
+            var configUri = DocumentUri.From(InMemoryFileResolver.GetFileUri("/a/bicepconfig.json"));
+            lifecycleManager.HandleBicepConfigOpenEvent(configUri);
+
+            receivedParams.Should().NotBeNull();
+            receivedParams!.Diagnostics.Should().ContainSingle(d => d.Code!.Value.String == "BCP454");
+        }
+
+        [TestMethod]
         public void RefreshCompilationOfSourceFilesInWorkspace_WithoutBicepConfigFile_ShouldUseDefaultConfigAndRefreshCompilation()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
