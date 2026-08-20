@@ -2,6 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Bicep.RpcClient.JsonRpc;
 using Bicep.RpcClient.Models;
 using FluentAssertions;
@@ -14,6 +18,99 @@ public class BicepClientUnitTests
     public TestContext TestContext { get; set; } = null!;
 
     private CancellationToken Token => TestContext.CancellationTokenSource.Token;
+
+    [TestMethod]
+    public void Docs_model_definition_round_trips_through_the_json_rpc_serializer()
+    {
+        // The RPC client serializes with System.Text.Json on netstandard2.0. This guards the
+        // ImmutableSortedDictionary and nested ImmutableArray members of the docs model.
+        var options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            WriteIndented = false,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        };
+
+        var response = new GetDocsModelResponse([
+            new(
+                "main.bicep",
+                true,
+                [],
+                new DocsModelDefinition(
+                    "Module",
+                    "A module.",
+                    "main.bicep",
+                    "resourceGroup",
+                    ImmutableSortedDictionary<string, string>.Empty
+                        .Add("owner", "Platform")
+                        .Add("team", "Core"),
+                    [new("Microsoft.Storage/storageAccounts@2023-05-01", IsExisting: false)],
+                    [
+                        new(
+                            "sku",
+                            "skuType",
+                            IsRequired: true,
+                            IsSecure: false,
+                            "The SKU.",
+                            DefaultValue: null,
+                            AllowedValues: [],
+                            MinValue: null,
+                            MaxValue: null,
+                            MinLength: null,
+                            MaxLength: null,
+                            Pattern: null,
+                            IsTruncated: false,
+                            NestedProperties:
+                            [
+                                new(
+                                    "name",
+                                    "string",
+                                    IsRequired: true,
+                                    IsSecure: false,
+                                    "The SKU name.",
+                                    DefaultValue: null,
+                                    AllowedValues: ["Premium_LRS", "Standard_LRS"],
+                                    MinValue: null,
+                                    MaxValue: null,
+                                    MinLength: 3,
+                                    MaxLength: 24,
+                                    Pattern: "^[a-z]+$",
+                                    IsTruncated: false,
+                                    NestedProperties: [],
+                                    Discriminator: null),
+                            ],
+                            Discriminator: new(
+                                "kind",
+                                [new("StorageV2", [])])),
+                    ],
+                    [new("resourceId", "string", IsSecure: false, "The resource id.")],
+                    ExportedTypes: [],
+                    ExportedVariables: [],
+                    ExportedFunctions: [new("buildName", [new("prefix", "string", null)], "string", null)],
+                    References: [new("child", "./child.bicep", "The child module.")],
+                    UsageExamples: [new("Default", "examples/default/main.bicep", null, "module x '../../main.bicep' = {}")])),
+        ]);
+
+        var json = JsonSerializer.Serialize(response, options);
+        json.Should().Contain("\"typeName\"").And.Contain("\"isRequired\"").And.Contain("\"nestedProperties\"");
+
+        var deserialized = JsonSerializer.Deserialize<GetDocsModelResponse>(json, options);
+
+        deserialized.Should().NotBeNull();
+        var model = deserialized!.Results.Single().Model;
+        model.Should().NotBeNull();
+        model!.Custom.Should().Equal(response.Results[0].Model!.Custom);
+        model.ResourceTypes.Should().ContainSingle();
+        model.Parameters.Should().ContainSingle();
+        model.Parameters[0].NestedProperties.Should().ContainSingle();
+        model.Parameters[0].NestedProperties[0].AllowedValues.Should().Equal("Premium_LRS", "Standard_LRS");
+        model.Parameters[0].NestedProperties[0].MaxLength.Should().Be(24);
+        model.Parameters[0].Discriminator!.Cases.Should().ContainSingle();
+        model.ExportedFunctions[0].Parameters.Should().ContainSingle();
+        model.References[0].Path.Should().Be("./child.bicep");
+        model.UsageExamples[0].RelativePath.Should().Be("examples/default/main.bicep");
+    }
 
     [TestMethod]
     public async Task GetVersion_caches_result_and_does_not_re_issue_request()
@@ -126,96 +223,135 @@ public class BicepClientUnitTests
     }
 
     [TestMethod]
-    public async Task GenerateDocs_forwards_request_to_the_expected_method()
+    public async Task RenderDocs_forwards_request_to_the_expected_method()
     {
         var rpc = new FakeJsonRpcClient();
-        rpc.SetResponse("bicep/version", new VersionResponse("0.46.0"));
-        rpc.SetResponse("bicep/generateDocs", new GenerateDocsResponse([]));
+        rpc.SetResponse("bicep/version", new VersionResponse("0.47.0"));
+        rpc.SetResponse(
+            "bicep/renderDocs",
+            new RenderDocsResponse([new("main.bicep", true, [], "# Module\n")]));
         using var client = new BicepClient(rpc);
 
-        var result = await client.GenerateDocs(
-            new(["main.bicep"], null, null, null, null, NoRestore: false),
+        var result = await client.RenderDocs(
+            new(["main.bicep"], null, null, null, NoRestore: false),
             Token);
 
-        result.Results.Should().BeEmpty();
-        rpc.CallCount("bicep/generateDocs").Should().Be(1);
+        result.Results.Should().ContainSingle();
+        result.Results[0].Contents.Should().Be("# Module\n");
+        rpc.CallCount("bicep/renderDocs").Should().Be(1);
     }
 
     [TestMethod]
-    public async Task OutputDocs_forwards_request_to_the_expected_method()
+    public async Task GetDocsModel_forwards_request_to_the_expected_method()
     {
         var rpc = new FakeJsonRpcClient();
-        rpc.SetResponse("bicep/version", new VersionResponse("0.46.0"));
-        rpc.SetResponse(
-            "bicep/outputDocs",
-            new OutputDocsResponse(new("main.bicep", null, true, [], "# Module\n")));
+        rpc.SetResponse("bicep/version", new VersionResponse("0.47.0"));
+        rpc.SetResponse("bicep/getDocsModel", new GetDocsModelResponse([]));
         using var client = new BicepClient(rpc);
 
-        var result = await client.OutputDocs(
-            new("main.bicep", null, null, null, NoRestore: false),
+        var result = await client.GetDocsModel(
+            new(["main.bicep"], NoRestore: false),
             Token);
 
-        result.Result.Contents.Should().Be("# Module\n");
-        rpc.CallCount("bicep/outputDocs").Should().Be(1);
+        result.Results.Should().BeEmpty();
+        rpc.CallCount("bicep/getDocsModel").Should().Be(1);
     }
 
     [TestMethod]
     public void Docs_models_expose_constructor_values()
     {
         var custom = new Dictionary<string, string> { ["owner"] = "Platform" };
-        var generateRequest = new GenerateDocsRequest(
+        var renderRequest = new RenderDocsRequest(
             ["main.bicep"],
             "template.scriban",
             "templates",
             custom,
-            "docs.md",
             NoRestore: true);
-        var outputRequest = new OutputDocsRequest(
-            "main.bicep",
-            "template.scriban",
-            "templates",
-            custom,
+        var modelRequest = new GetDocsModelRequest(
+            ["main.bicep"],
             NoRestore: true);
-        var result = new DocsResult("main.bicep", "docs.md", true, [], "# Module\n");
+        var result = new DocsResult("main.bicep", true, [], "# Module\n");
 
-        generateRequest.Paths.Should().Equal("main.bicep");
-        generateRequest.TemplateFile.Should().Be("template.scriban");
-        generateRequest.TemplateRoot.Should().Be("templates");
-        generateRequest.Custom.Should().BeSameAs(custom);
-        generateRequest.OutputFile.Should().Be("docs.md");
-        generateRequest.NoRestore.Should().BeTrue();
-        outputRequest.Path.Should().Be("main.bicep");
-        outputRequest.TemplateFile.Should().Be("template.scriban");
-        outputRequest.TemplateRoot.Should().Be("templates");
-        outputRequest.Custom.Should().BeSameAs(custom);
-        outputRequest.NoRestore.Should().BeTrue();
+        renderRequest.Paths.Should().Equal("main.bicep");
+        renderRequest.TemplateFile.Should().Be("template.scriban");
+        renderRequest.TemplateRoot.Should().Be("templates");
+        renderRequest.CustomTemplateValues.Should().BeSameAs(custom);
+        renderRequest.NoRestore.Should().BeTrue();
+        modelRequest.Paths.Should().Equal("main.bicep");
+        modelRequest.NoRestore.Should().BeTrue();
         result.Path.Should().Be("main.bicep");
-        result.OutputPath.Should().Be("docs.md");
         result.Success.Should().BeTrue();
         result.Diagnostics.Should().BeEmpty();
         result.Contents.Should().Be("# Module\n");
     }
 
     [TestMethod]
+    public void Docs_model_definition_exposes_constructor_values()
+    {
+        var parameter = new DocsModelDefinition.ParameterDefinition(
+            "location",
+            "string",
+            IsRequired: false,
+            IsSecure: false,
+            "Deployment location.",
+            "'westeurope'",
+            ["westeurope", "eastus"],
+            MinValue: null,
+            MaxValue: null,
+            MinLength: 1,
+            MaxLength: 64,
+            "^[a-z]+$",
+            IsTruncated: false,
+            NestedProperties: [],
+            Discriminator: null);
+
+        var model = new DocsModelDefinition(
+            "Module",
+            "A module.",
+            "main.bicep",
+            "resourceGroup",
+            ImmutableSortedDictionary<string, string>.Empty.Add("owner", "Platform"),
+            [new("Microsoft.Storage/storageAccounts@2023-05-01", IsExisting: false)],
+            [parameter],
+            [new("id", "string", IsSecure: false, "Resource id.")],
+            ExportedTypes: [],
+            ExportedVariables: [],
+            ExportedFunctions: [],
+            References: [],
+            UsageExamples: []);
+
+        model.Name.Should().Be("Module");
+        model.TargetScope.Should().Be("resourceGroup");
+        model.Custom["owner"].Should().Be("Platform");
+        model.ResourceTypes.Should().ContainSingle();
+        model.Parameters.Should().ContainSingle();
+        model.Parameters[0].TypeName.Should().Be("string");
+        model.Parameters[0].AllowedValues.Should().Equal("westeurope", "eastus");
+        model.Parameters[0].MaxLength.Should().Be(64);
+        model.Outputs.Should().ContainSingle();
+        model.Outputs[0].Name.Should().Be("id");
+    }
+
+    [TestMethod]
     public async Task Docs_methods_throw_when_cli_version_is_below_minimum()
     {
         var rpc = new FakeJsonRpcClient();
-        rpc.SetResponse("bicep/version", new VersionResponse("0.45.0"));
+        rpc.SetResponse("bicep/version", new VersionResponse("0.46.1"));
         using var client = new BicepClient(rpc);
 
-        await FluentActions.Invoking(() => client.GenerateDocs(
-                new(["main.bicep"], null, null, null, null, NoRestore: false),
+        await FluentActions.Invoking(() => client.RenderDocs(
+                new(["main.bicep"], null, null, null, NoRestore: false),
                 Token))
             .Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*requires Bicep CLI version '0.46.0' or later*");
-        await FluentActions.Invoking(() => client.OutputDocs(
-                new("main.bicep", null, null, null, NoRestore: false),
+            .WithMessage("*requires Bicep CLI version '0.47.0' or later*");
+        await FluentActions.Invoking(() => client.GetDocsModel(
+                new(["main.bicep"], NoRestore: false),
                 Token))
             .Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*requires Bicep CLI version '0.46.0' or later*");
+            .WithMessage("*requires Bicep CLI version '0.47.0' or later*");
 
-        rpc.CallCount("bicep/generateDocs").Should().Be(0);
-        rpc.CallCount("bicep/outputDocs").Should().Be(0);
+        rpc.CallCount("bicep/renderDocs").Should().Be(0);
+        rpc.CallCount("bicep/getDocsModel").Should().Be(0);
     }
 
     [TestMethod]
