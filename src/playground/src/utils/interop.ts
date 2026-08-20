@@ -3,14 +3,17 @@
 import { editor, languages } from "monaco-editor";
 import { getQuickstartsLink } from "./examples";
 
+const interopInitializationTimeoutMs = 30_000;
+
 type DecompileResult = {
-  bicepFile?: string;
-  error?: string;
+  bicepFile: string | null;
+  error: string | null;
 };
 
 type CompileResult = {
   template: string;
   diagnostics: editor.IMarkerData[];
+  error?: string;
 };
 
 export interface DotnetInterop {
@@ -23,48 +26,109 @@ export interface DotnetInterop {
   decompile(jsonContent: string): Promise<DecompileResult>;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getDotnetInterop(interop: any): DotnetInterop {
+interface DotnetObject {
+  invokeMethod<TResult>(methodName: string, ...args: unknown[]): TResult;
+  invokeMethodAsync<TResult>(
+    methodName: string,
+    ...args: unknown[]
+  ): Promise<TResult>;
+}
+
+interface InteropHost extends Window {
+  LoadQuickstartsFile?: (filePath: string) => Promise<string | null>;
+  InteropInitialize?: (interop: DotnetObject) => void;
+}
+
+function getDotnetInterop(interop: DotnetObject): DotnetInterop {
   return {
     getSemanticTokensLegend: () =>
-      interop.invokeMethod("GetSemanticTokensLegend"),
+      interop.invokeMethod<languages.SemanticTokensLegend>(
+        "GetSemanticTokensLegend",
+      ),
     getSemanticTokens: (content) =>
-      interop.invokeMethodAsync("GetSemanticTokens", content),
+      interop.invokeMethodAsync<languages.SemanticTokens>(
+        "GetSemanticTokens",
+        content,
+      ),
     compileAndEmitDiagnostics: (content, sourcePath) =>
-      interop.invokeMethodAsync(
+      interop.invokeMethodAsync<CompileResult>(
         "CompileAndEmitDiagnostics",
         content,
         sourcePath,
       ),
-    decompile: (content) => interop.invokeMethodAsync("Decompile", content),
+    decompile: (content) =>
+      interop.invokeMethodAsync<DecompileResult>("Decompile", content),
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function initializeInterop(self: any) {
-  return new Promise<DotnetInterop>((resolve) => {
-    self["LoadQuickstartsFile"] = async (filePath: string) => {
-      try {
-        const response = await fetch(getQuickstartsLink(filePath));
+export function initializeInterop(
+  self: InteropHost,
+  timeoutMs = interopInitializationTimeoutMs,
+) {
+  return new Promise<DotnetInterop>((resolve, reject) => {
+    let settled = false;
+    const script = document.createElement("script");
 
-        if (!response.ok) {
-          return null;
-        }
+    const cleanupFailedInitialization = () => {
+      script.remove();
 
-        return await response.text();
-      } catch {
-        return null;
+      if (self.InteropInitialize === completeInitialization) {
+        delete self.InteropInitialize;
       }
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    self["InteropInitialize"] = (newInterop: any) => {
+    const failInitialization = (error: Error) => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      window.clearTimeout(timeout);
+      cleanupFailedInitialization();
+      reject(error);
+    };
+
+    const completeInitialization = (newInterop: DotnetObject) => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      window.clearTimeout(timeout);
       resolve(getDotnetInterop(newInterop));
     };
 
+    const timeout = window.setTimeout(
+      () =>
+        failInitialization(
+          new Error(
+            "The Bicep compiler took too long to initialize. Check your connection and try again.",
+          ),
+        ),
+      timeoutMs,
+    );
+
+    self.LoadQuickstartsFile = async (filePath: string) => {
+      const response = await fetch(getQuickstartsLink(filePath));
+
+      if (!response.ok) {
+        return null;
+      }
+
+      return await response.text();
+    };
+
+    self.InteropInitialize = completeInitialization;
+
     // this is necessary to invoke the Blazor startup code - do not remove it!
-    const s = document.createElement("script");
-    s.setAttribute("src", "_framework/blazor.webassembly.js");
-    document.body.appendChild(s);
+    script.src = "_framework/blazor.webassembly.js";
+    script.addEventListener("error", () =>
+      failInitialization(
+        new Error(
+          "The Bicep compiler could not be downloaded. Check your connection and try again.",
+        ),
+      ),
+    );
+    document.body.appendChild(script);
   });
 }

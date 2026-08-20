@@ -23,10 +23,11 @@ namespace Bicep.Wasm
 
         public record DecompileResult(string? bicepFile, string? error);
 
-        public record CompileResult(string template, object diagnostics);
+        public record CompileResult(string template, object diagnostics, string? error = null);
 
         private readonly IJSRuntime jsRuntime;
         private readonly IServiceProvider serviceProvider;
+        private readonly SemaphoreSlim compilationLock = new(1, 1);
 
         public Interop(IJSRuntime jsRuntime, IServiceProvider serviceProvider)
         {
@@ -37,6 +38,8 @@ namespace Bicep.Wasm
         [JSInvokable]
         public async Task<CompileResult> CompileAndEmitDiagnostics(string content, string? sourcePath)
         {
+            await compilationLock.WaitAsync();
+
             try
             {
                 var compilation = await GetCompilation(content, sourcePath);
@@ -59,7 +62,11 @@ namespace Bicep.Wasm
             }
             catch (Exception exception)
             {
-                return new(exception.ToString(), Enumerable.Empty<object>());
+                return new(string.Empty, Enumerable.Empty<object>(), exception.Message);
+            }
+            finally
+            {
+                compilationLock.Release();
             }
         }
 
@@ -97,42 +104,51 @@ namespace Bicep.Wasm
         [JSInvokable]
         public async Task<object> GetSemanticTokens(string content)
         {
-            var compilation = await GetCompilation(content);
-            var tokens = GetTokenPositions(compilation.GetEntrypointSemanticModel());
+            await compilationLock.WaitAsync();
 
-            var data = new List<int>();
-            TokenPosition? prevToken = null;
-            foreach (var token in tokens)
+            try
             {
-                if (prevToken == null)
+                var compilation = await GetCompilation(content);
+                var tokens = GetTokenPositions(compilation.GetEntrypointSemanticModel());
+
+                var data = new List<int>();
+                TokenPosition? prevToken = null;
+                foreach (var token in tokens)
                 {
-                    data.Add(token.Line);
-                    data.Add(token.Character);
-                    data.Add(token.Length);
-                }
-                else if (prevToken.Line != token.Line)
-                {
-                    data.Add(token.Line - prevToken.Line);
-                    data.Add(token.Character);
-                    data.Add(token.Length);
-                }
-                else
-                {
+                    if (prevToken == null)
+                    {
+                        data.Add(token.Line);
+                        data.Add(token.Character);
+                        data.Add(token.Length);
+                    }
+                    else if (prevToken.Line != token.Line)
+                    {
+                        data.Add(token.Line - prevToken.Line);
+                        data.Add(token.Character);
+                        data.Add(token.Length);
+                    }
+                    else
+                    {
+                        data.Add(0);
+                        data.Add(token.Character - prevToken.Character);
+                        data.Add(token.Length);
+                    }
+
+                    data.Add((int)token.TokenType);
                     data.Add(0);
-                    data.Add(token.Character - prevToken.Character);
-                    data.Add(token.Length);
+
+                    prevToken = token;
                 }
 
-                data.Add((int)token.TokenType);
-                data.Add(0);
-
-                prevToken = token;
+                return new
+                {
+                    data = data.ToArray(),
+                };
             }
-
-            return new
+            finally
             {
-                data = data.ToArray(),
-            };
+                compilationLock.Release();
+            }
         }
 
         private async Task<Compilation> GetCompilation(string fileContents, string? sourcePath = null)
