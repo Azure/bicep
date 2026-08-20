@@ -771,9 +771,7 @@
     "@azure/arm-resources": "^8.0.0",
     "@azure/arm-resources-subscriptions": "^3.0.0",
     "@azure/core-auth": "^1.10.1",
-    "vscode-languageclient": "^10.1.0",
-    "winston": "^3.17.0",
-    "winston-transport": "^4.9.0"
+    "vscode-languageclient": "^10.1.0"
   },
   "extensionDependencies": [
     "ms-dotnettools.vscode-dotnet-runtime"
