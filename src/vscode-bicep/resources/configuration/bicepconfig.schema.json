@@ -157,6 +157,11 @@
   "type": "object",
   "default": {},
   "properties": {
+    "extends": {
+      "title": "Extends",
+      "description": "Relative path to a base bicepconfig.json to inherit settings from. Absolute paths are not allowed.",
+      "type": "string"
+    },
     "cloud": {
       "title": "Cloud",
       "type": "object",
