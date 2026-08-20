@@ -7,12 +7,10 @@ export interface BicepDecompileForPasteCommandParams {
   rangeOffset: number;
   rangeLength: number;
   jsonContent: string;
-  queryCanPaste: boolean;
   languageId: string;
 }
 
 export interface BicepDecompileForPasteCommandResult {
-  decompileId: string;
   output: string;
   errorMessage?: string;
   pasteContext?: "none" | "string";

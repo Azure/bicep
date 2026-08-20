@@ -23,7 +23,6 @@ using Bicep.IO.FileSystem;
 using Bicep.LangServer.IntegrationTests;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.UnitTests.Mocks;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Bicep.LanguageServer.Features.Language.DocumentLink;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -105,19 +104,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var resolvedLinks = new List<DocumentLink<ExternalSourceDocumentLinkData>>();
             foreach (var link in links)
             {
-                var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
-                telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
-
-                var resolvedLink = await BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink(link, moduleDispatcher, sourceFileFactory, server.Mock.Object, telemetryProvider.Object);
+                var resolvedLink = await BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink(link, moduleDispatcher, sourceFileFactory, server.Mock.Object);
                 resolvedLinks.Add(resolvedLink);
-
-                telemetryProvider.Verify(m => m.PostEvent(It.Is<BicepTelemetryEvent>(
-                    p => (p.EventName == TelemetryConstants.EventNames.ExternalSourceDocLinkClickSuccess
-                        || p.EventName == TelemetryConstants.EventNames.ExternalSourceDocLinkClickFailure)
-                    && p.Properties != null
-                    )), Times.Exactly(1));
-
-                telemetryProvider.VerifyNoOtherCalls();
             }
 
             return (

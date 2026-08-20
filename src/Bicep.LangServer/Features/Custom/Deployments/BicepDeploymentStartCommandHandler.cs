@@ -9,7 +9,6 @@ using Bicep.Core.Json;
 using Bicep.Core.Tracing;
 using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Features.Custom.Deployments.Services;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Bicep.LanguageServer.Utils;
 using MediatR;
 using Newtonsoft.Json.Linq;
@@ -48,18 +47,16 @@ namespace Bicep.LanguageServer.Features.Custom.Deployments
     {
         private readonly IDeploymentCollectionProvider deploymentCollectionProvider;
         private readonly IDeploymentOperationsCache deploymentOperationsCache;
-        private readonly ITelemetryProvider telemetryProvider;
         private readonly BicepCompiler bicepCompiler;
         private readonly ICompilationManager compilationManager;
         private readonly IArmClientProvider armClientProvider;
         private readonly IDeploymentHelper deploymentHelper;
 
-        public BicepDeploymentStartCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, IDeploymentOperationsCache deploymentOperationsCache, BicepCompiler bicepCompiler, ICompilationManager compilationManager, ISerializer serializer, ITelemetryProvider telemetryProvider, IArmClientProvider armClientProvider, IDeploymentHelper deploymentHelper)
+        public BicepDeploymentStartCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, IDeploymentOperationsCache deploymentOperationsCache, BicepCompiler bicepCompiler, ICompilationManager compilationManager, ISerializer serializer, IArmClientProvider armClientProvider, IDeploymentHelper deploymentHelper)
             : base(LangServerConstants.DeployStartCommand, serializer)
         {
             this.deploymentCollectionProvider = deploymentCollectionProvider;
             this.deploymentOperationsCache = deploymentOperationsCache;
-            this.telemetryProvider = telemetryProvider;
             this.bicepCompiler = bicepCompiler;
             this.compilationManager = compilationManager;
             this.armClientProvider = armClientProvider;
@@ -68,8 +65,6 @@ namespace Bicep.LanguageServer.Features.Custom.Deployments
 
         public override async Task<BicepDeploymentStartResponse> Handle(BicepDeploymentStartParams request, CancellationToken cancellationToken)
         {
-            PostDeployStartTelemetryEvent(request.deployId);
-
             var options = new ArmClientOptions();
             options.Diagnostics.ApplySharedResourceManagerSettings();
             options.Environment = new ArmEnvironment(new Uri(request.resourceManagerEndpointUrl), request.audience);
@@ -151,26 +146,7 @@ namespace Bicep.LanguageServer.Features.Custom.Deployments
                 JsonElementFactory.CreateElement(parametersFileJson),
                 deploymentOperationsCache);
 
-            PostDeployStartResultTelemetryEvent(request.deployId, bicepDeploymentStartResponse.isSuccess);
-
             return bicepDeploymentStartResponse;
-        }
-
-        private void PostDeployStartTelemetryEvent(string deployId)
-        {
-            var telemetryEvent = BicepTelemetryEvent.CreateDeployStart(deployId);
-
-            telemetryProvider.PostEvent(telemetryEvent);
-        }
-
-        private void PostDeployStartResultTelemetryEvent(string deployId, bool isSuccess)
-        {
-            var telemetryEvent = BicepTelemetryEvent.CreateDeployStartOrWaitForCompletionResult(
-                TelemetryConstants.EventNames.DeployStartResult,
-                deployId,
-                isSuccess);
-
-            telemetryProvider.PostEvent(telemetryEvent);
         }
 
         public async Task<BicepparamCompilationResult> TryCompileBicepparamFile(string parametersFilePath)

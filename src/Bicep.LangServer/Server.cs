@@ -18,7 +18,6 @@ using Bicep.LanguageServer.Features.Custom.Linter;
 using Bicep.LanguageServer.Features.Custom.LocalDeploy;
 using Bicep.LanguageServer.Features.Custom.ModuleRestore;
 using Bicep.LanguageServer.Features.Custom.Parameters;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Bicep.LanguageServer.Features.Custom.Visualization;
 using Bicep.LanguageServer.Features.Language.CodeAction;
 using Bicep.LanguageServer.Features.Language.CodeLens;
@@ -102,7 +101,6 @@ namespace Bicep.LanguageServer
                     .WithHandler<LocalDeployHandler>()
                     .WithHandler<BicepForceModulesRestoreCommandHandler>()
                     .WithHandler<BicepGenerateParamsCommandHandler>()
-                    .WithHandler<BicepTelemetryHandler>()
                     .WithHandler<VisualGraphUpdateHandler>()
                     .WithHandler<VisualGraphLayoutHandler>()
                     .WithHandler<VisualGraphNodeSourceHandler>()

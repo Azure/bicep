@@ -16,7 +16,6 @@ using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.ClientCapabilities;
 using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Bicep.LanguageServer.Features.Language.Completion;
 using Bicep.LanguageServer.Utils;
 using Newtonsoft.Json.Linq;
@@ -180,13 +179,6 @@ namespace Bicep.LanguageServer.Features.Language.CodeAction
                 };
             }
 
-            BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateDisableNextLineDiagnostics(diagnosticCode.String);
-            var telemetryCommand = TelemetryHelper.CreateCommand(
-                title: "disable next line diagnostics code action",
-                name: TelemetryConstants.CommandName,
-                args: JArray.FromObject(new List<object> { telemetryEvent })
-            );
-
             return new LspCodeAction
             {
                 Title = string.Format(LangServerResources.DisableDiagnosticForThisLine, diagnosticCode.String),
@@ -196,8 +188,7 @@ namespace Bicep.LanguageServer.Features.Language.CodeAction
                     {
                         [documentUri] = new List<TextEdit> { textEdit }
                     }
-                },
-                Command = telemetryCommand
+                }
             };
         }
 
@@ -206,12 +197,12 @@ namespace Bicep.LanguageServer.Features.Language.CodeAction
             return new LspCodeAction
             {
                 Title = String.Format(LangServerResources.EditLinterRuleActionTitle, ruleName),
-                Command = TelemetryHelper.CreateCommand
-                (
-                    title: "edit linter rule code action",
-                    name: LangServerConstants.EditLinterRuleCommandName,
-                    args: JArray.FromObject(new List<object> { documentUri, ruleName, configFileIdentifier?.ToString() ?? string.Empty /* (passing null not allowed) */ })
-                )
+                Command = new Command
+                {
+                    Title = "edit linter rule code action",
+                    Name = LangServerConstants.EditLinterRuleCommandName,
+                    Arguments = JArray.FromObject(new List<object> { documentUri, ruleName, configFileIdentifier?.ToString() ?? string.Empty /* (passing null not allowed) */ })
+                }
             };
         }
 

@@ -16,7 +16,6 @@ using Bicep.Core.Registry.Catalog.Implementation;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Bicep.LanguageServer.Settings;
 using Bicep.LanguageServer.Utils;
 using Microsoft.VisualBasic;
@@ -36,7 +35,6 @@ namespace Bicep.LanguageServer.Features.Language.Completion
         private readonly IAzureContainerRegistriesProvider azureContainerRegistriesProvider;
         private readonly IRegistryModuleCatalog registryModuleCatalog;
         private readonly ISettingsProvider settingsProvider;
-        private readonly ITelemetryProvider telemetryProvider;
         private readonly RegistryConfiguration registryConfiguration;
 
         private enum ModuleCompletionPriority
@@ -144,13 +142,11 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
             IRegistryModuleCatalog registryModuleCatalog,
             ISettingsProvider settingsProvider,
-            ITelemetryProvider telemetryProvider,
             RegistryConfiguration registryConfiguration)
         {
             this.azureContainerRegistriesProvider = azureContainerRegistriesProvider;
             this.registryModuleCatalog = registryModuleCatalog;
             this.settingsProvider = settingsProvider;
-            this.telemetryProvider = telemetryProvider;
             this.registryConfiguration = registryConfiguration;
         }
 
@@ -426,7 +422,6 @@ namespace Bicep.LanguageServer.Features.Language.Completion
 
             List<CompletionItem> completions = new();
 
-            var sentTelemetry = false;
             foreach (var kvp in GetModuleAliases(rootConfiguration))
             {
                 if (parts.ResolvedRegistry.Equals(kvp.Value.Registry, StringComparison.Ordinal))
@@ -448,11 +443,6 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                        .Build();
                     completions.Add(completionItem);
 
-                    if (!sentTelemetry)
-                    {
-                        telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.AcrBasePathFromAlias, true, null));
-                        sentTelemetry = true;
-                    }
                 }
             }
 
@@ -479,9 +469,6 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             }
 
             List<CompletionItem> completions = new();
-            var acr = false;
-            var mcr = false;
-            var isAliased = !string.IsNullOrWhiteSpace(parts.SpecifiedAlias);
 
             var modules = await registryModuleCatalog
                 .GetProviderForRegistry(rootConfiguration.Cloud, parts.ResolvedRegistry)
@@ -514,24 +501,6 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                         .Build();
 
                 completions.Add(completionItem);
-
-                if (parts.ResolvedRegistry.Equals(PublicMcrRegistry, StringComparison.Ordinal))
-                {
-                    mcr = true;
-                }
-                else
-                {
-                    acr = true;
-                }
-            }
-
-            if (acr)
-            {
-                telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.ACR, isAliased, modules.Length));
-            }
-            if (mcr)
-            {
-                telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryPathCompletion(ModuleRegistryType.MCR, isAliased, modules.Length));
             }
 
             return completions;
@@ -662,12 +631,6 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                 && await module.TryGetVersionsAsync() is { } versions
                 && versions.FirstOrDefault(v => v.Version.Equals(version, StringComparison.Ordinal)) is RegistryModuleVersionMetadata metadata)
             {
-                // Resolutions for MCR aren't very interesting because all the data is downloaded at once
-                if (!registry.Equals(LanguageConstants.BicepPublicMcrRegistry, StringComparison.Ordinal))
-                {
-                    telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryResolution(ModuleRegistryResolutionType.AcrVersion));
-                }
-
                 return (completionItem with
                 {
                     Detail = metadata.Details.Description,
@@ -685,12 +648,6 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                 && await module.TryGetDetailsAsync() is { } details
                 )
             {
-                // Resolutions for MCR aren't very interesting because all the data is downloaded at once
-                if (!registry.Equals(LanguageConstants.BicepPublicMcrRegistry, StringComparison.Ordinal))
-                {
-                    telemetryProvider.PostEvent(BicepTelemetryEvent.ModuleRegistryResolution(ModuleRegistryResolutionType.AcrModulePath));
-                }
-
                 return (completionItem with
                 {
                     Detail = details.Description,

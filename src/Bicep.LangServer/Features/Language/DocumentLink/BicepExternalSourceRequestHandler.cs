@@ -11,11 +11,9 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
 using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Bicep.LanguageServer.Features.Language.Definition;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
-using static Bicep.LanguageServer.Features.Custom.Telemetry.BicepTelemetryEvent;
 
 namespace Bicep.LanguageServer.Features.Language.DocumentLink
 {
@@ -36,16 +34,13 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
         public const string BicepExternalSourceLspMethodName = "textDocument/bicepExternalSource";
 
         private readonly IModuleDispatcher moduleDispatcher;
-        private readonly ITelemetryProvider telemetryProvider;
         private readonly ISourceFileFactory sourceFileFactory;
 
         public BicepExternalSourceRequestHandler(
             IModuleDispatcher moduleDispatcher,
-            ITelemetryProvider telemetryProvider,
             ISourceFileFactory sourceFileFactory)
         {
             this.moduleDispatcher = moduleDispatcher;
-            this.telemetryProvider = telemetryProvider;
             this.sourceFileFactory = sourceFileFactory;
         }
 
@@ -57,21 +52,18 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             var dummyReferencingFile = this.sourceFileFactory.CreateDummyArtifactReferencingFile();
             if (!moduleDispatcher.TryGetArtifactReference(dummyReferencingFile, ArtifactType.Module, request.Target).IsSuccess(out var moduleReference))
             {
-                telemetryProvider.PostEvent(ExternalSourceRequestFailure(nameof(moduleDispatcher.TryGetArtifactReference)));
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"The client specified an invalid module reference '{request.Target}'."));
             }
 
             if (moduleReference is not OciArtifactReference ociModuleReference)
             {
-                telemetryProvider.PostEvent(ExternalSourceRequestFailure("localNotSupported"));
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepExternalSourceLspMethodName} requests."));
             }
 
             if (!moduleDispatcher.TryGetLocalArtifactEntryPointFileHandle(moduleReference).IsSuccess())
             {
-                telemetryProvider.PostEvent(ExternalSourceRequestFailure(nameof(moduleDispatcher.TryGetLocalArtifactEntryPointFileHandle)));
                 return Task.FromResult(new BicepExternalSourceResponse(null,
                     $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'."));
             }
@@ -84,7 +76,6 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
                 {
                     Debug.Assert(sourceArchive is { });
                     var requestedFile = sourceArchive.FindSourceFile(request.requestedSourceFile);
-                    telemetryProvider.PostEvent(CreateSuccessTelemetry(sourceArchive, request.requestedSourceFile));
                     return Task.FromResult(new BicepExternalSourceResponse(requestedFile.Contents));
                 }
                 else if (ex is SourceNotAvailableException)
@@ -94,7 +85,6 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
                 else
                 {
                     Debug.Assert(ex is { });
-                    telemetryProvider.PostEvent(ExternalSourceRequestFailure($"TryGetModuleSources: {ex.GetType().Name}"));
                     return Task.FromResult(new BicepExternalSourceResponse(null, ex.Message));
                 }
             }
@@ -107,7 +97,6 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
                 return Task.FromResult(new BicepExternalSourceResponse(null, $"Unable to read file '{ociModuleReference.ModuleMainTemplateFile.Uri}'. {message}"));
             }
 
-            telemetryProvider.PostEvent(CreateSuccessTelemetry(sourceArchive, request.requestedSourceFile));
             return Task.FromResult(new BicepExternalSourceResponse(contents));
         }
 
@@ -133,21 +122,5 @@ namespace Bicep.LanguageServer.Features.Language.DocumentLink
             return uriBuilder.Uri;
         }
 
-        private BicepTelemetryEvent CreateSuccessTelemetry(SourceArchive? sourceArchive, string? requestedSourceFile)
-        {
-            return ExternalSourceRequestSuccess(
-                hasSource: sourceArchive is not null,
-                archiveFilesCount: sourceArchive?.SourceFileCount ?? 0,
-                fileExtension: Path.GetExtension(requestedSourceFile) ?? (requestedSourceFile is null ? ".json" : string.Empty),
-                requestType: requestedSourceFile switch
-                {
-                    null => ExternalSourceRequestType.CompiledJson,
-                    string when sourceArchive is null => ExternalSourceRequestType.Unknown, // shouldn't happen
-                    string file when StringComparer.Ordinal.Equals(file, sourceArchive.EntrypointRelativePath) => ExternalSourceRequestType.BicepEntrypoint,
-                    string file when file.Contains("<root>") => ExternalSourceRequestType.NestedExternal,
-                    _ => ExternalSourceRequestType.Local
-                }
-            );
-        }
     }
 }

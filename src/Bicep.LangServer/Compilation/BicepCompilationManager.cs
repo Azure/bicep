@@ -5,38 +5,28 @@ using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core;
-using Bicep.Core.Analyzers.Linter;
-using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
-using Bicep.Core.Syntax;
 using Bicep.IO.Abstraction;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Features.Custom.ModuleRestore;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using static Bicep.Core.Diagnostics.DisabledDiagnosticsCache;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer.Compilation
 {
     public class BicepCompilationManager : ICompilationManager
     {
-        public const string LinterEnabledSetting = "core.enabled";
-
         private readonly IActiveSourceFileSet activeSourceFileSet;
         private readonly ILanguageServerFacade server;
         private readonly ICompilationProvider provider;
         private readonly IModuleRestoreScheduler scheduler;
-        private readonly ITelemetryProvider TelemetryProvider;
-        private readonly ILinterRulesProvider LinterRulesProvider;
         private readonly ISourceFileFactory sourceFileFactory;
         private readonly IAuxiliaryFileCache auxiliaryfileCache;
 
@@ -48,8 +38,6 @@ namespace Bicep.LanguageServer.Compilation
             ICompilationProvider provider,
             IActiveSourceFileSet activeSourceFileSet,
             IModuleRestoreScheduler scheduler,
-            ITelemetryProvider telemetryProvider,
-            ILinterRulesProvider LinterRulesProvider,
             ISourceFileFactory sourceFileFactory,
             IAuxiliaryFileCache auxiliaryFileCache)
         {
@@ -57,8 +45,6 @@ namespace Bicep.LanguageServer.Compilation
             this.provider = provider;
             this.activeSourceFileSet = activeSourceFileSet;
             this.scheduler = scheduler;
-            this.TelemetryProvider = telemetryProvider;
-            this.LinterRulesProvider = LinterRulesProvider;
             this.sourceFileFactory = sourceFileFactory;
             this.auxiliaryfileCache = auxiliaryFileCache;
         }
@@ -111,7 +97,7 @@ namespace Bicep.LanguageServer.Compilation
             if (this.ShouldUpsertCompilation(documentUri, languageId, out var sourceFileType))
             {
                 var newFile = this.sourceFileFactory.CreateSourceFile(documentUri.ToIOUri(), fileContents, sourceFileType);
-                UpsertCompilationInternal(documentUri, version, newFile, triggeredByFileOpenEvent: true);
+                UpsertCompilationInternal(documentUri, version, newFile);
             }
         }
 
@@ -120,11 +106,11 @@ namespace Bicep.LanguageServer.Compilation
             if (this.ShouldUpsertCompilation(documentUri, languageId: null, out var sourceFileType))
             {
                 var newFile = this.sourceFileFactory.CreateSourceFile(documentUri.ToIOUri(), fileContents, sourceFileType);
-                UpsertCompilationInternal(documentUri, version, newFile, triggeredByFileOpenEvent: false);
+                UpsertCompilationInternal(documentUri, version, newFile);
             }
         }
 
-        private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile, bool triggeredByFileOpenEvent = false, bool clearAuxiliaryFileCache = false)
+        private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile, bool clearAuxiliaryFileCache = false)
         {
             var (_, removedFiles) = activeSourceFileSet.UpsertSourceFile(newFile);
 
@@ -132,7 +118,7 @@ namespace Bicep.LanguageServer.Compilation
             if (newFile is BicepSourceFile)
             {
                 // Do not update compilation if it is an ARM template file, since it cannot be an entrypoint.
-                UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles, triggeredByFileOpenEvent: triggeredByFileOpenEvent);
+                UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles);
             }
 
             foreach (var (entrypointUri, context) in GetAllSafeActiveContexts())
@@ -140,7 +126,7 @@ namespace Bicep.LanguageServer.Compilation
                 // we may see an unsafe context if there was a fatal exception
                 if (removedFiles.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
                 {
-                    UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles, triggeredByFileOpenEvent: triggeredByFileOpenEvent);
+                    UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles);
                 }
             }
 
@@ -317,8 +303,7 @@ namespace Bicep.LanguageServer.Compilation
             DocumentUri documentUri,
             int? version,
             IDictionary<ISourceFile, ISemanticModel> modelLookup,
-            IEnumerable<ISourceFile> removedFiles,
-            bool triggeredByFileOpenEvent = false)
+            IEnumerable<ISourceFile> removedFiles)
         {
             static IEnumerable<Diagnostic> CreateFatalDiagnostics(Exception exception) => new Diagnostic
             {
@@ -378,12 +363,6 @@ namespace Bicep.LanguageServer.Compilation
                         // convert all the diagnostics to LSP diagnostics
                         var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
 
-                        if (triggeredByFileOpenEvent)
-                        {
-                            var model = context.Compilation.GetEntrypointSemanticModel();
-                            SendTelemetryOnBicepFileOpen(model, diagnostics);
-                        }
-
                         // publish all the diagnostics
                         this.PublishDocumentDiagnostics(documentUri, version, diagnostics);
 
@@ -411,174 +390,6 @@ namespace Bicep.LanguageServer.Compilation
 
                 return (ImmutableArray<ISourceFile>.Empty, ImmutableArray<ISourceFile>.Empty);
             }
-        }
-
-        private void SendTelemetryOnBicepFileOpen(SemanticModel model, IEnumerable<Diagnostic> diagnostics)
-        {
-            // Telemetry on linter state on bicep file open
-            var linterEvent = GetLinterStateTelemetryOnBicepFileOpen(model.Configuration);
-            TelemetryProvider.PostEvent(linterEvent);
-
-            // Telemetry on open bicep file and the referenced modules
-            var openEvent = model.SourceFile switch
-            {
-                BicepFile bicepFile => GetBicepOpenTelemetryEvent(model, bicepFile, diagnostics),
-                BicepParamFile bicepParamFile => GetBicepParamOpenTelemetryEvent(model, bicepParamFile, diagnostics),
-                _ => null
-            };
-
-            if (openEvent is { })
-            {
-                TelemetryProvider.PostEvent(openEvent);
-            }
-        }
-
-        public BicepTelemetryEvent GetBicepOpenTelemetryEvent(SemanticModel semanticModel, BicepFile mainFile, IEnumerable<Diagnostic> diagnostics)
-        {
-            var properties = GetTelemetryPropertiesForMainFile(semanticModel, mainFile, diagnostics);
-
-            var referencedFiles = semanticModel.SourceFileGrouping.SourceFiles.Where(x => x != mainFile);
-            var propertiesFromReferencedFiles = GetTelemetryPropertiesForReferencedFiles(referencedFiles);
-
-            properties = properties.Concat(propertiesFromReferencedFiles).ToDictionary(s => s.Key, s => s.Value);
-
-            return BicepTelemetryEvent.CreateBicepFileOpen(properties);
-        }
-
-        public BicepTelemetryEvent GetBicepParamOpenTelemetryEvent(SemanticModel semanticModel, BicepParamFile sourceFile, IEnumerable<Diagnostic> diagnostics)
-        {
-            var properties = GetTelemetryPropertiesForMainFile(semanticModel, sourceFile, diagnostics);
-
-            return BicepTelemetryEvent.CreateBicepParamFileOpen(properties);
-        }
-
-        private Dictionary<string, string> GetTelemetryPropertiesForMainFile(SemanticModel semanticModel, BicepSourceFile bicepFile, IEnumerable<Diagnostic> diagnostics)
-        {
-            Dictionary<string, string> properties = new();
-
-            var declarationsInMainFile = bicepFile.ProgramSyntax.Declarations;
-            properties.Add("Modules", declarationsInMainFile.Count(x => x is ModuleDeclarationSyntax).ToString());
-            properties.Add("Parameters", declarationsInMainFile.Count(x => x is ParameterDeclarationSyntax).ToString());
-            properties.Add("Resources", semanticModel.DeclaredResources.Length.ToString());
-            properties.Add("Variables", declarationsInMainFile.Count(x => x is VariableDeclarationSyntax).ToString());
-            properties.Add("ExtendsDeclarations", declarationsInMainFile.Count(x => x is ExtendsDeclarationSyntax).ToString());
-
-            properties.Add("CharCount", bicepFile.Text.Length.ToString());
-
-            var (errorsCount, warningsCount) = CountErrorsAndWarnings(diagnostics);
-            properties.Add("LineCount", bicepFile.LineStarts.Length.ToString());
-            properties.Add("Errors", errorsCount.ToString());
-            properties.Add("Warnings", warningsCount.ToString());
-
-            var disableNextLineDirectiveEndPositionAndCodes = bicepFile.DisabledDiagnosticsCache.GetDisableNextLineDiagnosticDirectivesCache().Values;
-            properties.Add("DisableNextLineCount", disableNextLineDirectiveEndPositionAndCodes.Count().ToString());
-            properties.Add("DisableNextLineCodes", GetDiagnosticCodesWithCount(disableNextLineDirectiveEndPositionAndCodes));
-            properties.Add("ExperimentalFeatures", string.Join(',', semanticModel.Features.EnabledFeatureMetadata.Select(x => x.name)));
-
-            return properties;
-
-            static (int ErrorCount, int WarningCount) CountErrorsAndWarnings(IEnumerable<Diagnostic> diagnostics)
-            {
-                int errorsCount = 0;
-                int warningsCount = 0;
-
-                foreach (var diagnostic in diagnostics)
-                {
-                    if (diagnostic.Severity == DiagnosticSeverity.Error)
-                    {
-                        errorsCount++;
-                    }
-                    else if (diagnostic.Severity == DiagnosticSeverity.Warning)
-                    {
-                        warningsCount++;
-                    }
-                }
-
-                return (errorsCount, warningsCount);
-            }
-        }
-
-        private string GetDiagnosticCodesWithCount(IEnumerable<DisableNextLineDirectiveEndPositionAndCodes> disableNextLineDirectiveEndPositionAndCodes)
-        {
-            var diagnosticsCodesMap = new Dictionary<string, int>();
-
-            foreach (var disableNextLineDirectiveEndPositionAndCode in disableNextLineDirectiveEndPositionAndCodes)
-            {
-                var diagnosticCodes = disableNextLineDirectiveEndPositionAndCode.diagnosticCodes.Distinct();
-                foreach (string diagnosticCode in diagnosticCodes)
-                {
-                    if (diagnosticsCodesMap.ContainsKey(diagnosticCode))
-                    {
-                        diagnosticsCodesMap[diagnosticCode] += 1;
-                    }
-                    else
-                    {
-                        diagnosticsCodesMap.Add(diagnosticCode, 1);
-                    }
-                }
-            }
-
-            return JsonConvert.SerializeObject(diagnosticsCodesMap);
-        }
-
-        private Dictionary<string, string> GetTelemetryPropertiesForReferencedFiles(IEnumerable<ISourceFile> sourceFiles)
-        {
-            Dictionary<string, string> properties = new();
-            int modules = 0;
-            int parameters = 0;
-            int resources = 0;
-            int variables = 0;
-            int lineCount = 0;
-            int disableNextLineDirectivesCount = 0;
-            List<DisableNextLineDirectiveEndPositionAndCodes> disableNextLineDirectiveEndPositionAndCodesInReferencedFiles = new();
-
-            foreach (var sourceFile in sourceFiles)
-            {
-                if (sourceFile is BicepFile bicepFile)
-                {
-                    var declarations = bicepFile.ProgramSyntax.Declarations;
-                    modules += declarations.Count(x => x is ModuleDeclarationSyntax);
-                    parameters += declarations.Count(x => x is ParameterDeclarationSyntax);
-                    resources += declarations.Count(x => x is ResourceDeclarationSyntax);
-                    variables += declarations.Count(x => x is VariableDeclarationSyntax);
-                    lineCount += bicepFile.LineStarts.Length;
-
-                    var disableNextLineDirectiveEndPositionAndCodes = bicepFile.DisabledDiagnosticsCache.GetDisableNextLineDiagnosticDirectivesCache().Values;
-                    disableNextLineDirectivesCount += disableNextLineDirectiveEndPositionAndCodes.Count();
-                    disableNextLineDirectiveEndPositionAndCodesInReferencedFiles.AddRange(disableNextLineDirectiveEndPositionAndCodes);
-                }
-            }
-
-            properties.Add("ModulesInReferencedFiles", modules.ToString());
-            properties.Add("ParentResourcesInReferencedFiles", resources.ToString());
-            properties.Add("ParametersInReferencedFiles", parameters.ToString());
-            properties.Add("VariablesInReferencedFiles", variables.ToString());
-            properties.Add("LineCountOfReferencedFiles", lineCount.ToString());
-
-            properties.Add("DisableNextLineCountInReferencedFiles", disableNextLineDirectivesCount.ToString());
-            properties.Add("DisableNextLineCodesInReferencedFiles", GetDiagnosticCodesWithCount(disableNextLineDirectiveEndPositionAndCodesInReferencedFiles));
-
-            return properties;
-        }
-
-        public BicepTelemetryEvent GetLinterStateTelemetryOnBicepFileOpen(RootConfiguration configuration)
-        {
-            bool linterEnabledSettingValue = configuration.Analyzers.GetValue(LinterEnabledSetting, true);
-            Dictionary<string, string> properties = new();
-
-            properties.Add("enabled", linterEnabledSettingValue.ToString().ToLowerInvariant());
-
-            if (linterEnabledSettingValue)
-            {
-                foreach (var kvp in LinterRulesProvider.GetLinterRules())
-                {
-                    string linterRuleDiagnosticLevelValue = configuration.Analyzers.GetValue(kvp.Value.diagnosticLevelConfigProperty, "warning");
-
-                    properties.Add(kvp.Key, linterRuleDiagnosticLevelValue);
-                }
-            }
-
-            return BicepTelemetryEvent.CreateLinterStateOnBicepFileOpen(properties);
         }
 
         private static IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context) =>

@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Text;
 using Bicep.Decompiler;
 using Bicep.LanguageServer.ClientCapabilities;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
@@ -15,7 +14,6 @@ using Path = System.IO.Path;
 namespace Bicep.LanguageServer.Features.Custom.Decompile
 {
     public record BicepDecompileSaveCommandParams(
-        string decompileId,
         DecompiledFile[] outputFiles, // first is assumed to be main output file
         bool overwrite
     );
@@ -33,17 +31,16 @@ namespace Bicep.LanguageServer.Features.Custom.Decompile
         private readonly BicepDecompiler bicepDecompiler;
         private readonly ILanguageServerFacade languageServerFacade;
         private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
-        private readonly TelemetryAndErrorHandlingHelper<BicepDecompileSaveCommandResult> telemetryHelper;
+        private readonly ErrorHandlingHelper<BicepDecompileSaveCommandResult> errorHelper;
 
         public BicepDecompileSaveCommandHandler(
             ISerializer serializer,
             ILanguageServerFacade server,
-            ITelemetryProvider telemetryProvider,
             IClientCapabilitiesProvider clientCapabilitiesProvider,
             BicepDecompiler bicepDecompiler)
             : base(LangServerConstants.DecompileSaveCommand, serializer)
         {
-            this.telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileSaveCommandResult>(server.Window, telemetryProvider);
+            this.errorHelper = new ErrorHandlingHelper<BicepDecompileSaveCommandResult>(server.Window);
             this.bicepDecompiler = bicepDecompiler;
             this.clientCapabilitiesProvider = clientCapabilitiesProvider;
             this.languageServerFacade = server;
@@ -51,14 +48,13 @@ namespace Bicep.LanguageServer.Features.Custom.Decompile
 
         public override Task<BicepDecompileSaveCommandResult> Handle(BicepDecompileSaveCommandParams parameters, CancellationToken cancellationToken)
         {
-            return telemetryHelper.ExecuteWithTelemetryAndErrorHandling(async () =>
+            return errorHelper.ExecuteWithErrorHandling(async () =>
             {
-                return await SaveDecompileResults(parameters.decompileId, parameters.outputFiles, parameters.overwrite);
+                return await SaveDecompileResults(parameters.outputFiles, parameters.overwrite);
             });
         }
 
-        private async Task<(BicepDecompileSaveCommandResult result, BicepTelemetryEvent? successTelemetry)> SaveDecompileResults(
-            string decompileId,
+        private async Task<BicepDecompileSaveCommandResult> SaveDecompileResults(
             DecompiledFile[] outputFiles,
             bool overwrite // If false, will create copy(ies) of the output file(s)
         )
@@ -102,21 +98,17 @@ namespace Bicep.LanguageServer.Features.Custom.Decompile
                 }
 
                 // Return result
-                return (
-                    result: new BicepDecompileSaveCommandResult(
-                        output.ToString(),
-                        null,
-                        actualMainBicepPath,
-                        filesToSave.Select(f => f.path).ToArray()),
-                    successTelemetry: BicepTelemetryEvent.DecompileSaveSuccess(decompileId)
-                    );
+                return new BicepDecompileSaveCommandResult(
+                    output.ToString(),
+                    null,
+                    actualMainBicepPath,
+                    filesToSave.Select(f => f.path).ToArray());
             }
             catch (Exception ex)
             {
                 Log(output, ex.Message);
-                throw telemetryHelper.CreateException(
+                throw errorHelper.CreateException(
                     ex.Message,
-                    BicepTelemetryEvent.DecompileSaveFailure(decompileId, ex.GetType().Name),
                     new BicepDecompileSaveCommandResult(
                         output.ToString(),
                         ex.Message,

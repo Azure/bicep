@@ -9,7 +9,6 @@ using Bicep.Core.Extensions;
 using Bicep.Decompiler;
 using Bicep.Decompiler.ArmHelpers;
 using Bicep.IO.Abstraction;
-using Bicep.LanguageServer.Features.Custom.Telemetry;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -30,7 +29,6 @@ namespace Bicep.LanguageServer.Features.Custom.Decompile
 
     public record BicepDecompileCommandResult
     {
-        public string decompileId; // Used to synchronize telemetry events
         public string output;
         public string? errorMessage;
         public string? mainBicepPath; // non-null if errorMessage==null
@@ -38,14 +36,12 @@ namespace Bicep.LanguageServer.Features.Custom.Decompile
         public string[] conflictingOutputPaths; // client should verify overwrite with user
 
         private BicepDecompileCommandResult(
-            string decompileId,
             string output,
             string? errorMessage,
             string? mainBicepPath,
             DecompiledFile[] outputFiles,
             string[] conflictingOutputPaths)
         {
-            this.decompileId = decompileId;
             this.errorMessage = errorMessage;
             this.output = output;
             this.mainBicepPath = mainBicepPath;
@@ -54,20 +50,18 @@ namespace Bicep.LanguageServer.Features.Custom.Decompile
         }
 
         public BicepDecompileCommandResult(
-            string decompileId,
             string output,
             string? errorMessage
-        ) : this(decompileId, output, errorMessage, null, [], [])
+        ) : this(output, errorMessage, null, [], [])
         {
         }
 
         public BicepDecompileCommandResult(
-            string decompileId,
             string output,
             string mainBicepPath,
             DecompiledFile[] outputFiles,
             string[] conflictingOutputPaths
-        ) : this(decompileId, output, null, mainBicepPath, outputFiles, conflictingOutputPaths)
+        ) : this(output, null, mainBicepPath, outputFiles, conflictingOutputPaths)
         {
         }
     }
@@ -79,33 +73,31 @@ namespace Bicep.LanguageServer.Features.Custom.Decompile
     {
         private readonly IFileExplorer fileExplorer;
         private readonly BicepDecompiler bicepDecompiler;
-        private readonly TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult> telemetryHelper;
+        private readonly ErrorHandlingHelper<BicepDecompileCommandResult> errorHelper;
 
         public BicepDecompileCommandHandler(
             ISerializer serializer,
             ILanguageServerFacade server,
-            ITelemetryProvider telemetryProvider,
             IFileExplorer fileExplorer,
             BicepDecompiler bicepDecompiler)
             : base(LangServerConstants.DecompileCommand, serializer)
         {
-            this.telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult>(server.Window, telemetryProvider);
+            this.errorHelper = new ErrorHandlingHelper<BicepDecompileCommandResult>(server.Window);
             this.fileExplorer = fileExplorer;
             this.bicepDecompiler = bicepDecompiler;
         }
 
         public override Task<BicepDecompileCommandResult> Handle(BicepDecompileCommandParams parameters, CancellationToken cancellationToken)
         {
-            return telemetryHelper.ExecuteWithTelemetryAndErrorHandling(() =>
+            return errorHelper.ExecuteWithErrorHandling(() =>
             {
                 return Decompile(parameters.jsonUri.ToIOUri());
             });
         }
 
-        private async Task<(BicepDecompileCommandResult result, BicepTelemetryEvent? successTelemetry)> Decompile(IOUri jsonUri)
+        private async Task<BicepDecompileCommandResult> Decompile(IOUri jsonUri)
         {
             StringBuilder output = new();
-            string decompileId = Guid.NewGuid().ToString();
 
             IOUri? bicepUri;
             ImmutableDictionary<IOUri, string>? filesToSave;
@@ -131,10 +123,9 @@ namespace Bicep.LanguageServer.Features.Custom.Decompile
             {
                 var message = string.Format(LangServerResources.Decompile_DecompilationFailed, ex.Message);
                 Log(output, message);
-                throw telemetryHelper.CreateException(
+                throw errorHelper.CreateException(
                     message,
-                    BicepTelemetryEvent.DecompileFailure(decompileId, message),
-                    new BicepDecompileCommandResult(decompileId, output.ToString(), message)
+                    new BicepDecompileCommandResult(output.ToString(), message)
                 );
             }
 
@@ -164,15 +155,11 @@ namespace Bicep.LanguageServer.Features.Custom.Decompile
             // Return result
             string mainBicepPath = filesToSaveArray[0].Uri.GetFilePath();
             var result = new BicepDecompileCommandResult(
-                decompileId,
                 output.ToString(),
                 mainBicepPath,
                 outputFiles,
                 conflictingPaths);
-            return (
-                result,
-                successTelemetry: BicepTelemetryEvent.DecompileSuccess(result.decompileId, filesToSaveArray.Length, conflictingPaths.Length)
-                );
+            return result;
         }
 
         private DecompiledFile DetermineDecompiledPaths(IOUri outputDirectoryUri, IOUri outputFileUri, string contents)
