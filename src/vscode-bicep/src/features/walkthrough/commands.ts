@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { writeFile } from "fs/promises";
 import * as os from "os";
 import path from "path";
-import { writeFile } from "fs/promises";
-import vscode, { TextDocument, TextEditor, Uri, ViewColumn, window, workspace } from "vscode";
+import { env, TextDocument, TextEditor, Uri, ViewColumn, window, workspace } from "vscode";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { bicepFileExtension } from "../../infrastructure/editor";
 import { UserCancelledError } from "../../infrastructure/errors";
@@ -42,7 +42,7 @@ export class WalkthroughCopyToClipboardCommand implements Command {
     const step = args.step;
 
     const code = step === "params" ? paramsCode : resourcesCode;
-    await vscode.env.clipboard.writeText(code);
+    await env.clipboard.writeText(code);
   }
 }
 
@@ -74,7 +74,7 @@ export async function activateWalkthroughFeature(prompts: Prompts, commandManage
   );
 }
 
-async function createAndOpenBicepFile(fileContents: string): Promise<vscode.TextEditor> {
+async function createAndOpenBicepFile(fileContents: string): Promise<TextEditor> {
   const folder: Uri =
     (workspace.workspaceFolders ? workspace.workspaceFolders[0].uri : undefined) ?? Uri.file(os.homedir());
   const uri: Uri | undefined = await window.showSaveDialog({
@@ -94,7 +94,7 @@ async function createAndOpenBicepFile(fileContents: string): Promise<vscode.Text
   await writeFile(filePath, fileContents, { encoding: "utf-8" });
 
   const document: TextDocument = await workspace.openTextDocument(uri);
-  return await vscode.window.showTextDocument(document, vscode.ViewColumn.Beside);
+  return await window.showTextDocument(document, ViewColumn.Beside);
 }
 
 async function queryAndOpenBicepFile(prompts: Prompts): Promise<TextEditor> {

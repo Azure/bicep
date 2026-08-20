@@ -2,7 +2,21 @@
 // Licensed under the MIT License.
 import crypto from "crypto";
 import path from "path";
-import vscode from "vscode";
+import {
+  commands,
+  Event,
+  EventEmitter,
+  Range,
+  Selection,
+  TextEditor,
+  TextEditorRevealType,
+  Uri,
+  ViewColumn,
+  WebviewPanel,
+  WebviewPanelOnDidChangeViewStateEvent,
+  window,
+  workspace,
+} from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { parseError } from "../../infrastructure/errors";
 import { Disposable } from "../../infrastructure/lifecycle";
@@ -20,8 +34,8 @@ import {
 export class BicepVisualizerView extends Disposable {
   public static viewType = "bicep.visualizer";
 
-  private readonly onDidDisposeEmitter: vscode.EventEmitter<void>;
-  private readonly onDidChangeViewStateEmitter: vscode.EventEmitter<vscode.WebviewPanelOnDidChangeViewStateEvent>;
+  private readonly onDidDisposeEmitter: EventEmitter<void>;
+  private readonly onDidChangeViewStateEmitter: EventEmitter<WebviewPanelOnDidChangeViewStateEvent>;
   private readonly ready: Promise<void>;
   private resolveReady!: () => void;
 
@@ -29,16 +43,14 @@ export class BicepVisualizerView extends Disposable {
 
   private constructor(
     private readonly languageClient: LanguageClient,
-    private readonly webviewPanel: vscode.WebviewPanel,
-    private readonly extensionUri: vscode.Uri,
-    private readonly documentUri: vscode.Uri,
+    private readonly webviewPanel: WebviewPanel,
+    private readonly extensionUri: Uri,
+    private readonly documentUri: Uri,
   ) {
     super();
 
-    this.onDidDisposeEmitter = new vscode.EventEmitter<void>();
-    this.onDidChangeViewStateEmitter = this.register(
-      new vscode.EventEmitter<vscode.WebviewPanelOnDidChangeViewStateEvent>(),
-    );
+    this.onDidDisposeEmitter = new EventEmitter<void>();
+    this.onDidChangeViewStateEmitter = this.register(new EventEmitter<WebviewPanelOnDidChangeViewStateEvent>());
     this.ready = new Promise((resolve) => (this.resolveReady = resolve));
 
     this.register(this.webviewPanel.webview.onDidReceiveMessage(this.handleDidReceiveMessage, this));
@@ -53,22 +65,22 @@ export class BicepVisualizerView extends Disposable {
     );
   }
 
-  public get onDidDispose(): vscode.Event<void> {
+  public get onDidDispose(): Event<void> {
     return this.onDidDisposeEmitter.event;
   }
 
-  public get onDidChangeViewState(): vscode.Event<vscode.WebviewPanelOnDidChangeViewStateEvent> {
+  public get onDidChangeViewState(): Event<WebviewPanelOnDidChangeViewStateEvent> {
     return this.onDidChangeViewStateEmitter.event;
   }
 
   public static create(
     languageClient: LanguageClient,
-    viewColumn: vscode.ViewColumn,
-    extensionUri: vscode.Uri,
-    documentUri: vscode.Uri,
+    viewColumn: ViewColumn,
+    extensionUri: Uri,
+    documentUri: Uri,
   ): BicepVisualizerView {
     const visualizerTitle = `Visualize ${path.basename(documentUri.fsPath)}`;
-    const webviewPanel = vscode.window.createWebviewPanel(BicepVisualizerView.viewType, visualizerTitle, viewColumn, {
+    const webviewPanel = window.createWebviewPanel(BicepVisualizerView.viewType, visualizerTitle, viewColumn, {
       enableScripts: true,
       retainContextWhenHidden: true,
     });
@@ -78,9 +90,9 @@ export class BicepVisualizerView extends Disposable {
 
   public static revive(
     languageClient: LanguageClient,
-    webviewPanel: vscode.WebviewPanel,
-    extensionUri: vscode.Uri,
-    documentUri: vscode.Uri,
+    webviewPanel: WebviewPanel,
+    extensionUri: Uri,
+    documentUri: Uri,
   ): BicepVisualizerView {
     return new BicepVisualizerView(languageClient, webviewPanel, extensionUri, documentUri);
   }
@@ -116,7 +128,7 @@ export class BicepVisualizerView extends Disposable {
     }
 
     try {
-      await vscode.workspace.openTextDocument(this.documentUri);
+      await workspace.openTextDocument(this.documentUri);
     } catch {
       this.webviewPanel.webview.html = this.createDocumentNotFoundHtml();
       return;
@@ -146,7 +158,7 @@ export class BicepVisualizerView extends Disposable {
     let result: VisualGraphUpdateResult = { patches: [] };
 
     try {
-      const document = await vscode.workspace.openTextDocument(this.documentUri);
+      const document = await workspace.openTextDocument(this.documentUri);
 
       if (this.isDisposed) {
         return;
@@ -182,7 +194,7 @@ export class BicepVisualizerView extends Disposable {
     }
 
     try {
-      const document = await vscode.workspace.openTextDocument(this.documentUri);
+      const document = await workspace.openTextDocument(this.documentUri);
 
       if (this.isDisposed) {
         return;
@@ -225,7 +237,7 @@ export class BicepVisualizerView extends Disposable {
           return;
 
         case "revealFileRange": {
-          const payload = notification.params as { filePath: string; range: vscode.Range };
+          const payload = notification.params as { filePath: string; range: Range };
           this.revealFileRange(payload.filePath, payload.range);
           return;
         }
@@ -237,7 +249,7 @@ export class BicepVisualizerView extends Disposable {
         }
 
         case "showProblemsPanel":
-          vscode.commands.executeCommand("workbench.actions.view.problems");
+          commands.executeCommand("workbench.actions.view.problems");
           return;
       }
     }
@@ -262,7 +274,7 @@ export class BicepVisualizerView extends Disposable {
 
   private async handleRevealNodeSource(nodeId: string): Promise<void> {
     try {
-      const document = await vscode.workspace.openTextDocument(this.documentUri);
+      const document = await workspace.openTextDocument(this.documentUri);
 
       if (this.isDisposed) {
         return;
@@ -283,33 +295,32 @@ export class BicepVisualizerView extends Disposable {
     }
   }
 
-  private revealFileRange(filePath: string, range: vscode.Range) {
-    for (const visibleEditor of vscode.window.visibleTextEditors) {
+  private revealFileRange(filePath: string, range: Range) {
+    for (const visibleEditor of window.visibleTextEditors) {
       if (visibleEditor.document.uri.fsPath === filePath) {
-        vscode.window.showTextDocument(visibleEditor.document, visibleEditor.viewColumn).then(
+        window.showTextDocument(visibleEditor.document, visibleEditor.viewColumn).then(
           (editor) => this.revealEditorRange(editor, range),
-          (err) =>
-            vscode.window.showErrorMessage(`Could not reveal file range in "${filePath}": ${parseError(err).message}`),
+          (err) => window.showErrorMessage(`Could not reveal file range in "${filePath}": ${parseError(err).message}`),
         );
         return;
       }
     }
 
-    const targetColumn = this.getTextEditorViewColumn() ?? vscode.ViewColumn.Beside;
+    const targetColumn = this.getTextEditorViewColumn() ?? ViewColumn.Beside;
 
-    vscode.workspace
+    workspace
       .openTextDocument(filePath)
-      .then((doc) => vscode.window.showTextDocument(doc, targetColumn))
+      .then((doc) => window.showTextDocument(doc, targetColumn))
       .then(
         (editor) => this.revealEditorRange(editor, range),
-        (err) => vscode.window.showErrorMessage(`Could not open "${filePath}": ${parseError(err).message}`),
+        (err) => window.showErrorMessage(`Could not open "${filePath}": ${parseError(err).message}`),
       );
   }
 
-  private getTextEditorViewColumn(): vscode.ViewColumn | undefined {
+  private getTextEditorViewColumn(): ViewColumn | undefined {
     const webviewColumn = this.webviewPanel.viewColumn;
 
-    for (const editor of vscode.window.visibleTextEditors) {
+    for (const editor of window.visibleTextEditors) {
       if (editor.viewColumn !== undefined && editor.viewColumn !== webviewColumn) {
         return editor.viewColumn;
       }
@@ -318,10 +329,10 @@ export class BicepVisualizerView extends Disposable {
     return undefined;
   }
 
-  private revealEditorRange(editor: vscode.TextEditor, range: vscode.Range) {
+  private revealEditorRange(editor: TextEditor, range: Range) {
     const cursorPosition = editor.selection.active.with(range.start.line, range.start.character);
-    editor.selection = new vscode.Selection(cursorPosition, cursorPosition);
-    editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
+    editor.selection = new Selection(cursorPosition, cursorPosition);
+    editor.revealRange(range, TextEditorRevealType.InCenter);
   }
 
   private escapeHtml(value: string): string {
@@ -338,10 +349,10 @@ export class BicepVisualizerView extends Disposable {
     const nonce = crypto.randomBytes(16).toString("hex");
 
     const scriptUri = this.webviewPanel.webview.asWebviewUri(
-      vscode.Uri.joinPath(this.extensionUri, "out", "visual-designer", "index.js"),
+      Uri.joinPath(this.extensionUri, "out", "visual-designer", "index.js"),
     );
     const cssUri = this.webviewPanel.webview.asWebviewUri(
-      vscode.Uri.joinPath(this.extensionUri, "out", "visual-designer", "assets", "index.css"),
+      Uri.joinPath(this.extensionUri, "out", "visual-designer", "assets", "index.css"),
     );
 
     return `

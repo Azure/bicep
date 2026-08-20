@@ -3,7 +3,7 @@
 
 import assert from "assert";
 import { readFileSync } from "fs";
-import vscode, { ConfigurationTarget, Selection, TextDocument } from "vscode";
+import { ConfigurationTarget, env, Selection, TextDocument, window, workspace } from "vscode";
 import { SuppressedWarningsManager } from "../../src/features/paste-as-bicep";
 import { getBicepConfiguration } from "../../src/infrastructure/configuration";
 import { executeCloseAllEditors, executeEditorPasteCommand, executePasteAsBicepCommand } from "./utils/commands";
@@ -20,7 +20,7 @@ describe("pasteAsBicep", (): void => {
   let originalSuppressedWarnings: unknown;
 
   beforeAll(async () => {
-    originalClipboard = await vscode.env.clipboard.readText();
+    originalClipboard = await env.clipboard.readText();
     originalDecompileOnPaste = configuration.inspect<boolean>("decompileOnPaste")?.globalValue;
     originalSuppressedWarnings = configuration.inspect(
       SuppressedWarningsManager.suppressedWarningsConfigurationKey,
@@ -38,7 +38,7 @@ describe("pasteAsBicep", (): void => {
       originalSuppressedWarnings,
       ConfigurationTarget.Global,
     );
-    await vscode.env.clipboard.writeText(originalClipboard);
+    await env.clipboard.writeText(originalClipboard);
   });
 
   async function configureSettings(): Promise<void> {
@@ -74,7 +74,7 @@ describe("pasteAsBicep", (): void => {
   function setSelection(document: TextDocument, offsetStart: number, offsetLength: number): void {
     const start = document.positionAt(offsetStart);
     const end = document.positionAt(offsetStart + offsetLength);
-    const activeTextEditor = vscode.window.activeTextEditor;
+    const activeTextEditor = window.activeTextEditor;
     assert(activeTextEditor, "No active text editor");
     activeTextEditor.selection = new Selection(start, end);
   }
@@ -93,15 +93,15 @@ describe("pasteAsBicep", (): void => {
     await configureSettings();
 
     const [initialBicep, offsetStart, offsetLength] = getTextAndMarkers(initialBicepWithMarker);
-    const textDocument = await vscode.workspace.openTextDocument({
+    const textDocument = await workspace.openTextDocument({
       language: "bicep",
       content: initialBicep,
     });
-    const editor = await vscode.window.showTextDocument(textDocument);
+    const editor = await window.showTextDocument(textDocument);
 
     setSelection(textDocument, offsetStart, offsetLength);
 
-    await vscode.env.clipboard.writeText(jsonToPaste);
+    await env.clipboard.writeText(jsonToPaste);
 
     if (action === "copy/paste") {
       await executeEditorPasteCommand();

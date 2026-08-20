@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 import { existsSync } from "fs";
 import * as path from "path";
-import * as vscode from "vscode";
+import { commands, ExtensionContext, LogOutputChannel, workspace } from "vscode";
 import * as lsp from "vscode-languageclient/node";
 import { TransportKind } from "vscode-languageclient/node";
 import { bicepLanguageId } from "../editor";
@@ -61,8 +61,8 @@ function getServerStartupOptions(
 }
 
 export async function createLanguageService(
-  context: vscode.ExtensionContext,
-  outputChannel: vscode.LogOutputChannel,
+  context: ExtensionContext,
+  outputChannel: LogOutputChannel,
   dotnetCommandPath: string,
 ): Promise<lsp.LanguageClient> {
   getLogger().info("Launching Bicep language service...");
@@ -92,7 +92,7 @@ export async function createLanguageService(
       fileEvents: [
         // Register to watch all files and folders, regardless of extension, because they could be referenced by load* functions.
         // We will do the filtering in the language server. This glob pattern should be kept in-sync with BicepDidChangeWatchedFilesHandler.cs.
-        vscode.workspace.createFileSystemWatcher("**/*"),
+        workspace.createFileSystemWatcher("**/*"),
       ],
     },
   };
@@ -105,16 +105,14 @@ export async function createLanguageService(
   // See https://github.com/microsoft/vscode-languageserver-node/blob/77c3a10a051ac619e4e3ef62a3865717702b64a3/client/src/common/client.ts#L3268
 
   client.onNotification("bicep/triggerEditorCompletion", async () => {
-    await vscode.commands.executeCommand("editor.action.triggerSuggest");
+    await commands.executeCommand("editor.action.triggerSuggest");
   });
 
   return client;
 }
 
 function getCustomDotnetRuntimePathConfig() {
-  const acquireConfig = vscode.workspace
-    .getConfiguration(dotnetAcquisitionExtensionSetting)
-    .get(existingDotnetPathSetting);
+  const acquireConfig = workspace.getConfiguration(dotnetAcquisitionExtensionSetting).get(existingDotnetPathSetting);
   if (!Array.isArray(acquireConfig)) {
     return null;
   }
@@ -135,7 +133,7 @@ export async function ensureDotnetRuntimeInstalled(): Promise<string> {
     );
   }
 
-  const result = await vscode.commands.executeCommand<{ dotnetPath: string }>("dotnet.acquire", {
+  const result = await commands.executeCommand<{ dotnetPath: string }>("dotnet.acquire", {
     version: dotnetRuntimeVersion,
     requestingExtensionId: extensionId,
   });
@@ -164,7 +162,7 @@ export async function ensureDotnetRuntimeInstalled(): Promise<string> {
   return dotnetPath;
 }
 
-function ensureLanguageServerExists(context: vscode.ExtensionContext): string {
+function ensureLanguageServerExists(context: ExtensionContext): string {
   const languageServerPath =
     process.env.BICEP_LANGUAGE_SERVER_PATH ?? // Local server for debugging.
     context.asAbsolutePath(packagedServerPath); // Packaged server.

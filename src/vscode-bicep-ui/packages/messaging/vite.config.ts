@@ -1,14 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import peerDepsExternal from "rollup-plugin-peer-deps-external";
 import dts from "vite-plugin-dts";
 import { coverageConfigDefaults, defineConfig } from "vitest/config";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    peerDepsExternal(),
     dts({
       exclude: ["**/__tests__/**"],
     }),
@@ -18,7 +16,7 @@ export default defineConfig({
       formats: ["es"],
       entry: "src/index.ts",
     },
-    rollupOptions: {
+    rolldownOptions: {
       external: ["react", "react-dom"],
       output: {
         entryFileNames: "[name].js",

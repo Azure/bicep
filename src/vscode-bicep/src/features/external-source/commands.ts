@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import vscode, { Uri } from "vscode";
+import { Uri, window, workspace } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { Disposable } from "../../infrastructure/lifecycle";
@@ -14,9 +14,9 @@ export class ShowModuleSourceFileCommand implements Command {
 
   public async execute(_documentUri: Uri | undefined, targetUri: string): Promise<void> {
     const uri = Uri.parse(targetUri, true);
-    const doc = await vscode.workspace.openTextDocument(uri);
+    const doc = await workspace.openTextDocument(uri);
 
-    await vscode.window.showTextDocument(doc);
+    await window.showTextDocument(doc);
   }
 }
 
@@ -26,7 +26,7 @@ export async function activateExternalSourceFeature(
   languageClient: LanguageClient,
 ): Promise<void> {
   extension.register(
-    vscode.workspace.registerTextDocumentContentProvider(
+    workspace.registerTextDocumentContentProvider(
       BicepExternalSourceScheme,
       new BicepExternalSourceContentProvider(languageClient),
     ),

@@ -58,7 +58,7 @@ transforms the TypeScript test modules directly from `tests/e2e/*.test.ts`.
 
 ## Vitest Runner
 
-`runner/extension-host.ts` obtains the real API with `require("vscode")`, stores it temporarily on `globalThis`,
+`runner/extension-host.ts` obtains the real API with `import("vscode")`, stores it temporarily on `globalThis`,
 and activates the Bicep extension before starting Vitest. The setup file maps both named and default imports of
 `vscode` to that object.
 
@@ -80,7 +80,7 @@ responses are passed through `structuredClone()` to preserve the value semantics
 
 ### `vscode` imports
 
-Vite's module graph cannot resolve VS Code's synthetic CommonJS module by itself. `runner/setup.ts` mocks the
+Vite's module graph cannot resolve VS Code's synthetic `vscode` module by itself. `runner/setup.ts` mocks the
 module with the API object captured from the extension host. This is the real API, not a test double.
 
 ### `navigator`

@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2022",
     "lib": ["dom", "dom.iterable", "es2020", "ES2021.String", "ES2022.Error"],
     "types": ["node"],
-    "module": "node16",
-    "moduleResolution": "node16",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "rootDir": "src",
     "outDir": "out",

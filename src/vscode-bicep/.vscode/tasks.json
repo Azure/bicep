@@ -17,38 +17,7 @@
       "presentation": {
         "reveal": "silent"
       },
-      "problemMatcher": {
-        "owner": "webpack",
-        "source": "ts",
-        "applyTo": "allDocuments",
-        "fileLocation": ["relative", "${cwd}"],
-        "severity": "error",
-        "pattern": [
-          {
-            "kind": "location",
-            "regexp": "(ERROR|WARNING) in (.*?):(\\d+):(\\d+)",
-            "severity": 1,
-            "file": 2,
-            "line": 3,
-            "column": 4
-          },
-          {
-            "regexp": "\\s*TS(\\d+):\\s*(.*)$",
-            "code": 1,
-            "message": 2
-          }
-        ],
-        "background": {
-          "activeOnStart": true,
-          "beginsPattern": {
-            "regexp": "Compiling.*?|Compilation .*?starting"
-          },
-          "endsPattern": {
-            "regexp": "[Cc]ompiled (.*?successfully|with .*?error)|[Cc]ompilation .*?finished"
-          }
-        }
-      },
-      "isBackground": true,
+      "problemMatcher": "$tsc",
       "group": {
         "kind": "build",
         "isDefault": true
@@ -63,28 +32,7 @@
       "presentation": {
         "reveal": "silent"
       },
-      "problemMatcher": {
-        "owner": "webpack",
-        "source": "ts",
-        "applyTo": "allDocuments",
-        "fileLocation": ["relative", "${cwd}"],
-        "severity": "error",
-        "pattern": [
-          {
-            "kind": "location",
-            "regexp": "(ERROR|WARNING) in (.*?):(\\d+):(\\d+)",
-            "severity": 1,
-            "file": 2,
-            "line": 3,
-            "column": 4
-          },
-          {
-            "regexp": "\\s*TS(\\d+):\\s*(.*)$",
-            "code": 1,
-            "message": 2
-          }
-        ]
-      },
+      "problemMatcher": "$tsc",
       "group": "build",
       "dependsOn": ["clean"],
       "dependsOrder": "sequence"
@@ -117,37 +65,21 @@
       "label": "watch",
       "type": "npm",
       "script": "watch",
-      "problemMatcher": {
-        "owner": "webpack",
-        "source": "ts",
-        "applyTo": "allDocuments",
-        "fileLocation": ["relative", "${cwd}"],
-        "severity": "error",
-        "pattern": [
-          {
-            "kind": "location",
-            "regexp": "(ERROR|WARNING) in (.*?):(\\d+):(\\d+)",
-            "severity": 1,
-            "file": 2,
-            "line": 3,
-            "column": 4
+      "problemMatcher": [
+        "$tsc",
+        {
+          "owner": "vite",
+          "pattern": {
+            "regexp": "^\\s*(?:error during build:|\\[vite\\]\\s*)(.*)$",
+            "message": 1
           },
-          {
-            "regexp": "\\s*TS(\\d+):\\s*(.*)$",
-            "code": 1,
-            "message": 2
-          }
-        ],
-        "background": {
-          "activeOnStart": true,
-          "beginsPattern": {
-            "regexp": "Compiling.*?|Compilation .*?starting"
-          },
-          "endsPattern": {
-            "regexp": "[Cc]ompiled (.*?successfully|with .*?error)|[Cc]ompilation .*?finished"
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": "^\\s*(?:vite v\\S+ building|build started)",
+            "endsPattern": "built in"
           }
         }
-      },
+      ],
       "isBackground": true,
       "presentation": {
         "reveal": "silent"

@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 import { cpSync, existsSync, readFileSync } from "fs";
 import * as path from "path";
+import { fileURLToPath } from "url";
 import { withTempDirectory } from "../utils/temp-directory";
 
-const examplesRoot = path.join(findExtensionRoot(__dirname), "tests/e2e/examples");
+const examplesRoot = path.join(findExtensionRoot(path.dirname(fileURLToPath(import.meta.url))), "tests/e2e/examples");
 
 export function resolveExamplePath(exampleCategory: string, exampleFolder: string, exampleFile = "main.bicep"): string {
   return path.resolve(examplesRoot, exampleCategory, exampleFolder, exampleFile);

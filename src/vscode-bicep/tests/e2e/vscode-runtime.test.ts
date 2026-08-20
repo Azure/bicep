@@ -3,11 +3,11 @@
 
 /// <reference types="vitest/globals" />
 
-import * as vscode from "vscode";
+import { extensions, version } from "vscode";
 
 test("runs inside the VS Code extension host", () => {
-  console.log(`VS Code version: ${vscode.version}`);
+  console.log(`VS Code version: ${version}`);
   // These checks prove the module received the real host API rather than a Node test double.
-  expect(vscode.version).toMatch(/^\d+\.\d+\.\d+/);
-  expect(vscode.extensions.getExtension("ms-azuretools.vscode-bicep")).toBeDefined();
+  expect(version).toMatch(/^\d+\.\d+\.\d+/);
+  expect(extensions.getExtension("ms-azuretools.vscode-bicep")).toBeDefined();
 });

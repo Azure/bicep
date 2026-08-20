@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import vscode from "vscode";
+import { Uri } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { findOrCreateActiveBicepFile, findOrCreateActiveBicepParamFile } from "../../infrastructure/editor";
@@ -17,7 +17,7 @@ export class BuildCommand implements Command {
     private readonly outputChannelManager: OutputChannelManager,
   ) {}
 
-  public async execute(documentUri?: vscode.Uri | undefined): Promise<void> {
+  public async execute(documentUri?: Uri | undefined): Promise<void> {
     documentUri = await findOrCreateActiveBicepFile(
       this.prompts,
       documentUri,
@@ -49,7 +49,7 @@ export class BuildParamsCommand implements Command {
     private readonly outputChannelManager: OutputChannelManager,
   ) {}
 
-  public async execute(documentUri?: vscode.Uri | undefined): Promise<void> {
+  public async execute(documentUri?: Uri | undefined): Promise<void> {
     documentUri = await findOrCreateActiveBicepParamFile(
       this.prompts,
       documentUri,

@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import mockRequire from "mock-require";
-
 export class CancellationError extends Error {}
 
 export const ConfigurationTarget = { Global: 1 };
@@ -21,7 +19,5 @@ const vscode = {
   window,
   l10n,
 };
-
-mockRequire("vscode", vscode);
 
 export default vscode;

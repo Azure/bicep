@@ -3,7 +3,7 @@
 
 import fs from "fs";
 import path from "path";
-import vscode from "vscode";
+import { workspace } from "vscode";
 import { executeCloseAllEditors, executeDecompileCommand } from "./utils/commands";
 import { withTempDirectory } from "./utils/temp-directory";
 
@@ -44,7 +44,7 @@ describe("decompile", (): void => {
       const inputPath = path.join(folder, "my template.json");
       fs.writeFileSync(inputPath, json);
 
-      const textDocument = await vscode.workspace.openTextDocument(inputPath);
+      const textDocument = await workspace.openTextDocument(inputPath);
 
       await executeDecompileCommand(textDocument.uri);
 

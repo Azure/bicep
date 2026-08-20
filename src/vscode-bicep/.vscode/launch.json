@@ -50,7 +50,7 @@
       "args": [
         "--enable-proposed-api=ms-azuretools.vscode-bicep",
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/out/tests/e2e/runner/extension-host"
+        "--extensionTestsPath=${workspaceFolder}/out/tests/e2e/runner/extension-host.js"
       ],
       "preLaunchTask": "build:e2e",
       "env": {
@@ -66,7 +66,7 @@
       "args": [
         "--enable-proposed-api=ms-azuretools.vscode-bicep",
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/out/tests/e2e/runner/extension-host"
+        "--extensionTestsPath=${workspaceFolder}/out/tests/e2e/runner/extension-host.js"
       ],
       "preLaunchTask": "build:e2e:dev",
       "env": {

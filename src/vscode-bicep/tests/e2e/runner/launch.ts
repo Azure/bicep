@@ -4,6 +4,7 @@ import * as cp from "child_process";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
+import { fileURLToPath } from "url";
 import { downloadAndUnzipVSCode, resolveCliArgsFromVSCodeExecutablePath, runTests } from "@vscode/test-electron";
 import { minVersion } from "semver";
 
@@ -15,7 +16,8 @@ async function go() {
 
     // Do not import the json file directly because it's not under /src.
     // We also don't want it to be included in the /out folder.
-    const packageJsonPath = path.resolve(__dirname, "../../../../package.json");
+    const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
+    const packageJsonPath = path.resolve(moduleDirectory, "../../../../package.json");
     const extensionDevelopmentPath = path.dirname(packageJsonPath);
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, { encoding: "utf-8" }));
     const minSupportedVSCodeSemver = minVersion(packageJson.engines.vscode);
@@ -71,7 +73,7 @@ async function go() {
       await runTests({
         vscodeExecutablePath,
         extensionDevelopmentPath,
-        extensionTestsPath: path.resolve(__dirname, "extension-host"),
+        extensionTestsPath: path.resolve(moduleDirectory, "extension-host.js"),
         extensionTestsEnv: {
           TEST_MODE: "e2e",
           ...(useLocalServers ? getLocalServerEnvironment(extensionDevelopmentPath) : {}),

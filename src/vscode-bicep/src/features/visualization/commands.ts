@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import vscode from "vscode";
+import { TextEditor, Uri, ViewColumn, window, workspace } from "vscode";
 import { Command } from "../../infrastructure/commands";
 import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
 import { Prompts } from "../../infrastructure/prompts";
@@ -9,14 +9,12 @@ import { BicepVisualizerViewManager } from "./visualizer-view-manager";
 async function openView(
   prompts: Prompts,
   viewManager: BicepVisualizerViewManager,
-  documentUri: vscode.Uri | undefined,
+  documentUri: Uri | undefined,
   sideBySide: boolean,
 ) {
   documentUri = await findOrCreateActiveBicepFile(prompts, documentUri, "Choose which Bicep file to visualize");
 
-  const viewColumn = sideBySide
-    ? vscode.ViewColumn.Beside
-    : (vscode.window.activeTextEditor?.viewColumn ?? vscode.ViewColumn.One);
+  const viewColumn = sideBySide ? ViewColumn.Beside : (window.activeTextEditor?.viewColumn ?? ViewColumn.One);
 
   await viewManager.openView(documentUri, viewColumn);
 
@@ -31,7 +29,7 @@ export class ShowVisualizerCommand implements Command {
     private readonly viewManager: BicepVisualizerViewManager,
   ) {}
 
-  public async execute(documentUri?: vscode.Uri | undefined): Promise<vscode.ViewColumn | undefined> {
+  public async execute(documentUri?: Uri | undefined): Promise<ViewColumn | undefined> {
     return await openView(this.prompts, this.viewManager, documentUri, false);
   }
 }
@@ -44,7 +42,7 @@ export class ShowVisualizerToSideCommand implements Command {
     private readonly viewManager: BicepVisualizerViewManager,
   ) {}
 
-  public async execute(documentUri?: vscode.Uri | undefined): Promise<vscode.ViewColumn | undefined> {
+  public async execute(documentUri?: Uri | undefined): Promise<ViewColumn | undefined> {
     return await openView(this.prompts, this.viewManager, documentUri, true);
   }
 }
@@ -55,13 +53,13 @@ export class ShowSourceFromVisualizerCommand implements Command {
 
   public constructor(private readonly viewManager: BicepVisualizerViewManager) {}
 
-  public async execute(): Promise<vscode.TextEditor | undefined> {
+  public async execute(): Promise<TextEditor | undefined> {
     const activeUri = this.viewManager.activeDocumentUri;
 
     if (activeUri) {
-      const document = await vscode.workspace.openTextDocument(activeUri);
+      const document = await workspace.openTextDocument(activeUri);
 
-      return await vscode.window.showTextDocument(document, vscode.ViewColumn.One);
+      return await window.showTextDocument(document, ViewColumn.One);
     }
 
     return undefined;

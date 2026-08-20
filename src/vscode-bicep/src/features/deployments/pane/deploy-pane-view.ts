@@ -3,7 +3,18 @@
 import crypto from "crypto";
 import { readFile } from "fs/promises";
 import path from "path";
-import vscode, { ExtensionContext } from "vscode";
+import {
+  Event,
+  EventEmitter,
+  ExtensionContext,
+  TextDocument,
+  Uri,
+  ViewColumn,
+  WebviewPanel,
+  WebviewPanelOnDidChangeViewStateEvent,
+  window,
+  workspace,
+} from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Disposable } from "../../../infrastructure/lifecycle";
 import { getLogger } from "../../../infrastructure/logging";
@@ -28,29 +39,27 @@ const deployPaneStateKey = "bicep.deployPane.configState";
 export class DeployPaneView extends Disposable {
   public static viewType = "bicep.deployPane";
 
-  private readonly onDidDisposeEmitter: vscode.EventEmitter<void>;
-  private readonly onDidChangeViewStateEmitter: vscode.EventEmitter<vscode.WebviewPanelOnDidChangeViewStateEvent>;
+  private readonly onDidDisposeEmitter: EventEmitter<void>;
+  private readonly onDidChangeViewStateEmitter: EventEmitter<WebviewPanelOnDidChangeViewStateEvent>;
   private readonly ready: Promise<void>;
   private resolveReady!: () => void;
 
   private readyToRender = false;
-  private document?: vscode.TextDocument;
+  private document?: TextDocument;
 
   private constructor(
     private readonly extensionContext: ExtensionContext,
     private readonly prompts: Prompts,
     private readonly azureMgr: IAzureUIManager,
     private readonly languageClient: LanguageClient,
-    private readonly webviewPanel: vscode.WebviewPanel,
-    private readonly extensionUri: vscode.Uri,
-    private readonly documentUri: vscode.Uri,
+    private readonly webviewPanel: WebviewPanel,
+    private readonly extensionUri: Uri,
+    private readonly documentUri: Uri,
   ) {
     super();
 
-    this.onDidDisposeEmitter = new vscode.EventEmitter<void>();
-    this.onDidChangeViewStateEmitter = this.register(
-      new vscode.EventEmitter<vscode.WebviewPanelOnDidChangeViewStateEvent>(),
-    );
+    this.onDidDisposeEmitter = new EventEmitter<void>();
+    this.onDidChangeViewStateEmitter = this.register(new EventEmitter<WebviewPanelOnDidChangeViewStateEvent>());
     this.ready = new Promise((resolve) => (this.resolveReady = resolve));
 
     this.register(this.webviewPanel.webview.onDidReceiveMessage(this.handleDidReceiveMessage, this));
@@ -65,11 +74,11 @@ export class DeployPaneView extends Disposable {
     );
   }
 
-  public get onDidDispose(): vscode.Event<void> {
+  public get onDidDispose(): Event<void> {
     return this.onDidDisposeEmitter.event;
   }
 
-  public get onDidChangeViewState(): vscode.Event<vscode.WebviewPanelOnDidChangeViewStateEvent> {
+  public get onDidChangeViewState(): Event<WebviewPanelOnDidChangeViewStateEvent> {
     return this.onDidChangeViewStateEmitter.event;
   }
 
@@ -78,12 +87,12 @@ export class DeployPaneView extends Disposable {
     prompts: Prompts,
     azureMgr: IAzureUIManager,
     languageClient: LanguageClient,
-    viewColumn: vscode.ViewColumn,
-    extensionUri: vscode.Uri,
-    documentUri: vscode.Uri,
+    viewColumn: ViewColumn,
+    extensionUri: Uri,
+    documentUri: Uri,
   ): DeployPaneView {
     const visualizerTitle = `Deploy ${path.basename(documentUri.fsPath)}`;
-    const webviewPanel = vscode.window.createWebviewPanel(DeployPaneView.viewType, visualizerTitle, viewColumn, {
+    const webviewPanel = window.createWebviewPanel(DeployPaneView.viewType, visualizerTitle, viewColumn, {
       enableScripts: true,
       retainContextWhenHidden: true,
     });
@@ -104,9 +113,9 @@ export class DeployPaneView extends Disposable {
     prompts: Prompts,
     azureMgr: IAzureUIManager,
     languageClient: LanguageClient,
-    webviewPanel: vscode.WebviewPanel,
-    extensionUri: vscode.Uri,
-    documentUri: vscode.Uri,
+    webviewPanel: WebviewPanel,
+    extensionUri: Uri,
+    documentUri: Uri,
   ): DeployPaneView {
     return new DeployPaneView(
       extensionContext,
@@ -150,7 +159,7 @@ export class DeployPaneView extends Disposable {
     }
 
     try {
-      this.document = await vscode.workspace.openTextDocument(this.documentUri);
+      this.document = await workspace.openTextDocument(this.documentUri);
     } catch {
       this.webviewPanel.webview.html = this.createDocumentNotFoundHtml();
       return;
@@ -261,10 +270,10 @@ export class DeployPaneView extends Disposable {
     const { cspSource } = this.webviewPanel.webview;
     const nonce = crypto.randomBytes(16).toString("hex");
     const scriptUri = this.webviewPanel.webview.asWebviewUri(
-      vscode.Uri.joinPath(this.extensionUri, "out", "deploy-pane", "index.js"),
+      Uri.joinPath(this.extensionUri, "out", "deploy-pane", "index.js"),
     );
     const codiconCssUri = this.webviewPanel.webview.asWebviewUri(
-      vscode.Uri.joinPath(this.extensionUri, "out", "deploy-pane", "assets", "index.css"),
+      Uri.joinPath(this.extensionUri, "out", "deploy-pane", "assets", "index.css"),
     );
 
     return `

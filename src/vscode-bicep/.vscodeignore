@@ -10,12 +10,22 @@ out/e2e/
 out/src/
 out/tests/
 
+*.manifest
+*.vsix
+bicep-e2e.log
+bicepLanguageServer/**/*.exe
+bicepLanguageServer/**/*.pdb
+bicepLanguageServer/**/*.xml
+bicepMcpServer/**/*.exe
+bicepMcpServer/**/*.pdb
+bicepMcpServer/**/*.xml
+
 .gitignore
 .prettierrc
 .vscodeignore
 eslint.config.mjs
 package.test.ts
-webpack.config.mjs
+vite.config.mts
 vitest.config.mts
 tsconfig.e2e.json
 tsconfig.json

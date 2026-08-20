@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import vscode, { Uri, window, workspace } from "vscode";
+import { Uri, window, workspace } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
@@ -26,7 +26,7 @@ export class InsertResourceCommand implements Command {
     const document = await workspace.openTextDocument(documentUri);
     const editor = await window.showTextDocument(document);
 
-    const resourceId = await vscode.window.showInputBox({
+    const resourceId = await window.showInputBox({
       prompt: "Enter a resourceId",
     });
 

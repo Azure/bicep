@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import vscode from "vscode";
+import { ViewColumn, window, workspace } from "vscode";
 import { resolveExamplePath } from "./examples";
 import {
   executeCloseAllEditors,
@@ -31,14 +31,14 @@ describe("deploypane", (): void => {
 
       const viewColumn = await executeShowDeployPaneToSideCommand(document.uri);
       assert(viewColumn !== undefined);
-      expect(viewColumn).toBe(vscode.ViewColumn.Beside);
+      expect(viewColumn).toBe(ViewColumn.Beside);
     },
   );
 });
 
 async function openDocument(path: string) {
-  const document = await vscode.workspace.openTextDocument(path);
-  const editor = await vscode.window.showTextDocument(document);
+  const document = await workspace.openTextDocument(path);
+  const editor = await window.showTextDocument(document);
 
   return { document, editor };
 }

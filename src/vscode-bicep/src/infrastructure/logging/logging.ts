@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import * as path from "path";
-import vscode from "vscode";
+import { fileURLToPath } from "url";
+import { Disposable, ExtensionContext, OutputChannel } from "vscode";
 import * as winston from "winston";
 import Transport from "winston-transport";
 import { parseError } from "../errors";
@@ -12,7 +13,7 @@ import { parseError } from "../errors";
  */
 export const e2eLogName = "bicep-e2e.log";
 
-export interface Logger extends vscode.Disposable {
+export interface Logger extends Disposable {
   debug(message: string): void;
   info(message: string): void;
   warn(message: string): void;
@@ -35,7 +36,7 @@ export class WinstonLogger implements Logger {
   private disposed = false;
 
   constructor(
-    outputChannel: Pick<vscode.OutputChannel, "appendLine">,
+    outputChannel: Pick<OutputChannel, "appendLine">,
     logLevel: LogLevel,
     createWinstonLogger: WinstonLoggerFactory = winston.createLogger,
   ) {
@@ -55,7 +56,7 @@ export class WinstonLogger implements Logger {
         ...(process.env.TEST_MODE === "e2e"
           ? [
               new winston.transports.File({
-                dirname: path.resolve(__dirname, ".."),
+                dirname: path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."),
                 filename: e2eLogName,
                 options: { flags: "w" },
               }),
@@ -91,7 +92,7 @@ export class WinstonLogger implements Logger {
 }
 
 class outputChannelTransport extends Transport {
-  constructor(private readonly outputChannel: Pick<vscode.OutputChannel, "appendLine">) {
+  constructor(private readonly outputChannel: Pick<OutputChannel, "appendLine">) {
     super();
   }
 
@@ -107,8 +108,8 @@ class outputChannelTransport extends Transport {
 }
 
 export function createLogger(
-  context: Pick<vscode.ExtensionContext, "subscriptions">,
-  outputChannel: Pick<vscode.OutputChannel, "appendLine">,
+  context: Pick<ExtensionContext, "subscriptions">,
+  outputChannel: Pick<OutputChannel, "appendLine">,
   createWinstonLogger?: WinstonLoggerFactory,
 ): Logger {
   // TODO:
