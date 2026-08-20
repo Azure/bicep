@@ -25,8 +25,8 @@
     "@types/react-dom": "^19.2.3",
     "@types/vscode-webview": "^1.57.5",
     "@vitest/coverage-v8": "^4.1.10",
-    "happy-dom": "^20.8.9",
-    "vite": "^8.1.5",
+    "happy-dom": "^20.11.2",
+    "vite": "^8.2.1",
     "vite-plugin-dts": "^5.0.3",
     "vitest": "^4.1.10"
   }
