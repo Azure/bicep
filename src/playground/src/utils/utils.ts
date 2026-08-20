@@ -9,9 +9,14 @@ export function handleShareLink(
     const rawHash = window.location.hash.substring(1);
     if (!rawHash) {
       onContents(null);
+      return;
     }
 
-    history.replaceState(null, "", " ");
+    history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}${window.location.search}`,
+    );
     const hashContents = decodeHash(rawHash);
 
     onContents(hashContents);

@@ -84,9 +84,14 @@ public class PlaygroundPage(IPage page)
 
     public async Task ExpectingArmEditorContentToBeEquivalentTo(string expectedContent)
     {
-        var content = await GetEditorContent(ArmEditorPane);
+        var expected = ReplaceLineEndings(IgnoreGeneratorField(expectedContent));
+        var content = await WaitForEditorContent(
+            ArmEditorPane,
+            candidate => IgnoreGeneratorField(candidate) == expected,
+            expected,
+            ignoreGeneratorField: true);
         content = IgnoreGeneratorField(content);
-        content.Should().BeEquivalentTo(ReplaceLineEndings(IgnoreGeneratorField(expectedContent)));
+        content.Should().BeEquivalentTo(expected);
     }
 
     public async Task ExpectingArmEditorContentToContain(string expectedContent)
@@ -99,6 +104,15 @@ public class PlaygroundPage(IPage page)
             ignoreGeneratorField: true);
 
         IgnoreGeneratorField(content).Should().Contain(expected);
+    }
+
+    public async Task ExpectingErrorToContain(string expectedContent)
+    {
+        var alert = page.Locator(".playground-error");
+        await alert.WaitForAsync(new LocatorWaitForOptions { State = WaitForSelectorState.Visible });
+
+        var content = await alert.TextContentAsync();
+        content.Should().Contain(expectedContent);
     }
 
     private async Task<string> WaitForEditorContent(

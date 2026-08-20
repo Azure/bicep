@@ -1,72 +1,103 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import * as monaco from 'monaco-editor';
-import React, { createRef, useEffect, useState } from 'react';
-import { DotnetInterop } from '../utils/interop';
-import { useColorMode } from '../utils/colorModes';
+import * as monaco from "monaco-editor";
+import React, { useEffect, useRef } from "react";
+import { DotnetInterop } from "../utils/interop";
+import { useColorMode } from "../utils/colorModes";
 
 interface Props {
-  options: monaco.editor.IStandaloneEditorConstructionOptions,
-  initialContent: string,
-  onContentChange?: (model: monaco.editor.ITextModel, content: string) => void,
+  options: monaco.editor.IStandaloneEditorConstructionOptions;
+  initialContent: string;
+  onContentChange?: (model: monaco.editor.ITextModel, content: string) => void;
 }
 
-export const CodeEditor : React.FC<Props> = (props) => {
+export const CodeEditor: React.FC<Props> = (props) => {
   const { options, initialContent, onContentChange } = props;
-  const editorRef = createRef<HTMLDivElement>();
-  const [model, setModel] = useState<monaco.editor.ITextModel>();
-  const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(undefined);
+  const modelRef = useRef<monaco.editor.ITextModel>(undefined);
+  const onContentChangeRef = useRef(onContentChange);
+  const initialContentRef = useRef(initialContent);
+  const initialOptionsRef = useRef(options);
   const colorMode = useColorMode();
 
   useEffect(() => {
-    async function initializeEditor() {
-      const editor = monaco.editor.create(editorRef.current!, {
-        ...options,
-        theme: colorMode === 'dark' ? 'vs-dark' : 'vs',
-      });
-      const model = editor.getModel()!;
-  
-      editor.onDidChangeModelContent(async () => {
-        if (onContentChange) {
-          const text = model.getValue();
+    onContentChangeRef.current = onContentChange;
+  }, [onContentChange]);
 
-          onContentChange(model, text);
-        }
-      });
-
-      setEditor(editor);
-      setModel(model);
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) {
+      throw new Error("The Monaco editor container was not mounted.");
     }
 
-    initializeEditor();
+    const editor = monaco.editor.create(container, {
+      ...initialOptionsRef.current,
+      theme: colorMode === "dark" ? "vs-dark" : "vs",
+      value: initialContentRef.current,
+    });
+    const model = editor.getModel();
+    if (!model) {
+      editor.dispose();
+      throw new Error("Monaco did not create an editor model.");
+    }
+
+    const contentChangeSubscription = editor.onDidChangeModelContent(() => {
+      onContentChangeRef.current?.(model, model.getValue());
+    });
+
+    editorRef.current = editor;
+    modelRef.current = model;
+    onContentChangeRef.current?.(model, model.getValue());
+
+    return () => {
+      contentChangeSubscription.dispose();
+      editor.dispose();
+      if (!model.isDisposed()) {
+        model.dispose();
+      }
+      editorRef.current = undefined;
+      modelRef.current = undefined;
+    };
   }, []);
 
   useEffect(() => {
-    model?.setValue(initialContent);
-  }, [initialContent, model]);
+    const model = modelRef.current;
+    if (model && model.getValue() !== initialContent) {
+      model.setValue(initialContent);
+    }
+  }, [initialContent]);
 
   useEffect(() => {
-    editor?.updateOptions({
+    editorRef.current?.updateOptions({
       ...options,
-      theme: colorMode === 'dark' ? 'vs-dark' : 'vs',
+      theme: colorMode === "dark" ? "vs-dark" : "vs",
     });
-  }, [colorMode]);
+  }, [colorMode, options]);
 
-  return (
-    <div ref={editorRef} style={{height: '100%', width: '100%'}} />
-  );
+  return <div ref={containerRef} style={{ height: "100%", width: "100%" }} />;
 };
 
 export function registerBicep(interop: DotnetInterop) {
   monaco.languages.register({
-    id: 'bicep',
-    extensions: ['.bicep'],
-    aliases: ['bicep'],
+    id: "bicep",
+    extensions: [".bicep"],
+    aliases: ["bicep"],
   });
 
-  monaco.languages.registerDocumentSemanticTokensProvider('bicep', {
-    getLegend: () => interop.getSemanticTokensLegend(),
-    provideDocumentSemanticTokens: async (model) => await interop.getSemanticTokens(model.getValue()),
-    releaseDocumentSemanticTokens: () => { return; }
-  });
+  const semanticTokensRegistration =
+    monaco.languages.registerDocumentSemanticTokensProvider("bicep", {
+      getLegend: () => interop.getSemanticTokensLegend(),
+      provideDocumentSemanticTokens: async (model) =>
+        await interop.getSemanticTokens(model.getValue()),
+      releaseDocumentSemanticTokens: () => {
+        return;
+      },
+    });
+
+  return {
+    dispose: () => {
+      semanticTokensRegistration.dispose();
+    },
+  };
 }

@@ -1,42 +1,93 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { createRoot } from 'react-dom/client'
-import { Container, Row, Spinner } from 'react-bootstrap';
-import { ApplicationInsights } from '@microsoft/applicationinsights-web';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { aiKey } from '../package.json';
-import './index.css';
-import './monacoEnvironment';
-import { initializeInterop } from './utils/interop';
-import { App } from './App';
-import { getColorMode } from './utils/colorModes';
+import { ApplicationInsights } from "@microsoft/applicationinsights-web";
+import { createRoot } from "react-dom/client";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { aiKey } from "../package.json";
+import { App } from "./App";
+import "./index.css";
+import "./monacoEnvironment";
+import { getColorMode } from "./utils/colorModes";
+import { initializeInterop } from "./utils/interop";
+import { configureTelemetry, getSanitizedCurrentUrl } from "./utils/telemetry";
+import { handleShareLink } from "./utils/utils";
 
-const updateTheme = () => document.documentElement.setAttribute('data-bs-theme', getColorMode());
+const updateTheme = () =>
+  document.documentElement.setAttribute("data-bs-theme", getColorMode());
 
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTheme);
-window.addEventListener('DOMContentLoaded', updateTheme);
+window
+  .matchMedia("(prefers-color-scheme: dark)")
+  .addEventListener("change", updateTheme);
+window.addEventListener("DOMContentLoaded", updateTheme);
 
-const root = createRoot(document.getElementById('root')!);
-root.render(
-  // Loading spinner while we initialize Blazor
-  <Container className="d-flex vh-100">
-    <Row className="m-auto align-self-center">
-      <Spinner animation="border" variant="light" />
-    </Row>
-  </Container>);
-
-const insights = new ApplicationInsights({
-  config: {
-    instrumentationKey: aiKey,
-  }
+let initialSharedContent: string | null = null;
+handleShareLink((content) => {
+  initialSharedContent = content;
 });
 
-insights.loadAppInsights();
-insights.trackPageView();
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error("The playground root element was not found.");
+}
 
-initializeInterop(window).then(interop => {
+const root = createRoot(rootElement);
+const insights = configureTelemetry(
+  new ApplicationInsights({
+    config: {
+      instrumentationKey: aiKey,
+    },
+  }),
+);
+
+insights.trackPageView({ uri: getSanitizedCurrentUrl() });
+
+function renderLoading() {
   root.render(
-    <div className="app-container">
-      <App insights={insights} interop={interop} />
-    </div>);
-});
+    <main className="startup-state" role="status" aria-live="polite">
+      <span className="startup-spinner" aria-hidden="true" />
+      <span>Loading the Bicep compiler...</span>
+    </main>,
+  );
+}
+
+function renderStartupError(error: unknown) {
+  const message =
+    error instanceof Error
+      ? error.message
+      : "The Bicep compiler failed to load.";
+
+  root.render(
+    <main className="startup-state" role="alert">
+      <h1>Bicep Playground could not start</h1>
+      <p>{message}</p>
+      <button
+        type="button"
+        className="btn btn-primary"
+        onClick={() => window.location.reload()}
+      >
+        Retry
+      </button>
+    </main>,
+  );
+}
+
+async function start() {
+  renderLoading();
+
+  try {
+    const interop = await initializeInterop(window);
+    root.render(
+      <div className="app-container">
+        <App
+          insights={insights}
+          interop={interop}
+          initialSharedContent={initialSharedContent}
+        />
+      </div>,
+    );
+  } catch (error) {
+    renderStartupError(error);
+  }
+}
+
+void start();
