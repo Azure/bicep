@@ -10,7 +10,6 @@ using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.JSInterop;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.Wasm.UnitTests;
@@ -38,7 +37,7 @@ public class InteropTests
         var jsRuntime = new MockJsRuntime(quickstartFiles);
         var fileExplorer = new InMemoryFileExplorer();
         using var serviceProvider = CreateServiceProvider(fileExplorer);
-        var interop = new Interop(jsRuntime, serviceProvider);
+        var interop = new Interop(jsRuntime.LoadQuickstart, serviceProvider);
 
         var result = await interop.CompileAndEmitDiagnostics(
             """
@@ -71,7 +70,7 @@ public class InteropTests
         var jsRuntime = new MockJsRuntime(new Dictionary<string, string>());
         var fileExplorer = new InMemoryFileExplorer();
         using var serviceProvider = CreateServiceProvider(fileExplorer, clientFactory);
-        var interop = new Interop(jsRuntime, serviceProvider);
+        var interop = new Interop(jsRuntime.LoadQuickstart, serviceProvider);
 
         var result = await interop.CompileAndEmitDiagnostics(
             """
@@ -93,7 +92,7 @@ public class InteropTests
         var jsRuntime = new MockJsRuntime(new Dictionary<string, string>());
         var fileExplorer = new InMemoryFileExplorer();
         using var serviceProvider = CreateServiceProvider(fileExplorer);
-        var interop = new Interop(jsRuntime, serviceProvider);
+        var interop = new Interop(jsRuntime.LoadQuickstart, serviceProvider);
 
         var result = await interop.CompileAndEmitDiagnostics(
             """
@@ -128,27 +127,18 @@ public class InteropTests
     private static T GetProperty<T>(object @object, string propertyName)
         => (T)@object.GetType().GetProperty(propertyName)!.GetValue(@object)!;
 
-    private sealed class MockJsRuntime(IReadOnlyDictionary<string, string> files) : IJSRuntime
+    private sealed class MockJsRuntime(IReadOnlyDictionary<string, string> files)
     {
         private readonly List<string> loadedPaths = [];
 
         public IReadOnlyList<string> LoadedPaths => this.loadedPaths;
 
-        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-            => this.InvokeAsync<TValue>(identifier, CancellationToken.None, args);
-
-        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
+        public Task<string?> LoadQuickstart(string filePath)
         {
-            identifier.Should().Be("LoadQuickstartsFile");
-            args.Should().NotBeNull();
-            args.Should().ContainSingle();
-
-            var filePath = args![0].Should().BeOfType<string>().Subject;
             this.loadedPaths.Add(filePath);
-
             files.TryGetValue(filePath, out var contents);
 
-            return ValueTask.FromResult((TValue)(object?)contents!);
+            return Task.FromResult(contents);
         }
     }
 }

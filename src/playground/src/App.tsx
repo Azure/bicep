@@ -55,10 +55,15 @@ export const App: React.FC<Props> = ({
   const copiedTimeoutRef = useRef<number>(undefined);
   const operationIdRef = useRef(0);
   const sampleRequestRef = useRef<AbortController>(undefined);
+  const sourcePathRef = useRef(sourcePath);
+  sourcePathRef.current = sourcePath;
 
   useEffect(() => {
-    const registration = registerBicep(interop);
-    return () => registration.dispose();
+    const registration = registerBicep(interop, () => sourcePathRef.current);
+    return () => {
+      registration.dispose();
+      interop.dispose();
+    };
   }, [interop]);
 
   useEffect(() => {

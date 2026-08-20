@@ -1,134 +1,254 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { editor, languages } from "monaco-editor";
+import { languages } from "monaco-editor";
 import { getQuickstartsLink } from "./examples";
+import {
+  CompileResult,
+  CompilerRequest,
+  CompilerResponse,
+  CompilerResult,
+  DecompileResult,
+} from "../workers/compilerProtocol";
 
 const interopInitializationTimeoutMs = 30_000;
 
-type DecompileResult = {
-  bicepFile: string | null;
-  error: string | null;
-};
-
-type CompileResult = {
-  template: string;
-  diagnostics: editor.IMarkerData[];
-  error?: string;
-};
-
 export interface DotnetInterop {
   getSemanticTokensLegend(): languages.SemanticTokensLegend;
-  getSemanticTokens(content: string): Promise<languages.SemanticTokens>;
+  getSemanticTokens(
+    content: string,
+    sourcePath?: string,
+  ): Promise<languages.SemanticTokens>;
   compileAndEmitDiagnostics(
     content: string,
     sourcePath?: string,
   ): Promise<CompileResult>;
   decompile(jsonContent: string): Promise<DecompileResult>;
+  dispose(): void;
 }
 
-interface DotnetObject {
-  invokeMethod<TResult>(methodName: string, ...args: unknown[]): TResult;
-  invokeMethodAsync<TResult>(
-    methodName: string,
-    ...args: unknown[]
-  ): Promise<TResult>;
-}
+type PendingRequest = {
+  resolve: (result: CompilerResult) => void;
+  reject: (error: Error) => void;
+};
 
-interface InteropHost extends Window {
-  LoadQuickstartsFile?: (filePath: string) => Promise<string | null>;
-  InteropInitialize?: (interop: DotnetObject) => void;
-}
+type Initialization = {
+  resolve: () => void;
+  reject: (error: Error) => void;
+};
 
-function getDotnetInterop(interop: DotnetObject): DotnetInterop {
-  return {
-    getSemanticTokensLegend: () =>
-      interop.invokeMethod<languages.SemanticTokensLegend>(
-        "GetSemanticTokensLegend",
-      ),
-    getSemanticTokens: (content) =>
-      interop.invokeMethodAsync<languages.SemanticTokens>(
-        "GetSemanticTokens",
-        content,
-      ),
-    compileAndEmitDiagnostics: (content, sourcePath) =>
-      interop.invokeMethodAsync<CompileResult>(
-        "CompileAndEmitDiagnostics",
-        content,
-        sourcePath,
-      ),
-    decompile: (content) =>
-      interop.invokeMethodAsync<DecompileResult>("Decompile", content),
-  };
-}
+type RequestWithoutEnvelope<T> = T extends unknown
+  ? Omit<T, "type" | "requestId">
+  : never;
 
-export function initializeInterop(
-  self: InteropHost,
+type CompilerOperationRequest = RequestWithoutEnvelope<
+  Extract<CompilerRequest, { type: "request" }>
+>;
+
+export async function initializeInterop(
   timeoutMs = interopInitializationTimeoutMs,
-) {
-  return new Promise<DotnetInterop>((resolve, reject) => {
-    let settled = false;
-    const script = document.createElement("script");
+): Promise<DotnetInterop> {
+  const client = new CompilerWorkerClient();
 
-    const cleanupFailedInitialization = () => {
-      script.remove();
+  try {
+    await client.initialize(timeoutMs);
+    return client;
+  } catch (error) {
+    client.dispose();
+    throw error;
+  }
+}
 
-      if (self.InteropInitialize === completeInitialization) {
-        delete self.InteropInitialize;
-      }
-    };
+class CompilerWorkerClient implements DotnetInterop {
+  private readonly worker = new Worker(
+    new URL("../workers/compiler.worker.ts", import.meta.url),
+    { type: "module" },
+  );
+  private readonly pendingRequests = new Map<number, PendingRequest>();
+  private nextRequestId = 0;
+  private initialization: Initialization | undefined;
+  private semanticTokensLegend: languages.SemanticTokensLegend | undefined;
+  private disposed = false;
 
-    const failInitialization = (error: Error) => {
-      if (settled) {
-        return;
-      }
+  public constructor() {
+    this.worker.addEventListener("message", this.handleMessage);
+    this.worker.addEventListener("error", this.handleWorkerError);
+    this.worker.addEventListener("messageerror", this.handleMessageError);
+  }
 
-      settled = true;
-      window.clearTimeout(timeout);
-      cleanupFailedInitialization();
-      reject(error);
-    };
+  public async initialize(timeoutMs: number): Promise<void> {
+    if (this.initialization) {
+      throw new Error("The Bicep compiler worker is already initializing.");
+    }
 
-    const completeInitialization = (newInterop: DotnetObject) => {
-      if (settled) {
-        return;
-      }
-
-      settled = true;
-      window.clearTimeout(timeout);
-      resolve(getDotnetInterop(newInterop));
-    };
-
-    const timeout = window.setTimeout(
-      () =>
-        failInitialization(
+    await new Promise<void>((resolve, reject) => {
+      const timeout = window.setTimeout(() => {
+        this.initialization = undefined;
+        reject(
           new Error(
             "The Bicep compiler took too long to initialize. Check your connection and try again.",
           ),
-        ),
-      timeoutMs,
-    );
+        );
+      }, timeoutMs);
 
-    self.LoadQuickstartsFile = async (filePath: string) => {
-      const response = await fetch(getQuickstartsLink(filePath));
+      this.initialization = {
+        resolve: () => {
+          window.clearTimeout(timeout);
+          this.initialization = undefined;
+          resolve();
+        },
+        reject: (error) => {
+          window.clearTimeout(timeout);
+          this.initialization = undefined;
+          reject(error);
+        },
+      };
 
-      if (!response.ok) {
-        return null;
+      this.postMessage({
+        type: "initialize",
+        frameworkUrl: new URL(
+          "_framework/dotnet.js",
+          document.baseURI,
+        ).toString(),
+        quickstartsBaseUrl: getQuickstartsLink(""),
+      });
+    });
+
+    this.semanticTokensLegend =
+      await this.sendRequest<languages.SemanticTokensLegend>({
+        operation: "getSemanticTokensLegend",
+      });
+  }
+
+  public getSemanticTokensLegend() {
+    if (!this.semanticTokensLegend) {
+      throw new Error("The Bicep compiler worker is not initialized.");
+    }
+
+    return this.semanticTokensLegend;
+  }
+
+  public getSemanticTokens(content: string, sourcePath?: string) {
+    return this.sendRequest<languages.SemanticTokens>({
+      operation: "getSemanticTokens",
+      content,
+      sourcePath,
+    });
+  }
+
+  public compileAndEmitDiagnostics(content: string, sourcePath?: string) {
+    return this.sendRequest<CompileResult>({
+      operation: "compile",
+      content,
+      sourcePath,
+    });
+  }
+
+  public decompile(content: string) {
+    return this.sendRequest<DecompileResult>({
+      operation: "decompile",
+      content,
+    });
+  }
+
+  public dispose() {
+    if (this.disposed) {
+      return;
+    }
+
+    this.disposed = true;
+    this.worker.removeEventListener("message", this.handleMessage);
+    this.worker.removeEventListener("error", this.handleWorkerError);
+    this.worker.removeEventListener("messageerror", this.handleMessageError);
+    this.worker.terminate();
+
+    const error = new Error("The Bicep compiler worker was disposed.");
+    this.initialization?.reject(error);
+    this.initialization = undefined;
+    this.rejectPendingRequests(error);
+  }
+
+  private sendRequest<TResult extends CompilerResult>(
+    request: CompilerOperationRequest,
+  ): Promise<TResult> {
+    const requestId = ++this.nextRequestId;
+
+    return new Promise<TResult>((resolve, reject) => {
+      this.pendingRequests.set(requestId, {
+        resolve: (result) => resolve(result as TResult),
+        reject,
+      });
+      this.postMessage({
+        type: "request",
+        requestId,
+        ...request,
+      } as CompilerRequest);
+    });
+  }
+
+  private readonly handleMessage = (event: MessageEvent<CompilerResponse>) => {
+    const response = event.data;
+
+    if (response.type === "ready") {
+      this.initialization?.resolve();
+      return;
+    }
+
+    if (response.type === "error") {
+      if (response.requestId === undefined) {
+        this.initialization?.reject(new Error(response.message));
+        return;
       }
 
-      return await response.text();
-    };
+      const pending = this.pendingRequests.get(response.requestId);
+      if (!pending) {
+        return;
+      }
 
-    self.InteropInitialize = completeInitialization;
+      this.pendingRequests.delete(response.requestId);
+      pending.reject(new Error(response.message));
+      return;
+    }
 
-    // this is necessary to invoke the Blazor startup code - do not remove it!
-    script.src = "_framework/blazor.webassembly.js";
-    script.addEventListener("error", () =>
-      failInitialization(
-        new Error(
-          "The Bicep compiler could not be downloaded. Check your connection and try again.",
-        ),
-      ),
+    const pending = this.pendingRequests.get(response.requestId);
+    if (!pending) {
+      return;
+    }
+
+    this.pendingRequests.delete(response.requestId);
+    pending.resolve(response.result);
+  };
+
+  private readonly handleWorkerError = (event: ErrorEvent) => {
+    this.handleFatalError(
+      new Error(event.message || "The Bicep compiler worker crashed."),
     );
-    document.body.appendChild(script);
-  });
+  };
+
+  private readonly handleMessageError = () => {
+    this.handleFatalError(
+      new Error("The Bicep compiler worker returned an invalid message."),
+    );
+  };
+
+  private handleFatalError(error: Error) {
+    this.initialization?.reject(error);
+    this.initialization = undefined;
+    this.rejectPendingRequests(error);
+  }
+
+  private rejectPendingRequests(error: Error) {
+    for (const request of this.pendingRequests.values()) {
+      request.reject(error);
+    }
+
+    this.pendingRequests.clear();
+  }
+
+  private postMessage(message: CompilerRequest) {
+    if (this.disposed) {
+      throw new Error("The Bicep compiler worker is disposed.");
+    }
+
+    this.worker.postMessage(message);
+  }
 }
