@@ -381,23 +381,190 @@ Do not claim true cancellation in this PR. A worker cannot process a cancel mess
 
 ### PR 2: Native UI, accessibility, and responsive layout
 
+#### UX goals
+
+1. The user can always tell whether the ARM template matches the current Bicep source.
+2. Compilation progress and failure are visible without blocking editing.
+3. The interface feels like a focused developer tool rather than a Bootstrap demo.
+4. Source, output, status, and actions have a clear visual hierarchy.
+5. Common workflows require fewer clicks and preserve focus.
+6. The layout remains usable on narrow screens and at high zoom.
+7. The redesign adds no runtime dependency unless the Jotai decision gate is met.
+
+#### Compilation truthfulness model
+
+Treat source and ARM output as revisioned documents rather than two unrelated strings.
+
+```ts
+type CompilationStatus =
+  | { state: "idle"; sourceRevision: number }
+  | { state: "scheduled"; sourceRevision: number }
+  | { state: "compiling"; sourceRevision: number; startedAt: number }
+  | {
+      state: "succeeded";
+      sourceRevision: number;
+      outputRevision: number;
+      durationMs: number;
+    }
+  | {
+      state: "failed";
+      sourceRevision: number;
+      outputRevision?: number;
+      message: string;
+    };
+```
+
+- Increment `sourceRevision` immediately for every source change.
+- Preserve the previous ARM output while compiling, but mark it stale as soon as `sourceRevision !== outputRevision`.
+- Associate every worker request and response with its source revision.
+- Apply template and diagnostic results only when their revision is still current.
+- Update ARM content and `outputRevision` atomically after successful compilation.
+- On failure, preserve the last successful ARM template but label it as stale and failed.
+- Do not label stale output as valid, current, or ready to copy.
+- Do not clear useful output merely because a newer compilation is pending.
+
+The output pane header should expose these states:
+
+| State                          | Visible treatment                                                                      | ARM actions                                                     |
+| ------------------------------ | -------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Current                        | Green/neutral check and `Up to date`                                                   | Enabled                                                         |
+| Debouncing                     | `Changes pending`                                                                      | Copy/download disabled or explicitly labeled as previous output |
+| Compiling, no previous output  | Progress indicator and `Compiling...`                                                  | Disabled                                                        |
+| Compiling with previous output | Previous output remains visible, dimmed, with `Out of date` overlay and `Compiling...` | Disabled                                                        |
+| Failed, no previous output     | Error empty state with diagnostic guidance                                             | Disabled                                                        |
+| Failed with previous output    | Previous output remains visible with `Compilation failed - showing previous output`    | Disabled                                                        |
+
+Avoid spinner flicker for fast compilations: show the animated progress treatment only after approximately 150 ms, but mark the output stale immediately.
+
+Compilation status must also be announced through a polite live region. Failure remains a `role="alert"` state.
+
+#### Visual direction
+
+Use a small local design system expressed with CSS custom properties. Do not add a UI framework, CSS-in-JS package, or icon package.
+
+- Use Bicep/Azure blue as an accent rather than flooding the whole header with Bootstrap blue.
+- Use neutral layered surfaces for the app background, toolbar, pane headers, editors, menus, and notifications.
+- Match Monaco's light/dark theme while retaining sufficient pane boundaries outside Monaco.
+- Use a compact developer-tool density with consistent 4/8 px spacing increments.
+- Use one typography stack and explicit sizes for app title, pane title, metadata, controls, and status.
+- Use subtle borders and elevation; avoid large shadows, excessive rounded cards, gradients, and decorative animation.
+- Use inline SVG or CSS for the small number of required icons instead of adding an icon dependency.
+- Define light, dark, forced-colors, focus, success, warning, danger, and stale tokens centrally.
+
+Initial token groups:
+
+```css
+:root {
+  color-scheme: light dark;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --control-height: 2rem;
+  --header-height: 3rem;
+  --color-accent: #0078d4;
+}
+```
+
+Final colors must be checked for WCAG contrast in both themes rather than copied blindly from this starting point.
+
+#### Information architecture
+
+Desktop:
+
+```text
++------------------------------------------------------------------+
+| Bicep Playground       Samples  Decompile          Share          |
++--------------------------------+---------------------------------+
+| Bicep source         main.bicep| ARM template          Up to date|
+|                                |                                 |
+| Monaco editor                  | Monaco read-only output         |
+|                                |                                 |
++--------------------------------+---------------------------------+
+| Problems / compilation status / keyboard and timing feedback     |
++------------------------------------------------------------------+
+```
+
+- Use a restrained app bar with the product name on the left and workflow actions grouped by purpose.
+- Rename `Sample Template` to `Samples`.
+- Rename `Copy Link` to `Share`; confirmation should be announced without changing layout width.
+- Keep decompile as an import workflow, not as a peer to editor output actions.
+- Add explicit pane headers: `Bicep source` and `ARM template`.
+- Put output-specific `Copy` and `Download` actions in the ARM pane header.
+- Show source-path metadata in the Bicep pane header when a quickstart is loaded.
+- Use a compact bottom status area for compilation state and error summary; detailed diagnostics remain in Monaco.
+- Keep the last successful output visible during compilation so the layout does not jump.
+
+Narrow screens:
+
+- Replace the side-by-side split with accessible `Bicep` and `ARM` tabs instead of two cramped stacked editors.
+- Keep compilation status visible in the tab label and status area.
+- Switch automatically to ARM only when the user explicitly requests it; successful compilation must not steal the active tab or focus.
+- Keep primary actions reachable without horizontal scrolling.
+
+#### Workflow improvements
+
+- Samples: use a searchable dialog or popover with a labeled search field, result count, keyboard navigation, empty state, and recently selected item for the current session.
+- Share: copy the current Bicep source immediately; it must not wait for compilation.
+- Decompile: show selected file name, progress, validation errors, and success without replacing content until decompilation succeeds.
+- ARM output: add native clipboard copy and JSON download actions. Disable them while output is stale unless the UI clearly offers `Copy previous output`.
+- Errors: show concise operation errors in the status area and allow dismissal without hiding Monaco diagnostics.
+- Empty source: provide a lightweight onboarding hint for opening a sample, importing ARM JSON, or typing Bicep. Do not obscure the editor after the user starts.
+- Keyboard: define shortcuts only for high-value actions, expose them in tooltips/help text, and avoid overriding Monaco shortcuts.
+
+#### Component and state structure
+
+```text
+src/
+  components/
+    AppHeader.tsx
+    CompilationStatus.tsx
+    EditorPane.tsx
+    EditorWorkspace.tsx
+    SamplePicker.tsx
+    StatusBar.tsx
+  hooks/
+    useCompilationController.ts
+    usePlaygroundState.ts
+  styles/
+    tokens.css
+    components.css
+    layout.css
+```
+
+- `useCompilationController` owns revisions, debounce, worker requests, stale-result rejection, duration, and compilation status.
+- `EditorWorkspace` owns desktop split versus narrow-screen tabs, not document state.
+- `EditorPane` supplies a named header, metadata, status, and pane-specific actions around Monaco.
+- The toolbar consumes narrow command callbacks rather than owning editor or compiler internals.
+- Keep Monaco instances, workers, abort controllers, timers, and DOM nodes out of serializable application state.
+
+Start with `useReducer` plus focused hooks. Add Jotai only if the extracted header, status bar, toolbar, and panes require substantial prop drilling or multiple contexts. If added, use revision, compilation status, source, and output as focused atoms; do not store Monaco or worker objects in atoms.
+
 #### Scope
 
-1. Replace Bootstrap and React-Bootstrap components with semantic HTML and local CSS.
-2. Remove `bootstrap` and `react-bootstrap`.
-3. Implement an accessible sample-template picker using native controls and a small React component.
-4. Add a responsive CSS Grid workspace:
+1. Implement the revision-based compilation state model before visual restyling.
+2. Add truthful `Changes pending`, `Compiling`, `Up to date`, `Out of date`, and `Failed` output states.
+3. Add pane headers and move output-specific actions into the ARM pane.
+4. Replace Bootstrap and React-Bootstrap components with semantic HTML and local CSS.
+5. Remove `bootstrap` and `react-bootstrap`.
+6. Implement the local design tokens and light/dark/forced-colors themes.
+7. Implement an accessible sample-template picker using native controls and a small React component.
+8. Add a responsive CSS Grid workspace:
    - Two columns on sufficiently wide screens.
-   - One column with two rows on narrow screens.
+   - Bicep/ARM tabs on narrow screens.
    - No horizontal page overflow.
-5. Allow toolbar controls to wrap without clipping.
-6. Add `lang` and viewport metadata.
-7. Add `header`, `nav`, `main`, and named editor sections.
-8. Give the editors distinct accessible labels.
-9. Add labels for file selection and sample filtering.
-10. Announce loading, success, and errors with appropriate live regions.
-11. Preserve visible focus indicators and logical keyboard order.
-12. Respect reduced-motion and forced-colors preferences.
+9. Add an accessible status bar and live compilation announcements.
+10. Allow toolbar controls to wrap without clipping.
+11. Add `lang` and viewport metadata.
+12. Add `header`, `nav`, `main`, and named editor sections.
+13. Give the editors distinct accessible labels.
+14. Add labels for file selection and sample filtering.
+15. Announce loading, success, and errors with appropriate live regions.
+16. Preserve visible focus indicators and logical keyboard order.
+17. Respect reduced-motion and forced-colors preferences.
+18. Add ARM copy and download actions with stale-output protection.
 
 #### Native sample picker guidance
 
@@ -410,6 +577,13 @@ Prefer a native `<select>` if its search and navigation behavior provides an acc
 
 #### Tests
 
+- Source edits immediately mark the ARM output stale.
+- The compilation indicator appears for a deliberately delayed worker response and does not flicker for a fast response.
+- Only a matching source revision can mark ARM output `Up to date`.
+- A stale compilation result cannot replace newer output or status.
+- Failed compilation preserves and clearly labels the previous successful output.
+- ARM copy and download actions cannot silently use stale output.
+- Compilation status is announced without stealing focus.
 - Keyboard-only toolbar and sample selection.
 - Distinct editor names in the accessibility tree.
 - Loading and errors are announced.
@@ -421,6 +595,12 @@ Prefer a native `<select>` if its search and navigation behavior provides an acc
 #### Acceptance criteria
 
 - `bootstrap` and `react-bootstrap` are absent from `package.json` and the lockfile.
+- The ARM pane never presents output from an older source revision as current.
+- Compilation state is visible and screen-reader accessible.
+- Editing remains available throughout compilation.
+- Previous output is retained but unmistakably stale during pending or failed compilation.
+- The app uses the local token-based visual system in both light and dark modes.
+- No UI, icon, styling, state-management, or accessibility dependency is added unless separately justified.
 - The page remains usable from 320 CSS pixels through large desktop widths.
 - Core workflows are keyboard accessible.
 - The initial page and exercised states have no serious automated accessibility violations.
