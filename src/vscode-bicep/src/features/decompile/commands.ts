@@ -5,7 +5,7 @@ import assert from "assert";
 import { existsSync } from "fs";
 import { readFile, writeFile } from "fs/promises";
 import * as path from "path";
-import vscode, { MessageItem, Uri, window } from "vscode";
+import { MessageItem, Uri, window, workspace } from "vscode";
 import { DocumentUri, LanguageClient } from "vscode-languageclient/node";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { OperationError, UserCancelledError } from "../../infrastructure/errors";
@@ -67,7 +67,7 @@ export class DecompileCommand implements Command {
     private readonly outputChannelManager: OutputChannelManager,
   ) {}
 
-  public async execute(documentUri?: vscode.Uri): Promise<void> {
+  public async execute(documentUri?: Uri): Promise<void> {
     documentUri = documentUri ?? window.activeTextEditor?.document.uri;
     if (!documentUri) {
       throw new Error("Please open a JSON ARM Template file before running this command");
@@ -149,7 +149,7 @@ export class DecompileParamsCommand implements Command {
     private readonly outputChannelManager: OutputChannelManager,
   ) {}
 
-  public async execute(documentUri?: vscode.Uri): Promise<void> {
+  public async execute(documentUri?: Uri): Promise<void> {
     documentUri = documentUri ?? window.activeTextEditor?.document.uri;
     if (!documentUri) {
       throw new Error("Please open a JSON Parameter file before running this command");
@@ -216,7 +216,7 @@ export class DecompileParamsCommand implements Command {
         return undefined;
       }
       if (result.label === "Browse") {
-        const bicepPaths = await vscode.window.showOpenDialog({
+        const bicepPaths = await window.showOpenDialog({
           canSelectMany: false,
           openLabel: "Select Bicep File",
           filters: { "Bicep Files": ["bicep"] },
@@ -275,15 +275,13 @@ export async function activateDecompileFeature(
     window.onDidChangeActiveTextEditor(async (editor) => updateDecompileEditorContext(editor?.document)),
   );
   extension.register(
-    vscode.workspace.onDidCloseTextDocument(async () =>
-      updateDecompileEditorContext(window.activeTextEditor?.document),
-    ),
+    workspace.onDidCloseTextDocument(async () => updateDecompileEditorContext(window.activeTextEditor?.document)),
   );
   extension.register(
-    vscode.workspace.onDidOpenTextDocument(async () => updateDecompileEditorContext(window.activeTextEditor?.document)),
+    workspace.onDidOpenTextDocument(async () => updateDecompileEditorContext(window.activeTextEditor?.document)),
   );
   extension.register(
-    vscode.workspace.onDidSaveTextDocument(async () => updateDecompileEditorContext(window.activeTextEditor?.document)),
+    workspace.onDidSaveTextDocument(async () => updateDecompileEditorContext(window.activeTextEditor?.document)),
   );
 
   await updateDecompileEditorContext(window.activeTextEditor?.document);

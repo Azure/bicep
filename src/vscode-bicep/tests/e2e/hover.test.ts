@@ -2,22 +2,22 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import * as vscode from "vscode";
+import { Hover, MarkdownString, MarkedString, Position, TextDocument, Uri, window, workspace } from "vscode";
 import { readExampleFile } from "./examples";
 import { executeCloseAllEditors, executeHoverProvider } from "./utils/commands";
 import { waitFor } from "./utils/polling";
 
 describe("hover", (): void => {
-  let document: vscode.TextDocument;
+  let document: TextDocument;
 
   beforeAll(async () => {
     const content = readExampleFile("101", "vm-simple-linux");
-    document = await vscode.workspace.openTextDocument({
+    document = await workspace.openTextDocument({
       language: "bicep",
       content,
     });
 
-    await vscode.window.showTextDocument(document);
+    await window.showTextDocument(document);
   });
 
   afterAll(async () => {
@@ -25,7 +25,7 @@ describe("hover", (): void => {
   });
 
   it("should reveal type signature when hovering over a parameter name", async () => {
-    const hovers = await executeHoverProviderCommandWithRetry(document.uri, new vscode.Position(1, 7));
+    const hovers = await executeHoverProviderCommandWithRetry(document.uri, new Position(1, 7));
 
     expectHovers(hovers, {
       startLine: 1,
@@ -37,7 +37,7 @@ describe("hover", (): void => {
   });
 
   it("should reveal type signature when hovering over a variable name", async () => {
-    const hovers = await executeHoverProviderCommandWithRetry(document.uri, new vscode.Position(50, 10));
+    const hovers = await executeHoverProviderCommandWithRetry(document.uri, new Position(50, 10));
 
     expectHovers(hovers, {
       startLine: 50,
@@ -49,7 +49,7 @@ describe("hover", (): void => {
   });
 
   it("should reveal type signature when hovering over a resource symbolic name", async () => {
-    const hovers = await executeHoverProviderCommandWithRetry(document.uri, new vscode.Position(108, 10));
+    const hovers = await executeHoverProviderCommandWithRetry(document.uri, new Position(108, 10));
 
     expectHovers(hovers, {
       startLine: 108,
@@ -68,7 +68,7 @@ describe("hover", (): void => {
   it("should reveal type signature and documentation link when hovering over a resource type", async () => {
     // https://github.com/Azure/bicep/issues/16178 - the hover (and its documentation link) should
     // also be discoverable over the resource type string, not just the symbolic name.
-    const hovers = await executeHoverProviderCommandWithRetry(document.uri, new vscode.Position(108, 30));
+    const hovers = await executeHoverProviderCommandWithRetry(document.uri, new Position(108, 30));
 
     expectHovers(hovers, {
       startLine: 108,
@@ -85,7 +85,7 @@ describe("hover", (): void => {
   });
 
   it("should reveal type signature when hovering over an output name", async () => {
-    const hovers = await executeHoverProviderCommandWithRetry(document.uri, new vscode.Position(183, 14));
+    const hovers = await executeHoverProviderCommandWithRetry(document.uri, new Position(183, 14));
 
     expectHovers(hovers, {
       startLine: 183,
@@ -97,7 +97,7 @@ describe("hover", (): void => {
   });
 
   it("should reveal type signature when hovering over a function name", async () => {
-    const hovers = await executeHoverProviderCommandWithRetry(document.uri, new vscode.Position(18, 60));
+    const hovers = await executeHoverProviderCommandWithRetry(document.uri, new Position(18, 60));
 
     expectHovers(hovers, {
       startLine: 18,
@@ -113,7 +113,7 @@ describe("hover", (): void => {
     });
   });
 
-  function executeHoverProviderCommandWithRetry(documentUri: vscode.Uri, position: vscode.Position) {
+  function executeHoverProviderCommandWithRetry(documentUri: Uri, position: Position) {
     return waitFor(
       async () => await executeHoverProvider(documentUri, position),
       (hovers) => hovers !== undefined && hovers.length > 0,
@@ -122,7 +122,7 @@ describe("hover", (): void => {
   }
 
   function expectHovers(
-    hovers: vscode.Hover[] | undefined,
+    hovers: Hover[] | undefined,
     ...expectedHovers: Array<{
       startLine: number;
       startCharacter: number;
@@ -150,7 +150,7 @@ describe("hover", (): void => {
     });
   }
 
-  function normalizeMarkedString(content: vscode.MarkedString | vscode.MarkdownString): string {
+  function normalizeMarkedString(content: MarkedString | MarkdownString): string {
     return typeof content === "string" ? content : content.value;
   }
 

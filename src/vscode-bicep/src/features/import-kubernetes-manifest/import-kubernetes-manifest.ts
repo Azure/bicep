@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import vscode, { ViewColumn } from "vscode";
+import { ViewColumn, window, workspace } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { parseError } from "../../infrastructure/errors";
@@ -27,9 +27,9 @@ export class ImportKubernetesManifestCommand implements Command {
         manifestFilePath: manifestPath[0].fsPath,
       });
 
-      const document = await vscode.workspace.openTextDocument(response.bicepFilePath);
+      const document = await workspace.openTextDocument(response.bicepFilePath);
 
-      await vscode.window.showTextDocument(document, ViewColumn.Active);
+      await window.showTextDocument(document, ViewColumn.Active);
     } catch (err) {
       this.client.error("Build failed", parseError(err).message, true);
     }

@@ -9,7 +9,7 @@ import { coverageConfigDefaults, defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [react(), ViteEjsPlugin()],
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       output: {
         entryFileNames: `[name].js`,
         chunkFileNames: `chunks/[name].js`,

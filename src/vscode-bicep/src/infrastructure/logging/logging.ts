@@ -1,18 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import { closeSync, openSync, writeSync } from "fs";
 import * as path from "path";
-import vscode from "vscode";
-import * as winston from "winston";
-import Transport from "winston-transport";
+import { fileURLToPath } from "url";
+import { Disposable, ExtensionContext, LogOutputChannel } from "vscode";
 import { parseError } from "../errors";
 
 /**
- * This logfile is written during to E2E tests. It serves as a way to watch for events from the code
+ * This log file is written during E2E tests. It serves as a way to watch for events from the code
  * while running inside the tests, since simple in-memory sharing won't work.
  */
 export const e2eLogName = "bicep-e2e.log";
 
-export interface Logger extends vscode.Disposable {
+export interface Logger extends Disposable {
   debug(message: string): void;
   info(message: string): void;
   warn(message: string): void;
@@ -20,106 +20,102 @@ export interface Logger extends vscode.Disposable {
   error(error: Error): void;
 }
 
-export type LogLevel = keyof Logger;
-type WinstonLoggerSink = {
-  clear(): unknown;
-  close(): unknown;
-  log(level: string, message: unknown): unknown;
+export type LogLevel = "debug" | "info" | "warn" | "error";
+type LoggerOutputChannel = Pick<LogOutputChannel, "debug" | "info" | "warn" | "error">;
+type LogFileSink = {
+  log(level: LogLevel, message: string | Error): void;
+  dispose(): void;
 };
-type WinstonLoggerFactory = (options: winston.LoggerOptions) => WinstonLoggerSink;
 
 let logger: Logger | undefined;
 
-export class WinstonLogger implements Logger {
-  private readonly logger: WinstonLoggerSink;
+export class BicepLogger implements Logger {
   private disposed = false;
 
   constructor(
-    outputChannel: Pick<vscode.OutputChannel, "appendLine">,
-    logLevel: LogLevel,
-    createWinstonLogger: WinstonLoggerFactory = winston.createLogger,
-  ) {
-    this.logger = createWinstonLogger({
-      level: logLevel,
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.errors({ stack: true }),
-        winston.format.printf((entry) =>
-          entry.stack
-            ? `${entry.timestamp} ${entry.level}: ${entry.message} - ${entry.stack}`
-            : `${entry.timestamp} ${entry.level}: ${entry.message}`,
-        ),
-      ),
-      transports: [
-        new outputChannelTransport(outputChannel),
-        ...(process.env.TEST_MODE === "e2e"
-          ? [
-              new winston.transports.File({
-                dirname: path.resolve(__dirname, ".."),
-                filename: e2eLogName,
-                options: { flags: "w" },
-              }),
-            ]
-          : []),
-      ],
-    });
-  }
+    private readonly outputChannel: LoggerOutputChannel,
+    private readonly logFileSink = createE2eLogFileSink(),
+  ) {}
 
   dispose(): void {
     if (!this.disposed) {
-      this.logger.clear();
-      this.logger.close();
+      this.logFileSink?.dispose();
       this.disposed = true;
     }
   }
 
   debug(message: string): void {
-    this.logger.log("debug", message);
+    this.outputChannel.debug(message);
+    this.logFileSink?.log("debug", message);
   }
 
   info(message: string): void {
-    this.logger.log("info", message);
+    this.outputChannel.info(message);
+    this.logFileSink?.log("info", message);
   }
 
   warn(message: string): void {
-    this.logger.log("warn", message);
+    this.outputChannel.warn(message);
+    this.logFileSink?.log("warn", message);
   }
 
   error(message: string | Error): void {
-    this.logger.log("error", message);
+    this.outputChannel.error(formatMessage(message));
+    this.logFileSink?.log("error", message);
   }
 }
 
-class outputChannelTransport extends Transport {
-  constructor(private readonly outputChannel: Pick<vscode.OutputChannel, "appendLine">) {
-    super();
+class E2eLogFileSink implements LogFileSink {
+  private readonly fileDescriptor: number;
+  private disposed = false;
+
+  constructor(filePath: string) {
+    this.fileDescriptor = openSync(filePath, "w");
   }
 
-  public log(entry: winston.Logform.TransformableInfo, next: () => void) {
-    const message = entry[Symbol.for("message")];
-    if (typeof message !== "string") {
-      throw new Error("Expected a formatted Winston log entry.");
+  log(level: LogLevel, message: string | Error): void {
+    if (this.disposed) {
+      throw new Error("Cannot write to a disposed E2E log file.");
     }
 
-    setImmediate(() => this.outputChannel.appendLine(message));
-    next();
+    writeSync(this.fileDescriptor, `${new Date().toISOString()} ${level}: ${formatMessage(message)}\n`);
   }
+
+  dispose(): void {
+    if (!this.disposed) {
+      closeSync(this.fileDescriptor);
+      this.disposed = true;
+    }
+  }
+}
+
+function formatMessage(message: string | Error): string {
+  return message instanceof Error
+    ? message.stack
+      ? `${message.message} - ${message.stack}`
+      : message.message
+    : message;
+}
+
+function createE2eLogFileSink(): LogFileSink | undefined {
+  if (process.env.TEST_MODE !== "e2e") {
+    return undefined;
+  }
+
+  const extensionPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+  return new E2eLogFileSink(path.join(extensionPath, e2eLogName));
 }
 
 export function createLogger(
-  context: Pick<vscode.ExtensionContext, "subscriptions">,
-  outputChannel: Pick<vscode.OutputChannel, "appendLine">,
-  createWinstonLogger?: WinstonLoggerFactory,
+  context: Pick<ExtensionContext, "subscriptions">,
+  outputChannel: LoggerOutputChannel,
+  logFileSink?: LogFileSink,
 ): Logger {
-  // TODO:
-  // - make log level configurable
-  // - Default log level should be info
-  const winstonLogger = new WinstonLogger(outputChannel, "debug", createWinstonLogger);
+  const bicepLogger = new BicepLogger(outputChannel, logFileSink);
 
-  logger = winstonLogger;
-  logger.info("Current log level: debug.");
+  logger = bicepLogger;
 
-  context.subscriptions.push(winstonLogger);
+  context.subscriptions.push(bicepLogger);
 
   return logger;
 }

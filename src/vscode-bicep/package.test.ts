@@ -3,6 +3,7 @@
 
 import { existsSync, readFileSync } from "fs";
 import * as path from "path";
+import { fileURLToPath } from "url";
 
 type IPackageKeyBinding = {
   command: string;
@@ -29,7 +30,7 @@ type IPackage = {
 };
 
 function getPackageJson(): IPackage {
-  const packagePath = path.join(__dirname, "package.json");
+  const packagePath = path.join(path.dirname(fileURLToPath(import.meta.url)), "package.json");
   return JSON.parse(readFileSync(packagePath, "utf8")) as IPackage;
 }
 
@@ -59,7 +60,7 @@ describe("package.json", () => {
     ]);
     const missingResources = getResourcePaths(packageJson)
       .filter((resourcePath) => !generatedResources.has(resourcePath))
-      .filter((resourcePath) => !existsSync(path.join(__dirname, resourcePath)));
+      .filter((resourcePath) => !existsSync(path.join(path.dirname(fileURLToPath(import.meta.url)), resourcePath)));
 
     expect(missingResources).toEqual([]);
   });

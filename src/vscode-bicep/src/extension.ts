@@ -55,7 +55,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
   const outputChannel = createLogOutputChannel("Bicep", removePropertiesWithPossibleUserInfoInDeployParams);
 
   extension.register(outputChannel);
-  extension.register(createLogger(extensionContext, outputChannel));
+  createLogger(extensionContext, outputChannel);
   const prompts = new Prompts(extensionContext.globalState);
 
   // Activate and launch language server

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import vscode from "vscode";
+import { Uri, window } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
@@ -17,7 +17,7 @@ export class ForceModulesRestoreCommand implements Command {
     private readonly outputChannelManager: OutputChannelManager,
   ) {}
 
-  public async execute(documentUri?: vscode.Uri | undefined): Promise<void> {
+  public async execute(documentUri?: Uri | undefined): Promise<void> {
     documentUri = await findOrCreateActiveBicepFile(
       this.prompts,
       documentUri,
@@ -25,7 +25,7 @@ export class ForceModulesRestoreCommand implements Command {
     );
 
     if (documentUri.scheme === "output") {
-      void vscode.window.showInformationMessage(
+      void window.showInformationMessage(
         "We are unable to get restore modules in a Bicep file when the output panel is focused. Please focus a text editor first when running the command.",
       );
       return;

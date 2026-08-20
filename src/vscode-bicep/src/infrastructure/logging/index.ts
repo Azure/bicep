@@ -7,7 +7,7 @@ export {
   e2eLogName,
   getLogger,
   resetLogger,
-  WinstonLogger,
+  BicepLogger,
 } from "./logging";
 export type { Logger, LogLevel } from "./logging";
 export { createLogOutputChannel, OutputChannelManager } from "./output-channels";

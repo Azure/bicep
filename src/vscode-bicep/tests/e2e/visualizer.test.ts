@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import assert from "assert";
-import vscode from "vscode";
+import { ViewColumn, window, workspace } from "vscode";
 import { resolveExamplePath } from "./examples";
 import {
   executeCloseAllEditors,
@@ -16,8 +16,8 @@ describe("visualizer", (): void => {
 
   it("should open visualizer webview", async () => {
     const examplePath = resolveExamplePath("101", "vm-simple-linux");
-    const document = await vscode.workspace.openTextDocument(examplePath);
-    const editor = await vscode.window.showTextDocument(document);
+    const document = await workspace.openTextDocument(examplePath);
+    const editor = await window.showTextDocument(document);
 
     const viewColumn = await executeShowVisualizerCommand(document.uri);
     assert(viewColumn !== undefined);
@@ -26,17 +26,17 @@ describe("visualizer", (): void => {
 
   it("should open visualizer webview to side", async () => {
     const examplePath = resolveExamplePath("201", "sql");
-    const document = await vscode.workspace.openTextDocument(examplePath);
-    await vscode.window.showTextDocument(document);
+    const document = await workspace.openTextDocument(examplePath);
+    await window.showTextDocument(document);
 
     const viewColumn = await executeShowVisualizerToSideCommand(document.uri);
     assert(viewColumn !== undefined);
-    expect(viewColumn).toBe(vscode.ViewColumn.Beside);
+    expect(viewColumn).toBe(ViewColumn.Beside);
   });
 
   it("should open source", async () => {
     const examplePath = resolveExamplePath("000", "empty");
-    const document = await vscode.workspace.openTextDocument(examplePath);
+    const document = await workspace.openTextDocument(examplePath);
 
     await executeShowVisualizerToSideCommand(document.uri);
 
@@ -44,6 +44,6 @@ describe("visualizer", (): void => {
 
     assert(sourceEditor);
     expect(sourceEditor.document).toBe(document);
-    expect(sourceEditor).toBe(vscode.window.activeTextEditor);
+    expect(sourceEditor).toBe(window.activeTextEditor);
   });
 });

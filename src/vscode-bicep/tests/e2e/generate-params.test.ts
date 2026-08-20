@@ -4,14 +4,14 @@ import type { MockInstance } from "vitest" with { "resolution-mode": "import" };
 
 import fs from "fs";
 import path from "path";
-import vscode from "vscode";
+import { CancellationToken, QuickPickOptions, window, workspace } from "vscode";
 import { executeCloseAllEditors, executeGenerateParamsCommand } from "./utils/commands";
 import { withTempDirectory } from "./utils/temp-directory";
 
 type ShowStringQuickPick = (
   items: readonly string[],
-  options?: vscode.QuickPickOptions,
-  token?: vscode.CancellationToken,
+  options?: QuickPickOptions,
+  token?: CancellationToken,
 ) => Thenable<string | undefined>;
 
 describe("generateParams", (): void => {
@@ -32,9 +32,9 @@ describe("generateParams", (): void => {
         '{ "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#" }',
       );
 
-      const textDocument = await vscode.workspace.openTextDocument(bicepFilePath);
+      const textDocument = await workspace.openTextDocument(bicepFilePath);
 
-      const showQuickPick = vi.spyOn(vscode.window, "showQuickPick") as unknown as MockInstance<ShowStringQuickPick>;
+      const showQuickPick = vi.spyOn(window, "showQuickPick") as unknown as MockInstance<ShowStringQuickPick>;
       showQuickPick.mockResolvedValueOnce("json").mockResolvedValueOnce("requiredonly");
 
       await executeGenerateParamsCommand(textDocument.uri);

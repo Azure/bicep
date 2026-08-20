@@ -3,7 +3,7 @@
 
 import fs from "fs";
 import path from "path";
-import vscode, { CompletionItem, SnippetString, window, workspace } from "vscode";
+import { CompletionItem, Position, SnippetString, window, workspace } from "vscode";
 import { expectedNewConfigFileContents } from "./expected-new-config-file-contents";
 import { executeCloseAllEditors, executeCompletionItemProvider } from "./utils/commands";
 import { withTempDirectory } from "./utils/temp-directory";
@@ -24,7 +24,7 @@ describe("empty config file snippets", (): void => {
       const doc = await workspace.openTextDocument(configPath);
       const editor = await window.showTextDocument(doc);
 
-      const completions = await executeCompletionItemProvider(doc.uri, new vscode.Position(0, 0));
+      const completions = await executeCompletionItemProvider(doc.uri, new Position(0, 0));
       if (!completions) {
         throw new Error("Expected completion provider to return a completion list");
       }

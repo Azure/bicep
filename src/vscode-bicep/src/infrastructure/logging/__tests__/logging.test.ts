@@ -1,43 +1,41 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { createLogger, getLogger, resetLogger, WinstonLogger } from "../logging";
+import { BicepLogger, createLogger, getLogger, resetLogger } from "../logging";
 
-const outputChannel = { appendLine: () => undefined };
-
-function createWinstonLoggerTracker() {
+function createLoggerTracker() {
   const logged: [string, unknown][] = [];
-  let clearCount = 0;
-  let closeCount = 0;
-  const logger = {
-    clear: () => {
-      clearCount++;
-    },
-    close: () => {
-      closeCount++;
-    },
+  let disposeCount = 0;
+  const outputChannel = {
+    debug: (message: unknown) => logged.push(["debug", message]),
+    info: (message: unknown) => logged.push(["info", message]),
+    warn: (message: unknown) => logged.push(["warn", message]),
+    error: (message: unknown) => logged.push(["error", message]),
+  };
+  const logFileSink = {
     log: (level: string, message: unknown) => {
       logged.push([level, message]);
+    },
+    dispose: () => {
+      disposeCount++;
     },
   };
 
   return {
-    create: () => logger,
-    get clearCount() {
-      return clearCount;
-    },
-    get closeCount() {
-      return closeCount;
+    get disposeCount() {
+      return disposeCount;
     },
     logged,
+    logFileSink,
+    outputChannel,
   };
 }
 
 describe("createLogger", () => {
   it("adds the logger to extension subscriptions", () => {
     const context = { subscriptions: [] };
-    const tracker = createWinstonLoggerTracker();
+    const tracker = createLoggerTracker();
 
-    createLogger(context, outputChannel, tracker.create);
+    createLogger(context, tracker.outputChannel, tracker.logFileSink);
 
     expect(context.subscriptions).toHaveLength(1);
   });
@@ -52,32 +50,47 @@ describe("getLogger", () => {
   it("returns the created logger", () => {
     resetLogger();
     const context = { subscriptions: [] };
-    const tracker = createWinstonLoggerTracker();
-    const created = createLogger(context, outputChannel, tracker.create);
+    const tracker = createLoggerTracker();
+    const created = createLogger(context, tracker.outputChannel, tracker.logFileSink);
 
     expect(getLogger()).toBe(created);
   });
 });
 
-describe("WinstonLogger", () => {
+describe("BicepLogger", () => {
   it("disposes the underlying logger only once", () => {
-    const tracker = createWinstonLoggerTracker();
-    const logger = new WinstonLogger(outputChannel, "info", tracker.create);
+    const tracker = createLoggerTracker();
+    const logger = new BicepLogger(tracker.outputChannel, tracker.logFileSink);
 
     logger.dispose();
     logger.dispose();
     logger.dispose();
 
-    expect(tracker.clearCount).toBe(1);
-    expect(tracker.closeCount).toBe(1);
+    expect(tracker.disposeCount).toBe(1);
   });
 
-  it.each(["debug", "info", "warn", "error"] as const)("logs messages at the %s level", (level) => {
-    const tracker = createWinstonLoggerTracker();
-    const logger = new WinstonLogger(outputChannel, "info", tracker.create);
+  it.each(["debug", "info", "warn", "error"] as const)("logs messages at the %s level to both sinks", (level) => {
+    const tracker = createLoggerTracker();
+    const logger = new BicepLogger(tracker.outputChannel, tracker.logFileSink);
 
     logger[level]("something");
 
-    expect(tracker.logged).toEqual([[level, "something"]]);
+    expect(tracker.logged).toEqual([
+      [level, "something"],
+      [level, "something"],
+    ]);
+  });
+
+  it("formats errors for the output channel and forwards them to the file sink", () => {
+    const tracker = createLoggerTracker();
+    const logger = new BicepLogger(tracker.outputChannel, tracker.logFileSink);
+    const error = new Error("something went wrong");
+
+    logger.error(error);
+
+    expect(tracker.logged).toEqual([
+      ["error", `${error.message} - ${error.stack}`],
+      ["error", error],
+    ]);
   });
 });

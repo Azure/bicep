@@ -6,7 +6,7 @@ import type { AccessToken } from "@azure/core-auth";
 import assert from "assert";
 import { existsSync, readFileSync } from "fs";
 import * as path from "path";
-import vscode, { commands, Uri } from "vscode";
+import { commands, Uri, window, workspace } from "vscode";
 import { LanguageClient, TextDocumentIdentifier } from "vscode-languageclient/node";
 import { Command } from "../../infrastructure/commands";
 import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
@@ -14,8 +14,8 @@ import { OperationError, parseError } from "../../infrastructure/errors";
 import { OutputChannelManager } from "../../infrastructure/logging";
 import { PromptItem, Prompts } from "../../infrastructure/prompts";
 import { minutesToMs } from "../../infrastructure/timing";
-import { AzurePickers } from "./azure/azure-pickers";
 import { AzureSubscription, getAzureAccessToken } from "./azure/azure-account-manager";
+import { AzurePickers } from "./azure/azure-pickers";
 import {
   BicepDeploymentParametersResponse,
   BicepDeploymentScopeParams,
@@ -49,7 +49,7 @@ export class DeployCommand implements Command {
     private readonly azurePickers: AzurePickers,
   ) {}
 
-  public async execute(documentUri: vscode.Uri | undefined): Promise<void> {
+  public async execute(documentUri: Uri | undefined): Promise<void> {
     const deployId = Math.random().toString();
 
     documentUri = await findOrCreateActiveBicepFile(this.prompts, documentUri, "Choose which Bicep file to deploy");
@@ -168,7 +168,7 @@ export class DeployCommand implements Command {
   }
 
   private async handleManagementGroupDeployment(
-    documentUri: vscode.Uri,
+    documentUri: Uri,
     deploymentScope: string,
     template: string,
     deployId: string,
@@ -193,7 +193,7 @@ export class DeployCommand implements Command {
   }
 
   private async handleResourceGroupDeployment(
-    documentUri: vscode.Uri,
+    documentUri: Uri,
     deploymentScope: string,
     template: string,
     deployId: string,
@@ -217,7 +217,7 @@ export class DeployCommand implements Command {
   }
 
   private async handleSubscriptionDeployment(
-    documentUri: vscode.Uri,
+    documentUri: Uri,
     deploymentScope: string,
     template: string,
     deployId: string,
@@ -336,8 +336,8 @@ export class DeployCommand implements Command {
         ) {
           parametersFilePath = path.join(path.dirname(documentPath), parametersFileName);
         }
-        const parametersFileTextDocument = await vscode.workspace.openTextDocument(parametersFilePath);
-        await vscode.window.showTextDocument(parametersFileTextDocument);
+        const parametersFileTextDocument = await workspace.openTextDocument(parametersFilePath);
+        await window.showTextDocument(parametersFileTextDocument);
       }
       return deploymentStartResponse;
     }
@@ -388,7 +388,7 @@ export class DeployCommand implements Command {
       });
 
       if (result.label === this._browse) {
-        const paramsPaths: Uri[] | undefined = await vscode.window.showOpenDialog({
+        const paramsPaths: Uri[] | undefined = await window.showOpenDialog({
           canSelectMany: false,
           defaultUri: sourceUri,
           openLabel: "Select Parameter File",
@@ -442,7 +442,7 @@ export class DeployCommand implements Command {
 
     if (message) {
       if (showErrorMessage) {
-        await vscode.window.showErrorMessage(`The selected file is not a valid parameters file. ${message}`, {
+        await window.showErrorMessage(`The selected file is not a valid parameters file. ${message}`, {
           modal: true,
         });
       }
@@ -594,9 +594,9 @@ export class DeployCommand implements Command {
 
   private async getParameterFilesInWorkspace(bicepFolder: string): Promise<PromptItem<string>[]> {
     const quickPickItems: PromptItem<string>[] = [];
-    const workspaceParametersFiles = (
-      await vscode.workspace.findFiles("**/*.{json,jsonc,bicepparam}", undefined)
-    ).filter((f) => !!f.fsPath);
+    const workspaceParametersFiles = (await workspace.findFiles("**/*.{json,jsonc,bicepparam}", undefined)).filter(
+      (f) => !!f.fsPath,
+    );
 
     workspaceParametersFiles.sort((a, b) => {
       const aIsInBicepFolder = path.dirname(a.fsPath) === bicepFolder;
@@ -617,7 +617,7 @@ export class DeployCommand implements Command {
         continue;
       }
 
-      const workspaceRoot: string | undefined = vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath;
+      const workspaceRoot: string | undefined = workspace.getWorkspaceFolder(uri)?.uri.fsPath;
       const relativePath = workspaceRoot ? path.relative(workspaceRoot, uri.fsPath) : path.basename(uri.fsPath);
       const quickPickItem: PromptItem<string> = {
         label: `${uri.fsPath.endsWith("biceppparam") ? "$(bicepparam)" : "$(json)"} ${relativePath}`,

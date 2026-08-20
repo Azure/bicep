@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import vscode from "vscode";
+import { Uri, ViewColumn, window } from "vscode";
 import { Command } from "../../infrastructure/commands";
 import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
 import { Prompts } from "../../infrastructure/prompts";
@@ -9,7 +9,7 @@ import { DeployPaneViewManager } from "./pane";
 async function showDeployPane(
   prompts: Prompts,
   viewManager: DeployPaneViewManager,
-  documentUri: vscode.Uri | undefined,
+  documentUri: Uri | undefined,
   sideBySide = false,
 ) {
   documentUri = await findOrCreateActiveBicepFile(
@@ -19,9 +19,7 @@ async function showDeployPane(
     true,
   );
 
-  const viewColumn = sideBySide
-    ? vscode.ViewColumn.Beside
-    : (vscode.window.activeTextEditor?.viewColumn ?? vscode.ViewColumn.One);
+  const viewColumn = sideBySide ? ViewColumn.Beside : (window.activeTextEditor?.viewColumn ?? ViewColumn.One);
 
   await viewManager.openView(documentUri, viewColumn);
 
@@ -36,7 +34,7 @@ export class ShowDeployPaneCommand implements Command {
     private readonly viewManager: DeployPaneViewManager,
   ) {}
 
-  public async execute(documentUri?: vscode.Uri | undefined): Promise<vscode.ViewColumn | undefined> {
+  public async execute(documentUri?: Uri | undefined): Promise<ViewColumn | undefined> {
     return await showDeployPane(this.prompts, this.viewManager, documentUri);
   }
 }
@@ -49,7 +47,7 @@ export class ShowDeployPaneToSideCommand implements Command {
     private readonly viewManager: DeployPaneViewManager,
   ) {}
 
-  public async execute(documentUri?: vscode.Uri | undefined): Promise<vscode.ViewColumn | undefined> {
+  public async execute(documentUri?: Uri | undefined): Promise<ViewColumn | undefined> {
     return await showDeployPane(this.prompts, this.viewManager, documentUri, true);
   }
 }

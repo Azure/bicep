@@ -1,25 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import assert from "assert";
-import * as vscode from "vscode";
-import { Range } from "vscode";
-import { Position } from "vscode";
+import { Position, Range, TextDocument, TextEditor, window, workspace } from "vscode";
 import { readExampleFile } from "./examples";
 import { executeCloseAllEditors, executeCompletionItemProvider } from "./utils/commands";
 import { waitFor } from "./utils/polling";
 
 describe("completion", (): void => {
-  let document: vscode.TextDocument;
-  let editor: vscode.TextEditor;
+  let document: TextDocument;
+  let editor: TextEditor;
 
   beforeAll(async () => {
     const content = readExampleFile("201", "sql");
-    document = await vscode.workspace.openTextDocument({
+    document = await workspace.openTextDocument({
       language: "bicep",
       content,
     });
 
-    editor = await vscode.window.showTextDocument(document);
+    editor = await window.showTextDocument(document);
   });
 
   afterAll(async () => {
@@ -30,7 +28,7 @@ describe("completion", (): void => {
     await editor.edit((editBuilder) => editBuilder.insert(new Position(17, 0), "var foo = data"));
 
     const completionList = await waitFor(
-      async () => await executeCompletionItemProvider(document.uri, new vscode.Position(17, 14)),
+      async () => await executeCompletionItemProvider(document.uri, new Position(17, 14)),
       (completionList) =>
         completionList !== undefined && completionList.items.map((item) => item.label).includes("dataUri"),
       { description: "the dataUri completion item" },

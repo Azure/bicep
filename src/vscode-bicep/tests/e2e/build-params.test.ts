@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 import fs from "fs";
 import path from "path";
-import vscode from "vscode";
+import { workspace } from "vscode";
 import { withWritableExampleDirectory } from "./examples";
 import { executeBuildParamsCommand, executeCloseAllEditors } from "./utils/commands";
 
@@ -15,7 +15,7 @@ describe("buildParams", (): void => {
     await withWritableExampleDirectory("201", "sql", async (directory) => {
       const examplePath = path.join(directory, "main.bicepparam");
       const compiledFilePath = path.join(directory, "main.parameters.json");
-      const textDocument = await vscode.workspace.openTextDocument(examplePath);
+      const textDocument = await workspace.openTextDocument(examplePath);
 
       await executeBuildParamsCommand(textDocument.uri);
       expect(fs.existsSync(compiledFilePath)).toBe(true);

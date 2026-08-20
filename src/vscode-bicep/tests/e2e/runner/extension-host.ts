@@ -3,14 +3,15 @@
 
 import path from "path";
 import { Writable } from "stream";
-import { createExtensionHostPool } from "./pool";
+import { fileURLToPath } from "url";
+import { createExtensionHostPool } from "./pool.js";
 
 // VS Code loads this module inside the Extension Host and invokes its exported run function.
 export async function run(): Promise<void> {
-  const workspaceRoot = path.resolve(__dirname, "../../../..");
-  // This require succeeds only inside the extension host. Store the API on globalThis because
-  // Vitest evaluates setup/test modules through Vite's module runner, not this CommonJS module graph.
-  const vscodeApi = require("vscode") as typeof import("vscode"); // eslint-disable-line @typescript-eslint/no-require-imports
+  const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
+  // Store the API on globalThis because Vitest evaluates setup/test modules through Vite's module
+  // runner, not this extension-host module graph.
+  const vscodeApi = await import("vscode");
   const previousVscodeApi = globalThis.__bicepVscodeApi;
   globalThis.__bicepVscodeApi = vscodeApi;
 

@@ -32,7 +32,7 @@ export default tseslint.config(
             ".vscode-test/**/*",
             "coverage/**/*",
             "**/.eslintrc.cjs",
-            "**/webpack.config.ts",
+            "**/vite.config.mts",
             "**/vitest.config.mts",
         ],
     },

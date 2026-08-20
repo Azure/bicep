@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import vscode from "vscode";
+import { Disposable as VscodeDisposable } from "vscode";
 
 export abstract class Disposable {
-  private readonly disposables: vscode.Disposable[] = [];
+  private readonly disposables: VscodeDisposable[] = [];
 
   private disposed = false;
 
@@ -23,7 +23,7 @@ export abstract class Disposable {
     return this.disposed;
   }
 
-  public register<T extends vscode.Disposable>(disposable: T): T {
+  public register<T extends VscodeDisposable>(disposable: T): T {
     if (this.disposed) {
       disposable.dispose();
     } else {
@@ -33,7 +33,7 @@ export abstract class Disposable {
     return disposable;
   }
 
-  public registerMultiple<T extends vscode.Disposable[]>(...disposables: T): T {
+  public registerMultiple<T extends VscodeDisposable[]>(...disposables: T): T {
     return disposables.map((disposable) => this.register(disposable)) as T;
   }
 }

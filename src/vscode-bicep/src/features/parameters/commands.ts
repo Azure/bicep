@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import path from "path";
-import vscode, { Uri } from "vscode";
+import { Uri, window, workspace } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Command, CommandManager } from "../../infrastructure/commands";
 import { findOrCreateActiveBicepFile } from "../../infrastructure/editor";
@@ -18,7 +18,7 @@ export class GenerateParamsCommand implements Command {
     private readonly outputChannelManager: OutputChannelManager,
   ) {}
 
-  public async execute(documentUri?: vscode.Uri | undefined): Promise<void> {
+  public async execute(documentUri?: Uri | undefined): Promise<void> {
     documentUri = await findOrCreateActiveBicepFile(
       this.prompts,
       documentUri,
@@ -28,10 +28,10 @@ export class GenerateParamsCommand implements Command {
     try {
       console.log(`Generating parameters file for ${documentUri.fsPath}...`);
 
-      const outputFormat = await vscode.window.showQuickPick(["json", "bicepparam"], {
+      const outputFormat = await window.showQuickPick(["json", "bicepparam"], {
         title: "Please select the output format",
       });
-      const includeParams = await vscode.window.showQuickPick(["requiredonly", "all"], {
+      const includeParams = await window.showQuickPick(["requiredonly", "all"], {
         title: "Please select which parameters to include",
       });
 
@@ -56,8 +56,8 @@ export class GenerateParamsCommand implements Command {
       const openPath = Uri.file(
         path.join(filePath.dir, `${filePath.name}.${outputFormat === "json" ? "parameters.json" : "bicepparam"}`),
       );
-      const doc = await vscode.workspace.openTextDocument(openPath);
-      await vscode.window.showTextDocument(doc);
+      const doc = await workspace.openTextDocument(openPath);
+      await window.showTextDocument(doc);
     } catch (err) {
       throw new Error(`Generating parameters failed: ${parseError(err).message}`, { cause: err });
     }
