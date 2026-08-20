@@ -8,6 +8,8 @@ import svgr from "vite-plugin-svgr";
 import { coverageConfigDefaults, defineConfig } from "vitest/config";
 import packageJson from "./package.json" with { type: "json" };
 
+const peerDependencies = Object.keys(packageJson.peerDependencies);
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -33,7 +35,7 @@ export default defineConfig({
       },
     },
     rolldownOptions: {
-      external: Object.keys(packageJson.peerDependencies),
+      external: (id) => peerDependencies.some((dependency) => id === dependency || id.startsWith(`${dependency}/`)),
       output: {
         entryFileNames: "[name].js",
         chunkFileNames: "chunks/[name].[hash].js",
