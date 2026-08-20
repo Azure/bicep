@@ -25,13 +25,16 @@ namespace Bicep.Wasm
 
         public record CompileResult(string template, object diagnostics, string? error = null);
 
-        private readonly IJSRuntime jsRuntime;
+        private readonly Func<string, Task<string?>> loadQuickstartsFile;
         private readonly IServiceProvider serviceProvider;
         private readonly SemaphoreSlim compilationLock = new(1, 1);
+        private string? cachedCompilationContent;
+        private string? cachedCompilationSourcePath;
+        private Compilation? cachedCompilation;
 
-        public Interop(IJSRuntime jsRuntime, IServiceProvider serviceProvider)
+        public Interop(Func<string, Task<string?>> loadQuickstartsFile, IServiceProvider serviceProvider)
         {
-            this.jsRuntime = jsRuntime;
+            this.loadQuickstartsFile = loadQuickstartsFile;
             this.serviceProvider = serviceProvider;
         }
 
@@ -102,13 +105,13 @@ namespace Bicep.Wasm
         }
 
         [JSInvokable]
-        public async Task<object> GetSemanticTokens(string content)
+        public async Task<object> GetSemanticTokens(string content, string? sourcePath = null)
         {
             await compilationLock.WaitAsync();
 
             try
             {
-                var compilation = await GetCompilation(content);
+                var compilation = await GetCompilation(content, sourcePath);
                 var tokens = GetTokenPositions(compilation.GetEntrypointSemanticModel());
 
                 var data = new List<int>();
@@ -153,6 +156,13 @@ namespace Bicep.Wasm
 
         private async Task<Compilation> GetCompilation(string fileContents, string? sourcePath = null)
         {
+            if (cachedCompilation is not null &&
+                cachedCompilationContent == fileContents &&
+                (sourcePath is null || cachedCompilationSourcePath == sourcePath))
+            {
+                return cachedCompilation;
+            }
+
             using var serviceScope = serviceProvider.CreateScope();
             var compiler = serviceScope.ServiceProvider.GetRequiredService<BicepCompiler>();
             var fileExplorer = serviceScope.ServiceProvider.GetRequiredService<IFileExplorer>();
@@ -168,7 +178,11 @@ namespace Bicep.Wasm
                 await WriteModuleFilesRecursively(fileExplorer, fileUri, fileContents, [fileUri]);
             }
 
-            return await compiler.CreateCompilation(fileUri);
+            cachedCompilationContent = fileContents;
+            cachedCompilationSourcePath = sourcePath;
+            cachedCompilation = await compiler.CreateCompilation(fileUri);
+
+            return cachedCompilation;
         }
 
         private async Task WriteModuleFilesRecursively(IFileExplorer fileExplorer, IOUri sourceFileUri, string sourceContent, HashSet<IOUri> loadedUris)
@@ -193,7 +207,7 @@ namespace Bicep.Wasm
                 else
                 {
                     var quickstartsPath = moduleUri.Path[QuickstartsRootPath.Length..];
-                    moduleContents = await jsRuntime.InvokeAsync<string?>("LoadQuickstartsFile", quickstartsPath);
+                    moduleContents = await loadQuickstartsFile(quickstartsPath);
 
                     if (moduleContents is null)
                     {

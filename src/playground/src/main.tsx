@@ -75,7 +75,7 @@ async function start() {
   renderLoading();
 
   try {
-    const interop = await initializeInterop(window);
+    const interop = await initializeInterop();
     root.render(
       <div className="app-container">
         <App

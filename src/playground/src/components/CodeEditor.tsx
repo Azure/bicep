@@ -78,7 +78,10 @@ export const CodeEditor: React.FC<Props> = (props) => {
   return <div ref={containerRef} style={{ height: "100%", width: "100%" }} />;
 };
 
-export function registerBicep(interop: DotnetInterop) {
+export function registerBicep(
+  interop: DotnetInterop,
+  getSourcePath: () => string | undefined,
+) {
   monaco.languages.register({
     id: "bicep",
     extensions: [".bicep"],
@@ -89,7 +92,7 @@ export function registerBicep(interop: DotnetInterop) {
     monaco.languages.registerDocumentSemanticTokensProvider("bicep", {
       getLegend: () => interop.getSemanticTokensLegend(),
       provideDocumentSemanticTokens: async (model) =>
-        await interop.getSemanticTokens(model.getValue()),
+        await interop.getSemanticTokens(model.getValue(), getSourcePath()),
       releaseDocumentSemanticTokens: () => {
         return;
       },

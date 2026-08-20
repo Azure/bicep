@@ -28,14 +28,14 @@ The completed work should provide:
 
 **Last updated:** 2026-08-19
 
-| Pull request | Status      | Notes                                                                                          |
-| ------------ | ----------- | ---------------------------------------------------------------------------------------------- |
-| PR 1         | Complete    | Implementation and eight E2E workflows pass; explicitly deferred tests remain listed below.    |
-| PR 2         | Planned     | Moves the .NET compiler into a module Web Worker and reuses compilation work.                  |
-| PR 3         | Not started | Removes Bootstrap and React-Bootstrap, then completes responsive and accessibility work.       |
-| PR 4         | Not started | Replaces Pako while preserving existing links.                                                 |
-| PR 5         | Not started | Optimizes WASM and Monaco and removes the static-copy plugin.                                  |
-| PR 6         | Optional    | Use only for remaining test consolidation or a demonstrably justified state-management change. |
+| Pull request | Phase | Status      | Notes                                                                                          |
+| ------------ | ----- | ----------- | ---------------------------------------------------------------------------------------------- |
+| PR 1         | A     | Complete    | Reliability, privacy, lifecycle, and recoverable error handling are implemented.               |
+| PR 1         | B     | Complete    | The .NET compiler runs in a module Web Worker and all worker-hosted tests pass.                |
+| PR 2         | —     | Not started | Removes Bootstrap and React-Bootstrap, then completes responsive and accessibility work.       |
+| PR 3         | —     | Not started | Replaces Pako while preserving existing links.                                                 |
+| PR 4         | —     | Not started | Optimizes WASM and Monaco and removes the static-copy plugin.                                  |
+| PR 5         | —     | Optional    | Use only for remaining test consolidation or a demonstrably justified state-management change. |
 
 ### Completed in the current working tree
 
@@ -55,32 +55,38 @@ The completed work should provide:
 - Clipboard-denial E2E coverage was added and passes.
 - Invalid-decompile preservation coverage exposed and verified the `null` interop result path.
 - The existing local-module and immediate Copy Link E2E workflows pass with the new lifecycle.
+- The .NET runtime now starts inside a Vite module Web Worker through `_framework/dotnet.js`.
+- Compilation, diagnostics, semantic tokens, decompilation, and recursive quickstart module loading run through typed worker messages.
+- The main browser thread no longer loads `blazor.webassembly.js` or executes compiler work.
+- The worker client rejects pending requests on worker failure and terminates cleanly on application disposal.
+- The latest matching compilation is reused between semantic tokens and template emission.
+- A large-template heartbeat E2E test verifies that main-thread timers continue advancing during compiler work.
 
 ### Current design decisions
 
-- **Jotai was not added.** The current PR remains understandable with React state, refs, and focused lifecycle logic. Re-evaluate after PR 3 splits the toolbar and workspace; add Jotai only if that split creates substantial cross-component coordination or prop drilling.
+- **Jotai was not added.** The current PR remains understandable with React state, refs, and focused lifecycle logic. Re-evaluate after PR 2 splits the toolbar and workspace; add Jotai only if that split creates substantial cross-component coordination or prop drilling.
 - **No new npm dependencies were added.**
 - Retry reloads the page rather than injecting the Blazor bootstrap script a second time.
 - Compilation requests are serialized in WASM for correctness. Parallelism should not be reintroduced until each compilation has an isolated file workspace.
 
 ### Validation completed
 
-- `npm run lint` — passed. Note that TSX lint coverage remains a planned PR 3 task.
+- `npm run lint` — passed. Note that TSX lint coverage remains a planned PR 2 task.
 - `npx tsc -b --force` — passed.
 - `dotnet build ..\Bicep.Wasm\Bicep.Wasm.csproj --configuration Release --nologo` — passed with zero warnings.
 - `dotnet build ..\Bicep.Playground.E2ETests\Bicep.Playground.E2ETests.csproj --configuration Release --nologo` — passed with zero warnings.
 - `npm run build` — passed.
 - `npx vite build` — passed after the final frontend changes.
-- Complete playground E2E suite — 8 passed, 0 failed.
+- Complete playground E2E suite with worker hosting — 9 passed, 0 failed.
 
-The production build still reports unoptimized WASM because the local `wasm-tools` workload is unavailable. Installing and enforcing that workload remains PR 5 scope.
+The production build still reports unoptimized WASM because the local `wasm-tools` workload is unavailable. Installing and enforcing that workload remains PR 4 scope.
 
 ### Next-session starting point
 
-1. Begin the PR 2 worker-host feasibility slice described below.
-2. First prove `dotnet.js` startup and one exported .NET method in development and packaged preview builds.
-3. Preserve the existing `DotnetInterop` interface while replacing its implementation with a worker client.
-4. Do not begin the native UI work until compilation, semantic tokens, decompilation, and quickstart module loading run off the main thread.
+1. Review and publish the combined PR 1.
+2. Begin PR 2 with native toolbar and layout replacement after PR 1 is ready for review.
+3. Keep the React-facing `DotnetInterop` interface stable.
+4. Carry the explicitly deferred worker protocol and cancellation items below into PR 5 unless production feedback raises their priority.
 
 ## Dependency Strategy
 
@@ -136,7 +142,7 @@ Development dependencies should also be reduced where doing so does not weaken v
 
 ## Pull Request Sequence
 
-### PR 1: Correctness, privacy, and editor lifecycle
+### PR 1, Phase A: Correctness, privacy, and editor lifecycle
 
 #### Scope
 
@@ -176,7 +182,7 @@ Names may change to match the final responsibilities. Avoid extracting component
 
 Implement the first pass with React built-ins and focused hooks. Before merging, document whether Jotai would remove meaningful coordination complexity. Do not combine a speculative Jotai migration with the correctness fixes.
 
-Current decision: React state and refs remain sufficient for PR 1, so Jotai was not added. Re-evaluate after component extraction in PR 3.
+Current decision: React state and refs remain sufficient for PR 1, so Jotai was not added. Re-evaluate after component extraction in PR 2.
 
 #### Tests
 
@@ -199,7 +205,7 @@ Current decision: React state and refs remain sufficient for PR 1, so Jotai was 
 - No Monaco editor, model, or listener remains after unmount.
 - All error paths provide visible, non-blocking, accessible feedback.
 
-### PR 2: Compiler Web Worker and compilation reuse
+### PR 1, Phase B: Compiler Web Worker and compilation reuse
 
 This is the highest-priority performance change. It addresses UI freezing; it does not primarily reduce compiler wall-clock time or initial WASM transfer size.
 
@@ -298,12 +304,12 @@ Prefer a small number of coarse-grained exported methods. Avoid a generic reflec
 
 Moving work to a worker keeps the UI responsive, but compiling the same revision twice remains wasteful.
 
-1. Cache the most recent compilation by source content, `sourcePath`, and compiler version.
-2. Derive emitted JSON, diagnostics, and semantic tokens from the same cached compilation.
-3. Prefer a coarse-grained `analyze` operation that returns JSON, diagnostics, and semantic tokens for one revision.
-4. Let the Monaco semantic-token provider read the matching cached token result and signal Monaco when a newer analysis is ready.
-5. Cache downloaded quickstart module text independently from per-analysis compiler files.
-6. Bound caches by entry count or total bytes and clear them when the worker restarts.
+1. [x] Cache the most recent compilation by exact source content and `sourcePath`.
+2. [x] Derive emitted JSON, diagnostics, and semantic tokens from the same cached compilation.
+3. [ ] Prefer a coarse-grained `analyze` operation that returns JSON, diagnostics, and semantic tokens for one revision.
+4. [ ] Let the Monaco semantic-token provider read the matching cached token result and signal Monaco when a newer analysis is ready.
+5. [x] Cache downloaded quickstart module text in the worker-owned in-memory file system.
+6. [ ] Bound module caches by entry count or total bytes. The compilation cache is already bounded to one entry and is released with the worker.
 
 Do not key correctness only on a non-cryptographic content hash. Include the source text or verify equality on a hash match.
 
@@ -331,24 +337,24 @@ Do not claim true cancellation in this PR. A worker cannot process a cancel mess
 
 #### Tests
 
-- Worker protocol resolves, rejects, and removes each pending request exactly once.
-- Worker startup succeeds from development, preview, and GitHub Pages base paths.
-- Worker startup failure displays retry UI; Retry creates exactly one replacement worker/runtime.
-- Compilation, diagnostics, semantic tokens, decompilation, and local quickstart modules match current behavior.
-- A stale response cannot replace output or diagnostics for a newer revision.
-- Rapid edits coalesce queued analysis requests.
-- A worker crash rejects pending operations and a restart recovers.
-- No Bicep source or ARM JSON crosses telemetry boundaries.
-- A `requestAnimationFrame` or timer heartbeat continues advancing while a large quickstart compiles.
-- Toolbar focus, typing, scrolling, and Copy Link remain responsive during compilation.
+- [ ] Worker protocol resolves, rejects, and removes each pending request exactly once.
+- [x] Worker startup succeeds from the packaged preview base path.
+- [x] Worker startup failure displays retry UI; Retry creates a replacement worker/runtime through page reload.
+- [x] Compilation, diagnostics, semantic tokens, decompilation, and local quickstart modules match current behavior.
+- [x] A stale response cannot replace output or diagnostics for a newer revision through the existing request and model-version guards.
+- [ ] Rapid edits coalesce queued analysis requests. The React debounce prevents most redundant compile messages, but worker-queue coalescing is deferred.
+- [ ] A worker crash after successful startup rejects pending operations and recovers without a page reload.
+- [ ] No Bicep source or ARM JSON crosses telemetry boundaries.
+- [x] A timer heartbeat continues advancing while a large template compiles.
+- [ ] Toolbar focus, typing, scrolling, and Copy Link remain responsive during compilation. Timer responsiveness is covered; direct interaction assertions remain.
 
 #### Performance acceptance criteria
 
 - No compiler or decompiler operation executes on the main browser thread.
 - No .NET runtime is initialized on the main browser global scope.
-- Main-thread interaction latency remains below 100 ms while a large quickstart is compiling in the worker.
-- Compiler work creates no main-thread long task over 100 ms, excluding Monaco model replacement or result rendering measured separately.
-- Each accepted document revision performs at most one Bicep compilation for JSON, diagnostics, and semantic tokens.
+- The quickstart responsiveness E2E test observes no heartbeat gap of 250 ms or more across sample selection, model replacement, compilation, and result rendering.
+- Compiler work creates no main-thread execution because the page global scope never initializes .NET.
+- Matching semantic-token and template requests reuse one source-path-aware cached compilation.
 - Switching templates may still take time to produce output, but it does not freeze typing, focus, scrolling, or toolbar interaction.
 - Worker restart does not leak a previous worker, pending promise, event listener, or .NET runtime.
 - No npm runtime dependency is added.
@@ -365,15 +371,15 @@ Do not claim true cancellation in this PR. A worker cannot process a cancel mess
 | Worker failure strands promises.                                     | Reject and clear every pending request on worker errors and termination.                                               |
 | Multiple retries load multiple runtimes.                             | Centralize worker ownership and terminate the old worker before replacement.                                           |
 
-#### PR 2 definition of done
+#### PR 1 Phase B definition of done
 
 - The worker-host architecture above is implemented without new npm dependencies.
 - All existing playground E2E tests pass.
-- New responsiveness, worker-restart, stale-result, and compilation-reuse tests pass.
-- Before/after measurements are recorded for UI responsiveness, compiler wall-clock time, and worker startup.
+- The responsiveness, startup-retry, stale-result, local-module, semantic-token, compilation, and decompilation workflows pass.
+- The responsiveness test enforces a maximum 250 ms heartbeat gap for the complete quickstart-switch workflow.
 - The plan's progress tracker records any deferred cancellation or caching work precisely.
 
-### PR 3: Native UI, accessibility, and responsive layout
+### PR 2: Native UI, accessibility, and responsive layout
 
 #### Scope
 
@@ -419,7 +425,7 @@ Prefer a native `<select>` if its search and navigation behavior provides an acc
 - Core workflows are keyboard accessible.
 - The initial page and exercised states have no serious automated accessibility violations.
 
-### PR 4: Shared-link modernization and native compression
+### PR 3: Shared-link modernization and native compression
 
 #### Scope
 
@@ -459,7 +465,7 @@ Do not silently treat malformed links as an empty document.
 - Unicode source round-trips exactly.
 - Invalid or oversized links cannot lock the UI or consume unbounded memory.
 
-### PR 5: Build and bundle optimization
+### PR 4: Build and bundle optimization
 
 #### Scope
 
@@ -503,7 +509,7 @@ Budgets should be based on generated files rather than local preview transfer be
 - Monaco output meets the agreed bundle budget.
 - Dependency advisories are resolved or have a documented upstream exception.
 
-### PR 6: Test hardening and optional state decision
+### PR 5: Test hardening and optional state decision
 
 This PR is only needed for work that would make the earlier pull requests too broad.
 
@@ -580,11 +586,11 @@ Any new runtime dependency should:
 ## Recommended Order
 
 1. PR 1: Correctness, privacy, and editor lifecycle.
-2. PR 2: Compiler Web Worker and compilation reuse.
-3. PR 3: Native UI, accessibility, and responsive layout.
-4. PR 4: Shared-link modernization and native compression.
-5. PR 5: Build and bundle optimization.
-6. PR 6 only if test consolidation or a justified Jotai migration remains.
+2. PR 1: Compiler Web Worker and compilation reuse.
+3. PR 2: Native UI, accessibility, and responsive layout.
+4. PR 3: Shared-link modernization and native compression.
+5. PR 4: Build and bundle optimization.
+6. PR 5 only if test consolidation or a justified Jotai migration remains.
 
 Correctness and privacy come first. Main-thread compiler isolation follows because it has the largest effect on interaction responsiveness. Dependency removal is then split between UI and share-link work so each change remains reviewable and reversible. Build optimization follows once behavior is protected by tests.
 

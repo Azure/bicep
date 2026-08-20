@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using FluentAssertions;
 using Microsoft.Playwright;
 using Microsoft.Playwright.Xunit;
 using Xunit;
@@ -134,7 +135,7 @@ public class PlaygroundSpecs : PageTest
     [Fact]
     public async Task WhenCompilerDownloadFails_ThenShouldShowErrorAndAllowRetry()
     {
-        const string compilerScript = "**/_framework/blazor.webassembly.js";
+        const string compilerScript = "**/_framework/dotnet.js";
         var port = Environment.GetEnvironmentVariable("PlaygroundPort") ?? "4173";
 
         await Page.RouteAsync(compilerScript, route => route.AbortAsync());
@@ -148,6 +149,39 @@ public class PlaygroundSpecs : PageTest
         await Page.GetByRole(AriaRole.Button, new PageGetByRoleOptions { Name = "Retry" }).ClickAsync();
 
         await Page.Locator(".playground-editorpane").First.WaitForAsync();
+    }
+
+    [Fact]
+    public async Task WhenCompilingQuickstart_ThenMainThreadShouldRemainResponsive()
+    {
+        await _page.OpenPlayground();
+        await Page.EvaluateAsync(
+            """
+            window.__playgroundHeartbeat = 0;
+            window.__playgroundLastHeartbeat = performance.now();
+            window.__playgroundMaxHeartbeatGap = 0;
+            window.__playgroundHeartbeatHandle = window.setInterval(
+              () => {
+                const now = performance.now();
+                window.__playgroundMaxHeartbeatGap = Math.max(
+                  window.__playgroundMaxHeartbeatGap,
+                  now - window.__playgroundLastHeartbeat);
+                window.__playgroundLastHeartbeat = now;
+                ++window.__playgroundHeartbeat;
+              },
+              10);
+            """);
+
+        await _page.SelectSampleTemplate("microsoft.desktopvirtualization/azure-virtual-desktop-with-fslogix/main.bicep");
+        await _page.ExpectingArmEditorContentToContain("\"Microsoft.DesktopVirtualization/applicationGroups\"");
+
+        var heartbeat = await Page.EvaluateAsync<int>("window.__playgroundHeartbeat");
+        var maximumGap = await Page.EvaluateAsync<double>("window.__playgroundMaxHeartbeatGap");
+        heartbeat.Should().BeGreaterThan(5);
+        maximumGap.Should().BeLessThan(250);
+
+        await Page.EvaluateAsync(
+            "window.clearInterval(window.__playgroundHeartbeatHandle)");
     }
 
     [Fact]
