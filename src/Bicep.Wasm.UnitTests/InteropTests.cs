@@ -106,6 +106,41 @@ public class InteropTests
         GetProperty<int>(diagnostic, "startLineNumber").Should().Be(2);
     }
 
+    [TestMethod]
+    public async Task CompileAndEmitDiagnostics_WithConcurrentRequests_DoesNotMixCompilationState()
+    {
+        var jsRuntime = new MockJsRuntime(new Dictionary<string, string>());
+        var fileExplorer = new InMemoryFileExplorer();
+        using var serviceProvider = CreateServiceProvider(fileExplorer);
+        var interop = new Interop(jsRuntime.LoadQuickstart, serviceProvider);
+
+        var firstCompilation = interop.CompileAndEmitDiagnostics(
+            "output result string = 'first'",
+            null);
+        var secondCompilation = interop.CompileAndEmitDiagnostics(
+            "output result string = 'second'",
+            null);
+
+        var results = await Task.WhenAll(firstCompilation, secondCompilation);
+
+        using var firstTemplate = JsonDocument.Parse(results[0].template);
+        using var secondTemplate = JsonDocument.Parse(results[1].template);
+        firstTemplate.RootElement
+            .GetProperty("outputs")
+            .GetProperty("result")
+            .GetProperty("value")
+            .GetString()
+            .Should()
+            .Be("first");
+        secondTemplate.RootElement
+            .GetProperty("outputs")
+            .GetProperty("result")
+            .GetProperty("value")
+            .GetString()
+            .Should()
+            .Be("second");
+    }
+
     private static ServiceProvider CreateServiceProvider(IFileExplorer fileExplorer, IContainerRegistryClientFactory? clientFactory = null)
     {
         var services = new ServiceCollection();

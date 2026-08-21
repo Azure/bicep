@@ -63,5 +63,6 @@ export type CompilerResponse =
   | {
       type: "error";
       requestId?: number;
+      code?: "requestSuperseded";
       message: string;
     };
