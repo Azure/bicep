@@ -26,16 +26,17 @@ The completed work should provide:
 
 ## Progress Tracker
 
-**Last updated:** 2026-08-19
+**Last updated:** 2026-08-20
 
 | Pull request | Phase | Status      | Notes                                                                                          |
 | ------------ | ----- | ----------- | ---------------------------------------------------------------------------------------------- |
 | PR 1         | A     | Complete    | Reliability, privacy, lifecycle, and recoverable error handling are implemented.               |
 | PR 1         | B     | Complete    | The .NET compiler runs in a module Web Worker and all worker-hosted tests pass.                |
-| PR 2         | —     | Not started | Removes Bootstrap and React-Bootstrap, then completes responsive and accessibility work.       |
-| PR 3         | —     | Not started | Replaces Pako while preserving existing links.                                                 |
-| PR 4         | —     | Not started | Optimizes WASM and Monaco and removes the static-copy plugin.                                  |
-| PR 5         | —     | Optional    | Use only for remaining test consolidation or a demonstrably justified state-management change. |
+| PR 2         | —     | Next        | Migrates all playground E2E coverage from C#/xUnit to TypeScript Playwright.                   |
+| PR 3         | —     | Not started | Removes Bootstrap and React-Bootstrap, then completes responsive and accessibility work.       |
+| PR 4         | —     | Not started | Replaces Pako while preserving existing links.                                                 |
+| PR 5         | —     | Not started | Optimizes WASM and Monaco and removes the static-copy plugin.                                  |
+| PR 6         | —     | Optional    | Use only for remaining test consolidation or a demonstrably justified state-management change. |
 
 ### Completed in the current working tree
 
@@ -59,34 +60,41 @@ The completed work should provide:
 - Compilation, diagnostics, semantic tokens, decompilation, and recursive quickstart module loading run through typed worker messages.
 - The main browser thread no longer loads `blazor.webassembly.js` or executes compiler work.
 - The worker client rejects pending requests on worker failure and terminates cleanly on application disposal.
+- A worker crash rejects all pending operations and automatically creates one replacement worker/runtime for subsequent requests.
+- Queued compile and semantic-token requests are coalesced so superseded work receives a terminal response instead of consuming compiler time.
+- Automatic restart is bounded to one attempt; a second fatal failure is surfaced to subsequent compiler requests.
+- Failed or timed-out replacement startup terminates the replacement worker and cannot leak a second .NET runtime.
+- Superseded semantic-token work returns Monaco's no-update result instead of generating console errors.
 - The latest matching compilation is reused between semantic tokens and template emission.
 - A large-template heartbeat E2E test verifies that main-thread timers continue advancing during compiler work.
+- Concurrent .NET compiler calls are covered and cannot mix output state.
 
 ### Current design decisions
 
-- **Jotai was not added.** The current PR remains understandable with React state, refs, and focused lifecycle logic. Re-evaluate after PR 2 splits the toolbar and workspace; add Jotai only if that split creates substantial cross-component coordination or prop drilling.
+- **Jotai was not added.** The current PR remains understandable with React state, refs, and focused lifecycle logic. Re-evaluate after PR 3 splits the toolbar and workspace; add Jotai only if that split creates substantial cross-component coordination or prop drilling.
 - **No new npm dependencies were added.**
 - Retry reloads the page rather than injecting the Blazor bootstrap script a second time.
 - Compilation requests are serialized in WASM for correctness. Parallelism should not be reintroduced until each compilation has an isolated file workspace.
 
 ### Validation completed
 
-- `npm run lint` — passed. Note that TSX lint coverage remains a planned PR 2 task.
+- `npm run lint` — passed. Note that TSX lint coverage remains a planned PR 3 task.
 - `npx tsc -b --force` — passed.
 - `dotnet build ..\Bicep.Wasm\Bicep.Wasm.csproj --configuration Release --nologo` — passed with zero warnings.
 - `dotnet build ..\Bicep.Playground.E2ETests\Bicep.Playground.E2ETests.csproj --configuration Release --nologo` — passed with zero warnings.
 - `npm run build` — passed.
 - `npx vite build` — passed after the final frontend changes.
 - Complete playground E2E suite with worker hosting — 9 passed, 0 failed.
+- Bicep WASM unit tests, including concurrent compiler-state isolation — 4 passed, 0 failed.
 
-The production build still reports unoptimized WASM because the local `wasm-tools` workload is unavailable. Installing and enforcing that workload remains PR 4 scope.
+The production build still reports unoptimized WASM because the local `wasm-tools` workload is unavailable. Installing and enforcing that workload remains PR 5 scope.
 
 ### Next-session starting point
 
-1. Review and publish the combined PR 1.
-2. Begin PR 2 with native toolbar and layout replacement after PR 1 is ready for review.
-3. Keep the React-facing `DotnetInterop` interface stable.
-4. Carry the explicitly deferred worker protocol and cancellation items below into PR 5 unless production feedback raises their priority.
+1. Begin PR 2 by migrating the nine existing browser workflows to TypeScript Playwright.
+2. Add the deferred protocol, telemetry, timeout, stale-result, and direct interaction assertions in TypeScript rather than extending the C# suite.
+3. Delete `Bicep.Playground.E2ETests` and its CI/NuGet wiring only after migrated tests pass in CI-equivalent local validation.
+4. Begin PR 3 UI work only after the TypeScript Playwright migration is complete.
 
 ## Dependency Strategy
 
@@ -182,20 +190,18 @@ Names may change to match the final responsibilities. Avoid extracting component
 
 Implement the first pass with React built-ins and focused hooks. Before merging, document whether Jotai would remove meaningful coordination complexity. Do not combine a speculative Jotai migration with the correctness fixes.
 
-Current decision: React state and refs remain sufficient for PR 1, so Jotai was not added. Re-evaluate after component extraction in PR 2.
+Current decision: React state and refs remain sufficient for PR 1, so Jotai was not added. Re-evaluate after component extraction in PR 3.
 
-#### Tests
+#### Tests completed in the legacy C# suite
 
-- [ ] A slower old compilation cannot overwrite a newer result.
 - [x] Copy Link uses the latest editor text even while compilation is running.
 - [x] A changed sample `sourcePath` is used by the Monaco callback.
-- [ ] A sample fetch failure preserves source, output, cursor position, and focus. Source preservation and visible error feedback are covered; output, cursor, and focus assertions remain.
 - [x] A decompile failure preserves editor content and displays an accessible error.
 - [x] Clipboard rejection displays an accessible error.
-- [ ] A Blazor initialization timeout displays retry UI.
 - [x] A Blazor script download failure displays retry UI and Retry recovers.
-- [ ] Telemetry never receives a URL query string or fragment.
-- [ ] Concurrent compilation requests cannot corrupt the WASM in-memory workspace.
+- [x] Concurrent compilation requests cannot corrupt the WASM in-memory workspace.
+
+The stale-result, full focus/cursor preservation, initialization-timeout, and telemetry-payload assertions are required first additions in the TypeScript Playwright migration below. Their production guards are implemented; no additional C# E2E tests should be added.
 
 #### Acceptance criteria
 
@@ -335,18 +341,19 @@ The first worker version should:
 
 Do not claim true cancellation in this PR. A worker cannot process a cancel message while synchronous compiler work is occupying its event loop. True in-flight cancellation requires compiler cancellation-token support, a safe shared-memory cancellation signal, or terminating and paying the cost to recreate the .NET runtime.
 
-#### Tests
+#### Tests and implemented guarantees
 
-- [ ] Worker protocol resolves, rejects, and removes each pending request exactly once.
 - [x] Worker startup succeeds from the packaged preview base path.
 - [x] Worker startup failure displays retry UI; Retry creates a replacement worker/runtime through page reload.
 - [x] Compilation, diagnostics, semantic tokens, decompilation, and local quickstart modules match current behavior.
 - [x] A stale response cannot replace output or diagnostics for a newer revision through the existing request and model-version guards.
-- [ ] Rapid edits coalesce queued analysis requests. The React debounce prevents most redundant compile messages, but worker-queue coalescing is deferred.
-- [ ] A worker crash after successful startup rejects pending operations and recovers without a page reload.
-- [ ] No Bicep source or ARM JSON crosses telemetry boundaries.
+- [x] Rapid edits coalesce not-yet-started compile and semantic-token requests.
+- [x] A worker crash after successful startup rejects pending operations and automatically starts one replacement worker/runtime.
 - [x] A timer heartbeat continues advancing while a large template compiles.
-- [ ] Toolbar focus, typing, scrolling, and Copy Link remain responsive during compilation. Timer responsiveness is covered; direct interaction assertions remain.
+
+Focused protocol settlement, crash injection, telemetry-boundary, and direct interaction assertions belong in PR 2 after the TypeScript runner is available.
+
+True cancellation of compiler work already executing inside .NET remains intentionally deferred. It requires compiler cancellation-token support, shared-memory signaling, or terminating and recreating the runtime; stale-result rejection, pre-execution coalescing, and main-thread isolation provide the required current behavior.
 
 #### Performance acceptance criteria
 
@@ -379,7 +386,73 @@ Do not claim true cancellation in this PR. A worker cannot process a cancel mess
 - The responsiveness test enforces a maximum 250 ms heartbeat gap for the complete quickstart-switch workflow.
 - The plan's progress tracker records any deferred cancellation or caching work precisely.
 
-### PR 2: Native UI, accessibility, and responsive layout
+### PR 2: TypeScript Playwright E2E migration
+
+Migrate browser tests before further playground feature or UI work so new frontend behavior is tested in the same ecosystem as the application.
+
+#### Scope
+
+1. Add `@playwright/test` as a pinned development dependency.
+2. Add `playwright.config.ts` with:
+   - Chromium as the initial required project.
+   - `webServer` integration that builds and starts `vite preview`.
+   - Trace collection on first retry.
+   - Screenshots on failure.
+   - CI retries matching repository conventions.
+3. Migrate the existing nine workflows without weakening assertions:
+   - Quickstart selection.
+   - Quickstart with local modules.
+   - Share-link round trip.
+   - Bicep-to-ARM compilation.
+   - Sample-download failure and content preservation.
+   - Clipboard failure.
+   - Decompile failure and content preservation.
+   - Worker bootstrap failure and retry.
+   - Main-thread responsiveness during quickstart compilation.
+4. Replace clipboard-based Monaco content reads with Monaco model access through a narrowly scoped test helper where possible.
+5. Add the deferred PR 1 assertions:
+   - Slower stale compilation cannot overwrite a newer revision.
+   - Sample failure preserves source, ARM output, cursor position, and predictable focus.
+   - Worker initialization timeout displays retry UI.
+   - Worker protocol settles each request exactly once.
+   - Superseded queued requests reject with the expected code.
+   - Post-start worker crash rejects pending work and the replacement worker handles the next request.
+   - Telemetry payloads contain no Bicep source, ARM JSON, query string, or fragment.
+   - Typing, scrolling, focus, Share, and toolbar actions remain responsive while compilation runs.
+6. Add npm scripts:
+   - `test:e2e`
+   - `test:e2e:ui`
+   - `test:e2e:update` only if snapshot testing is introduced.
+7. Update the playground CI job to install Chromium through Playwright and run the npm test command.
+8. Remove:
+   - `Bicep.Playground.E2ETests`
+   - Its solution entry.
+   - C# Playwright installation and `dotnet test` workflow steps.
+   - Playground-only xUnit, FluentAssertions, and Playwright NuGet usage when no longer referenced.
+
+#### Dependency rationale
+
+`@playwright/test` is a development-only dependency and does not affect the runtime dependency budget or production bundle. It replaces the separate C# Playwright/xUnit project and is the only new test dependency planned.
+
+#### Migration rules
+
+- Port behavior first; do not redesign selectors and UI simultaneously.
+- Prefer accessible role/name locators over CSS selectors.
+- Keep a small page object only for Monaco-specific operations and repeated high-level workflows.
+- Use web-first Playwright assertions instead of manual polling and `Task.Delay`.
+- Do not add a second JavaScript test runner solely for E2E tests.
+- Do not delete the C# suite until the TypeScript suite passes locally against the production preview.
+
+#### Acceptance criteria
+
+- All nine existing workflows pass under `@playwright/test`.
+- All deferred PR 1 assertions listed above pass.
+- CI invokes only the TypeScript Playwright suite for playground E2E coverage.
+- The C# E2E project and its workflow plumbing are removed.
+- Failure traces and screenshots are available as CI artifacts or through Playwright output.
+- Production npm dependencies and bundle output are unchanged.
+
+### PR 3: Native UI, accessibility, and responsive layout
 
 #### UX goals
 
@@ -605,7 +678,7 @@ Prefer a native `<select>` if its search and navigation behavior provides an acc
 - Core workflows are keyboard accessible.
 - The initial page and exercised states have no serious automated accessibility violations.
 
-### PR 3: Shared-link modernization and native compression
+### PR 4: Shared-link modernization and native compression
 
 #### Scope
 
@@ -645,7 +718,7 @@ Do not silently treat malformed links as an empty document.
 - Unicode source round-trips exactly.
 - Invalid or oversized links cannot lock the UI or consume unbounded memory.
 
-### PR 4: Build and bundle optimization
+### PR 5: Build and bundle optimization
 
 #### Scope
 
@@ -689,7 +762,7 @@ Budgets should be based on generated files rather than local preview transfer be
 - Monaco output meets the agreed bundle budget.
 - Dependency advisories are resolved or have a documented upstream exception.
 
-### PR 5: Test hardening and optional state decision
+### PR 6: Test hardening and optional state decision
 
 This PR is only needed for work that would make the earlier pull requests too broad.
 
@@ -767,10 +840,11 @@ Any new runtime dependency should:
 
 1. PR 1: Correctness, privacy, and editor lifecycle.
 2. PR 1: Compiler Web Worker and compilation reuse.
-3. PR 2: Native UI, accessibility, and responsive layout.
-4. PR 3: Shared-link modernization and native compression.
-5. PR 4: Build and bundle optimization.
-6. PR 5 only if test consolidation or a justified Jotai migration remains.
+3. PR 2: TypeScript Playwright E2E migration.
+4. PR 3: Native UI, accessibility, and responsive layout.
+5. PR 4: Shared-link modernization and native compression.
+6. PR 5: Build and bundle optimization.
+7. PR 6 only if test consolidation or a justified Jotai migration remains.
 
 Correctness and privacy come first. Main-thread compiler isolation follows because it has the largest effect on interaction responsiveness. Dependency removal is then split between UI and share-link work so each change remains reviewable and reversible. Build optimization follows once behavior is protected by tests.
 

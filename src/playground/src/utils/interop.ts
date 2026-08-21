@@ -11,6 +11,14 @@ import {
 } from "../workers/compilerProtocol";
 
 const interopInitializationTimeoutMs = 30_000;
+const maximumAutomaticWorkerRestarts = 1;
+
+export class CompilerRequestSupersededError extends Error {
+  public constructor() {
+    super("A newer compiler request superseded this request.");
+    this.name = "CompilerRequestSupersededError";
+  }
+}
 
 export interface DotnetInterop {
   getSemanticTokensLegend(): languages.SemanticTokensLegend;
@@ -59,30 +67,39 @@ export async function initializeInterop(
 }
 
 class CompilerWorkerClient implements DotnetInterop {
-  private readonly worker = new Worker(
-    new URL("../workers/compiler.worker.ts", import.meta.url),
-    { type: "module" },
-  );
   private readonly pendingRequests = new Map<number, PendingRequest>();
   private nextRequestId = 0;
   private initialization: Initialization | undefined;
   private semanticTokensLegend: languages.SemanticTokensLegend | undefined;
+  private worker: Worker | undefined;
+  private ready: Promise<void> | undefined;
+  private automaticRestartCount = 0;
+  private initialized = false;
   private disposed = false;
 
-  public constructor() {
-    this.worker.addEventListener("message", this.handleMessage);
-    this.worker.addEventListener("error", this.handleWorkerError);
-    this.worker.addEventListener("messageerror", this.handleMessageError);
+  public async initialize(timeoutMs: number): Promise<void> {
+    if (!this.ready) {
+      this.ready = this.startWorker(timeoutMs);
+    }
+
+    await this.ready;
+    this.initialized = true;
   }
 
-  public async initialize(timeoutMs: number): Promise<void> {
-    if (this.initialization) {
-      throw new Error("The Bicep compiler worker is already initializing.");
-    }
+  private async startWorker(timeoutMs: number): Promise<void> {
+    const worker = new Worker(
+      new URL("../workers/compiler.worker.ts", import.meta.url),
+      { type: "module" },
+    );
+    this.worker = worker;
+    worker.addEventListener("message", this.handleMessage);
+    worker.addEventListener("error", this.handleWorkerError);
+    worker.addEventListener("messageerror", this.handleMessageError);
 
     await new Promise<void>((resolve, reject) => {
       const timeout = window.setTimeout(() => {
         this.initialization = undefined;
+        this.disposeWorker(worker);
         reject(
           new Error(
             "The Bicep compiler took too long to initialize. Check your connection and try again.",
@@ -114,7 +131,7 @@ class CompilerWorkerClient implements DotnetInterop {
     });
 
     this.semanticTokensLegend =
-      await this.sendRequest<languages.SemanticTokensLegend>({
+      await this.sendRequestNow<languages.SemanticTokensLegend>({
         operation: "getSemanticTokensLegend",
       });
   }
@@ -156,10 +173,7 @@ class CompilerWorkerClient implements DotnetInterop {
     }
 
     this.disposed = true;
-    this.worker.removeEventListener("message", this.handleMessage);
-    this.worker.removeEventListener("error", this.handleWorkerError);
-    this.worker.removeEventListener("messageerror", this.handleMessageError);
-    this.worker.terminate();
+    this.disposeWorker();
 
     const error = new Error("The Bicep compiler worker was disposed.");
     this.initialization?.reject(error);
@@ -167,7 +181,14 @@ class CompilerWorkerClient implements DotnetInterop {
     this.rejectPendingRequests(error);
   }
 
-  private sendRequest<TResult extends CompilerResult>(
+  private async sendRequest<TResult extends CompilerResult>(
+    request: CompilerOperationRequest,
+  ): Promise<TResult> {
+    await this.ready;
+    return await this.sendRequestNow<TResult>(request);
+  }
+
+  private sendRequestNow<TResult extends CompilerResult>(
     request: CompilerOperationRequest,
   ): Promise<TResult> {
     const requestId = ++this.nextRequestId;
@@ -205,7 +226,11 @@ class CompilerWorkerClient implements DotnetInterop {
       }
 
       this.pendingRequests.delete(response.requestId);
-      pending.reject(new Error(response.message));
+      pending.reject(
+        response.code === "requestSuperseded"
+          ? new CompilerRequestSupersededError()
+          : new Error(response.message),
+      );
       return;
     }
 
@@ -219,6 +244,7 @@ class CompilerWorkerClient implements DotnetInterop {
   };
 
   private readonly handleWorkerError = (event: ErrorEvent) => {
+    event.preventDefault();
     this.handleFatalError(
       new Error(event.message || "The Bicep compiler worker crashed."),
     );
@@ -234,6 +260,26 @@ class CompilerWorkerClient implements DotnetInterop {
     this.initialization?.reject(error);
     this.initialization = undefined;
     this.rejectPendingRequests(error);
+    this.disposeWorker();
+
+    if (
+      !this.disposed &&
+      this.initialized &&
+      this.automaticRestartCount < maximumAutomaticWorkerRestarts
+    ) {
+      ++this.automaticRestartCount;
+      this.ready = this.startWorker(interopInitializationTimeoutMs);
+      void this.ready.catch(() => {
+        // The next compiler request surfaces the restart failure.
+      });
+      return;
+    }
+
+    const failedReady = Promise.reject<void>(error);
+    void failedReady.catch(() => {
+      // Compiler requests surface the fatal worker error.
+    });
+    this.ready = failedReady;
   }
 
   private rejectPendingRequests(error: Error) {
@@ -249,6 +295,25 @@ class CompilerWorkerClient implements DotnetInterop {
       throw new Error("The Bicep compiler worker is disposed.");
     }
 
+    if (!this.worker) {
+      throw new Error("The Bicep compiler worker is not available.");
+    }
+
     this.worker.postMessage(message);
+  }
+
+  private disposeWorker(worker = this.worker) {
+    if (!worker) {
+      return;
+    }
+
+    worker.removeEventListener("message", this.handleMessage);
+    worker.removeEventListener("error", this.handleWorkerError);
+    worker.removeEventListener("messageerror", this.handleMessageError);
+    worker.terminate();
+
+    if (this.worker === worker) {
+      this.worker = undefined;
+    }
   }
 }

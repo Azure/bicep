@@ -2,7 +2,10 @@
 // Licensed under the MIT License.
 import * as monaco from "monaco-editor";
 import React, { useEffect, useRef } from "react";
-import { DotnetInterop } from "../utils/interop";
+import {
+  CompilerRequestSupersededError,
+  DotnetInterop,
+} from "../utils/interop";
 import { useColorMode } from "../utils/colorModes";
 
 interface Props {
@@ -91,8 +94,20 @@ export function registerBicep(
   const semanticTokensRegistration =
     monaco.languages.registerDocumentSemanticTokensProvider("bicep", {
       getLegend: () => interop.getSemanticTokensLegend(),
-      provideDocumentSemanticTokens: async (model) =>
-        await interop.getSemanticTokens(model.getValue(), getSourcePath()),
+      provideDocumentSemanticTokens: async (model) => {
+        try {
+          return await interop.getSemanticTokens(
+            model.getValue(),
+            getSourcePath(),
+          );
+        } catch (error) {
+          if (error instanceof CompilerRequestSupersededError) {
+            return null;
+          }
+
+          throw error;
+        }
+      },
       releaseDocumentSemanticTokens: () => {
         return;
       },

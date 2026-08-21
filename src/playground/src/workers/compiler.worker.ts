@@ -42,17 +42,72 @@ type DotnetModule = {
 };
 
 let workerMethods: WorkerMethods | undefined;
+const requestQueue: Array<Extract<CompilerRequest, { type: "request" }>> = [];
+let processingRequests = false;
 
 self.addEventListener("message", (event: MessageEvent<CompilerRequest>) => {
-  void handleMessage(event.data);
+  handleMessage(event.data);
 });
 
-async function handleMessage(request: CompilerRequest) {
+function handleMessage(request: CompilerRequest) {
   if (request.type === "initialize") {
-    await initialize(request.frameworkUrl, request.quickstartsBaseUrl);
+    void initialize(request.frameworkUrl, request.quickstartsBaseUrl);
     return;
   }
 
+  enqueueRequest(request);
+}
+
+function enqueueRequest(
+  request: Extract<CompilerRequest, { type: "request" }>,
+) {
+  if (
+    request.operation === "compile" ||
+    request.operation === "getSemanticTokens"
+  ) {
+    const supersededRequestIndex = requestQueue.findIndex(
+      (queuedRequest) => queuedRequest.operation === request.operation,
+    );
+
+    if (supersededRequestIndex !== -1) {
+      const [supersededRequest] = requestQueue.splice(
+        supersededRequestIndex,
+        1,
+      );
+      postResponse({
+        type: "error",
+        requestId: supersededRequest.requestId,
+        code: "requestSuperseded",
+        message: "A newer compiler request superseded this request.",
+      });
+    }
+  }
+
+  requestQueue.push(request);
+  void processRequestQueue();
+}
+
+async function processRequestQueue() {
+  if (processingRequests) {
+    return;
+  }
+
+  processingRequests = true;
+
+  try {
+    let request = requestQueue.shift();
+    while (request) {
+      await processRequest(request);
+      request = requestQueue.shift();
+    }
+  } finally {
+    processingRequests = false;
+  }
+}
+
+async function processRequest(
+  request: Extract<CompilerRequest, { type: "request" }>,
+) {
   if (!workerMethods) {
     postResponse({
       type: "error",
