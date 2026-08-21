@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { ComponentType } from "react";
-import type { NodeKind } from "./lib/graph";
+import type { ModuleDeclarationProps, ResourceDeclarationProps } from "./features/visualization";
+import type { NodeContentRenderProps, NodeKind } from "./lib/graph";
 import type { DocumentDidChangePayload } from "./lib/messaging";
 
 import { PanZoomProvider, useGetPanZoomDimensions } from "@vscode-bicep-ui/components";
@@ -62,18 +62,21 @@ function deriveExportFileStem(documentPath?: string, documentFileName?: string):
   return stem || "bicep-graph";
 }
 
+function renderNodeContent(kind: NodeKind, { id, data }: NodeContentRenderProps) {
+  if (kind === "compound") {
+    return <ModuleDeclaration id={id} data={data as ModuleDeclarationProps["data"]} />;
+  }
+
+  return <ResourceDeclaration id={id} data={data as ResourceDeclarationProps["data"]} />;
+}
+
 store.set(nodeConfigAtom, {
   ...nodeConfig,
   padding: {
     ...nodeConfig.padding,
     top: 50,
   },
-  getContentComponent: (kind: NodeKind) => {
-    if (kind === "compound") {
-      return ModuleDeclaration as ComponentType<{ id: string; data: unknown }>;
-    }
-    return ResourceDeclaration as ComponentType<{ id: string; data: unknown }>;
-  },
+  renderContent: renderNodeContent,
 });
 
 /**
