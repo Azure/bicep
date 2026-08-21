@@ -49,7 +49,7 @@ namespace Bicep.Core.UnitTests.Extensions
         [DataTestMethod]
         public void ExtractRegexGroups_ByGroupNames_Invalid(string s, string regex, string[] groupNames, string expectedError)
         {
-            var ex = Assert.ThrowsException<Exception>(() => s.ExtractRegexGroups(regex, groupNames));
+            var ex = Assert.Throws<Exception>(() => s.ExtractRegexGroups(regex, groupNames));
             ex.Message.Should().Be(nameof(StringExtensions.ExtractRegexGroups) + ": " + expectedError);
         }
 
@@ -91,7 +91,7 @@ namespace Bicep.Core.UnitTests.Extensions
         [DataTestMethod]
         public void ExtractRegexGroups_AllGroups_Invalid(string s, string regex, string expectedError)
         {
-            var ex = Assert.ThrowsException<Exception>(() => s.ExtractRegexGroups(regex));
+            var ex = Assert.Throws<Exception>(() => s.ExtractRegexGroups(regex));
             ex.Message.Should().Be(nameof(StringExtensions.ExtractRegexGroups) + ": " + expectedError);
         }
     }
