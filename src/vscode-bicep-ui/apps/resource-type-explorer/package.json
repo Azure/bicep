@@ -11,17 +11,17 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.4",
-    "vite": "^8.1.5"
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.0.5",
+    "vite": "^8.2.1"
   },
   "dependencies": {
     "@vscode-bicep-ui/components": "^0.0.0",
     "@vscode-bicep-ui/messaging": "^0.0.0",
-    "motion": "^12.38.0",
+    "motion": "^13.1.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "styled-components": "^6.3.11"
+    "styled-components": "^6.5.2"
   }
 }

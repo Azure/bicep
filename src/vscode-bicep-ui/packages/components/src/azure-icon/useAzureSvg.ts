@@ -3,7 +3,7 @@
 
 import type { FunctionComponent, SVGProps } from "react";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 type SvgComponent = FunctionComponent<SVGProps<SVGSVGElement>>;
 
@@ -292,24 +292,35 @@ async function importAzureSvg(resourceType: string): Promise<SvgComponent | unde
 }
 
 export function useAzureSvg(resourceType: string) {
-  const svgRef = useRef<SvgComponent | undefined>(undefined);
-  const [loading, setLoading] = useState(false);
+  const [loadedSvg, setLoadedSvg] = useState<{
+    resourceType: string;
+    AzureSvg: SvgComponent | undefined;
+  }>();
 
   useEffect(() => {
-    setLoading(true);
+    let cancelled = false;
 
     const loadIcon = async () => {
       try {
-        svgRef.current = await importAzureSvg(resourceType);
+        const AzureSvg = await importAzureSvg(resourceType);
+        if (!cancelled) {
+          setLoadedSvg({ resourceType, AzureSvg });
+        }
       } catch (err) {
         console.error(err);
-      } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoadedSvg({ resourceType, AzureSvg: undefined });
+        }
       }
     };
 
-    loadIcon();
+    void loadIcon();
+
+    return () => {
+      cancelled = true;
+    };
   }, [resourceType]);
 
-  return { loading, AzureSvg: svgRef.current };
+  const loading = loadedSvg?.resourceType !== resourceType;
+  return { loading, AzureSvg: loading ? undefined : loadedSvg.AzureSvg };
 }

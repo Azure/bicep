@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { ComponentType } from "react";
+import type { ReactNode } from "react";
 import type { NodeState } from "./nodes";
 
 import { atom } from "jotai";
@@ -13,14 +13,19 @@ export interface Padding {
   left: number;
 }
 
+export interface NodeContentRenderProps {
+  id: string;
+  data: unknown;
+}
+
 export interface NodeConfig {
   padding: Padding;
-  getContentComponent: (kind: NodeState["kind"]) => ComponentType<{ id: string; data: unknown }>;
+  renderContent: (kind: NodeState["kind"], props: NodeContentRenderProps) => ReactNode;
 }
 
 export const nodeConfigAtom = atom<NodeConfig>({
   padding: { top: 40, right: 40, bottom: 40, left: 40 },
-  getContentComponent: () => {
-    throw new Error("getContentComponent not initialized.");
+  renderContent: () => {
+    throw new Error("renderContent not initialized.");
   },
 });
