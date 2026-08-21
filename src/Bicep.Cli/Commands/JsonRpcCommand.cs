@@ -3,7 +3,6 @@
 
 using System.CommandLine;
 using System.Diagnostics;
-using System.IO.Abstractions;
 using System.IO.Pipes;
 using System.Net;
 using System.Net.Sockets;
@@ -25,7 +24,6 @@ public class JsonRpcCommand(
     BicepCompiler compiler,
     InputOutputArgumentsResolver inputOutputArgumentsResolver,
     IEnvironment environment,
-    IFileSystem fileSystem,
     IBicepDocumentationGenerator documentationGenerator,
     DocsGenerationOptionsResolver docsOptionsResolver) : ICommand
 {
@@ -73,8 +71,7 @@ public class JsonRpcCommand(
             inputOutputArgumentsResolver,
             environment,
             documentationGenerator,
-            docsOptionsResolver,
-            fileSystem);
+            docsOptionsResolver);
         jsonRpc.AddLocalRpcTarget<ICliJsonRpcProtocol>(server, null);
 
         jsonRpc.StartListening();

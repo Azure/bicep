@@ -452,41 +452,34 @@ Each usage example contains `name`, `path`, `description`, `contents`, and `fenc
 
 Long-lived clients can use:
 
-- `bicep/renderDocs` to render documentation for one or more modules.
-- `bicep/getDocsModel` to retrieve the typed documentation model for one or more modules, before any
-  template is applied.
+- `bicep/generateDocs` to render documentation for a module.
 
-Neither method writes files. Both return their results to the caller, and the client is responsible
-for writing any output. This matches `bicep/compile`, which returns the compiled template rather than
-writing `main.json`. Note that the configured output file name (`documentation.output.file`) is not
-returned, so a client that wants to reproduce `bicep docs generate` file naming must choose its own.
+The method never writes files. It returns the rendered content to the caller, and the client is
+responsible for writing any output. This matches `bicep/compile`, which returns the compiled template
+rather than writing `main.json`. Note that the configured output file name (`documentation.output.file`)
+is not returned, so a client that wants to reproduce `bicep docs generate` file naming must choose
+its own.
 
-Both methods accept an array of `paths` and return one result per requested path, in request order.
-A failure for one path does not prevent the others from being processed. Configuration is resolved
-independently from `bicepconfig.json` for each requested Bicep file, so a batch may mix modules with
-different templates, custom values, and example-discovery settings.
-
-Both methods are experimental. They support the `bicep docs` command group and may change while that
+The method is experimental. It supports the `bicep docs` command group and may change while that
 feature remains experimental, notwithstanding the stability guarantee for the rest of the JSON-RPC
 interface.
 
 The same model builder and renderer are available directly from `Bicep.Core` through
 `IBicepDocumentationGenerator`.
 
-### `bicep/renderDocs`
+### `bicep/generateDocs`
 
 Request parameters:
 
 | Field | Type | Description |
 | :-- | :-- | :-- |
-| `paths` | array | Bicep file paths to render. |
+| `path` | string | Bicep file path to render. |
 | `templateFile` | string or null | Custom Scriban template. Overrides `documentation.template.file`. |
 | `templateRoot` | string or null | Root directory for template includes. Overrides `documentation.template.includeRoot`. |
 | `customTemplateValues` | object or null | Custom values merged over `documentation.template.values`. |
 | `noRestore` | bool | Whether external artifact restore is skipped. |
 
-Each result contains `path`, `success`, `diagnostics`, and `contents`. `contents` is `null` when
-`success` is `false`.
+The response contains `diagnostics` and `contents`. `contents` is `null` when rendering fails.
 
 Request:
 
@@ -494,9 +487,9 @@ Request:
 {
   "jsonrpc": "2.0",
   "id": 1,
-  "method": "bicep/renderDocs",
+  "method": "bicep/generateDocs",
   "params": {
-    "paths": ["/repo/modules/storage/main.bicep", "/repo/modules/network/main.bicep"],
+    "path": "/repo/modules/storage/main.bicep",
     "templateFile": null,
     "templateRoot": null,
     "customTemplateValues": { "owner": "Platform Team" },
@@ -512,211 +505,32 @@ Response:
   "jsonrpc": "2.0",
   "id": 1,
   "result": {
-    "results": [
-      {
-        "path": "/repo/modules/storage/main.bicep",
-        "success": true,
-        "diagnostics": [],
-        "contents": "# Storage Account\n\nDeploys a storage account.\n"
-      },
-      {
-        "path": "/repo/modules/network/main.bicep",
-        "success": false,
-        "diagnostics": [
-          {
-            "source": "/repo/modules/network/main.bicep",
-            "range": {
-              "start": { "line": 3, "char": 6 },
-              "end": { "line": 3, "char": 17 }
-            },
-            "level": "Error",
-            "code": "BCP029",
-            "message": "The resource type is not valid."
-          }
-        ],
-        "contents": null
-      }
-    ]
-  }
-}
-```
-
-### `bicep/getDocsModel`
-
-Request parameters:
-
-| Field | Type | Description |
-| :-- | :-- | :-- |
-| `paths` | array | Bicep file paths to build models for. |
-| `noRestore` | bool | Whether external artifact restore is skipped. |
-
-There are no template options, because the model is built before rendering. Configured custom values
-and example-discovery settings are still read from `bicepconfig.json`, so the returned model matches
-what `bicep/renderDocs` and `bicep docs generate` would render from.
-
-Each result contains `path`, `success`, `diagnostics`, and `model`. `model` is `null` when `success`
-is `false`. The model mirrors the template data model described above, but uses the protocol's own
-field names: `typeName`, `isRequired`, `isSecure`, `isExisting`, `isTruncated`, and
-`nestedProperties`. The template-only helper fields `defaultValueFence` and `fence` are not included,
-because they are Markdown rendering aids rather than model data.
-
-Request:
-
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 2,
-  "method": "bicep/getDocsModel",
-  "params": {
-    "paths": ["/repo/modules/storage/main.bicep"],
-    "noRestore": false
-  }
-}
-```
-
-Response:
-
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 2,
-  "result": {
-    "results": [
-      {
-        "path": "/repo/modules/storage/main.bicep",
-        "success": true,
-        "diagnostics": [],
-        "model": {
-          "name": "Storage Account",
-          "description": "Deploys a storage account.",
-          "path": "/repo/modules/storage/main.bicep",
-          "targetScope": "resourceGroup",
-          "custom": { "owner": "Platform Team" },
-          "resourceTypes": [
-            {
-              "type": "Microsoft.Storage/storageAccounts@2023-05-01",
-              "isExisting": false
-            }
-          ],
-          "parameters": [
-            {
-              "name": "location",
-              "typeName": "string",
-              "isRequired": false,
-              "isSecure": false,
-              "description": "The deployment location.",
-              "defaultValue": "resourceGroup().location",
-              "allowedValues": [],
-              "minValue": null,
-              "maxValue": null,
-              "minLength": null,
-              "maxLength": null,
-              "pattern": null,
-              "isTruncated": false,
-              "nestedProperties": [],
-              "discriminator": null
-            },
-            {
-              "name": "sku",
-              "typeName": "skuType",
-              "isRequired": true,
-              "isSecure": false,
-              "description": "The storage SKU.",
-              "defaultValue": null,
-              "allowedValues": [],
-              "minValue": null,
-              "maxValue": null,
-              "minLength": null,
-              "maxLength": null,
-              "pattern": null,
-              "isTruncated": false,
-              "nestedProperties": [
-                {
-                  "name": "name",
-                  "typeName": "string",
-                  "isRequired": true,
-                  "isSecure": false,
-                  "description": "The SKU name.",
-                  "defaultValue": null,
-                  "allowedValues": ["Premium_LRS", "Standard_LRS"],
-                  "minValue": null,
-                  "maxValue": null,
-                  "minLength": null,
-                  "maxLength": null,
-                  "pattern": null,
-                  "isTruncated": false,
-                  "nestedProperties": [],
-                  "discriminator": null
-                }
-              ],
-              "discriminator": null
-            }
-          ],
-          "outputs": [
-            {
-              "name": "resourceId",
-              "typeName": "string",
-              "isSecure": false,
-              "description": "The storage account resource id."
-            }
-          ],
-          "exportedTypes": [],
-          "exportedVariables": [],
-          "exportedFunctions": [],
-          "references": [
-            {
-              "symbolicName": "diagnostics",
-              "path": "./diagnostics.bicep",
-              "description": "Configures diagnostic settings."
-            }
-          ],
-          "usageExamples": [
-            {
-              "name": "Default",
-              "relativePath": "examples/default/main.bicep",
-              "description": "The minimum configuration.",
-              "contents": "module storage '../../main.bicep' = {\n  name: 'storage'\n}\n"
-            }
-          ]
-        }
-      }
-    ]
+    "diagnostics": [],
+    "contents": "# Storage Account\n\nDeploys a storage account.\n"
   }
 }
 ```
 
 ### Calling from C#
 
-The `Azure.Bicep.RpcClient` package wraps both methods. Both require Bicep CLI 0.47.0 or later.
+The `Azure.Bicep.RpcClient` package wraps this method. It requires Bicep CLI 0.47.0 or later.
 
 ```csharp
 using var client = await factory.Initialize(new BicepClientConfiguration(), cancellationToken);
 
-var rendered = await client.RenderDocs(
-    new RenderDocsRequest(
-        Paths: ["./modules/storage/main.bicep"],
+var rendered = await client.GenerateDocs(
+  new GenerateDocsRequest(
+    Path: "./modules/storage/main.bicep",
         TemplateFile: null,
         TemplateRoot: null,
         CustomTemplateValues: new() { ["owner"] = "Platform Team" },
         NoRestore: false),
     cancellationToken);
 
-foreach (var result in rendered.Results.Where(result => result.Success))
+if (rendered.Contents is not null)
 {
     // The client owns the filesystem - nothing is written by the RPC server.
-    var directory = Path.GetDirectoryName(result.Path)!;
-    await File.WriteAllTextAsync(Path.Combine(directory, "README.md"), result.Contents, cancellationToken);
-}
-
-var models = await client.GetDocsModel(
-    new GetDocsModelRequest(
-        Paths: ["./modules/storage/main.bicep"],
-        NoRestore: false),
-    cancellationToken);
-
-foreach (var parameter in models.Results[0].Model!.Parameters)
-{
-    Console.WriteLine($"{parameter.Name}: {parameter.TypeName} (required: {parameter.IsRequired})");
+  await File.WriteAllTextAsync("./modules/storage/README.md", rendered.Contents, cancellationToken);
 }
 ```
 

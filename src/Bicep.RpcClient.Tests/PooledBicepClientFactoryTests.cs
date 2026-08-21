@@ -284,24 +284,18 @@ public class PooledBicepClientFactoryTests
     }
 
     [TestMethod]
-    public async Task Docs_requests_are_forwarded_through_the_pool()
+    public async Task GenerateDocs_request_is_forwarded_through_the_pool()
     {
         var inner = new FakeBicepClientFactory();
         using var factory = CreatePooledFactory(inner);
         var wrapper = await factory.Initialize(new BicepClientConfiguration(), Token);
 
-        var rendered = await wrapper.RenderDocs(
-            new(["main.bicep"], null, null, null, NoRestore: false),
-            Token);
-        var model = await wrapper.GetDocsModel(
-            new(["main.bicep"], NoRestore: false),
+        var rendered = await wrapper.GenerateDocs(
+            new("main.bicep", null, null, null, NoRestore: false),
             Token);
 
-        rendered.Results.Should().ContainSingle();
-        rendered.Results[0].Success.Should().BeTrue();
-        rendered.Results[0].Contents.Should().Be("# Module\n");
-        model.Results.Should().BeEmpty();
-        inner.CreatedClients.Single().DocsRequestCount.Should().Be(2);
+        rendered.Contents.Should().Be("# Module\n");
+        inner.CreatedClients.Single().DocsRequestCount.Should().Be(1);
 
         wrapper.Dispose();
     }
@@ -392,17 +386,10 @@ public class PooledBicepClientFactoryTests
         public Task<FormatResponse> Format(FormatRequest request, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
 
-        public Task<RenderDocsResponse> RenderDocs(RenderDocsRequest request, CancellationToken cancellationToken = default)
+        public Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken = default)
         {
             Interlocked.Increment(ref docsRequestCount);
-            return Task.FromResult(new RenderDocsResponse(
-                [.. request.Paths.Select(path => new DocsResult(path, true, [], "# Module\n"))]));
-        }
-
-        public Task<GetDocsModelResponse> GetDocsModel(GetDocsModelRequest request, CancellationToken cancellationToken = default)
-        {
-            Interlocked.Increment(ref docsRequestCount);
-            return Task.FromResult(new GetDocsModelResponse([]));
+            return Task.FromResult(new GenerateDocsResponse([], "# Module\n"));
         }
 
         public Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken = default)

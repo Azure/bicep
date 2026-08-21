@@ -255,11 +255,8 @@ public class PooledBicepClientFactory : IBicepClientFactory, IDisposable
         public Task<FormatResponse> Format(FormatRequest request, CancellationToken cancellationToken = default)
             => MakeRequest((client, ct) => client.Format(request, ct), cancellationToken);
 
-        public Task<RenderDocsResponse> RenderDocs(RenderDocsRequest request, CancellationToken cancellationToken = default)
-            => MakeRequest((client, ct) => client.RenderDocs(request, ct), cancellationToken);
-
-        public Task<GetDocsModelResponse> GetDocsModel(GetDocsModelRequest request, CancellationToken cancellationToken = default)
-            => MakeRequest((client, ct) => client.GetDocsModel(request, ct), cancellationToken);
+        public Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken = default)
+            => MakeRequest((client, ct) => client.GenerateDocs(request, ct), cancellationToken);
 
         public Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken = default)
             => MakeRequest((client, ct) => client.GetDeploymentGraph(request, ct), cancellationToken);

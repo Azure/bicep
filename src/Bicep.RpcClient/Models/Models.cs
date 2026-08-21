@@ -286,17 +286,13 @@ public record FormatResponse(
 /// Requests rendered documentation for one or more Bicep modules. Rendered content is returned to the
 /// caller and is never written to disk.
 /// </summary>
-/// <param name="Paths">Bicep file paths to process.</param>
+/// <param name="Path">Bicep file path to process.</param>
 /// <param name="TemplateFile">An optional custom Scriban template path.</param>
 /// <param name="TemplateRoot">An optional root directory for template includes.</param>
 /// <param name="CustomTemplateValues">Optional string values exposed to the template.</param>
 /// <param name="NoRestore">Whether external artifact restore is skipped.</param>
-/// <remarks>
-/// This record supports the experimental <c>bicep docs</c> command group and may change while that
-/// feature remains experimental.
-/// </remarks>
-public record RenderDocsRequest(
-    ImmutableArray<string> Paths,
+public record GenerateDocsRequest(
+    string Path,
     string? TemplateFile,
     string? TemplateRoot,
     Dictionary<string, string>? CustomTemplateValues,
@@ -305,193 +301,12 @@ public record RenderDocsRequest(
 /// <summary>
 /// Contains rendered documentation and diagnostics for one module.
 /// </summary>
-/// <param name="Path">The resolved module entrypoint path.</param>
-/// <param name="Success">Whether compilation and rendering succeeded.</param>
 /// <param name="Diagnostics">Compiler and documentation diagnostics for the module.</param>
 /// <param name="Contents">Rendered documentation, or <see langword="null"/> on failure.</param>
 /// <remarks>
 /// This record supports the experimental <c>bicep docs</c> command group and may change while that
 /// feature remains experimental.
 /// </remarks>
-public record DocsResult(
-    string Path,
-    bool Success,
+public record GenerateDocsResponse(
     ImmutableArray<DiagnosticDefinition> Diagnostics,
     string? Contents);
-
-/// <summary>
-/// Contains rendered documentation for multiple modules.
-/// </summary>
-/// <param name="Results">One result for each requested module, in request order.</param>
-/// <remarks>
-/// This record supports the experimental <c>bicep docs</c> command group and may change while that
-/// feature remains experimental.
-/// </remarks>
-public record RenderDocsResponse(
-    ImmutableArray<DocsResult> Results);
-
-/// <summary>
-/// Requests the typed documentation model for one or more Bicep modules.
-/// </summary>
-/// <param name="Paths">Bicep file paths to process.</param>
-/// <param name="NoRestore">Whether external artifact restore is skipped.</param>
-/// <remarks>
-/// This record supports the experimental <c>bicep docs</c> command group and may change while that
-/// feature remains experimental.
-/// </remarks>
-public record GetDocsModelRequest(
-    ImmutableArray<string> Paths,
-    bool NoRestore);
-
-/// <summary>
-/// Contains the documentation model and diagnostics for one module.
-/// </summary>
-/// <param name="Path">The resolved module entrypoint path.</param>
-/// <param name="Success">Whether compilation and model construction succeeded.</param>
-/// <param name="Diagnostics">Compiler and documentation diagnostics for the module.</param>
-/// <param name="Model">The documentation model, or <see langword="null"/> on failure.</param>
-/// <remarks>
-/// This record supports the experimental <c>bicep docs</c> command group and may change while that
-/// feature remains experimental.
-/// </remarks>
-public record DocsModelResult(
-    string Path,
-    bool Success,
-    ImmutableArray<DiagnosticDefinition> Diagnostics,
-    DocsModelDefinition? Model);
-
-/// <summary>
-/// Contains documentation models for multiple modules.
-/// </summary>
-/// <param name="Results">One result for each requested module, in request order.</param>
-/// <remarks>
-/// This record supports the experimental <c>bicep docs</c> command group and may change while that
-/// feature remains experimental.
-/// </remarks>
-public record GetDocsModelResponse(
-    ImmutableArray<DocsModelResult> Results);
-
-/// <summary>
-/// The documentation model for one Bicep module, before any template is applied.
-/// </summary>
-/// <remarks>
-/// This record supports the experimental <c>bicep docs</c> command group and may change while that
-/// feature remains experimental.
-/// </remarks>
-public record DocsModelDefinition(
-    string Name,
-    string? Description,
-    string Path,
-    string TargetScope,
-    ImmutableSortedDictionary<string, string> Custom,
-    ImmutableArray<DocsModelDefinition.ResourceTypeDefinition> ResourceTypes,
-    ImmutableArray<DocsModelDefinition.ParameterDefinition> Parameters,
-    ImmutableArray<DocsModelDefinition.OutputDefinition> Outputs,
-    ImmutableArray<DocsModelDefinition.ExportDefinition> ExportedTypes,
-    ImmutableArray<DocsModelDefinition.ExportDefinition> ExportedVariables,
-    ImmutableArray<DocsModelDefinition.FunctionDefinition> ExportedFunctions,
-    ImmutableArray<DocsModelDefinition.ReferenceDefinition> References,
-    ImmutableArray<DocsModelDefinition.UsageExampleDefinition> UsageExamples)
-{
-    /// <summary>
-    /// A resource type declared within a module.
-    /// </summary>
-    public record ResourceTypeDefinition(
-        string Type,
-        bool IsExisting);
-
-    /// <summary>
-    /// A module parameter or nested property.
-    /// </summary>
-    public record ParameterDefinition(
-        string Name,
-        string TypeName,
-        bool IsRequired,
-        bool IsSecure,
-        string? Description,
-        string? DefaultValue,
-        ImmutableArray<string> AllowedValues,
-        long? MinValue,
-        long? MaxValue,
-        long? MinLength,
-        long? MaxLength,
-        string? Pattern,
-        bool IsTruncated,
-        ImmutableArray<ParameterDefinition> NestedProperties,
-        DiscriminatorDefinition? Discriminator);
-
-    /// <summary>
-    /// A discriminated object type.
-    /// </summary>
-    public record DiscriminatorDefinition(
-        string PropertyName,
-        ImmutableArray<DiscriminatorCaseDefinition> Cases);
-
-    /// <summary>
-    /// One discriminator case.
-    /// </summary>
-    public record DiscriminatorCaseDefinition(
-        string Value,
-        ImmutableArray<ParameterDefinition> Properties);
-
-    /// <summary>
-    /// A module output.
-    /// </summary>
-    public record OutputDefinition(
-        string Name,
-        string TypeName,
-        bool IsSecure,
-        string? Description);
-
-    /// <summary>
-    /// An exported type or variable.
-    /// </summary>
-    public record ExportDefinition(
-        string Name,
-        string TypeName,
-        bool IsSecure,
-        string? Description,
-        ImmutableArray<string> AllowedValues,
-        long? MinValue,
-        long? MaxValue,
-        long? MinLength,
-        long? MaxLength,
-        string? Pattern,
-        bool IsTruncated,
-        ImmutableArray<ParameterDefinition> NestedProperties,
-        DiscriminatorDefinition? Discriminator);
-
-    /// <summary>
-    /// A user-defined function exported from a module.
-    /// </summary>
-    public record FunctionDefinition(
-        string Name,
-        ImmutableArray<FunctionParameterDefinition> Parameters,
-        string ReturnTypeName,
-        string? Description);
-
-    /// <summary>
-    /// A parameter of an exported user-defined function.
-    /// </summary>
-    public record FunctionParameterDefinition(
-        string Name,
-        string TypeName,
-        string? Description);
-
-    /// <summary>
-    /// A cross-referenced module in the entrypoint file.
-    /// </summary>
-    public record ReferenceDefinition(
-        string SymbolicName,
-        string? Path,
-        string? Description);
-
-    /// <summary>
-    /// A local usage example.
-    /// </summary>
-    public record UsageExampleDefinition(
-        string Name,
-        string RelativePath,
-        string? Description,
-        string Contents);
-}
