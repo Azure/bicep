@@ -36,8 +36,7 @@ public class CliJsonRpcServer(
     IEnvironment environment,
     IBicepDocumentationGenerator documentationGenerator,
     DocsGenerationOptionsResolver docsOptionsResolver,
-    IFileSystem fileSystem,
-    OutputWriter writer) : ICliJsonRpcProtocol
+    IFileSystem fileSystem) : ICliJsonRpcProtocol
 {
     public static IJsonRpcMessageHandler CreateMessageHandler(Stream inputStream, Stream outputStream)
     {
@@ -279,157 +278,81 @@ public class CliJsonRpcServer(
     }
 
     /// <inheritdoc/>
-    public async Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken)
+    public async Task<RenderDocsResponse> RenderDocs(RenderDocsRequest request, CancellationToken cancellationToken)
     {
-        var results = ImmutableArray.CreateBuilder<DocsResult>();
-        var failures = new Dictionary<int, DocsResult>();
-        var validTargets = new List<(int Index, string RequestedPath, IOUri InputUri)>();
-
-        for (var index = 0; index < request.Paths.Length; index++)
-        {
-            var path = request.Paths[index];
-            try
+        var results = await ProcessDocsBatch(
+            request.Paths,
+            request.NoRestore,
+            (compilation, configuration, path, diagnostics, token) =>
             {
-                var inputUri = inputOutputArgumentsResolver.PathToUri(path);
-                if (!inputUri.HasBicepExtension())
-                {
-                    failures[index] = CreateDocsFailure(path, DocsCommand.InputFailureCode, $"Invalid Bicep file path: {inputUri}");
-                    continue;
-                }
+                var options = docsOptionsResolver.Resolve(
+                    configuration,
+                    request.TemplateFile,
+                    request.TemplateRoot,
+                    (IReadOnlyDictionary<string, string>?)request.CustomTemplateValues ?? ImmutableDictionary<string, string>.Empty);
 
-                if (!fileSystem.File.Exists(inputUri.GetFilePath()))
-                {
-                    failures[index] = CreateDocsFailure(path, DocsCommand.InputFailureCode, $"The input file \"{inputUri}\" does not exist.");
-                    continue;
-                }
+                return new DocsResult(path, true, diagnostics, documentationGenerator.Generate(compilation, options, token));
+            },
+            (path, diagnostics) => new DocsResult(path, false, diagnostics, null),
+            cancellationToken);
 
-                validTargets.Add((index, path, inputUri));
-            }
-            catch (Exception exception) when (exception is BicepException || exception.IsPathException())
-            {
-                failures[index] = CreateDocsFailure(path, DocsCommand.InputFailureCode, exception.Message);
-            }
-        }
-
-        var rendered = new Dictionary<int, RenderedDocsResult>();
-        var workspace = new ActiveSourceFileSet();
-        foreach (var target in validTargets)
-        {
-            rendered[target.Index] = await RenderDocs(
-                target.InputUri,
-                request.TemplateFile,
-                request.TemplateRoot,
-                request.Custom,
-                request.NoRestore,
-                cancellationToken,
-                workspace);
-        }
-
-        var targets = new List<DocsTarget>();
-        var outputUris = new HashSet<IOUri>();
-        foreach (var target in validTargets)
-        {
-            var renderedResult = rendered[target.Index];
-            if (!renderedResult.Result.Success || renderedResult.Result.Contents is null)
-            {
-                continue;
-            }
-
-            try
-            {
-                var outputFile = request.OutputFile ??
-                    renderedResult.Configuration!.Documentation.Data.Output.File;
-                ValidateDocsOutputFileName(outputFile);
-                var outputUri = inputOutputArgumentsResolver.PathToUri(target.InputUri.Resolve(outputFile).GetFilePath());
-
-                if (outputUri.Equals(target.InputUri))
-                {
-                    failures[target.Index] = CreateDocsFailure(
-                        target.RequestedPath,
-                        DocsCommand.InputFailureCode,
-                        "The documentation output path cannot overwrite the input Bicep file.");
-                    continue;
-                }
-
-                if (outputUri.HasBicepExtension() || outputUri.HasBicepParamExtension())
-                {
-                    failures[target.Index] = CreateDocsFailure(
-                        target.RequestedPath,
-                        DocsCommand.InputFailureCode,
-                        "Documentation output cannot use a Bicep source file extension.");
-                    continue;
-                }
-
-                if (!outputUris.Add(outputUri))
-                {
-                    failures[target.Index] = CreateDocsFailure(
-                        target.RequestedPath,
-                        DocsCommand.InputFailureCode,
-                        $"Multiple input files resolve to the output file \"{outputUri}\".");
-                    continue;
-                }
-
-                targets.Add(new DocsTarget(target.Index, target.InputUri, outputUri));
-            }
-            catch (Exception exception) when (exception is BicepException || exception.IsPathException())
-            {
-                failures[target.Index] = CreateDocsFailure(
-                    target.RequestedPath,
-                    DocsCommand.InputFailureCode,
-                    exception.Message);
-            }
-        }
-        var targetsByIndex = targets.ToDictionary(target => target.Index);
-        for (var index = 0; index < request.Paths.Length; index++)
-        {
-            if (failures.TryGetValue(index, out var failure))
-            {
-                results.Add(failure);
-                continue;
-            }
-
-            var result = rendered[index].Result;
-            if (!result.Success || result.Contents is null)
-            {
-                results.Add(result);
-                continue;
-            }
-
-            var target = targetsByIndex[index];
-            try
-            {
-                await writer.WriteToFileAsync(target.OutputUri, result.Contents);
-                results.Add(result with { OutputPath = target.OutputUri.GetFilePath() });
-            }
-            catch (Exception exception) when (exception is BicepException || exception.IsPathException())
-            {
-                results.Add(AddDocsFailure(result, DocsCommand.WriteFailureCode, exception.Message));
-            }
-        }
-
-        return new(results.ToImmutable());
+        return new(results);
     }
 
     /// <inheritdoc/>
-    public async Task<OutputDocsResponse> OutputDocs(OutputDocsRequest request, CancellationToken cancellationToken)
-        => new((await RenderDocs(
-            request.Path,
-            request.TemplateFile,
-            request.TemplateRoot,
-            request.Custom,
-            request.NoRestore,
-            cancellationToken,
-            workspace: null)).Result);
-
-    private async Task<RenderedDocsResult> RenderDocs(
-        string path,
-        string? templateFile,
-        string? templateRoot,
-        IReadOnlyDictionary<string, string>? custom,
-        bool noRestore,
-        CancellationToken cancellationToken,
-        ActiveSourceFileSet? workspace)
+    public async Task<GetDocsModelResponse> GetDocsModel(GetDocsModelRequest request, CancellationToken cancellationToken)
     {
+        var results = await ProcessDocsBatch(
+            request.Paths,
+            request.NoRestore,
+            (compilation, configuration, path, diagnostics, token) =>
+            {
+                // Template inputs are meaningless before rendering, but configuration still shapes the model
+                // through usage-example discovery and configured custom values.
+                var options = docsOptionsResolver.Resolve(
+                    configuration,
+                    templateFile: null,
+                    templateRoot: null,
+                    ImmutableDictionary<string, string>.Empty);
+
+                var model = documentationGenerator.BuildModelWithOptions(compilation, options, token);
+
+                return new DocsModelResult(path, true, diagnostics, ProjectDocsModel(model));
+            },
+            (path, diagnostics) => new DocsModelResult(path, false, diagnostics, null),
+            cancellationToken);
+
+        return new(results);
+    }
+
+    private async Task<ImmutableArray<TResult>> ProcessDocsBatch<TResult>(
+        ImmutableArray<string> paths,
+        bool noRestore,
+        Func<Compilation, RootConfiguration, string, ImmutableArray<DiagnosticDefinition>, CancellationToken, TResult> onSuccess,
+        Func<string, ImmutableArray<DiagnosticDefinition>, TResult> onFailure,
+        CancellationToken cancellationToken)
+    {
+        var results = ImmutableArray.CreateBuilder<TResult>(paths.Length);
+        var workspace = new ActiveSourceFileSet();
+
+        foreach (var path in paths)
+        {
+            results.Add(await ProcessDocsPath(path, noRestore, onSuccess, onFailure, workspace, cancellationToken));
+        }
+
+        return results.ToImmutable();
+    }
+
+    private async Task<TResult> ProcessDocsPath<TResult>(
+        string path,
+        bool noRestore,
+        Func<Compilation, RootConfiguration, string, ImmutableArray<DiagnosticDefinition>, CancellationToken, TResult> onSuccess,
+        Func<string, ImmutableArray<DiagnosticDefinition>, TResult> onFailure,
+        ActiveSourceFileSet workspace,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
         IOUri inputUri;
         try
         {
@@ -437,46 +360,35 @@ public class CliJsonRpcServer(
         }
         catch (Exception exception) when (exception is BicepException || exception.IsPathException())
         {
-            return new(CreateDocsFailure(path, DocsCommand.InputFailureCode, exception.Message), null);
+            return onFailure(path, CreateDocsFailureDiagnostics(path, DocsCommand.InputFailureCode, exception.Message));
         }
-
-        return await RenderDocs(
-            inputUri,
-            templateFile,
-            templateRoot,
-            custom,
-            noRestore,
-            cancellationToken,
-            workspace);
-    }
-
-    private async Task<RenderedDocsResult> RenderDocs(
-        IOUri inputUri,
-        string? templateFile,
-        string? templateRoot,
-        IReadOnlyDictionary<string, string>? custom,
-        bool noRestore,
-        CancellationToken cancellationToken,
-        ActiveSourceFileSet? workspace)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
 
         if (!inputUri.HasBicepExtension())
         {
-            return new(
-                CreateDocsFailure(inputUri.GetFilePath(), DocsCommand.InputFailureCode, $"Invalid Bicep file path: {inputUri}"),
-                null);
+            return onFailure(
+                inputUri.GetFilePath(),
+                CreateDocsFailureDiagnostics(inputUri.GetFilePath(), DocsCommand.InputFailureCode, $"Invalid Bicep file path: {inputUri}"));
+        }
+
+        var resolvedPath = inputUri.GetFilePath();
+        if (!fileSystem.File.Exists(resolvedPath))
+        {
+            return onFailure(
+                resolvedPath,
+                CreateDocsFailureDiagnostics(resolvedPath, DocsCommand.InputFailureCode, $"The input file \"{inputUri}\" does not exist."));
         }
 
         Compilation compilation;
         try
         {
             compilation = await compiler.CreateCompilation(inputUri, workspace, skipRestore: noRestore);
-            workspace?.UpsertSourceFiles(compilation.SourceFileGrouping.SourceFiles);
+            workspace.UpsertSourceFiles(compilation.SourceFileGrouping.SourceFiles);
         }
         catch (BicepException exception)
         {
-            return new(CreateDocsFailure(inputUri.GetFilePath(), DocsCommand.InputFailureCode, exception.Message), null);
+            return onFailure(
+                resolvedPath,
+                CreateDocsFailureDiagnostics(resolvedPath, DocsCommand.InputFailureCode, exception.Message));
         }
 
         var diagnostics = GetDiagnostics(compilation).ToImmutableArray();
@@ -484,82 +396,117 @@ public class CliJsonRpcServer(
 
         if (model.HasErrors())
         {
-            return new(
-                new(inputUri.GetFilePath(), null, false, diagnostics, null),
-                model.Configuration);
-        }
-
-        BicepDocumentationGenerationOptions options;
-        try
-        {
-            options = docsOptionsResolver.Resolve(
-                model.Configuration,
-                templateFile,
-                templateRoot,
-                custom ?? ImmutableDictionary<string, string>.Empty);
-        }
-        catch (CommandLineException exception)
-        {
-            return new(
-                CreateDocsFailure(inputUri.GetFilePath(), DocsCommand.InputFailureCode, exception.Message),
-                model.Configuration);
+            return onFailure(resolvedPath, diagnostics);
         }
 
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
-            return new(
-                new(
-                    inputUri.GetFilePath(),
-                    null,
-                    true,
-                    diagnostics,
-                    documentationGenerator.Generate(compilation, options, cancellationToken)),
-                model.Configuration);
+
+            return onSuccess(compilation, model.Configuration, resolvedPath, diagnostics, cancellationToken);
+        }
+        catch (CommandLineException exception)
+        {
+            return onFailure(
+                resolvedPath,
+                [.. diagnostics, CreateDocsDiagnostic(resolvedPath, DocsCommand.InputFailureCode, exception.Message)]);
         }
         catch (BicepDocumentationException exception)
         {
-            return new(
-                AddDocsFailure(
-                    new(inputUri.GetFilePath(), null, false, diagnostics, null),
-                    DocsCommand.RenderFailureCode,
-                    exception.Message),
-                model.Configuration);
+            return onFailure(
+                resolvedPath,
+                [.. diagnostics, CreateDocsDiagnostic(resolvedPath, DocsCommand.RenderFailureCode, exception.Message)]);
         }
     }
+
+    private static DocsModelDefinition ProjectDocsModel(BicepDocumentationModel model) =>
+        new(
+            model.Name,
+            model.Description,
+            model.Path,
+            model.TargetScope,
+            model.Custom,
+            [.. model.ResourceTypes.Select(resourceType => new DocsModelDefinition.ResourceTypeDefinition(
+                resourceType.Type,
+                resourceType.IsExisting))],
+            ProjectDocsParameters(model.Parameters),
+            [.. model.Outputs.Select(output => new DocsModelDefinition.OutputDefinition(
+                output.Name,
+                output.TypeName,
+                output.IsSecure,
+                output.Description))],
+            ProjectDocsExports(model.ExportedTypes),
+            ProjectDocsExports(model.ExportedVariables),
+            [.. model.ExportedFunctions.Select(function => new DocsModelDefinition.FunctionDefinition(
+                function.Name,
+                [.. function.Parameters.Select(parameter => new DocsModelDefinition.FunctionParameterDefinition(
+                    parameter.Name,
+                    parameter.TypeName,
+                    parameter.Description))],
+                function.ReturnTypeName,
+                function.Description))],
+            [.. model.References.Select(reference => new DocsModelDefinition.ReferenceDefinition(
+                reference.SymbolicName,
+                reference.Path,
+                reference.Description))],
+            [.. model.UsageExamples.Select(example => new DocsModelDefinition.UsageExampleDefinition(
+                example.Name,
+                example.RelativePath,
+                example.Description,
+                example.Contents))]);
+
+    private static ImmutableArray<DocsModelDefinition.ParameterDefinition> ProjectDocsParameters(
+        ImmutableArray<BicepDocumentationParameter> parameters) =>
+        [.. parameters.Select(parameter => new DocsModelDefinition.ParameterDefinition(
+            parameter.Name,
+            parameter.TypeName,
+            parameter.IsRequired,
+            parameter.IsSecure,
+            parameter.Description,
+            parameter.DefaultValue,
+            parameter.AllowedValues,
+            parameter.MinValue,
+            parameter.MaxValue,
+            parameter.MinLength,
+            parameter.MaxLength,
+            parameter.Pattern,
+            parameter.IsTruncated,
+            ProjectDocsParameters(parameter.NestedProperties),
+            ProjectDocsDiscriminator(parameter.Discriminator)))];
+
+    private static ImmutableArray<DocsModelDefinition.ExportDefinition> ProjectDocsExports(
+        ImmutableArray<BicepDocumentationExport> exports) =>
+        [.. exports.Select(export => new DocsModelDefinition.ExportDefinition(
+            export.Name,
+            export.TypeName,
+            export.IsSecure,
+            export.Description,
+            export.AllowedValues,
+            export.MinValue,
+            export.MaxValue,
+            export.MinLength,
+            export.MaxLength,
+            export.Pattern,
+            export.IsTruncated,
+            ProjectDocsParameters(export.NestedProperties),
+            ProjectDocsDiscriminator(export.Discriminator)))];
+
+    private static DocsModelDefinition.DiscriminatorDefinition? ProjectDocsDiscriminator(
+        BicepDocumentationDiscriminator? discriminator) =>
+        discriminator is null
+            ? null
+            : new(
+                discriminator.PropertyName,
+                [.. discriminator.Cases.Select(discriminatorCase => new DocsModelDefinition.DiscriminatorCaseDefinition(
+                    discriminatorCase.Value,
+                    ProjectDocsParameters(discriminatorCase.Properties)))]);
 
     // These codes describe CLI and RPC orchestration failures that have no source position.
-    private static DocsResult AddDocsFailure(DocsResult result, string code, string message) =>
-        result with
-        {
-            Success = false,
-            OutputPath = null,
-            Contents = null,
-            Diagnostics = [.. result.Diagnostics, CreateDocsDiagnostic(result.Path, code, message)],
-        };
-
-    private static DocsResult CreateDocsFailure(string path, string code, string message) =>
-        new(path, null, false, [CreateDocsDiagnostic(path, code, message)], null);
-
-    private static void ValidateDocsOutputFileName(string outputFile)
-    {
-        if (string.IsNullOrWhiteSpace(outputFile) ||
-            outputFile is "." or ".." ||
-            outputFile.Contains('/') ||
-            outputFile.Any(FilePathFacts.IsForbiddenPathCharacter) ||
-            FilePathFacts.IsForbiddenPathTerminatorCharacter(outputFile[^1]) ||
-            FilePathFacts.ContainsWindowsReservedFileName(outputFile))
-        {
-            throw new CommandLineException("The documentation output file must be a file name without a directory path.");
-        }
-    }
+    private static ImmutableArray<DiagnosticDefinition> CreateDocsFailureDiagnostics(string path, string code, string message) =>
+        [CreateDocsDiagnostic(path, code, message)];
 
     private static DiagnosticDefinition CreateDocsDiagnostic(string path, string code, string message) =>
         new(path, new(new(0, 0), new(0, 0)), "Error", code, message);
-
-    private record DocsTarget(int Index, IOUri InputUri, IOUri OutputUri);
-
-    private record RenderedDocsResult(DocsResult Result, RootConfiguration? Configuration);
 
     private async Task<Compilation> GetCompilation(BicepCompiler compiler, string filePath)
     {

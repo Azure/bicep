@@ -164,7 +164,7 @@ output bar string = foo
     }
 
     [TestMethod]
-    public async Task OutputDocs_returns_rendered_documentation()
+    public async Task RenderDocs_returns_rendered_documentation_without_writing_files()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -181,23 +181,88 @@ output bar string = foo
             services => services.WithFileSystem(fileSystem),
             async (client, token) =>
             {
-                var response = await client.OutputDocs(
-                    new("/main.bicep", null, null, null, NoRestore: false),
+                var response = await client.RenderDocs(
+                    new(["/main.bicep"], null, null, null, NoRestore: false),
                     token);
 
-                response.Result.Success.Should().BeTrue();
-                response.Result.Path.Should().Be(fileSystem.Path.GetFullPath("/main.bicep"));
-                response.Result.OutputPath.Should().BeNull();
-                response.Result.Diagnostics.Should().ContainSingle(diagnostic =>
+                response.Results.Should().ContainSingle();
+                response.Results[0].Success.Should().BeTrue();
+                response.Results[0].Path.Should().Be(fileSystem.Path.GetFullPath("/main.bicep"));
+                response.Results[0].Diagnostics.Should().ContainSingle(diagnostic =>
                     diagnostic.Level == "Warning" &&
                     diagnostic.Code == "no-unused-params");
-                response.Result.Contents.Should().ContainAll("# RPC Module", "Rendered through JSON-RPC.", "`value`");
+                response.Results[0].Contents.Should().ContainAll("# RPC Module", "Rendered through JSON-RPC.", "`value`");
                 fileSystem.File.Exists("/README.md").Should().BeFalse();
             });
     }
 
     [TestMethod]
-    public async Task OutputDocs_custom_template_supports_includes_and_custom_values()
+    public async Task RenderDocs_renders_multiple_modules_in_request_order()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/first/main.bicep"] = "metadata name = 'First'",
+            ["/second/main.bicep"] = "metadata name = 'Second'",
+            ["/third/main.bicep"] = "metadata name = 'Third'",
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var response = await client.RenderDocs(
+                    new(
+                        ["/second/main.bicep", "/third/main.bicep", "/first/main.bicep"],
+                        null,
+                        null,
+                        null,
+                        NoRestore: false),
+                    token);
+
+                response.Results.Should().HaveCount(3);
+                response.Results.Should().OnlyContain(result => result.Success);
+                response.Results[0].Contents.Should().Contain("# Second");
+                response.Results[1].Contents.Should().Contain("# Third");
+                response.Results[2].Contents.Should().Contain("# First");
+            });
+    }
+
+    [TestMethod]
+    public async Task RenderDocs_continues_after_a_failure_among_successes()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/valid/main.bicep"] = "metadata name = 'Valid'",
+            ["/invalid/main.bicep"] = "param value invalidType",
+            ["/other/main.bicep"] = "metadata name = 'Other'",
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var response = await client.RenderDocs(
+                    new(
+                        ["/valid/main.bicep", "/invalid/main.bicep", "/other/main.bicep"],
+                        null,
+                        null,
+                        null,
+                        NoRestore: false),
+                    token);
+
+                response.Results.Should().HaveCount(3);
+                response.Results[0].Success.Should().BeTrue();
+                response.Results[0].Contents.Should().Contain("# Valid");
+                response.Results[1].Success.Should().BeFalse();
+                response.Results[1].Contents.Should().BeNull();
+                response.Results[1].Diagnostics.Should().Contain(diagnostic => diagnostic.Level == "Error");
+                response.Results[2].Success.Should().BeTrue();
+                response.Results[2].Contents.Should().Contain("# Other");
+            });
+    }
+
+    [TestMethod]
+    public async Task RenderDocs_custom_template_supports_includes_and_custom_values()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -210,22 +275,23 @@ output bar string = foo
             services => services.WithFileSystem(fileSystem),
             async (client, token) =>
             {
-                var response = await client.OutputDocs(
+                var response = await client.RenderDocs(
                     new(
-                        "/main.bicep",
+                        ["/main.bicep"],
                         "/template.scriban",
                         "/",
                         new() { ["owner"] = "Platform" },
                         NoRestore: true),
                     token);
 
-                response.Result.Success.Should().BeTrue();
-                response.Result.Contents.Should().Be("Header RPC Module Platform\n");
+                response.Results.Should().ContainSingle();
+                response.Results[0].Success.Should().BeTrue();
+                response.Results[0].Contents.Should().Be("Header RPC Module Platform\n");
             });
     }
 
     [TestMethod]
-    public async Task Docs_methods_apply_configuration_and_request_overrides()
+    public async Task RenderDocs_applies_configuration_and_request_overrides()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -235,9 +301,6 @@ output bar string = foo
             ["/bicepconfig.json"] = """
                 {
                   "documentation": {
-                    "output": {
-                      "file": "RPC.md"
-                    },
                     "template": {
                       "file": "template.scriban",
                       "values": {
@@ -256,35 +319,28 @@ output bar string = foo
             services => services.WithFileSystem(fileSystem),
             async (client, token) =>
             {
-                var output = await client.OutputDocs(
-                    new(
-                        "/module/main.bicep",
-                        null,
-                        null,
-                        new() { ["owner"] = "Request" },
-                        NoRestore: false),
+                var configured = await client.RenderDocs(
+                    new(["/module/main.bicep"], null, null, null, NoRestore: false),
                     token);
-                var generated = await client.GenerateDocs(
+                var overridden = await client.RenderDocs(
                     new(
                         ["/module/main.bicep"],
                         null,
                         null,
                         new() { ["owner"] = "Request" },
-                        null,
                         NoRestore: false),
                     token);
 
-                output.Result.Success.Should().BeTrue();
-                output.Result.Contents.Should().Be("RPC Config|Request|0\n");
-                generated.Results.Should().ContainSingle();
-                generated.Results[0].Success.Should().BeTrue();
-                generated.Results[0].OutputPath.Should().Be(fileSystem.Path.GetFullPath("/module/RPC.md"));
-                fileSystem.File.ReadAllText("/module/RPC.md").Should().Be(output.Result.Contents);
+                // The template file and example settings come from bicepconfig.json, not the request.
+                configured.Results[0].Success.Should().BeTrue();
+                configured.Results[0].Contents.Should().Be("RPC Config|Config|0\n");
+                overridden.Results[0].Success.Should().BeTrue();
+                overridden.Results[0].Contents.Should().Be("RPC Config|Request|0\n");
             });
     }
 
     [TestMethod]
-    public async Task Docs_methods_use_discovered_bicep_configuration()
+    public async Task RenderDocs_uses_discovered_bicep_configuration()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -304,149 +360,94 @@ output bar string = foo
             services => services.WithFileSystem(fileSystem),
             async (client, token) =>
             {
-                var output = await client.OutputDocs(
-                    new("/module/main.bicep", null, null, null, NoRestore: false),
-                    token);
-                var generated = await client.GenerateDocs(
-                    new(["/module/main.bicep"], null, null, null, null, NoRestore: false),
+                var response = await client.RenderDocs(
+                    new(["/module/main.bicep"], null, null, null, NoRestore: false),
                     token);
 
-                output.Result.Success.Should().BeTrue();
-                output.Result.Contents.Should().Contain("# RPC defaults");
-                generated.Results.Should().ContainSingle(result =>
-                    result.Success &&
-                    result.OutputPath == fileSystem.Path.GetFullPath("/module/RPC.md"));
+                response.Results.Should().ContainSingle();
+                response.Results[0].Success.Should().BeTrue();
+                response.Results[0].Contents.Should().Contain("# RPC defaults");
+
+                // The configured output file is never written; the client owns the filesystem.
+                fileSystem.File.Exists("/module/RPC.md").Should().BeFalse();
             });
     }
 
     [TestMethod]
-    public async Task GenerateDocs_writes_successful_modules_and_continues_failures()
+    public async Task Docs_methods_never_write_files()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
-            ["/valid/main.bicep"] = "metadata name = 'Valid'",
-            ["/invalid/main.bicep"] = "param value invalidType",
+            ["/module/main.bicep"] = "metadata name = 'No Writes'",
         });
 
         await RunServerTest(
             services => services.WithFileSystem(fileSystem),
             async (client, token) =>
             {
-                var response = await client.GenerateDocs(
-                    new(
-                        ["/valid/main.bicep", "/invalid/main.bicep"],
-                        null,
-                        null,
-                        null,
-                        null,
-                        NoRestore: false),
+                var before = fileSystem.AllFiles.OrderBy(file => file, StringComparer.Ordinal).ToArray();
+
+                var rendered = await client.RenderDocs(
+                    new(["/module/main.bicep"], null, null, null, NoRestore: false),
+                    token);
+                var model = await client.GetDocsModel(
+                    new(["/module/main.bicep"], NoRestore: false),
                     token);
 
-                response.Results.Should().HaveCount(2);
-                response.Results[0].Success.Should().BeTrue();
-                response.Results[0].OutputPath.Should().Be(fileSystem.Path.GetFullPath("/valid/README.md"));
-                response.Results[0].Contents.Should().Be(fileSystem.File.ReadAllText("/valid/README.md"));
-                response.Results[1].Success.Should().BeFalse();
-                response.Results[1].Contents.Should().BeNull();
-                response.Results[1].Diagnostics.Should().Contain(diagnostic => diagnostic.Level == "Error");
-                fileSystem.File.Exists("/invalid/README.md").Should().BeFalse();
+                rendered.Results[0].Success.Should().BeTrue();
+                model.Results[0].Success.Should().BeTrue();
+                fileSystem.AllFiles.OrderBy(file => file, StringComparer.Ordinal).Should().Equal(before);
             });
     }
 
     [TestMethod]
-    public async Task Docs_methods_return_structured_failures()
+    public async Task RenderDocs_returns_structured_failures()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
             ["/main.bicep"] = "metadata name = 'Disabled'",
             ["/main.txt"] = "not bicep",
             ["/invalid.scriban"] = "{{ if module.name }}",
-            ["/a.bicep"] = "metadata name = 'A'",
-            ["/b.bicep"] = "metadata name = 'B'",
         });
 
         await RunServerTest(
             services => services.WithFileSystem(fileSystem),
             async (client, token) =>
             {
-                var invalidExtension = await client.OutputDocs(
-                    new("/main.txt", null, null, null, NoRestore: false),
+                var invalidExtension = await client.RenderDocs(
+                    new(["/main.txt"], null, null, null, NoRestore: false),
                     token);
-                invalidExtension.Result.Success.Should().BeFalse();
-                invalidExtension.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
+                invalidExtension.Results[0].Success.Should().BeFalse();
+                invalidExtension.Results[0].Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
 
-                var invalidPath = await client.OutputDocs(
-                    new("invalid\0path", null, null, null, NoRestore: false),
+                var invalidPath = await client.RenderDocs(
+                    new(["invalid\0path"], null, null, null, NoRestore: false),
                     token);
-                invalidPath.Result.Success.Should().BeFalse();
-                invalidPath.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
+                invalidPath.Results[0].Success.Should().BeFalse();
+                invalidPath.Results[0].Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
 
-                var invalidGeneratePath = await client.GenerateDocs(
-                    new(["invalid\0path"], null, null, null, null, NoRestore: false),
+                var missingPath = await client.RenderDocs(
+                    new(["/missing.bicep"], null, null, null, NoRestore: false),
                     token);
-                invalidGeneratePath.Results.Should().ContainSingle();
-                invalidGeneratePath.Results[0].Success.Should().BeFalse();
-
-                var missingGeneratePath = await client.GenerateDocs(
-                    new(["/missing.bicep"], null, null, null, null, NoRestore: false),
-                    token);
-                missingGeneratePath.Results.Should().ContainSingle();
-                missingGeneratePath.Results[0].Success.Should().BeFalse();
-
-                var missingPath = await client.OutputDocs(
-                    new("/missing", null, null, null, NoRestore: false),
-                    token);
-                missingPath.Result.Success.Should().BeFalse();
-                missingPath.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
-
-                var invalidTemplate = await client.OutputDocs(
-                    new("/main.bicep", "/invalid.scriban", null, null, NoRestore: false),
-                    token);
-                invalidTemplate.Result.Success.Should().BeFalse();
-                invalidTemplate.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS003");
-
-                var missingTemplateRoot = await client.OutputDocs(
-                    new("/main.bicep", null, "/missing", null, NoRestore: false),
-                    token);
-                missingTemplateRoot.Result.Success.Should().BeFalse();
-                missingTemplateRoot.Result.Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
-
-                var inputOverwrite = await client.GenerateDocs(
-                    new(["/main.bicep"], null, null, null, "main.bicep", NoRestore: false),
-                    token);
-                inputOverwrite.Results.Should().ContainSingle();
-                inputOverwrite.Results[0].Success.Should().BeFalse();
-
-                var sourceExtension = await client.GenerateDocs(
-                    new(["/main.bicep"], null, null, null, "child.bicep", NoRestore: false),
-                    token);
-                sourceExtension.Results.Should().ContainSingle();
-                sourceExtension.Results[0].Success.Should().BeFalse();
-
-                foreach (var invalidOutputFile in new[] { "", " ", ".", "..", "../README.md", @"..\README.md", "bad?.md", "README.md.", "CON.md" })
-                {
-                    var invalidOutput = await client.GenerateDocs(
-                        new(["/main.bicep"], null, null, null, invalidOutputFile, NoRestore: false),
-                        token);
-                    invalidOutput.Results.Should().ContainSingle();
-                    invalidOutput.Results[0].Success.Should().BeFalse();
-                    invalidOutput.Results[0].Diagnostics.Should().ContainSingle(diagnostic =>
-                        diagnostic.Code == "DOCS001" &&
-                        diagnostic.Message.Contains("must be a file name"));
-                }
-
-                var outputCollision = await client.GenerateDocs(
-                    new(["/a.bicep", "/b.bicep"], null, null, null, null, NoRestore: false),
-                    token);
-                outputCollision.Results.Should().HaveCount(2);
-                outputCollision.Results[0].Success.Should().BeTrue();
-                outputCollision.Results[1].Success.Should().BeFalse();
-                outputCollision.Results[1].Diagnostics.Should().ContainSingle(diagnostic =>
+                missingPath.Results[0].Success.Should().BeFalse();
+                missingPath.Results[0].Diagnostics.Should().ContainSingle(diagnostic =>
                     diagnostic.Code == "DOCS001" &&
-                    diagnostic.Message.Contains("resolve to the output file"));
+                    diagnostic.Message.Contains("does not exist"));
 
-                var mixedResult = await client.GenerateDocs(
-                    new(["/missing", "/main.bicep"], null, null, null, null, NoRestore: false),
+                var invalidTemplate = await client.RenderDocs(
+                    new(["/main.bicep"], "/invalid.scriban", null, null, NoRestore: false),
+                    token);
+                invalidTemplate.Results[0].Success.Should().BeFalse();
+                invalidTemplate.Results[0].Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS003");
+
+                var missingTemplateRoot = await client.RenderDocs(
+                    new(["/main.bicep"], null, "/missing", null, NoRestore: false),
+                    token);
+                missingTemplateRoot.Results[0].Success.Should().BeFalse();
+                missingTemplateRoot.Results[0].Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
+
+                var mixedResult = await client.RenderDocs(
+                    new(["/missing.bicep", "/main.bicep"], null, null, null, NoRestore: false),
                     token);
                 mixedResult.Results.Should().HaveCount(2);
                 mixedResult.Results[0].Success.Should().BeFalse();
@@ -455,76 +456,7 @@ output bar string = foo
     }
 
     [TestMethod]
-    public async Task GenerateDocs_rejects_windows_aliased_and_reserved_output_paths()
-    {
-        if (!OperatingSystem.IsWindows())
-        {
-            return;
-        }
-
-        var root = FileHelper.SaveResultFiles(
-            TestContext,
-            [new("main.bicep", "metadata name = 'Safe'")]);
-        var mainFile = Path.Combine(root, "main.bicep");
-
-        await RunServerTest(
-            services => { },
-            async (client, token) =>
-            {
-                var aliasedOutput = await client.GenerateDocs(
-                    new([mainFile], null, null, null, "main.bicep.", NoRestore: false),
-                    token);
-                aliasedOutput.Results.Should().ContainSingle();
-                aliasedOutput.Results[0].Success.Should().BeFalse();
-                File.ReadAllText(mainFile).Should().Contain("metadata name");
-
-                var reservedOutput = await client.GenerateDocs(
-                    new([mainFile], null, null, null, "CON.md", NoRestore: false),
-                    token);
-                reservedOutput.Results.Should().ContainSingle();
-                reservedOutput.Results[0].Success.Should().BeFalse();
-                reservedOutput.Results[0].Diagnostics.Should().ContainSingle(diagnostic => diagnostic.Code == "DOCS001");
-            });
-    }
-
-    [TestMethod]
-    public async Task GenerateDocs_returns_structured_write_failures()
-    {
-        var root = FileHelper.SaveResultFiles(
-            TestContext,
-            [
-                new("main.bicep", "metadata name = 'Example'"),
-                new("README.md", "preserve me"),
-            ]);
-        var outputFile = Path.Combine(root, "README.md");
-        var fileSystem = new System.IO.Abstractions.FileSystem();
-        var fileExplorer = new WriteFailingFileExplorer(
-            new FileSystemFileExplorer(fileSystem),
-            "README.md",
-            new IOException("write failed"));
-
-        await RunServerTest(
-            services => services
-                .WithFileSystem(fileSystem)
-                .WithFileExplorer(fileExplorer),
-            async (client, token) =>
-            {
-                var response = await client.GenerateDocs(
-                    new([Path.Combine(root, "main.bicep")], null, null, null, null, NoRestore: false),
-                    token);
-
-                response.Results.Should().ContainSingle();
-                response.Results[0].Success.Should().BeFalse();
-                response.Results[0].Diagnostics.Should().ContainSingle(diagnostic =>
-                    diagnostic.Code == "DOCS002" &&
-                    diagnostic.Message == "write failed");
-            });
-
-        File.ReadAllText(outputFile).Should().Be("preserve me");
-    }
-
-    [TestMethod]
-    public async Task OutputDocs_returns_structured_compilation_exceptions()
+    public async Task RenderDocs_returns_structured_compilation_exceptions()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -548,12 +480,12 @@ output bar string = foo
                 .WithFileExplorer(explorer.Object),
             async (client, token) =>
             {
-                var response = await client.OutputDocs(
-                    new("/main.bicep", null, null, null, NoRestore: false),
+                var response = await client.RenderDocs(
+                    new(["/main.bicep"], null, null, null, NoRestore: false),
                     token);
 
-                response.Result.Success.Should().BeFalse();
-                response.Result.Diagnostics.Should().ContainSingle(diagnostic =>
+                response.Results[0].Success.Should().BeFalse();
+                response.Results[0].Diagnostics.Should().ContainSingle(diagnostic =>
                     diagnostic.Code == "DOCS001" &&
                     diagnostic.Message == "compilation failed");
             });
@@ -571,27 +503,29 @@ output bar string = foo
             services => services.WithFileSystem(fileSystem.Object),
             async (client, token) =>
             {
-                var output = await client.OutputDocs(
-                    new("invalid", null, null, null, NoRestore: false),
+                var rendered = await client.RenderDocs(
+                    new(["invalid"], null, null, null, NoRestore: false),
                     token);
-                var generate = await client.GenerateDocs(
-                    new(["invalid"], null, null, null, null, NoRestore: false),
+                var model = await client.GetDocsModel(
+                    new(["invalid"], NoRestore: false),
                     token);
 
-                output.Result.Success.Should().BeFalse();
-                output.Result.Diagnostics.Should().ContainSingle(diagnostic =>
+                rendered.Results.Should().ContainSingle();
+                rendered.Results[0].Success.Should().BeFalse();
+                rendered.Results[0].Diagnostics.Should().ContainSingle(diagnostic =>
                     diagnostic.Code == "DOCS001" &&
                     diagnostic.Message == "invalid path");
-                generate.Results.Should().ContainSingle();
-                generate.Results[0].Success.Should().BeFalse();
-                generate.Results[0].Diagnostics.Should().ContainSingle(diagnostic =>
+                model.Results.Should().ContainSingle();
+                model.Results[0].Success.Should().BeFalse();
+                model.Results[0].Model.Should().BeNull();
+                model.Results[0].Diagnostics.Should().ContainSingle(diagnostic =>
                     diagnostic.Code == "DOCS001" &&
                     diagnostic.Message == "invalid path");
             });
     }
 
     [TestMethod]
-    public async Task OutputDocs_passes_request_cancellation_to_generation()
+    public async Task Docs_methods_pass_request_cancellation_to_generation()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -605,13 +539,212 @@ output bar string = foo
                 .AddSingleton<IBicepDocumentationGenerator>(generator),
             async (client, token) =>
             {
-                var response = await client.OutputDocs(
-                    new("/main.bicep", null, null, null, NoRestore: false),
+                var rendered = await client.RenderDocs(
+                    new(["/main.bicep"], null, null, null, NoRestore: false),
                     token);
 
-                response.Result.Success.Should().BeTrue();
+                rendered.Results[0].Success.Should().BeTrue();
                 generator.BuildObserved.Should().BeTrue();
                 generator.RenderObserved.Should().BeTrue();
+
+                generator.Reset();
+
+                var model = await client.GetDocsModel(
+                    new(["/main.bicep"], NoRestore: false),
+                    token);
+
+                model.Results[0].Success.Should().BeTrue();
+                generator.BuildObserved.Should().BeTrue();
+                generator.RenderObserved.Should().BeFalse();
+            });
+    }
+
+    [TestMethod]
+    public async Task GetDocsModel_returns_the_typed_documentation_model()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/module/main.bicep"] = """
+                metadata name = 'Model Module'
+                metadata description = 'Exercises the documentation model.'
+
+                @description('The deployment location.')
+                @allowed(['westeurope', 'eastus'])
+                param location string = 'westeurope'
+
+                @description('Retention in days.')
+                @minValue(1)
+                @maxValue(365)
+                param retentionDays int
+
+                @description('Storage settings.')
+                param settings settingsType
+
+                @export()
+                @description('Settings for storage.')
+                type settingsType = {
+                  @description('The account name.')
+                  @minLength(3)
+                  @maxLength(24)
+                  accountName: string
+                }
+
+                @export()
+                @description('The default prefix.')
+                var defaultPrefix = 'stg'
+
+                @export()
+                @description('Builds a resource name.')
+                func buildName(prefix string, suffix string) string => '${prefix}${suffix}'
+
+                module child './child.bicep' = {
+                  name: 'child'
+                  params: {
+                    accountName: settings.accountName
+                  }
+                }
+
+                @description('The resolved location.')
+                output resolvedLocation string = '${location}${retentionDays}${defaultPrefix}'
+                """,
+            ["/module/child.bicep"] = """
+                metadata description = 'The child module.'
+
+                param accountName string
+                output name string = accountName
+                """,
+            ["/module/examples/default/main.bicep"] = "metadata name = 'Default example'",
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var response = await client.GetDocsModel(
+                    new(["/module/main.bicep"], NoRestore: false),
+                    token);
+
+                response.Results.Should().ContainSingle();
+                response.Results[0].Success.Should().BeTrue();
+
+                var model = response.Results[0].Model;
+                model.Should().NotBeNull();
+                model!.Name.Should().Be("Model Module");
+                model.Description.Should().Be("Exercises the documentation model.");
+                model.Path.Should().Be(fileSystem.Path.GetFullPath("/module/main.bicep"));
+                model.TargetScope.Should().Be("resourceGroup");
+
+                var location = model.Parameters.Single(parameter => parameter.Name == "location");
+                location.TypeName.Should().Be("string");
+                location.IsRequired.Should().BeFalse();
+                location.IsSecure.Should().BeFalse();
+                location.Description.Should().Be("The deployment location.");
+                location.DefaultValue.Should().Be("'westeurope'");
+                location.AllowedValues.Should().Equal("eastus", "westeurope");
+
+                var retention = model.Parameters.Single(parameter => parameter.Name == "retentionDays");
+                retention.IsRequired.Should().BeTrue();
+                retention.MinValue.Should().Be(1);
+                retention.MaxValue.Should().Be(365);
+
+                var settings = model.Parameters.Single(parameter => parameter.Name == "settings");
+                settings.NestedProperties.Should().ContainSingle();
+                settings.NestedProperties[0].Name.Should().Be("accountName");
+                settings.NestedProperties[0].MinLength.Should().Be(3);
+                settings.NestedProperties[0].MaxLength.Should().Be(24);
+
+                model.Outputs.Should().ContainSingle();
+                model.Outputs[0].Name.Should().Be("resolvedLocation");
+                model.Outputs[0].TypeName.Should().Be("string");
+
+                model.ExportedTypes.Should().ContainSingle(export => export.Name == "settingsType");
+                model.ExportedVariables.Should().ContainSingle(export => export.Name == "defaultPrefix");
+                model.ExportedFunctions.Should().ContainSingle();
+                model.ExportedFunctions[0].Name.Should().Be("buildName");
+                model.ExportedFunctions[0].ReturnTypeName.Should().Be("string");
+                model.ExportedFunctions[0].Parameters.Select(parameter => parameter.Name)
+                    .Should().Equal("prefix", "suffix");
+
+                model.References.Should().ContainSingle();
+                model.References[0].SymbolicName.Should().Be("child");
+                model.References[0].Path.Should().Be("./child.bicep");
+                model.References[0].Description.Should().Be("The child module.");
+
+                model.UsageExamples.Should().ContainSingle();
+                model.UsageExamples[0].Contents.Should().Contain("Default example");
+            });
+    }
+
+    [TestMethod]
+    public async Task GetDocsModel_resolves_configuration_for_each_module()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/configured/main.bicep"] = "metadata name = 'Configured'",
+            ["/configured/examples/default/main.bicep"] = "metadata name = 'Configured example'",
+            ["/configured/bicepconfig.json"] = """
+                {
+                  "documentation": {
+                    "template": {
+                      "values": {
+                        "owner": "Config"
+                      }
+                    },
+                    "examples": {
+                      "sources": []
+                    }
+                  }
+                }
+                """,
+            ["/defaults/main.bicep"] = "metadata name = 'Defaults'",
+            ["/defaults/examples/default/main.bicep"] = "metadata name = 'Default example'",
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var response = await client.GetDocsModel(
+                    new(["/configured/main.bicep", "/defaults/main.bicep"], NoRestore: false),
+                    token);
+
+                response.Results.Should().HaveCount(2);
+                response.Results.Should().OnlyContain(result => result.Success);
+
+                // Configuration is resolved per module: example discovery is disabled and custom
+                // values are supplied only for the first module.
+                response.Results[0].Model!.Custom.Should().Contain(
+                    new KeyValuePair<string, string>("owner", "Config"));
+                response.Results[0].Model!.UsageExamples.Should().BeEmpty();
+
+                response.Results[1].Model!.Custom.Should().BeEmpty();
+                response.Results[1].Model!.UsageExamples.Should().ContainSingle();
+            });
+    }
+
+    [TestMethod]
+    public async Task GetDocsModel_continues_after_a_failure_among_successes()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/valid/main.bicep"] = "metadata name = 'Valid'",
+            ["/invalid/main.bicep"] = "param value invalidType",
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var response = await client.GetDocsModel(
+                    new(["/invalid/main.bicep", "/valid/main.bicep"], NoRestore: false),
+                    token);
+
+                response.Results.Should().HaveCount(2);
+                response.Results[0].Success.Should().BeFalse();
+                response.Results[0].Model.Should().BeNull();
+                response.Results[0].Diagnostics.Should().Contain(diagnostic => diagnostic.Level == "Error");
+                response.Results[1].Success.Should().BeTrue();
+                response.Results[1].Model!.Name.Should().Be("Valid");
             });
     }
 
@@ -941,6 +1074,12 @@ kind: 'StorageV2'
         public bool BuildObserved { get; private set; }
 
         public bool RenderObserved { get; private set; }
+
+        public void Reset()
+        {
+            BuildObserved = false;
+            RenderObserved = false;
+        }
 
         public BicepDocumentationModel BuildModel(
             Compilation compilation,

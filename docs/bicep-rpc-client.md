@@ -234,6 +234,76 @@ var result = await client.GetSnapshot(new GetSnapshotRequest(
 var snapshot = result.Snapshot;
 ```
 
+### Render docs
+
+> [!WARNING]
+> `RenderDocs` supports the experimental `bicep docs` command group. Its request and response shapes
+> may change while that feature remains experimental. Requires Bicep CLI 0.47.0 or later.
+
+The `RenderDocs` method renders Markdown documentation for one or more Bicep modules. Unlike the
+`bicep docs generate` command, it never writes files: the rendered content is returned to you and
+your application decides where it goes. Each requested path produces one result, in request order,
+and a failure for one module does not prevent the others from being rendered. Configuration is
+resolved independently from `bicepconfig.json` for each module, so a single batch can span modules
+with different templates and custom values. The following example renders two modules and writes the
+results itself:
+
+```csharp
+var result = await client.RenderDocs(new RenderDocsRequest(
+    Paths: ["./modules/storage/main.bicep", "./modules/network/main.bicep"],
+    TemplateFile: null,          // Optional custom Scriban template
+    TemplateRoot: null,          // Optional root directory for template includes
+    CustomTemplateValues: null,  // Optional values exposed to the template
+    NoRestore: false
+));
+
+foreach (var module in result.Results)
+{
+    if (!module.Success)
+    {
+        Console.WriteLine($"Failed to render {module.Path}");
+        continue;
+    }
+
+    var directory = Path.GetDirectoryName(module.Path)!;
+    await File.WriteAllTextAsync(Path.Combine(directory, "README.md"), module.Contents);
+}
+```
+
+### Get docs model
+
+> [!WARNING]
+> `GetDocsModel` supports the experimental `bicep docs` command group. Its request and response
+> shapes may change while that feature remains experimental. Requires Bicep CLI 0.47.0 or later.
+
+The `GetDocsModel` method returns the typed documentation model for one or more Bicep modules,
+before any template is applied. Use it when you need structured data rather than rendered text: the
+model exposes allowed values, numeric and length bounds, validation patterns, nested properties,
+discriminator cases, exported types, variables and functions, referenced modules, and discovered
+usage examples. There are no template options, because the model is built before rendering. The
+following example inspects the parameters of a module:
+
+```csharp
+var result = await client.GetDocsModel(new GetDocsModelRequest(
+    Paths: ["./modules/storage/main.bicep"],
+    NoRestore: false
+));
+
+foreach (var module in result.Results.Where(module => module.Success))
+{
+    foreach (var parameter in module.Model!.Parameters)
+    {
+        Console.WriteLine($"{parameter.Name}: {parameter.TypeName}");
+        Console.WriteLine($"  Required: {parameter.IsRequired}");
+
+        if (parameter.AllowedValues.Length > 0)
+        {
+            Console.WriteLine($"  Allowed: {string.Join(", ", parameter.AllowedValues)}");
+        }
+    }
+}
+```
+
 ### Get version
 
 The `GetVersion` method retrieves the version of the Bicep CLI that the client is using. The

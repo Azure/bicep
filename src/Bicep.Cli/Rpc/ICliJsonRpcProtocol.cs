@@ -130,47 +130,171 @@ public record FormatResponse(
     string Contents);
 
 /// <summary>
-/// Requests documentation files for one or more modules.
+/// Requests rendered documentation for one or more modules.
 /// </summary>
-public record GenerateDocsRequest(
+/// <remarks>
+/// This record supports the experimental <c>bicep docs</c> command group and may change while
+/// that feature remains experimental, notwithstanding the stability guarantee for the rest of <see cref="ICliJsonRpcProtocol"/>.
+/// </remarks>
+public record RenderDocsRequest(
     ImmutableArray<string> Paths,
     string? TemplateFile,
     string? TemplateRoot,
-    Dictionary<string, string>? Custom,
-    string? OutputFile,
+    Dictionary<string, string>? CustomTemplateValues,
     bool NoRestore);
 
 /// <summary>
-/// Requests rendered documentation for one module.
+/// Contains rendered documentation and diagnostics for one module.
 /// </summary>
-public record OutputDocsRequest(
-    string Path,
-    string? TemplateFile,
-    string? TemplateRoot,
-    Dictionary<string, string>? Custom,
-    bool NoRestore);
-
-/// <summary>
-/// Contains documentation content and diagnostics for one module.
-/// </summary>
+/// <remarks>
+/// This record supports the experimental <c>bicep docs</c> command group and may change while
+/// that feature remains experimental, notwithstanding the stability guarantee for the rest of <see cref="ICliJsonRpcProtocol"/>.
+/// </remarks>
 public record DocsResult(
     string Path,
-    string? OutputPath,
     bool Success,
     ImmutableArray<DiagnosticDefinition> Diagnostics,
     string? Contents);
 
 /// <summary>
-/// Contains results for all requested modules.
+/// Contains rendered documentation for all requested modules, in request order.
 /// </summary>
-public record GenerateDocsResponse(
+/// <remarks>
+/// This record supports the experimental <c>bicep docs</c> command group and may change while
+/// that feature remains experimental, notwithstanding the stability guarantee for the rest of <see cref="ICliJsonRpcProtocol"/>.
+/// </remarks>
+public record RenderDocsResponse(
     ImmutableArray<DocsResult> Results);
 
 /// <summary>
-/// Contains the result for one rendered module.
+/// Requests the typed documentation model for one or more modules.
 /// </summary>
-public record OutputDocsResponse(
-    DocsResult Result);
+/// <remarks>
+/// This record supports the experimental <c>bicep docs</c> command group and may change while
+/// that feature remains experimental, notwithstanding the stability guarantee for the rest of <see cref="ICliJsonRpcProtocol"/>.
+/// </remarks>
+public record GetDocsModelRequest(
+    ImmutableArray<string> Paths,
+    bool NoRestore);
+
+/// <summary>
+/// Contains the documentation model and diagnostics for one module.
+/// </summary>
+/// <remarks>
+/// This record supports the experimental <c>bicep docs</c> command group and may change while
+/// that feature remains experimental, notwithstanding the stability guarantee for the rest of <see cref="ICliJsonRpcProtocol"/>.
+/// </remarks>
+public record DocsModelResult(
+    string Path,
+    bool Success,
+    ImmutableArray<DiagnosticDefinition> Diagnostics,
+    DocsModelDefinition? Model);
+
+/// <summary>
+/// Contains documentation models for all requested modules, in request order.
+/// </summary>
+/// <remarks>
+/// This record supports the experimental <c>bicep docs</c> command group and may change while
+/// that feature remains experimental, notwithstanding the stability guarantee for the rest of <see cref="ICliJsonRpcProtocol"/>.
+/// </remarks>
+public record GetDocsModelResponse(
+    ImmutableArray<DocsModelResult> Results);
+
+/// <summary>
+/// The documentation model for one Bicep module. This is a projection of the compiler's internal
+/// documentation model onto an explicit protocol contract.
+/// </summary>
+/// <remarks>
+/// This record supports the experimental <c>bicep docs</c> command group and may change while
+/// that feature remains experimental, notwithstanding the stability guarantee for the rest of <see cref="ICliJsonRpcProtocol"/>.
+/// </remarks>
+public record DocsModelDefinition(
+    string Name,
+    string? Description,
+    string Path,
+    string TargetScope,
+    ImmutableSortedDictionary<string, string> Custom,
+    ImmutableArray<DocsModelDefinition.ResourceTypeDefinition> ResourceTypes,
+    ImmutableArray<DocsModelDefinition.ParameterDefinition> Parameters,
+    ImmutableArray<DocsModelDefinition.OutputDefinition> Outputs,
+    ImmutableArray<DocsModelDefinition.ExportDefinition> ExportedTypes,
+    ImmutableArray<DocsModelDefinition.ExportDefinition> ExportedVariables,
+    ImmutableArray<DocsModelDefinition.FunctionDefinition> ExportedFunctions,
+    ImmutableArray<DocsModelDefinition.ReferenceDefinition> References,
+    ImmutableArray<DocsModelDefinition.UsageExampleDefinition> UsageExamples)
+{
+    public record ResourceTypeDefinition(
+        string Type,
+        bool IsExisting);
+
+    public record ParameterDefinition(
+        string Name,
+        string TypeName,
+        bool IsRequired,
+        bool IsSecure,
+        string? Description,
+        string? DefaultValue,
+        ImmutableArray<string> AllowedValues,
+        long? MinValue,
+        long? MaxValue,
+        long? MinLength,
+        long? MaxLength,
+        string? Pattern,
+        bool IsTruncated,
+        ImmutableArray<ParameterDefinition> NestedProperties,
+        DiscriminatorDefinition? Discriminator);
+
+    public record DiscriminatorDefinition(
+        string PropertyName,
+        ImmutableArray<DiscriminatorCaseDefinition> Cases);
+
+    public record DiscriminatorCaseDefinition(
+        string Value,
+        ImmutableArray<ParameterDefinition> Properties);
+
+    public record OutputDefinition(
+        string Name,
+        string TypeName,
+        bool IsSecure,
+        string? Description);
+
+    public record ExportDefinition(
+        string Name,
+        string TypeName,
+        bool IsSecure,
+        string? Description,
+        ImmutableArray<string> AllowedValues,
+        long? MinValue,
+        long? MaxValue,
+        long? MinLength,
+        long? MaxLength,
+        string? Pattern,
+        bool IsTruncated,
+        ImmutableArray<ParameterDefinition> NestedProperties,
+        DiscriminatorDefinition? Discriminator);
+
+    public record FunctionDefinition(
+        string Name,
+        ImmutableArray<FunctionParameterDefinition> Parameters,
+        string ReturnTypeName,
+        string? Description);
+
+    public record FunctionParameterDefinition(
+        string Name,
+        string TypeName,
+        string? Description);
+
+    public record ReferenceDefinition(
+        string SymbolicName,
+        string? Path,
+        string? Description);
+
+    public record UsageExampleDefinition(
+        string Name,
+        string RelativePath,
+        string? Description,
+        string Contents);
+}
 
 /// <summary>
 /// The definition for the Bicep CLI JSONRPC interface.
@@ -229,14 +353,23 @@ public interface ICliJsonRpcProtocol
     Task<FormatResponse> Format(FormatRequest request, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Generates documentation files for Bicep modules.
+    /// Renders documentation for one or more Bicep modules. Rendered content is returned to the caller
+    /// and is never written to disk.
     /// </summary>
-    [JsonRpcMethod("bicep/generateDocs", UseSingleObjectParameterDeserialization = true)]
-    Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken);
+    /// <remarks>
+    /// This operation supports the experimental <c>bicep docs</c> command group and may change while
+    /// that feature remains experimental, notwithstanding the stability guarantee for the rest of this interface.
+    /// </remarks>
+    [JsonRpcMethod("bicep/renderDocs", UseSingleObjectParameterDeserialization = true)]
+    Task<RenderDocsResponse> RenderDocs(RenderDocsRequest request, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Renders documentation for one Bicep module.
+    /// Returns the typed documentation model for one or more Bicep modules, before any template is applied.
     /// </summary>
-    [JsonRpcMethod("bicep/outputDocs", UseSingleObjectParameterDeserialization = true)]
-    Task<OutputDocsResponse> OutputDocs(OutputDocsRequest request, CancellationToken cancellationToken);
+    /// <remarks>
+    /// This operation supports the experimental <c>bicep docs</c> command group and may change while
+    /// that feature remains experimental, notwithstanding the stability guarantee for the rest of this interface.
+    /// </remarks>
+    [JsonRpcMethod("bicep/getDocsModel", UseSingleObjectParameterDeserialization = true)]
+    Task<GetDocsModelResponse> GetDocsModel(GetDocsModelRequest request, CancellationToken cancellationToken);
 }

@@ -38,13 +38,13 @@ namespace Bicep.RpcClient
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.CompileResponse> Compile(Bicep.RpcClient.Models.CompileRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.CompileParamsResponse> CompileParams(Bicep.RpcClient.Models.CompileParamsRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.FormatResponse> Format(Bicep.RpcClient.Models.FormatRequest request, System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task<Bicep.RpcClient.Models.GenerateDocsResponse> GenerateDocs(Bicep.RpcClient.Models.GenerateDocsRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.GetDeploymentGraphResponse> GetDeploymentGraph(Bicep.RpcClient.Models.GetDeploymentGraphRequest request, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<Bicep.RpcClient.Models.GetDocsModelResponse> GetDocsModel(Bicep.RpcClient.Models.GetDocsModelRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.GetFileReferencesResponse> GetFileReferences(Bicep.RpcClient.Models.GetFileReferencesRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.GetMetadataResponse> GetMetadata(Bicep.RpcClient.Models.GetMetadataRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.GetSnapshotResponse> GetSnapshot(Bicep.RpcClient.Models.GetSnapshotRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<string> GetVersion(System.Threading.CancellationToken cancellationToken = default);
-        System.Threading.Tasks.Task<Bicep.RpcClient.Models.OutputDocsResponse> OutputDocs(Bicep.RpcClient.Models.OutputDocsRequest request, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<Bicep.RpcClient.Models.RenderDocsResponse> RenderDocs(Bicep.RpcClient.Models.RenderDocsRequest request, System.Threading.CancellationToken cancellationToken = default);
     }
     public interface IBicepClientFactory
     {
@@ -105,12 +105,128 @@ namespace Bicep.RpcClient.Models
         public Bicep.RpcClient.Models.Range Range { get; init; }
         public string Source { get; init; }
     }
+    public class DocsModelDefinition : System.IEquatable<Bicep.RpcClient.Models.DocsModelDefinition>
+    {
+        public DocsModelDefinition(string Name, string? Description, string Path, string TargetScope, System.Collections.Immutable.ImmutableSortedDictionary<string, string> Custom, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.ResourceTypeDefinition> ResourceTypes, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.ParameterDefinition> Parameters, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.OutputDefinition> Outputs, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.ExportDefinition> ExportedTypes, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.ExportDefinition> ExportedVariables, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.FunctionDefinition> ExportedFunctions, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.ReferenceDefinition> References, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.UsageExampleDefinition> UsageExamples) { }
+        public System.Collections.Immutable.ImmutableSortedDictionary<string, string> Custom { get; init; }
+        public string? Description { get; init; }
+        public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.FunctionDefinition> ExportedFunctions { get; init; }
+        public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.ExportDefinition> ExportedTypes { get; init; }
+        public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.ExportDefinition> ExportedVariables { get; init; }
+        public string Name { get; init; }
+        public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.OutputDefinition> Outputs { get; init; }
+        public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.ParameterDefinition> Parameters { get; init; }
+        public string Path { get; init; }
+        public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.ReferenceDefinition> References { get; init; }
+        public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.ResourceTypeDefinition> ResourceTypes { get; init; }
+        public string TargetScope { get; init; }
+        public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.UsageExampleDefinition> UsageExamples { get; init; }
+        public class DiscriminatorCaseDefinition : System.IEquatable<Bicep.RpcClient.Models.DocsModelDefinition.DiscriminatorCaseDefinition>
+        {
+            public DiscriminatorCaseDefinition(string Value, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.ParameterDefinition> Properties) { }
+            public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.ParameterDefinition> Properties { get; init; }
+            public string Value { get; init; }
+        }
+        public class DiscriminatorDefinition : System.IEquatable<Bicep.RpcClient.Models.DocsModelDefinition.DiscriminatorDefinition>
+        {
+            public DiscriminatorDefinition(string PropertyName, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.DiscriminatorCaseDefinition> Cases) { }
+            public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.DiscriminatorCaseDefinition> Cases { get; init; }
+            public string PropertyName { get; init; }
+        }
+        public class ExportDefinition : System.IEquatable<Bicep.RpcClient.Models.DocsModelDefinition.ExportDefinition>
+        {
+            public ExportDefinition(string Name, string TypeName, bool IsSecure, string? Description, System.Collections.Immutable.ImmutableArray<string> AllowedValues, long? MinValue, long? MaxValue, long? MinLength, long? MaxLength, string? Pattern, bool IsTruncated, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.ParameterDefinition> NestedProperties, Bicep.RpcClient.Models.DocsModelDefinition.DiscriminatorDefinition? Discriminator) { }
+            public System.Collections.Immutable.ImmutableArray<string> AllowedValues { get; init; }
+            public string? Description { get; init; }
+            public Bicep.RpcClient.Models.DocsModelDefinition.DiscriminatorDefinition? Discriminator { get; init; }
+            public bool IsSecure { get; init; }
+            public bool IsTruncated { get; init; }
+            public long? MaxLength { get; init; }
+            public long? MaxValue { get; init; }
+            public long? MinLength { get; init; }
+            public long? MinValue { get; init; }
+            public string Name { get; init; }
+            public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.ParameterDefinition> NestedProperties { get; init; }
+            public string? Pattern { get; init; }
+            public string TypeName { get; init; }
+        }
+        public class FunctionDefinition : System.IEquatable<Bicep.RpcClient.Models.DocsModelDefinition.FunctionDefinition>
+        {
+            public FunctionDefinition(string Name, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.FunctionParameterDefinition> Parameters, string ReturnTypeName, string? Description) { }
+            public string? Description { get; init; }
+            public string Name { get; init; }
+            public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.FunctionParameterDefinition> Parameters { get; init; }
+            public string ReturnTypeName { get; init; }
+        }
+        public class FunctionParameterDefinition : System.IEquatable<Bicep.RpcClient.Models.DocsModelDefinition.FunctionParameterDefinition>
+        {
+            public FunctionParameterDefinition(string Name, string TypeName, string? Description) { }
+            public string? Description { get; init; }
+            public string Name { get; init; }
+            public string TypeName { get; init; }
+        }
+        public class OutputDefinition : System.IEquatable<Bicep.RpcClient.Models.DocsModelDefinition.OutputDefinition>
+        {
+            public OutputDefinition(string Name, string TypeName, bool IsSecure, string? Description) { }
+            public string? Description { get; init; }
+            public bool IsSecure { get; init; }
+            public string Name { get; init; }
+            public string TypeName { get; init; }
+        }
+        public class ParameterDefinition : System.IEquatable<Bicep.RpcClient.Models.DocsModelDefinition.ParameterDefinition>
+        {
+            public ParameterDefinition(string Name, string TypeName, bool IsRequired, bool IsSecure, string? Description, string? DefaultValue, System.Collections.Immutable.ImmutableArray<string> AllowedValues, long? MinValue, long? MaxValue, long? MinLength, long? MaxLength, string? Pattern, bool IsTruncated, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.ParameterDefinition> NestedProperties, Bicep.RpcClient.Models.DocsModelDefinition.DiscriminatorDefinition? Discriminator) { }
+            public System.Collections.Immutable.ImmutableArray<string> AllowedValues { get; init; }
+            public string? DefaultValue { get; init; }
+            public string? Description { get; init; }
+            public Bicep.RpcClient.Models.DocsModelDefinition.DiscriminatorDefinition? Discriminator { get; init; }
+            public bool IsRequired { get; init; }
+            public bool IsSecure { get; init; }
+            public bool IsTruncated { get; init; }
+            public long? MaxLength { get; init; }
+            public long? MaxValue { get; init; }
+            public long? MinLength { get; init; }
+            public long? MinValue { get; init; }
+            public string Name { get; init; }
+            public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelDefinition.ParameterDefinition> NestedProperties { get; init; }
+            public string? Pattern { get; init; }
+            public string TypeName { get; init; }
+        }
+        public class ReferenceDefinition : System.IEquatable<Bicep.RpcClient.Models.DocsModelDefinition.ReferenceDefinition>
+        {
+            public ReferenceDefinition(string SymbolicName, string? Path, string? Description) { }
+            public string? Description { get; init; }
+            public string? Path { get; init; }
+            public string SymbolicName { get; init; }
+        }
+        public class ResourceTypeDefinition : System.IEquatable<Bicep.RpcClient.Models.DocsModelDefinition.ResourceTypeDefinition>
+        {
+            public ResourceTypeDefinition(string Type, bool IsExisting) { }
+            public bool IsExisting { get; init; }
+            public string Type { get; init; }
+        }
+        public class UsageExampleDefinition : System.IEquatable<Bicep.RpcClient.Models.DocsModelDefinition.UsageExampleDefinition>
+        {
+            public UsageExampleDefinition(string Name, string RelativePath, string? Description, string Contents) { }
+            public string Contents { get; init; }
+            public string? Description { get; init; }
+            public string Name { get; init; }
+            public string RelativePath { get; init; }
+        }
+    }
+    public class DocsModelResult : System.IEquatable<Bicep.RpcClient.Models.DocsModelResult>
+    {
+        public DocsModelResult(string Path, bool Success, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DiagnosticDefinition> Diagnostics, Bicep.RpcClient.Models.DocsModelDefinition? Model) { }
+        public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DiagnosticDefinition> Diagnostics { get; init; }
+        public Bicep.RpcClient.Models.DocsModelDefinition? Model { get; init; }
+        public string Path { get; init; }
+        public bool Success { get; init; }
+    }
     public class DocsResult : System.IEquatable<Bicep.RpcClient.Models.DocsResult>
     {
-        public DocsResult(string Path, string? OutputPath, bool Success, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DiagnosticDefinition> Diagnostics, string? Contents) { }
+        public DocsResult(string Path, bool Success, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DiagnosticDefinition> Diagnostics, string? Contents) { }
         public string? Contents { get; init; }
         public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DiagnosticDefinition> Diagnostics { get; init; }
-        public string? OutputPath { get; init; }
         public string Path { get; init; }
         public bool Success { get; init; }
     }
@@ -123,21 +239,6 @@ namespace Bicep.RpcClient.Models
     {
         public FormatResponse(string Contents) { }
         public string Contents { get; init; }
-    }
-    public class GenerateDocsRequest : System.IEquatable<Bicep.RpcClient.Models.GenerateDocsRequest>
-    {
-        public GenerateDocsRequest(System.Collections.Immutable.ImmutableArray<string> Paths, string? TemplateFile, string? TemplateRoot, System.Collections.Generic.Dictionary<string, string>? Custom, string? OutputFile, bool NoRestore) { }
-        public System.Collections.Generic.Dictionary<string, string>? Custom { get; init; }
-        public bool NoRestore { get; init; }
-        public string? OutputFile { get; init; }
-        public System.Collections.Immutable.ImmutableArray<string> Paths { get; init; }
-        public string? TemplateFile { get; init; }
-        public string? TemplateRoot { get; init; }
-    }
-    public class GenerateDocsResponse : System.IEquatable<Bicep.RpcClient.Models.GenerateDocsResponse>
-    {
-        public GenerateDocsResponse(System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsResult> Results) { }
-        public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsResult> Results { get; init; }
     }
     public class GetDeploymentGraphRequest : System.IEquatable<Bicep.RpcClient.Models.GetDeploymentGraphRequest>
     {
@@ -164,6 +265,17 @@ namespace Bicep.RpcClient.Models
             public string? RelativePath { get; init; }
             public string Type { get; init; }
         }
+    }
+    public class GetDocsModelRequest : System.IEquatable<Bicep.RpcClient.Models.GetDocsModelRequest>
+    {
+        public GetDocsModelRequest(System.Collections.Immutable.ImmutableArray<string> Paths, bool NoRestore) { }
+        public bool NoRestore { get; init; }
+        public System.Collections.Immutable.ImmutableArray<string> Paths { get; init; }
+    }
+    public class GetDocsModelResponse : System.IEquatable<Bicep.RpcClient.Models.GetDocsModelResponse>
+    {
+        public GetDocsModelResponse(System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelResult> Results) { }
+        public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsModelResult> Results { get; init; }
     }
     public class GetFileReferencesRequest : System.IEquatable<Bicep.RpcClient.Models.GetFileReferencesRequest>
     {
@@ -245,20 +357,6 @@ namespace Bicep.RpcClient.Models
         public GetSnapshotResponse(string Snapshot) { }
         public string Snapshot { get; init; }
     }
-    public class OutputDocsRequest : System.IEquatable<Bicep.RpcClient.Models.OutputDocsRequest>
-    {
-        public OutputDocsRequest(string Path, string? TemplateFile, string? TemplateRoot, System.Collections.Generic.Dictionary<string, string>? Custom, bool NoRestore) { }
-        public System.Collections.Generic.Dictionary<string, string>? Custom { get; init; }
-        public bool NoRestore { get; init; }
-        public string Path { get; init; }
-        public string? TemplateFile { get; init; }
-        public string? TemplateRoot { get; init; }
-    }
-    public class OutputDocsResponse : System.IEquatable<Bicep.RpcClient.Models.OutputDocsResponse>
-    {
-        public OutputDocsResponse(Bicep.RpcClient.Models.DocsResult Result) { }
-        public Bicep.RpcClient.Models.DocsResult Result { get; init; }
-    }
     public class Position : System.IEquatable<Bicep.RpcClient.Models.Position>
     {
         public Position(int Line, int Char) { }
@@ -270,6 +368,20 @@ namespace Bicep.RpcClient.Models
         public Range(Bicep.RpcClient.Models.Position Start, Bicep.RpcClient.Models.Position End) { }
         public Bicep.RpcClient.Models.Position End { get; init; }
         public Bicep.RpcClient.Models.Position Start { get; init; }
+    }
+    public class RenderDocsRequest : System.IEquatable<Bicep.RpcClient.Models.RenderDocsRequest>
+    {
+        public RenderDocsRequest(System.Collections.Immutable.ImmutableArray<string> Paths, string? TemplateFile, string? TemplateRoot, System.Collections.Generic.Dictionary<string, string>? CustomTemplateValues, bool NoRestore) { }
+        public System.Collections.Generic.Dictionary<string, string>? CustomTemplateValues { get; init; }
+        public bool NoRestore { get; init; }
+        public System.Collections.Immutable.ImmutableArray<string> Paths { get; init; }
+        public string? TemplateFile { get; init; }
+        public string? TemplateRoot { get; init; }
+    }
+    public class RenderDocsResponse : System.IEquatable<Bicep.RpcClient.Models.RenderDocsResponse>
+    {
+        public RenderDocsResponse(System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsResult> Results) { }
+        public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DocsResult> Results { get; init; }
     }
     public class VersionRequest : System.IEquatable<Bicep.RpcClient.Models.VersionRequest>
     {
