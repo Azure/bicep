@@ -22,6 +22,7 @@ namespace Bicep.Core.Configuration
             IBicepImplicitExtensionsConfiguration implicitExtensions,
             IBicepAnalyzersConfiguration analyzers,
             IBicepFormattingConfiguration formatting,
+            IBicepDocumentationConfiguration documentation,
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
             string? cacheRootDirectory,
             bool experimentalFeaturesWarning,
@@ -35,6 +36,7 @@ namespace Bicep.Core.Configuration
             ImplicitExtensions = implicitExtensions;
             Analyzers = analyzers;
             Formatting = formatting;
+            Documentation = documentation;
             ExperimentalFeaturesEnabled = experimentalFeaturesEnabled;
             CacheRootDirectory = ExpandCacheRootDirectory(cacheRootDirectory);
             ExperimentalFeaturesWarning = experimentalFeaturesWarning;
@@ -55,6 +57,8 @@ namespace Bicep.Core.Configuration
         public IBicepAnalyzersConfiguration Analyzers { get; }
 
         public IBicepFormattingConfiguration Formatting { get; }
+
+        public IBicepDocumentationConfiguration Documentation { get; }
 
         public ExperimentalFeaturesEnabled ExperimentalFeaturesEnabled { get; }
 

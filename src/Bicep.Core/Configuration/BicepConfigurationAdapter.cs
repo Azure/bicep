@@ -38,6 +38,8 @@ internal sealed class BicepConfigurationAdapter : IBicepConfiguration
 
     public IBicepFormattingConfiguration Formatting => this.inner.Formatting;
 
+    public IBicepDocumentationConfiguration Documentation => this.inner.Documentation;
+
     public ExperimentalFeaturesEnabled ExperimentalFeaturesEnabled => this.inner.ExperimentalFeaturesEnabled;
 
     public string? CacheRootDirectory => this.inner.CacheRootDirectory;
