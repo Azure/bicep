@@ -452,13 +452,85 @@ Each usage example contains `name`, `path`, `description`, `contents`, and `fenc
 
 Long-lived clients can use:
 
-- `bicep/generateDocs` for one or more file-oriented results.
-- `bicep/outputDocs` for one string-oriented result.
+- `bicep/generateDocs` to render documentation for a module.
 
-The JSON-RPC method names remain separate even though the CLI uses `docs generate --stdout`.
+The method never writes files. It returns the rendered content to the caller, and the client is
+responsible for writing any output. This matches `bicep/compile`, which returns the compiled template
+rather than writing `main.json`. Note that the configured output file name (`documentation.output.file`)
+is not returned, so a client that wants to reproduce `bicep docs generate` file naming must choose
+its own.
 
-Both requests accept an optional command-line template path, template root, custom values, and `noRestore`. `bicep/generateDocs` also accepts an optional output file name. Configuration is resolved independently from `bicepconfig.json` for each requested Bicep file.
+The method is experimental. It supports the `bicep docs` command group and may change while that
+feature remains experimental, notwithstanding the stability guarantee for the rest of the JSON-RPC
+interface.
 
-Each result contains the input path, optional output path, success state, diagnostics, and rendered contents.
+The same model builder and renderer are available directly from `Bicep.Core` through
+`IBicepDocumentationGenerator`.
 
-The same model builder and renderer are available directly from `Bicep.Core` through `IBicepDocumentationGenerator`.
+### `bicep/generateDocs`
+
+Request parameters:
+
+| Field | Type | Description |
+| :-- | :-- | :-- |
+| `path` | string | Bicep file path to render. |
+| `templateFile` | string or null | Custom Scriban template. Overrides `documentation.template.file`. |
+| `templateRoot` | string or null | Root directory for template includes. Overrides `documentation.template.includeRoot`. |
+| `customTemplateValues` | object or null | Custom values merged over `documentation.template.values`. |
+| `noRestore` | bool | Whether external artifact restore is skipped. |
+
+The response contains `diagnostics` and `contents`. `contents` is `null` when rendering fails.
+
+Request:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "bicep/generateDocs",
+  "params": {
+    "path": "/repo/modules/storage/main.bicep",
+    "templateFile": null,
+    "templateRoot": null,
+    "customTemplateValues": { "owner": "Platform Team" },
+    "noRestore": false
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "diagnostics": [],
+    "contents": "# Storage Account\n\nDeploys a storage account.\n"
+  }
+}
+```
+
+### Calling from C#
+
+The `Azure.Bicep.RpcClient` package wraps this method. It requires Bicep CLI 0.47.0 or later.
+
+```csharp
+using var client = await factory.Initialize(new BicepClientConfiguration(), cancellationToken);
+
+var rendered = await client.GenerateDocs(
+  new GenerateDocsRequest(
+    Path: "./modules/storage/main.bicep",
+        TemplateFile: null,
+        TemplateRoot: null,
+        CustomTemplateValues: new() { ["owner"] = "Platform Team" },
+        NoRestore: false),
+    cancellationToken);
+
+if (rendered.Contents is not null)
+{
+    // The client owns the filesystem - nothing is written by the RPC server.
+  await File.WriteAllTextAsync("./modules/storage/README.md", rendered.Contents, cancellationToken);
+}
+```
+

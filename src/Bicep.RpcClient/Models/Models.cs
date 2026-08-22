@@ -283,62 +283,30 @@ public record FormatResponse(
     string Contents);
 
 /// <summary>
-/// Requests documentation files for one or more Bicep modules.
+/// Requests rendered documentation for one or more Bicep modules. Rendered content is returned to the
+/// caller and is never written to disk.
 /// </summary>
-/// <param name="Paths">Bicep file paths to process.</param>
+/// <param name="Path">Bicep file path to process.</param>
 /// <param name="TemplateFile">An optional custom Scriban template path.</param>
 /// <param name="TemplateRoot">An optional root directory for template includes.</param>
-/// <param name="Custom">Optional string values exposed to the template.</param>
-/// <param name="OutputFile">The file name written beside each module. Omit to use <c>README.md</c>.</param>
+/// <param name="CustomTemplateValues">Optional string values exposed to the template.</param>
 /// <param name="NoRestore">Whether external artifact restore is skipped.</param>
 public record GenerateDocsRequest(
-    ImmutableArray<string> Paths,
-    string? TemplateFile,
-    string? TemplateRoot,
-    Dictionary<string, string>? Custom,
-    string? OutputFile,
-    bool NoRestore);
-
-/// <summary>
-/// Requests rendered documentation for one Bicep module.
-/// </summary>
-/// <param name="Path">A Bicep file path.</param>
-/// <param name="TemplateFile">An optional custom Scriban template path.</param>
-/// <param name="TemplateRoot">An optional root directory for template includes.</param>
-/// <param name="Custom">Optional string values exposed to the template.</param>
-/// <param name="NoRestore">Whether external artifact restore is skipped.</param>
-public record OutputDocsRequest(
     string Path,
     string? TemplateFile,
     string? TemplateRoot,
-    Dictionary<string, string>? Custom,
+    Dictionary<string, string>? CustomTemplateValues,
     bool NoRestore);
 
 /// <summary>
-/// Contains documentation generation results for one module.
+/// Contains rendered documentation and diagnostics for one module.
 /// </summary>
-/// <param name="Path">The resolved module entrypoint path.</param>
-/// <param name="OutputPath">The written file path, or <see langword="null"/> when no file was written.</param>
-/// <param name="Success">Whether compilation, rendering, and any requested write succeeded.</param>
 /// <param name="Diagnostics">Compiler and documentation diagnostics for the module.</param>
 /// <param name="Contents">Rendered documentation, or <see langword="null"/> on failure.</param>
-public record DocsResult(
-    string Path,
-    string? OutputPath,
-    bool Success,
+/// <remarks>
+/// This record supports the experimental <c>bicep docs</c> command group and may change while that
+/// feature remains experimental.
+/// </remarks>
+public record GenerateDocsResponse(
     ImmutableArray<DiagnosticDefinition> Diagnostics,
     string? Contents);
-
-/// <summary>
-/// Contains documentation generation results for multiple modules.
-/// </summary>
-/// <param name="Results">One result for each requested module, in request order.</param>
-public record GenerateDocsResponse(
-    ImmutableArray<DocsResult> Results);
-
-/// <summary>
-/// Contains rendered documentation for one module.
-/// </summary>
-/// <param name="Result">The module result.</param>
-public record OutputDocsResponse(
-    DocsResult Result);
