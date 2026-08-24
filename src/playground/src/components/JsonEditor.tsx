@@ -9,6 +9,7 @@ interface JsonEditorProps {
 }
 
 const editorOptions: editor.IStandaloneEditorConstructionOptions = {
+  ariaLabel: 'ARM template',
   language: 'json',
   scrollBeyondLastLine: false,
   automaticLayout: true,

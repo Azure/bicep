@@ -1,20 +1,31 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { editor } from 'monaco-editor';
-import React from 'react';
-import { DotnetInterop } from '../utils/interop';
-import { CodeEditor } from './CodeEditor';
+import { editor } from "monaco-editor";
+import React, { useCallback, useEffect, useRef } from "react";
+import { DotnetInterop } from "../compiler/compiler-client";
+import { CodeEditor } from "./CodeEditor";
+
+const compilationDebounceMs = 200;
+
+export type CompilationStatus =
+  | "pending"
+  | "compiling"
+  | "upToDate"
+  | "failed";
 
 interface Props {
-  interop: DotnetInterop,
-  initialContent: string,
-  sourcePath?: string,
-  onBicepChange: (bicepContent: string) => void,
-  onJsonChange: (jsonContent: string) => void,
+  interop: DotnetInterop;
+  initialContent: string;
+  sourcePath?: string;
+  onBicepChange: (bicepContent: string) => void;
+  onJsonChange: (jsonContent: string) => void;
+  onCompilationError: (message: string | undefined) => void;
+  onCompilationStatusChange: (status: CompilationStatus) => void;
 }
 
 const editorOptions: editor.IStandaloneEditorConstructionOptions = {
-  language: 'bicep',
+  ariaLabel: "Bicep editor",
+  language: "bicep",
   scrollBeyondLastLine: false,
   automaticLayout: true,
   minimap: {
@@ -22,28 +33,109 @@ const editorOptions: editor.IStandaloneEditorConstructionOptions = {
   },
   insertSpaces: true,
   tabSize: 2,
-  suggestSelection: 'first',
+  suggestSelection: "first",
   suggest: {
     snippetsPreventQuickSuggestions: false,
     showWords: false,
   },
-  'semanticHighlighting.enabled': true,
+  "semanticHighlighting.enabled": true,
 };
 
-export const BicepEditor : React.FC<Props> = (props) => {
-  const { interop, initialContent, sourcePath, onBicepChange, onJsonChange } = props;
+export const BicepEditor: React.FC<Props> = (props) => {
+  const {
+    interop,
+    initialContent,
+    sourcePath,
+    onBicepChange,
+    onJsonChange,
+    onCompilationError,
+    onCompilationStatusChange,
+  } = props;
+  const compilationRequestIdRef = useRef(0);
+  const compilationTimeoutRef = useRef<number>(undefined);
 
-  async function handleContentChange(model: editor.ITextModel, content: string) {
-    const { template, diagnostics } = await interop.compileAndEmitDiagnostics(content, sourcePath);
-    editor.setModelMarkers(model, 'default', diagnostics);
-    onBicepChange(content);
-    onJsonChange(template);
-  }
+  const handleContentChange = useCallback(
+    (model: editor.ITextModel, content: string) => {
+      onBicepChange(content);
+      onCompilationError(undefined);
+      onCompilationStatusChange("pending");
+      const requestId = ++compilationRequestIdRef.current;
+
+      if (compilationTimeoutRef.current !== undefined) {
+        window.clearTimeout(compilationTimeoutRef.current);
+      }
+
+      compilationTimeoutRef.current = window.setTimeout(async () => {
+        const modelVersion = model.getVersionId();
+        onCompilationStatusChange("compiling");
+
+        try {
+          const { template, diagnostics, error } =
+            await interop.compileAndEmitDiagnostics(content, sourcePath);
+
+          if (
+            requestId !== compilationRequestIdRef.current ||
+            model.isDisposed() ||
+            model.getVersionId() !== modelVersion
+          ) {
+            return;
+          }
+
+          editor.setModelMarkers(model, "bicep", diagnostics);
+
+          if (error) {
+            onCompilationError(error);
+            onCompilationStatusChange("failed");
+            return;
+          }
+
+          onCompilationError(undefined);
+          onJsonChange(template);
+          onCompilationStatusChange("upToDate");
+        } catch (error) {
+          if (
+            requestId !== compilationRequestIdRef.current ||
+            model.isDisposed() ||
+            model.getVersionId() !== modelVersion
+          ) {
+            return;
+          }
+
+          editor.setModelMarkers(model, "bicep", []);
+          onCompilationError(
+            error instanceof Error
+              ? error.message
+              : "Bicep compilation failed.",
+          );
+          onCompilationStatusChange("failed");
+        }
+      }, compilationDebounceMs);
+    },
+    [
+      interop,
+      onBicepChange,
+      onCompilationError,
+      onCompilationStatusChange,
+      onJsonChange,
+      sourcePath,
+    ],
+  );
+
+  useEffect(() => {
+    return () => {
+      ++compilationRequestIdRef.current;
+
+      if (compilationTimeoutRef.current !== undefined) {
+        window.clearTimeout(compilationTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
-    <CodeEditor 
-      options={editorOptions} 
+    <CodeEditor
+      options={editorOptions}
       initialContent={initialContent}
-      onContentChange={handleContentChange} />
-  )
+      onContentChange={handleContentChange}
+    />
+  );
 };
