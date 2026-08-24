@@ -68,12 +68,17 @@ const expectedStorageTemplate = `{
 }`;
 
 test.describe("quickstarts", () => {
-  test("loads a selected template", async ({ playground }) => {
+  test("loads a selected template", async ({ page, playground }) => {
     await playground.selectQuickstart("canonical/anbox/main.bicep");
 
     await expect.poll(() => playground.readEditorText(playground.bicepEditor))
       .toContain(`@description('Add a dedicated disk for the LXD storage pool')
 param addDedicatedDataDiskForLXD bool = true`);
+    await expect(
+      page.getByRole("tooltip", {
+        name: "Select an Azure Quickstarts sample file",
+      }),
+    ).toBeHidden();
   });
 
   test("compiles a template with local modules", async ({ playground }) => {

@@ -301,6 +301,7 @@ export const App: React.FC<Props> = ({
           >
             <OverlayTrigger
               placement="bottom"
+              trigger="hover"
               overlay={createTooltip(
                 "sample-template-tooltip",
                 "Select an Azure Quickstarts sample file",
