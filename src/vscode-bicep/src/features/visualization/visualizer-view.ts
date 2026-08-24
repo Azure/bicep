@@ -38,6 +38,7 @@ import {
   visualResourceTypesRequestType,
 } from "./protocol";
 import { getApplyEditFailureCode, hasDocumentChanged } from "./resource-creation";
+import { isResourceCreationEnabled } from "./resource-creation-setting";
 import { buildResourceTypeCatalog } from "./resource-palette";
 
 export class BicepVisualizerView extends Disposable {
@@ -126,6 +127,19 @@ export class BicepVisualizerView extends Disposable {
       .postMessage({
         method: "motionPolicy/didChange",
         params: getVisualizerMotionPolicy(),
+      })
+      .then(undefined, (error: unknown) => getLogger().debug(parseError(error).message));
+  }
+
+  public notifyResourceCreationEnablementDidChange(): void {
+    if (this.isDisposed) {
+      return;
+    }
+
+    void this.webviewPanel.webview
+      .postMessage({
+        method: "resourceCreation/enablementDidChange",
+        params: isResourceCreationEnabled(),
       })
       .then(undefined, (error: unknown) => getLogger().debug(parseError(error).message));
   }
@@ -468,6 +482,10 @@ export class BicepVisualizerView extends Disposable {
 
         case "motionPolicy/get":
           void this.postResponse(request.id, getVisualizerMotionPolicy());
+          return;
+
+        case "resourceCreation/isEnabled":
+          void this.postResponse(request.id, isResourceCreationEnabled());
           return;
       }
 

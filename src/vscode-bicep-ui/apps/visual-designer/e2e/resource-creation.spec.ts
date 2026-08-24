@@ -5,6 +5,12 @@ import { expect, test } from "@playwright/test";
 import { loadSampleGraph, nodeCount, openVisualDesigner } from "./fixtures";
 
 test.describe("resource creation", () => {
+  test("hides the Resource Palette when the experimental setting is disabled", async ({ page }) => {
+    await page.goto("/?resourceCreation=false");
+    await expect(page.getByTestId("app-root")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Add Resources" })).toHaveCount(0);
+  });
+
   test("opens the Resource Palette and keeps zoomed preview and pending nodes aligned", async ({ page }) => {
     await openVisualDesigner(page);
     await loadSampleGraph(page, "flat");

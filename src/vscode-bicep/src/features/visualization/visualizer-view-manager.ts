@@ -6,6 +6,7 @@ import { DiagnosticsRouter } from "../../infrastructure/language-client";
 import { Disposable } from "../../infrastructure/lifecycle";
 import { getLogger } from "../../infrastructure/logging";
 import { BicepVisualizerView } from "./visualizer-view";
+import { resourceCreationSetting } from "./resource-creation-setting";
 
 export class BicepVisualizerViewManager extends Disposable implements WebviewPanelSerializer {
   private static readonly visualizerActiveContextKey = "bicepVisualizerFocus";
@@ -30,6 +31,11 @@ export class BicepVisualizerViewManager extends Disposable implements WebviewPan
         if (event.affectsConfiguration("workbench.reduceMotion")) {
           for (const view of this.viewsByPath.values()) {
             view.notifyMotionPolicyDidChange();
+          }
+        }
+        if (event.affectsConfiguration(`bicep.${resourceCreationSetting}`)) {
+          for (const view of this.viewsByPath.values()) {
+            view.notifyResourceCreationEnablementDidChange();
           }
         }
       }),

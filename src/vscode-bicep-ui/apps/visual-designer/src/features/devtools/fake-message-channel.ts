@@ -822,6 +822,10 @@ export class FakeMessageChannel {
       return Promise.resolve("animate" as T);
     }
 
+    if (requestMessage.method === "resourceCreation/isEnabled") {
+      return Promise.resolve((new URLSearchParams(window.location.search).get("resourceCreation") !== "false") as T);
+    }
+
     const resourceTypeCatalog = [
       {
         group: "Microsoft.Storage",

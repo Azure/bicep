@@ -106,6 +106,12 @@
           "description": "Controls whether the Bicep visualizer occupies the current editor group or opens in a split beside its source file.",
           "scope": "window"
         },
+        "bicep.visualizer.experimental.enableResourceCreation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enables the experimental Resource Palette for creating resources from the Bicep visual designer.",
+          "scope": "window"
+        },
         "bicep.completions.getAllAccessibleAzureContainerRegistries": {
           "type": "boolean",
           "description": "When completing 'br:' module references, query Azure for all container registries accessible to the user (may be slow). If this option is off, only registries configured under moduleAliases in bicepconfig.json will be listed.",

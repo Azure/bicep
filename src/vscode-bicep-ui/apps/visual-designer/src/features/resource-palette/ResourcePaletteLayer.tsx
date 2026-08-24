@@ -19,6 +19,7 @@ import {
   type ResourceTypeNamespace,
 } from "./ResourcePalette";
 import { usePaletteDrag } from "./use-palette-drag";
+import { useResourceCreationEnablement } from "./use-resource-creation-enablement";
 import { viewportToGraphPoint } from "./contracts";
 
 interface ResourcePaletteLayerProps {
@@ -142,7 +143,7 @@ const $ResourcePaletteContent = styled.div`
   }
 `;
 
-export function ResourcePaletteLayer({ createResource, getCanvasElement }: ResourcePaletteLayerProps) {
+function EnabledResourcePaletteLayer({ createResource, getCanvasElement }: ResourcePaletteLayerProps) {
   const getPanZoomTransform = useGetPanZoomTransform();
   const messageChannel = useWebviewMessageChannel();
   const [isOpen, setIsOpen] = useState(false);
@@ -352,4 +353,10 @@ export function ResourcePaletteLayer({ createResource, getCanvasElement }: Resou
       <PaletteDragOverlay />
     </>
   );
+}
+
+export function ResourcePaletteLayer(props: ResourcePaletteLayerProps) {
+  const enabled = useResourceCreationEnablement();
+
+  return enabled ? <EnabledResourcePaletteLayer {...props} /> : null;
 }

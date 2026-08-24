@@ -65,6 +65,11 @@ export type MotionPolicy = "system" | "reduce" | "animate";
 export const GET_MOTION_POLICY_REQUEST = "motionPolicy/get";
 export const MOTION_POLICY_DID_CHANGE_NOTIFICATION = "motionPolicy/didChange";
 
+// ── Experimental resource creation ──
+
+export const GET_RESOURCE_CREATION_ENABLEMENT_REQUEST = "resourceCreation/isEnabled";
+export const RESOURCE_CREATION_ENABLEMENT_DID_CHANGE_NOTIFICATION = "resourceCreation/enablementDidChange";
+
 // ── Resource creation ──
 
 export const CREATE_RESOURCE_REQUEST = "resources/create";

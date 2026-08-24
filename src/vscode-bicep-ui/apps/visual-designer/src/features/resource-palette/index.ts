@@ -7,3 +7,4 @@ export * from "./PaletteDragOverlay";
 export * from "./ResourcePalette";
 export * from "./ResourcePaletteLayer";
 export * from "./use-palette-drag";
+export * from "./use-resource-creation-enablement";
