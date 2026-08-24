@@ -58,10 +58,6 @@ namespace Bicep.Cli.IntegrationTests
                 generateError.Should().BeEmpty();
                 generateOutput.Should().ContainAll(
                     "[Experimental]",
-                    "--template-file",
-                    "--template-root",
-                    "--custom-template-value",
-                    "--custom-template-value-file-path",
                     "--outdir",
                     "--outfile",
                     "--stdout",

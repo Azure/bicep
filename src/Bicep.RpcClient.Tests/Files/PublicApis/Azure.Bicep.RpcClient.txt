@@ -116,18 +116,15 @@ namespace Bicep.RpcClient.Models
     }
     public class GenerateDocsRequest : System.IEquatable<Bicep.RpcClient.Models.GenerateDocsRequest>
     {
-        public GenerateDocsRequest(string Path, string? TemplateFile, string? TemplateRoot, System.Collections.Generic.Dictionary<string, string>? CustomTemplateValues, bool NoRestore) { }
-        public System.Collections.Generic.Dictionary<string, string>? CustomTemplateValues { get; init; }
-        public bool NoRestore { get; init; }
+        public GenerateDocsRequest(string Path) { }
         public string Path { get; init; }
-        public string? TemplateFile { get; init; }
-        public string? TemplateRoot { get; init; }
     }
     public class GenerateDocsResponse : System.IEquatable<Bicep.RpcClient.Models.GenerateDocsResponse>
     {
-        public GenerateDocsResponse(System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DiagnosticDefinition> Diagnostics, string? Contents) { }
+        public GenerateDocsResponse(bool Success, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DiagnosticDefinition> Diagnostics, string? Contents) { }
         public string? Contents { get; init; }
         public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DiagnosticDefinition> Diagnostics { get; init; }
+        public bool Success { get; init; }
     }
     public class GetDeploymentGraphRequest : System.IEquatable<Bicep.RpcClient.Models.GetDeploymentGraphRequest>
     {

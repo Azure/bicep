@@ -19,20 +19,11 @@ public class BicepClientUnitTests
     [TestMethod]
     public void GenerateDocs_models_expose_constructor_values()
     {
-        var custom = new Dictionary<string, string> { ["owner"] = "Platform" };
-        var request = new GenerateDocsRequest(
-            "main.bicep",
-            "template.scriban",
-            "templates",
-            custom,
-            NoRestore: true);
-        var response = new GenerateDocsResponse([], "# Module\n");
+        var request = new GenerateDocsRequest("main.bicep");
+        var response = new GenerateDocsResponse(true, [], "# Module\n");
 
         request.Path.Should().Be("main.bicep");
-        request.TemplateFile.Should().Be("template.scriban");
-        request.TemplateRoot.Should().Be("templates");
-        request.CustomTemplateValues.Should().BeSameAs(custom);
-        request.NoRestore.Should().BeTrue();
+        response.Success.Should().BeTrue();
         response.Diagnostics.Should().BeEmpty();
         response.Contents.Should().Be("# Module\n");
     }
@@ -154,11 +145,11 @@ public class BicepClientUnitTests
         rpc.SetResponse("bicep/version", new VersionResponse("0.47.0"));
         rpc.SetResponse(
             "bicep/generateDocs",
-            new GenerateDocsResponse([], "# Module\n"));
+            new GenerateDocsResponse(true, [], "# Module\n"));
         using var client = new BicepClient(rpc);
 
         var result = await client.GenerateDocs(
-            new("main.bicep", null, null, null, NoRestore: false),
+            new("main.bicep"),
             Token);
 
         result.Contents.Should().Be("# Module\n");
@@ -173,7 +164,7 @@ public class BicepClientUnitTests
         using var client = new BicepClient(rpc);
 
         await FluentActions.Invoking(() => client.GenerateDocs(
-                new("main.bicep", null, null, null, NoRestore: false),
+                new("main.bicep"),
                 Token))
             .Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*requires Bicep CLI version '0.47.0' or later*");

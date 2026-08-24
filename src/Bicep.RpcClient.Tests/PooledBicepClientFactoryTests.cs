@@ -291,7 +291,7 @@ public class PooledBicepClientFactoryTests
         var wrapper = await factory.Initialize(new BicepClientConfiguration(), Token);
 
         var rendered = await wrapper.GenerateDocs(
-            new("main.bicep", null, null, null, NoRestore: false),
+            new("main.bicep"),
             Token);
 
         rendered.Contents.Should().Be("# Module\n");
@@ -389,7 +389,7 @@ public class PooledBicepClientFactoryTests
         public Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken = default)
         {
             Interlocked.Increment(ref docsRequestCount);
-            return Task.FromResult(new GenerateDocsResponse([], "# Module\n"));
+            return Task.FromResult(new GenerateDocsResponse(true, [], "# Module\n"));
         }
 
         public Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken = default)

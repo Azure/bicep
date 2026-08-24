@@ -2,15 +2,11 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Arguments;
-using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Core;
 using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Documentation;
-using Bicep.Core.Exceptions;
-using Bicep.Core.Features;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
@@ -20,26 +16,23 @@ namespace Bicep.Cli.Services;
 
 public abstract record DocsRenderResult(
     IOUri SourceUri,
-    Compilation? CompilationResult,
-    IDiagnostic? DocumentationDiagnostic)
+    Compilation Compilation)
 {
     public sealed record Succeeded(
         IOUri SourceUri,
         Compilation Compilation,
         RootConfiguration Configuration,
         string Contents)
-        : DocsRenderResult(SourceUri, Compilation, null);
+        : DocsRenderResult(SourceUri, Compilation);
 
     public sealed record Failed(
         IOUri SourceUri,
-        Compilation? Compilation = null,
-        IDiagnostic? DocumentationDiagnostic = null)
-        : DocsRenderResult(SourceUri, Compilation, DocumentationDiagnostic);
+        Compilation Compilation)
+        : DocsRenderResult(SourceUri, Compilation);
 }
 
 public class DocsCommandRunner(
     ILogger logger,
-    IOContext io,
     DiagnosticLogger diagnosticLogger,
     BicepCompiler compiler,
     IBicepDocumentationGenerator documentationGenerator,
@@ -47,35 +40,14 @@ public class DocsCommandRunner(
 {
     public async Task<DocsRenderResult> RenderAsync(
         IOUri inputUri,
-        string? templateFile,
-        string? templateRoot,
-        IReadOnlyDictionary<string, string> customValues,
         bool noRestore,
         DiagnosticsFormat? diagnosticsFormat,
         ActiveSourceFileSet workspace,
         bool logExperimentalWarning = true,
-        bool logDiagnostics = true,
         CancellationToken cancellationToken = default)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        Compilation compilation;
-        try
-        {
-            compilation = await compiler.CreateCompilation(inputUri, workspace, skipRestore: noRestore);
-            workspace.UpsertSourceFiles(compilation.SourceFileGrouping.SourceFiles);
-        }
-        catch (BicepException exception)
-        {
-            if (diagnosticsFormat is not DiagnosticsFormat.Sarif)
-            {
-                await io.Error.Writer.WriteLineAsync(exception.Message);
-            }
-
-            return new DocsRenderResult.Failed(
-                inputUri,
-                DocumentationDiagnostic: DocsCommand.CreateDiagnostic(DocsCommand.InputFailureCode, exception.Message));
-        }
+        var compilation = await compiler.CreateCompilation(inputUri, workspace, skipRestore: noRestore);
+        workspace.UpsertSourceFiles(compilation.SourceFileGrouping.SourceFiles);
 
         var shouldLogExperimentalWarning = logExperimentalWarning && diagnosticsFormat is not DiagnosticsFormat.Sarif;
         if (shouldLogExperimentalWarning)
@@ -83,10 +55,7 @@ public class DocsCommandRunner(
             CommandHelper.LogExperimentalWarning(logger, compilation);
         }
 
-        var hasErrors = logDiagnostics
-            ? diagnosticLogger.LogDiagnostics(ArgumentHelper.GetDiagnosticOptions(diagnosticsFormat), compilation).HasErrors
-            : compilation.GetAllDiagnosticsByBicepFile().Values.SelectMany(diagnostics => diagnostics).Any(diagnostic => diagnostic.IsError());
-        if (hasErrors)
+        if (diagnosticLogger.LogDiagnostics(ArgumentHelper.GetDiagnosticOptions(diagnosticsFormat), compilation).HasErrors)
         {
             return new DocsRenderResult.Failed(inputUri, compilation);
         }
@@ -98,45 +67,12 @@ public class DocsCommandRunner(
                 "docs"));
         }
 
-        cancellationToken.ThrowIfCancellationRequested();
-
-        try
-        {
-            var configuration = compilation.GetEntrypointSemanticModel().Configuration;
-            var options = optionsResolver.Resolve(
-                configuration,
-                templateFile,
-                templateRoot,
-                customValues);
-            return new DocsRenderResult.Succeeded(
-                inputUri,
-                compilation,
-                configuration,
-                documentationGenerator.Generate(compilation, options, cancellationToken));
-        }
-        catch (CommandLineException exception)
-        {
-            if (diagnosticsFormat is not DiagnosticsFormat.Sarif)
-            {
-                await io.Error.Writer.WriteLineAsync(exception.Message);
-            }
-
-            return new DocsRenderResult.Failed(
-                inputUri,
-                compilation,
-                DocsCommand.CreateDiagnostic(DocsCommand.InputFailureCode, exception.Message));
-        }
-        catch (BicepDocumentationException exception)
-        {
-            if (diagnosticsFormat is not DiagnosticsFormat.Sarif)
-            {
-                await io.Error.Writer.WriteLineAsync(exception.Message);
-            }
-
-            return new DocsRenderResult.Failed(
-                inputUri,
-                compilation,
-                DocsCommand.CreateDiagnostic(DocsCommand.RenderFailureCode, exception.Message));
-        }
+        var configuration = compilation.GetEntrypointSemanticModel().Configuration;
+        var options = optionsResolver.Resolve(configuration);
+        return new DocsRenderResult.Succeeded(
+            inputUri,
+            compilation,
+            configuration,
+            documentationGenerator.Generate(compilation, options, cancellationToken));
     }
 }

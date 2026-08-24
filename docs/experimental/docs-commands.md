@@ -105,10 +105,6 @@ Compilation and rendering complete before any output is written for that module.
 | `--pattern` | glob | Generate documentation for every matched Bicep file. |
 | `--outdir` | directory | Write generated documentation beneath this directory. |
 | `--outfile` | path | Write one generated document to this exact path. |
-| `--template-file` | path | Use a custom Scriban template instead of the built-in Markdown template. |
-| `--template-root` | directory | Set the root used by Scriban `include`. Defaults to the module directory. |
-| `--custom-template-value` | `key=value` | Supply one custom string value. Repeatable. |
-| `--custom-template-value-file-path` | path | Load custom string values from a JSON object. Repeatable. |
 | `--no-restore` | flag | Skip restoring external modules before compilation. |
 | `--diagnostics-format` | `default` or `sarif` | Select diagnostic output format. |
 
@@ -174,14 +170,14 @@ For repositories that require identical documentation settings across every modu
 
 ### Precedence
 
-Explicit command-line options override the corresponding `documentation` settings. Configuration overrides built-in defaults.
+Documentation content settings are read only from `bicepconfig.json`. Output location options override the configured output file without changing the rendered content.
 
-| Setting | Built-in default | Configuration | CLI override |
+| Setting | Built-in default | Configuration | Output override |
 | :-- | :-- | :-- | :-- |
 | Output file name | `README.md` | `documentation.output.file` | `--outfile` or `--outdir` |
-| Template | Built-in Markdown | `documentation.template.file` | `--template-file` |
-| Include root | Module directory | `documentation.template.includeRoot` | `--template-root` |
-| Custom values | None | `documentation.template.values` | Custom value options |
+| Template | Built-in Markdown | `documentation.template.file` | None |
+| Include root | Module directory | `documentation.template.includeRoot` | None |
+| Custom values | None | `documentation.template.values` | None |
 | Example sources | `examples` and `tests` | `documentation.examples.sources` | None |
 | Example reassignments | None | `documentation.examples.reassignments` | None |
 
@@ -229,8 +225,6 @@ The built-in sources are:
 | `documentation.template.includeRoot` | Directory containing the resolved `bicepconfig.json`. |
 | `documentation.examples.sources[].path` | Each module's own directory. |
 | `documentation.examples.reassignments[].to` | Parent module directory. |
-| `--template-file` and `--template-root` | Current working directory. |
-| `--custom-template-value-file-path` | Current working directory. |
 
 Rooted template paths are used as-is. A relative configured template path requires a resolved user `bicepconfig.json`; built-in configuration has no filesystem directory to use as an anchor.
 
@@ -315,47 +309,36 @@ Use includes for reusable fragments:
 {{ include "_header.md" }}
 ```
 
-Includes resolve from the module directory unless `documentation.template.includeRoot` or `--template-root` is supplied.
+Includes resolve from the module directory unless `documentation.template.includeRoot` is configured.
 
 Rendered output uses `\n` line endings and exactly one trailing newline. Template loops are limited to 100,000 iterations.
 
 ### Custom values
 
-Custom values are available as `custom.<key>` and `module.custom.<key>`.
-
-Inline values use `key=value`:
-
-```powershell
-bicep docs generate .\main.bicep --stdout `
-  --custom-template-value owner="Platform Team"
-```
-
-Value files contain a JSON object whose values are strings:
+Custom values are configured under `documentation.template.values` and are available as `custom.<key>` and `module.custom.<key>`:
 
 ```json
 {
-  "owner": "Platform Team",
-  "supportUrl": "https://contoso.example/support"
+  "documentation": {
+    "template": {
+      "values": {
+        "owner": "Platform Team",
+        "supportUrl": "https://contoso.example/support"
+      }
+    }
+  }
 }
 ```
-
-Configuration values are applied first. Inline values and value files are then applied in command-line order. The last occurrence of a key wins.
 
 ## Diagnostics and failures
 
 Modules are compiled before rendering. `--no-restore` skips external module restoration.
 
-Compilation failures use normal Bicep diagnostics. Rendering and orchestration failures use:
+Compilation failures use normal Bicep diagnostics. Input, configuration, rendering, and write failures use the same CLI error handling as other Bicep commands rather than introducing documentation-specific diagnostic codes.
 
-| Code | Meaning |
-| :-- | :-- |
-| `DOCS001` | Invalid input, option, configuration-dependent path, or compilation setup. |
-| `DOCS002` | Output write failure. |
-| `DOCS003` | Documentation model or template rendering failure. |
+Any failure returns exit code `1`. Pattern generation continues after compilation diagnostics so valid modules can still be rendered. Setup, rendering, and write failures stop the command.
 
-Any failure returns exit code `1`. Pattern generation continues processing remaining modules and returns `1` if any module fails.
-
-With `--diagnostics-format sarif`, diagnostics from all modules are emitted as one SARIF log on stderr. `--stdout` writes nothing on failure.
+With `--diagnostics-format sarif`, each compiled input emits its normal SARIF diagnostics on stderr. Errors that are not Bicep diagnostics remain plain CLI errors. `--stdout` writes nothing on failure.
 
 ## Template model
 
@@ -460,9 +443,8 @@ rather than writing `main.json`. Note that the configured output file name (`doc
 is not returned, so a client that wants to reproduce `bicep docs generate` file naming must choose
 its own.
 
-The method is experimental. It supports the `bicep docs` command group and may change while that
-feature remains experimental, notwithstanding the stability guarantee for the rest of the JSON-RPC
-interface.
+The method supports the experimental `bicep docs` command group, but its JSON-RPC contract follows
+the same cross-version compatibility requirements as the rest of the interface.
 
 The same model builder and renderer are available directly from `Bicep.Core` through
 `IBicepDocumentationGenerator`.
@@ -474,12 +456,10 @@ Request parameters:
 | Field | Type | Description |
 | :-- | :-- | :-- |
 | `path` | string | Bicep file path to render. |
-| `templateFile` | string or null | Custom Scriban template. Overrides `documentation.template.file`. |
-| `templateRoot` | string or null | Root directory for template includes. Overrides `documentation.template.includeRoot`. |
-| `customTemplateValues` | object or null | Custom values merged over `documentation.template.values`. |
-| `noRestore` | bool | Whether external artifact restore is skipped. |
 
-The response contains `diagnostics` and `contents`. `contents` is `null` when rendering fails.
+Template and example settings are resolved from the Bicep file's `bicepconfig.json`.
+
+The response contains `success`, `diagnostics`, and `contents`. `contents` is `null` when compilation fails.
 
 Request:
 
@@ -489,11 +469,7 @@ Request:
   "id": 1,
   "method": "bicep/generateDocs",
   "params": {
-    "path": "/repo/modules/storage/main.bicep",
-    "templateFile": null,
-    "templateRoot": null,
-    "customTemplateValues": { "owner": "Platform Team" },
-    "noRestore": false
+    "path": "/repo/modules/storage/main.bicep"
   }
 }
 ```
@@ -505,6 +481,7 @@ Response:
   "jsonrpc": "2.0",
   "id": 1,
   "result": {
+    "success": true,
     "diagnostics": [],
     "contents": "# Storage Account\n\nDeploys a storage account.\n"
   }
@@ -519,18 +496,12 @@ The `Azure.Bicep.RpcClient` package wraps this method. It requires Bicep CLI 0.4
 using var client = await factory.Initialize(new BicepClientConfiguration(), cancellationToken);
 
 var rendered = await client.GenerateDocs(
-  new GenerateDocsRequest(
-    Path: "./modules/storage/main.bicep",
-        TemplateFile: null,
-        TemplateRoot: null,
-        CustomTemplateValues: new() { ["owner"] = "Platform Team" },
-        NoRestore: false),
+    new GenerateDocsRequest("./modules/storage/main.bicep"),
     cancellationToken);
 
-if (rendered.Contents is not null)
+if (rendered.Success)
 {
     // The client owns the filesystem - nothing is written by the RPC server.
-  await File.WriteAllTextAsync("./modules/storage/README.md", rendered.Contents, cancellationToken);
+    await File.WriteAllTextAsync("./modules/storage/README.md", rendered.Contents, cancellationToken);
 }
 ```
-
