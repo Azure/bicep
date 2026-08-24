@@ -158,7 +158,7 @@ namespace Bicep.Wasm
         {
             if (cachedCompilation is not null &&
                 cachedCompilationContent == fileContents &&
-                (sourcePath is null || cachedCompilationSourcePath == sourcePath))
+                cachedCompilationSourcePath == sourcePath)
             {
                 return cachedCompilation;
             }

@@ -141,6 +141,35 @@ public class InteropTests
             .Be("second");
     }
 
+    [TestMethod]
+    public async Task CompileAndEmitDiagnostics_WithSameContentAndDifferentSourcePath_DoesNotReuseCachedCompilation()
+    {
+        const string source = """
+            module child './modules/child.bicep' = {
+              name: 'child'
+            }
+
+            output childName string = child.outputs.name
+            """;
+        var quickstartFiles = new Dictionary<string, string>
+        {
+            ["example/modules/child.bicep"] = "output name string = 'from-child'",
+        };
+        var jsRuntime = new MockJsRuntime(quickstartFiles);
+        var fileExplorer = new InMemoryFileExplorer();
+        using var serviceProvider = CreateServiceProvider(fileExplorer);
+        var interop = new Interop(jsRuntime.LoadQuickstart, serviceProvider);
+
+        var quickstartResult = await interop.CompileAndEmitDiagnostics(source, "example/main.bicep");
+        var standaloneResult = await interop.CompileAndEmitDiagnostics(source, null);
+
+        using var quickstartTemplate = JsonDocument.Parse(quickstartResult.template);
+        quickstartTemplate.RootElement.GetProperty("resources").GetArrayLength().Should().Be(1);
+        standaloneResult.template.Should().Be("Compilation failed!");
+        standaloneResult.diagnostics.Should().BeAssignableTo<object[]>().Subject.Should().NotBeEmpty();
+        jsRuntime.LoadedPaths.Should().Equal("example/modules/child.bicep");
+    }
+
     private static ServiceProvider CreateServiceProvider(IFileExplorer fileExplorer, IContainerRegistryClientFactory? clientFactory = null)
     {
         var services = new ServiceCollection();

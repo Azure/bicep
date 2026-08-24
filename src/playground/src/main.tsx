@@ -5,12 +5,15 @@ import { createRoot } from "react-dom/client";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { aiKey } from "../package.json";
 import { App } from "./App";
+import { initializeInterop } from "./compiler/compiler-client";
+import "./editor/monaco-environment";
 import "./index.css";
-import "./monacoEnvironment";
-import { getColorMode } from "./utils/colorModes";
-import { initializeInterop } from "./utils/interop";
-import { configureTelemetry, getSanitizedCurrentUrl } from "./utils/telemetry";
-import { handleShareLink } from "./utils/utils";
+import { handleShareLink } from "./sharing/share-link";
+import {
+  configureTelemetry,
+  getSanitizedCurrentUrl,
+} from "./telemetry/application-insights";
+import { getColorMode } from "./theme/color-mode";
 
 const updateTheme = () =>
   document.documentElement.setAttribute("data-bs-theme", getColorMode());

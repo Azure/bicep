@@ -16,12 +16,18 @@ import {
 } from "react-bootstrap";
 
 import "./App.css";
-import { BicepEditor } from "./components/BicepEditor";
+import { DotnetInterop } from "./compiler/compiler-client";
+import {
+  BicepEditor,
+  CompilationStatus,
+} from "./components/BicepEditor";
 import { registerBicep } from "./components/CodeEditor";
 import { JsonEditor } from "./components/JsonEditor";
-import { getQuickstartsLink, quickstartsPaths } from "./utils/examples";
-import { DotnetInterop } from "./utils/interop";
-import { getShareLink, handleShareLink } from "./utils/utils";
+import {
+  getQuickstartsLink,
+  quickstartsPaths,
+} from "./quickstarts/quickstarts";
+import { getShareLink, handleShareLink } from "./sharing/share-link";
 
 const maximumDecompileFileSize = 10 * 1024 * 1024;
 
@@ -50,8 +56,11 @@ export const App: React.FC<Props> = ({
   const [activeOperation, setActiveOperation] = useState<Operation>(null);
   const [operationError, setOperationError] = useState<string>();
   const [compilationError, setCompilationError] = useState<string>();
+  const [compilationStatus, setCompilationStatus] =
+    useState<CompilationStatus>("pending");
   const [filterText, setFilterText] = useState("");
   const uploadInputRef = useRef<HTMLInputElement>(null);
+  const sampleTemplateButtonRef = useRef<HTMLButtonElement>(null);
   const copiedTimeoutRef = useRef<number>(undefined);
   const operationIdRef = useRef(0);
   const sampleRequestRef = useRef<AbortController>(undefined);
@@ -126,26 +135,34 @@ export const App: React.FC<Props> = ({
     const controller = new AbortController();
     sampleRequestRef.current = controller;
 
-    await runOperation("Loading sample template", async () => {
-      const response = await fetch(getQuickstartsLink(filePath), {
-        signal: controller.signal,
-      });
+    try {
+      await runOperation("Loading sample template", async () => {
+        const response = await fetch(getQuickstartsLink(filePath), {
+          signal: controller.signal,
+        });
 
-      if (!response.ok) {
-        throw new Error(
-          `The sample template could not be loaded (${response.status} ${response.statusText}).`,
+        if (!response.ok) {
+          throw new Error(
+            `The sample template could not be loaded (${response.status} ${response.statusText}).`,
+          );
+        }
+
+        const bicepText = await response.text();
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        insights.trackEvent({ name: "loadExample" }, { path: filePath });
+        setInitialContent(bicepText);
+        setSourcePath(filePath);
+      });
+    } finally {
+      if (sampleRequestRef.current === controller) {
+        window.requestAnimationFrame(() =>
+          sampleTemplateButtonRef.current?.focus(),
         );
       }
-
-      const bicepText = await response.text();
-      if (controller.signal.aborted) {
-        return;
-      }
-
-      insights.trackEvent({ name: "loadExample" }, { path: filePath });
-      setInitialContent(bicepText);
-      setSourcePath(filePath);
-    });
+    }
   }
 
   async function handleCopyClick() {
@@ -210,11 +227,20 @@ export const App: React.FC<Props> = ({
   );
 
   const isBusy = activeOperation !== null;
+  const armTemplateIsBusy =
+    compilationStatus === "pending" || compilationStatus === "compiling";
+  const compilationStatusLabel =
+    compilationStatus === "pending"
+      ? "Changes pending"
+      : compilationStatus === "compiling"
+        ? "Compiling ARM template..."
+        : "Compilation failed - ARM template is out of date";
 
   return (
     <>
       <input
         type="file"
+        aria-label="Upload ARM template"
         ref={uploadInputRef}
         className="visually-hidden"
         onChange={(event) => {
@@ -282,6 +308,7 @@ export const App: React.FC<Props> = ({
             >
               <Dropdown.Toggle
                 as={Button}
+                ref={sampleTemplateButtonRef}
                 size="sm"
                 variant="primary"
                 className="mx-1"
@@ -316,12 +343,36 @@ export const App: React.FC<Props> = ({
             onBicepChange={setBicepContent}
             onJsonChange={setJsonContent}
             onCompilationError={setCompilationError}
+            onCompilationStatusChange={setCompilationStatus}
             initialContent={initialContent}
             sourcePath={sourcePath}
           />
         </div>
-        <div className="playground-editorpane">
+        <div
+          className={`playground-editorpane arm-template-pane ${
+            compilationStatus === "upToDate" ? "" : "is-stale"
+          }`}
+          aria-busy={armTemplateIsBusy}
+        >
           <JsonEditor content={jsonContent} />
+          {compilationStatus !== "upToDate" && (
+            <div
+              className="compilation-status"
+              role="status"
+              aria-label={compilationStatusLabel}
+              aria-live="polite"
+            >
+              {compilationStatus === "compiling" && (
+                <Spinner
+                  animation="border"
+                  size="sm"
+                  variant="primary"
+                  aria-hidden="true"
+                />
+              )}
+              <span>{compilationStatusLabel}</span>
+            </div>
+          )}
         </div>
         {activeOperation && (
           <div className="operation-overlay" role="status" aria-live="polite">
@@ -331,7 +382,11 @@ export const App: React.FC<Props> = ({
         )}
       </main>
       {(operationError || compilationError) && (
-        <div className="playground-error" role="alert">
+        <div
+          className="playground-error"
+          role="alert"
+          aria-label="Playground error"
+        >
           <span>{operationError ?? compilationError}</span>
           <button
             type="button"

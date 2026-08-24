@@ -4,7 +4,7 @@ import {
   CompilerRequest,
   CompilerResponse,
   CompilerResult,
-} from "./compilerProtocol";
+} from "./compiler-protocol";
 
 type WorkerMethods = {
   CompileAndEmitDiagnostics(

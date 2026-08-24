@@ -5,8 +5,8 @@ import React, { useEffect, useRef } from "react";
 import {
   CompilerRequestSupersededError,
   DotnetInterop,
-} from "../utils/interop";
-import { useColorMode } from "../utils/colorModes";
+} from "../compiler/compiler-client";
+import { useColorMode } from "../theme/color-mode";
 
 interface Props {
   options: monaco.editor.IStandaloneEditorConstructionOptions;
@@ -78,7 +78,14 @@ export const CodeEditor: React.FC<Props> = (props) => {
     });
   }, [colorMode, options]);
 
-  return <div ref={containerRef} style={{ height: "100%", width: "100%" }} />;
+  return (
+    <div
+      ref={containerRef}
+      role="region"
+      aria-label={options.ariaLabel}
+      style={{ height: "100%", width: "100%" }}
+    />
+  );
 };
 
 export function registerBicep(

@@ -13,9 +13,33 @@
 }
 
 .playground-editorpane {
+  position: relative;
   width: 50%;
   height: 100%;
   display: inline-block;
+}
+
+.arm-template-pane.is-stale > [role="region"] {
+  opacity: 0.45;
+}
+
+.compilation-status {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  z-index: 1;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  max-width: calc(100% - 24px);
+  padding: 8px 12px;
+  color: var(--bs-body-color);
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  box-shadow: var(--bs-box-shadow-sm);
+  transform: translateX(-50%);
+  pointer-events: none;
 }
 
 .operation-overlay {

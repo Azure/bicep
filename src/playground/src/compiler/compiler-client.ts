@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { languages } from "monaco-editor";
-import { getQuickstartsLink } from "./examples";
+import { getQuickstartsLink } from "../quickstarts/quickstarts";
 import {
   CompileResult,
   CompilerRequest,
   CompilerResponse,
   CompilerResult,
   DecompileResult,
-} from "../workers/compilerProtocol";
+} from "./compiler-protocol";
 
 const interopInitializationTimeoutMs = 30_000;
 const maximumAutomaticWorkerRestarts = 1;
@@ -88,7 +88,7 @@ class CompilerWorkerClient implements DotnetInterop {
 
   private async startWorker(timeoutMs: number): Promise<void> {
     const worker = new Worker(
-      new URL("../workers/compiler.worker.ts", import.meta.url),
+      new URL("./compiler.worker.ts", import.meta.url),
       { type: "module" },
     );
     this.worker = worker;

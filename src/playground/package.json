@@ -7,12 +7,15 @@
     "build": "npm run build-wasm && vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "aiKey": "c195e410-2651-4cea-a18e-8e576714eada",
   "private": true,
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@playwright/test": "1.56.0",
     "@types/node": "26.2.0",
     "@types/pako": "3.0.0",
     "@types/react": "19.2.18",

@@ -574,21 +574,24 @@ jobs:
         run: npm run package
         working-directory: ./src/playground
 
-      - name: Run playground locally
-        run: npm run preview &
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
         working-directory: ./src/playground
 
-      - name: Build E2E Tests
-        run: dotnet build --configuration Release
-        working-directory: ./src/Bicep.Playground.E2ETests
+      - name: Run browser tests
+        run: npm run test:e2e
+        working-directory: ./src/playground
 
-      - name: Install Playwright
-        run: pwsh bin/Release/net10.0/playwright.ps1 install --with-deps
-        working-directory: ./src/Bicep.Playground.E2ETests
-
-      - name: Run E2E Tests
-        run: dotnet test --configuration Release --no-build --nologo
-        working-directory: ./src/Bicep.Playground.E2ETests
+      - name: Upload browser test artifacts
+        if: failure() && !cancelled()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: playground-browser-test-results
+          path: |
+            ./src/playground/playwright-report/
+            ./src/playground/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
 
   build-highlight-libs:
     name: Build Highlight Libraries

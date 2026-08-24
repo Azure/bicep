@@ -2,10 +2,16 @@
 // Licensed under the MIT License.
 import { editor } from "monaco-editor";
 import React, { useCallback, useEffect, useRef } from "react";
-import { DotnetInterop } from "../utils/interop";
+import { DotnetInterop } from "../compiler/compiler-client";
 import { CodeEditor } from "./CodeEditor";
 
 const compilationDebounceMs = 200;
+
+export type CompilationStatus =
+  | "pending"
+  | "compiling"
+  | "upToDate"
+  | "failed";
 
 interface Props {
   interop: DotnetInterop;
@@ -14,9 +20,11 @@ interface Props {
   onBicepChange: (bicepContent: string) => void;
   onJsonChange: (jsonContent: string) => void;
   onCompilationError: (message: string | undefined) => void;
+  onCompilationStatusChange: (status: CompilationStatus) => void;
 }
 
 const editorOptions: editor.IStandaloneEditorConstructionOptions = {
+  ariaLabel: "Bicep editor",
   language: "bicep",
   scrollBeyondLastLine: false,
   automaticLayout: true,
@@ -41,6 +49,7 @@ export const BicepEditor: React.FC<Props> = (props) => {
     onBicepChange,
     onJsonChange,
     onCompilationError,
+    onCompilationStatusChange,
   } = props;
   const compilationRequestIdRef = useRef(0);
   const compilationTimeoutRef = useRef<number>(undefined);
@@ -48,6 +57,8 @@ export const BicepEditor: React.FC<Props> = (props) => {
   const handleContentChange = useCallback(
     (model: editor.ITextModel, content: string) => {
       onBicepChange(content);
+      onCompilationError(undefined);
+      onCompilationStatusChange("pending");
       const requestId = ++compilationRequestIdRef.current;
 
       if (compilationTimeoutRef.current !== undefined) {
@@ -56,6 +67,7 @@ export const BicepEditor: React.FC<Props> = (props) => {
 
       compilationTimeoutRef.current = window.setTimeout(async () => {
         const modelVersion = model.getVersionId();
+        onCompilationStatusChange("compiling");
 
         try {
           const { template, diagnostics, error } =
@@ -73,11 +85,13 @@ export const BicepEditor: React.FC<Props> = (props) => {
 
           if (error) {
             onCompilationError(error);
+            onCompilationStatusChange("failed");
             return;
           }
 
           onCompilationError(undefined);
           onJsonChange(template);
+          onCompilationStatusChange("upToDate");
         } catch (error) {
           if (
             requestId !== compilationRequestIdRef.current ||
@@ -93,10 +107,18 @@ export const BicepEditor: React.FC<Props> = (props) => {
               ? error.message
               : "Bicep compilation failed.",
           );
+          onCompilationStatusChange("failed");
         }
       }, compilationDebounceMs);
     },
-    [interop, onBicepChange, onCompilationError, onJsonChange, sourcePath],
+    [
+      interop,
+      onBicepChange,
+      onCompilationError,
+      onCompilationStatusChange,
+      onJsonChange,
+      sourcePath,
+    ],
   );
 
   useEffect(() => {
