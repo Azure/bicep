@@ -26,6 +26,13 @@ export class BicepVisualizerViewManager extends Disposable implements WebviewPan
       workspace.onDidChangeTextDocument((event) => {
         this.viewsByPath.get(event.document.uri.fsPath)?.render();
       }),
+      workspace.onDidChangeConfiguration((event) => {
+        if (event.affectsConfiguration("workbench.reduceMotion")) {
+          for (const view of this.viewsByPath.values()) {
+            view.notifyMotionPolicyDidChange();
+          }
+        }
+      }),
       diagnosticsRouter.subscribe(() => {
         for (const view of this.viewsByPath.values()) {
           view.render();

@@ -41,9 +41,14 @@ export function usePaletteDrag(
         return;
       }
 
-      const bounds = getCanvasElement()?.getBoundingClientRect();
+      const canvas = getCanvasElement();
+      const bounds = canvas?.getBoundingClientRect();
+      const elementAtPointer = document.elementFromPoint(event.clientX, event.clientY);
       if (
+        canvas &&
         bounds &&
+        elementAtPointer &&
+        canvas.contains(elementAtPointer) &&
         event.clientX >= bounds.left &&
         event.clientX <= bounds.right &&
         event.clientY >= bounds.top &&

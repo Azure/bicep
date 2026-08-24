@@ -2,17 +2,9 @@
 // Licensed under the MIT License.
 
 import type { VisualResourceTypeReference } from "@/lib/messaging/messages";
-import type { Point } from "@/lib/utils/math/geometry";
 
 import { atom } from "jotai";
 import { atomFamily } from "jotai-family";
-
-export interface PendingResource {
-  operationId: string;
-  resourceType: VisualResourceTypeReference;
-  origin: Point;
-  expectedNodeId?: string;
-}
 
 export interface PaletteDragState {
   item: VisualResourceTypeReference;
@@ -20,7 +12,23 @@ export interface PaletteDragState {
   clientY: number;
 }
 
-export const pendingResourcesAtom = atom<PendingResource[]>([]);
-export const resourceCreationErrorAtom = atom<string | null>(null);
+export type NamespaceResourceTypesState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "loaded"; resourceTypes: ResourceTypeCatalogEntry[] }
+  | { status: "error"; message: string };
+
+export interface ResourceTypeCatalogEntry {
+  resourceType: string;
+  apiVersion: string;
+}
+
 export const paletteDragAtom = atom<PaletteDragState | null>(null);
-export const resourceNodeIsCommittingAtomFamily = atomFamily((_nodeId: string) => atom(false));
+export const namespaceResourceTypesAtomFamily = atomFamily((_key: string) =>
+  atom<NamespaceResourceTypesState>({ status: "idle" }),
+);
+export const resourceTypeCatalogLoadingCountAtom = atom(0);
+
+export function getNamespaceResourceTypesKey(catalogId: string, providerNamespace: string): string {
+  return `${catalogId}\0${providerNamespace.toLocaleLowerCase()}`;
+}

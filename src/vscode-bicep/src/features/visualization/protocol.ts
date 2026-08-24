@@ -97,8 +97,32 @@ export interface VisualResourceTypeCatalogItem extends VisualResourceTypeReferen
   isPreview: boolean;
 }
 
+export interface VisualResourceTypeNamespace {
+  name: string;
+  resourceTypeCount: number;
+}
+
+export interface VisualResourceTypeNamespacesParams {
+  textDocument: TextDocumentIdentifier;
+  includePreview: boolean;
+}
+
+export interface VisualResourceTypeNamespacesResult {
+  catalogId: string;
+  namespaces: VisualResourceTypeNamespace[];
+}
+
+export const visualResourceTypeNamespacesRequestType = new ProtocolRequestType<
+  VisualResourceTypeNamespacesParams,
+  VisualResourceTypeNamespacesResult,
+  never,
+  void,
+  void
+>("textDocument/visualResourceTypeNamespaces");
+
 export interface VisualResourceTypesParams {
   textDocument: TextDocumentIdentifier;
+  providerNamespace?: string;
   query?: string;
   includePreview: boolean;
   pageSize: number;
@@ -106,6 +130,7 @@ export interface VisualResourceTypesParams {
 }
 
 export interface VisualResourceTypesResult {
+  catalogId: string;
   items: VisualResourceTypeCatalogItem[];
   continuationToken?: string;
 }

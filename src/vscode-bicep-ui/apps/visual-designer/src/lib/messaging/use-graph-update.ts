@@ -28,7 +28,7 @@ import {
   pendingResourcesAtom,
   resourceCreationErrorAtom,
   resourceNodeIsCommittingAtomFamily,
-} from "@/features/resource-palette/atoms";
+} from "@/features/resource-creation";
 import { nodesByIdAtom } from "@/lib/graph";
 import { patchMayAffectLayout, renderedGraphsEqual } from "./layout-invalidation";
 import { CREATE_RESOURCE_REQUEST, GET_GRAPH_LAYOUT_REQUEST, GET_GRAPH_UPDATE_REQUEST } from "./messages";

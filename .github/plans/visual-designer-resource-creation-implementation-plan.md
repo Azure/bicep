@@ -57,8 +57,9 @@ versioned Bicep source edit and a canonical graph node at the drop point without
   - Visualizer unit tests under `src/vscode-bicep/src/features/visualization/__tests__`
 - **Changes**:
   - Mirror the new LSP records in TypeScript.
-  - Load the catalog for the visualizer's bound Bicep document.
-  - Transform the typed paged LSP catalog into provider/type groups for the visual designer.
+  - Load provider namespaces and counts for the visualizer's bound Bicep document.
+  - Lazily load and cache the latest stable resource types when a provider expands; use a debounced global path for search.
+  - Reuse the accessible shared Accordion and VS Code progress/scrollbar theme tokens.
   - Add typed webview request handling for resource creation.
   - Bind requests to the visualizer document and current version.
   - Apply the returned versioned workspace edit and reply only after VS Code reports success.

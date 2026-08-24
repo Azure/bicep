@@ -5,7 +5,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import styled from "styled-components";
 import { resourceCreationErrorAtom } from "./atoms";
 
-const $Error = styled.div`
+const $ResourceCreationError = styled.div`
   position: absolute;
   bottom: 32px;
   left: 50%;
@@ -45,11 +45,11 @@ export function ResourceCreationError() {
   }
 
   return (
-    <$Error role="alert">
+    <$ResourceCreationError role="alert">
       <$Message>{error}</$Message>
       <$Dismiss aria-label="Dismiss resource creation error" onClick={() => setError(null)}>
         &times;
       </$Dismiss>
-    </$Error>
+    </$ResourceCreationError>
   );
 }

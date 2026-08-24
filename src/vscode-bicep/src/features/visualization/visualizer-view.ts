@@ -22,6 +22,7 @@ import { parseError } from "../../infrastructure/errors";
 import { Disposable } from "../../infrastructure/lifecycle";
 import { getLogger } from "../../infrastructure/logging";
 import { debounce } from "../../infrastructure/timing";
+import { getVisualizerMotionPolicy } from "./motion-policy";
 import {
   prepareVisualResourceRequestType,
   PrepareVisualResourceResult,
@@ -32,6 +33,7 @@ import {
   visualGraphUpdateRequestType,
   VisualGraphUpdateResult,
   VisualResourceTypeCatalogItem,
+  visualResourceTypeNamespacesRequestType,
   VisualResourceTypeReference,
   visualResourceTypesRequestType,
 } from "./protocol";
@@ -113,6 +115,19 @@ export class BicepVisualizerView extends Disposable {
     if (this.isDisposed) {
       throw new Error("The visualizer was disposed before it became ready.");
     }
+  }
+
+  public notifyMotionPolicyDidChange(): void {
+    if (this.isDisposed) {
+      return;
+    }
+
+    void this.webviewPanel.webview
+      .postMessage({
+        method: "motionPolicy/didChange",
+        params: getVisualizerMotionPolicy(),
+      })
+      .then(undefined, (error: unknown) => getLogger().debug(parseError(error).message));
   }
 
   public dispose(): void {
@@ -308,24 +323,59 @@ export class BicepVisualizerView extends Disposable {
     }
   }
 
-  private async handleGetResourceTypeCatalog(id: string): Promise<void> {
+  private async handleGetResourceTypeNamespaces(id: string): Promise<void> {
+    try {
+      const document = await workspace.openTextDocument(this.documentUri);
+      const result = await this.languageClient.sendRequest(visualResourceTypeNamespacesRequestType, {
+        textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
+        includePreview: false,
+      });
+
+      await this.postResponse(id, result);
+    } catch (error) {
+      getLogger().error(`Resource type namespace request failed: ${parseError(error).message}`);
+      await this.postErrorResponse(id, { message: "Failed to load resource provider namespaces." });
+    }
+  }
+
+  private async handleGetResourceTypeCatalog(id: string, params: unknown): Promise<void> {
+    const request = params as { providerNamespace?: unknown; query?: unknown; loadAll?: unknown };
+    const providerNamespace =
+      typeof request.providerNamespace === "string" && request.providerNamespace.trim()
+        ? request.providerNamespace.trim()
+        : undefined;
+    const query = typeof request.query === "string" && request.query.trim() ? request.query.trim() : undefined;
+    const loadAll = request.loadAll === true;
+
+    if (!providerNamespace && !query && !loadAll) {
+      await this.postErrorResponse(id, { message: "A provider namespace or search query is required." });
+      return;
+    }
+
     try {
       const document = await workspace.openTextDocument(this.documentUri);
       const items: VisualResourceTypeCatalogItem[] = [];
+      let catalogId: string | undefined;
       let continuationToken: string | undefined;
 
       do {
         const response = await this.languageClient.sendRequest(visualResourceTypesRequestType, {
           textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
+          providerNamespace,
+          query,
           includePreview: false,
           pageSize: 200,
           continuationToken,
         });
+        catalogId ??= response.catalogId;
+        if (catalogId !== response.catalogId) {
+          throw new Error("The resource type catalog changed while it was being loaded.");
+        }
         items.push(...response.items);
         continuationToken = response.continuationToken;
       } while (continuationToken);
 
-      await this.postResponse(id, buildResourceTypeCatalog(items));
+      await this.postResponse(id, { catalogId, groups: buildResourceTypeCatalog(items) });
     } catch (error) {
       getLogger().error(`Resource type catalog request failed: ${parseError(error).message}`);
       await this.postErrorResponse(id, { message: "Failed to load resource types for this Bicep file." });
@@ -409,7 +459,15 @@ export class BicepVisualizerView extends Disposable {
           return;
 
         case "resourceTypeCatalog/load":
-          void this.handleGetResourceTypeCatalog(request.id);
+          void this.handleGetResourceTypeCatalog(request.id, request.params);
+          return;
+
+        case "resourceTypeCatalog/namespaces":
+          void this.handleGetResourceTypeNamespaces(request.id);
+          return;
+
+        case "motionPolicy/get":
+          void this.postResponse(request.id, getVisualizerMotionPolicy());
           return;
       }
 

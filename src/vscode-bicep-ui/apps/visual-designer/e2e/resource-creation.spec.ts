@@ -66,6 +66,58 @@ test.describe("resource creation", () => {
     expect(canvasAfter).toEqual(canvasBefore);
   });
 
+  test("searches all resource namespaces without expanding them first", async ({ page }) => {
+    await openVisualDesigner(page);
+    await page.getByRole("button", { name: "Add Resources" }).click();
+
+    const filter = page.getByRole("textbox", { name: "Filter resource types" });
+    await filter.fill("storageAccounts");
+    const progress = page.getByTestId("resource-palette-progress");
+    await expect(progress).toBeVisible();
+    const progressAnimationName = await progress.evaluate(
+      (element) => getComputedStyle(element.shadowRoot!.querySelector(".indicator")!).animationName,
+    );
+    expect(progressAnimationName).not.toBe("none");
+    const initialProgressLeft = await progress.evaluate(
+      (element) => element.shadowRoot!.querySelector(".indicator")!.getBoundingClientRect().left,
+    );
+    await page.waitForTimeout(120);
+    const nextProgressLeft = await progress.evaluate(
+      (element) => element.shadowRoot!.querySelector(".indicator")!.getBoundingClientRect().left,
+    );
+    expect(Math.abs(nextProgressLeft - initialProgressLeft)).toBeGreaterThan(1);
+    await expect(page.getByRole("button", { name: /storageAccounts/ })).toBeVisible();
+    await expect(page.locator("mark").filter({ hasText: "storageAccounts" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Microsoft\.Storage/ })).toHaveAttribute("aria-expanded", "true");
+
+    await filter.fill("virtualNetworks");
+    await expect(page.getByRole("button", { name: /virtualNetworks/ })).toBeVisible();
+    await expect(page.getByTestId("resource-palette-progress")).toHaveCount(0);
+  });
+
+  test("does not create a resource when dropped over the Resource Palette", async ({ page }) => {
+    await openVisualDesigner(page);
+    await loadSampleGraph(page, "flat");
+    const initialCount = await nodeCount(page);
+
+    await page.getByRole("button", { name: "Add Resources" }).click();
+    await page.getByText("Microsoft.Storage", { exact: true }).click();
+
+    const resourceBox = await page.getByText("storageAccounts", { exact: true }).boundingBox();
+    const paletteBox = await page.getByRole("complementary").boundingBox();
+    expect(resourceBox).not.toBeNull();
+    expect(paletteBox).not.toBeNull();
+
+    await page.mouse.move(resourceBox!.x + resourceBox!.width / 2, resourceBox!.y + resourceBox!.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(paletteBox!.x + paletteBox!.width / 2, paletteBox!.y + 20);
+    await page.mouse.up();
+    await page.waitForTimeout(400);
+
+    await expect(page.getByTestId("graph-node")).toHaveCount(initialCount);
+    await expect(page.getByTestId("pending-resource-node")).toHaveCount(0);
+  });
+
   test("places a keyboard-activated resource at the canvas center", async ({ page }) => {
     await openVisualDesigner(page);
     const initialCount = await nodeCount(page);

@@ -818,17 +818,59 @@ export class FakeMessageChannel {
   }
 
   sendRequest<T>(requestMessage: { method: string; params?: unknown }): Promise<T> {
+    if (requestMessage.method === "motionPolicy/get") {
+      return Promise.resolve("animate" as T);
+    }
+
+    const resourceTypeCatalog = [
+      {
+        group: "Microsoft.Storage",
+        resourceTypes: [{ resourceType: "storageAccounts", apiVersion: "2025-01-01" }],
+      },
+      {
+        group: "Microsoft.Network",
+        resourceTypes: [{ resourceType: "virtualNetworks", apiVersion: "2024-07-01" }],
+      },
+    ];
+
+    if (requestMessage.method === "resourceTypeCatalog/namespaces") {
+      return new Promise<T>((resolve) => {
+        setTimeout(
+          () =>
+            resolve({
+              catalogId: "dev-catalog",
+              namespaces: resourceTypeCatalog.map((group) => ({
+                name: group.group,
+                resourceTypeCount: group.resourceTypes.length,
+              })),
+            } as T),
+          150,
+        );
+      });
+    }
+
     if (requestMessage.method === "resourceTypeCatalog/load") {
-      return Promise.resolve([
-        {
-          group: "Microsoft.Storage",
-          resourceTypes: [{ resourceType: "storageAccounts", apiVersion: "2025-01-01" }],
-        },
-        {
-          group: "Microsoft.Network",
-          resourceTypes: [{ resourceType: "virtualNetworks", apiVersion: "2024-07-01" }],
-        },
-      ] as T);
+      const { providerNamespace, query, loadAll } = (requestMessage.params ?? {}) as {
+        providerNamespace?: string;
+        query?: string;
+        loadAll?: boolean;
+      };
+      const normalizedQuery = query?.toLocaleLowerCase();
+      const groups = resourceTypeCatalog
+        .filter((group) => !providerNamespace || group.group === providerNamespace)
+        .map((group) => ({
+          ...group,
+          resourceTypes: group.resourceTypes.filter(
+            (resourceType) =>
+              !normalizedQuery ||
+              `${group.group}/${resourceType.resourceType}`.toLocaleLowerCase().includes(normalizedQuery),
+          ),
+        }))
+        .filter((group) => group.resourceTypes.length > 0);
+
+      return new Promise<T>((resolve) => {
+        setTimeout(() => resolve({ catalogId: "dev-catalog", groups } as T), loadAll ? 600 : 200);
+      });
     }
 
     if (requestMessage.method === GET_GRAPH_UPDATE_REQUEST) {

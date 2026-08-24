@@ -4,7 +4,7 @@
 import { AzureIcon } from "@vscode-bicep-ui/components";
 import styled from "styled-components";
 
-interface ResourcePreviewCardProps {
+export interface ResourcePreviewCardProps {
   fullyQualifiedType: string;
   testId?: string;
 }

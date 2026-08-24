@@ -9,11 +9,11 @@ import { motion } from "motion/react";
 import { useEffect } from "react";
 import { styled } from "styled-components";
 import {
-  RESOURCE_PALETTE_TRANSITION,
+  RESOURCE_CREATION_TRANSITION,
   RESOURCE_PREVIEW_CARD_HEIGHT,
   RESOURCE_PREVIEW_CARD_WIDTH,
   resourceNodeIsCommittingAtomFamily,
-} from "@/features/resource-palette";
+} from "@/features/resource-creation";
 import { focusedNodeIdAtom } from "@/lib/graph";
 import { camelCaseToWords } from "@/lib/utils";
 
@@ -157,7 +157,7 @@ export function ResourceDeclaration({ id, data }: ResourceDeclarationProps) {
     <$ResourceDeclaration
       initial={isCommitting ? { scaleX: initialCardScaleX, scaleY: initialCardScaleY } : false}
       animate={{ scaleX: 1, scaleY: 1 }}
-      transition={RESOURCE_PALETTE_TRANSITION}
+      transition={RESOURCE_CREATION_TRANSITION}
       onAnimationComplete={() => {
         if (isCommitting) {
           setIsCommitting(false);
@@ -171,7 +171,7 @@ export function ResourceDeclaration({ id, data }: ResourceDeclarationProps) {
       <$ResourceIcon
         initial={isCommitting ? { scaleX: initialIconScaleX, scaleY: initialIconScaleY } : false}
         animate={{ scaleX: 1, scaleY: 1 }}
-        transition={RESOURCE_PALETTE_TRANSITION}
+        transition={RESOURCE_CREATION_TRANSITION}
       >
         <AzureIcon resourceType={iconType} size={36} />
       </$ResourceIcon>

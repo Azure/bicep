@@ -4,17 +4,12 @@
 import { buildResourceTypeCatalog } from "../resource-palette";
 
 describe("buildResourceTypeCatalog", () => {
-  it("groups types and keeps the first API version for each type", () => {
+  it("groups server-selected resource types by provider namespace", () => {
     expect(
       buildResourceTypeCatalog([
         {
           fullyQualifiedType: "Microsoft.Storage/storageAccounts",
           apiVersion: "2025-01-01",
-          isPreview: false,
-        },
-        {
-          fullyQualifiedType: "Microsoft.Storage/storageAccounts",
-          apiVersion: "2024-01-01",
           isPreview: false,
         },
         {

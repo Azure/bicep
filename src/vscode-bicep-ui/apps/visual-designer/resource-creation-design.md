@@ -213,7 +213,7 @@ flowchart LR
 | Language server creation handler | Validate type, compute name, generate syntax, format a versioned edit, report unresolved requirements                                            | Canvas position                                                         |
 | Existing visual graph builder    | Rebuild the canonical graph from the updated compilation                                                                                         | Pending UI operations or drop positions                                 |
 
-### Proposed feature organization
+### Feature organization
 
 The feature should follow the direction in `architecture-notes.md`:
 
@@ -221,11 +221,21 @@ The feature should follow the direction in `architecture-notes.md`:
 src/
   features/
     resource-palette/
-      PendingResourceNode.tsx
-      use-resource-drop.ts
+      ResourcePalette.tsx
+      ResourcePaletteControls.tsx
+      ResourceTypeGroups.tsx
       use-palette-drag.ts
+      use-resource-type-search.ts
       atoms.ts
       contracts.ts
+    resource-creation/
+      PendingResourceLayer.tsx
+      ResourceCreationError.tsx
+      ResourcePreviewCard.tsx
+      atoms.ts
+    accessibility/
+      MotionAwareProgressBar.tsx
+      use-motion-policy-sync.ts
   lib/
     protocol/
       messages.ts
@@ -282,9 +292,13 @@ interface ListResourceTypesResponseV1 {
 }
 ```
 
-The visual designer requests `resourceTypeCatalog/load` over the existing generic webview channel. The extension resolves the visualizer document, pages through `textDocument/visualResourceTypes`, selects the latest stable API version per resource type, groups the results for the palette, and returns them to the webview. `pageSize` is capped by the language server. Continuation tokens are opaque and scoped to the document configuration and query.
+The visual designer first requests `resourceTypeCatalog/namespaces`. The language server uses the resource provider's cached type index to return provider namespaces and resource-type counts without constructing the complete presentation catalog.
 
-The initial palette requests stable versions and presents the latest version returned for each resource type.
+Expanding a provider requests `resourceTypeCatalog/load` with that namespace. The language server lazily constructs and caches the namespace's sorted catalog, selecting the latest stable API version for each resource type. Reopening the provider or requesting later pages reuses that projection.
+
+Search remains global. The first debounced query requests the complete searchable catalog, which intentionally materializes the remaining server-side namespace projections once and returns them to the webview. The webview retains that catalog and filters subsequent queries locally, so follow-up searches do not call the extension or language server. A request-generation guard prevents a slower initial request from replacing a newer query. Matching text is highlighted in provider headers and resource type names.
+
+The palette uses the VSCode Elements progress bar for namespace discovery, lazy provider loading, and the first global search. The extension forwards the effective `workbench.reduceMotion` policy into the webview: `auto` follows the operating system, `on` forces the static reduced-motion presentation, and `off` forces the native VSCode Elements indeterminate animation. Provider-specific failures render inline with a retry action.
 
 ### Create request
 
@@ -365,6 +379,8 @@ The extension maps LSP and workspace errors to this small webview-facing set and
 The visual designer reuses the concepts of provider groups and concrete `{ resourceType, apiVersion }` entries, but not the standalone explorer's components or native HTML drag behavior. Keeping the Resource Palette local avoids a package boundary with no second product consumer. The existing explorer app remains independent.
 
 The webview request remains intentionally small and presentation-oriented, while the extension-to-language-server contract remains flat, paged, and document-aware.
+
+The Resource Palette reuses the shared Accordion component. The Accordion supports controlled multiple expansion, native button semantics, linked header/panel ARIA attributes, and keyboard movement between headers. Panels expand immediately rather than animating height, which avoids clipping partially rendered large groups. During global search the palette controls expansion from matching groups; clearing search restores the user's prior browsing expansion.
 
 ## Source Generation
 

@@ -13,7 +13,7 @@ afterEach(() => {
   }
 });
 
-describe("resourceNodeIsCommittingAtomFamily", () => {
+describe("resource creation committing state", () => {
   it("notifies only the resource node whose committing state changes", () => {
     const store = createStore();
     const firstAtom = resourceNodeIsCommittingAtomFamily(testNodeIds[0]);

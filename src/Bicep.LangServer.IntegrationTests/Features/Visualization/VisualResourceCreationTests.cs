@@ -18,6 +18,21 @@ namespace Bicep.LangServer.IntegrationTests
     [TestClass]
     public class VisualResourceCreationTests
     {
+        [TestMethod]
+        public async Task VisualResourceTypeNamespaces_ReturnsProviderCounts()
+        {
+            using var helper = await StartServerAndOpenAsync();
+            var client = helper.Helper.Client;
+            var result = await client.SendRequest(
+                new VisualResourceTypeNamespacesParams(new TextDocumentIdentifier(helper.MainUri), IncludePreview: false),
+                default);
+
+            result.CatalogId.Should().NotBeNullOrEmpty();
+            result.Namespaces.Should().NotBeEmpty();
+            result.Namespaces.Should().BeInAscendingOrder(entry => entry.Name);
+            result.Namespaces.Should().OnlyContain(entry => entry.ResourceTypeCount > 0);
+        }
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -28,7 +43,7 @@ namespace Bicep.LangServer.IntegrationTests
             var client = helper.Helper.Client;
 
             var result = await client.SendRequest(
-                new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), Query: null, IncludePreview: true, PageSize: 50, ContinuationToken: null),
+                new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), ProviderNamespace: null, Query: null, IncludePreview: true, PageSize: 50, ContinuationToken: null),
                 default);
 
             result.Should().NotBeNull();
@@ -53,7 +68,7 @@ namespace Bicep.LangServer.IntegrationTests
             var client = helper.Helper.Client;
 
             var result = await client.SendRequest(
-                new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), Query: "READWRITE", IncludePreview: true, PageSize: 50, ContinuationToken: null),
+                new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), ProviderNamespace: null, Query: "READWRITE", IncludePreview: true, PageSize: 50, ContinuationToken: null),
                 default);
 
             result.Items.Should().ContainSingle().Which.FullyQualifiedType.Should().Be("Test.Rp/readWriteTests");
@@ -66,7 +81,7 @@ namespace Bicep.LangServer.IntegrationTests
             var client = helper.Helper.Client;
 
             var full = await client.SendRequest(
-                new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), Query: null, IncludePreview: true, PageSize: 200, ContinuationToken: null),
+                new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), ProviderNamespace: null, Query: null, IncludePreview: true, PageSize: 200, ContinuationToken: null),
                 default);
 
             var seen = new List<VisualResourceTypeCatalogEntry>();
@@ -74,7 +89,7 @@ namespace Bicep.LangServer.IntegrationTests
             do
             {
                 var page = await client.SendRequest(
-                    new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), Query: null, IncludePreview: true, PageSize: 1, ContinuationToken: continuationToken),
+                    new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), ProviderNamespace: null, Query: null, IncludePreview: true, PageSize: 1, ContinuationToken: continuationToken),
                     default);
 
                 page.Items.Should().HaveCountLessOrEqualTo(1);

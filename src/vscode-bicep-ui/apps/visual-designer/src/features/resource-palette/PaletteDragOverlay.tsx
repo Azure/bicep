@@ -8,7 +8,7 @@ import { useAtomValue } from "jotai";
 import { createPortal } from "react-dom";
 import styled from "styled-components";
 import { paletteDragAtom } from "./atoms";
-import { ResourcePreviewCard } from "./ResourcePreviewCard";
+import { ResourcePreviewCard } from "@/features/resource-creation";
 
 const $Positioner = styled.div`
   position: fixed;

@@ -23,15 +23,30 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         string FullyQualifiedType,
         string ApiVersion);
 
+    public record VisualResourceTypeNamespace(
+        string Name,
+        int ResourceTypeCount);
+
+    [Method("textDocument/visualResourceTypeNamespaces", Direction.ClientToServer)]
+    public record VisualResourceTypeNamespacesParams(
+        TextDocumentIdentifier TextDocument,
+        bool IncludePreview) : ITextDocumentIdentifierParams, IRequest<VisualResourceTypeNamespacesResult>;
+
+    public record VisualResourceTypeNamespacesResult(
+        string CatalogId,
+        IReadOnlyList<VisualResourceTypeNamespace> Namespaces);
+
     [Method("textDocument/visualResourceTypes", Direction.ClientToServer)]
     public record VisualResourceTypesParams(
         TextDocumentIdentifier TextDocument,
+        string? ProviderNamespace,
         string? Query,
         bool IncludePreview,
         int PageSize,
         string? ContinuationToken) : ITextDocumentIdentifierParams, IRequest<VisualResourceTypesResult>;
 
     public record VisualResourceTypesResult(
+        string CatalogId,
         IReadOnlyList<VisualResourceTypeCatalogEntry> Items,
         string? ContinuationToken);
 

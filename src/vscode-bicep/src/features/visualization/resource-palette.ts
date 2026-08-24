@@ -3,6 +3,16 @@
 
 import type { VisualResourceTypeCatalogItem } from "./protocol";
 
+export interface ResourceTypeNamespace {
+  name: string;
+  resourceTypeCount: number;
+}
+
+export interface ResourceTypeNamespaceCatalog {
+  catalogId: string;
+  namespaces: ResourceTypeNamespace[];
+}
+
 export interface ResourceTypeCatalogGroup {
   group: string;
   resourceTypes: {
@@ -11,16 +21,14 @@ export interface ResourceTypeCatalogGroup {
   }[];
 }
 
-export function buildResourceTypeCatalog(items: readonly VisualResourceTypeCatalogItem[]): ResourceTypeCatalogGroup[] {
-  const latestByType = new Map<string, string>();
-  for (const item of items) {
-    if (!latestByType.has(item.fullyQualifiedType)) {
-      latestByType.set(item.fullyQualifiedType, item.apiVersion);
-    }
-  }
+export interface ResourceTypeCatalog {
+  catalogId: string;
+  groups: ResourceTypeCatalogGroup[];
+}
 
+export function buildResourceTypeCatalog(items: readonly VisualResourceTypeCatalogItem[]): ResourceTypeCatalogGroup[] {
   const grouped = new Map<string, ResourceTypeCatalogGroup["resourceTypes"]>();
-  for (const [fullyQualifiedType, apiVersion] of latestByType) {
+  for (const { fullyQualifiedType, apiVersion } of items) {
     const [group, ...typeSegments] = fullyQualifiedType.split("/");
     if (!group || typeSegments.length === 0) {
       continue;

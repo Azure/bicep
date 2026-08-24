@@ -59,6 +59,12 @@ export const SHOW_PROBLEMS_PANEL_NOTIFICATION = "showProblemsPanel";
 // Sent when the webview has initialized and is ready to receive data
 export const READY_NOTIFICATION = "ready";
 
+// ── Motion policy ──
+
+export type MotionPolicy = "system" | "reduce" | "animate";
+export const GET_MOTION_POLICY_REQUEST = "motionPolicy/get";
+export const MOTION_POLICY_DID_CHANGE_NOTIFICATION = "motionPolicy/didChange";
+
 // ── Resource creation ──
 
 export const CREATE_RESOURCE_REQUEST = "resources/create";

@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Collections.Concurrent;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text;
+using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.CodeAction;
@@ -13,10 +16,12 @@ using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Resources;
 using Bicep.Core.Rewriters;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.IO.InMemory;
 using Bicep.LanguageServer.Compilation;
@@ -42,8 +47,13 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         /// Builds a paged, filtered catalog of the resource types available for the Az namespace in the
         /// active document's compilation.
         /// </summary>
+        VisualResourceTypeNamespacesResult GetResourceTypeNamespaces(
+            SemanticModel model,
+            bool includePreview);
+
         VisualResourceTypesResult GetResourceTypes(
             SemanticModel model,
+            string? providerNamespace,
             string? query,
             bool includePreview,
             int pageSize,
@@ -67,22 +77,28 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
         private const string FallbackSymbolicName = "resource";
 
+        private readonly ConditionalWeakTable<IResourceTypeProvider, Lazy<ResourceTypeCatalogIndex>> catalogIndexes = new();
+
+        public VisualResourceTypeNamespacesResult GetResourceTypeNamespaces(SemanticModel model, bool includePreview)
+        {
+            var index = this.GetCatalogIndex(model);
+            return new(index.CatalogId, index.GetNamespaces(includePreview));
+        }
+
         public VisualResourceTypesResult GetResourceTypes(
             SemanticModel model,
+            string? providerNamespace,
             string? query,
             bool includePreview,
             int pageSize,
             string? continuationToken)
         {
-            var nsResolver = model.Binder.NamespaceResolver;
-
-            var catalog = BuildCatalog(nsResolver.GetAvailableAzureResourceTypes())
-                .Where(entry => includePreview || !entry.IsPreview)
-                .Where(entry => string.IsNullOrEmpty(query) ||
-                    entry.FullyQualifiedType.Contains(query, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(entry => entry.FullyQualifiedType, StringComparer.OrdinalIgnoreCase)
-                .ThenByDescending(entry => entry.ApiVersion, StringComparer.OrdinalIgnoreCase)
-                .ToImmutableArray();
+            var index = this.GetCatalogIndex(model);
+            var catalog = providerNamespace is not null
+                ? index.GetNamespaceCatalog(providerNamespace, includePreview)
+                : string.IsNullOrWhiteSpace(query)
+                    ? index.GetAllResourceTypes(includePreview)
+                    : index.Search(query, includePreview);
 
             var effectivePageSize = pageSize <= 0 ? DefaultPageSize : Math.Min(pageSize, MaxPageSize);
             var offset = ParseContinuationToken(continuationToken);
@@ -93,24 +109,27 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 ? nextOffset.ToString(CultureInfo.InvariantCulture)
                 : null;
 
-            return new VisualResourceTypesResult(page, nextContinuationToken);
+            return new VisualResourceTypesResult(index.CatalogId, page, nextContinuationToken);
         }
 
-        private static IEnumerable<VisualResourceTypeCatalogEntry> BuildCatalog(
-            IEnumerable<ResourceTypeReference> resourceTypes)
-        {
-            foreach (var resourceType in resourceTypes)
-            {
-                if (resourceType.ApiVersion is not { } apiVersion)
-                {
-                    continue;
-                }
+        internal VisualResourceTypesResult GetResourceTypes(
+            SemanticModel model,
+            string? query,
+            bool includePreview,
+            int pageSize,
+            string? continuationToken) =>
+            this.GetResourceTypes(model, providerNamespace: null, query, includePreview, pageSize, continuationToken);
 
-                yield return new VisualResourceTypeCatalogEntry(
-                    resourceType.FormatType(),
-                    apiVersion,
-                    IsPreviewApiVersion(apiVersion));
-            }
+        private ResourceTypeCatalogIndex GetCatalogIndex(SemanticModel model)
+        {
+            var provider = GetAzureResourceTypeProvider(model) ??
+                throw new VisualResourceCreationException("The Azure resource type provider is not available.");
+
+            return this.catalogIndexes.GetValue(
+                provider,
+                static provider => new(
+                    () => new ResourceTypeCatalogIndex(provider),
+                    LazyThreadSafetyMode.ExecutionAndPublication)).Value;
         }
 
         public PrepareVisualResourceResult PrepareResource(
@@ -125,12 +144,13 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
             var model = context.Compilation.GetEntrypointSemanticModel();
             var nsResolver = model.Binder.NamespaceResolver;
+            var resourceTypeProvider = GetAzureResourceTypeProvider(model);
 
             var requestedTypeReference = new ResourceTypeReference(
                 request.ResourceType.FullyQualifiedType,
                 request.ResourceType.ApiVersion);
 
-            if (!nsResolver.GetAvailableAzureResourceTypes().Contains(requestedTypeReference))
+            if (resourceTypeProvider is null || !resourceTypeProvider.HasDefinedType(requestedTypeReference))
             {
                 throw new VisualResourceCreationException(
                     $"Resource type \"{requestedTypeReference.FormatName()}\" was not found.");
@@ -193,6 +213,133 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
         private static bool IsPreviewApiVersion(string apiVersion) =>
             AzureResourceApiVersion.TryParse(apiVersion, out var parsed) && parsed.IsPreview;
+
+        private static IResourceTypeProvider? GetAzureResourceTypeProvider(SemanticModel model) =>
+            model.Binder.NamespaceResolver.TryGetNamespace(AzNamespaceType.BuiltInName)?.ResourceTypeProvider;
+
+        private sealed class ResourceTypeCatalogIndex
+        {
+            private const int MaxCachedSearches = 64;
+
+            private readonly ImmutableDictionary<string, ResourceTypeNamespaceCatalog> namespaces;
+
+            private readonly ConcurrentDictionary<SearchKey, Lazy<ImmutableArray<VisualResourceTypeCatalogEntry>>> searches = new();
+
+            public ResourceTypeCatalogIndex(IResourceTypeProvider resourceTypeProvider)
+            {
+                this.CatalogId = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
+                this.namespaces = resourceTypeProvider.TypeReferencesByType
+                    .GroupBy(pair => GetProviderNamespace(pair.Key), StringComparer.OrdinalIgnoreCase)
+                    .Where(group => group.Key is not null)
+                    .ToImmutableDictionary(
+                        group => group.Key!,
+                        group => new ResourceTypeNamespaceCatalog(group.ToImmutableArray()),
+                        StringComparer.OrdinalIgnoreCase);
+            }
+
+            public string CatalogId { get; }
+
+            public ImmutableArray<VisualResourceTypeNamespace> GetNamespaces(bool includePreview) =>
+                [.. this.namespaces
+                    .Select(pair => new VisualResourceTypeNamespace(
+                        pair.Key,
+                        pair.Value.GetResourceTypeCount(includePreview)))
+                    .Where(entry => entry.ResourceTypeCount > 0)
+                    .OrderBy(entry => entry.Name, StringComparer.OrdinalIgnoreCase)];
+
+            public ImmutableArray<VisualResourceTypeCatalogEntry> GetNamespaceCatalog(
+                string providerNamespace,
+                bool includePreview) =>
+                this.namespaces.TryGetValue(providerNamespace, out var catalog)
+                    ? catalog.GetEntries(includePreview)
+                    : [];
+
+            public ImmutableArray<VisualResourceTypeCatalogEntry> GetAllResourceTypes(bool includePreview) =>
+                [.. this.namespaces.Values
+                    .SelectMany(catalog => catalog.GetEntries(includePreview))
+                    .OrderBy(entry => entry.FullyQualifiedType, StringComparer.OrdinalIgnoreCase)];
+
+            public ImmutableArray<VisualResourceTypeCatalogEntry> Search(string query, bool includePreview)
+            {
+                if (this.searches.Count >= MaxCachedSearches)
+                {
+                    this.searches.Clear();
+                }
+
+                var key = new SearchKey(query.Trim().ToUpperInvariant(), includePreview);
+                return this.searches.GetOrAdd(
+                    key,
+                    static (key, index) => new(
+                        () => [.. index.GetAllResourceTypes(key.IncludePreview)
+                            .Where(entry => entry.FullyQualifiedType.Contains(key.Query, StringComparison.OrdinalIgnoreCase))],
+                        LazyThreadSafetyMode.ExecutionAndPublication),
+                    this).Value;
+            }
+
+            private static string? GetProviderNamespace(string fullyQualifiedType)
+            {
+                var separatorIndex = fullyQualifiedType.IndexOf('/');
+                return separatorIndex > 0 ? fullyQualifiedType[..separatorIndex] : null;
+            }
+        }
+
+        private sealed class ResourceTypeNamespaceCatalog
+        {
+            private readonly ImmutableArray<KeyValuePair<string, ImmutableArray<ResourceTypeReference>>> resourceTypes;
+
+            private readonly Lazy<ImmutableArray<VisualResourceTypeCatalogEntry>> stableEntries;
+
+            private readonly Lazy<ImmutableArray<VisualResourceTypeCatalogEntry>> allEntries;
+
+            private readonly int stableResourceTypeCount;
+
+            private readonly int allResourceTypeCount;
+
+            public ResourceTypeNamespaceCatalog(
+                ImmutableArray<KeyValuePair<string, ImmutableArray<ResourceTypeReference>>> resourceTypes)
+            {
+                this.resourceTypes = resourceTypes;
+                this.stableResourceTypeCount = resourceTypes.Count(pair =>
+                    pair.Value.Any(resourceType => resourceType.ApiVersion is { } apiVersion && !IsPreviewApiVersion(apiVersion)));
+                this.allResourceTypeCount = resourceTypes.Count(pair =>
+                    pair.Value.Any(resourceType => resourceType.ApiVersion is not null));
+                this.stableEntries = new(
+                    () => this.BuildEntries(includePreview: false),
+                    LazyThreadSafetyMode.ExecutionAndPublication);
+                this.allEntries = new(
+                    () => this.BuildEntries(includePreview: true),
+                    LazyThreadSafetyMode.ExecutionAndPublication);
+            }
+
+            public int GetResourceTypeCount(bool includePreview) =>
+                includePreview ? this.allResourceTypeCount : this.stableResourceTypeCount;
+
+            public ImmutableArray<VisualResourceTypeCatalogEntry> GetEntries(bool includePreview) =>
+                includePreview ? this.allEntries.Value : this.stableEntries.Value;
+
+            private ImmutableArray<VisualResourceTypeCatalogEntry> BuildEntries(bool includePreview) =>
+                [.. this.resourceTypes
+                    .Select(pair => SelectLatest(pair.Value, includePreview))
+                    .WhereNotNull()
+                    .Select(resourceType => new VisualResourceTypeCatalogEntry(
+                        resourceType.FormatType(),
+                        resourceType.ApiVersion!,
+                        IsPreviewApiVersion(resourceType.ApiVersion!)))
+                    .OrderBy(entry => entry.FullyQualifiedType, StringComparer.OrdinalIgnoreCase)];
+
+            private static ResourceTypeReference? SelectLatest(
+                ImmutableArray<ResourceTypeReference> resourceTypes,
+                bool includePreview) =>
+                resourceTypes
+                    .Where(resourceType => resourceType.ApiVersion is { } apiVersion &&
+                        (includePreview || !IsPreviewApiVersion(apiVersion)))
+                    .Select(resourceType => (ResourceType: resourceType, ApiVersion: resourceType.ApiVersion!))
+                    .OrderByDescending(item => item.ApiVersion, ApiVersionComparer.Instance)
+                    .Select(item => item.ResourceType)
+                    .FirstOrDefault();
+        }
+
+        private readonly record struct SearchKey(string Query, bool IncludePreview);
 
         /// <summary>
         /// Derives a deterministic, valid, case-insensitively-unique symbolic name for a new resource of the

@@ -203,7 +203,65 @@ public class VisualResourceCreationServiceTests
     #region GetResourceTypes
 
     [TestMethod]
-    public void GetResourceTypes_OrdersByTypeAscendingThenApiVersionDescending()
+    public void GetResourceTypeNamespaces_ReturnsSortedNamespacesWithCountsAndStableCatalogId()
+    {
+        var fixture = CatalogFixture.Add(
+            TestTypeHelper.CreateCustomResourceType("Other.Rp/delta", "2022-01-01", TypeSymbolValidationFlags.Default));
+        var model = CreateModel(fixture, string.Empty);
+        var service = new VisualResourceCreationService();
+
+        var first = service.GetResourceTypeNamespaces(model, includePreview: false);
+        var second = service.GetResourceTypeNamespaces(model, includePreview: false);
+
+        first.CatalogId.Should().Be(second.CatalogId);
+        first.Namespaces.Should().Equal(
+            new VisualResourceTypeNamespace("Other.Rp", 1),
+            new VisualResourceTypeNamespace("Test.Rp", 3));
+    }
+
+    [TestMethod]
+    public void GetResourceTypes_ProviderNamespace_LoadsOnlyThatNamespace()
+    {
+        var fixture = CatalogFixture.Add(
+            TestTypeHelper.CreateCustomResourceType("Other.Rp/delta", "2022-01-01", TypeSymbolValidationFlags.Default));
+        var model = CreateModel(fixture, string.Empty);
+        var service = new VisualResourceCreationService();
+
+        var result = service.GetResourceTypes(
+            model,
+            providerNamespace: "other.rp",
+            query: null,
+            includePreview: false,
+            pageSize: 50,
+            continuationToken: null);
+
+        result.Items.Should().ContainSingle();
+        result.Items[0].FullyQualifiedType.Should().Be("Other.Rp/delta");
+    }
+
+    [TestMethod]
+    public void GetResourceTypes_IncludePreview_PrefersStableVersionWithSameDate()
+    {
+        var fixture = CatalogFixture
+            .Add(TestTypeHelper.CreateCustomResourceType("Other.Rp/delta", "2022-01-01-preview", TypeSymbolValidationFlags.Default))
+            .Add(TestTypeHelper.CreateCustomResourceType("Other.Rp/delta", "2022-01-01", TypeSymbolValidationFlags.Default));
+        var model = CreateModel(fixture, string.Empty);
+        var service = new VisualResourceCreationService();
+
+        var result = service.GetResourceTypes(
+            model,
+            providerNamespace: "Other.Rp",
+            query: null,
+            includePreview: true,
+            pageSize: 50,
+            continuationToken: null);
+
+        result.Items.Should().ContainSingle();
+        result.Items[0].ApiVersion.Should().Be("2022-01-01");
+    }
+
+    [TestMethod]
+    public void GetResourceTypes_ReturnsLatestApiVersionForEachType()
     {
         var model = CreateModel(CatalogFixture, string.Empty);
         var service = new VisualResourceCreationService();
@@ -212,7 +270,6 @@ public class VisualResourceCreationServiceTests
 
         result.Items.Select(entry => (entry.FullyQualifiedType, entry.ApiVersion)).Should().Equal(
             ("Test.Rp/alpha", "2021-01-01-preview"),
-            ("Test.Rp/alpha", "2020-01-01"),
             ("Test.Rp/beta", "2020-06-01"),
             ("Test.Rp/gamma", "2019-01-01"));
         result.Items.Single(entry => entry.ApiVersion == "2021-01-01-preview").IsPreview.Should().BeTrue();
@@ -230,6 +287,7 @@ public class VisualResourceCreationServiceTests
 
         result.Items.Should().HaveCount(3);
         result.Items.Should().NotContain(entry => entry.IsPreview);
+        result.Items.Single(entry => entry.FullyQualifiedType == "Test.Rp/alpha").ApiVersion.Should().Be("2020-01-01");
     }
 
     [TestMethod]
@@ -240,7 +298,7 @@ public class VisualResourceCreationServiceTests
 
         var result = service.GetResourceTypes(model, query: "ALPHA", includePreview: true, pageSize: 50, continuationToken: null);
 
-        result.Items.Should().HaveCount(2);
+        result.Items.Should().ContainSingle();
         result.Items.Should().OnlyContain(entry => entry.FullyQualifiedType == "Test.Rp/alpha");
     }
 
@@ -255,14 +313,13 @@ public class VisualResourceCreationServiceTests
         firstPage.ContinuationToken.Should().Be("2");
 
         var secondPage = service.GetResourceTypes(model, query: null, includePreview: true, pageSize: 2, continuationToken: firstPage.ContinuationToken);
-        secondPage.Items.Should().HaveCount(2);
+        secondPage.Items.Should().ContainSingle();
         secondPage.ContinuationToken.Should().BeNull();
 
         firstPage.Items.Concat(secondPage.Items)
             .Select(entry => (entry.FullyQualifiedType, entry.ApiVersion))
             .Should().Equal(
                 ("Test.Rp/alpha", "2021-01-01-preview"),
-                ("Test.Rp/alpha", "2020-01-01"),
                 ("Test.Rp/beta", "2020-06-01"),
                 ("Test.Rp/gamma", "2019-01-01"));
     }
@@ -275,7 +332,7 @@ public class VisualResourceCreationServiceTests
 
         var result = service.GetResourceTypes(model, query: null, includePreview: true, pageSize: 0, continuationToken: null);
 
-        result.Items.Should().HaveCount(4);
+        result.Items.Should().HaveCount(3);
         result.ContinuationToken.Should().BeNull();
     }
 
@@ -287,7 +344,7 @@ public class VisualResourceCreationServiceTests
 
         var result = service.GetResourceTypes(model, query: null, includePreview: true, pageSize: 10_000, continuationToken: null);
 
-        result.Items.Should().HaveCount(4);
+        result.Items.Should().HaveCount(3);
         result.ContinuationToken.Should().BeNull();
     }
 

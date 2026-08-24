@@ -15,6 +15,7 @@ import { getDefaultStore, useAtomValue, useSetAtom } from "jotai";
 import { Suspense, useCallback, useEffect, useRef } from "react";
 import { styled, ThemeProvider } from "styled-components";
 import { ControlBar } from "./features/controls";
+import { useMotionPolicySync } from "./features/accessibility";
 import { loadDevAppShell } from "./features/devtools";
 import {
   effectiveExportThemeAtom,
@@ -26,7 +27,8 @@ import {
   isExportCanvasCoverVisibleAtom,
   isExportPreviewVisibleAtom,
 } from "./features/export";
-import { PendingResourceLayer, ResourceCreationError, ResourcePaletteLayer } from "./features/resource-palette";
+import { PendingResourceLayer, ResourceCreationError } from "./features/resource-creation";
+import { ResourcePaletteLayer } from "./features/resource-palette";
 import { StatusBar } from "./features/status";
 import { ModuleDeclaration, ResourceDeclaration } from "./features/visualization";
 import { GlobalStyle } from "./GlobalStyle";
@@ -181,6 +183,7 @@ const $AppContainer = styled.div`
 
 function AppCore() {
   const theme = useTheme();
+  useMotionPolicySync();
 
   return (
     <ThemeProvider theme={theme}>
