@@ -59,6 +59,7 @@
   },
   "dependencies": {
     "@react-hook/resize-observer": "^2.0.2",
+    "jotai-family": "^1.1.0",
     "motion": "^13.1.0"
   }
 }

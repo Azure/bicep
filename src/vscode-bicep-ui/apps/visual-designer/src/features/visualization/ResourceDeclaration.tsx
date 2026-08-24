@@ -4,8 +4,16 @@
 import type { Range } from "@/lib/messaging";
 
 import { AzureIcon } from "@vscode-bicep-ui/components";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
+import { motion } from "motion/react";
+import { useEffect } from "react";
 import { styled } from "styled-components";
+import {
+  RESOURCE_PALETTE_TRANSITION,
+  RESOURCE_PREVIEW_CARD_HEIGHT,
+  RESOURCE_PREVIEW_CARD_WIDTH,
+  resourceNodeIsCommittingAtomFamily,
+} from "@/features/resource-palette";
 import { focusedNodeIdAtom } from "@/lib/graph";
 import { camelCaseToWords } from "@/lib/utils";
 
@@ -21,7 +29,11 @@ export interface ResourceDeclarationProps {
   };
 }
 
-const $ResourceDelcarton = styled.div<{ $hasError?: boolean; $isCollection?: boolean; $isFocused?: boolean }>`
+const $ResourceDeclaration = styled(motion.div)<{
+  $hasError?: boolean;
+  $isCollection?: boolean;
+  $isFocused?: boolean;
+}>`
   position: relative;
   flex: 1;
   display: flex;
@@ -40,8 +52,7 @@ const $ResourceDelcarton = styled.div<{ $hasError?: boolean; $isCollection?: boo
     $isFocused ? ($hasError ? theme.node.selectedErrorShadow : theme.node.selectedShadow) : theme.node.shadow};
   transition:
     border-color 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
+    box-shadow 180ms ease;
 
   &:hover {
     border-color: ${({ $hasError, $isFocused, theme }) =>
@@ -91,6 +102,13 @@ const $TextContainer = styled.div`
   overflow: hidden;
 `;
 
+const $ResourceIcon = styled(motion.div)`
+  display: flex;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+`;
+
 const $SymbolicNameContainer = styled.div`
   font-size: 15px;
   font-weight: 600;
@@ -121,15 +139,46 @@ export function ResourceDeclaration({ id, data }: ResourceDeclarationProps) {
   // compound module styling.
   const iconType = normalizedResourceType === "<module>" ? "folder" : normalizedResourceType;
   const focusedNodeId = useAtomValue(focusedNodeIdAtom);
+  const [isCommitting, setIsCommitting] = useAtom(resourceNodeIsCommittingAtomFamily(id));
   const isFocused = focusedNodeId === id;
+  const initialCardScaleX = RESOURCE_PREVIEW_CARD_WIDTH / 220;
+  const initialCardScaleY = RESOURCE_PREVIEW_CARD_HEIGHT / 76;
+  const initialIconScaleX = 18 / (36 * initialCardScaleX);
+  const initialIconScaleY = 18 / (36 * initialCardScaleY);
+
+  useEffect(
+    () => () => {
+      resourceNodeIsCommittingAtomFamily.remove(id);
+    },
+    [id],
+  );
 
   return (
-    <$ResourceDelcarton $hasError={hasError} $isCollection={isCollection} $isFocused={isFocused}>
-      <AzureIcon resourceType={iconType} size={36} />
+    <$ResourceDeclaration
+      initial={isCommitting ? { scaleX: initialCardScaleX, scaleY: initialCardScaleY } : false}
+      animate={{ scaleX: 1, scaleY: 1 }}
+      transition={RESOURCE_PALETTE_TRANSITION}
+      onAnimationComplete={() => {
+        if (isCommitting) {
+          setIsCommitting(false);
+        }
+      }}
+      data-committing={isCommitting}
+      $hasError={hasError}
+      $isCollection={isCollection}
+      $isFocused={isFocused}
+    >
+      <$ResourceIcon
+        initial={isCommitting ? { scaleX: initialIconScaleX, scaleY: initialIconScaleY } : false}
+        animate={{ scaleX: 1, scaleY: 1 }}
+        transition={RESOURCE_PALETTE_TRANSITION}
+      >
+        <AzureIcon resourceType={iconType} size={36} />
+      </$ResourceIcon>
       <$TextContainer>
         <$SymbolicNameContainer>{symbolicName}</$SymbolicNameContainer>
         <$ResourceTypeContainer>{resourceTypeDisplayName}</$ResourceTypeContainer>
       </$TextContainer>
-    </$ResourceDelcarton>
+    </$ResourceDeclaration>
   );
 }

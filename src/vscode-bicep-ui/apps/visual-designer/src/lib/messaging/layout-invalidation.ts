@@ -34,14 +34,19 @@ interface LayoutRelevantGraph {
  * against the node's CURRENT values. Only an actual change to a size-affecting field counts;
  * `hasError` never affects layout.
  */
-export function patchMayAffectLayout(graph: LayoutRelevantGraph, patch: GraphPatch): boolean {
+export function patchMayAffectLayout(
+  graph: LayoutRelevantGraph,
+  patch: GraphPatch,
+  explicitlyPlacedNodeIds: ReadonlySet<string> = new Set(),
+): boolean {
   switch (patch.op) {
     case "clearGraph":
-    case "addNode":
     case "removeNode":
     case "addEdge":
     case "removeEdge":
       return true;
+    case "addNode":
+      return !explicitlyPlacedNodeIds.has(patch.node.id);
     case "updateNode": {
       const node = graph.nodes.get(patch.nodeId);
       if (!node) {

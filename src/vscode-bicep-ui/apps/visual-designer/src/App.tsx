@@ -12,7 +12,7 @@ import {
   WebviewMessageChannelProvider,
 } from "@vscode-bicep-ui/messaging";
 import { getDefaultStore, useAtomValue, useSetAtom } from "jotai";
-import { Suspense, useCallback, useEffect } from "react";
+import { Suspense, useCallback, useEffect, useRef } from "react";
 import { styled, ThemeProvider } from "styled-components";
 import { ControlBar } from "./features/controls";
 import { loadDevAppShell } from "./features/devtools";
@@ -26,16 +26,13 @@ import {
   isExportCanvasCoverVisibleAtom,
   isExportPreviewVisibleAtom,
 } from "./features/export";
+import { PendingResourceLayer, ResourceCreationError, ResourcePaletteLayer } from "./features/resource-palette";
 import { StatusBar } from "./features/status";
 import { ModuleDeclaration, ResourceDeclaration } from "./features/visualization";
 import { GlobalStyle } from "./GlobalStyle";
 import { Canvas, Graph, nodeConfigAtom } from "./lib/graph";
 import { useFitViewToBounds } from "./lib/graph/hooks";
-import {
-  DOCUMENT_DID_CHANGE_NOTIFICATION,
-  READY_NOTIFICATION,
-  useGraphUpdate,
-} from "./lib/messaging";
+import { DOCUMENT_DID_CHANGE_NOTIFICATION, READY_NOTIFICATION, useGraphUpdate } from "./lib/messaging";
 import { useTheme } from "./lib/theming";
 
 const DevAppShell = loadDevAppShell();
@@ -90,11 +87,12 @@ function GraphContainer() {
     return { x: width / 2, y: height / 2 };
   }, [getPanZoomDimensions]);
   const fitViewToBounds = useFitViewToBounds();
-  const { requestGraphUpdate, resetLayout } = useGraphUpdate(getViewportCenter, fitViewToBounds);
+  const { requestGraphUpdate, createResource, resetLayout } = useGraphUpdate(getViewportCenter, fitViewToBounds);
   const messageChannel = useWebviewMessageChannel();
   const exportTheme = useAtomValue(effectiveExportThemeAtom);
   const setExportFileStem = useSetAtom(exportFileStemAtom);
   const setExportCanvasElement = useSetAtom(exportCanvasElementAtom);
+  const canvasElementRef = useRef<HTMLDivElement | null>(null);
 
   // Send READY notification on mount
   useEffect(() => {
@@ -110,10 +108,11 @@ function GraphContainer() {
     useCallback(
       (params: unknown) => {
         const payload = params as DocumentDidChangePayload;
+        messageChannel.setState({ documentPath: payload.documentUri });
         setExportFileStem(deriveExportFileStem(payload.documentUri));
         void requestGraphUpdate();
       },
-      [requestGraphUpdate, setExportFileStem],
+      [messageChannel, requestGraphUpdate, setExportFileStem],
     ),
   );
 
@@ -121,10 +120,13 @@ function GraphContainer() {
 
   const handleCanvasRef = useCallback(
     (element: HTMLDivElement | null) => {
+      canvasElementRef.current = element;
       setExportCanvasElement(element);
     },
     [setExportCanvasElement],
   );
+
+  const getCanvasElement = useCallback(() => canvasElementRef.current, []);
 
   return (
     <>
@@ -136,10 +138,12 @@ function GraphContainer() {
         <$CanvasWrapper ref={handleCanvasRef}>
           <Canvas>
             <ExportCanvasCoverLayer />
+            <PendingResourceLayer />
             <Graph />
           </Canvas>
         </$CanvasWrapper>
       </ThemeProvider>
+      <ResourcePaletteLayer createResource={createResource} getCanvasElement={getCanvasElement} />
     </>
   );
 }
@@ -185,6 +189,7 @@ function AppCore() {
         <PanZoomProvider>
           <GraphContainer />
         </PanZoomProvider>
+        <ResourceCreationError />
         <StatusBar />
       </$AppContainer>
     </ThemeProvider>

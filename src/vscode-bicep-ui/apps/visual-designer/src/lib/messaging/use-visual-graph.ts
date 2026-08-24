@@ -124,7 +124,7 @@ export function useApplyVisualGraph(getViewportCenter: () => Point) {
   const previousGraphRef = useRef<DeploymentGraph | null>(null);
 
   return useCallback(
-    (graph: DeploymentGraph | null) => {
+    (graph: DeploymentGraph | null, newNodeOrigins: ReadonlyMap<string, Point> = new Map()) => {
       // Update status bar atoms
       store.set(errorCountAtom, graph?.errorCount ?? 0);
       store.set(hasNodesAtom, (graph?.nodes.length ?? 0) > 0);
@@ -280,7 +280,7 @@ export function useApplyVisualGraph(getViewportCenter: () => Point) {
         }
 
         // New node (or re-added after kind change) — create it.
-        const origin = previousPositions.get(node.id) ?? defaultOrigin;
+        const origin = newNodeOrigins.get(node.id) ?? previousPositions.get(node.id) ?? defaultOrigin;
         if (node.type === "<module>") {
           addAtomicNode(node.id, origin, {
             symbolicName: symbol,
@@ -362,14 +362,6 @@ export function useApplyVisualGraph(getViewportCenter: () => Point) {
       // applyGraphLayout once the server returns the computed layout. The visibility
       // gate set above is preserved until then.
     },
-    [
-      setEdgesAtom,
-      addAtomicNode,
-      addCompoundNode,
-      addEdge,
-      removeNodes,
-      setLayoutReady,
-      getViewportCenter,
-    ],
+    [setEdgesAtom, addAtomicNode, addCompoundNode, addEdge, removeNodes, setLayoutReady, getViewportCenter],
   );
 }

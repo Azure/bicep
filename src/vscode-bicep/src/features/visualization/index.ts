@@ -2,11 +2,7 @@
 // Licensed under the MIT License.
 
 export { activateVisualizationFeature } from "./activation";
-export {
-  ShowSourceFromVisualizerCommand,
-  ShowVisualizerCommand,
-  ShowVisualizerToSideCommand,
-} from "./commands";
+export { ShowSourceFromVisualizerCommand, ShowVisualizerCommand, ShowVisualizerToSideCommand } from "./commands";
 export {
   visualGraphLayoutRequestType,
   type VisualGraphLayoutResult,

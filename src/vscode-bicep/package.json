@@ -90,6 +90,22 @@
           "description": "Enable occasional surveys to collect feedback that helps us improve the Bicep extension.",
           "default": true
         },
+        "bicep.visualizer.openPositioning": {
+          "type": "string",
+          "enum": [
+            "full",
+            "left",
+            "right"
+          ],
+          "enumDescriptions": [
+            "Open the visualizer in the same editor group as the Bicep source.",
+            "Open the visualizer to the left of the Bicep source.",
+            "Open the visualizer to the right of the Bicep source."
+          ],
+          "default": "full",
+          "description": "Controls whether the Bicep visualizer occupies the current editor group or opens in a split beside its source file.",
+          "scope": "window"
+        },
         "bicep.completions.getAllAccessibleAzureContainerRegistries": {
           "type": "boolean",
           "description": "When completing 'br:' module references, query Azure for all container registries accessible to the user (may be slow). If this option is off, only registries configured under moduleAliases in bicepconfig.json will be listed.",

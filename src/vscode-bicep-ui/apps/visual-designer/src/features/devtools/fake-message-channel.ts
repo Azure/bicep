@@ -3,6 +3,8 @@
 
 import type { WebviewNotificationCallback, WebviewNotificationMessage } from "@vscode-bicep-ui/messaging";
 import type {
+  CreateVisualResourceRequest,
+  CreateVisualResourceResponse,
   DeploymentGraph,
   GetGraphLayoutRequest,
   GetGraphLayoutResponse,
@@ -11,6 +13,7 @@ import type {
 } from "@/lib/messaging";
 
 import {
+  CREATE_RESOURCE_REQUEST,
   DOCUMENT_DID_CHANGE_NOTIFICATION,
   GET_GRAPH_LAYOUT_REQUEST,
   GET_GRAPH_UPDATE_REQUEST,
@@ -791,16 +794,43 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
  */
 export class FakeMessageChannel {
   private readonly notificationSubscriptions: Record<string, Set<WebviewNotificationCallback>> = {};
+  private readonly onWindowMessage = (event: MessageEvent) => {
+    if (
+      typeof event.data === "object" &&
+      event.data !== null &&
+      "method" in event.data &&
+      typeof event.data.method === "string"
+    ) {
+      this.dispatchNotification(event.data.method, "params" in event.data ? event.data.params : undefined);
+    }
+  };
+
+  constructor() {
+    window.addEventListener("message", this.onWindowMessage);
+  }
 
   revive() {
-    // no-op
+    window.addEventListener("message", this.onWindowMessage);
   }
 
   dispose() {
-    // no-op
+    window.removeEventListener("message", this.onWindowMessage);
   }
 
   sendRequest<T>(requestMessage: { method: string; params?: unknown }): Promise<T> {
+    if (requestMessage.method === "resourceTypeCatalog/load") {
+      return Promise.resolve([
+        {
+          group: "Microsoft.Storage",
+          resourceTypes: [{ resourceType: "storageAccounts", apiVersion: "2025-01-01" }],
+        },
+        {
+          group: "Microsoft.Network",
+          resourceTypes: [{ resourceType: "virtualNetworks", apiVersion: "2024-07-01" }],
+        },
+      ] as T);
+    }
+
     if (requestMessage.method === GET_GRAPH_UPDATE_REQUEST) {
       const { current } = requestMessage.params as GetGraphUpdateRequest;
       const patches = diffGraph(current, this.currentGraph);
@@ -815,6 +845,47 @@ export class FakeMessageChannel {
         : { status: "graphChanged", patches: [] };
 
       return Promise.resolve(result as T);
+    }
+
+    if (requestMessage.method === CREATE_RESOURCE_REQUEST) {
+      const request = requestMessage.params as CreateVisualResourceRequest;
+      const current = this.currentGraph ?? { nodes: [], edges: [], errorCount: 0 };
+      const baseName = request.resourceType.fullyQualifiedType.split("/").slice(-1)[0]?.replace(/s$/, "") ?? "resource";
+      let symbolicName = baseName.charAt(0).toLocaleLowerCase() + baseName.slice(1);
+      let suffix = 1;
+      const existingIds = new Set(current.nodes.map((node) => node.id));
+      while (existingIds.has(symbolicName)) {
+        symbolicName = `${baseName}${suffix}`;
+        suffix++;
+      }
+
+      return new Promise<T>((resolve) => {
+        setTimeout(() => {
+          this.pushGraph({
+            ...current,
+            nodes: [
+              ...current.nodes,
+              {
+                id: symbolicName,
+                type: request.resourceType.fullyQualifiedType,
+                isCollection: false,
+                range: ZERO_RANGE,
+                hasChildren: false,
+                hasError: true,
+                filePath: FAKE_FILE_PATH,
+              },
+            ],
+          });
+
+          resolve({
+            version: 1,
+            operationId: request.operationId,
+            expectedNodeId: symbolicName,
+            symbolicName,
+            unresolvedRequiredProperties: ["name"],
+          } satisfies CreateVisualResourceResponse as T);
+        }, 300);
+      });
     }
 
     return Promise.reject(new Error(`FakeMessageChannel does not support request: ${requestMessage.method}`));
@@ -838,6 +909,10 @@ export class FakeMessageChannel {
     } else if (notificationMessage.method === SHOW_PROBLEMS_PANEL_NOTIFICATION) {
       console.log("[FakeMessageChannel] showProblemsPanel: would open VS Code Problems panel");
     }
+  }
+
+  setState<T>(state: T): T {
+    return state;
   }
 
   /** Returns the most recently pushed graph (for mutations). */

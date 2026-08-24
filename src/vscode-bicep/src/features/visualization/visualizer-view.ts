@@ -23,13 +23,20 @@ import { Disposable } from "../../infrastructure/lifecycle";
 import { getLogger } from "../../infrastructure/logging";
 import { debounce } from "../../infrastructure/timing";
 import {
+  prepareVisualResourceRequestType,
+  PrepareVisualResourceResult,
   visualGraphLayoutRequestType,
   VisualGraphLayoutResult,
   visualGraphNodeSourceRequestType,
   VisualGraphRendered,
   visualGraphUpdateRequestType,
   VisualGraphUpdateResult,
+  VisualResourceTypeCatalogItem,
+  VisualResourceTypeReference,
+  visualResourceTypesRequestType,
 } from "./protocol";
+import { getApplyEditFailureCode, hasDocumentChanged } from "./resource-creation";
+import { buildResourceTypeCatalog } from "./resource-palette";
 
 export class BicepVisualizerView extends Disposable {
   public static viewType = "bicep.visualizer";
@@ -97,8 +104,8 @@ export class BicepVisualizerView extends Disposable {
     return new BicepVisualizerView(languageClient, webviewPanel, extensionUri, documentUri);
   }
 
-  public reveal(): void {
-    this.webviewPanel.reveal();
+  public reveal(viewColumn?: ViewColumn): void {
+    this.webviewPanel.reveal(viewColumn);
   }
 
   public async waitUntilReady(): Promise<void> {
@@ -219,6 +226,136 @@ export class BicepVisualizerView extends Disposable {
     }
   }
 
+  private async handleCreateResource(id: string, params: unknown): Promise<void> {
+    const request = params as {
+      version?: number;
+      operationId?: string;
+      resourceType?: VisualResourceTypeReference;
+    };
+
+    if (
+      request.version !== 1 ||
+      !request.operationId ||
+      !request.resourceType?.fullyQualifiedType ||
+      !request.resourceType.apiVersion
+    ) {
+      await this.postErrorResponse(id, {
+        version: 1,
+        operationId: request.operationId,
+        code: request.version === 1 ? "invalidResourceType" : "unsupportedContract",
+        message:
+          request.version === 1
+            ? "The resource type selection is invalid."
+            : "The resource creation contract version is not supported.",
+        retryable: false,
+      });
+      return;
+    }
+
+    try {
+      const document = await workspace.openTextDocument(this.documentUri);
+      const requestedVersion = document.version;
+      const result: PrepareVisualResourceResult = await this.languageClient.sendRequest(
+        prepareVisualResourceRequestType,
+        {
+          textDocument: this.languageClient.code2ProtocolConverter.asVersionedTextDocumentIdentifier(document),
+          operationId: request.operationId,
+          resourceType: request.resourceType,
+        },
+      );
+      const edit = await this.languageClient.protocol2CodeConverter.asWorkspaceEdit(result.edit);
+
+      if (hasDocumentChanged(requestedVersion, document.version, document.isClosed)) {
+        await this.postErrorResponse(id, {
+          version: 1,
+          operationId: request.operationId,
+          code: "documentChanged",
+          message: "The Bicep file changed before the generated resource declaration could be applied.",
+          retryable: true,
+        });
+        return;
+      }
+
+      const applied = await workspace.applyEdit(edit);
+
+      if (!applied) {
+        await this.postErrorResponse(id, {
+          version: 1,
+          operationId: request.operationId,
+          code: getApplyEditFailureCode(requestedVersion, document.version, document.isClosed),
+          message: "VS Code could not apply the generated resource declaration.",
+          retryable: true,
+        });
+        return;
+      }
+
+      await this.postResponse(id, {
+        version: 1,
+        operationId: result.operationId,
+        expectedNodeId: result.expectedNodeId,
+        symbolicName: result.symbolicName,
+        unresolvedRequiredProperties: result.unresolvedRequiredProperties,
+      });
+    } catch (error) {
+      getLogger().error(`Visual resource creation request failed: ${parseError(error).message}`);
+      await this.postErrorResponse(id, {
+        version: 1,
+        operationId: request.operationId,
+        code: "generationFailed",
+        message: "Failed to create the resource declaration.",
+        retryable: true,
+      });
+    }
+  }
+
+  private async handleGetResourceTypeCatalog(id: string): Promise<void> {
+    try {
+      const document = await workspace.openTextDocument(this.documentUri);
+      const items: VisualResourceTypeCatalogItem[] = [];
+      let continuationToken: string | undefined;
+
+      do {
+        const response = await this.languageClient.sendRequest(visualResourceTypesRequestType, {
+          textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
+          includePreview: false,
+          pageSize: 200,
+          continuationToken,
+        });
+        items.push(...response.items);
+        continuationToken = response.continuationToken;
+      } while (continuationToken);
+
+      await this.postResponse(id, buildResourceTypeCatalog(items));
+    } catch (error) {
+      getLogger().error(`Resource type catalog request failed: ${parseError(error).message}`);
+      await this.postErrorResponse(id, { message: "Failed to load resource types for this Bicep file." });
+    }
+  }
+
+  private async postResponse(id: string, result: unknown): Promise<void> {
+    if (this.isDisposed) {
+      return;
+    }
+
+    try {
+      await this.webviewPanel.webview.postMessage({ id, result });
+    } catch (error) {
+      getLogger().debug((error as Error).message ?? error);
+    }
+  }
+
+  private async postErrorResponse(id: string, error: unknown): Promise<void> {
+    if (this.isDisposed) {
+      return;
+    }
+
+    try {
+      await this.webviewPanel.webview.postMessage({ id, error });
+    } catch (postError) {
+      getLogger().debug((postError as Error).message ?? postError);
+    }
+  }
+
   private handleDidReceiveMessage(message: unknown): void {
     if (!message || typeof message !== "object") {
       return;
@@ -265,6 +402,14 @@ export class BicepVisualizerView extends Disposable {
 
         case "getGraphLayout":
           void this.handleGetGraphLayout(request.id, request.params);
+          return;
+
+        case "resources/create":
+          void this.handleCreateResource(request.id, request.params);
+          return;
+
+        case "resourceTypeCatalog/load":
+          void this.handleGetResourceTypeCatalog(request.id);
           return;
       }
 
