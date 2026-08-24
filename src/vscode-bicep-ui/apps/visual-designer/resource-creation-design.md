@@ -19,12 +19,6 @@ Resource creation is disabled by default. Enable it in VS Code settings:
 
 When disabled, the visual designer does not render the **Add Resources** launcher. Changing the setting updates open visualizer panels without requiring a reload. This is a VS Code extension setting, not a `bicepconfig.json` compiler feature.
 
-The existing `bicep.visualizer.openPositioning` setting independently controls editor placement:
-
-- `full`: open in the source editor group
-- `left`: open the visualizer left of the source
-- `right`: open the visualizer right of the source
-
 ## User Experience
 
 The visual designer contains a collapsible floating **Resource Palette** over the full canvas:
