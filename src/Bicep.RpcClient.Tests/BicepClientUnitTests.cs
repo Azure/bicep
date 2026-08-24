@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using Bicep.RpcClient.JsonRpc;
 using Bicep.RpcClient.Models;
 using FluentAssertions;
@@ -14,6 +15,27 @@ public class BicepClientUnitTests
     public TestContext TestContext { get; set; } = null!;
 
     private CancellationToken Token => TestContext.CancellationTokenSource.Token;
+
+    [TestMethod]
+    public void GenerateDocs_models_expose_constructor_values()
+    {
+        var custom = new Dictionary<string, string> { ["owner"] = "Platform" };
+        var request = new GenerateDocsRequest(
+            "main.bicep",
+            "template.scriban",
+            "templates",
+            custom,
+            NoRestore: true);
+        var response = new GenerateDocsResponse([], "# Module\n");
+
+        request.Path.Should().Be("main.bicep");
+        request.TemplateFile.Should().Be("template.scriban");
+        request.TemplateRoot.Should().Be("templates");
+        request.CustomTemplateValues.Should().BeSameAs(custom);
+        request.NoRestore.Should().BeTrue();
+        response.Diagnostics.Should().BeEmpty();
+        response.Contents.Should().Be("# Module\n");
+    }
 
     [TestMethod]
     public async Task GetVersion_caches_result_and_does_not_re_issue_request()
@@ -129,93 +151,34 @@ public class BicepClientUnitTests
     public async Task GenerateDocs_forwards_request_to_the_expected_method()
     {
         var rpc = new FakeJsonRpcClient();
-        rpc.SetResponse("bicep/version", new VersionResponse("0.46.0"));
-        rpc.SetResponse("bicep/generateDocs", new GenerateDocsResponse([]));
+        rpc.SetResponse("bicep/version", new VersionResponse("0.47.0"));
+        rpc.SetResponse(
+            "bicep/generateDocs",
+            new GenerateDocsResponse([], "# Module\n"));
         using var client = new BicepClient(rpc);
 
         var result = await client.GenerateDocs(
-            new(["main.bicep"], null, null, null, null, NoRestore: false),
+            new("main.bicep", null, null, null, NoRestore: false),
             Token);
 
-        result.Results.Should().BeEmpty();
+        result.Contents.Should().Be("# Module\n");
         rpc.CallCount("bicep/generateDocs").Should().Be(1);
     }
 
     [TestMethod]
-    public async Task OutputDocs_forwards_request_to_the_expected_method()
+    public async Task GenerateDocs_throws_when_cli_version_is_below_minimum()
     {
         var rpc = new FakeJsonRpcClient();
-        rpc.SetResponse("bicep/version", new VersionResponse("0.46.0"));
-        rpc.SetResponse(
-            "bicep/outputDocs",
-            new OutputDocsResponse(new("main.bicep", null, true, [], "# Module\n")));
-        using var client = new BicepClient(rpc);
-
-        var result = await client.OutputDocs(
-            new("main.bicep", null, null, null, NoRestore: false),
-            Token);
-
-        result.Result.Contents.Should().Be("# Module\n");
-        rpc.CallCount("bicep/outputDocs").Should().Be(1);
-    }
-
-    [TestMethod]
-    public void Docs_models_expose_constructor_values()
-    {
-        var custom = new Dictionary<string, string> { ["owner"] = "Platform" };
-        var generateRequest = new GenerateDocsRequest(
-            ["main.bicep"],
-            "template.scriban",
-            "templates",
-            custom,
-            "docs.md",
-            NoRestore: true);
-        var outputRequest = new OutputDocsRequest(
-            "main.bicep",
-            "template.scriban",
-            "templates",
-            custom,
-            NoRestore: true);
-        var result = new DocsResult("main.bicep", "docs.md", true, [], "# Module\n");
-
-        generateRequest.Paths.Should().Equal("main.bicep");
-        generateRequest.TemplateFile.Should().Be("template.scriban");
-        generateRequest.TemplateRoot.Should().Be("templates");
-        generateRequest.Custom.Should().BeSameAs(custom);
-        generateRequest.OutputFile.Should().Be("docs.md");
-        generateRequest.NoRestore.Should().BeTrue();
-        outputRequest.Path.Should().Be("main.bicep");
-        outputRequest.TemplateFile.Should().Be("template.scriban");
-        outputRequest.TemplateRoot.Should().Be("templates");
-        outputRequest.Custom.Should().BeSameAs(custom);
-        outputRequest.NoRestore.Should().BeTrue();
-        result.Path.Should().Be("main.bicep");
-        result.OutputPath.Should().Be("docs.md");
-        result.Success.Should().BeTrue();
-        result.Diagnostics.Should().BeEmpty();
-        result.Contents.Should().Be("# Module\n");
-    }
-
-    [TestMethod]
-    public async Task Docs_methods_throw_when_cli_version_is_below_minimum()
-    {
-        var rpc = new FakeJsonRpcClient();
-        rpc.SetResponse("bicep/version", new VersionResponse("0.45.0"));
+        rpc.SetResponse("bicep/version", new VersionResponse("0.46.1"));
         using var client = new BicepClient(rpc);
 
         await FluentActions.Invoking(() => client.GenerateDocs(
-                new(["main.bicep"], null, null, null, null, NoRestore: false),
-                Token))
-            .Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*requires Bicep CLI version '0.46.0' or later*");
-        await FluentActions.Invoking(() => client.OutputDocs(
                 new("main.bicep", null, null, null, NoRestore: false),
                 Token))
             .Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*requires Bicep CLI version '0.46.0' or later*");
+            .WithMessage("*requires Bicep CLI version '0.47.0' or later*");
 
         rpc.CallCount("bicep/generateDocs").Should().Be(0);
-        rpc.CallCount("bicep/outputDocs").Should().Be(0);
     }
 
     [TestMethod]

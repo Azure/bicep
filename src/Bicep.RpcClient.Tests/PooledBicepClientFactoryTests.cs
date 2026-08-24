@@ -284,23 +284,18 @@ public class PooledBicepClientFactoryTests
     }
 
     [TestMethod]
-    public async Task Docs_requests_are_forwarded_through_the_pool()
+    public async Task GenerateDocs_request_is_forwarded_through_the_pool()
     {
         var inner = new FakeBicepClientFactory();
         using var factory = CreatePooledFactory(inner);
         var wrapper = await factory.Initialize(new BicepClientConfiguration(), Token);
 
-        var generated = await wrapper.GenerateDocs(
-            new(["main.bicep"], null, null, null, null, NoRestore: false),
-            Token);
-        var output = await wrapper.OutputDocs(
+        var rendered = await wrapper.GenerateDocs(
             new("main.bicep", null, null, null, NoRestore: false),
             Token);
 
-        generated.Results.Should().BeEmpty();
-        output.Result.Success.Should().BeTrue();
-        output.Result.Contents.Should().Be("# Module\n");
-        inner.CreatedClients.Single().DocsRequestCount.Should().Be(2);
+        rendered.Contents.Should().Be("# Module\n");
+        inner.CreatedClients.Single().DocsRequestCount.Should().Be(1);
 
         wrapper.Dispose();
     }
@@ -394,13 +389,7 @@ public class PooledBicepClientFactoryTests
         public Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken = default)
         {
             Interlocked.Increment(ref docsRequestCount);
-            return Task.FromResult(new GenerateDocsResponse([]));
-        }
-
-        public Task<OutputDocsResponse> OutputDocs(OutputDocsRequest request, CancellationToken cancellationToken = default)
-        {
-            Interlocked.Increment(ref docsRequestCount);
-            return Task.FromResult(new OutputDocsResponse(new(request.Path, null, true, [], "# Module\n")));
+            return Task.FromResult(new GenerateDocsResponse([], "# Module\n"));
         }
 
         public Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken = default)
