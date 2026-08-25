@@ -411,6 +411,23 @@ test.describe("editing", () => {
       .toBe(withoutGeneratorField(expectedStorageTemplate));
   });
 
+  test("decompiles an ARM template into Bicep", async ({
+    page,
+    playground,
+  }) => {
+    await page.getByLabel("ARM template JSON file").setInputFiles({
+      name: "storage.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(expectedStorageTemplate),
+    });
+
+    await expect
+      .poll(() => playground.readEditorText(playground.bicepEditor))
+      .toContain(
+        "resource storage 'Microsoft.Storage/storageAccounts@2021-02-01'",
+      );
+  });
+
   test("preserves source when decompilation fails", async ({
     page,
     playground,
