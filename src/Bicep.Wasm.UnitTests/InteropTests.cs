@@ -59,6 +59,32 @@ public class InteropTests
     }
 
     [TestMethod]
+    public async Task Decompile_WithInMemoryFileExplorer_UsesLocalEntrypointUri()
+    {
+        var jsRuntime = new MockJsRuntime(new Dictionary<string, string>());
+        var fileExplorer = new InMemoryFileExplorer();
+        using var serviceProvider = CreateServiceProvider(fileExplorer);
+        var interop = new Interop(jsRuntime.LoadQuickstart, serviceProvider);
+
+        var result = await interop.Decompile(
+            """
+            {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                "foo": {
+                  "type": "string"
+                }
+              },
+              "resources": []
+            }
+            """);
+
+        result.error.Should().BeNull();
+        result.bicepFile.Should().Contain("param foo string");
+    }
+
+    [TestMethod]
     public async Task CompileAndEmitDiagnostics_WithRemoteOciModule_RestoresModule()
     {
         var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
@@ -184,6 +210,7 @@ public class InteropTests
         }
 
         services.AddBicepCore();
+        services.AddBicepDecompiler();
 
         return services.BuildServiceProvider();
     }

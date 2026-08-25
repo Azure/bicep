@@ -11,7 +11,6 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
-using Bicep.IO.InMemory;
 using Bicep.Wasm.LanguageHelpers;
 using Microsoft.JSInterop;
 
@@ -19,6 +18,7 @@ namespace Bicep.Wasm
 {
     public partial class Interop
     {
+        private const string MainBicepFilePath = "/main.bicep";
         private const string QuickstartsRootPath = "/quickstarts/";
 
         public record DecompileResult(string? bicepFile, string? error);
@@ -81,7 +81,7 @@ namespace Bicep.Wasm
 
             try
             {
-                var (entrypointUri, filesToSave) = await decompiler.Decompile(DummyFileHandle.Default.Uri, jsonContent);
+                var (entrypointUri, filesToSave) = await decompiler.Decompile(IOUri.FromFilePath(MainBicepFilePath), jsonContent);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
             }
@@ -168,7 +168,7 @@ namespace Bicep.Wasm
             var fileExplorer = serviceScope.ServiceProvider.GetRequiredService<IFileExplorer>();
 
             var fileUri = string.IsNullOrEmpty(sourcePath)
-                ? IOUri.FromFilePath("/main.bicep")
+                ? IOUri.FromFilePath(MainBicepFilePath)
                 : IOUri.FromFilePath($"{QuickstartsRootPath}{sourcePath.TrimStart('/')}");
 
             await WriteFileAsync(fileExplorer, fileUri, fileContents);
