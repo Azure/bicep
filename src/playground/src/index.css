@@ -60,23 +60,30 @@ a:focus-visible,
   border: 0 !important;
 }
 
+.spinner,
+.startup-spinner {
+  border-style: solid;
+  border-color: currentcolor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
 .startup-spinner {
   width: 2rem;
   height: 2rem;
-  border: 0.25rem solid currentcolor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: startup-spinner 0.75s linear infinite;
+  border-width: 0.25rem;
 }
 
-@keyframes startup-spinner {
+@keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .spinner,
   .startup-spinner {
-    animation-duration: 1.5s;
+    animation: none;
   }
 }

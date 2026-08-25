@@ -14,6 +14,7 @@ interface Props {
   title: string;
   actions?: ReactNode;
   ariaBusy?: boolean;
+  busyLabel?: string;
   isStale?: boolean;
   pane: "bicep" | "arm";
 }
@@ -28,6 +29,7 @@ export const EditorPane: React.FC<Props> = ({
   title,
   actions,
   ariaBusy,
+  busyLabel,
   isStale,
   pane,
 }) => (
@@ -58,6 +60,16 @@ export const EditorPane: React.FC<Props> = ({
         {actions}
       </div>
     </header>
-    <div className="editor-surface">{children}</div>
+    <div className="editor-surface">
+      {children}
+      {busyLabel && (
+        <div className="editor-busy-indicator" aria-hidden="true">
+          <span className="editor-busy-content">
+            <span className="spinner small" />
+            {busyLabel}
+          </span>
+        </div>
+      )}
+    </div>
   </section>
 );

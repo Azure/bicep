@@ -99,8 +99,14 @@ param addDedicatedDataDiskForLXD bool = true`);
         await route.continue();
       },
     );
-    await page.getByRole("button", { name: "Reload selected sample" }).click();
+    const reloadSample = page.getByRole("button", {
+      name: "Reload selected sample",
+    });
+    await reloadSample.click();
 
+    await expect(reloadSample).toBeFocused();
+    await expect(playground.sampleTemplate).toBeEnabled();
+    await expect(page.getByRole("button", { name: "Decompile" })).toBeEnabled();
     await expect(playground.bicepEditor).toBeVisible();
     await expect
       .poll(() => playground.readEditorText(playground.bicepEditor))
@@ -112,6 +118,7 @@ param addDedicatedDataDiskForLXD bool = true`);
     await expect(playground.sampleTemplate).toHaveValue(
       "canonical/anbox/main.bicep",
     );
+    await expect(playground.sampleTemplate).not.toBeFocused();
   });
 
   test("compiles a template with local modules", async ({ playground }) => {
@@ -339,6 +346,11 @@ test.describe("compiler lifecycle", () => {
     await expect(
       playground.armPane.getByText("Compiling", { exact: true }),
     ).toBeVisible();
+    await expect(
+      playground.armPane.getByText("Compiling ARM template...", {
+        exact: true,
+      }),
+    ).toBeVisible();
     await expect(playground.armPane).toHaveAttribute("aria-busy", "true");
     await playground.replaceEditorText(
       playground.bicepEditor,
@@ -515,9 +527,12 @@ test.describe("native interface", () => {
     const problems = page.getByRole("region", { name: "Problems" });
     await expect(problems).toBeVisible();
     await expect(problems).toHaveCSS("min-height", "140px");
+    await expect(page.getByRole("main")).toHaveCSS("padding-bottom", "0px");
+    await expect(problems).toHaveCSS("margin-bottom", "4px");
     await expect(problems.locator(".problem").first()).toContainText("BCP");
     await problems.getByRole("button", { name: "Close Problems" }).click();
     await expect(problems).toBeHidden();
+    await expect(page.getByRole("main")).toHaveCSS("padding-bottom", "4px");
 
     await page.getByRole("button", { name: /Compilation failed/ }).click();
     await expect(problems).toBeVisible();
@@ -569,10 +584,17 @@ test.describe("native interface", () => {
     );
     await expect(copyArm).toBeDisabled();
     await expect(downloadArm).toBeDisabled();
-    await expect(playground.armPane.locator(".editor-surface")).toHaveCSS(
-      "opacity",
-      "0.5",
-    );
+    const staleEditorSurface = playground.armPane.locator(".editor-surface");
+    await expect(staleEditorSurface).toHaveCSS("opacity", "1");
+    await expect
+      .poll(() =>
+        staleEditorSurface.evaluate(
+          (element) =>
+            getComputedStyle(element, "::after").backgroundColor !==
+            "rgba(0, 0, 0, 0)",
+        ),
+      )
+      .toBe(true);
     await expect
       .poll(() => playground.readEditorText(playground.armTemplate))
       .toContain('"defaultValue": "yes"');

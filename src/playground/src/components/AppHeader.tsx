@@ -9,7 +9,6 @@ interface Props {
   activeOperation: string | undefined;
   colorMode: ColorMode;
   copied: boolean;
-  sampleLoading: boolean;
   sampleSelectRef: React.RefObject<HTMLSelectElement | null>;
   selectedSample: string | undefined;
   uploadInputRef: React.RefObject<HTMLInputElement | null>;
@@ -23,7 +22,6 @@ export const AppHeader: React.FC<Props> = ({
   activeOperation,
   colorMode,
   copied,
-  sampleLoading,
   sampleSelectRef,
   selectedSample,
   uploadInputRef,
@@ -32,7 +30,7 @@ export const AppHeader: React.FC<Props> = ({
   onSampleChange,
   onToggleColorMode,
 }) => {
-  const isBusy = activeOperation !== undefined || sampleLoading;
+  const isBusy = activeOperation !== undefined;
 
   return (
     <header className="app-header">

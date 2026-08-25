@@ -137,7 +137,7 @@ export const App: React.FC<Props> = ({
     }
   }
 
-  async function loadExample(filePath: string) {
+  async function loadExample(filePath: string, focusSampleSelect: boolean) {
     sampleRequestRef.current?.abort();
     const controller = new AbortController();
     sampleRequestRef.current = controller;
@@ -181,7 +181,9 @@ export const App: React.FC<Props> = ({
       if (sampleRequestRef.current === controller) {
         sampleRequestRef.current = undefined;
         setSampleLoadingPath(undefined);
-        window.requestAnimationFrame(() => sampleSelectRef.current?.focus());
+        if (focusSampleSelect) {
+          window.requestAnimationFrame(() => sampleSelectRef.current?.focus());
+        }
       }
     }
   }
@@ -216,6 +218,10 @@ export const App: React.FC<Props> = ({
   }
 
   async function handleDecompile(file: File) {
+    sampleRequestRef.current?.abort();
+    sampleRequestRef.current = undefined;
+    setSampleLoadingPath(undefined);
+
     await runOperation("Decompiling ARM template", async () => {
       if (file.size > maximumDecompileFileSize) {
         throw new Error("Select an ARM template smaller than 10 MB.");
@@ -357,13 +363,12 @@ export const App: React.FC<Props> = ({
         activeOperation={activeOperation?.label}
         colorMode={colorMode}
         copied={copied}
-        sampleLoading={sampleLoadingPath !== undefined}
         sampleSelectRef={sampleSelectRef}
         selectedSample={sampleLoadingPath ?? sourcePath}
         uploadInputRef={uploadInputRef}
         onCopyLink={() => void handleCopyLink()}
         onDecompile={(file) => void handleDecompile(file)}
-        onSampleChange={(path) => void loadExample(path)}
+        onSampleChange={(path) => void loadExample(path, true)}
         onToggleColorMode={() =>
           setColorMode(colorMode === "dark" ? "light" : "dark")
         }
@@ -401,6 +406,7 @@ export const App: React.FC<Props> = ({
       <main
         className="workspace"
         data-active-pane={activePane}
+        data-problems-open={problemsOpen && hasProblems}
         aria-label="Bicep compilation workspace"
       >
         <EditorPane
@@ -415,12 +421,10 @@ export const App: React.FC<Props> = ({
               <button
                 type="button"
                 className="pane-action"
-                disabled={
-                  activeOperation !== null || sampleLoadingPath !== undefined
-                }
+                disabled={activeOperation !== null}
                 aria-label="Reload selected sample"
                 title="Restore Bicep file from selected sample"
-                onClick={() => void loadExample(sourcePath)}
+                onClick={() => void loadExample(sourcePath, false)}
               >
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
                   <path
@@ -459,8 +463,11 @@ export const App: React.FC<Props> = ({
           status={armPaneStatus.label}
           statusTone={armPaneStatus.tone}
           isStale={compilationStatus !== "upToDate"}
-          ariaBusy={
-            compilationStatus === "pending" || compilationStatus === "compiling"
+          ariaBusy={compilationStatus === "compiling"}
+          busyLabel={
+            compilationStatus === "compiling"
+              ? "Compiling ARM template..."
+              : undefined
           }
           actions={
             <>

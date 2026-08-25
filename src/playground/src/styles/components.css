@@ -31,14 +31,17 @@
   border-color: var(--border);
 }
 
-.app-header .button:not(.primary-button, .icon-button),
-.app-header .sample-select {
+.app-header .button:not(.primary-button, .icon-button) {
   background: var(--toolbar-control);
   border-color: var(--toolbar-border);
   backdrop-filter: blur(8px);
 }
 
-.app-header .sample-select,
+.app-header .sample-select {
+  background: var(--select-background);
+  border-color: var(--toolbar-border);
+}
+
 .sample-select option {
   background: var(--select-background);
 }
@@ -58,8 +61,7 @@
   background: var(--control-hover);
 }
 
-.app-header .button:hover:not(:disabled),
-.app-header .sample-select:hover:not(:disabled) {
+.app-header .button:not(.primary-button, .icon-button):hover:not(:disabled) {
   background: var(--toolbar-control-hover);
 }
 
@@ -234,8 +236,38 @@
 }
 
 .editor-pane.is-stale .editor-surface {
-  filter: saturate(0.62);
-  opacity: 0.5;
+  position: relative;
+}
+
+.editor-pane.is-stale .editor-surface::after {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: color-mix(in srgb, var(--island) 18%, transparent);
+  content: "";
+  pointer-events: none;
+}
+
+.editor-busy-indicator {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.editor-busy-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 11px;
+  color: var(--text);
+  background: color-mix(in srgb, var(--island) 94%, transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .problems-header {
@@ -340,7 +372,8 @@
 }
 
 .status-summary {
-  margin: -2px -4px;
+  min-height: 24px;
+  margin: -4px;
   padding: 2px 4px;
   background: transparent;
   border: 0;
@@ -360,8 +393,8 @@
 
 .github-link {
   display: grid;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   place-items: center;
   color: var(--muted);
   border-radius: 2px;
@@ -393,22 +426,13 @@ a.version-link:hover {
 .spinner {
   width: 24px;
   height: 24px;
-  border: 3px solid currentcolor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: spin 0.75s linear infinite;
+  border-width: 3px;
 }
 
 .spinner.small {
   width: 14px;
   height: 14px;
   border-width: 2px;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 @media (max-width: 680px) {
@@ -422,8 +446,10 @@ a.version-link:hover {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .spinner {
-    animation-duration: 1.5s;
+@media (forced-colors: active) {
+  .sample-select:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+    box-shadow: none;
   }
 }
