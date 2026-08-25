@@ -54,6 +54,11 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
   const [scope, setScope] = useState<DeploymentScope>();
   const [localDeployResult, setLocalDeployResult] = useState<LocalDeployResponse>();
 
+  function savePersistedState(state: DeployPaneState) {
+    vscode.postMessage(createSaveStateMessage(state));
+    setPersistedState(state);
+  }
+
   useEffect(() => {
     const handleMessageEvent = (e: MessageEvent<VscodeMessage>) => {
       const message = e.data;
@@ -139,11 +144,6 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
     // We cannot add dependencies to this hook because it will cause infinite loops somehow.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  function savePersistedState(state: DeployPaneState) {
-    vscode.postMessage(createSaveStateMessage(state));
-    setPersistedState(state);
-  }
 
   function pickParamsFile() {
     vscode.postMessage(createPickParamsFileMessage());

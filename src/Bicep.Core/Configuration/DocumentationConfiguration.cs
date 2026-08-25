@@ -149,7 +149,7 @@ public sealed record DocumentationPatternSet
 /// <summary>
 /// Provides the documentation section of a Bicep configuration.
 /// </summary>
-public sealed class DocumentationConfiguration : ConfigurationSection<Documentation>
+public sealed class DocumentationConfiguration : ConfigurationSection<Documentation>, IBicepDocumentationConfiguration
 {
     public DocumentationConfiguration(Documentation data)
         : base(data)

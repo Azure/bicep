@@ -1,170 +1,408 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import React, { useEffect, useRef, useState } from 'react';
-import { Button, ButtonGroup, Col, Container, Dropdown, FormControl, Nav, Navbar, OverlayTrigger, Row, Spinner, Tooltip } from 'react-bootstrap';
+import { IApplicationInsights } from "@microsoft/applicationinsights-web";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Button,
+  ButtonGroup,
+  Col,
+  Dropdown,
+  FormControl,
+  Nav,
+  Navbar,
+  OverlayTrigger,
+  Spinner,
+  Tooltip,
+} from "react-bootstrap";
 
-import './App.css';
-import { JsonEditor } from './components/JsonEditor';
-import { BicepEditor } from './components/BicepEditor';
-import { getShareLink, handleShareLink } from './utils/utils';
-import { quickstartsPaths, getQuickstartsLink } from './utils/examples';
-import { DotnetInterop } from './utils/interop';
-import { IApplicationInsights } from '@microsoft/applicationinsights-web';
-import { registerBicep } from './components/CodeEditor';
+import "./App.css";
+import { DotnetInterop } from "./compiler/compiler-client";
+import {
+  BicepEditor,
+  CompilationStatus,
+} from "./components/BicepEditor";
+import { registerBicep } from "./components/CodeEditor";
+import { JsonEditor } from "./components/JsonEditor";
+import {
+  getQuickstartsLink,
+  quickstartsPaths,
+} from "./quickstarts/quickstarts";
+import { getShareLink, handleShareLink } from "./sharing/share-link";
+
+const maximumDecompileFileSize = 10 * 1024 * 1024;
+
+type Operation = {
+  id: number;
+  label: string;
+} | null;
 
 interface Props {
-  insights: IApplicationInsights,
-  interop: DotnetInterop,
+  insights: IApplicationInsights;
+  interop: DotnetInterop;
+  initialSharedContent: string | null;
 }
 
-export const App : React.FC<Props> = (props) => {
-  const { insights, interop } = props;
-  const [jsonContent, setJsonContent] = useState('');
-  const [bicepContent, setBicepContent] = useState('');
-  const [initialContent, setInitialContent] = useState('');
-  const [sourcePath, setSourcePath] = useState<string | undefined>(undefined);
+export const App: React.FC<Props> = ({
+  insights,
+  interop,
+  initialSharedContent,
+}) => {
+  const initialBicepContent = initialSharedContent ?? "";
+  const [jsonContent, setJsonContent] = useState("");
+  const [bicepContent, setBicepContent] = useState(initialBicepContent);
+  const [initialContent, setInitialContent] = useState(initialBicepContent);
+  const [sourcePath, setSourcePath] = useState<string>();
   const [copied, setCopied] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [filterText, setFilterText] = useState('');
+  const [activeOperation, setActiveOperation] = useState<Operation>(null);
+  const [operationError, setOperationError] = useState<string>();
+  const [compilationError, setCompilationError] = useState<string>();
+  const [compilationStatus, setCompilationStatus] =
+    useState<CompilationStatus>("pending");
+  const [filterText, setFilterText] = useState("");
   const uploadInputRef = useRef<HTMLInputElement>(null);
+  const sampleTemplateButtonRef = useRef<HTMLButtonElement>(null);
+  const copiedTimeoutRef = useRef<number>(undefined);
+  const operationIdRef = useRef(0);
+  const sampleRequestRef = useRef<AbortController>(undefined);
+  const sourcePathRef = useRef(sourcePath);
+  sourcePathRef.current = sourcePath;
 
-  async function withLoader(action: () => Promise<void>) {
+  useEffect(() => {
+    const registration = registerBicep(interop, () => sourcePathRef.current);
+    return () => {
+      registration.dispose();
+      interop.dispose();
+    };
+  }, [interop]);
+
+  useEffect(() => {
+    const handleHashChange = () =>
+      handleShareLink((content) => {
+        if (content !== null) {
+          insights.trackEvent({ name: "openSharedLink" });
+          setSourcePath(undefined);
+          setInitialContent(content);
+        }
+      });
+
+    window.addEventListener("hashchange", handleHashChange);
+
+    if (initialSharedContent !== null) {
+      insights.trackEvent({ name: "openSharedLink" });
+    }
+
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+  }, [initialSharedContent, insights]);
+
+  useEffect(() => {
+    return () => {
+      sampleRequestRef.current?.abort();
+
+      if (copiedTimeoutRef.current !== undefined) {
+        window.clearTimeout(copiedTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  async function runOperation(label: string, action: () => Promise<void>) {
+    const id = ++operationIdRef.current;
+    setActiveOperation({ id, label });
+    setOperationError(undefined);
+
     try {
-      setLoading(true);
       await action();
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        return;
+      }
+
+      if (operationIdRef.current === id) {
+        setOperationError(
+          error instanceof Error ? error.message : `${label} failed.`,
+        );
+      }
     } finally {
-      setLoading(false);
+      setActiveOperation((operation) =>
+        operation?.id === id ? null : operation,
+      );
     }
   }
 
   async function loadExample(filePath: string) {
-    withLoader(async () => {
-      const response = await fetch(getQuickstartsLink(filePath));
+    sampleRequestRef.current?.abort();
+    const controller = new AbortController();
+    sampleRequestRef.current = controller;
 
-      if (!response.ok) {
-        throw response.text();
-      }
+    try {
+      await runOperation("Loading sample template", async () => {
+        const response = await fetch(getQuickstartsLink(filePath), {
+          signal: controller.signal,
+        });
 
-      insights.trackEvent({ name: 'loadExample' }, { path: filePath });
-      const bicepText = await response.text();
-      setInitialContent(bicepText);
-      setSourcePath(filePath);
-    });
-  }
-
-  useEffect(() => registerBicep(interop), [interop]);
-
-  useEffect(() => {
-    window.addEventListener('hashchange', () => handleShareLink(content => {
-      if (content !== null) {
-        setSourcePath(undefined);
-        setInitialContent(content);
-      }
-    }));
-
-    handleShareLink(content => {
-      if (content !== null) {
-        insights.trackEvent({ name: 'openSharedLink' });
-        setSourcePath(undefined);
-        setInitialContent(content);
-      } else {
-        setSourcePath(undefined);
-        setInitialContent('');
-      }
-    });
-  }, []);
-
-  const handlCopyClick = () => {
-    insights.trackEvent({ name: 'copySharedLink' });
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-    const shareLink = getShareLink(bicepContent);
-
-    const shareHtml = `<a href="${shareLink}">View in Bicep Playground</a>`;
-    const clipboardItem = new ClipboardItem({
-        ["text/plain"]: new Blob([shareLink], { type: "text/plain" }),
-        ["text/html"]: new Blob([shareHtml], { type: "text/html" }),
-    });
-
-    navigator.clipboard.write([clipboardItem]);
-  }
-
-  const handleDecompileClick = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      withLoader(async () => {
-        insights.trackEvent({ name: 'decompileJson' });
-        const jsonContents = e.target!.result!.toString();
-        const { bicepFile, error } = await interop.decompile(jsonContents);
-        if (bicepFile) {
-          setSourcePath(undefined);
-          setInitialContent(bicepFile);
-        } else {
-          alert(error);
+        if (!response.ok) {
+          throw new Error(
+            `The sample template could not be loaded (${response.status} ${response.statusText}).`,
+          );
         }
-      });
-    };
 
-    reader.readAsText(file);
+        const bicepText = await response.text();
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        insights.trackEvent({ name: "loadExample" }, { path: filePath });
+        setInitialContent(bicepText);
+        setSourcePath(filePath);
+      });
+    } finally {
+      if (sampleRequestRef.current === controller) {
+        window.requestAnimationFrame(() =>
+          sampleTemplateButtonRef.current?.focus(),
+        );
+      }
+    }
   }
 
-  const filteredExamples = quickstartsPaths
-    .filter(x => x.toLowerCase().indexOf(filterText.toLowerCase()) !== -1)
-    .sort((a, b) => a > b ? 1 : -1);
+  async function handleCopyClick() {
+    setOperationError(undefined);
 
-  const dropdownItems = filteredExamples.map(path => (
-    <Dropdown.Item key={path} eventKey={path} active={false}>{path}</Dropdown.Item>
-  ));
+    try {
+      const shareLink = getShareLink(bicepContent);
+      await navigator.clipboard.writeText(shareLink);
 
-  const createTooltip = (text: string) => (
-    <Tooltip id="button-tooltip">
-      {text}
-    </Tooltip>
+      insights.trackEvent({ name: "copySharedLink" });
+      setCopied(true);
+
+      if (copiedTimeoutRef.current !== undefined) {
+        window.clearTimeout(copiedTimeoutRef.current);
+      }
+
+      copiedTimeoutRef.current = window.setTimeout(
+        () => setCopied(false),
+        2_000,
+      );
+    } catch (error) {
+      setCopied(false);
+      setOperationError(
+        error instanceof Error
+          ? `The share link could not be copied: ${error.message}`
+          : "The share link could not be copied.",
+      );
+    }
+  }
+
+  async function handleDecompileClick(file: File) {
+    await runOperation("Decompiling ARM template", async () => {
+      if (file.size > maximumDecompileFileSize) {
+        throw new Error("Select an ARM template smaller than 10 MB.");
+      }
+
+      const jsonContents = await file.text();
+      const { bicepFile, error } = await interop.decompile(jsonContents);
+
+      if (bicepFile === null) {
+        throw new Error(error ?? "The ARM template could not be decompiled.");
+      }
+
+      insights.trackEvent({ name: "decompileJson" });
+      setSourcePath(undefined);
+      setInitialContent(bicepFile);
+    });
+  }
+
+  const filteredExamples = useMemo(
+    () =>
+      quickstartsPaths
+        .filter((path) =>
+          path.toLowerCase().includes(filterText.trim().toLowerCase()),
+        )
+        .sort((left, right) => left.localeCompare(right)),
+    [filterText],
   );
 
-  return <>
-    <input type="file" ref={uploadInputRef} style={{ display: 'none' }} onChange={e => handleDecompileClick(e.currentTarget!.files![0])} accept="application/json" multiple={false} />
-    <Navbar bg="dark" variant="dark">
-      <Navbar.Brand>Bicep Playground</Navbar.Brand>
-      <Nav className="ms-auto">
-        <OverlayTrigger placement="bottom" overlay={createTooltip('Copy a shareable link to clipboard')}>
-          <Button size="sm" variant="primary" className="mx-1" onClick={handlCopyClick}>{copied ? 'Copied' : 'Copy Link'}</Button>
-        </OverlayTrigger>
-        <OverlayTrigger placement="bottom" overlay={createTooltip('Upload an ARM template JSON file to decompile to Bicep')}>
-          <Button size="sm" variant="primary" className="mx-1" onClick={() => uploadInputRef!.current!.click()}>Decompile</Button>
-        </OverlayTrigger>
-        <Dropdown as={ButtonGroup} onSelect={key => loadExample(key!)} onToggle={() => setFilterText('')}>
-          <OverlayTrigger placement="bottom" overlay={createTooltip('Select an Azure Quickstarts sample file')}>
-            <Dropdown.Toggle as={Button} size="sm" variant="primary" className="mx-1">Sample Template</Dropdown.Toggle>
+  const createTooltip = (id: string, text: string) => (
+    <Tooltip id={id}>{text}</Tooltip>
+  );
+
+  const isBusy = activeOperation !== null;
+  const armTemplateIsBusy =
+    compilationStatus === "pending" || compilationStatus === "compiling";
+  const compilationStatusLabel =
+    compilationStatus === "pending"
+      ? "Changes pending"
+      : compilationStatus === "compiling"
+        ? "Compiling ARM template..."
+        : "Compilation failed - ARM template is out of date";
+
+  return (
+    <>
+      <input
+        type="file"
+        aria-label="Upload ARM template"
+        ref={uploadInputRef}
+        className="visually-hidden"
+        onChange={(event) => {
+          const input = event.currentTarget;
+          const file = input.files?.[0];
+          input.value = "";
+
+          if (file) {
+            void handleDecompileClick(file);
+          }
+        }}
+        accept="application/json,.json"
+      />
+      <Navbar bg="dark" variant="dark">
+        <Navbar.Brand>Bicep Playground</Navbar.Brand>
+        <Nav className="ms-auto">
+          <OverlayTrigger
+            placement="bottom"
+            overlay={createTooltip(
+              "copy-link-tooltip",
+              "Copy a shareable link to clipboard",
+            )}
+          >
+            <Button
+              size="sm"
+              variant="primary"
+              className="mx-1"
+              onClick={() => void handleCopyClick()}
+            >
+              {copied ? "Copied" : "Copy Link"}
+            </Button>
           </OverlayTrigger>
-          <Dropdown.Menu align="end">
-          <Col>
-            <FormControl
-              autoFocus
-              placeholder="Type to filter..."
-              onChange={(e) => setFilterText(e.target.value)}
-              value={filterText} />
-          </Col>
-            {dropdownItems}
-          </Dropdown.Menu>
-        </Dropdown>
-      </Nav>
-    </Navbar>
-    <div className="playground-container">
-      { loading ?
-      <Container className="d-flex vh-100">
-        <Row className="m-auto align-self-center">
-          <Spinner animation="border" variant="light" />
-        </Row>
-      </Container> :
-      <>
+          <OverlayTrigger
+            placement="bottom"
+            overlay={createTooltip(
+              "decompile-tooltip",
+              "Upload an ARM template JSON file to decompile to Bicep",
+            )}
+          >
+            <Button
+              size="sm"
+              variant="primary"
+              className="mx-1"
+              disabled={isBusy}
+              onClick={() => uploadInputRef.current?.click()}
+            >
+              Decompile
+            </Button>
+          </OverlayTrigger>
+          <Dropdown
+            as={ButtonGroup}
+            onSelect={(key) => {
+              if (key) {
+                void loadExample(key);
+              }
+            }}
+            onToggle={() => setFilterText("")}
+          >
+            <OverlayTrigger
+              placement="bottom"
+              trigger="hover"
+              overlay={createTooltip(
+                "sample-template-tooltip",
+                "Select an Azure Quickstarts sample file",
+              )}
+            >
+              <Dropdown.Toggle
+                as={Button}
+                ref={sampleTemplateButtonRef}
+                size="sm"
+                variant="primary"
+                className="mx-1"
+                disabled={isBusy}
+              >
+                Sample Template
+              </Dropdown.Toggle>
+            </OverlayTrigger>
+            <Dropdown.Menu align="end">
+              <Col>
+                <FormControl
+                  autoFocus
+                  aria-label="Filter sample templates"
+                  placeholder="Type to filter..."
+                  onChange={(event) => setFilterText(event.target.value)}
+                  value={filterText}
+                />
+              </Col>
+              {filteredExamples.map((path) => (
+                <Dropdown.Item key={path} eventKey={path} active={false}>
+                  {path}
+                </Dropdown.Item>
+              ))}
+            </Dropdown.Menu>
+          </Dropdown>
+        </Nav>
+      </Navbar>
+      <main className="playground-container">
         <div className="playground-editorpane">
-          <BicepEditor interop={interop} onBicepChange={setBicepContent} onJsonChange={setJsonContent} initialContent={initialContent} sourcePath={sourcePath} />
+          <BicepEditor
+            interop={interop}
+            onBicepChange={setBicepContent}
+            onJsonChange={setJsonContent}
+            onCompilationError={setCompilationError}
+            onCompilationStatusChange={setCompilationStatus}
+            initialContent={initialContent}
+            sourcePath={sourcePath}
+          />
         </div>
-        <div className="playground-editorpane">
+        <div
+          className={`playground-editorpane arm-template-pane ${
+            compilationStatus === "upToDate" ? "" : "is-stale"
+          }`}
+          aria-busy={armTemplateIsBusy}
+        >
           <JsonEditor content={jsonContent} />
+          {compilationStatus !== "upToDate" && (
+            <div
+              className="compilation-status"
+              role="status"
+              aria-label={compilationStatusLabel}
+              aria-live="polite"
+            >
+              {compilationStatus === "compiling" && (
+                <Spinner
+                  animation="border"
+                  size="sm"
+                  variant="primary"
+                  aria-hidden="true"
+                />
+              )}
+              <span>{compilationStatusLabel}</span>
+            </div>
+          )}
         </div>
-      </> }
-    </div>
-  </>
+        {activeOperation && (
+          <div className="operation-overlay" role="status" aria-live="polite">
+            <Spinner animation="border" variant="light" aria-hidden="true" />
+            <span>{activeOperation.label}...</span>
+          </div>
+        )}
+      </main>
+      {(operationError || compilationError) && (
+        <div
+          className="playground-error"
+          role="alert"
+          aria-label="Playground error"
+        >
+          <span>{operationError ?? compilationError}</span>
+          <button
+            type="button"
+            className="btn-close"
+            aria-label="Dismiss error"
+            onClick={() => {
+              setOperationError(undefined);
+              setCompilationError(undefined);
+            }}
+          />
+        </div>
+      )}
+      <div className="visually-hidden" aria-live="polite">
+        {copied ? "Share link copied to the clipboard." : ""}
+      </div>
+    </>
+  );
 };

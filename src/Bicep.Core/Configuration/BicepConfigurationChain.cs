@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Configuration;
 
@@ -68,6 +69,17 @@ public class BicepConfigurationChain : IBicepConfigurationChain
 
         return this.aggregatedDiagnostics.Value;
     }
+
+    /// <summary>
+    /// Returns diagnostics grouped by the config file URI they originated from.
+    /// Built-in default layers (no <see cref="IBicepConfiguration.ConfigFileUri"/>) are excluded.
+    /// </summary>
+    public DiagnosticsPerFile EnumerateDiagnosticsPerFile()
+        => this.layers
+            .Where(layer => !layer.IsBuiltIn)
+            .Select(layer => new KeyValuePair<IOUri, ImmutableArray<IDiagnostic>>(
+                layer.ConfigFileUri!,
+                layer.GetDiagnostics().ToImmutableArray()));
 
     /// <summary>
     /// The number of configuration files in the chain, including the built-in defaults.

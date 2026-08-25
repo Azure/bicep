@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   height: 100vh;
   border: 0;
   margin: 0;
@@ -8,4 +9,36 @@ html, body {
 .app-container {
   height: 100vh;
   width: 100vw;
+}
+
+.startup-state {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+  text-align: center;
+}
+
+.startup-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 0.25rem solid currentcolor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: startup-spinner 0.75s linear infinite;
+}
+
+@keyframes startup-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .startup-spinner {
+    animation-duration: 1.5s;
+  }
 }
