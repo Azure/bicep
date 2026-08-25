@@ -24,10 +24,10 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@types/vscode-webview": "^1.57.5",
-    "@vitest/coverage-v8": "^4.1.10",
-    "happy-dom": "^20.11.2",
-    "vite": "^8.2.1",
+    "@vitest/coverage-v8": "^4.1.11",
+    "happy-dom": "^20.11.6",
+    "vite": "^8.2.2",
     "vite-plugin-dts": "^5.0.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   }
 }

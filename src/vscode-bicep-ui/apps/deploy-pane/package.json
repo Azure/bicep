@@ -16,17 +16,17 @@
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.6.4",
+    "@testing-library/user-event": "^14.6.6",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
-    "@vitejs/plugin-react": "^6.0.5",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitejs/plugin-react": "^6.1.0",
+    "@vitest/coverage-v8": "^4.1.11",
     "@vscode-elements/webview-playground": "^1.8.0",
     "element-internals-polyfill": "^3.0.2",
-    "happy-dom": "^20.11.2",
-    "vite": "^8.2.1",
+    "happy-dom": "^20.11.6",
+    "vite": "^8.2.2",
     "vite-plugin-ejs": "^2.0.0",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   },
   "dependencies": {
     "@azure/arm-resourcesdeployments": "^1.0.0",
