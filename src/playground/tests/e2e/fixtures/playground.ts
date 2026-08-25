@@ -10,7 +10,9 @@ import {
 
 export type Playground = {
   bicepEditor: Locator;
+  bicepPane: Locator;
   armTemplate: Locator;
+  armPane: Locator;
   error: Locator;
   copyLink: Locator;
   sampleTemplate: Locator;
@@ -40,14 +42,20 @@ export { expect };
 
 export function createPlayground(page: Page): Playground {
   const bicepEditor = page.getByRole("region", { name: "Bicep editor" });
-  const armTemplate = page.getByRole("region", { name: "ARM template" });
+  const bicepPane = page.getByRole("tabpanel", { name: "Bicep" });
+  const armTemplate = page.getByRole("region", {
+    name: "Generated ARM template editor",
+  });
+  const armPane = page.getByRole("tabpanel", { name: "ARM template" });
 
   return {
     bicepEditor,
+    bicepPane,
     armTemplate,
+    armPane,
     error: page.getByRole("alert", { name: "Playground error" }),
     copyLink: page.getByRole("button", { name: /Copy Link|Copied/ }),
-    sampleTemplate: page.getByRole("button", { name: "Sample Template" }),
+    sampleTemplate: page.getByRole("combobox", { name: "Sample template" }),
     async replaceEditorText(editor, content) {
       await page.evaluate(
         (text) => navigator.clipboard.writeText(text),
@@ -67,8 +75,9 @@ export function createPlayground(page: Page): Playground {
       );
     },
     async selectQuickstart(path) {
-      await page.getByRole("button", { name: "Sample Template" }).click();
-      await page.getByRole("button", { name: path }).click();
+      await page
+        .getByRole("combobox", { name: "Sample template" })
+        .selectOption(path);
     },
   };
 }

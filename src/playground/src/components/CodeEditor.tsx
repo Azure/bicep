@@ -1,21 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import * as monaco from "monaco-editor";
-import React, { useEffect, useRef } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import {
   CompilerRequestSupersededError,
   DotnetInterop,
 } from "../compiler/compiler-client";
 import { useColorMode } from "../theme/color-mode";
 
+let editorThemesDefined = false;
+
 interface Props {
   options: monaco.editor.IStandaloneEditorConstructionOptions;
   initialContent: string;
+  contentRevision?: number;
   onContentChange?: (model: monaco.editor.ITextModel, content: string) => void;
 }
 
-export const CodeEditor: React.FC<Props> = (props) => {
-  const { options, initialContent, onContentChange } = props;
+export interface CodeEditorHandle {
+  focusAt(lineNumber: number, column: number): void;
+}
+
+export const CodeEditor = forwardRef<CodeEditorHandle, Props>((props, ref) => {
+  const { options, initialContent, contentRevision, onContentChange } = props;
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor>(undefined);
   const modelRef = useRef<monaco.editor.ITextModel>(undefined);
@@ -23,6 +30,23 @@ export const CodeEditor: React.FC<Props> = (props) => {
   const initialContentRef = useRef(initialContent);
   const initialOptionsRef = useRef(options);
   const colorMode = useColorMode();
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      focusAt: (lineNumber, column) => {
+        const editor = editorRef.current;
+        if (!editor) {
+          return;
+        }
+
+        editor.setPosition({ lineNumber, column });
+        editor.revealPositionInCenter({ lineNumber, column });
+        editor.focus();
+      },
+    }),
+    [],
+  );
 
   useEffect(() => {
     onContentChangeRef.current = onContentChange;
@@ -34,9 +58,10 @@ export const CodeEditor: React.FC<Props> = (props) => {
       throw new Error("The Monaco editor container was not mounted.");
     }
 
+    defineEditorThemes();
     const editor = monaco.editor.create(container, {
       ...initialOptionsRef.current,
-      theme: colorMode === "dark" ? "vs-dark" : "vs",
+      theme: getEditorTheme(colorMode),
       value: initialContentRef.current,
     });
     const model = editor.getModel();
@@ -69,13 +94,11 @@ export const CodeEditor: React.FC<Props> = (props) => {
     if (model && model.getValue() !== initialContent) {
       model.setValue(initialContent);
     }
-  }, [initialContent]);
+  }, [contentRevision, initialContent]);
 
   useEffect(() => {
-    editorRef.current?.updateOptions({
-      ...options,
-      theme: colorMode === "dark" ? "vs-dark" : "vs",
-    });
+    monaco.editor.setTheme(getEditorTheme(colorMode));
+    editorRef.current?.updateOptions(options);
   }, [colorMode, options]);
 
   return (
@@ -86,7 +109,41 @@ export const CodeEditor: React.FC<Props> = (props) => {
       style={{ height: "100%", width: "100%" }}
     />
   );
-};
+});
+
+function defineEditorThemes(): void {
+  if (editorThemesDefined) {
+    return;
+  }
+
+  monaco.editor.defineTheme("bicep-light", {
+    base: "vs",
+    inherit: true,
+    rules: [],
+    colors: {
+      "editor.background": "#FFFFFF",
+      "editorGutter.background": "#FFFFFF",
+      "editor.lineHighlightBackground": "#0F172A0A",
+      "editorStickyScroll.background": "#FFFFFF",
+    },
+  });
+  monaco.editor.defineTheme("bicep-dark", {
+    base: "vs-dark",
+    inherit: true,
+    rules: [],
+    colors: {
+      "editor.background": "#101218",
+      "editorGutter.background": "#101218",
+      "editor.lineHighlightBackground": "#FFFFFF0D",
+      "editorStickyScroll.background": "#101218",
+    },
+  });
+  editorThemesDefined = true;
+}
+
+function getEditorTheme(colorMode: "dark" | "light"): string {
+  return colorMode === "dark" ? "bicep-dark" : "bicep-light";
+}
 
 export function registerBicep(
   interop: DotnetInterop,

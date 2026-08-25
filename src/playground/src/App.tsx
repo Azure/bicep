@@ -1,33 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { IApplicationInsights } from "@microsoft/applicationinsights-web";
+import { editor, MarkerSeverity } from "monaco-editor";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Button,
-  ButtonGroup,
-  Col,
-  Dropdown,
-  FormControl,
-  Nav,
-  Navbar,
-  OverlayTrigger,
-  Spinner,
-  Tooltip,
-} from "react-bootstrap";
-
-import "./App.css";
+import { version as bicepVersion } from "../package.json";
 import { DotnetInterop } from "./compiler/compiler-client";
-import {
-  BicepEditor,
-  CompilationStatus,
-} from "./components/BicepEditor";
-import { registerBicep } from "./components/CodeEditor";
+import { BicepEditor, CompilationStatus } from "./components/BicepEditor";
+import { CodeEditorHandle, registerBicep } from "./components/CodeEditor";
+import { AppHeader } from "./components/AppHeader";
+import { EditorPane, StatusTone } from "./components/EditorPane";
 import { JsonEditor } from "./components/JsonEditor";
-import {
-  getQuickstartsLink,
-  quickstartsPaths,
-} from "./quickstarts/quickstarts";
+import { ProblemsPanel } from "./components/ProblemsPanel";
+import { StatusBar } from "./components/StatusBar";
+import { getQuickstartsLink } from "./quickstarts/quickstarts";
 import { getShareLink, handleShareLink } from "./sharing/share-link";
+import { setColorMode, useColorMode } from "./theme/color-mode";
+import "./styles/tokens.css";
+import "./styles/layout.css";
+import "./styles/components.css";
 
 const maximumDecompileFileSize = 10 * 1024 * 1024;
 
@@ -35,6 +25,8 @@ type Operation = {
   id: number;
   label: string;
 } | null;
+
+type ActivePane = "bicep" | "arm";
 
 interface Props {
   insights: IApplicationInsights;
@@ -51,16 +43,24 @@ export const App: React.FC<Props> = ({
   const [jsonContent, setJsonContent] = useState("");
   const [bicepContent, setBicepContent] = useState(initialBicepContent);
   const [initialContent, setInitialContent] = useState(initialBicepContent);
+  const [contentRevision, setContentRevision] = useState(0);
   const [sourcePath, setSourcePath] = useState<string>();
+  const [sampleLoadingPath, setSampleLoadingPath] = useState<string>();
   const [copied, setCopied] = useState(false);
   const [activeOperation, setActiveOperation] = useState<Operation>(null);
   const [operationError, setOperationError] = useState<string>();
   const [compilationError, setCompilationError] = useState<string>();
   const [compilationStatus, setCompilationStatus] =
     useState<CompilationStatus>("pending");
-  const [filterText, setFilterText] = useState("");
+  const [compilationDurationMs, setCompilationDurationMs] = useState<number>();
+  const [diagnostics, setDiagnostics] = useState<editor.IMarkerData[]>([]);
+  const [problemsOpen, setProblemsOpen] = useState(false);
+  const [activePane, setActivePane] = useState<ActivePane>("bicep");
+  const [announcement, setAnnouncement] = useState("");
+  const colorMode = useColorMode();
   const uploadInputRef = useRef<HTMLInputElement>(null);
-  const sampleTemplateButtonRef = useRef<HTMLButtonElement>(null);
+  const sampleSelectRef = useRef<HTMLSelectElement>(null);
+  const bicepEditorRef = useRef<CodeEditorHandle>(null);
   const copiedTimeoutRef = useRef<number>(undefined);
   const operationIdRef = useRef(0);
   const sampleRequestRef = useRef<AbortController>(undefined);
@@ -82,6 +82,7 @@ export const App: React.FC<Props> = ({
           insights.trackEvent({ name: "openSharedLink" });
           setSourcePath(undefined);
           setInitialContent(content);
+          setContentRevision((revision) => revision + 1);
         }
       });
 
@@ -95,6 +96,12 @@ export const App: React.FC<Props> = ({
       window.removeEventListener("hashchange", handleHashChange);
     };
   }, [initialSharedContent, insights]);
+
+  useEffect(() => {
+    if (!compilationError && diagnostics.length === 0) {
+      setProblemsOpen(false);
+    }
+  }, [compilationError, diagnostics]);
 
   useEffect(() => {
     return () => {
@@ -134,38 +141,52 @@ export const App: React.FC<Props> = ({
     sampleRequestRef.current?.abort();
     const controller = new AbortController();
     sampleRequestRef.current = controller;
+    setOperationError(undefined);
+    setSampleLoadingPath(filePath);
 
     try {
-      await runOperation("Loading sample template", async () => {
-        const response = await fetch(getQuickstartsLink(filePath), {
-          signal: controller.signal,
-        });
-
-        if (!response.ok) {
-          throw new Error(
-            `The sample template could not be loaded (${response.status} ${response.statusText}).`,
-          );
-        }
-
-        const bicepText = await response.text();
-        if (controller.signal.aborted) {
-          return;
-        }
-
-        insights.trackEvent({ name: "loadExample" }, { path: filePath });
-        setInitialContent(bicepText);
-        setSourcePath(filePath);
+      const response = await fetch(getQuickstartsLink(filePath), {
+        signal: controller.signal,
       });
+
+      if (!response.ok) {
+        throw new Error(
+          `The sample template could not be loaded (${response.status} ${response.statusText}).`,
+        );
+      }
+
+      const bicepText = await response.text();
+      if (controller.signal.aborted) {
+        return;
+      }
+
+      insights.trackEvent({ name: "loadExample" }, { path: filePath });
+      setInitialContent(bicepText);
+      setContentRevision((revision) => revision + 1);
+      setSourcePath(filePath);
+      setActivePane("bicep");
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        return;
+      }
+
+      if (sampleRequestRef.current === controller) {
+        setOperationError(
+          error instanceof Error
+            ? error.message
+            : "Loading sample template failed.",
+        );
+      }
     } finally {
       if (sampleRequestRef.current === controller) {
-        window.requestAnimationFrame(() =>
-          sampleTemplateButtonRef.current?.focus(),
-        );
+        sampleRequestRef.current = undefined;
+        setSampleLoadingPath(undefined);
+        window.requestAnimationFrame(() => sampleSelectRef.current?.focus());
       }
     }
   }
 
-  async function handleCopyClick() {
+  async function handleCopyLink() {
     setOperationError(undefined);
 
     try {
@@ -174,6 +195,7 @@ export const App: React.FC<Props> = ({
 
       insights.trackEvent({ name: "copySharedLink" });
       setCopied(true);
+      setAnnouncement("Share link copied to the clipboard.");
 
       if (copiedTimeoutRef.current !== undefined) {
         window.clearTimeout(copiedTimeoutRef.current);
@@ -193,7 +215,7 @@ export const App: React.FC<Props> = ({
     }
   }
 
-  async function handleDecompileClick(file: File) {
+  async function handleDecompile(file: File) {
     await runOperation("Decompiling ARM template", async () => {
       if (file.size > maximumDecompileFileSize) {
         throw new Error("Select an ARM template smaller than 10 MB.");
@@ -209,200 +231,368 @@ export const App: React.FC<Props> = ({
       insights.trackEvent({ name: "decompileJson" });
       setSourcePath(undefined);
       setInitialContent(bicepFile);
+      setContentRevision((revision) => revision + 1);
+      setActivePane("bicep");
     });
   }
 
-  const filteredExamples = useMemo(
+  async function handleCopyArmTemplate() {
+    if (!armOutputIsCurrent) {
+      setOperationError(
+        "Compile the current Bicep source before copying ARM output.",
+      );
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(jsonContent);
+      setAnnouncement("ARM template copied to the clipboard.");
+    } catch (error) {
+      setOperationError(
+        error instanceof Error
+          ? `The ARM template could not be copied: ${error.message}`
+          : "The ARM template could not be copied.",
+      );
+    }
+  }
+
+  function handleDownloadArmTemplate() {
+    if (!armOutputIsCurrent) {
+      setOperationError(
+        "Compile the current Bicep source before downloading ARM output.",
+      );
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(
+      new Blob([jsonContent], { type: "application/json" }),
+    );
+    const link = document.createElement("a");
+    link.href = objectUrl;
+    link.download = "main.json";
+    link.click();
+    URL.revokeObjectURL(objectUrl);
+    setAnnouncement("ARM template download started.");
+  }
+
+  function handleDiagnosticsChange(nextDiagnostics: editor.IMarkerData[]) {
+    setDiagnostics(nextDiagnostics);
+    if (nextDiagnostics.length > 0) {
+      setProblemsOpen(true);
+    }
+  }
+
+  function handleCompilationError(message: string | undefined) {
+    setCompilationError(message);
+    if (message) {
+      setProblemsOpen(true);
+    }
+  }
+
+  function focusDiagnostic(diagnostic: editor.IMarkerData) {
+    setActivePane("bicep");
+    window.requestAnimationFrame(() =>
+      bicepEditorRef.current?.focusAt(
+        diagnostic.startLineNumber,
+        diagnostic.startColumn,
+      ),
+    );
+  }
+
+  function closeProblems() {
+    setProblemsOpen(false);
+    window.requestAnimationFrame(() =>
+      document.getElementById("compilation-status-summary")?.focus(),
+    );
+  }
+
+  function handlePaneTabKeyDown(event: React.KeyboardEvent<HTMLButtonElement>) {
+    let nextPane: ActivePane | undefined;
+    switch (event.key) {
+      case "ArrowLeft":
+      case "ArrowUp":
+      case "Home":
+        nextPane = "bicep";
+        break;
+      case "ArrowRight":
+      case "ArrowDown":
+      case "End":
+        nextPane = "arm";
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    setActivePane(nextPane);
+    window.requestAnimationFrame(() =>
+      document.getElementById(`${nextPane}-tab`)?.focus(),
+    );
+  }
+
+  const errorCount = useMemo(
     () =>
-      quickstartsPaths
-        .filter((path) =>
-          path.toLowerCase().includes(filterText.trim().toLowerCase()),
-        )
-        .sort((left, right) => left.localeCompare(right)),
-    [filterText],
+      diagnostics.filter(
+        (diagnostic) => diagnostic.severity === MarkerSeverity.Error,
+      ).length,
+    [diagnostics],
   );
-
-  const createTooltip = (id: string, text: string) => (
-    <Tooltip id={id}>{text}</Tooltip>
+  const warningCount = useMemo(
+    () =>
+      diagnostics.filter(
+        (diagnostic) => diagnostic.severity === MarkerSeverity.Warning,
+      ).length,
+    [diagnostics],
   );
-
-  const isBusy = activeOperation !== null;
-  const armTemplateIsBusy =
-    compilationStatus === "pending" || compilationStatus === "compiling";
-  const compilationStatusLabel =
-    compilationStatus === "pending"
-      ? "Changes pending"
-      : compilationStatus === "compiling"
-        ? "Compiling ARM template..."
-        : "Compilation failed - ARM template is out of date";
+  const hasProblems = diagnostics.length > 0 || compilationError !== undefined;
+  const armOutputIsCurrent =
+    compilationStatus === "upToDate" && jsonContent.length > 0;
+  const sourceName = sourcePath?.split("/").pop() ?? "main.bicep";
+  const sourceSubtitle = sourcePath ?? `Untitled / ${sourceName}`;
+  const armPaneStatus = getArmPaneStatus(compilationStatus);
 
   return (
-    <>
-      <input
-        type="file"
-        aria-label="Upload ARM template"
-        ref={uploadInputRef}
-        className="visually-hidden"
-        onChange={(event) => {
-          const input = event.currentTarget;
-          const file = input.files?.[0];
-          input.value = "";
-
-          if (file) {
-            void handleDecompileClick(file);
-          }
-        }}
-        accept="application/json,.json"
+    <div className="app-shell">
+      <AppHeader
+        activeOperation={activeOperation?.label}
+        colorMode={colorMode}
+        copied={copied}
+        sampleLoading={sampleLoadingPath !== undefined}
+        sampleSelectRef={sampleSelectRef}
+        selectedSample={sampleLoadingPath ?? sourcePath}
+        uploadInputRef={uploadInputRef}
+        onCopyLink={() => void handleCopyLink()}
+        onDecompile={(file) => void handleDecompile(file)}
+        onSampleChange={(path) => void loadExample(path)}
+        onToggleColorMode={() =>
+          setColorMode(colorMode === "dark" ? "light" : "dark")
+        }
       />
-      <Navbar bg="dark" variant="dark">
-        <Navbar.Brand>Bicep Playground</Navbar.Brand>
-        <Nav className="ms-auto">
-          <OverlayTrigger
-            placement="bottom"
-            overlay={createTooltip(
-              "copy-link-tooltip",
-              "Copy a shareable link to clipboard",
-            )}
-          >
-            <Button
-              size="sm"
-              variant="primary"
-              className="mx-1"
-              onClick={() => void handleCopyClick()}
-            >
-              {copied ? "Copied" : "Copy Link"}
-            </Button>
-          </OverlayTrigger>
-          <OverlayTrigger
-            placement="bottom"
-            overlay={createTooltip(
-              "decompile-tooltip",
-              "Upload an ARM template JSON file to decompile to Bicep",
-            )}
-          >
-            <Button
-              size="sm"
-              variant="primary"
-              className="mx-1"
-              disabled={isBusy}
-              onClick={() => uploadInputRef.current?.click()}
-            >
-              Decompile
-            </Button>
-          </OverlayTrigger>
-          <Dropdown
-            as={ButtonGroup}
-            onSelect={(key) => {
-              if (key) {
-                void loadExample(key);
-              }
-            }}
-            onToggle={() => setFilterText("")}
-          >
-            <OverlayTrigger
-              placement="bottom"
-              trigger="hover"
-              overlay={createTooltip(
-                "sample-template-tooltip",
-                "Select an Azure Quickstarts sample file",
-              )}
-            >
-              <Dropdown.Toggle
-                as={Button}
-                ref={sampleTemplateButtonRef}
-                size="sm"
-                variant="primary"
-                className="mx-1"
-                disabled={isBusy}
+
+      <div className="mobile-tabs" role="tablist" aria-label="Editor panes">
+        <button
+          id="bicep-tab"
+          className="mobile-tab"
+          type="button"
+          role="tab"
+          aria-selected={activePane === "bicep"}
+          aria-controls="bicep-pane"
+          tabIndex={activePane === "bicep" ? 0 : -1}
+          onClick={() => setActivePane("bicep")}
+          onKeyDown={handlePaneTabKeyDown}
+        >
+          Bicep
+        </button>
+        <button
+          id="arm-tab"
+          className="mobile-tab"
+          type="button"
+          role="tab"
+          aria-selected={activePane === "arm"}
+          aria-controls="arm-pane"
+          tabIndex={activePane === "arm" ? 0 : -1}
+          onClick={() => setActivePane("arm")}
+          onKeyDown={handlePaneTabKeyDown}
+        >
+          ARM template
+        </button>
+      </div>
+
+      <main
+        className="workspace"
+        data-active-pane={activePane}
+        aria-label="Bicep compilation workspace"
+      >
+        <EditorPane
+          id="bicep-pane"
+          labelId="bicep-pane-title"
+          pane="bicep"
+          title="Bicep"
+          subtitle={sourceSubtitle}
+          ariaBusy={sampleLoadingPath !== undefined}
+          actions={
+            sourcePath ? (
+              <button
+                type="button"
+                className="pane-action"
+                disabled={
+                  activeOperation !== null || sampleLoadingPath !== undefined
+                }
+                aria-label="Reload selected sample"
+                title="Restore Bicep file from selected sample"
+                onClick={() => void loadExample(sourcePath)}
               >
-                Sample Template
-              </Dropdown.Toggle>
-            </OverlayTrigger>
-            <Dropdown.Menu align="end">
-              <Col>
-                <FormControl
-                  autoFocus
-                  aria-label="Filter sample templates"
-                  placeholder="Type to filter..."
-                  onChange={(event) => setFilterText(event.target.value)}
-                  value={filterText}
-                />
-              </Col>
-              {filteredExamples.map((path) => (
-                <Dropdown.Item key={path} eventKey={path} active={false}>
-                  {path}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
-        </Nav>
-      </Navbar>
-      <main className="playground-container">
-        <div className="playground-editorpane">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M19 8V4m0 0h-4m4 0-3.1 3.1A7 7 0 1 0 18.7 15"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            ) : undefined
+          }
+        >
           <BicepEditor
+            ref={bicepEditorRef}
             interop={interop}
             onBicepChange={setBicepContent}
             onJsonChange={setJsonContent}
-            onCompilationError={setCompilationError}
+            onDiagnosticsChange={handleDiagnosticsChange}
+            onCompilationError={handleCompilationError}
+            onCompilationDurationChange={setCompilationDurationMs}
             onCompilationStatusChange={setCompilationStatus}
             initialContent={initialContent}
+            contentRevision={contentRevision}
             sourcePath={sourcePath}
           />
-        </div>
-        <div
-          className={`playground-editorpane arm-template-pane ${
-            compilationStatus === "upToDate" ? "" : "is-stale"
-          }`}
-          aria-busy={armTemplateIsBusy}
+        </EditorPane>
+
+        <EditorPane
+          id="arm-pane"
+          labelId="arm-pane-title"
+          pane="arm"
+          title="ARM template"
+          subtitle="Generated JSON"
+          status={armPaneStatus.label}
+          statusTone={armPaneStatus.tone}
+          isStale={compilationStatus !== "upToDate"}
+          ariaBusy={
+            compilationStatus === "pending" || compilationStatus === "compiling"
+          }
+          actions={
+            <>
+              <button
+                type="button"
+                className="pane-action"
+                disabled={!armOutputIsCurrent}
+                aria-label="Copy ARM template"
+                title={
+                  armOutputIsCurrent
+                    ? "Copy ARM template"
+                    : "Compile the current source before copying"
+                }
+                onClick={() => void handleCopyArmTemplate()}
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                  <rect
+                    x="8"
+                    y="8"
+                    width="11"
+                    height="11"
+                    rx="2"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  />
+                  <path
+                    d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  />
+                </svg>
+              </button>
+              <button
+                type="button"
+                className="pane-action"
+                disabled={!armOutputIsCurrent}
+                aria-label="Download ARM template"
+                title={
+                  armOutputIsCurrent
+                    ? "Download ARM template"
+                    : "Compile the current source before downloading"
+                }
+                onClick={handleDownloadArmTemplate}
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </>
+          }
         >
           <JsonEditor content={jsonContent} />
-          {compilationStatus !== "upToDate" && (
-            <div
-              className="compilation-status"
-              role="status"
-              aria-label={compilationStatusLabel}
-              aria-live="polite"
-            >
-              {compilationStatus === "compiling" && (
-                <Spinner
-                  animation="border"
-                  size="sm"
-                  variant="primary"
-                  aria-hidden="true"
-                />
-              )}
-              <span>{compilationStatusLabel}</span>
-            </div>
-          )}
-        </div>
+        </EditorPane>
+
         {activeOperation && (
           <div className="operation-overlay" role="status" aria-live="polite">
-            <Spinner animation="border" variant="light" aria-hidden="true" />
+            <span className="spinner" aria-hidden="true" />
             <span>{activeOperation.label}...</span>
           </div>
         )}
       </main>
-      {(operationError || compilationError) && (
+
+      {problemsOpen && hasProblems && (
+        <ProblemsPanel
+          compilationError={compilationError}
+          diagnostics={diagnostics}
+          sourceName={sourceName}
+          onClose={closeProblems}
+          onSelect={focusDiagnostic}
+        />
+      )}
+
+      <StatusBar
+        compilationStatus={compilationStatus}
+        durationMs={compilationDurationMs}
+        errorCount={errorCount}
+        hasProblems={hasProblems}
+        problemsOpen={problemsOpen}
+        version={bicepVersion}
+        warningCount={warningCount}
+        onToggleProblems={() => setProblemsOpen((open) => !open)}
+      />
+
+      {operationError && (
         <div
-          className="playground-error"
+          className="playground-alert"
           role="alert"
           aria-label="Playground error"
         >
-          <span>{operationError ?? compilationError}</span>
+          <span>{operationError}</span>
           <button
             type="button"
-            className="btn-close"
+            className="pane-action"
             aria-label="Dismiss error"
-            onClick={() => {
-              setOperationError(undefined);
-              setCompilationError(undefined);
-            }}
-          />
+            onClick={() => setOperationError(undefined)}
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+              <path
+                d="m7 7 10 10M17 7 7 17"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
         </div>
       )}
+
       <div className="visually-hidden" aria-live="polite">
-        {copied ? "Share link copied to the clipboard." : ""}
+        {announcement}
       </div>
-    </>
+    </div>
   );
 };
+
+function getArmPaneStatus(status: CompilationStatus): {
+  label: string;
+  tone: StatusTone;
+} {
+  switch (status) {
+    case "compiling":
+      return { label: "Compiling", tone: "neutral" };
+    case "upToDate":
+      return { label: "Up to date", tone: "success" };
+    case "failed":
+    case "pending":
+      return { label: "Out of date", tone: "warning" };
+  }
+}

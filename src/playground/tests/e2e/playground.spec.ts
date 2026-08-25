@@ -68,17 +68,50 @@ const expectedStorageTemplate = `{
 }`;
 
 test.describe("quickstarts", () => {
-  test("loads a selected template", async ({ page, playground }) => {
+  test("loads a selected template", async ({ playground }) => {
     await playground.selectQuickstart("canonical/anbox/main.bicep");
 
     await expect.poll(() => playground.readEditorText(playground.bicepEditor))
       .toContain(`@description('Add a dedicated disk for the LXD storage pool')
 param addDedicatedDataDiskForLXD bool = true`);
-    await expect(
-      page.getByRole("tooltip", {
-        name: "Select an Azure Quickstarts sample file",
-      }),
-    ).toBeHidden();
+    await expect(playground.sampleTemplate).toHaveValue(
+      "canonical/anbox/main.bicep",
+    );
+  });
+
+  test("reloads the selected template after edits", async ({
+    page,
+    playground,
+  }) => {
+    await playground.selectQuickstart("canonical/anbox/main.bicep");
+    await expect
+      .poll(() => playground.readEditorText(playground.bicepEditor))
+      .toContain("param addDedicatedDataDiskForLXD bool = true");
+
+    await playground.replaceEditorText(
+      playground.bicepEditor,
+      "param replacement string",
+    );
+    await page.route(
+      "**/quickstarts/canonical/anbox/main.bicep",
+      async (route) => {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        await route.continue();
+      },
+    );
+    await page.getByRole("button", { name: "Reload selected sample" }).click();
+
+    await expect(playground.bicepEditor).toBeVisible();
+    await expect
+      .poll(() => playground.readEditorText(playground.bicepEditor))
+      .toContain("param replacement string");
+    await expect(page.getByText("Loading sample template...")).toHaveCount(0);
+    await expect
+      .poll(() => playground.readEditorText(playground.bicepEditor))
+      .toContain("param addDedicatedDataDiskForLXD bool = true");
+    await expect(playground.sampleTemplate).toHaveValue(
+      "canonical/anbox/main.bicep",
+    );
   });
 
   test("compiles a template with local modules", async ({ playground }) => {
@@ -106,7 +139,7 @@ param addDedicatedDataDiskForLXD bool = true`);
       .toContain('"defaultValue": "still here"');
 
     const armContent = await playground.readEditorText(playground.armTemplate);
-    const cursor = page.locator(".playground-editorpane .cursor").first();
+    const cursor = page.locator('[data-pane="bicep"] .cursor').first();
     await playground.bicepEditor.click();
     await page.keyboard.press("ControlOrMeta+Home");
     await page.keyboard.press("ArrowRight");
@@ -304,12 +337,9 @@ test.describe("compiler lifecycle", () => {
     await playground.replaceEditorText(playground.bicepEditor, slowSource);
     await expect.poll(() => getCompileRequestCount(page)).toBeGreaterThan(0);
     await expect(
-      page.getByRole("status", { name: "Compiling ARM template..." }),
+      playground.armPane.getByText("Compiling", { exact: true }),
     ).toBeVisible();
-    await expect(playground.armTemplate.locator("..")).toHaveAttribute(
-      "aria-busy",
-      "true",
-    );
+    await expect(playground.armPane).toHaveAttribute("aria-busy", "true");
     await playground.replaceEditorText(
       playground.bicepEditor,
       "param result string = 'latest'",
@@ -325,12 +355,9 @@ test.describe("compiler lifecycle", () => {
       })
       .toContain('"defaultValue": "latest"');
     await expect(
-      page.getByRole("status", { name: "Compiling ARM template..." }),
+      playground.armPane.getByText("Compiling", { exact: true }),
     ).toBeHidden();
-    await expect(playground.armTemplate.locator("..")).toHaveAttribute(
-      "aria-busy",
-      "false",
-    );
+    await expect(playground.armPane).toHaveAttribute("aria-busy", "false");
   });
 
   test("keeps editing and toolbar interactions responsive during compilation", async ({
@@ -391,7 +418,7 @@ test.describe("editing", () => {
     const bicep = "param preservedContent string = 'still here'";
     await playground.replaceEditorText(playground.bicepEditor, bicep);
 
-    await page.getByLabel("Upload ARM template").setInputFiles({
+    await page.getByLabel("ARM template JSON file").setInputFiles({
       name: "invalid.json",
       mimeType: "application/json",
       buffer: Buffer.from("not valid JSON"),
@@ -401,6 +428,158 @@ test.describe("editing", () => {
     await expect
       .poll(() => playground.readEditorText(playground.bicepEditor))
       .toBe(bicep);
+  });
+});
+
+test.describe("native interface", () => {
+  test("exposes semantic landmarks and native document actions", async ({
+    page,
+    playground,
+  }) => {
+    await expect(page.getByRole("banner")).toContainText("Bicep Playground");
+    await expect(
+      page.getByRole("navigation", { name: "Playground actions" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("main", { name: "Bicep compilation workspace" }),
+    ).toBeVisible();
+    await expect(playground.bicepPane).toBeVisible();
+    await expect(playground.armPane).toBeVisible();
+    await expect(playground.sampleTemplate).toHaveJSProperty(
+      "tagName",
+      "SELECT",
+    );
+    await expect(page.getByRole("button", { name: "Decompile" })).toBeVisible();
+    await expect(
+      page.getByRole("link", {
+        name: "Bicep repository on GitHub (opens in a new tab)",
+      }),
+    ).toHaveAttribute("href", "https://github.com/Azure/bicep");
+  });
+
+  test("switches between editor tabs without page overflow on narrow screens", async ({
+    page,
+    playground,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 700 });
+
+    await expect(playground.bicepPane).toBeVisible();
+    await expect(playground.armPane).toBeHidden();
+    const bicepTab = page.getByRole("tab", { name: "Bicep" });
+    const armTab = page.getByRole("tab", { name: "ARM template" });
+    await expect(bicepTab).toHaveAttribute("tabindex", "0");
+    await expect(armTab).toHaveAttribute("tabindex", "-1");
+    await bicepTab.focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(armTab).toBeFocused();
+    await expect(armTab).toHaveAttribute("aria-selected", "true");
+    await expect(playground.armPane).toBeVisible();
+    await expect(playground.bicepPane).toBeHidden();
+    await page.keyboard.press("Home");
+    await expect(bicepTab).toBeFocused();
+    await expect(bicepTab).toHaveAttribute("aria-selected", "true");
+
+    const dimensions = await page.evaluate(() => ({
+      viewportWidth: document.documentElement.clientWidth,
+      documentWidth: document.documentElement.scrollWidth,
+    }));
+    expect(dimensions.documentWidth).toBe(dimensions.viewportWidth);
+  });
+
+  test("shows, dismisses, and reopens compilation problems", async ({
+    page,
+    playground,
+  }) => {
+    await playground.replaceEditorText(
+      playground.bicepEditor,
+      "this is not valid bicep",
+    );
+
+    const problems = page.getByRole("region", { name: "Problems" });
+    await expect(problems).toBeVisible();
+    await expect(problems).toHaveCSS("min-height", "140px");
+    await expect(problems.locator(".problem").first()).toContainText("BCP");
+    await problems.getByRole("button", { name: "Close Problems" }).click();
+    await expect(problems).toBeHidden();
+
+    await page.getByRole("button", { name: /Compilation failed/ }).click();
+    await expect(problems).toBeVisible();
+    await problems.locator(".problem").first().click();
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          Boolean(
+            document.activeElement?.closest(
+              '[role="region"][aria-label="Bicep editor"]',
+            ),
+          ),
+        ),
+      )
+      .toBe(true);
+  });
+
+  test("copies and downloads only current ARM output", async ({
+    page,
+    playground,
+  }) => {
+    await playground.replaceEditorText(
+      playground.bicepEditor,
+      "param current string = 'yes'",
+    );
+    await expect
+      .poll(() => playground.readEditorText(playground.armTemplate))
+      .toContain('"defaultValue": "yes"');
+
+    const copyArm = page.getByRole("button", { name: "Copy ARM template" });
+    const downloadArm = page.getByRole("button", {
+      name: "Download ARM template",
+    });
+    await expect(copyArm).toBeEnabled();
+    await expect(downloadArm).toBeEnabled();
+
+    await copyArm.click();
+    await expect
+      .poll(() => page.evaluate(() => navigator.clipboard.readText()))
+      .toContain('"defaultValue": "yes"');
+
+    const downloadPromise = page.waitForEvent("download");
+    await downloadArm.click();
+    expect((await downloadPromise).suggestedFilename()).toBe("main.json");
+
+    await playground.replaceEditorText(
+      playground.bicepEditor,
+      "this is not valid bicep",
+    );
+    await expect(copyArm).toBeDisabled();
+    await expect(downloadArm).toBeDisabled();
+    await expect(playground.armPane.locator(".editor-surface")).toHaveCSS(
+      "opacity",
+      "0.5",
+    );
+    await expect
+      .poll(() => playground.readEditorText(playground.armTemplate))
+      .toContain('"defaultValue": "yes"');
+  });
+
+  test("switches the application and Monaco themes", async ({
+    page,
+    playground,
+  }) => {
+    const themeButton = page.getByRole("button", {
+      name: "Switch to dark theme",
+    });
+    await themeButton.click();
+
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-color-mode",
+      "dark",
+    );
+    await expect(
+      page.getByRole("button", { name: "Switch to light theme" }),
+    ).toBeVisible();
+    await expect(playground.bicepEditor.locator(".monaco-editor")).toHaveClass(
+      /vs-dark/,
+    );
   });
 });
 

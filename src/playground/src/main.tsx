@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 import { ApplicationInsights } from "@microsoft/applicationinsights-web";
 import { createRoot } from "react-dom/client";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { aiKey } from "../package.json";
 import { App } from "./App";
 import { initializeInterop } from "./compiler/compiler-client";
@@ -13,15 +12,15 @@ import {
   configureTelemetry,
   getSanitizedCurrentUrl,
 } from "./telemetry/application-insights";
-import { getColorMode } from "./theme/color-mode";
+import {
+  getPreferredColorMode,
+  setColorMode,
+} from "./theme/color-mode";
 
-const updateTheme = () =>
-  document.documentElement.setAttribute("data-bs-theme", getColorMode());
-
-window
-  .matchMedia("(prefers-color-scheme: dark)")
-  .addEventListener("change", updateTheme);
-window.addEventListener("DOMContentLoaded", updateTheme);
+const colorModeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+const updateColorMode = () => setColorMode(getPreferredColorMode());
+colorModeQuery.addEventListener("change", updateColorMode);
+updateColorMode();
 
 let initialSharedContent: string | null = null;
 handleShareLink((content) => {
@@ -65,7 +64,7 @@ function renderStartupError(error: unknown) {
       <p>{message}</p>
       <button
         type="button"
-        className="btn btn-primary"
+        className="button primary-button"
         onClick={() => window.location.reload()}
       >
         Retry

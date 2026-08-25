@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { editor } from "monaco-editor";
-import React, { useCallback, useEffect, useRef } from "react";
+import { editor, MarkerSeverity } from "monaco-editor";
+import { forwardRef, useCallback, useEffect, useRef } from "react";
 import { DotnetInterop } from "../compiler/compiler-client";
-import { CodeEditor } from "./CodeEditor";
+import { CodeEditor, CodeEditorHandle } from "./CodeEditor";
 
 const compilationDebounceMs = 200;
 
@@ -16,11 +16,14 @@ export type CompilationStatus =
 interface Props {
   interop: DotnetInterop;
   initialContent: string;
+  contentRevision: number;
   sourcePath?: string;
   onBicepChange: (bicepContent: string) => void;
   onJsonChange: (jsonContent: string) => void;
+  onDiagnosticsChange: (diagnostics: editor.IMarkerData[]) => void;
   onCompilationError: (message: string | undefined) => void;
   onCompilationStatusChange: (status: CompilationStatus) => void;
+  onCompilationDurationChange: (durationMs: number | undefined) => void;
 }
 
 const editorOptions: editor.IStandaloneEditorConstructionOptions = {
@@ -41,15 +44,18 @@ const editorOptions: editor.IStandaloneEditorConstructionOptions = {
   "semanticHighlighting.enabled": true,
 };
 
-export const BicepEditor: React.FC<Props> = (props) => {
+export const BicepEditor = forwardRef<CodeEditorHandle, Props>((props, ref) => {
   const {
     interop,
     initialContent,
+    contentRevision,
     sourcePath,
     onBicepChange,
     onJsonChange,
+    onDiagnosticsChange,
     onCompilationError,
     onCompilationStatusChange,
+    onCompilationDurationChange,
   } = props;
   const compilationRequestIdRef = useRef(0);
   const compilationTimeoutRef = useRef<number>(undefined);
@@ -57,7 +63,9 @@ export const BicepEditor: React.FC<Props> = (props) => {
   const handleContentChange = useCallback(
     (model: editor.ITextModel, content: string) => {
       onBicepChange(content);
+      onDiagnosticsChange([]);
       onCompilationError(undefined);
+      onCompilationDurationChange(undefined);
       onCompilationStatusChange("pending");
       const requestId = ++compilationRequestIdRef.current;
 
@@ -67,6 +75,7 @@ export const BicepEditor: React.FC<Props> = (props) => {
 
       compilationTimeoutRef.current = window.setTimeout(async () => {
         const modelVersion = model.getVersionId();
+        const startedAt = performance.now();
         onCompilationStatusChange("compiling");
 
         try {
@@ -82,9 +91,16 @@ export const BicepEditor: React.FC<Props> = (props) => {
           }
 
           editor.setModelMarkers(model, "bicep", diagnostics);
+          onDiagnosticsChange(diagnostics);
+          onCompilationDurationChange(performance.now() - startedAt);
 
-          if (error) {
-            onCompilationError(error);
+          if (
+            error ||
+            diagnostics.some(
+              (diagnostic) => diagnostic.severity === MarkerSeverity.Error,
+            )
+          ) {
+            onCompilationError(error ?? undefined);
             onCompilationStatusChange("failed");
             return;
           }
@@ -102,6 +118,8 @@ export const BicepEditor: React.FC<Props> = (props) => {
           }
 
           editor.setModelMarkers(model, "bicep", []);
+          onDiagnosticsChange([]);
+          onCompilationDurationChange(performance.now() - startedAt);
           onCompilationError(
             error instanceof Error
               ? error.message
@@ -115,7 +133,9 @@ export const BicepEditor: React.FC<Props> = (props) => {
       interop,
       onBicepChange,
       onCompilationError,
+      onCompilationDurationChange,
       onCompilationStatusChange,
+      onDiagnosticsChange,
       onJsonChange,
       sourcePath,
     ],
@@ -133,9 +153,11 @@ export const BicepEditor: React.FC<Props> = (props) => {
 
   return (
     <CodeEditor
+      ref={ref}
       options={editorOptions}
       initialContent={initialContent}
+      contentRevision={contentRevision}
       onContentChange={handleContentChange}
     />
   );
-};
+});
