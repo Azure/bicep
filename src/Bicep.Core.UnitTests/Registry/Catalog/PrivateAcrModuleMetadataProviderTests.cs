@@ -269,7 +269,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
                 .WithContainerRegistryClientFactory(clientFactory);
 
             var fileExplorer = new FileSystemFileExplorer(fileSystem);
-            var configurationManager = new ConfigurationManager(fileExplorer, new BicepConfigurationManager(fileExplorer));
+            var configurationManager = new BicepConfigurationManager(fileExplorer);
             var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, fileExplorer), BicepTestConstants.FeatureOverrides);
 
             await RegistryHelper.PublishExtensionToRegistryAsync(services.Build(), "br:registry.contoso.io/test/repo1:v1", new BinaryData(""));
@@ -306,7 +306,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
                 .WithContainerRegistryClientFactory(clientFactory);
 
             var fileExplorer = new FileSystemFileExplorer(fileSystem);
-            var configurationManager = new ConfigurationManager(fileExplorer, new BicepConfigurationManager(fileExplorer));
+            var configurationManager = new BicepConfigurationManager(fileExplorer);
             var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, fileExplorer), BicepTestConstants.FeatureOverrides);
 
             // Only v2 is a module
@@ -340,7 +340,7 @@ namespace Bicep.Core.UnitTests.Registry.Catalog
         class PrivateAcrModuleMetadataProviderThatThrows : PrivateAcrModuleMetadataProvider
         {
             public PrivateAcrModuleMetadataProviderThatThrows(
-                CloudConfiguration cloud,
+                IBicepCloudConfiguration cloud,
                 string registry,
                 IOciRegistryTransportFactory transportFactory)
                 : base(cloud, registry, transportFactory) { }

@@ -73,7 +73,7 @@ namespace Bicep.Core.SourceGraph
 
         public ISyntaxHierarchy Hierarchy { get; }
 
-        public RootConfiguration LoadConfiguration() => this.configurationManager.GetConfiguration(this.FileHandle.Uri);
+        public IBicepConfiguration LoadConfiguration() => this.configurationManager.GetConfiguration(this.FileHandle.Uri);
 
         public IFeatureProvider LoadFeatures() => this.featureProviderFactory.GetFeatureProvider(this.FileHandle.Uri);
 

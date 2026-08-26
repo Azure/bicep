@@ -16,9 +16,9 @@ public class UseDescriptionTypeRuleTests : LinterRuleTestsBase
 {
     private static readonly Options RuleOptions = new(ConfigurationPatch: EnableRule);
 
-    private static RootConfiguration EnableRule(RootConfiguration configuration) =>
+    private static IBicepConfiguration EnableRule(IBicepConfiguration configuration) =>
         configuration.WithAnalyzersConfiguration(
-            configuration.Analyzers.SetValue($"core.rules.{UseDescriptionTypeRule.Code}.level", "warning"));
+            ((AnalyzersConfiguration)configuration.Analyzers).SetValue($"core.rules.{UseDescriptionTypeRule.Code}.level", "warning"));
 
     private void AssertDiagnostics(string inputFile, int expectedCount = 1)
         => AssertLinterRuleDiagnostics(UseDescriptionTypeRule.Code, inputFile, expectedCount, RuleOptions);

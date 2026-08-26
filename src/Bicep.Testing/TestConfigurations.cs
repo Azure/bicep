@@ -8,14 +8,14 @@ namespace Bicep.Testing;
 
 public static class TestConfigurations
 {
-    public static RootConfiguration BuiltIn => TestConfigurationBuilder.Create().Build();
+    public static IBicepConfiguration BuiltIn => TestConfigurationBuilder.Create().Build();
 
-    public static RootConfiguration BuiltInWithAllAnalyzersDisabled => TestConfigurationBuilder
+    public static IBicepConfiguration BuiltInWithAllAnalyzersDisabled => TestConfigurationBuilder
         .Create()
         .WithAllAnalyzersDisabled()
         .Build();
 
-    public static RootConfiguration BuiltInWithStableAnalyzers => TestConfigurationBuilder
+    public static IBicepConfiguration BuiltInWithStableAnalyzers => TestConfigurationBuilder
         .Create()
         .WithAllAnalyzers()
         .WithAnalyzersDisabled(

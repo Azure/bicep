@@ -18,7 +18,7 @@ namespace Bicep.LanguageServer.Features.Custom.InsertResource
             this.credentialFactory = credentialFactory;
         }
 
-        private ArmClient CreateArmClient(RootConfiguration configuration, string subscriptionId, IEnumerable<(string resourceType, string apiVersion)> resourceTypeApiVersionMapping)
+        private ArmClient CreateArmClient(IBicepConfiguration configuration, string subscriptionId, IEnumerable<(string resourceType, string apiVersion)> resourceTypeApiVersionMapping)
         {
             var options = new ArmClientOptions();
             options.Diagnostics.ApplySharedResourceManagerSettings();
@@ -33,7 +33,7 @@ namespace Bicep.LanguageServer.Features.Custom.InsertResource
             return new ArmClient(credential, subscriptionId, options);
         }
 
-        public async Task<JsonElement> GetGenericResource(RootConfiguration configuration, IAzResourceProvider.AzResourceIdentifier resourceId, string? apiVersion, CancellationToken cancellationToken)
+        public async Task<JsonElement> GetGenericResource(IBicepConfiguration configuration, IAzResourceProvider.AzResourceIdentifier resourceId, string? apiVersion, CancellationToken cancellationToken)
         {
             var resourceTypeApiVersionMapping = new List<(string resourceType, string apiVersion)>();
             if (apiVersion is not null)

@@ -292,12 +292,12 @@ public class LocalDeployCommandTests : TestBase
 
         var deploymentProviderMock = StrictMock.Of<IArmDeploymentProvider>();
 
-        deploymentProviderMock.Setup(x => x.StartDeployment(It.IsAny<RootConfiguration>(), It.IsAny<DeploymentLocator>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Returns<RootConfiguration, DeploymentLocator, string, string, CancellationToken>((config, locator, templateString, parametersString, _) => Task.CompletedTask);
+        deploymentProviderMock.Setup(x => x.StartDeployment(It.IsAny<IBicepConfiguration>(), It.IsAny<DeploymentLocator>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns<IBicepConfiguration, DeploymentLocator, string, string, CancellationToken>((config, locator, templateString, parametersString, _) => Task.CompletedTask);
 
         var attempts = 0;
-        deploymentProviderMock.Setup(x => x.CheckDeployment(It.IsAny<RootConfiguration>(), It.IsAny<DeploymentLocator>(), It.IsAny<CancellationToken>()))
-            .Returns<RootConfiguration, DeploymentLocator, CancellationToken>(async (config, locator, _) =>
+        deploymentProviderMock.Setup(x => x.CheckDeployment(It.IsAny<IBicepConfiguration>(), It.IsAny<DeploymentLocator>(), It.IsAny<CancellationToken>()))
+            .Returns<IBicepConfiguration, DeploymentLocator, CancellationToken>(async (config, locator, _) =>
             {
                 await Task.CompletedTask;
                 var isInitialAttempt = Interlocked.Increment(ref attempts) == 1;

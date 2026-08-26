@@ -36,46 +36,20 @@ namespace Bicep.Core.Configuration
             return config;
         }
 
-        public static RootConfiguration WithAnalyzersConfiguration(this RootConfiguration current, AnalyzersConfiguration analyzersConfiguration) =>
-            new(
-                current.Cloud,
-                current.ModuleAliases,
-                current.ModuleAliasesMock,
-                current.Extensions,
-                current.ImplicitExtensions,
-                analyzersConfiguration,
-                current.CacheRootDirectory,
-                current.ExperimentalFeaturesWarning,
-                current.ExperimentalFeaturesEnabled,
-                current.Formatting,
-                current.Documentation,
-                current.ConfigFileUri,
-                current.Diagnostics);
+        public static IBicepConfiguration WithAnalyzersConfiguration(this IBicepConfiguration current, AnalyzersConfiguration analyzersConfiguration) =>
+            current.With(analyzers: analyzersConfiguration);
 
-        public static RootConfiguration WithAllAnalyzersDisabled(this RootConfiguration current) =>
-            current.WithAnalyzersConfiguration(current.Analyzers.WithAllAnalyzersDisabled());
+        public static IBicepConfiguration WithAllAnalyzersDisabled(this IBicepConfiguration current) =>
+            current.WithAnalyzersConfiguration(((AnalyzersConfiguration)current.Analyzers).WithAllAnalyzersDisabled());
 
-        public static RootConfiguration WithAnalyzersDisabled(this RootConfiguration current, params string[] analyzerCodesToDisable) =>
-            current.WithAnalyzersConfiguration(current.Analyzers.WithAnalyzersDisabled(analyzerCodesToDisable));
+        public static IBicepConfiguration WithAnalyzersDisabled(this IBicepConfiguration current, params string[] analyzerCodesToDisable) =>
+            current.WithAnalyzersConfiguration(((AnalyzersConfiguration)current.Analyzers).WithAnalyzersDisabled(analyzerCodesToDisable));
 
-        public static RootConfiguration WithAllAnalyzers(this RootConfiguration current) =>
-            current.WithAnalyzersConfiguration(current.Analyzers.WithAllAnalyzers());
+        public static IBicepConfiguration WithAllAnalyzers(this IBicepConfiguration current) =>
+            current.WithAnalyzersConfiguration(((AnalyzersConfiguration)current.Analyzers).WithAllAnalyzers());
 
-        public static RootConfiguration WithCloudConfiguration(this RootConfiguration current, CloudConfiguration cloudConfiguration) =>
-        new(
-            cloudConfiguration,
-            current.ModuleAliases,
-            current.ModuleAliasesMock,
-            current.Extensions,
-            current.ImplicitExtensions,
-            current.Analyzers,
-            current.CacheRootDirectory,
-            current.ExperimentalFeaturesWarning,
-            current.ExperimentalFeaturesEnabled,
-            current.Formatting,
-            current.Documentation,
-            current.ConfigFileUri,
-            current.Diagnostics);
+        public static IBicepConfiguration WithCloudConfiguration(this IBicepConfiguration current, CloudConfiguration cloudConfiguration) =>
+            current.With(cloud: cloudConfiguration);
 
     }
 }

@@ -18,21 +18,21 @@ namespace Bicep.Core.Configuration
         /// </summary>
         /// <param name="sourceFileUri">The URI of the source file to get configuration for.</param>
         /// <returns>The configuration for the source file.</returns>
-        RootConfiguration GetConfiguration(IOUri sourceFileUri);
+        IBicepConfiguration GetConfiguration(IOUri sourceFileUri);
 
         /// <summary>
         /// Gets the built-in configuration.
         /// </summary>
         /// <returns>The built-in configuration.</returns>
-        static RootConfiguration GetBuiltInConfiguration() => BuiltInConfigurationLazy.Value;
+        static IBicepConfiguration GetBuiltInConfiguration() => BuiltInConfigurationLazy.Value;
 
-        public static IConfigurationManager WithStaticConfiguration(RootConfiguration configuration)
+        public static IConfigurationManager WithStaticConfiguration(IBicepConfiguration configuration)
             => new ConstantConfigurationManager(configuration);
 
         static readonly JsonElement BuiltInConfigurationElement = GetBuiltInConfigurationElement();
 
-        private static readonly Lazy<RootConfiguration> BuiltInConfigurationLazy =
-            new(() => RootConfiguration.Bind(BuiltInConfigurationElement));
+        private static readonly Lazy<IBicepConfiguration> BuiltInConfigurationLazy =
+            new(() => BicepConfiguration.Bind(BuiltInConfigurationElement));
 
         private static JsonElement GetBuiltInConfigurationElement()
         {
@@ -48,14 +48,14 @@ namespace Bicep.Core.Configuration
 
         private class ConstantConfigurationManager : IConfigurationManager
         {
-            private readonly RootConfiguration configuration;
+            private readonly IBicepConfiguration configuration;
 
-            internal ConstantConfigurationManager(RootConfiguration configuration)
+            internal ConstantConfigurationManager(IBicepConfiguration configuration)
             {
                 this.configuration = configuration;
             }
 
-            public RootConfiguration GetConfiguration(IOUri sourceFileUri) => configuration;
+            public IBicepConfiguration GetConfiguration(IOUri sourceFileUri) => configuration;
         }
     }
 }

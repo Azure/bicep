@@ -10,7 +10,7 @@ namespace Bicep.Testing;
 
 public static class TestCompilerExtensions
 {
-    public static TestCompiler WithConfiguration(this TestCompiler compiler, RootConfiguration configuration) => compiler.ConfigureServices(services =>
+    public static TestCompiler WithConfiguration(this TestCompiler compiler, IBicepConfiguration configuration) => compiler.ConfigureServices(services =>
         services.ReplaceSingleton<IConfigurationManager>(IConfigurationManager.WithStaticConfiguration(configuration)));
 
     public static TestCompiler WithAzResourceTypeLoader(this TestCompiler compiler, IResourceTypeLoader resourceTypeLoader) => compiler.ConfigureServices(services =>

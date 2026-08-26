@@ -207,7 +207,7 @@ namespace Bicep.Core.Semantics
                 new(f.Overload.TypeSignatureSymbol, null),
                 DescriptionHelper.TryGetFromDecorator(this, f.DeclaringFunction)));
 
-        private static void TraceBuildOperation(BicepSourceFile sourceFile, IFeatureProvider features, RootConfiguration configuration)
+        private static void TraceBuildOperation(BicepSourceFile sourceFile, IFeatureProvider features, IBicepConfiguration configuration)
         {
             var sb = new StringBuilder();
 
@@ -236,7 +236,7 @@ namespace Bicep.Core.Semantics
 
         public BicepSourceFileKind SourceFileKind => this.SourceFile.FileKind;
 
-        public RootConfiguration Configuration { get; }
+        public IBicepConfiguration Configuration { get; }
 
         public IFeatureProvider Features { get; }
 
@@ -340,7 +340,7 @@ namespace Bicep.Core.Semantics
 
         private ImmutableArray<IDiagnostic> AssembleDiagnostics()
         {
-            var diagnostics = this.Configuration.Diagnostics
+            var diagnostics = this.Configuration.GetDiagnostics()
                 .Concat(this.LexingErrorLookup)
                 .Concat(this.ParsingErrorLookup)
                 .Concat(GetSemanticDiagnostics())

@@ -13,39 +13,9 @@ public static class ExtensionsConfigurationExtensions
     public static ImplicitExtensionsConfiguration WithImplicitExtensions(this ImplicitExtensionsConfiguration c, string implicitExtensionsJsonString)
         => ImplicitExtensionsConfiguration.Bind(JsonDocument.Parse(implicitExtensionsJsonString).RootElement);
 
-    public static RootConfiguration WithExtensions(this RootConfiguration rootConfiguration, string payload)
-    {
-        return new RootConfiguration(
-            rootConfiguration.Cloud,
-            rootConfiguration.ModuleAliases,
-            rootConfiguration.ModuleAliasesMock,
-            rootConfiguration.Extensions.WithExtensions(payload),
-            rootConfiguration.ImplicitExtensions,
-            rootConfiguration.Analyzers,
-            rootConfiguration.CacheRootDirectory,
-            rootConfiguration.ExperimentalFeaturesWarning,
-            rootConfiguration.ExperimentalFeaturesEnabled,
-            rootConfiguration.Formatting,
-            rootConfiguration.Documentation,
-            rootConfiguration.ConfigFileUri,
-            rootConfiguration.Diagnostics);
-    }
+    public static IBicepConfiguration WithExtensions(this IBicepConfiguration configuration, string payload)
+        => configuration.With(extensions: ((ExtensionsConfiguration)configuration.Extensions).WithExtensions(payload));
 
-    public static RootConfiguration WithImplicitExtensions(this RootConfiguration rootConfiguration, string payload)
-    {
-        return new RootConfiguration(
-            rootConfiguration.Cloud,
-            rootConfiguration.ModuleAliases,
-            rootConfiguration.ModuleAliasesMock,
-            rootConfiguration.Extensions,
-            rootConfiguration.ImplicitExtensions.WithImplicitExtensions(payload),
-            rootConfiguration.Analyzers,
-            rootConfiguration.CacheRootDirectory,
-            rootConfiguration.ExperimentalFeaturesWarning,
-            rootConfiguration.ExperimentalFeaturesEnabled,
-            rootConfiguration.Formatting,
-            rootConfiguration.Documentation,
-            rootConfiguration.ConfigFileUri,
-            rootConfiguration.Diagnostics);
-    }
+    public static IBicepConfiguration WithImplicitExtensions(this IBicepConfiguration configuration, string payload)
+        => configuration.With(implicitExtensions: ((ImplicitExtensionsConfiguration)configuration.ImplicitExtensions).WithImplicitExtensions(payload));
 }

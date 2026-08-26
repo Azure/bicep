@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -391,7 +392,7 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             // Arrange.
             var fileExplorer = new InMemoryFileExplorer();
-            var sut = new ConfigurationManager(fileExplorer, new BicepConfigurationManager(fileExplorer));
+            var sut = new BicepConfigurationManager(fileExplorer);
             var sourceFileUri = TestFileUri.FromInMemoryPath("path/to/nonexistent/main.bicep");
 
             // Act.
@@ -406,10 +407,10 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             // Arrange.
             var fileSet = InMemoryTestFileSet.Create(("bicepconfig.json", ""));
-            var sut = new ConfigurationManager(fileSet.FileExplorer, new BicepConfigurationManager(fileSet.FileExplorer));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
 
             // Act & Assert.
-            var diagnostics = sut.GetConfiguration(fileSet.GetUri("main.bicep")).Diagnostics;
+            var diagnostics = sut.GetConfiguration(fileSet.GetUri("main.bicep")).GetDiagnostics().ToImmutableArray();
             diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
             diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{fileSet.GetUri("bicepconfig.json")}\" as valid JSON: The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.");
@@ -430,10 +431,10 @@ namespace Bicep.Core.UnitTests.Configuration
             });
 
             var fileSet = new MockFileSystemTestFileSet(fileSystem);
-            var sut = new ConfigurationManager(fileSet.FileExplorer, new BicepConfigurationManager(fileSet.FileExplorer));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
 
             // Act & Assert.
-            var diagnostics = sut.GetConfiguration(mainFileUri).Diagnostics;
+            var diagnostics = sut.GetConfiguration(mainFileUri).GetDiagnostics().ToImmutableArray();
             diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
             diagnostics[0].Message.Should().StartWith($"Could not load the Bicep configuration file \"{configFileUri}\":");
@@ -596,11 +597,11 @@ namespace Bicep.Core.UnitTests.Configuration
             fileSystemMock.Setup(x => x.File.Exists(It.IsAny<string>())).Throws(new IOException("Oops."));
 
             var fileExplorer = new FileSystemFileExplorer(fileSystemMock.Object);
-            var sut = new ConfigurationManager(fileExplorer, new BicepConfigurationManager(fileExplorer));
+            var sut = new BicepConfigurationManager(fileExplorer);
             var configuration = sut.GetConfiguration(new IOUri(IOUriScheme.File, "", "/foo/bar/main.bicep"));
 
             // Act & Assert.
-            var diagnostics = configuration.Diagnostics;
+            var diagnostics = configuration.GetDiagnostics().ToImmutableArray();
             diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Info);
             diagnostics[0].Message.Should().Be("Error scanning \"/foo/bar/\" for bicep configuration: Oops.");
@@ -667,10 +668,10 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             // Arrange.
             var fileSet = InMemoryTestFileSet.Create(("bicepconfig.json", configurationContents));
-            var sut = new ConfigurationManager(fileSet.FileExplorer, new BicepConfigurationManager(fileSet.FileExplorer));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
 
             // Act & Assert.
-            var diagnostics = sut.GetConfiguration(fileSet.GetUri("main.bicep")).Diagnostics;
+            var diagnostics = sut.GetConfiguration(fileSet.GetUri("main.bicep")).GetDiagnostics().ToImmutableArray();
             diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
             diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{fileSet.GetUri("bicepconfig.json")}\": {expectedExceptionMessage}");
@@ -729,11 +730,11 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             // Arrange.
             var fileSet = InMemoryTestFileSet.Create(("bicepconfig.json", configurationContents));
-            var sut = new ConfigurationManager(fileSet.FileExplorer, new BicepConfigurationManager(fileSet.FileExplorer));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
 
 
             // Act.
-            var diagnostics = sut.GetConfiguration(fileSet.GetUri("main.bicep")).Diagnostics;
+            var diagnostics = sut.GetConfiguration(fileSet.GetUri("main.bicep")).GetDiagnostics().ToImmutableArray();
 
             // Assert.
             diagnostics.Length.Should().Be(1);
@@ -818,7 +819,7 @@ namespace Bicep.Core.UnitTests.Configuration
                       }
                     }
                     """));
-            var sut = new ConfigurationManager(fileSet.FileExplorer, new BicepConfigurationManager(fileSet.FileExplorer));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
 
             // Act.
             var configuration = sut.GetConfiguration(fileSet.GetUri("modules/vnet.bicep"));
@@ -983,7 +984,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     }
                     """));
 
-            var sut = new ConfigurationManager(fileSet.FileExplorer, new BicepConfigurationManager(fileSet.FileExplorer));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
 
             // Act.
             var configuration = sut.GetConfiguration(fileSet.GetUri("repo/modules/bicepconfig.json"));
@@ -1011,7 +1012,7 @@ namespace Bicep.Core.UnitTests.Configuration
                   }
                 }
                 """));
-            var sut = new ConfigurationManager(fileSet.FileExplorer, new BicepConfigurationManager(fileSet.FileExplorer));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
 
             // Act.
             var configuration = sut.GetConfiguration(fileSet.GetUri("main.bicep"));
@@ -1044,7 +1045,7 @@ namespace Bicep.Core.UnitTests.Configuration
                   }
                 }
                 """));
-            var sut = new ConfigurationManager(fileSet.FileExplorer, new BicepConfigurationManager(fileSet.FileExplorer));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
 
             // Act.
             var configuration = sut.GetConfiguration(fileSet.GetUri("main.bicep"));

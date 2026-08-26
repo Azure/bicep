@@ -83,9 +83,9 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithConfigurationManager(this IServiceCollection services, IConfigurationManager configurationManager)
         => Register(services, configurationManager);
 
-    public static IServiceCollection WithConfigurationPatch(this IServiceCollection services, Func<RootConfiguration, RootConfiguration> patchFunc)
+    public static IServiceCollection WithConfigurationPatch(this IServiceCollection services, Func<IBicepConfiguration, IBicepConfiguration> patchFunc)
         => Register(services, patchFunc)
-            .AddSingleton<ConfigurationManager>()
+            .AddSingleton<BicepConfigurationManager>()
             .AddSingleton<IConfigurationManager, PatchingConfigurationManager>();
 
     public static IServiceCollection WithDisabledAnalyzersConfiguration(this IServiceCollection services)
@@ -94,7 +94,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithAnalyzersCodesToDisableConfiguration(this IServiceCollection services, params string[] analyzerCodesToDisable)
         => services.WithConfigurationPatch(c => c.WithAllAnalyzers().WithAnalyzersDisabled(analyzerCodesToDisable));
 
-    public static IServiceCollection WithConfiguration(this IServiceCollection services, RootConfiguration configuration)
+    public static IServiceCollection WithConfiguration(this IServiceCollection services, IBicepConfiguration configuration)
         => services.WithConfigurationPatch(c => configuration);
 
     public static IServiceCollection WithBicepAnalyzer(this IServiceCollection services, IBicepAnalyzer bicepAnalyzer)
@@ -158,11 +158,11 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection AddMockArmClient(this IServiceCollection services, MockableResourcesArmClient armClient)
         => AddMockArmClient(services, _ => armClient);
 
-    public static IServiceCollection AddMockArmClient(this IServiceCollection services, Func<RootConfiguration, MockableResourcesArmClient> armClient)
+    public static IServiceCollection AddMockArmClient(this IServiceCollection services, Func<IBicepConfiguration, MockableResourcesArmClient> armClient)
     {
         var clientProvider = StrictMock.Of<IArmClientProvider>();
-        clientProvider.Setup(x => x.CreateArmClient(It.IsAny<RootConfiguration>(), It.IsAny<string?>()))
-            .Returns<RootConfiguration, string?>((config, _) =>
+        clientProvider.Setup(x => x.CreateArmClient(It.IsAny<IBicepConfiguration>(), It.IsAny<string?>()))
+            .Returns<IBicepConfiguration, string?>((config, _) =>
             {
                 var clientMock = StrictMock.Of<ArmClient>();
 

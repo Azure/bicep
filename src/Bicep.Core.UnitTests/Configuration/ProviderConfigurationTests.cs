@@ -29,7 +29,7 @@ public class ExtensionsConfigurationTests
         }
         """);
 
-        var extensions = ExtensionsConfiguration.Bind(data.GetProperty(RootConfiguration.ExtensionsKey));
+        var extensions = ExtensionsConfiguration.Bind(data.GetProperty(BicepConfiguration.ExtensionsKey));
         extensions.Should().NotBeNull();
 
         extensions.TryGetExtensionSource("az").IsSuccess(out var azExtension).Should().BeTrue();
@@ -76,10 +76,10 @@ public class ExtensionsConfigurationTests
             }
             """));
 
-        var configManager = new ConfigurationManager(fileSet.FileExplorer, new BicepConfigurationManager(fileSet.FileExplorer));
+        var configManager = new BicepConfigurationManager(fileSet.FileExplorer);
         var config = configManager.GetConfiguration(fileSet.GetUri("main.bicep"));
 
-        config.Diagnostics.Should().BeEmpty();
+        config.GetDiagnostics().Should().BeEmpty();
         config.Should().NotBeNull();
         config!.Extensions.Should().NotBeNull();
 

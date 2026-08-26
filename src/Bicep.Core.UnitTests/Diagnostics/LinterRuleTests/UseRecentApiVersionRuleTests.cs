@@ -98,11 +98,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     AzResourceTypeLoader: FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes).Object));
         }
 
-        private static RootConfiguration CreateConfigurationWithFakeToday(RootConfiguration original, string today, int? maxAgeInDays = null, int? gracePeriodInDays = null)
+        private static IBicepConfiguration CreateConfigurationWithFakeToday(IBicepConfiguration original, string today, int? maxAgeInDays = null, int? gracePeriodInDays = null)
         {
             VerifyAllTypesAndDatesAreFake(today);
 
-            return new RootConfiguration(
+            return new BicepConfiguration(
                 original.Cloud,
                 original.ModuleAliases,
                 original.ModuleAliasesMock,
@@ -128,14 +128,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                             .Replace("<TESTING_TODAY_DATE>", today)
                             .Replace("<MAX_AGE_PROP>", maxAgeInDays.HasValue ? $", \"maxAgeInDays\": {maxAgeInDays}" : "")
                             .Replace("<GRACE_PERIOD_PROP>", gracePeriodInDays.HasValue ? $", \"gracePeriodInDays\": {gracePeriodInDays}" : ""))),
-                original.CacheRootDirectory,
-                original.ExperimentalFeaturesWarning,
+                original.Formatting,
+                original.Documentation,
                 original.ExperimentalFeaturesEnabled with
                 {
                     SymbolicNameCodegen = true,
                 },
-                original.Formatting,
-                original.Documentation,
+                original.CacheRootDirectory,
+                original.ExperimentalFeaturesWarning,
                 null,
                 null);
         }

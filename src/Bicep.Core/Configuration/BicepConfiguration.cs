@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Text.Json;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Json;
 using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Configuration
@@ -14,6 +16,28 @@ namespace Bicep.Core.Configuration
     /// </summary>
     public class BicepConfiguration : IBicepConfiguration
     {
+        public const string CloudKey = "cloud";
+
+        public const string ModuleAliasesKey = "moduleAliases";
+
+        public const string ModuleAliasesMockKey = "moduleAliasesMock";
+
+        public const string ExtensionsKey = "extensions";
+
+        public const string ImplicitExtensionsKey = "implicitExtensions";
+
+        public const string AnalyzersKey = "analyzers";
+
+        public const string CacheRootDirectoryKey = "cacheRootDirectory";
+
+        public const string ExperimentalFeaturesWarningKey = "experimentalFeaturesWarning";
+
+        public const string ExperimentalFeaturesEnabledKey = "experimentalFeaturesEnabled";
+
+        public const string FormattingKey = "formatting";
+
+        public const string DocumentationKey = "documentation";
+
         public BicepConfiguration(
             IBicepCloudConfiguration cloud,
             IBicepModuleAliasesConfiguration moduleAliases,
@@ -42,6 +66,45 @@ namespace Bicep.Core.Configuration
             ExperimentalFeaturesWarning = experimentalFeaturesWarning;
             ConfigFileUri = configFileUri;
             Diagnostics = diagnostics?.ToImmutableArray() ?? [];
+        }
+
+        /// <summary>
+        /// Binds a JSON element representing a fully merged Bicep configuration into a
+        /// <see cref="BicepConfiguration"/> instance.
+        /// </summary>
+        public static BicepConfiguration Bind(JsonElement element, IOUri? configFileUri = null)
+        {
+            var cloud = CloudConfiguration.Bind(element.GetProperty(CloudKey));
+            var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesKey), configFileUri);
+            var moduleAliasesMock = element.TryGetProperty(ModuleAliasesMockKey, out var mockElement)
+                 ? ModuleAliasesMockConfiguration.Bind(mockElement, configFileUri)
+                  : ModuleAliasesMockConfiguration.Bind(JsonElementFactory.CreateElement(new ModuleAliasesMock()), configFileUri);
+            var analyzers = new AnalyzersConfiguration(element.GetProperty(AnalyzersKey));
+            var cacheRootDirectory = element.TryGetProperty(CacheRootDirectoryKey, out var e) ? e.GetString() : default;
+            var experimentalFeaturesWarning = element.TryGetProperty(ExperimentalFeaturesWarningKey, out var value) && value.GetBoolean();
+            var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey));
+            var formatting = FormattingConfiguration.Bind(element.GetProperty(FormattingKey));
+            var documentation = element.TryGetProperty(DocumentationKey, out var documentationElement)
+                ? DocumentationConfiguration.Bind(documentationElement)
+                : new DocumentationConfiguration(new());
+
+            var extensions = ExtensionsConfiguration.Bind(element.GetProperty(ExtensionsKey));
+            var implicitExtensions = ImplicitExtensionsConfiguration.Bind(element.GetProperty(ImplicitExtensionsKey));
+
+            return new BicepConfiguration(
+                cloud: cloud,
+                moduleAliases: moduleAliases,
+                moduleAliasesMock: moduleAliasesMock,
+                extensions: extensions,
+                implicitExtensions: implicitExtensions,
+                analyzers: analyzers,
+                formatting: formatting,
+                documentation: documentation,
+                experimentalFeaturesEnabled: experimentalFeaturesEnabled,
+                cacheRootDirectory: cacheRootDirectory,
+                experimentalFeaturesWarning: experimentalFeaturesWarning,
+                configFileUri: configFileUri,
+                diagnostics: null);
         }
 
         public IBicepCloudConfiguration Cloud { get; }

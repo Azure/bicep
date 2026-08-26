@@ -34,7 +34,7 @@ public class RegistryModuleCatalog : IRegistryModuleCatalog
         registryProviders["mcr.microsoft.com"] = publicModuleMetadataProvider;
     }
 
-    public IRegistryModuleMetadataProvider GetProviderForRegistry(CloudConfiguration cloud, string registry)
+    public IRegistryModuleMetadataProvider GetProviderForRegistry(IBicepCloudConfiguration cloud, string registry)
     {
         lock (lockObject)
         {

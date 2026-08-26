@@ -10,14 +10,14 @@ namespace Bicep.Core.Registry.Oci;
 
 public interface IOciRegistryTransport
 {
-    Task<string[]> GetRepositoryNamesAsync(CloudConfiguration cloud, string registry, int maxResults, CancellationToken cancellationToken = default);
+    Task<string[]> GetRepositoryNamesAsync(IBicepCloudConfiguration cloud, string registry, int maxResults, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<string>> GetRepositoryTagsAsync(CloudConfiguration cloud, string registry, string repository, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<string>> GetRepositoryTagsAsync(IBicepCloudConfiguration cloud, string registry, string repository, CancellationToken cancellationToken = default);
 
-    Task<OciArtifactResult> PullArtifactAsync(CloudConfiguration cloud, IOciArtifactAddressComponents artifactReference, CancellationToken cancellationToken = default);
+    Task<OciArtifactResult> PullArtifactAsync(IBicepCloudConfiguration cloud, IOciArtifactAddressComponents artifactReference, CancellationToken cancellationToken = default);
 
     Task PushArtifactAsync(
-        CloudConfiguration cloud,
+        IBicepCloudConfiguration cloud,
         IOciArtifactReference artifactReference,
         string? mediaType,
         string? artifactType,

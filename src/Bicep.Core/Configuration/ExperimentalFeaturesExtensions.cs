@@ -5,23 +5,10 @@ namespace Bicep.Core.Configuration
 {
     public static class ExperimentalFeaturesExtensions
     {
-        public static RootConfiguration WithExperimentalFeaturesConfiguration(this RootConfiguration current, ExperimentalFeaturesEnabled featuresEnabled) =>
-            new(
-                current.Cloud,
-                current.ModuleAliases,
-                current.ModuleAliasesMock,
-                current.Extensions,
-                current.ImplicitExtensions,
-                current.Analyzers,
-                current.CacheRootDirectory,
-                current.ExperimentalFeaturesWarning,
-                featuresEnabled,
-                current.Formatting,
-                current.Documentation,
-                current.ConfigFileUri,
-                current.Diagnostics);
+        public static IBicepConfiguration WithExperimentalFeaturesConfiguration(this IBicepConfiguration current, ExperimentalFeaturesEnabled featuresEnabled) =>
+            current.With(experimentalFeaturesEnabled: featuresEnabled);
 
-        public static RootConfiguration WithExperimentalFeaturesEnabled(this RootConfiguration current, ExperimentalFeaturesEnabled configuration) =>
+        public static IBicepConfiguration WithExperimentalFeaturesEnabled(this IBicepConfiguration current, ExperimentalFeaturesEnabled configuration) =>
             current.WithExperimentalFeaturesConfiguration(configuration);
     }
 }

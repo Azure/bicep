@@ -21,12 +21,12 @@ public interface IBicepConfigurationManager
     IBicepConfigurationChain GetConfigurationChain(IOUri sourceFileUri);
 
     /// <summary>
-    /// Returns the fully merged <see cref="RootConfiguration"/> for the given source file.
+    /// Returns the fully merged <see cref="IBicepConfiguration"/> for the given source file.
     /// Equivalent to walking the "extends" chain and returning the effective merged result.
     /// This allows <see cref="IConfigurationManager"/> to delegate to this manager
     /// without changing the return type expected by existing consumers.
     /// </summary>
-    RootConfiguration GetMergedConfiguration(IOUri sourceFileUri);
+    IBicepConfiguration GetMergedConfiguration(IOUri sourceFileUri);
 
     /// <summary>
     /// Invalidates only the chains that include <paramref name="changedFileUri"/> as a dependency.

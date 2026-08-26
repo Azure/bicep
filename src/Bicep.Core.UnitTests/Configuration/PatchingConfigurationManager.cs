@@ -9,13 +9,13 @@ namespace Bicep.Core.UnitTests.Configuration;
 public class PatchingConfigurationManager : IConfigurationManager
 {
     private readonly IConfigurationManager configurationManager;
-    private readonly Func<RootConfiguration, RootConfiguration> patchFunc;
+    private readonly Func<IBicepConfiguration, IBicepConfiguration> patchFunc;
 
-    public PatchingConfigurationManager(ConfigurationManager configurationManager, Func<RootConfiguration, RootConfiguration> patchFunc)
+    public PatchingConfigurationManager(BicepConfigurationManager configurationManager, Func<IBicepConfiguration, IBicepConfiguration> patchFunc)
     {
         this.configurationManager = configurationManager;
         this.patchFunc = patchFunc;
     }
 
-    public RootConfiguration GetConfiguration(IOUri sourceFileUri) => patchFunc(configurationManager.GetConfiguration(sourceFileUri));
+    public IBicepConfiguration GetConfiguration(IOUri sourceFileUri) => patchFunc(configurationManager.GetConfiguration(sourceFileUri));
 }

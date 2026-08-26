@@ -11,7 +11,7 @@ using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Configuration;
 
-public class BicepConfigurationManager : IBicepConfigurationManager
+public class BicepConfigurationManager : IBicepConfigurationManager, IConfigurationManager
 {
     private const int MaxChainDepth = 64;
 
@@ -105,17 +105,18 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         return this.chainDependencies.TryGetValue(leafHandle, out var deps) ? deps : [];
     }
 
-    public RootConfiguration GetMergedConfiguration(IOUri sourceFileUri)
+    public IBicepConfiguration GetMergedConfiguration(IOUri sourceFileUri)
     {
         var chain = GetConfigurationChain(sourceFileUri);
 
-        if (chain.GetEffectiveConfiguration() is BicepConfigurationAdapter adapter)
-        {
-            return adapter.InnerConfiguration;
-        }
-
-        return IConfigurationManager.GetBuiltInConfiguration();
+        return chain.GetEffectiveConfiguration();
     }
+
+    /// <summary>
+    /// Satisfies <see cref="IConfigurationManager"/>. Returns the fully merged effective
+    /// configuration for the given source file (walking the "extends" chain).
+    /// </summary>
+    public IBicepConfiguration GetConfiguration(IOUri sourceFileUri) => GetMergedConfiguration(sourceFileUri);
 
     public void RemoveChainCacheEntry(IOUri configFileUri)
     {
@@ -129,12 +130,12 @@ public class BicepConfigurationManager : IBicepConfigurationManager
 
     private static IBicepConfigurationChain GetBuiltInChain(IEnumerable<IDiagnostic>? diagnostics = null)
     {
-        var builtInConfig = GetBuiltInRootConfiguration(diagnostics);
+        var builtInConfig = GetBuiltInConfiguration(diagnostics);
 
-        return new BicepConfigurationChain(new BicepConfigurationAdapter(builtInConfig), [new BicepConfigurationAdapter(builtInConfig)]);
+        return new BicepConfigurationChain(builtInConfig, [builtInConfig]);
     }
 
-    private static RootConfiguration GetBuiltInRootConfiguration(IEnumerable<IDiagnostic>? diagnostics = null) =>
+    private static IBicepConfiguration GetBuiltInConfiguration(IEnumerable<IDiagnostic>? diagnostics = null) =>
         diagnostics is null
             ? IConfigurationManager.GetBuiltInConfiguration()
             : IConfigurationManager.GetBuiltInConfiguration().With(diagnostics: diagnostics);
@@ -226,10 +227,10 @@ public class BicepConfigurationManager : IBicepConfigurationManager
             accumulated = accumulated.Merge(StripExtendsProperty(element));
         }
 
-        RootConfiguration effectiveRootConfig;
+        IBicepConfiguration effectiveConfig;
         try
         {
-            effectiveRootConfig = RootConfiguration.Bind(accumulated, leafUri);
+            effectiveConfig = BicepConfiguration.Bind(accumulated, leafUri);
         }
         catch (ConfigurationException exception)
         {
@@ -244,17 +245,16 @@ public class BicepConfigurationManager : IBicepConfigurationManager
                 {
                     var merged = IConfigurationManager.BuiltInConfigurationElement.Merge(StripExtendsProperty(layer.Element));
 
-                    return (IBicepConfiguration)new BicepConfigurationAdapter(RootConfiguration.Bind(merged, layer.FileHandle.Uri));
+                    return (IBicepConfiguration)BicepConfiguration.Bind(merged, layer.FileHandle.Uri);
                 }
                 catch (ConfigurationException)
                 {
-                    return (IBicepConfiguration)new BicepConfigurationAdapter(
-                        IConfigurationManager.GetBuiltInConfiguration().With(configFileIdentifier: layer.FileHandle.Uri));
+                    return IConfigurationManager.GetBuiltInConfiguration().With(configFileIdentifier: layer.FileHandle.Uri);
                 }
             })
             .ToImmutableArray();
 
-        return new BicepConfigurationChain(new BicepConfigurationAdapter(effectiveRootConfig), layers);
+        return new BicepConfigurationChain(effectiveConfig, layers);
     }
 
     private static JsonElement StripExtendsProperty(JsonElement element)
