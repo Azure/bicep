@@ -1,0 +1,80 @@
+<Solution>
+  <Folder Name="/CLI/">
+    <Project Path="src/Bicep.Cli.IntegrationTests/Bicep.Cli.IntegrationTests.csproj" />
+    <Project Path="src/Bicep.Cli.UnitTests/Bicep.Cli.UnitTests.csproj" />
+    <Project Path="src/Bicep.Cli/Bicep.Cli.csproj" />
+  </Folder>
+  <Folder Name="/Core/">
+    <Project Path="src/Bicep.Core.IntegrationTests/Bicep.Core.IntegrationTests.csproj" />
+    <Project Path="src/Bicep.Core.Samples/Bicep.Core.Samples.csproj" />
+    <Project Path="src/Bicep.Core.UnitTests/Bicep.Core.UnitTests.csproj" />
+    <Project Path="src/Bicep.Core/Bicep.Core.csproj" />
+  </Folder>
+  <Folder Name="/Decompiler/">
+    <Project Path="src/Bicep.Decompiler.IntegrationTests/Bicep.Decompiler.IntegrationTests.csproj" />
+    <Project Path="src/Bicep.Decompiler.UnitTests/Bicep.Decompiler.UnitTests.csproj" />
+    <Project Path="src/Bicep.Decompiler/Bicep.Decompiler.csproj" />
+  </Folder>
+  <Folder Name="/IO/">
+    <Project Path="src/Bicep.IO.UnitTests/Bicep.IO.UnitTests.csproj" />
+    <Project Path="src/Bicep.IO/Bicep.IO.csproj" />
+  </Folder>
+  <Folder Name="/LanguageServer/">
+    <Project Path="src/Bicep.LangServer.IntegrationTests/Bicep.LangServer.IntegrationTests.csproj" />
+    <Project Path="src/Bicep.LangServer.UnitTests/Bicep.LangServer.UnitTests.csproj" />
+    <Project Path="src/Bicep.LangServer/Bicep.LangServer.csproj" />
+  </Folder>
+  <Folder Name="/Local/">
+    <Project Path="src/Bicep.Local.Deploy.IntegrationTests/Bicep.Local.Deploy.IntegrationTests.csproj" />
+    <Project Path="src/Bicep.Local.Deploy/Bicep.Local.Deploy.csproj" />
+    <Project Path="src/Bicep.Local.Extension.Mock/Bicep.Local.Extension.Mock.csproj" />
+    <Project Path="src/Bicep.Local.Extension.UnitTests/Bicep.Local.Extension.UnitTests.csproj" />
+    <Project Path="src/Bicep.Local.Extension/Bicep.Local.Extension.csproj" />
+  </Folder>
+  <Folder Name="/MSBuild/">
+    <Project Path="src/Bicep.MSBuild.UnitTests/Bicep.MSBuild.UnitTests.csproj" />
+    <Project Path="src/Bicep.MSBuild/Bicep.MSBuild.csproj" />
+  </Folder>
+  <Folder Name="/RegistryModuleTool/">
+    <Project Path="src/Bicep.RegistryModuleTool.IntegrationTests/Bicep.RegistryModuleTool.IntegrationTests.csproj" />
+    <Project Path="src/Bicep.RegistryModuleTool.TestFixtures/Bicep.RegistryModuleTool.TestFixtures.csproj" />
+    <Project Path="src/Bicep.RegistryModuleTool.UnitTests/Bicep.RegistryModuleTool.UnitTests.csproj" />
+    <Project Path="src/Bicep.RegistryModuleTool/Bicep.RegistryModuleTool.csproj" />
+  </Folder>
+  <Folder Name="/scripts/">
+    <File Path="scripts/bcode.ps1" />
+    <File Path="scripts/UpdateBaselines.ps1" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Bicep.Local.Rpc/Bicep.Local.Rpc.csproj" />
+    <Project Path="src/Bicep.McpServer.Core/Bicep.McpServer.Core.csproj" />
+    <Project Path="src/Bicep.McpServer.UnitTests/Bicep.McpServer.UnitTests.csproj" />
+    <Project Path="src/Bicep.McpServer/Bicep.McpServer.csproj" />
+    <Project Path="src/Bicep.RpcClient.Tests/Bicep.RpcClient.Tests.csproj" />
+    <Project Path="src/Bicep.RpcClient/Bicep.RpcClient.csproj" />
+  </Folder>
+  <Folder Name="/TestFixtures/" />
+  <Folder Name="/Tools/">
+    <Project Path="src/Bicep.Tools.Benchmark/Bicep.Tools.Benchmark.csproj" />
+  </Folder>
+  <Folder Name="/Web/">
+    <Project Path="src/Bicep.Wasm.UnitTests/Bicep.Wasm.UnitTests.csproj" />
+    <Project Path="src/Bicep.Wasm/Bicep.Wasm.csproj" />
+  </Folder>
+  <Folder Name="/_SolutionItems/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="azure-pipelines.yml" />
+    <File Path="CODE_OF_CONDUCT.md" />
+    <File Path="CONTRIBUTING.md" />
+    <File Path="global.json" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+    <File Path="SECURITY.md" />
+    <File Path="src/BannedSymbols.txt" />
+    <File Path="src/Directory.Build.props" />
+    <File Path="src/Directory.Build.targets" />
+    <File Path="src/Directory.Packages.props" />
+  </Folder>
+</Solution>
