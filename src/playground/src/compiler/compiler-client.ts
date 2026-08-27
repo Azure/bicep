@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { languages } from "monaco-editor";
+import { languages } from "monaco-editor/editor/editor.api";
 import { getQuickstartsLink } from "../quickstarts/quickstarts";
 import {
   CompileResult,

@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { editor, MarkerSeverity } from "monaco-editor";
+import { editor, MarkerSeverity } from "monaco-editor/editor/editor.api";
 import { forwardRef, useCallback, useEffect, useRef } from "react";
 import { DotnetInterop } from "../compiler/compiler-client";
 import { CodeEditor, CodeEditorHandle } from "./CodeEditor";

@@ -1,7 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import * as monaco from "monaco-editor";
+// The package-root entry point registers every Monaco contribution as a side
+// effect, so bundlers cannot tree-shake unused features. Start with the API-only
+// entry point and explicitly import only the contributions the playground uses.
+import * as monaco from "monaco-editor/editor/editor.api";
+import "monaco-editor/editor/contrib/semanticTokens/browser/documentSemanticTokens";
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import { BicepLanguage } from "../../../monarch/src/bicep";
 import {
   CompilerRequestSupersededError,
   DotnetInterop,
@@ -155,6 +160,10 @@ export function registerBicep(
     aliases: ["bicep"],
   });
 
+  const tokenizationRegistration = monaco.languages.setMonarchTokensProvider(
+    "bicep",
+    BicepLanguage,
+  );
   const semanticTokensRegistration =
     monaco.languages.registerDocumentSemanticTokensProvider("bicep", {
       getLegend: () => interop.getSemanticTokensLegend(),
@@ -179,6 +188,7 @@ export function registerBicep(
 
   return {
     dispose: () => {
+      tokenizationRegistration.dispose();
       semanticTokensRegistration.dispose();
     },
   };

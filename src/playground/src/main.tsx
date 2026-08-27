@@ -1,17 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { ApplicationInsights } from "@microsoft/applicationinsights-web";
 import { createRoot } from "react-dom/client";
 import { aiKey } from "../package.json";
 import { App } from "./App";
 import { initializeInterop } from "./compiler/compiler-client";
-import "./editor/monaco-environment";
 import "./index.css";
 import { handleShareLink } from "./sharing/share-link";
-import {
-  configureTelemetry,
-  getSanitizedCurrentUrl,
-} from "./telemetry/application-insights";
+import { PlaygroundTelemetry } from "./telemetry/playground-telemetry";
 import {
   getPreferredColorMode,
   setColorMode,
@@ -33,15 +28,18 @@ if (!rootElement) {
 }
 
 const root = createRoot(rootElement);
-const insights = configureTelemetry(
-  new ApplicationInsights({
-    config: {
-      instrumentationKey: aiKey,
-    },
-  }),
-);
-
-insights.trackPageView({ uri: getSanitizedCurrentUrl() });
+const pendingTelemetryEvents: Parameters<PlaygroundTelemetry["trackEvent"]>[] =
+  [];
+let activeTelemetry: PlaygroundTelemetry | undefined;
+const insights: PlaygroundTelemetry = {
+  trackEvent: (...args) => {
+    if (activeTelemetry) {
+      activeTelemetry.trackEvent(...args);
+    } else {
+      pendingTelemetryEvents.push(args);
+    }
+  },
+};
 
 function renderLoading() {
   root.render(
@@ -87,8 +85,23 @@ async function start() {
         />
       </div>,
     );
+    void connectTelemetry();
   } catch (error) {
     renderStartupError(error);
+  }
+}
+
+async function connectTelemetry(): Promise<void> {
+  try {
+    const { initializeTelemetry } = await import(
+      "./telemetry/application-insights"
+    );
+    activeTelemetry = initializeTelemetry(aiKey);
+    for (const event of pendingTelemetryEvents.splice(0)) {
+      activeTelemetry.trackEvent(...event);
+    }
+  } catch (error) {
+    console.warn("Application Insights failed to initialize.", error);
   }
 }
 
