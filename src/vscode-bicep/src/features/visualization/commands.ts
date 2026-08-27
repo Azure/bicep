@@ -15,9 +15,7 @@ async function openView(
   documentUri = await findOrCreateActiveBicepFile(prompts, documentUri, "Choose which Bicep file to visualize");
 
   const viewColumn = sideBySide ? ViewColumn.Beside : (window.activeTextEditor?.viewColumn ?? ViewColumn.One);
-
   await viewManager.openView(documentUri, viewColumn);
-
   return viewColumn;
 }
 
@@ -58,8 +56,11 @@ export class ShowSourceFromVisualizerCommand implements Command {
 
     if (activeUri) {
       const document = await workspace.openTextDocument(activeUri);
+      const visibleEditor = window.visibleTextEditors.find(
+        (editor) => editor.document.uri.toString() === activeUri.toString(),
+      );
 
-      return await window.showTextDocument(document, ViewColumn.One);
+      return await window.showTextDocument(document, visibleEditor?.viewColumn ?? ViewColumn.One);
     }
 
     return undefined;

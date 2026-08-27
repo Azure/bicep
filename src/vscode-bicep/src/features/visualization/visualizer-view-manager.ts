@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { commands, Uri, ViewColumn, WebviewPanel, WebviewPanelSerializer, window } from "vscode";
+import { commands, Uri, ViewColumn, WebviewPanel, WebviewPanelSerializer, window, workspace } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { DiagnosticsRouter } from "../../infrastructure/language-client";
 import { Disposable } from "../../infrastructure/lifecycle";
+import { getLogger } from "../../infrastructure/logging";
 import { BicepVisualizerView } from "./visualizer-view";
+import { resourceCreationSetting } from "./resource-creation-setting";
 
 export class BicepVisualizerViewManager extends Disposable implements WebviewPanelSerializer {
   private static readonly visualizerActiveContextKey = "bicepVisualizerFocus";
@@ -20,8 +22,23 @@ export class BicepVisualizerViewManager extends Disposable implements WebviewPan
   ) {
     super();
 
-    this.register(window.registerWebviewPanelSerializer(BicepVisualizerView.viewType, this));
-    this.register(
+    this.registerMultiple(
+      window.registerWebviewPanelSerializer(BicepVisualizerView.viewType, this),
+      workspace.onDidChangeTextDocument((event) => {
+        this.viewsByPath.get(event.document.uri.fsPath)?.render();
+      }),
+      workspace.onDidChangeConfiguration((event) => {
+        if (event.affectsConfiguration("workbench.reduceMotion")) {
+          for (const view of this.viewsByPath.values()) {
+            view.notifyMotionPolicyDidChange();
+          }
+        }
+        if (event.affectsConfiguration(`bicep.${resourceCreationSetting}`)) {
+          for (const view of this.viewsByPath.values()) {
+            view.notifyResourceCreationEnablementDidChange();
+          }
+        }
+      }),
       diagnosticsRouter.subscribe(() => {
         for (const view of this.viewsByPath.values()) {
           view.render();
@@ -38,7 +55,7 @@ export class BicepVisualizerViewManager extends Disposable implements WebviewPan
     const existingView = this.viewsByPath.get(documentUri.fsPath);
 
     if (existingView) {
-      existingView.reveal();
+      existingView.reveal(viewColumn);
       await existingView.waitUntilReady();
       return;
     }
@@ -53,7 +70,23 @@ export class BicepVisualizerViewManager extends Disposable implements WebviewPan
     await view.waitUntilReady();
   }
 
-  public async deserializeWebviewPanel(webviewPanel: WebviewPanel, documentPath: string): Promise<void> {
+  public async deserializeWebviewPanel(webviewPanel: WebviewPanel, state: unknown): Promise<void> {
+    const documentPath =
+      typeof state === "string"
+        ? state
+        : typeof state === "object" &&
+            state !== null &&
+            "documentPath" in state &&
+            typeof state.documentPath === "string"
+          ? state.documentPath
+          : undefined;
+
+    if (!documentPath) {
+      getLogger().warn("Could not restore Bicep visualizer because its serialized document path is missing.");
+      webviewPanel.dispose();
+      return;
+    }
+
     const documentUri = Uri.file(documentPath);
 
     this.registerView(
@@ -83,13 +116,15 @@ export class BicepVisualizerViewManager extends Disposable implements WebviewPan
       }
     });
 
-    view.onDidDispose(async () => {
+    view.onDidDispose(() => {
       if (this.activeUri === documentUri) {
         void this.setVisualizerActiveContext(false);
         this.activeUri = undefined;
       }
 
-      this.viewsByPath.delete(documentUri.fsPath);
+      if (this.viewsByPath.get(documentUri.fsPath) === view) {
+        this.viewsByPath.delete(documentUri.fsPath);
+      }
     });
 
     return view;

@@ -64,6 +64,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<ISettingsProvider, SettingsProvider>()
         .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>()
         .AddSingleton<IVisualGraphLayoutEngine, MsaglVisualGraphLayoutEngine>()
+        .AddSingleton<IVisualResourceCreationService, VisualResourceCreationService>()
         .AddSingleton(bicepLangServerOptions)
         .AddSingleton<DocumentSelectorFactory>();
 }

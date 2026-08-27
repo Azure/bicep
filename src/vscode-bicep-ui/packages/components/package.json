@@ -28,7 +28,8 @@
     "jotai-scope": "^0.12.2",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "styled-components": "^6.1.11"
+    "styled-components": "^6.1.11",
+    "@vscode-elements/elements": "^2.5.1"
   },
   "devDependencies": {
     "@storybook/addon-docs": "^10.5.8",
@@ -47,6 +48,7 @@
     "@vitejs/plugin-react": "^6.0.5",
     "@vitest/coverage-v8": "^4.1.10",
     "@vscode/codicons": "^0.0.45",
+    "@vscode-elements/elements": "^2.5.1",
     "eslint-plugin-storybook": "^10.5.8",
     "happy-dom": "^20.11.2",
     "storybook": "^10.5.8",
@@ -59,6 +61,7 @@
   },
   "dependencies": {
     "@react-hook/resize-observer": "^2.0.2",
+    "jotai-family": "^1.1.0",
     "motion": "^13.1.0"
   }
 }

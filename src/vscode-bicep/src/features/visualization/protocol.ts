@@ -1,7 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ProtocolRequestType, Range, TextDocumentIdentifier } from "vscode-languageserver-protocol";
+import {
+  ProtocolRequestType,
+  Range,
+  TextDocumentIdentifier,
+  VersionedTextDocumentIdentifier,
+  WorkspaceEdit,
+} from "vscode-languageserver-protocol";
 
 export type VisualGraphNodeKind = "resource" | "module";
 
@@ -81,3 +87,80 @@ export const visualGraphNodeSourceRequestType = new ProtocolRequestType<
   void,
   void
 >("textDocument/visualGraphNodeSource");
+
+export interface VisualResourceTypeReference {
+  fullyQualifiedType: string;
+  apiVersion: string;
+}
+
+export interface VisualResourceTypeCatalogItem extends VisualResourceTypeReference {
+  isPreview: boolean;
+}
+
+export interface VisualResourceTypeNamespace {
+  name: string;
+  resourceTypeCount: number;
+}
+
+export interface VisualResourceTypeNamespacesParams {
+  textDocument: TextDocumentIdentifier;
+  includePreview: boolean;
+}
+
+export interface VisualResourceTypeNamespacesResult {
+  catalogId: string;
+  namespaces: VisualResourceTypeNamespace[];
+}
+
+export const visualResourceTypeNamespacesRequestType = new ProtocolRequestType<
+  VisualResourceTypeNamespacesParams,
+  VisualResourceTypeNamespacesResult,
+  never,
+  void,
+  void
+>("textDocument/visualResourceTypeNamespaces");
+
+export interface VisualResourceTypesParams {
+  textDocument: TextDocumentIdentifier;
+  providerNamespace?: string;
+  query?: string;
+  includePreview: boolean;
+  pageSize: number;
+  continuationToken?: string;
+}
+
+export interface VisualResourceTypesResult {
+  catalogId: string;
+  items: VisualResourceTypeCatalogItem[];
+  continuationToken?: string;
+}
+
+export const visualResourceTypesRequestType = new ProtocolRequestType<
+  VisualResourceTypesParams,
+  VisualResourceTypesResult,
+  never,
+  void,
+  void
+>("textDocument/visualResourceTypes");
+
+export interface PrepareVisualResourceParams {
+  textDocument: VersionedTextDocumentIdentifier;
+  operationId: string;
+  resourceType: VisualResourceTypeReference;
+}
+
+export interface PrepareVisualResourceResult {
+  operationId: string;
+  expectedNodeId: string;
+  symbolicName: string;
+  unresolvedRequiredProperties: string[];
+  edit: WorkspaceEdit;
+}
+
+export const prepareVisualResourceRequestType = new ProtocolRequestType<
+  PrepareVisualResourceParams,
+  PrepareVisualResourceResult,
+  never,
+  void,
+  void
+>("textDocument/prepareVisualResource");
