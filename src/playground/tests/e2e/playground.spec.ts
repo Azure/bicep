@@ -437,6 +437,33 @@ test.describe("compiler lifecycle", () => {
 });
 
 test.describe("editing", () => {
+  test("highlights Bicep source with semantic tokens", async ({
+    playground,
+  }) => {
+    await playground.replaceEditorText(
+      playground.bicepEditor,
+      "param storageName string",
+    );
+
+    await expect
+      .poll(async () => {
+        const colors = await playground.bicepEditor
+          .locator(".view-lines span")
+          .evaluateAll((elements) =>
+            elements
+              .filter((element) =>
+                ["param", "storageName", "string"].includes(
+                  element.textContent ?? "",
+                ),
+              )
+              .map((element) => getComputedStyle(element).color),
+          );
+
+        return new Set(colors).size;
+      })
+      .toBe(3);
+  });
+
   test("compiles Bicep to the expected ARM template", async ({
     playground,
   }) => {

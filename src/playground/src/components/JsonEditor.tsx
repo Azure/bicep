@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { editor } from "monaco-editor";
+import { editor } from "monaco-editor/editor/editor.api";
 import React from "react";
 import { CodeEditor } from "./CodeEditor";
 

@@ -1,25 +1,34 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { IApplicationInsights } from "@microsoft/applicationinsights-web";
-import { editor, MarkerSeverity } from "monaco-editor";
+import type { editor } from "monaco-editor/editor/editor.api";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { version as bicepVersion } from "../package.json";
 import { DotnetInterop } from "./compiler/compiler-client";
-import { BicepEditor, CompilationStatus } from "./components/BicepEditor";
-import { CodeEditorHandle, registerBicep } from "./components/CodeEditor";
+import type { CompilationStatus } from "./components/BicepEditor";
+import type { CodeEditorHandle } from "./components/CodeEditor";
 import { AppHeader } from "./components/AppHeader";
 import { EditorPane, StatusTone } from "./components/EditorPane";
-import { JsonEditor } from "./components/JsonEditor";
-import { ProblemsPanel } from "./components/ProblemsPanel";
 import { StatusBar } from "./components/StatusBar";
 import { getQuickstartsLink } from "./quickstarts/quickstarts";
 import { getShareLink, handleShareLink } from "./sharing/share-link";
+import { PlaygroundTelemetry } from "./telemetry/playground-telemetry";
 import { setColorMode, useColorMode } from "./theme/color-mode";
 import "./styles/tokens.css";
 import "./styles/layout.css";
 import "./styles/components.css";
 
 const maximumDecompileFileSize = 10 * 1024 * 1024;
+const markerSeverityError = 8;
+const markerSeverityWarning = 4;
+const BicepEditor = React.lazy(async () => ({
+  default: (await import("./components/BicepEditor")).BicepEditor,
+}));
+const JsonEditor = React.lazy(async () => ({
+  default: (await import("./components/JsonEditor")).JsonEditor,
+}));
+const ProblemsPanel = React.lazy(async () => ({
+  default: (await import("./components/ProblemsPanel")).ProblemsPanel,
+}));
 
 type Operation = {
   id: number;
@@ -29,7 +38,7 @@ type Operation = {
 type ActivePane = "bicep" | "arm";
 
 interface Props {
-  insights: IApplicationInsights;
+  insights: PlaygroundTelemetry;
   interop: DotnetInterop;
   initialSharedContent: string | null;
 }
@@ -57,6 +66,7 @@ export const App: React.FC<Props> = ({
   const [problemsOpen, setProblemsOpen] = useState(false);
   const [activePane, setActivePane] = useState<ActivePane>("bicep");
   const [announcement, setAnnouncement] = useState("");
+  const [editorReady, setEditorReady] = useState(false);
   const colorMode = useColorMode();
   const uploadInputRef = useRef<HTMLInputElement>(null);
   const sampleSelectRef = useRef<HTMLSelectElement>(null);
@@ -68,9 +78,32 @@ export const App: React.FC<Props> = ({
   sourcePathRef.current = sourcePath;
 
   useEffect(() => {
-    const registration = registerBicep(interop, () => sourcePathRef.current);
+    let disposed = false;
+    let registration: { dispose(): void } | undefined;
+    void import("./editor/monaco-environment")
+      .then(() => import("./components/CodeEditor"))
+      .then(({ registerBicep }) => {
+        if (!disposed) {
+          registration = registerBicep(
+            interop,
+            () => sourcePathRef.current,
+          );
+          setEditorReady(true);
+        }
+      })
+      .catch((error) => {
+        if (!disposed) {
+          setOperationError(
+            error instanceof Error
+              ? `The code editor could not be loaded: ${error.message}`
+              : "The code editor could not be loaded.",
+          );
+        }
+      });
+
     return () => {
-      registration.dispose();
+      disposed = true;
+      registration?.dispose();
       interop.dispose();
     };
   }, [interop]);
@@ -339,14 +372,14 @@ export const App: React.FC<Props> = ({
   const errorCount = useMemo(
     () =>
       diagnostics.filter(
-        (diagnostic) => diagnostic.severity === MarkerSeverity.Error,
+        (diagnostic) => diagnostic.severity === markerSeverityError,
       ).length,
     [diagnostics],
   );
   const warningCount = useMemo(
     () =>
       diagnostics.filter(
-        (diagnostic) => diagnostic.severity === MarkerSeverity.Warning,
+        (diagnostic) => diagnostic.severity === markerSeverityWarning,
       ).length,
     [diagnostics],
   );
@@ -439,19 +472,25 @@ export const App: React.FC<Props> = ({
             ) : undefined
           }
         >
-          <BicepEditor
-            ref={bicepEditorRef}
-            interop={interop}
-            onBicepChange={setBicepContent}
-            onJsonChange={setJsonContent}
-            onDiagnosticsChange={handleDiagnosticsChange}
-            onCompilationError={handleCompilationError}
-            onCompilationDurationChange={setCompilationDurationMs}
-            onCompilationStatusChange={setCompilationStatus}
-            initialContent={initialContent}
-            contentRevision={contentRevision}
-            sourcePath={sourcePath}
-          />
+          {editorReady ? (
+            <React.Suspense fallback={<EditorLoading />}>
+              <BicepEditor
+                ref={bicepEditorRef}
+                interop={interop}
+                onBicepChange={setBicepContent}
+                onJsonChange={setJsonContent}
+                onDiagnosticsChange={handleDiagnosticsChange}
+                onCompilationError={handleCompilationError}
+                onCompilationDurationChange={setCompilationDurationMs}
+                onCompilationStatusChange={setCompilationStatus}
+                initialContent={initialContent}
+                contentRevision={contentRevision}
+                sourcePath={sourcePath}
+              />
+            </React.Suspense>
+          ) : (
+            <EditorLoading />
+          )}
         </EditorPane>
 
         <EditorPane
@@ -525,7 +564,13 @@ export const App: React.FC<Props> = ({
             </>
           }
         >
-          <JsonEditor content={jsonContent} />
+          {editorReady ? (
+            <React.Suspense fallback={<EditorLoading />}>
+              <JsonEditor content={jsonContent} />
+            </React.Suspense>
+          ) : (
+            <EditorLoading />
+          )}
         </EditorPane>
 
         {activeOperation && (
@@ -537,13 +582,15 @@ export const App: React.FC<Props> = ({
       </main>
 
       {problemsOpen && hasProblems && (
-        <ProblemsPanel
-          compilationError={compilationError}
-          diagnostics={diagnostics}
-          sourceName={sourceName}
-          onClose={closeProblems}
-          onSelect={focusDiagnostic}
-        />
+        <React.Suspense fallback={null}>
+          <ProblemsPanel
+            compilationError={compilationError}
+            diagnostics={diagnostics}
+            sourceName={sourceName}
+            onClose={closeProblems}
+            onSelect={focusDiagnostic}
+          />
+        </React.Suspense>
       )}
 
       <StatusBar
@@ -588,6 +635,12 @@ export const App: React.FC<Props> = ({
     </div>
   );
 };
+
+const EditorLoading: React.FC = () => (
+  <div className="editor-loading" role="status">
+    Loading editor...
+  </div>
+);
 
 function getArmPaneStatus(status: CompilationStatus): {
   label: string;

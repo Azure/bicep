@@ -21,6 +21,21 @@ export function configureTelemetry(
   return insights;
 }
 
+export function initializeTelemetry(
+  instrumentationKey: string,
+): IApplicationInsights {
+  const insights = configureTelemetry(
+    new ApplicationInsights({
+      config: {
+        instrumentationKey,
+      },
+    }),
+  );
+  insights.trackPageView({ uri: getSanitizedCurrentUrl() });
+
+  return insights;
+}
+
 export function sanitizeTelemetryItem(item: ITelemetryItem): void {
   sanitizeUrlFields(item.baseData);
   sanitizeUrlFields(item.data);

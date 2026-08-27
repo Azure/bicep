@@ -1,3 +1,4 @@
 dist
 playwright-report
+public/_framework
 test-results

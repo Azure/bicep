@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { editor, MarkerSeverity } from "monaco-editor";
+import { editor, MarkerSeverity } from "monaco-editor/editor/editor.api";
 import React from "react";
 
 interface Props {
@@ -49,7 +49,9 @@ export const ProblemsPanel: React.FC<Props> = ({
         <h2 id="problems-title" className="problems-title">
           Problems
         </h2>
-        <span className="problems-count">{countLabel || "Compiler failure"}</span>
+        <span className="problems-count">
+          {countLabel || "Compiler failure"}
+        </span>
         <span className="layout-spacer" />
         <button
           type="button"
@@ -69,7 +71,9 @@ export const ProblemsPanel: React.FC<Props> = ({
       </header>
       <ul className="problems-list">
         {diagnostics.map((diagnostic, index) => (
-          <li key={`${diagnostic.startLineNumber}:${diagnostic.startColumn}:${index}`}>
+          <li
+            key={`${diagnostic.startLineNumber}:${diagnostic.startColumn}:${index}`}
+          >
             <button
               type="button"
               className="problem"

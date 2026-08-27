@@ -522,6 +522,10 @@ jobs:
         with:
           node-version: 24
 
+      - name: Install wasm tools workload
+        run: dotnet workload install wasm-tools
+        working-directory: ./src/playground
+
       - name: Check npm version
         run: npm -v
 

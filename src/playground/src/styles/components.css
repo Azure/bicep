@@ -235,6 +235,13 @@
   background: var(--control);
 }
 
+.editor-loading {
+  display: grid;
+  height: 100%;
+  place-items: center;
+  color: var(--muted);
+}
+
 .editor-pane.is-stale .editor-surface {
   position: relative;
 }

@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { editor, languages } from "monaco-editor";
+import { editor, languages } from "monaco-editor/editor/editor.api";
 
 export type CompileResult = {
   template: string;

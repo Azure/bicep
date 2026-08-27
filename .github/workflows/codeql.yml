@@ -40,6 +40,9 @@ jobs:
         with:
           node-version: 24
 
+      - name: Install wasm tools workload
+        run: dotnet workload install wasm-tools
+
       - name: Build All Projects
         run: |
           msbuild src/vs-bicep/BicepInVisualStudio.sln /restore /p:Configuration=Release /v:m /bl:./src/binlog/bicep_in_visual_studio_build.binlog
