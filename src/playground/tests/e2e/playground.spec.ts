@@ -10,6 +10,7 @@ import {
   test,
   withoutGeneratorField,
 } from "./fixtures/playground";
+import { getBicepVersionLink } from "../../src/components/version-link";
 
 const storageBicep = `param storageName string
 param location string
@@ -66,6 +67,33 @@ const expectedStorageTemplate = `{
     }
   ]
 }`;
+
+test.describe("version links", () => {
+  test("links releases to tags", () => {
+    expect(getBicepVersionLink("0.46.0")).toEqual({
+      ariaLabel: "Bicep 0.46.0 release notes (opens in a new tab)",
+      href: "https://github.com/Azure/bicep/releases/tag/v0.46.0",
+      label: "Bicep 0.46.0",
+    });
+  });
+
+  test("links development versions to commits", () => {
+    expect(getBicepVersionLink("0.46.58-g82f38dea9d")).toEqual({
+      ariaLabel: "Bicep 0.46.58-g82f38dea9d source commit (opens in a new tab)",
+      href: "https://github.com/Azure/bicep/commit/82f38dea9d",
+      label: "Bicep 0.46.58-g82f38dea9d",
+    });
+  });
+
+  test("does not link placeholders or unrecognized versions", () => {
+    expect(getBicepVersionLink("0.0.0-placeholder")).toEqual({
+      label: "Bicep development",
+    });
+    expect(getBicepVersionLink("custom-build")).toEqual({
+      label: "Bicep custom-build",
+    });
+  });
+});
 
 test.describe("quickstarts", () => {
   test("loads a selected template", async ({ playground }) => {

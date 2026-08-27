@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 import React, { ReactNode } from "react";
 import { CompilationStatus } from "./BicepEditor";
+import { getBicepVersionLink } from "./version-link";
 
 interface Props {
   compilationStatus: CompilationStatus;
@@ -34,8 +35,7 @@ export const StatusBar: React.FC<Props> = ({
       )}
     </>
   );
-  const isReleaseVersion = !version.includes("placeholder");
-  const versionLabel = isReleaseVersion ? `Bicep ${version}` : "Bicep development";
+  const versionLink = getBicepVersionLink(version);
 
   return (
     <footer className="status-bar" aria-label="Compilation status">
@@ -86,18 +86,18 @@ export const StatusBar: React.FC<Props> = ({
           />
         </svg>
       </a>
-      {isReleaseVersion ? (
+      {versionLink.href ? (
         <a
           className="version-link"
-          href={`https://github.com/Azure/bicep/releases/tag/v${version}`}
+          href={versionLink.href}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={`${versionLabel} release notes (opens in a new tab)`}
+          aria-label={versionLink.ariaLabel}
         >
-          {versionLabel}
+          {versionLink.label}
         </a>
       ) : (
-        <span className="version-link">{versionLabel}</span>
+        <span className="version-link">{versionLink.label}</span>
       )}
     </footer>
   );

@@ -428,7 +428,7 @@ export const App: React.FC<Props> = ({
               >
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
                   <path
-                    d="M19 8V4m0 0h-4m4 0-3.1 3.1A7 7 0 1 0 18.7 15"
+                    d="M19 12a7 7 0 0 1-11.8 5.1L5 15m0 4v-4h4M5 12A7 7 0 0 1 16.8 6.9L19 9m0-4v4h-4"
                     stroke="currentColor"
                     strokeWidth="1.8"
                     strokeLinecap="round"
