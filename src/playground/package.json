@@ -1,7 +1,7 @@
 {
   "version": "0.0.0-placeholder",
   "scripts": {
-    "build-wasm": "node scripts/clean-wasm-publish.mjs && dotnet publish -c Release ../Bicep.Wasm/Bicep.Wasm.csproj && node scripts/stage-wasm-assets.mjs",
+    "build-wasm": "node scripts/clean-wasm-publish.mjs && dotnet publish -c Release -p:InvariantGlobalization=true -p:InvariantTimezone=true -p:WasmBuildNative=true ../Bicep.Wasm/Bicep.Wasm.csproj && node scripts/stage-wasm-assets.mjs",
     "package": "nbgv-setversion && npm run build && nbgv-setversion --reset",
     "dev": "npm run build-wasm && vite",
     "build": "npm run build-wasm && vite build && node scripts/check-build.mjs",

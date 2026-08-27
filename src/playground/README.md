@@ -14,8 +14,8 @@ uses Monaco for the Bicep and generated ARM template editors.
   ```
 
 The workload is required because the playground development and production
-builds publish `Bicep.Wasm` in Release mode with native runtime relinking
-enabled. It is not required for a normal Debug build of `Bicep.Wasm`.
+builds explicitly enable native runtime relinking when publishing `Bicep.Wasm`.
+It is not required for normal solution builds, packs, or tests.
 
 Install the npm dependencies before running the playground:
 
