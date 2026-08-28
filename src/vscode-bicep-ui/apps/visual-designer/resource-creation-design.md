@@ -337,7 +337,7 @@ src/features/
     use-resource-type-search.ts
 ```
 
-The generic graph package accepts new-node origin overrides but has no knowledge of resource creation operations. The standalone `apps/resource-type-explorer` remains independent and is not a product dependency of the visual designer.
+The generic graph package accepts new-node origin overrides but has no knowledge of resource creation operations.
 
 ## Resource Catalog
 
