@@ -14,6 +14,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using Bicep.Testing.Extensions;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -388,7 +389,6 @@ param arrayParam array
 
             result.ApplyCodeFix(result.Diagnostics.Single(x => x.Code == "BCP258")).Should().EqualIgnoringNewlines("""
 using './main.bicep'
-using Bicep.Testing.Extensions;
 
 param arrayParam =  /*TODO*/
 
