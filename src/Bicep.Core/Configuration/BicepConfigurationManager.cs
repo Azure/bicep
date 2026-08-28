@@ -11,7 +11,7 @@ using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Configuration;
 
-public class BicepConfigurationManager : IBicepConfigurationManager, IConfigurationManager
+public class BicepConfigurationManager : IBicepConfigurationManager
 {
     private const int MaxChainDepth = 64;
 
@@ -112,12 +112,6 @@ public class BicepConfigurationManager : IBicepConfigurationManager, IConfigurat
         return chain.GetEffectiveConfiguration();
     }
 
-    /// <summary>
-    /// Satisfies <see cref="IConfigurationManager"/>. Returns the fully merged effective
-    /// configuration for the given source file (walking the "extends" chain).
-    /// </summary>
-    public IBicepConfiguration GetConfiguration(IOUri sourceFileUri) => GetMergedConfiguration(sourceFileUri);
-
     public void RemoveChainCacheEntry(IOUri configFileUri)
     {
         var configFileHandle = this.fileExplorer.GetFile(configFileUri);
@@ -137,8 +131,8 @@ public class BicepConfigurationManager : IBicepConfigurationManager, IConfigurat
 
     private static IBicepConfiguration GetBuiltInConfiguration(IEnumerable<IDiagnostic>? diagnostics = null) =>
         diagnostics is null
-            ? IConfigurationManager.GetBuiltInConfiguration()
-            : IConfigurationManager.GetBuiltInConfiguration().With(diagnostics: diagnostics);
+            ? BicepConfiguration.BuiltIn
+            : BicepConfiguration.BuiltIn.With(diagnostics: diagnostics);
 
     private ResultWithDiagnostic<IBicepConfigurationChain> LoadChain(IFileHandle leafFileHandle)
     {
@@ -220,7 +214,7 @@ public class BicepConfigurationManager : IBicepConfigurationManager, IConfigurat
     private static IBicepConfigurationChain BuildChain(IOUri leafUri, List<(IFileHandle FileHandle, JsonElement Element)> rawLayers)
     {
         // Merge: built-in first, then base configs in reverse order, leaf last (leaf wins).
-        var accumulated = IConfigurationManager.BuiltInConfigurationElement;
+        var accumulated = BicepConfiguration.BuiltInConfigurationElement;
 
         foreach (var (_, element) in Enumerable.Reverse(rawLayers))
         {
@@ -243,13 +237,13 @@ public class BicepConfigurationManager : IBicepConfigurationManager, IConfigurat
             {
                 try
                 {
-                    var merged = IConfigurationManager.BuiltInConfigurationElement.Merge(StripExtendsProperty(layer.Element));
+                    var merged = BicepConfiguration.BuiltInConfigurationElement.Merge(StripExtendsProperty(layer.Element));
 
                     return (IBicepConfiguration)BicepConfiguration.Bind(merged, layer.FileHandle.Uri);
                 }
                 catch (ConfigurationException)
                 {
-                    return IConfigurationManager.GetBuiltInConfiguration().With(configFileIdentifier: layer.FileHandle.Uri);
+                    return BicepConfiguration.BuiltIn.With(configFileIdentifier: layer.FileHandle.Uri);
                 }
             })
             .ToImmutableArray();

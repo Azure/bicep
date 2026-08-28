@@ -280,7 +280,7 @@ namespace Bicep.Core.UnitTests.Configuration
             string[] excludedHostsInSchema = ruleSchemas["no-hardcoded-env-urls"].SelectToken("allOf[0].properties.excludedhosts.default")!.Values().Select(v => v.ToString()).ToArray();
 
             // From config
-            IBicepConfiguration builtinConfig = IConfigurationManager.GetBuiltInConfiguration();
+            IBicepConfiguration builtinConfig = BicepConfiguration.BuiltIn;
             string[]? disallowedHostsInConfig = builtinConfig.Analyzers.GetValue<string[]?>("core.rules.no-hardcoded-env-urls.disallowedhosts", null);
             disallowedHostsInConfig.Should().NotBeNull();
             string[]? excludedHostsInConfig = builtinConfig.Analyzers.GetValue<string[]?>("core.rules.no-hardcoded-env-urls.excludedhosts", null);
@@ -405,7 +405,7 @@ namespace Bicep.Core.UnitTests.Configuration
         public void DefaultConfig_ShouldValidateAgainstSchema()
         {
             // Arrange
-            var builtinConfig = IConfigurationManager.GetBuiltInConfiguration().ToUtf8Json();
+            var builtinConfig = BicepConfiguration.BuiltIn.ToUtf8Json();
             builtinConfig.Should().NotBeNull();
             var bicepConfigJson = JObject.Parse(builtinConfig!);
 

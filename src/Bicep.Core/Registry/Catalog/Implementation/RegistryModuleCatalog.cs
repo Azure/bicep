@@ -15,7 +15,7 @@ public class RegistryModuleCatalog : IRegistryModuleCatalog
 {
     private readonly IPrivateAcrModuleMetadataProviderFactory providerFactory;
     private readonly IOciRegistryTransportFactory transportFactory;
-    private readonly IConfigurationManager configurationManager;
+    private readonly IBicepConfigurationManager configurationManager;
     private readonly object lockObject = new();
 
     private readonly Dictionary<string, IRegistryModuleMetadataProvider> registryProviders = new();
@@ -24,7 +24,7 @@ public class RegistryModuleCatalog : IRegistryModuleCatalog
         IPublicModuleMetadataProvider publicModuleMetadataProvider,
         IPrivateAcrModuleMetadataProviderFactory privateProviderFactory,
         IOciRegistryTransportFactory transportFactory,
-        IConfigurationManager configurationManager
+        IBicepConfigurationManager configurationManager
     )
     {
         providerFactory = privateProviderFactory;

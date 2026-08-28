@@ -6,16 +6,20 @@ using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.UnitTests.Configuration;
 
-public class PatchingConfigurationManager : IConfigurationManager
+public class PatchingConfigurationManager : IBicepConfigurationManager
 {
-    private readonly IConfigurationManager configurationManager;
+    private readonly IBicepConfigurationManager inner;
     private readonly Func<IBicepConfiguration, IBicepConfiguration> patchFunc;
 
-    public PatchingConfigurationManager(BicepConfigurationManager configurationManager, Func<IBicepConfiguration, IBicepConfiguration> patchFunc)
+    public PatchingConfigurationManager(IBicepConfigurationManager inner, Func<IBicepConfiguration, IBicepConfiguration> patchFunc)
     {
-        this.configurationManager = configurationManager;
+        this.inner = inner;
         this.patchFunc = patchFunc;
     }
 
-    public IBicepConfiguration GetConfiguration(IOUri sourceFileUri) => patchFunc(configurationManager.GetConfiguration(sourceFileUri));
+    public IBicepConfigurationChain GetConfigurationChain(IOUri sourceFileUri) => inner.GetConfigurationChain(sourceFileUri);
+    public IBicepConfiguration GetMergedConfiguration(IOUri sourceFileUri) => patchFunc(inner.GetMergedConfiguration(sourceFileUri));
+    public void PurgeCacheForAffectedChains(IOUri changedFileUri) => inner.PurgeCacheForAffectedChains(changedFileUri);
+    public void PurgeAllCaches() => inner.PurgeAllCaches();
+    public void PurgeChainCache() => inner.PurgeChainCache();
 }

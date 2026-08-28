@@ -31,7 +31,7 @@ public class FeatureProviderTests
             """));
 
         var configManager = new BicepConfigurationManager(fileSet.FileExplorer);
-        var configuration = configManager.GetConfiguration(fileSet.GetUri("repo/main.bicep"));
+        var configuration = configManager.GetMergedConfiguration(fileSet.GetUri("repo/main.bicep"));
         var fpm = new FeatureProviderFactory(configManager, fileSet.FileExplorer);
 
         var control = fpm.GetFeatureProvider(fileSet.GetUri("main.bicep"));
@@ -57,7 +57,7 @@ public class FeatureProviderTests
                 """));
 
         var configManager = new BicepConfigurationManager(fileSet.FileExplorer);
-        var configuration = configManager.GetConfiguration(fileSet.GetUri("repo/main.bicep"));
+        var configuration = configManager.GetMergedConfiguration(fileSet.GetUri("repo/main.bicep"));
         var fpm = new FeatureProviderFactory(configManager, fileSet.FileExplorer);
 
         var control = fpm.GetFeatureProvider(fileSet.GetUri("main.bicep"));

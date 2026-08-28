@@ -11,7 +11,7 @@ namespace Bicep.Testing;
 public static class TestCompilerExtensions
 {
     public static TestCompiler WithConfiguration(this TestCompiler compiler, IBicepConfiguration configuration) => compiler.ConfigureServices(services =>
-        services.ReplaceSingleton<IConfigurationManager>(IConfigurationManager.WithStaticConfiguration(configuration)));
+        services.ReplaceSingleton<IBicepConfigurationManager>(configuration.WithStaticConfiguration()));
 
     public static TestCompiler WithAzResourceTypeLoader(this TestCompiler compiler, IResourceTypeLoader resourceTypeLoader) => compiler.ConfigureServices(services =>
         services.ReplaceSingleton<IResourceTypeProviderFactory>(FakeResourceTypeProviderFactory.ForAzureResourceTypeLoader(resourceTypeLoader)));

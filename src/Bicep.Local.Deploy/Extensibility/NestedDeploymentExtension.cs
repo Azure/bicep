@@ -30,7 +30,7 @@ namespace Bicep.Local.Deploy.Extensibility;
 internal class NestedDeploymentExtension(
     IArmDeploymentProvider armDeploymentProvider,
     LocalDeploymentEngine localDeploymentEngine,
-    IConfigurationManager configurationManager) : ILocalExtension
+    IBicepConfigurationManager configurationManager) : ILocalExtension
 {
     private record DeploymentIdentifiers(
         string? SubscriptionId,
@@ -114,7 +114,7 @@ internal class NestedDeploymentExtension(
             try
             {
                 GuardHelper.ArgumentNotNull(identifiers.SourceUri);
-                var configuration = configurationManager.GetConfiguration(new Uri(identifiers.SourceUri).ToIOUri());
+                var configuration = configurationManager.GetMergedConfiguration(new Uri(identifiers.SourceUri).ToIOUri());
                 DeploymentLocator locator = new("", null, identifiers.SubscriptionId, identifiers.ResourceGroup, identifiers.Name);
 
                 await armDeploymentProvider.StartDeployment(configuration, locator, template, parameters.ToJsonString(), cancellationToken);
@@ -149,7 +149,7 @@ internal class NestedDeploymentExtension(
             try
             {
                 GuardHelper.ArgumentNotNull(identifiers.SourceUri);
-                var configuration = configurationManager.GetConfiguration(new Uri(identifiers.SourceUri).ToIOUri());
+                var configuration = configurationManager.GetMergedConfiguration(new Uri(identifiers.SourceUri).ToIOUri());
                 DeploymentLocator locator = new("", null, identifiers.SubscriptionId, identifiers.ResourceGroup, identifiers.Name);
 
                 var result = await armDeploymentProvider.CheckDeployment(configuration, locator, cancellationToken);

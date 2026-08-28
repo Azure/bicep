@@ -18,7 +18,7 @@ public sealed class TestConfigurationBuilder
     }
 
     public static TestConfigurationBuilder Create(IBicepConfiguration? configuration = null) =>
-        new(configuration ?? IConfigurationManager.GetBuiltInConfiguration());
+        new(configuration ?? BicepConfiguration.BuiltIn);
 
     public TestConfigurationBuilder WithAllAnalyzers()
     {

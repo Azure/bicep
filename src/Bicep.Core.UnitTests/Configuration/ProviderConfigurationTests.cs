@@ -49,7 +49,7 @@ public class ExtensionsConfigurationTests
     [TestMethod]
     public void ExtensionConfiguration_default_configuration_returns_known_list_of_built_in_extensions_with_expected_default_values()
     {
-        var config = IConfigurationManager.GetBuiltInConfiguration();
+        var config = BicepConfiguration.BuiltIn;
 
         config.Should().NotBeNull();
         config!.Extensions.Should().NotBeNull();
@@ -77,7 +77,7 @@ public class ExtensionsConfigurationTests
             """));
 
         var configManager = new BicepConfigurationManager(fileSet.FileExplorer);
-        var config = configManager.GetConfiguration(fileSet.GetUri("main.bicep"));
+        var config = configManager.GetMergedConfiguration(fileSet.GetUri("main.bicep"));
 
         config.GetDiagnostics().Should().BeEmpty();
         config.Should().NotBeNull();

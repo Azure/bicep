@@ -331,7 +331,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var version = "v1";
             var referenceValue = $"{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}";
 
-            var configurationManager = IConfigurationManager.WithStaticConfiguration(TestConfigurations.BuiltInWithAllAnalyzersDisabled);
+            var configurationManager = TestConfigurations.BuiltInWithAllAnalyzersDisabled.WithStaticConfiguration();
             var referencingFile = BicepTestConstants.DummyBicepFile;
 
             TemplateSpecModuleReference

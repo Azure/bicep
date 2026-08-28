@@ -80,13 +80,13 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithCompilationManager(this IServiceCollection services, ICompilationManager compilationManager)
         => Register(services, compilationManager);
 
-    public static IServiceCollection WithConfigurationManager(this IServiceCollection services, IConfigurationManager configurationManager)
+    public static IServiceCollection WithConfigurationManager(this IServiceCollection services, IBicepConfigurationManager configurationManager)
         => Register(services, configurationManager);
 
     public static IServiceCollection WithConfigurationPatch(this IServiceCollection services, Func<IBicepConfiguration, IBicepConfiguration> patchFunc)
         => Register(services, patchFunc)
             .AddSingleton<BicepConfigurationManager>()
-            .AddSingleton<IConfigurationManager, PatchingConfigurationManager>();
+            .AddSingleton<IBicepConfigurationManager>(sp => new PatchingConfigurationManager(sp.GetRequiredService<BicepConfigurationManager>(), sp.GetRequiredService<Func<IBicepConfiguration, IBicepConfiguration>>()));
 
     public static IServiceCollection WithDisabledAnalyzersConfiguration(this IServiceCollection services)
         => services.WithConfigurationPatch(c => c.WithAllAnalyzersDisabled());

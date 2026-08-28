@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Reflection;
 using System.Text.Json;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Json;
@@ -37,6 +38,26 @@ namespace Bicep.Core.Configuration
         public const string FormattingKey = "formatting";
 
         public const string DocumentationKey = "documentation";
+
+        public const string BuiltInConfigurationResourceName = "Bicep.Core.Configuration.bicepconfig.json";
+
+        public static IBicepConfiguration BuiltIn => BuiltInLazy.Value;
+
+        private static readonly Lazy<IBicepConfiguration> BuiltInLazy =
+            new(() => Bind(BuiltInConfigurationElement));
+
+        internal static readonly JsonElement BuiltInConfigurationElement = GetBuiltInConfigurationElement();
+
+        private static JsonElement GetBuiltInConfigurationElement()
+        {
+            using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(BuiltInConfigurationResourceName);
+            if (stream is null)
+            {
+                throw new InvalidOperationException("Could not get manifest resource stream for built-in configuration.");
+            }
+
+            return JsonElementFactory.CreateElementFromStream(stream);
+        }
 
         public BicepConfiguration(
             IBicepCloudConfiguration cloud,

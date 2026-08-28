@@ -8,14 +8,14 @@ namespace Bicep.Core.Features;
 
 public class FeatureProviderFactory : IFeatureProviderFactory
 {
-    private readonly IConfigurationManager configurationManager;
+    private readonly IBicepConfigurationManager configurationManager;
     private readonly IFileExplorer fileExplorer;
 
-    public FeatureProviderFactory(IConfigurationManager configurationManager, IFileExplorer fileExplorer)
+    public FeatureProviderFactory(IBicepConfigurationManager configurationManager, IFileExplorer fileExplorer)
     {
         this.configurationManager = configurationManager;
         this.fileExplorer = fileExplorer;
     }
 
-    public IFeatureProvider GetFeatureProvider(IOUri sourceFileUri) => new FeatureProvider(configurationManager.GetConfiguration(sourceFileUri), this.fileExplorer);
+    public IFeatureProvider GetFeatureProvider(IOUri sourceFileUri) => new FeatureProvider(configurationManager.GetMergedConfiguration(sourceFileUri), this.fileExplorer);
 }

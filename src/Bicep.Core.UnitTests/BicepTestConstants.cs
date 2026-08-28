@@ -76,7 +76,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IBicepConfiguration BuiltInConfiguration = TestConfigurations.BuiltInWithStableAnalyzers;
 
-        public static readonly IConfigurationManager BuiltInOnlyConfigurationManager = IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration);
+        public static readonly IBicepConfigurationManager BuiltInOnlyConfigurationManager = BuiltInConfiguration.WithStaticConfiguration();
 
         public static readonly IFeatureProvider Features = new OverriddenFeatureProvider(new FeatureProvider(BuiltInConfiguration, FileExplorer), FeatureOverrides);
 
@@ -109,7 +109,7 @@ namespace Bicep.Core.UnitTests
         public static readonly IEnvironment EmptyEnvironment = TestEnvironment.Default;
 
         public static IBicepConfiguration GetConfiguration(string contents)
-            => BicepConfiguration.Bind(IConfigurationManager.BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElement(contents)));
+            => BicepConfiguration.Bind(BicepConfiguration.BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElement(contents)));
 
         public static IBicepConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configFilePath = null)
         {
@@ -154,7 +154,7 @@ namespace Bicep.Core.UnitTests
             return new BicepConfigurationManager(fileExplorer);
         }
 
-        public static IFeatureProviderFactory CreateFeatureProviderFactory(FeatureProviderOverrides featureOverrides, IConfigurationManager? configurationManager = null)
+        public static IFeatureProviderFactory CreateFeatureProviderFactory(FeatureProviderOverrides featureOverrides, IBicepConfigurationManager? configurationManager = null)
             => new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager ?? CreateFilesystemConfigurationManager(), FileExplorer), featureOverrides);
 
         public static BinaryData GetBicepExtensionManifest(UploadRegistryBlobResult layer, UploadRegistryBlobResult config) =>
@@ -184,13 +184,13 @@ namespace Bicep.Core.UnitTests
 
         public static BicepFile CreateDummyBicepFile(IBicepConfiguration? configuration = null, FeatureProviderOverrides? featureOverrides = null)
         {
-            var configurationManager = IConfigurationManager.WithStaticConfiguration(configuration ?? IConfigurationManager.GetBuiltInConfiguration());
+            var configurationManager = (configuration ?? BicepConfiguration.BuiltIn).WithStaticConfiguration();
             var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, FileExplorer), featureOverrides ?? FeatureOverrides);
 
             return CreateDummyBicepFile(configurationManager, featureProviderFactory);
         }
 
-        public static BicepFile CreateDummyBicepFile(IConfigurationManager configurationManager, IFeatureProviderFactory? featureProviderFactory = null)
+        public static BicepFile CreateDummyBicepFile(IBicepConfigurationManager configurationManager, IFeatureProviderFactory? featureProviderFactory = null)
         {
             return new(
                 DummyFileHandle.Default,

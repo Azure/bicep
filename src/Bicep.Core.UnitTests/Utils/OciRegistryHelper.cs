@@ -104,7 +104,7 @@ namespace Bicep.Core.UnitTests.Utils
             clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository)).Returns(client);
 
             var containerRegistryManager = new AzureContainerRegistryManager(clientFactory.Object);
-            var configuration = IConfigurationManager.GetBuiltInConfiguration();
+            var configuration = BicepConfiguration.BuiltIn;
 
             using var compiledStream = new BufferedMemoryStream();
 

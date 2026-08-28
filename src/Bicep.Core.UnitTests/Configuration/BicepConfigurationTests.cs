@@ -31,7 +31,7 @@ public class BicepConfigurationTests
     public void Bind_and_serialize_preserve_documentation_configuration()
     {
         var configFileUri = IOUri.FromFilePath(Path.GetFullPath("bicepconfig.json"));
-        var element = IConfigurationManager.BuiltInConfigurationElement.Merge(
+        var element = BicepConfiguration.BuiltInConfigurationElement.Merge(
             JsonElementFactory.CreateElement("""
                 {
                   "documentation": {

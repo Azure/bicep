@@ -6,7 +6,7 @@ using FluentAssertions;
 using FluentAssertions.Primitives;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.Core.UnitTests.Assertions
+namespace Bicep.Testing.Assertions
 {
     public static class BicepConfigurationAssertionsExtensions
     {
@@ -26,7 +26,13 @@ namespace Bicep.Core.UnitTests.Assertions
         {
             var actual = Subject.ToUtf8Json().ReplaceLineEndings();
             var expected = contents.ReplaceLineEndings();
-            JToken.Parse(expected).Should().DeepEqual(JToken.Parse(actual));
+            var actualToken = JToken.Parse(actual);
+            var expectedToken = JToken.Parse(expected);
+            JToken.DeepEquals(actualToken, expectedToken).Should().BeTrue(
+                string.IsNullOrEmpty(because)
+                    ? $"configurations should match.\n\nExpected:\n{expectedToken}\n\nActual:\n{actualToken}"
+                    : because,
+                becauseArgs);
             return new AndConstraint<BicepConfigurationAssertions>(this);
         }
     }
