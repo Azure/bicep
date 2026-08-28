@@ -41,16 +41,12 @@ namespace Bicep.Core.UnitTests.Assertions
 
             while (currentDir.Parent is { } parentDir)
             {
-                // Search upwards for the .git entry. This should only exist at the repository root.
-                // In a linked worktree, .git is a file containing a "gitdir:" pointer rather than a directory.
-                var gitPath = Path.Join(currentDir.FullName, ".git");
-                if (Directory.Exists(gitPath) || File.Exists(gitPath))
+                // Identify the Bicep repository itself using the solution file rather than relying on .git,
+                // which can identify either the Bicep submodule or its containing BicepMirror repository in ADO.
+                if (File.Exists(Path.Join(currentDir.FullName, "Bicep.sln")) ||
+                    File.Exists(Path.Join(currentDir.FullName, "Bicep.slnx")))
                 {
-                    // If TF_BUILD is not null, the code is running in the official build pipeline in ADO,
-                    // and bicep is a Git submodule in the BicepMirror repo.
-                    return Environment.GetEnvironmentVariable("TF_BUILD") is not null
-                        ? Path.Join(currentDir.FullName, "bicep")
-                        : currentDir.FullName;
+                    return currentDir.FullName;
                 }
 
                 currentDir = parentDir;
