@@ -5,6 +5,7 @@ using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Testing;
+using Bicep.Testing.Extensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

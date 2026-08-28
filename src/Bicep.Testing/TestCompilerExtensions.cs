@@ -4,6 +4,7 @@
 using Bicep.Core.Configuration;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.Testing.Extensions;
 using Bicep.Testing.Fakes.TypeSystem;
 
 namespace Bicep.Testing;

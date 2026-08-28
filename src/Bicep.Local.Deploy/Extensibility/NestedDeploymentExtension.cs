@@ -114,7 +114,7 @@ internal class NestedDeploymentExtension(
             try
             {
                 GuardHelper.ArgumentNotNull(identifiers.SourceUri);
-                var configuration = configurationManager.GetMergedConfiguration(new Uri(identifiers.SourceUri).ToIOUri());
+                var configuration = configurationManager.GetEffectiveConfiguration(new Uri(identifiers.SourceUri).ToIOUri());
                 DeploymentLocator locator = new("", null, identifiers.SubscriptionId, identifiers.ResourceGroup, identifiers.Name);
 
                 await armDeploymentProvider.StartDeployment(configuration, locator, template, parameters.ToJsonString(), cancellationToken);
@@ -149,7 +149,7 @@ internal class NestedDeploymentExtension(
             try
             {
                 GuardHelper.ArgumentNotNull(identifiers.SourceUri);
-                var configuration = configurationManager.GetMergedConfiguration(new Uri(identifiers.SourceUri).ToIOUri());
+                var configuration = configurationManager.GetEffectiveConfiguration(new Uri(identifiers.SourceUri).ToIOUri());
                 DeploymentLocator locator = new("", null, identifiers.SubscriptionId, identifiers.ResourceGroup, identifiers.Name);
 
                 var result = await armDeploymentProvider.CheckDeployment(configuration, locator, cancellationToken);

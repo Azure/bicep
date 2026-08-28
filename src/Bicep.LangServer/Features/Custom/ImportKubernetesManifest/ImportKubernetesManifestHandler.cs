@@ -98,7 +98,7 @@ namespace Bicep.LanguageServer.Features.Custom.ImportKubernetesManifest
                 declarations.SelectMany(x => new SyntaxBase[] { x, SyntaxFactory.DoubleNewlineToken }),
                 SyntaxFactory.CreateToken(TokenType.EndOfFile));
 
-            var configuration = configurationManager.GetMergedConfiguration(bicepFileUri);
+            var configuration = configurationManager.GetEffectiveConfiguration(bicepFileUri);
             var printerOptions = configuration.Formatting.Data;
             var printerContext = PrettyPrinterV2Context.Create(printerOptions, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
 

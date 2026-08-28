@@ -4680,7 +4680,9 @@ var file = " + functionName + @"(templ|)
                     }
                     """));
             var fileUri = DocumentUri.From($"file:///{Guid.NewGuid():D}/{TestContext.TestName}/main.{extension}");
-            configurationManager.Setup(x => x.GetMergedConfiguration(fileUri.ToIOUri())).Returns(moduleAliasesConfiguration);
+            var chainMock = StrictMock.Of<IBicepConfigurationChain>();
+            chainMock.Setup(c => c.GetEffectiveConfiguration()).Returns(moduleAliasesConfiguration);
+            configurationManager.Setup(x => x.GetConfigurationChain(fileUri.ToIOUri())).Returns(chainMock.Object);
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
                 TestContext,
@@ -4792,7 +4794,9 @@ var file = " + functionName + @"(templ|)
                     """),
                 null));
             var fileUri = DocumentUri.From($"file:///{baseFolder}/{TestContext.TestName}/main.{extension}");
-            configurationManager.Setup(x => x.GetMergedConfiguration(fileUri.ToIOUri())).Returns(moduleAliasesConfiguration);
+            var chainMock = StrictMock.Of<IBicepConfigurationChain>();
+            chainMock.Setup(c => c.GetEffectiveConfiguration()).Returns(moduleAliasesConfiguration);
+            configurationManager.Setup(x => x.GetConfigurationChain(fileUri.ToIOUri())).Returns(chainMock.Object);
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);
@@ -4866,7 +4870,9 @@ var file = " + functionName + @"(templ|)
                     """),
                 null));
             var fileUri = DocumentUri.From($"file:///{baseFolder}/{TestContext.TestName}/main.bicep");
-            configurationManager.Setup(x => x.GetMergedConfiguration(fileUri.ToIOUri())).Returns(moduleAliasesConfiguration);
+            var chainMock = StrictMock.Of<IBicepConfigurationChain>();
+            chainMock.Setup(c => c.GetEffectiveConfiguration()).Returns(moduleAliasesConfiguration);
+            configurationManager.Setup(x => x.GetConfigurationChain(fileUri.ToIOUri())).Returns(chainMock.Object);
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
             settingsProvider.Setup(x => x.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting)).Returns(false);

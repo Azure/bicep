@@ -105,23 +105,6 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         return this.chainDependencies.TryGetValue(leafHandle, out var deps) ? deps : [];
     }
 
-    public IBicepConfiguration GetMergedConfiguration(IOUri sourceFileUri)
-    {
-        var chain = GetConfigurationChain(sourceFileUri);
-
-        return chain.GetEffectiveConfiguration();
-    }
-
-    public void RemoveChainCacheEntry(IOUri configFileUri)
-    {
-        var configFileHandle = this.fileExplorer.GetFile(configFileUri);
-
-        if (this.chainCache.TryRemove(configFileHandle, out _))
-        {
-            PurgeLookupCache();
-        }
-    }
-
     private static IBicepConfigurationChain GetBuiltInChain(IEnumerable<IDiagnostic>? diagnostics = null)
     {
         var builtInConfig = GetBuiltInConfiguration(diagnostics);

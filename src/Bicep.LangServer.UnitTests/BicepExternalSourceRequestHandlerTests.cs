@@ -18,6 +18,7 @@ using Bicep.IO.InMemory;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Features.Language.DocumentLink;
 using Bicep.Testing;
+using Bicep.Testing.Extensions;
 using Bicep.Testing.Dummies;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

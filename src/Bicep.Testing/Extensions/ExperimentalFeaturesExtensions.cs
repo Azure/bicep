@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.Core.Configuration
+using Bicep.Core.Configuration;
+
+namespace Bicep.Testing.Extensions
 {
     public static class ExperimentalFeaturesExtensions
     {

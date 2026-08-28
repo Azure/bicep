@@ -17,5 +17,5 @@ public class FeatureProviderFactory : IFeatureProviderFactory
         this.fileExplorer = fileExplorer;
     }
 
-    public IFeatureProvider GetFeatureProvider(IOUri sourceFileUri) => new FeatureProvider(configurationManager.GetMergedConfiguration(sourceFileUri), this.fileExplorer);
+    public IFeatureProvider GetFeatureProvider(IOUri sourceFileUri) => new FeatureProvider(configurationManager.GetEffectiveConfiguration(sourceFileUri), this.fileExplorer);
 }

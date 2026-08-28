@@ -3,6 +3,7 @@
 
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
+using Bicep.Testing.Extensions;
 
 namespace Bicep.Testing;
 

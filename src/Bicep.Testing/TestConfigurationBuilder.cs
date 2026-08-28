@@ -4,6 +4,7 @@
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Testing.Extensions;
 using Bicep.Core.Json;
 
 namespace Bicep.Testing;

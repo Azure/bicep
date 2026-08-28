@@ -21,6 +21,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.FileSystem;
 using Bicep.LanguageServer;
 using Bicep.Testing;
+using Bicep.Testing.Extensions;
 using Bicep.LanguageServer.Features.Language.Completion;
 using Bicep.LanguageServer.Settings;
 using FluentAssertions;

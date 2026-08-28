@@ -65,5 +65,5 @@ public partial class ExtensionsConfiguration : ConfigurationSection<ImmutableDic
     public bool IsSysOrBuiltIn(string extensionName)
         => extensionName == SystemNamespaceType.BuiltInName || this.Data.TryGetValue(extensionName)?.BuiltIn == true;
 
-    public IEnumerable<string> ExtensionNames => this.Data.Keys;
+    public IEnumerable<string> ExtensionAliases => this.Data.Keys;
 }

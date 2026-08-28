@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.IO.Abstraction;
 
-namespace Bicep.Testing;
+namespace Bicep.Testing.Extensions;
 
 public static class BicepConfigurationManagerExtensions
 {
@@ -21,12 +23,16 @@ public static class BicepConfigurationManagerExtensions
             this.configuration = configuration;
         }
 
-        public IBicepConfigurationChain GetConfigurationChain(IOUri sourceFileUri)
-            => throw new NotSupportedException("ConstantBicepConfigurationManager does not support GetConfigurationChain.");
-
-        public IBicepConfiguration GetMergedConfiguration(IOUri sourceFileUri) => configuration;
+        public IBicepConfigurationChain GetConfigurationChain(IOUri sourceFileUri) => new ConstantChain(this.configuration);
         public void PurgeCacheForAffectedChains(IOUri changedFileUri) { }
         public void PurgeAllCaches() { }
         public void PurgeChainCache() { }
+    }
+
+    private sealed class ConstantChain(IBicepConfiguration configuration) : IBicepConfigurationChain
+    {
+        public IBicepConfiguration GetEffectiveConfiguration() => configuration;
+        public IEnumerable<KeyValuePair<IOUri, ImmutableArray<IDiagnostic>>> EnumerateDiagnosticsPerFile() => [];
+        public int LayerCount => 1;
     }
 }

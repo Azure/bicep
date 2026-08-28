@@ -2,8 +2,9 @@
 // Licensed under the MIT License.
 
 using System.Text.Json;
+using Bicep.Core.Configuration;
 
-namespace Bicep.Core.Configuration;
+namespace Bicep.Testing.Extensions;
 
 public static class ExtensionsConfigurationExtensions
 {

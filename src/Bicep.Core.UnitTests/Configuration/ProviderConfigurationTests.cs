@@ -77,7 +77,7 @@ public class ExtensionsConfigurationTests
             """));
 
         var configManager = new BicepConfigurationManager(fileSet.FileExplorer);
-        var config = configManager.GetMergedConfiguration(fileSet.GetUri("main.bicep"));
+        var config = configManager.GetEffectiveConfiguration(fileSet.GetUri("main.bicep"));
 
         config.GetDiagnostics().Should().BeEmpty();
         config.Should().NotBeNull();

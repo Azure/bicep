@@ -3,8 +3,10 @@
 
 using Azure.ResourceManager.Resources.Models;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 
-namespace Bicep.Core.Configuration
+namespace Bicep.Testing.Extensions
 {
     public static class AnalyzersConfigurationExtensions
     {
@@ -27,7 +29,7 @@ namespace Bicep.Core.Configuration
             var config = analyzersConfiguration;
             foreach (var (code, ruleInfo) in new LinterRulesProvider().GetLinterRules())
             {
-                if (ruleInfo.defaultDiagnosticLevel == Diagnostics.DiagnosticLevel.Off)
+                if (ruleInfo.defaultDiagnosticLevel == DiagnosticLevel.Off)
                 {
                     config = config.SetValue($"core.rules.{code}.level", "warning");
                 }
