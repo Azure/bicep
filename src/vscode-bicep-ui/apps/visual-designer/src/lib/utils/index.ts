@@ -3,4 +3,4 @@
 
 export * from "./math";
 export * from "./text";
-export * from "./deployment-graph-equality";
+export * from "./errors";

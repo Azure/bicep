@@ -16,5 +16,5 @@ export function loadDevAppShell(): LazyExoticComponent<ComponentType<{ children:
     return undefined;
   }
 
-  return lazy(() => import("./DevAppShell").then((m) => ({ default: m.DevAppShell })));
+  return lazy(() => import("./components/DevAppShell").then((m) => ({ default: m.DevAppShell })));
 }

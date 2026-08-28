@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-export { ExportAreaCover } from "./ExportAreaCover";
-export { ExportAreaPreview } from "./ExportAreaPreview";
-export { ExportOverlay } from "./ExportOverlay";
+export { ExportAreaCover } from "./components/ExportAreaCover";
+export { ExportAreaPreview } from "./components/ExportAreaPreview";
+export { ExportOverlay } from "./components/ExportOverlay";
 export * from "./atoms";
-export type { ExportBackgroundMode } from "./types";

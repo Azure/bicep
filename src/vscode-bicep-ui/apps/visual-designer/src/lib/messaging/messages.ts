@@ -70,22 +70,29 @@ export const MOTION_POLICY_DID_CHANGE_NOTIFICATION = "motionPolicy/didChange";
 export const GET_RESOURCE_CREATION_ENABLEMENT_REQUEST = "resourceCreation/isEnabled";
 export const RESOURCE_CREATION_ENABLEMENT_DID_CHANGE_NOTIFICATION = "resourceCreation/enablementDidChange";
 
+// ── Resource type catalog ──
+// The catalog is versioned by `catalogId`; the host may rebuild it at any time, so responses carrying
+// a stale id must be discarded rather than merged.
+
+export const GET_RESOURCE_TYPE_NAMESPACES_REQUEST = "resourceTypeCatalog/namespaces";
+export const LOAD_RESOURCE_TYPE_CATALOG_REQUEST = "resourceTypeCatalog/load";
+
 // ── Resource creation ──
 
 export const CREATE_RESOURCE_REQUEST = "resources/create";
 
-export interface VisualResourceTypeReference {
+export interface ResourceTypeReference {
   fullyQualifiedType: string;
   apiVersion: string;
 }
 
-export interface CreateVisualResourceRequest {
+export interface CreateResourceRequest {
   version: 1;
   operationId: string;
-  resourceType: VisualResourceTypeReference;
+  resourceType: ResourceTypeReference;
 }
 
-export interface CreateVisualResourceResponse {
+export interface CreateResourceResponse {
   version: 1;
   operationId: string;
   expectedNodeId: string;
@@ -93,7 +100,7 @@ export interface CreateVisualResourceResponse {
   unresolvedRequiredProperties: string[];
 }
 
-export interface CreateVisualResourceError {
+export interface CreateResourceError {
   version: 1;
   operationId?: string;
   code:

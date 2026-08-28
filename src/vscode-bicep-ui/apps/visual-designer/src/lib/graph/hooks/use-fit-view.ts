@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { Box } from "@/lib/utils/math/geometry";
+import type { Box } from "@/lib/utils";
 
 import { useGetPanZoomDimensions, usePanZoomControl } from "@vscode-bicep-ui/components";
 import { useAtomCallback } from "jotai/utils";
 import { useCallback } from "react";
 import { graphBoundsAtom } from "@/lib/graph/atoms";
-import { getBoxCenter, getBoxHeight, getBoxWidth } from "@/lib/utils/math/geometry";
+import { getBoxCenter, getBoxHeight, getBoxWidth } from "@/lib/utils";
 
 /**
  * Returns a callback that applies a pan-zoom transform to center the

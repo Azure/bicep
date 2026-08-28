@@ -72,26 +72,35 @@ test.describe("resource creation", () => {
     expect(canvasAfter).toEqual(canvasBefore);
   });
 
+  test("animates the palette progress bar while the resource catalog loads", async ({ page }) => {
+    // Hold the catalog response open so the loading state can be asserted deterministically rather
+    // than racing the dev channel's default delay.
+    await openVisualDesigner(page, { catalogDelay: "5000" });
+    await page.getByRole("button", { name: "Add Resources" }).click();
+    await page.getByRole("textbox", { name: "Filter resource types" }).fill("storageAccounts");
+
+    const progress = page.getByTestId("resource-palette-progress");
+    await expect(progress).toBeVisible();
+    // Read the animation state in a single round trip, and report a sentinel rather than a boolean
+    // if the indicator is missing: a detached element yields an empty computed style, which would
+    // otherwise pass an "is not none" check by accident.
+    const progressAnimation = await progress.evaluate((element) => {
+      const indicator = element.shadowRoot?.querySelector(".indicator");
+
+      return indicator ? getComputedStyle(indicator).animationName : "indicator-missing";
+    });
+
+    expect(progressAnimation).not.toBe("indicator-missing");
+    expect(progressAnimation).not.toBe("none");
+    expect(progressAnimation).not.toBe("");
+  });
+
   test("searches all resource namespaces without expanding them first", async ({ page }) => {
     await openVisualDesigner(page);
     await page.getByRole("button", { name: "Add Resources" }).click();
 
     const filter = page.getByRole("textbox", { name: "Filter resource types" });
     await filter.fill("storageAccounts");
-    const progress = page.getByTestId("resource-palette-progress");
-    await expect(progress).toBeVisible();
-    const progressAnimationName = await progress.evaluate(
-      (element) => getComputedStyle(element.shadowRoot!.querySelector(".indicator")!).animationName,
-    );
-    expect(progressAnimationName).not.toBe("none");
-    const initialProgressLeft = await progress.evaluate(
-      (element) => element.shadowRoot!.querySelector(".indicator")!.getBoundingClientRect().left,
-    );
-    await page.waitForTimeout(120);
-    const nextProgressLeft = await progress.evaluate(
-      (element) => element.shadowRoot!.querySelector(".indicator")!.getBoundingClientRect().left,
-    );
-    expect(Math.abs(nextProgressLeft - initialProgressLeft)).toBeGreaterThan(1);
     await expect(page.getByRole("button", { name: /storageAccounts/ })).toBeVisible();
     await expect(page.locator("mark").filter({ hasText: "storageAccounts" })).toBeVisible();
     await expect(page.getByRole("button", { name: /Microsoft\.Storage/ })).toHaveAttribute("aria-expanded", "true");

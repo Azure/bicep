@@ -1,5 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-export * from "./atoms";
-export { StatusBar } from "./StatusBar";
+export { StatusBar } from "./components/StatusBar";
+export { hasNodesAtom, reportGraphStatusAtom } from "./atoms";

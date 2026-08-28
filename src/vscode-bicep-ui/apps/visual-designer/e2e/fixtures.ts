@@ -23,9 +23,14 @@ export type SampleGraphKey = keyof typeof SAMPLE_GRAPHS;
  * Navigate to the visual designer and wait for the React app to mount
  * and the initial sample graph (the dev fake channel pushes the
  * "Module graph" 50 ms after the READY notification) to render.
+ *
+ * `query` is appended to the URL to drive the dev fake channel, for example
+ * `{ catalogDelay: "3000" }` to hold resource-catalog loading states open.
  */
-export async function openVisualDesigner(page: Page): Promise<void> {
-  await page.goto("/");
+export async function openVisualDesigner(page: Page, query: Record<string, string> = {}): Promise<void> {
+  const search = new URLSearchParams(query).toString();
+
+  await page.goto(search ? `/?${search}` : "/");
   await expect(page.getByTestId("app-root")).toBeVisible();
   await expect(page.getByTestId("graph-canvas")).toBeVisible();
   await expect(page.getByTestId("dev-toolbar")).toBeVisible();

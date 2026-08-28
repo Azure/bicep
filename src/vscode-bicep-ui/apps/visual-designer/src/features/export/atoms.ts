@@ -2,10 +2,11 @@
 // Licensed under the MIT License.
 
 import type { DefaultTheme } from "styled-components";
-import type { ExportBackgroundMode } from "./types";
 
 import { atom } from "jotai";
-import { activeThemeAtom, getThemeByName } from "@/lib/theming";
+import { activeThemeAtom, getThemeByName } from "@/ui/theme";
+
+export type ExportBackgroundMode = "transparent" | "solid";
 
 export const DEFAULT_EXPORT_FILE_STEM = "bicep-graph";
 export const DEFAULT_EXPORT_PADDING = 40;
