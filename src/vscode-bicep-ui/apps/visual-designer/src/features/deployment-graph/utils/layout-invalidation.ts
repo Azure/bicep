@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { GraphNode, GraphPatch, RenderedGraph } from "@/lib/messaging";
+import type { GraphNode, GraphPatch, RenderedGraph } from "../api";
 
 /**
  * The node metadata fields that influence a node's rendered size, and therefore the layout.

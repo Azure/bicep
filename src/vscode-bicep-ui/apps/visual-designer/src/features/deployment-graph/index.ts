@@ -5,3 +5,4 @@ export { DeploymentGraphView, type DeploymentGraphSurface } from "./components/D
 export { ResourceCreationError } from "./components/ResourceCreationError";
 export { RESOURCE_CREATION_TRANSITION } from "./animations";
 export { ResourceNodePreview } from "./components/nodes/ResourceNodePreview";
+export * from "./api";

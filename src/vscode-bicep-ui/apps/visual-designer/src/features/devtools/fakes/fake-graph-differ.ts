@@ -11,7 +11,7 @@ import type {
   GraphPatch,
   NodeLayout,
   RenderedGraph,
-} from "@/lib/messaging";
+} from "@/features/deployment-graph";
 
 /**
  * A throwaway, dev-only stand-in for the language server's `VisualGraphDiffer`. It lets the

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { ResourceTypeReference } from "@/lib/messaging";
+import type { ResourceTypeReference } from "./types";
 
 import { atom } from "jotai";
 import { atomFamily } from "jotai-family";

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { GraphNode, GraphPatch, RenderedGraph, RenderedGraphNode } from "@/lib/messaging";
+import type { GraphNode, GraphPatch, RenderedGraph, RenderedGraphNode } from "../../api";
 
 import { describe, expect, it } from "vitest";
 import { patchMayAffectLayout, renderedGraphsEqual } from "../layout-invalidation";

@@ -3,8 +3,8 @@
 
 import type { PrimitiveAtom } from "jotai";
 import type { AnimationPlaybackControlsWithThen } from "motion";
-import type { DeploymentGraph, NodeLayout } from "@/lib/messaging";
 import type { Box, Point } from "@/lib/utils";
+import type { DeploymentGraph, NodeLayout } from "../api";
 
 import { getDefaultStore, useSetAtom } from "jotai";
 import { animate, transform } from "motion";

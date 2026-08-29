@@ -4,10 +4,11 @@
 import type { ReactNode } from "react";
 
 import { WebviewMessageChannelProvider } from "@vscode-bicep-ui/messaging";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { ThemeProvider } from "styled-components";
 import { loadDevAppShell } from "@/features/devtools";
 import { useMotionPolicySync } from "@/lib/accessibility";
+import { useHostApi } from "@/lib/host";
 import { useTheme } from "@/ui/theme";
 import { GlobalStyle } from "./GlobalStyle";
 
@@ -15,7 +16,13 @@ const DevAppShell = loadDevAppShell();
 
 function ThemedApp({ children }: { children: ReactNode }) {
   const theme = useTheme();
+  const hostApi = useHostApi();
   useMotionPolicySync();
+
+  // "The webview has mounted." This is app lifecycle, not any one feature's concern.
+  useEffect(() => {
+    hostApi.announceReady();
+  }, [hostApi]);
 
   return (
     <ThemeProvider theme={theme}>

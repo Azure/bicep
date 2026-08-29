@@ -8,8 +8,6 @@ export interface Point {
   y: number;
 }
 
-export type Position = Point;
-
 export function pointsEqual(a: Point, b: Point): boolean {
   return equal(a.x, b.x) && equal(a.y, b.y);
 }

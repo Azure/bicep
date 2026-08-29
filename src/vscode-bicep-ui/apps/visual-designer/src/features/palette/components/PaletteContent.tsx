@@ -2,8 +2,7 @@
 // Licensed under the MIT License.
 
 import type { PointerEvent } from "react";
-import type { ResourceTypeReference } from "@/lib/messaging";
-import type { ResourceTypeCatalog, ResourceTypeNamespace } from "../types";
+import type { ResourceTypeCatalog, ResourceTypeNamespace, ResourceTypeReference } from "../types";
 
 import { useAtomValue } from "jotai";
 import { useEffect } from "react";

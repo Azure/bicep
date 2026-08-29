@@ -1,27 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { GetResourceTypeNamespacesResult, LoadResourceTypeCatalogParams } from "../api";
 import type { ResourceTypeCatalog, ResourceTypeNamespace } from "../types";
 
-import { useWebviewMessageChannel, useWebviewNotification } from "@vscode-bicep-ui/messaging";
+import { useNotification } from "@vscode-bicep-ui/messaging";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  DOCUMENT_DID_CHANGE_NOTIFICATION,
-  GET_RESOURCE_TYPE_NAMESPACES_REQUEST,
-  LOAD_RESOURCE_TYPE_CATALOG_REQUEST,
-} from "@/lib/messaging";
+import { documentDidChange } from "@/lib/host";
+import { usePaletteApi } from "../api";
 
 /** Edits arrive in bursts, so refreshes are debounced. The first load is immediate. */
 const REFRESH_DEBOUNCE_MS = 250;
 
-interface ResourceTypeNamespaceCatalog {
-  catalogId: string;
-  namespaces: ResourceTypeNamespace[];
-}
-
 type NamespaceCatalogState =
   | { status: "loading" }
-  | { status: "loaded"; catalog: ResourceTypeNamespaceCatalog }
+  | { status: "loaded"; catalog: GetResourceTypeNamespacesResult }
   | { status: "error"; error: unknown };
 
 export interface ResourceTypeCatalogSource {
@@ -42,7 +35,7 @@ export interface ResourceTypeCatalogSource {
  * generation counter so a slow response cannot overwrite a newer one.
  */
 export function useResourceTypeCatalog(): ResourceTypeCatalogSource {
-  const messageChannel = useWebviewMessageChannel();
+  const api = usePaletteApi();
   const [namespaceCatalogState, setNamespaceCatalogState] = useState<NamespaceCatalogState>({ status: "loading" });
   const [refreshGeneration, setRefreshGeneration] = useState(0);
   const namespaceRequestGenerationRef = useRef(0);
@@ -52,8 +45,8 @@ export function useResourceTypeCatalog(): ResourceTypeCatalogSource {
     setRefreshGeneration((generation) => generation + 1);
   }, []);
 
-  useWebviewNotification(
-    DOCUMENT_DID_CHANGE_NOTIFICATION,
+  useNotification(
+    documentDidChange,
     useCallback(() => refresh(), [refresh]),
   );
 
@@ -62,36 +55,31 @@ export function useResourceTypeCatalog(): ResourceTypeCatalogSource {
     const timeout = window.setTimeout(
       () => {
         setNamespaceCatalogState((current) => (current.status === "loaded" ? current : { status: "loading" }));
-        void messageChannel
-          .sendRequest<ResourceTypeNamespaceCatalog>({ method: GET_RESOURCE_TYPE_NAMESPACES_REQUEST })
-          .then(
-            (catalog) => {
-              if (requestGeneration === namespaceRequestGenerationRef.current) {
-                if (searchableCatalogRef.current?.catalogId !== catalog.catalogId) {
-                  searchableCatalogRef.current = undefined;
-                }
-                setNamespaceCatalogState({ status: "loaded", catalog });
+        void api.getNamespaces().then(
+          (catalog) => {
+            if (requestGeneration === namespaceRequestGenerationRef.current) {
+              if (searchableCatalogRef.current?.catalogId !== catalog.catalogId) {
+                searchableCatalogRef.current = undefined;
               }
-            },
-            (error: unknown) => {
-              if (requestGeneration === namespaceRequestGenerationRef.current) {
-                setNamespaceCatalogState({ status: "error", error });
-              }
-            },
-          );
+              setNamespaceCatalogState({ status: "loaded", catalog });
+            }
+          },
+          (error: unknown) => {
+            if (requestGeneration === namespaceRequestGenerationRef.current) {
+              setNamespaceCatalogState({ status: "error", error });
+            }
+          },
+        );
       },
       refreshGeneration === 0 ? 0 : REFRESH_DEBOUNCE_MS,
     );
 
     return () => window.clearTimeout(timeout);
-  }, [messageChannel, refreshGeneration]);
+  }, [api, refreshGeneration]);
 
   const requestCatalog = useCallback(
-    async (params: { providerNamespace?: string; query?: string; loadAll?: boolean }): Promise<ResourceTypeCatalog> => {
-      const catalog = await messageChannel.sendRequest<ResourceTypeCatalog>({
-        method: LOAD_RESOURCE_TYPE_CATALOG_REQUEST,
-        params,
-      });
+    async (params: LoadResourceTypeCatalogParams): Promise<ResourceTypeCatalog> => {
+      const catalog = await api.loadCatalog(params);
       const currentCatalogId =
         namespaceCatalogState.status === "loaded" ? namespaceCatalogState.catalog.catalogId : undefined;
 
@@ -102,7 +90,7 @@ export function useResourceTypeCatalog(): ResourceTypeCatalogSource {
 
       return catalog;
     },
-    [messageChannel, namespaceCatalogState, refresh],
+    [api, namespaceCatalogState, refresh],
   );
 
   const loadNamespace = useCallback(

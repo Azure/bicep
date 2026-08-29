@@ -1,14 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { ResourceTypeReference } from "@/features/palette";
+import type { Box, Point } from "@/lib/utils";
 import type {
-  CreateResourceRequest,
-  CreateResourceResponse,
   DeploymentGraph,
-  GetGraphLayoutRequest,
-  GetGraphLayoutResponse,
-  GetGraphUpdateRequest,
-  GetGraphUpdateResponse,
   GraphBounds,
   GraphEdge,
   GraphNode,
@@ -16,15 +12,12 @@ import type {
   NodeLayout,
   Range,
   RenderedGraph,
-  ResourceTypeReference,
-} from "@/lib/messaging";
-import type { Box, Point } from "@/lib/utils";
+} from "../api";
 
-import { useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { getDefaultStore } from "jotai";
 import { useCallback, useRef } from "react";
 import { nodesByIdAtom } from "@/lib/graph";
-import { CREATE_RESOURCE_REQUEST, GET_GRAPH_LAYOUT_REQUEST, GET_GRAPH_UPDATE_REQUEST } from "@/lib/messaging";
+import { useDeploymentGraphApi } from "../api";
 import { pendingResourcesAtom, resourceCreationErrorAtom, resourceNodeIsCommittingAtomFamily } from "../atoms";
 import { patchMayAffectLayout, renderedGraphsEqual } from "../utils/layout-invalidation";
 import { applyGraphLayout, useApplyGraph } from "./use-apply-graph";
@@ -234,7 +227,7 @@ export function useGraphUpdate(
   fitViewToBounds: (bounds: Box) => void,
 ): GraphUpdateActions {
   const applyGraph = useApplyGraph(getViewportCenter);
-  const messageChannel = useWebviewMessageChannel();
+  const api = useDeploymentGraphApi();
   const clientGraphRef = useRef<ClientGraph>(createClientGraph());
   const lastLayoutInputRef = useRef<RenderedGraph | null>(null);
   const inFlightRef = useRef(false);
@@ -264,11 +257,7 @@ export function useGraphUpdate(
         return;
       }
 
-      const layoutRequest: GetGraphLayoutRequest = { current: measuredGraph };
-      const layoutResponse = await messageChannel.sendRequest<GetGraphLayoutResponse>({
-        method: GET_GRAPH_LAYOUT_REQUEST,
-        params: layoutRequest,
-      });
+      const layoutResponse = await api.fetchLayout(measuredGraph);
 
       if (layoutResponse.status === "graphChanged") {
         dirtyRef.current = true;
@@ -296,7 +285,7 @@ export function useGraphUpdate(
 
       await applyGraphLayout(nodeLayouts);
     },
-    [fitViewToBounds, getViewportCenter, messageChannel],
+    [fitViewToBounds, getViewportCenter, api],
   );
 
   const requestGraphUpdate = useCallback(async () => {
@@ -328,12 +317,7 @@ export function useGraphUpdate(
 
         const graph = clientGraphRef.current;
         const current: RenderedGraph | null = graph.nodes.size === 0 ? null : buildRenderedGraph(graph);
-        const request: GetGraphUpdateRequest = { current };
-
-        const response = await messageChannel.sendRequest<GetGraphUpdateResponse>({
-          method: GET_GRAPH_UPDATE_REQUEST,
-          params: request,
-        });
+        const response = await api.fetchUpdate(current);
 
         if (mutationInFlightRef.current) {
           // The mutation response carries the expected node ID needed to correlate placement. A graph response
@@ -394,7 +378,7 @@ export function useGraphUpdate(
     } finally {
       inFlightRef.current = false;
     }
-  }, [applyGraph, requestGraphLayout, messageChannel]);
+  }, [applyGraph, requestGraphLayout, api]);
 
   const resetLayout = useCallback(async () => {
     forceLayoutRef.current = true;
@@ -418,14 +402,10 @@ export function useGraphUpdate(
         mutationInFlightRef.current = true;
 
         try {
-          const request: CreateResourceRequest = {
+          const response = await api.createResource({
             version: 1,
             operationId,
             resourceType,
-          };
-          const response = await messageChannel.sendRequest<CreateResourceResponse>({
-            method: CREATE_RESOURCE_REQUEST,
-            params: request,
           });
 
           pendingPlacementsRef.current.set(response.expectedNodeId, origin);
@@ -456,7 +436,7 @@ export function useGraphUpdate(
       mutationQueueRef.current = queued;
       return queued;
     },
-    [messageChannel, requestGraphUpdate],
+    [api, requestGraphUpdate],
   );
 
   return { requestGraphUpdate, createResource, resetLayout };

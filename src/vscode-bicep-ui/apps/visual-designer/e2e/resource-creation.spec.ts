@@ -81,18 +81,25 @@ test.describe("resource creation", () => {
 
     const progress = page.getByTestId("resource-palette-progress");
     await expect(progress).toBeVisible();
-    // Read the animation state in a single round trip, and report a sentinel rather than a boolean
-    // if the indicator is missing: a detached element yields an empty computed style, which would
-    // otherwise pass an "is not none" check by accident.
-    const progressAnimation = await progress.evaluate((element) => {
-      const indicator = element.shadowRoot?.querySelector(".indicator");
 
-      return indicator ? getComputedStyle(indicator).animationName : "indicator-missing";
-    });
+    // Read through the shadow root in one round trip, reporting a sentinel rather than throwing if
+    // the indicator is missing: a detached element yields an empty computed style, which would
+    // otherwise pass an "is not none" check by accident.
+    const readAnimationName = () =>
+      progress.evaluate((element) => {
+        const indicator = element.shadowRoot?.querySelector(".indicator");
+
+        return indicator ? getComputedStyle(indicator).animationName : "indicator-missing";
+      });
+
+    // Computed styles resolve a tick after the indicator attaches, so poll for a settled value
+    // rather than sampling once and racing that.
+    await expect.poll(readAnimationName).not.toBe("");
+
+    const progressAnimation = await readAnimationName();
 
     expect(progressAnimation).not.toBe("indicator-missing");
     expect(progressAnimation).not.toBe("none");
-    expect(progressAnimation).not.toBe("");
   });
 
   test("searches all resource namespaces without expanding them first", async ({ page }) => {
@@ -146,9 +153,26 @@ test.describe("resource creation", () => {
     await resourceButton.press("Enter");
 
     await expect(page.getByTestId("graph-node")).toHaveCount(initialCount + 1);
-    const createdBox = await page.locator('[data-node-id="storageAccount"]').boundingBox();
-    expect(createdBox).not.toBeNull();
-    expect(createdBox!.x + createdBox!.width / 2).toBeCloseTo(canvasBox!.x + canvasBox!.width / 2, 0);
-    expect(createdBox!.y + createdBox!.height / 2).toBeCloseTo(canvasBox!.y + canvasBox!.height / 2, 0);
+
+    // The node animates in and the graph springs to its layout over ~0.6s, so poll for the settled
+    // centre rather than sampling once. Under parallel load a single read lands mid-animation.
+    const createdNode = page.locator('[data-node-id="storageAccount"]');
+    const canvasCentreX = canvasBox!.x + canvasBox!.width / 2;
+    const canvasCentreY = canvasBox!.y + canvasBox!.height / 2;
+
+    await expect
+      .poll(async () => {
+        const box = await createdNode.boundingBox();
+
+        if (!box) {
+          return null;
+        }
+
+        const offsetX = Math.abs(box.x + box.width / 2 - canvasCentreX);
+        const offsetY = Math.abs(box.y + box.height / 2 - canvasCentreY);
+
+        return Math.max(offsetX, offsetY) <= 1;
+      })
+      .toBe(true);
   });
 });

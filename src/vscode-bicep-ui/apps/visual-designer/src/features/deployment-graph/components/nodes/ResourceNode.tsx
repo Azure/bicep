@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { Range } from "@/lib/messaging";
+import type { Range } from "../../api";
 
 import { AzureIcon } from "@vscode-bicep-ui/components";
 import { useAtom, useAtomValue } from "jotai";

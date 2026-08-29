@@ -94,12 +94,14 @@ things are in any other, so features and `lib` modules organise their contents t
 | `components/` | Components, including any that are only used inside the feature.          |
 | `hooks/`      | Reusable `use-*` hooks.                                                   |
 | `utils/`      | Pure helpers with no React dependency.                                    |
+| `api.ts`      | The host protocol this feature uses: method constants and payload shapes. |
 | `atoms.ts`    | Feature state. Splits into `atoms/` only when it holds distinct concerns. |
+| `types.ts`    | Shared domain vocabulary.                                                 |
 
-Files that belong to the feature as a whole stay at its root next to `index.ts`: `atoms.ts` for state,
-`types.ts` for shared domain vocabulary, and concept-named files such as `animations.ts` for shared
-transition constants. Only include the folders a feature actually needs, and add one when its first
-file arrives rather than scaffolding it empty.
+Files that belong to the feature as a whole stay at its root next to `index.ts`, alongside
+concept-named files such as `animations.ts` for shared transition constants. Only include the folders
+and files a feature actually needs, and add one when its first member arrives rather than scaffolding
+it empty.
 
 This is deliberately uniform rather than minimal. A `components/` folder holding one file carries no
 information on its own, and grouping by file type does split some cohesive subsystems: the graph sync
@@ -143,6 +145,7 @@ src/
       utils/
         layout-invalidation.ts
         graph-equality.ts
+      api.ts                       # graph, layout and resource-creation messages
       animations.ts
       atoms.ts
 
@@ -152,8 +155,9 @@ src/
       hooks/                       # use-drag, use-resource-type-catalog,
                                    # use-resource-type-search,
                                    # use-resource-creation-enablement
+      api.ts                       # enablement and resource-type catalog messages
       atoms.ts
-      types.ts                     # namespace and resource-type vocabulary
+      types.ts                     # resource-type vocabulary
 
     controls/                      # components/ControlBar, hooks/use-reset-layout, atoms.ts
     export/                        # components/, utils/capture-element.ts, atoms.ts
@@ -163,7 +167,7 @@ src/
   lib/
     accessibility/                 # motion policy state and host synchronisation
     graph/                         # atoms/, components/, hooks/, viewport.ts
-    messaging/                     # messages.ts: protocol types and method constants only
+    host.ts                        # webview lifecycle: ready, document-changed
     utils/                         # math/, text.ts, errors.ts
 
   ui/                              # shared primitives, flat
@@ -231,9 +235,9 @@ It works in client coordinates throughout. It should not import `viewportToGraph
 DOM handle, or read the pan/zoom transform; it hands `features/deployment-graph` a client point and lets it
 decide where that lands in the graph.
 
-It must not define its own `ResourceTypeReference`; the protocol type in `lib/messaging` is the single
-definition. Catalog vocabulary lives in `types.ts`, and `PaletteProps` sits in `Palette.tsx` beside
-the component that takes it.
+It owns `ResourceTypeReference` in its `types.ts`, and `deployment-graph` imports it through the
+barrel to type the creation request — the graph creates what the palette selected. Catalog vocabulary
+lives in the same file, and `PaletteProps` sits in `Palette.tsx` beside the component that takes it.
 
 ### Other features
 
@@ -266,7 +270,7 @@ could not be undone or scoped to a test store.
 `onNodeActivate` exists because the engine had in fact grown host knowledge: `AtomicNode` and
 `CompoundNode` each carried an identical double-click handler that cast node data to
 `{ range, filePath }` and sent `revealFileRange` / `revealNodeSource` notifications directly. The
-layer rule could not catch it, because `lib/graph -> lib/messaging` is a legal `lib -> lib` edge. A
+layer rule could not catch it, because `lib/graph -> lib/messaging` was a legal `lib -> lib` edge. A
 second, narrower lint zone now forbids `lib/graph` from importing any messaging module at all, so the
 claim at the top of this section is machine-checked rather than aspirational.
 
@@ -282,16 +286,61 @@ without a `ui -> features` violation.
 
 Component-specific keyboard and ARIA behavior stays with the component.
 
-### `lib/messaging`
+### Protocol declarations
 
-The transport contract only: protocol types, method-name constants, and payload shapes. The graph
-update state machine, the graph apply path, and layout invalidation are Bicep workflow logic and
-belong to `features/deployment-graph`. Relocating them is what removes both `lib -> features` inversions; no
-callback indirection or inversion-of-control shim is needed.
+Each feature declares the host protocol it uses in its own `api.ts`. Measured across the app, this is
+what the code already wanted: of the symbols in the former shared `messages.ts`, all but two belonged
+to exactly one feature. `deployment-graph` owns the graph update, layout and resource-creation
+messages; `palette` owns enablement and the resource-type catalog; `status` owns the problems-panel
+notification; `lib/accessibility` owns motion policy.
 
-`messages.ts` is already sectioned by protocol area. Splitting it into `graph-protocol.ts`,
-`resource-catalog-protocol.ts`, `resource-creation-protocol.ts` and `host-protocol.ts` is optional
-polish, not a correctness fix. If done, keep re-exporting through `lib/messaging/index.ts`.
+`lib/host.ts` holds what no feature owns: `ready` (the webview mounted) and `documentDidChange` (a
+broadcast that several features independently react to).
+
+Each `api.ts` has three layers:
+
+|                                     | Example                   |
+| ----------------------------------- | ------------------------- |
+| Descriptor, named for the operation | `createResource`          |
+| Outgoing payload, suffixed `Params` | `CreateResourceParams`    |
+| Incoming payload, suffixed `Result` | `CreateResourceResult`    |
+| Method on the feature's API hook    | `api.createResource(...)` |
+
+A descriptor and the API method that sends it may share a name, and often should — they are the same
+operation named at two levels, and `channel.request(createResource, params)` supplies the verb from
+context. This is safe rather than merely tolerable: an object property is not a binding, so
+`createResource: (params) => channel.request(createResource, params)` resolves the argument to the
+module-level descriptor exactly as intended.
+
+Shadowing would only occur where a file both imports a descriptor and binds that name locally, and the
+API hooks removed that possibility: components call `api.revealNodeSource(id)` and no longer import
+descriptors at all. Only `api.ts` and the fake host reference them, plus the subscription sites that
+must pass one to `useNotification`.
+
+`Params`/`Result` replace an earlier mix of `Payload`, `Request` and `Params` for the same idea.
+Domain vocabulary keeps its own name: `loadResourceTypeCatalog` resolves to `ResourceTypeCatalog`, not
+a `...Result` envelope, because the catalog is a shared type in `types.ts` rather than a shape that
+exists only to be a response.
+
+Notification names follow direction rather than a single tense. `documentDidChange` is an event the
+host announces; `revealNodeSource` is a command the webview sends. That distinction is worth keeping.
+
+The split also removes a name collision. `@vscode-bicep-ui/messaging` is the transport — the channel
+and its hooks — and an app-local module called `messaging` alongside it invited confusion about which
+was which. The package owns _how_ to talk; each feature owns _what it says_; `lib/host` owns the
+lifecycle in between.
+
+A feature's `api.ts` is exported through its barrel, because the protocol is part of its public
+contract. `features/devtools` is the one legitimate cross-feature consumer: it fakes the entire host,
+so it must implement every feature's messages.
+
+Descriptors are partly redundant for requests, and that is accepted. A request reached only through
+its API hook could just as well inline the method string there, since the hook's own signature already
+states the params and result. They are kept because two consumers cannot go through the hook:
+subscriptions, which are declarative and lifecycle-bound
+(`useNotification(documentDidChangeMessage, handler)`), and the fake host, which matches nine incoming
+methods against `descriptor.method`. Having one way to declare every message is worth a line per
+message over having two.
 
 ### `ui`
 
@@ -354,7 +403,7 @@ file per atom.
 Each feature and each `lib` module exposes exactly one entry point: its `index.ts`.
 
 - Import through the barrel: `@/lib/graph`, `@/features/export`.
-- Do not deep-import across a boundary. `@/lib/messaging/messages` is `@/lib/messaging`, and
+- Do not deep-import across a boundary. A feature's `api.ts` is reached through its barrel, and
   `@/lib/utils/math/geometry` is `@/lib/utils`.
 - Deep imports within the same module are fine.
 - Feature barrels export the intended surface, not `export *` over every file. The `lib` and `ui`
@@ -445,7 +494,7 @@ competing with the default timing.
 
 Not required, and not worth doing without a reason:
 
-- Split `lib/messaging/messages.ts` by protocol area behind the existing barrel, if it keeps growing.
+- Fold the legacy `DeploymentGraph` shape out of `deployment-graph/api.ts` once the position-preserving apply path no longer needs it.
 - Give `Surface` and `IconButton` neutral theme tokens. Both still read `theme.controlBar.*`, so the
   palette launcher styles itself from control-bar tokens, and `Palette` hand-rolls a second
   floating-panel style from raw `var(--vscode-*)` values at a different radius. Unifying those is the

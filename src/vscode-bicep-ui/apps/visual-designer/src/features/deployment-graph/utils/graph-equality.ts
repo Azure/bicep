@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { DeploymentGraph } from "@/lib/messaging";
+import type { DeploymentGraph } from "../api";
 
 /**
  * Compare two deployment graphs for structural equality, ignoring

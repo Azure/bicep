@@ -3,16 +3,15 @@
 
 import type { ReactNode } from "react";
 import type { NodeContentRenderProps, NodeKind } from "@/lib/graph";
-import type { Range } from "@/lib/messaging";
+import type { Range } from "../../api";
 import type { ModuleNodeProps } from "./ModuleNode";
 import type { ResourceNodeProps } from "./ResourceNode";
 
-import { useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { useStore } from "jotai";
 import { useHydrateAtoms } from "jotai/utils";
 import { useCallback } from "react";
 import { nodeConfigAtom } from "@/lib/graph";
-import { REVEAL_FILE_RANGE_NOTIFICATION, REVEAL_NODE_SOURCE_NOTIFICATION } from "@/lib/messaging";
+import { useDeploymentGraphApi } from "../../api";
 import { ModuleNode } from "./ModuleNode";
 import { ResourceNode } from "./ResourceNode";
 
@@ -41,28 +40,22 @@ function renderNodeContent(kind: NodeKind, { id, data }: NodeContentRenderProps)
 export function NodeContentProvider({ children }: { children: ReactNode }) {
   const store = useStore();
   const defaults = store.get(nodeConfigAtom);
-  const messageChannel = useWebviewMessageChannel();
+  const api = useDeploymentGraphApi();
 
-  const revealNodeSource = useCallback(
+  const handleNodeActivate = useCallback(
     (id: string, data: unknown) => {
       const { range, filePath } = (data ?? {}) as NodeSourceLocation;
 
       if (range && filePath) {
         // Legacy push path: the node still carries an inline source location.
-        messageChannel.sendNotification({
-          method: REVEAL_FILE_RANGE_NOTIFICATION,
-          params: { filePath, range },
-        });
+        api.revealFileRange({ filePath, range });
         return;
       }
 
       // Server-driven path: source location is resolved on demand by node id.
-      messageChannel.sendNotification({
-        method: REVEAL_NODE_SOURCE_NOTIFICATION,
-        params: { nodeId: id },
-      });
+      api.revealNodeSource(id);
     },
-    [messageChannel],
+    [api],
   );
 
   useHydrateAtoms([
@@ -72,7 +65,7 @@ export function NodeContentProvider({ children }: { children: ReactNode }) {
         ...defaults,
         padding: { ...defaults.padding, top: COMPOUND_NODE_LABEL_INSET },
         renderContent: renderNodeContent,
-        onNodeActivate: revealNodeSource,
+        onNodeActivate: handleNodeActivate,
       },
     ],
   ] as const);

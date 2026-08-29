@@ -1,24 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { useWebviewNotification, useWebviewRequest } from "@vscode-bicep-ui/messaging";
+import { useNotification, useRequest } from "@vscode-bicep-ui/messaging";
 import { useCallback, useState } from "react";
-import {
-  GET_RESOURCE_CREATION_ENABLEMENT_REQUEST,
-  RESOURCE_CREATION_ENABLEMENT_DID_CHANGE_NOTIFICATION,
-} from "@/lib/messaging";
+import { getResourceCreationEnablement, resourceCreationEnablementDidChange } from "../api";
 
 export function useResourceCreationEnablement(): boolean {
-  const [initialEnablement] = useWebviewRequest<boolean>(GET_RESOURCE_CREATION_ENABLEMENT_REQUEST);
+  const [initialEnablement] = useRequest(getResourceCreationEnablement);
   const [updatedEnablement, setUpdatedEnablement] = useState<boolean>();
 
-  useWebviewNotification(
-    RESOURCE_CREATION_ENABLEMENT_DID_CHANGE_NOTIFICATION,
-    useCallback((value: unknown) => {
-      if (typeof value === "boolean") {
-        setUpdatedEnablement(value);
-      }
-    }, []),
+  useNotification(
+    resourceCreationEnablementDidChange,
+    useCallback((enabled: boolean) => setUpdatedEnablement(enabled), []),
   );
 
   return updatedEnablement ?? initialEnablement ?? false;

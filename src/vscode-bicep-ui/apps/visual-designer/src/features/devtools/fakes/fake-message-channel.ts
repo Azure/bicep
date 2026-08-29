@@ -1,29 +1,37 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { WebviewNotificationCallback, WebviewNotificationMessage } from "@vscode-bicep-ui/messaging";
 import type {
-  CreateResourceRequest,
-  CreateResourceResponse,
+  MessageArgs,
+  NotificationDescriptor,
+  RequestDescriptor,
+  WebviewMessageChannelApi,
+  WebviewNotificationCallback,
+  WebviewNotificationMessage,
+} from "@vscode-bicep-ui/messaging";
+import type {
+  CreateResourceParams,
+  CreateResourceResult,
   DeploymentGraph,
-  GetGraphLayoutRequest,
-  GetGraphLayoutResponse,
-  GetGraphUpdateRequest,
-  GetGraphUpdateResponse,
-} from "@/lib/messaging";
+  GetGraphLayoutParams,
+  GetGraphLayoutResult,
+  GetGraphUpdateParams,
+  GetGraphUpdateResult,
+} from "@/features/deployment-graph";
 
+// The fake host implements the whole protocol, so it is the one legitimate consumer of every
+// feature's `api` surface.
 import {
-  CREATE_RESOURCE_REQUEST,
-  DOCUMENT_DID_CHANGE_NOTIFICATION,
-  GET_GRAPH_LAYOUT_REQUEST,
-  GET_GRAPH_UPDATE_REQUEST,
-  GET_RESOURCE_TYPE_NAMESPACES_REQUEST,
-  LOAD_RESOURCE_TYPE_CATALOG_REQUEST,
-  READY_NOTIFICATION,
-  REVEAL_FILE_RANGE_NOTIFICATION,
-  REVEAL_NODE_SOURCE_NOTIFICATION,
-  SHOW_PROBLEMS_PANEL_NOTIFICATION,
-} from "@/lib/messaging";
+  createResource,
+  getGraphLayout,
+  getGraphUpdate,
+  revealFileRange,
+  revealNodeSource,
+} from "@/features/deployment-graph";
+import { getResourceCreationEnablement, getResourceTypeNamespaces, loadResourceTypeCatalog } from "@/features/palette";
+import { showProblemsPanel } from "@/features/status";
+import { getMotionPolicy } from "@/lib/accessibility";
+import { documentDidChange, ready } from "@/lib/host";
 import { diffGraph, layoutGraph } from "./fake-graph-differ";
 
 const FAKE_FILE_PATH = "file:///main.bicep";
@@ -811,7 +819,7 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
  * Graph changes are announced with `documentDidChange`; the webview then pulls patch
  * and layout responses through the same request flow used in production.
  */
-export class FakeMessageChannel {
+export class FakeMessageChannel implements WebviewMessageChannelApi {
   private readonly notificationSubscriptions: Record<string, Set<WebviewNotificationCallback>> = {};
   private readonly onWindowMessage = (event: MessageEvent) => {
     if (
@@ -837,11 +845,11 @@ export class FakeMessageChannel {
   }
 
   sendRequest<T>(requestMessage: { method: string; params?: unknown }): Promise<T> {
-    if (requestMessage.method === "motionPolicy/get") {
+    if (requestMessage.method === getMotionPolicy.method) {
       return Promise.resolve("animate" as T);
     }
 
-    if (requestMessage.method === "resourceCreation/isEnabled") {
+    if (requestMessage.method === getResourceCreationEnablement.method) {
       return Promise.resolve((new URLSearchParams(window.location.search).get("resourceCreation") !== "false") as T);
     }
 
@@ -856,7 +864,7 @@ export class FakeMessageChannel {
       },
     ];
 
-    if (requestMessage.method === GET_RESOURCE_TYPE_NAMESPACES_REQUEST) {
+    if (requestMessage.method === getResourceTypeNamespaces.method) {
       return new Promise<T>((resolve) => {
         setTimeout(
           () =>
@@ -872,7 +880,7 @@ export class FakeMessageChannel {
       });
     }
 
-    if (requestMessage.method === LOAD_RESOURCE_TYPE_CATALOG_REQUEST) {
+    if (requestMessage.method === loadResourceTypeCatalog.method) {
       const { providerNamespace, query, loadAll } = (requestMessage.params ?? {}) as {
         providerNamespace?: string;
         query?: string;
@@ -896,24 +904,24 @@ export class FakeMessageChannel {
       });
     }
 
-    if (requestMessage.method === GET_GRAPH_UPDATE_REQUEST) {
-      const { current } = requestMessage.params as GetGraphUpdateRequest;
+    if (requestMessage.method === getGraphUpdate.method) {
+      const { current } = requestMessage.params as GetGraphUpdateParams;
       const patches = diffGraph(current, this.currentGraph);
-      return Promise.resolve({ patches } as GetGraphUpdateResponse as T);
+      return Promise.resolve({ patches } as GetGraphUpdateResult as T);
     }
 
-    if (requestMessage.method === GET_GRAPH_LAYOUT_REQUEST) {
-      const { current } = requestMessage.params as GetGraphLayoutRequest;
+    if (requestMessage.method === getGraphLayout.method) {
+      const { current } = requestMessage.params as GetGraphLayoutParams;
       const patches = layoutGraph(current, this.currentGraph);
-      const result: GetGraphLayoutResponse = patches
+      const result: GetGraphLayoutResult = patches
         ? { status: "ok", patches }
         : { status: "graphChanged", patches: [] };
 
       return Promise.resolve(result as T);
     }
 
-    if (requestMessage.method === CREATE_RESOURCE_REQUEST) {
-      const request = requestMessage.params as CreateResourceRequest;
+    if (requestMessage.method === createResource.method) {
+      const request = requestMessage.params as CreateResourceParams;
       const current = this.currentGraph ?? { nodes: [], edges: [], errorCount: 0 };
       const baseName = request.resourceType.fullyQualifiedType.split("/").slice(-1)[0]?.replace(/s$/, "") ?? "resource";
       let symbolicName = baseName.charAt(0).toLocaleLowerCase() + baseName.slice(1);
@@ -948,7 +956,7 @@ export class FakeMessageChannel {
             expectedNodeId: symbolicName,
             symbolicName,
             unresolvedRequiredProperties: ["name"],
-          } satisfies CreateResourceResponse as T);
+          } satisfies CreateResourceResult as T);
         }, 300);
       });
     }
@@ -960,20 +968,31 @@ export class FakeMessageChannel {
   private currentGraph: DeploymentGraph | null = null;
 
   sendNotification(notificationMessage: WebviewNotificationMessage) {
-    if (notificationMessage.method === READY_NOTIFICATION) {
+    if (notificationMessage.method === ready.method) {
       // Simulate async response from the extension host:
       // after a short delay, present the sample deployment graph.
       setTimeout(() => {
         this.pushGraph(MODULE_GRAPH);
       }, 50);
-    } else if (notificationMessage.method === REVEAL_FILE_RANGE_NOTIFICATION) {
+    } else if (notificationMessage.method === revealFileRange.method) {
       console.log("[FakeMessageChannel] revealFileRange:", notificationMessage.params);
-    } else if (notificationMessage.method === REVEAL_NODE_SOURCE_NOTIFICATION) {
+    } else if (notificationMessage.method === revealNodeSource.method) {
       // The real host would resolve the node's source location via the language server and reveal it.
       console.log("[FakeMessageChannel] revealNodeSource:", notificationMessage.params);
-    } else if (notificationMessage.method === SHOW_PROBLEMS_PANEL_NOTIFICATION) {
+    } else if (notificationMessage.method === showProblemsPanel.method) {
       console.log("[FakeMessageChannel] showProblemsPanel: would open VS Code Problems panel");
     }
+  }
+
+  request<TParams, TResult>(
+    descriptor: RequestDescriptor<TParams, TResult>,
+    ...args: MessageArgs<TParams>
+  ): Promise<TResult> {
+    return this.sendRequest<TResult>({ method: descriptor.method, params: args[0] });
+  }
+
+  notify<TParams>(descriptor: NotificationDescriptor<TParams>, ...args: MessageArgs<TParams>): void {
+    this.sendNotification({ method: descriptor.method, params: args[0] });
   }
 
   setState<T>(state: T): T {
@@ -988,7 +1007,7 @@ export class FakeMessageChannel {
   /** Simulate the extension host announcing that the graph may have changed. */
   pushGraph(graph: DeploymentGraph | null) {
     this.currentGraph = graph;
-    this.dispatchNotification(DOCUMENT_DID_CHANGE_NOTIFICATION, {
+    this.dispatchNotification(documentDidChange.method, {
       documentUri: FAKE_FILE_PATH,
     });
   }

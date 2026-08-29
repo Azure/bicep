@@ -1,11 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { useAtomValue } from "jotai";
 import { useCallback } from "react";
 import { styled } from "styled-components";
-import { SHOW_PROBLEMS_PANEL_NOTIFICATION } from "@/lib/messaging";
+import { useStatusApi } from "../api";
 import { graphStatusAtom } from "../atoms";
 
 const $StatusBarContainer = styled.div`
@@ -50,13 +49,11 @@ const $ErrorLink = styled.span`
 
 export function StatusBar() {
   const graphStatus = useAtomValue(graphStatusAtom);
-  const messageChannel = useWebviewMessageChannel();
+  const api = useStatusApi();
 
   const handleShowProblems = useCallback(() => {
-    messageChannel.sendNotification({
-      method: SHOW_PROBLEMS_PANEL_NOTIFICATION,
-    });
-  }, [messageChannel]);
+    api.showProblemsPanel();
+  }, [api]);
 
   const errorCount = graphStatus.kind === "errors" ? graphStatus.errorCount : 0;
 

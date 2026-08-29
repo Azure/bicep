@@ -3,3 +3,4 @@
 
 export { StatusBar } from "./components/StatusBar";
 export { hasNodesAtom, reportGraphStatusAtom } from "./atoms";
+export * from "./api";

@@ -1,25 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-export interface DeploymentGraph {
-  nodes: DeploymentGraphNode[];
-  edges: DeploymentGraphEdge[];
-  errorCount: number;
-}
+import type { ResourceTypeReference } from "@/features/palette";
 
-export interface DeploymentGraphNode {
-  id: string;
-  type: string;
-  isCollection: boolean;
-  range: Range;
-  hasChildren: boolean;
-  hasError: boolean;
-  filePath: string;
-}
+import { defineNotification, defineRequest, useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
+import { useMemo } from "react";
 
-export interface DeploymentGraphEdge {
-  sourceId: string;
-  targetId: string;
+// ── Source locations ──
+
+export interface Position {
+  line: number;
+  character: number;
 }
 
 export interface Range {
@@ -27,16 +18,11 @@ export interface Range {
   end: Position;
 }
 
-export interface Position {
-  line: number;
-  character: number;
-}
-
 // ── Notification: Webview → Extension ──
-// Sent when the user wants to navigate to a source range
-export const REVEAL_FILE_RANGE_NOTIFICATION = "revealFileRange";
+// Sent when the user wants to navigate to a source range.
+export const revealFileRange = defineNotification<RevealFileRangeParams>("revealFileRange");
 
-export interface RevealFileRangePayload {
+export interface RevealFileRangeParams {
   filePath: string;
   range: Range;
 }
@@ -45,54 +31,23 @@ export interface RevealFileRangePayload {
 // Sent when the user wants to reveal a node whose source location is resolved on demand. The canonical
 // graph no longer carries range/filePath, so the webview asks the host (which asks the server) to resolve
 // and reveal the node by id. This keeps volatile source locations out of the per-edit graph diff.
-export const REVEAL_NODE_SOURCE_NOTIFICATION = "revealNodeSource";
+export const revealNodeSource = defineNotification<RevealNodeSourceParams>("revealNodeSource");
 
-export interface RevealNodeSourcePayload {
+export interface RevealNodeSourceParams {
   nodeId: string;
 }
 
-// ── Notification: Webview → Extension ──
-// Sent when the user clicks "Show errors" to open the VS Code Problems panel
-export const SHOW_PROBLEMS_PANEL_NOTIFICATION = "showProblemsPanel";
-
-// ── Notification: Webview → Extension ──
-// Sent when the webview has initialized and is ready to receive data
-export const READY_NOTIFICATION = "ready";
-
-// ── Motion policy ──
-
-export type MotionPolicy = "system" | "reduce" | "animate";
-export const GET_MOTION_POLICY_REQUEST = "motionPolicy/get";
-export const MOTION_POLICY_DID_CHANGE_NOTIFICATION = "motionPolicy/didChange";
-
-// ── Experimental resource creation ──
-
-export const GET_RESOURCE_CREATION_ENABLEMENT_REQUEST = "resourceCreation/isEnabled";
-export const RESOURCE_CREATION_ENABLEMENT_DID_CHANGE_NOTIFICATION = "resourceCreation/enablementDidChange";
-
-// ── Resource type catalog ──
-// The catalog is versioned by `catalogId`; the host may rebuild it at any time, so responses carrying
-// a stale id must be discarded rather than merged.
-
-export const GET_RESOURCE_TYPE_NAMESPACES_REQUEST = "resourceTypeCatalog/namespaces";
-export const LOAD_RESOURCE_TYPE_CATALOG_REQUEST = "resourceTypeCatalog/load";
-
 // ── Resource creation ──
 
-export const CREATE_RESOURCE_REQUEST = "resources/create";
+export const createResource = defineRequest<CreateResourceParams, CreateResourceResult>("resources/create");
 
-export interface ResourceTypeReference {
-  fullyQualifiedType: string;
-  apiVersion: string;
-}
-
-export interface CreateResourceRequest {
+export interface CreateResourceParams {
   version: 1;
   operationId: string;
   resourceType: ResourceTypeReference;
 }
 
-export interface CreateResourceResponse {
+export interface CreateResourceResult {
   version: 1;
   operationId: string;
   expectedNodeId: string;
@@ -100,7 +55,7 @@ export interface CreateResourceResponse {
   unresolvedRequiredProperties: string[];
 }
 
-export interface CreateResourceError {
+export interface CreateResourceErrorResult {
   version: 1;
   operationId?: string;
   code:
@@ -115,43 +70,34 @@ export interface CreateResourceError {
 }
 
 // ──────────────────────────────────────────────────────────────────────────
-// Server-driven visual graph protocol
+// Server-driven graph protocol
 //
-// The extension announces that the graph may have changed, then the webview pulls
-// topology/metadata patches and a measured layout through request/response messages:
+// The extension announces that the graph may have changed and the webview pulls the update:
 //   1. Extension → Webview: DOCUMENT_DID_CHANGE notification ("the graph may have changed").
 //   2. Webview → Extension: GET_GRAPH_UPDATE request carrying the graph it currently displays.
 //   3. Webview → Extension: GET_GRAPH_LAYOUT request after rendered node sizes are measured.
 // ──────────────────────────────────────────────────────────────────────────
 
-// ── Notification: Extension → Webview ──
-// "The graph may have changed; request an update when ready."
-export const DOCUMENT_DID_CHANGE_NOTIFICATION = "documentDidChange";
-
-export interface DocumentDidChangePayload {
-  documentUri: string;
-}
-
 // ── Request: Webview → Extension ──
 // The webview submits the graph it currently displays (null on first load) and receives a
 // complete patch delta transforming it into the server's latest graph.
-export const GET_GRAPH_UPDATE_REQUEST = "getGraphUpdate";
+export const getGraphUpdate = defineRequest<GetGraphUpdateParams, GetGraphUpdateResult>("getGraphUpdate");
 
-export interface GetGraphUpdateRequest {
+export interface GetGraphUpdateParams {
   current: RenderedGraph | null;
 }
 
-export interface GetGraphUpdateResponse {
+export interface GetGraphUpdateResult {
   patches: GraphPatch[];
 }
 
-export const GET_GRAPH_LAYOUT_REQUEST = "getGraphLayout";
+export const getGraphLayout = defineRequest<GetGraphLayoutParams, GetGraphLayoutResult>("getGraphLayout");
 
-export interface GetGraphLayoutRequest {
+export interface GetGraphLayoutParams {
   current: RenderedGraph;
 }
 
-export interface GetGraphLayoutResponse {
+export interface GetGraphLayoutResult {
   status: "ok" | "graphChanged" | "layoutFailed";
   patches: GraphPatch[];
 }
@@ -245,3 +191,53 @@ export type GraphPatch =
   | { op: "setNodeLayout"; nodeId: string; layout: NodeLayout }
   | { op: "setGraphBounds"; bounds: GraphBounds }
   | { op: "setErrorCount"; errorCount: number };
+
+// ── Legacy graph shape ──
+// The position-preserving apply path still consumes this. Source locations are filled with empty
+// placeholders on the server-driven path; reveal is driven by node id instead.
+
+export interface DeploymentGraph {
+  nodes: DeploymentGraphNode[];
+  edges: DeploymentGraphEdge[];
+  errorCount: number;
+}
+
+export interface DeploymentGraphNode {
+  id: string;
+  type: string;
+  isCollection: boolean;
+  range: Range;
+  hasChildren: boolean;
+  hasError: boolean;
+  filePath: string;
+}
+
+export interface DeploymentGraphEdge {
+  sourceId: string;
+  targetId: string;
+}
+
+/**
+ * The deployment graph's operations against the extension host.
+ *
+ * Callers get bound methods rather than a channel and a descriptor to combine themselves, so this is
+ * the only place in the feature that touches the transport, and a test can substitute the whole
+ * surface by stubbing this hook.
+ *
+ * Only imperative calls belong here. Subscriptions stay declarative at the call site via
+ * `useNotification(descriptor, handler)`, which composes better with React's lifecycle.
+ */
+export function useDeploymentGraphApi() {
+  const channel = useWebviewMessageChannel();
+
+  return useMemo(
+    () => ({
+      fetchUpdate: (current: RenderedGraph | null) => channel.request(getGraphUpdate, { current }),
+      fetchLayout: (current: RenderedGraph) => channel.request(getGraphLayout, { current }),
+      createResource: (params: CreateResourceParams) => channel.request(createResource, params),
+      revealFileRange: (params: RevealFileRangeParams) => channel.notify(revealFileRange, params),
+      revealNodeSource: (nodeId: string) => channel.notify(revealNodeSource, { nodeId }),
+    }),
+    [channel],
+  );
+}

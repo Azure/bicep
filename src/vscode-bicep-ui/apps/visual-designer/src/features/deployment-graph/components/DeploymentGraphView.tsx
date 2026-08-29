@@ -2,17 +2,18 @@
 // Licensed under the MIT License.
 
 import type { ReactNode } from "react";
-import type { DocumentDidChangePayload, ResourceTypeReference } from "@/lib/messaging";
+import type { ResourceTypeReference } from "@/features/palette";
+import type { DocumentDidChangeParams } from "@/lib/host";
 import type { Point } from "@/lib/utils";
 
 import { useGetPanZoomDimensions, useGetPanZoomTransform } from "@vscode-bicep-ui/components";
-import { useWebviewMessageChannel, useWebviewNotification } from "@vscode-bicep-ui/messaging";
+import { useNotification } from "@vscode-bicep-ui/messaging";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { styled, ThemeProvider } from "styled-components";
 import { effectiveExportThemeAtom, exportCanvasElementAtom, exportFileStemAtom } from "@/features/export";
 import { Canvas, Graph, useFitViewToBounds, viewportToGraphPoint } from "@/lib/graph";
-import { DOCUMENT_DID_CHANGE_NOTIFICATION, READY_NOTIFICATION } from "@/lib/messaging";
+import { documentDidChange, useHostApi } from "@/lib/host";
 import { useGraphUpdate } from "../hooks/use-graph-update";
 import { NodeContentProvider } from "./nodes/NodeContentProvider";
 import { PendingResourceLayer } from "./PendingResourceLayer";
@@ -71,28 +72,23 @@ export function DeploymentGraphView({ canvasOverlay, children }: DeploymentGraph
     createResource: createResourceAtOrigin,
     resetLayout,
   } = useGraphUpdate(getViewportCenter, fitViewToBounds);
-  const messageChannel = useWebviewMessageChannel();
+  const hostApi = useHostApi();
   const exportTheme = useAtomValue(effectiveExportThemeAtom);
   const setExportFileStem = useSetAtom(exportFileStemAtom);
   const setExportCanvasElement = useSetAtom(exportCanvasElementAtom);
   const [canvasElement, setCanvasElement] = useState<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    messageChannel.sendNotification({ method: READY_NOTIFICATION });
-  }, [messageChannel]);
-
   // Listen for "the graph may have changed" notifications. The webview pulls the update itself,
   // submitting the graph it currently displays and applying the patches.
-  useWebviewNotification(
-    DOCUMENT_DID_CHANGE_NOTIFICATION,
+  useNotification(
+    documentDidChange,
     useCallback(
-      (params: unknown) => {
-        const payload = params as DocumentDidChangePayload;
-        messageChannel.setState({ documentPath: payload.documentUri });
-        setExportFileStem(deriveExportFileStem(payload.documentUri));
+      ({ documentUri }: DocumentDidChangeParams) => {
+        hostApi.rememberDocument(documentUri);
+        setExportFileStem(deriveExportFileStem(documentUri));
         void requestGraphUpdate();
       },
-      [messageChannel, requestGraphUpdate, setExportFileStem],
+      [hostApi, requestGraphUpdate, setExportFileStem],
     ),
   );
 
