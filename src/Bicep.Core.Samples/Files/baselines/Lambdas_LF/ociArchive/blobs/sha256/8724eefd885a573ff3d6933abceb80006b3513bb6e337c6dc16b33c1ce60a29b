@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "2.0",
+  "mediaType": "application/vnd.oci.image.manifest.v1+json",
+  "artifactType": "application/vnd.ms.bicep.module.artifact",
+  "config": {
+    "mediaType": "application/vnd.ms.bicep.module.config.v2+json",
+    "digest": "sha256:d91d009ef98eb80b89140aba86c5ca04423262219529d8330010bb41edfcb29c",
+    "size": 94,
+    "annotations": {}
+  },
+  "layers": [
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:417fd7bf20f55cd889e5eab8be70bb224eda7c618f55975572b1ed76d84a8daf",
+      "size": 470,
+      "annotations": {
+        "org.opencontainers.image.title": "local/test.bicep"
+      }
+    },
+    {
+      "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+      "digest": "sha256:b841941345b822a20e2d1a7450c58cab90f6c2bdc41410857fc45116b2dff7fc",
+      "size": 7752,
+      "annotations": {
+        "org.opencontainers.image.title": "local/main.bicep"
+      }
+    }
+  ]
+}

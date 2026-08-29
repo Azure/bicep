@@ -169,6 +169,9 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             public Task PublishModule(ArtifactReference _, BinaryData __, BinaryData? ___, string? ____, string? _____)
                 => throw new NotImplementedException();
 
+            public Task PublishLayeredModule(ArtifactReference _, LayeredModulePackage __, string? ___, string? ____)
+                => throw new NotImplementedException();
+
             public Task PublishExtension(ArtifactReference _, ExtensionPackage __)
                 => throw new NotImplementedException();
 

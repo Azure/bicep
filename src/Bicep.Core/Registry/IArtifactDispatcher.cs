@@ -19,6 +19,20 @@ namespace Bicep.Core.Registry
         bool LocalDeployEnabled,
         ImmutableArray<ExtensionBinary> Binaries);
 
+    public record LayeredModuleLayer(
+        string Digest,
+        string Title,
+        BinaryData Data);
+
+    /// <summary>
+    /// A module packaged as a layered artifact: the entry point template and every nested deployment
+    /// template it links to by digest, each stored as its own layer.
+    /// </summary>
+    public record LayeredModulePackage(
+        string EntryPointDigest,
+        ImmutableArray<LayeredModuleLayer> Layers,
+        BinaryData? BicepSources);
+
     public interface IModuleDispatcher : IArtifactReferenceFactory
     {
         RegistryCapabilities GetRegistryCapabilities(ArtifactType artifactType, ArtifactReference reference);
@@ -34,6 +48,8 @@ namespace Bicep.Core.Registry
         Task<bool> CheckExtensionExists(ArtifactReference reference);
 
         Task PublishModule(ArtifactReference reference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri);
+
+        Task PublishLayeredModule(ArtifactReference reference, LayeredModulePackage package, string? documentationUri);
 
         Task PublishExtension(ArtifactReference reference, ExtensionPackage package);
 

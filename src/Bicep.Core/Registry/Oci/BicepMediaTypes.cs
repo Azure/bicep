@@ -20,6 +20,9 @@ namespace Bicep.Core.Registry.Oci
         // Module Media Types
         public const string BicepModuleArtifactType = "application/vnd.ms.bicep.module.artifact";
         public const string BicepModuleConfigV1 = "application/vnd.ms.bicep.module.config.v1+json";
+        // Layered module artifacts: the config blob identifies the entry point layer, and nested
+        // deployments reference sibling layers by digest.
+        public const string BicepModuleConfigV2 = "application/vnd.ms.bicep.module.config.v2+json";
         public const string BicepModuleLayerV1Json = "application/vnd.ms.bicep.module.layer.v1+json";
         public const string BicepSourceV1Layer = "application/vnd.ms.bicep.module.source.v1.tar+gzip";
     }

@@ -23,6 +23,9 @@ namespace Bicep.Core.Registry
 
         public abstract Task PublishModule(T reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description);
 
+        public virtual Task PublishLayeredModule(T reference, LayeredModulePackage package, string? documentationUri, string? description)
+            => throw new NotSupportedException($"Modules cannot be published as layered artifacts to \"{this.Scheme}\" targets.");
+
         public abstract Task PublishExtension(T reference, ExtensionPackage package);
 
         public virtual Task OnRestoreArtifacts(bool forceRestore)
@@ -47,6 +50,9 @@ namespace Bicep.Core.Registry
 
         public Task PublishModule(ArtifactReference artifactReference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description)
             => this.PublishModule(ConvertReference(artifactReference), compiled, bicepSources, documentationUri, description);
+
+        public Task PublishLayeredModule(ArtifactReference artifactReference, LayeredModulePackage package, string? documentationUri, string? description)
+            => this.PublishLayeredModule(ConvertReference(artifactReference), package, documentationUri, description);
 
         public Task PublishExtension(ArtifactReference reference, ExtensionPackage package)
             => this.PublishExtension(ConvertReference(reference), package);

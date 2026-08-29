@@ -190,11 +190,15 @@ Usage:
     Options:
       --documentation-uri  Module documentation uri
       --with-source       [Experimental] Publish source code with the module
+      --artifact-format   [Experimental] The artifact layout to publish. Allowed values are 'single' (default)
+                          and 'layered'. 'layered' publishes the entry point and each nested deployment
+                          template as a separate OCI layer linked by digest
       --force             Overwrite existing published module or file
 
     Examples:
       bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1
       bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1 --force
+      bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1 --artifact-format layered
       bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1 --documentation-uri https://github.com/hello-world/README.md --with-source
       bicep publish file.json --target br:example.azurecr.io/hello/world:v1 --documentation-uri https://github.com/hello-world/README.md
 

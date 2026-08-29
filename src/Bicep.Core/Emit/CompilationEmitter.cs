@@ -12,7 +12,6 @@ using Bicep.Core.SourceGraph;
 using Bicep.IO.Abstraction;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-
 namespace Bicep.Core.Emit;
 
 public record ParametersResult(
@@ -34,9 +33,16 @@ public record TemplateArchiveResult(
     string? EntryPointKey,
     ImmutableDictionary<string, (string Template, string? SourceMap)>? Templates);
 
+public record OciArchiveLayer(
+    string Digest,
+    string Title,
+    byte[] Content);
+
 public record TemplateOciArchiveResult(
     bool Success,
     ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> Diagnostics,
+    string? EntryPointDigest,
+    ImmutableArray<OciArchiveLayer> Layers,
     string? Index,
     ImmutableSortedDictionary<string, byte[]>? Blobs);
 
@@ -45,6 +51,8 @@ public interface ICompilationEmitter
     TemplateResult Template();
 
     TemplateArchiveResult TemplateArchive();
+
+    TemplateOciArchiveResult TemplateOciArchive();
 
     ParametersResult Parameters();
 }
@@ -236,7 +244,20 @@ public class CompilationEmitter : ICompilationEmitter
         SortedDictionary<string, OciBlob> blobs = new();
         OciBlob? entryPointBlob = null;
         Dictionary<OciBlob, List<string>> blobSources = new();
-        Dictionary<ISemanticModel, IOUri> hashes = new();
+        Dictionary<ISemanticModel, string> digests = new();
+
+        void AddBlob(OciBlob blob, string title)
+        {
+            if (blobs.TryGetValue(blob.OciDigestString, out var existing))
+            {
+                blobSources[existing].Add(title);
+            }
+            else
+            {
+                blobs.Add(blob.OciDigestString, blob);
+                blobSources[blob] = new() { title };
+            }
+        }
 
         foreach (var file in GetTopoSortedArchiveSources(compilation.SourceFileGrouping))
         {
@@ -249,29 +270,29 @@ public class CompilationEmitter : ICompilationEmitter
             var model = compilation.GetSemanticModel(file);
             if (model is SemanticModel bicepModel)
             {
-                RelativeLinkModuleWriterFactory moduleWriterFactory = new(
-                    IOUri.FromFilePath(new OciBlob([]).OciImageLayoutPath),
-                    hashes);
+                DigestLinkModuleWriterFactory moduleWriterFactory = new(digests);
                 var result = Template(bicepModel, moduleWriterFactory);
                 if (!result.Success)
                 {
-                    return new(false, compilation.GetAllDiagnosticsByBicepFile(), null, null);
+                    return new(false, compilation.GetAllDiagnosticsByBicepFile(), null, [], null, null);
                 }
                 content = result.Template!;
             }
 
             OciBlob blob = new(Encoding.UTF8.GetBytes(content.ReplaceLineEndings("\n")));
-            hashes.Add(model, IOUri.FromFilePath(blob.OciImageLayoutPath));
+            digests.Add(model, blob.OciDigestString);
             string title = keyedSources[model].GetFilePath().TrimStart('/');
 
-            if (blobs.TryGetValue(blob.OciDigestString, out var alreadyCompiled))
+            AddBlob(blob, title);
+
+            // an already-layered artifact links its own nested deployments by digest, so those
+            // layers have to be carried over byte-for-byte for the links to keep resolving
+            if (file is ArmTemplateFile armTemplateFile)
             {
-                blobSources[alreadyCompiled].Add(title);
-            }
-            else
-            {
-                blobs.Add(blob.OciDigestString, blob);
-                blobSources[blob] = new() { title };
+                foreach (var (layerTitle, layerBlob) in ReadRestoredArtifactLayers(armTemplateFile, title))
+                {
+                    AddBlob(layerBlob, layerTitle);
+                }
             }
 
             if (file == compilation.SourceFileGrouping.EntryPoint)
@@ -280,17 +301,22 @@ public class CompilationEmitter : ICompilationEmitter
             }
         }
 
+        if (entryPointBlob is null)
+        {
+            throw new InvalidOperationException("Failed to determine the entry point of the OCI artifact.");
+        }
+
         JArray layers = new();
+        var resultLayers = ImmutableArray.CreateBuilder<OciArchiveLayer>();
         foreach (var blob in blobs.Values)
         {
+            var title = blobSources[blob].Order().ConcatString(",");
+            resultLayers.Add(new(blob.OciDigestString, title, blob.Content));
+
             JObject annotations = new()
             {
-                { OciAnnotationKeys.OciOpenContainerImageTitleAnnotation, blobSources[blob].Order().ConcatString(",") },
+                { OciAnnotationKeys.OciOpenContainerImageTitleAnnotation, title },
             };
-            if (blob == entryPointBlob)
-            {
-                annotations[OciAnnotationKeys.DeploymentsEntryPointAnnotation] = "true";
-            }
 
             layers.Add(new JObject
             {
@@ -301,7 +327,8 @@ public class CompilationEmitter : ICompilationEmitter
             });
         }
 
-        OciBlob configBlob = new(Encoding.UTF8.GetBytes("{}"));
+        OciBlob configBlob = new(Encoding.UTF8.GetBytes(
+            new JObject { { "entryPointDigest", entryPointBlob.OciDigestString } }.ToString(Formatting.None)));
         blobs.TryAdd(configBlob.OciDigestString, configBlob);
 
         JObject manifest = new()
@@ -313,7 +340,7 @@ public class CompilationEmitter : ICompilationEmitter
                 "config",
                 new JObject
                 {
-                    { "mediaType", BicepMediaTypes.BicepModuleConfigV1 },
+                    { "mediaType", BicepMediaTypes.BicepModuleConfigV2 },
                     { "digest", configBlob.OciDigestString },
                     { "size", configBlob.Content.Length },
                     { "annotations", new JObject() },
@@ -347,8 +374,36 @@ public class CompilationEmitter : ICompilationEmitter
         return new(
             true,
             compilation.GetAllDiagnosticsByBicepFile(),
+            entryPointBlob.OciDigestString,
+            resultLayers.ToImmutable(),
             index.ToString(),
             blobs.ToImmutableSortedDictionary(kvp => kvp.Value.OciImageLayoutPath, kvp => kvp.Value.Content));
+    }
+
+    /// <summary>
+    /// Reads the individual layers cached alongside a restored layered artifact so that they can be
+    /// re-published as part of a new artifact without being rewritten.
+    /// </summary>
+    private static IEnumerable<(string Title, OciBlob Blob)> ReadRestoredArtifactLayers(ArmTemplateFile file, string entryPointTitle)
+    {
+        var layersDirectory = OciLayerCache.GetLayersDirectory(file.FileHandle.GetParent());
+        if (!layersDirectory.Exists())
+        {
+            yield break;
+        }
+
+        var titlePrefix = entryPointTitle.Contains('/')
+            ? $"{entryPointTitle[..entryPointTitle.LastIndexOf('/')]}/{OciLayerCache.LayersDirectoryName}"
+            : OciLayerCache.LayersDirectoryName;
+
+        foreach (var layerFile in layersDirectory.EnumerateFiles())
+        {
+            using var stream = layerFile.OpenRead();
+            using var memoryStream = new MemoryStream();
+            stream.CopyTo(memoryStream);
+
+            yield return ($"{titlePrefix}/{layerFile.Uri.GetFileName()}", new OciBlob(memoryStream.ToArray()));
+        }
     }
 
     private static IEnumerable<ISourceFile> GetTopoSortedArchiveSources(SourceFileGrouping files)

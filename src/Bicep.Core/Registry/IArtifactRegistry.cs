@@ -74,6 +74,13 @@ namespace Bicep.Core.Registry
         Task PublishModule(ArtifactReference reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description);
 
         /// <summary>
+        /// Publishes the module to the registry as a layered artifact.
+        /// </summary>
+        /// <param name="reference">The module reference</param>
+        /// <param name="package">The entry point and nested deployment layers</param>
+        Task PublishLayeredModule(ArtifactReference reference, LayeredModulePackage package, string? documentationUri, string? description);
+
+        /// <summary>
         /// Publishes an extension types package to the registry.
         /// </summary>
         /// <param name="reference">The extension reference</param>

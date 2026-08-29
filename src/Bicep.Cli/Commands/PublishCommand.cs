@@ -54,12 +54,19 @@ namespace Bicep.Cli.Commands
             var moduleReference = ValidateReference(args.TargetModuleReference, inputUri);
             var overwriteIfExists = args.Force;
             var publishSource = args.WithSource;
+            var layered = args.ArtifactFormat == PublishArtifactFormat.Layered;
 
             if (inputUri.HasArmTemplateLikeExtension())
             {
                 if (publishSource)
                 {
                     await ioContext.Error.WriteLineAsync($"Cannot publish with source when the target is an ARM template file.");
+                    return 1;
+                }
+
+                if (layered)
+                {
+                    await ioContext.Error.WriteLineAsync($"Cannot publish a layered artifact when the target is an ARM template file.");
                     return 1;
                 }
 
@@ -75,6 +82,35 @@ namespace Bicep.Cli.Commands
             }
 
             var compilation = await compiler.CreateCompilation(inputUri, skipRestore: args.NoRestore);
+
+            if (layered)
+            {
+                var archiveResult = compilation.Emitter.TemplateOciArchive();
+
+                diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, archiveResult.Diagnostics);
+
+                if (!archiveResult.Success || archiveResult.EntryPointDigest is not { } entryPointDigest)
+                {
+                    // can't publish if we can't compile
+                    return 1;
+                }
+
+                var layeredSourcesPayload = publishSource
+                    ? SourceArchive.CreateFrom(compilation.SourceFileGrouping).PackIntoBinaryData()
+                    : null;
+
+                Trace.WriteLine($"Publishing Bicep module as a layered artifact with {archiveResult.Layers.Length} layer(s)");
+
+                var package = new LayeredModulePackage(
+                    entryPointDigest,
+                    [.. archiveResult.Layers.Select(layer => new LayeredModuleLayer(layer.Digest, layer.Title, BinaryData.FromBytes(layer.Content)))],
+                    layeredSourcesPayload);
+
+                await this.PublishLayeredModuleAsync(moduleReference, package, documentationUri, overwriteIfExists);
+
+                return 0;
+            }
+
             var result = compilation.Emitter.Template();
 
             var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, result.Diagnostics);
@@ -110,6 +146,23 @@ namespace Bicep.Cli.Commands
                     throw new BicepException($"The module \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing module.");
                 }
                 await this.moduleDispatcher.PublishModule(target, compiledArmTemplate, bicepSources, documentationUri);
+            }
+            catch (ExternalArtifactException exception)
+            {
+                throw new BicepException($"Unable to publish module \"{target.FullyQualifiedReference}\": {exception.Message}");
+            }
+        }
+
+        private async Task PublishLayeredModuleAsync(ArtifactReference target, LayeredModulePackage package, string? documentationUri, bool overwriteIfExists)
+        {
+            try
+            {
+                // If we don't want to overwrite, ensure module doesn't exist
+                if (!overwriteIfExists && await this.moduleDispatcher.CheckModuleExists(target))
+                {
+                    throw new BicepException($"The module \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing module.");
+                }
+                await this.moduleDispatcher.PublishLayeredModule(target, package, documentationUri);
             }
             catch (ExternalArtifactException exception)
             {

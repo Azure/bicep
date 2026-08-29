@@ -4,6 +4,19 @@ using Bicep.Cli.Extensions;
 
 namespace Bicep.Cli.Arguments
 {
+    public enum PublishArtifactFormat
+    {
+        /// <summary>
+        /// A single layer containing the entry point with all nested deployments inlined.
+        /// </summary>
+        Single,
+
+        /// <summary>
+        /// The entry point and each nested deployment template as separate layers linked by digest.
+        /// </summary>
+        Layered,
+    }
+
     public class PublishArguments : ArgumentsBase, IInputArguments
     {
         public PublishArguments(string[] args) : base(Constants.Command.Publish)
@@ -57,6 +70,26 @@ namespace Bicep.Cli.Arguments
                         WithSource = true;
                         break;
 
+                    case "--artifact-format":
+                        if (isLast)
+                        {
+                            throw new CommandLineException("The --artifact-format parameter expects an argument.");
+                        }
+
+                        if (this.ArtifactFormat is not null)
+                        {
+                            throw new CommandLineException("The --artifact-format parameter cannot be specified twice.");
+                        }
+
+                        ArtifactFormat = args[i + 1].ToLowerInvariant() switch
+                        {
+                            "single" => PublishArtifactFormat.Single,
+                            "layered" => PublishArtifactFormat.Layered,
+                            _ => throw new CommandLineException($"The --artifact-format parameter expects one of 'single' or 'layered' but received \"{args[i + 1]}\"."),
+                        };
+                        i++;
+                        break;
+
                     case "--force":
                         Force = true;
                         break;
@@ -99,5 +132,7 @@ namespace Bicep.Cli.Arguments
         public bool Force { get; }
 
         public bool WithSource { get; }
+
+        public PublishArtifactFormat? ArtifactFormat { get; }
     }
 }

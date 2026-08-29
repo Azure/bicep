@@ -21,7 +21,11 @@ namespace Bicep.Core.Emit
                 throw new InvalidOperationException($"Expected template to be non-null.");
             }
 
-            this.semanticModel.SourceFile.TemplateObject.WriteTo(writer);
+            // a layered artifact links its nested deployments by digest, so those layers must be
+            // inlined to produce a self-contained single-file template
+            OciLayerInliner
+                .Inline(this.semanticModel.SourceFile.TemplateObject, this.semanticModel.SourceFile)
+                .WriteTo(writer);
         }
     }
 }

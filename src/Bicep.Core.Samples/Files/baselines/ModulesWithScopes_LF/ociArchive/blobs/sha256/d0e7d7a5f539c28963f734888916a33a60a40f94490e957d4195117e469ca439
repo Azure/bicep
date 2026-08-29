@@ -1,0 +1,89 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "18019264779530266689"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "myResourceGroupMod",
+      "resourceGroup": "myRg",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "templateLink": {
+          "digest": "sha256:bbfdf209173f132468b6427c106891f27a3e4130faa5f7b4f3c4e2920063eb37"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "myResourceGroupMod2",
+      "resourceGroup": "myRg",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "templateLink": {
+          "digest": "sha256:bbfdf209173f132468b6427c106891f27a3e4130faa5f7b4f3c4e2920063eb37"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "myResourceGroupMod3",
+      "subscriptionId": "subId",
+      "resourceGroup": "myRg",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "templateLink": {
+          "digest": "sha256:bbfdf209173f132468b6427c106891f27a3e4130faa5f7b4f3c4e2920063eb37"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2025-04-01",
+      "name": "myTenantMod",
+      "scope": "/",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "templateLink": {
+          "digest": "sha256:34674d8992a9583ad304a9450c8c4b08b7aa3ccbaf31341389c1060e5c2fe508"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "myOutput": {
+      "type": "string",
+      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2025-04-01').outputs.myOutput.value]"
+    },
+    "myOutputRgMod": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod'), '2025-04-01').outputs.myOutput.value]"
+    },
+    "myOutputRgMod2": {
+      "type": "string",
+      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod2'), '2025-04-01').outputs.myOutput.value]"
+    }
+  }
+}

@@ -487,8 +487,74 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        private static IEnumerable<object[]> GetValidDataSets() => DataSets
-            .AllDataSets
+        [TestMethod]
+        public async Task Publish_WithInvalidArtifactFormat_ShouldProduceExpectedError()
+        {
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'");
+            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--artifact-format", "flattened");
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().Contain("The --artifact-format parameter expects one of 'single' or 'layered'");
+        }
+
+        [TestMethod]
+        public async Task Publish_LayeredArtifactFormat_ShouldPublishOneLayerPerTemplate()
+        {
+            var registryStr = "example.com";
+            var registryUri = new Uri($"https://{registryStr}");
+            var repository = "test/layered";
+
+            var clientFactory = RegistryHelper.CreateMockRegistryClient(new RepoDescriptor(registryStr, repository, ["v1"]));
+            var blobClient = (FakeRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration.Cloud, registryUri, repository);
+
+            var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            FileHelper.SaveResultFile(TestContext, "child.bicep", "param name string\noutput name string = name", outputDirectory);
+            var mainPath = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                "module child 'child.bicep' = {\n  name: 'child'\n  params: {\n    name: 'hello'\n  }\n}",
+                outputDirectory);
+
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var (output, error, result) = await Bicep(settings, "publish", mainPath, "--target", $"br:{registryStr}/{repository}:v1", "--artifact-format", "layered");
+
+            AssertNoErrors(error);
+            output.Should().BeEmpty();
+            result.Should().Be(0);
+
+            var manifest = blobClient.ModuleManifestObjects.Single().Value;
+
+            manifest.Config.MediaType.Should().Be(BicepMediaTypes.BicepModuleConfigV2);
+            manifest.Layers.Should().HaveCount(2);
+            manifest.Layers.Should().OnlyContain(l => l.MediaType == BicepMediaTypes.BicepModuleLayerV1Json);
+
+            var config = blobClient.Blobs[manifest.Config.Digest].ToObjectFromJson<OciModuleV2Config>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+            config!.EntryPointDigest.Should().BeOneOf(manifest.Layers.Select(l => l.Digest));
+
+            var entryPoint = blobClient.Blobs[config.EntryPointDigest].ToString();
+            var nestedDigest = manifest.Layers.Single(l => l.Digest != config.EntryPointDigest).Digest;
+
+            // the entry point must link its nested deployment to the sibling layer by digest
+            entryPoint.Should().Contain($"\"digest\": \"{nestedDigest}\"");
+
+            // consuming the layered artifact as a module must flatten it back into a single template
+            var consumerPath = FileHelper.SaveResultFile(
+                TestContext,
+                "consumer.bicep",
+                $"module app 'br:{registryStr}/{repository}:v1' = {{\n  name: 'app'\n}}",
+                outputDirectory);
+
+            var (buildOutput, buildError, buildResult) = await Bicep(settings, "build", "--stdout", consumerPath);
+
+            AssertNoErrors(buildError);
+            buildResult.Should().Be(0);
+            buildOutput.Should().NotContain("\"digest\"");
+            buildOutput.Should().Contain("\"template\"");
+        }
+
+        private static IEnumerable<object[]> GetValidDataSets() => DataSets            .AllDataSets
             .Where(ds => ds.IsValid == true)
             .ToDynamicTestData();
 

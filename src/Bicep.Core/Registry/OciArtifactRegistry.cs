@@ -282,8 +282,57 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public override async Task PublishExtension(OciArtifactReference reference, ExtensionPackage package)
+        public override async Task PublishLayeredModule(OciArtifactReference reference, LayeredModulePackage package, string? documentationUri, string? description)
         {
+            var configData = new OciModuleV2Config(package.EntryPointDigest);
+            var config = new Oci.OciDescriptor(
+                JsonSerializer.Serialize(configData, OciModuleV2ConfigSerializationContext.Default.OciModuleV2Config),
+                BicepMediaTypes.BicepModuleConfigV2);
+
+            List<Oci.OciDescriptor> layers = [..
+                package.Layers.Select(layer => new Oci.OciDescriptor(
+                    layer.Data,
+                    BicepMediaTypes.BicepModuleLayerV1Json,
+                    new OciManifestAnnotationsBuilder().WithTitle(layer.Title).Build()))];
+
+            if (package.BicepSources is { } bicepSources)
+            {
+                layers.Add(
+                    new(
+                        bicepSources,
+                        BicepMediaTypes.BicepSourceV1Layer,
+                        new OciManifestAnnotationsBuilder().WithTitle("Source files").Build()));
+            }
+
+            var annotations = new OciManifestAnnotationsBuilder()
+                .WithDescription(description)
+                .WithDocumentationUri(documentationUri)
+                .WithCreatedTime(DateTime.Now);
+
+            try
+            {
+                await this.containerRegistryManager.PushArtifactAsync(
+                    reference.ReferencingFile.Configuration.Cloud,
+                    reference,
+                    ManifestMediaType.OciImageManifest.ToString(),
+                    BicepMediaTypes.BicepModuleArtifactType,
+                    config,
+                    layers,
+                    annotations);
+            }
+            catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
+            {
+                // will include several retry messages, but likely the best we can do
+                throw new ExternalArtifactException(exception.Message, exception);
+            }
+            catch (RequestFailedException exception)
+            {
+                // can only happen if client retries are disabled
+                throw new ExternalArtifactException(exception.Message, exception);
+            }
+        }
+
+        public override async Task PublishExtension(OciArtifactReference reference, ExtensionPackage package)        {
             OciExtensionV1Config configData = package.LocalDeployEnabled ? new(
                 localDeployEnabled: true,
                 supportedArchitectures: package.Binaries.Select(x => x.Architecture.Name).ToImmutableArray()) :
@@ -370,7 +419,7 @@ namespace Bicep.Core.Registry
 
             this.GetArtifactFile(reference, moduleFileType).Write(mainLayer.Data);
 
-            if (result is OciModuleArtifactResult)
+            if (result is OciModuleArtifactResult moduleResult)
             {
                 // write source archive file
                 if (result.TryGetSingleLayerByMediaType(BicepMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
@@ -383,6 +432,18 @@ namespace Bicep.Core.Registry
                     // The manifest can be used to determine what's in each layer file.
                     //  (https://github.com/Azure/bicep/issues/11900)
                     this.GetArtifactFile(reference, ArtifactFileType.Source).Write(sourceData);
+                }
+
+                if (moduleResult.IsLayered)
+                {
+                    // the entry point links its nested deployments by digest, so every layer has to be
+                    // addressable by digest for the links to be resolvable at build time
+                    var layersDirectory = OciLayerCache.GetLayersDirectory(this.GetArtifactDirectory(reference)).EnsureExists();
+
+                    foreach (var layer in moduleResult.Layers.Where(l => BicepMediaTypes.MediaTypeComparer.Equals(l.MediaType, BicepMediaTypes.BicepModuleLayerV1Json)))
+                    {
+                        layersDirectory.GetFile(OciLayerCache.GetLayerFileName(layer.Digest)).Write(layer.Data);
+                    }
                 }
             }
 

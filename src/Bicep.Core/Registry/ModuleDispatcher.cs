@@ -270,8 +270,18 @@ namespace Bicep.Core.Registry
             await registry.PublishModule(reference, compiledArmTemplate, bicepSources, documentationUri, description);
         }
 
-        public async Task PublishExtension(ArtifactReference reference, ExtensionPackage package)
+        public async Task PublishLayeredModule(ArtifactReference reference, LayeredModulePackage package, string? documentationUri)
         {
+            var registry = this.GetRegistry(reference);
+
+            var entryPoint = package.Layers.FirstOrDefault(layer => Oci.OciArtifactReferenceFacts.DigestComparer.Equals(layer.Digest, package.EntryPointDigest))
+                ?? throw new InvalidOperationException($"The layered module package does not contain a layer matching the entry point digest \"{package.EntryPointDigest}\".");
+
+            var description = DescriptionHelper.TryGetFromArmTemplate(entryPoint.Data);
+            await registry.PublishLayeredModule(reference, package, documentationUri, description);
+        }
+
+        public async Task PublishExtension(ArtifactReference reference, ExtensionPackage package)        {
             var registry = this.GetRegistry(reference);
 
             await registry.PublishExtension(reference, package);
