@@ -4,8 +4,8 @@
 import { PanZoomProvider } from "@vscode-bicep-ui/components";
 import { useAtomValue } from "jotai";
 import { styled } from "styled-components";
+import { CanvasView, ResourceCreationError } from "@/features/canvas";
 import { ControlBar } from "@/features/controls";
-import { DeploymentGraphView, ResourceCreationError } from "@/features/deployment-graph";
 import {
   ExportAreaCover,
   ExportAreaPreview,
@@ -60,7 +60,7 @@ export function App() {
     <AppProviders>
       <$AppContainer data-testid="app-root">
         <PanZoomProvider>
-          <DeploymentGraphView canvasOverlay={<ExportCanvasCoverLayer />}>
+          <CanvasView canvasOverlay={<ExportCanvasCoverLayer />}>
             {({ canPlaceAt, createResource, resetLayout }) => (
               <>
                 <$ControlBarContainer>
@@ -70,7 +70,7 @@ export function App() {
                 <Palette createResource={createResource} canPlaceAt={canPlaceAt} />
               </>
             )}
-          </DeploymentGraphView>
+          </CanvasView>
         </PanZoomProvider>
         <ResourceCreationError />
         <StatusBar />

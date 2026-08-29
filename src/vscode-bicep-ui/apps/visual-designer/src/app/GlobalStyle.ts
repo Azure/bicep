@@ -24,7 +24,7 @@ export const GlobalStyle = createGlobalStyle`
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    background-color: ${({ theme }) => theme.canvas.background};
+    background-color: ${({ theme }) => theme.viewport.background};
   }
 
   *, *::before, *::after {

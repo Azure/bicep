@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-export * from "./IconButton";
-export * from "./MotionAwareProgressBar";
-export * from "./Surface";
+export * from "./components/IconButton";
+export * from "./components/FloatingPanel";
+export * from "./motion";

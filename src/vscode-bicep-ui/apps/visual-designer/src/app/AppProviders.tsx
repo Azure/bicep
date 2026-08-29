@@ -4,11 +4,10 @@
 import type { ReactNode } from "react";
 
 import { WebviewMessageChannelProvider } from "@vscode-bicep-ui/messaging";
-import { Suspense, useEffect } from "react";
+import { Suspense } from "react";
 import { ThemeProvider } from "styled-components";
-import { loadDevAppShell } from "@/features/devtools";
-import { useMotionPolicySync } from "@/lib/accessibility";
-import { useHostApi } from "@/lib/host";
+import { loadDevAppShell } from "@/devtools";
+import { useDocumentSync, useMotionPolicySync } from "@/hooks";
 import { useTheme } from "@/ui/theme";
 import { GlobalStyle } from "./GlobalStyle";
 
@@ -16,13 +15,11 @@ const DevAppShell = loadDevAppShell();
 
 function ThemedApp({ children }: { children: ReactNode }) {
   const theme = useTheme();
-  const hostApi = useHostApi();
-  useMotionPolicySync();
 
-  // "The webview has mounted." This is app lifecycle, not any one feature's concern.
-  useEffect(() => {
-    hostApi.announceReady();
-  }, [hostApi]);
+  // Mount the cross-cutting slices. Both own their own host conversation; app only decides that they
+  // are active for the whole session rather than tied to any subtree.
+  useMotionPolicySync();
+  useDocumentSync();
 
   return (
     <ThemeProvider theme={theme}>

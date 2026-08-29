@@ -8,7 +8,7 @@ import { exportPaddingAtom } from "../atoms";
 
 /**
  * Solid background rectangle rendered inside PanZoom (graph-space)
- * between CanvasBackground and Graph.  Covers the dot pattern within
+ * between ViewportBackground and Graph.  Covers the dot pattern within
  * the export boundary so the user previews the actual JPEG output.
  */
 export function ExportAreaCover() {
@@ -26,7 +26,7 @@ export function ExportAreaCover() {
         top: graphBounds.min.y - padding,
         width: graphBounds.max.x - graphBounds.min.x + padding * 2,
         height: graphBounds.max.y - graphBounds.min.y + padding * 2,
-        backgroundColor: theme.canvas.background,
+        backgroundColor: theme.viewport.background,
         borderRadius: 2,
         pointerEvents: "none",
       }}

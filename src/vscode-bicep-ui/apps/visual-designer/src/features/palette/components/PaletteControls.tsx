@@ -3,7 +3,7 @@
 
 import { Codicon } from "@vscode-bicep-ui/components";
 import styled from "styled-components";
-import { MotionAwareProgressBar } from "@/ui";
+import { MotionAwareProgressBar } from "./MotionAwareProgressBar";
 
 const $StickyControls = styled.div`
   position: sticky;

@@ -3,13 +3,16 @@
 
 import "styled-components";
 
+import type { GraphTheme } from "@/lib/graph";
+
 declare module "styled-components" {
-  export interface DefaultTheme {
+  /**
+   * `GraphTheme` carries the tokens `lib/graph` requires. Extending it makes the app's theme the
+   * thing that satisfies the engine's contract, so dropping a token the engine reads fails to
+   * compile.
+   */
+  export interface DefaultTheme extends GraphTheme {
     name: "light" | "dark" | "high-contrast" | "high-contrast-light";
-    canvas: {
-      background: string;
-      dotColor: string;
-    };
     node: {
       background: string;
       compoundBackground: string;
@@ -39,24 +42,19 @@ declare module "styled-components" {
       primary: string;
       secondary: string;
     };
-    edge: {
-      color: string;
-    };
-    controlBar: {
+    /** Chrome for floating panels layered over the viewport. */
+    panel: {
       background: string;
       border: string;
-      icon: string;
+    };
+    /** Icon button states, used inside panels and toolbars. */
+    iconButton: {
+      color: string;
       hoverBackground: string;
       activeBackground: string;
     };
     focusBorder: string;
     error: string;
     success: string;
-    grabCursor: {
-      /** Semi-transparent background color for the cursor overlay (CSS color value). */
-      background: string;
-      /** Backdrop-filter blur radius in pixels. */
-      blur: number;
-    };
   }
 }

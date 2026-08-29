@@ -18,7 +18,7 @@ import type { DefaultTheme } from "styled-components";
 
 export const lightTheme: DefaultTheme = {
   name: "light",
-  canvas: {
+  viewport: {
     background: "#f4f5f7",
     dotColor: "#d4d6db",
   },
@@ -46,10 +46,12 @@ export const lightTheme: DefaultTheme = {
   edge: {
     color: "#c7cad0",
   },
-  controlBar: {
+  panel: {
     background: "rgba(255, 255, 255, 0.92)",
     border: "rgba(0, 0, 0, 0.08)",
-    icon: "#4b5563",
+  },
+  iconButton: {
+    color: "#4b5563",
     hoverBackground: "rgba(0, 0, 0, 0.05)",
     activeBackground: "rgba(0, 0, 0, 0.09)",
   },
@@ -64,7 +66,7 @@ export const lightTheme: DefaultTheme = {
 
 export const darkTheme: DefaultTheme = {
   name: "dark",
-  canvas: {
+  viewport: {
     background: "#1a1a1a",
     dotColor: "#2e2e2e",
   },
@@ -92,10 +94,12 @@ export const darkTheme: DefaultTheme = {
   edge: {
     color: "#3f3f46",
   },
-  controlBar: {
+  panel: {
     background: "rgba(38, 38, 38, 0.92)",
     border: "rgba(255, 255, 255, 0.08)",
-    icon: "#a1a1aa",
+  },
+  iconButton: {
+    color: "#a1a1aa",
     hoverBackground: "rgba(255, 255, 255, 0.06)",
     activeBackground: "rgba(255, 255, 255, 0.10)",
   },
@@ -110,7 +114,7 @@ export const darkTheme: DefaultTheme = {
 
 export const highContrastTheme: DefaultTheme = {
   name: "high-contrast",
-  canvas: {
+  viewport: {
     background: "#000000",
     dotColor: "transparent",
   },
@@ -138,10 +142,12 @@ export const highContrastTheme: DefaultTheme = {
   edge: {
     color: "#ffd700",
   },
-  controlBar: {
+  panel: {
     background: "#000000",
     border: "#ffd700",
-    icon: "#ffffff",
+  },
+  iconButton: {
+    color: "#ffffff",
     hoverBackground: "rgba(255, 215, 0, 0.2)",
     activeBackground: "rgba(255, 215, 0, 0.3)",
   },
@@ -156,7 +162,7 @@ export const highContrastTheme: DefaultTheme = {
 
 export const highContrastLightTheme: DefaultTheme = {
   name: "high-contrast-light",
-  canvas: {
+  viewport: {
     background: "#ffffff",
     dotColor: "transparent",
   },
@@ -184,10 +190,12 @@ export const highContrastLightTheme: DefaultTheme = {
   edge: {
     color: "#000000",
   },
-  controlBar: {
+  panel: {
     background: "#ffffff",
     border: "#000000",
-    icon: "#000000",
+  },
+  iconButton: {
+    color: "#000000",
     hoverBackground: "rgba(0, 0, 0, 0.1)",
     activeBackground: "rgba(0, 0, 0, 0.2)",
   },

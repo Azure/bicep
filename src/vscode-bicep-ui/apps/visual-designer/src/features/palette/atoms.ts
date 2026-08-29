@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { ResourceTypeReference } from "./types";
+import type { ResourceTypeReference } from "@/features/canvas";
 
 import { atom } from "jotai";
 import { atomFamily } from "jotai-family";

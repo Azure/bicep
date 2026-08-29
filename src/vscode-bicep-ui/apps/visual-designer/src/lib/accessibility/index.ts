@@ -1,6 +1,0 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-
-export * from "./atoms";
-export * from "./use-motion-policy-sync";
-export * from "./api";

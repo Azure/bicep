@@ -11,7 +11,7 @@ import { useAtomValue, useSetAtom, useStore } from "jotai";
 import { motion } from "motion/react";
 import { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
-import { getErrorMessage } from "@/lib/utils";
+import { getErrorMessage } from "@/utils";
 import {
   getNamespaceResourceTypesKey,
   namespaceResourceTypesAtomFamily,

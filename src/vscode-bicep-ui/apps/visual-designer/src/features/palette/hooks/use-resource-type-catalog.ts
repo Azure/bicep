@@ -6,7 +6,7 @@ import type { ResourceTypeCatalog, ResourceTypeNamespace } from "../types";
 
 import { useNotification } from "@vscode-bicep-ui/messaging";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { documentDidChange } from "@/lib/host";
+import { documentDidChange } from "@/hooks";
 import { usePaletteApi } from "../api";
 
 /** Edits arrive in bursts, so refreshes are debounced. The first load is immediate. */

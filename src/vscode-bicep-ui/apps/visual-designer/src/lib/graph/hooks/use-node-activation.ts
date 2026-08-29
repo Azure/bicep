@@ -6,7 +6,7 @@ import type { RefObject } from "react";
 
 import { useStore } from "jotai";
 import { useEffect } from "react";
-import { nodeConfigAtom } from "@/lib/graph/atoms";
+import { nodeConfigAtom } from "../atoms";
 
 /**
  * Calls the configured `onNodeActivate` when a node is double-clicked.

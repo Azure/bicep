@@ -7,7 +7,7 @@ import { usePanZoomTransform } from "@vscode-bicep-ui/components";
 import { useAtomValue } from "jotai";
 import { createPortal } from "react-dom";
 import styled from "styled-components";
-import { ResourceNodePreview } from "@/features/deployment-graph";
+import { ResourceNodePreview } from "@/features/canvas";
 import { paletteDragAtom } from "../atoms";
 
 const $Positioner = styled.div`

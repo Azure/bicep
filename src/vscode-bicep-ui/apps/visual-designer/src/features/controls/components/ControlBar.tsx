@@ -6,14 +6,14 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { styled } from "styled-components";
 import { openExportOverlayAtom } from "@/features/export";
 import { useFitView } from "@/lib/graph";
-import { IconButton, Surface } from "@/ui";
+import { FloatingPanel, IconButton } from "@/ui";
 import { graphControlAvailabilityAtom } from "../atoms";
 import { useResetLayout } from "../hooks/use-reset-layout";
 
 const $Divider = styled.div`
   height: 1px;
   margin: 2px 4px;
-  background-color: ${({ theme }) => theme.controlBar.border};
+  background-color: ${({ theme }) => theme.panel.border};
 `;
 
 interface ControlBarProps {
@@ -28,7 +28,7 @@ export function ControlBar({ requestLayout }: ControlBarProps) {
   const openExportOverlay = useSetAtom(openExportOverlayAtom);
 
   return (
-    <Surface data-testid="control-bar">
+    <FloatingPanel data-testid="control-bar">
       <IconButton onClick={() => zoomIn(1.5)} title="Zoom In" aria-label="Zoom In" data-testid="control-zoom-in">
         <Codicon name="zoom-in" size={16} />
       </IconButton>
@@ -63,6 +63,6 @@ export function ControlBar({ requestLayout }: ControlBarProps) {
       >
         <Codicon name="desktop-download" size={16} />
       </IconButton>
-    </Surface>
+    </FloatingPanel>
   );
 }

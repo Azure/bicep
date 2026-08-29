@@ -18,8 +18,8 @@ description: "Use when working with shared state, atoms, Jotai, or state managem
 
 ## Project Layout
 
-See `architecture-notes.md` for module structure, dependency direction, and naming. Do not duplicate
-that guidance here.
+See the app [README](../../README.md) for module structure, dependency direction, and naming. Do not
+duplicate that guidance here.
 
 Atom placement follows from it:
 

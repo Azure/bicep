@@ -1,28 +1,27 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { DeploymentGraphSurface } from "@/features/deployment-graph";
+import type { CanvasSurface } from "@/features/canvas";
 import type { PaletteDragState } from "../atoms";
 
 import { Codicon } from "@vscode-bicep-ui/components";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useState } from "react";
 import { styled } from "styled-components";
-import { RESOURCE_CREATION_TRANSITION } from "@/features/deployment-graph";
-import { IconButton, Surface } from "@/ui";
-import { usePaletteDrag } from "../hooks/use-drag";
+import { EXPAND_TRANSITION, FloatingPanel, IconButton } from "@/ui";
+import { usePaletteDrag } from "../hooks/use-palette-drag";
 import { useResourceCreationEnablement } from "../hooks/use-resource-creation-enablement";
 import { useResourceTypeCatalog } from "../hooks/use-resource-type-catalog";
 import { PaletteContent } from "./PaletteContent";
 import { PaletteDragOverlay } from "./PaletteDragOverlay";
 
 interface PaletteProps {
-  createResource: DeploymentGraphSurface["createResource"];
-  canPlaceAt: DeploymentGraphSurface["canPlaceAt"];
+  createResource: CanvasSurface["createResource"];
+  canPlaceAt: CanvasSurface["canPlaceAt"];
 }
-const MotionSurface = motion.create(Surface);
+const MotionFloatingPanel = motion.create(FloatingPanel);
 
-const $PaletteLauncher = styled(MotionSurface)`
+const $PaletteLauncher = styled(MotionFloatingPanel)`
   position: absolute;
   top: 16px;
   left: 16px;
@@ -165,7 +164,7 @@ function EnabledPalette({ createResource, canPlaceAt }: PaletteProps) {
               opacity: 0,
               clipPath: "inset(0 calc(100% - 38px) calc(100% - 38px) 0 round 8px)",
             }}
-            transition={RESOURCE_CREATION_TRANSITION}
+            transition={EXPAND_TRANSITION}
           >
             <$PaletteBody
               initial={{ opacity: 0 }}

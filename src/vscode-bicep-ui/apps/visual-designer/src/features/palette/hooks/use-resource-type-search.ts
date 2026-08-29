@@ -5,7 +5,7 @@ import type { PaletteContentProps } from "../components/PaletteContent";
 import type { ResourceTypeCatalogGroup } from "../types";
 
 import { useEffect, useRef, useState } from "react";
-import { getErrorMessage } from "@/lib/utils";
+import { getErrorMessage } from "@/utils";
 
 type SearchState =
   | { status: "idle" }

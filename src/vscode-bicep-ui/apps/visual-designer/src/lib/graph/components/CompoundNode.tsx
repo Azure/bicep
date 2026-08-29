@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { CompoundNodeState } from "@/lib/graph/atoms/nodes";
+import type { CompoundNodeState } from "../atoms/nodes";
 
 import { useAtomValue, useStore } from "jotai";
 import { frame } from "motion/react";
 import { useRef } from "react";
-import { nodesByIdAtom } from "@/lib/graph/atoms";
-import { focusedNodeIdAtom, getNodeZIndex } from "@/lib/graph/atoms/nodes";
-import { useBoxUpdate, useDragListener, useNodeActivation } from "@/lib/graph/hooks";
-import { translateBox } from "@/lib/utils";
+import { translateBox } from "@/lib/math";
+import { nodesByIdAtom } from "../atoms";
+import { focusedNodeIdAtom, getNodeZIndex } from "../atoms/nodes";
+import { useBoxUpdate, useDragListener, useNodeActivation } from "../hooks";
 import { BaseNode } from "./BaseNode";
 import { NodeContent } from "./NodeContent";
 

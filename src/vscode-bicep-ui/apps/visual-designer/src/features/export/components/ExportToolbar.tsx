@@ -30,8 +30,8 @@ const $Toolbar = styled.div`
   align-items: center;
   gap: 6px;
   padding: 6px 8px;
-  background-color: ${({ theme }) => theme.controlBar.background};
-  border: 1px solid ${({ theme }) => theme.controlBar.border};
+  background-color: ${({ theme }) => theme.panel.background};
+  border: 1px solid ${({ theme }) => theme.panel.border};
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   backdrop-filter: blur(8px);
@@ -49,15 +49,15 @@ const $Toolbar = styled.div`
   --vscode-foreground: ${({ theme }) => theme.text.primary};
   --vscode-focusBorder: ${({ theme }) => theme.focusBorder};
 
-  --vscode-settings-dropdownBackground: ${({ theme }) => theme.controlBar.background};
+  --vscode-settings-dropdownBackground: ${({ theme }) => theme.panel.background};
   --vscode-settings-dropdownForeground: ${({ theme }) => theme.text.primary};
-  --vscode-settings-dropdownBorder: ${({ theme }) => theme.controlBar.border};
-  --vscode-settings-dropdownListBorder: ${({ theme }) => theme.controlBar.border};
+  --vscode-settings-dropdownBorder: ${({ theme }) => theme.panel.border};
+  --vscode-settings-dropdownListBorder: ${({ theme }) => theme.panel.border};
   --vscode-settings-checkboxBackground: ${({ theme }) => theme.node.background};
 
-  --vscode-list-hoverBackground: ${({ theme }) => theme.controlBar.hoverBackground};
+  --vscode-list-hoverBackground: ${({ theme }) => theme.iconButton.hoverBackground};
   --vscode-list-hoverForeground: ${({ theme }) => theme.text.primary};
-  --vscode-list-activeSelectionBackground: ${({ theme }) => theme.controlBar.activeBackground};
+  --vscode-list-activeSelectionBackground: ${({ theme }) => theme.iconButton.activeBackground};
   --vscode-list-activeSelectionForeground: ${({ theme }) => theme.text.primary};
   --vscode-list-focusOutline: ${({ theme }) => theme.focusBorder};
   --vscode-list-focusHighlightForeground: ${({ theme }) => theme.focusBorder};
@@ -93,7 +93,7 @@ const $Separator = styled.div`
   width: 1px;
   align-self: stretch;
   margin: 2px 0;
-  background-color: ${({ theme }) => theme.controlBar.border};
+  background-color: ${({ theme }) => theme.panel.border};
 `;
 
 /* ---- Primary action button -------------------------------------- */
@@ -148,16 +148,16 @@ const $IconButton = styled.button`
   border: none;
   border-radius: 4px;
   background-color: transparent;
-  color: ${({ theme }) => theme.controlBar.icon};
+  color: ${({ theme }) => theme.iconButton.color};
   cursor: pointer;
   transition: background-color 0.15s ease;
 
   &:hover {
-    background-color: ${({ theme }) => theme.controlBar.hoverBackground};
+    background-color: ${({ theme }) => theme.iconButton.hoverBackground};
   }
 
   &:active {
-    background-color: ${({ theme }) => theme.controlBar.activeBackground};
+    background-color: ${({ theme }) => theme.iconButton.activeBackground};
   }
 
   &:focus-visible {
@@ -186,7 +186,7 @@ const $StepperGroup = styled.div`
   align-items: center;
   border-radius: 4px;
   overflow: hidden;
-  border: 1px solid ${({ theme }) => theme.controlBar.border};
+  border: 1px solid ${({ theme }) => theme.panel.border};
 `;
 
 const $StepButton = styled.button`
@@ -203,11 +203,11 @@ const $StepButton = styled.button`
   transition: background-color 0.15s ease;
 
   &:hover {
-    background-color: ${({ theme }) => theme.controlBar.hoverBackground};
+    background-color: ${({ theme }) => theme.iconButton.hoverBackground};
   }
 
   &:active {
-    background-color: ${({ theme }) => theme.controlBar.activeBackground};
+    background-color: ${({ theme }) => theme.iconButton.activeBackground};
   }
 
   &:focus-visible {
@@ -220,8 +220,8 @@ const $PaddingInput = styled.input`
   width: 32px;
   padding: 2px 0;
   border: none;
-  border-left: 1px solid ${({ theme }) => theme.controlBar.border};
-  border-right: 1px solid ${({ theme }) => theme.controlBar.border};
+  border-left: 1px solid ${({ theme }) => theme.panel.border};
+  border-right: 1px solid ${({ theme }) => theme.panel.border};
   border-radius: 0;
   background-color: transparent;
   color: ${({ theme }) => theme.text.primary};
@@ -231,7 +231,7 @@ const $PaddingInput = styled.input`
 
   &:focus {
     outline: none;
-    background-color: ${({ theme }) => theme.controlBar.hoverBackground};
+    background-color: ${({ theme }) => theme.iconButton.hoverBackground};
   }
 
   /* Hide spinner arrows */

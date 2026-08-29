@@ -4,4 +4,4 @@
 export * from "./atoms";
 export * from "./components";
 export * from "./hooks";
-export * from "./viewport";
+export * from "./theme";
