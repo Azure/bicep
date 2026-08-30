@@ -7,11 +7,11 @@
     "@types/cross-spawn": "^6.0.6",
     "@vitest/eslint-plugin": "^1.6.27",
     "cross-spawn": "^7.0.6",
-    "eslint": "^10.8.1",
+    "eslint": "^10.9.1",
     "prettier": "^3.9.6",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.67.0",
-    "vitest": "^4.1.10"
+    "typescript-eslint": "^8.68.0",
+    "vitest": "^4.1.11"
   },
   "scripts": {
     "check-types": "tsc --noEmit",
