@@ -4,6 +4,7 @@
 import type { ReactNode } from "react";
 
 import { WebviewMessageChannelProvider } from "@vscode-bicep-ui/messaging";
+import { Provider as JotaiProvider } from "jotai";
 import { Suspense } from "react";
 import { ThemeProvider } from "styled-components";
 import { loadDevAppShell } from "@/devtools";
@@ -13,7 +14,19 @@ import { GlobalStyle } from "./GlobalStyle";
 
 const DevAppShell = loadDevAppShell();
 
-function ThemedApp({ children }: { children: ReactNode }) {
+function MessageChannelBoundary({ children }: { children: ReactNode }) {
+  if (DevAppShell) {
+    return (
+      <Suspense fallback={null}>
+        <DevAppShell>{children}</DevAppShell>
+      </Suspense>
+    );
+  }
+
+  return <WebviewMessageChannelProvider>{children}</WebviewMessageChannelProvider>;
+}
+
+function AppRuntime({ children }: { children: ReactNode }) {
   const theme = useTheme();
 
   // Mount the cross-cutting slices. Both own their own host conversation; app only decides that they
@@ -30,22 +43,14 @@ function ThemedApp({ children }: { children: ReactNode }) {
 }
 
 /**
- * The provider stack.
- *
- * In dev, the lazy-loaded DevAppShell supplies a FakeMessageChannel, the DevToolbar, and the
- * message-channel context. In production we render straight into the provider, which creates its own
- * channel via acquireVsCodeApi.
+ * Establishes the app-wide store, host environment, synchronization, and theme.
  */
-export function AppProviders({ children }: { children: ReactNode }) {
-  const themed = <ThemedApp>{children}</ThemedApp>;
-
-  if (DevAppShell) {
-    return (
-      <Suspense>
-        <DevAppShell>{themed}</DevAppShell>
-      </Suspense>
-    );
-  }
-
-  return <WebviewMessageChannelProvider>{themed}</WebviewMessageChannelProvider>;
+export function AppEnvironment({ children }: { children: ReactNode }) {
+  return (
+    <JotaiProvider>
+      <MessageChannelBoundary>
+        <AppRuntime>{children}</AppRuntime>
+      </MessageChannelBoundary>
+    </JotaiProvider>
+  );
 }

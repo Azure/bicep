@@ -69,7 +69,7 @@ const $Button = styled.button`
  */
 export function DevToolbar({ channel }: DevToolbarProps) {
   const applyMutation = (
-    apply: (graph: import("@/features/canvas").DeploymentGraph) => import("@/features/canvas").DeploymentGraph,
+    apply: (graph: import("../fakes/sample-graph").SampleGraph) => import("../fakes/sample-graph").SampleGraph,
   ) => {
     const current = channel.getCurrentGraph();
     if (!current) return;

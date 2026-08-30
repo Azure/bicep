@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { createStore } from "jotai";
+
 import { toPng } from "html-to-image";
-import { getDefaultStore } from "jotai";
 import { nodesByIdAtom } from "@/lib/graph";
 
 interface SaveFilePickerOptions {
@@ -28,7 +29,7 @@ declare global {
   }
 }
 
-type Store = ReturnType<typeof getDefaultStore>;
+type Store = ReturnType<typeof createStore>;
 
 /**
  * Compute the bounding box of all graph nodes from the Jotai store.

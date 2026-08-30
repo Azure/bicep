@@ -98,7 +98,13 @@ tree-shakes away.
 
 Feature-to-feature imports are fine — `palette` renders the node preview a dropped resource will
 become — but they must go through the target's `index.ts` and must not form a cycle. Resolve a cycle
-by putting each shared symbol with its real owner, not by forbidding the edge.
+by putting each shared symbol with its real owner, not by forbidding the edge. The current shape:
+
+```text
+controls  -> canvas, export, status
+palette   -> canvas
+canvas    -> export, status
+```
 
 ### Feature shape
 
@@ -125,10 +131,9 @@ scaffolding it empty. Concept subfolders are allowed inside a type folder when t
 - **Everything else** (hooks, atoms, utils, types) and **folders**: kebab-case.
 - **A hook file is named for the hook it exports** — `use-palette-drag.ts` exports `usePaletteDrag`.
   Worth a mechanical check when adding one: the drift is invisible at the import site.
-- **Name a feature for the capability it delivers, not the data it displays.** "Deployment graph" is
-  Bicep's own term for the payload the host sends, so it names the wire types (`DeploymentGraph`,
-  `DeploymentGraphNode`) — while `CanvasView`, `CanvasSurface` and `useCanvasApi` name the surface.
-  One set of words must not do both jobs.
+- **Name a feature for the capability it delivers, not the data it displays.** `CanvasView`,
+  `CanvasActions` and `useCanvasApi` name the surface the user works on; the graph they carry is named
+  by the protocol types (`CanonicalGraph`, `RenderedGraph`). One set of words must not do both jobs.
 - **Name a thing for what it is in the domain, not its visual container.** `ResourceNodePreview`, not
   `ResourcePreviewCard`; "card" describes a border radius.
 - Prefer one-word folders, and treat a compound name as a prompt to check whether the folder is doing
@@ -165,10 +170,21 @@ Each feature, `lib` module and `src/hooks/` exposes exactly one entry point: its
 Jotai for shared state that benefits from isolated subscriptions; local state when it has one owner.
 Across a boundary expose derived values and action atoms, never raw writable atoms.
 
-**Graph actions are explicit props**, drilled one level from `CanvasView` to `ControlBar` and
-`Palette`. A free-standing hook would invite a second `useGraphUpdate` instance, and that hook is a
-single-instance state machine holding the client's mirror of the server's graph — a second one would
-corrupt patch application. This is correctness, not style.
+**Canvas actions travel through context, not Jotai.** `CanvasView` publishes `CanvasActions`
+(`createResource`, `canPlaceAt`, `resetLayout`) that `ControlBar` and `Palette` read with
+`useCanvasActions`. Two constraints shape this:
+
+- `useGraphUpdate` is a single-instance state machine holding the client's copy of the server's
+  graph, so only `CanvasView` may call it. A hook that called it again would corrupt patch
+  application. A hook that _reads what the single instance published_ is fine — that is the
+  difference between the two shapes.
+- Jotai is the wrong tool for callbacks. `set(atom, fn)` is read as an updater, so storing one
+  requires `set(atom, () => fn)`; a registration atom is also null until the owner mounts, which
+  pushes a null branch into every consumer. Atoms hold state — `graphControlAvailabilityAtom` derives
+  three booleans from `hasNodes` and belongs in Jotai. Imperative machinery does not.
+
+`useCanvasActions` throws outside a `CanvasView`, so misuse is a loud error rather than a silent
+null.
 
 ### Protocol
 
@@ -181,6 +197,37 @@ Payloads are suffixed `Params` and `Result`. A descriptor and the API method tha
 name deliberately — they are one operation named at two levels.
 
 See [visual-graph-protocol.md](./docs/visual-graph-protocol.md) for the wire contract itself.
+
+### Reconciliation
+
+One pass answers two separate questions: whether the server's graph has moved on, and whether what
+we display has been laid out. Three modules split that work:
+
+| Module                        | Owns                                                                   |
+| ----------------------------- | ---------------------------------------------------------------------- |
+| `graph-update-coordinator.ts` | When each step runs. No React, no Jotai.                               |
+| `use-graph-update.ts`         | The client's graph copy, measurement, patch application, Jotai writes. |
+| `use-apply-graph.ts`          | Turning a graph into mounted nodes and edges.                          |
+
+The coordinator tracks what is _owed_ — an update, and a layout that is `none`, `auto` or `reset` —
+rather than what is running. Its rules:
+
+- Reconcile before laying out, so a layout always applies to the current graph.
+- A reset outranks an automatic layout, so Reset Layout is never downgraded.
+- A `graphChanged` layout re-pends the update **and** the layout it abandoned, keeping its mode.
+- Mutations run one at a time, and a reconciliation that overlaps one is abandoned and retried.
+- Every request resolves only once the coordinator runs out of work, never when work is merely
+  recorded. Callers gate on that promise — `useResetLayout` holds its deduplication lock for exactly
+  as long as it — so resolving early lets a second click queue a second server layout.
+
+Collapsing the update and layout questions into one flag is what previously let a `graphChanged`
+response drop the layout it owed, leaving the graph hidden behind the visibility gate
+`use-apply-graph` closes when most of the topology is replaced. Every rule guards an ordering hazard
+that is impractical to force end to end, which is why the coordinator is React-free and unit tested
+with controlled promises.
+
+Most keystrokes stop early: `displayedGraphsEqual` compares exactly the fields the apply path reads,
+so an edit the canvas cannot show costs nothing.
 
 ### Enforcement
 
@@ -203,11 +250,16 @@ folder names inside features and `**/hooks/**` would flag every feature's own `.
 
 Most behavioural coverage is end-to-end in `e2e/` (Playwright): palette visibility, pointer and
 keyboard placement, drop rejection, catalog loading and search. Unit tests cover the pieces with logic
-worth isolating in a store — graph atoms, layout invalidation, the export file stem.
+worth isolating — graph atoms, patch application, layout invalidation, the export file stem, and the
+update coordinator's ordering rules.
 
 Prefer assertions that cannot race. Poll for a settled value rather than sampling once: nodes animate
 in and the graph springs to its layout over ~0.6s, so a single read taken when a node appears can land
-mid-flight.
+mid-flight. A graph load runs two independent animations — the fit-view transform and each node's
+spring — so waiting on the wrong one passes about half the time.
+
+Mutation-check a test that encodes an ordering rule: revert the fix it covers and confirm it fails.
+The coordinator's rules all look plausible when broken.
 
 **The resource-creation failure path has no coverage.** The host reports failures as
 `CreateResourceErrorResult` from four call sites, but the dev fake always succeeds, so neither the
@@ -216,12 +268,14 @@ error atom nor `ResourceCreationError` is exercised. Teaching the fake to fail o
 
 ## Known gaps
 
-- Fold the legacy `DeploymentGraph` shape out of `canvas/api.ts` once the position-preserving apply
-  path no longer needs it.
+- `GraphUpdatePatch` and `GraphLayoutPatch` are the same union, so a layout response is typed as
+  though it could carry `addNode`. Splitting them would let the compiler reject a phase mismatch that
+  is currently only a convention.
 - `Palette` hand-rolls a second floating-panel style from raw `var(--vscode-*)` values at a different
   radius; folding it onto `FloatingPanel` is the duplication `ui/` exists to remove.
-- Two module-scope `getDefaultStore()` handles in `features/canvas/hooks` should come from context, so
-  the sync pipeline can be driven by a scoped store in tests.
+- Two module-scope `getDefaultStore()` handles in `features/canvas/hooks`, and the coordinator beside
+  them, should come from context, so the sync pipeline can be driven by a scoped store in tests. They
+  move together: scoping one without the others buys nothing.
 - Share the protocol declarations with the extension host. `vscode-bicep` dispatches on raw string
   literals and casts params with `as`, so the two sides agree only by convention. It has no npm
   dependency on `vscode-bicep-ui` today, so this needs a `file:` dependency and a build-order

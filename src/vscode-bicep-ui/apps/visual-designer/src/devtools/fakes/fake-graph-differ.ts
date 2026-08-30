@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 import type {
-  DeploymentGraph,
-  DeploymentGraphNode,
   GraphBounds,
   GraphEdge,
   GraphNode,
@@ -12,6 +10,7 @@ import type {
   NodeLayout,
   RenderedGraph,
 } from "@/features/canvas";
+import type { SampleGraph, SampleGraphNode } from "./sample-graph";
 
 /**
  * A throwaway, dev-only stand-in for the language server's `VisualGraphDiffer`. It lets the
@@ -19,7 +18,7 @@ import type {
  * → patches) without a running extension or language server.
  *
  * It is intentionally simpler than the real C# differ: it knows the full target graph (the dev
- * toolbar's sample/mutated `DeploymentGraph`) and emits a complete delta transforming the graph
+ * toolbar's sample/mutated `SampleGraph`) and emits a complete delta transforming the graph
  * the webview submitted into that target.
  */
 
@@ -82,7 +81,7 @@ function buildFakeLayout(nodes: GraphNode[]): { layout: Map<string, NodeLayout>;
   return { layout, bounds: { width: root.width, height: root.height } };
 }
 
-function toCanonicalNode(node: DeploymentGraphNode): GraphNode {
+function toCanonicalNode(node: SampleGraphNode): GraphNode {
   return {
     id: node.id,
     kind: node.type === "<module>" ? "module" : "resource",
@@ -100,7 +99,7 @@ function toCanonicalNode(node: DeploymentGraphNode): GraphNode {
  * (the dev toolbar's graph). Mirrors the ordering the real server guarantees for graph updates:
  * remove edges, remove nodes deepest-first, add/update nodes shallowest-first, add edges, then error count.
  */
-export function diffGraph(current: RenderedGraph | null, target: DeploymentGraph | null): GraphPatch[] {
+export function diffGraph(current: RenderedGraph | null, target: SampleGraph | null): GraphPatch[] {
   const targetNodes = new Map<string, GraphNode>();
   const targetEdges = new Map<string, GraphEdge>();
   let errorCount = 0;
@@ -177,7 +176,7 @@ export function diffGraph(current: RenderedGraph | null, target: DeploymentGraph
   return patches;
 }
 
-export function hasTopologyChange(current: RenderedGraph | null, target: DeploymentGraph | null): boolean {
+export function hasTopologyChange(current: RenderedGraph | null, target: SampleGraph | null): boolean {
   if (!target) {
     return (current?.nodes.length ?? 0) > 0;
   }
@@ -201,7 +200,7 @@ export function hasTopologyChange(current: RenderedGraph | null, target: Deploym
   return currentEdges.some((edge) => !targetEdgeIds.has(edge.id));
 }
 
-export function layoutGraph(current: RenderedGraph, target: DeploymentGraph | null): GraphPatch[] | undefined {
+export function layoutGraph(current: RenderedGraph, target: SampleGraph | null): GraphPatch[] | undefined {
   if (hasTopologyChange(current, target)) {
     return undefined;
   }

@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { PrimitiveAtom } from "jotai";
-import type { AnimationPlaybackControlsWithThen } from "motion";
-import type { Box, Point } from "@/lib/math";
-import type { DeploymentGraph, NodeLayout } from "../api";
+import type { createStore } from "jotai";
+import type { Point } from "@/lib/math";
+import type { ClientGraph } from "../graph-model";
 
-import { getDefaultStore, useSetAtom } from "jotai";
-import { animate, transform } from "motion";
+import { useSetAtom, useStore } from "jotai";
 import { useCallback, useRef } from "react";
 import { reportGraphStatusAtom } from "@/features/status";
 import {
@@ -19,76 +17,9 @@ import {
   nodesByIdAtom,
   removeNodesAtom,
 } from "@/lib/graph";
-import { translateBox } from "@/lib/math";
-import { hasRangeOnlyChange } from "../utils/layout-invalidation";
+import { clientGraphsRenderEqually } from "../graph-model";
 
-const store = getDefaultStore();
-
-/** Duration (in seconds) of the spring animation when nodes move to new positions. */
-const ANIMATION_DURATION_S = 0.6;
-
-/**
- * Animations still settling from the most recent graph layout. They are
- * cancelled before a new layout is applied so overlapping springs don't
- * fight over the same boxes.
- */
-let activeLayoutAnimations: AnimationPlaybackControlsWithThen[] = [];
-
-function waitForAnimationFrame(): Promise<void> {
-  return new Promise((resolve) => requestAnimationFrame(() => resolve()));
-}
-
-/**
- * Spring a node's boxAtom from its current position to a target position.
- * Returns the animation control so it can be cancelled if a newer layout
- * arrives before it settles.
- */
-function springNodeTo(boxAtom: PrimitiveAtom<Box>, targetX: number, targetY: number) {
-  const box = store.get(boxAtom);
-  const fromX = box.min.x;
-  const fromY = box.min.y;
-
-  const opts = { clamp: false };
-  const xTransform = transform([0, 100], [fromX, targetX], opts);
-  const yTransform = transform([0, 100], [fromY, targetY], opts);
-
-  return animate(0, 100, {
-    type: "spring",
-    duration: ANIMATION_DURATION_S,
-    onUpdate: (latest) => {
-      const x = xTransform(latest);
-      const y = yTransform(latest);
-      store.set(boxAtom, (b) => translateBox(b, x - b.min.x, y - b.min.y));
-    },
-  });
-}
-
-/** Apply a server-computed layout to the current graph. */
-export async function applyGraphLayout(nodeLayouts: Map<string, NodeLayout>): Promise<void> {
-  if (!store.get(layoutReadyAtom)) {
-    await waitForAnimationFrame();
-    store.set(layoutReadyAtom, true);
-  }
-
-  if (nodeLayouts.size === 0) {
-    return;
-  }
-
-  for (const animation of activeLayoutAnimations) {
-    animation.stop();
-  }
-  activeLayoutAnimations = [];
-
-  const nodes = store.get(nodesByIdAtom);
-
-  for (const [nodeId, layout] of nodeLayouts) {
-    const node = nodes[nodeId];
-
-    if (node?.kind === "atomic") {
-      activeLayoutAnimations.push(springNodeTo(node.boxAtom, layout.x, layout.y));
-    }
-  }
-}
+type Store = ReturnType<typeof createStore>;
 
 /**
  * Snapshot the current position (box.min) of every node so we can
@@ -96,7 +27,7 @@ export async function applyGraphLayout(nodeLayouts: Map<string, NodeLayout>): Pr
  * them a smooth transition to their new server-computed location
  * instead of jumping from (0,0).
  */
-function snapshotNodePositions(): Map<string, Point> {
+function snapshotNodePositions(store: Store): Map<string, Point> {
   const positions = new Map<string, Point>();
   const nodes = store.get(nodesByIdAtom);
 
@@ -114,44 +45,38 @@ function snapshotNodePositions(): Map<string, Point> {
 }
 
 export function useApplyGraph(getViewportCenter: () => Point) {
+  const store = useStore();
   const setEdgesAtom = useSetAtom(edgesAtom);
   const addAtomicNode = useSetAtom(addAtomicNodeAtom);
   const addCompoundNode = useSetAtom(addCompoundNodeAtom);
   const addEdge = useSetAtom(addEdgeAtom);
   const removeNodes = useSetAtom(removeNodesAtom);
   const setLayoutReady = useSetAtom(layoutReadyAtom);
-  const previousGraphRef = useRef<DeploymentGraph | null>(null);
+  const appliedGraphRef = useRef<ClientGraph | null>(null);
 
   return useCallback(
-    (graph: DeploymentGraph | null, newNodeOrigins: ReadonlyMap<string, Point> = new Map()) => {
+    (graph: ClientGraph | null, newNodeOrigins: ReadonlyMap<string, Point> = new Map()) => {
       // Report the graph facts that features/status derives its display from.
       store.set(reportGraphStatusAtom, {
         errorCount: graph?.errorCount ?? 0,
-        hasNodes: (graph?.nodes.length ?? 0) > 0,
+        hasNodes: (graph?.nodes.size ?? 0) > 0,
       });
 
-      // Nothing visible changed: refresh the source location on the mounted nodes and stop, rather
-      // than tearing the graph down and re-laying it out.
-      if (hasRangeOnlyChange(previousGraphRef.current, graph)) {
-        if (graph) {
-          const nodes = store.get(nodesByIdAtom);
-          for (const node of graph.nodes) {
-            const existing = nodes[node.id];
-            if (existing) {
-              store.set(existing.dataAtom, (prev: Record<string, unknown>) => ({
-                ...prev,
-                range: node.range,
-                filePath: node.filePath,
-              }));
-            }
-          }
-        }
-        previousGraphRef.current = graph;
+      // Nothing the canvas shows has changed, so leave the mounted nodes alone rather than tearing
+      // the graph down and re-laying it out. Most keystrokes land here.
+      if (clientGraphsRenderEqually(appliedGraphRef.current, graph)) {
         return;
       }
-      previousGraphRef.current = graph;
 
-      if (!graph || graph.nodes.length === 0) {
+      // The graph is mutated in place, so keep a shallow copy: holding the live reference would
+      // compare it against itself on the next pass and report equal every time.
+      appliedGraphRef.current = graph && {
+        nodes: new Map(graph.nodes),
+        edges: new Map(graph.edges),
+        errorCount: graph.errorCount,
+      };
+
+      if (!graph || graph.nodes.size === 0) {
         // Empty graph — clear everything and re-engage the
         // visibility gate so the next non-empty graph can spawn
         // from the center without flashing.
@@ -163,13 +88,13 @@ export function useApplyGraph(getViewportCenter: () => Point) {
 
       // Snapshot positions before modifying so surviving nodes
       // can animate from their current location.
-      const previousPositions = snapshotNodePositions();
+      const previousPositions = snapshotNodePositions(store);
 
       // ── Classify incoming nodes ──
       const compoundNodeIds = new Set<string>();
       const parentChildMap = new Map<string, string[]>(); // parentId → childIds[]
 
-      for (const node of graph.nodes) {
+      for (const node of graph.nodes.values()) {
         if (node.hasChildren) {
           compoundNodeIds.add(node.id);
           parentChildMap.set(node.id, []);
@@ -177,7 +102,7 @@ export function useApplyGraph(getViewportCenter: () => Point) {
       }
 
       // Build parent-child relationships from :: delimited IDs
-      for (const node of graph.nodes) {
+      for (const node of graph.nodes.values()) {
         const segments = node.id.split("::");
         if (segments.length > 1) {
           const parentId = segments.slice(0, -1).join("::");
@@ -199,7 +124,7 @@ export function useApplyGraph(getViewportCenter: () => Point) {
 
       // ── Diff-and-patch: update in-place instead of clear-and-rebuild ──
       const currentNodes = store.get(nodesByIdAtom);
-      const newNodeIds = new Set(graph.nodes.map((n) => n.id));
+      const newNodeIds = new Set(graph.nodes.keys());
       const currentNodeIds = new Set(Object.keys(currentNodes));
 
       // Phase 1: Remove nodes that no longer exist.
@@ -218,7 +143,7 @@ export function useApplyGraph(getViewportCenter: () => Point) {
       // graph layout computes. Incremental edits (adding/removing a few nodes)
       // keep the graph visible for smooth in-place animation.
       const survivingCount = currentNodeIds.size - idsToRemove.size;
-      const survivalRatio = graph.nodes.length > 0 ? survivingCount / graph.nodes.length : 0;
+      const survivalRatio = graph.nodes.size > 0 ? survivingCount / graph.nodes.size : 0;
       if (survivalRatio < 0.5) {
         setLayoutReady(false);
       }
@@ -239,7 +164,7 @@ export function useApplyGraph(getViewportCenter: () => Point) {
           : getViewportCenter();
 
       // Phase 3: Update surviving nodes in-place / add new atomic nodes.
-      for (const node of graph.nodes) {
+      for (const node of graph.nodes.values()) {
         if (compoundNodeIds.has(node.id)) {
           continue; // Compound nodes handled in Phase 4.
         }
@@ -255,56 +180,28 @@ export function useApplyGraph(getViewportCenter: () => Point) {
             removeNodes(new Set([node.id]));
           } else {
             // Same kind — update data in-place, skip re-creation.
-            store.set(existing.dataAtom, () =>
-              node.type === "<module>"
-                ? {
-                    symbolicName: symbol,
-                    resourceType: node.type,
-                    path: node.filePath,
-                    isCollection: node.isCollection,
-                    hasError: node.hasError,
-                    range: node.range,
-                    filePath: node.filePath,
-                  }
-                : {
-                    symbolicName: symbol,
-                    resourceType: node.type,
-                    isCollection: node.isCollection,
-                    hasError: node.hasError,
-                    range: node.range,
-                    filePath: node.filePath,
-                  },
-            );
+            store.set(existing.dataAtom, () => ({
+              symbolicName: symbol,
+              resourceType: node.type,
+              isCollection: node.isCollection,
+              hasError: node.hasError,
+            }));
             continue;
           }
         }
 
         // New node (or re-added after kind change) — create it.
         const origin = newNodeOrigins.get(node.id) ?? previousPositions.get(node.id) ?? defaultOrigin;
-        if (node.type === "<module>") {
-          addAtomicNode(node.id, origin, {
-            symbolicName: symbol,
-            resourceType: node.type,
-            path: node.filePath,
-            isCollection: node.isCollection,
-            hasError: node.hasError,
-            range: node.range,
-            filePath: node.filePath,
-          });
-        } else {
-          addAtomicNode(node.id, origin, {
-            symbolicName: symbol,
-            resourceType: node.type,
-            isCollection: node.isCollection,
-            hasError: node.hasError,
-            range: node.range,
-            filePath: node.filePath,
-          });
-        }
+        addAtomicNode(node.id, origin, {
+          symbolicName: symbol,
+          resourceType: node.type,
+          isCollection: node.isCollection,
+          hasError: node.hasError,
+        });
       }
 
       // Phase 4: Update surviving compound nodes / add new ones.
-      for (const node of graph.nodes) {
+      for (const node of graph.nodes.values()) {
         if (!compoundNodeIds.has(node.id)) {
           continue;
         }
@@ -318,11 +215,8 @@ export function useApplyGraph(getViewportCenter: () => Point) {
           store.set(existing.childIdsAtom, childIds);
           store.set(existing.dataAtom, () => ({
             symbolicName: symbol,
-            path: node.filePath,
             isCollection: node.isCollection,
             hasError: node.hasError,
-            range: node.range,
-            filePath: node.filePath,
           }));
         } else {
           // New compound node (or kind changed from atomic → compound).
@@ -332,18 +226,15 @@ export function useApplyGraph(getViewportCenter: () => Point) {
           }
           addCompoundNode(node.id, childIds, {
             symbolicName: symbol,
-            path: node.filePath,
             isCollection: node.isCollection,
             hasError: node.hasError,
-            range: node.range,
-            filePath: node.filePath,
           });
         }
       }
 
       // Phase 5: Diff edges — replace only if the set changed.
       const currentEdges = store.get(edgesAtom);
-      const newEdgeIds = new Set(graph.edges.map((e) => `${e.sourceId}>${e.targetId}`));
+      const newEdgeIds = new Set([...graph.edges.values()].map((e) => `${e.sourceId}>${e.targetId}`));
       const currentEdgeIds = new Set(currentEdges.map((e) => e.id));
 
       const edgesChanged =
@@ -353,7 +244,7 @@ export function useApplyGraph(getViewportCenter: () => Point) {
         // Rebuild edges in one shot (edges are lightweight value objects
         // with no atom identity to preserve).
         setEdgesAtom([]);
-        for (const edge of graph.edges) {
+        for (const edge of graph.edges.values()) {
           addEdge(`${edge.sourceId}>${edge.targetId}`, edge.sourceId, edge.targetId);
         }
       }
@@ -362,6 +253,6 @@ export function useApplyGraph(getViewportCenter: () => Point) {
       // applyGraphLayout once the server returns the computed layout. The visibility
       // gate set above is preserved until then.
     },
-    [setEdgesAtom, addAtomicNode, addCompoundNode, addEdge, removeNodes, setLayoutReady, getViewportCenter],
+    [setEdgesAtom, addAtomicNode, addCompoundNode, addEdge, removeNodes, setLayoutReady, getViewportCenter, store],
   );
 }

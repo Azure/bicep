@@ -4,7 +4,7 @@
 import { useAtomValue } from "jotai";
 import { useTheme } from "styled-components";
 import { graphBoundsAtom } from "@/lib/graph";
-import { exportPaddingAtom } from "../atoms";
+import { exportPaddingAtom, isExportCanvasCoverVisibleAtom } from "../atoms";
 
 /**
  * Solid background rectangle rendered inside PanZoom (graph-space)
@@ -15,8 +15,9 @@ export function ExportAreaCover() {
   const theme = useTheme();
   const padding = useAtomValue(exportPaddingAtom);
   const graphBounds = useAtomValue(graphBoundsAtom);
+  const isVisible = useAtomValue(isExportCanvasCoverVisibleAtom);
 
-  if (!graphBounds) return null;
+  if (!isVisible || !graphBounds) return null;
 
   return (
     <div

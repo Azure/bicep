@@ -3,13 +3,13 @@
 
 import type { ReactNode } from "react";
 import type { NodeContentRenderProps, NodeKind } from "@/lib/graph";
-import type { Range } from "../../api";
 import type { ModuleNodeProps } from "./ModuleNode";
 import type { ResourceNodeProps } from "./ResourceNode";
 
 import { useStore } from "jotai";
 import { useHydrateAtoms } from "jotai/utils";
-import { useCallback } from "react";
+import { useEffect, useRef } from "react";
+import { styled } from "styled-components";
 import { nodeConfigAtom } from "@/lib/graph";
 import { useCanvasApi } from "../../api";
 import { ModuleNode } from "./ModuleNode";
@@ -18,19 +18,47 @@ import { ResourceNode } from "./ResourceNode";
 /** Extra headroom above a compound node's children, so the module label has room to sit. */
 const COMPOUND_NODE_LABEL_INSET = 50;
 
-/** The source-location fields a node may carry. Absent on the server-driven path. */
-type NodeSourceLocation = { range?: Range; filePath?: string };
+const $NodeContent = styled.div`
+  display: contents;
+`;
+
+function CanvasNodeContent({ kind, id, data }: NodeContentRenderProps & { kind: NodeKind }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const api = useCanvasApi();
+
+  useEffect(() => {
+    const element = ref.current;
+
+    if (!element) {
+      return;
+    }
+
+    const revealSource = (event: MouseEvent) => {
+      event.stopPropagation();
+      api.revealNodeSource(id);
+    };
+
+    element.addEventListener("dblclick", revealSource);
+    return () => element.removeEventListener("dblclick", revealSource);
+  }, [api, id]);
+
+  return (
+    <$NodeContent ref={ref}>
+      {kind === "compound" ? (
+        <ModuleNode id={id} data={data as ModuleNodeProps["data"]} />
+      ) : (
+        <ResourceNode id={id} data={data as ResourceNodeProps["data"]} />
+      )}
+    </$NodeContent>
+  );
+}
 
 function renderNodeContent(kind: NodeKind, { id, data }: NodeContentRenderProps) {
-  if (kind === "compound") {
-    return <ModuleNode id={id} data={data as ModuleNodeProps["data"]} />;
-  }
-
-  return <ResourceNode id={id} data={data as ResourceNodeProps["data"]} />;
+  return <CanvasNodeContent kind={kind} id={id} data={data} />;
 }
 
 /**
- * Teaches the generic graph engine how to render Bicep node content and what activating a node means.
+ * Teaches the generic graph engine how to render Bicep node content.
  *
  * `lib/graph` is Bicep-agnostic and reaches product code only through `nodeConfigAtom`. Hydrating
  * during render rather than in an effect guarantees the config is in place before any node mounts,
@@ -40,23 +68,6 @@ function renderNodeContent(kind: NodeKind, { id, data }: NodeContentRenderProps)
 export function NodeContentProvider({ children }: { children: ReactNode }) {
   const store = useStore();
   const defaults = store.get(nodeConfigAtom);
-  const api = useCanvasApi();
-
-  const handleNodeActivate = useCallback(
-    (id: string, data: unknown) => {
-      const { range, filePath } = (data ?? {}) as NodeSourceLocation;
-
-      if (range && filePath) {
-        // Legacy push path: the node still carries an inline source location.
-        api.revealFileRange({ filePath, range });
-        return;
-      }
-
-      // Server-driven path: source location is resolved on demand by node id.
-      api.revealNodeSource(id);
-    },
-    [api],
-  );
 
   useHydrateAtoms([
     [
@@ -65,7 +76,6 @@ export function NodeContentProvider({ children }: { children: ReactNode }) {
         ...defaults,
         padding: { ...defaults.padding, top: COMPOUND_NODE_LABEL_INSET },
         renderContent: renderNodeContent,
-        onNodeActivate: handleNodeActivate,
       },
     ],
   ] as const);

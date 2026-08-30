@@ -9,7 +9,7 @@ import { useRef } from "react";
 import { translateBox } from "@/lib/math";
 import { nodesByIdAtom } from "../atoms";
 import { focusedNodeIdAtom, getNodeZIndex } from "../atoms/nodes";
-import { useBoxUpdate, useDragListener, useNodeActivation } from "../hooks";
+import { useBoxUpdate, useDragListener } from "../hooks";
 import { BaseNode } from "./BaseNode";
 import { NodeContent } from "./NodeContent";
 
@@ -18,8 +18,6 @@ export function CompoundNode({ id, childIdsAtom, boxAtom, dataAtom }: CompoundNo
   const store = useStore();
   const focusedNodeId = useAtomValue(focusedNodeIdAtom);
   const zIndex = getNodeZIndex(id, "compound", focusedNodeId);
-
-  useNodeActivation(ref, id, dataAtom);
 
   useDragListener(ref, (dx: number, dy: number) => {
     const translateChildren = (childIds: string[]) => {

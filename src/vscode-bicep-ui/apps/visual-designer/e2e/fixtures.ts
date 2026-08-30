@@ -73,3 +73,33 @@ export async function getGraphTransform(page: Page): Promise<string> {
     return layer.style.transform || getComputedStyle(layer).transform;
   });
 }
+
+/**
+ * Wait until a node has stopped moving.
+ *
+ * Two animations run after a graph loads: the fit-view transform, and each node's ~0.6s spring to its
+ * laid-out position. They are independent, so a settled transform does not mean settled nodes — and a
+ * node measured or dragged mid-spring keeps travelling to its target afterwards.
+ */
+export async function waitForStableNodePosition(page: Page, nodeId: string): Promise<{ x: number; y: number }> {
+  const node = page.locator(`[data-node-id="${nodeId}"]`);
+  let previous: string | null = null;
+
+  await expect
+    .poll(
+      async () => {
+        const box = await node.boundingBox();
+        const current = box ? `${Math.round(box.x)},${Math.round(box.y)}` : null;
+        const stable = current !== null && current === previous;
+        previous = current;
+
+        return stable;
+      },
+      { timeout: 10_000 },
+    )
+    .toBe(true);
+
+  const settled = await node.boundingBox();
+
+  return { x: settled!.x, y: settled!.y };
+}

@@ -12,16 +12,16 @@ import type {
 import type {
   CreateResourceParams,
   CreateResourceResult,
-  DeploymentGraph,
   GetGraphLayoutParams,
   GetGraphLayoutResult,
   GetGraphUpdateParams,
   GetGraphUpdateResult,
 } from "@/features/canvas";
+import type { SampleGraph } from "./sample-graph";
 
 // The fake host implements the whole protocol, so it is the one legitimate consumer of every
 // feature's `api` surface.
-import { createResource, getGraphLayout, getGraphUpdate, revealFileRange, revealNodeSource } from "@/features/canvas";
+import { createResource, getGraphLayout, getGraphUpdate, revealNodeSource } from "@/features/canvas";
 import { getResourceCreationEnablement, getResourceTypeNamespaces, loadResourceTypeCatalog } from "@/features/palette";
 import { showProblemsPanel } from "@/features/status";
 import { documentDidChange, getMotionPolicy, ready } from "@/hooks";
@@ -29,63 +29,48 @@ import { diffGraph, layoutGraph } from "./fake-graph-differ";
 
 const FAKE_FILE_PATH = "file:///main.bicep";
 
-const ZERO_RANGE = {
-  start: { line: 0, character: 0 },
-  end: { line: 0, character: 0 },
-};
-
 // ─── Sample graphs ───────────────────────────────────────────────────────────
 
 /**
  * A module with two child resources, plus two standalone resources.
  * Edges only connect nodes within the same scope (no cross-boundary edges).
  */
-const MODULE_GRAPH: DeploymentGraph = {
+const MODULE_GRAPH: SampleGraph = {
   nodes: [
     {
       id: "myModule",
       type: "<module>",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: true,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "myModule::vmResource",
       type: "Microsoft.Compute/virtualMachines",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "myModule::storageAccount",
       type: "Microsoft.Storage/storageAccounts",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "networkInterface",
       type: "Microsoft.Network/networkInterfaces",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "publicIp",
       type: "Microsoft.Network/publicIPAddresses",
       isCollection: true,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
   ],
   edges: [
@@ -99,43 +84,35 @@ const MODULE_GRAPH: DeploymentGraph = {
 };
 
 /** Flat graph with no modules — just four standalone resources in a chain. */
-const FLAT_GRAPH: DeploymentGraph = {
+const FLAT_GRAPH: SampleGraph = {
   nodes: [
     {
       id: "vnet",
       type: "Microsoft.Network/virtualNetworks",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "subnet",
       type: "Microsoft.Network/virtualNetworks/subnets",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "nsg",
       type: "Microsoft.Network/networkSecurityGroups",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "pip",
       type: "Microsoft.Network/publicIPAddresses",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
   ],
   edges: [
@@ -147,43 +124,35 @@ const FLAT_GRAPH: DeploymentGraph = {
 };
 
 /** Graph containing nodes with errors and a collection. */
-const ERROR_GRAPH: DeploymentGraph = {
+const ERROR_GRAPH: SampleGraph = {
   nodes: [
     {
       id: "brokenStorage",
       type: "Microsoft.Storage/storageAccounts",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: true,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "webApps",
       type: "Microsoft.Web/sites",
       isCollection: true,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "badModule",
       type: "<module>",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: true,
       hasError: true,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "badModule::db",
       type: "Microsoft.Sql/servers",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: true,
-      filePath: FAKE_FILE_PATH,
     },
   ],
   edges: [{ sourceId: "webApps", targetId: "brokenStorage" }],
@@ -194,26 +163,22 @@ const ERROR_GRAPH: DeploymentGraph = {
  * Complex graph modeled after modules-vwan-to-vnet-s2s-with-fw Bicep sample.
  * 2 resource groups, 13 modules with child resources, and rich inter-module dependencies.
  */
-const COMPLEX_GRAPH: DeploymentGraph = {
+const COMPLEX_GRAPH: SampleGraph = {
   nodes: [
     // ── Top-level resources ──────────────────────────────────────────────
     {
       id: "hubrg",
       type: "Microsoft.Resources/resourceGroups",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "vwanrg",
       type: "Microsoft.Resources/resourceGroups",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
 
     // ── vnet module (scope: hubrg) ───────────────────────────────────────
@@ -221,37 +186,29 @@ const COMPLEX_GRAPH: DeploymentGraph = {
       id: "vnet",
       type: "<module>",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: true,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "vnet::servernsg",
       type: "Microsoft.Network/networkSecurityGroups",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "vnet::bastionnsg",
       type: "Microsoft.Network/networkSecurityGroups",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "vnet::vnet",
       type: "Microsoft.Network/virtualNetworks",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
 
     // ── vpngw module (scope: hubrg, depends on: vnet) ────────────────────
@@ -259,28 +216,22 @@ const COMPLEX_GRAPH: DeploymentGraph = {
       id: "vpngw",
       type: "<module>",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: true,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "vpngw::vpngwpip",
       type: "Microsoft.Network/publicIPAddresses",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "vpngw::vpngw",
       type: "Microsoft.Network/virtualNetworkGateways",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
 
     // ── fwpolicy module (scope: hubrg) ───────────────────────────────────
@@ -288,28 +239,22 @@ const COMPLEX_GRAPH: DeploymentGraph = {
       id: "fwpolicy",
       type: "<module>",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: true,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "fwpolicy::policy",
       type: "Microsoft.Network/firewallPolicies",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "fwpolicy::platformrcgroup",
       type: "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
 
     // ── fwpip module (scope: hubrg) ──────────────────────────────────────
@@ -317,28 +262,22 @@ const COMPLEX_GRAPH: DeploymentGraph = {
       id: "fwpip",
       type: "<module>",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: true,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "fwpip::fwipprefix",
       type: "Microsoft.Network/publicIPPrefixes",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "fwpip::fwip",
       type: "Microsoft.Network/publicIPAddresses",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
 
     // ── fw module (scope: hubrg, depends on: fwpolicy, fwpip, vnet) ──────
@@ -346,19 +285,15 @@ const COMPLEX_GRAPH: DeploymentGraph = {
       id: "fw",
       type: "<module>",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: true,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "fw::firewall",
       type: "Microsoft.Network/azureFirewalls",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
 
     // ── vwan module (scope: vwanrg) ──────────────────────────────────────
@@ -366,19 +301,15 @@ const COMPLEX_GRAPH: DeploymentGraph = {
       id: "vwan",
       type: "<module>",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: true,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "vwan::wan",
       type: "Microsoft.Network/virtualWans",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
 
     // ── vhub module (scope: vwanrg, depends on: vwan) ────────────────────
@@ -386,19 +317,15 @@ const COMPLEX_GRAPH: DeploymentGraph = {
       id: "vhub",
       type: "<module>",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: true,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "vhub::hub",
       type: "Microsoft.Network/virtualHubs",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
 
     // ── vhubfwpolicy module (scope: vwanrg) ──────────────────────────────
@@ -406,28 +333,22 @@ const COMPLEX_GRAPH: DeploymentGraph = {
       id: "vhubfwpolicy",
       type: "<module>",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: true,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "vhubfwpolicy::policy",
       type: "Microsoft.Network/firewallPolicies",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "vhubfwpolicy::platformrcgroup",
       type: "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
 
     // ── vhubfw module (scope: vwanrg, depends on: vhub, vhubfwpolicy) ────
@@ -435,19 +356,15 @@ const COMPLEX_GRAPH: DeploymentGraph = {
       id: "vhubfw",
       type: "<module>",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: true,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "vhubfw::firewall",
       type: "Microsoft.Network/azureFirewalls",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
 
     // ── vhubvpngw module (scope: vwanrg, depends on: vhub) ──────────────
@@ -455,19 +372,15 @@ const COMPLEX_GRAPH: DeploymentGraph = {
       id: "vhubvpngw",
       type: "<module>",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: true,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "vhubvpngw::hubvpngw",
       type: "Microsoft.Network/vpnGateways",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
 
     // ── vwanvpnsite module (scope: vwanrg, depends on: vnet, vpngw, vwan)
@@ -475,19 +388,15 @@ const COMPLEX_GRAPH: DeploymentGraph = {
       id: "vwanvpnsite",
       type: "<module>",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: true,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "vwanvpnsite::vpnsite",
       type: "Microsoft.Network/vpnSites",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
 
     // ── vhubs2s module (scope: vwanrg, depends on: vhubvpngw, vwanvpnsite)
@@ -495,19 +404,15 @@ const COMPLEX_GRAPH: DeploymentGraph = {
       id: "vhubs2s",
       type: "<module>",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: true,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "vhubs2s::hubvpnconnection",
       type: "Microsoft.Network/vpnGateways/vpnConnections",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
 
     // ── vnets2s module (scope: hubrg, depends on: vhub, vhubvpngw, vpngw)
@@ -515,28 +420,22 @@ const COMPLEX_GRAPH: DeploymentGraph = {
       id: "vnets2s",
       type: "<module>",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: true,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "vnets2s::localnetworkgw",
       type: "Microsoft.Network/localNetworkGateways",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
     {
       id: "vnets2s::s2sconnection",
       type: "Microsoft.Network/connections",
       isCollection: false,
-      range: ZERO_RANGE,
       hasChildren: false,
       hasError: false,
-      filePath: FAKE_FILE_PATH,
     },
   ],
   edges: [
@@ -588,7 +487,7 @@ const COMPLEX_GRAPH: DeploymentGraph = {
 /**
  * Named sample graphs available in the dev toolbar.
  */
-export const SAMPLE_GRAPHS: Record<string, DeploymentGraph | null> = {
+export const SAMPLE_GRAPHS: Record<string, SampleGraph | null> = {
   "Module graph": MODULE_GRAPH,
   "Flat graph": FLAT_GRAPH,
   "Error graph": ERROR_GRAPH,
@@ -624,7 +523,7 @@ function getCatalogDelayMs(defaultDelayMs: number): number {
 export interface GraphMutation {
   label: string;
   description: string;
-  apply: (graph: DeploymentGraph) => DeploymentGraph;
+  apply: (graph: SampleGraph) => SampleGraph;
 }
 
 /** All available mutations for testing incremental updates. */
@@ -645,10 +544,8 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
             id: newId,
             type: "Microsoft.Web/sites",
             isCollection: false,
-            range: ZERO_RANGE,
             hasChildren: false,
             hasError: false,
-            filePath: FAKE_FILE_PATH,
           },
         ],
         edges: firstTopLevel ? [...graph.edges, { sourceId: newId, targetId: firstTopLevel.id }] : graph.edges,
@@ -670,19 +567,15 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
             id: moduleId,
             type: "<module>",
             isCollection: false,
-            range: ZERO_RANGE,
             hasChildren: true,
             hasError: false,
-            filePath: FAKE_FILE_PATH,
           },
           {
             id: childId,
             type: "Microsoft.Storage/storageAccounts",
             isCollection: false,
-            range: ZERO_RANGE,
             hasChildren: false,
             hasError: false,
-            filePath: FAKE_FILE_PATH,
           },
         ],
       };
@@ -935,10 +828,8 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
                 id: symbolicName,
                 type: request.resourceType.fullyQualifiedType,
                 isCollection: false,
-                range: ZERO_RANGE,
                 hasChildren: false,
                 hasError: true,
-                filePath: FAKE_FILE_PATH,
               },
             ],
           });
@@ -958,7 +849,7 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
   }
 
   /** The last graph pushed, so mutations can build on top of it. */
-  private currentGraph: DeploymentGraph | null = null;
+  private currentGraph: SampleGraph | null = null;
 
   sendNotification(notificationMessage: WebviewNotificationMessage) {
     if (notificationMessage.method === ready.method) {
@@ -967,8 +858,6 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
       setTimeout(() => {
         this.pushGraph(MODULE_GRAPH);
       }, 50);
-    } else if (notificationMessage.method === revealFileRange.method) {
-      console.log("[FakeMessageChannel] revealFileRange:", notificationMessage.params);
     } else if (notificationMessage.method === revealNodeSource.method) {
       // The real host would resolve the node's source location via the language server and reveal it.
       console.log("[FakeMessageChannel] revealNodeSource:", notificationMessage.params);
@@ -993,12 +882,12 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
   }
 
   /** Returns the most recently pushed graph (for mutations). */
-  getCurrentGraph(): DeploymentGraph | null {
+  getCurrentGraph(): SampleGraph | null {
     return this.currentGraph;
   }
 
   /** Simulate the extension host announcing that the graph may have changed. */
-  pushGraph(graph: DeploymentGraph | null) {
+  pushGraph(graph: SampleGraph | null) {
     this.currentGraph = graph;
     this.dispatchNotification(documentDidChange.method, {
       documentUri: FAKE_FILE_PATH,

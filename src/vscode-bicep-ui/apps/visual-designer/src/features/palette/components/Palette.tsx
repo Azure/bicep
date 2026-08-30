@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { CanvasSurface } from "@/features/canvas";
 import type { PaletteDragState } from "../atoms";
 
 import { Codicon } from "@vscode-bicep-ui/components";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useState } from "react";
 import { styled } from "styled-components";
+import { useCanvasActions } from "@/features/canvas";
 import { EXPAND_TRANSITION, FloatingPanel, IconButton } from "@/ui";
 import { usePaletteDrag } from "../hooks/use-palette-drag";
 import { useResourceCreationEnablement } from "../hooks/use-resource-creation-enablement";
@@ -15,10 +15,6 @@ import { useResourceTypeCatalog } from "../hooks/use-resource-type-catalog";
 import { PaletteContent } from "./PaletteContent";
 import { PaletteDragOverlay } from "./PaletteDragOverlay";
 
-interface PaletteProps {
-  createResource: CanvasSurface["createResource"];
-  canPlaceAt: CanvasSurface["canPlaceAt"];
-}
 const MotionFloatingPanel = motion.create(FloatingPanel);
 
 const $PaletteLauncher = styled(MotionFloatingPanel)`
@@ -125,8 +121,9 @@ const $PaletteScrollArea = styled.div`
   }
 `;
 
-function EnabledPalette({ createResource, canPlaceAt }: PaletteProps) {
+function EnabledPalette() {
   const [isOpen, setIsOpen] = useState(false);
+  const { createResource, canPlaceResourceAt } = useCanvasActions();
   const { catalogId, namespaces, namespaceError, loadNamespace, search, refresh } = useResourceTypeCatalog();
 
   const placeResource = useCallback(
@@ -144,7 +141,7 @@ function EnabledPalette({ createResource, canPlaceAt }: PaletteProps) {
     [createResource],
   );
 
-  const { startDrag } = usePaletteDrag(canPlaceAt, placeResource);
+  const { startDrag } = usePaletteDrag(canPlaceResourceAt, placeResource);
 
   return (
     <>
@@ -228,8 +225,8 @@ function EnabledPalette({ createResource, canPlaceAt }: PaletteProps) {
  * which the user can drag onto the graph or activate with the keyboard. Renders nothing when the
  * experimental resource-creation setting is off.
  */
-export function Palette(props: PaletteProps) {
+export function Palette() {
   const enabled = useResourceCreationEnablement();
 
-  return enabled ? <EnabledPalette {...props} /> : null;
+  return enabled ? <EnabledPalette /> : null;
 }

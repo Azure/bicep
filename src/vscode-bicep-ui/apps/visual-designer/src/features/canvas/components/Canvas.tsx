@@ -3,6 +3,7 @@
 
 import type { ReactNode } from "react";
 import type { Point } from "@/lib/math";
+import type { CanvasActions } from "../context/CanvasActionsContext";
 import type { ResourceTypeReference } from "../types";
 
 import { useGetPanZoomDimensions, useGetPanZoomTransform } from "@vscode-bicep-ui/components";
@@ -10,11 +11,16 @@ import { useNotification } from "@vscode-bicep-ui/messaging";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useCallback, useMemo, useState } from "react";
 import { styled, ThemeProvider } from "styled-components";
-import { effectiveExportThemeAtom, exportCanvasElementAtom } from "@/features/export";
+import {
+  effectiveExportThemeAtom,
+  ExportAreaCover,
+  exportCanvasElementAtom,
+  ExportPreviewLayer,
+} from "@/features/export";
 import { documentDidChange } from "@/hooks";
 import { Graph, useFitViewToBounds, Viewport } from "@/lib/graph";
-import { useGraphUpdate } from "../hooks/use-graph-update";
-import { viewportToGraphPoint } from "../utils/viewport";
+import { CanvasActionsContext } from "../context/CanvasActionsContext";
+import { useCanvasController } from "../hooks/use-canvas-controller";
 import { NodeContentProvider } from "./nodes/NodeContentProvider";
 import { PendingResourceLayer } from "./PendingResourceLayer";
 
@@ -23,35 +29,35 @@ const $CanvasWrapper = styled.div`
   inset: 0;
 `;
 
-export interface CanvasSurface {
-  /**
-   * Create a resource at a client-coordinate point. Omit `clientPoint` to use the surface's default
-   * placement, which is how keyboard activation creates a resource.
-   */
-  createResource: (resourceType: ResourceTypeReference, clientPoint?: Point) => Promise<void>;
-  /** Whether a client-coordinate point falls on the graph surface. */
-  canPlaceAt: (clientPoint: Point) => boolean;
-  resetLayout: () => Promise<void>;
+function viewportToGraphPoint(
+  clientPoint: Point,
+  canvasBounds: Pick<DOMRect, "left" | "top">,
+  transform: { x: number; y: number; scale: number },
+): Point | null {
+  if (
+    !Number.isFinite(clientPoint.x) ||
+    !Number.isFinite(clientPoint.y) ||
+    !Number.isFinite(transform.x) ||
+    !Number.isFinite(transform.y) ||
+    !Number.isFinite(transform.scale) ||
+    transform.scale <= 0
+  ) {
+    return null;
+  }
+
+  return {
+    x: (clientPoint.x - canvasBounds.left - transform.x) / transform.scale,
+    y: (clientPoint.y - canvasBounds.top - transform.y) / transform.scale,
+  };
 }
 
-export interface CanvasViewProps {
-  /** Rendered inside the canvas, beneath the graph, for export overlays. */
-  canvasOverlay?: ReactNode;
-  children: (surface: CanvasSurface) => ReactNode;
+export interface CanvasProps {
+  /** Layered over the canvas and able to call `useCanvasActions`. */
+  children: ReactNode;
 }
 
-/**
- * The Bicep design surface: owns the update loop, the canvas subtree, and the pending resource layer.
- *
- * The surface handed to `children` is stated in client coordinates on purpose. Converting a pointer
- * position into a graph position needs the canvas rect and the pan/zoom transform, both of which are
- * graph knowledge; exposing them would push that geometry into whichever feature happened to call.
- *
- * Actions are passed as explicit props rather than exposed as a free hook because `useGraphUpdate` is
- * a single-instance state machine holding the client's mirror of the server's canonical graph, and a
- * second instance would diverge and corrupt patch application.
- */
-export function CanvasView({ canvasOverlay, children }: CanvasViewProps) {
+/** The Bicep design surface, its runtime, and the actions exposed to layered features. */
+export function Canvas({ children }: CanvasProps) {
   const getPanZoomDimensions = useGetPanZoomDimensions();
   const getPanZoomTransform = useGetPanZoomTransform();
   const getViewportCenter = useCallback(() => {
@@ -59,18 +65,14 @@ export function CanvasView({ canvasOverlay, children }: CanvasViewProps) {
     return { x: width / 2, y: height / 2 };
   }, [getPanZoomDimensions]);
   const fitViewToBounds = useFitViewToBounds();
-  const {
-    requestGraphUpdate,
-    createResource: createResourceAtOrigin,
-    resetLayout,
-  } = useGraphUpdate(getViewportCenter, fitViewToBounds);
+  const { requestGraphUpdate, resetGraphLayout, createResourceAt } = useCanvasController(
+    getViewportCenter,
+    fitViewToBounds,
+  );
   const exportTheme = useAtomValue(effectiveExportThemeAtom);
   const setExportCanvasElement = useSetAtom(exportCanvasElementAtom);
   const [canvasElement, setCanvasElement] = useState<HTMLDivElement | null>(null);
 
-  // "The graph may have changed." The webview pulls the update itself, submitting the graph it
-  // currently displays and applying the patches. Other features subscribe to this same notification
-  // independently for their own concerns.
   useNotification(
     documentDidChange,
     useCallback(() => {
@@ -86,7 +88,7 @@ export function CanvasView({ canvasOverlay, children }: CanvasViewProps) {
     [setExportCanvasElement],
   );
 
-  const canPlaceAt = useCallback(
+  const canPlaceResourceAt = useCallback(
     ({ x, y }: Point) => {
       if (!canvasElement) {
         return false;
@@ -123,29 +125,32 @@ export function CanvasView({ canvasOverlay, children }: CanvasViewProps) {
       const origin = viewportToGraphPoint(point, bounds, getPanZoomTransform());
 
       if (origin) {
-        await createResourceAtOrigin(resourceType, origin);
+        await createResourceAt(resourceType, origin);
       }
     },
-    [canvasElement, createResourceAtOrigin, getPanZoomTransform],
+    [canvasElement, createResourceAt, getPanZoomTransform],
   );
 
-  const surface = useMemo<CanvasSurface>(
-    () => ({ createResource, canPlaceAt, resetLayout }),
-    [canPlaceAt, createResource, resetLayout],
+  const actions = useMemo<CanvasActions>(
+    () => ({ createResource, canPlaceResourceAt, resetGraphLayout }),
+    [canPlaceResourceAt, createResource, resetGraphLayout],
   );
 
   return (
-    <NodeContentProvider>
-      <ThemeProvider theme={exportTheme}>
-        <$CanvasWrapper ref={handleCanvasRef}>
-          <Viewport>
-            {canvasOverlay}
-            <PendingResourceLayer />
-            <Graph />
-          </Viewport>
-        </$CanvasWrapper>
-      </ThemeProvider>
-      {children(surface)}
-    </NodeContentProvider>
+    <CanvasActionsContext.Provider value={actions}>
+      <NodeContentProvider>
+        <ThemeProvider theme={exportTheme}>
+          <$CanvasWrapper ref={handleCanvasRef}>
+            <Viewport>
+              <ExportAreaCover />
+              <PendingResourceLayer />
+              <Graph />
+            </Viewport>
+          </$CanvasWrapper>
+        </ThemeProvider>
+      </NodeContentProvider>
+      <ExportPreviewLayer />
+      {children}
+    </CanvasActionsContext.Provider>
   );
 }

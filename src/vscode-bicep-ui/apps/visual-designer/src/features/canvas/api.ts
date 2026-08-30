@@ -19,18 +19,9 @@ export interface Range {
 }
 
 // ── Notification: Webview → Extension ──
-// Sent when the user wants to navigate to a source range.
-export const revealFileRange = defineNotification<RevealFileRangeParams>("revealFileRange");
-
-interface RevealFileRangeParams {
-  filePath: string;
-  range: Range;
-}
-
-// ── Notification: Webview → Extension ──
-// Sent when the user wants to reveal a node whose source location is resolved on demand. The canonical
-// graph no longer carries range/filePath, so the webview asks the host (which asks the server) to resolve
-// and reveal the node by id. This keeps volatile source locations out of the per-edit graph diff.
+// Sent when the user wants to reveal a node's source. The canonical graph carries no source
+// locations — they shift on edits that change nothing visible, so including them would put churn in
+// every diff — and the host asks the server to resolve the node id on demand instead.
 export const revealNodeSource = defineNotification<RevealNodeSourceParams>("revealNodeSource");
 
 interface RevealNodeSourceParams {
@@ -201,31 +192,6 @@ export type GraphPatch =
   | { op: "setGraphBounds"; bounds: GraphBounds }
   | { op: "setErrorCount"; errorCount: number };
 
-// ── Legacy graph shape ──
-// The position-preserving apply path still consumes this. Source locations are filled with empty
-// placeholders on the server-driven path; reveal is driven by node id instead.
-
-export interface DeploymentGraph {
-  nodes: DeploymentGraphNode[];
-  edges: DeploymentGraphEdge[];
-  errorCount: number;
-}
-
-export interface DeploymentGraphNode {
-  id: string;
-  type: string;
-  isCollection: boolean;
-  range: Range;
-  hasChildren: boolean;
-  hasError: boolean;
-  filePath: string;
-}
-
-interface DeploymentGraphEdge {
-  sourceId: string;
-  targetId: string;
-}
-
 /**
  * The deployment graph's operations against the extension host.
  *
@@ -242,9 +208,8 @@ export function useCanvasApi() {
   return useMemo(
     () => ({
       fetchUpdate: (current: RenderedGraph | null) => channel.request(getGraphUpdate, { current }),
-      fetchLayout: (current: RenderedGraph) => channel.request(getGraphLayout, { current }),
+      fetchGraphLayout: (current: RenderedGraph) => channel.request(getGraphLayout, { current }),
       createResource: (params: CreateResourceParams) => channel.request(createResource, params),
-      revealFileRange: (params: RevealFileRangeParams) => channel.notify(revealFileRange, params),
       revealNodeSource: (nodeId: string) => channel.notify(revealNodeSource, { nodeId }),
     }),
     [channel],

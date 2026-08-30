@@ -13,7 +13,7 @@ interface PendingDrag extends PaletteDragState {
 }
 
 export function usePaletteDrag(
-  canPlaceAt: (clientPoint: { x: number; y: number }) => boolean,
+  canPlaceResourceAt: (clientPoint: { x: number; y: number }) => boolean,
   onDrop: (item: PaletteDragState["item"], clientX: number, clientY: number) => void,
 ) {
   const activeDragRef = useRef<PendingDrag | null>(null);
@@ -41,7 +41,7 @@ export function usePaletteDrag(
         return;
       }
 
-      if (canPlaceAt({ x: event.clientX, y: event.clientY })) {
+      if (canPlaceResourceAt({ x: event.clientX, y: event.clientY })) {
         onDrop(drag.item, event.clientX, event.clientY);
       }
       cancelDrag();
@@ -62,7 +62,7 @@ export function usePaletteDrag(
       window.removeEventListener("pointercancel", cancelDrag);
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [canPlaceAt, cancelDrag, onDrop, setDragState]);
+  }, [canPlaceResourceAt, cancelDrag, onDrop, setDragState]);
 
   const startDrag = useCallback(
     (item: PaletteDragState["item"], event: ReactPointerEvent<HTMLElement>) => {

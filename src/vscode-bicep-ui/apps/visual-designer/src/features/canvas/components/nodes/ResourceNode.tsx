@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { Range } from "../../api";
-
 import { AzureIcon } from "@vscode-bicep-ui/components";
 import { useAtom, useAtomValue } from "jotai";
 import { motion } from "motion/react";
@@ -21,8 +19,6 @@ export interface ResourceNodeProps {
     resourceType: string;
     isCollection?: boolean;
     hasError?: boolean;
-    range?: Range;
-    filePath?: string;
   };
 }
 

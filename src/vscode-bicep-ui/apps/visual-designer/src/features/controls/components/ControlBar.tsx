@@ -4,11 +4,19 @@
 import { Codicon, usePanZoomControl } from "@vscode-bicep-ui/components";
 import { useAtomValue, useSetAtom } from "jotai";
 import { styled } from "styled-components";
+import { useCanvasActions } from "@/features/canvas";
 import { openExportOverlayAtom } from "@/features/export";
 import { useFitView } from "@/lib/graph";
 import { FloatingPanel, IconButton } from "@/ui";
 import { graphControlAvailabilityAtom } from "../atoms";
-import { useResetLayout } from "../hooks/use-reset-layout";
+import { useResetGraphLayout } from "../hooks/use-reset-graph-layout";
+
+const $ControlBar = styled(FloatingPanel)`
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+`;
 
 const $Divider = styled.div`
   height: 1px;
@@ -16,19 +24,16 @@ const $Divider = styled.div`
   background-color: ${({ theme }) => theme.panel.border};
 `;
 
-interface ControlBarProps {
-  requestLayout: () => Promise<void>;
-}
-
-export function ControlBar({ requestLayout }: ControlBarProps) {
+export function ControlBar() {
   const { zoomIn, zoomOut } = usePanZoomControl();
   const fitView = useFitView();
-  const resetLayout = useResetLayout(requestLayout);
+  const { resetGraphLayout: requestResetGraphLayout } = useCanvasActions();
+  const resetGraphLayout = useResetGraphLayout(requestResetGraphLayout);
   const controls = useAtomValue(graphControlAvailabilityAtom);
   const openExportOverlay = useSetAtom(openExportOverlayAtom);
 
   return (
-    <FloatingPanel data-testid="control-bar">
+    <$ControlBar data-testid="control-bar">
       <IconButton onClick={() => zoomIn(1.5)} title="Zoom In" aria-label="Zoom In" data-testid="control-zoom-in">
         <Codicon name="zoom-in" size={16} />
       </IconButton>
@@ -45,10 +50,10 @@ export function ControlBar({ requestLayout }: ControlBarProps) {
         <Codicon name="screen-full" size={16} />
       </IconButton>
       <IconButton
-        onClick={resetLayout}
+        onClick={resetGraphLayout}
         title="Reset Layout"
         aria-label="Reset Layout"
-        disabled={!controls.canResetLayout}
+        disabled={!controls.canResetGraphLayout}
         data-testid="control-reset-layout"
       >
         <Codicon name="type-hierarchy-sub" size={16} />
@@ -63,6 +68,6 @@ export function ControlBar({ requestLayout }: ControlBarProps) {
       >
         <Codicon name="desktop-download" size={16} />
       </IconButton>
-    </FloatingPanel>
+    </$ControlBar>
   );
 }

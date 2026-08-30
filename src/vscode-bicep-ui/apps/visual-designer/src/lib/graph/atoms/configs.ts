@@ -21,11 +21,6 @@ export interface NodeContentRenderProps {
 export interface NodeConfig {
   padding: Padding;
   renderContent: (kind: NodeState["kind"], props: NodeContentRenderProps) => ReactNode;
-  /**
-   * Invoked when the user activates a node (double-click). Optional: a graph with no activation
-   * behaviour is legitimate, which is why this does not throw the way `renderContent` does.
-   */
-  onNodeActivate?: (id: string, data: unknown) => void;
 }
 
 export const nodeConfigAtom = atom<NodeConfig>({
