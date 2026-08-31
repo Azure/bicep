@@ -40,12 +40,26 @@ async function go() {
       // some of our builds run as root in a container, which requires passing
       // the user data folder relative path to vs code itself
       const userDataDir = "./.vscode-test/user-data";
-      const userDataArguments = isRoot ? ["--user-data-dir", userDataDir] : [];
+
+      // Network-isolated builds cannot reach the Marketplace or the dotnet CDN, so they provide a
+      // pre-downloaded VSIX and a pre-installed dotnet instead. Both overrides force the relative
+      // user data folder so the CLI and the test run share the settings written below.
+      const dotnetExtensionVsixPath = process.env.BICEP_DOTNET_EXTENSION_VSIX_PATH;
+      const dotnetRuntimePath = process.env.BICEP_DOTNET_RUNTIME_PATH;
+      const userDataArguments = isRoot || dotnetRuntimePath ? ["--user-data-dir", userDataDir] : [];
+
+      if (dotnetRuntimePath) {
+        configureExistingDotnetPath(userDataDir, dotnetRuntimePath);
+      }
+
+      const dotnetExtensionToInstall = dotnetExtensionVsixPath
+        ? requireFile(path.resolve(dotnetExtensionVsixPath), "set BICEP_DOTNET_EXTENSION_VSIX_PATH to an existing VSIX")
+        : "ms-dotnettools.vscode-dotnet-runtime";
 
       const extensionInstallArguments = [
         ...cliArguments,
         "--install-extension",
-        "ms-dotnettools.vscode-dotnet-runtime",
+        `"${dotnetExtensionToInstall}"`,
         ...userDataArguments,
       ];
       const extensionListArguments = [...cliArguments, "--list-extensions", ...userDataArguments];
@@ -58,6 +72,11 @@ async function go() {
         shell: true,
       });
       console.log(result.error ?? result.output?.filter((o) => !!o).join("\n"));
+      if (result.error || result.status !== 0) {
+        throw new Error(
+          `Failed to install '${dotnetExtensionToInstall}'. The Bicep extension declares it as an extension dependency, so the E2E tests cannot run without it.`,
+        );
+      }
 
       console.log("Installed extensions:");
       result = cp.spawnSync(cliPath, extensionListArguments, {
@@ -107,9 +126,32 @@ function getLocalServerEnvironment(extensionPath: string): NodeJS.ProcessEnv {
   };
 }
 
-function requireFile(filePath: string, buildCommand: string): string {
+// Points the .NET Install Tool at an already installed dotnet so it does not download one at test
+// time. The Bicep extension reads this setting through the 'dotnet.acquire' command it invokes.
+function configureExistingDotnetPath(userDataDir: string, dotnetRuntimePath: string): void {
+  const resolvedDotnetPath = requireFile(
+    path.resolve(dotnetRuntimePath),
+    "set BICEP_DOTNET_RUNTIME_PATH to an existing dotnet executable",
+  );
+
+  const settingsPath = path.resolve(userDataDir, "User/settings.json");
+  fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
+
+  const settings = fs.existsSync(settingsPath)
+    ? JSON.parse(fs.readFileSync(settingsPath, { encoding: "utf-8" }))
+    : {};
+
+  settings["dotnetAcquisitionExtension.existingDotnetPath"] = [
+    { extensionId: "ms-azuretools.vscode-bicep", path: resolvedDotnetPath },
+  ];
+
+  fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2));
+  console.log(`Configured existing dotnet path '${resolvedDotnetPath}' in '${settingsPath}'.`);
+}
+
+function requireFile(filePath: string, remediation: string): string {
   if (!fs.existsSync(filePath)) {
-    throw new Error(`Required local server does not exist at '${filePath}'. Run: ${buildCommand}`);
+    throw new Error(`Required file does not exist at '${filePath}'. Run: ${remediation}`);
   }
 
   return filePath;
