@@ -294,6 +294,7 @@ public class CliJsonRpcServer(
         return new(diagnostics, result);
     }
 
+
     private async Task<Compilation> GetCompilation(BicepCompiler compiler, string filePath)
     {
         var fileUri = inputOutputArgumentsResolver.PathToUri(filePath);

@@ -18,7 +18,7 @@ public class ArmClientProvider(
         return new ArmClient(credential, defaultSubscriptionId, options);
     }
 
-    public ArmClient CreateArmClient(RootConfiguration configuration, string? defaultSubscriptionId)
+    public ArmClient CreateArmClient(IBicepConfiguration configuration, string? defaultSubscriptionId)
     {
         var options = new ArmClientOptions();
         options.Diagnostics.ApplySharedResourceManagerSettings();

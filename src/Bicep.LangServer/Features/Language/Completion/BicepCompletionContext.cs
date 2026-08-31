@@ -138,7 +138,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
 
         public SyntaxBase ReplacementTarget { get; }
 
-        public RootConfiguration Configuration { get; }
+        public IBicepConfiguration Configuration { get; }
 
         public IFeatureProvider Features { get; }
 

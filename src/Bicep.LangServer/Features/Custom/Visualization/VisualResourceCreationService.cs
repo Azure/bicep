@@ -9,6 +9,7 @@ using System.Text;
 using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
+using Bicep.Core.Configuration;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
@@ -512,7 +513,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
         private static CodeReplacement GenerateCodeReplacement(
             BicepCompiler compiler,
-            Bicep.Core.Configuration.RootConfiguration configuration,
+            IBicepConfiguration configuration,
             ResourceDeclarationSyntax resourceDeclaration,
             InsertContext insertContext)
         {

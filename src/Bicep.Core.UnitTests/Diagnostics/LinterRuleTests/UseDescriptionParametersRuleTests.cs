@@ -6,6 +6,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing.Extensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -16,9 +17,9 @@ public class UseDescriptionParametersRuleTests : LinterRuleTestsBase
 {
     private static readonly Options RuleOptions = new(ConfigurationPatch: EnableRule);
 
-    private static RootConfiguration EnableRule(RootConfiguration configuration) =>
+    private static IBicepConfiguration EnableRule(IBicepConfiguration configuration) =>
         configuration.WithAnalyzersConfiguration(
-            configuration.Analyzers.SetValue($"core.rules.{UseDescriptionParametersRule.Code}.level", "warning"));
+            ((AnalyzersConfiguration)configuration.Analyzers).SetValue($"core.rules.{UseDescriptionParametersRule.Code}.level", "warning"));
 
     private void AssertDiagnostics(string inputFile, int expectedCount = 1)
         => AssertLinterRuleDiagnostics(UseDescriptionParametersRule.Code, inputFile, expectedCount, RuleOptions);

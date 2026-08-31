@@ -2162,7 +2162,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingExtensionSpecification))
             {
-                var extensionNames = model.Configuration.Extensions.Data.Keys
+                var extensionNames = model.Configuration.Extensions.ExtensionAliases
                     .Concat(SystemNamespaceType.BuiltInName)
                     .ToHashSet();
 

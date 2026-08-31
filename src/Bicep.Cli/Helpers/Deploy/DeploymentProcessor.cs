@@ -175,7 +175,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
             _ => throw new CommandLineException($"Target scope {usingConfig.ScopeType} is not supported."),
         };
 
-    public async Task Deploy(RootConfiguration bicepConfig, DeployCommandsConfig config, Action<DeploymentWrapperView> onRefresh, CancellationToken cancellationToken)
+    public async Task Deploy(IBicepConfiguration bicepConfig, DeployCommandsConfig config, Action<DeploymentWrapperView> onRefresh, CancellationToken cancellationToken)
     {
         try
         {
@@ -273,7 +273,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
         }
     }
 
-    public async Task<DeploymentWhatIfResponseDefinition> WhatIf(RootConfiguration bicepConfig, DeployCommandsConfig config, CancellationToken cancellationToken)
+    public async Task<DeploymentWhatIfResponseDefinition> WhatIf(IBicepConfiguration bicepConfig, DeployCommandsConfig config, CancellationToken cancellationToken)
     {
         var armClient = armClientProvider.CreateArmClient(bicepConfig, null);
 
@@ -299,7 +299,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
         return response.GetRawResponse().Content.ToString().FromJson<DeploymentWhatIfResponseDefinition>();
     }
 
-    public async Task Teardown(RootConfiguration bicepConfig, DeployCommandsConfig config, Action<GeneralOperationView> onRefresh, CancellationToken cancellationToken)
+    public async Task Teardown(IBicepConfiguration bicepConfig, DeployCommandsConfig config, Action<GeneralOperationView> onRefresh, CancellationToken cancellationToken)
     {
         try
         {

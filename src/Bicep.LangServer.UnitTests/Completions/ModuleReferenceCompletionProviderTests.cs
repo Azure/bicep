@@ -20,6 +20,8 @@ using Bicep.Core.UnitTests.Mock.Registry.Catalog;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.FileSystem;
 using Bicep.LanguageServer;
+using Bicep.Testing;
+using Bicep.Testing.Extensions;
 using Bicep.LanguageServer.Features.Language.Completion;
 using Bicep.LanguageServer.Settings;
 using FluentAssertions;
@@ -27,7 +29,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using ConfigurationManager = Bicep.Core.Configuration.ConfigurationManager;
+using ConfigurationManager = Bicep.Core.Configuration.BicepConfigurationManager;
 using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.LangServer.UnitTests.Completions
@@ -922,7 +924,7 @@ namespace Bicep.LangServer.UnitTests.Completions
 
             var configurationManager = bicepConfigFileContents is null
                 ? BicepTestConstants.BuiltInOnlyConfigurationManager
-                : IConfigurationManager.WithStaticConfiguration(BicepTestConstants.GetConfiguration(bicepConfigFileContents));
+                : BicepTestConstants.GetConfiguration(bicepConfigFileContents).WithStaticConfiguration();
 
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, upsertCompilation: true, configurationManager: configurationManager, registryConfiguration: registryConfiguration);
             var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;

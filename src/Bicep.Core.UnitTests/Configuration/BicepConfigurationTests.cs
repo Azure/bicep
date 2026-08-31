@@ -1,3 +1,4 @@
+
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
@@ -11,7 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.Configuration;
 
 [TestClass]
-public class RootConfigurationTests
+public class BicepConfigurationTests
 {
     [TestMethod]
     public void Built_in_documentation_configuration_has_complete_defaults()
@@ -30,7 +31,7 @@ public class RootConfigurationTests
     public void Bind_and_serialize_preserve_documentation_configuration()
     {
         var configFileUri = IOUri.FromFilePath(Path.GetFullPath("bicepconfig.json"));
-        var element = IConfigurationManager.BuiltInConfigurationElement.Merge(
+        var element = BicepConfiguration.BuiltInConfigurationElement.Merge(
             JsonElementFactory.CreateElement("""
                 {
                   "documentation": {
@@ -50,7 +51,7 @@ public class RootConfigurationTests
                 }
                 """));
 
-        var configuration = RootConfiguration.Bind(element, configFileUri);
+        var configuration = BicepConfiguration.Bind(element, configFileUri);
 
         configuration.ConfigFileUri.Should().Be(configFileUri);
         configuration.Documentation.Data.Output.File.Should().Be("DOCS.md");
@@ -111,20 +112,7 @@ public class RootConfigurationTests
     [DynamicData(nameof(GetTestData), DynamicDataSourceType.Method)]
     public void RootConfiguration_LeadingTildeInCacheRootDirectory_ExpandPath(string cacheRootDirectory, string expectedExpandedDirectory)
     {
-        var configuration = new RootConfiguration(
-                BicepTestConstants.BuiltInConfiguration.Cloud,
-                BicepTestConstants.BuiltInConfiguration.ModuleAliases,
-                BicepTestConstants.BuiltInConfiguration.ModuleAliasesMock,
-                BicepTestConstants.BuiltInConfiguration.Extensions,
-                BicepTestConstants.BuiltInConfiguration.ImplicitExtensions,
-                BicepTestConstants.BuiltInConfiguration.Analyzers,
-                cacheRootDirectory,
-                BicepTestConstants.BuiltInConfiguration.ExperimentalFeaturesWarning,
-                BicepTestConstants.BuiltInConfiguration.ExperimentalFeaturesEnabled,
-                BicepTestConstants.BuiltInConfiguration.Formatting,
-                BicepTestConstants.BuiltInConfiguration.Documentation,
-                BicepTestConstants.BuiltInConfiguration.ConfigFileUri,
-                BicepTestConstants.BuiltInConfiguration.Diagnostics);
+        var configuration = BicepTestConstants.BuiltInConfiguration.With(cacheRootDirectory: cacheRootDirectory);
 
         configuration.CacheRootDirectory.Should().Be(expectedExpandedDirectory);
     }

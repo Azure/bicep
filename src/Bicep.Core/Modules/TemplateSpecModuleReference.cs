@@ -25,7 +25,7 @@ namespace Bicep.Core.Modules
 
         private static readonly Regex ResourceNameRegex = new(@"^[-\w\.\(\)]{0,89}[-\w\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-        private TemplateSpecModuleReference(IFeatureProvider featureProvider, RootConfiguration configuration, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
+        private TemplateSpecModuleReference(IFeatureProvider featureProvider, IBicepConfiguration configuration, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
             : base(featureProvider, configuration, ArtifactReferenceSchemes.TemplateSpecs)
         {
             this.SubscriptionId = subscriptionId;
@@ -70,7 +70,7 @@ namespace Bicep.Core.Modules
             return hash.ToHashCode();
         }
 
-        public static ResultWithDiagnosticBuilder<TemplateSpecModuleReference> TryParse(IFeatureProvider featureProvider, RootConfiguration configuration, string? aliasName, string referenceValue)
+        public static ResultWithDiagnosticBuilder<TemplateSpecModuleReference> TryParse(IFeatureProvider featureProvider, IBicepConfiguration configuration, string? aliasName, string referenceValue)
         {
             if (aliasName is not null)
             {

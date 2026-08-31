@@ -87,7 +87,7 @@ public class WhatIfCommandTests : TestBase
     public async Task WhatIf_should_succeed()
     {
         var deploymentProcessor = StrictMock.Of<IDeploymentProcessor>();
-        deploymentProcessor.Setup(x => x.WhatIf(It.IsAny<RootConfiguration>(), It.IsAny<DeployCommandsConfig>(), It.IsAny<CancellationToken>()))
+        deploymentProcessor.Setup(x => x.WhatIf(It.IsAny<IBicepConfiguration>(), It.IsAny<DeployCommandsConfig>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("""
             {
               "status": "Succeeded",

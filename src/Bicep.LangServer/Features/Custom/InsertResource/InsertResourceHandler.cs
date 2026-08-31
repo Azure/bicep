@@ -181,7 +181,7 @@ namespace Bicep.LanguageServer.Features.Custom.InsertResource
             return new(startNewline, endNewline, insertOffset);
         }
 
-        private static CodeReplacement GenerateCodeReplacement(BicepCompiler compiler, RootConfiguration configuration, ResourceDeclarationSyntax resourceDeclaration, InsertContext insertContext)
+        private static CodeReplacement GenerateCodeReplacement(BicepCompiler compiler, IBicepConfiguration configuration, ResourceDeclarationSyntax resourceDeclaration, InsertContext insertContext)
         {
             // Create a new document containing the resource to insert.
             // This allows us to apply syntax rewriters and formatting, before generating the code replacement.

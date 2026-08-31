@@ -4,21 +4,22 @@
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Testing.Extensions;
 using Bicep.Core.Json;
 
 namespace Bicep.Testing;
 
 public sealed class TestConfigurationBuilder
 {
-    private RootConfiguration configuration;
+    private IBicepConfiguration configuration;
 
-    private TestConfigurationBuilder(RootConfiguration configuration)
+    private TestConfigurationBuilder(IBicepConfiguration configuration)
     {
         this.configuration = configuration;
     }
 
-    public static TestConfigurationBuilder Create(RootConfiguration? configuration = null) =>
-        new(configuration ?? IConfigurationManager.GetBuiltInConfiguration());
+    public static TestConfigurationBuilder Create(IBicepConfiguration? configuration = null) =>
+        new(configuration ?? BicepConfiguration.BuiltIn);
 
     public TestConfigurationBuilder WithAllAnalyzers()
     {
@@ -37,7 +38,7 @@ public sealed class TestConfigurationBuilder
         this.WithAnalyzersConfiguration(AnalyzersConfiguration.Empty);
 
     public TestConfigurationBuilder WithAnalyzer(string analyzerCode, DiagnosticLevel level) =>
-        this.WithAnalyzersConfiguration(this.configuration.Analyzers.SetValue($"core.rules.{analyzerCode}.level", level.ToString().ToLowerInvariant()));
+        this.WithAnalyzersConfiguration(((AnalyzersConfiguration)this.configuration.Analyzers).SetValue($"core.rules.{analyzerCode}.level", level.ToString().ToLowerInvariant()));
 
     public TestConfigurationBuilder WithAnalyzersDisabled(params string[] analyzerCodes)
     {
@@ -64,7 +65,7 @@ public sealed class TestConfigurationBuilder
     public TestConfigurationBuilder WithExperimentalFeaturesEnabled(ExperimentalFeaturesEnabled experimentalFeaturesEnabled) =>
         this.With(experimentalFeaturesEnabled: experimentalFeaturesEnabled);
 
-    public RootConfiguration Build() => this.configuration;
+    public IBicepConfiguration Build() => this.configuration;
 
     private TestConfigurationBuilder With(
         CloudConfiguration? cloud = null,
@@ -73,20 +74,13 @@ public sealed class TestConfigurationBuilder
         AnalyzersConfiguration? analyzers = null,
         ExperimentalFeaturesEnabled? experimentalFeaturesEnabled = null)
     {
-        this.configuration = new(
-            cloud ?? this.configuration.Cloud,
-            this.configuration.ModuleAliases,
-            this.configuration.ModuleAliasesMock,
-            extensions ?? this.configuration.Extensions,
-            implicitExtensions ?? this.configuration.ImplicitExtensions,
-            analyzers ?? this.configuration.Analyzers,
-            this.configuration.CacheRootDirectory,
-            this.configuration.ExperimentalFeaturesWarning,
-            experimentalFeaturesEnabled ?? this.configuration.ExperimentalFeaturesEnabled,
-            this.configuration.Formatting,
-            this.configuration.Documentation,
-            this.configuration.ConfigFileUri,
-            this.configuration.Diagnostics);
+        this.configuration = BicepConfigurationExtensions.With(
+            this.configuration,
+            cloud: cloud,
+            extensions: extensions,
+            implicitExtensions: implicitExtensions,
+            analyzers: analyzers,
+            experimentalFeaturesEnabled: experimentalFeaturesEnabled);
 
         return this;
     }

@@ -105,39 +105,17 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         return this.chainDependencies.TryGetValue(leafHandle, out var deps) ? deps : [];
     }
 
-    public RootConfiguration GetMergedConfiguration(IOUri sourceFileUri)
-    {
-        var chain = GetConfigurationChain(sourceFileUri);
-
-        if (chain.GetEffectiveConfiguration() is BicepConfigurationAdapter adapter)
-        {
-            return adapter.InnerConfiguration;
-        }
-
-        return IConfigurationManager.GetBuiltInConfiguration();
-    }
-
-    public void RemoveChainCacheEntry(IOUri configFileUri)
-    {
-        var configFileHandle = this.fileExplorer.GetFile(configFileUri);
-
-        if (this.chainCache.TryRemove(configFileHandle, out _))
-        {
-            PurgeLookupCache();
-        }
-    }
-
     private static IBicepConfigurationChain GetBuiltInChain(IEnumerable<IDiagnostic>? diagnostics = null)
     {
-        var builtInConfig = GetBuiltInRootConfiguration(diagnostics);
+        var builtInConfig = GetBuiltInConfiguration(diagnostics);
 
-        return new BicepConfigurationChain(new BicepConfigurationAdapter(builtInConfig), [new BicepConfigurationAdapter(builtInConfig)]);
+        return new BicepConfigurationChain(builtInConfig, [builtInConfig]);
     }
 
-    private static RootConfiguration GetBuiltInRootConfiguration(IEnumerable<IDiagnostic>? diagnostics = null) =>
+    private static IBicepConfiguration GetBuiltInConfiguration(IEnumerable<IDiagnostic>? diagnostics = null) =>
         diagnostics is null
-            ? IConfigurationManager.GetBuiltInConfiguration()
-            : IConfigurationManager.GetBuiltInConfiguration().With(diagnostics: diagnostics);
+            ? BicepConfiguration.BuiltIn
+            : BicepConfiguration.BuiltIn.With(diagnostics: diagnostics);
 
     private ResultWithDiagnostic<IBicepConfigurationChain> LoadChain(IFileHandle leafFileHandle)
     {
@@ -219,17 +197,17 @@ public class BicepConfigurationManager : IBicepConfigurationManager
     private static IBicepConfigurationChain BuildChain(IOUri leafUri, List<(IFileHandle FileHandle, JsonElement Element)> rawLayers)
     {
         // Merge: built-in first, then base configs in reverse order, leaf last (leaf wins).
-        var accumulated = IConfigurationManager.BuiltInConfigurationElement;
+        var accumulated = BicepConfiguration.BuiltInConfigurationElement;
 
         foreach (var (_, element) in Enumerable.Reverse(rawLayers))
         {
             accumulated = accumulated.Merge(StripExtendsProperty(element));
         }
 
-        RootConfiguration effectiveRootConfig;
+        IBicepConfiguration effectiveConfig;
         try
         {
-            effectiveRootConfig = RootConfiguration.Bind(accumulated, leafUri);
+            effectiveConfig = BicepConfiguration.Bind(accumulated, leafUri);
         }
         catch (ConfigurationException exception)
         {
@@ -242,19 +220,18 @@ public class BicepConfigurationManager : IBicepConfigurationManager
             {
                 try
                 {
-                    var merged = IConfigurationManager.BuiltInConfigurationElement.Merge(StripExtendsProperty(layer.Element));
+                    var merged = BicepConfiguration.BuiltInConfigurationElement.Merge(StripExtendsProperty(layer.Element));
 
-                    return (IBicepConfiguration)new BicepConfigurationAdapter(RootConfiguration.Bind(merged, layer.FileHandle.Uri));
+                    return (IBicepConfiguration)BicepConfiguration.Bind(merged, layer.FileHandle.Uri);
                 }
                 catch (ConfigurationException)
                 {
-                    return (IBicepConfiguration)new BicepConfigurationAdapter(
-                        IConfigurationManager.GetBuiltInConfiguration().With(configFileIdentifier: layer.FileHandle.Uri));
+                    return BicepConfiguration.BuiltIn.With(configFileIdentifier: layer.FileHandle.Uri);
                 }
             })
             .ToImmutableArray();
 
-        return new BicepConfigurationChain(new BicepConfigurationAdapter(effectiveRootConfig), layers);
+        return new BicepConfigurationChain(effectiveConfig, layers);
     }
 
     private static JsonElement StripExtendsProperty(JsonElement element)

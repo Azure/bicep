@@ -8,7 +8,7 @@ using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using ConfigurationManager = Bicep.Core.Configuration.ConfigurationManager;
+using ConfigurationManager = Bicep.Core.Configuration.BicepConfigurationManager;
 using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.LangServer.UnitTests.Configuration

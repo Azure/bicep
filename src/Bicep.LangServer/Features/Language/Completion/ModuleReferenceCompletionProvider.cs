@@ -182,7 +182,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             return completions;
         }
 
-        private Parts? ParseParts(string text, RootConfiguration rootConfiguration)
+        private Parts? ParseParts(string text, IBicepConfiguration rootConfiguration)
         {
             var match = PartialModuleReferenceRegex().Match(text);
             if (!match.Success)
@@ -231,7 +231,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
 
         // Handles bicep registry and template spec top-level schema completions.
         // I.e. typing with an empty path:  module m1 <CURSOR>
-        private IEnumerable<CompletionItem> GetTopLevelCompletions(BicepCompletionContext context, string untrimmedReplacementText, RootConfiguration rootConfiguration)
+        private IEnumerable<CompletionItem> GetTopLevelCompletions(BicepCompletionContext context, string untrimmedReplacementText, IBicepConfiguration rootConfiguration)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath) &&
                 !context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
@@ -321,7 +321,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             return false;
         }
 
-        private async Task<IEnumerable<CompletionItem>> GetVersionCompletions(BicepCompletionContext context, string trimmedText, RootConfiguration rootConfiguration)
+        private async Task<IEnumerable<CompletionItem>> GetVersionCompletions(BicepCompletionContext context, string trimmedText, IBicepConfiguration rootConfiguration)
         {
             if (ParseParts(trimmedText, rootConfiguration) is not Parts parts
                 || parts.ResolvedModulePath is null
@@ -340,7 +340,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
 
             List<CompletionItem> completions = new();
 
-            if (await registryModuleCatalog.GetProviderForRegistry(rootConfiguration.Cloud, parts.ResolvedRegistry)
+            if (await registryModuleCatalog.GetProviderForRegistry((CloudConfiguration)rootConfiguration.Cloud, parts.ResolvedRegistry)
                 .TryGetModuleAsync($"{parts.ResolvedModulePath}") is { } module)
             {
                 var versions = (await module.TryGetVersionsAsync())
@@ -368,13 +368,13 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             return completions;
         }
 
-        private static ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetModuleAliases(RootConfiguration configuration)
+        private static ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetModuleAliases(IBicepConfiguration configuration)
         {
             return configuration.ModuleAliases.GetOciArtifactModuleAliases();
         }
 
         private static bool TryGetValidModuleAlias(
-            RootConfiguration configuration,
+            IBicepConfiguration configuration,
             string aliasName,
             [NotNullWhen(true)] out string? registry,
             out string? modulePath)
@@ -408,7 +408,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
         //   br:privateacr.azurecr.io/<CURSOR>
         //      =>
         //   br:privateacr.azurecr.io/bicep/app:<CURSOR>
-        private IEnumerable<CompletionItem> GetPartialPrivatePathCompletionsFromAliases(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration)
+        private IEnumerable<CompletionItem> GetPartialPrivatePathCompletionsFromAliases(string trimmedText, BicepCompletionContext context, IBicepConfiguration rootConfiguration)
         {
             if (ParseParts(trimmedText, rootConfiguration) is not Parts parts
                 || !string.IsNullOrWhiteSpace(parts.ResolvedModulePath)
@@ -453,7 +453,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
         //   br/alias:<CURSOR>
         // or
         //   br:registry.contoso.io/bicep/:<CURSOR>
-        private async Task<IEnumerable<CompletionItem>> GetModuleCompletions(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration)
+        private async Task<IEnumerable<CompletionItem>> GetModuleCompletions(string trimmedText, BicepCompletionContext context, IBicepConfiguration rootConfiguration)
         {
             if (ParseParts(trimmedText, rootConfiguration) is not Parts parts
                 || parts.ResolvedModulePath is null
@@ -471,7 +471,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             List<CompletionItem> completions = new();
 
             var modules = await registryModuleCatalog
-                .GetProviderForRegistry(rootConfiguration.Cloud, parts.ResolvedRegistry)
+                .GetProviderForRegistry((CloudConfiguration)rootConfiguration.Cloud, parts.ResolvedRegistry)
                 .TryGetModulesAsync();
             foreach (var module in modules)
             {
@@ -507,7 +507,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
         }
 
         // Handles top-level completions of registry names/aliases after br: and br/
-        private async Task<IEnumerable<CompletionItem>> GetAllRegistryNameAndAliasCompletions(BicepCompletionContext context, string trimmedText, RootConfiguration rootConfiguration, CancellationToken cancellationToken)
+        private async Task<IEnumerable<CompletionItem>> GetAllRegistryNameAndAliasCompletions(BicepCompletionContext context, string trimmedText, IBicepConfiguration rootConfiguration, CancellationToken cancellationToken)
         {
             var completions = new List<CompletionItem>();
 
@@ -551,7 +551,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
         }
 
         // Handles registry name completions for private modules possibly available in ACR registries
-        private async Task<IEnumerable<CompletionItem>> GetPrivateRegistryNameCompletions(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration, CancellationToken cancellationToken)
+        private async Task<IEnumerable<CompletionItem>> GetPrivateRegistryNameCompletions(string trimmedText, BicepCompletionContext context, IBicepConfiguration rootConfiguration, CancellationToken cancellationToken)
         {
             if (settingsProvider.GetSetting(LangServerConstants.GetAllAzureContainerRegistriesForCompletionsSetting))
             {
@@ -568,13 +568,13 @@ namespace Bicep.LanguageServer.Features.Language.Completion
         // This returns all registries that the user has access to via Azure (whether or not they contain bicep modules, and whether
         //   or not they're registered in the bicepconfig.json file)
         // This is for completions after typing "br:"
-        private async Task<IEnumerable<CompletionItem>> GetACRRegistryNameCompletionsFromAzure(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration, CancellationToken cancellationToken)
+        private async Task<IEnumerable<CompletionItem>> GetACRRegistryNameCompletionsFromAzure(string trimmedText, BicepCompletionContext context, IBicepConfiguration rootConfiguration, CancellationToken cancellationToken)
         {
             List<CompletionItem> completions = new();
 
             try
             {
-                await foreach (string registryName in azureContainerRegistriesProvider.GetContainerRegistriesAccessibleFromAzure(rootConfiguration.Cloud, cancellationToken)
+                await foreach (string registryName in azureContainerRegistriesProvider.GetContainerRegistriesAccessibleFromAzure((CloudConfiguration)rootConfiguration.Cloud, cancellationToken)
                     .WithCancellation(cancellationToken))
                 {
                     var insertText = $"'{trimmedText}{registryName}/$0'";
@@ -658,7 +658,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
         }
 
         // Handles private ACR registry name completions only for registries that are configured via aliases in the bicepconfig.json file
-        private IEnumerable<CompletionItem> GetPartialACRModuleRegistriesCompletionsFromBicepConfig(string trimmedText, BicepCompletionContext context, RootConfiguration rootConfiguration)
+        private IEnumerable<CompletionItem> GetPartialACRModuleRegistriesCompletionsFromBicepConfig(string trimmedText, BicepCompletionContext context, IBicepConfiguration rootConfiguration)
         {
             List<CompletionItem> completions = new();
             HashSet<string> aliases = new();

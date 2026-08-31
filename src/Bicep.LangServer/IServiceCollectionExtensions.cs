@@ -54,7 +54,6 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>()
         .AddSingleton<IAzResourceProvider, AzResourceProvider>()
         .AddSingleton<IBicepConfigLifecycleManager, BicepConfigLifecycleManager>()
-        .AddSingleton<IBicepConfigurationManager, BicepConfigurationManager>()
         .AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>()
         .AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>()
         .AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>()
