@@ -132,6 +132,20 @@ Both E2E commands run the suite against:
 Unit and E2E tests both use Vitest. Unit tests run in regular Node.js through `npm run test:unit`; only E2E tests
 need the custom Extension Host pool described here.
 
+## Network-Isolated Builds
+
+By default the runner installs the `ms-dotnettools.vscode-dotnet-runtime` extension dependency from the
+Marketplace, and that extension downloads a .NET runtime when the Bicep extension activates. Builds that run
+under network isolation cannot reach either endpoint, so two optional environment variables let them supply
+both locally:
+
+| Variable | Purpose |
+| --- | --- |
+| `BICEP_DOTNET_EXTENSION_VSIX_PATH` | Path to a pre-downloaded `.vsix` for the .NET Install Tool, installed instead of resolving the extension from the Marketplace. |
+| `BICEP_DOTNET_RUNTIME_PATH` | Path to an existing `dotnet` executable. The runner writes it to `dotnetAcquisitionExtension.existingDotnetPath` so the .NET Install Tool skips its download. |
+
+Both are unset for local development and public CI, which keep the default Marketplace and download behavior.
+
 ## Writing Tests
 
 - Put E2E tests under `tests/e2e/` with a `.test.ts` suffix.
