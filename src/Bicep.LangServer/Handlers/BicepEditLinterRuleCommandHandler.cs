@@ -61,7 +61,7 @@ namespace Bicep.LanguageServer.Handlers
                     if (!File.Exists(bicepConfigFilePath))
                     {
                         newConfigFile = true;
-                        File.WriteAllText(bicepConfigFilePath, DefaultBicepConfig);
+                        await File.WriteAllTextAsync(bicepConfigFilePath, DefaultBicepConfig);
                     }
                 }
                 catch (Exception ex)
@@ -97,7 +97,7 @@ namespace Bicep.LanguageServer.Handlers
                 return false;
             }
 
-            string json = File.ReadAllText(bicepConfigFilePath);
+            string json = await File.ReadAllTextAsync(bicepConfigFilePath);
             (int line, int column, string text)? insertion = new JsonEditor(json).InsertIfNotExist(
                 ["analyzers", "core", "rules", ruleCode, "level"],
                 "warning");
@@ -108,7 +108,7 @@ namespace Bicep.LanguageServer.Handlers
                 var (line, column, insertText) = insertion.Value;
                 try
                 {
-                    File.WriteAllText(bicepConfigFilePath, JsonEditor.ApplyInsertion(json, (line, column, insertText)));
+                    await File.WriteAllTextAsync(bicepConfigFilePath, JsonEditor.ApplyInsertion(json, (line, column, insertText)));
                     added = true;
                 }
                 catch (Exception ex)
