@@ -16,7 +16,6 @@ export interface NodeContentProps {
 export function NodeContent({ id, kind, dataAtom }: NodeContentProps) {
   const nodeConfig = useAtomValue(nodeConfigAtom);
   const data = useAtomValue(dataAtom);
-  const NodeContentComponent = nodeConfig.getContentComponent(kind);
 
-  return <NodeContentComponent id={id} data={data} />;
+  return nodeConfig.renderContent(kind, { id, data });
 }

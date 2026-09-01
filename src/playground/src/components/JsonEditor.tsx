@@ -1,15 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { editor } from 'monaco-editor';
-import React from 'react';
-import { CodeEditor } from './CodeEditor';
+import { editor } from "monaco-editor/editor/editor.api";
+import React from "react";
+import { CodeEditor } from "./CodeEditor";
 
 interface JsonEditorProps {
   content: string;
 }
 
 const editorOptions: editor.IStandaloneEditorConstructionOptions = {
-  language: 'json',
+  ariaLabel: "Generated ARM template editor",
+  language: "json",
   scrollBeyondLastLine: false,
   automaticLayout: true,
   minimap: {
@@ -19,9 +20,5 @@ const editorOptions: editor.IStandaloneEditorConstructionOptions = {
 };
 
 export const JsonEditor: React.FC<JsonEditorProps> = ({ content }) => {
-  return (
-    <CodeEditor 
-      options={editorOptions} 
-      initialContent={content} />
-  )
+  return <CodeEditor options={editorOptions} initialContent={content} />;
 };

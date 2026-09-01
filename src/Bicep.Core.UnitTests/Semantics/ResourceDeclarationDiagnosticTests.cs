@@ -3,7 +3,7 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Semantics
@@ -14,7 +14,7 @@ namespace Bicep.Core.UnitTests.Semantics
         [TestMethod]
         public void Missing_resource_type_in_resource_declaration_emits_only_first_type_diagnostic()
         {
-            var result = CompilationHelper.Compile(@"
+            var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(@"
 resource trailingSpace
 ");
 

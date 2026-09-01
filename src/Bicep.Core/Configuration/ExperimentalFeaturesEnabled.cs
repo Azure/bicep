@@ -22,7 +22,10 @@ public record ExperimentalFeaturesEnabled(
     bool ResourceInfoCodegen,
     bool ModuleExtensionConfigs,
     bool UserDefinedConstraints,
-    bool DeployCommands)
+    bool DeployCommands,
+    bool Patch,
+    bool RuntimeValuesInTagsAndSku,
+    bool AzExtensionConfig)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();
@@ -42,5 +45,8 @@ public record ExperimentalFeaturesEnabled(
         ResourceInfoCodegen: false,
         ModuleExtensionConfigs: false,
         UserDefinedConstraints: false,
-        DeployCommands: false);
+        DeployCommands: false,
+        Patch: false,
+        RuntimeValuesInTagsAndSku: false,
+        AzExtensionConfig: false);
 }

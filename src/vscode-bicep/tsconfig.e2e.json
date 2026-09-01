@@ -1,5 +1,9 @@
 // We need to compile the e2e tests until https://github.com/microsoft/vscode-test/issues/92 is closed.
 {
   "extends": "./tsconfig.json",
-  "include": ["src/test/e2e"]
+  "compilerOptions": {
+    "rootDir": ".",
+    "types": ["node", "vitest/globals"]
+  },
+  "include": ["tests/e2e"]
 }

@@ -46,4 +46,11 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool UserDefinedConstraintsEnabled => overrides.UserDefinedConstraintsEnabled ?? features.UserDefinedConstraintsEnabled;
 
     public bool DeployCommandsEnabled => overrides.DeployCommandsEnabled ?? features.DeployCommandsEnabled;
+
+    public bool PatchEnabled => overrides.PatchEnabled ?? features.PatchEnabled;
+
+    public bool RuntimeValuesInTagsAndSkuEnabled => overrides.RuntimeValuesInTagsAndSkuEnabled ?? features.RuntimeValuesInTagsAndSkuEnabled;
+
+    public bool AzExtensionConfigEnabled => overrides.AzExtensionConfigEnabled ?? features.AzExtensionConfigEnabled;
+
 }

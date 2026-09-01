@@ -8,6 +8,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,9 +21,11 @@ public class NoHardcodedOutputsRuleTests : LinterRuleTestsBase
     private static readonly Options RuleOptions = new(
         ConfigurationPatch: EnableRule);
 
-    private static RootConfiguration EnableRule(RootConfiguration configuration) =>
-        configuration.WithAnalyzersConfiguration(
-            configuration.Analyzers.SetValue($"core.rules.{NoHardcodedOutputsRule.Code}.level", "warning"));
+    private static IBicepConfiguration EnableRule(IBicepConfiguration configuration) =>
+        TestConfigurationBuilder
+            .Create(configuration)
+            .WithAnalyzer(NoHardcodedOutputsRule.Code, DiagnosticLevel.Warning)
+            .Build();
 
     [TestMethod]
     public void Hardcoded_string_output_is_reported_with_codefix_inserted_after_last_variable()
@@ -168,9 +171,12 @@ public class NoHardcodedOutputsRuleTests : LinterRuleTestsBase
     private static void AssertRuleCodeFix(string expectedCode, string expectedFixTitle, string inputFile, string resultFile)
     {
         var (file, cursor) = ParserHelper.GetFileWithSingleCursor(inputFile, '|');
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithConfigurationPatch(EnableRule), ("main.bicep", file));
+        var result = TestCompiler
+            .ForInMemoryCompilation()
+            .WithConfiguration(EnableRule(TestConfigurations.BuiltInWithStableAnalyzers))
+            .CompileWithoutRestore(file);
 
-        using (new AssertionScope().WithVisualCursor(result.Compilation.GetEntrypointSemanticModel().SourceFile, cursor))
+        using (new AssertionScope().WithVisualCursor(result.EntryPointFile, cursor))
         {
             var matchingDiagnostics = result.Diagnostics
                 .Where(x => x.Source == DiagnosticSource.CoreLinter)

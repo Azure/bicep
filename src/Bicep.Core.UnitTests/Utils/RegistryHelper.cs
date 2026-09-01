@@ -147,7 +147,7 @@ public static class RegistryHelper
         ModuleToPublish module)
     {
         var fileExplorer = new FileSystemFileExplorer(fileSystem);
-        var configurationManager = new ConfigurationManager(fileExplorer);
+        var configurationManager = new BicepConfigurationManager(fileExplorer);
         var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, fileExplorer), BicepTestConstants.FeatureOverrides);
 
         serviceBuilder = ConfigureServiceBuilder(serviceBuilder)

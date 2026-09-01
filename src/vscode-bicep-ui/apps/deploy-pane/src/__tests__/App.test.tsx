@@ -4,7 +4,7 @@
 import type { VscodeMessage } from "../messages";
 
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { App } from "../components/App";
 import {
   createDeploymentDataMessage,
@@ -45,19 +45,20 @@ const mockClient = {
   },
 };
 
-beforeEach(() => {
-  vi.mock("@azure/arm-resources", async (importOriginal) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mod: any = await importOriginal();
-    return {
-      ...mod,
-      ResourceManagementClient: vi.fn(() => mockClient),
-    };
-  });
-  vi.mock("../components/hooks/time", () => ({
-    getDate: () => "1737601964200",
-  }));
+vi.mock("@azure/arm-resourcesdeployments", async (importOriginal) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mod: any = await importOriginal();
+  return {
+    ...mod,
+    DeploymentsClient: class {
+      deployments = mockClient.deployments;
+      deploymentOperations = mockClient.deploymentOperations;
+    },
+  };
 });
+vi.mock("../components/hooks/time", () => ({
+  getDate: () => "1737601964200",
+}));
 
 afterEach(() => vi.resetAllMocks());
 

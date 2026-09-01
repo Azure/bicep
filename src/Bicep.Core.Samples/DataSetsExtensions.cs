@@ -14,7 +14,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -132,8 +132,8 @@ namespace Bicep.Core.Samples
 
             var repositoryFactoryMock = StrictMock.Of<ITemplateSpecRepositoryFactory>();
             repositoryFactoryMock
-                .Setup(x => x.CreateRepository(It.IsAny<RootConfiguration>(), It.IsAny<string>()))
-                .Returns<RootConfiguration, string>((_, subscriptionId) =>
+                .Setup(x => x.CreateRepository(It.IsAny<IBicepConfiguration>(), It.IsAny<string>()))
+                .Returns<IBicepConfiguration, string>((_, subscriptionId) =>
                     repositoryMocksBySubscription.TryGetValue(subscriptionId, out var repository)
                         ? repository.Object
                         : throw new InvalidOperationException($"No mock client was registered for subscription '{subscriptionId}'."));

@@ -17,6 +17,6 @@ public abstract class ResourceTypeProviderBase
         this.availableResourceTypes = availableResourceTypes;
         typeReferencesByTypeLazy = new(() => availableResourceTypes
             .GroupBy(x => x.Type, StringComparer.OrdinalIgnoreCase)
-            .ToImmutableDictionary(x => x.Key, x => x.ToImmutableArray()));
+            .ToImmutableDictionary(x => x.Key, x => x.ToImmutableArray(), StringComparer.OrdinalIgnoreCase));
     }
 }

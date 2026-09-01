@@ -16,7 +16,8 @@ using JetBrains.Annotations;
 
 namespace Bicep.Core.TypeSystem.Providers
 {
-    public class ResourceTypeProviderFactory : IResourceTypeProviderFactory
+    public class ResourceTypeProviderFactory(
+        AzResourceTypeProvider AzResourceTypeProvider) : IResourceTypeProviderFactory
     {
         private readonly ConcurrentDictionary<IFileHandle, ResultWithDiagnosticBuilder<IResourceTypeProvider>> cachedResourceTypeLoaders = new();
 
@@ -47,6 +48,6 @@ namespace Bicep.Core.TypeSystem.Providers
         }
 
         public IResourceTypeProvider GetBuiltInAzResourceTypesProvider()
-           => AzNamespaceType.BuiltInTypeProvider;
+           => AzResourceTypeProvider;
     }
 }

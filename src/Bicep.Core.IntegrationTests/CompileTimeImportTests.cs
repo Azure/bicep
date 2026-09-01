@@ -113,44 +113,38 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
-    public void Exporting_variable_that_references_non_pure_function_should_raise_diagnostic()
+    public void Exporting_declarations_that_reference_deployment_context_functions_should_compile()
     {
         var result = CompilationHelper.Compile("""
             @export()
             var defaultSubnetId = resourceId('resourceGroup', 'Microsoft.Network/virtualNetworks/subnets', 'vnet', 'subnet')
-            """);
-
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP452", DiagnosticLevel.Error, "The \"@export()\" decorator may not be applied to variables or functions that reference deployment-context functions, either directly or indirectly. The target of this decorator contains direct or transitive references to the following functions: \"resourceId\"."),
-        });
-    }
-
-    [TestMethod]
-    public void Exporting_variable_that_transitively_references_non_pure_function_should_raise_diagnostic()
-    {
-        var result = CompilationHelper.Compile("""
-            var defaultSubnetId = resourceId('resourceGroup', 'Microsoft.Network/virtualNetworks/subnets', 'vnet', 'subnet')
 
             @export()
-            var exportedSubnetId = defaultSubnetId
-            """);
-
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP452", DiagnosticLevel.Error, "The \"@export()\" decorator may not be applied to variables or functions that reference deployment-context functions, either directly or indirectly. The target of this decorator contains direct or transitive references to the following functions: \"resourceId\"."),
-        });
-    }
-
-    [TestMethod]
-    public void Exporting_variable_that_references_pure_function_should_not_raise_diagnostic()
-    {
-        var result = CompilationHelper.Compile("""
-            @export()
-            var value = toLower('HELLO')
+            func getLocation() string => resourceGroup().location
             """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/Azure/bicep/issues/20041
+    [TestMethod]
+    public void Importing_function_that_references_deployment_context_function_into_bicep_should_compile()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                import { getBuiltInRoleId } from 'roles.bicep'
+
+                output foundryUserRoleId string = getBuiltInRoleId('53ca6127-db72-4b80-b1b0-d745d6d5456d')
+                """),
+            ("roles.bicep", """
+                @export()
+                func getBuiltInRoleId(roleDefinitionId string) string => resourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionId)
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath(
+            "functions[0].members.getBuiltInRoleId.output.value",
+            "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]");
     }
 
     [TestMethod]

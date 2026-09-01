@@ -4,6 +4,8 @@
 import type { Box } from "@/lib/utils/math";
 import type { Point } from "@/lib/utils/math/geometry";
 import type {
+  CreateVisualResourceRequest,
+  CreateVisualResourceResponse,
   DeploymentGraph,
   GetGraphLayoutRequest,
   GetGraphLayoutResponse,
@@ -16,14 +18,20 @@ import type {
   NodeLayout,
   Range,
   RenderedGraph,
+  VisualResourceTypeReference,
 } from "./messages";
 
 import { useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { getDefaultStore } from "jotai";
 import { useCallback, useRef } from "react";
+import {
+  pendingResourcesAtom,
+  resourceCreationErrorAtom,
+  resourceNodeIsCommittingAtomFamily,
+} from "@/features/resource-creation";
 import { nodesByIdAtom } from "@/lib/graph";
 import { patchMayAffectLayout, renderedGraphsEqual } from "./layout-invalidation";
-import { GET_GRAPH_LAYOUT_REQUEST, GET_GRAPH_UPDATE_REQUEST } from "./messages";
+import { CREATE_RESOURCE_REQUEST, GET_GRAPH_LAYOUT_REQUEST, GET_GRAPH_UPDATE_REQUEST } from "./messages";
 import { applyGraphLayout, useApplyVisualGraph } from "./use-visual-graph";
 
 const store = getDefaultStore();
@@ -215,6 +223,7 @@ function centerGraphLayout(
  */
 export interface GraphUpdateActions {
   requestGraphUpdate: () => Promise<void>;
+  createResource: (resourceType: VisualResourceTypeReference, origin: Point) => Promise<void>;
   /**
    * Re-run layout for the current graph and apply it, bypassing the
    * "sizes unchanged since last layout" short-circuit so it re-lays out (and
@@ -236,6 +245,9 @@ export function useGraphUpdate(
   const inFlightRef = useRef(false);
   const dirtyRef = useRef(false);
   const forceLayoutRef = useRef(false);
+  const mutationInFlightRef = useRef(false);
+  const mutationQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const pendingPlacementsRef = useRef<Map<string, Point>>(new Map());
 
   const requestGraphLayout = useCallback(
     async (force = false) => {
@@ -293,6 +305,11 @@ export function useGraphUpdate(
   );
 
   const requestGraphUpdate = useCallback(async () => {
+    if (mutationInFlightRef.current) {
+      dirtyRef.current = true;
+      return;
+    }
+
     if (inFlightRef.current) {
       // A request is already outstanding; mark dirty so it issues one more round when it returns.
       dirtyRef.current = true;
@@ -323,11 +340,27 @@ export function useGraphUpdate(
           params: request,
         });
 
+        if (mutationInFlightRef.current) {
+          // The mutation response carries the expected node ID needed to correlate placement. A graph response
+          // that completes first may already contain that node, so discard it and let the mutation's finally
+          // block request a fresh update after recording the placement.
+          dirtyRef.current = true;
+          return;
+        }
+
         const nodeLayouts = new Map<string, NodeLayout>();
+        const newNodeOrigins = new Map<string, Point>();
+        const explicitlyPlacedNodeIds = new Set(pendingPlacementsRef.current.keys());
         let layoutMayBeStale = false;
 
         for (const patch of response.patches) {
-          layoutMayBeStale ||= patchMayAffectLayout(graph, patch);
+          layoutMayBeStale ||= patchMayAffectLayout(graph, patch, explicitlyPlacedNodeIds);
+          if (patch.op === "addNode") {
+            const origin = pendingPlacementsRef.current.get(patch.node.id);
+            if (origin) {
+              newNodeOrigins.set(patch.node.id, origin);
+            }
+          }
           applyPatch(graph, nodeLayouts, patch);
         }
 
@@ -340,10 +373,27 @@ export function useGraphUpdate(
         // Apply the new topology. Visibility is preserved for incremental
         // edits (so nodes animate in place) and gated for major changes;
         // positions arrive in the layout phase below.
-        applyGraph(toDeploymentGraph(graph));
+        if (newNodeOrigins.size > 0) {
+          for (const nodeId of newNodeOrigins.keys()) {
+            // Set before applyGraph mounts the node so Motion sees the compact initial state.
+            store.set(resourceNodeIsCommittingAtomFamily(nodeId), true);
+          }
+        }
+        applyGraph(toDeploymentGraph(graph), newNodeOrigins);
+
+        if (newNodeOrigins.size > 0) {
+          for (const nodeId of newNodeOrigins.keys()) {
+            pendingPlacementsRef.current.delete(nodeId);
+          }
+          store.set(pendingResourcesAtom, (pending) =>
+            pending.filter((resource) => !resource.expectedNodeId || !newNodeOrigins.has(resource.expectedNodeId)),
+          );
+        }
 
         if (shouldMeasureLayout) {
           await requestGraphLayout();
+        } else if (newNodeOrigins.size > 0) {
+          await applyGraphLayout(new Map());
         }
       } while (dirtyRef.current || forceLayoutRef.current);
     } finally {
@@ -363,5 +413,56 @@ export function useGraphUpdate(
     await requestGraphUpdate();
   }, [requestGraphUpdate]);
 
-  return { requestGraphUpdate, resetLayout };
+  const createResource = useCallback(
+    (resourceType: VisualResourceTypeReference, origin: Point): Promise<void> => {
+      const operationId = window.crypto.randomUUID();
+      store.set(pendingResourcesAtom, (pending) => [...pending, { operationId, resourceType, origin }]);
+      store.set(resourceCreationErrorAtom, null);
+
+      const execute = async () => {
+        mutationInFlightRef.current = true;
+
+        try {
+          const request: CreateVisualResourceRequest = {
+            version: 1,
+            operationId,
+            resourceType,
+          };
+          const response = await messageChannel.sendRequest<CreateVisualResourceResponse>({
+            method: CREATE_RESOURCE_REQUEST,
+            params: request,
+          });
+
+          pendingPlacementsRef.current.set(response.expectedNodeId, origin);
+          store.set(pendingResourcesAtom, (pending) =>
+            pending.map((resource) =>
+              resource.operationId === operationId
+                ? { ...resource, expectedNodeId: response.expectedNodeId }
+                : resource,
+            ),
+          );
+        } catch (error) {
+          store.set(pendingResourcesAtom, (pending) =>
+            pending.filter((resource) => resource.operationId !== operationId),
+          );
+          store.set(
+            resourceCreationErrorAtom,
+            typeof error === "object" && error !== null && "message" in error
+              ? String(error.message)
+              : "Failed to create the resource.",
+          );
+        } finally {
+          mutationInFlightRef.current = false;
+          await requestGraphUpdate();
+        }
+      };
+
+      const queued = mutationQueueRef.current.then(execute, execute);
+      mutationQueueRef.current = queued;
+      return queued;
+    },
+    [messageChannel, requestGraphUpdate],
+  );
+
+  return { requestGraphUpdate, createResource, resetLayout };
 }

@@ -16,6 +16,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
@@ -64,8 +65,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 + (acceptableVersionsString.Any() ? " " + string.Format(CoreResources.UseRecentApiVersionRule_AcceptableVersions, acceptableVersionsString) : "");
         }
 
-        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
+        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, IServiceProvider serviceProvider, DiagnosticLevel diagnosticLevel)
         {
+            var apiVersionProvider = serviceProvider.GetRequiredService<AzApiVersionProvider>();
+
             int maxAgeInDays = GetConfigurationValue(model.Configuration.Analyzers, MaxAgeInDaysKey, DefaultMaxAgeInDays);
             if (maxAgeInDays < MinimumValidMaxAgeInDays)
             {
@@ -101,7 +104,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var resource in model.DeclaredResources.Where(r => r.IsAzResource))
             {
-                if (AnalyzeResource(model, today, maxAgeInDays, gracePeriodInDays, resource.Symbol, warnIfNotFound: warnIfNotFound) is Failure failure)
+                if (AnalyzeResource(apiVersionProvider, model, today, maxAgeInDays, gracePeriodInDays, resource.Symbol, warnIfNotFound: warnIfNotFound) is Failure failure)
                 {
                     yield return CreateFixableDiagnosticForSpan(
                         diagnosticLevel,
@@ -112,9 +115,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 }
             }
 
-            foreach (var callInfo in GetFunctionCallInfos(model))
+            foreach (var callInfo in GetFunctionCallInfos(apiVersionProvider, model))
             {
-                if (AnalyzeFunctionCall(model, today, maxAgeInDays, gracePeriodInDays, callInfo) is Failure failure)
+                if (AnalyzeFunctionCall(apiVersionProvider, model, today, maxAgeInDays, gracePeriodInDays, callInfo) is Failure failure)
                 {
                     yield return CreateFixableDiagnosticForSpan(
                         diagnosticLevel,
@@ -126,18 +129,18 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private static Failure? AnalyzeFunctionCall(SemanticModel model, DateOnly today, int maxAgeInDays, int gracePeriodInDays, FunctionCallInfo functionCallInfo)
+        private static Failure? AnalyzeFunctionCall(AzApiVersionProvider apiVersionProvider, SemanticModel model, DateOnly today, int maxAgeInDays, int gracePeriodInDays, FunctionCallInfo functionCallInfo)
         {
             if (functionCallInfo.ApiVersion.HasValue && functionCallInfo.ResourceType is not null)
             {
                 return AnalyzeApiVersion(
-                    model.ApiVersionProvider,
+                    apiVersionProvider,
+                    model,
                     today,
                     maxAgeInDays,
                     gracePeriodInDays,
                     errorSpan: functionCallInfo.FunctionCallSyntax.Span,
                     replacementSpan: TextSpan.Nil,
-                    model.TargetScope,
                     functionCallInfo.ResourceType,
                     functionCallInfo.ApiVersion.Value,
                     // Since Bicep doesn't show a warning for API versions in function calls, we want to do it
@@ -147,7 +150,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return null;
         }
 
-        public static IEnumerable<FunctionCallInfo> GetFunctionCallInfos(SemanticModel model)
+        public static IEnumerable<FunctionCallInfo> GetFunctionCallInfos(AzApiVersionProvider apiVersionProvider, SemanticModel model)
         {
             var referenceAndListFunctionCalls = LinterExpressionHelper.FindFunctionCallsByName(
                 model,
@@ -155,10 +158,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 AzNamespaceType.BuiltInName,
                 "reference|(list.*)");
 
-            return referenceAndListFunctionCalls.Select(fc => GetFunctionCallInfo(model, fc));
+            return referenceAndListFunctionCalls.Select(fc => GetFunctionCallInfo(apiVersionProvider, model, fc));
         }
 
-        private static FunctionCallInfo GetFunctionCallInfo(SemanticModel model, FunctionCallSyntaxBase functionCallSyntax)
+        private static FunctionCallInfo GetFunctionCallInfo(AzApiVersionProvider apiVersionProvider, SemanticModel model, FunctionCallSyntaxBase functionCallSyntax)
         {
             // Assumes we're working with resource or anything starting with list*, both of which have the format:
             //
@@ -192,7 +195,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 // Simplify resource type if it contains additional part
                 if (resourceType is not null)
                 {
-                    resourceType = GetResourceTypeFromResourceId(model, resourceType);
+                    resourceType = GetResourceTypeFromResourceId(apiVersionProvider, model, resourceType);
                 }
             }
 
@@ -201,7 +204,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 var apiVersionExpression = functionCallSyntax.Arguments[1].Expression;
 
-                if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, apiVersionExpression) is (string apiVersionString, StringSyntax apiVersionSyntax, _)
+                if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, apiVersionExpression) is {} apiVersionString
                     && AzureResourceApiVersion.TryParse(apiVersionString, out var apiVersion2))
                 {
                     apiVersion = apiVersion2;
@@ -221,10 +224,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             // resourceId() has optional arguments at the beginning for subscription and resource group IDs that can't always be determined
             //   at build time, so look for the first argument that looks like a resource ID
-            var argsAsStringLiterals = functionCallSyntax.Arguments.Select(x => LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, x)).ToArray();
             for (int i = 0; i < functionCallSyntax.Arguments.Length; ++i)
             {
-                if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, functionCallSyntax.Arguments[i].Expression) is (string argLiteral, _, _))
+                if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, functionCallSyntax.Arguments[i].Expression) is {} argLiteral)
                 {
                     argLiteral = argLiteral.TrimEnd('/');
 
@@ -237,7 +239,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         string folderLiterals = argLiteral;
                         for (int j = i + 1; j < functionCallSyntax.Arguments.Length; ++j)
                         {
-                            if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, functionCallSyntax.Arguments[j].Expression) is (string argLiteral2, _, _))
+                            if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, functionCallSyntax.Arguments[j].Expression) is {} argLiteral2)
                             {
                                 folderLiterals += $"/{argLiteral2}";
                             }
@@ -257,13 +259,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static string? TryGetResourceTypeIfEvaluatesToStringLiteral(SemanticModel model, SyntaxBase expression)
         {
-            if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, expression)
-                is (string resourceIdResTypeString, _, _))
+            if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, expression) is {} resourceIdResTypeString &&
+                LinterResourceTypePatterns.ResourceTypeRegex.IsMatch(resourceIdResTypeString))
             {
-                if (LinterResourceTypePatterns.ResourceTypeRegex.IsMatch(resourceIdResTypeString))
-                {
-                    return resourceIdResTypeString;
-                }
+                return resourceIdResTypeString;
             }
 
             return null;
@@ -299,13 +298,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 .TryFindResourceByNameExpression(model, resourceNameExpression)
                 .FirstOrDefault());
 
-        private static string GetResourceTypeFromResourceId(SemanticModel model, string resourceId)
+        private static string GetResourceTypeFromResourceId(AzApiVersionProvider apiVersionProvider, SemanticModel model, string resourceId)
         {
             var resourceType = resourceId;
             var mostRecentValid = resourceId;
             while (LinterResourceTypePatterns.ResourceTypeRegex.IsMatch(resourceType))
             {
-                if (model.ApiVersionProvider.GetApiVersions(model.TargetScope, resourceType).Any())
+                if (apiVersionProvider.GetApiVersions(model.TargetScope, resourceType).Any())
                 {
                     // The resource type exists
                     return resourceType;
@@ -320,7 +319,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return mostRecentValid;
         }
 
-        private static Failure? AnalyzeResource(SemanticModel model, DateOnly today, int maxAgeInDays, int gracePeriodInDays, ResourceSymbol resourceSymbol, bool warnIfNotFound)
+        private static Failure? AnalyzeResource(AzApiVersionProvider apiVersionProvider, SemanticModel model, DateOnly today, int maxAgeInDays, int gracePeriodInDays, ResourceSymbol resourceSymbol, bool warnIfNotFound)
         {
             if (resourceSymbol.TryGetResourceTypeReference() is ResourceTypeReference resourceTypeReference &&
                 resourceTypeReference.ApiVersion is string apiVersionString &&
@@ -330,13 +329,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 {
                     string fullyQualifiedResourceType = resourceTypeReference.FormatType();
                     return AnalyzeApiVersion(
-                        model.ApiVersionProvider,
+                        apiVersionProvider,
+                        model,
                         today,
                         maxAgeInDays,
                         gracePeriodInDays,
                         replacementSpan,
                         replacementSpan,
-                        model.TargetScope,
                         fullyQualifiedResourceType,
                         apiVersion,
                         returnNotFoundDiagnostics: warnIfNotFound);
@@ -346,7 +345,24 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return null;
         }
 
+        public static Failure? AnalyzeApiVersion(AzApiVersionProvider apiVersionProvider, SemanticModel model, DateOnly today, int maxAgeInDays, int gracePeriodInDays, TextSpan errorSpan, TextSpan replacementSpan, string fullyQualifiedResourceType, AzureResourceApiVersion actualApiVersion, bool returnNotFoundDiagnostics)
+            => AnalyzeApiVersion(
+                apiVersionProvider,
+                model.Binder.NamespaceResolver.GetAvailableAzureResourceTypes().Select(x => x.FormatType()),
+                today,
+                maxAgeInDays,
+                gracePeriodInDays,
+                errorSpan,
+                replacementSpan,
+                model.TargetScope,
+                fullyQualifiedResourceType,
+                actualApiVersion,
+                returnNotFoundDiagnostics);
+
         public static Failure? AnalyzeApiVersion(IApiVersionProvider apiVersionProvider, DateOnly today, int maxAgeInDays, int gracePeriodInDays, TextSpan errorSpan, TextSpan replacementSpan, ResourceScope scope, string fullyQualifiedResourceType, AzureResourceApiVersion actualApiVersion, bool returnNotFoundDiagnostics)
+            => AnalyzeApiVersion(apiVersionProvider, [], today, maxAgeInDays, gracePeriodInDays, errorSpan, replacementSpan, scope, fullyQualifiedResourceType, actualApiVersion, returnNotFoundDiagnostics);
+
+        private static Failure? AnalyzeApiVersion(IApiVersionProvider apiVersionProvider, IEnumerable<string> typeNames, DateOnly today, int maxAgeInDays, int gracePeriodInDays, TextSpan errorSpan, TextSpan replacementSpan, ResourceScope scope, string fullyQualifiedResourceType, AzureResourceApiVersion actualApiVersion, bool returnNotFoundDiagnostics)
         {
             var (allApiVersions, acceptableApiVersions) = GetAcceptableApiVersions(apiVersionProvider, today, maxAgeInDays, gracePeriodInDays, scope, fullyQualifiedResourceType);
             if (!allApiVersions.Any())
@@ -354,7 +370,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 // Resource type not recognized
                 if (returnNotFoundDiagnostics)
                 {
-                    IEnumerable<string> typeNames = apiVersionProvider.GetResourceTypeNames(scope);
                     string? suggestion = SpellChecker.GetSpellingSuggestion(fullyQualifiedResourceType, typeNames);
 
                     var message = string.Format(CoreResources.UseRecentApiVersionRule_UnknownType, fullyQualifiedResourceType);
@@ -434,6 +449,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 failureMessage,
                 acceptableApiVersions);
         }
+
+        public static (AzureResourceApiVersion[] allApiVersions, AzureResourceApiVersion[] acceptableVersions) GetAcceptableApiVersions(AzApiVersionProvider apiVersionProvider, DateOnly today, int maxAgeInDays, int gracePeriodInDays, ResourceScope scope, string fullyQualifiedResourceType)
+            => GetAcceptableApiVersions((IApiVersionProvider)apiVersionProvider, today, maxAgeInDays, gracePeriodInDays, scope, fullyQualifiedResourceType);
 
         public static (AzureResourceApiVersion[] allApiVersions, AzureResourceApiVersion[] acceptableVersions) GetAcceptableApiVersions(IApiVersionProvider apiVersionProvider, DateOnly today, int maxAgeInDays, int gracePeriodInDays, ResourceScope scope, string fullyQualifiedResourceType)
         {

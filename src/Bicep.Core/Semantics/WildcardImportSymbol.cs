@@ -40,5 +40,10 @@ public class WildcardImportSymbol : DeclaredSymbol, INamespaceSymbol
             yield return DiagnosticBuilder.ForPosition(DeclaringSyntax).ImportedModelContainsAmbiguousExports(
                 SourceModel.Exports.Values.OfType<DuplicatedExportMetadata>().Select(md => md.Name));
         }
+
+        if (ParameterFileImportValidator.ValidateImport(this) is { } diagnostic)
+        {
+            yield return diagnostic;
+        }
     }
 }

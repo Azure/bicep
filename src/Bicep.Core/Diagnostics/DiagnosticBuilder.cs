@@ -1826,11 +1826,11 @@ namespace Bicep.Core.Diagnostics
 
             public Diagnostic InvalidExtension_ImplicitExtensionMissingConfig(IOUri? configFileUri, string name) => CoreError(
                 "BCP397",
-                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is referenced in the "{RootConfiguration.ImplicitExtensionsKey}" section, but is missing corresponding configuration in the "{RootConfiguration.ExtensionsKey}" section.""");
+                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is referenced in the "{BicepConfiguration.ImplicitExtensionsKey}" section, but is missing corresponding configuration in the "{BicepConfiguration.ExtensionsKey}" section.""");
 
             public Diagnostic InvalidExtension_NotABuiltInExtension(IOUri? configFileUri, string name) => CoreError(
                 "BCP398",
-                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is configured as built-in in the "{RootConfiguration.ExtensionsKey}" section, but no built-in extension exists.""");
+                $"""Extension {name} is incorrectly configured in the {BuildBicepConfigurationClause(configFileUri)}. It is configured as built-in in the "{BicepConfiguration.ExtensionsKey}" section, but no built-in extension exists.""");
 
             public Diagnostic SpreadOperatorUnsupportedInLocation(SpreadExpressionSyntax spread) => CoreError(
                 "BCP401",
@@ -2069,9 +2069,21 @@ namespace Bicep.Core.Diagnostics
                 "BCP451",
                 $"The OCI artifact module alias{(aliasName is not null ? $" \"{aliasName}\"" : "")} has an invalid \"mapToFilePath\" path \"{path}\": {reason}");
 
-            public Diagnostic ClosureContainsNonPureFunctions(IEnumerable<string> nonPureFunctions) => CoreError(
+            public Diagnostic ImportedSymbolDependsOnDeploymentContextFunctions(string symbolName, IEnumerable<string> functionNames) => CoreError(
                 "BCP452",
-                @$"The ""@export()"" decorator may not be applied to variables or functions that reference deployment-context functions, either directly or indirectly. The target of this decorator contains direct or transitive references to the following functions: {ToQuotedString(nonPureFunctions)}.");
+                @$"The imported symbol ""{symbolName}"" cannot be used in a {LanguageConstants.ParamsFileExtension} file because it depends on deployment-context functions: {ToQuotedString(functionNames)}. Imported declarations may only use functions that can be evaluated while building the parameters file.");
+
+            public Diagnostic BicepConfigExtendsAbsolutePath(IOUri configFileUri) => CoreError(
+                "BCP453",
+                $"The \"extends\" value in the Bicep configuration file \"{configFileUri}\" must be a relative path. Absolute paths are not allowed.");
+
+            public Diagnostic BicepConfigExtendsCycle(IOUri configFileUri, string cycle) => CoreError(
+                "BCP454",
+                $"A cycle was detected in the Bicep configuration \"extends\" chain starting from \"{configFileUri}\": {cycle}.");
+
+            public Diagnostic BicepConfigExtendsChainTooDeep(IOUri configFileUri) => CoreError(
+                "BCP455",
+                $"The Bicep configuration \"extends\" chain starting from \"{configFileUri}\" exceeds the maximum allowed depth of 64.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

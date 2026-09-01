@@ -14,57 +14,10 @@ namespace Bicep.Core.Analyzers.Linter.Common
     public static class LinterExpressionHelper
     {
         /// <summary>
-        /// Tries to retrieve a string literal from the expression. Will evaluate variables and parameter default values
+        /// Tries to retrieve a string literal from the expression.
         /// </summary>
-        // TODO: Refactor more rules to use this
-        public static (string stringValue, StringSyntax stringSyntax, string? pathToValueIfNonTrivial)? TryGetEvaluatedStringLiteral(SemanticModel model, SyntaxBase? expression)
-        {
-            return TryGetEvaluatedStringLiteral(model, expression, []);
-        }
-
-        private static (string stringValue, StringSyntax stringSyntax, string? pathToValueIfNonTrivial)? TryGetEvaluatedStringLiteral(SemanticModel model, SyntaxBase? expression, DeclaredSymbol[] currentPaths)
-        {
-            if (expression is StringSyntax stringSyntax
-                && stringSyntax.TryGetLiteralValue() is string literalValue)
-            {
-                var path = currentPaths.Length > 0 ? string.Join(" => ", currentPaths.Select(symbol => symbol.Name)) : null;
-                return (literalValue, stringSyntax, path);
-            }
-            else if (expression is VariableAccessSyntax variableAccessSyntax)
-            {
-                if (model.GetSymbolInfo(expression) is DeclaredSymbol symbol)
-                {
-                    // Create nested path for recursive call
-                    var nestedPath = new DeclaredSymbol[currentPaths.Length + 1];
-                    Array.Copy(currentPaths, nestedPath, currentPaths.Length);
-                    nestedPath[^1] = symbol;
-
-                    if (symbol is VariableSymbol variable)
-                    {
-                        // Evaluate the variable's definition
-                        var variableValue = (variable.DeclaringSyntax as VariableDeclarationSyntax)?.Value;
-                        return variableValue is null ? null : TryGetEvaluatedStringLiteral(model, variableValue, nestedPath);
-                    }
-                    else if (symbol is ParameterSymbol parameter)
-                    {
-                        // Evaluate the parameter's default value
-                        var defaultValue = SyntaxHelper.TryGetDefaultValue(parameter);
-                        if (defaultValue is null)
-                        {
-                            // Using a parameter with no default value is acceptable
-                            return null;
-                        }
-                        else
-                        {
-                            // Analyze parameter's default value
-                            return TryGetEvaluatedStringLiteral(model, defaultValue, nestedPath);
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
+        public static string? TryGetEvaluatedStringLiteral(SemanticModel model, SyntaxBase? expression)
+            => (expression is {} && model.GetTypeInfo(expression).Type is TypeSystem.Types.StringLiteralType stringLiteralType) ? stringLiteralType.RawStringValue : null;
 
         /// <summary>
         /// Attempts to find a resource with the same name as the given expression
@@ -88,7 +41,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
             if (resourcesAndNames.Any())
             {
                 string searchName = resourceNameExpression.ToString();
-                string? evaluatedSearchNameLiteral = TryGetEvaluatedStringLiteral(model, resourceNameExpression)?.stringValue;
+                string? evaluatedSearchNameLiteral = TryGetEvaluatedStringLiteral(model, resourceNameExpression);
 
                 foreach (var (resource, resourceName) in resourcesAndNames)
                 {
@@ -100,7 +53,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
                     // Then literal values (if they both evaluate to literal values)
                     if (evaluatedSearchNameLiteral is not null
-                        && TryGetEvaluatedStringLiteral(model, resourceName) is (string resourceNameLiteral, _, _)
+                        && TryGetEvaluatedStringLiteral(model, resourceName) is {} resourceNameLiteral
                         && evaluatedSearchNameLiteral.EqualsOrdinally(resourceNameLiteral))
                     {
                         yield return resource;

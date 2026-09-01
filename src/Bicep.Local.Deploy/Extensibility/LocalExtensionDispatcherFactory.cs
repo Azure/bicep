@@ -28,7 +28,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 namespace Bicep.Local.Deploy.Extensibility;
 
 public class LocalExtensionDispatcherFactory(
-    IConfigurationManager configurationManager,
+    IBicepConfigurationManager configurationManager,
     ILocalExtensionFactory localExtensionFactory,
     IArmDeploymentProvider armDeploymentProvider)
 {

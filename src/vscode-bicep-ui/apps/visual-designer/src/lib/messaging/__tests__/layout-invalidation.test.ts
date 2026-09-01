@@ -57,6 +57,13 @@ describe("patchMayAffectLayout", () => {
     }
   });
 
+  it("does not reflow an addNode patch with an explicit placement", () => {
+    const patch: GraphPatch = { op: "addNode", node: makeNode({ id: "placed" }) };
+
+    expect(patchMayAffectLayout(graph, patch, new Set(["placed"]))).toBe(false);
+    expect(patchMayAffectLayout(graph, patch, new Set(["other"]))).toBe(true);
+  });
+
   it("treats setNodeLayout and setErrorCount as non-affecting", () => {
     expect(patchMayAffectLayout(graph, { op: "setNodeLayout", nodeId: "a", layout: { x: 1, y: 2 } })).toBe(false);
     expect(patchMayAffectLayout(graph, { op: "setErrorCount", errorCount: 3 })).toBe(false);

@@ -1,12 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core;
 using Bicep.IO.Abstraction;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public static class DocumentUriExtensions
     {
+        public static bool IsBicepConfigFile(this DocumentUri documentUri) =>
+            string.Equals(Path.GetFileName(documentUri.Path), LanguageConstants.BicepConfigurationFileName, StringComparison.OrdinalIgnoreCase);
+
         public static IOUri ToIOUri(this DocumentUri documentUri)
         {
             var scheme = new IOUriScheme(documentUri.Scheme ?? "");

@@ -1,0 +1,245 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System.Diagnostics;
+using System.Text;
+using Bicep.Core;
+using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Parsing;
+using Bicep.Core.PrettyPrintV2;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Syntax;
+using Bicep.IO.Abstraction;
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using SharpYaml;
+using SharpYaml.Model;
+
+namespace Bicep.LanguageServer.Features.Custom.ImportKubernetesManifest
+{
+    [Method("bicep/importKubernetesManifest", Direction.ClientToServer)]
+    public record ImportKubernetesManifestRequest(string ManifestFilePath)
+        : IRequest<ImportKubernetesManifestResponse>;
+
+    public record ImportKubernetesManifestResponse(string? BicepFilePath);
+
+    public class ImportKubernetesManifestHandler(
+        ILanguageServerFacade server,
+        IBicepConfigurationManager configurationManager,
+        IFileExplorer fileExplorer) : IJsonRpcRequestHandler<ImportKubernetesManifestRequest, ImportKubernetesManifestResponse>
+    {
+        private readonly ErrorHandlingHelper<ImportKubernetesManifestResponse> helper = new(server.Window);
+
+        public Task<ImportKubernetesManifestResponse> Handle(ImportKubernetesManifestRequest request, CancellationToken cancellationToken)
+            => helper.ExecuteWithErrorHandling(async () =>
+            {
+                var manifestFileUri = IOUri.FromFilePath(request.ManifestFilePath);
+                var manifestContents = await fileExplorer.GetFile(manifestFileUri).ReadAllTextAsync();
+
+                var bicepFileUri = manifestFileUri.WithExtension(LanguageConstants.LanguageFileExtension);
+                var bicepContents = this.Decompile(bicepFileUri, manifestContents);
+
+                await fileExplorer.GetFile(bicepFileUri).WriteAllTextAsync(bicepContents, cancellationToken);
+
+                return new(bicepFileUri.GetFilePath());
+            });
+
+        private string Decompile(IOUri bicepFileUri, string manifestContents)
+        {
+            var declarations = new List<SyntaxBase>
+            {
+                new ParameterDeclarationSyntax(
+                    [
+                        SyntaxFactory.CreateDecorator("secure"),
+                        SyntaxFactory.NewlineToken,
+                    ],
+                    SyntaxFactory.ParameterKeywordToken,
+                    SyntaxFactory.CreateIdentifierWithTrailingSpace("kubeConfig"),
+                    new VariableAccessSyntax(new(SyntaxFactory.CreateIdentifierToken("string"))),
+                    null),
+
+                new ExtensionDeclarationSyntax(
+                    [],
+                    SyntaxFactory.ExtensionKeywordToken,
+                    SyntaxFactory.CreateIdentifierWithTrailingSpace(K8sNamespaceType.BuiltInName),
+                    new ExtensionWithClauseSyntax(
+                        SyntaxFactory.CreateIdentifierToken(LanguageConstants.WithKeyword),
+                        SyntaxFactory.CreateObject(
+                        [
+                            SyntaxFactory.CreateObjectProperty("namespace", SyntaxFactory.CreateStringLiteral("default")),
+                            SyntaxFactory.CreateObjectProperty("kubeConfig", SyntaxFactory.CreateIdentifier("kubeConfig"))
+                        ])),
+                    asClause: SyntaxFactory.EmptySkippedTrivia)
+            };
+
+            try
+            {
+                var reader = new StringReader(manifestContents);
+                var yamlStream = YamlStream.Load(reader, null);
+
+                foreach (var yamlDocument in yamlStream)
+                {
+                    var syntax = ProcessResourceYaml(yamlDocument);
+
+                    declarations.Add(syntax);
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Exception deserializing manifest: {0}", ex);
+                throw helper.CreateException(
+                    $"Failed to deserialize kubernetes manifest YAML: {ex.Message}",
+                    new ImportKubernetesManifestResponse(null));
+            }
+
+            var program = new ProgramSyntax(
+                declarations.SelectMany(x => new SyntaxBase[] { x, SyntaxFactory.DoubleNewlineToken }),
+                SyntaxFactory.CreateToken(TokenType.EndOfFile));
+
+            var configuration = configurationManager.GetEffectiveConfiguration(bicepFileUri);
+            var printerOptions = configuration.Formatting.Data;
+            var printerContext = PrettyPrinterV2Context.Create(printerOptions, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
+
+            return PrettyPrinterV2.Print(program, printerContext);
+        }
+
+        private static ResourceDeclarationSyntax ProcessResourceYaml(YamlDocument yamlDocument)
+        {
+            if (yamlDocument.Contents is not YamlMapping rootNode)
+            {
+                throw new YamlException("Expected dictionary node.");
+            }
+
+            if (!rootNode.TryGetValue("kind", out var kindNodeElement) ||
+                !rootNode.TryGetValue("apiVersion", out var apiVersionNodeElement))
+            {
+                throw new YamlException("Failed to find 'kind' and 'apiVersion' keys for resource declaration.");
+            }
+
+            if (kindNodeElement is not YamlValue kindNode)
+            {
+                throw new YamlException("Unable to process 'kind' for resource declaration.");
+            }
+
+            if (apiVersionNodeElement is not YamlValue apiVersionNode)
+            {
+                throw new YamlException("Unable to process 'apiVersion' for resource declaration.");
+            }
+
+            var kind = kindNode.Scalar.Value;
+            var apiVersionLiteral = apiVersionNode.Scalar.Value;
+            var (type, apiVersion) = apiVersionLiteral.LastIndexOf('/') switch
+            {
+                -1 => ($"core/{kind}", apiVersionLiteral),
+                int x => ($"{apiVersionLiteral.Substring(0, x)}/{kind}", apiVersionLiteral.Substring(x + 1)),
+            };
+
+            var filteredChildren = rootNode.Where(x =>
+                x.Key is not YamlValue keyValue ||
+                (keyValue.Scalar.Value != "kind" && keyValue.Scalar.Value != "apiVersion"));
+
+            var resourceBody = ConvertObjectChildren(filteredChildren);
+            var symbolName = GetResourceSymbolName(type, resourceBody);
+
+            return new ResourceDeclarationSyntax(
+                [],
+                SyntaxFactory.ResourceKeywordToken,
+                SyntaxFactory.CreateIdentifierWithTrailingSpace(symbolName),
+                SyntaxFactory.CreateStringLiteral($"{type}@{apiVersion}"),
+                null,
+                SyntaxFactory.AssignmentToken,
+                [],
+                resourceBody);
+        }
+
+        private static string GetResourceSymbolName(string type, SyntaxBase resourceBody)
+        {
+            var identifier = type;
+            if ((resourceBody as ObjectSyntax)?.TryGetPropertyByNameRecursive("metadata", "name") is { } nameProperty &&
+                (nameProperty.Value as StringSyntax)?.TryGetLiteralValue() is { } nameString)
+            {
+                identifier = $"{type}_{nameString}";
+            }
+
+            var identifierBuilder = new StringBuilder();
+            var capitalizeNext = false;
+            for (var i = 0; i < identifier.Length; i++)
+            {
+                var c = identifier[i];
+                var isValidChar =
+                    (c >= 'a' && c <= 'z') ||
+                    (c >= 'A' && c <= 'Z') ||
+                    (i > 0 && c >= '0' && c <= '9') ||
+                    (i > 0 && c == '_');
+
+                if (capitalizeNext && (c >= 'a' && c <= 'z'))
+                {
+                    // ASCII codes for lc and uppercase chars are 32 apart.
+                    // Subtract 32 from the ASCII code to convert to uppercase.
+                    c -= (char)32;
+                }
+
+                if (isValidChar)
+                {
+                    identifierBuilder.Append(c);
+                }
+                capitalizeNext = !isValidChar;
+            }
+
+            return identifierBuilder.ToString();
+        }
+
+        private static SyntaxBase ConvertValue(YamlElement? value)
+        {
+            if (value is null)
+            {
+                return SyntaxFactory.CreateNullLiteral();
+            }
+
+            switch (value)
+            {
+                case YamlMapping dictValue:
+                    return ConvertObjectChildren(dictValue);
+                case YamlSequence listValue:
+                    var items = listValue.Select(ConvertValue);
+                    return SyntaxFactory.CreateArray(items);
+                case YamlValue scalarNode:
+                    if (scalarNode.Scalar.Style == ScalarStyle.Plain)
+                    {
+                        // If the user hasn't provided quotes, there's no way to differentiate between strings, ints & bools. We have to guess...
+                        if (bool.TryParse(scalarNode.Scalar.Value, out var boolVal))
+                        {
+                            return SyntaxFactory.CreateBooleanLiteral(boolVal);
+                        }
+
+                        if (long.TryParse(scalarNode.Scalar.Value, out var longVal))
+                        {
+                            return SyntaxFactory.CreatePositiveOrNegativeInteger(longVal);
+                        }
+                    }
+
+                    return SyntaxFactory.CreateStringLiteral(scalarNode.Scalar.Value);
+                default:
+                    throw new InvalidOperationException($"Unsupported type {value.GetType()}");
+            }
+        }
+
+        private static ObjectSyntax ConvertObjectChildren(IEnumerable<KeyValuePair<YamlElement, YamlElement?>> children)
+        {
+            var objectProperties = new List<ObjectPropertySyntax>();
+            foreach (var kvp in children)
+            {
+                if (kvp.Key is not YamlValue keyNode)
+                {
+                    throw new InvalidOperationException($"Unsupported object key {kvp.Key.GetType()}");
+                }
+
+                var objectProperty = SyntaxFactory.CreateObjectProperty(keyNode.Scalar.Value, ConvertValue(kvp.Value));
+                objectProperties.Add(objectProperty);
+            }
+            return SyntaxFactory.CreateObject(objectProperties);
+        }
+    }
+}

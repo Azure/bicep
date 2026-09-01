@@ -2,11 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Collections.Concurrent;
+using Bicep.LanguageServer.Features.Workspace.DidChangeConfiguration;
 
 namespace Bicep.LanguageServer.Settings
 {
     /// <summary>
-    /// Provider used to cache settings information received from <see cref="ConfigurationSettingsHandler"/>
+    /// Provider used to cache settings information received from <see cref="BicepDidChangeConfigurationHandler"/>.
     /// </summary>
     public class SettingsProvider : ISettingsProvider
     {

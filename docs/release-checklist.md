@@ -24,6 +24,7 @@
     - `-WorkingDir` can be any empty temporary directory that you create
     - `-TagName` the tag for the new release you're publishing in the format `v<new_release_number>` e.g. `v0.15.31`
     - `-BuildId` is only needed if the latest official build is NOT the official build you are trying to release
+    > If the script fails with "release not found", the GitHub CLI is likely authenticated as a different account than the one used to create the draft release (for example, the draft was created with your personal GitHub account, but the CLI is signed in with your Microsoft EMU account). Run `gh auth status` to confirm which account the CLI is using, and re-authenticate if needed.
 1. Validate VSCode extension and Bicep CLI manually on Windows, Mac & Linux:
     1. Download `vscode-bicep.vsix` from the draft release, and [Install it from VSIX](https://code.visualstudio.com/docs/editor/extension-marketplace#_install-from-a-vsix). Verify that you can open a Bicep file, that text is correctly colorized, and that error messages show up as expected.
     1. Download the appropriate Bicep executable for your platform (e.g. `bicep-linux-x64`). Verify you can invoke it with e.g. `bicep-linux-x64 --version`, and that it prints the expected output.

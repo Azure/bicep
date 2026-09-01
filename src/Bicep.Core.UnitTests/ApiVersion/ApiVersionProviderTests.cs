@@ -2,9 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.ApiVersions;
-using Bicep.Core.Configuration;
-using Bicep.Core.Features;
-using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Mock;
 using FluentAssertions;
@@ -23,65 +20,27 @@ namespace Bicep.Core.UnitTests.ApiVersions
         [DataTestMethod]
         public void GetApiVersions(string fullyQualifiedName, params string[] expected)
         {
-            var apiVersionProvider = CreateDefaultApiVersionProvider();
-            apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
+            var apiVersionProvider = FakeResourceTypes.GetFakeApiVersionProvider(FakeResourceTypes.ResourceScopeTypes);
 
             string[] actual = apiVersionProvider.GetApiVersions(ResourceScope.ResourceGroup, fullyQualifiedName).Select(v => v.ToString()).ToArray();
 
-            actual.Should().BeEquivalentTo(expected);
+            actual.Should().Equal(expected);
         }
 
         [TestMethod]
-        public void GetResourceTypeNames_BadScope()
+        public void GetApiVersions_DoesNotFilterByScope()
         {
-            var apiVersionProvider = CreateDefaultApiVersionProvider();
-            apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
+            var apiVersionProvider = FakeResourceTypes.GetFakeApiVersionProvider([
+                "fake.rg/whatever@2000-01-01",
+                "fake.sub/whatever@2001-01-01",
+                "fake.mg/whatever@2002-01-01",
+                "fake.tenant/whatever@2003-01-01",
+            ]);
 
-            var lambda =
-            (() =>
-            {
-
-                var types = apiVersionProvider.GetResourceTypeNames(ResourceScope.Resource);
-            });
-            lambda.Should().Throw<ArgumentException>();
+            apiVersionProvider.GetApiVersions(ResourceScope.ResourceGroup, "fake.rg/whatever").Should().ContainSingle().Which.ToString().Should().Be("2000-01-01");
+            apiVersionProvider.GetApiVersions(ResourceScope.Subscription, "fake.sub/whatever").Should().ContainSingle().Which.ToString().Should().Be("2001-01-01");
+            apiVersionProvider.GetApiVersions(ResourceScope.ManagementGroup, "fake.mg/whatever").Should().ContainSingle().Which.ToString().Should().Be("2002-01-01");
+            apiVersionProvider.GetApiVersions(ResourceScope.Tenant, "fake.tenant/whatever").Should().ContainSingle().Which.ToString().Should().Be("2003-01-01");
         }
-
-        [DataTestMethod]
-        public void GetResourceTypeNames_ResourceGroup()
-        {
-            var apiVersionProvider = CreateDefaultApiVersionProvider();
-            apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
-
-            var types = apiVersionProvider.GetResourceTypeNames(ResourceScope.ResourceGroup);
-
-            types.Should().Contain("Fake.Network/dnszones", "Fake.Network/publicIPAddresses", "Fake.Network/ddosProtectionPlans");
-        }
-
-        [DataTestMethod]
-        public void GetResourceTypeNames_SeparateScopes()
-        {
-            var apiVersionProvider = CreateDefaultApiVersionProvider();
-            apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
-            apiVersionProvider.InjectTypeReferences(ResourceScope.Subscription, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.SubscriptionScopeTypes));
-            apiVersionProvider.InjectTypeReferences(ResourceScope.ManagementGroup, FakeResourceTypes.GetFakeResourceTypeReferences("fake.mg/whatever@2001-01-01"));
-            apiVersionProvider.InjectTypeReferences(ResourceScope.Tenant, FakeResourceTypes.GetFakeResourceTypeReferences("fake.tenant/whatever@2002-01-01"));
-
-            var rgTypes = apiVersionProvider.GetResourceTypeNames(ResourceScope.ResourceGroup);
-            rgTypes.Should().Contain(new string[] { "Fake.Network/dnszones", "Fake.Network/publicIPAddresses", "Fake.Network/ddosProtectionPlans" });
-
-            var subTypes = apiVersionProvider.GetResourceTypeNames(ResourceScope.Subscription);
-            subTypes.Should().Contain(new String[] { "Fake.Web/publishingCredentials", "Fake.Security/deviceSecurityGroups" });
-
-            var mgTypes = apiVersionProvider.GetResourceTypeNames(ResourceScope.ManagementGroup);
-            mgTypes.Should().Contain("fake.mg/whatever");
-
-            var tenantTypes = apiVersionProvider.GetResourceTypeNames(ResourceScope.Tenant);
-            tenantTypes.Should().Contain("fake.tenant/whatever");
-        }
-
-        private ApiVersionProvider CreateDefaultApiVersionProvider(IEnumerable<ResourceTypeReference>? resourceTypeReferences = null)
-            => new(
-                new FeatureProvider(IConfigurationManager.GetBuiltInConfiguration(), BicepTestConstants.FileExplorer),
-                resourceTypeReferences ?? []);
     }
 }

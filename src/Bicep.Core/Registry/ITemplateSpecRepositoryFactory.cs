@@ -7,6 +7,6 @@ namespace Bicep.Core.Registry
 {
     public interface ITemplateSpecRepositoryFactory
     {
-        ITemplateSpecRepository CreateRepository(RootConfiguration configuration, string subscriptionId);
+        ITemplateSpecRepository CreateRepository(IBicepConfiguration configuration, string subscriptionId);
     }
 }
