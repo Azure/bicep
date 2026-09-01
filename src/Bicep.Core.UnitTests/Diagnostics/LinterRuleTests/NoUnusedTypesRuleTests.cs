@@ -65,7 +65,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             param foo derivedType
             output bar derivedType = foo
             ")]
-        [DataTestMethod]
+        [TestMethod]
         public void TestRule(string text, params string[] unusedTypes)
         {
             CompileAndTest(text, unusedTypes);
@@ -87,7 +87,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             type a
             ",
             "a")]
-        [DataTestMethod]
+        [TestMethod]
         public void SyntaxErrors(string text, params string[] unusedTypes)
         {
             CompileAndTest(text, new(OnCompileErrors.Ignore), unusedTypes);
@@ -95,7 +95,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         [DataRow(@"type")] // Don't show as unused - no type name
         [DataRow(@"type // whoops")] // Don't show as unused - no type name
-        [DataTestMethod]
+        [TestMethod]
         public void Errors(string text, params string[] unusedTypes)
         {
             CompileAndTest(text, new(OnCompileErrors.Ignore), unusedTypes);

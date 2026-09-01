@@ -610,7 +610,7 @@ namespace Bicep.Core.UnitTests.Configuration
             configuration.ToUtf8Json().Should().Be(BicepConfiguration.BuiltIn.ToUtf8Json());
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("""
             {
               "cloud": {
@@ -744,7 +744,7 @@ namespace Bicep.Core.UnitTests.Configuration
             diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{fileSet.GetUri("bicepconfig.json")}\": {expectedExceptionMessage}");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("repo")]
         [DataRow("re%20po")]
         public void GetConfiguration_ValidCustomConfiguration_OverridesBuiltInConfiguration(string root)

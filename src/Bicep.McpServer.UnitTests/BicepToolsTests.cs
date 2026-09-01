@@ -36,8 +36,8 @@ public class BicepToolsTests
         var result = response.ResourceTypes;
 
         result.Should().HaveCountGreaterThan(700);
-        result.Should().AllSatisfy(x => x.Split('/').First().Equals("Microsoft.Compute", StringComparison.OrdinalIgnoreCase))
-            .And.AllSatisfy(x => x.Contains('@'));
+        result.Should().AllSatisfy(x => x.Split('/').First().Should().BeEquivalentTo("Microsoft.Compute"))
+            .And.AllSatisfy(x => x.Should().Contain("@"));
     }
 
     [TestMethod]

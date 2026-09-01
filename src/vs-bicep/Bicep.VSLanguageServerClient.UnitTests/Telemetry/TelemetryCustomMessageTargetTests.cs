@@ -17,7 +17,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
         [DataRow(@"{ ""a"": 1 }")]
         [DataRow(@"{ ""eventName"": """" }")]
         [DataRow(@"{ ""eventName"": ""   "" }")]
-        [DataTestMethod]
+        [TestMethod]
         [Ignore] // TODO: Fix (https://github.com/Azure/bicep/issues/14251)
         public void GetTelemetryEvent_WithInvalidInput_ShouldReturnNull(string input)
         {

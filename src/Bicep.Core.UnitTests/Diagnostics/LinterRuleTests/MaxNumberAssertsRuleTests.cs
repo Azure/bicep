@@ -25,7 +25,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(
             1, 33, "assert a% = true",
             new string[] { "Too many predeployment conditions. Number of 'assert' statements is limited to 32." })]
-        [DataTestMethod]
+        [TestMethod]
         public void TooManyAsserts(int i, int j, string pattern, string[] expectedMessages)
         {
             CompileAndTest(GenerateText(i, j, pattern), MaxNumberAssertsRule.Code, Core.Diagnostics.DiagnosticLevel.Error, expectedMessages, new Options() { OnCompileErrors = OnCompileErrors.Ignore });

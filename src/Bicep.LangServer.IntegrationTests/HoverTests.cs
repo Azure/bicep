@@ -58,8 +58,8 @@ namespace Bicep.LangServer.IntegrationTests
             await ServerWithTestNamespaceProvider.DisposeAsync();
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task HoveringOverSymbolReferencesAndDeclarationsShouldProduceHovers(DataSet dataSet)
         {
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
@@ -140,8 +140,8 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task HoveringOverNonHoverableElementsShouldProduceEmptyHovers(DataSet dataSet)
         {
             // local function
@@ -454,7 +454,7 @@ output o1 string = mod|1.name
             );
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("json")]
         [DataRow("jsonc")]
         public async Task Hovers_are_displayed_on_description_metadata_in_json_module(string extension)
@@ -731,7 +731,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nkind: 'BodyA' | 'BodyB'\n```  \n"));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         //
         // DocumentationUri only, no description
         //

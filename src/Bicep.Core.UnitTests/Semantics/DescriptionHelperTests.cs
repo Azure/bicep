@@ -13,7 +13,7 @@ namespace Bicep.Core.UnitTests.Semantics;
 [TestClass]
 public class DescriptionHelperTests
 {
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         @"{
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
@@ -54,7 +54,7 @@ public class DescriptionHelperTests
         description.Should().Be(expectedDescription);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         @"{
           ""location"": ""westus2"",
@@ -188,7 +188,7 @@ public class DescriptionHelperTests
         description.Should().Be(expectedDescription);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         @"{
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
@@ -216,7 +216,7 @@ public class DescriptionHelperTests
         DescriptionHelper.TryGetFromSemanticModel(model).Should().Be(expectedDescription);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         @"{
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",

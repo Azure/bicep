@@ -29,8 +29,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static SemanticModel CreateDummySemanticModel()
             => TestCompiler.ForInMemoryCompilation().CompileWithoutRestore("").Compilation.GetEntrypointSemanticModel();
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetExactMatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetExactMatchData), DynamicDataDisplayName = nameof(GetDisplayName))]
         public void ExactOrPartialFunctionMatchShouldHaveCorrectReturnType(string displayName, string functionName, TypeSymbol expectedReturnType, IList<TypeSymbol> argumentTypes)
         {
             var matches = GetMatches(functionName, argumentTypes, out _, out _);
@@ -45,8 +45,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             matches.Single().ResultBuilder(CreateDummySemanticModel(), mockDiagnosticWriter.Object, functionCall, [.. argumentTypes]).Type.Should().Be(expectedReturnType);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetAmbiguousMatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetAmbiguousMatchData), DynamicDataDisplayName = nameof(GetDisplayName))]
         public void FullyAmbiguousMatchesShouldHaveCorrectReturnType(string displayName, string functionName, int numberOfArguments, IList<TypeSymbol> expectedReturnTypes)
         {
             var matches = GetMatches(functionName, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToList(), out _, out _);
@@ -61,15 +61,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
             matches.Select(m => m.ResultBuilder(CreateDummySemanticModel(), mockDiagnosticWriter.Object, functionCall, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToImmutableArray()).Type).Should().BeEquivalentTo(expectedReturnTypes);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetMismatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetMismatchData), DynamicDataDisplayName = nameof(GetDisplayName))]
         public void MismatchShouldReturnAnEmptySet(string displayName, string functionName, IList<TypeSymbol> argumentTypes)
         {
             GetMatches(functionName, argumentTypes, out _, out _).Should().BeEmpty();
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetArgumentCountMismatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetArgumentCountMismatchData), DynamicDataDisplayName = nameof(GetDisplayName))]
         public void IncorrectArgumentCountShouldSetArgumentCountMismatches(string displayName, string functionName, Tuple<int, int?> argumentCountRange, IList<TypeSymbol> argumentTypes)
         {
             GetMatches(functionName, argumentTypes, out List<ArgumentCountMismatch> countMismatches, out List<ArgumentTypeMismatch> typeMismatches);
@@ -85,8 +85,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetArgumentTypeMismatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetArgumentTypeMismatchData), DynamicDataDisplayName = nameof(GetDisplayName))]
         public void IncorrectArgumentTypeShouldSetArgumentCountMismatches(string displayName, string functionName, List<Tuple<int, TypeSymbol>> parameterTypeAtIndexOverloads, IList<TypeSymbol> argumentTypes)
         {
             GetMatches(functionName, argumentTypes, out List<ArgumentCountMismatch> countMismatches, out List<ArgumentTypeMismatch> typeMismatches);
@@ -118,15 +118,15 @@ namespace Bicep.Core.UnitTests.TypeSystem
             evaluated.Type.Should().Be(TypeFactory.CreateIntegerLiteralType(3));
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetLiteralTransformations), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetLiteralTransformations), DynamicDataDisplayName = nameof(GetDisplayName))]
         public void LiteralTransformationsYieldLiteralReturnType(string displayName, string functionName, IList<TypeSymbol> argumentTypes, FunctionArgumentSyntax[] arguments, TypeSymbol expectedReturnType)
         {
             EvaluateFunction(functionName, argumentTypes, arguments).Type.Should().Be(expectedReturnType);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetInputsThatFlattenToArrayOfAny), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetInputsThatFlattenToArrayOfAny))]
         public void ShouldFlattenToArrayOfAny(TypeSymbol typeToFlatten)
         {
             EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray([]))])
@@ -134,30 +134,30 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Item.Should().Be(LanguageConstants.Any);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetFlattenPositiveTestCases), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetFlattenPositiveTestCases))]
         public void ShouldFlattenTo(TypeSymbol typeToFlatten, TypeSymbol expected)
         {
             TypeValidator.AreTypesAssignable(EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray([]))]).Type, expected).Should().BeTrue();
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetFlattenNegativeTestCases), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetFlattenNegativeTestCases))]
         public void ShouldNotFlatten(TypeSymbol typeToFlatten, params string[] diagnosticMessages)
         {
             EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray([]))]).Type.GetDiagnostics().Cast<IDiagnostic>()
                 .Should().HaveDiagnostics(diagnosticMessages.Select(message => ("BCP309", DiagnosticLevel.Error, message)));
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetFirstTestCases), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetFirstTestCases))]
         public void FirstReturnsCorrectType(TypeSymbol inputArrayType, TypeSymbol expected)
         {
             TypeValidator.AreTypesAssignable(EvaluateFunction("first", new List<TypeSymbol> { inputArrayType }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray([]))]).Type, expected).Should().BeTrue();
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetLastTestCases), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetLastTestCases))]
         public void LastReturnsCorrectType(TypeSymbol inputArrayType, TypeSymbol expected)
         {
             TypeValidator.AreTypesAssignable(EvaluateFunction("last", new List<TypeSymbol> { inputArrayType }, [new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray([]))]).Type, expected).Should().BeTrue();
@@ -278,8 +278,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             returnedArray.MinLength.Should().Be(1);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetPadLeftTestCases), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetPadLeftTestCases))]
         public void PadLeftReturnsCorrectType(IList<TypeSymbol> argumentTypes, TypeSymbol expectedReturnType)
         {
             var returnType = EvaluateFunction("padLeft", argumentTypes, argumentTypes
@@ -390,8 +390,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 });
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetLengthTestCases), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetLengthTestCases))]
         public void LengthInfersPossibleRangesFromRefinementMetadata(TypeSymbol argumentType, TypeSymbol expectedReturn)
         {
             var returnType = EvaluateFunction("length",
@@ -471,8 +471,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             };
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetJoinTestCases), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetJoinTestCases))]
         public void JoinInfersPossibleLengthRangesFromRefinementMetadata(TypeSymbol typeToJoin, TypeSymbol delimiterType, TypeSymbol expectedReturn)
         {
             var returnType = EvaluateFunction("join",
@@ -511,8 +511,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             };
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetSubstringTestCases), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetSubstringTestCases))]
         public void SubstringInfersPossibleLengthRangesFromRefinementMetadata(IList<TypeSymbol> argumentTypes, TypeSymbol expectedReturn)
         {
             var returnType = EvaluateFunction("substring", argumentTypes, argumentTypes
@@ -548,8 +548,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             };
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetSkipTestCases), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetSkipTestCases))]
         public void SkipInfersPossibleLengthRangesFromRefinementMetadata(TypeSymbol originalValue, TypeSymbol numberToSkip, TypeSymbol expectedReturn)
         {
             var returnType = EvaluateFunction("skip",
@@ -591,8 +591,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             };
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetTakeTestCases), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetTakeTestCases))]
         public void TakeInfersPossibleLengthRangesFromRefinementMetadata(TypeSymbol originalValue, TypeSymbol numberToTake, TypeSymbol expectedReturn)
         {
             var returnType = EvaluateFunction("take",
@@ -647,8 +647,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             returnType.Should().Be(TypeFactory.CreateStringType(minLength: null, 20, validationFlags: TypeSymbolValidationFlags.IsSecure));
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetRangeTestCases), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetRangeTestCases))]
         public void RangeInfersYieldRefinementsFromInputMetadata(TypeSymbol startIndex, TypeSymbol count, TypeSymbol expectedReturn)
         {
             var returnType = EvaluateFunction("range",

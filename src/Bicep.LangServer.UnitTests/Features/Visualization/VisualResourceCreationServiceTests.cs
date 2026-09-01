@@ -37,7 +37,7 @@ public class VisualResourceCreationServiceTests
 
     #region DeriveBaseSymbolicName
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("Microsoft.Storage/storageAccounts", "storageAccount")]
     [DataRow("Microsoft.Compute/virtualMachines", "virtualMachine")]
     [DataRow("Microsoft.Network/loadBalancers", "loadBalancer")]

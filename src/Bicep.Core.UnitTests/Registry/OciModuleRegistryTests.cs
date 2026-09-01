@@ -60,7 +60,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataRow("")]
         [DataRow("    ")]
         [DataRow(null)]
-        [DataTestMethod]
+        [TestMethod]
         public void GetDocumentationUri_WithInvalidManifestContents_ShouldReturnNull(string manifestFileContents)
         {
             (OciArtifactRegistry OciArtifactRegistry, OciArtifactReference OciArtifactReference) = CreateModuleRegistryWithCachedModuleReference(
@@ -125,7 +125,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         [DataRow("")]
         [DataRow("   ")]
-        [DataTestMethod]
+        [TestMethod]
         public void GetDocumentationUri_WithAnnotationsInManifestFileAndInvalidDocumentationUri_ShouldReturnNull(string documentationUri)
         {
             var manifestFileContents = @"{
@@ -328,7 +328,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataRow("")]
         [DataRow("    ")]
         [DataRow(null)]
-        [DataTestMethod]
+        [TestMethod]
         public void GetDescription_WithInvalidManifestContents_ShouldReturnNull(string manifestFileContents)
         {
             (OciArtifactRegistry OciArtifactRegistry, OciArtifactReference OciArtifactReference) = CreateModuleRegistryWithCachedModuleReference(
@@ -466,7 +466,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         [DataRow("")]
         [DataRow("   ")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task GetDescription_WithAnnotationsInManifestFileAndInvalidDescription_ShouldReturnNull(string description)
         {
             var manifestFileContents = @"{
@@ -588,7 +588,7 @@ namespace Bicep.Core.UnitTests.Registry
   }
 }";
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(false)]
         [DataRow(true)]
         public async Task PublishModuleWithSource_ShouldHaveSource(bool publishSource)
@@ -615,7 +615,7 @@ namespace Bicep.Core.UnitTests.Registry
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // No sources at all
         [DataRow(jsonContentsV1, null, jsonContentsV2, null)]
         // Sources for only one version
@@ -666,7 +666,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         #region Pull modules
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(false)]
         [DataRow(true)]
         public async Task RestoreModuleWithSource_ShouldRestoreSourceToDisk(bool publishSource)

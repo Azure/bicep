@@ -99,7 +99,7 @@ namespace Bicep.LangServer.IntegrationTests
             return defaultServer;
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow($"file://{ROOT}path/to/localfile.bicep")]
         [DataRow($"file://{ROOT}path/to/localfile.json")]
         [DataRow($"file://{ROOT}path/to/localfile.bicepparam")]

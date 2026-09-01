@@ -1189,7 +1189,7 @@ param myParam string
     }
 
     // https://github.com/azure/bicep/issues/12920
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test.bar", "BCP053", """The type "{ foo: { bar: string } }" does not contain property "bar". Available properties include "foo".""")]
     [DataRow("{ foo: string }.foo", "BCP391", "Type member access is only supported on a reference to a named type.")]
     public void Invalid_type_property_access_raises_diagnostic(string accessExpression, string expectedErrorCode, string expectedErrorMessage)
@@ -1297,7 +1297,7 @@ param myParam string
             """));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test[1]", "BCP311", """The provided index value of "1" is not valid for type "[{ bar: string }]". Indexes for this type must be between 0 and 0.""")]
     [DataRow("test[-1]", "BCP387", "Indexing into a type requires an integer greater than or equal to 0.")]
     [DataRow("[string][0]", "BCP391", "Type member access is only supported on a reference to a named type.")]
@@ -1366,7 +1366,7 @@ param myParam string
             """));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test.*", "BCP389", """The type "{ foo: string }" does not declare an additional properties type.""")]
     [DataRow("object.*", "BCP389", """The type "object" does not declare an additional properties type.""")]
     [DataRow("{ *: string }.*", "BCP391", "Type member access is only supported on a reference to a named type.")]
@@ -1475,7 +1475,7 @@ param myParam string
             """));
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("test[*]", "BCP390", "The array item type access operator ('[*]') can only be used with typed arrays.")]
     [DataRow("array[*]", "BCP390", "The array item type access operator ('[*]') can only be used with typed arrays.")]
     [DataRow("test[0][*]", "BCP390", "The array item type access operator ('[*]') can only be used with typed arrays.")]
@@ -1766,7 +1766,7 @@ param myParam string
         );
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("type resourceInput = resourceInput<'Microsoft.Compute/virtualMachines'>")] // should be caught at syntax level
     [DataRow("type resourceInput = resourceInput<'Microsoft.Compute/virtualMachines'>.properties")] // should be caught by type manager
     public void Parameterized_type_recursion_raises_diagnostic(string template)
@@ -1782,7 +1782,7 @@ param myParam string
     }
 
     // https://www.github.com/Azure/bicep/issues/15277
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("type resourceDerived = resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings", "$.definitions.resourceDerived")]
     [DataRow("param resourceDerived resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings", "$.parameters.resourceDerived")]
     [DataRow("output resourceDerived resourceInput<'Microsoft.Compute/virtualMachines/extensions@2019-12-01'>.properties.settings = 'foo'", "$.outputs.resourceDerived")]

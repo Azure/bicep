@@ -41,7 +41,7 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
         }
 
         [DataRow("things")]
-        [DataTestMethod]
+        [TestMethod]
         public void VisitorShouldProduceNoChainForNonInlinedVariables(string variableName)
         {
             var compilation = CreateCompiler().CompileWithoutRestore(Text).Compilation;
@@ -55,7 +55,7 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
         [DataRow("indirection", "keys")]
         [DataRow("runtimeLoop", "indirection,keys")]
         [DataRow("runtimeLoop2", "indirection,keys")]
-        [DataTestMethod]
+        [TestMethod]
         public void VisitorShouldProduceCorrectChainForInlinedVariables(string variableName, string expectedChain)
         {
             var compilation = CreateCompiler().CompileWithoutRestore(Text).Compilation;

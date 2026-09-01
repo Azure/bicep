@@ -4,6 +4,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
 
     <!-- Workaround for https://github.com/microsoft/testfx/issues/4945 -->
+    <!-- This is a test fixtures library, not a runnable test project -->
+    <EnableMSTestRunner>false</EnableMSTestRunner>
     <TestingPlatformDotnetTestSupport>false</TestingPlatformDotnetTestSupport>
   </PropertyGroup>
 

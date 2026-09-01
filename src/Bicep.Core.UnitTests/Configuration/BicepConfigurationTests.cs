@@ -64,7 +64,7 @@ public class BicepConfigurationTests
             "\"owner\": \"Platform\"");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("""{ "output": null }""", "output, template, and examples")]
     [DataRow("""{ "template": null }""", "output, template, and examples")]
     [DataRow("""{ "examples": null }""", "output, template, and examples")]
@@ -108,8 +108,8 @@ public class BicepConfigurationTests
         configuration.Data.Examples.Reassignments.Single().From.Exclude.Should().BeEmpty();
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(GetTestData), DynamicDataSourceType.Method)]
+    [TestMethod]
+    [DynamicData(nameof(GetTestData))]
     public void RootConfiguration_LeadingTildeInCacheRootDirectory_ExpandPath(string cacheRootDirectory, string expectedExpandedDirectory)
     {
         var configuration = BicepTestConstants.BuiltInConfiguration.With(cacheRootDirectory: cacheRootDirectory);

@@ -16,7 +16,7 @@ namespace Bicep.Core.UnitTests.Emit
         private static TestCompiler CreateCompiler() => TestCompiler.ForInMemoryCompilation()
             .WithEmptyAzResources();
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("null", "[null()]")]
         [DataRow("true", "[true()]")]
         [DataRow("false", "[false()]")]

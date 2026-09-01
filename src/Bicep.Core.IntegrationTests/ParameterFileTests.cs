@@ -692,7 +692,7 @@ param bar2 = externalInput('kind', foo)
             "The imported symbol \"subnetId\" cannot be used in a .bicepparam file because it depends on deployment-context functions: \"resourceId\". Imported declarations may only use functions that can be evaluated while building the parameters file.");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("subscriptionResourceId('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', 'Microsoft.Authorization/roleDefinitions', 'role')")]
     [DataRow("managementGroupResourceId('managementGroup', 'Microsoft.Authorization/policyDefinitions', 'policy')")]
     [DataRow("tenantResourceId('Microsoft.Authorization/policyDefinitions', 'policy')")]
@@ -714,7 +714,7 @@ param bar2 = externalInput('kind', foo)
         result.Should().NotHaveAnyDiagnostics();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'role')", "subscriptionResourceId")]
     [DataRow("managementGroupResourceId('Microsoft.Authorization/policyDefinitions', 'policy')", "managementGroupResourceId")]
     public void ImportedVariable_WithContextDependentResourceIdFunction_ReturnsDiagnostic(string functionCall, string functionName)
@@ -735,7 +735,7 @@ param bar2 = externalInput('kind', foo)
             $"The imported symbol \"resourceIdValue\" cannot be used in a .bicepparam file because it depends on deployment-context functions: \"{functionName}\". Imported declarations may only use functions that can be evaluated while building the parameters file.");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', 'storage'), 'Microsoft.Authorization/locks', 'lock')", "resourceId")]
     [DataRow("tenantResourceId('Microsoft.Authorization/policyDefinitions', resourceGroup().name)", "resourceGroup")]
     public void ImportedVariable_WithPureResourceIdFunctionWrappingContextDependentFunction_ReturnsDiagnostic(string functionCall, string functionName)

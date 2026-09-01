@@ -989,8 +989,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 return dt.CompareTo(other) >= 0;
             }
 
-            [DataTestMethod]
-            [DynamicData(nameof(GetTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(TestData), DynamicDataDisplayName = nameof(TestData.GetDisplayName))]
+            [TestMethod]
+            [DynamicData(nameof(GetTestData), DynamicDataDisplayNameDeclaringType = typeof(TestData), DynamicDataDisplayName = nameof(TestData.GetDisplayName))]
             public void InvariantsTest(TestData data)
             {
                 var (allVersions, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(RealApiVersionProvider, data.Today, data.MaxAgeInDays, UseRecentApiVersionRule.DefaultGracePeriodInDays, data.ResourceScope, data.FullyQualifiedResourceType);
