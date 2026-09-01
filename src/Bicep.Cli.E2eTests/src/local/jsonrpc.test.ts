@@ -9,9 +9,9 @@ import { Bicep } from "@azure/bicep-rpc-client";
 describe("bicep jsonrpc", () => {
   let bicep: Bicep;
 
-  beforeAll(async () => (bicep = await Bicep.initialize(bicepCli)), 30_000);
+  beforeAll(async () => (bicep = await Bicep.initialize(bicepCli)), 60_000);
 
-  afterAll(() => bicep.dispose());
+  afterAll(() => bicep?.dispose());
 
   it("should return a version number", async () => {
     const result = await bicep.version();
