@@ -43,7 +43,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
     ////////////////////////////////////////////////////////////////////
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         """
             type superComplexType = {
@@ -145,7 +145,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
     ////////////////////////////////////////////////////////////////////
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         """
             var a = '|b'
@@ -318,7 +318,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             """,
        null,
        null)]
-    [DataTestMethod]
+    [TestMethod]
     public async Task NullType(string fileWithSelection, string? expectedVarText, string? expectedLooseParamText, string? expectedMediumParamText, string? expectedResourceDerivedParamText)
     {
         await RunExtractToVariableAndParameterTest(fileWithSelection, expectedVarText, expectedLooseParamText, expectedMediumParamText, expectedResourceDerivedParamText);
@@ -326,7 +326,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
     ////////////////////////////////////////////////////////////////////
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         """
             var a = '|b'
@@ -359,7 +359,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
     ////////////////////////////////////////////////////////////////////
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         """
             var newVariable = 'newVariable'
@@ -468,7 +468,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
             var v = { '99': _99 }
             """)]
-    [DataTestMethod]
+    [TestMethod]
     public async Task WeirdNames(string fileWithSelection, string expectedText)
     {
         await RunExtractToParameterTest(fileWithSelection, expectedText, "IGNORE", "IGNORE");
@@ -1077,7 +1077,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             var v = newParameter
             """,
         null)]
-    [DataTestMethod]
+    [TestMethod]
     public async Task Params_InferType(string fileWithSelection, string expectedMediumParameterText, string expectedStrictParameterText, string? expectedResourceDerivedParameterText)
     {
         await RunExtractToParameterTest(fileWithSelection, expectedMediumParameterText, expectedStrictParameterText, expectedResourceDerivedParameterText);
@@ -1145,7 +1145,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
     ////////////////////////////////////////////////////////////////////
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         """
             resource vmName_resource 'Microsoft.Compute/virtualMachines@2019-12-01' = {
@@ -1245,7 +1245,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
     ////////////////////////////////////////////////////////////////////
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         "var a = resourceGroup().locati|on",
         """
@@ -1490,7 +1490,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
     //        var blah1 = [newVariable, { foo: 'baz' }]",
     //        """
     //    )]
-    [DataTestMethod]
+    [TestMethod]
     public async Task ShouldExpandSelectedExpressionsInALogicalWay_Expressions(string lineWithSelection, string expectedNewVarDeclaration)
     {
         await RunExtractToVariableTest(lineWithSelection, expectedNewVarDeclaration);
@@ -1498,7 +1498,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
     ////////////////////////////////////////////////////////////////////
 
-    [DataTestMethod]
+    [TestMethod]
     //
     // Closest ancestor expression is the top-level expression itself -> offer to update full expression
     //
@@ -1631,7 +1631,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
     ////////////////////////////////////////////////////////////////////
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         "storageUri: reference(stora<<geAccount.i>>d, '2018-02-01').primaryEndpoints.blob",
         "var storageAccountId = storageAccount.id",
@@ -1742,7 +1742,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
     //          name: '${storagePrefix}${newVariable}'
     //        }
     //        """)]
-    [DataTestMethod]
+    [TestMethod]
     public async Task IfThereIsASelection_ThenPickUpEverythingInTheSelection_AfterExpanding_StringExtrapolation(string fileWithSelection, string expectedVariableText)
     {
         await RunExtractToVariableTest(fileWithSelection, expectedVariableText);
@@ -1750,7 +1750,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
     ////////////////////////////////////////////////////////////////////
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         """
             // My comment here
@@ -1885,7 +1885,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
 
     ////////////////////////////////////////////////////////////////////
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         """
             var v = <<1>>
@@ -2851,7 +2851,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             null);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(
         """
             resource nsg 'Microsoft.Network/networkSecurityGroups@2023-09-01' = {
@@ -3240,7 +3240,7 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
             ]
             """,
         0)]
-    [DataTestMethod]
+    [TestMethod]
     public void TestGetFirstLineOfStatementIncludingComments(string bicep, int expected)
     {
         // Find the variable declaration line

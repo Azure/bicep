@@ -80,7 +80,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             "ssVal"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void ParameterReference(string text, string expectedFix)
         {
             ExpectDiagnosticWithFix(text, expectedFix);
@@ -107,7 +107,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ",
             "ssVal"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void VariableReference(string text, string expectedFix)
         {
             ExpectDiagnosticWithFix(text, expectedFix);
@@ -130,7 +130,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }",
             "resourceGroup().location"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void StringExpression(string text, string expectedFix)
         {
             ExpectDiagnosticWithFix(text, expectedFix);
@@ -164,7 +164,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         location: resourceGroup().location
                     }"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void InterpolationMoreThanJustParamOrVar_Passes(string text)
         {
             ExpectPass(text);
@@ -177,7 +177,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         location: resourceGroup().location
                     }"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void DoesntHaveInterpolation_Passes(string text)
         {
             ExpectPass(text);
@@ -217,7 +217,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 }
             "
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void StringInterpolationInsidePropertyNames_Passes(string text)
         {
             ExpectPass(text);
@@ -257,7 +257,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(@"
             var stringVal = '${resourceGroup().tags}'
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void TypeIsNotString_Passes(string text)
         {
             ExpectPass(text);
@@ -280,7 +280,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 var stringVal = '${untypedParam}'
             "
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void SyntaxErrors_ExpectNoFixes(string text)
         {
             ExpectPass(text, new Options(OnCompileErrors.Ignore));

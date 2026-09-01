@@ -15,7 +15,7 @@ namespace Bicep.Core.UnitTests.Emit
     {
         private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("null", "[null()]")]
         [DataRow("true", "[true()]")]
         [DataRow("false", "[false()]")]

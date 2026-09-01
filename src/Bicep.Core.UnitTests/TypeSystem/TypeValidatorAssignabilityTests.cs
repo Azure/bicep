@@ -203,8 +203,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.AreTypesAssignable(literalVal1, looseString).Should().BeTrue();
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetStringDomainNarrowingData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetStringDomainNarrowingData))]
         public void String_domain_narrowing(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedType, (string code, DiagnosticLevel level, string message)[] expectedDiagnostics)
         {
             Assert_domain_narrowing(sourceType, targetType, expectedType, expectedDiagnostics);
@@ -329,8 +329,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.AreTypesAssignable(LanguageConstants.LooseInt, literalVal1).Should().BeTrue();
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetIntegerDomainNarrowingData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetIntegerDomainNarrowingData))]
         public void Integer_domain_narrowing(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedType, (string code, DiagnosticLevel level, string message)[] expectedDiagnostics)
         {
             Assert_domain_narrowing(sourceType, targetType, expectedType, expectedDiagnostics);
@@ -397,8 +397,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             };
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayName = nameof(GetDisplayName))]
         public void VariousObjects_ShouldProduceNoDiagnosticsWhenAssignedToObjectType(string displayName, ObjectSyntax @object)
         {
             var hierarchy = SyntaxHierarchy.Build(@object);
@@ -408,8 +408,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             diagnostics.Should().BeEmpty();
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayName = nameof(GetDisplayName))]
         public void Variousobjects_ShouldProduceAnErrorWhenAssignedToString(string displayName, ObjectSyntax @object)
         {
             var hierarchy = SyntaxHierarchy.Build(@object);
@@ -503,8 +503,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             });
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetArrayDomainNarrowingData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetArrayDomainNarrowingData))]
         public void Array_domain_narrowing(TypeSymbol sourceType, TypeSymbol targetType, TypeSymbol expectedReturnType, (string code, DiagnosticLevel level, string message)[] expectedDiagnostics)
         {
             var narrowedType = Assert_narrowing_diagnostics(sourceType, targetType, expectedDiagnostics);

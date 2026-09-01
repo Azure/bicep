@@ -22,7 +22,7 @@ namespace Bicep.LangServer.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        [DataTestMethod]
+        [TestMethod]
         [EmbeddedFilesTestData(@"Files/ImportKubernetesManifest/.*/.*\.yml")]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ImportKubernetesManifest_generates_valid_bicep_files_from_kubernetes_manifests(EmbeddedFile embeddedYml)

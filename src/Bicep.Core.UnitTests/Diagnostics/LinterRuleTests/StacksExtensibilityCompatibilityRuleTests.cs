@@ -16,7 +16,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     {
         public TestContext TestContext { get; set; } = null!;
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             "ValidSecurePropertyAssignment",
             "extensionConfig mockExt with { secureStringRequiredProp: az.getSecret('a', 'b', 'c', 'd'), stringRequiredProp: 'value' }",
@@ -79,7 +79,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         // NOTE: BCP180/getSecret validation covers assigning key vault references to non-secure properties.
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             "InlinedSecretsAreFlagged",
             "extensionConfig mockExt with { secureStringRequiredProp: 'SECRET', stringRequiredProp: 'value' }",

@@ -20,7 +20,7 @@ namespace Bicep.Core.UnitTests.ApiVersions
         [DataRow("invalid-text")]
         [DataRow("fake.Network/dnszones", "2415-05-04-preview", "2416-04-01", "2417-09-01", "2417-10-01", "2418-03-01-preview", "2418-05-01")]
         [DataRow("fAKE.NETWORK/DNSZONES", "2415-05-04-preview", "2416-04-01", "2417-09-01", "2417-10-01", "2418-03-01-preview", "2418-05-01")]
-        [DataTestMethod]
+        [TestMethod]
         public void GetApiVersions(string fullyQualifiedName, params string[] expected)
         {
             var apiVersionProvider = CreateDefaultApiVersionProvider();
@@ -46,7 +46,7 @@ namespace Bicep.Core.UnitTests.ApiVersions
             lambda.Should().Throw<ArgumentException>();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         public void GetResourceTypeNames_ResourceGroup()
         {
             var apiVersionProvider = CreateDefaultApiVersionProvider();
@@ -57,7 +57,7 @@ namespace Bicep.Core.UnitTests.ApiVersions
             types.Should().Contain("Fake.Network/dnszones", "Fake.Network/publicIPAddresses", "Fake.Network/ddosProtectionPlans");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         public void GetResourceTypeNames_SeparateScopes()
         {
             var apiVersionProvider = CreateDefaultApiVersionProvider();

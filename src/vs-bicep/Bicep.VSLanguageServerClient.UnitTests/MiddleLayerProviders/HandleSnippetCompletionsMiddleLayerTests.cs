@@ -11,7 +11,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
     [TestClass]
     public class HandleSnippetCompletionsMiddleLayerTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(null)]
         [DataRow("")]
         [DataRow("    ")]
@@ -113,7 +113,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
             textEdit!.NewText.Should().Be(expectedInsertText);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("17.3.345678", true)]
         [DataRow("17.3.11", true)]
         [DataRow("17.4.123", true)]

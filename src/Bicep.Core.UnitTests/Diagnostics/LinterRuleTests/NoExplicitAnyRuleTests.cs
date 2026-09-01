@@ -20,7 +20,7 @@ public class NoExplicitAnyRuleTests : LinterRuleTestsBase
     [DataRow("type foo = { prop: any }")]
     [DataRow("type foo = { *: any }")]
     [DataRow("type foo = sys.any")]
-    [DataTestMethod]
+    [TestMethod]
     public void Should_raise_diagnostic_when_any_used(string text, int diagnosticCount = 1)
         => CompileAndTest(text, diagnosticCount);
 

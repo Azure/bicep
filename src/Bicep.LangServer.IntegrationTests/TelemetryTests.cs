@@ -65,7 +65,7 @@ namespace Bicep.LangServer.IntegrationTests
         [DataRow("required-properties")]
         [DataRow("snippet")]
         [DataRow("{}")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task VerifyResourceBodySnippetInsertionFiresTelemetryEvent(string prefix)
         {
             string text = "resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = ";
@@ -83,7 +83,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         [DataRow("required-properties")]
         [DataRow("{}")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task VerifyObjectBodySnippetInsertionFiresTelemetryEvent(string prefix)
         {
             string text = @"resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
@@ -103,7 +103,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         [DataRow("required-properties")]
         [DataRow("{}")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task VerifyObjectBodySnippetInsertionInsideExistingArrayOfObjectsFiresTelemetryEvent(string prefix)
         {
             string text = @"resource applicationGatewayFirewall 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies@2020-11-01' = {

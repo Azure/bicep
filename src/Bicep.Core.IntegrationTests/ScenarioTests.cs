@@ -2780,7 +2780,7 @@ var myValue = 2147483647
         result.Template.Should().HaveValueAtPath("$.variables.myValue", 2147483647);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("var myValue = -9223372036854775809")]
     [DataRow("var myValue = 9223372036854775808")]
     // https://github.com/Azure/bicep/issues/5371
@@ -3476,7 +3476,7 @@ var bar = {
     /// <summary>
     /// https://github.com/Azure/bicep/issues/7241
     /// </summary>
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("copy")]
     [DataRow("COPY")]
     [DataRow("Copy")]

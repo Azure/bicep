@@ -10,8 +10,8 @@ namespace Bicep.Core.UnitTests.Configuration;
 [TestClass]
 public class RootConfigurationTests
 {
-    [DataTestMethod]
-    [DynamicData(nameof(GetTestData), DynamicDataSourceType.Method)]
+    [TestMethod]
+    [DynamicData(nameof(GetTestData))]
     public void RootConfiguration_LeadingTildeInCacheRootDirectory_ExpandPath(string cacheRootDirectory, string expectedExpandedDirectory)
     {
         var configuration = new RootConfiguration(

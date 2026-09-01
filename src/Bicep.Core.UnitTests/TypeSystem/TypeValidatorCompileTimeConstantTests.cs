@@ -14,8 +14,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
     [TestClass]
     public class TypeValidatorCompileTimeConstantTests
     {
-        [DataTestMethod]
-        [DynamicData(nameof(GetLiteralExpressionData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetLiteralExpressionData), DynamicDataDisplayName = nameof(GetDisplayName))]
         public void CompileTimeConstantExpressionShouldReturnNoViolations(string displayName, SyntaxBase expression)
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();
@@ -24,8 +24,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             diagnosticWriter.GetDiagnostics().Should().BeEmpty();
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetNonLiteralExpressionData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetNonLiteralExpressionData), DynamicDataDisplayName = nameof(GetDisplayName))]
         public void NonLiteralExpression_IsLiteralExpression_ShouldReturnViolations(string displayName, SyntaxBase expression)
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();
@@ -34,8 +34,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             diagnosticWriter.GetDiagnostics().Should().NotBeEmpty();
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetNonExpressionData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetNonExpressionData), DynamicDataDisplayName = nameof(GetDisplayName))]
         public void NonExpressionShouldProduceNoViolations(string displayName, SyntaxBase expression)
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();

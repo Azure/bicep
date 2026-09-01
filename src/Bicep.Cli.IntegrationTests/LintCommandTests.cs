@@ -54,8 +54,8 @@ public class LintCommandTests : TestBase
         }
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(GetValidDataSetsWithoutWarnings), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+    [TestMethod]
+    [DynamicData(nameof(GetValidDataSetsWithoutWarnings), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
     public async Task Lint_Valid_SingleFile_WithTemplateSpecReference_ShouldSucceed(DataSet dataSet)
     {
         var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -130,8 +130,8 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         }
     }
 
-    [DataTestMethod]
-    [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+    [TestMethod]
+    [DynamicData(nameof(GetInvalidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
     public async Task Lint_Invalid_SingleFile_ShouldFail_WithExpectedErrorMessage(DataSet dataSet)
     {
         var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);

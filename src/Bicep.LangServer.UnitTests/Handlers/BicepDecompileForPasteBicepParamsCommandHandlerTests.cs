@@ -132,7 +132,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         #endregion
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             jsonFullParamsTemplate,
             PasteType.FullParams,
@@ -290,7 +290,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         }
 
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             """
             "just a string with double quotes"
@@ -455,7 +455,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     expectedBicep: expectedBicep);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             """
             {
@@ -534,7 +534,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     expectedBicep: null);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             @"{ abc: 1, def: 'def' }", // this is not technically valid JSON but the Newtonsoft parser accepts it anyway and it is already valid Bicep
             PasteType.BicepValue, // Valid json and valid Bicep expression
@@ -710,7 +710,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 );
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             """
             |using ''

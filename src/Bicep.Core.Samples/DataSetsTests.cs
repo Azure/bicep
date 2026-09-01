@@ -15,8 +15,8 @@ namespace Bicep.Core.Samples
 
         private static readonly Regex Pattern_LF = new(@"^(\n)+$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void DataSetShouldBeValid(DataSet dataSet)
         {
             dataSet.Name.Should().NotBeNullOrWhiteSpace();
@@ -29,8 +29,8 @@ namespace Bicep.Core.Samples
             dataSet.Symbols.Should().NotBeNull();
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void DataSetBicepLineEndingsShouldMatchDataSetNameSuffix(DataSet dataSet)
         {
             var lineEndingTokens = GetLineEndingTokens(dataSet.Bicep);

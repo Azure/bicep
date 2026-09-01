@@ -138,8 +138,8 @@ namespace Bicep.LangServer.IntegrationTests.Completions
             actual.Should().EqualWithJsonDiffOutput(this.TestContext, expected, GetGlobalCompletionSetPath(expectedSetName), actualLocation);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetSnippetCompletionData), DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ValidateSnippetCompletionAfterPlaceholderReplacements(CompletionData completionData)
         {
@@ -226,8 +226,8 @@ namespace Bicep.LangServer.IntegrationTests.Completions
             return completion.TextEdit.TextEdit.NewText;
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayName = nameof(GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task CompletionRequestShouldProduceExpectedCompletions(DataSet dataSet, string setName, IList<Position> positions)
         {
@@ -2653,7 +2653,7 @@ var outTest = abc.listWithInput('2020-01-01', {
 ");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(@"
 resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
   name: 'abc'
@@ -2996,7 +2996,7 @@ func foo() string => |
 ");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("func foo() | => 'blah'", "func foo() string| => 'blah'")]
         [DataRow("func foo() a| => 'blah'", "func foo() string| => 'blah'")]
         [DataRow("func foo() |a => 'blah'", "func foo() string| => 'blah'")]
@@ -3018,7 +3018,7 @@ func foo() string => |
 """);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("func foo(bar |) string => 'blah'", "func foo(bar string|) string => 'blah'")]
         [DataRow("func foo(bar a|) string => 'blah'", "func foo(bar string|) string => 'blah'")]
         [DataRow("func foo(bar |a) string => 'blah'", "func foo(bar string|) string => 'blah'")]
@@ -3037,7 +3037,7 @@ func foo() string => |
 """);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("func foo(|) string => 'blah'")]
         [DataRow("func foo( | ) string => 'blah'")]
         [DataRow("func foo(a|) string => 'blah'")]
@@ -3816,7 +3816,7 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("[(|)]")]
         [DataRow("[(|]")]
         [DataRow("[((|))]")]
@@ -4178,7 +4178,7 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             DataSet
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("loadTextContent")]
         [DataRow("loadFileAsBase64")]
         [DataRow("loadJsonContent", true)]
@@ -4312,7 +4312,7 @@ var file = " + functionName + @"('|')
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("loadTextContent")]
         [DataRow("loadFileAsBase64")]
         [DataRow("loadJsonContent", true)]
@@ -4427,7 +4427,7 @@ var file = " + functionName + @"(templ|)
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module foo |", "../", "module foo '../|'")]
         [DataRow("module foo |", "other.bicep", "module foo 'other.bicep'|")]
         [DataRow("module foo .|", "../", "module foo '../|'")]
@@ -4469,7 +4469,7 @@ var file = " + functionName + @"(templ|)
             updatedFile.Should().HaveSourceText(expectedResult);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br/|'", "groups.bicep", CompletionItemKind.File, "../", CompletionItemKind.Folder, "public", CompletionItemKind.Snippet)]
         [DataRow("module test 'br/|", "br/", CompletionItemKind.Folder, "../", CompletionItemKind.Folder, "public", CompletionItemKind.Snippet)]
         public async Task ModuleRegistryReferenceCompletions_GetCompletionsAfterBrSchema(
@@ -4532,7 +4532,7 @@ var file = " + functionName + @"(templ|)
             completions.Should().Contain(x => x.Label == "../" && x.Kind == CompletionItemKind.Folder);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br/public:app/dapr-containerapp:|'", BicepSourceFileKind.BicepFile)]
         [DataRow("module test 'br/public:app/dapr-containerapp:|", BicepSourceFileKind.BicepFile)]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", BicepSourceFileKind.BicepFile)]
@@ -4586,7 +4586,7 @@ var file = " + functionName + @"(templ|)
             );
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br/contoso:app/private-app:|'", BicepSourceFileKind.BicepFile)]
         [DataRow("module test 'br/contoso:app/private-app:|", BicepSourceFileKind.BicepFile)]
         [DataRow("module test 'br:private.contoso.com/app/private-app:|'", BicepSourceFileKind.BicepFile)]
@@ -4846,7 +4846,7 @@ var file = " + functionName + @"(templ|)
             );
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("var arr1 = [|]")]
         [DataRow("param arr array = [|]")]
         [DataRow("var arr2 = [a, |]")]

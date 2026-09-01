@@ -23,8 +23,8 @@ namespace Bicep.LangServer.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetSnippetCompletionData), DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void VerifySnippetTemplatesAreErrorFree(CompletionData completionData)
         {
@@ -67,8 +67,8 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetSnippetCompletionData), DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void VerifySnippetTemplatesDoNotContainTargetScope(CompletionData completionData)
         {
@@ -82,8 +82,8 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetSnippetCompletionData), DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
         public void VerifySnippetTemplatesDoNotContainResourceGroupLocation(CompletionData completionData)
         {
             if (
@@ -95,8 +95,8 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetSnippetCompletionData), DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
         public void VerifySnippetTemplatesUseCorrectLocationSyntax(CompletionData completionData)
         {
             if (completionData.SnippetText.Contains("location:") && !completionData.SnippetText.Contains("location: 'global'")) // location: 'global' is okay

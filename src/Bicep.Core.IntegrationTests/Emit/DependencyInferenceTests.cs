@@ -205,7 +205,7 @@ public class DependencyInferenceTests
         result.Template.Should().HaveJsonAtPath("$.resources.secondDeployedSa.dependsOn", """["deployedSa"]""");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(true)]
     [DataRow(false)]
     public void Implicit_dependencies_on_existing_resource_identifying_properties_are_expressed_as_direct_dependencies_on_transitive_dependencies_in_symbolic_name_template(bool useArrayAccess)
@@ -244,7 +244,7 @@ public class DependencyInferenceTests
         result.Template.Should().HaveJsonAtPath("$.resources.existingSa.dependsOn", """["deployedSa"]""");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(true)]
     [DataRow(false)]
     public void Implicit_dependencies_on_existing_resource_collection_identifying_properties_are_expressed_as_direct_dependencies_on_transitive_dependencies_in_symbolic_name_template(bool useArrayAccess)
@@ -397,7 +397,7 @@ public class DependencyInferenceTests
         result.Template.Should().NotHaveValueAtPath("$.resources.sa.dependsOn");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(true)]
     [DataRow(false)]
     public void Non_looped_resource_depending_on_looped_existing_resource_should_depend_on_transitive_resource_collections(bool useSymbolicNameCodegen)
@@ -444,7 +444,7 @@ public class DependencyInferenceTests
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(true)]
     [DataRow(false)]
     public void Looped_resource_depending_on_looped_existing_resource_should_depend_on_transitive_resource_element(bool useSymbolicNameCodegen)
@@ -495,7 +495,7 @@ public class DependencyInferenceTests
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(true)]
     [DataRow(false)]
     public void Looped_resource_depending_on_looped_variable_should_depend_on_transitive_resource_element(bool useSymbolicNameCodegen)
@@ -548,7 +548,7 @@ public class DependencyInferenceTests
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(true)]
     [DataRow(false)]
     public void CopyIndex_only_appears_in_compiled_expression_if_all_links_in_chain_use_a_loop_variable_reference(bool useSymbolicNameCodegen)
@@ -597,7 +597,7 @@ public class DependencyInferenceTests
         }
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow(true)]
     [DataRow(false)]
     public void CopyIndex_only_appears_in_compiled_expression_if_all_links_in_chain_use_a_loop_variable_reference_2(bool useSymbolicNameCodegen)

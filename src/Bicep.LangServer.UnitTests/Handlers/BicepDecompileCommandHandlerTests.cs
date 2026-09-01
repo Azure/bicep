@@ -251,7 +251,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task WithInvalidPath_ShouldThrowArgumentException(string path)
         {
             var server = new LanguageServerMock();

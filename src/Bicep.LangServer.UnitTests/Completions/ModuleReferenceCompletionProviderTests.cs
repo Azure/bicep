@@ -56,7 +56,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             return resolved;
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test |''", 14)]
         [DataRow("module test ''|", 14)]
         [DataRow("module test '|'", 14)]
@@ -227,7 +227,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             completions.Should().BeEmpty();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // CONSIDER: This doesn't actually test anything useful because the current code takes the entire string
         //   into account, and ignores where the cursor is.
         [DataRow("module test 'br/public:app/dapr-containerapp:1.0.1|")]
@@ -261,7 +261,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             completions.Should().BeEmpty();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br/|'", 17)]
         [DataRow("module test 'br/|", 16)]
         public async Task GetFilteredCompletions_WithAliasCompletionContext_ReturnsCompletionItems(string inputWithCursors, int expectedEnd)
@@ -332,7 +332,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:|'")]
         [DataRow("module test 'br:|")]
         public async Task GetFilteredCompletions_WithACRCompletionSettingSetToFalse_ReturnsACRCompletionItemsUsingBicepConfig(string inputWithCursors)
@@ -398,7 +398,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:|'")]
         [DataRow("module test 'br:|")]
         public async Task GetFilteredCompletions_WithACRCompletionsSettingSetToTrue_ReturnsACRCompletionItemsUsingResourceGraphClient(string inputWithCursors)
@@ -465,7 +465,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:|'")]
         [DataRow("module test 'br:|")]
         public async Task GetFilteredCompletions_WithACRCompletionsSettingSetToTrue_AndNoAccessibleRegistries_ReturnsNoACRCompletions(
@@ -500,7 +500,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", "bicep/app/dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "bicep/app/dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 41)]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/|", "bicep/app/dapr-cntrapp1", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp1:$0'", "bicep/app/dapr-cntrapp2", "'br:mcr.microsoft.com/bicep/app/dapr-cntrapp2:$0'", 40)]
         [DataRow("module test 'br/public:|'", "app/dapr-cntrapp1", "'br/public:app/dapr-cntrapp1:$0'", "app/dapr-cntrapp2", "'br/public:app/dapr-cntrapp2:$0'", 24)]
@@ -560,7 +560,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:registry.contoso.io/bicep/|'", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
         [DataRow("module test 'br:registry.contoso.io/bicep/|", "bicep/whatever/abc/foo/bar", "'br:registry.contoso.io/bicep/whatever/abc/foo/bar:$0'")]
         [DataRow("module test 'br/myRegistry:|'", "abc/foo/bar", "'br/myRegistry:abc/foo/bar:$0'")]
@@ -616,7 +616,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:testacr1.azurecr.io/|'", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 37)]
         [DataRow("module test 'br:testacr1.azurecr.io/|", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 36)]
         public async Task GetFilteredCompletions_IfAliasesInBicepConfig_AndRegistriesNotAvailable_GetPartialCompletionsBasedOnConfigOnly(
@@ -667,7 +667,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br/public:app/dapr-containerapp:|'", "1.0.2", "'br/public:app/dapr-containerapp:1.0.2'$0", "0000", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", "0001", 46)]
         [DataRow("module test 'br/public:app/dapr-containerapp:|", "1.0.2", "'br/public:app/dapr-containerapp:1.0.2'$0", "0000", "1.0.1", "'br/public:app/dapr-containerapp:1.0.1'$0", "0001", 45)]
         [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", "1.0.2", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.2'$0", "0000", "1.0.1", "'br:mcr.microsoft.com/bicep/app/dapr-containerapp:1.0.1'$0", "0001", 63)]
@@ -767,7 +767,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             completions.Should().BeEmpty();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br:testacr1.azurecr.io/|'", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 37)]
         [DataRow("module test 'br:testacr1.azurecr.io/|", "bicep/modules", "'br:testacr1.azurecr.io/bicep/modules:$0'", 0, 12, 0, 36)]
         public async Task GetFilteredCompletions_WithPublicAliasOverriddenInBicepConfigAndPathCompletionContext_ReturnsCompletionItems(
@@ -814,7 +814,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.TextEdit!.TextEdit!.Range.End.Character == endCharacter);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module test 'br/test1:|'", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 23)]
         [DataRow("module test 'br/test1:|", "dapr-containerapp", "'br/test1:dapr-containerapp:$0'", 0, 12, 0, 22)]
         [DataRow("module test 'br/test2:|'", "bicep/app/dapr-containerapp", "'br/test2:bicep/app/dapr-containerapp:$0'", 0, 12, 0, 23)]
@@ -876,7 +876,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 });
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module foo 'br:mcr.microsoft.com/bicep/|", ModuleRegistryType.MCR)]
         [DataRow("module foo 'br:mytest.contoso.io/|", ModuleRegistryType.ACR, ModuleRegistryType.AcrBasePathFromAlias)]
         [DataRow("module foo 'br/public:|", ModuleRegistryType.MCR)]
@@ -953,7 +953,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 $"Telemetry event fired for unexpected module registry type");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module foo 'br:mcr.microsoft.com/bicep/|", null)]
         [DataRow("module foo 'br:mytest.contoso.io/|", ModuleRegistryResolutionType.AcrModulePath)]
         [DataRow("module foo 'br/public:|", null)]

@@ -132,8 +132,8 @@ namespace Bicep.Core.UnitTests.Registry
             goodAvailabilityBuilder3AfterRestore!.Should().HaveMessage("Failed to restore module");
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetConfigurationData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetConfigurationData))]
         public async Task GetModuleRestoreStatus_ConfigurationChanges_ReturnsCachedStatusWhenChangeIsIrrelevant(RootConfiguration changedConfiguration, ArtifactRestoreStatus expectedStatus)
         {
             var badFile = BicepTestConstants.CreateDummyBicepFile(BicepTestConstants.CreateMockConfiguration());

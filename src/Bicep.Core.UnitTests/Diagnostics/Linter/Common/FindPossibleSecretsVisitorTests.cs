@@ -156,7 +156,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.Linter.Common
             ",
             "function 'listAnything'"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void Test(string text, params string[] expectedMessages)
         {
             CompileAndTest(text, expectedMessages);

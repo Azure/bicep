@@ -16,7 +16,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("test.bicep", "test.bicep")]
         [DataRow("../bar/foo.bicep", "../bar/foo.bicep")]
         [DataRow("./t.json", "./t.json")]
-        [DataTestMethod]
+        [TestMethod]
         public void SameModulePathsShouldBeEqual(string package1, string package2)
         {
             var (first, second) = ParsePair(package1, package2);
@@ -28,7 +28,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("test.bicep", "Test.bicep")]
         [DataRow("../bar/foo.bicep", "foo.bicep")]
         [DataRow("./t.json", "./t.JSON")]
-        [DataTestMethod]
+        [TestMethod]
         public void DifferentPathsShouldNotBeEqual(string package1, string package2)
         {
             var (first, second) = ParsePair(package1, package2);
@@ -40,7 +40,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("./test.bicep")]
         [DataRow("foo/bar/test.bicep")]
         [DataRow("../bar/test.bicep")]
-        [DataTestMethod]
+        [TestMethod]
         public void TryParseModuleReference_ValidLocalReference_ShouldParse(string value)
         {
             var reference = Parse(value);

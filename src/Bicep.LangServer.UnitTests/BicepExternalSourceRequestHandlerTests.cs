@@ -295,8 +295,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
             DecodeExternalSourceUri(result).FullTitle.Should().Be("br:myregistry.azurecr.io/module1:v1 -> entrypoint.bicep");
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetExternalSourceLinkTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExternalSourceLinkTestData))]
+        [TestMethod]
+        [DynamicData(nameof(GetExternalSourceLinkTestData), DynamicDataDisplayNameDeclaringType = typeof(ExternalSourceLinkTestData))]
         public void GetExternalSourceLinkUri_TitlesShouldBeCorrect(ExternalSourceLinkTestData testData)
         {
             Uri result = GetExternalSourceLinkUri(testData);
@@ -332,16 +332,16 @@ namespace Bicep.LangServer.UnitTests.Handlers
             ext.FullTitle.Should().Be("br:myregistry.azurecr.io/myrepo/bicep/module1:v1 -> subfolder1>subfolder 2>my file.bicep");
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetExternalSourceLinkTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExternalSourceLinkTestData))]
+        [TestMethod]
+        [DynamicData(nameof(GetExternalSourceLinkTestData), DynamicDataDisplayNameDeclaringType = typeof(ExternalSourceLinkTestData))]
         public void GetExternalSourceLinkUri_ModuleReferenceShouldBeCorrect(ExternalSourceLinkTestData testData)
         {
             Uri result = GetExternalSourceLinkUri(testData);
             DecodeExternalSourceUri(result).Components.ArtifactId.Should().Be($"{testData.Registry}/{testData.Repository}{testData.TagOrDigest}");
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetExternalSourceLinkTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExternalSourceLinkTestData))]
+        [TestMethod]
+        [DynamicData(nameof(GetExternalSourceLinkTestData), DynamicDataDisplayNameDeclaringType = typeof(ExternalSourceLinkTestData))]
         public void GetExternalSourceLinkUri_RequestedFilenameShouldBeCorrect(ExternalSourceLinkTestData testData)
         {
             Uri result = GetExternalSourceLinkUri(testData);
@@ -349,32 +349,32 @@ namespace Bicep.LangServer.UnitTests.Handlers
             DecodeExternalSourceUri(result).RequestedFile.Should().Be(expectedRequestedFile);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetExternalSourceLinkTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExternalSourceLinkTestData))]
+        [TestMethod]
+        [DynamicData(nameof(GetExternalSourceLinkTestData), DynamicDataDisplayNameDeclaringType = typeof(ExternalSourceLinkTestData))]
         public void GetExternalSourceLinkUri_ShouldStartWithExternalSourceScheme(ExternalSourceLinkTestData testData)
         {
             Uri result = GetExternalSourceLinkUri(testData);
             result.ToString().Should().StartWith("bicep-extsrc:");
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetExternalSourceLinkTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExternalSourceLinkTestData))]
+        [TestMethod]
+        [DynamicData(nameof(GetExternalSourceLinkTestData), DynamicDataDisplayNameDeclaringType = typeof(ExternalSourceLinkTestData))]
         public void GetExternalSourceLinkUri_ShouldStartWithBrOrTs(ExternalSourceLinkTestData testData)
         {
             Uri result = GetExternalSourceLinkUri(testData);
             result.ToString().Should().MatchRegex("^bicep-extsrc:(br|ts)%3A", "external links should start with the scheme br: or ts:");
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetExternalSourceLinkTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExternalSourceLinkTestData))]
+        [TestMethod]
+        [DynamicData(nameof(GetExternalSourceLinkTestData), DynamicDataDisplayNameDeclaringType = typeof(ExternalSourceLinkTestData))]
         public void GetExternalSourceLinkUri_ShouldBeFormedCorrectly(ExternalSourceLinkTestData testData)
         {
             Uri result = GetExternalSourceLinkUri(testData);
             result.ToString().Should().MatchRegex("^(?<fullTitle>[^#]+)#(?<module_ref>[^#]+)(?<optional_requested_source_file>%23[^#]+)?$", "external link should have one # and optionally an encoded # after that");
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetExternalSourceLinkTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExternalSourceLinkTestData))]
+        [TestMethod]
+        [DynamicData(nameof(GetExternalSourceLinkTestData), DynamicDataDisplayNameDeclaringType = typeof(ExternalSourceLinkTestData))]
         public void GetExternalSourceLinkUri_RequestedFilenameShouldBeBicepOrJson(ExternalSourceLinkTestData testData)
         {
             Uri result = GetExternalSourceLinkUri(testData);

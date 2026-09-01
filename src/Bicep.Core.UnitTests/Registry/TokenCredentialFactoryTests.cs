@@ -16,7 +16,7 @@ namespace Bicep.Core.UnitTests.Registry
     {
         private static readonly Uri exampleAuthorityUri = new("https://bicep.test.invalid");
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(CredentialType.Environment, null, typeof(EnvironmentCredential))]
         [DataRow(CredentialType.ManagedIdentity, null, typeof(ManagedIdentityCredential))]
         [DataRow(CredentialType.VisualStudio, null, typeof(VisualStudioCredential))]
@@ -29,8 +29,8 @@ namespace Bicep.Core.UnitTests.Registry
             f.CreateSingle(credentialType, credentialOptions, exampleAuthorityUri).Should().BeOfType(expectedCredentialType);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(CreateManagedIdentityOptionsData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(CreateManagedIdentityOptionsData))]
         public void ShouldCreateExpectedSingleManagedIdentityCredential(CredentialOptions? credentialOptions)
         {
             var f = new TokenCredentialFactory();

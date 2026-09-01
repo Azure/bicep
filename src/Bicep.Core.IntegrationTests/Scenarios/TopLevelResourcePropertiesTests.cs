@@ -56,7 +56,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
         }
 
         [DynamicData(nameof(ResourceFallbackProperties))]
-        [DataTestMethod]
+        [TestMethod]
         public void FallbackProperty_ShouldShowWarningDiagnostics1_WhenNotDefinedInType(string property, string value)
         {
 
@@ -76,7 +76,7 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
         }
 
         [DynamicData(nameof(ResourceFallbackProperties))]
-        [DataTestMethod]
+        [TestMethod]
         public void FallbackProperty_ShouldShowWarningDiagnostics2_WhenNotDefinedInType(string property, string value)
         {
 
@@ -96,7 +96,7 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
         }
 
         [DynamicData(nameof(ResourceFallbackProperties))]
-        [DataTestMethod]
+        [TestMethod]
         public void FallbackProperty_ShouldShowWarningDiagnostics3_WhenNotDefinedInType(string property, string value)
         {
 
@@ -118,7 +118,7 @@ resource fallbackProperty 'Test.Rp/readWriteTests@2020-01-01' = {
         }
 
         [DynamicData(nameof(ResourceFallbackProperties))]
-        [DataTestMethod]
+        [TestMethod]
         public void FallbackProperty_ShouldShowWarning_WhenIsRead(string property, string value)
         {
 
@@ -139,7 +139,7 @@ var value = fallbackProperty." + property + @"
         }
 
         [DynamicData(nameof(ResourceFallbackProperties))]
-        [DataTestMethod]
+        [TestMethod]
         public void FallbackProperty_ShouldNotShowWarning_WhenDefinedInType(string property, string value)
         {
 
@@ -157,7 +157,7 @@ resource fallbackProperty 'Test.Rp/fallbackProperties@2020-01-01' = {
         }
 
         [DynamicData(nameof(ModuleFallbackProperties))]
-        [DataTestMethod]
+        [TestMethod]
         public void FallbackProperty_ShouldShowError_WhenUsedOnModule(string property, string value)
         {
             var mainUri = new Uri("file:///main.bicep");
@@ -196,7 +196,7 @@ output outputa string = '${inputa}-${inputb}'
         }
 
         [DynamicData(nameof(ModuleFallbackProperties))]
-        [DataTestMethod]
+        [TestMethod]
         public void FallbackProperty_ShouldShowError_WhenUsedOnModuleParams(string property, string value)
         {
 
@@ -237,7 +237,7 @@ output outputa string = '${inputa}-${inputb}'
         }
 
         [DynamicData(nameof(ModuleFallbackProperties))]
-        [DataTestMethod]
+        [TestMethod]
         public void FallbackProperty_ShouldShowError_WhenUsedOnModuleParams_ThroughVariable(string property, string value)
         {
 
@@ -281,7 +281,7 @@ output outputa string = '${inputa}-${inputb}'
         }
 
         [DynamicData(nameof(ModuleFallbackProperties))]
-        [DataTestMethod]
+        [TestMethod]
         public void FallbackProperty_ShouldShowError_WhenReadOnModule(string property, string value)
         {
             var mainUri = new Uri("file:///main.bicep");
