@@ -36,7 +36,7 @@ namespace Bicep.Core.UnitTests.Registry
             failureBuilder!.Should().NotBeNull();
 
             using (new AssertionScope())
-            {
+        {
                 failureBuilder!.Should().HaveCode("BCP189");
                 failureBuilder!.Should().HaveMessage("Module references are not supported in this context.");
             }
@@ -46,7 +46,7 @@ namespace Bicep.Core.UnitTests.Registry
             localModuleReference.Should().BeNull();
             failureBuilder!.Should().NotBeNull();
             using (new AssertionScope())
-            {
+        {
                 localModuleFailureBuilder!.Should().HaveCode("BCP189");
                 localModuleFailureBuilder!.Should().HaveMessage("Module references are not supported in this context.");
             }
@@ -134,7 +134,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         [TestMethod]
         [DynamicData(nameof(GetConfigurationData))]
-        public async Task GetModuleRestoreStatus_ConfigurationChanges_ReturnsCachedStatusWhenChangeIsIrrelevant(RootConfiguration changedConfiguration, ArtifactRestoreStatus expectedStatus)
+        public async Task GetModuleRestoreStatus_ConfigurationChanges_ReturnsCachedStatusWhenChangeIsIrrelevant(IBicepConfiguration changedConfiguration, ArtifactRestoreStatus expectedStatus)
         {
             var badFile = BicepTestConstants.CreateDummyBicepFile(BicepTestConstants.CreateMockConfiguration());
             var badReference = new MockModuleReference(badFile, "bad");
@@ -171,7 +171,7 @@ namespace Bicep.Core.UnitTests.Registry
             {
                 // Irrelevant change.
                 BicepTestConstants.CreateMockConfiguration(new()
-                {
+        {
                     ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "HTTPS://EXAMPLE.INVALID",
                     ["cloud.profiles.AzureCloud.activeDirectoryAuthority"] = "https://example.invalid/",
                 }),
@@ -182,7 +182,7 @@ namespace Bicep.Core.UnitTests.Registry
             {
                 // Irrelevant change.
                 BicepTestConstants.CreateMockConfiguration(new()
-                {
+        {
                     ["cloud.currentProfile"] = "MyCloud",
                     ["cloud.profiles.MyCloud.resourceManagerEndpoint"] = "HTTPS://EXAMPLE.INVALID",
                     ["cloud.profiles.MyCloud.activeDirectoryAuthority"] = "https://example.invalid/",
@@ -194,7 +194,7 @@ namespace Bicep.Core.UnitTests.Registry
             {
                 // Relevant change.
                 BicepTestConstants.CreateMockConfiguration(new()
-                {
+        {
                     ["cloud.currentProfile"] = "MyCloud",
                     ["cloud.profiles.MyCloud.resourceManagerEndpoint"] = "https://example.invalid",
                     ["cloud.profiles.MyCloud.activeDirectoryAuthority"] = "https://foo.bar.com",
@@ -206,7 +206,7 @@ namespace Bicep.Core.UnitTests.Registry
             {
                 // Relevant change.
                 BicepTestConstants.CreateMockConfiguration(new()
-                {
+        {
                     ["cloud.credentialPrecedence"] = new[] { "VisualStudioCode" },
                 }),
                 ArtifactRestoreStatus.Unknown
@@ -224,8 +224,8 @@ namespace Bicep.Core.UnitTests.Registry
         private class MockModuleReference : ArtifactReference
         {
             public MockModuleReference(BicepSourceFile referencingFile, string reference)
-                : base(referencingFile.Features, referencingFile.Configuration, "mock")
-            {
+                : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), "mock")
+        {
                 this.Reference = reference;
             }
 

@@ -98,11 +98,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     AzResourceTypeLoader: FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes).Object));
         }
 
-        private static RootConfiguration CreateConfigurationWithFakeToday(RootConfiguration original, string today, int? maxAgeInDays = null, int? gracePeriodInDays = null)
+        private static IBicepConfiguration CreateConfigurationWithFakeToday(IBicepConfiguration original, string today, int? maxAgeInDays = null, int? gracePeriodInDays = null)
         {
             VerifyAllTypesAndDatesAreFake(today);
 
-            return new RootConfiguration(
+            return new BicepConfiguration(
                 original.Cloud,
                 original.ModuleAliases,
                 original.ModuleAliasesMock,
@@ -128,13 +128,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                             .Replace("<TESTING_TODAY_DATE>", today)
                             .Replace("<MAX_AGE_PROP>", maxAgeInDays.HasValue ? $", \"maxAgeInDays\": {maxAgeInDays}" : "")
                             .Replace("<GRACE_PERIOD_PROP>", gracePeriodInDays.HasValue ? $", \"gracePeriodInDays\": {gracePeriodInDays}" : ""))),
-                original.CacheRootDirectory,
-                original.ExperimentalFeaturesWarning,
+                original.Formatting,
+                original.Documentation,
                 original.ExperimentalFeaturesEnabled with
                 {
                     SymbolicNameCodegen = true,
                 },
-                original.Formatting,
+                original.CacheRootDirectory,
+                original.ExperimentalFeaturesWarning,
                 null,
                 null);
         }
@@ -148,8 +149,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 VerifyAllTypesAndDatesAreFake(resourceTypes);
                 VerifyAllTypesAndDatesAreFake(expectedApiVersions);
 
-                var apiVersionProvider = new ApiVersionProvider(BicepTestConstants.Features, []);
-                apiVersionProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
+                var apiVersionProvider = FakeResourceTypes.GetFakeApiVersionProvider(resourceTypes.ReplaceLineEndings("\n").Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
                 var (_, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(apiVersionProvider, AzureResourceApiVersion.Parse(today).Date, maxAgeInDays, gracePeriodInDays, scope, fullyQualifiedResourceType);
                 var allowedVersionsStrings = allowedVersions.Select(v => v.ToString()).ToArray();
                 allowedVersionsStrings.Should().BeEquivalentTo(expectedApiVersions, options => options.WithStrictOrdering());
@@ -889,7 +889,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestClass]
         public class GetAcceptableApiVersionsInvariantsTests
         {
-            private static readonly ApiVersionProvider RealApiVersionProvider = new(BicepTestConstants.Features, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
+            private static readonly AzApiVersionProvider RealApiVersionProvider = FakeResourceTypes.GetFakeApiVersionProvider(FakeResourceTypes.ResourceScopeTypes);
             private static readonly bool Exhaustive = false;
 
             public class TestData
@@ -927,7 +927,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         ResourceScope.Subscription,
                     })
                 {
-                    foreach (string typeName in RealApiVersionProvider.GetResourceTypeNames(scope).Take(maxResourcesToTest))
+                    foreach (string typeName in FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes).Select(x => x.FormatType()).Distinct(StringComparer.OrdinalIgnoreCase).Take(maxResourcesToTest))
                     {
                         var apiVersionDates = RealApiVersionProvider.GetApiVersions(scope, typeName).Select(v => v.Date).ToArray();
 
@@ -1089,8 +1089,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             {
                 string[] gaVersions = gaVersionDates.Select(d => "Whoever.whatever/whichever@" + CreateApiVersion(d)).ToArray();
                 string[] previewVersions = previewVersionDates.Select(d => "Whoever.whatever/whichever@" + CreateApiVersion(d) + "-preview").ToArray();
-                var apiVersionProvider = new ApiVersionProvider(BicepTestConstants.Features, []);
-                apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(gaVersions.Concat(previewVersions)));
+                var apiVersionProvider = FakeResourceTypes.GetFakeApiVersionProvider(gaVersions.Concat(previewVersions));
 
                 var result = UseRecentApiVersionRule.AnalyzeApiVersion(
                     apiVersionProvider,

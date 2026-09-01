@@ -22,7 +22,7 @@ namespace Bicep.Core.UnitTests.Configuration
             }
             """;
             var element = JsonElementFactory.CreateElement(json);
-            var configuration = ImplicitExtensionsConfiguration.Bind(element.GetProperty(RootConfiguration.ImplicitExtensionsKey));
+            var configuration = ImplicitExtensionsConfiguration.Bind(element.GetProperty(BicepConfiguration.ImplicitExtensionsKey));
 
             Assert.AreEqual(expectedCount, configuration.GetImplicitExtensionNames().Count());
         }

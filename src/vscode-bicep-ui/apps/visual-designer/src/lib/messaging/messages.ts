@@ -59,6 +59,54 @@ export const SHOW_PROBLEMS_PANEL_NOTIFICATION = "showProblemsPanel";
 // Sent when the webview has initialized and is ready to receive data
 export const READY_NOTIFICATION = "ready";
 
+// ── Motion policy ──
+
+export type MotionPolicy = "system" | "reduce" | "animate";
+export const GET_MOTION_POLICY_REQUEST = "motionPolicy/get";
+export const MOTION_POLICY_DID_CHANGE_NOTIFICATION = "motionPolicy/didChange";
+
+// ── Experimental resource creation ──
+
+export const GET_RESOURCE_CREATION_ENABLEMENT_REQUEST = "resourceCreation/isEnabled";
+export const RESOURCE_CREATION_ENABLEMENT_DID_CHANGE_NOTIFICATION = "resourceCreation/enablementDidChange";
+
+// ── Resource creation ──
+
+export const CREATE_RESOURCE_REQUEST = "resources/create";
+
+export interface VisualResourceTypeReference {
+  fullyQualifiedType: string;
+  apiVersion: string;
+}
+
+export interface CreateVisualResourceRequest {
+  version: 1;
+  operationId: string;
+  resourceType: VisualResourceTypeReference;
+}
+
+export interface CreateVisualResourceResponse {
+  version: 1;
+  operationId: string;
+  expectedNodeId: string;
+  symbolicName: string;
+  unresolvedRequiredProperties: string[];
+}
+
+export interface CreateVisualResourceError {
+  version: 1;
+  operationId?: string;
+  code:
+    | "unsupportedContract"
+    | "invalidResourceType"
+    | "documentChanged"
+    | "documentReadOnly"
+    | "editRejected"
+    | "generationFailed";
+  message: string;
+  retryable: boolean;
+}
+
 // ──────────────────────────────────────────────────────────────────────────
 // Server-driven visual graph protocol
 //

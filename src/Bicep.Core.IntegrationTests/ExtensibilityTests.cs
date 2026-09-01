@@ -15,6 +15,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using ITypeReference = Azure.Bicep.Types.Concrete.ITypeReference;
+using Bicep.Testing.Extensions;
 
 namespace Bicep.Core.IntegrationTests
 {

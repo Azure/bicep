@@ -65,7 +65,7 @@ namespace Bicep.Core.UnitTests.Modules
             var parsed = Parse(@case.Value);
 
             using (new AssertionScope())
-            {
+        {
                 parsed.Registry.Should().Be(@case.ExpectedRegistry);
                 parsed.Repository.Should().Be(@case.ExpectedRepository);
                 parsed.Tag.Should().Be(@case.ExpectedTag);
@@ -102,17 +102,17 @@ namespace Bicep.Core.UnitTests.Modules
         public void CharacterChanged_ShouldNotBeEqual(ArtifactAddressComponentsTests.ValidCase @case)
         {
             string ModifyCharAt(string a, int index)
-            {
+        {
                 char newChar = a[index] == 'q' ? 'z' : 'q';
                 return a.Substring(0, index) + newChar + a.Substring(index + 1);
             }
 
             for (int i = 0; i < @case.Value.Length - 1; ++i)
-            {
+        {
                 OciArtifactReference first = Parse(@case.Value);
                 var modified = ModifyCharAt(@case.Value, i);
                 if (IsValid(modified))
-                {
+        {
                     OciArtifactReference second = Parse(modified);
                     VerifyNotEqual(first, second);
                 }
@@ -160,7 +160,7 @@ namespace Bicep.Core.UnitTests.Modules
             failureBuilder!.Should().NotBeNull();
 
             using (new AssertionScope())
-            {
+        {
                 failureBuilder!.Should().HaveCode(expectedCode);
                 failureBuilder!.Should().HaveMessage(expectedError);
             }
@@ -221,7 +221,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         [TestMethod]
         [DynamicData(nameof(GetInvalidAliasData))]
-        public void TryParse_InvalidAlias_ReturnsFalseAndSetsErrorDiagnostic(string aliasName, string referenceValue, RootConfiguration configuration, string expectedCode, string expectedMessage)
+        public void TryParse_InvalidAlias_ReturnsFalseAndSetsErrorDiagnostic(string aliasName, string referenceValue, IBicepConfiguration configuration, string expectedCode, string expectedMessage)
         {
             TryParseOciArtifactReference(referenceValue, aliasName, configuration).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
@@ -233,7 +233,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         [TestMethod]
         [DynamicData(nameof(GetValidAliasData))]
-        public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName, string referenceValue, string fullyQualifiedReferenceValue, RootConfiguration configuration)
+        public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName, string referenceValue, string fullyQualifiedReferenceValue, IBicepConfiguration configuration)
         {
             TryParseOciArtifactReference(referenceValue, aliasName, configuration).IsSuccess(out var reference, out var errorBuilder).Should().BeTrue();
 
@@ -257,8 +257,8 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static (OciArtifactReference, OciArtifactReference) ParsePair(string first, string second) => (Parse(first), Parse(second));
 
-        private static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseOciArtifactReference(string value, string? aliasName = null, RootConfiguration? configuration = null) =>
-            OciArtifactReference.TryParse(BicepTestConstants.CreateDummyBicepFile(configuration).Features, BicepTestConstants.CreateDummyBicepFile(configuration).Configuration, ArtifactType.Module, aliasName, value);
+        private static ResultWithDiagnosticBuilder<OciArtifactReference> TryParseOciArtifactReference(string value, string? aliasName = null, IBicepConfiguration? configuration = null) =>
+            OciArtifactReference.TryParse(BicepTestConstants.CreateDummyBicepFile(configuration).LoadFeatures(), BicepTestConstants.CreateDummyBicepFile(configuration).LoadConfiguration(), ArtifactType.Module, aliasName, value);
 
         private static IEnumerable<object[]> GetValidCases()
         {
@@ -273,7 +273,7 @@ namespace Bicep.Core.UnitTests.Modules
                 "myModule:v1",
                 BicepTestConstants.CreateMockConfiguration(
                     new()
-                    {
+        {
                         ["moduleAliases.br.myModulePath.modulePath"] = "path",
                     }),
                 "BCP216",
@@ -286,7 +286,7 @@ namespace Bicep.Core.UnitTests.Modules
                 "myModule:v2",
                 BicepTestConstants.CreateMockConfiguration(
                     new()
-                    {
+        {
                         ["moduleAliases.br.myModulePath2.modulePath"] = "path2",
                     },
                     "/bicepconfig.json"),
@@ -303,7 +303,7 @@ namespace Bicep.Core.UnitTests.Modules
                 "mymodule:v1",
                 "br:example.com/path/mymodule:v1",
                 BicepTestConstants.CreateMockConfiguration(new()
-                {
+        {
                     ["moduleAliases.br.myModulePath.registry"] = "example.com",
                     ["moduleAliases.br.myModulePath.modulePath"] = "path",
                 }),
@@ -316,7 +316,7 @@ namespace Bicep.Core.UnitTests.Modules
                 "br:localhost:8000/root/parent/mymodule:v2",
                 BicepTestConstants.CreateMockConfiguration(
                     new()
-                    {
+        {
                         ["moduleAliases.br.myModulePath2.registry"] = "localhost:8000",
                         ["moduleAliases.br.myModulePath2.modulePath"] = "root/parent",
                     },

@@ -14,6 +14,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
+using Bicep.Testing.Extensions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -5840,7 +5841,7 @@ param foo2 string[]
         var result = CompilationHelper.Compile(
             Services
                 .WithFeatureOverrides(new(TestContext))
-                .WithConfigurationPatch(x => x.WithAnalyzersConfiguration(x.Analyzers.SetValue("core.rules.use-recent-api-versions.level", "error"))),
+                .WithConfigurationPatch(x => x.WithAnalyzersConfiguration(((AnalyzersConfiguration)x.Analyzers).SetValue("core.rules.use-recent-api-versions.level", "error"))),
             ("main.bicep", """
                 extension kubernetes with {
                   kubeConfig: 'config'
@@ -7891,5 +7892,66 @@ output locations array = flatten(map(databases, database => database.properties.
             ("BCP066", DiagnosticLevel.Error, """Function "listKeys" is not valid at this location. It can only be used in resource declarations."""),
             ("BCP065", DiagnosticLevel.Error, """Function "utcNow" is not valid at this location. It can only be used as a parameter default value."""),
         ]);
+    }
+
+    [TestMethod]
+    // https://github.com/azure/bicep/issues/20067
+    public void Test_Issue20067_yaml_anchors_and_aliases_work()
+    {
+        var result = CompilationHelper.Compile(
+            ("settings.yaml", """
+            definitions:
+              example: &EXAMPLE
+                name: example
+                displayName: Example
+                enabled: true
+            
+            items:
+              example: *EXAMPLE
+            """),
+            ("main.bicep", """
+            var settings object = loadYamlContent('settings.yaml', 'items')
+            
+            output result object = settings
+            """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+        evaluated.Should().HaveJsonAtPath("$.outputs['result'].value", """
+        {
+          "example": {
+            "name": "example",
+            "displayName": "Example",
+            "enabled": true
+          }
+        }
+        """);
+    }
+
+    [TestMethod]
+    // https://github.com/azure/bicep/issues/20119
+    public void Test_Issue20119_yaml_scalar_anchors_and_aliases_work()
+    {
+        var result = CompilationHelper.Compile(
+            ("settings.yaml", """
+            source: &CIDR 10.0.0.0/17
+            alias: *CIDR
+            """),
+            ("main.bicep", """
+            var settings = loadYamlContent('settings.yaml')
+
+            output result object = settings
+            """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+        evaluated.Should().HaveJsonAtPath("$.outputs['result'].value", """
+        {
+          "source": "10.0.0.0/17",
+          "alias": "10.0.0.0/17"
+        }
+        """);
     }
 }

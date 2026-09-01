@@ -28,7 +28,7 @@ namespace Bicep.Core.Modules
         private readonly BicepSourceFile referencingFile;
 
         private LocalModuleReference(BicepSourceFile referencingFile, ArtifactType artifactType, RelativePath path)
-            : base(referencingFile.Features, referencingFile.Configuration, ArtifactReferenceSchemes.Local)
+            : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), ArtifactReferenceSchemes.Local)
         {
             ArtifactType = artifactType;
             this.Path = path;

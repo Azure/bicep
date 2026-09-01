@@ -12,9 +12,8 @@ using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer;
-using Bicep.LanguageServer.Deploy;
-using Bicep.LanguageServer.Handlers;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Features.Custom.Deployments;
+using Bicep.LanguageServer.Features.Custom.Deployments.Services;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
@@ -35,7 +34,7 @@ namespace Bicep.LangServer.IntegrationTests
             return clientMock.Object;
         }
 
-        public ArmClient CreateArmClient(RootConfiguration configuration, string? defaultSubscriptionId)
+        public ArmClient CreateArmClient(IBicepConfiguration configuration, string? defaultSubscriptionId)
             => throw new NotImplementedException();
     }
 
@@ -79,7 +78,7 @@ namespace Bicep.LangServer.IntegrationTests
                 string.Empty,
                 true,
                 string.Empty,
-                LanguageServer.Deploy.ParametersFileUpdateOption.Create,
+                LanguageServer.Features.Custom.Deployments.Services.ParametersFileUpdateOption.Create,
                 new List<BicepUpdatedDeploymentParameter>(),
                 "https://management.azure.com/",
                 "https://management.core.windows.net/");
@@ -133,7 +132,7 @@ namespace Bicep.LangServer.IntegrationTests
                 string.Empty,
                 true,
                 string.Empty,
-                LanguageServer.Deploy.ParametersFileUpdateOption.None,
+                LanguageServer.Features.Custom.Deployments.Services.ParametersFileUpdateOption.None,
                 new List<BicepUpdatedDeploymentParameter>{
                     new("foo", "bar", false, null)
                 },
@@ -188,7 +187,7 @@ namespace Bicep.LangServer.IntegrationTests
                 string.Empty,
                 true,
                 null, //ParametersFileName
-                LanguageServer.Deploy.ParametersFileUpdateOption.None,
+                LanguageServer.Features.Custom.Deployments.Services.ParametersFileUpdateOption.None,
                 new List<BicepUpdatedDeploymentParameter>(),
                 "https://management.azure.com/",
                 "https://management.core.windows.net/");
@@ -240,7 +239,7 @@ namespace Bicep.LangServer.IntegrationTests
                 string.Empty,
                 true,
                 string.Empty,
-                LanguageServer.Deploy.ParametersFileUpdateOption.None,
+                LanguageServer.Features.Custom.Deployments.Services.ParametersFileUpdateOption.None,
                 new List<BicepUpdatedDeploymentParameter>(),
                 "https://management.azure.com/",
                 "https://management.core.windows.net/");
@@ -295,7 +294,7 @@ namespace Bicep.LangServer.IntegrationTests
                 string.Empty,
                 true,
                 string.Empty,
-                LanguageServer.Deploy.ParametersFileUpdateOption.None,
+                LanguageServer.Features.Custom.Deployments.Services.ParametersFileUpdateOption.None,
                 new List<BicepUpdatedDeploymentParameter>(),
                 "https://management.azure.com/",
                 "https://management.core.windows.net/");
@@ -368,7 +367,7 @@ namespace Bicep.LangServer.IntegrationTests
                 string.Empty,
                 true,
                 string.Empty,
-                LanguageServer.Deploy.ParametersFileUpdateOption.None,
+                LanguageServer.Features.Custom.Deployments.Services.ParametersFileUpdateOption.None,
                 new List<BicepUpdatedDeploymentParameter>(),
                 "https://management.azure.com/",
                 "https://management.core.windows.net/");

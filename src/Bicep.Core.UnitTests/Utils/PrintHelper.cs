@@ -4,26 +4,13 @@
 using System.Collections.Immutable;
 using System.Text;
 using Bicep.Core.Parsing;
-using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.SourceGraph;
-using Bicep.Core.Syntax;
 using Bicep.Core.Text;
-using Bicep.Core.UnitTests.Assertions;
 
 namespace Bicep.Core.UnitTests.Utils
 {
     public static class PrintHelper
     {
-        public static string PrintAndCheckForParseErrors(ProgramSyntax programSyntax)
-        {
-            var asString = PrettyPrinterV2.PrintValid(programSyntax, PrettyPrinterV2Options.Default);
-
-            ParserHelper.Parse(asString, out var syntaxErrors);
-            syntaxErrors.Should().BeEmpty();
-
-            return asString;
-        }
-
         public class Annotation : IPositionable
         {
             public Annotation(TextSpan span, string message)

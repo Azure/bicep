@@ -1,11 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { WebviewRequestMessage, WebviewResponseMessage } from "../webviewMessageChannel";
+import type { WebviewNotificationCallback, WebviewRequestMessage, WebviewResponseMessage } from "../webviewMessageChannel";
 
 import { waitFor } from "@testing-library/dom";
+import type { Mock } from "vitest";
+
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { WebviewMessageChannel } from "../webviewMessageChannel";
+import { dispatchMessage } from "./utils";
 
 describe("WebviewMessageChannel", () => {
   const sut = new WebviewMessageChannel();
@@ -17,7 +20,7 @@ describe("WebviewMessageChannel", () => {
   describe("sendRequest", () => {
     it("should resolve upon success", async () => {
       vi.mocked(acquireVsCodeApi().postMessage).mockImplementation((message) => {
-        window.postMessage({
+        dispatchMessage({
           id: (message as WebviewRequestMessage).id,
           result: "DummyResult",
         } satisfies WebviewResponseMessage);
@@ -29,7 +32,7 @@ describe("WebviewMessageChannel", () => {
 
     it("should reject upon error", async () => {
       vi.mocked(acquireVsCodeApi().postMessage).mockImplementation((message) => {
-        window.postMessage({
+        dispatchMessage({
           id: (message as WebviewRequestMessage).id,
           error: "DummyError",
         } satisfies WebviewResponseMessage);
@@ -54,17 +57,17 @@ describe("WebviewMessageChannel", () => {
     it("should add a notification subscriber", async () => {
       const dummyNotification = { method: "notification/dummy", params: "nothing" };
       const numberOfSubscribers = 5;
-      const callbacks: Array<ReturnType<typeof vi.fn>> = [];
+      const callbacks: Mock<WebviewNotificationCallback>[] = [];
 
       for (let i = 0; i < numberOfSubscribers; i++) {
-        callbacks.push(vi.fn());
+        callbacks.push(vi.fn<WebviewNotificationCallback>());
         sut.subscribeToNotification(dummyNotification.method, callbacks[i]);
       }
 
-      window.postMessage(dummyNotification);
+      dispatchMessage(dummyNotification);
 
       await waitFor(() => {
-        callbacks.every((callback) => {
+        callbacks.forEach((callback) => {
           expect(callback).toHaveBeenCalledWith(dummyNotification.params);
         });
       });
@@ -75,20 +78,20 @@ describe("WebviewMessageChannel", () => {
     it("should remove a notification subscriber", async () => {
       const dummyNotification = { method: "notification/dummy", params: "nothing" };
       const numberOfSubscribers = 5;
-      const callbacks: Array<ReturnType<typeof vi.fn>> = [];
+      const callbacks: Mock<WebviewNotificationCallback>[] = [];
 
       for (let i = 0; i < numberOfSubscribers; i++) {
-        callbacks.push(vi.fn());
+        callbacks.push(vi.fn<WebviewNotificationCallback>());
         sut.subscribeToNotification(dummyNotification.method, callbacks[i]);
       }
 
       sut.unsubscribeFromNotification(dummyNotification.method, callbacks[0]);
       sut.unsubscribeFromNotification(dummyNotification.method, callbacks[1]);
 
-      window.postMessage(dummyNotification);
+      dispatchMessage(dummyNotification);
 
       await waitFor(() => {
-        callbacks.slice(2).every((callback) => {
+        callbacks.slice(2).forEach((callback) => {
           expect(callback).toHaveBeenCalledWith(dummyNotification.params);
         });
       });

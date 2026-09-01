@@ -23,8 +23,7 @@ using Bicep.IO.FileSystem;
 using Bicep.LangServer.IntegrationTests;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.UnitTests.Mocks;
-using Bicep.LanguageServer.Handlers;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Features.Language.DocumentLink;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -53,7 +52,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             this.MockFileSystem = new();
 
             var mockFileExplorer = new FileSystemFileExplorer(this.MockFileSystem);
-            var mockConfigurationManager = new ConfigurationManager(mockFileExplorer);
+            var mockConfigurationManager = new BicepConfigurationManager(mockFileExplorer);
             var featureProviderFactory = new FeatureProviderFactory(mockConfigurationManager, mockFileExplorer);
 
             this.CacheRootDirectory = featureProviderFactory.GetFeatureProvider(new IOUri("file", "", "/dummy.bicep")).CacheRootDirectory;
@@ -105,19 +104,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var resolvedLinks = new List<DocumentLink<ExternalSourceDocumentLinkData>>();
             foreach (var link in links)
             {
-                var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
-                telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
-
-                var resolvedLink = await BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink(link, moduleDispatcher, sourceFileFactory, server.Mock.Object, telemetryProvider.Object);
+                var resolvedLink = await BicepExternalSourceDocumentLinkHandler.ResolveDocumentLink(link, moduleDispatcher, sourceFileFactory, server.Mock.Object);
                 resolvedLinks.Add(resolvedLink);
-
-                telemetryProvider.Verify(m => m.PostEvent(It.Is<BicepTelemetryEvent>(
-                    p => (p.EventName == TelemetryConstants.EventNames.ExternalSourceDocLinkClickSuccess
-                        || p.EventName == TelemetryConstants.EventNames.ExternalSourceDocLinkClickFailure)
-                    && p.Properties != null
-                    )), Times.Exactly(1));
-
-                telemetryProvider.VerifyNoOtherCalls();
             }
 
             return (

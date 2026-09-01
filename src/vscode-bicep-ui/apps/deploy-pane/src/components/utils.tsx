@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { DeploymentOperation } from "@azure/arm-resources";
+import type { DeploymentOperation } from "@azure/arm-resourcesdeployments";
 import type { DeploymentScopeType, ParamData, ParamDefinition, TemplateMetadata } from "../models";
 
 export function getEffectiveParamData(

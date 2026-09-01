@@ -12,6 +12,7 @@ using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
+using Bicep.Testing.Extensions;
 
 namespace Bicep.Core.IntegrationTests.Extensibility;
 

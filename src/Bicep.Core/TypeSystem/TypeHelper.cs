@@ -23,6 +23,9 @@ namespace Bicep.Core.TypeSystem
     {
         private static TypeComparer typeComparer = new();
 
+        // Constructing a non-backtracking Regex is expensive, and the same patterns recur constantly across resource types.
+        private static readonly ConcurrentDictionary<string, string?> RegexValidationCache = new();
+
         /// <summary>
         /// Try to collapse multiple types into a single (non-union) type. Returns null if this is not possible.
         /// </summary>
@@ -748,7 +751,7 @@ namespace Bicep.Core.TypeSystem
         /// <returns>The pattern string iff it can be used with the non-backtracking engine.</returns>
         public static string? AsOptionalValidFiniteRegexPattern(string? pattern)
         {
-            if (pattern is not null && TryGetRegularExpressionValidationException(pattern) is null)
+            if (pattern is not null && TryGetRegularExpressionValidationError(pattern) is null)
             {
                 return pattern;
             }
@@ -762,18 +765,19 @@ namespace Bicep.Core.TypeSystem
         /// </summary>
         /// <param name="pattern">The regular expression pattern</param>
         /// <returns>The exception raised by <see cref="Regex.Regex(string, RegexOptions)"/>, if any.</returns>
-        public static Exception? TryGetRegularExpressionValidationException(string pattern)
-        {
-            try
+        public static string? TryGetRegularExpressionValidationError(string pattern)
+            => RegexValidationCache.GetOrAdd(pattern, static pattern =>
             {
-                var _ = new Regex(pattern, RegexOptions.NonBacktracking);
-                return null;
-            }
-            catch (Exception e)
-            {
-                return e;
-            }
-        }
+                try
+                {
+                    var _ = new Regex(pattern, RegexOptions.NonBacktracking);
+                    return null;
+                }
+                catch (Exception e)
+                {
+                    return e.Message;
+                }
+            });
 
         public static bool MatchesPattern(string pattern, string value)
             => Regex.IsMatch(value, pattern, RegexOptions.NonBacktracking);

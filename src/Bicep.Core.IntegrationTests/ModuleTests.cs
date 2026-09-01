@@ -20,7 +20,7 @@ using Bicep.IO.InMemory;
 using Bicep.Testing.Assertions;
 using Bicep.Testing.IO;
 using Bicep.Testing.Mocks;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -216,7 +216,7 @@ module modulea 'modulea.bicep' = {
   }
 }
 ";
-            var result = await this.compiler.CompileInline(mainFileText);
+            var result = await this.compiler.Compile(mainFileText);
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{TestFileUri.FromMockFileSystemPath("modulea.bicep")}'."),

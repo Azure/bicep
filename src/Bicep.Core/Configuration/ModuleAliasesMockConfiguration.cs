@@ -25,7 +25,7 @@ namespace Bicep.Core.Configuration
         public override string ToString() => $"{MapToFilePath}";
     }
 
-    public partial class ModuleAliasesMockConfiguration : ConfigurationSection<ModuleAliasesMock>
+    public partial class ModuleAliasesMockConfiguration : ConfigurationSection<ModuleAliasesMock>, IBicepModuleAliasesMockConfiguration
     {
         private readonly IOUri? configFileUri;
 

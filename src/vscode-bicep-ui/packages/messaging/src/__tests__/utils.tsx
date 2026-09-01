@@ -19,3 +19,7 @@ export function renderHookWithWebviewMessageChannel<Result, Props>(
 
   return renderHook(render, { wrapper });
 }
+
+export function dispatchMessage(message: unknown) {
+  window.dispatchEvent(new MessageEvent("message", { data: message }));
+}

@@ -597,37 +597,270 @@ param bar2 = externalInput('kind', foo)
     @export()
     var foo = resourceGroup().location // cannot be evaluated in bicepparam file
     "));
-        result.Should().HaveDiagnostics(
-            [
-                ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
-                ("BCP063", DiagnosticLevel.Error, "The name \"foo\" is not a parameter, variable, resource or module."),
-            ]);
+        result.Should().OnlyContainDiagnostic(
+            "BCP452",
+            DiagnosticLevel.Error,
+            "The imported symbol \"foo\" cannot be used in a .bicepparam file because it depends on deployment-context functions: \"resourceGroup\". Imported declarations may only use functions that can be evaluated while building the parameters file.");
     }
 
     [TestMethod]
-    public void Parameter_assignment_with_imported_resource_id_variable_returns_referenced_module_diagnostic()
+    public void Imported_variable_with_deployment_context_function_reference_returns_diagnostic_even_when_unused()
     {
         var result = CompilationHelper.CompileParams(
-            ("main.bicep", """
-                param subnetId string
-                """),
             ("parameters.bicepparam", """
-                using 'main.bicep'
-
+                using none
                 import { defaultSubnetId } from 'variables.bicep'
-
-                param subnetId = defaultSubnetId
                 """),
             ("variables.bicep", """
                 @export()
                 var defaultSubnetId = resourceId('resourceGroup', 'Microsoft.Network/virtualNetworks/subnets', 'vnet', 'subnet')
                 """));
 
-        result.Should().HaveDiagnostics(
-            [
-                ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
-                ("BCP063", DiagnosticLevel.Error, "The name \"defaultSubnetId\" is not a parameter, variable, resource or module."),
-            ]);
+        result.Should().OnlyContainDiagnostic(
+            "BCP452",
+            DiagnosticLevel.Error,
+            "The imported symbol \"defaultSubnetId\" cannot be used in a .bicepparam file because it depends on deployment-context functions: \"resourceId\". Imported declarations may only use functions that can be evaluated while building the parameters file.");
+    }
+
+    [TestMethod]
+    public void ImportedVariable_WithFullyQualifiedResourceId_Compiles()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+                import { gatewayId } from 'variables.bicep'
+
+                param value = gatewayId
+                """),
+            ("variables.bicep", """
+                @export()
+                var gatewayId = resourceId(
+                  'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+                  'rg-test',
+                  'Microsoft.HybridCompute/gateways',
+                  'arc01-gw')
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["value"].Value.Should().DeepEqual("/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-test/providers/Microsoft.HybridCompute/gateways/arc01-gw");
+    }
+
+    [TestMethod]
+    public void ImportedVariable_WithFullyQualifiedNestedResourceId_Compiles()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+                import { subnetId } from 'variables.bicep'
+
+                param value = subnetId
+                """),
+            ("variables.bicep", """
+                @export()
+                var subnetId = resourceId(
+                  'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+                  'rg-test',
+                  'Microsoft.Network/virtualNetworks/subnets',
+                  'vnet',
+                  'subnet')
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void ImportedVariable_WithoutResourceGroupInResourceId_ReturnsDiagnostic()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+                import { subnetId } from 'variables.bicep'
+                """),
+            ("variables.bicep", """
+                @export()
+                var subnetId = resourceId(
+                  'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
+                  'Microsoft.Network/virtualNetworks/subnets',
+                  'vnet',
+                  'subnet')
+                """));
+
+        result.Should().OnlyContainDiagnostic(
+            "BCP452",
+            DiagnosticLevel.Error,
+            "The imported symbol \"subnetId\" cannot be used in a .bicepparam file because it depends on deployment-context functions: \"resourceId\". Imported declarations may only use functions that can be evaluated while building the parameters file.");
+    }
+
+    [TestMethod]
+    [DataRow("subscriptionResourceId('aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', 'Microsoft.Authorization/roleDefinitions', 'role')")]
+    [DataRow("managementGroupResourceId('managementGroup', 'Microsoft.Authorization/policyDefinitions', 'policy')")]
+    [DataRow("tenantResourceId('Microsoft.Authorization/policyDefinitions', 'policy')")]
+    [DataRow("extensionResourceId('/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-test', 'Microsoft.Authorization/locks', 'lock')")]
+    public void ImportedVariable_WithContextIndependentResourceIdFunction_Compiles(string functionCall)
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+                import { resourceIdValue } from 'variables.bicep'
+
+                param value = resourceIdValue
+                """),
+            ("variables.bicep", $@"
+                @export()
+                var resourceIdValue = {functionCall}
+                "));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    [DataRow("subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'role')", "subscriptionResourceId")]
+    [DataRow("managementGroupResourceId('Microsoft.Authorization/policyDefinitions', 'policy')", "managementGroupResourceId")]
+    public void ImportedVariable_WithContextDependentResourceIdFunction_ReturnsDiagnostic(string functionCall, string functionName)
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+                import { resourceIdValue } from 'variables.bicep'
+                """),
+            ("variables.bicep", $@"
+                @export()
+                var resourceIdValue = {functionCall}
+                "));
+
+        result.Should().OnlyContainDiagnostic(
+            "BCP452",
+            DiagnosticLevel.Error,
+            $"The imported symbol \"resourceIdValue\" cannot be used in a .bicepparam file because it depends on deployment-context functions: \"{functionName}\". Imported declarations may only use functions that can be evaluated while building the parameters file.");
+    }
+
+    [TestMethod]
+    [DataRow("extensionResourceId(resourceId('Microsoft.Storage/storageAccounts', 'storage'), 'Microsoft.Authorization/locks', 'lock')", "resourceId")]
+    [DataRow("tenantResourceId('Microsoft.Authorization/policyDefinitions', resourceGroup().name)", "resourceGroup")]
+    public void ImportedVariable_WithPureResourceIdFunctionWrappingContextDependentFunction_ReturnsDiagnostic(string functionCall, string functionName)
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+                import { resourceIdValue } from 'variables.bicep'
+                """),
+            ("variables.bicep", $@"
+                @export()
+                var resourceIdValue = {functionCall}
+                "));
+
+        result.Should().OnlyContainDiagnostic(
+            "BCP452",
+            DiagnosticLevel.Error,
+            $"The imported symbol \"resourceIdValue\" cannot be used in a .bicepparam file because it depends on deployment-context functions: \"{functionName}\". Imported declarations may only use functions that can be evaluated while building the parameters file.");
+    }
+
+    [TestMethod]
+    public void ImportedVariable_WithPureResourceIdFunctionUsingTransitivelyContextDependentArgument_ReturnsDiagnostic()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+                import { lockId } from 'variables.bicep'
+                """),
+            ("variables.bicep", """
+                var storageAccountId = resourceId('Microsoft.Storage/storageAccounts', 'storage')
+
+                @export()
+                var lockId = extensionResourceId(storageAccountId, 'Microsoft.Authorization/locks', 'lock')
+                """));
+
+        result.Should().OnlyContainDiagnostic(
+            "BCP452",
+            DiagnosticLevel.Error,
+            "The imported symbol \"lockId\" cannot be used in a .bicepparam file because it depends on deployment-context functions: \"resourceId\". Imported declarations may only use functions that can be evaluated while building the parameters file.");
+    }
+
+    [TestMethod]
+    public void Imported_variable_with_transitive_pure_function_reference_compiles_successfully()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+                import { normalizedValue } from 'variables.bicep'
+
+                param value = normalizedValue
+                """),
+            ("variables.bicep", """
+                var normalizedValueCore = toLower('HELLO')
+
+                @export()
+                var normalizedValue = normalizedValueCore
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["value"].Value.Should().DeepEqual("hello");
+    }
+
+    [TestMethod]
+    public void Imported_variable_with_transitive_deployment_context_function_reference_returns_diagnostic_even_when_unused()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+                import { defaultSubnetId } from 'variables.bicep'
+                """),
+            ("variables.bicep", """
+                var defaultSubnetIdCore = resourceId('resourceGroup', 'Microsoft.Network/virtualNetworks/subnets', 'vnet', 'subnet')
+
+                @export()
+                var defaultSubnetId = defaultSubnetIdCore
+                """));
+
+        result.Should().OnlyContainDiagnostic(
+            "BCP452",
+            DiagnosticLevel.Error,
+            "The imported symbol \"defaultSubnetId\" cannot be used in a .bicepparam file because it depends on deployment-context functions: \"resourceId\". Imported declarations may only use functions that can be evaluated while building the parameters file.");
+    }
+
+    [TestMethod]
+    public void Wildcard_import_with_deployment_context_function_reference_returns_diagnostic_even_when_unused()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+                import * as values from 'variables.bicep'
+                """),
+            ("variables.bicep", """
+                @export()
+                var defaultSubnetId = resourceId('resourceGroup', 'Microsoft.Network/virtualNetworks/subnets', 'vnet', 'subnet')
+                """));
+
+        result.Should().OnlyContainDiagnostic(
+            "BCP452",
+            DiagnosticLevel.Error,
+            "The imported symbol \"values\" cannot be used in a .bicepparam file because it depends on deployment-context functions: \"resourceId\". Imported declarations may only use functions that can be evaluated while building the parameters file.");
+    }
+
+    [TestMethod]
+    public void Wildcard_import_with_deployment_context_function_reference_returns_diagnostic_for_pure_member_usage()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+                import * as values from 'variables.bicep'
+
+                param value = values.safeValue
+                """),
+            ("variables.bicep", """
+                @export()
+                var safeValue = toLower('HELLO')
+
+                @export()
+                var defaultSubnetId = resourceId('resourceGroup', 'Microsoft.Network/virtualNetworks/subnets', 'vnet', 'subnet')
+                """));
+
+        result.Should().OnlyContainDiagnostic(
+            "BCP452",
+            DiagnosticLevel.Error,
+            "The imported symbol \"values\" cannot be used in a .bicepparam file because it depends on deployment-context functions: \"resourceId\". Imported declarations may only use functions that can be evaluated while building the parameters file.");
     }
 
     [TestMethod]
@@ -658,6 +891,49 @@ param bar2 = externalInput('kind', foo)
     }
 
     [TestMethod]
+    public void Imported_function_with_transitive_pure_function_references_compiles_successfully()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+                import { normalize } from 'functions.bicep'
+
+                param value = normalize('HELLO')
+                """),
+            ("functions.bicep", """
+                func normalizeCore(value string) string => toLower(value)
+
+                @export()
+                func normalize(value string) string => normalizeCore(value)
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var parameters = TemplateHelper.ConvertAndAssertParameters(result.Parameters);
+        parameters["value"].Value.Should().DeepEqual("hello");
+    }
+
+    [TestMethod]
+    public void Imported_function_with_transitive_deployment_context_function_reference_returns_diagnostic_even_when_unused()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+                import { getLocation } from 'functions.bicep'
+                """),
+            ("functions.bicep", """
+                func getLocationCore() string => resourceGroup().location
+
+                @export()
+                func getLocation() string => getLocationCore()
+                """));
+
+        result.Should().OnlyContainDiagnostic(
+            "BCP452",
+            DiagnosticLevel.Error,
+            "The imported symbol \"getLocation\" cannot be used in a .bicepparam file because it depends on deployment-context functions: \"resourceGroup\". Imported declarations may only use functions that can be evaluated while building the parameters file.");
+    }
+
+    [TestMethod]
     public void ExternalInput_parameter_with_non_pure_imported_function_returns_diagnostics()
     {
         var result = CompilationHelper.CompileParams(
@@ -670,11 +946,10 @@ param bar2 = externalInput('kind', foo)
     @export()
     func foo() string => resourceGroup().location // cannot be evaluated in bicepparam file
     "));
-        result.Should().HaveDiagnostics(
-            [
-                ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
-                ("BCP059", DiagnosticLevel.Error, "The name \"foo\" is not a function."),
-            ]);
+        result.Should().OnlyContainDiagnostic(
+            "BCP452",
+            DiagnosticLevel.Error,
+            "The imported symbol \"foo\" cannot be used in a .bicepparam file because it depends on deployment-context functions: \"resourceGroup\". Imported declarations may only use functions that can be evaluated while building the parameters file.");
     }
 
     [TestMethod]

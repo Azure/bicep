@@ -18,25 +18,28 @@ namespace Bicep.Core.Semantics
             VariableFunctionParameter? variableArgumentType,
             EvaluatorDelegate? evaluator,
             ArmExpressionEvaluatorDelegate? armExpressionEvaluator,
-            FunctionFlags flags = FunctionFlags.Default)
-            : base(name, genericDescription, description, resultBuilder, returnType, fixedArgumentTypes, variableArgumentType, evaluator, armExpressionEvaluator, flags)
+            FunctionFlags flags = FunctionFlags.Default,
+            IsPurePredicate? isPure = null)
+            : base(name, genericDescription, description, resultBuilder, returnType, fixedArgumentTypes, variableArgumentType, evaluator, armExpressionEvaluator, flags, isPure)
         {
             WildcardRegex = wildcardRegex;
         }
 
         public Regex WildcardRegex { get; }
 
-        public override FunctionOverload WithAdditionalFlags(FunctionFlags flags) => new FunctionWildcardOverload(
-            Name,
-            GenericDescription,
-            Description,
-            WildcardRegex,
-            ResultBuilder,
-            TypeSignatureSymbol,
-            FixedParameters,
-            VariableParameter,
-            Evaluator,
-            ArmExpressionEvaluator,
-            Flags | flags);
+        public override FunctionOverload WithAdditionalFlags(FunctionFlags flags) =>
+            new FunctionWildcardOverload(
+                Name,
+                GenericDescription,
+                Description,
+                WildcardRegex,
+                ResultBuilder,
+                TypeSignatureSymbol,
+                FixedParameters,
+                VariableParameter,
+                Evaluator,
+                ArmExpressionEvaluator,
+                Flags | flags,
+                this.IsPure);
     }
 }

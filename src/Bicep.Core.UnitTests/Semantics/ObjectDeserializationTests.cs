@@ -195,6 +195,21 @@ namespace Bicep.Core.UnitTests.Semantics
             Assert.AreEqual(89, jToken["age"]?.Value<int>());
             Assert.AreEqual("Louaryland", jToken["addresses"]!["home"]!["city"]?.Value<string>());
         }
+
+        [TestMethod]
+        public void YAML_scalar_alias_gets_deserialized_into_JSON()
+        {
+            var yml = """
+                source: &CIDR 10.0.0.0/17
+                alias: *CIDR
+                """;
+
+            var span = new TextSpan(0, 0);
+            Assert.IsTrue(new YamlObjectParser().TryExtractFromObject(yml, null, [span]).IsSuccess(out var jToken));
+
+            Assert.AreEqual("10.0.0.0/17", jToken!["source"]?.Value<string>());
+            Assert.AreEqual("10.0.0.0/17", jToken["alias"]?.Value<string>());
+        }
     }
 
 }

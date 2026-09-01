@@ -23,6 +23,8 @@ namespace Bicep.Cli.Constants
         public const string WhatIf = "what-if";
         public const string Teardown = "teardown";
         public const string Console = "console";
+        public const string Docs = "docs";
+        public const string DocsGenerate = "generate";
         public const string Root = "";
     }
 
@@ -49,6 +51,10 @@ namespace Bicep.Cli.Constants
         public const string NoRestore = "--no-restore";
         public const string Force = "--force";
         public const string DiagnosticsFormat = "--diagnostics-format";
+        public const string CustomTemplateValue = "--custom-template-value";
+        public const string CustomTemplateValueFilePath = "--custom-template-value-file-path";
+        public const string TemplateFile = "--template-file";
+        public const string TemplateRoot = "--template-root";
 
         // Build / BuildParams
         public const string BicepFile = "--bicep-file";

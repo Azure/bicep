@@ -8,11 +8,11 @@ namespace Bicep.Core.Features
 {
     public class FeatureProvider : IFeatureProvider
     {
-        private readonly RootConfiguration configuration;
+        private readonly IBicepConfiguration configuration;
 
         private readonly IFileExplorer fileExplorer;
 
-        public FeatureProvider(RootConfiguration configuration, IFileExplorer fileExplorer)
+        public FeatureProvider(IBicepConfiguration configuration, IFileExplorer fileExplorer)
         {
             this.configuration = configuration;
             this.fileExplorer = fileExplorer;
@@ -53,6 +53,12 @@ namespace Bicep.Core.Features
         public bool UserDefinedConstraintsEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedConstraints;
 
         public bool DeployCommandsEnabled => configuration.ExperimentalFeaturesEnabled.DeployCommands;
+
+        public bool PatchEnabled => configuration.ExperimentalFeaturesEnabled.Patch;
+
+        public bool RuntimeValuesInTagsAndSkuEnabled => configuration.ExperimentalFeaturesEnabled.RuntimeValuesInTagsAndSku;
+
+        public bool AzExtensionConfigEnabled => configuration.ExperimentalFeaturesEnabled.AzExtensionConfig;
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;

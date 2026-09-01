@@ -14,6 +14,14 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 {
     public class AzResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
     {
+        /// <summary>
+        /// This is very computationally expensive to construct, so we keep a static instance to share across the product. It is immutable, so it is safe to share.
+        /// The reason we're not just using DI for this is that it's also used in a lot of tests, and we don't want to have multiple constructions take place.
+        /// </summary>
+        private static readonly Lazy<AzResourceTypeProvider> LazyInstance = new(() => new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader())));
+
+        public static AzResourceTypeProvider Instance => LazyInstance.Value;
+
         private static readonly RegexOptions PatternRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant;
         private static readonly Regex ResourceTypePattern = new(@"^(?<namespace>[a-z0-9][a-z0-9\.]*)(/(?<type>[a-z0-9\-]+))+$", PatternRegexOptions);
         private static readonly Regex ApiVersionPattern = new(@"^\d{4}-\d{2}-\d{2}(|-(preview|alpha|beta|rc|privatepreview))$", PatternRegexOptions);
@@ -23,6 +31,8 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         public const string ResourceNamePropertyName = "name";
         public const string ResourceTypePropertyName = "type";
         public const string ResourceApiVersionPropertyName = "apiVersion";
+        public const string ResourceTagsPropertyName = "tags";
+        public const string ResourceSkuPropertyName = "sku";
 
         public const string ResourceTypeDeployments = "Microsoft.Resources/deployments";
         public const string ResourceTypeResourceGroup = "Microsoft.Resources/resourceGroups";
@@ -57,11 +67,12 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             "managedBy",
             "extendedLocation",
             "zones",
+            "placement",
             "plan",
-            "sku",
+            ResourceSkuPropertyName,
             "identity",
             "managedByExtended",
-            "tags",
+            ResourceTagsPropertyName,
             "asserts",
         ];
 
@@ -152,6 +163,20 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 
             yield return new NamedTypeProperty("zones", stringArray);
 
+            var zonePlacementPolicyType = TypeHelper.CreateTypeUnion(
+                TypeFactory.CreateStringLiteralType("NotSpecified"),
+                TypeFactory.CreateStringLiteralType("Any"),
+                TypeFactory.CreateStringLiteralType("None"),
+                TypeFactory.CreateStringLiteralType("Auto"),
+                LanguageConstants.String);
+
+            yield return new NamedTypeProperty("placement", new ObjectType("placement", TypeSymbolValidationFlags.Default, new[]
+            {
+                new NamedTypeProperty("zonePlacementPolicy", zonePlacementPolicyType, TypePropertyFlags.Required),
+                new NamedTypeProperty("includeZones", stringArray),
+                new NamedTypeProperty("excludeZones", stringArray),
+            }, null));
+
             yield return new NamedTypeProperty("plan", LanguageConstants.Object);
 
             yield return new NamedTypeProperty("eTag", LanguageConstants.String);
@@ -195,6 +220,9 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             definedTypeCache = new ResourceTypeCache();
             generatedTypeCache = new ResourceTypeCache();
         }
+
+        public ObjectLikeType? GetConfigurationType()
+            => (resourceTypeLoader as AzResourceTypeLoader)?.LoadConfigurationType();
 
         private static ObjectType CreateGenericResourceBody(ResourceTypeReference typeReference, Func<string, bool> propertyFilter)
         {
@@ -308,11 +336,20 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                     properties = properties.SetItem(LanguageConstants.ResourceScopePropertyName, scopeProperty);
                 }
 
+                var permitRuntimeValuesInTagsAndSku = flags.HasFlag(ResourceTypeGenerationFlags.PermitRuntimeValuesInTagsAndSku);
+
                 // TODO: move this to the type library.
                 foreach (var propertyName in WriteOnlyDeployTimeConstantPropertyNames)
                 {
                     if (properties.TryGetValue(propertyName, out var typeProperty))
                     {
+                        if (permitRuntimeValuesInTagsAndSku &&
+                            (propertyName == ResourceTagsPropertyName || propertyName == ResourceSkuPropertyName))
+                        {
+                            // The experimental feature allows runtime values in 'tags' and 'sku', so skip marking them as deploy-time constant.
+                            continue;
+                        }
+
                         // Update tags for deploy-time constant properties that are not readable at deploy-time.
                         properties = properties.SetItem(propertyName, UpdateFlags(typeProperty, typeProperty.Flags | TypePropertyFlags.DeployTimeConstant));
                     }

@@ -23,12 +23,12 @@ namespace Bicep.Core.SourceGraph
             LineInfoHandling = LineInfoHandling.Ignore,
         };
 
-        private readonly IConfigurationManager configurationManager;
+        private readonly IBicepConfigurationManager configurationManager;
         private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly IAuxiliaryFileCache auxiliaryFileCache;
         private readonly IFileExplorer fileExplorer;
 
-        public SourceFileFactory(IConfigurationManager configurationManager, IFeatureProviderFactory featureProviderFactory, IAuxiliaryFileCache auxiliaryFileCache, IFileExplorer fileExplorer)
+        public SourceFileFactory(IBicepConfigurationManager configurationManager, IFeatureProviderFactory featureProviderFactory, IAuxiliaryFileCache auxiliaryFileCache, IFileExplorer fileExplorer)
         {
             this.configurationManager = configurationManager;
             this.featureProviderFactory = featureProviderFactory;

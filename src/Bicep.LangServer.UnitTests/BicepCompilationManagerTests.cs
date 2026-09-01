@@ -15,9 +15,8 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;
 using Bicep.LanguageServer;
+using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Providers;
-using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -35,8 +34,6 @@ namespace Bicep.LangServer.UnitTests
 
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
 
-        private static readonly LinterRulesProvider linterRulesProvider = new();
-
         private static BicepCompilationManager GetTestBicepCompilationManager(Mock<ITextDocumentLanguageServer> document, ActiveSourceFileSet? workspace = null)
         {
             workspace ??= new ActiveSourceFileSet();
@@ -45,8 +42,6 @@ namespace Bicep.LangServer.UnitTests
                 BicepCompilationManagerHelper.CreateEmptyCompilationProvider(),
                 workspace,
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
-                BicepTestConstants.CreateMockTelemetryProvider().Object,
-                linterRulesProvider,
                 BicepTestConstants.SourceFileFactory,
                 BicepTestConstants.AuxiliaryFileCache);
         }
@@ -300,8 +295,6 @@ namespace Bicep.LangServer.UnitTests
                 BicepCompilationManagerHelper.CreateEmptyCompilationProvider(),
                 new ActiveSourceFileSet(),
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
-                BicepTestConstants.CreateMockTelemetryProvider().Object,
-                linterRulesProvider,
                 BicepTestConstants.SourceFileFactory,
                 BicepTestConstants.AuxiliaryFileCache);
 
@@ -360,8 +353,6 @@ namespace Bicep.LangServer.UnitTests
                 provider.Object,
                 new ActiveSourceFileSet(),
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
-                BicepTestConstants.CreateMockTelemetryProvider().Object,
-                linterRulesProvider,
                 BicepTestConstants.SourceFileFactory,
                 BicepTestConstants.AuxiliaryFileCache);
 
@@ -432,8 +423,6 @@ namespace Bicep.LangServer.UnitTests
                 provider.Object,
                 workspace,
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
-                BicepTestConstants.CreateMockTelemetryProvider().Object,
-                linterRulesProvider,
                 BicepTestConstants.SourceFileFactory,
                 BicepTestConstants.AuxiliaryFileCache);
 
@@ -540,8 +529,6 @@ module moduleB './moduleB.bicep' = {
                 compilationProvider,
                 new ActiveSourceFileSet(),
                 BicepCompilationManagerHelper.CreateMockScheduler().Object,
-                BicepTestConstants.CreateMockTelemetryProvider().Object,
-                linterRulesProvider,
                 BicepTestConstants.SourceFileFactory,
                 BicepTestConstants.AuxiliaryFileCache);
 
@@ -711,225 +698,6 @@ module moduleB './moduleB.bicep' = {
             manager.CloseCompilation(paramsFileUri);
 
             manager.GetCompilation(paramsFileUri).Should().BeNull();
-        }
-
-        [TestMethod]
-        public void GetLinterStateTelemetryOnBicepFileOpen_ShouldReturnTelemetryEvent()
-        {
-            var compilationManager = CreateBicepCompilationManager();
-
-            var bicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        },
-        ""no-unused-vars"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-
-            var rootConfiguration = BicepTestConstants.GetConfiguration(bicepConfigFileContents);
-
-            var telemetryEvent = compilationManager.GetLinterStateTelemetryOnBicepFileOpen(rootConfiguration);
-
-            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
-
-            IDictionary<string, string> properties = new Dictionary<string, string>
-            {
-                { "enabled", "true" },
-                { "simplify-interpolation", "warning" },
-                { "no-unused-vars", "info" },
-                { "no-hardcoded-env-urls", "warning" },
-                { "no-unused-params", "info" },
-                { "prefer-interpolation", "warning" },
-                { "protect-commandtoexecute-secrets", "warning" },
-                { "no-unnecessary-dependson", "warning" },
-                { "adminusername-should-not-be-literal", "warning" },
-                { "use-stable-vm-image", "warning" },
-                { "secure-parameter-default", "warning" },
-                { "outputs-should-not-contain-secrets", "warning" },
-                { "no-hardcoded-location", "warning" },
-                { "explicit-values-for-loc-params", "warning" },
-                { "no-loc-expr-outside-params", "warning" },
-            };
-
-            telemetryEvent.Properties.Should().Contain(properties);
-        }
-
-        [TestMethod]
-        public void GetLinterStateTelemetryOnBicepFileOpen_WithOverallLinterStateDisabled_ShouldReturnTelemetryEventWithOneProperty()
-        {
-            var compilationManager = CreateBicepCompilationManager();
-
-            var bicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": false,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        },
-        ""no-unused-vars"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            var rootConfiguration = BicepTestConstants.GetConfiguration(bicepConfigFileContents);
-
-            var telemetryEvent = compilationManager.GetLinterStateTelemetryOnBicepFileOpen(rootConfiguration);
-
-            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
-
-            IDictionary<string, string> properties = new Dictionary<string, string>
-            {
-                { "enabled", "false" }
-            };
-
-            telemetryEvent.Properties.Should().Equal(properties);
-        }
-
-        [TestMethod]
-        public void GetLinterStateTelemetryOnBicepFileOpen_WithNoContents_ShouldUseDefaultSettingsAndReturnTelemetryEvent()
-        {
-            var compilationManager = CreateBicepCompilationManager();
-
-            var bicepConfigFileContents = @"{}";
-            var rootConfiguration = BicepTestConstants.GetConfiguration(bicepConfigFileContents);
-
-            var telemetryEvent = compilationManager.GetLinterStateTelemetryOnBicepFileOpen(rootConfiguration);
-
-            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
-
-            var properties = new Dictionary<string, string>
-            {
-                { "enabled", "true" },
-                { "simplify-interpolation", "warning" },
-                { "no-unused-vars", "warning" },
-                { "no-hardcoded-env-urls", "warning" },
-                { "no-unused-params", "warning" },
-                { "prefer-interpolation", "warning" },
-                { "protect-commandtoexecute-secrets", "warning" },
-                { "no-unnecessary-dependson", "warning" },
-                { "adminusername-should-not-be-literal", "warning" },
-                { "use-stable-vm-image", "warning" },
-                { "secure-parameter-default", "warning" },
-                { "outputs-should-not-contain-secrets", "warning" },
-                { "no-hardcoded-location", "warning" },
-                { "explicit-values-for-loc-params", "warning" },
-                { "no-loc-expr-outside-params", "warning" },
-            };
-
-            telemetryEvent.Properties.Should().Contain(properties);
-        }
-
-        [TestMethod]
-        public void GetBicepOpenTelemetryEvent_ShouldReturnTelemetryEvent()
-        {
-            var result = CompilationHelper.Compile(@"param appInsightsName string = 'testAppInsightsName'
-
-resource applicationInsights 'Microsoft.Insights/components@2015-05-01' = {
-  name: appInsightsName
-  location: resourceGroup().location
-  kind: 'web'
-  properties: {
-    Application_Type: 'web'
-  }
-}
-
-param location string = 'testLocation'");
-
-            var model = result.Compilation.GetEntrypointSemanticModel();
-            var sourceFile = (model.SourceFile as BicepFile)!;
-
-            var compilationManager = CreateBicepCompilationManager();
-            var telemetryEvent = compilationManager.GetBicepOpenTelemetryEvent(
-                model,
-                sourceFile,
-                model.GetAllDiagnostics().ToDiagnostics(sourceFile.LineStarts));
-
-            var properties = new Dictionary<string, string>
-            {
-                ["Modules"] = "0",
-                ["Parameters"] = "2",
-                ["Resources"] = "1",
-                ["Variables"] = "0",
-                ["CharCount"] = "294",
-                ["LineCount"] = "12",
-                ["Errors"] = "0",
-                ["Warnings"] = "1",
-                ["ModulesInReferencedFiles"] = "0",
-                ["ParentResourcesInReferencedFiles"] = "0",
-                ["ParametersInReferencedFiles"] = "0",
-                ["VariablesInReferencedFiles"] = "0",
-            };
-
-            telemetryEvent.Should().NotBeNull();
-            telemetryEvent!.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
-            telemetryEvent.Properties.Should().Contain(properties);
-        }
-
-        [TestMethod]
-        public void GetBicepParamOpenTelemetryEvent_ShouldReturnTelemetryEvent()
-        {
-            var result = CompilationHelper.CompileParams(
-                ("main.bicep", """
-                    param intParam int
-                    """),
-                ("parameters.bicepparam", """
-                    using 'main.bicep'
-
-                    param intParam = 123
-                    """));
-
-            var model = result.Compilation.GetEntrypointSemanticModel();
-            var sourceFile = (model.SourceFile as BicepParamFile)!;
-
-            var compilationManager = CreateBicepCompilationManager();
-            var telemetryEvent = compilationManager.GetBicepParamOpenTelemetryEvent(
-                model,
-                sourceFile,
-                model.GetAllDiagnostics().ToDiagnostics(sourceFile.LineStarts));
-
-            var properties = new Dictionary<string, string>
-            {
-                ["CharCount"] = "40",
-                ["LineCount"] = "3",
-                ["Errors"] = "0",
-                ["Warnings"] = "0",
-            };
-
-            telemetryEvent.Should().NotBeNull();
-            telemetryEvent!.EventName.Should().Be(TelemetryConstants.EventNames.BicepParamFileOpen);
-            telemetryEvent.Properties.Should().Contain(properties);
-        }
-
-        private BicepCompilationManager CreateBicepCompilationManager()
-        {
-            PublishDiagnosticsParams? receivedParams = null;
-
-            var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
-            var server = BicepCompilationManagerHelper.CreateMockServer(document);
-            var uri = DocumentUri.File($"{TestContext.TestName}.bicep");
-            var workspace = new ActiveSourceFileSet();
-
-            return new BicepCompilationManager(
-                server.Object,
-                BicepCompilationManagerHelper.CreateEmptyCompilationProvider(),
-                workspace,
-                BicepCompilationManagerHelper.CreateMockScheduler().Object,
-                BicepTestConstants.CreateMockTelemetryProvider().Object,
-                linterRulesProvider,
-                BicepTestConstants.SourceFileFactory,
-                BicepTestConstants.AuxiliaryFileCache);
         }
 
         private DocumentUri CreateUri(string languageId) => DocumentUri.File(this.TestContext.TestName + (languageId switch
