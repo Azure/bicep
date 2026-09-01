@@ -55,7 +55,6 @@ namespace Bicep.LanguageServer.Features.Custom.Linter
                 {
                     if (!File.Exists(bicepConfigFilePath))
                     {
-                        newConfigFile = true;
                         await File.WriteAllTextAsync(bicepConfigFilePath, DefaultBicepConfig);
                     }
                 }

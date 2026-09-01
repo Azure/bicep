@@ -18,24 +18,31 @@ public static partial class WorkerInterop
     public static string Ping(string value) => value;
 
     [JSExport]
-    public static async Task<string> CompileAndEmitDiagnostics(string content, string? sourcePath) =>
-        JsonSerializer.Serialize(
-            await Interop.Value.CompileAndEmitDiagnostics(content, sourcePath),
-            JsonOptions);
+    public static async Task<string> CompileAndEmitDiagnostics(string content, string? sourcePath)
+    {
+        var result = await Interop.Value.CompileAndEmitDiagnostics(content, sourcePath);
+        return JsonSerialize(result);
+    }
 
     [JSExport]
-    public static async Task<string> Decompile(string content) =>
-        JsonSerializer.Serialize(await Interop.Value.Decompile(content), JsonOptions);
+    public static async Task<string> Decompile(string content)
+    {
+        var result = await Interop.Value.Decompile(content);
+        return JsonSerialize(result);
+    }
 
     [JSExport]
     public static string GetSemanticTokensLegend() =>
-        JsonSerializer.Serialize(Interop.Value.GetSemanticTokensLegend(), JsonOptions);
+        JsonSerialize(Interop.Value.GetSemanticTokensLegend());
 
     [JSExport]
-    public static async Task<string> GetSemanticTokens(string content, string? sourcePath) =>
-        JsonSerializer.Serialize(
-            await Interop.Value.GetSemanticTokens(content, sourcePath),
-            JsonOptions);
+    public static async Task<string> GetSemanticTokens(string content, string? sourcePath)
+    {
+        var result = await Interop.Value.GetSemanticTokens(content, sourcePath);
+        return JsonSerialize(result);
+    }
+
+    private static string JsonSerialize<T>(T value) => JsonSerializer.Serialize(value, JsonOptions);
 }
 
 [SupportedOSPlatform("browser")]
