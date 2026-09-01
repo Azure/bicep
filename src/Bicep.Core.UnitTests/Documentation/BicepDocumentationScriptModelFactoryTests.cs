@@ -1,0 +1,179 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System.Collections.Immutable;
+using Bicep.Core.Documentation;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Scriban.Runtime;
+
+namespace Bicep.Core.UnitTests.Documentation;
+
+[TestClass]
+public class BicepDocumentationScriptModelFactoryTests
+{
+    [TestMethod]
+    public void Create_FullyPopulatedModel_ProjectsAllFieldsWithStableCamelCaseNames()
+    {
+        var model = new BicepDocumentationModel(
+            Name: "My Module",
+            Description: "A description.",
+            Path: "C:\\modules\\main.bicep",
+            TargetScope: "resourceGroup",
+            Custom: new Dictionary<string, string> { ["ownerDisplayName"] = "Platform Team" }.ToImmutableSortedDictionary(StringComparer.Ordinal),
+            ResourceTypes: [new BicepDocumentationResourceType("Microsoft.Storage/storageAccounts@2023-01-01", IsExisting: false)],
+            Parameters:
+            [
+                new BicepDocumentationParameter(
+                    Name: "networkRule",
+                    TypeName: "object",
+                    IsRequired: false,
+                    IsSecure: false,
+                    Description: "A parameter.",
+                    DefaultValue: "````",
+                    AllowedValues: ["a", "b"],
+                    MinValue: 1,
+                    MaxValue: 10,
+                    MinLength: 1,
+                    MaxLength: 10,
+                    Pattern: "^[a-z]+$",
+                    IsTruncated: true,
+                    NestedProperties: [new BicepDocumentationParameter("nested", "string", true, false, null, null, [], null, null, null, null, null, false, [], null)],
+                    Discriminator: new BicepDocumentationDiscriminator("type", [new BicepDocumentationDiscriminatorCase("allowAll", [])])),
+            ],
+            Outputs: [new BicepDocumentationOutput("out1", "string", IsSecure: true, Description: "An output.")],
+            ExportedTypes:
+            [
+                new BicepDocumentationExport(
+                    "settingsType",
+                    "object",
+                    false,
+                    "Settings.",
+                    [],
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    false,
+                    [new BicepDocumentationParameter("enabled", "bool", true, false, null, null, [], null, null, null, null, null, false, [], null)],
+                    new BicepDocumentationDiscriminator(
+                        "kind",
+                        [new BicepDocumentationDiscriminatorCase("default", [])])),
+            ],
+            ExportedVariables:
+            [
+                new BicepDocumentationExport(
+                    "defaultName",
+                    "string",
+                    false,
+                    "Default name.",
+                    ["default"],
+                    null,
+                    null,
+                    1,
+                    20,
+                    "^[a-z]+$",
+                    false,
+                    [],
+                    null),
+            ],
+            ExportedFunctions: [new BicepDocumentationFunction("fn", [new BicepDocumentationFunctionParameter("p", "int", "A param.")], "bool", "A function.")],
+            References: [new BicepDocumentationReference("logging", "modules/logging.bicep", "A reference.")],
+            UsageExamples: [new BicepDocumentationUsageExample("default", "examples/default/main.bicep", "An example.", "// contents")]);
+
+        var scriptObject = BicepDocumentationScriptModelFactory.Create(model);
+
+        scriptObject.GetSafeValue<ScriptObject>("custom")!.GetSafeValue<string>("ownerDisplayName").Should().Be("Platform Team");
+
+        var module = scriptObject.GetSafeValue<ScriptObject>("module")!;
+        module.GetSafeValue<string>("name").Should().Be("My Module");
+        module.GetSafeValue<string>("description").Should().Be("A description.");
+        module.GetSafeValue<string>("path").Should().Be("C:\\modules\\main.bicep");
+        module.GetSafeValue<string>("targetScope").Should().Be("resourceGroup");
+        module.GetSafeValue<ScriptObject>("custom")!.GetSafeValue<string>("ownerDisplayName").Should().Be("Platform Team");
+
+        var resourceType = module.GetSafeValue<ScriptArray>("resourceTypes")![0] as ScriptObject;
+        resourceType!.GetSafeValue<string>("type").Should().Be("Microsoft.Storage/storageAccounts@2023-01-01");
+        resourceType.GetSafeValue<bool>("existing").Should().BeFalse();
+
+        var parameter = module.GetSafeValue<ScriptArray>("parameters")![0] as ScriptObject;
+        parameter!.GetSafeValue<string>("name").Should().Be("networkRule");
+        parameter.GetSafeValue<string>("type").Should().Be("object");
+        parameter.GetSafeValue<bool>("secure").Should().BeFalse();
+        parameter.GetSafeValue<long>("minValue").Should().Be(1);
+        parameter.GetSafeValue<long>("maxValue").Should().Be(10);
+        parameter.GetSafeValue<long>("minLength").Should().Be(1);
+        parameter.GetSafeValue<long>("maxLength").Should().Be(10);
+        parameter.GetSafeValue<string>("pattern").Should().Be("^[a-z]+$");
+        parameter.GetSafeValue<bool>("truncated").Should().BeTrue();
+        parameter.GetSafeValue<string>("defaultValueFence").Should().Be("`````");
+        (parameter.GetSafeValue<ScriptArray>("allowedValues")!).Should().Equal("a", "b");
+
+        var nested = parameter.GetSafeValue<ScriptArray>("properties")![0] as ScriptObject;
+        nested!.GetSafeValue<string>("name").Should().Be("nested");
+        nested.GetSafeValue<object>("discriminator").Should().BeNull();
+
+        var discriminator = parameter.GetSafeValue<ScriptObject>("discriminator")!;
+        discriminator.GetSafeValue<string>("propertyName").Should().Be("type");
+        var discriminatorCase = discriminator.GetSafeValue<ScriptArray>("cases")![0] as ScriptObject;
+        discriminatorCase!.GetSafeValue<string>("value").Should().Be("allowAll");
+
+        var output = module.GetSafeValue<ScriptArray>("outputs")![0] as ScriptObject;
+        output!.GetSafeValue<string>("name").Should().Be("out1");
+        output.GetSafeValue<bool>("secure").Should().BeTrue();
+
+        var exportedType = module.GetSafeValue<ScriptArray>("exportedTypes")![0] as ScriptObject;
+        exportedType!.GetSafeValue<string>("name").Should().Be("settingsType");
+        exportedType.GetSafeValue<ScriptArray>("properties").Should().ContainSingle();
+
+        var exportedVariable = module.GetSafeValue<ScriptArray>("exportedVariables")![0] as ScriptObject;
+        exportedVariable!.GetSafeValue<string>("name").Should().Be("defaultName");
+        exportedVariable.GetSafeValue<string>("pattern").Should().Be("^[a-z]+$");
+
+        var function = module.GetSafeValue<ScriptArray>("exportedFunctions")![0] as ScriptObject;
+        function!.GetSafeValue<string>("returnType").Should().Be("bool");
+        var functionParameter = function.GetSafeValue<ScriptArray>("parameters")![0] as ScriptObject;
+        functionParameter!.GetSafeValue<string>("name").Should().Be("p");
+
+        var reference = module.GetSafeValue<ScriptArray>("references")![0] as ScriptObject;
+        reference!.GetSafeValue<string>("symbolicName").Should().Be("logging");
+
+        var usageExample = module.GetSafeValue<ScriptArray>("usageExamples")![0] as ScriptObject;
+        usageExample!.GetSafeValue<string>("name").Should().Be("default");
+        usageExample.GetSafeValue<string>("contents").Should().Be("// contents");
+        usageExample.GetSafeValue<string>("fence").Should().Be("```");
+
+    }
+
+    [TestMethod]
+    public void Create_MinimalModel_ProjectsNullDiscriminatorAndEmptyArrays()
+    {
+        var model = new BicepDocumentationModel(
+            Name: "Empty",
+            Description: null,
+            Path: "C:\\modules\\main.bicep",
+            TargetScope: "resourceGroup",
+            Custom: ImmutableSortedDictionary<string, string>.Empty,
+            ResourceTypes: [],
+            Parameters: [new BicepDocumentationParameter("p", "string", false, false, null, null, [], null, null, null, null, null, false, [], null)],
+            Outputs: [],
+            ExportedTypes: [],
+            ExportedVariables: [],
+            ExportedFunctions: [],
+            References: [],
+            UsageExamples: []);
+
+        var scriptObject = BicepDocumentationScriptModelFactory.Create(model);
+        var module = scriptObject.GetSafeValue<ScriptObject>("module")!;
+
+        module.GetSafeValue<object>("description").Should().BeNull();
+        module.GetSafeValue<ScriptArray>("resourceTypes").Should().BeEmpty();
+
+        var parameter = module.GetSafeValue<ScriptArray>("parameters")![0] as ScriptObject;
+        parameter!.GetSafeValue<object>("discriminator").Should().BeNull();
+        parameter.GetSafeValue<object>("defaultValueFence").Should().BeNull();
+        parameter.GetSafeValue<bool>("truncated").Should().BeFalse();
+        parameter.GetSafeValue<ScriptArray>("properties").Should().BeEmpty();
+    }
+}

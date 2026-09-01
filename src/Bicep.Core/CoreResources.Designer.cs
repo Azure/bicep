@@ -185,7 +185,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("ExperimentalFeatureNames_OciEnabled", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Resource info code generation.
         /// </summary>
@@ -923,6 +923,24 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UnusedVariableRuleMessageFormat", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to All declared types must be used..
+        /// </summary>
+        internal static string UnusedTypeRuleDescription {
+            get {
+                return ResourceManager.GetString("UnusedTypeRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type &quot;{0}&quot; is declared but never used..
+        /// </summary>
+        internal static string UnusedTypeRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("UnusedTypeRuleMessageFormat", resourceCulture);
+            }
+        }
 
         /// <summary>
         ///   Looks up a localized string similar to Use parent property.
@@ -948,6 +966,96 @@ namespace Bicep.Core {
         internal static string UseParentPropertyRule_MessageFormat {
             get {
                 return ResourceManager.GetString("UseParentPropertyRule_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Parameters should have non-empty descriptions..
+        /// </summary>
+        internal static string UseDescriptionParametersRuleDescription {
+            get {
+                return ResourceManager.GetString("UseDescriptionParametersRule_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Parameter &quot;{0}&quot; must have a non-empty description..
+        /// </summary>
+        internal static string UseDescriptionParametersRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("UseDescriptionParametersRule_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Variables should have non-empty descriptions..
+        /// </summary>
+        internal static string UseDescriptionVarsRuleDescription {
+            get {
+                return ResourceManager.GetString("UseDescriptionVarsRule_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Variable &quot;{0}&quot; must have a non-empty description..
+        /// </summary>
+        internal static string UseDescriptionVarsRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("UseDescriptionVarsRule_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Outputs should have non-empty descriptions..
+        /// </summary>
+        internal static string UseDescriptionOutputRuleDescription {
+            get {
+                return ResourceManager.GetString("UseDescriptionOutputRule_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Output &quot;{0}&quot; must have a non-empty description..
+        /// </summary>
+        internal static string UseDescriptionOutputRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("UseDescriptionOutputRule_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to User-defined types should have non-empty descriptions..
+        /// </summary>
+        internal static string UseDescriptionTypeRuleDescription {
+            get {
+                return ResourceManager.GetString("UseDescriptionTypeRule_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Type &quot;{0}&quot; must have a non-empty description..
+        /// </summary>
+        internal static string UseDescriptionTypeRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("UseDescriptionTypeRule_MessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Properties of user-defined types should have non-empty descriptions..
+        /// </summary>
+        internal static string UseDescriptionTypePropertyRuleDescription {
+            get {
+                return ResourceManager.GetString("UseDescriptionTypePropertyRule_Description", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Type property &quot;{0}&quot; must have a non-empty description..
+        /// </summary>
+        internal static string UseDescriptionTypePropertyRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("UseDescriptionTypePropertyRule_MessageFormat", resourceCulture);
             }
         }
 

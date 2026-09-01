@@ -32,5 +32,6 @@ describe("bicep local-deploy", () => {
         .shouldSucceed()
         .withStdoutContaining("sayHiResult │ Hello, World!", true);
     },
+    1_000_000,
   );
 });

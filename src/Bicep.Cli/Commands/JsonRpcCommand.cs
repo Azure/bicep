@@ -9,7 +9,9 @@ using System.Net.Sockets;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Constants;
 using Bicep.Cli.Rpc;
+using Bicep.Cli.Services;
 using Bicep.Core;
+using Bicep.Core.Documentation;
 using Bicep.Core.Features;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +23,9 @@ namespace Bicep.Cli.Commands;
 public class JsonRpcCommand(
     BicepCompiler compiler,
     InputOutputArgumentsResolver inputOutputArgumentsResolver,
-    IEnvironment environment) : ICommand
+    IEnvironment environment,
+    IBicepDocumentationGenerator documentationGenerator,
+    DocsGenerationOptionsResolver docsOptionsResolver) : ICommand
 {
     public async Task<int> RunAsync(JsonRpcArguments args, CancellationToken cancellationToken)
     {
@@ -62,7 +66,12 @@ public class JsonRpcCommand(
             jsonRpc.TraceSource.Listeners.AddRange(Trace.Listeners);
         }
 
-        var server = new CliJsonRpcServer(compiler, inputOutputArgumentsResolver, environment);
+        var server = new CliJsonRpcServer(
+            compiler,
+            inputOutputArgumentsResolver,
+            environment,
+            documentationGenerator,
+            docsOptionsResolver);
         jsonRpc.AddLocalRpcTarget<ICliJsonRpcProtocol>(server, null);
 
         jsonRpc.StartListening();

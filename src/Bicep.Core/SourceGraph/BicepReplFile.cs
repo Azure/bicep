@@ -17,7 +17,7 @@ public class BicepReplFile : BicepSourceFile
         IDirectoryHandle auxiliaryDirectoryHandle,
         ImmutableArray<int> lineStarts,
         ProgramSyntax programSyntax,
-        IConfigurationManager configurationManager,
+        IBicepConfigurationManager configurationManager,
         IFeatureProviderFactory featureProviderFactory,
         IAuxiliaryFileCache auxiliaryFileCache,
         IDiagnosticLookup lexingErrorLookup,

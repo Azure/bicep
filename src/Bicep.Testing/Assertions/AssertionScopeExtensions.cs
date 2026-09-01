@@ -11,7 +11,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using FluentAssertions.Execution;
 
 namespace Bicep.Testing.Assertions

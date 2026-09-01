@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests.Utils
     public static class OciRegistryHelper
     {
         public static OciArtifactReference CreateModuleReferenceMock(BicepSourceFile referencingFile, string registry, string repository, string? digest, string? tag)
-            => new(referencingFile.Features, referencingFile.Configuration, ArtifactType.Module, registry, repository, tag, digest);
+            => new(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), ArtifactType.Module, registry, repository, tag, digest);
 
         public static OciArtifactReference ParseModuleReference(string moduleId /* with or without br: */, Uri? parentModuleUri = null)
         {
@@ -37,7 +37,7 @@ namespace Bicep.Core.UnitTests.Utils
             {
                 moduleId = moduleId[OciArtifactReferenceFacts.SchemeWithColon.Length..];
             }
-            OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile.Features, BicepTestConstants.DummyBicepFile.Configuration, ArtifactType.Module, null, moduleId).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParse(BicepTestConstants.DummyBicepFile.LoadFeatures(), BicepTestConstants.DummyBicepFile.LoadConfiguration(), ArtifactType.Module, null, moduleId).IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 
@@ -104,7 +104,7 @@ namespace Bicep.Core.UnitTests.Utils
             clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<CloudConfiguration>(), registryUri, repository)).Returns(client);
 
             var containerRegistryManager = new AzureContainerRegistryManager(clientFactory.Object);
-            var configuration = IConfigurationManager.GetBuiltInConfiguration();
+            var configuration = BicepConfiguration.BuiltIn;
 
             using var compiledStream = new BufferedMemoryStream();
 

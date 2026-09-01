@@ -3,6 +3,7 @@
 
 using System.IO.Abstractions;
 using Azure.Containers.ContainerRegistry;
+using Azure.Bicep.Types.Az;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
@@ -21,6 +22,7 @@ using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
@@ -28,11 +30,13 @@ using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;
-using Bicep.LanguageServer.Telemetry;
+using Bicep.Testing;
+using Bicep.Testing.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Moq;
 using OnDiskFileSystem = System.IO.Abstractions.FileSystem;
+using TestEnvironment = Bicep.Core.UnitTests.Utils.TestEnvironment;
 
 namespace Bicep.Core.UnitTests
 {
@@ -50,7 +54,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly FeatureProviderOverrides FeatureOverrides = new();
 
-        public static readonly ConfigurationManager ConfigurationManager = CreateFilesystemConfigurationManager();
+        public static readonly BicepConfigurationManager ConfigurationManager = CreateFilesystemConfigurationManager();
 
         public static readonly IFeatureProviderFactory FeatureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager, FileExplorer), FeatureOverrides);
 
@@ -60,24 +64,20 @@ namespace Bicep.Core.UnitTests
 
         public static readonly BicepFile DummyBicepFile = CreateDummyBicepFile();
 
-        public static readonly IResourceTypeProviderFactory ResourceTypeProviderFactory = new ResourceTypeProviderFactory();
+        public static readonly AzResourceTypeProvider AzResourceTypeProvider = new(new AzResourceTypeLoader(new AzTypeLoader()));
+
+        public static readonly IResourceTypeProviderFactory ResourceTypeProviderFactory = new ResourceTypeProviderFactory(AzResourceTypeProvider);
 
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
-        // Linter rules added to this list will be automatically disabled for most tests.
-        public static readonly string[] NonStableAnalyzerRules = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code, NoHardcodedOutputsRule.Code];
-
         // Rules that are currently skipped due to configuration for ProgramsShouldProduceExpectedDiagnostics
-        public static readonly string[] TestAnalyzersToSkip = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code, NoHardcodedLocationRule.Code, ExplicitValuesForLocationParamsRule.Code, NoLocationExprOutsideParamsRule.Code, NoModuleNameRule.Code, NoHardcodedOutputsRule.Code];
+        public static readonly string[] TestAnalyzersToSkip = [UseRecentApiVersionRule.Code, UseRecentModuleVersionsRule.Code, NoHardcodedLocationRule.Code, ExplicitValuesForLocationParamsRule.Code, NoLocationExprOutsideParamsRule.Code, NoModuleNameRule.Code, NoHardcodedOutputsRule.Code, UseDescriptionParametersRule.Code, UseDescriptionVarsRule.Code, UseDescriptionOutputRule.Code, UseDescriptionTypeRule.Code, UseDescriptionTypePropertyRule.Code];
 
-        public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersDisabled = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
-        public static readonly RootConfiguration BuiltInConfigurationWithStableAnalyzers = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzers().WithAnalyzersDisabled(NonStableAnalyzerRules);
+        public static readonly IBicepConfiguration BuiltInConfiguration = TestConfigurations.BuiltInWithStableAnalyzers;
 
-        public static readonly RootConfiguration BuiltInConfiguration = BuiltInConfigurationWithStableAnalyzers;
-
-        public static readonly IConfigurationManager BuiltInOnlyConfigurationManager = IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration);
+        public static readonly IBicepConfigurationManager BuiltInOnlyConfigurationManager = BuiltInConfiguration.WithStaticConfiguration();
 
         public static readonly IFeatureProvider Features = new OverriddenFeatureProvider(new FeatureProvider(BuiltInConfiguration, FileExplorer), FeatureOverrides);
 
@@ -100,7 +100,7 @@ namespace Bicep.Core.UnitTests
         public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) => new ModuleDispatcher(CreateRegistryProvider(services));
 
         public static readonly NamespaceResolver DefaultNamespaceResolver = NamespaceResolver.Create([
-            new("az", AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzNamespaceType.BuiltInTypeProvider, BicepSourceFileKind.BicepFile), null),
+            new("az", AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzResourceTypeProvider, BicepSourceFileKind.BicepFile), null),
             new("sys", SystemNamespaceType.Create("sys", Features, BicepSourceFileKind.BicepFile), null),
         ]);
 
@@ -109,10 +109,10 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IEnvironment EmptyEnvironment = TestEnvironment.Default;
 
-        public static RootConfiguration GetConfiguration(string contents)
-            => RootConfiguration.Bind(IConfigurationManager.BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElement(contents)));
+        public static IBicepConfiguration GetConfiguration(string contents)
+            => BicepConfiguration.Bind(BicepConfiguration.BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElement(contents)));
 
-        public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configFilePath = null)
+        public static IBicepConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configFilePath = null)
         {
             var configurationData = new Dictionary<string, object>
             {
@@ -146,21 +146,17 @@ namespace Bicep.Core.UnitTests
 
             IOUri? configFileIdentifier = configFilePath is not null ? new IOUri("file", "", configFilePath) : null;
 
-            return RootConfiguration.Bind(element, configFileIdentifier);
+            return BicepConfiguration.Bind(element, configFileIdentifier);
         }
 
-        public static ConfigurationManager CreateFilesystemConfigurationManager() => new(new FileSystemFileExplorer(new OnDiskFileSystem()));
-
-        public static IFeatureProviderFactory CreateFeatureProviderFactory(FeatureProviderOverrides featureOverrides, IConfigurationManager? configurationManager = null)
-            => new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager ?? CreateFilesystemConfigurationManager(), FileExplorer), featureOverrides);
-
-        public static Mock<ITelemetryProvider> CreateMockTelemetryProvider()
+        public static BicepConfigurationManager CreateFilesystemConfigurationManager()
         {
-            var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
-            telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
-
-            return telemetryProvider;
+            var fileExplorer = new FileSystemFileExplorer(new OnDiskFileSystem());
+            return new BicepConfigurationManager(fileExplorer);
         }
+
+        public static IFeatureProviderFactory CreateFeatureProviderFactory(FeatureProviderOverrides featureOverrides, IBicepConfigurationManager? configurationManager = null)
+            => new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager ?? CreateFilesystemConfigurationManager(), FileExplorer), featureOverrides);
 
         public static BinaryData GetBicepExtensionManifest(UploadRegistryBlobResult layer, UploadRegistryBlobResult config) =>
             BinaryData.FromString($$"""
@@ -187,15 +183,15 @@ namespace Bicep.Core.UnitTests
         }
         """);
 
-        public static BicepFile CreateDummyBicepFile(RootConfiguration? configuration = null, FeatureProviderOverrides? featureOverrides = null)
+        public static BicepFile CreateDummyBicepFile(IBicepConfiguration? configuration = null, FeatureProviderOverrides? featureOverrides = null)
         {
-            var configurationManager = IConfigurationManager.WithStaticConfiguration(configuration ?? IConfigurationManager.GetBuiltInConfiguration());
+            var configurationManager = (configuration ?? BicepConfiguration.BuiltIn).WithStaticConfiguration();
             var featureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager, FileExplorer), featureOverrides ?? FeatureOverrides);
 
             return CreateDummyBicepFile(configurationManager, featureProviderFactory);
         }
 
-        public static BicepFile CreateDummyBicepFile(IConfigurationManager configurationManager, IFeatureProviderFactory? featureProviderFactory = null)
+        public static BicepFile CreateDummyBicepFile(IBicepConfigurationManager configurationManager, IFeatureProviderFactory? featureProviderFactory = null)
         {
             return new(
                 DummyFileHandle.Default,

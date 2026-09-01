@@ -129,6 +129,17 @@ public record FormatRequest(
 public record FormatResponse(
     string Contents);
 
+public record GenerateDocsRequest(
+    string Path,
+    string? TemplateFile,
+    string? TemplateRoot,
+    Dictionary<string, string>? CustomTemplateValues,
+    bool NoRestore);
+
+public record GenerateDocsResponse(
+    ImmutableArray<DiagnosticDefinition> Diagnostics,
+    string? Contents);
+
 /// <summary>
 /// The definition for the Bicep CLI JSONRPC interface.
 /// </summary>
@@ -184,4 +195,10 @@ public interface ICliJsonRpcProtocol
     /// </summary>
     [JsonRpcMethod("bicep/format", UseSingleObjectParameterDeserialization = true)]
     Task<FormatResponse> Format(FormatRequest request, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Generates documentation for a Bicep module.
+    /// </summary>
+    [JsonRpcMethod("bicep/generateDocs", UseSingleObjectParameterDeserialization = true)]
+    Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken);
 }

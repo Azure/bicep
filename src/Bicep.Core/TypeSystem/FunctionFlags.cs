@@ -85,7 +85,7 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// The function does not depend on argument values - e.g. `nameof(foo)` does not depend on the value of `foo`.
         /// </summary>
-        ArgumentValueIndependent = 1 << 15,
+        IsArgumentValueIndependent = 1 << 15,
 
         /// <summary>
         /// The function depends on inputs provided by external tooling.
@@ -93,7 +93,7 @@ namespace Bicep.Core.TypeSystem
         RequiresExternalInput = 1 << 16,
 
         /// <summary>
-        /// The function result is determined only by its arguments and compile-time state.
+        /// The function can be evaluated from only its arguments without deployment context. The result of the function is guaranteed to be the same for the same arguments, regardless of deployment context. This is a stronger guarantee than <see cref="IsArgumentValueIndependent"/> because it also guarantees that the function does not depend on any external state (e.g. current time, deployment scope, etc.).
         /// </summary>
         Pure = 1 << 17,
 

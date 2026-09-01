@@ -14,7 +14,7 @@ using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Testing.Assertions;
 using Bicep.Testing.IO;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -233,7 +233,7 @@ resource fooRes 'fooType@v1' = {
     public async Task Missing_extension_file_raises_a_diagnostic()
     {
         // See https://github.com/Azure/bicep/issues/14770 for context
-        var result = await this.compiler.CompileInline("extension './non_existent.tgz'");
+        var result = await this.compiler.Compile("extension './non_existent.tgz'");
 
         result.Should().HaveDiagnostics([
             ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{TestFileUri.FromMockFileSystemPath("./non_existent.tgz")}'."),

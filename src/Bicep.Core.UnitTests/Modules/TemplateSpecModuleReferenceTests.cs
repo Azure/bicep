@@ -64,7 +64,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void TryParse_InvalidReference_ReturnsFalseAndSetsFailureBuilder(string rawValue)
         {
-            TemplateSpecModuleReference.TryParse(DummyReferencingFile.Features, DummyReferencingFile.Configuration, null, rawValue).IsSuccess(out var parsed, out var failureBuilder).Should().BeFalse();
+            TemplateSpecModuleReference.TryParse(DummyReferencingFile.LoadFeatures(), DummyReferencingFile.LoadConfiguration(), null, rawValue).IsSuccess(out var parsed, out var failureBuilder).Should().BeFalse();
 
             parsed.Should().BeNull();
             failureBuilder!.Should().NotBeNull();
@@ -78,7 +78,7 @@ namespace Bicep.Core.UnitTests.Modules
             var configuration = BicepTestConstants.CreateMockConfiguration(configFilePath: configurationPath);
             var bicepFile = CreateBicepFile(configuration);
 
-            TemplateSpecModuleReference.TryParse(bicepFile.Features, bicepFile.Configuration, aliasName, referenceValue).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
+            TemplateSpecModuleReference.TryParse(bicepFile.LoadFeatures(), bicepFile.LoadConfiguration(), aliasName, referenceValue).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().NotBeNull();
@@ -95,7 +95,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("foo bar ÄÄÄ")]
         public void TryParse_InvalidAliasName_ReturnsFalseAndSetsErrorDiagnostic(string aliasName)
         {
-            TemplateSpecModuleReference.TryParse(DummyReferencingFile.Features, DummyReferencingFile.Configuration, aliasName, "").IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
+            TemplateSpecModuleReference.TryParse(DummyReferencingFile.LoadFeatures(), DummyReferencingFile.LoadConfiguration(), aliasName, "").IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().HaveCode("BCP211");
@@ -104,10 +104,10 @@ namespace Bicep.Core.UnitTests.Modules
 
         [DataTestMethod]
         [DynamicData(nameof(GetInvalidData), DynamicDataSourceType.Method)]
-        public void TryParse_InvalidAlias_ReturnsFalseAndSetsError(string aliasName, string referenceValue, RootConfiguration configuration, string expectedCode, string expectedMessage)
+        public void TryParse_InvalidAlias_ReturnsFalseAndSetsError(string aliasName, string referenceValue, IBicepConfiguration configuration, string expectedCode, string expectedMessage)
         {
             var bicepFile = CreateBicepFile(configuration);
-            TemplateSpecModuleReference.TryParse(bicepFile.Features, bicepFile.Configuration, aliasName, referenceValue).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
+            TemplateSpecModuleReference.TryParse(bicepFile.LoadFeatures(), bicepFile.LoadConfiguration(), aliasName, referenceValue).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().NotBeNull();
@@ -117,10 +117,10 @@ namespace Bicep.Core.UnitTests.Modules
 
         [DataTestMethod]
         [DynamicData(nameof(GetValidData), DynamicDataSourceType.Method)]
-        public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName, string referenceValue, string fullyQualifiedReferenceValue, RootConfiguration configuration)
+        public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName, string referenceValue, string fullyQualifiedReferenceValue, IBicepConfiguration configuration)
         {
             var bicepFile = CreateBicepFile(configuration);
-            TemplateSpecModuleReference.TryParse(bicepFile.Features, bicepFile.Configuration, aliasName, referenceValue).IsSuccess(out var reference, out var errorBuilder).Should().BeTrue();
+            TemplateSpecModuleReference.TryParse(bicepFile.LoadFeatures(), bicepFile.LoadConfiguration(), aliasName, referenceValue).IsSuccess(out var reference, out var errorBuilder).Should().BeTrue();
 
             reference.Should().NotBeNull();
             reference!.FullyQualifiedReference.Should().Be(fullyQualifiedReferenceValue);
@@ -225,7 +225,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static TemplateSpecModuleReference Parse(string rawValue)
         {
-            TemplateSpecModuleReference.TryParse(DummyReferencingFile.Features, DummyReferencingFile.Configuration, null, rawValue).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
+            TemplateSpecModuleReference.TryParse(DummyReferencingFile.LoadFeatures(), DummyReferencingFile.LoadConfiguration(), null, rawValue).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
 
             parsed.Should().NotBeNull();
             failureBuilder!.Should().BeNull();
@@ -233,6 +233,6 @@ namespace Bicep.Core.UnitTests.Modules
             return parsed!;
         }
 
-        private static BicepFile CreateBicepFile(RootConfiguration configuration) => BicepTestConstants.CreateDummyBicepFile(configuration);
+        private static BicepFile CreateBicepFile(IBicepConfiguration configuration) => BicepTestConstants.CreateDummyBicepFile(configuration);
     }
 }

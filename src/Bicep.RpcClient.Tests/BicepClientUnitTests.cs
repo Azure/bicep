@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using Bicep.RpcClient.JsonRpc;
 using Bicep.RpcClient.Models;
 using FluentAssertions;
@@ -14,6 +15,27 @@ public class BicepClientUnitTests
     public TestContext TestContext { get; set; } = null!;
 
     private CancellationToken Token => TestContext.CancellationTokenSource.Token;
+
+    [TestMethod]
+    public void GenerateDocs_models_expose_constructor_values()
+    {
+        var custom = new Dictionary<string, string> { ["owner"] = "Platform" };
+        var request = new GenerateDocsRequest(
+            "main.bicep",
+            "template.scriban",
+            "templates",
+            custom,
+            NoRestore: true);
+        var response = new GenerateDocsResponse([], "# Module\n");
+
+        request.Path.Should().Be("main.bicep");
+        request.TemplateFile.Should().Be("template.scriban");
+        request.TemplateRoot.Should().Be("templates");
+        request.CustomTemplateValues.Should().BeSameAs(custom);
+        request.NoRestore.Should().BeTrue();
+        response.Diagnostics.Should().BeEmpty();
+        response.Contents.Should().Be("# Module\n");
+    }
 
     [TestMethod]
     public async Task GetVersion_caches_result_and_does_not_re_issue_request()
@@ -64,7 +86,7 @@ public class BicepClientUnitTests
         using var client = new BicepClient(rpc);
 
         await FluentActions.Invoking(() => client.GetSnapshot(
-                new("main.bicepparam", new(null, null, null, null, null), null), Token))
+                new("main.bicepparam", new(null, null, null, null, null, null), null), Token))
             .Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*requires Bicep CLI version '0.36.1' or later*0.36.0*");
 
@@ -80,7 +102,7 @@ public class BicepClientUnitTests
         using var client = new BicepClient(rpc);
 
         var result = await client.GetSnapshot(
-            new("main.bicepparam", new(null, null, null, null, null), null), Token);
+            new("main.bicepparam", new(null, null, null, null, null, null), null), Token);
 
         result.Snapshot.Should().Be("snapshot-contents");
         rpc.CallCount("bicep/getSnapshot").Should().Be(1);
@@ -123,6 +145,40 @@ public class BicepClientUnitTests
 
         result.FilePaths.Should().Contain("main.bicep");
         rpc.CallCount("bicep/getFileReferences").Should().Be(1);
+    }
+
+    [TestMethod]
+    public async Task GenerateDocs_forwards_request_to_the_expected_method()
+    {
+        var rpc = new FakeJsonRpcClient();
+        rpc.SetResponse("bicep/version", new VersionResponse("0.47.0"));
+        rpc.SetResponse(
+            "bicep/generateDocs",
+            new GenerateDocsResponse([], "# Module\n"));
+        using var client = new BicepClient(rpc);
+
+        var result = await client.GenerateDocs(
+            new("main.bicep", null, null, null, NoRestore: false),
+            Token);
+
+        result.Contents.Should().Be("# Module\n");
+        rpc.CallCount("bicep/generateDocs").Should().Be(1);
+    }
+
+    [TestMethod]
+    public async Task GenerateDocs_throws_when_cli_version_is_below_minimum()
+    {
+        var rpc = new FakeJsonRpcClient();
+        rpc.SetResponse("bicep/version", new VersionResponse("0.46.1"));
+        using var client = new BicepClient(rpc);
+
+        await FluentActions.Invoking(() => client.GenerateDocs(
+                new("main.bicep", null, null, null, NoRestore: false),
+                Token))
+            .Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*requires Bicep CLI version '0.47.0' or later*");
+
+        rpc.CallCount("bicep/generateDocs").Should().Be(0);
     }
 
     [TestMethod]

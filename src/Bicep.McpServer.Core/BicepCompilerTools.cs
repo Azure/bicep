@@ -139,9 +139,10 @@ public sealed class BicepCompilerTools(
         }
 
         var compilation = await compiler.CreateCompilation(fileUri);
-        var sourceFile = compilation.GetEntrypointSemanticModel().SourceFile;
+        var model = compilation.GetEntrypointSemanticModel();
+        var sourceFile = model.SourceFile;
 
-        var options = sourceFile.Configuration.Formatting.Data;
+        var options = model.Configuration.Formatting.Data;
         var context = PrettyPrinterV2Context.Create(options, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
 
         return new FormatResult(PrettyPrinterV2.Print(sourceFile.ProgramSyntax, context));

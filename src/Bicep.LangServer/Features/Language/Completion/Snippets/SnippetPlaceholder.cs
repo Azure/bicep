@@ -1,0 +1,22 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using Bicep.Core.Text;
+
+namespace Bicep.LanguageServer.Features.Language.Completion.Snippets
+{
+    public class SnippetPlaceholder
+    {
+        public SnippetPlaceholder(int index, string? name, TextSpan span)
+        {
+            this.Index = index;
+            this.Name = name;
+            this.Span = span;
+        }
+
+        public int Index { get; }
+
+        public string? Name { get; }
+
+        public TextSpan Span { get; }
+    }
+}

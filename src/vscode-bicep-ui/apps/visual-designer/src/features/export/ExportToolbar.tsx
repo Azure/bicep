@@ -7,7 +7,7 @@ import type { ExportBackgroundMode } from "./types";
 import { Codicon } from "@vscode-bicep-ui/components";
 import { VscodeOption, VscodeSingleSelect } from "@vscode-elements/react-elements";
 import { useAtomValue, useSetAtom, useStore } from "jotai";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { styled } from "styled-components";
 import {
   closeExportOverlayAtom,
@@ -311,10 +311,6 @@ export function ExportToolbar() {
   ]);
 
   const [paddingText, setPaddingText] = useState(String(padding));
-
-  useEffect(() => {
-    setPaddingText(String(padding));
-  }, [padding]);
 
   const handlePaddingChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -4,7 +4,9 @@
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Moq;
 
 namespace Bicep.Core.UnitTests.Mock
@@ -6351,6 +6353,9 @@ Fake.Web/publishingCredentials@2415-08-01";
             typesLoader.Setup(m => m.GetAvailableTypes()).Returns(fakeResourceTypeReferences);
             return typesLoader;
         }
+
+        public static AzApiVersionProvider GetFakeApiVersionProvider(IEnumerable<string> resourceTypes)
+            => new(new AzResourceTypeProvider(GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes.ToArray()).Object));
 
 
     }

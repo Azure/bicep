@@ -105,6 +105,10 @@ export class WebviewMessageChannel {
     this.webviewApi.postMessage(notificationMessage);
   }
 
+  setState<T>(state: T): T {
+    return this.webviewApi.setState(state);
+  }
+
   subscribeToNotification(method: string, callback: WebviewNotificationCallback) {
     this.notificationSubscriptions[method] ??= new Set();
     this.notificationSubscriptions[method].add(callback);

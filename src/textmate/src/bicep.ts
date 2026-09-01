@@ -2,10 +2,11 @@
 // Licensed under the MIT License.
 
 import * as tm from "tmlanguage-generator";
-import path from "path";
-import plist from "plist";
+import { fileURLToPath } from "url";
 
-export const grammarPath = path.resolve(__dirname, "../bicep.tmlanguage");
+export const grammarPath = fileURLToPath(
+  new URL("../bicep.tmlanguage", import.meta.url),
+);
 
 type Rule = tm.Rule<BicepScope>;
 type IncludeRule = tm.IncludeRule<BicepScope>;
@@ -97,9 +98,7 @@ function withComments(input: Rule[]): Rule[] {
 
 const expression: IncludeRule = {
   key: "expression",
-  patterns: [
-    /* placeholder filled later due to cycle*/
-  ],
+  patterns: [/* placeholder filled later due to cycle*/],
 };
 
 const escapeChar: MatchRule = {
@@ -303,6 +302,7 @@ const grammar: Grammar = {
 
 export async function generateGrammar(): Promise<string> {
   const json = await tm.emitJSON(grammar);
+  const plist = await import("plist");
 
   return plist.build(JSON.parse(json));
 }

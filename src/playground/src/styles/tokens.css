@@ -1,0 +1,64 @@
+:root {
+  color-scheme: light;
+  --canvas: #e8edf7;
+  --canvas-gradient-start: #eef2ff;
+  --canvas-gradient-end: #e4ebf7;
+  --canvas-glow-primary: rgb(196 181 253 / 28%);
+  --canvas-glow-secondary: rgb(191 219 254 / 30%);
+  --island: #ffffff;
+  --control: #eef1f5;
+  --control-hover: #e3e7ed;
+  --toolbar-control: rgb(255 255 255 / 62%);
+  --toolbar-control-hover: rgb(255 255 255 / 82%);
+  --toolbar-border: rgb(71 85 105 / 20%);
+  --select-background: #f8fafc;
+  --select-hover: #ffffff;
+  --text: #202124;
+  --muted: #5e6570;
+  --subtle: #7d8591;
+  --border: #d6dae1;
+  --accent: #087ea4;
+  --accent-hover: #066b8c;
+  --accent-soft: #d9f1f8;
+  --success: #18794e;
+  --success-soft: #dff3e8;
+  --warning: #9a6700;
+  --warning-soft: #fff1cc;
+  --danger: #b42318;
+  --danger-soft: #fee4e2;
+  --focus: #0078d4;
+  --radius-lg: 8px;
+  --radius-md: 6px;
+  --radius-sm: 3px;
+}
+
+[data-color-mode="dark"] {
+  color-scheme: dark;
+  --canvas: #252c3d;
+  --canvas-gradient-start: #2b3145;
+  --canvas-gradient-end: #21293a;
+  --canvas-glow-primary: rgb(137 99 168 / 22%);
+  --canvas-glow-secondary: rgb(100 78 143 / 16%);
+  --island: #101218;
+  --control: #34373e;
+  --control-hover: #41454d;
+  --toolbar-control: rgb(15 23 42 / 48%);
+  --toolbar-control-hover: rgb(15 23 42 / 68%);
+  --toolbar-border: rgb(255 255 255 / 14%);
+  --select-background: #171d2b;
+  --select-hover: #20283a;
+  --text: #f2f3f5;
+  --muted: #bec2ca;
+  --subtle: #9299a5;
+  --border: #3a3d43;
+  --accent: #4cc2e8;
+  --accent-hover: #75d2ee;
+  --accent-soft: #133e4d;
+  --success: #6ed39e;
+  --success-soft: #183c2b;
+  --warning: #f2c14e;
+  --warning-soft: #443613;
+  --danger: #ff8a80;
+  --danger-soft: #4d201e;
+  --focus: #75c8ff;
+}
