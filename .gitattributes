@@ -11,3 +11,4 @@
 /src/Bicep.Core.UnitTests/Files/Documentation/*.md text eol=lf
 /src/Bicep.Cli.IntegrationTests/Files/DocsCommandTests/**/*.md text eol=lf
 /.gitattributes whitespace=cr-at-eol
+.github/workflows/*.lock.yml linguist-generated=true
