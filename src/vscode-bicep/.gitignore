@@ -4,8 +4,8 @@ node_modules
 *.vsix
 .vscode-test
 coverage
-syntaxes/bicep.tmlanguage
-syntaxes/language-configuration.json
+resources/language/bicep.tmlanguage
+resources/language/language-configuration.json
 bicepLanguageServer
 bicepMcpServer
 ThirdPartyNotices.txt

@@ -8,7 +8,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Helpers;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Features.Custom.Parameters;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;

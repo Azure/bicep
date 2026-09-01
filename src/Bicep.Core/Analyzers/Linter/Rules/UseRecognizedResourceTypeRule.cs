@@ -1,12 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Bicep.Types.Concrete;
 using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
+using Bicep.Core.TypeSystem.Providers.Az;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Analyzers.Linter.Rules;
 
@@ -23,8 +26,10 @@ public sealed class UseRecognizedResourceTypeRule : LinterRuleBase
     public override string FormatMessage(params object[] values)
         => (string)values[0];
 
-    public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
+    public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, IServiceProvider serviceProvider, DiagnosticLevel diagnosticLevel)
     {
+        var azResourceTypeProvider = serviceProvider.GetRequiredService<AzResourceTypeProvider>();
+
         var functionCalls = LinterExpressionHelper.FindFunctionCallsByName(
             model,
             model.SourceFile.ProgramSyntax,
@@ -33,11 +38,11 @@ public sealed class UseRecognizedResourceTypeRule : LinterRuleBase
 
         foreach (var functionCall in functionCalls)
         {
-            if (TryGetUnrecognizedResourceType(model, functionCall) is string unrecognizedType)
+            if (TryGetUnrecognizedResourceType(azResourceTypeProvider, model, functionCall) is string unrecognizedType)
             {
                 var suggestion = SpellChecker.GetSpellingSuggestion(
                     unrecognizedType,
-                    model.ApiVersionProvider.GetResourceTypeNames(model.TargetScope));
+                    model.Binder.NamespaceResolver.GetAvailableAzureResourceTypes().Select(x => x.FormatType()));
 
                 string message;
                 if (suggestion is not null)
@@ -54,7 +59,7 @@ public sealed class UseRecognizedResourceTypeRule : LinterRuleBase
         }
     }
 
-    private static string? TryGetUnrecognizedResourceType(SemanticModel model, FunctionCallSyntaxBase functionCall)
+    private static string? TryGetUnrecognizedResourceType(AzResourceTypeProvider azResourceTypeProvider, SemanticModel model, FunctionCallSyntaxBase functionCall)
     {
         if (functionCall.Arguments.Length < 1)
         {
@@ -62,20 +67,13 @@ public sealed class UseRecognizedResourceTypeRule : LinterRuleBase
         }
 
         var firstArg = functionCall.Arguments[0].Expression;
-        var resourceType = TryExtractResourceType(model, firstArg);
-
-        if (resourceType is null)
+        if (TryExtractResourceType(model, firstArg) is {} resourceType &&
+            !azResourceTypeProvider.TypeReferencesByType.ContainsKey(resourceType))
         {
-            return null;
+            return resourceType;
         }
-
-        // Check if the resource type is recognized
-        if (model.ApiVersionProvider.GetApiVersions(model.TargetScope, resourceType).Any())
-        {
-            return null;
-        }
-
-        return resourceType;
+        
+        return null;
     }
 
     private static string? TryExtractResourceType(SemanticModel model, SyntaxBase expression)
@@ -87,10 +85,10 @@ public sealed class UseRecognizedResourceTypeRule : LinterRuleBase
         }
 
         // Handle string literal resource type like 'Microsoft.Storage/storageAccounts'
-        if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, expression)
-            is (string literalValue, _, _) && LinterResourceTypePatterns.ResourceTypeRegex.IsMatch(literalValue))
+        if (model.GetTypeInfo(expression).Type is TypeSystem.Types.StringLiteralType stringLiteralType &&
+            LinterResourceTypePatterns.ResourceTypeRegex.IsMatch(stringLiteralType.RawStringValue))
         {
-            return literalValue;
+            return stringLiteralType.RawStringValue;
         }
 
         return null;
@@ -98,7 +96,7 @@ public sealed class UseRecognizedResourceTypeRule : LinterRuleBase
 
     private static string? TryGetResourceTypeFromResourceIdCall(SemanticModel model, FunctionCallSyntaxBase functionCall)
     {
-        if (!functionCall.Name.IdentifierName.Equals("resourceId", LanguageConstants.IdentifierComparison))
+        if (!functionCall.NameEquals("resourceId"))
         {
             return null;
         }
@@ -107,13 +105,10 @@ public sealed class UseRecognizedResourceTypeRule : LinterRuleBase
         // so look for the first argument that looks like a resource type
         foreach (var arg in functionCall.Arguments)
         {
-            if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, arg.Expression) is (string argLiteral, _, _))
+            if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, arg.Expression) is {} argLiteral &&
+                LinterResourceTypePatterns.ResourceTypeRegex.IsMatch(argLiteral))
             {
-                argLiteral = argLiteral.TrimEnd('/');
-                if (LinterResourceTypePatterns.ResourceTypeRegex.IsMatch(argLiteral))
-                {
-                    return argLiteral;
-                }
+                return argLiteral;
             }
         }
 

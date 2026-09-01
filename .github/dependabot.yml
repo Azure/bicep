@@ -59,6 +59,9 @@ updates:
       - dependency-name: "@types/vscode"
         versions:
           - ">1.90.0"
+      - dependency-name: "typescript"
+        versions:
+          - ">=7.0.0"
     groups:
       npm-vscode-bicep:
         patterns:
@@ -68,6 +71,10 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
+    ignore:
+      - dependency-name: "typescript"
+        versions:
+          - ">=7.0.0"
     groups:
       npm-vscode-bicep-ui:
         patterns:
@@ -77,6 +84,10 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
+    ignore:
+      - dependency-name: "typescript"
+        versions:
+          - ">=7.0.0"
     groups:
       npm-playground:
         patterns:
@@ -86,6 +97,10 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
+    ignore:
+      - dependency-name: "typescript"
+        versions:
+          - ">=7.0.0"
     groups:
       npm-bicep-cli-e2e:
         patterns:
@@ -95,6 +110,10 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
+    ignore:
+      - dependency-name: "typescript"
+        versions:
+          - ">=7.0.0"
     groups:
       npm-bicep-msbuild-e2e:
         patterns:
@@ -104,6 +123,10 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
+    ignore:
+      - dependency-name: "typescript"
+        versions:
+          - ">=7.0.0"
     groups:
       npm-textmate:
         patterns:
@@ -113,6 +136,10 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
+    ignore:
+      - dependency-name: "typescript"
+        versions:
+          - ">=7.0.0"
     groups:
       npm-highlightjs:
         patterns:
@@ -122,6 +149,10 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
+    ignore:
+      - dependency-name: "typescript"
+        versions:
+          - ">=7.0.0"
     groups:
       npm-monarch:
         patterns:

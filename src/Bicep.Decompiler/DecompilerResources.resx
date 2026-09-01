@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+   <data name="BicepGeneratedTemplateWarning" xml:space="preserve">
+    <value>WARNING: The source file appears to have been generated from a .bicep file. Decompiling it may produce results that are less accurate than the original Bicep source, since information is lost when compiling to ARM JSON. If you have access to the original .bicep file, use that instead.</value>
+  </data>
   <data name="DecompilerDisclaimerMessage" xml:space="preserve">
     <value>WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep Template or Bicep Parameters.
 You may need to fix warnings and errors in the generated bicep/bicepparam file(s), or decompilation may fail entirely if an accurate conversion is not possible.

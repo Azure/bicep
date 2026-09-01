@@ -15,9 +15,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
     /// it currently displays with the server's latest graph. Layout is intentionally not computed here: when
     /// topology changes, the client first renders/measures nodes and then sends <see cref="VisualGraphLayoutParams"/>.
     /// <para>
-    /// Handled by <see cref="VisualGraphUpdateHandler"/>. The handler always answers (it is not gated by
-    /// the feature flag); the flag only controls whether the extension routes the visual graph through this path,
-    /// so the existing deployment graph path is unaffected until the extension opts in.
+    /// Handled by <see cref="VisualGraphUpdateHandler"/>. The visualizer always routes through this path.
     /// </para>
     /// </summary>
     [Method("textDocument/visualGraphUpdate", Direction.ClientToServer)]
@@ -52,8 +50,8 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
     }
 
     /// <summary>
-    /// Response to a <see cref="VisualGraphLayoutParams"/> request. Successful responses contain only
-    /// <see cref="GraphPatch.SetNodeLayout"/> patches.
+    /// Response to a <see cref="VisualGraphLayoutParams"/> request. Successful responses contain
+    /// <see cref="GraphPatch.SetNodeLayout"/> patches and, when available, one <see cref="GraphPatch.SetGraphBounds"/> patch.
     /// </summary>
     public record VisualGraphLayoutResult(string Status, IReadOnlyList<GraphPatch> Patches);
 

@@ -10,7 +10,7 @@ using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Features.Custom.Visualization;
 using Bicep.LanguageServer.Features.Custom.Visualization.Models;
-using Bicep.TextFixtures.IO;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

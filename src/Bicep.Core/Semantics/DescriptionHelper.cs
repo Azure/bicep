@@ -60,7 +60,12 @@ namespace Bicep.Core.Semantics
             else if (semanticModel is ArmTemplateSemanticModel armSemanticModel)
             {
                 // JSON - search for top-level "metadata.description" property
-                return armSemanticModel.SourceFile.Template?.Metadata.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName)?.Value.ToString();
+                return armSemanticModel.SourceFile.Template?.Metadata?.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName)?.Value.ToString();
+            }
+            else if (semanticModel is TemplateSpecSemanticModel templateSpecSemanticModel)
+            {
+                // Template spec - search for the main template's top-level "metadata.description" property
+                return templateSpecSemanticModel.SourceFile.MainTemplateFile.Template?.Metadata?.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName)?.Value.ToString();
             }
 
             return null;

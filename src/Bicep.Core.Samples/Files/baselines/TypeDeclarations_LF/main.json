@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8162009081861809153"
+      "templateHash": "8297239895651820406"
     }
   },
   "definitions": {
@@ -214,6 +214,20 @@
     "nonNullable": {
       "$ref": "#/definitions/nullable",
       "nullable": false
+    },
+    "withOptionalAnyProp": {
+      "type": "object",
+      "properties": {
+        "requiredProp": {
+          "type": "string"
+        },
+        "optionalAny": {
+          "nullable": true,
+          "metadata": {
+            "description": "An optional any-typed property"
+          }
+        }
+      }
     },
     "typeA": {
       "type": "object",

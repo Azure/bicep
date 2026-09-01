@@ -3,6 +3,8 @@
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -106,6 +108,7 @@ param stringParam sys.string = 'foo'
 ");
 
         result.Should().HaveDiagnostics(new[] {
+            ("no-unused-types", DiagnosticLevel.Warning, "Type \"string\" is declared but never used."),
             ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"stringParam\" is declared but never used."),
         });
     }
@@ -151,8 +154,10 @@ param intParam constrainedInt
         result.Should().HaveDiagnostics(new[] {
             ("BCP308", DiagnosticLevel.Error, "The decorator \"minLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"maxLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("no-unused-types", DiagnosticLevel.Warning, "Type \"constrainedStringAlias\" is declared but never used."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"minValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"maxValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("no-unused-types", DiagnosticLevel.Warning, "Type \"constrainedIntAlias\" is declared but never used."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"minLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"maxLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
             ("BCP308", DiagnosticLevel.Error, "The decorator \"secure\" may not be used on statements whose declared type is a reference to a user-defined type."),
@@ -527,7 +532,7 @@ type constrainedArray = array?
 param sealedObject {}?
 ");
 
-        result.Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
@@ -744,7 +749,7 @@ param myParam string
             type union = 'a' | 'a'
             """);
 
-        result.Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
         result.Template.Should().NotBeNull();
         result.Template!.Should().HaveValueAtPath("definitions.union", JToken.Parse("""
@@ -763,7 +768,7 @@ param myParam string
             type unionWithOneMember = null | 'a'
             """);
 
-        result.Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
         result.Template.Should().NotBeNull();
         result.Template!.Should().HaveValueAtPath("definitions.union", JToken.Parse("""
@@ -1199,7 +1204,7 @@ param myParam string
             type test2 = {{accessExpression}}
             """);
 
-        result.Should().HaveDiagnostics(new[]
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
         });
@@ -1306,7 +1311,7 @@ param myParam string
             type test2 = {{accessExpression}}
             """);
 
-        result.Should().HaveDiagnostics(new[]
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
         });
@@ -1375,7 +1380,7 @@ param myParam string
             type test2 = {{accessExpression}}
             """);
 
-        result.Should().HaveDiagnostics(new[]
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
         });
@@ -1485,7 +1490,7 @@ param myParam string
             type test2 = {{accessExpression}}
             """);
 
-        result.Should().HaveDiagnostics(new[]
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
         });
@@ -1652,7 +1657,7 @@ param myParam string
             new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
             """type t = resourceInput""");
 
-        result.Should().HaveDiagnostics([
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics([
             ("BCP384", DiagnosticLevel.Error, """The "resourceInput<ResourceTypeIdentifier>" type requires 1 argument(s)."""),
         ]);
     }
@@ -2032,5 +2037,51 @@ param myParam string
         result.Template.Should().NotBeNull();
         result.Template.Should().HaveValueAtPath("$.definitions.stringRdt.type", "securestring");
         result.Template.Should().HaveValueAtPath("$.definitions.objectRdt.type", "secureObject");
+    }
+
+    /// <summary>
+    /// A property typed as 'any?' should be optional (not required).
+    /// 'any | null' collapses to 'any', causing IsNullable() to return false,
+    /// which previously caused the property to be incorrectly treated as required.
+    /// </summary>
+    [TestMethod]
+    public void Optional_any_property_is_not_required()
+    {
+        var result = CompilationHelper.Compile("""
+            param foo fooType
+
+            type fooType = {
+              name: string
+              fooAny: any?
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        // 'fooAny' should emit nullable:true in the ARM template schema
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("$.definitions.fooType.properties.fooAny.nullable", true);
+
+        // 'name' is required, so omitting it should error; 'fooAny' is optional so omitting it must not error
+        var resultWithoutOptional = CompilationHelper.Compile("""
+            param foo fooType
+
+            type fooType = {
+              name: string
+              fooAny: any?
+            }
+
+            var test = foo.name
+            """);
+        resultWithoutOptional.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        // The SemanticModel should report fooAny as not required
+        var semanticModel = result.Compilation.GetEntrypointSemanticModel();
+        var fooTypeParam = semanticModel.Parameters["foo"];
+        fooTypeParam.IsRequired.Should().BeTrue(); // the param itself has no default
+        // The property inside the type must not be required
+        TypeHelper.IsRequired(
+            ((Bicep.Core.TypeSystem.Types.ObjectType)fooTypeParam.TypeReference.Type).Properties["fooAny"])
+            .Should().BeFalse();
     }
 }

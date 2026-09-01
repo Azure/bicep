@@ -5,6 +5,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Text;
 using Newtonsoft.Json.Linq;
 using SharpYaml;
+using SharpYaml.Model;
 
 namespace Bicep.Core.Semantics;
 
@@ -24,7 +25,16 @@ public class YamlObjectParser : ObjectParser
     {
         try
         {
-            return YamlSerializer.Deserialize<object>(fileContent);
+            var yamlStream = YamlStream.Load(new StringReader(fileContent), null);
+            if (yamlStream.Count == 0 || yamlStream[0].Contents is not { } contents)
+            {
+                return null;
+            }
+
+            return contents.ToObject<object>(new YamlSerializerOptions
+            {
+                ReferenceHandling = YamlReferenceHandling.Preserve,
+            });
         }
         catch
         {

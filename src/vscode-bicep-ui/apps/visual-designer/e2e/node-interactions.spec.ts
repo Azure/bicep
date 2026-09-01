@@ -51,12 +51,12 @@ test.describe("Node interactions", () => {
     expect(elevated).toBeGreaterThan(1);
   });
 
-  test("double-clicking a node sends a reveal-file-range notification", async ({ page }) => {
+  test("double-clicking a node sends a reveal-node-source notification", async ({ page }) => {
     // The FakeMessageChannel logs reveal notifications to the console;
     // sniff that channel as a proxy for the outgoing message.
     const reveals: string[] = [];
     page.on("console", (msg) => {
-      if (msg.type() === "log" && msg.text().includes("revealFileRange")) {
+      if (msg.type() === "log" && msg.text().includes("revealNodeSource")) {
         reveals.push(msg.text());
       }
     });
@@ -64,6 +64,7 @@ test.describe("Node interactions", () => {
     await page.locator('[data-node-id="nsg"]').dblclick();
 
     await expect.poll(() => reveals.length, { timeout: 5_000 }).toBeGreaterThan(0);
+    expect(reveals[0]).toContain("nsg");
   });
 
   test("a graph swap survives multiple updates without losing nodes", async ({ page }) => {

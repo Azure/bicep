@@ -84,7 +84,7 @@ namespace Bicep.Core.Semantics
                             return new ParameterMetadata(
                                 parameterProperty.Key,
                                 type,
-                                parameterProperty.Value.DefaultValue is null && !TypeHelper.IsNullable(type.Type),
+                                parameterProperty.Value.DefaultValue is null && !TypeHelper.IsNullable(type.Type) && ((ITemplateSchemaNode)parameterProperty.Value).Nullable?.Value != true,
                                 GetMostSpecificDescription(parameterProperty.Value));
                         },
                         LanguageConstants.IdentifierComparer);

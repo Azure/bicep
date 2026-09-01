@@ -18,8 +18,8 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Registry;
+using Bicep.LanguageServer.Compilation;
+using Bicep.LanguageServer.Features.Custom.ModuleRestore;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -200,7 +200,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
         private class MockArtifactRef : ArtifactReference
         {
             public MockArtifactRef(BicepSourceFile referencingFile, string value)
-                : base(referencingFile.Features, referencingFile.Configuration, "mock")
+                : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), "mock")
             {
                 this.Value = value;
             }

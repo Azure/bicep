@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Rewriters;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Semantics;
+using Bicep.Testing;
+using Bicep.Testing.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -47,11 +49,11 @@ namespace Bicep.Core.UnitTests.Rewriters
                 }
                 """;
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepText(
                 """
                 resource resA 'My.Rp/resA@2020-01-01' = {
                   name: 'resA'
@@ -116,11 +118,11 @@ namespace Bicep.Core.UnitTests.Rewriters
                 }
                 """;
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepText(
                 """
                 resource resA 'My.Rp/resA@2020-01-01' = {
                   name: 'resA'
@@ -165,11 +167,11 @@ namespace Bicep.Core.UnitTests.Rewriters
                 }
                 """;
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepText(
                 """
                 resource resA 'My.Rp/resA@2020-01-01' = {
                   name: 'resA'
@@ -201,11 +203,11 @@ namespace Bicep.Core.UnitTests.Rewriters
                 }
                 """;
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepText(
                 """
                 resource resA 'My.Rp/resA@2020-01-01' = {
                   name: 'resA'
@@ -229,7 +231,7 @@ resource resA 'My.Rp/resA@2020-01-01' = {
   name: 'resA'
 }";
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
@@ -237,5 +239,8 @@ resource resA 'My.Rp/resA@2020-01-01' = {
             // Reference equality check to ensure we're not regenerating syntax unnecessarily
             newProgramSyntax.Should().BeSameAs(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
         }
+
+        private static Compilation Compile(string bicepFile) =>
+            TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(bicepFile).Compilation;
     }
 }

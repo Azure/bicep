@@ -89,8 +89,8 @@ public class DeployCommandTests : TestBase
     public async Task Deploy_should_succeed()
     {
         var deploymentProcessor = StrictMock.Of<IDeploymentProcessor>();
-        deploymentProcessor.Setup(x => x.Deploy(It.IsAny<RootConfiguration>(), It.IsAny<DeployCommandsConfig>(), It.IsAny<Action<DeploymentWrapperView>>(), It.IsAny<CancellationToken>()))
-            .Returns<RootConfiguration, DeployCommandsConfig, Action<DeploymentWrapperView>, CancellationToken>((_, config, onUpdate, _) =>
+        deploymentProcessor.Setup(x => x.Deploy(It.IsAny<IBicepConfiguration>(), It.IsAny<DeployCommandsConfig>(), It.IsAny<Action<DeploymentWrapperView>>(), It.IsAny<CancellationToken>()))
+            .Returns<IBicepConfiguration, DeployCommandsConfig, Action<DeploymentWrapperView>, CancellationToken>((_, config, onUpdate, _) =>
             {
                 onUpdate(DeploymentRendererTests.Create(DateTime.UtcNow));
 
@@ -121,8 +121,8 @@ public class DeployCommandTests : TestBase
     public async Task Deploy_should_succeed_with_json_output()
     {
         var deploymentProcessor = StrictMock.Of<IDeploymentProcessor>();
-        deploymentProcessor.Setup(x => x.Deploy(It.IsAny<RootConfiguration>(), It.IsAny<DeployCommandsConfig>(), It.IsAny<Action<DeploymentWrapperView>>(), It.IsAny<CancellationToken>()))
-            .Returns<RootConfiguration, DeployCommandsConfig, Action<DeploymentWrapperView>, CancellationToken>((_, config, onUpdate, _) =>
+        deploymentProcessor.Setup(x => x.Deploy(It.IsAny<IBicepConfiguration>(), It.IsAny<DeployCommandsConfig>(), It.IsAny<Action<DeploymentWrapperView>>(), It.IsAny<CancellationToken>()))
+            .Returns<IBicepConfiguration, DeployCommandsConfig, Action<DeploymentWrapperView>, CancellationToken>((_, config, onUpdate, _) =>
             {
                 onUpdate(DeploymentRendererTests.Create(DateTime.UtcNow));
 
@@ -145,8 +145,8 @@ public class DeployCommandTests : TestBase
     public async Task Errors_are_displayed()
     {
         var deploymentProcessor = StrictMock.Of<IDeploymentProcessor>();
-        deploymentProcessor.Setup(x => x.Deploy(It.IsAny<RootConfiguration>(), It.IsAny<DeployCommandsConfig>(), It.IsAny<Action<DeploymentWrapperView>>(), It.IsAny<CancellationToken>()))
-            .Returns<RootConfiguration, DeployCommandsConfig, Action<DeploymentWrapperView>, CancellationToken>((_, config, onUpdate, _) =>
+        deploymentProcessor.Setup(x => x.Deploy(It.IsAny<IBicepConfiguration>(), It.IsAny<DeployCommandsConfig>(), It.IsAny<Action<DeploymentWrapperView>>(), It.IsAny<CancellationToken>()))
+            .Returns<IBicepConfiguration, DeployCommandsConfig, Action<DeploymentWrapperView>, CancellationToken>((_, config, onUpdate, _) =>
             {
                 onUpdate(new(null, "Deployment failed"));
 

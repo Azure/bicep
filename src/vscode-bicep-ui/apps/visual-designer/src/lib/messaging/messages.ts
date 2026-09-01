@@ -1,17 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// ── Notification: Extension → Webview ──
-// Sent when the deployment graph changes (initial load + on every file edit)
-export const DEPLOYMENT_GRAPH_NOTIFICATION = "deploymentGraph";
-
-export interface DeploymentGraphPayload {
-  documentPath: string;
-  /** Optional basename provided by the host (for robust naming across environments). */
-  documentFileName?: string;
-  deploymentGraph: DeploymentGraph | null;
-}
-
 export interface DeploymentGraph {
   nodes: DeploymentGraphNode[];
   edges: DeploymentGraphEdge[];
@@ -70,14 +59,62 @@ export const SHOW_PROBLEMS_PANEL_NOTIFICATION = "showProblemsPanel";
 // Sent when the webview has initialized and is ready to receive data
 export const READY_NOTIFICATION = "ready";
 
+// ── Motion policy ──
+
+export type MotionPolicy = "system" | "reduce" | "animate";
+export const GET_MOTION_POLICY_REQUEST = "motionPolicy/get";
+export const MOTION_POLICY_DID_CHANGE_NOTIFICATION = "motionPolicy/didChange";
+
+// ── Experimental resource creation ──
+
+export const GET_RESOURCE_CREATION_ENABLEMENT_REQUEST = "resourceCreation/isEnabled";
+export const RESOURCE_CREATION_ENABLEMENT_DID_CHANGE_NOTIFICATION = "resourceCreation/enablementDidChange";
+
+// ── Resource creation ──
+
+export const CREATE_RESOURCE_REQUEST = "resources/create";
+
+export interface VisualResourceTypeReference {
+  fullyQualifiedType: string;
+  apiVersion: string;
+}
+
+export interface CreateVisualResourceRequest {
+  version: 1;
+  operationId: string;
+  resourceType: VisualResourceTypeReference;
+}
+
+export interface CreateVisualResourceResponse {
+  version: 1;
+  operationId: string;
+  expectedNodeId: string;
+  symbolicName: string;
+  unresolvedRequiredProperties: string[];
+}
+
+export interface CreateVisualResourceError {
+  version: 1;
+  operationId?: string;
+  code:
+    | "unsupportedContract"
+    | "invalidResourceType"
+    | "documentChanged"
+    | "documentReadOnly"
+    | "editRejected"
+    | "generationFailed";
+  message: string;
+  retryable: boolean;
+}
+
 // ──────────────────────────────────────────────────────────────────────────
-// Server-driven layout protocol (feature-flagged, not yet wired)
+// Server-driven visual graph protocol
 //
-// Replaces the full-graph push above with a notify-then-request loop:
+// The extension announces that the graph may have changed, then the webview pulls
+// topology/metadata patches and a measured layout through request/response messages:
 //   1. Extension → Webview: DOCUMENT_DID_CHANGE notification ("the graph may have changed").
 //   2. Webview → Extension: GET_GRAPH_UPDATE request carrying the graph it currently displays.
-//   3. Extension → Webview (response): a complete patch delta to apply.
-// These contracts are defined now; the loop is wired in a later change.
+//   3. Webview → Extension: GET_GRAPH_LAYOUT request after rendered node sizes are measured.
 // ──────────────────────────────────────────────────────────────────────────
 
 // ── Notification: Extension → Webview ──

@@ -4,7 +4,9 @@
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing.Assertions;
+using Bicep.Testing;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -14,13 +16,15 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     public class ExplicitValuesForLocationParamsRuleTests : LinterRuleTestsBase
     {
         // This linter rule is "Off" by default
-        public static ServiceBuilder ServiceBuilder => new ServiceBuilder().WithConfiguration(BicepTestConstants.BuiltInConfigurationWithStableAnalyzers);
+        private static TestCompilationResult Compile(params (string FilePath, TestFileData FileData)[] files) => TestCompiler
+            .ForInMemoryCompilation()
+            .WithConfiguration(TestConfigurations.BuiltInWithStableAnalyzers)
+            .CompileWithoutRestore(files);
 
         [TestMethod]
         public void If_ModuleHas_NoLocationParam_ShouldPass()
         {
-            var result = CompilationHelper.Compile(
-                ServiceBuilder,
+            var result = Compile(
                 ("main.bicep", @"
                     param location string
 
@@ -40,8 +44,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void If_ModuleHas_LocationParam_WithoutDefault_AndValuePassedIn_ShouldPass()
         {
-            var result = CompilationHelper.Compile(
-                ServiceBuilder,
+            var result = Compile(
                 ("main.bicep", @"
                     param location string
 
@@ -64,8 +67,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void If_ModuleHas_LocationParam_WithoutDefault_AndValueNotPassedIn_ShouldHaveCompilerError_AndNoLinterError()
         {
-            var result = CompilationHelper.Compile(
-                ServiceBuilder,
+            var result = Compile(
                 ("main.bicep", @"
                     param location string
 
@@ -90,8 +92,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void If_ModuleHas_LocationParam_WithRGLocationDefault_AndValuePassedIn_ShouldPass()
         {
-            var result = CompilationHelper.Compile(
-                ServiceBuilder,
+            var result = Compile(
                 ("main.bicep", @"
                     param location string
 
@@ -114,8 +115,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void If_ModuleHas_LocationParam_WithDeploymentLocDefault_AndValuePassedIn_ShouldPass()
         {
-            var result = CompilationHelper.Compile(
-                ServiceBuilder,
+            var result = Compile(
                 ("main.bicep", @"
                     targetScope = 'subscription'
 
@@ -141,8 +141,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void If_ModuleHas_LocationParam_WithRGLocationDefault_AndValueNotPassedIn_ShouldFail()
         {
-            var result = CompilationHelper.Compile(
-                ServiceBuilder,
+            var result = Compile(
                 ("main.bicep", @"
                     param location string
 
@@ -168,8 +167,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void MultipleInstances_OfSameModule()
         {
-            var result = CompilationHelper.Compile(
-                ServiceBuilder,
+            var result = Compile(
                 ("main.bicep", @"
                     param location string
 
@@ -207,8 +205,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void If_ModuleHas_LocationParams_WithRGLocationDefault_AndValuesNotPassedIn_ShouldFail()
         {
-            var result = CompilationHelper.Compile(
-                ServiceBuilder,
+            var result = Compile(
                 ("main.bicep", @"
                     param location string
 
@@ -236,8 +233,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void If_ModuleHas_LocationParams_UsedInResourceLocation_WithDefaultValues_AndValuesNotPassedIn_ShouldFail()
         {
-            var result = CompilationHelper.Compile(
-                ServiceBuilder,
+            var result = Compile(
                 ("main.bicep", @"
                     param location string
 
@@ -293,8 +289,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void If_ModuleHas_LocationParam_WithDeploymentLocDefault_AndValueNotPassedIn_CaseInsensitive_ShouldFail()
         {
-            var result = CompilationHelper.Compile(
-                ServiceBuilder,
+            var result = Compile(
                 ("main.bicep", @"
                     targetScope = 'subscription'
 
@@ -323,8 +318,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void If_Module_HasErrors_LocationParam_WithDefault_AndValuePassedIn_CaseInsensitive_ShouldPass()
         {
-            var result = CompilationHelper.Compile(
-                ServiceBuilder,
+            var result = Compile(
                 ("main.bicep", @"
                     param location string
 
@@ -350,8 +344,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void ForLoop3_Module()
         {
-            var result = CompilationHelper.Compile(
-                ServiceBuilder,
+            var result = Compile(
                 ("main.bicep", @"
                     module m2 'module1.bicep' = [for i in range(0, 10): {
                     }]"),
@@ -370,8 +363,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void Conditional1_Module()
         {
-            var result = CompilationHelper.Compile(
-                ServiceBuilder,
+            var result = Compile(
                 ("main.bicep", @"
                     param deploy bool
                     module m3 'module1.bicep' = [for i in range(0, 10): if (deploy) {
@@ -392,8 +384,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void CantBeFooledByStrings()
         {
-            var result = CompilationHelper.Compile(
-                ServiceBuilder,
+            var result = Compile(
                 ("main.bicep", @"
                     module m3 'module1.bicep' = {
                     }

@@ -53,8 +53,13 @@ public static class ExtensionV1Archive
             }
         }
 
+        if (!dataDict.TryGetValue("types.tgz", out var types))
+        {
+            throw new InvalidOperationException("The extension package does not contain a 'types.tgz' entry.");
+        }
+
         return new(
-            Types: dataDict["types.tgz"],
+            Types: types,
             LocalDeployEnabled: binaries.Count != 0,
             Binaries: [.. binaries]);
     }

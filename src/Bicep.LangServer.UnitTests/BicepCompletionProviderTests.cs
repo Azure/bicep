@@ -15,11 +15,9 @@ using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.UnitTests.Completions;
-using Bicep.LanguageServer.Completions;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Features.Language.Completion;
+using Bicep.LanguageServer.Features.Language.Completion.Snippets;
 using Bicep.LanguageServer.Settings;
-using Bicep.LanguageServer.Snippets;
-using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -52,7 +50,6 @@ namespace Bicep.LangServer.UnitTests
                 .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
                 .AddHttpClient<IPublicModuleMetadataProvider, PublicModuleMetadataProvider>()
                     .ConfigurePrimaryHttpMessageHandler(() => mockHttpMessageHandler).Services
-                .AddSingleton<ITelemetryProvider, TelemetryProvider>()
                 .AddSingleton<BicepCompletionProvider>()
                 .AddSingleton(publicModuleMetadataProvider.Object)
             );
@@ -213,6 +210,47 @@ output o int = 42
             paramCompletion.TextEdit!.TextEdit!.NewText.Should().Be(expectedParam);
             paramCompletion.CommitCharacters.Should().BeNull();
             paramCompletion.Detail.Should().Be(expectedParam);
+        }
+
+        [TestMethod]
+        public async Task GetFilteredCompletions_WithNestedResourceDeclarations_ReturnsQualifiedResourceReferences()
+        {
+            var compilation = Services.BuildCompilation(@"
+resource parent 'Microsoft.Foo/foos@2020-09-01' = {
+  name: 'foo'
+
+  resource child 'bars' = {
+    name: 'bar'
+
+    resource grandchild 'bazs' = {
+      name: 'baz'
+    }
+  }
+}
+
+var v =
+");
+            var offset = compilation.GetEntrypointSemanticModel().Root.VariableDeclarations.Select(x => x.DeclaringVariable).Single().Value.Span.Position;
+
+            var context = BicepCompletionContext.Create(compilation, offset);
+            var completionProvider = CreateProvider();
+            var completions = (await completionProvider.GetFilteredCompletions(compilation, context, CancellationToken.None)).ToList();
+
+            var resourceCompletions = completions
+                .Where(c => c.Kind == SymbolKind.Resource.ToCompletionItemKind())
+                .ToDictionary(c => c.Label);
+
+            resourceCompletions.Keys.Should().BeEquivalentTo([
+                "parent",
+                "parent::child",
+                "parent::child::grandchild",
+            ]);
+
+            var nestedResourceCompletion = resourceCompletions["parent::child::grandchild"];
+            nestedResourceCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
+            nestedResourceCompletion.TextEdit!.TextEdit!.NewText.Should().Be("parent::child::grandchild");
+            nestedResourceCompletion.CommitCharacters.Should().BeEquivalentTo([":",]);
+            nestedResourceCompletion.Detail.Should().Be("parent::child::grandchild");
         }
 
         [TestMethod]

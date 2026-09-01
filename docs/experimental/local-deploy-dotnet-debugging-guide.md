@@ -22,8 +22,8 @@ grpcurl -plaintext -d '{"type":"MyResource","properties":"{}","config":"{}"}' \
 | Tool | Install | Description |
 |------|---------|-------------|
 | .NET 9 SDK | [dotnet.microsoft.com](https://dotnet.microsoft.com/download) | Required |
-| grpcurl | `choco install grpcurl` (Win) / `brew install grpcurl` (Mac) | CLI tool |
-| grpcui | `choco install grpcui` (Win) / `brew install grpcui` (Mac) | Web UI (optional) |
+| grpcurl | `go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest` | CLI tool |
+| grpcui | `go install github.com/fullstorydev/grpcui/cmd/grpcui@latest` (Mac) | Web UI (optional) |
 | Bicep CLI | v0.37.4+ | Required |
 
 ---

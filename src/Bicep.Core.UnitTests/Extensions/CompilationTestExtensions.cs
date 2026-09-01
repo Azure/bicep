@@ -8,7 +8,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests.Utils;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.UnitTests.Extensions;
 
@@ -21,7 +21,7 @@ public static class CompilationTestExtensions
     /// <param name="compilation">The compilation.</param>
     /// <param name="bicepFileUri">(Optional) The Bicep file URI to compile an ARM template from.</param>
     /// <returns>ARM template JSON string.</returns>
-    public static string GetTestTemplate(this Compilation compilation, Uri? bicepFileUri = null)
+    public static string GetTestTemplate(this Compilation compilation, IOUri? bicepFileUri = null)
     {
         var stringBuilder = new StringBuilder();
         var stringWriter = new StringWriter(stringBuilder);
@@ -29,7 +29,7 @@ public static class CompilationTestExtensions
         SemanticModel? bicepFileModel;
         if (bicepFileUri is not null)
         {
-            var targetFile = compilation.SourceFileGrouping.SourceFiles.OfType<BicepFile>().Single(f => f.Uri == bicepFileUri);
+            var targetFile = compilation.SourceFileGrouping.SourceFiles.OfType<BicepFile>().Single(f => f.FileHandle.Uri == bicepFileUri);
             bicepFileModel = compilation.GetSemanticModel(targetFile);
         }
         else if (compilation.SourceFileGrouping.EntryPoint is BicepFile)
@@ -51,20 +51,19 @@ public static class CompilationTestExtensions
     /// Emits and returns the ARM template compiled from the params file compilation.
     /// </summary>
     /// <param name="result">The compilation.</param>
-    /// <param name="bicepFileUri">The Bicep file URI to generate the template from. If not provided, finding a "main.bicep" is attempted.</param>
+    /// <param name="bicepFileName">(Optional) The Bicep file name to compile an ARM template from. Defaults to 'main.bicep'.</param>
     /// <returns>ARM template JSON string.</returns>
-    public static string GetTestTemplate(this CompilationHelper.ParamsCompilationResult result, Uri? bicepFileUri = null)
+    public static string GetTestTemplate(this CompilationHelper.ParamsCompilationResult result, string bicepFileName = "main.bicep")
     {
-        bicepFileUri ??= result.Compilation.SourceFileGrouping.SourceFiles.First(f => f.Uri.AbsoluteUri.EndsWithInsensitively("/main.bicep")).Uri;
-
+        var bicepFileHandle = result.Compilation.SourceFileGrouping.SourceFiles.Single(f => f.FileHandle.Uri.GetFileName().Equals(bicepFileName, StringComparison.OrdinalIgnoreCase)).FileHandle;
         var stringBuilder = new StringBuilder();
         var stringWriter = new StringWriter(stringBuilder);
 
-        var model = result.Compilation.GetSemanticModel(result.Compilation.SourceFileGrouping.SourceFiles.Single(f => f.Uri == bicepFileUri));
+        var model = result.Compilation.GetSemanticModel(result.Compilation.SourceFileGrouping.SourceFiles.Single(f => f.FileHandle == bicepFileHandle));
 
         if (model is not SemanticModel bicepFileModel)
         {
-            throw new InvalidOperationException($"The file with URI '{bicepFileUri}' is not a '{nameof(BicepFile)}'. An ARM template cannot be emitted.");
+            throw new InvalidOperationException($"The file with URI '{bicepFileHandle}' is not a '{nameof(BicepFile)}'. An ARM template cannot be emitted.");
         }
 
         var emitter = new TemplateEmitter(bicepFileModel);

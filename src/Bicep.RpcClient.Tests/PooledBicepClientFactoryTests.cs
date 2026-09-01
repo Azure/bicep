@@ -283,6 +283,23 @@ public class PooledBicepClientFactoryTests
         wrapper.Dispose();
     }
 
+    [TestMethod]
+    public async Task GenerateDocs_request_is_forwarded_through_the_pool()
+    {
+        var inner = new FakeBicepClientFactory();
+        using var factory = CreatePooledFactory(inner);
+        var wrapper = await factory.Initialize(new BicepClientConfiguration(), Token);
+
+        var rendered = await wrapper.GenerateDocs(
+            new("main.bicep", null, null, null, NoRestore: false),
+            Token);
+
+        rendered.Contents.Should().Be("# Module\n");
+        inner.CreatedClients.Single().DocsRequestCount.Should().Be(1);
+
+        wrapper.Dispose();
+    }
+
     private CancellationToken Token => TestContext.CancellationTokenSource.Token;
 
     private static PooledBicepClientFactory CreatePooledFactory(FakeBicepClientFactory inner, TimeSpan? inactivityInterval = null, TimeSpan? pollInterval = null)
@@ -344,8 +361,11 @@ public class PooledBicepClientFactoryTests
         public const string Version = "1.2.3";
 
         private int disposeCount;
+        private int docsRequestCount;
 
         public bool IsDisposed => Volatile.Read(ref disposeCount) > 0;
+
+        public int DocsRequestCount => Volatile.Read(ref docsRequestCount);
 
         public async Task<string> GetVersion(CancellationToken cancellationToken = default)
         {
@@ -365,6 +385,12 @@ public class PooledBicepClientFactoryTests
 
         public Task<FormatResponse> Format(FormatRequest request, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();
+
+        public Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken = default)
+        {
+            Interlocked.Increment(ref docsRequestCount);
+            return Task.FromResult(new GenerateDocsResponse([], "# Module\n"));
+        }
 
         public Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken = default)
             => throw new NotSupportedException();

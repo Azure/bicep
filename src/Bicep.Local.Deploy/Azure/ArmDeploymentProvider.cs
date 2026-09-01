@@ -26,7 +26,7 @@ namespace Bicep.Local.Deploy.Azure;
 public class ArmDeploymentProvider(
     IArmClientProvider armClientProvider) : IArmDeploymentProvider
 {
-    private ArmDeploymentCollection GetDeploymentsClient(RootConfiguration configuration, DeploymentLocator deploymentLocator)
+    private ArmDeploymentCollection GetDeploymentsClient(IBicepConfiguration configuration, DeploymentLocator deploymentLocator)
     {
         var armClient = armClientProvider.CreateArmClient(configuration, deploymentLocator.SubscriptionId);
 
@@ -43,7 +43,7 @@ public class ArmDeploymentProvider(
         };
     }
 
-    public async Task StartDeployment(RootConfiguration configuration, DeploymentLocator deploymentLocator, string templateString, string parametersString, CancellationToken cancellationToken)
+    public async Task StartDeployment(IBicepConfiguration configuration, DeploymentLocator deploymentLocator, string templateString, string parametersString, CancellationToken cancellationToken)
     {
         var deploymentsClient = GetDeploymentsClient(configuration, deploymentLocator);
 
@@ -64,13 +64,13 @@ public class ArmDeploymentProvider(
         await deploymentsClient.CreateOrUpdateAsync(WaitUntil.Started, deploymentLocator.DeploymentName, armDeploymentContent, cancellationToken);
     }
 
-    public async Task<LocalDeploymentResult> CheckDeployment(RootConfiguration configuration, DeploymentLocator deploymentLocator, CancellationToken cancellationToken)
+    public async Task<LocalDeploymentResult> CheckDeployment(IBicepConfiguration configuration, DeploymentLocator deploymentLocator, CancellationToken cancellationToken)
     {
         var deploymentsClient = GetDeploymentsClient(configuration, deploymentLocator);
 
         var response = await deploymentsClient.GetAsync(deploymentLocator.DeploymentName, cancellationToken);
         var content = response.GetRawResponse().Content.ToString().FromDeploymentsJson<DeploymentContent>();
 
-        return new(content, []);
+        return new(content, [], []);
     }
 }

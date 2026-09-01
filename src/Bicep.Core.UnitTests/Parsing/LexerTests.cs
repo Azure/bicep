@@ -19,9 +19,11 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow(@"'test'", "test")]
         [DataRow(@"'hello there'", "hello there")]
         [DataRow(@"'\r\n\t\\\$\''", "\r\n\t\\$'")]
+        [DataRow(@"'\${foo}'", "${foo}")]
         [DataRow("'First line\\nSecond\\ttabbed\\tline'", "First line\nSecond\ttabbed\tline")]
         // escape ascii
-        [DataRow(@"'\u{0}'", "\0")]
+        // Use a printable display name so test discovery metadata does not contain a NUL character.
+        [DataRow(@"'\u{0}'", "\0", DisplayName = @"TryGetStringValue - '\u{0}' resolves to null char")]
         [DataRow(@"'\u{20}'", " ")]
         [DataRow(@"'hello\u{20}world\u{3f}'", "hello world?")]
         [DataRow(@"'new\u{0d}\u{A}line'", "new\r\nline")]

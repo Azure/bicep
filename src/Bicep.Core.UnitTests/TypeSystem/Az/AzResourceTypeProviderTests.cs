@@ -12,6 +12,7 @@ using Bicep.Core.TypeSystem.Providers.Extensibility;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using AzConcreteTypes = Azure.Bicep.Types.Concrete;
@@ -22,8 +23,6 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
     [TestClass]
     public class AzResourceTypeProviderTests
     {
-        private static ServiceBuilder Services => new();
-
         private static readonly ImmutableHashSet<string> ExpectedLoopVariantProperties = new[]
         {
             AzResourceTypeProvider.ResourceNamePropertyName,
@@ -157,11 +156,11 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         public void AzResourceTypeProvider_should_warn_for_missing_resource_types()
         {
             // Missing top-level properties - should be an error
-            var compilation = Services.BuildCompilation(@"
+            var compilation = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(@"
 resource missingResource 'Mock.Rp/madeUpResourceType@2020-01-01' = {
   name: 'missingResource'
 }
-");
+").Compilation;
             compilation.Should().HaveDiagnostics(new[] {
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Mock.Rp/madeUpResourceType@2020-01-01\" does not have types available. Bicep is unable to validate resource properties prior to deployment, but this will not block the resource from being deployed.")
             });
@@ -170,12 +169,13 @@ resource missingResource 'Mock.Rp/madeUpResourceType@2020-01-01' = {
         [TestMethod]
         public void AzResourceTypeProvider_should_error_for_top_level_system_properties_and_warn_for_rest()
         {
-            Compilation createCompilation(string program) => Services
+            Compilation CreateCompilation(string program) => TestCompiler
+                .ForInMemoryCompilation()
                 .WithAzResources(BuiltInTestTypes.Types)
-                .BuildCompilation(program);
+                .CompileWithoutRestore(program).Compilation;
 
             // Missing top-level properties - should be an error
-            var compilation = createCompilation(@"
+            var compilation = CreateCompilation(@"
 resource missingRequired 'Test.Rp/readWriteTests@2020-01-01' = {
   properties: {
     required: 'hello!'
@@ -186,7 +186,7 @@ resource missingRequired 'Test.Rp/readWriteTests@2020-01-01' = {
                 ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"name\".")
             });
 
-            compilation = createCompilation(@"
+                        compilation = CreateCompilation(@"
 resource missingRequired 'Test.Rp/readWriteTests@2020-01-01' = {
   name: 'missingRequired'
 }
@@ -196,7 +196,7 @@ resource missingRequired 'Test.Rp/readWriteTests@2020-01-01' = {
             });
 
             // Top-level properties that aren't part of the type definition - should be an error
-            compilation = createCompilation(@"
+                        compilation = CreateCompilation(@"
 resource unexpectedTopLevel 'Test.Rp/readWriteTests@2020-01-01' = {
   name: 'unexpectedTopLevel'
   properties: {
@@ -210,7 +210,7 @@ resource unexpectedTopLevel 'Test.Rp/readWriteTests@2020-01-01' = {
             });
 
             // Missing non top-level properties - should be a warning
-            compilation = createCompilation(@"
+                        compilation = CreateCompilation(@"
 resource missingRequiredProperty 'Test.Rp/readWriteTests@2020-01-01' = {
   name: 'missingRequiredProperty'
   properties: {
@@ -222,7 +222,7 @@ resource missingRequiredProperty 'Test.Rp/readWriteTests@2020-01-01' = {
             });
 
             // Non top-level properties that aren't part of the type definition - should be a warning
-            compilation = createCompilation(@"
+                        compilation = CreateCompilation(@"
 resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
   name: 'unexpectedPropertiesProperty'
   properties: {

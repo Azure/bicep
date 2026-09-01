@@ -12,17 +12,21 @@ namespace Bicep.Core.Features
 
         public string AssemblyVersion => throw new NotImplementedException();
         public IDirectoryHandle CacheRootDirectory => throw new NotImplementedException();
+        public bool OciEnabled => features.OciEnabled;
         public bool SymbolicNameCodegenEnabled => features.SymbolicNameCodegen;
         public bool ResourceTypedParamsAndOutputsEnabled => features.ResourceTypedParamsAndOutputs;
         public bool SourceMappingEnabled => features.SourceMapping;
         public bool LegacyFormatterEnabled => features.LegacyFormatter;
         public bool TestFrameworkEnabled => features.TestFramework;
         public bool AssertsEnabled => features.Assertions;
-        public bool WaitAndRetryEnabled => features.WaitAndRetry;
+        public bool WaitUntilEnabled => features.WaitUntil;
         public bool LocalDeployEnabled => features.LocalDeploy;
         public bool ResourceInfoCodegenEnabled => features.ResourceInfoCodegen;
         public bool ModuleExtensionConfigsEnabled => features.ModuleExtensionConfigs;
         public bool UserDefinedConstraintsEnabled => features.UserDefinedConstraints;
         public bool DeployCommandsEnabled => features.DeployCommands;
+        public bool PatchEnabled => features.Patch;
+        public bool RuntimeValuesInTagsAndSkuEnabled => features.RuntimeValuesInTagsAndSku;
+        public bool AzExtensionConfigEnabled => features.AzExtensionConfig;
     }
 }

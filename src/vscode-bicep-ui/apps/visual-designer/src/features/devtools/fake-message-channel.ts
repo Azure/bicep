@@ -3,8 +3,9 @@
 
 import type { WebviewNotificationCallback, WebviewNotificationMessage } from "@vscode-bicep-ui/messaging";
 import type {
+  CreateVisualResourceRequest,
+  CreateVisualResourceResponse,
   DeploymentGraph,
-  DeploymentGraphPayload,
   GetGraphLayoutRequest,
   GetGraphLayoutResponse,
   GetGraphUpdateRequest,
@@ -12,7 +13,7 @@ import type {
 } from "@/lib/messaging";
 
 import {
-  DEPLOYMENT_GRAPH_NOTIFICATION,
+  CREATE_RESOURCE_REQUEST,
   DOCUMENT_DID_CHANGE_NOTIFICATION,
   GET_GRAPH_LAYOUT_REQUEST,
   GET_GRAPH_UPDATE_REQUEST,
@@ -787,33 +788,95 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
 ];
 
 /**
- * A fake message channel that simulates the VS Code extension host
- * for dev-mode usage. When the webview sends the "ready" notification,
- * it replies asynchronously with a sample deployment graph — the same
- * flow that happens in production.
- *
- * Also exposes {@link pushGraph} so dev toolbar buttons can simulate
- * the extension host pushing new graphs at any time.
+ * A fake message channel that simulates the VS Code extension host for dev-mode usage.
+ * Graph changes are announced with `documentDidChange`; the webview then pulls patch
+ * and layout responses through the same request flow used in production.
  */
 export class FakeMessageChannel {
   private readonly notificationSubscriptions: Record<string, Set<WebviewNotificationCallback>> = {};
+  private readonly onWindowMessage = (event: MessageEvent) => {
+    if (
+      typeof event.data === "object" &&
+      event.data !== null &&
+      "method" in event.data &&
+      typeof event.data.method === "string"
+    ) {
+      this.dispatchNotification(event.data.method, "params" in event.data ? event.data.params : undefined);
+    }
+  };
 
-  /**
-   * When true, the channel drives the server-driven layout path: graph changes are announced via
-   * `documentDidChange` and the webview pulls them with a `getGraphUpdate` request (answered by
-   * {@link diffGraph}). When false, it pushes full `deploymentGraph` notifications (the legacy path).
-   */
-  private serverLayoutMode = false;
+  constructor() {
+    window.addEventListener("message", this.onWindowMessage);
+  }
 
   revive() {
-    // no-op
+    window.addEventListener("message", this.onWindowMessage);
   }
 
   dispose() {
-    // no-op
+    window.removeEventListener("message", this.onWindowMessage);
   }
 
   sendRequest<T>(requestMessage: { method: string; params?: unknown }): Promise<T> {
+    if (requestMessage.method === "motionPolicy/get") {
+      return Promise.resolve("animate" as T);
+    }
+
+    if (requestMessage.method === "resourceCreation/isEnabled") {
+      return Promise.resolve((new URLSearchParams(window.location.search).get("resourceCreation") !== "false") as T);
+    }
+
+    const resourceTypeCatalog = [
+      {
+        group: "Microsoft.Storage",
+        resourceTypes: [{ resourceType: "storageAccounts", apiVersion: "2025-01-01" }],
+      },
+      {
+        group: "Microsoft.Network",
+        resourceTypes: [{ resourceType: "virtualNetworks", apiVersion: "2024-07-01" }],
+      },
+    ];
+
+    if (requestMessage.method === "resourceTypeCatalog/namespaces") {
+      return new Promise<T>((resolve) => {
+        setTimeout(
+          () =>
+            resolve({
+              catalogId: "dev-catalog",
+              namespaces: resourceTypeCatalog.map((group) => ({
+                name: group.group,
+                resourceTypeCount: group.resourceTypes.length,
+              })),
+            } as T),
+          150,
+        );
+      });
+    }
+
+    if (requestMessage.method === "resourceTypeCatalog/load") {
+      const { providerNamespace, query, loadAll } = (requestMessage.params ?? {}) as {
+        providerNamespace?: string;
+        query?: string;
+        loadAll?: boolean;
+      };
+      const normalizedQuery = query?.toLocaleLowerCase();
+      const groups = resourceTypeCatalog
+        .filter((group) => !providerNamespace || group.group === providerNamespace)
+        .map((group) => ({
+          ...group,
+          resourceTypes: group.resourceTypes.filter(
+            (resourceType) =>
+              !normalizedQuery ||
+              `${group.group}/${resourceType.resourceType}`.toLocaleLowerCase().includes(normalizedQuery),
+          ),
+        }))
+        .filter((group) => group.resourceTypes.length > 0);
+
+      return new Promise<T>((resolve) => {
+        setTimeout(() => resolve({ catalogId: "dev-catalog", groups } as T), loadAll ? 600 : 200);
+      });
+    }
+
     if (requestMessage.method === GET_GRAPH_UPDATE_REQUEST) {
       const { current } = requestMessage.params as GetGraphUpdateRequest;
       const patches = diffGraph(current, this.currentGraph);
@@ -828,6 +891,47 @@ export class FakeMessageChannel {
         : { status: "graphChanged", patches: [] };
 
       return Promise.resolve(result as T);
+    }
+
+    if (requestMessage.method === CREATE_RESOURCE_REQUEST) {
+      const request = requestMessage.params as CreateVisualResourceRequest;
+      const current = this.currentGraph ?? { nodes: [], edges: [], errorCount: 0 };
+      const baseName = request.resourceType.fullyQualifiedType.split("/").slice(-1)[0]?.replace(/s$/, "") ?? "resource";
+      let symbolicName = baseName.charAt(0).toLocaleLowerCase() + baseName.slice(1);
+      let suffix = 1;
+      const existingIds = new Set(current.nodes.map((node) => node.id));
+      while (existingIds.has(symbolicName)) {
+        symbolicName = `${baseName}${suffix}`;
+        suffix++;
+      }
+
+      return new Promise<T>((resolve) => {
+        setTimeout(() => {
+          this.pushGraph({
+            ...current,
+            nodes: [
+              ...current.nodes,
+              {
+                id: symbolicName,
+                type: request.resourceType.fullyQualifiedType,
+                isCollection: false,
+                range: ZERO_RANGE,
+                hasChildren: false,
+                hasError: true,
+                filePath: FAKE_FILE_PATH,
+              },
+            ],
+          });
+
+          resolve({
+            version: 1,
+            operationId: request.operationId,
+            expectedNodeId: symbolicName,
+            symbolicName,
+            unresolvedRequiredProperties: ["name"],
+          } satisfies CreateVisualResourceResponse as T);
+        }, 300);
+      });
     }
 
     return Promise.reject(new Error(`FakeMessageChannel does not support request: ${requestMessage.method}`));
@@ -853,46 +957,21 @@ export class FakeMessageChannel {
     }
   }
 
+  setState<T>(state: T): T {
+    return state;
+  }
+
   /** Returns the most recently pushed graph (for mutations). */
   getCurrentGraph(): DeploymentGraph | null {
     return this.currentGraph;
   }
 
-  /** Whether the server-driven layout path is active. */
-  isServerLayoutMode(): boolean {
-    return this.serverLayoutMode;
-  }
-
-  /**
-   * Toggle between the server-driven layout path and the legacy full-graph push path, then
-   * re-present the current graph through the newly selected path so the change is visible at once.
-   */
-  setServerLayoutMode(enabled: boolean) {
-    this.serverLayoutMode = enabled;
-    this.presentCurrentGraph();
-  }
-
-  /**
-   * Simulate the extension host announcing a new graph to the webview. In legacy mode this is a
-   * full `deploymentGraph` push; in server-layout mode it is a `documentDidChange` notification
-   * that prompts the webview to pull the delta via `getGraphUpdate`.
-   */
+  /** Simulate the extension host announcing that the graph may have changed. */
   pushGraph(graph: DeploymentGraph | null) {
     this.currentGraph = graph;
-    this.presentCurrentGraph();
-  }
-
-  private presentCurrentGraph() {
-    if (this.serverLayoutMode) {
-      this.dispatchNotification(DOCUMENT_DID_CHANGE_NOTIFICATION, {
-        documentUri: FAKE_FILE_PATH,
-      });
-    } else {
-      this.dispatchNotification(DEPLOYMENT_GRAPH_NOTIFICATION, {
-        documentPath: FAKE_FILE_PATH,
-        deploymentGraph: this.currentGraph,
-      } satisfies DeploymentGraphPayload);
-    }
+    this.dispatchNotification(DOCUMENT_DID_CHANGE_NOTIFICATION, {
+      documentUri: FAKE_FILE_PATH,
+    });
   }
 
   subscribeToNotification(method: string, callback: WebviewNotificationCallback) {

@@ -3,7 +3,7 @@
 
 using Azure.Bicep.Types.Concrete;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.TextFixtures.Mocks;
+using Bicep.Testing.Mocks;
 
 namespace Bicep.Core.Samples;
 

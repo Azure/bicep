@@ -32,7 +32,7 @@ namespace Bicep.Core.Registry
             {
                 return new(x => x.UnsupportedArtifactType(artifactType));
             }
-            if (!TemplateSpecModuleReference.TryParse(referencingFile.Features, referencingFile.Configuration, aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
+            if (!TemplateSpecModuleReference.TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
             {
                 return new(failureBuilder);
             }

@@ -1,6 +1,6 @@
 # Visual Graph Protocol
 
-This document describes the server-driven visual graph protocol used by the Bicep visual designer when `bicep.visualizer.serverLayout.enabled` is on.
+This document describes the server-driven visual graph protocol used by the Bicep visual designer.
 
 The protocol is intentionally split into two phases:
 
@@ -124,13 +124,14 @@ Layout-affecting patches:
 
 Non-layout-affecting patches:
 
-- `updateNode` when only `hasError`, `filePath`, or `range` changes
+- `updateNode` when only `hasError` changes
 - `setErrorCount`
 - `setNodeLayout`
+- `setGraphBounds`
 
 Notably, `hasError` does not trigger layout.
 
-Because the server is stateless, every `updateNode` is an idempotent refresh that carries _all_ node metadata fields, not only the ones that changed. The client therefore compares each incoming field against the value it currently holds and treats the patch as layout-affecting only when a layout-relevant field (`type`, `isCollection`, or `hasChildren`) actually changed value. Checking for field _presence_ alone would reflow on every edit — for example, deleting a blank line shifts every node's `range`, so every `updateNode` would carry a (new) `range` and, if presence were the test, falsely look layout-affecting.
+The server diffs node metadata per field and emits `updateNode` only when metadata actually changes. The client still compares each incoming field against the value it currently holds and treats the patch as layout-affecting only when a layout-relevant field (`type`, `isCollection`, or `hasChildren`) changed value. Source locations are resolved on demand and are not part of graph metadata, so whitespace-only edits do not produce node patches.
 
 If a patch may affect layout, the client renders the updated graph, measures actual node boxes, builds a measured `RenderedGraph`, and compares it with the last measured graph that produced a layout. The client sends a layout request only when measured topology, sizes, or layout options changed.
 
@@ -175,7 +176,7 @@ interface VisualGraphLayoutResult {
 }
 ```
 
-Successful layout responses contain only `setNodeLayout` patches.
+Successful layout responses contain `setNodeLayout` patches and, when available, one `setGraphBounds` patch used for fit-view.
 
 ### Layout Sequence
 
@@ -220,6 +221,10 @@ interface RenderedGraphNode {
   id: string;
   kind: "resource" | "module";
   parentId: string | null;
+  type: string;
+  isCollection: boolean;
+  hasChildren: boolean;
+  hasError: boolean;
   width: number;
   height: number;
 }
@@ -242,6 +247,7 @@ type GraphPatch =
   | { op: "addEdge"; edge: GraphEdge }
   | { op: "removeEdge"; edgeId: string }
   | { op: "setNodeLayout"; nodeId: string; layout: NodeLayout }
+  | { op: "setGraphBounds"; bounds: GraphBounds }
   | { op: "setErrorCount"; errorCount: number };
 ```
 

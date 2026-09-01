@@ -17,13 +17,12 @@ namespace Bicep.Core.SourceGraph
             IFileHandle fileHandle,
             ImmutableArray<int> lineStarts,
             ProgramSyntax programSyntax,
-            IConfigurationManager configurationManager,
+            IBicepConfigurationManager configurationManager,
             IFeatureProviderFactory featureProviderFactory,
             IAuxiliaryFileCache auxiliaryFileCache,
             IDiagnosticLookup lexingErrorLookup,
             IDiagnosticLookup parsingErrorLookup)
             : base(
-                  fileHandle.Uri.ToUri(),
                   fileHandle,
                   lineStarts,
                   programSyntax,

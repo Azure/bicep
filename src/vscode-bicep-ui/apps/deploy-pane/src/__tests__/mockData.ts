@@ -6,7 +6,7 @@ import type {
   DeploymentOperation,
   DeploymentValidateResult,
   WhatIfOperationResult,
-} from "@azure/arm-resources";
+} from "@azure/arm-resourcesdeployments";
 import type { DeploymentScope } from "../models";
 
 export const fileUri = "file:///my/deployment.bicep";

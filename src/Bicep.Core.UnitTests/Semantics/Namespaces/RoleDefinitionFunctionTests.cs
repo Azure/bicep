@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -23,7 +22,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
                 output ownerRoleId string = ownerRole.id
             ";
 
-            var result = CompilationHelper.Compile(bicepText);
+            var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(bicepText);
             result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().NotBeNull();
 
@@ -56,7 +55,7 @@ namespace Bicep.Core.UnitTests.Semantics.Namespaces
                 output assignedRoleId string = contributorRole.id
             ";
 
-            var result = CompilationHelper.Compile(bicepText);
+            var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(bicepText);
             result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().NotBeNull();
 

@@ -10,6 +10,7 @@ using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.SourceGraph;
 using Bicep.Decompiler;
+using Bicep.Decompiler.ArmHelpers;
 using Bicep.IO.Abstraction;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -65,7 +66,14 @@ namespace Bicep.Cli.Commands
             try
             {
                 var jsonContents = await this.fileExplorer.GetFile(inputUri).ReadAllTextAsync();
-                var decompilation = await decompiler.Decompile(outputUri, jsonContents);
+                var templateObject = JTokenHelpers.LoadJson(jsonContents, Newtonsoft.Json.Linq.JObject.Load, ignoreTrailingContent: true);
+
+                if (TemplateHelpers.IsBicepGeneratedTemplate(templateObject))
+                {
+                    logger.LogWarning(BicepDecompiler.BicepGeneratedTemplateWarning);
+                }
+
+                var decompilation = await decompiler.Decompile(outputUri, templateObject);
 
                 // TODO(low-priority): It would be ideal to remove Workspace and use InMemoryFileExplorer instead.
                 // This is something that should be done after the core part of file I/O abstraction migration is complete.

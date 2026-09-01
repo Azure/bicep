@@ -13,7 +13,7 @@ namespace Bicep.Core.Registry
         where TArtifactReference : ArtifactReference
     {
         // if we're unable to acquire a lock on the artifact directory in the cache, we will retry until this timeout is reached
-        private static readonly TimeSpan ArtifactDirectoryContentionTimeout = TimeSpan.FromSeconds(5);
+        private static readonly TimeSpan ArtifactDirectoryContentionTimeout = TimeSpan.FromSeconds(30);
 
         // interval at which we will retry acquiring the lock on the artifact directory in the cache
         private static readonly TimeSpan ArtifactDirectoryContentionRetryInterval = TimeSpan.FromMilliseconds(300);

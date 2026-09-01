@@ -119,10 +119,7 @@ public class LocalDeploymentEngineHost : DeploymentEngineHostBase
         => throw new NotImplementedException();
 
     public override EnablementConfig GetEnablementConfig(PreviewDeploymentFunction feature)
-        => new()
-        {
-            FeatureName = feature.ToString()
-        };
+        => enablementConfigProvider.GetEnablementConfig(feature);
 
     public override IResourceTypeMetadataProvider GetResourceTypeMetadataProvider()
         => throw new NotImplementedException();

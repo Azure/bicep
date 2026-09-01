@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.IO.Abstractions;
 using System.Text.RegularExpressions;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
@@ -11,7 +10,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Text;
 using Bicep.Decompiler;
-using Bicep.IO.InMemory;
+using Bicep.IO.Abstraction;
 using Bicep.Wasm.LanguageHelpers;
 using Microsoft.JSInterop;
 
@@ -19,24 +18,31 @@ namespace Bicep.Wasm
 {
     public partial class Interop
     {
+        private const string MainBicepFilePath = "/main.bicep";
         private const string QuickstartsRootPath = "/quickstarts/";
 
         public record DecompileResult(string? bicepFile, string? error);
 
-        public record CompileResult(string template, object diagnostics);
+        public record CompileResult(string template, object diagnostics, string? error = null);
 
-        private readonly IJSRuntime jsRuntime;
+        private readonly Func<string, Task<string?>> loadQuickstartsFile;
         private readonly IServiceProvider serviceProvider;
+        private readonly SemaphoreSlim compilationLock = new(1, 1);
+        private string? cachedCompilationContent;
+        private string? cachedCompilationSourcePath;
+        private Compilation? cachedCompilation;
 
-        public Interop(IJSRuntime jsRuntime, IServiceProvider serviceProvider)
+        public Interop(Func<string, Task<string?>> loadQuickstartsFile, IServiceProvider serviceProvider)
         {
-            this.jsRuntime = jsRuntime;
+            this.loadQuickstartsFile = loadQuickstartsFile;
             this.serviceProvider = serviceProvider;
         }
 
         [JSInvokable]
         public async Task<CompileResult> CompileAndEmitDiagnostics(string content, string? sourcePath)
         {
+            await compilationLock.WaitAsync();
+
             try
             {
                 var compilation = await GetCompilation(content, sourcePath);
@@ -59,7 +65,11 @@ namespace Bicep.Wasm
             }
             catch (Exception exception)
             {
-                return new(exception.ToString(), Enumerable.Empty<object>());
+                return new(string.Empty, Enumerable.Empty<object>(), exception.Message);
+            }
+            finally
+            {
+                compilationLock.Release();
             }
         }
 
@@ -71,7 +81,7 @@ namespace Bicep.Wasm
 
             try
             {
-                var (entrypointUri, filesToSave) = await decompiler.Decompile(DummyFileHandle.Default.Uri, jsonContent);
+                var (entrypointUri, filesToSave) = await decompiler.Decompile(IOUri.FromFilePath(MainBicepFilePath), jsonContent);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
             }
@@ -95,111 +105,128 @@ namespace Bicep.Wasm
         }
 
         [JSInvokable]
-        public async Task<object> GetSemanticTokens(string content)
+        public async Task<object> GetSemanticTokens(string content, string? sourcePath = null)
         {
-            var compilation = await GetCompilation(content);
-            var tokens = GetTokenPositions(compilation.GetEntrypointSemanticModel());
+            await compilationLock.WaitAsync();
 
-            var data = new List<int>();
-            TokenPosition? prevToken = null;
-            foreach (var token in tokens)
+            try
             {
-                if (prevToken == null)
+                var compilation = await GetCompilation(content, sourcePath);
+                var tokens = GetTokenPositions(compilation.GetEntrypointSemanticModel());
+
+                var data = new List<int>();
+                TokenPosition? prevToken = null;
+                foreach (var token in tokens)
                 {
-                    data.Add(token.Line);
-                    data.Add(token.Character);
-                    data.Add(token.Length);
-                }
-                else if (prevToken.Line != token.Line)
-                {
-                    data.Add(token.Line - prevToken.Line);
-                    data.Add(token.Character);
-                    data.Add(token.Length);
-                }
-                else
-                {
+                    if (prevToken == null)
+                    {
+                        data.Add(token.Line);
+                        data.Add(token.Character);
+                        data.Add(token.Length);
+                    }
+                    else if (prevToken.Line != token.Line)
+                    {
+                        data.Add(token.Line - prevToken.Line);
+                        data.Add(token.Character);
+                        data.Add(token.Length);
+                    }
+                    else
+                    {
+                        data.Add(0);
+                        data.Add(token.Character - prevToken.Character);
+                        data.Add(token.Length);
+                    }
+
+                    data.Add((int)token.TokenType);
                     data.Add(0);
-                    data.Add(token.Character - prevToken.Character);
-                    data.Add(token.Length);
+
+                    prevToken = token;
                 }
 
-                data.Add((int)token.TokenType);
-                data.Add(0);
-
-                prevToken = token;
+                return new
+                {
+                    data = data.ToArray(),
+                };
             }
-
-            return new
+            finally
             {
-                data = data.ToArray(),
-            };
+                compilationLock.Release();
+            }
         }
 
         private async Task<Compilation> GetCompilation(string fileContents, string? sourcePath = null)
         {
+            if (cachedCompilation is not null &&
+                cachedCompilationContent == fileContents &&
+                cachedCompilationSourcePath == sourcePath)
+            {
+                return cachedCompilation;
+            }
+
             using var serviceScope = serviceProvider.CreateScope();
             var compiler = serviceScope.ServiceProvider.GetRequiredService<BicepCompiler>();
-            var fileSystem = serviceScope.ServiceProvider.GetRequiredService<IFileSystem>();
+            var fileExplorer = serviceScope.ServiceProvider.GetRequiredService<IFileExplorer>();
 
             var fileUri = string.IsNullOrEmpty(sourcePath)
-                ? new Uri("file:///main.bicep")
-                : new Uri($"file://{QuickstartsRootPath}{sourcePath.TrimStart('/')}");
+                ? IOUri.FromFilePath(MainBicepFilePath)
+                : IOUri.FromFilePath($"{QuickstartsRootPath}{sourcePath.TrimStart('/')}");
 
-            EnsureParentDirectoryExists(fileSystem, fileUri.LocalPath);
-            await fileSystem.File.WriteAllTextAsync(fileUri.LocalPath, fileContents);
+            await WriteFileAsync(fileExplorer, fileUri, fileContents);
 
             if (!string.IsNullOrEmpty(sourcePath))
             {
-                await WriteModuleFilesRecursively(fileSystem, fileUri, fileContents, [fileUri.LocalPath]);
+                await WriteModuleFilesRecursively(fileExplorer, fileUri, fileContents, [fileUri]);
             }
 
-            return await compiler.CreateCompilation(fileUri.ToIOUri());
+            cachedCompilationContent = fileContents;
+            cachedCompilationSourcePath = sourcePath;
+            cachedCompilation = await compiler.CreateCompilation(fileUri);
+
+            return cachedCompilation;
         }
 
-        private async Task WriteModuleFilesRecursively(IFileSystem fileSystem, Uri sourceFileUri, string sourceContent, HashSet<string> loadedPaths)
+        private async Task WriteModuleFilesRecursively(IFileExplorer fileExplorer, IOUri sourceFileUri, string sourceContent, HashSet<IOUri> loadedUris)
         {
             foreach (var modulePath in GetLocalModulePaths(sourceContent))
             {
-                var moduleUri = new Uri(sourceFileUri, modulePath);
+                var moduleUri = sourceFileUri.Resolve(modulePath);
 
-                if (!moduleUri.LocalPath.StartsWith(QuickstartsRootPath, StringComparison.Ordinal) ||
-                    !loadedPaths.Add(moduleUri.LocalPath))
+                if (!moduleUri.Path.StartsWith(QuickstartsRootPath, StringComparison.Ordinal) ||
+                    !loadedUris.Add(moduleUri))
                 {
                     continue;
                 }
 
                 string? moduleContents;
+                var moduleFile = fileExplorer.GetFile(moduleUri);
 
-                if (fileSystem.File.Exists(moduleUri.LocalPath))
+                if (moduleFile.Exists())
                 {
-                    moduleContents = await fileSystem.File.ReadAllTextAsync(moduleUri.LocalPath);
+                    moduleContents = await moduleFile.ReadAllTextAsync();
                 }
                 else
                 {
-                    var quickstartsPath = moduleUri.LocalPath[QuickstartsRootPath.Length..];
-                    moduleContents = await jsRuntime.InvokeAsync<string?>("LoadQuickstartsFile", quickstartsPath);
+                    var quickstartsPath = moduleUri.Path[QuickstartsRootPath.Length..];
+                    moduleContents = await loadQuickstartsFile(quickstartsPath);
 
                     if (moduleContents is null)
                     {
                         continue;
                     }
 
-                    EnsureParentDirectoryExists(fileSystem, moduleUri.LocalPath);
-                    await fileSystem.File.WriteAllTextAsync(moduleUri.LocalPath, moduleContents);
+                    await WriteFileAsync(fileExplorer, moduleUri, moduleContents);
                 }
 
-                await WriteModuleFilesRecursively(fileSystem, moduleUri, moduleContents, loadedPaths);
+                await WriteModuleFilesRecursively(fileExplorer, moduleUri, moduleContents, loadedUris);
             }
         }
 
-        private static void EnsureParentDirectoryExists(IFileSystem fileSystem, string filePath)
+        private static async Task WriteFileAsync(IFileExplorer fileExplorer, IOUri fileUri, string fileContents)
         {
-            var parentDirectory = fileSystem.Path.GetDirectoryName(filePath);
+            var file = fileExplorer.GetFile(fileUri);
+            file.GetParent().EnsureExists();
 
-            if (parentDirectory is not null)
-            {
-                fileSystem.Directory.CreateDirectory(parentDirectory);
-            }
+            await file.WriteAllTextAsync(fileContents);
         }
 
         private static IEnumerable<string> GetLocalModulePaths(string sourceContent)
@@ -209,17 +236,25 @@ namespace Bicep.Wasm
                 .Where(path => !path.StartsWith("br:", StringComparison.OrdinalIgnoreCase))
                 .Where(path => !path.StartsWith("ts:", StringComparison.OrdinalIgnoreCase))
                 .Where(path => !path.StartsWith("az:", StringComparison.OrdinalIgnoreCase))
-                .Where(path => !Uri.TryCreate(path, UriKind.Absolute, out _));
+                .Where(path => !HasAbsoluteSchemePrefix(path));
+
+        private static bool HasAbsoluteSchemePrefix(string path) => GetAbsoluteSchemePrefixRegex().IsMatch(path);
 
         [GeneratedRegex("^\\s*module\\s+\\w+\\s+'(?<path>[^']+)'", RegexOptions.Multiline)]
         private static partial Regex GetModulePathRegex();
 
+        [GeneratedRegex("^[A-Za-z][A-Za-z0-9+.-]*:")]
+        private static partial Regex GetAbsoluteSchemePrefixRegex();
+
         private static object ToMonacoDiagnostic(IDiagnostic diagnostic, SourceFileGrouping sourceFileGrouping)
         {
-            if (diagnostic.Uri is { } diagnosticUri &&
-                diagnosticUri != sourceFileGrouping.EntryPoint.Uri)
+            var diagnosticUri = diagnostic.Uri?.ToIOUri();
+            var diagnosticSourceFile = GetSourceFile(sourceFileGrouping, diagnosticUri);
+
+            if (diagnosticSourceFile is not null &&
+                diagnosticSourceFile.FileHandle.Uri != sourceFileGrouping.EntryPoint.FileHandle.Uri)
             {
-                var sourcePath = GetDiagnosticSourcePath(diagnosticUri);
+                var sourcePath = GetDiagnosticSourcePath(diagnosticSourceFile.FileHandle.Uri);
 
                 // The playground editor only displays markers in the entrypoint model.
                 // For diagnostics from referenced module files, pin a marker to line 1
@@ -236,8 +271,7 @@ namespace Bicep.Wasm
                 };
             }
 
-            var lineStarts = GetLineStarts(sourceFileGrouping, diagnostic.Uri)
-                ?? sourceFileGrouping.EntryPoint.LineStarts;
+            var lineStarts = diagnosticSourceFile?.LineStarts ?? sourceFileGrouping.EntryPoint.LineStarts;
             var (startLine, startChar) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
             var (endLine, endChar) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.GetEndPosition());
 
@@ -253,22 +287,22 @@ namespace Bicep.Wasm
             };
         }
 
-        private static IReadOnlyList<int>? GetLineStarts(SourceFileGrouping sourceFileGrouping, Uri? diagnosticUri)
+        private static BicepSourceFile? GetSourceFile(SourceFileGrouping sourceFileGrouping, IOUri? diagnosticUri)
         {
             if (diagnosticUri is null ||
-                !sourceFileGrouping.SourceFileLookup.TryGetValue(diagnosticUri.ToIOUri(), out var sourceFileResult) ||
+                !sourceFileGrouping.SourceFileLookup.TryGetValue(diagnosticUri, out var sourceFileResult) ||
                 !sourceFileResult.IsSuccess(out var sourceFile) ||
                 sourceFile is not BicepSourceFile bicepSourceFile)
             {
                 return null;
             }
 
-            return bicepSourceFile.LineStarts;
+            return bicepSourceFile;
         }
 
-        private static string GetDiagnosticSourcePath(Uri diagnosticUri)
+        private static string GetDiagnosticSourcePath(IOUri diagnosticUri)
         {
-            var sourcePath = diagnosticUri.LocalPath;
+            var sourcePath = diagnosticUri.Path;
 
             if (sourcePath.StartsWith(QuickstartsRootPath, StringComparison.Ordinal))
             {

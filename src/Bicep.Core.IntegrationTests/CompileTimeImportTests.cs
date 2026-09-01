@@ -113,6 +113,41 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
+    public void Exporting_declarations_that_reference_deployment_context_functions_should_compile()
+    {
+        var result = CompilationHelper.Compile("""
+            @export()
+            var defaultSubnetId = resourceId('resourceGroup', 'Microsoft.Network/virtualNetworks/subnets', 'vnet', 'subnet')
+
+            @export()
+            func getLocation() string => resourceGroup().location
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/Azure/bicep/issues/20041
+    [TestMethod]
+    public void Importing_function_that_references_deployment_context_function_into_bicep_should_compile()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                import { getBuiltInRoleId } from 'roles.bicep'
+
+                output foundryUserRoleId string = getBuiltInRoleId('53ca6127-db72-4b80-b1b0-d745d6d5456d')
+                """),
+            ("roles.bicep", """
+                @export()
+                func getBuiltInRoleId(roleDefinitionId string) string => resourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionId)
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath(
+            "functions[0].members.getBuiltInRoleId.output.value",
+            "[resourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]");
+    }
+
+    [TestMethod]
     public void Importing_non_template_should_not_raise_diagnostic()
     {
         var result = CompilationHelper.Compile(

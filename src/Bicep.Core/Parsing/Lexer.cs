@@ -213,15 +213,14 @@ namespace Bicep.Core.Parsing
             }
             var (start, end) = result;
 
-            var contents = stringToken.Text.Substring(start.Length, stringToken.Text.Length - start.Length - end.Length);
-            var window = new SlidingTextWindow(contents);
+            var contents = stringToken.Text.AsSpan(start.Length, stringToken.Text.Length - start.Length - end.Length);
 
             // the value of the string will be shorter because escapes are longer than the characters they represent
             var buffer = new StringBuilder(contents.Length);
 
-            while (!window.IsAtEnd())
+            for (var position = 0; position < contents.Length; position++)
             {
-                var nextChar = window.Next();
+                var nextChar = contents[position];
 
                 if (nextChar == '\'')
                 {
@@ -230,57 +229,12 @@ namespace Bicep.Core.Parsing
 
                 if (nextChar == '\\')
                 {
-                    // escape sequence begins
-                    if (window.IsAtEnd())
+                    if (!TryScanStringEscapeSequence(contents[position..], out var escapeSequenceLength, buffer))
                     {
                         return null;
                     }
 
-                    char escapeChar = window.Next();
-
-                    if (escapeChar == 'u')
-                    {
-                        // unicode escape
-                        char openCurly = window.Next();
-                        if (openCurly != '{')
-                        {
-                            return null;
-                        }
-
-                        var codePointText = ScanHexNumber(window);
-                        if (!TryParseCodePoint(codePointText, out uint codePoint))
-                        {
-                            // invalid codepoint
-                            return null;
-                        }
-
-                        char closeCurly = window.Next();
-                        if (closeCurly != '}')
-                        {
-                            return null;
-                        }
-
-                        char charOrHighSurrogate = CodepointToString(codePoint, out char lowSurrogate);
-                        buffer.Append(charOrHighSurrogate);
-                        if (lowSurrogate != SlidingTextWindow.InvalidCharacter)
-                        {
-                            // previous char was a high surrogate
-                            // also append the low surrogate
-                            buffer.Append(lowSurrogate);
-                        }
-
-                        continue;
-                    }
-
-                    if (SingleCharacterEscapes.TryGetValue(escapeChar, out char escapeCharValue) == false)
-                    {
-                        // invalid escape character
-                        return null;
-                    }
-
-                    buffer.Append(escapeCharValue);
-
-                    // continue to next iteration
+                    position += escapeSequenceLength - 1;
                     continue;
                 }
 
@@ -291,7 +245,83 @@ namespace Bicep.Core.Parsing
             return buffer.ToString();
         }
 
-        private static bool TryParseCodePoint(string text, out uint codePoint) => uint.TryParse(text, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out codePoint) && codePoint <= 0x10FFFF;
+        internal static bool TryScanStringEscapeSequence(ReadOnlySpan<char> text, out int length, StringBuilder? buffer = null)
+        {
+            length = 0;
+
+            if (text.Length < 2 || text[0] != '\\')
+            {
+                return false;
+            }
+
+            var escapeChar = text[1];
+            if (escapeChar == 'u')
+            {
+                return TryScanUnicodeEscapeSequence(text, out length, buffer);
+            }
+
+            if (!SingleCharacterEscapes.TryGetValue(escapeChar, out var escapeCharValue))
+            {
+                return false;
+            }
+
+            length = escapeChar == '$' && text.Length >= 3 && text[2] == '{' ? 3 : 2;
+            buffer?.Append(escapeCharValue);
+            if (length == 3)
+            {
+                buffer?.Append('{');
+            }
+
+            return true;
+        }
+
+        private static bool TryScanUnicodeEscapeSequence(ReadOnlySpan<char> text, out int length, StringBuilder? buffer)
+        {
+            length = 0;
+
+            if (text.Length < 4 || text[2] != '{')
+            {
+                return false;
+            }
+
+            var current = 3;
+            while (current < text.Length && IsHexDigit(text[current]))
+            {
+                current++;
+            }
+
+            if (current == 3 || current >= text.Length || text[current] != '}')
+            {
+                return false;
+            }
+
+            if (!TryParseCodePoint(text[3..current], out uint codePoint))
+            {
+                return false;
+            }
+
+            length = current + 1;
+            if (buffer is not null)
+            {
+                AppendCodePoint(buffer, codePoint);
+            }
+
+            return true;
+        }
+
+        private static bool TryParseCodePoint(string text, out uint codePoint) => TryParseCodePoint(text.AsSpan(), out codePoint);
+
+        private static bool TryParseCodePoint(ReadOnlySpan<char> text, out uint codePoint) => uint.TryParse(text, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out codePoint) && codePoint <= 0x10FFFF;
+
+        private static void AppendCodePoint(StringBuilder buffer, uint codePoint)
+        {
+            char charOrHighSurrogate = CodepointToString(codePoint, out char lowSurrogate);
+            buffer.Append(charOrHighSurrogate);
+            if (lowSurrogate != SlidingTextWindow.InvalidCharacter)
+            {
+                buffer.Append(lowSurrogate);
+            }
+        }
 
         /// <summary>
         /// Determines if the specified string is a valid identifier. To be considered a valid identifier, the string must start
@@ -770,6 +800,12 @@ namespace Bicep.Core.Parsing
                     // the escape was unterminated
                     AddDiagnostic(b => b.UnterminatedStringEscapeSequenceAtEof());
                     return isAtStartOfString ? TokenType.StringComplete : TokenType.StringRightPiece;
+                }
+
+                if (TryScanStringEscapeSequence(textWindow.GetTextFromPosition(escapeBeginPosition), out var escapeSequenceLength))
+                {
+                    textWindow.Advance(escapeSequenceLength - 1);
+                    continue;
                 }
 
                 // the escape sequence has a char after the \

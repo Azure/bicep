@@ -33,7 +33,7 @@ namespace Bicep.Core.IntegrationTests
 
             var armTemplate = compilationResult.Template;
             armTemplate.Should().NotBeNull();
-            var outputs = armTemplate!["outputs"] as JObject;
+            IDictionary<string, JToken?>? outputs = armTemplate!["outputs"] as JObject;
             outputs.Should().NotBeNull();
 
             // Define expected function names and output mappings
@@ -53,7 +53,7 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
-        private static void VerifyOutputContainsFunction(JObject outputs, string outputName, string expectedFunction)
+        private static void VerifyOutputContainsFunction(IDictionary<string, JToken?> outputs, string outputName, string expectedFunction)
         {
             outputs.Should().ContainKey(outputName, $"Output '{outputName}' should exist in template");
             var output = outputs[outputName];

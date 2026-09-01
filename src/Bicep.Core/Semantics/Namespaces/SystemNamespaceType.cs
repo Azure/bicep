@@ -1318,9 +1318,14 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
 
+            static FunctionOverload MarkPureIfEvaluableInParameterFile(FunctionOverload overload) =>
+                LanguageConstants.IdentifierComparer.Equals(overload.Name, "fail") || overload.Flags.HasFlag(FunctionFlags.ParamDefaultsOnly)
+                    ? overload
+                    : overload.WithAdditionalFlags(FunctionFlags.Pure);
+
             foreach (var overload in GetAlwaysPermittedOverloads())
             {
-                yield return new(overload, (_, _) => true);
+                yield return new(MarkPureIfEvaluableInParameterFile(overload), (_, _) => true);
             }
 
             foreach (var overload in GetParamsFilePermittedOverloads(featureProvider))
@@ -2030,7 +2035,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     })
                     .Build();
 
-                if (featureProvider.WaitAndRetryEnabled)
+                if (featureProvider.WaitUntilEnabled)
                 {
                     yield return new DecoratorBuilder(LanguageConstants.WaitUntilPropertyName)
                         .WithDescription("Causes the resource deployment to wait until the given condition is satisfied")
@@ -2047,22 +2052,30 @@ namespace Bicep.Core.Semantics.Namespaces
                         .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
                         .WithEvaluator(AddDecoratorConfigToResource)
                         .Build();
-
-                    yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
-                        .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")
-                        .WithParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
-                        .WithParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.", FunctionParameterFlags.Constant)
-                        .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
-                        .WithEvaluator(AddDecoratorConfigToResource)
-                        .Build();
                 }
 
+                yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
+                    .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")
+                    .WithParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
+                    .WithParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.", FunctionParameterFlags.Constant)
+                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
+                    .WithEvaluator(AddDecoratorConfigToResource)
+                    .Build();
 
                 yield return new DecoratorBuilder(LanguageConstants.OnlyIfNotExistsPropertyName)
                     .WithDescription("Causes the resource deployment to be skipped if the resource already exists")
                     .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
                     .WithEvaluator(AddDecoratorConfigToResource)
                     .Build();
+
+                if (featureProvider.PatchEnabled)
+                {
+                    yield return new DecoratorBuilder(LanguageConstants.PatchDecoratorName)
+                        .WithDescription("Causes the resource to be deployed using the PATCH HTTP method. This feature is restricted to Azure Policy DeployIfNotExists scenarios.")
+                        .WithFlags(FunctionFlags.ResourceDecorator)
+                        .WithEvaluator(AddDecoratorConfigToResource)
+                        .Build();
+                }
 
                 yield return new DecoratorBuilder(LanguageConstants.NullIfNotFoundDecoratorName)
                     .WithDescription("Marks an existing resource as nullable, returning null if the resource doesn't exist at deployment time instead of failing.")

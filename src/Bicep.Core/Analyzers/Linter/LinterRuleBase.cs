@@ -66,12 +66,13 @@ namespace Bicep.Core.Analyzers.Linter
 
         public IEnumerable<IDiagnostic> Analyze(SemanticModel model, IServiceProvider serviceProvider)
         {
-            if (GetDiagnosticLevel(model) == DiagnosticLevel.Off)
+            var diagnosticLevel = GetDiagnosticLevel(model);
+            if (diagnosticLevel == DiagnosticLevel.Off)
             {
                 return [];
             }
 
-            return AnalyzeInternal(model, serviceProvider, GetDiagnosticLevel(model));
+            return AnalyzeInternal(model, serviceProvider, diagnosticLevel);
         }
 
         /// <summary>
@@ -94,7 +95,7 @@ namespace Bicep.Core.Analyzers.Linter
 
         protected DiagnosticLevel GetDiagnosticLevel(SemanticModel model) => GetDiagnosticLevel(model.Configuration.Analyzers);
 
-        protected DiagnosticLevel GetDiagnosticLevel(AnalyzersConfiguration configuration)
+        protected DiagnosticLevel GetDiagnosticLevel(IBicepAnalyzersConfiguration configuration)
         {
             if (GetConfigurationValue(configuration, "level", DefaultDiagnosticLevel.ToString()) is string configuredLevel && Enum.TryParse<DiagnosticLevel>(configuredLevel, true, out var parsed))
             {
@@ -113,7 +114,7 @@ namespace Bicep.Core.Analyzers.Linter
         /// <param name="key">The linter configuration key.</param>
         /// <param name="defaultValue">The default value to use if no value is found.</param>
         /// <returns></returns>
-        protected T GetConfigurationValue<T>(AnalyzersConfiguration configuration, string key, T defaultValue) =>
+        protected T GetConfigurationValue<T>(IBicepAnalyzersConfiguration configuration, string key, T defaultValue) =>
             configuration.GetValue($"{RuleConfigSection}.{Code}.{key}", defaultValue);
 
         /// <summary>

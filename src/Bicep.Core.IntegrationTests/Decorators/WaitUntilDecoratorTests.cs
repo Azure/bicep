@@ -25,7 +25,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
         [DataRow("@waitUntil(x => x.ProvisionStatus == 'Succeeded' && x.routingState == 'Provisioned', 'PT20S')", "[lambda('x', and(equals(lambdaVariables('x').ProvisionStatus, 'Succeeded'), equals(lambdaVariables('x').routingState, 'Provisioned')))]")]
         public void WaitUntilDecorator_ValidScenario(string input, string output)
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitUntilEnabled: true));
             var fileContent = $@"
             {input}
             resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {{
@@ -53,7 +53,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
         [TestMethod]
         public void WaitUntilDecorator_MissingDeclaration_ExpectedResourceDeclaration()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitUntilEnabled: true));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
             @waitUntil(x => x.ProvisionStatus == 'Succeeded', 'PT20S')
             ");
@@ -69,7 +69,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
         [TestMethod]
         public void WaitUntilDecorator_MissingParameters_ExpectedTwoParameters()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitUntilEnabled: true));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
             @waitUntil(x => x.ProvisionStatus == 'Succeeded')
             ");
@@ -87,7 +87,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
         [TestMethod]
         public void WaitUntilDecorator_WithModuleDeclaration_ShouldFail()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitUntilEnabled: true));
 
             var mainUri = new Uri("file:///main.bicep");
             var moduleUri = new Uri("file:///module.bicep");
@@ -126,7 +126,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
         [TestMethod]
         public void WaitUntilDecorator_FirstArgumentIsntLambda()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitUntilEnabled: true));
 
             var (template, diagnostics, _) = CompilationHelper.Compile(services, $@"
             @waitUntil('PT20S', x => x.ProvisionStatus == 'Succeeded')
@@ -148,7 +148,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
         [TestMethod]
         public void WaitUntilDecorator_SecondArgumentIsntString()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitUntilEnabled: true));
 
             var (template, diagnostics, _) = CompilationHelper.Compile(services, $@"
             @waitUntil( x => x.ProvisionStatus == 'Succeeded', 1)
@@ -172,7 +172,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
         [DataRow("@waitUntil(x => x.ProvisionStatus == 'Succeeded' && x.routingState == 'Provisioned', 'PT20S')", "[lambda('x', and(equals(lambdaVariables('x').ProvisionStatus, 'Succeeded'), equals(lambdaVariables('x').routingState, 'Provisioned')))]")]
         public void WaitUntilDecoratorWithCollection_ValidScenario(string input, string output)
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitUntilEnabled: true));
             var fileContent = $@"
             {input}
             resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = [for i in range(0, 2) :{{
@@ -200,7 +200,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
         [TestMethod]
         public void WaitUntilDecoratorWithCollection_FirstArgumentIsntLambda()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitUntilEnabled: true));
 
             var (template, diagnostics, _) = CompilationHelper.Compile(services, $@"
             @waitUntil('PT20S', x => x.ProvisionStatus == 'Succeeded')
@@ -222,7 +222,7 @@ namespace Bicep.Core.IntegrationTests.Decorators
         [TestMethod]
         public void WaitUntilDecoratorWithCollection_SecondArgumentIsntString()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitAndRetryEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, WaitUntilEnabled: true));
 
             var (template, diagnostics, _) = CompilationHelper.Compile(services, $@"
             @waitUntil( x => x.ProvisionStatus == 'Succeeded', 1)

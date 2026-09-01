@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Rules;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
+using Bicep.Testing.Extensions;
+using Bicep.Testing.IO;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
@@ -15,11 +15,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class WhatIfShortCircuitingRuleTests : LinterRuleTestsBase
     {
-        private static readonly ServiceBuilder Services = new ServiceBuilder()
-            .WithRegistration(x => x.AddSingleton(
-                IConfigurationManager.WithStaticConfiguration(
-                    IConfigurationManager.GetBuiltInConfiguration()
-                    .WithAllAnalyzers())));
+        private static TestCompilationResult Compile(params (string FilePath, TestFileData FileData)[] files) => TestCompiler
+            .ForInMemoryCompilation()
+            .WithConfiguration(TestConfigurationBuilder.Create().WithAllAnalyzers().Build())
+            .CompileWithoutRestore(files);
 
         private readonly string SAModuleContent = """
             param test string
@@ -40,7 +39,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void WhatIfShortCircuiting_Condition()
         {
-            var result = CompilationHelper.Compile(Services,
+            var result = Compile(
                 [
                     ("mod.bicep", """
                         param condition bool
@@ -74,10 +73,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void WhatIfShortCircuiting_NoDiagnostics()
         {
-            var result = CompilationHelper.Compile(Services,
+            var result = Compile(
                 [
                     ("createSA.bicep", SAModuleContent),
                     ("main.bicep", """
+                        @description('Parameter description.')
                         param input string
                         module creatingSA 'createSA.bicep' = {
                           params: {
@@ -97,7 +97,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void WhatIfShortCircuiting_Name()
         {
-            var result = CompilationHelper.Compile(Services,
+            var result = Compile(
                 [
                     ("module.bicep", SAModuleContent),
                     ("main.bicep", """
@@ -127,7 +127,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void WhatIfShortCircuitingNested_Name()
         {
-            var result = CompilationHelper.Compile(Services,
+            var result = Compile(
                 [
                     ("createSA.bicep", SAModuleContent),
                     ("createModule.bicep", """
@@ -156,7 +156,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void WhatIfShortCircuiting_Metadata()
         {
-            var result = CompilationHelper.Compile(Services,
+            var result = Compile(
                 [
                     ("module.bicep", """
                         param test string
@@ -210,8 +210,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void Should_detect_transitive_usage()
         {
-            var result = CompilationHelper.Compile(
-                Services,
+            var result = Compile(
                 ("main.bicep", """
                     resource sa 'Microsoft.Storage/storageAccounts@2024-01-01' existing = {
                        name: 'acct'
@@ -247,14 +246,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
                     """),
                 ("mod3.bicep", """
-                    param name string 
-                    
+                    param name string
+
                     resource vnet 'Microsoft.Network/virtualNetworks@2024-07-01' = {
                       name: name
                     }
                     """));
 
-            result.ExcludingDiagnostics("use-recent-api-versions").Should().HaveDiagnostics(new[]
+            result.Diagnostics.Where(diagnostic => diagnostic.Code != "use-recent-api-versions").Should().HaveDiagnostics(new[]
             {
                 ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'condition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
                 ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'name' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
@@ -264,8 +263,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void Should_detect_problematic_parameter_usage_in_json_template_modules()
         {
-            var result = CompilationHelper.Compile(
-                Services,
+            var result = Compile(
                 ("main.bicep", """
                     resource sa 'Microsoft.Storage/storageAccounts@2024-01-01' existing = {
                        name: 'acct'
@@ -339,7 +337,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }
                     """));
 
-            result.ExcludingDiagnostics("use-recent-api-versions").Should().HaveDiagnostics(new[]
+            result.Diagnostics.Where(diagnostic => diagnostic.Code != "use-recent-api-versions").Should().HaveDiagnostics(new[]
             {
                 ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'condition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
                 ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'nestedCondition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
@@ -353,8 +351,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void Should_detect_usage_via_parameter_default_values()
         {
-            var result = CompilationHelper.Compile(
-                Services,
+            var result = Compile(
                 ("main.bicep", """
                     resource sa 'Microsoft.Storage/storageAccounts@2024-01-01' existing = {
                        name: 'acct'
@@ -375,7 +372,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     """),
                 ("empty.bicep", string.Empty));
 
-            result.ExcludingDiagnostics("use-recent-api-versions").Should().HaveDiagnostics(new[]
+            result.Diagnostics.Where(diagnostic => diagnostic.Code != "use-recent-api-versions").Should().HaveDiagnostics(new[]
             {
                 ("what-if-short-circuiting", DiagnosticLevel.Warning, "Parameter 'condition' is used as a resource identifier, API version, or condition in the module 'mod'. Providing a runtime value for this parameter will lead to short-circuiting or less precise predictions in What-If."),
             });

@@ -23,7 +23,7 @@ import type {
  * the webview submitted into that target.
  */
 
-/** Matches the edge identity the webview uses (`use-deployment-graph.ts` builds edges as `${source}>${target}`). */
+/** Matches the edge identity the webview uses (`use-visual-graph.ts` builds edges as `${source}>${target}`). */
 function edgeId(sourceId: string, targetId: string): string {
   return `${sourceId}>${targetId}`;
 }

@@ -16,7 +16,7 @@ using Newtonsoft.Json.Schema;
 
 namespace Bicep.Core.UnitTests.Configuration
 {
-    // Tests the src/vscode-bicep/schemas/bicepconfig.schema.json file
+    // Tests the src/vscode-bicep/resources/configuration/bicepconfig.schema.json file
 
     [TestClass]
     public class BicepConfigSchemaTests
@@ -44,7 +44,7 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         private const string BicepRootConfigFilePath = "src/Bicep.Core/Configuration/bicepconfig.json";
-        private const string BicepConfigSchemaFilePath = "src/vscode-bicep/schemas/bicepconfig.schema.json";
+        private const string BicepConfigSchemaFilePath = "src/vscode-bicep/resources/configuration/bicepconfig.schema.json";
 
         private const string HelpFileName = "experimental-features.md";
 
@@ -280,7 +280,7 @@ namespace Bicep.Core.UnitTests.Configuration
             string[] excludedHostsInSchema = ruleSchemas["no-hardcoded-env-urls"].SelectToken("allOf[0].properties.excludedhosts.default")!.Values().Select(v => v.ToString()).ToArray();
 
             // From config
-            RootConfiguration builtinConfig = IConfigurationManager.GetBuiltInConfiguration();
+            IBicepConfiguration builtinConfig = BicepConfiguration.BuiltIn;
             string[]? disallowedHostsInConfig = builtinConfig.Analyzers.GetValue<string[]?>("core.rules.no-hardcoded-env-urls.disallowedhosts", null);
             disallowedHostsInConfig.Should().NotBeNull();
             string[]? excludedHostsInConfig = builtinConfig.Analyzers.GetValue<string[]?>("core.rules.no-hardcoded-env-urls.excludedhosts", null);
@@ -405,7 +405,7 @@ namespace Bicep.Core.UnitTests.Configuration
         public void DefaultConfig_ShouldValidateAgainstSchema()
         {
             // Arrange
-            var builtinConfig = IConfigurationManager.GetBuiltInConfiguration().ToUtf8Json();
+            var builtinConfig = BicepConfiguration.BuiltIn.ToUtf8Json();
             builtinConfig.Should().NotBeNull();
             var bicepConfigJson = JObject.Parse(builtinConfig!);
 

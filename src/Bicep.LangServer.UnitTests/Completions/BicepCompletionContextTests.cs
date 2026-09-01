@@ -3,7 +3,7 @@
 
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.LanguageServer.Completions;
+using Bicep.LanguageServer.Features.Language.Completion;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -198,6 +198,16 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
         {
             var context = CreateContextFromTextWithCursor(text);
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a value area in a single line array");
+        }
+
+        [DataTestMethod]
+        [DataRow("module dummy 'modules/dummy.bicep' |")]
+        [DataRow("module dummy 'modules/dummy.bicep' | {}")]
+        public void ContextKind_Is_ModulePathFollower(string text)
+        {
+            var context = CreateContextFromTextWithCursor(text);
+            context.Kind.Should().HaveFlag(BicepCompletionContextKind.ModulePathFollower,
+                $"cursor in '{text}' should be a module path follower context");
         }
 
         [DataTestMethod]
