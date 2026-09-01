@@ -214,7 +214,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         }
 
         public AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader)
-            : base([.. resourceTypeLoader.GetAvailableTypes()])
+            : base(resourceTypeLoader.GetAvailableTypes())
         {
             this.resourceTypeLoader = resourceTypeLoader;
             definedTypeCache = new ResourceTypeCache();
@@ -508,7 +508,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         }
 
         public bool HasDefinedType(ResourceTypeReference typeReference)
-            => availableResourceTypes.Contains(typeReference);
+            => resourceTypeLoader.HasType(typeReference);
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;

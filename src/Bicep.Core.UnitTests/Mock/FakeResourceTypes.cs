@@ -6351,6 +6351,8 @@ Fake.Web/publishingCredentials@2415-08-01";
                     new ObjectType(tr.FormatName(), TypeSymbolValidationFlags.Default, [], new TypeProperty(LanguageConstants.Any))));
 
             typesLoader.Setup(m => m.GetAvailableTypes()).Returns(fakeResourceTypeReferences);
+            typesLoader.Setup(m => m.HasType(It.IsAny<ResourceTypeReference>()))
+                .Returns<ResourceTypeReference>(fakeResourceTypeReferences.Contains);
             return typesLoader;
         }
 

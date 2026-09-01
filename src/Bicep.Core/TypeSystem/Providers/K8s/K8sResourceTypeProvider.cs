@@ -25,7 +25,7 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
         ]);
 
         public K8sResourceTypeProvider(K8sResourceTypeLoader resourceTypeLoader)
-            : base([.. resourceTypeLoader.GetAvailableTypes()])
+            : base(resourceTypeLoader.GetAvailableTypes())
         {
             this.resourceTypeLoader = resourceTypeLoader;
             definedTypeCache = new ResourceTypeCache();
@@ -173,7 +173,7 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
         }
 
         public bool HasDefinedType(ResourceTypeReference typeReference)
-            => availableResourceTypes.Contains(typeReference);
+            => resourceTypeLoader.HasType(typeReference);
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;
