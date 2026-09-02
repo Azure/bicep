@@ -18,6 +18,10 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
+    groups:
+      nuget:
+        patterns:
+          - "*"
     ignore:
       - dependency-name: "Moq"
       - dependency-name: "FluentAssertions"
@@ -29,6 +33,10 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
+    groups:
+      nuget-vs-bicep:
+        patterns:
+          - "*"
     ignore:
       - dependency-name: "Moq"
       - dependency-name: "FluentAssertions"
