@@ -128,6 +128,110 @@ var foo = 'i am just a |normal string!'
             codeActions.Should().NotContain(x => x.Title == MultilineStringCodeFixProvider.Title);
         }
 
+        [DataRow(
+            """
+            @description('Type description.')
+            type BarConfig = {
+              ty|pe: 'bar'
+              value: bool
+            }
+            """,
+            """
+            @description('Type description.')
+            type BarConfig = {
+              @description('')
+              type: 'bar'
+              value: bool
+            }
+            """)]
+        [DataRow(
+            """
+            type config = {
+              nested: {
+                val|ue: string
+              }
+            }
+            """,
+            """
+            type config = {
+              nested: {
+                @description('')
+                value: string
+              }
+            }
+            """)]
+        [DataRow(
+            """
+            type config = {
+              |*: string
+            }
+            """,
+            """
+            type config = {
+              @description('')
+              *: string
+            }
+            """)]
+        [DataRow(
+            """
+            type config = [
+              str|ing
+            ]
+            """,
+            """
+            type config = [
+              @description('')
+              string
+            ]
+            """)]
+        [DataRow(
+            "type config = { val|ue: string }",
+            """
+            type config = {
+              @description('')
+              value: string }
+            """)]
+        [DataTestMethod]
+        public async Task Type_member_decorator_actions_target_the_innermost_decorable_syntax(string fileWithCursor, string expectedText)
+        {
+            var (contents, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursor);
+            var bicepFile = GetBicepFile(contents);
+            var codeAction = await GetSingleCodeAction(bicepFile, cursor, "Add @description");
+
+            codeAction.Kind.Should().Be(CodeActionKind.Refactor);
+            LspRefactoringHelper.ApplyCodeAction(bicepFile, codeAction).Text.Should().Be(expectedText);
+        }
+
+        [TestMethod]
+        public async Task Type_property_description_action_is_not_suggested_when_property_already_has_description()
+        {
+            var (contents, cursor) = ParserHelper.GetFileWithSingleCursor(
+                """
+                type config = {
+                  @description('Property description.')
+                  val|ue: string
+                }
+                """);
+
+            var codeActions = await GetCodeActions(GetBicepFile(contents), cursor);
+
+            codeActions.Should().NotContain(x => x.Title == "Add @description");
+        }
+
+        [TestMethod]
+        public async Task Type_declaration_decorator_actions_still_target_the_type_declaration()
+        {
+            var (contents, cursor) = ParserHelper.GetFileWithSingleCursor("type con|fig = string");
+            var bicepFile = GetBicepFile(contents);
+            var codeAction = await GetSingleCodeAction(bicepFile, cursor, "Add @description");
+
+            LspRefactoringHelper.ApplyCodeAction(bicepFile, codeAction).Text.Should().Be(
+                """
+                @description('')
+                type config = string
+                """);
+        }
+
         private static LanguageClientFile GetBicepFile(string contents)
             => new(new Uri("file:///main.bicep"), contents);
 
