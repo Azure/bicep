@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 import path from "path";
+import { Bicep } from "@azure/bicep-rpc-client";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { bicepCli, pathToExampleFile, writeTempFile } from "../utils/fs";
-import { Bicep } from "@azure/bicep-rpc-client";
 
 describe("bicep jsonrpc", () => {
   let bicep: Bicep;
@@ -28,9 +28,10 @@ describe("bicep jsonrpc", () => {
 
   it("should build a bicepparam file", async () => {
     const result = await bicep.compileParams({
-      path: pathToExampleFile("bicepparam", "main.bicepparam"), parameterOverrides: {
+      path: pathToExampleFile("bicepparam", "main.bicepparam"),
+      parameterOverrides: {
         foo: "OVERRIDDEN",
-      }
+      },
     });
 
     expect(result.success).toBeTruthy();

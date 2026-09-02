@@ -5,8 +5,8 @@ import type { ResourceManagementClient } from "@azure/arm-resources" with { "res
 import type { SubscriptionClient } from "@azure/arm-resources-subscriptions" with { "resolution-mode": "import" };
 
 import { extensions } from "vscode";
-import { getAzureResourceManagerClientOptions } from "./azure-environment";
 import { AzureSubscription } from "./azure-account-manager";
+import { getAzureResourceManagerClientOptions } from "./azure-environment";
 
 // Lazy-load @azure packages to improve startup performance.
 

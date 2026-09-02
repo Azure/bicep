@@ -5,8 +5,8 @@ import { LanguageClient } from "vscode-languageclient/node";
 import { DiagnosticsRouter } from "../../infrastructure/language-client";
 import { Disposable } from "../../infrastructure/lifecycle";
 import { getLogger } from "../../infrastructure/logging";
-import { BicepVisualizerView } from "./visualizer-view";
 import { resourceCreationSetting } from "./resource-creation-setting";
+import { BicepVisualizerView } from "./visualizer-view";
 
 export class BicepVisualizerViewManager extends Disposable implements WebviewPanelSerializer {
   private static readonly visualizerActiveContextKey = "bicepVisualizerFocus";
