@@ -214,6 +214,16 @@ public class BicepConfigurationManager : IBicepConfigurationManager
             return GetBuiltInChain(diagnostics: [DiagnosticBuilder.ForDocumentStart().InvalidBicepConfigFile(leafUri, exception.Message)]);
         }
 
+        // Annotate moduleAliasesMock aliases with the URI of the config file that declared each one.
+        // Walk rawLayers, leaf-first: the first layer that contains an alias is the declaring layer.
+        var declaringUriMap = BuildAliasDeclaringUriMap(rawLayers);
+        if (declaringUriMap.Count > 0)
+        {
+            var annotatedMock = ((ModuleAliasesMockConfiguration)effectiveConfig.ModuleAliasesMock)
+                .WithDeclaringUris(declaringUriMap);
+            effectiveConfig = effectiveConfig.With(moduleAliasesMock: annotatedMock);
+        }
+
         // Build per-layer configs so diagnostics can be attributed to the exact file that caused them.
         var layers = rawLayers
             .Select(layer =>
@@ -232,6 +242,37 @@ public class BicepConfigurationManager : IBicepConfigurationManager
             .ToImmutableArray();
 
         return new BicepConfigurationChain(effectiveConfig, layers);
+    }
+
+    /// <summary>
+    /// Builds a map from alias name to the URI of the config file that first declared it.
+    /// Layers are visited leaf-first so the most-derived (leaf) declaration wins.
+    /// </summary>
+    private static ImmutableDictionary<string, IOUri> BuildAliasDeclaringUriMap(
+        List<(IFileHandle FileHandle, JsonElement Element)> rawLayers)
+    {
+        var map = ImmutableDictionary.CreateBuilder<string, IOUri>(StringComparer.Ordinal);
+
+        foreach (var (fileHandle, element) in rawLayers) // leaf first
+        {
+            if (!element.TryGetProperty(BicepConfiguration.ModuleAliasesMockKey, out var mockElement))
+            {
+                continue;
+            }
+
+            if (!mockElement.TryGetProperty("br", out var brElement))
+            {
+                continue;
+            }
+
+            foreach (var alias in brElement.EnumerateObject())
+            {
+                // First layer from leaf that declares this alias name is the declaring layer.
+                map.TryAdd(alias.Name, fileHandle.Uri);
+            }
+        }
+
+        return map.ToImmutable();
     }
 
     private static JsonElement StripExtendsProperty(JsonElement element)

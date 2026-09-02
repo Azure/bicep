@@ -87,10 +87,14 @@ namespace Bicep.Core.Registry
                         return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, configFileUri));
                     }
 
+                    // Use the declaring config's URI so that a relative mapToFilePath inherited from a base
+                    // config is resolved from that base config's directory, not the leaf's.
+                    var resolveBaseUri = mockAlias.DeclaringConfigUri ?? configFileUri;
+
                     if (!OciArtifactMockedReference.TryParse(
                         referencingFile,
                         mockAlias.MapToFilePath,
-                        configFileUri,
+                        resolveBaseUri,
                         reference,
                         this.fileExplorer,
                         aliasName).IsSuccess(out var mockedRef, out var mockedFailureBuilder))
