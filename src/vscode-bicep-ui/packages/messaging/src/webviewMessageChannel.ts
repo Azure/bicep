@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import type { WebviewApi } from "vscode-webview";
+import type { MessageArgs, NotificationDescriptor, RequestDescriptor } from "./messageDescriptor";
 
 export interface WebviewRequestMessage {
   id: string;
@@ -22,6 +23,29 @@ export interface WebviewNotificationMessage {
 
 export type WebviewNotificationCallback = (params?: unknown) => void;
 
+/**
+ * The channel surface consumers depend on.
+ *
+ * This exists so test and dev doubles can be checked against the real channel. `WebviewMessageChannel`
+ * has private fields, so a double could never be structurally assignable to the class itself, and the
+ * dev shell previously bridged that with `as unknown as WebviewMessageChannel` — which silently
+ * accepted a fake that was missing methods the app called at runtime.
+ */
+export interface WebviewMessageChannelApi {
+  revive(): void;
+  dispose(): void;
+  sendRequest<T>(requestMessage: Omit<WebviewRequestMessage, "id">): Promise<T>;
+  sendNotification(notificationMessage: WebviewNotificationMessage): void;
+  request<TParams, TResult>(
+    descriptor: RequestDescriptor<TParams, TResult>,
+    ...args: MessageArgs<TParams>
+  ): Promise<TResult>;
+  notify<TParams>(descriptor: NotificationDescriptor<TParams>, ...args: MessageArgs<TParams>): void;
+  setState<T>(state: T): T;
+  subscribeToNotification(method: string, callback: WebviewNotificationCallback): void;
+  unsubscribeFromNotification(method: string, callback: WebviewNotificationCallback): void;
+}
+
 type WebviewResponseCallback = (result?: unknown, error?: unknown) => void;
 
 function isResponseMessage(message: unknown): message is WebviewResponseMessage {
@@ -32,7 +56,7 @@ function isNotificationMessage(message: unknown): message is WebviewNotification
   return typeof message === "object" && message !== null && "method" in message;
 }
 
-export class WebviewMessageChannel {
+export class WebviewMessageChannel implements WebviewMessageChannelApi {
   private readonly webviewApi: WebviewApi<unknown>;
   private readonly responseCallbacks: Record<string, WebviewResponseCallback>;
   private readonly notificationSubscriptions: Record<string, Set<WebviewNotificationCallback>>;
@@ -103,6 +127,22 @@ export class WebviewMessageChannel {
 
   sendNotification(notificationMessage: WebviewNotificationMessage) {
     this.webviewApi.postMessage(notificationMessage);
+  }
+
+  /**
+   * Sends a declared request. Params and result are both taken from the descriptor, so the method,
+   * what it is sent with, and what it resolves to cannot drift apart at a call site.
+   */
+  request<TParams, TResult>(
+    descriptor: RequestDescriptor<TParams, TResult>,
+    ...args: MessageArgs<TParams>
+  ): Promise<TResult> {
+    return this.sendRequest<TResult>({ method: descriptor.method, params: args[0] });
+  }
+
+  /** Sends a declared notification, with its parameters checked against the descriptor. */
+  notify<TParams>(descriptor: NotificationDescriptor<TParams>, ...args: MessageArgs<TParams>): void {
+    this.sendNotification({ method: descriptor.method, params: args[0] });
   }
 
   setState<T>(state: T): T {

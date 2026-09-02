@@ -87,10 +87,14 @@ namespace Bicep.Core.Registry
                         return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, configFileUri));
                     }
 
+                    // Use the declaring config's URI so that a relative mapToFilePath inherited from a base
+                    // config is resolved from that base config's directory, not the leaf's.
+                    var resolveBaseUri = mockAlias.DeclaringConfigUri ?? configFileUri;
+
                     if (!OciArtifactMockedReference.TryParse(
                         referencingFile,
                         mockAlias.MapToFilePath,
-                        configFileUri,
+                        resolveBaseUri,
                         reference,
                         this.fileExplorer,
                         aliasName).IsSuccess(out var mockedRef, out var mockedFailureBuilder))
@@ -297,7 +301,7 @@ namespace Bicep.Core.Registry
             foreach (var reference in referencesEvaluated)
             {
                 // Block restore if the registry is not in the trusted list (BCP446).
-                // Invalid patterns in config are handled as warnings at config-load time (BCP447 via RootConfiguration)
+                // Invalid patterns in config are handled as warnings at config-load time (BCP447 via IBicepConfiguration)
                 // and are simply not included in the valid TrustedRegistries list, so they won't match here.
                 if (!registryConfiguration.IsRegistryTrusted(reference.Registry))
                 {
@@ -556,7 +560,7 @@ namespace Bicep.Core.Registry
 
         protected override IFileHandle GetArtifactLockFile(OciArtifactReference reference) => this.GetArtifactFile(reference, ArtifactFileType.Lock);
 
-        private async Task<(OciArtifactResult?, string? errorMessage)> TryRestoreArtifactAsync(RootConfiguration configuration, OciArtifactReference reference)
+        private async Task<(OciArtifactResult?, string? errorMessage)> TryRestoreArtifactAsync(IBicepConfiguration configuration, OciArtifactReference reference)
         {
             await using var session = CreateSession(reference);
 
@@ -603,7 +607,7 @@ namespace Bicep.Core.Registry
                     $"Set the BICEP_TRUSTED_REGISTRIES environment variable (comma-separated hostnames, e.g. \"contoso.example.com,*.contoso.io\") to allow it.");
             }
 
-            return transportFactory.CreateSession(reference, reference.Configuration.Cloud);
+            return transportFactory.CreateSession(reference, (CloudConfiguration)reference.Configuration.Cloud);
         }
 
         private static bool IsNotFoundException(Exception? exception) =>

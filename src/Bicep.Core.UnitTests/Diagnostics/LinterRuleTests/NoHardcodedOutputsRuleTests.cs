@@ -21,7 +21,7 @@ public class NoHardcodedOutputsRuleTests : LinterRuleTestsBase
     private static readonly Options RuleOptions = new(
         ConfigurationPatch: EnableRule);
 
-    private static RootConfiguration EnableRule(RootConfiguration configuration) =>
+    private static IBicepConfiguration EnableRule(IBicepConfiguration configuration) =>
         TestConfigurationBuilder
             .Create(configuration)
             .WithAnalyzer(NoHardcodedOutputsRule.Code, DiagnosticLevel.Warning)

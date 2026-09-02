@@ -22,6 +22,14 @@ namespace Bicep.Core.Configuration
     {
         public string? MapToFilePath { get; init; }
 
+        /// <summary>
+        /// The URI of the configuration file that declared this alias's <see cref="MapToFilePath"/>.
+        /// Set by <see cref="ModuleAliasesMockConfiguration.WithDeclaringUris"/> during chain building
+        /// so that relative paths are resolved from the declaring file's directory, not the leaf's.
+        /// </summary>
+        [JsonIgnore]
+        public IOUri? DeclaringConfigUri { get; init; }
+
         public override string ToString() => $"{MapToFilePath}";
     }
 
@@ -60,6 +68,24 @@ namespace Bicep.Core.Configuration
             }
 
             return new(alias);
+        }
+
+        /// <summary>
+        /// Returns a new <see cref="ModuleAliasesMockConfiguration"/> with each alias annotated with its
+        /// declaring config file URI. Aliases not present in <paramref name="declaringUris"/> are unchanged.
+        /// </summary>
+        public ModuleAliasesMockConfiguration WithDeclaringUris(ImmutableDictionary<string, IOUri> declaringUris)
+        {
+            var annotated = this.Data.OciArtifactModuleAliasesMock
+                .ToImmutableSortedDictionary(
+                    kvp => kvp.Key,
+                    kvp => declaringUris.TryGetValue(kvp.Key, out var uri)
+                        ? kvp.Value with { DeclaringConfigUri = uri }
+                        : kvp.Value);
+
+            return new ModuleAliasesMockConfiguration(
+                this.Data with { OciArtifactModuleAliasesMock = annotated },
+                this.configFileUri);
         }
 
         private static bool ValidateAliasName(string aliasName, [NotNullWhen(false)] out DiagnosticBuilderDelegate? errorBuilder)

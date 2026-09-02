@@ -19,7 +19,7 @@ namespace Bicep.Core.Registry
             this.credentialFactory = credentialFactory;
         }
 
-        public ContainerRegistryContentClient CreateAuthenticatedBlobClient(CloudConfiguration cloud, Uri registryUri, string repository)
+        public ContainerRegistryContentClient CreateAuthenticatedBlobClient(IBicepCloudConfiguration cloud, Uri registryUri, string repository)
         {
             ThrowIfRegistryNotTrusted(registryUri);
 
@@ -29,7 +29,7 @@ namespace Bicep.Core.Registry
             return new(registryUri, repository, credential, options);
         }
 
-        public ContainerRegistryContentClient CreateAnonymousBlobClient(CloudConfiguration cloud, Uri registryUri, string repository)
+        public ContainerRegistryContentClient CreateAnonymousBlobClient(IBicepCloudConfiguration cloud, Uri registryUri, string repository)
         {
             ThrowIfRegistryNotTrusted(registryUri);
 
@@ -37,7 +37,7 @@ namespace Bicep.Core.Registry
             return new(registryUri, repository, options);
         }
 
-        public ContainerRegistryClient CreateAuthenticatedContainerClient(CloudConfiguration cloud, Uri registryUri)
+        public ContainerRegistryClient CreateAuthenticatedContainerClient(IBicepCloudConfiguration cloud, Uri registryUri)
         {
             ThrowIfRegistryNotTrusted(registryUri);
 
@@ -47,7 +47,7 @@ namespace Bicep.Core.Registry
             return new(registryUri, credential, options);
         }
 
-        public ContainerRegistryClient CreateAnonymousContainerClient(CloudConfiguration cloud, Uri registryUri)
+        public ContainerRegistryClient CreateAnonymousContainerClient(IBicepCloudConfiguration cloud, Uri registryUri)
         {
             ThrowIfRegistryNotTrusted(registryUri);
 
@@ -55,7 +55,7 @@ namespace Bicep.Core.Registry
             return new(registryUri, options);
         }
 
-        private static ContainerRegistryClientOptions CreateClientOptions(CloudConfiguration cloud)
+        private static ContainerRegistryClientOptions CreateClientOptions(IBicepCloudConfiguration cloud)
         {
             var options = new ContainerRegistryClientOptions();
             options.Diagnostics.ApplySharedContainerRegistrySettings();

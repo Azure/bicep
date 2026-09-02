@@ -561,5 +561,96 @@ namespace Bicep.Core.UnitTests.Configuration
             chainOtherAfter.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeFalse();
             chainOtherAfter.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
         }
+
+        // ── moduleAliasesMock relative path provenance ────────────────────────
+
+        [TestMethod]
+        public void GetConfigurationChain_AliasInLeaf_DeclaringConfigUriIsLeaf()
+        {
+            // Alias declared in the leaf — DeclaringConfigUri should be the leaf URI.
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """
+                    {
+                      "moduleAliasesMock": {
+                        "br": {
+                          "shared": { "mapToFilePath": "../modules" }
+                        }
+                      }
+                    }
+                    """));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+
+            var chain = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
+            var alias = chain.GetEffectiveConfiguration().ModuleAliasesMock
+                .TryGetOciArtifactModuleAliasMock("shared");
+
+            alias.IsSuccess(out var mockAlias, out _).Should().BeTrue();
+            mockAlias!.DeclaringConfigUri.Should().Be(fileSet.GetUri("bicepconfig.json"));
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_AliasInBase_DeclaringConfigUriIsBase()
+        {
+            // Alias declared only in the base — DeclaringConfigUri should be the base URI, not the leaf.
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }"""),
+                ("base/bicepconfig.base.json", """
+                    {
+                      "moduleAliasesMock": {
+                        "br": {
+                          "shared": { "mapToFilePath": "../modules" }
+                        }
+                      }
+                    }
+                    """));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+
+            var chain = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
+            var alias = chain.GetEffectiveConfiguration().ModuleAliasesMock
+                .TryGetOciArtifactModuleAliasMock("shared");
+
+            alias.IsSuccess(out var mockAlias, out _).Should().BeTrue();
+            // Must be the base URI — leaf doesn't declare this alias.
+            mockAlias!.DeclaringConfigUri.Should().Be(fileSet.GetUri("base/bicepconfig.base.json"));
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_AliasOverriddenInLeaf_DeclaringConfigUriIsLeaf()
+        {
+            // Both leaf and base declare the same alias — leaf wins, so DeclaringConfigUri is the leaf.
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """
+                    {
+                      "extends": "./base/bicepconfig.base.json",
+                      "moduleAliasesMock": {
+                        "br": {
+                          "shared": { "mapToFilePath": "./leaf-modules" }
+                        }
+                      }
+                    }
+                    """),
+                ("base/bicepconfig.base.json", """
+                    {
+                      "moduleAliasesMock": {
+                        "br": {
+                          "shared": { "mapToFilePath": "./base-modules" }
+                        }
+                      }
+                    }
+                    """));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+
+            var chain = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
+            var alias = chain.GetEffectiveConfiguration().ModuleAliasesMock
+                .TryGetOciArtifactModuleAliasMock("shared");
+
+            alias.IsSuccess(out var mockAlias, out _).Should().BeTrue();
+            // Leaf overrides the alias — declaring URI must be the leaf.
+            mockAlias!.DeclaringConfigUri.Should().Be(fileSet.GetUri("bicepconfig.json"));
+            mockAlias.MapToFilePath.Should().Be("./leaf-modules");
+        }
     }
 }

@@ -18,6 +18,7 @@ using Bicep.IO.InMemory;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Features.Language.DocumentLink;
 using Bicep.Testing;
+using Bicep.Testing.Extensions;
 using Bicep.Testing.Dummies;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -331,7 +332,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var version = "v1";
             var referenceValue = $"{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}";
 
-            var configurationManager = IConfigurationManager.WithStaticConfiguration(TestConfigurations.BuiltInWithAllAnalyzersDisabled);
+            var configurationManager = TestConfigurations.BuiltInWithAllAnalyzersDisabled.WithStaticConfiguration();
             var referencingFile = BicepTestConstants.DummyBicepFile;
 
             TemplateSpecModuleReference

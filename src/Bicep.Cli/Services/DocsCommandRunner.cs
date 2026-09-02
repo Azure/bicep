@@ -26,7 +26,7 @@ public abstract record DocsRenderResult(
     public sealed record Succeeded(
         IOUri SourceUri,
         Compilation Compilation,
-        RootConfiguration Configuration,
+        IBicepConfiguration Configuration,
         string Contents)
         : DocsRenderResult(SourceUri, Compilation, null);
 

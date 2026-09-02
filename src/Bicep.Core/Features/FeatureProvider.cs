@@ -8,11 +8,11 @@ namespace Bicep.Core.Features
 {
     public class FeatureProvider : IFeatureProvider
     {
-        private readonly RootConfiguration configuration;
+        private readonly IBicepConfiguration configuration;
 
         private readonly IFileExplorer fileExplorer;
 
-        public FeatureProvider(RootConfiguration configuration, IFileExplorer fileExplorer)
+        public FeatureProvider(IBicepConfiguration configuration, IFileExplorer fileExplorer)
         {
             this.configuration = configuration;
             this.fileExplorer = fileExplorer;

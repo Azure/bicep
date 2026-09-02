@@ -105,39 +105,17 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         return this.chainDependencies.TryGetValue(leafHandle, out var deps) ? deps : [];
     }
 
-    public RootConfiguration GetMergedConfiguration(IOUri sourceFileUri)
-    {
-        var chain = GetConfigurationChain(sourceFileUri);
-
-        if (chain.GetEffectiveConfiguration() is BicepConfigurationAdapter adapter)
-        {
-            return adapter.InnerConfiguration;
-        }
-
-        return IConfigurationManager.GetBuiltInConfiguration();
-    }
-
-    public void RemoveChainCacheEntry(IOUri configFileUri)
-    {
-        var configFileHandle = this.fileExplorer.GetFile(configFileUri);
-
-        if (this.chainCache.TryRemove(configFileHandle, out _))
-        {
-            PurgeLookupCache();
-        }
-    }
-
     private static IBicepConfigurationChain GetBuiltInChain(IEnumerable<IDiagnostic>? diagnostics = null)
     {
-        var builtInConfig = GetBuiltInRootConfiguration(diagnostics);
+        var builtInConfig = GetBuiltInConfiguration(diagnostics);
 
-        return new BicepConfigurationChain(new BicepConfigurationAdapter(builtInConfig), [new BicepConfigurationAdapter(builtInConfig)]);
+        return new BicepConfigurationChain(builtInConfig, [builtInConfig]);
     }
 
-    private static RootConfiguration GetBuiltInRootConfiguration(IEnumerable<IDiagnostic>? diagnostics = null) =>
+    private static IBicepConfiguration GetBuiltInConfiguration(IEnumerable<IDiagnostic>? diagnostics = null) =>
         diagnostics is null
-            ? IConfigurationManager.GetBuiltInConfiguration()
-            : IConfigurationManager.GetBuiltInConfiguration().With(diagnostics: diagnostics);
+            ? BicepConfiguration.BuiltIn
+            : BicepConfiguration.BuiltIn.With(diagnostics: diagnostics);
 
     private ResultWithDiagnostic<IBicepConfigurationChain> LoadChain(IFileHandle leafFileHandle)
     {
@@ -219,21 +197,31 @@ public class BicepConfigurationManager : IBicepConfigurationManager
     private static IBicepConfigurationChain BuildChain(IOUri leafUri, List<(IFileHandle FileHandle, JsonElement Element)> rawLayers)
     {
         // Merge: built-in first, then base configs in reverse order, leaf last (leaf wins).
-        var accumulated = IConfigurationManager.BuiltInConfigurationElement;
+        var accumulated = BicepConfiguration.BuiltInConfigurationElement;
 
         foreach (var (_, element) in Enumerable.Reverse(rawLayers))
         {
             accumulated = accumulated.Merge(StripExtendsProperty(element));
         }
 
-        RootConfiguration effectiveRootConfig;
+        IBicepConfiguration effectiveConfig;
         try
         {
-            effectiveRootConfig = RootConfiguration.Bind(accumulated, leafUri);
+            effectiveConfig = BicepConfiguration.Bind(accumulated, leafUri);
         }
         catch (ConfigurationException exception)
         {
             return GetBuiltInChain(diagnostics: [DiagnosticBuilder.ForDocumentStart().InvalidBicepConfigFile(leafUri, exception.Message)]);
+        }
+
+        // Annotate moduleAliasesMock aliases with the URI of the config file that declared each one.
+        // Walk rawLayers, leaf-first: the first layer that contains an alias is the declaring layer.
+        var declaringUriMap = BuildAliasDeclaringUriMap(rawLayers);
+        if (declaringUriMap.Count > 0)
+        {
+            var annotatedMock = ((ModuleAliasesMockConfiguration)effectiveConfig.ModuleAliasesMock)
+                .WithDeclaringUris(declaringUriMap);
+            effectiveConfig = effectiveConfig.With(moduleAliasesMock: annotatedMock);
         }
 
         // Build per-layer configs so diagnostics can be attributed to the exact file that caused them.
@@ -242,19 +230,49 @@ public class BicepConfigurationManager : IBicepConfigurationManager
             {
                 try
                 {
-                    var merged = IConfigurationManager.BuiltInConfigurationElement.Merge(StripExtendsProperty(layer.Element));
+                    var merged = BicepConfiguration.BuiltInConfigurationElement.Merge(StripExtendsProperty(layer.Element));
 
-                    return (IBicepConfiguration)new BicepConfigurationAdapter(RootConfiguration.Bind(merged, layer.FileHandle.Uri));
+                    return (IBicepConfiguration)BicepConfiguration.Bind(merged, layer.FileHandle.Uri);
                 }
                 catch (ConfigurationException)
                 {
-                    return (IBicepConfiguration)new BicepConfigurationAdapter(
-                        IConfigurationManager.GetBuiltInConfiguration().With(configFileIdentifier: layer.FileHandle.Uri));
+                    return BicepConfiguration.BuiltIn.With(configFileIdentifier: layer.FileHandle.Uri);
                 }
             })
             .ToImmutableArray();
 
-        return new BicepConfigurationChain(new BicepConfigurationAdapter(effectiveRootConfig), layers);
+        return new BicepConfigurationChain(effectiveConfig, layers);
+    }
+
+    /// <summary>
+    /// Builds a map from alias name to the URI of the config file that first declared it.
+    /// Layers are visited leaf-first so the most-derived (leaf) declaration wins.
+    /// </summary>
+    private static ImmutableDictionary<string, IOUri> BuildAliasDeclaringUriMap(
+        List<(IFileHandle FileHandle, JsonElement Element)> rawLayers)
+    {
+        var map = ImmutableDictionary.CreateBuilder<string, IOUri>(StringComparer.Ordinal);
+
+        foreach (var (fileHandle, element) in rawLayers) // leaf first
+        {
+            if (!element.TryGetProperty(BicepConfiguration.ModuleAliasesMockKey, out var mockElement))
+            {
+                continue;
+            }
+
+            if (!mockElement.TryGetProperty("br", out var brElement))
+            {
+                continue;
+            }
+
+            foreach (var alias in brElement.EnumerateObject())
+            {
+                // First layer from leaf that declares this alias name is the declaring layer.
+                map.TryAdd(alias.Name, fileHandle.Uri);
+            }
+        }
+
+        return map.ToImmutable();
     }
 
     private static JsonElement StripExtendsProperty(JsonElement element)

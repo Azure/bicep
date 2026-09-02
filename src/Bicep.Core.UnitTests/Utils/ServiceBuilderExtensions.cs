@@ -59,13 +59,13 @@ public static class ServiceBuilderExtensions
     public static ServiceBuilder WithNamespaceProvider(this ServiceBuilder serviceBuilder, INamespaceProvider namespaceProvider)
         => serviceBuilder.WithRegistration(x => x.WithNamespaceProvider(namespaceProvider));
 
-    public static ServiceBuilder WithConfigurationPatch(this ServiceBuilder serviceBuilder, Func<RootConfiguration, RootConfiguration> patchFunc)
+    public static ServiceBuilder WithConfigurationPatch(this ServiceBuilder serviceBuilder, Func<IBicepConfiguration, IBicepConfiguration> patchFunc)
         => serviceBuilder.WithRegistration(x => x.WithConfigurationPatch(patchFunc));
 
     public static ServiceBuilder WithDisabledAnalyzersConfiguration(this ServiceBuilder serviceBuilder)
         => serviceBuilder.WithRegistration(x => x.WithDisabledAnalyzersConfiguration());
 
-    public static ServiceBuilder WithConfiguration(this ServiceBuilder serviceBuilder, RootConfiguration configuration)
+    public static ServiceBuilder WithConfiguration(this ServiceBuilder serviceBuilder, IBicepConfiguration configuration)
         => serviceBuilder.WithRegistration(x => x.WithConfiguration(configuration));
 
     public static ServiceBuilder WithBicepAnalyzer(this ServiceBuilder serviceBuilder, IBicepAnalyzer bicepAnalyzer)

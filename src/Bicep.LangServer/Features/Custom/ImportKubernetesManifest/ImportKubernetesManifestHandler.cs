@@ -27,7 +27,7 @@ namespace Bicep.LanguageServer.Features.Custom.ImportKubernetesManifest
 
     public class ImportKubernetesManifestHandler(
         ILanguageServerFacade server,
-        IConfigurationManager configurationManager,
+        IBicepConfigurationManager configurationManager,
         IFileExplorer fileExplorer) : IJsonRpcRequestHandler<ImportKubernetesManifestRequest, ImportKubernetesManifestResponse>
     {
         private readonly ErrorHandlingHelper<ImportKubernetesManifestResponse> helper = new(server.Window);
@@ -98,7 +98,7 @@ namespace Bicep.LanguageServer.Features.Custom.ImportKubernetesManifest
                 declarations.SelectMany(x => new SyntaxBase[] { x, SyntaxFactory.DoubleNewlineToken }),
                 SyntaxFactory.CreateToken(TokenType.EndOfFile));
 
-            var configuration = configurationManager.GetConfiguration(bicepFileUri);
+            var configuration = configurationManager.GetEffectiveConfiguration(bicepFileUri);
             var printerOptions = configuration.Formatting.Data;
             var printerContext = PrettyPrinterV2Context.Create(printerOptions, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
 

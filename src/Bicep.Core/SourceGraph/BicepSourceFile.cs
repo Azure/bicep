@@ -18,7 +18,7 @@ namespace Bicep.Core.SourceGraph
 {
     public abstract class BicepSourceFile : ISourceFile
     {
-        private readonly IConfigurationManager configurationManager;
+        private readonly IBicepConfigurationManager configurationManager;
         private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly IAuxiliaryFileCache auxiliaryFileCache;
         private readonly ConcurrentBag<IOUri> referencedAuxiliaryFileUris;
@@ -27,7 +27,7 @@ namespace Bicep.Core.SourceGraph
             IFileHandle fileHandle,
             ImmutableArray<int> lineStarts,
             ProgramSyntax programSyntax,
-            IConfigurationManager configurationManager,
+            IBicepConfigurationManager configurationManager,
             IFeatureProviderFactory featureProviderFactory,
             IAuxiliaryFileCache auxiliaryFileCache,
             IDiagnosticLookup lexingErrorLookup,
@@ -73,7 +73,7 @@ namespace Bicep.Core.SourceGraph
 
         public ISyntaxHierarchy Hierarchy { get; }
 
-        public RootConfiguration LoadConfiguration() => this.configurationManager.GetConfiguration(this.FileHandle.Uri);
+        public IBicepConfiguration LoadConfiguration() => this.configurationManager.GetEffectiveConfiguration(this.FileHandle.Uri);
 
         public IFeatureProvider LoadFeatures() => this.featureProviderFactory.GetFeatureProvider(this.FileHandle.Uri);
 

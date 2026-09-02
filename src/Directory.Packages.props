@@ -11,7 +11,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.60" />
-    <PackageVersion Include="Azure.Bicep.Types" Version="0.6.121" />
+    <PackageVersion Include="Azure.Bicep.Types" Version="0.6.129" />
     <PackageVersion Include="Azure.Bicep.Types.Az" Version="0.2.911" />
     <PackageVersion Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
     <PackageVersion Include="Azure.Containers.ContainerRegistry" Version="1.3.0" />
@@ -29,7 +29,7 @@
     <PackageVersion Include="FluentAssertions" Version="7.2.0" />
     <PackageVersion Include="Google.Protobuf" Version="3.35.1" />
     <PackageVersion Include="Grpc.AspNetCore" Version="2.71.0" />
-    <PackageVersion Include="Grpc.AspNetCore.Server" Version="2.80.0" />
+    <PackageVersion Include="Grpc.AspNetCore.Server" Version="2.83.0" />
     <PackageVersion Include="Grpc.AspNetCore.Server.Reflection" Version="2.80.0" />
     <PackageVersion Include="Grpc.Core.Testing" Version="2.46.6" />
     <PackageVersion Include="Grpc.Net.Client" Version="2.76.0" />

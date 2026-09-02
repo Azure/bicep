@@ -31,7 +31,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
         }
 
         // Used for completions after typing "'br:"
-        public async IAsyncEnumerable<string> GetContainerRegistriesAccessibleFromAzure(CloudConfiguration cloud, [EnumeratorCancellation] CancellationToken cancellationToken)
+        public async IAsyncEnumerable<string> GetContainerRegistriesAccessibleFromAzure(IBicepCloudConfiguration cloud, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -65,7 +65,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             }
         }
 
-        private ArmClient GetArmClient(CloudConfiguration cloud)
+        private ArmClient GetArmClient(IBicepCloudConfiguration cloud)
         {
             var credential = tokenCredentialFactory.CreateChain(cloud.CredentialPrecedence, cloud.CredentialOptions, cloud.ActiveDirectoryAuthorityUri);
 

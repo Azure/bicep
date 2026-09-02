@@ -15,7 +15,7 @@ public class DocsGenerationOptionsResolver(
     IFileSystem fileSystem)
 {
     public BicepDocumentationGenerationOptions Resolve(
-        RootConfiguration configuration,
+        IBicepConfiguration configuration,
         string? templateFile,
         string? templateRoot,
         IReadOnlyDictionary<string, string> customValues)
@@ -32,7 +32,7 @@ public class DocsGenerationOptionsResolver(
     }
 
     private IOUri? ResolveTemplateFile(
-        RootConfiguration configuration,
+        IBicepConfiguration configuration,
         string? commandLinePath,
         string? configuredPath) =>
         commandLinePath is not null
@@ -42,7 +42,7 @@ public class DocsGenerationOptionsResolver(
                 : null;
 
     private IOUri? ResolveTemplateRoot(
-        RootConfiguration configuration,
+        IBicepConfiguration configuration,
         string? commandLinePath,
         string? configuredPath)
     {
@@ -67,7 +67,7 @@ public class DocsGenerationOptionsResolver(
     }
 
     private string ResolveConfiguredPath(
-        RootConfiguration configuration,
+        IBicepConfiguration configuration,
         string configuredPath,
         string propertyName)
     {

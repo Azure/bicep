@@ -25,7 +25,7 @@ namespace Bicep.LangServer.UnitTests
     {
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
 
-        public static BicepCompilationManager CreateCompilationManager(DocumentUri documentUri, string fileContents, bool upsertCompilation = false, IActiveSourceFileSet? workspace = null, IConfigurationManager? configurationManager = null, RegistryConfiguration? registryConfiguration = null)
+        public static BicepCompilationManager CreateCompilationManager(DocumentUri documentUri, string fileContents, bool upsertCompilation = false, IActiveSourceFileSet? workspace = null, IBicepConfigurationManager? configurationManager = null, RegistryConfiguration? registryConfiguration = null)
         {
             workspace ??= new ActiveSourceFileSet();
             PublishDiagnosticsParams? receivedParams = null;
@@ -42,7 +42,7 @@ namespace Bicep.LangServer.UnitTests
             return bicepCompilationManager;
         }
 
-        public static BicepCompilationManager CreateCompilationManager(ILanguageServerFacade server, IActiveSourceFileSet workspace, IConfigurationManager configurationManager, RegistryConfiguration registryConfiguration)
+        public static BicepCompilationManager CreateCompilationManager(ILanguageServerFacade server, IActiveSourceFileSet workspace, IBicepConfigurationManager configurationManager, RegistryConfiguration registryConfiguration)
         {
             var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<ILanguageServerFacade>(server)
@@ -88,11 +88,11 @@ namespace Bicep.LangServer.UnitTests
             return server;
         }
 
-        public static ICompilationProvider CreateEmptyCompilationProvider(IConfigurationManager? configurationManager = null)
+        public static ICompilationProvider CreateEmptyCompilationProvider(IBicepConfigurationManager? configurationManager = null)
         {
             var helper = ServiceBuilder.Create(services => services
                 .AddSingleton(TestTypeHelper.CreateEmptyResourceTypeLoader())
-                .AddSingletonIfNotNull<IConfigurationManager>(configurationManager)
+                .AddSingletonIfNotNull<IBicepConfigurationManager>(configurationManager)
                 .AddSingleton<BicepCompilationProvider>());
 
             return helper.Construct<BicepCompilationProvider>();

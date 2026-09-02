@@ -104,7 +104,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         [DataTestMethod]
         [DynamicData(nameof(GetInvalidData), DynamicDataSourceType.Method)]
-        public void TryParse_InvalidAlias_ReturnsFalseAndSetsError(string aliasName, string referenceValue, RootConfiguration configuration, string expectedCode, string expectedMessage)
+        public void TryParse_InvalidAlias_ReturnsFalseAndSetsError(string aliasName, string referenceValue, IBicepConfiguration configuration, string expectedCode, string expectedMessage)
         {
             var bicepFile = CreateBicepFile(configuration);
             TemplateSpecModuleReference.TryParse(bicepFile.LoadFeatures(), bicepFile.LoadConfiguration(), aliasName, referenceValue).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
@@ -117,7 +117,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         [DataTestMethod]
         [DynamicData(nameof(GetValidData), DynamicDataSourceType.Method)]
-        public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName, string referenceValue, string fullyQualifiedReferenceValue, RootConfiguration configuration)
+        public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName, string referenceValue, string fullyQualifiedReferenceValue, IBicepConfiguration configuration)
         {
             var bicepFile = CreateBicepFile(configuration);
             TemplateSpecModuleReference.TryParse(bicepFile.LoadFeatures(), bicepFile.LoadConfiguration(), aliasName, referenceValue).IsSuccess(out var reference, out var errorBuilder).Should().BeTrue();
@@ -233,6 +233,6 @@ namespace Bicep.Core.UnitTests.Modules
             return parsed!;
         }
 
-        private static BicepFile CreateBicepFile(RootConfiguration configuration) => BicepTestConstants.CreateDummyBicepFile(configuration);
+        private static BicepFile CreateBicepFile(IBicepConfiguration configuration) => BicepTestConstants.CreateDummyBicepFile(configuration);
     }
 }

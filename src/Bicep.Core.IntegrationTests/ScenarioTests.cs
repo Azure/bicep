@@ -14,6 +14,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
+using Bicep.Testing.Extensions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -5840,7 +5841,7 @@ param foo2 string[]
         var result = CompilationHelper.Compile(
             Services
                 .WithFeatureOverrides(new(TestContext))
-                .WithConfigurationPatch(x => x.WithAnalyzersConfiguration(x.Analyzers.SetValue("core.rules.use-recent-api-versions.level", "error"))),
+                .WithConfigurationPatch(x => x.WithAnalyzersConfiguration(((AnalyzersConfiguration)x.Analyzers).SetValue("core.rules.use-recent-api-versions.level", "error"))),
             ("main.bicep", """
                 extension kubernetes with {
                   kubeConfig: 'config'

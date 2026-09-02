@@ -134,7 +134,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         [DataTestMethod]
         [DynamicData(nameof(GetConfigurationData), DynamicDataSourceType.Method)]
-        public async Task GetModuleRestoreStatus_ConfigurationChanges_ReturnsCachedStatusWhenChangeIsIrrelevant(RootConfiguration changedConfiguration, ArtifactRestoreStatus expectedStatus)
+        public async Task GetModuleRestoreStatus_ConfigurationChanges_ReturnsCachedStatusWhenChangeIsIrrelevant(IBicepConfiguration changedConfiguration, ArtifactRestoreStatus expectedStatus)
         {
             var badFile = BicepTestConstants.CreateDummyBicepFile(BicepTestConstants.CreateMockConfiguration());
             var badReference = new MockModuleReference(badFile, "bad");
