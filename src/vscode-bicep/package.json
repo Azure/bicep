@@ -754,22 +754,22 @@
     "@eslint/compat": "^2.0.5",
     "@eslint/js": "^10.0.1",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.2",
-    "@types/node": "^26.2.0",
+    "@types/node": "^26.4.0",
     "@types/semver": "^7.8.0",
     "@types/vscode": "^1.125.0",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "^4.1.11",
     "@vitest/eslint-plugin": "^1.6.27",
     "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^3.9.2",
-    "eslint": "^10.8.1",
+    "eslint": "^10.9.1",
     "eslint-plugin-notice": "^1.0.0",
     "jsonc-parser": "^3.3.1",
-    "nerdbank-gitversioning": "^3.10.91",
+    "nerdbank-gitversioning": "^3.10.94",
     "prettier": "^3.9.6",
     "semver": "^7.8.5",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.67.0",
-    "vite": "^8.2.1",
+    "typescript-eslint": "^8.68.0",
+    "vite": "^8.2.2",
     "vitest": "^4.1.10"
   },
   "dependencies": {
@@ -777,7 +777,7 @@
     "@azure/arm-resources": "^8.0.0",
     "@azure/arm-resources-subscriptions": "^3.0.0",
     "@azure/core-auth": "^1.11.0",
-    "vscode-languageclient": "^10.1.0"
+    "vscode-languageclient": "^10.1.1"
   },
   "extensionDependencies": [
     "ms-dotnettools.vscode-dotnet-runtime"
