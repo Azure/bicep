@@ -35,8 +35,7 @@ export function AccordionItem({ itemId, children, onActiveChange }: AccordionIte
       panelId: `${domId}-panel`,
       toggleActive: () => toggleItem(resolvedItemId),
       registerHeader: (element: HTMLButtonElement | null) => registerHeader(resolvedItemId, element),
-      focusHeader: (direction: "first" | "last" | "next" | "previous") =>
-        focusHeader(resolvedItemId, direction),
+      focusHeader: (direction: "first" | "last" | "next" | "previous") => focusHeader(resolvedItemId, direction),
     }),
     [active, domId, focusHeader, registerHeader, resolvedItemId, toggleItem],
   );

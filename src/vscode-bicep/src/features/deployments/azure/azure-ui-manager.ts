@@ -3,8 +3,8 @@
 import type { AccessToken } from "@azure/core-auth";
 
 import { DeploymentScope, DeploymentScopeType } from "../deployment-scope";
-import { AzurePickers } from "./azure-pickers";
 import { AzureSubscription, getAzureAccessToken } from "./azure-account-manager";
+import { AzurePickers } from "./azure-pickers";
 
 export interface IAzureUIManager {
   getAccessToken(scope: DeploymentScope): Promise<AccessToken>;

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import type { AccessToken } from "@azure/core-auth";
+
 import { LocalDeployResponse } from "../protocol";
 import { DeploymentScope, DeploymentScopeType, DeployPaneState, UntypedError } from "./models";
 

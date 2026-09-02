@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { writeFile } from "fs/promises";
 import * as os from "os";
 import * as path from "path";
-import { writeFile } from "fs/promises";
 import { TextDocument, TextEditor, Uri, window, workspace } from "vscode";
 import { UserCancelledError } from "../errors";
 import { PromptItem, Prompts } from "../prompts";
