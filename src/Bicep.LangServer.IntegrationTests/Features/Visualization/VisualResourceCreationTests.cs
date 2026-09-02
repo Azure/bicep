@@ -120,7 +120,7 @@ namespace Bicep.LangServer.IntegrationTests
             result.OperationId.Should().Be("operation-1");
             result.SymbolicName.Should().Be("basicTest");
             result.ExpectedNodeId.Should().Be("basicTest");
-            result.UnresolvedRequiredProperties.Should().Equal("name");
+            result.UnresolvedRequiredProperties.Should().BeEmpty();
 
             var textDocumentEdit = result.Edit.DocumentChanges.Should().ContainSingle().Subject.TextDocumentEdit;
             textDocumentEdit.Should().NotBeNull();
@@ -128,7 +128,11 @@ namespace Bicep.LangServer.IntegrationTests
             textDocumentEdit.TextDocument.Version.Should().Be(1);
 
             var updatedContent = ApplyEdit(helper.MainContent, result.Edit);
-            updatedContent.Should().Contain("resource basicTest 'Test.Rp/basicTests@2020-01-01' = {");
+            updatedContent.ReplaceLineEndings("\n").Should().Be("""
+                resource basicTest 'Test.Rp/basicTests@2020-01-01' = {
+                  name: 'basicTest'
+                }
+                """);
         }
 
         [TestMethod]
@@ -174,6 +178,12 @@ namespace Bicep.LangServer.IntegrationTests
                 default);
 
             result.UnresolvedRequiredProperties.Should().Equal("kind");
+            var updatedContent = ApplyEdit(helper.MainContent, result.Edit);
+            updatedContent.ReplaceLineEndings("\n").Should().Be("""
+                resource discriminatorTest 'Test.Rp/discriminatorTests@2020-01-01' = {
+                  kind:
+                }
+                """);
         }
 
         [TestMethod]
@@ -231,7 +241,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         // The generated code replacement is always a zero-length insertion appended at the end of the
-        // document (see VisualResourceCreationService.GetAppendInsertContext), so applying it is a plain
+        // document (see VisualResourceCreationService.GetInsertContext), so applying it is a plain
         // string insertion at the offset the single TextEdit's range describes.
         private static string ApplyEdit(string content, WorkspaceEdit edit)
         {
