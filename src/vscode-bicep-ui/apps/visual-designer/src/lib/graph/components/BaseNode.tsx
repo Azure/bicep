@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import type { PropsWithChildren } from "react";
-import type { NodeKind } from "@/lib/graph/atoms";
+import type { NodeKind } from "../atoms";
 
 import { forwardRef } from "react";
 import { styled } from "styled-components";
