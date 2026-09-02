@@ -94,9 +94,43 @@ namespace Bicep.Core.Emit
                 {
                     // we can check placement only for functions that were matched and has a proper placement flag
                     var (_, levelUpSymbol) = syntaxRecorder.Skip(1).SkipWhile(x => x.syntax is TernaryOperationSyntax).FirstOrDefault();
-                    if (!(elementsRecorder.TryPeek(out var head) && head is VisitedElement.ModuleParams or VisitedElement.ModuleExtensionConfigs)
+                    
+                    // Check if getSecret is nested inside an object structure (not a direct child of params/extensionConfigs)
+                    // Invalid for params: params: { config: { secret: kv.getSecret(...) } } <- ObjectSyntax between function and parameter property
+                    // Valid for params: params: { secret: kv.getSecret(...) } <- No ObjectSyntax between  
+                    // Valid for params: params: { secret: cond ? kv.getSecret(...) : 'x' } <- Ternaries are skipped
+                    // Valid for extensionConfigs: extensionConfigs: { alias: { prop: kv.getSecret(...) } } <- 1 ObjectSyntax (alias) is OK
+                    // Invalid for extensionConfigs: extensionConfigs: { alias: { obj: { prop: kv.getSecret(...) } } } <- 2+ ObjectSyntax is invalid
+                    
+                    // Count ObjectSyntax nodes between the immediate property and the params/extensionConfigs value object
+                    // The params value object is the ObjectSyntax that immediately follows the params ObjectPropertySyntax
+                    var ancestors = syntaxRecorder
+                        .Skip(1) // Skip the function call
+                        .SkipWhile(x => x.syntax is TernaryOperationSyntax) // Skip ternary operators
+                        .Skip(1) // Skip the immediate ObjectPropertySyntax (the property containing getSecret, e.g., mySecret, certificate)
+                        .ToList();
+                    
+                    // Find the params/extensionConfigs property
+                    var paramsPropertyIndex = ancestors.FindIndex(x => 
+                        x.syntax is ObjectPropertySyntax ops &&
+                        ops.TryGetKeyText() is string key &&
+                        (string.Equals(key, LanguageConstants.ModuleParamsPropertyName, LanguageConstants.IdentifierComparison) ||
+                         string.Equals(key, LanguageConstants.ModuleExtensionConfigsPropertyName, LanguageConstants.IdentifierComparison)));
+                    
+                    // Count ObjectSyntax nodes before the params property (excluding the params value object)
+                    // Stop one element BEFORE the params property (since the element before params property is the params value object)
+                    var objectSyntaxCount = paramsPropertyIndex >= 1
+                        ? ancestors.Take(paramsPropertyIndex - 1).Count(x => x.syntax is ObjectSyntax)
+                        : 0;
+                    
+                    var isInExtensionConfigs = elementsRecorder.TryPeek(out var head) && head is VisitedElement.ModuleExtensionConfigs;
+                    var maxAllowedNesting = isInExtensionConfigs ? 1 : 0; // Extension configs allow 1 level (the alias), params allow 0
+                    var isNestedInObject = levelUpSymbol is PropertySymbol && objectSyntaxCount > maxAllowedNesting;
+                    
+                    if (!(elementsRecorder.TryPeek(out head) && head is VisitedElement.ModuleParams or VisitedElement.ModuleExtensionConfigs)
                         || levelUpSymbol is not PropertySymbol propertySymbol
-                        || !(TypeHelper.TryRemoveNullability(propertySymbol.Type) ?? propertySymbol.Type).ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
+                        || !(TypeHelper.TryRemoveNullability(propertySymbol.Type) ?? propertySymbol.Type).ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure)
+                        || isNestedInObject)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax)
                             .FunctionOnlyValidInModuleSecureParameterAndExtensionConfigAssignment(functionSymbol.Name, semanticModel.Features.ModuleExtensionConfigsEnabled));
