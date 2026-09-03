@@ -4,7 +4,6 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Semver;
 
 namespace Bicep.Core.SemanticVersioning;
 
@@ -12,14 +11,8 @@ namespace Bicep.Core.SemanticVersioning;
 /// A single component of a version constraint, A bare version such as "1.2.0"
 /// is equivalent to "=1.2.0".
 /// </summary>
-public sealed record VersionComparator(VersionComparatorOperator Operator, SemVersion Version)
+public sealed record VersionComparator(VersionComparatorOperator Operator, SemanticVersion Version)
 {
-    /// <summary>
-    /// The version styles accepted within a constraint. A leading "v" is allowed and the minor and patch components may
-    /// be omitted (">=1.2" is equivalent to ">=1.2.0", and ">=1" to ">=1.0.0").
-    /// </summary>
-    private const SemVersionStyles VersionStyles = SemVersionStyles.AllowV | SemVersionStyles.OptionalMinorPatch;
-
     /// <summary>
     /// The recognized operator tokens. Two-character tokens must be tested first so that ">=" is not
     /// mistaken for ">" followed by a version starting with "=".
@@ -51,9 +44,9 @@ public sealed record VersionComparator(VersionComparatorOperator Operator, SemVe
     /// <summary>
     /// Determines whether the supplied version satisfies this comparator. Comparison follows semantic version precedence.
     /// </summary>
-    public bool Satisfies(SemVersion version)
+    public bool IsSatisfiedBy(SemanticVersion version)
     {
-        var comparison = version.ComparePrecedenceTo(this.Version);
+        var comparison = version.CompareTo(this.Version);
 
         return this.Operator switch
         {
@@ -81,7 +74,7 @@ public sealed record VersionComparator(VersionComparatorOperator Operator, SemVe
             }
         }
 
-        if (!SemVersion.TryParse(remainder, VersionStyles, out var version))
+        if (!SemanticVersion.TryParse(remainder, out var version))
         {
             result = null;
             return false;

@@ -18,12 +18,8 @@ public class VersionComparatorTests
     [DataRow("<1.2.3", VersionComparatorOperator.LessThan, "1.2.3")]
     [DataRow("<=1.2.3", VersionComparatorOperator.LessThanOrEqual, "1.2.3")]
     [DataRow("  >=  1.2.3  ", VersionComparatorOperator.GreaterThanOrEqual, "1.2.3")]
-    [DataRow("v1.2.3", VersionComparatorOperator.Equal, "1.2.3")]
-    [DataRow(">=V1.2.3", VersionComparatorOperator.GreaterThanOrEqual, "1.2.3")]
     [DataRow(">=1.2", VersionComparatorOperator.GreaterThanOrEqual, "1.2.0")]
     [DataRow(">=1", VersionComparatorOperator.GreaterThanOrEqual, "1.0.0")]
-    [DataRow("1.2.3-preview", VersionComparatorOperator.Equal, "1.2.3-preview")]
-    [DataRow("1.2.3+abc123", VersionComparatorOperator.Equal, "1.2.3+abc123")]
     public void TryParse_ValidComparator_ReturnsTrueAndParsedComparator(string value, VersionComparatorOperator expectedOperator, string expectedVersion)
     {
         var result = VersionComparator.TryParse(value, out var comparator);
@@ -43,6 +39,10 @@ public class VersionComparatorTests
     [DataRow("whatever")]
     [DataRow("1.2.3.4")]
     [DataRow("01.2.3")]
+    [DataRow("v1.2.3")]
+    [DataRow(">=V1.2.3")]
+    [DataRow("1.2.3-preview")]
+    [DataRow("1.2.3+abc123")]
     [DataRow("^1.2.3")]
     [DataRow("~1.2.3")]
     [DataRow("*")]
@@ -74,7 +74,6 @@ public class VersionComparatorTests
     [DataTestMethod]
     [DataRow("1.2.3", "1.2.3")]
     [DataRow("=1.2.3", "1.2.3")]
-    [DataRow("v1.2.3", "1.2.3")]
     [DataRow(">=1.2", ">=1.2.0")]
     [DataRow("  <  1.2.3", "<1.2.3")]
     public void ToString_NormalizesTheComparator(string value, string expected)
