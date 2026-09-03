@@ -14,7 +14,7 @@ public sealed class VersionRange
     /// <summary>
     /// A range may pair at most one lower bound with one upper bound.
     /// </summary>
-    public const int MaxComparatorCount = 2;
+    private const int MaxComparatorCount = 2;
 
     private const char ComparatorSeparator = ',';
 
