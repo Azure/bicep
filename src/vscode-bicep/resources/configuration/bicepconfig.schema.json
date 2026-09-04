@@ -1082,14 +1082,6 @@
               "description": "The root directory for Scriban includes.",
               "type": "string",
               "minLength": 1
-            },
-            "values": {
-              "description": "The baseline custom template values.",
-              "type": "object",
-              "default": {},
-              "additionalProperties": {
-                "type": "string"
-              }
             }
           }
         },

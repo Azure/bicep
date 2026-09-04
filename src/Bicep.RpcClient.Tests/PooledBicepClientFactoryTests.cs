@@ -291,7 +291,7 @@ public class PooledBicepClientFactoryTests
         var wrapper = await factory.Initialize(new BicepClientConfiguration(), Token);
 
         var rendered = await wrapper.GenerateDocs(
-            new("main.bicep", null, null, null, NoRestore: false),
+            new("main.bicep", new() { ["owner"] = "Platform" }),
             Token);
 
         rendered.Contents.Should().Be("# Module\n");

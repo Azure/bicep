@@ -182,7 +182,7 @@ output bar string = foo
             async (client, token) =>
             {
                 var response = await client.GenerateDocs(
-                    new("/main.bicep", null, null, null, NoRestore: false),
+                    new("/main.bicep"),
                     token);
 
                 response.Diagnostics.Should().ContainSingle(diagnostic =>
@@ -201,6 +201,16 @@ output bar string = foo
             ["/main.bicep"] = "metadata name = 'RPC Module'",
             ["/template.scriban"] = "{{ include \"_header.md\" }} {{ module.name }} {{ custom.owner }}",
             ["/_header.md"] = "Header",
+            ["/bicepconfig.json"] = """
+                {
+                  "documentation": {
+                    "template": {
+                      "file": "template.scriban",
+                      "includeRoot": "."
+                    }
+                  }
+                }
+                """,
         });
 
         await RunServerTest(
@@ -208,7 +218,7 @@ output bar string = foo
             async (client, token) =>
             {
                 var response = await client.GenerateDocs(
-                    new("/main.bicep", "/template.scriban", "/", new() { ["owner"] = "Platform" }, NoRestore: true),
+                    new("/main.bicep", new() { ["owner"] = "Platform" }),
                     token);
 
                 response.Contents.Should().Be("Header RPC Module Platform\n");
@@ -216,7 +226,7 @@ output bar string = foo
     }
 
     [TestMethod]
-    public async Task GenerateDocs_applies_configuration_and_request_overrides()
+    public async Task GenerateDocs_applies_configuration_and_request_values()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -227,10 +237,7 @@ output bar string = foo
                 {
                   "documentation": {
                     "template": {
-                      "file": "template.scriban",
-                      "values": {
-                        "owner": "Config"
-                      }
+                      "file": "template.scriban"
                     },
                     "examples": {
                       "sources": []
@@ -245,15 +252,10 @@ output bar string = foo
             async (client, token) =>
             {
                 var configured = await client.GenerateDocs(
-                    new("/module/main.bicep", null, null, null, NoRestore: false),
-                    token);
-                var overridden = await client.GenerateDocs(
-                    new("/module/main.bicep", null, null, new() { ["owner"] = "Request" }, NoRestore: false),
+                    new("/module/main.bicep", new() { ["owner"] = "Request" }),
                     token);
 
-                // The template file and example settings come from bicepconfig.json, not the request.
-                configured.Contents.Should().Be("RPC Config|Config|0\n");
-                overridden.Contents.Should().Be("RPC Config|Request|0\n");
+                configured.Contents.Should().Be("RPC Config|Request|0\n");
             });
     }
 
@@ -279,7 +281,7 @@ output bar string = foo
             async (client, token) =>
             {
                 var response = await client.GenerateDocs(
-                    new("/module/main.bicep", null, null, null, NoRestore: false),
+                    new("/module/main.bicep"),
                     token);
 
                 response.Contents.Should().Contain("# RPC defaults");
@@ -304,7 +306,7 @@ output bar string = foo
                 var before = fileSystem.AllFiles.OrderBy(file => file, StringComparer.Ordinal).ToArray();
 
                 var rendered = await client.GenerateDocs(
-                    new("/module/main.bicep", null, null, null, NoRestore: false),
+                    new("/module/main.bicep"),
                     token);
 
                 rendered.Contents.Should().Contain("# No Writes");
@@ -313,7 +315,7 @@ output bar string = foo
     }
 
     [TestMethod]
-    public async Task GenerateDocs_throws_for_compilation_errors()
+    public async Task GenerateDocs_returns_diagnostics_for_compilation_errors()
     {
         var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
         {
@@ -324,11 +326,10 @@ output bar string = foo
             services => services.WithFileSystem(fileSystem),
             async (client, token) =>
             {
-                await FluentActions.Invoking(() => client.GenerateDocs(
-                        new("/main.bicep", null, null, null, NoRestore: false),
-                        token))
-                    .Should().ThrowAsync<RemoteInvocationException>()
-                    .WithMessage("*Cannot generate documentation for a module that has compilation errors.*");
+                var response = await client.GenerateDocs(new("/main.bicep"), token);
+
+                response.Contents.Should().BeNull();
+                response.Diagnostics.Should().Contain(diagnostic => diagnostic.Level == "Error");
             });
     }
 
@@ -348,7 +349,7 @@ output bar string = foo
             async (client, token) =>
             {
                 var rendered = await client.GenerateDocs(
-                    new("/main.bicep", null, null, null, NoRestore: false),
+                    new("/main.bicep"),
                     token);
 
                 rendered.Contents.Should().Be("# Cancellation\n");
