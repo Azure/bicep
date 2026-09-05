@@ -19,20 +19,12 @@ public class BicepClientUnitTests
     [TestMethod]
     public void GenerateDocs_models_expose_constructor_values()
     {
-        var custom = new Dictionary<string, string> { ["owner"] = "Platform" };
-        var request = new GenerateDocsRequest(
-            "main.bicep",
-            "template.scriban",
-            "templates",
-            custom,
-            NoRestore: true);
+        var customValues = new Dictionary<string, string> { ["owner"] = "Platform" };
+        var request = new GenerateDocsRequest("main.bicep", customValues);
         var response = new GenerateDocsResponse([], "# Module\n");
 
         request.Path.Should().Be("main.bicep");
-        request.TemplateFile.Should().Be("template.scriban");
-        request.TemplateRoot.Should().Be("templates");
-        request.CustomTemplateValues.Should().BeSameAs(custom);
-        request.NoRestore.Should().BeTrue();
+        request.CustomTemplateValues.Should().BeSameAs(customValues);
         response.Diagnostics.Should().BeEmpty();
         response.Contents.Should().Be("# Module\n");
     }
@@ -158,7 +150,7 @@ public class BicepClientUnitTests
         using var client = new BicepClient(rpc);
 
         var result = await client.GenerateDocs(
-            new("main.bicep", null, null, null, NoRestore: false),
+            new("main.bicep"),
             Token);
 
         result.Contents.Should().Be("# Module\n");
@@ -173,7 +165,7 @@ public class BicepClientUnitTests
         using var client = new BicepClient(rpc);
 
         await FluentActions.Invoking(() => client.GenerateDocs(
-                new("main.bicep", null, null, null, NoRestore: false),
+                new("main.bicep"),
                 Token))
             .Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*requires Bicep CLI version '0.47.0' or later*");

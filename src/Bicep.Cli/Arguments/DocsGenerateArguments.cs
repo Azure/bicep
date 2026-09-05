@@ -9,8 +9,6 @@ namespace Bicep.Cli.Arguments;
 public record DocsGenerateArguments(
     string? InputFile,
     string? FilePattern,
-    string? TemplateFile,
-    string? TemplateRoot,
     ImmutableSortedDictionary<string, string> CustomValues,
     bool OutputToStdOut,
     string? OutputDir,

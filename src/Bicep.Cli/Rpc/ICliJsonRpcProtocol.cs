@@ -131,10 +131,7 @@ public record FormatResponse(
 
 public record GenerateDocsRequest(
     string Path,
-    string? TemplateFile,
-    string? TemplateRoot,
-    Dictionary<string, string>? CustomTemplateValues,
-    bool NoRestore);
+    Dictionary<string, string>? CustomTemplateValues = null);
 
 public record GenerateDocsResponse(
     ImmutableArray<DiagnosticDefinition> Diagnostics,
