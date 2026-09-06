@@ -751,13 +751,13 @@
     "package": "npm run clean && nbgv-setversion && vsce package --no-dependencies --githubBranch main --out ./vscode-bicep.vsix && nbgv-setversion --reset && vsce generate-manifest -i ./vscode-bicep.vsix -o ./vscode-bicep.manifest"
   },
   "devDependencies": {
-    "@eslint/compat": "^2.0.5",
+    "@eslint/compat": "^2.1.1",
     "@eslint/js": "^10.0.1",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.2",
-    "@types/node": "^26.4.0",
+    "@types/node": "^26.4.1",
     "@types/semver": "^7.8.0",
     "@types/vscode": "^1.125.0",
-    "@vitest/coverage-v8": "^4.1.11",
+    "@vitest/coverage-v8": "^5.0.0",
     "@vitest/eslint-plugin": "^1.6.27",
     "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^3.9.2",
@@ -768,9 +768,9 @@
     "prettier": "^3.9.6",
     "semver": "^7.8.5",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.68.0",
+    "typescript-eslint": "^8.69.0",
     "vite": "^8.2.2",
-    "vitest": "^4.1.10"
+    "vitest": "^5.0.0"
   },
   "dependencies": {
     "@azure/arm-managementgroups": "^3.0.0",
