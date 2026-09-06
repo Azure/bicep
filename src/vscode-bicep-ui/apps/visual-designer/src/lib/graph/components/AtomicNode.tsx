@@ -1,51 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { AtomicNodeState } from "@/lib/graph/atoms/nodes";
-import type { Range } from "@/lib/messaging/messages";
+import type { AtomicNodeState } from "../atoms/nodes";
 
 import useResizeObserver from "@react-hook/resize-observer";
-import { useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { useAtomValue, useStore } from "jotai";
 import { frame } from "motion/react";
-import { useEffect, useLayoutEffect, useRef } from "react";
-import { focusedNodeIdAtom, getNodeZIndex } from "@/lib/graph/atoms/nodes";
-import { useBoxUpdate, useDragListener } from "@/lib/graph/hooks";
-import { REVEAL_FILE_RANGE_NOTIFICATION } from "@/lib/messaging/messages";
-import { translateBox } from "@/lib/utils/math";
+import { useLayoutEffect, useRef } from "react";
+import { translateBox } from "@/lib/math";
+import { focusedNodeIdAtom, getNodeZIndex } from "../atoms/nodes";
+import { useBoxUpdate, useDragListener } from "../hooks";
 import { BaseNode } from "./BaseNode";
 import { NodeContent } from "./NodeContent";
 
 export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
   const ref = useRef<HTMLDivElement>(null);
   const store = useStore();
-  const messageChannel = useWebviewMessageChannel();
   const focusedNodeId = useAtomValue(focusedNodeIdAtom);
   const zIndex = getNodeZIndex(id, "atomic", focusedNodeId);
-
-  // Use a native dblclick listener so we can call stopPropagation()
-  // before d3-zoom's handler (on the PanZoom ancestor) fires.
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) {
-      return;
-    }
-
-    const handler = (e: MouseEvent) => {
-      e.stopPropagation();
-
-      const data = store.get(dataAtom) as { range?: Range; filePath?: string };
-      if (data?.range && data?.filePath) {
-        messageChannel.sendNotification({
-          method: REVEAL_FILE_RANGE_NOTIFICATION,
-          params: { filePath: data.filePath, range: data.range },
-        });
-      }
-    };
-
-    el.addEventListener("dblclick", handler);
-    return () => el.removeEventListener("dblclick", handler);
-  }, [store, dataAtom, messageChannel]);
 
   useLayoutEffect(() => {
     if (!ref.current) {
@@ -55,9 +27,7 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
     const { offsetWidth, offsetHeight } = ref.current;
 
     store.set(boxAtom, (box) => {
-      // On first measurement the box is a zero-size point (min === max)
-      // placed at the spawn origin. Shift min so the node's center
-      // aligns with the origin instead of its top-left corner.
+      // On first measurement the box is a zero-size point placed at the spawn origin.
       const isInitial = box.min.x === box.max.x && box.min.y === box.max.y;
       const min = isInitial ? { x: box.min.x - offsetWidth / 2, y: box.min.y - offsetHeight / 2 } : box.min;
 
@@ -75,11 +45,19 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
       return;
     }
 
+    // Round to whole pixels so this matches the integer `offsetWidth`/`offsetHeight`
+    // used for the initial measurement above. `borderBoxSize` is device-pixel precise
+    // (e.g. 200.4), and letting that fractional value into the box would (a) visibly
+    // resize the enclosing module box by a fraction of a pixel and (b) feed a slightly
+    // different size into the server layout, making re-layout shift nodes by ~1px.
+    const width = Math.round(borderBoxSize.inlineSize);
+    const height = Math.round(borderBoxSize.blockSize);
+
     store.set(boxAtom, (box) => ({
       ...box,
       max: {
-        x: box.min.x + borderBoxSize.inlineSize,
-        y: box.min.y + borderBoxSize.blockSize,
+        x: box.min.x + width,
+        y: box.min.y + height,
       },
     }));
   });

@@ -61,6 +61,11 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
             public override string Op => "setNodeLayout";
         }
 
+        public sealed record SetGraphBounds(GraphBounds Bounds) : GraphPatch
+        {
+            public override string Op => "setGraphBounds";
+        }
+
         public sealed record SetErrorCount(int ErrorCount) : GraphPatch
         {
             public override string Op => "setErrorCount";
@@ -105,6 +110,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
                 "addEdge" => typeof(GraphPatch.AddEdge),
                 "removeEdge" => typeof(GraphPatch.RemoveEdge),
                 "setNodeLayout" => typeof(GraphPatch.SetNodeLayout),
+                "setGraphBounds" => typeof(GraphPatch.SetGraphBounds),
                 "setErrorCount" => typeof(GraphPatch.SetErrorCount),
                 _ => throw new JsonSerializationException($"Unknown graph patch op '{op}'."),
             };

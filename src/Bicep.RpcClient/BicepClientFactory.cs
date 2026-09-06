@@ -13,6 +13,9 @@ using Bicep.RpcClient.Helpers;
 
 namespace Bicep.RpcClient;
 
+/// <summary>
+/// A factory that creates and manages Bicep clients, handling the download and installation of the Bicep CLI if necessary.
+/// </summary>
 public class BicepClientFactory(HttpClient? httpClient = null) : IBicepClientFactory
 {
     private static readonly string DefaultInstallPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".bicep", "bin");

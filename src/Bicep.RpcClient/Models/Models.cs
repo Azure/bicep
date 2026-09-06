@@ -136,12 +136,14 @@ public record GetSnapshotRequest(
     /// All fields are optional and may be <see langword="null"/> if not applicable.
     /// </summary>
     /// <param name="TenantId">The Azure Active Directory tenant ID (e.g., <c>"00000000-0000-0000-0000-000000000001"</c>).</param>
+    /// <param name="ManagementGroupId">The target management group ID (e.g., <c>"my-management-group"</c>).</param>
     /// <param name="SubscriptionId">The Azure subscription ID (e.g., <c>"00000000-0000-0000-0000-000000000002"</c>).</param>
     /// <param name="ResourceGroup">The target resource group name (e.g., <c>"my-rg"</c>).</param>
     /// <param name="Location">The Azure region for the deployment (e.g., <c>"eastus"</c>).</param>
     /// <param name="DeploymentName">The name of the deployment (e.g., <c>"my-deployment"</c>).</param>
     public record MetadataDefinition(
         string? TenantId,
+        string? ManagementGroupId,
         string? SubscriptionId,
         string? ResourceGroup,
         string? Location,
@@ -279,3 +281,32 @@ public record FormatRequest(
 /// <param name="Contents">The formatted Bicep source code as a string.</param>
 public record FormatResponse(
     string Contents);
+
+/// <summary>
+/// Requests rendered documentation for one or more Bicep modules. Rendered content is returned to the
+/// caller and is never written to disk.
+/// </summary>
+/// <param name="Path">Bicep file path to process.</param>
+/// <param name="TemplateFile">An optional custom Scriban template path.</param>
+/// <param name="TemplateRoot">An optional root directory for template includes.</param>
+/// <param name="CustomTemplateValues">Optional string values exposed to the template.</param>
+/// <param name="NoRestore">Whether external artifact restore is skipped.</param>
+public record GenerateDocsRequest(
+    string Path,
+    string? TemplateFile,
+    string? TemplateRoot,
+    Dictionary<string, string>? CustomTemplateValues,
+    bool NoRestore);
+
+/// <summary>
+/// Contains rendered documentation and diagnostics for one module.
+/// </summary>
+/// <param name="Diagnostics">Compiler and documentation diagnostics for the module.</param>
+/// <param name="Contents">Rendered documentation, or <see langword="null"/> on failure.</param>
+/// <remarks>
+/// This record supports the experimental <c>bicep docs</c> command group and may change while that
+/// feature remains experimental.
+/// </remarks>
+public record GenerateDocsResponse(
+    ImmutableArray<DiagnosticDefinition> Diagnostics,
+    string? Contents);

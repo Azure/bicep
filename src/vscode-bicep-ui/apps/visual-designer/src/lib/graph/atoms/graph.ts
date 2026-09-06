@@ -1,25 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { Box } from "@/lib/utils/math";
+import type { Box } from "@/lib/math";
 
 import { atom } from "jotai";
 import { nodesByIdAtom } from "./nodes";
 
 /**
- * Monotonically increasing version number, bumped each time
- * the deployment graph is replaced.  Components can subscribe
- * to this atom to re-run layout after the new graph is committed
- * to the DOM.
- */
-export const graphVersionAtom = atom(0);
-
-/**
- * Whether the first ELK layout has completed and nodes are in
- * their final positions.  The graph layer uses this to stay
- * invisible (`opacity: 0`) until layout is ready, preventing
- * a flash of nodes at position (0,0) before the viewport
- * transform is applied.
+ * Whether the first server layout has completed and nodes are in their final positions.
+ * The graph layer uses this to stay invisible until layout is ready, preventing a flash
+ * of nodes at their spawn position before the viewport transform is applied.
  */
 export const layoutReadyAtom = atom(false);
 

@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Moq;
 
@@ -6349,8 +6351,13 @@ Fake.Web/publishingCredentials@2415-08-01";
                     new ObjectType(tr.FormatName(), TypeSymbolValidationFlags.Default, [], new TypeProperty(LanguageConstants.Any))));
 
             typesLoader.Setup(m => m.GetAvailableTypes()).Returns(fakeResourceTypeReferences);
+            typesLoader.Setup(m => m.HasType(It.IsAny<ResourceTypeReference>()))
+                .Returns<ResourceTypeReference>(fakeResourceTypeReferences.Contains);
             return typesLoader;
         }
+
+        public static AzApiVersionProvider GetFakeApiVersionProvider(IEnumerable<string> resourceTypes)
+            => new(new AzResourceTypeProvider(GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes.ToArray()).Object));
 
 
     }

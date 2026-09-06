@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[000:5153) ProgramExpression
+//@[000:5277) ProgramExpression
 //@[000:0299) ├─DeclaredTypeExpression { Name = foo }
 //@[013:0027) | ├─StringLiteralExpression { Value = The foo type }
 @sealed()
@@ -306,6 +306,20 @@ type nonNullable = nullable!
 //@[000:0028) ├─DeclaredTypeExpression { Name = nonNullable }
 //@[019:0028) | └─NonNullableTypeExpression { Name = null | string }
 //@[019:0027) |   └─TypeAliasReferenceExpression { Name = nullable }
+
+type withOptionalAnyProp = {
+//@[000:0122) ├─DeclaredTypeExpression { Name = withOptionalAnyProp }
+//@[027:0122) | └─ObjectTypeExpression { Name = { requiredProp: string, optionalAny: any } }
+  requiredProp: string
+//@[002:0022) |   ├─ObjectTypePropertyExpression
+//@[016:0022) |   | └─AmbientTypeReferenceExpression { Name = string }
+  @description('An optional any-typed property')
+//@[002:0068) |   └─ObjectTypePropertyExpression
+//@[015:0047) |     ├─StringLiteralExpression { Value = An optional any-typed property }
+  optionalAny: any?
+//@[015:0019) |     └─NullableTypeExpression { Name = any }
+//@[015:0018) |       └─AmbientTypeReferenceExpression { Name = any }
+}
 
 type typeA = {
 //@[000:0044) ├─DeclaredTypeExpression { Name = typeA }

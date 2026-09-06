@@ -10,24 +10,34 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.IO.Abstraction;
-using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Features.Custom.Visualization.Models;
 
 namespace Bicep.LanguageServer.Features.Custom.Visualization
 {
     /// <summary>
-    /// Builds the canonical <see cref="CanonicalGraph"/> from a Bicep compilation. The traversal mirrors
-    /// <see cref="Bicep.LanguageServer.Handlers.BicepDeploymentGraphHandler"/> (the compatibility path) but
-    /// emits the richer canonical model: nodes carry a <c>kind</c>, a <c>parentId</c>, and a symbol name, and
-    /// edges carry a stable id. No layout is computed here; positions are added later by the layout engine.
+    /// Builds the canonical <see cref="CanonicalGraph"/> from a Bicep compilation. Nodes carry a <c>kind</c>,
+    /// a <c>parentId</c>, and a symbol name, and edges carry a stable id. No layout is computed here; positions
+    /// are added later by the layout engine.
     /// </summary>
     public static class VisualGraphBuilder
     {
-        public static CanonicalGraph Build(CompilationContext context, IOUri entryFileUri)
+        public static CanonicalGraph Build(CompilationContext context, IOUri entryFileUri) =>
+            BuildWithSources(context, entryFileUri).Graph;
+
+        /// <summary>
+        /// Builds the canonical graph together with a map from node id to its source location. The source map
+        /// is consumed only by the reveal-on-demand handler; the canonical graph itself carries no source
+        /// location so that volatile range/file-path data never travels through the graph diff.
+        /// </summary>
+        public static (CanonicalGraph Graph, IReadOnlyDictionary<string, NodeSource> Sources) BuildWithSources(
+            CompilationContext context,
+            IOUri entryFileUri)
         {
             var nodes = new List<GraphNode>();
             var edges = new List<GraphEdge>();
+            var sources = new Dictionary<string, NodeSource>(StringComparer.Ordinal);
 
             var queue = new Queue<(SemanticModel Model, IOUri FileUri, string? ParentId)>();
             var entrySemanticModel = context.Compilation.GetEntrypointSemanticModel();
@@ -63,9 +73,8 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                             SymbolName: symbol.Name,
                             IsCollection: resourceSymbol.IsCollection,
                             HasChildren: false,
-                            HasError: hasError,
-                            FilePath: fileUri,
-                            Range: range);
+                            HasError: hasError);
+                        sources[id] = new NodeSource(fileUri, range);
                     }
 
                     if (symbol is ModuleSymbol moduleSymbol)
@@ -99,9 +108,8 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                             SymbolName: symbol.Name,
                             IsCollection: moduleSymbol.IsCollection,
                             HasChildren: hasChildren,
-                            HasError: hasError,
-                            FilePath: fileUri,
-                            Range: range);
+                            HasError: hasError);
+                        sources[id] = new NodeSource(fileUri, range);
                     }
                 }
 
@@ -129,10 +137,12 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 }
             }
 
-            return new CanonicalGraph(
+            var graph = new CanonicalGraph(
                 Nodes: nodes.OrderBy(node => node.Id, StringComparer.Ordinal).ToImmutableArray(),
                 Edges: edges.OrderBy(edge => edge.Id, StringComparer.Ordinal).ToImmutableArray(),
                 ErrorCount: entrySemanticModel.GetAllDiagnostics().Count(x => x.IsError()));
+
+            return (graph, sources);
         }
     }
 }

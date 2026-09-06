@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 import { existsSync } from "fs";
-import { generateGrammar, grammarPath } from "../src/bicep";
-import { expectFileContents } from "./utils";
+import { generateGrammar, grammarPath } from "../src/bicep.js";
+import { expectFileContents } from "./utils.js";
 
 describe('grammar tests', () => {
   it('should exist', () => {

@@ -39,6 +39,9 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableTypes.Keys;
 
+        public bool HasType(ResourceTypeReference reference)
+            => availableTypes.ContainsKey(reference);
+
         public ResourceTypeComponents LoadType(ResourceTypeReference reference)
         {
             var typeLocation = availableTypes[reference];

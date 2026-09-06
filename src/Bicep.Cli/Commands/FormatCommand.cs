@@ -58,7 +58,7 @@ public class FormatCommand(
             throw new InvalidOperationException("Unable to create Bicep source file.");
         }
 
-        if (sourceFile.Features.LegacyFormatterEnabled)
+        if (sourceFile.LoadFeatures().LegacyFormatterEnabled)
         {
             var v2Options = GetPrettyPrinterOptions(sourceFile, args);
             var legacyOptions = PrettyPrintOptions.FromV2Options(v2Options);
@@ -100,7 +100,7 @@ public class FormatCommand(
 
     private static PrettyPrinterV2Options GetPrettyPrinterOptions(BicepSourceFile sourceFile, FormatArguments args)
     {
-        var options = sourceFile.Configuration.Formatting.Data;
+        var options = sourceFile.LoadConfiguration().Formatting.Data;
 
         if (args.NewlineKind is not null)
         {

@@ -19,52 +19,48 @@ namespace Bicep.Core.Registry
             this.credentialFactory = credentialFactory;
         }
 
-        public ContainerRegistryContentClient CreateAuthenticatedBlobClient(CloudConfiguration cloud, Uri registryUri, string repository)
+        public ContainerRegistryContentClient CreateAuthenticatedBlobClient(IBicepCloudConfiguration cloud, Uri registryUri, string repository)
         {
             ThrowIfRegistryNotTrusted(registryUri);
 
-            var options = new ContainerRegistryClientOptions();
-            options.Diagnostics.ApplySharedContainerRegistrySettings();
-            options.Audience = new ContainerRegistryAudience(cloud.ResourceManagerAudience);
-
+            var options = CreateClientOptions(cloud);
             var credential = this.credentialFactory.CreateChain(cloud.CredentialPrecedence, cloud.CredentialOptions, cloud.ActiveDirectoryAuthorityUri);
 
             return new(registryUri, repository, credential, options);
         }
 
-        public ContainerRegistryContentClient CreateAnonymousBlobClient(CloudConfiguration cloud, Uri registryUri, string repository)
+        public ContainerRegistryContentClient CreateAnonymousBlobClient(IBicepCloudConfiguration cloud, Uri registryUri, string repository)
         {
             ThrowIfRegistryNotTrusted(registryUri);
 
-            var options = new ContainerRegistryClientOptions();
-            options.Diagnostics.ApplySharedContainerRegistrySettings();
-            options.Audience = new ContainerRegistryAudience(cloud.ResourceManagerAudience);
-
+            var options = CreateClientOptions(cloud);
             return new(registryUri, repository, options);
         }
 
-        public ContainerRegistryClient CreateAuthenticatedContainerClient(CloudConfiguration cloud, Uri registryUri)
+        public ContainerRegistryClient CreateAuthenticatedContainerClient(IBicepCloudConfiguration cloud, Uri registryUri)
         {
             ThrowIfRegistryNotTrusted(registryUri);
 
-            var options = new ContainerRegistryClientOptions();
-            options.Diagnostics.ApplySharedContainerRegistrySettings();
-            options.Audience = new ContainerRegistryAudience(cloud.ResourceManagerAudience);
-
+            var options = CreateClientOptions(cloud);
             var credential = this.credentialFactory.CreateChain(cloud.CredentialPrecedence, cloud.CredentialOptions, cloud.ActiveDirectoryAuthorityUri);
 
             return new(registryUri, credential, options);
         }
 
-        public ContainerRegistryClient CreateAnonymousContainerClient(CloudConfiguration cloud, Uri registryUri)
+        public ContainerRegistryClient CreateAnonymousContainerClient(IBicepCloudConfiguration cloud, Uri registryUri)
         {
             ThrowIfRegistryNotTrusted(registryUri);
 
+            var options = CreateClientOptions(cloud);
+            return new(registryUri, options);
+        }
+
+        private static ContainerRegistryClientOptions CreateClientOptions(IBicepCloudConfiguration cloud)
+        {
             var options = new ContainerRegistryClientOptions();
             options.Diagnostics.ApplySharedContainerRegistrySettings();
             options.Audience = new ContainerRegistryAudience(cloud.ResourceManagerAudience);
-
-            return new(registryUri, options);
+            return options;
         }
 
         private void ThrowIfRegistryNotTrusted(Uri registryUri)

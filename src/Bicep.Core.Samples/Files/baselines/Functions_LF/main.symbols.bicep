@@ -85,6 +85,18 @@ output likeExactMatch bool =like('abc', 'abc')
 //@[07:021) Output likeExactMatch. Type: bool. Declaration start char: 0, length: 46
 output likeWildCardMatch bool= like ('abcdef', 'a*c*')
 //@[07:024) Output likeWildCardMatch. Type: bool. Declaration start char: 0, length: 54
+output likewildcard bool = like('abcabc', '*abc')
+//@[07:019) Output likewildcard. Type: bool. Declaration start char: 0, length: 49
+output likewildcardtest2 bool = like('aXaYa' , 'a*a')
+//@[07:024) Output likewildcardtest2. Type: bool. Declaration start char: 0, length: 53
+output likewildcardtest3 bool = like('' , '***')
+//@[07:024) Output likewildcardtest3. Type: bool. Declaration start char: 0, length: 48
+output likewildcardtest4 bool = like('a', 'b')
+//@[07:024) Output likewildcardtest4. Type: bool. Declaration start char: 0, length: 46
+output likewildcardtest5 bool = like('abc**def', '*def')
+//@[07:024) Output likewildcardtest5. Type: bool. Declaration start char: 0, length: 56
+output likewildcardtest6 bool = like('aXbYa', 'a*b*a')
+//@[07:024) Output likewildcardtest6. Type: bool. Declaration start char: 0, length: 54
 output distinctTest array = distinct(['a','b','a','c','b'])
 //@[07:019) Output distinctTest. Type: array. Declaration start char: 0, length: 59
 output distinctTest2 array = distinct([1,2,3,1,2,4])

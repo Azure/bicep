@@ -287,48 +287,14 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            void ProcessInlinableSymbol(DeclaredSymbol symbol, string identifierName)
-            {
-                var previousStack = this.currentStack;
-                if (!shouldInlineCache.TryGetValue(symbol, out var shouldInline))
-                {
-                    this.currentStack = this.currentStack?.Push(identifierName);
-
-                    // recursively visit dependent symbols
-                    this.Visit(symbol.DeclaringSyntax);
-
-                    if (!shouldInlineCache.TryGetValue(symbol, out shouldInline))
-                    {
-                        shouldInline = Decision.NotInline;
-                    }
-
-                    if (shouldInline == Decision.Inline && this.targetVariable is not null && this.capturedSequence is null)
-                    {
-                        // this point is where the decision is made to inline the variable
-                        // the variable access stack will be the deepest here
-                        // (once captured, we will not reset because the visitor will be short-circuiting and
-                        //  unrolling the recursion which would produce shorter and inaccurate paths)
-
-                        // capture the sequence of variable accesses
-                        this.capturedSequence = this.currentStack;
-                    }
-                }
-
-                // if we depend on a symbol that requires inlining, then we also require inlining
-                var newValue = shouldInlineCache[currentDeclaration] == Decision.Inline || shouldInline == Decision.Inline;
-                SetInlineCache(newValue);
-
-                this.currentStack = previousStack;
-            }
-
             switch (model.GetSymbolInfo(syntax))
             {
                 case VariableSymbol variableSymbol:
-                    ProcessInlinableSymbol(variableSymbol, syntax.Name.IdentifierName);
+                    ProcessInlinableSymbol(currentDeclaration, variableSymbol, syntax.Name.IdentifierName);
                     return;
 
                 case ParameterAssignmentSymbol parameterAssignmentSymbol:
-                    ProcessInlinableSymbol(parameterAssignmentSymbol, syntax.Name.IdentifierName);
+                    ProcessInlinableSymbol(currentDeclaration, parameterAssignmentSymbol, syntax.Name.IdentifierName);
                     return;
 
                 case ResourceSymbol:
@@ -341,6 +307,40 @@ namespace Bicep.Core.Emit
                     }
                     return;
             }
+        }
+
+        private void ProcessInlinableSymbol(DeclaredSymbol referencingDeclaration, DeclaredSymbol symbol, string identifierName)
+        {
+            var previousStack = this.currentStack;
+            if (!shouldInlineCache.TryGetValue(symbol, out var shouldInline))
+            {
+                this.currentStack = this.currentStack?.Push(identifierName);
+
+                // recursively visit dependent symbols
+                this.Visit(symbol.DeclaringSyntax);
+
+                if (!shouldInlineCache.TryGetValue(symbol, out shouldInline))
+                {
+                    shouldInline = Decision.NotInline;
+                }
+
+                if (shouldInline == Decision.Inline && this.targetVariable is not null && this.capturedSequence is null)
+                {
+                    // this point is where the decision is made to inline the variable
+                    // the variable access stack will be the deepest here
+                    // (once captured, we will not reset because the visitor will be short-circuiting and
+                    //  unrolling the recursion which would produce shorter and inaccurate paths)
+
+                    // capture the sequence of variable accesses
+                    this.capturedSequence = this.currentStack;
+                }
+            }
+
+            // if we depend on a symbol that requires inlining, then we also require inlining
+            var newValue = shouldInlineCache[referencingDeclaration] == Decision.Inline || shouldInline == Decision.Inline;
+            SetInlineCache(newValue);
+
+            this.currentStack = previousStack;
         }
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
@@ -357,6 +357,13 @@ namespace Bicep.Core.Emit
             if (shouldInlineCache[currentDeclaration] == Decision.Inline)
             {
                 // we've already made a decision to inline
+                return;
+            }
+
+            if (model.GetSymbolInfo(syntax.BaseExpression) is BaseParametersSymbol baseParameters &&
+                baseParameters.ParentAssignments.FirstOrDefault(assignment => LanguageConstants.IdentifierComparer.Equals(assignment.Name, syntax.PropertyName.IdentifierName)) is { } parentAssignment)
+            {
+                ProcessInlinableSymbol(currentDeclaration, parentAssignment, syntax.PropertyName.IdentifierName);
                 return;
             }
 

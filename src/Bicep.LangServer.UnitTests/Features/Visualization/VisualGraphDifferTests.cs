@@ -5,7 +5,6 @@ using Bicep.LanguageServer.Features.Custom.Visualization;
 using Bicep.LanguageServer.Features.Custom.Visualization.Models;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LangServer.UnitTests.Features.Visualization;
 
@@ -13,7 +12,7 @@ namespace Bicep.LangServer.UnitTests.Features.Visualization;
 public class VisualGraphDifferTests
 {
     [TestMethod]
-    public void Diff_against_null_current_adds_every_node_and_edge_parents_first()
+    public void Diff_AgainstNullCurrent_AddsEveryNodeAndEdgeParentsFirst()
     {
         var target = new CanonicalGraph(
             Nodes:
@@ -39,7 +38,7 @@ public class VisualGraphDifferTests
     }
 
     [TestMethod]
-    public void Diff_removes_nodes_absent_from_target_deepest_first()
+    public void Diff_WhenNodesAbsentFromTarget_RemovesDeepestFirst()
     {
         var current = new RenderedGraph(
             Nodes:
@@ -59,7 +58,7 @@ public class VisualGraphDifferTests
     }
 
     [TestMethod]
-    public void Diff_treats_reparented_node_as_remove_then_add()
+    public void Diff_ForReparentedNode_EmitsRemoveThenAdd()
     {
         var current = new RenderedGraph(
             Nodes:
@@ -85,7 +84,7 @@ public class VisualGraphDifferTests
     }
 
     [TestMethod]
-    public void Diff_treats_kind_change_as_remove_then_add()
+    public void Diff_ForKindChange_EmitsRemoveThenAdd()
     {
         var current = new RenderedGraph(
             Nodes: [Rendered("x", GraphNodeKind.Resource, parentId: null)],
@@ -103,7 +102,7 @@ public class VisualGraphDifferTests
     }
 
     [TestMethod]
-    public void Diff_refreshes_surviving_nodes_with_metadata()
+    public void Diff_ForSurvivingNodes_RefreshesMetadata()
     {
         var current = new RenderedGraph(
             Nodes: [Rendered("res", GraphNodeKind.Resource, parentId: null)],
@@ -121,10 +120,43 @@ public class VisualGraphDifferTests
         update.NodeId.Should().Be("res");
         update.Changes.Type.Should().Be("Microsoft.Storage/storageAccounts");
         update.Changes.HasError.Should().Be(true);
+        // Unchanged fields are omitted so the client applies the minimal delta.
+        update.Changes.IsCollection.Should().BeNull();
+        update.Changes.HasChildren.Should().BeNull();
     }
 
     [TestMethod]
-    public void Diff_adds_and_removes_edges_by_id()
+    public void Diff_ForSurvivingNodes_WhenMetadataUnchanged_EmitsNoUpdate()
+    {
+        // A whitespace-only edit re-builds an identical canonical graph. Because source ranges are no longer
+        // part of node metadata, the differ must emit zero patches (O(0) chatter) rather than one update per node.
+        var current = new RenderedGraph(
+            Nodes:
+            [
+                Rendered("res", GraphNodeKind.Resource, parentId: null),
+                Rendered("mod", GraphNodeKind.Module, parentId: null),
+            ],
+            Edges: []);
+        var target = new CanonicalGraph(
+            Nodes:
+            [
+                Node("res", GraphNodeKind.Resource, parentId: null),
+                Node("mod", GraphNodeKind.Module, parentId: null),
+            ],
+            Edges: [],
+            ErrorCount: 0);
+
+        var patches = VisualGraphDiffer.Diff(current, target);
+
+        // Only the error-count refresh remains; no per-node patches.
+        patches.OfType<GraphPatch.UpdateNode>().Should().BeEmpty();
+        patches.OfType<GraphPatch.AddNode>().Should().BeEmpty();
+        patches.OfType<GraphPatch.RemoveNode>().Should().BeEmpty();
+        patches.OfType<GraphPatch.SetNodeLayout>().Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public void Diff_WhenEdgesChange_AddsAndRemovesEdgesById()
     {
         var current = new RenderedGraph(
             Nodes:
@@ -149,7 +181,7 @@ public class VisualGraphDifferTests
     }
 
     [TestMethod]
-    public void Diff_removes_edges_before_removing_nodes()
+    public void Diff_WhenRemovingNodes_RemovesEdgesFirst()
     {
         var current = new RenderedGraph(
             Nodes:
@@ -168,7 +200,7 @@ public class VisualGraphDifferTests
     }
 
     [TestMethod]
-    public void Diff_always_emits_set_error_count_last()
+    public void Diff_ForAnyGraph_EmitsSetErrorCountLast()
     {
         var target = new CanonicalGraph(
             Nodes: [Node("res", GraphNodeKind.Resource, parentId: null)],
@@ -179,6 +211,112 @@ public class VisualGraphDifferTests
 
         patches.Last().Should().BeOfType<GraphPatch.SetErrorCount>()
             .Which.ErrorCount.Should().Be(4);
+    }
+
+    [TestMethod]
+    public void HasTopologyChange_WithNullCurrent_ReturnsTrue()
+    {
+        var target = new CanonicalGraph([Node("a", GraphNodeKind.Resource, parentId: null)], [], ErrorCount: 0);
+
+        VisualGraphDiffer.HasTopologyChange(current: null, target).Should().BeTrue();
+    }
+
+    [TestMethod]
+    public void HasTopologyChange_WithIdenticalTopology_ReturnsFalse()
+    {
+        var current = new RenderedGraph(
+            Nodes:
+            [
+                Rendered("a", GraphNodeKind.Resource, parentId: null),
+                Rendered("b", GraphNodeKind.Resource, parentId: null),
+            ],
+            Edges: [RenderedEdge("a->b", "a", "b")]);
+        var target = new CanonicalGraph(
+            Nodes:
+            [
+                Node("a", GraphNodeKind.Resource, parentId: null),
+                Node("b", GraphNodeKind.Resource, parentId: null),
+            ],
+            Edges: [Edge("a->b", "a", "b")],
+            ErrorCount: 0);
+
+        VisualGraphDiffer.HasTopologyChange(current, target).Should().BeFalse();
+    }
+
+    [TestMethod]
+    public void HasTopologyChange_WithMetadataOnlyChange_ReturnsFalse()
+    {
+        var current = new RenderedGraph(
+            Nodes: [Rendered("a", GraphNodeKind.Resource, parentId: null)],
+            Edges: []);
+
+        // Same id, kind, and parent, but a different type and error state: a metadata-only change.
+        var target = new CanonicalGraph(
+            Nodes: [Node("a", GraphNodeKind.Resource, parentId: null, type: "Microsoft.Storage/storageAccounts", hasError: true)],
+            Edges: [],
+            ErrorCount: 1);
+
+        VisualGraphDiffer.HasTopologyChange(current, target).Should().BeFalse();
+    }
+
+    [TestMethod]
+    public void HasTopologyChange_WithAddedNode_ReturnsTrue()
+    {
+        var current = new RenderedGraph(Nodes: [Rendered("a", GraphNodeKind.Resource, parentId: null)], Edges: []);
+        var target = new CanonicalGraph(
+            Nodes:
+            [
+                Node("a", GraphNodeKind.Resource, parentId: null),
+                Node("b", GraphNodeKind.Resource, parentId: null),
+            ],
+            Edges: [],
+            ErrorCount: 0);
+
+        VisualGraphDiffer.HasTopologyChange(current, target).Should().BeTrue();
+    }
+
+    [TestMethod]
+    public void HasTopologyChange_WithReparentedNode_ReturnsTrue()
+    {
+        var current = new RenderedGraph(
+            Nodes:
+            [
+                Rendered("m", GraphNodeKind.Module, parentId: null),
+                Rendered("res", GraphNodeKind.Resource, parentId: "m"),
+            ],
+            Edges: []);
+        var target = new CanonicalGraph(
+            Nodes:
+            [
+                Node("m", GraphNodeKind.Module, parentId: null),
+                Node("res", GraphNodeKind.Resource, parentId: null),
+            ],
+            Edges: [],
+            ErrorCount: 0);
+
+        VisualGraphDiffer.HasTopologyChange(current, target).Should().BeTrue();
+    }
+
+    [TestMethod]
+    public void HasTopologyChange_WithChangedEdge_ReturnsTrue()
+    {
+        var current = new RenderedGraph(
+            Nodes:
+            [
+                Rendered("a", GraphNodeKind.Resource, parentId: null),
+                Rendered("b", GraphNodeKind.Resource, parentId: null),
+            ],
+            Edges: []);
+        var target = new CanonicalGraph(
+            Nodes:
+            [
+                Node("a", GraphNodeKind.Resource, parentId: null),
+                Node("b", GraphNodeKind.Resource, parentId: null),
+            ],
+            Edges: [Edge("a->b", "a", "b")],
+            ErrorCount: 0);
+
+        VisualGraphDiffer.HasTopologyChange(current, target).Should().BeTrue();
     }
 
     private static GraphNode Node(
@@ -195,14 +333,26 @@ public class VisualGraphDifferTests
             SymbolName: id,
             IsCollection: false,
             HasChildren: false,
-            HasError: hasError,
-            FilePath: "/main.bicep",
-            Range: new Range(0, 0, 0, 0));
+            HasError: hasError);
 
     private static GraphEdge Edge(string id, string sourceId, string targetId) => new(id, sourceId, targetId);
 
-    private static RenderedGraphNode Rendered(string id, string kind, string? parentId) =>
-        new(Id: id, Kind: kind, ParentId: parentId, Width: 100, Height: 50);
+    private static RenderedGraphNode Rendered(
+        string id,
+        string kind,
+        string? parentId,
+        string type = "Test.Rp/tests",
+        bool hasError = false) =>
+        new(
+            Id: id,
+            Kind: kind,
+            ParentId: parentId,
+            Type: type,
+            IsCollection: false,
+            HasChildren: false,
+            HasError: hasError,
+            Width: 100,
+            Height: 50);
 
     private static RenderedGraphEdge RenderedEdge(string id, string sourceId, string targetId) => new(id, sourceId, targetId);
 }

@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace Bicep.Core.Registry
 {
-    public class RegistryConfiguration(bool PermitUntrustedRegistries)
+    public class RegistryConfiguration
     {
         /// <summary>
         /// Built-in trusted registries. Hardcoded — users cannot remove these.
@@ -23,13 +23,28 @@ namespace Bicep.Core.Registry
             "ghcr.io",
         ];
 
+        private readonly bool permitUntrustedRegistries;
+
+        /// <summary>
+        /// Additional trusted registries supplied by the user (e.g. via the
+        /// BICEP_TRUSTED_REGISTRIES environment variable). Uses the same matching rules as
+        /// <see cref="BuiltInTrustedRegistries"/>: "*.suffix" for subdomain wildcards, otherwise exact match.
+        /// </summary>
+        private readonly ImmutableArray<string> additionalTrustedRegistries;
+
+        public RegistryConfiguration(bool PermitUntrustedRegistries, IEnumerable<string>? additionalTrustedRegistries = null)
+        {
+            this.permitUntrustedRegistries = PermitUntrustedRegistries;
+            this.additionalTrustedRegistries = additionalTrustedRegistries?.ToImmutableArray() ?? [];
+        }
+
         /// <summary>
         /// Returns true if <paramref name="registryHostname"/> is trusted by the built-in list
         /// or the user-supplied list.
         /// </summary>
         public bool IsRegistryTrusted(string registryHostname)
         {
-            if (PermitUntrustedRegistries)
+            if (permitUntrustedRegistries)
             {
                 return true;
             }
@@ -41,7 +56,23 @@ namespace Bicep.Core.Registry
                 return false;
             }
 
-            return IsMatchedByAny(normalized, BuiltInTrustedRegistries);
+            return IsMatchedByAny(normalized, BuiltInTrustedRegistries)
+                || IsMatchedByAny(normalized, additionalTrustedRegistries);
+        }
+
+        /// <summary>
+        /// Parses a delimited list of registry hostnames/patterns (comma or semicolon separated),
+        /// e.g. the value of the BICEP_TRUSTED_REGISTRIES environment variable.
+        /// </summary>
+        public static IEnumerable<string> ParseTrustedRegistries(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return [];
+            }
+
+            return value
+                .Split([',', ';'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         }
 
         // ── Helpers ─────────────────────────────────────────────────────────────

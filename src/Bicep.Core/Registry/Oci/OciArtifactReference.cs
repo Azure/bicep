@@ -22,7 +22,7 @@ namespace Bicep.Core.Registry.Oci
         private readonly Lazy<BicepRegistryModuleArtifact> lazyBicepRegistryModuleArtifact;
         private readonly Lazy<BicepRegistryExtensionArtifact> lazyBicepRegistryExtensionArtifact;
 
-        public OciArtifactReference(IFeatureProvider featureProvider, RootConfiguration configuration, ArtifactType type, IOciArtifactAddressComponents artifactIdParts) :
+        public OciArtifactReference(IFeatureProvider featureProvider, IBicepConfiguration configuration, ArtifactType type, IOciArtifactAddressComponents artifactIdParts) :
             base(featureProvider, configuration, OciArtifactReferenceFacts.Scheme)
         {
             Type = type;
@@ -31,7 +31,7 @@ namespace Bicep.Core.Registry.Oci
             lazyBicepRegistryExtensionArtifact = new(() => new(this.AddressComponents, this.FeatureProvider.CacheRootDirectory));
         }
 
-        public OciArtifactReference(IFeatureProvider featureProvider, RootConfiguration configuration, ArtifactType type, string registry, string repository, string? tag, string? digest) :
+        public OciArtifactReference(IFeatureProvider featureProvider, IBicepConfiguration configuration, ArtifactType type, string registry, string repository, string? tag, string? digest) :
             base(featureProvider, configuration, OciArtifactReferenceFacts.Scheme)
         {
             switch (tag, digest)
@@ -99,7 +99,7 @@ namespace Bicep.Core.Registry.Oci
 
         // unqualifiedReference is the reference without a scheme or alias, e.g. "example.azurecr.invalid/foo/bar:v3"
         // The referencingFile is needed to resolve aliases and experimental features
-        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParse(IFeatureProvider features, RootConfiguration configuration, ArtifactType type, string? aliasName, string unqualifiedReference)
+        public static ResultWithDiagnosticBuilder<OciArtifactReference> TryParse(IFeatureProvider features, IBicepConfiguration configuration, ArtifactType type, string? aliasName, string unqualifiedReference)
         {
             if (TryParseComponents(configuration, type, aliasName, unqualifiedReference).IsSuccess(out var components, out var errorBuilder))
             {
@@ -116,7 +116,7 @@ namespace Bicep.Core.Registry.Oci
                 ? this.lazyBicepRegistryExtensionArtifact.Value
                 : throw new InvalidOperationException($"Cannot resolve extension artifact for type {this.Type}.");
 
-        private static ResultWithDiagnosticBuilder<OciArtifactAddressComponents> TryParseComponents(RootConfiguration configuration, ArtifactType type, string? aliasName, string unqualifiedReference)
+        private static ResultWithDiagnosticBuilder<OciArtifactAddressComponents> TryParseComponents(IBicepConfiguration configuration, ArtifactType type, string? aliasName, string unqualifiedReference)
         {
             if (aliasName is { })
             {

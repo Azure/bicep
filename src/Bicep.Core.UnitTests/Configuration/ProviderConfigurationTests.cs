@@ -8,7 +8,7 @@ using Bicep.Core.Json;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
-using Bicep.TextFixtures.IO;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -29,7 +29,7 @@ public class ExtensionsConfigurationTests
         }
         """);
 
-        var extensions = ExtensionsConfiguration.Bind(data.GetProperty(RootConfiguration.ExtensionsKey));
+        var extensions = ExtensionsConfiguration.Bind(data.GetProperty(BicepConfiguration.ExtensionsKey));
         extensions.Should().NotBeNull();
 
         extensions.TryGetExtensionSource("az").IsSuccess(out var azExtension).Should().BeTrue();
@@ -49,7 +49,7 @@ public class ExtensionsConfigurationTests
     [TestMethod]
     public void ExtensionConfiguration_default_configuration_returns_known_list_of_built_in_extensions_with_expected_default_values()
     {
-        var config = IConfigurationManager.GetBuiltInConfiguration();
+        var config = BicepConfiguration.BuiltIn;
 
         config.Should().NotBeNull();
         config!.Extensions.Should().NotBeNull();
@@ -76,10 +76,10 @@ public class ExtensionsConfigurationTests
             }
             """));
 
-        var configManager = new ConfigurationManager(fileSet.FileExplorer);
-        var config = configManager.GetConfiguration(fileSet.GetUri("main.bicep"));
+        var configManager = new BicepConfigurationManager(fileSet.FileExplorer);
+        var config = configManager.GetEffectiveConfiguration(fileSet.GetUri("main.bicep"));
 
-        config.Diagnostics.Should().BeEmpty();
+        config.GetDiagnostics().Should().BeEmpty();
         config.Should().NotBeNull();
         config!.Extensions.Should().NotBeNull();
 

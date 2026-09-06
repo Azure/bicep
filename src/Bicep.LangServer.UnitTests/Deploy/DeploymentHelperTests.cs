@@ -11,7 +11,7 @@ using Bicep.Core;
 using Bicep.Core.Json;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.LanguageServer;
-using Bicep.LanguageServer.Deploy;
+using Bicep.LanguageServer.Features.Custom.Deployments.Services;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

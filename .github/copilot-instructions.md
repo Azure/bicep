@@ -35,7 +35,7 @@ dotnet build Bicep.sln
 # Run all tests
 dotnet test
 
-# Build VS Code extension (requires Node.js 20+)
+# Build VS Code extension (requires Node.js 22+)
 cd src/vscode-bicep && npm ci && npm run build
 
 # Build vscode-bicep-ui
@@ -49,7 +49,7 @@ cd src/vscode-bicep-ui && npm ci && npm run build
 - **Framework**: MSTest (`[TestClass]`, `[TestMethod]`), FluentAssertions for assertions, Moq for mocking
 - **Naming**: `Bicep.Foo.UnitTests`, `Bicep.Foo.IntegrationTests`, `Bicep.Foo.E2eTests`
 - **DI in tests**: Use `ServiceBuilder` for composable test setup: `new ServiceBuilder().WithRegistration(...).Build()`
-- **Jest** for VS Code extension tests
+- **Vitest** for VS Code extension tests
 - **Vitest** for vscode-bicep-ui tests
 
 ### Baseline Tests (Critical Pattern)

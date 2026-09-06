@@ -103,5 +103,43 @@ namespace Bicep.Core.UnitTests.Registry
             var config = new RegistryConfiguration(PermitUntrustedRegistries: false);
             config.IsRegistryTrusted("[::1").Should().BeFalse();
         }
+
+        [TestMethod]
+        [DataRow("contoso.example.com")]
+        [DataRow("CONTOSO.EXAMPLE.COM")]           // case-insensitive
+        public void IsRegistryTrusted_UserSuppliedExactMatch_ReturnsTrue(string hostname)
+        {
+            var config = new RegistryConfiguration(PermitUntrustedRegistries: false, additionalTrustedRegistries: ["contoso.example.com"]);
+            config.IsRegistryTrusted(hostname).Should().BeTrue();
+        }
+
+        [TestMethod]
+        [DataRow("harbor.contoso.io")]
+        [DataRow("a.b.contoso.io")]
+        public void IsRegistryTrusted_UserSuppliedWildcard_ReturnsTrue(string hostname)
+        {
+            var config = new RegistryConfiguration(PermitUntrustedRegistries: false, additionalTrustedRegistries: ["*.contoso.io"]);
+            config.IsRegistryTrusted(hostname).Should().BeTrue();
+        }
+
+        [TestMethod]
+        [DataRow("evil.com")]
+        [DataRow("contoso.io")]                    // wildcard requires a subdomain label
+        public void IsRegistryTrusted_UserSuppliedList_DoesNotTrustOtherHosts(string hostname)
+        {
+            var config = new RegistryConfiguration(PermitUntrustedRegistries: false, additionalTrustedRegistries: ["*.contoso.io"]);
+            config.IsRegistryTrusted(hostname).Should().BeFalse();
+        }
+
+        [TestMethod]
+        [DataRow(null, new string[0])]
+        [DataRow("", new string[0])]
+        [DataRow("   ", new string[0])]
+        [DataRow("contoso.example.com", new[] { "contoso.example.com" })]
+        [DataRow("a.example.com, b.example.com ; *.c.io", new[] { "a.example.com", "b.example.com", "*.c.io" })]
+        public void ParseTrustedRegistries_ParsesDelimitedList(string? value, string[] expected)
+        {
+            RegistryConfiguration.ParseTrustedRegistries(value).Should().Equal(expected);
+        }
     }
 }

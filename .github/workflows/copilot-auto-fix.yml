@@ -1,0 +1,185 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+# Automatically prompts GitHub Copilot to fix failing tests or merge conflicts
+# on pull requests authored by dependabot.
+#
+# Two jobs:
+#   fix-failing-tests    – triggered when the Build workflow fails on a dependabot branch
+#   fix-merge-conflicts  – triggered when a dependabot PR is opened/updated and has conflicts
+
+name: Copilot Auto-Fix for Dependabot PRs
+
+on:
+  # Detect build/test failures on dependabot branches
+  workflow_run:
+    workflows: ["Build"]
+    types: [completed]
+
+  # Detect merge conflicts when a dependabot PR is created or updated
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  # -----------------------------------------------------------------------
+  # Job 1 – Ask Copilot to fix failing tests
+  # -----------------------------------------------------------------------
+  fix-failing-tests:
+    name: Ask Copilot to fix failing tests
+    runs-on: ubuntu-latest
+    # Only run when the Build workflow failed on a dependabot branch
+    if: |
+      github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'failure' &&
+      startsWith(github.event.workflow_run.head_branch, 'dependabot/')
+
+    steps:
+      - name: Get PR number for the failed run
+        id: get-pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: |
+          PR_NUMBER=$(gh pr list \
+            --repo "$REPO" \
+            --state open \
+            --head "$HEAD_BRANCH" \
+            --author "app/dependabot" \
+            --json number \
+            --jq '.[0].number // empty')
+
+          if [ -z "$PR_NUMBER" ]; then
+            echo "No open dependabot PR found for branch $HEAD_BRANCH"
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check whether we already commented for this run
+        id: check-duplicate
+        if: steps.get-pr.outputs.found == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.get-pr.outputs.pr_number }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          EXISTING=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" \
+            --jq "[.[] | select(.body | contains(\"$RUN_ID\"))] | length")
+          if [ "$EXISTING" -gt 0 ]; then
+            echo "already_commented=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "already_commented=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Ask Copilot to fix the failing tests
+        if: |
+          steps.get-pr.outputs.found == 'true' &&
+          steps.check-duplicate.outputs.already_commented == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ steps.get-pr.outputs.pr_number }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$(cat <<EOF
+          @copilot The Build workflow failed for this dependabot dependency-update PR (run ID: $RUN_ID).
+
+          Please investigate and fix the failing tests so this PR can be merged. Failed run: $RUN_URL
+
+          Things to consider for this repo:
+          - **Baseline tests** – if snapshot/baseline files are out of date, regenerate them with
+            \`dotnet test -- --filter TestCategory=Baseline --test-parameter SetBaseLine=true\`
+            and commit the updated files.
+          - **Unit / integration tests** – identify the root cause of any compilation or assertion
+            failures introduced by the updated dependency and make the minimal code changes required.
+          - **npm tests** – if a JavaScript/TypeScript package was updated, check whether any
+            type definitions or API calls need updating in \`src/vscode-bicep\` or \`src/vscode-bicep-ui\`.
+
+          Please keep changes minimal and focused on compatibility with the new dependency versions.
+          EOF
+          )"
+
+  # -----------------------------------------------------------------------
+  # Job 2 – Ask Copilot to resolve merge conflicts
+  # -----------------------------------------------------------------------
+  fix-merge-conflicts:
+    name: Ask Copilot to fix merge conflicts
+    runs-on: ubuntu-latest
+    # Only run for dependabot PRs
+    if: |
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.user.login == 'dependabot[bot]'
+
+    steps:
+      # GitHub takes a few seconds to compute mergeability after a push.
+      # Poll until the state is no longer UNKNOWN (or we hit the timeout).
+      - name: Wait for mergeability to be computed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          for i in $(seq 1 10); do
+            MERGE_STATE=$(gh pr view "$PR_NUMBER" --repo "$REPO" \
+              --json mergeStateStatus --jq '.mergeStateStatus')
+            echo "Attempt $i: mergeStateStatus=$MERGE_STATE"
+            if [ "$MERGE_STATE" != "UNKNOWN" ]; then
+              break
+            fi
+            sleep 10
+          done
+
+      - name: Check merge state
+        id: check-merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          MERGE_STATE=$(gh pr view "$PR_NUMBER" --repo "$REPO" \
+            --json mergeStateStatus --jq '.mergeStateStatus')
+          echo "merge_state=$MERGE_STATE" >> "$GITHUB_OUTPUT"
+
+      - name: Check whether we already asked Copilot about conflicts
+        id: check-duplicate
+        if: steps.check-merge.outputs.merge_state == 'DIRTY'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          EXISTING=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" \
+            --jq '[.[] | select(.body | contains("merge conflicts") and contains("@copilot"))] | length')
+          if [ "$EXISTING" -gt 0 ]; then
+            echo "already_commented=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "already_commented=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Ask Copilot to resolve the merge conflicts
+        if: |
+          steps.check-merge.outputs.merge_state == 'DIRTY' &&
+          steps.check-duplicate.outputs.already_commented == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr comment "$PR_NUMBER" --repo "$REPO" --body "$(cat <<EOF
+          @copilot This dependabot PR has merge conflicts that must be resolved before it can be merged.
+
+          Please resolve the conflicts, keeping the updated dependency versions introduced by dependabot
+          while incorporating any changes from the base branch. Make sure:
+          - The dependency version in the relevant manifest file(s) matches what dependabot specified.
+          - Any lock files (\`package-lock.json\`, NuGet lock files, etc.) are regenerated if needed.
+          - The overall solution still builds and tests pass after the conflict resolution.
+          EOF
+          )"

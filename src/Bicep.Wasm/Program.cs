@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
-using Bicep.Core.Registry;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.JSInterop;
 
@@ -14,16 +11,14 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
-
-        builder.Services.AddSingleton<IFileSystem, MockFileSystem>();
-        builder.Services.AddSingleton<IArtifactRegistryProvider, WasmModuleRegistryProvider>();
-        builder.Services.AddBicepCore();
-        builder.Services.AddBicepDecompiler();
+        builder.Services.AddBicepWasm();
 
         var serviceProvider = builder.Services.BuildServiceProvider();
 
         var jsRuntime = serviceProvider.GetRequiredService<IJSRuntime>();
-        var interop = new Interop(jsRuntime, serviceProvider);
+        var interop = new Interop(
+            filePath => jsRuntime.InvokeAsync<string?>("LoadQuickstartsFile", filePath).AsTask(),
+            serviceProvider);
         await jsRuntime.InvokeAsync<object>("InteropInitialize", DotNetObjectReference.Create(interop));
 
         await builder.Build().RunAsync();

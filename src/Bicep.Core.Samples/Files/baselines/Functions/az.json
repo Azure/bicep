@@ -53,7 +53,7 @@
       "type": "string",
       "minimumCount": 1
     },
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(resourceId: string, resourceType: string, ... : string): string",
     "parameterTypeSignatures": [
       "resourceId: string",
@@ -578,7 +578,7 @@
       "type": "string",
       "minimumCount": 1
     },
-    "flags": "default",
+    "flags": "pure",
     "typeSignature": "(resourceType: string, ... : string): string",
     "parameterTypeSignatures": [
       "resourceType: string",

@@ -17,6 +17,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using Bicep.Local.Deploy.Extensibility;
@@ -34,6 +35,7 @@ namespace Bicep.Cli.Commands
         IFileExplorer fileExplorer,
         InputOutputArgumentsResolver inputOutputArgumentsResolver,
         ILocalExtensionFactory localExtensionFactory,
+        IEnvironment environment,
         ILogger logger) : ICommand
     {
         public async Task<int> RunAsync(PublishExtensionArguments args, CancellationToken cancellationToken)
@@ -63,6 +65,8 @@ namespace Bicep.Cli.Commands
             var reference = ValidateReference(args.TargetExtensionReference);
             var overwriteIfExists = args.Force;
 
+            Trace.WriteLine($"Preparing to publish extension \"{reference.FullyQualifiedReference}\" (force={overwriteIfExists}, indexFile={args.IndexFile ?? "<none>"}, binariesSpecified={args.Binaries.Count}).");
+
             var binaries = SupportedArchitectures.All.Select(TryGetBinary).WhereNotNull().ToImmutableArray();
             var tarPayload = await GetTypesTarPayload(args, binaries, cancellationToken);
 
@@ -82,6 +86,7 @@ namespace Bicep.Cli.Commands
                 var indexUri = inputOutputArgumentsResolver.PathToUri(args.IndexFile);
                 var indexFile = fileExplorer.GetFile(indexUri);
 
+                Trace.WriteLine($"Packaging extension types from index file \"{indexUri.Path}\".");
                 return await CreateTypesTar(indexFile);
             }
 
@@ -101,6 +106,7 @@ namespace Bicep.Cli.Commands
                 throw new BicepException($"Failed to load type information: Unable to find a binary for the current architecture ({architecture.Name}).");
             }
 
+            Trace.WriteLine($"Extracting extension types from binary \"{binaryUri.Path}\" for architecture \"{architecture.Name}\".");
             var indexHandle = await GetTypesFromExtension(binaryUri, cancellationToken);
             return await CreateTypesTar(indexHandle);
         }
@@ -114,7 +120,9 @@ namespace Bicep.Cli.Commands
                 {
                     throw new BicepException($"The extension \"{target.FullyQualifiedReference}\" already exists. Use --force to overwrite the existing extension.");
                 }
+                Trace.WriteLine($"Publishing extension package to \"{target.FullyQualifiedReference}\".");
                 await moduleDispatcher.PublishExtension(target, package);
+                Trace.WriteLine($"Successfully published extension package to \"{target.FullyQualifiedReference}\".");
             }
             catch (ExternalArtifactException exception)
             {
@@ -136,7 +144,7 @@ namespace Bicep.Cli.Commands
             }
             else
             {
-                dummyReferencingFileUri = new IOUri("file", "", "/dummy");
+                dummyReferencingFileUri = IOUri.FromFilePath(Path.Join(environment.CurrentDirectory, "dummy"));
             }
 
             var dummyReferencingFile = sourceFileFactory.CreateBicepFile(dummyReferencingFileUri, "");
@@ -169,12 +177,14 @@ namespace Bicep.Cli.Commands
             }
         }
 
-        private static async Task<BinaryData> CreateTypesTar(IFileHandle indexHandle)
+        private async Task<BinaryData> CreateTypesTar(IFileHandle indexHandle)
         {
             try
             {
+                Trace.WriteLine($"Bundling extension types from index \"{indexHandle.Uri.Path}\".");
                 var tarPayload = await TypesV1Archive.PackIntoBinaryData(indexHandle);
                 ValidateExtension(tarPayload);
+                Trace.WriteLine($"Successfully bundled extension types from index \"{indexHandle.Uri.Path}\".");
 
                 return tarPayload;
             }
@@ -188,7 +198,9 @@ namespace Bicep.Cli.Commands
         {
             await using var extension = await localExtensionFactory.Start(binaryUri);
 
+            Trace.WriteLine($"Requesting extension type definitions from binary \"{binaryUri.Path}\" via gRPC.");
             var typeFiles = await extension.GetTypeFiles(cancellationToken);
+            Trace.WriteLine($"Received extension type index and {typeFiles.TypeFileContents.Count} additional type file(s) from binary \"{binaryUri.Path}\".");
 
             var fileExplorer = new InMemoryFileExplorer();
 

@@ -524,6 +524,146 @@ param customParam customType
         }
 
         [TestMethod]
+        public async Task Completions_are_provided_for_object_property_names_of_discriminated_union_at_root_parameter()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+
+param serviceConfig = {
+    type: 'bar'
+    value: true
+    |
+}";
+
+            var bicepText = @"
+type FooConfig = {
+    type: 'foo'
+    value: int
+}
+
+type BarConfig = {
+    type: 'bar'
+    value: bool
+    test: string?
+}
+
+@discriminator('type')
+type ServiceConfig = FooConfig | BarConfig | { type: 'baz', *: string }
+
+param serviceConfig ServiceConfig
+";
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = bicepText,
+            };
+
+            var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary(), '|');
+
+            // the discriminator value ('bar') should narrow the union to BarConfig,
+            // so the remaining (not-yet-specified) property 'test' should be offered
+            completions.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Label.Should().Be("test");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: `null | string`  \n");
+                    x.Kind.Should().Be(CompletionItemKind.Property);
+                });
+        }
+
+        [TestMethod]
+        public async Task Completions_are_provided_for_object_property_names_of_discriminated_union_nested_in_object()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+
+param serviceConfig2 = {
+    serviceConfig: {
+        type: 'bar'
+        value: true
+        |
+    }
+}";
+
+            var bicepText = @"
+type FooConfig = {
+    type: 'foo'
+    value: int
+}
+
+type BarConfig = {
+    type: 'bar'
+    value: bool
+    test: string?
+}
+
+@discriminator('type')
+type ServiceConfig = FooConfig | BarConfig | { type: 'baz', *: string }
+
+param serviceConfig2 {
+    serviceConfig: ServiceConfig
+}
+";
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = bicepText,
+            };
+
+            var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary(), '|');
+
+            // the discriminator value ('bar') should narrow the union to BarConfig,
+            // so the remaining (not-yet-specified) property 'test' should be offered
+            completions.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Label.Should().Be("test");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: `null | string`  \n");
+                    x.Kind.Should().Be(CompletionItemKind.Property);
+                });
+        }
+
+        [TestMethod]
+        public async Task Completions_for_discriminated_union_at_root_parameter_fall_back_to_discriminator_when_value_is_unknown()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+
+param serviceConfig = {
+    |
+}";
+
+            var bicepText = @"
+type FooConfig = {
+    type: 'foo'
+    value: int
+}
+
+type BarConfig = {
+    type: 'bar'
+    value: bool
+    test: string?
+}
+
+@discriminator('type')
+type ServiceConfig = FooConfig | BarConfig | { type: 'baz', *: string }
+
+param serviceConfig ServiceConfig
+";
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = bicepText,
+            };
+
+            var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary(), '|');
+
+            // no discriminator value has been provided yet, so the union cannot be narrowed to a member.
+            // only the discriminator property ('type') should be offered - member-specific properties must NOT leak.
+            completions.Where(x => x.Kind == CompletionItemKind.Property).Should().SatisfyRespectively(
+                x => x.Label.Should().Be("type"));
+            completions.Should().NotContain(x => x.Label == "value");
+            completions.Should().NotContain(x => x.Label == "test");
+        }
+
+        [TestMethod]
         public async Task Type_based_completions_are_provided_for_arrays_of_user_defined_types()
         {
             var paramTextWithCursor = @"

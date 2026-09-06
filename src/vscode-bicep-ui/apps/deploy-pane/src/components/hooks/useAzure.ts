@@ -1,17 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { CloudError, Deployment, DeploymentOperation, ErrorResponse, WhatIfChange } from "@azure/arm-resources";
-import type { AccessToken, TokenCredential } from "@azure/identity";
 import type {
-  DeploymentScope,
-  DeployState,
-  ParametersMetadata,
-  TemplateMetadata,
-  UntypedError,
-} from "../../models";
+  CloudError,
+  Deployment,
+  DeploymentOperation,
+  DeploymentParameter,
+  ErrorResponse,
+  WhatIfChange,
+} from "@azure/arm-resourcesdeployments";
+import type { AccessToken, TokenCredential } from "@azure/core-auth";
+import type { DeploymentScope, DeployState, ParametersMetadata, TemplateMetadata, UntypedError } from "../../models";
 
-import { ResourceManagementClient } from "@azure/arm-resources";
+import { DeploymentsClient } from "@azure/arm-resourcesdeployments";
 import { RestError } from "@azure/core-rest-pipeline";
 import { useState } from "react";
 import { getEffectiveParamData } from "../utils";
@@ -38,7 +39,7 @@ export function useAzure(props: UseAzureProps) {
         ? scope.associatedSubscriptionId
         : scope.subscriptionId;
 
-    return new ResourceManagementClient(credential, authenticatedSubscriptionId, {
+    return new DeploymentsClient(credential, authenticatedSubscriptionId, {
       userAgentOptions: {
         userAgentPrefix: "bicepdeploypane",
       },
@@ -50,7 +51,7 @@ export function useAzure(props: UseAzureProps) {
     scope: DeploymentScope,
     deploymentName: string | undefined,
     operation: (
-      armClient: ResourceManagementClient,
+      armClient: DeploymentsClient,
       deployment: Deployment,
     ) => Promise<{ success: boolean; error?: ErrorResponse }>,
   ) {
@@ -180,14 +181,10 @@ function getDeploymentProperties(
   metadata: TemplateMetadata,
   parametersMetadata: ParametersMetadata,
 ): Deployment {
-  const parameters: Record<string, unknown> = {};
+  const parameters: Record<string, DeploymentParameter> = {};
   const useAllowedStringDropdownDefault = !parametersMetadata.sourceFilePath;
   for (const definition of metadata.parameterDefinitions) {
-    const paramData = getEffectiveParamData(
-      parametersMetadata.parameters,
-      definition,
-      useAllowedStringDropdownDefault,
-    );
+    const paramData = getEffectiveParamData(parametersMetadata.parameters, definition, useAllowedStringDropdownDefault);
     if (paramData) {
       parameters[definition.name] = { value: paramData.value };
     }
@@ -227,7 +224,7 @@ export function getDeploymentResourceId(scope: DeploymentScope, deploymentName: 
 }
 
 async function beginWhatIfAndWait(
-  client: ResourceManagementClient,
+  client: DeploymentsClient,
   scope: DeploymentScope,
   deploymentName: string,
   deployment: Deployment,

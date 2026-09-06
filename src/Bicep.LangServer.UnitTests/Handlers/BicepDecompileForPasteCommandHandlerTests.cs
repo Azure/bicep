@@ -7,12 +7,12 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.UnitTests.Mocks;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Features.Custom.Decompile;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.JsonRpc;
-using static Bicep.LanguageServer.Handlers.BicepDecompileForPasteCommandHandler;
+using static Bicep.LanguageServer.Features.Custom.Decompile.BicepDecompileForPasteCommandHandler;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {
@@ -26,7 +26,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             var builder = ServiceBuilder.Create(services => services
                 .AddSingleton(StrictMock.Of<ISerializer>().Object)
-                .AddSingleton(BicepTestConstants.CreateMockTelemetryProvider().Object)
                 .AddSingleton(server.Mock.Object)
                 .AddSingleton<BicepDecompileForPasteCommandHandler>()
                 );
@@ -72,7 +71,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var handler = CreateHandler(server);
 
 
-            var result = await handler.Handle(new BicepDecompileForPasteCommandParams(editorContentsWithPastedJson, cursorOffset, options.pastedJson.Length, options.pastedJson, queryCanPaste: false, "bicep"), CancellationToken.None);
+            var result = await handler.Handle(new BicepDecompileForPasteCommandParams(editorContentsWithPastedJson, cursorOffset, options.pastedJson.Length, options.pastedJson, "bicep"), CancellationToken.None);
 
             result.ErrorMessage.Should().Be(options.expectedErrorMessage);
 
@@ -1849,4 +1848,3 @@ name: 'Premium_LRS'
         }
     }
 }
-

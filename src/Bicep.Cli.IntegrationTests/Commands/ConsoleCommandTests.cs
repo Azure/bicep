@@ -65,6 +65,32 @@ var target = {
     }
 
     [TestMethod]
+    public async Task Redirected_input_context_with_multi_line_type_union_should_succeed()
+    {
+        var input = """
+            type someRandomType = 'a'
+            | 'b'
+            | 'c'
+            | 'd'
+            var selected someRandomType = 'b'
+            selected
+            """;
+
+        var result = await Bicep(
+            (@out, err) => new IOContext(
+                new(new StringReader(input), IsRedirected: true),
+                new(@out, IsRedirected: false),
+                new(err, IsRedirected: false)),
+            "console");
+
+        result.Should().Succeed();
+        result.WithoutAnsi().Stdout.Should().BeEquivalentToIgnoringNewlines("""
+'b'
+
+""");
+    }
+
+    [TestMethod]
     public async Task Redirected_output_context_should_not_have_ansi_codes()
     {
         // "concat('Hello', ' ', 'World', '!')" | bicep console >

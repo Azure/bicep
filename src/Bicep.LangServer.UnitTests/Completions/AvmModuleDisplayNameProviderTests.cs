@@ -4,7 +4,7 @@
 using System.Collections.Concurrent;
 using System.Net.Http;
 using System.Reflection;
-using Bicep.LanguageServer.Completions;
+using Bicep.LanguageServer.Features.Language.Completion;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

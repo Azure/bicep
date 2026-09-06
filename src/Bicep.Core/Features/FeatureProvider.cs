@@ -8,17 +8,19 @@ namespace Bicep.Core.Features
 {
     public class FeatureProvider : IFeatureProvider
     {
-        private readonly RootConfiguration configuration;
+        private readonly IBicepConfiguration configuration;
 
         private readonly IFileExplorer fileExplorer;
 
-        public FeatureProvider(RootConfiguration configuration, IFileExplorer fileExplorer)
+        public FeatureProvider(IBicepConfiguration configuration, IFileExplorer fileExplorer)
         {
             this.configuration = configuration;
             this.fileExplorer = fileExplorer;
         }
 
         public IDirectoryHandle CacheRootDirectory => GetCacheRootDirectory(this.configuration.CacheRootDirectory);
+
+        public bool OciEnabled => this.configuration.ExperimentalFeaturesEnabled.OciEnabled;
 
         public bool SymbolicNameCodegenEnabled => this.configuration.ExperimentalFeaturesEnabled.SymbolicNameCodegen;
 
@@ -40,7 +42,7 @@ namespace Bicep.Core.Features
 
         public static bool HasTracingVerbosity(TraceVerbosity verbosity) => TracingVerbosity >= verbosity;
 
-        public bool WaitAndRetryEnabled => configuration.ExperimentalFeaturesEnabled.WaitAndRetry;
+        public bool WaitUntilEnabled => configuration.ExperimentalFeaturesEnabled.WaitUntil;
 
         public bool LocalDeployEnabled => configuration.ExperimentalFeaturesEnabled.LocalDeploy;
 
@@ -51,6 +53,12 @@ namespace Bicep.Core.Features
         public bool UserDefinedConstraintsEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedConstraints;
 
         public bool DeployCommandsEnabled => configuration.ExperimentalFeaturesEnabled.DeployCommands;
+
+        public bool PatchEnabled => configuration.ExperimentalFeaturesEnabled.Patch;
+
+        public bool RuntimeValuesInTagsAndSkuEnabled => configuration.ExperimentalFeaturesEnabled.RuntimeValuesInTagsAndSku;
+
+        public bool AzExtensionConfigEnabled => configuration.ExperimentalFeaturesEnabled.AzExtensionConfig;
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;

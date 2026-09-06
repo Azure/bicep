@@ -13,6 +13,16 @@
       "demo-two": {
         "registry": "mock-registry-two.invalid",
         "modulePath": "demo"
+      },
+      "mock-registry-mocked": {
+        "registry": "mock-registry-three.invalid"
+      }
+    }
+  },
+  "moduleAliasesMock": {
+    "br": {
+      "mock-registry-mocked": {
+        "mapToFilePath": "Publish"
       }
     }
   }

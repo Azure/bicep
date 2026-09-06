@@ -16,18 +16,29 @@ namespace Bicep.RpcClient;
 
 internal class BicepClient : IBicepClient
 {
-    private readonly Process cliProcess;
-    private readonly JsonRpcClient jsonRpcClient;
+    private readonly Process? cliProcess;
+    private readonly IJsonRpcClient jsonRpcClient;
     private readonly Task backgroundTask;
     private readonly CancellationTokenSource onDisposeCts;
     private string? cachedVersion;
 
-    private BicepClient(Action onComplete, Process cliProcess, JsonRpcClient jsonRpcClient)
+    private BicepClient(Action onComplete, Process cliProcess, IJsonRpcClient jsonRpcClient)
     {
         this.cliProcess = cliProcess;
         this.jsonRpcClient = jsonRpcClient;
         this.onDisposeCts = new CancellationTokenSource();
         this.backgroundTask = jsonRpcClient.Listen(onComplete: onComplete, onDisposeCts.Token);
+    }
+
+    /// <summary>
+    /// Test-only constructor that injects a JSON-RPC client without starting a CLI process.
+    /// </summary>
+    internal BicepClient(IJsonRpcClient jsonRpcClient)
+    {
+        this.cliProcess = null;
+        this.jsonRpcClient = jsonRpcClient;
+        this.onDisposeCts = new CancellationTokenSource();
+        this.backgroundTask = jsonRpcClient.Listen(onComplete: () => { }, onDisposeCts.Token);
     }
 
     /// <summary>
@@ -128,6 +139,13 @@ internal class BicepClient : IBicepClient
     }
 
     /// <inheritdoc/>
+    public async Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken)
+    {
+        await EnsureMinimumVersion("0.47.0", nameof(GenerateDocs), cancellationToken).ConfigureAwait(false);
+        return await jsonRpcClient.SendRequest<GenerateDocsRequest, GenerateDocsResponse>("bicep/generateDocs", request, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc/>
     public Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken)
         => jsonRpcClient.SendRequest<GetDeploymentGraphRequest, GetDeploymentGraphResponse>("bicep/getDeploymentGraph", request, cancellationToken);
 
@@ -173,7 +191,10 @@ internal class BicepClient : IBicepClient
     {
         onDisposeCts.Cancel();
         jsonRpcClient.Dispose();
-        TryKillProcess(cliProcess);
+        if (cliProcess is { })
+        {
+            TryKillProcess(cliProcess);
+        }
     }
 
     private static void TryKillProcess(Process process)

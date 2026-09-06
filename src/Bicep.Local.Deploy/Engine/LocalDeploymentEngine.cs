@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Net;
 using Azure.Deployments.Core.Constants;
 using Azure.Deployments.Core.Definitions;
@@ -19,35 +20,18 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.Local.Deploy.Engine;
 
-public class LocalDeploymentEngine
+public class LocalDeploymentEngine(
+    LocalRequestContext requestContext,
+    IAzureDeploymentSettings settings,
+    AzureDeploymentEngine deploymentEngine,
+    IDataProviderHolder dataProviderHolder,
+    IDeploymentJobsDataProvider jobProvider,
+    IDeploymentEntityFactory deploymentEntityFactory)
 {
     static LocalDeploymentEngine()
     {
         CoreConstants.ResourcesLimitOverrideForLocalDeploy = int.MaxValue;
     }
-
-    public LocalDeploymentEngine(
-        LocalRequestContext requestContext,
-        IAzureDeploymentSettings settings,
-        AzureDeploymentEngine deploymentEngine,
-        IDataProviderHolder dataProviderHolder,
-        IDeploymentJobsDataProvider jobProvider,
-        IDeploymentEntityFactory deploymentEntityFactory)
-    {
-        this.requestContext = requestContext;
-        this.settings = settings;
-        this.deploymentEngine = deploymentEngine;
-        this.dataProviderHolder = dataProviderHolder;
-        this.jobProvider = jobProvider;
-        this.deploymentEntityFactory = deploymentEntityFactory;
-    }
-
-    private readonly LocalRequestContext requestContext;
-    private readonly IAzureDeploymentSettings settings;
-    private readonly AzureDeploymentEngine deploymentEngine;
-    private readonly IDataProviderHolder dataProviderHolder;
-    private readonly IDeploymentJobsDataProvider jobProvider;
-    private readonly IDeploymentEntityFactory deploymentEntityFactory;
 
     private static (Template template, Dictionary<string, DeploymentParameterDefinition> parameters, OrdinalDictionary<OrdinalDictionary<DeploymentExtensionConfigItem>>? extensionConfigs) ParseTemplateAndParameters(string templateString, string parametersString)
     {
@@ -95,7 +79,7 @@ public class LocalDeploymentEngine
             var oboToken = "dummyToken";
             var oboCorrelationId = RequestCorrelationContext.Current.CorrelationId;
 
-            var deploymentPlan = await this.deploymentEngine.ProcessDeployment(
+            var deploymentPlan = await deploymentEngine.ProcessDeployment(
                 preflightSettings: new(settings, syncMode: true),
                 deploymentContext: context,
                 definition: definition,
@@ -130,13 +114,70 @@ public class LocalDeploymentEngine
 
             var deploymentDataProvider = await dataProviderHolder.GetDeploymentDataProviderAsync(requestContext.Location);
             var entity = await deploymentDataProvider.FindDeployment(context.SubscriptionId, context.ResourceGroupName, context.DeploymentName);
-            var operationEntities = await deploymentDataProvider.FindDeploymentOperations(context.SubscriptionId, context.ResourceGroupName, context.DeploymentName, entity.SequenceId, -1);
+            var operationEntities = await deploymentDataProvider.FindDeploymentOperations(
+                context.SubscriptionId,
+                context.ResourceGroupName,
+                context.DeploymentName,
+                entity.SequenceId,
+                int.MaxValue,
+                includeOrphanSequences: true);
+
+            var deploymentEntityBySequence = new Dictionary<string, IDeploymentEntity>(StringComparer.OrdinalIgnoreCase)
+            {
+                [entity.SequenceId] = entity,
+            };
+
+            async Task<IDeploymentEntity> GetDeploymentEntityForSequence(string deploymentSequenceId)
+            {
+                if (deploymentEntityBySequence.TryGetValue(deploymentSequenceId, out var cachedEntity))
+                {
+                    return cachedEntity;
+                }
+
+                var deploymentEntity = await deploymentDataProvider.FindDeployment(
+                    context.SubscriptionId,
+                    context.ResourceGroupName,
+                    context.DeploymentName,
+                    deploymentSequenceId);
+
+                deploymentEntityBySequence[deploymentSequenceId] = deploymentEntity;
+
+                return deploymentEntity;
+            }
+
+            List<DeploymentOperationDefinition> operationDefinitions = [];
+            foreach (var operation in operationEntities.Where(operation => operation.TargetResource is not null))
+            {
+                var deploymentEntity = await GetDeploymentEntityForSequence(operation.DeploymentSequenceId);
+                operationDefinitions.Add(deploymentEngine.CreateDeploymentOperationDefinition(deploymentEntity, operation, requestContext.Location));
+            }
+
+            ImmutableArray<DeploymentOperationDefinition> operations = [.. operationDefinitions];
+
+            var childDeployments = ImmutableDictionary.CreateBuilder<string, LocalDeploymentResult>(StringComparer.OrdinalIgnoreCase);
+            foreach (var operation in operations)
+            {
+                if (operation.Properties.TargetResource is not { } targetResource ||
+                    targetResource.Extension?.Alias is not "az0synthesized" ||
+                    targetResource.Identifiers?["name"]?.ToString() is not { } childDeploymentName)
+                {
+                    continue;
+                }
+
+                // Only recurse into deployments that exist locally. Modules deployed to other scopes
+                // (e.g. Azure) are not tracked here, so their wrapper operation is kept as a single row.
+                if (await deploymentDataProvider.FindDeployment(context.SubscriptionId, context.ResourceGroupName, childDeploymentName) is null)
+                {
+                    continue;
+                }
+
+                childDeployments[targetResource.SymbolicName] = await CheckDeployment(childDeploymentName);
+            }
 
             return new(
                 deploymentEngine.CreateDeploymentDefinition(entity, requestContext.ApiVersion),
-                [.. operationEntities
-                    .Where(operation => operation.TargetResource is not null)
-                    .Select(operation => deploymentEngine.CreateDeploymentOperationDefinition(entity, operation, requestContext.Location))]);
+                operations,
+                childDeployments.ToImmutable());
         }
     }
 

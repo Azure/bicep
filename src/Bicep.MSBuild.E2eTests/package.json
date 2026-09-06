@@ -5,15 +5,13 @@
     "@eslint/js": "^10.0.1",
     "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
     "@types/cross-spawn": "^6.0.6",
-    "@types/eslint__js": "^8.42.3",
-    "@types/uuid": "^11.0.0",
-    "@vitest/eslint-plugin": "^1.6.19",
+    "@vitest/eslint-plugin": "^1.6.27",
     "cross-spawn": "^7.0.6",
-    "eslint": "^10.4.1",
-    "prettier": "^3.8.3",
+    "eslint": "^10.9.1",
+    "prettier": "^3.9.6",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.60.1",
-    "vitest": "^4.1.8"
+    "typescript-eslint": "^8.68.0",
+    "vitest": "^4.1.11"
   },
   "scripts": {
     "check-types": "tsc --noEmit",
