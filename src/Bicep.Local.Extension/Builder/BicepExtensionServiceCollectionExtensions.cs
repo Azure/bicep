@@ -28,41 +28,16 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class BicepExtensionServiceCollectionExtensions
 {
     /// <summary>
-    /// Configures the dependency injection container with core Bicep extension services and type definitions.
+    /// Adds the Bicep extension to the specified service collection, enabling support for resource handling and gRPC
+    /// services within the application.
     /// </summary>
-    /// <example>
-    /// <code>
-    /// services.AddBicepExtension(
-    ///     name: "MyCompany.KubernetesExtension",
-    ///     version: "1.0.0",
-    ///     isSingleton: true,
-    ///     typeConfiguration: (typeFactory, config) => {
-    ///         var stringType = typeFactory.Create(() => new StringType());
-    ///         config["apiUrl"] = new ObjectTypeProperty(
-    ///             typeFactory.GetReference(stringType), 
-    ///             ObjectTypePropertyFlags.Required, 
-    ///             "The Kubernetes API server URL");
-    ///     });
-    /// </code>
-    /// </example>
-    public static IBicepExtensionBuilder AddBicepExtension(
-        this IServiceCollection services,
-        string name,
-        string version,
-        bool isSingleton,
-        Assembly typeAssembly,
-        Type? configurationType = null)
+    /// <remarks>This method registers a singleton implementation of <see cref="IResourceHandlerCollection"/>
+    /// and configures gRPC services with detailed error reporting and reflection enabled. Call this method during
+    /// application startup to enable Bicep extension features.</remarks>
+    /// <param name="services">The service collection to which the Bicep extension and related services will be added. Cannot be null.</param>
+    /// <returns>An instance of <see cref="IBicepExtensionBuilder"/> that can be used to further configure the Bicep extension.</returns>
+    public static IBicepExtensionBuilder AddBicepExtension(this IServiceCollection services)
     {
-        var configuration = new Dictionary<string, ObjectTypeProperty>();
-
-        services.AddSingleton<ITypeProvider>(new TypeProvider([typeAssembly]));
-        services.AddSingleton<ITypeDefinitionBuilder>(sp => new TypeDefinitionBuilder(
-            name,
-            version,
-            isSingleton,
-            configurationType,
-            sp.GetRequiredService<ITypeProvider>()));
-
         services.AddSingleton<IResourceHandlerCollection, ResourceHandlerCollection>();
 
         services.AddGrpc(options =>
@@ -73,4 +48,35 @@ public static class BicepExtensionServiceCollectionExtensions
 
         return new DefaultBicepExtensionBuilder(services);
     }
+
+    [Obsolete("""
+    Use the fluent configuration API instead:
+    services
+        .AddBicepExtension()
+        .WithDefaults("MyExtension", "1.0.0", isSingleton: true)
+        .WithTypeAssembly(typeof(MyResource).Assembly)
+        .WithConfigurationType<MyConfig>()
+    """, error: false)]
+    public static IBicepExtensionBuilder AddBicepExtension(
+        this IServiceCollection services,
+        string name,
+        string version,
+        bool isSingleton,
+        Assembly typeAssembly,
+        Type? configurationType = null)
+    {
+        var builder = services
+                       .AddBicepExtension()
+                       .WithDefaults(name, version, isSingleton)
+                       .WithTypeAssemblies([typeAssembly]);
+
+        if (configurationType is not null)
+        {
+            builder.WithConfigurationType(configurationType);
+        }
+
+        return builder;
+    }
+
+
 }

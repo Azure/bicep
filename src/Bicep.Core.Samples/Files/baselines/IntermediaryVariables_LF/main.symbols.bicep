@@ -14,6 +14,7 @@ var vmProperties = {
 }
 
 resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
+//@[00:08) Local this. Type: object. Declaration start char: 61, length: 65
 //@[09:11) Resource vm. Type: Microsoft.Compute/virtualMachines@2020-12-01. Declaration start char: 0, length: 126
   name: 'vm'
   location: 'West US'
@@ -32,6 +33,7 @@ var ipConfigurations = [for i in range(0, 2): {
 }]
 
 resource nic 'Microsoft.Network/networkInterfaces@2020-11-01' = {
+//@[00:08) Local this. Type: object. Declaration start char: 64, length: 76
 //@[09:12) Resource nic. Type: Microsoft.Network/networkInterfaces@2020-11-01. Declaration start char: 0, length: 140
   name: 'abc'
   properties: {
@@ -41,6 +43,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-11-01' = {
 
 resource nicLoop 'Microsoft.Network/networkInterfaces@2020-11-01' = [for i in range(0, 2): {
 //@[73:74) Local i. Type: int. Declaration start char: 73, length: 1
+//@[00:08) Local this. Type: object[]. Declaration start char: 68, length: 145
 //@[09:16) Resource nicLoop. Type: Microsoft.Network/networkInterfaces@2020-11-01[]. Declaration start char: 0, length: 213
   name: 'abc${i}'
   properties: {
@@ -53,6 +56,7 @@ resource nicLoop 'Microsoft.Network/networkInterfaces@2020-11-01' = [for i in ra
 
 resource nicLoop2 'Microsoft.Network/networkInterfaces@2020-11-01' = [for ipConfig in ipConfigurations: {
 //@[74:82) Local ipConfig. Type: object. Declaration start char: 74, length: 8
+//@[00:08) Local this. Type: object[]. Declaration start char: 69, length: 158
 //@[09:17) Resource nicLoop2. Type: Microsoft.Network/networkInterfaces@2020-11-01[]. Declaration start char: 0, length: 227
   name: 'abc${ipConfig.name}'
   properties: {

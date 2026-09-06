@@ -1,5 +1,5 @@
 using none
-//@[00:1409) ProgramSyntax
+//@[00:2123) ProgramSyntax
 //@[00:0010) ├─UsingDeclarationSyntax
 //@[00:0005) | ├─Token(Identifier) |using|
 //@[06:0010) | ├─NoneLiteralSyntax
@@ -462,6 +462,312 @@ param objectBody = {
 //@[13:0015) |   ├─Token(NewLine) |\r\n|
 }
 //@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0005) ├─Token(NewLine) |\r\n\r\n|
+
+var poodle = 'toy'
+//@[00:0018) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0010) | ├─IdentifierSyntax
+//@[04:0010) | | └─Token(Identifier) |poodle|
+//@[11:0012) | ├─Token(Assignment) |=|
+//@[13:0018) | └─StringSyntax
+//@[13:0018) |   └─Token(StringComplete) |'toy'|
+//@[18:0020) ├─Token(NewLine) |\r\n|
+param retriever = 'golden'
+//@[00:0026) ├─ParameterAssignmentSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0015) | ├─IdentifierSyntax
+//@[06:0015) | | └─Token(Identifier) |retriever|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0026) | └─StringSyntax
+//@[18:0026) |   └─Token(StringComplete) |'golden'|
+//@[26:0028) ├─Token(NewLine) |\r\n|
+param concat = '${poodle}-${retriever}-${externalInput('sys.cli', 'foo')}'
+//@[00:0074) ├─ParameterAssignmentSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0012) | ├─IdentifierSyntax
+//@[06:0012) | | └─Token(Identifier) |concat|
+//@[13:0014) | ├─Token(Assignment) |=|
+//@[15:0074) | └─StringSyntax
+//@[15:0018) |   ├─Token(StringLeftPiece) |'${|
+//@[18:0024) |   ├─VariableAccessSyntax
+//@[18:0024) |   | └─IdentifierSyntax
+//@[18:0024) |   |   └─Token(Identifier) |poodle|
+//@[24:0028) |   ├─Token(StringMiddlePiece) |}-${|
+//@[28:0037) |   ├─VariableAccessSyntax
+//@[28:0037) |   | └─IdentifierSyntax
+//@[28:0037) |   |   └─Token(Identifier) |retriever|
+//@[37:0041) |   ├─Token(StringMiddlePiece) |}-${|
+//@[41:0072) |   ├─FunctionCallSyntax
+//@[41:0054) |   | ├─IdentifierSyntax
+//@[41:0054) |   | | └─Token(Identifier) |externalInput|
+//@[54:0055) |   | ├─Token(LeftParen) |(|
+//@[55:0064) |   | ├─FunctionArgumentSyntax
+//@[55:0064) |   | | └─StringSyntax
+//@[55:0064) |   | |   └─Token(StringComplete) |'sys.cli'|
+//@[64:0065) |   | ├─Token(Comma) |,|
+//@[66:0071) |   | ├─FunctionArgumentSyntax
+//@[66:0071) |   | | └─StringSyntax
+//@[66:0071) |   | |   └─Token(StringComplete) |'foo'|
+//@[71:0072) |   | └─Token(RightParen) |)|
+//@[72:0074) |   └─Token(StringRightPiece) |}'|
+//@[74:0078) ├─Token(NewLine) |\r\n\r\n|
+
+import * as main2 from 'main2.bicep'
+//@[00:0036) ├─CompileTimeImportDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |import|
+//@[07:0017) | ├─WildcardImportSyntax
+//@[07:0008) | | ├─Token(Asterisk) |*|
+//@[09:0017) | | └─AliasAsClauseSyntax
+//@[09:0011) | |   ├─Token(Identifier) |as|
+//@[12:0017) | |   └─IdentifierSyntax
+//@[12:0017) | |     └─Token(Identifier) |main2|
+//@[18:0036) | └─CompileTimeImportFromClauseSyntax
+//@[18:0022) |   ├─Token(Identifier) |from|
+//@[23:0036) |   └─StringSyntax
+//@[23:0036) |     └─Token(StringComplete) |'main2.bicep'|
+//@[36:0038) ├─Token(NewLine) |\r\n|
+import { person, getPerson, getDefaultPerson } from 'main.bicep'
+//@[00:0064) ├─CompileTimeImportDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |import|
+//@[07:0046) | ├─ImportedSymbolsListSyntax
+//@[07:0008) | | ├─Token(LeftBrace) |{|
+//@[09:0015) | | ├─ImportedSymbolsListItemSyntax
+//@[09:0015) | | | └─IdentifierSyntax
+//@[09:0015) | | |   └─Token(Identifier) |person|
+//@[15:0016) | | ├─Token(Comma) |,|
+//@[17:0026) | | ├─ImportedSymbolsListItemSyntax
+//@[17:0026) | | | └─IdentifierSyntax
+//@[17:0026) | | |   └─Token(Identifier) |getPerson|
+//@[26:0027) | | ├─Token(Comma) |,|
+//@[28:0044) | | ├─ImportedSymbolsListItemSyntax
+//@[28:0044) | | | └─IdentifierSyntax
+//@[28:0044) | | |   └─Token(Identifier) |getDefaultPerson|
+//@[45:0046) | | └─Token(RightBrace) |}|
+//@[47:0064) | └─CompileTimeImportFromClauseSyntax
+//@[47:0051) |   ├─Token(Identifier) |from|
+//@[52:0064) |   └─StringSyntax
+//@[52:0064) |     └─Token(StringComplete) |'main.bicep'|
+//@[64:0068) ├─Token(NewLine) |\r\n\r\n|
+
+param principalIds = externalInput('sys.cli', 'principalIds')
+//@[00:0061) ├─ParameterAssignmentSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0018) | ├─IdentifierSyntax
+//@[06:0018) | | └─Token(Identifier) |principalIds|
+//@[19:0020) | ├─Token(Assignment) |=|
+//@[21:0061) | └─FunctionCallSyntax
+//@[21:0034) |   ├─IdentifierSyntax
+//@[21:0034) |   | └─Token(Identifier) |externalInput|
+//@[34:0035) |   ├─Token(LeftParen) |(|
+//@[35:0044) |   ├─FunctionArgumentSyntax
+//@[35:0044) |   | └─StringSyntax
+//@[35:0044) |   |   └─Token(StringComplete) |'sys.cli'|
+//@[44:0045) |   ├─Token(Comma) |,|
+//@[46:0060) |   ├─FunctionArgumentSyntax
+//@[46:0060) |   | └─StringSyntax
+//@[46:0060) |   |   └─Token(StringComplete) |'principalIds'|
+//@[60:0061) |   └─Token(RightParen) |)|
+//@[61:0065) ├─Token(NewLine) |\r\n\r\n|
+
+var anotherPerson = {
+//@[00:0051) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0017) | ├─IdentifierSyntax
+//@[04:0017) | | └─Token(Identifier) |anotherPerson|
+//@[18:0019) | ├─Token(Assignment) |=|
+//@[20:0051) | └─ObjectSyntax
+//@[20:0021) |   ├─Token(LeftBrace) |{|
+//@[21:0023) |   ├─Token(NewLine) |\r\n|
+  name: 'John'
+//@[02:0014) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0014) |   | └─StringSyntax
+//@[08:0014) |   |   └─Token(StringComplete) |'John'|
+//@[14:0016) |   ├─Token(NewLine) |\r\n|
+  age: 21
+//@[02:0009) |   ├─ObjectPropertySyntax
+//@[02:0005) |   | ├─IdentifierSyntax
+//@[02:0005) |   | | └─Token(Identifier) |age|
+//@[05:0006) |   | ├─Token(Colon) |:|
+//@[07:0009) |   | └─IntegerLiteralSyntax
+//@[07:0009) |   |   └─Token(Integer) |21|
+//@[09:0011) |   ├─Token(NewLine) |\r\n|
+}
+//@[00:0001) |   └─Token(RightBrace) |}|
 //@[01:0003) ├─Token(NewLine) |\r\n|
+param varPeople = [
+//@[00:0193) ├─ParameterAssignmentSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0015) | ├─IdentifierSyntax
+//@[06:0015) | | └─Token(Identifier) |varPeople|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0193) | └─ArraySyntax
+//@[18:0019) |   ├─Token(LeftSquare) |[|
+//@[19:0021) |   ├─Token(NewLine) |\r\n|
+  ...map(principalIds, id => {
+//@[02:0054) |   ├─SpreadExpressionSyntax
+//@[02:0005) |   | ├─Token(Ellipsis) |...|
+//@[05:0054) |   | └─FunctionCallSyntax
+//@[05:0008) |   |   ├─IdentifierSyntax
+//@[05:0008) |   |   | └─Token(Identifier) |map|
+//@[08:0009) |   |   ├─Token(LeftParen) |(|
+//@[09:0021) |   |   ├─FunctionArgumentSyntax
+//@[09:0021) |   |   | └─VariableAccessSyntax
+//@[09:0021) |   |   |   └─IdentifierSyntax
+//@[09:0021) |   |   |     └─Token(Identifier) |principalIds|
+//@[21:0022) |   |   ├─Token(Comma) |,|
+//@[23:0053) |   |   ├─FunctionArgumentSyntax
+//@[23:0053) |   |   | └─LambdaSyntax
+//@[23:0025) |   |   |   ├─LocalVariableSyntax
+//@[23:0025) |   |   |   | └─IdentifierSyntax
+//@[23:0025) |   |   |   |   └─Token(Identifier) |id|
+//@[26:0028) |   |   |   ├─Token(Arrow) |=>|
+//@[29:0053) |   |   |   └─ObjectSyntax
+//@[29:0030) |   |   |     ├─Token(LeftBrace) |{|
+//@[30:0032) |   |   |     ├─Token(NewLine) |\r\n|
+    objectId: id
+//@[04:0016) |   |   |     ├─ObjectPropertySyntax
+//@[04:0012) |   |   |     | ├─IdentifierSyntax
+//@[04:0012) |   |   |     | | └─Token(Identifier) |objectId|
+//@[12:0013) |   |   |     | ├─Token(Colon) |:|
+//@[14:0016) |   |   |     | └─VariableAccessSyntax
+//@[14:0016) |   |   |     |   └─IdentifierSyntax
+//@[14:0016) |   |   |     |     └─Token(Identifier) |id|
+//@[16:0018) |   |   |     ├─Token(NewLine) |\r\n|
+  })
+//@[02:0003) |   |   |     └─Token(RightBrace) |}|
+//@[03:0004) |   |   └─Token(RightParen) |)|
+//@[04:0006) |   ├─Token(NewLine) |\r\n|
+  person
+//@[02:0008) |   ├─ArrayItemSyntax
+//@[02:0008) |   | └─VariableAccessSyntax
+//@[02:0008) |   |   └─IdentifierSyntax
+//@[02:0008) |   |     └─Token(Identifier) |person|
+//@[08:0010) |   ├─Token(NewLine) |\r\n|
+  anotherPerson
+//@[02:0015) |   ├─ArrayItemSyntax
+//@[02:0015) |   | └─VariableAccessSyntax
+//@[02:0015) |   |   └─IdentifierSyntax
+//@[02:0015) |   |     └─Token(Identifier) |anotherPerson|
+//@[15:0017) |   ├─Token(NewLine) |\r\n|
+  getPerson('Bob', 30)
+//@[02:0022) |   ├─ArrayItemSyntax
+//@[02:0022) |   | └─FunctionCallSyntax
+//@[02:0011) |   |   ├─IdentifierSyntax
+//@[02:0011) |   |   | └─Token(Identifier) |getPerson|
+//@[11:0012) |   |   ├─Token(LeftParen) |(|
+//@[12:0017) |   |   ├─FunctionArgumentSyntax
+//@[12:0017) |   |   | └─StringSyntax
+//@[12:0017) |   |   |   └─Token(StringComplete) |'Bob'|
+//@[17:0018) |   |   ├─Token(Comma) |,|
+//@[19:0021) |   |   ├─FunctionArgumentSyntax
+//@[19:0021) |   |   | └─IntegerLiteralSyntax
+//@[19:0021) |   |   |   └─Token(Integer) |30|
+//@[21:0022) |   |   └─Token(RightParen) |)|
+//@[22:0024) |   ├─Token(NewLine) |\r\n|
+  getDefaultPerson()
+//@[02:0020) |   ├─ArrayItemSyntax
+//@[02:0020) |   | └─FunctionCallSyntax
+//@[02:0018) |   |   ├─IdentifierSyntax
+//@[02:0018) |   |   | └─Token(Identifier) |getDefaultPerson|
+//@[18:0019) |   |   ├─Token(LeftParen) |(|
+//@[19:0020) |   |   └─Token(RightParen) |)|
+//@[20:0022) |   ├─Token(NewLine) |\r\n|
+  externalInput('custom.binding', 'foo')
+//@[02:0040) |   ├─ArrayItemSyntax
+//@[02:0040) |   | └─FunctionCallSyntax
+//@[02:0015) |   |   ├─IdentifierSyntax
+//@[02:0015) |   |   | └─Token(Identifier) |externalInput|
+//@[15:0016) |   |   ├─Token(LeftParen) |(|
+//@[16:0032) |   |   ├─FunctionArgumentSyntax
+//@[16:0032) |   |   | └─StringSyntax
+//@[16:0032) |   |   |   └─Token(StringComplete) |'custom.binding'|
+//@[32:0033) |   |   ├─Token(Comma) |,|
+//@[34:0039) |   |   ├─FunctionArgumentSyntax
+//@[34:0039) |   |   | └─StringSyntax
+//@[34:0039) |   |   |   └─Token(StringComplete) |'foo'|
+//@[39:0040) |   |   └─Token(RightParen) |)|
+//@[40:0042) |   ├─Token(NewLine) |\r\n|
+]
+//@[00:0001) |   └─Token(RightSquare) |]|
+//@[01:0005) ├─Token(NewLine) |\r\n\r\n|
+
+var infra main2.InfraConfig = {
+//@[00:0135) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0009) | ├─IdentifierSyntax
+//@[04:0009) | | └─Token(Identifier) |infra|
+//@[10:0027) | ├─TypePropertyAccessSyntax
+//@[10:0015) | | ├─TypeVariableAccessSyntax
+//@[10:0015) | | | └─IdentifierSyntax
+//@[10:0015) | | |   └─Token(Identifier) |main2|
+//@[15:0016) | | ├─Token(Dot) |.|
+//@[16:0027) | | └─IdentifierSyntax
+//@[16:0027) | |   └─Token(Identifier) |InfraConfig|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0135) | └─ObjectSyntax
+//@[30:0031) |   ├─Token(LeftBrace) |{|
+//@[31:0033) |   ├─Token(NewLine) |\r\n|
+  storage: main2.storageConfig
+//@[02:0030) |   ├─ObjectPropertySyntax
+//@[02:0009) |   | ├─IdentifierSyntax
+//@[02:0009) |   | | └─Token(Identifier) |storage|
+//@[09:0010) |   | ├─Token(Colon) |:|
+//@[11:0030) |   | └─PropertyAccessSyntax
+//@[11:0016) |   |   ├─VariableAccessSyntax
+//@[11:0016) |   |   | └─IdentifierSyntax
+//@[11:0016) |   |   |   └─Token(Identifier) |main2|
+//@[16:0017) |   |   ├─Token(Dot) |.|
+//@[17:0030) |   |   └─IdentifierSyntax
+//@[17:0030) |   |     └─Token(Identifier) |storageConfig|
+//@[30:0032) |   ├─Token(NewLine) |\r\n|
+  vm: main2.vmConfig
+//@[02:0020) |   ├─ObjectPropertySyntax
+//@[02:0004) |   | ├─IdentifierSyntax
+//@[02:0004) |   | | └─Token(Identifier) |vm|
+//@[04:0005) |   | ├─Token(Colon) |:|
+//@[06:0020) |   | └─PropertyAccessSyntax
+//@[06:0011) |   |   ├─VariableAccessSyntax
+//@[06:0011) |   |   | └─IdentifierSyntax
+//@[06:0011) |   |   |   └─Token(Identifier) |main2|
+//@[11:0012) |   |   ├─Token(Dot) |.|
+//@[12:0020) |   |   └─IdentifierSyntax
+//@[12:0020) |   |     └─Token(Identifier) |vmConfig|
+//@[20:0022) |   ├─Token(NewLine) |\r\n|
+  tag: externalInput('custom.binding', 'bar')
+//@[02:0045) |   ├─ObjectPropertySyntax
+//@[02:0005) |   | ├─IdentifierSyntax
+//@[02:0005) |   | | └─Token(Identifier) |tag|
+//@[05:0006) |   | ├─Token(Colon) |:|
+//@[07:0045) |   | └─FunctionCallSyntax
+//@[07:0020) |   |   ├─IdentifierSyntax
+//@[07:0020) |   |   | └─Token(Identifier) |externalInput|
+//@[20:0021) |   |   ├─Token(LeftParen) |(|
+//@[21:0037) |   |   ├─FunctionArgumentSyntax
+//@[21:0037) |   |   | └─StringSyntax
+//@[21:0037) |   |   |   └─Token(StringComplete) |'custom.binding'|
+//@[37:0038) |   |   ├─Token(Comma) |,|
+//@[39:0044) |   |   ├─FunctionArgumentSyntax
+//@[39:0044) |   |   | └─StringSyntax
+//@[39:0044) |   |   |   └─Token(StringComplete) |'bar'|
+//@[44:0045) |   |   └─Token(RightParen) |)|
+//@[45:0047) |   ├─Token(NewLine) |\r\n|
+}
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0005) ├─Token(NewLine) |\r\n\r\n|
+
+param infraParam = infra
+//@[00:0024) ├─ParameterAssignmentSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0016) | ├─IdentifierSyntax
+//@[06:0016) | | └─Token(Identifier) |infraParam|
+//@[17:0018) | ├─Token(Assignment) |=|
+//@[19:0024) | └─VariableAccessSyntax
+//@[19:0024) |   └─IdentifierSyntax
+//@[19:0024) |     └─Token(Identifier) |infra|
+//@[24:0026) ├─Token(NewLine) |\r\n|
 
 //@[00:0000) └─Token(EndOfFile) ||

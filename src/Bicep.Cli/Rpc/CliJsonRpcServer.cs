@@ -2,12 +2,18 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.IO.Abstractions;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
-using Bicep.Cli.Helpers.Snapshot;
+using Bicep.Cli.Services;
 using Bicep.Core;
+using Bicep.Core.Configuration;
+using Bicep.Core.Documentation;
 using Bicep.Core.Emit;
+using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrintV2;
@@ -17,6 +23,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
+using Bicep.Core.Utils.Snapshots;
 using Bicep.IO.Abstraction;
 using Newtonsoft.Json.Serialization;
 using StreamJsonRpc;
@@ -26,7 +33,9 @@ namespace Bicep.Cli.Rpc;
 public class CliJsonRpcServer(
     BicepCompiler compiler,
     InputOutputArgumentsResolver inputOutputArgumentsResolver,
-    IEnvironment environment) : ICliJsonRpcProtocol
+    IEnvironment environment,
+    IBicepDocumentationGenerator documentationGenerator,
+    DocsGenerationOptionsResolver docsOptionsResolver) : ICliJsonRpcProtocol
 {
     public static IJsonRpcMessageHandler CreateMessageHandler(Stream inputStream, Stream outputStream)
     {
@@ -224,6 +233,7 @@ public class CliJsonRpcServer(
             templateContent: templateContent,
             parametersContent: parametersContent,
             tenantId: request.Metadata.TenantId,
+            managementGroupId: request.Metadata.ManagementGroupId,
             subscriptionId: request.Metadata.SubscriptionId,
             resourceGroup: request.Metadata.ResourceGroup,
             location: request.Metadata.Location,
@@ -247,15 +257,15 @@ public class CliJsonRpcServer(
 
         string formattedContent;
 
-        if (sourceFile.Features.LegacyFormatterEnabled)
+        if (sourceFile.LoadFeatures().LegacyFormatterEnabled)
         {
-            var v2Options = sourceFile.Configuration.Formatting.Data;
+            var v2Options = sourceFile.LoadConfiguration().Formatting.Data;
             var legacyOptions = PrettyPrintOptions.FromV2Options(v2Options);
             formattedContent = PrettyPrinter.PrintProgram(sourceFile.ProgramSyntax, legacyOptions, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
         }
         else
         {
-            var options = sourceFile.Configuration.Formatting.Data;
+            var options = sourceFile.LoadConfiguration().Formatting.Data;
             var context = PrettyPrinterV2Context.Create(options, sourceFile.LexingErrorLookup, sourceFile.ParsingErrorLookup);
 
             using var writer = new StringWriter();
@@ -265,6 +275,25 @@ public class CliJsonRpcServer(
 
         return new(formattedContent);
     }
+
+    /// <inheritdoc/>
+    public async Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken)
+    {
+        var compilation = await GetCompilation(compiler, request.Path);
+        var model = compilation.GetEntrypointSemanticModel();
+        var diagnostics = GetDiagnostics(compilation).ToImmutableArray();
+
+        var options = docsOptionsResolver.Resolve(
+            model.Configuration,
+            request.TemplateFile,
+            request.TemplateRoot,
+            request.CustomTemplateValues?.ToImmutableDictionary() ?? []);
+
+        var result = documentationGenerator.Generate(compilation, options, cancellationToken);
+
+        return new(diagnostics, result);
+    }
+
 
     private async Task<Compilation> GetCompilation(BicepCompiler compiler, string filePath)
     {

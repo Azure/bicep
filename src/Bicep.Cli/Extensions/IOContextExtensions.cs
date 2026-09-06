@@ -7,12 +7,12 @@ namespace Bicep.Cli.Extensions
     {
         public static void WriteCommandDeprecationWarning(this IOContext io, string deprecatingCommand, string newCommand)
         {
-            io.Error.WriteLine($"DEPRECATED: The command {deprecatingCommand} is deprecated and will be removed in a future version of Bicep CLI. Use {newCommand} instead.");
+            io.Error.Writer.WriteLine($"DEPRECATED: The command {deprecatingCommand} is deprecated and will be removed in a future version of Bicep CLI. Use {newCommand} instead.");
         }
 
         public static void WriteParameterDeprecationWarning(this IOContext io, string deprecatingParameter, string newParameter)
         {
-            io.Error.WriteLine($"DEPRECATED: The parameter {deprecatingParameter} is deprecated and will be removed in a future version of Bicep CLI. Use {newParameter} instead.");
+            io.Error.Writer.WriteLine($"DEPRECATED: The parameter {deprecatingParameter} is deprecated and will be removed in a future version of Bicep CLI. Use {newParameter} instead.");
         }
     }
 }

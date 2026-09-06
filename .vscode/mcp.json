@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "filtrace": {
+      "type": "stdio",
+      "command": "dnx",
+      "args": ["KlutzyNinja.Filtrace.Mcp", "--yes"]
+    }
+  }
+}

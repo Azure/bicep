@@ -79,6 +79,56 @@ namespace Bicep.Core.Parsing
                 WithRecovery(CompileTimeImportFromClause, GetSuppressionFlag(keyword), TokenType.NewLine));
         }
 
+        protected ExtensionDeclarationSyntax ExtensionDeclaration(Token keyword, IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var specificationSyntax = reader.Peek().Type switch
+            {
+                TokenType.Identifier => new IdentifierSyntax(reader.Read()),
+
+                _ => this.WithRecovery(
+                    () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedExtensionSpecification()),
+                    RecoveryFlags.None,
+                    TokenType.NewLine)
+            };
+
+            var current = this.reader.Peek();
+            var withClause = current.Type switch
+            {
+                TokenType.EndOfFile or
+                TokenType.NewLine => this.SkipEmpty(),
+                TokenType.Identifier when current.Text == LanguageConstants.AsKeyword => this.SkipEmpty(),
+
+                _ => this.WithRecovery(() => this.ExtensionWithClause(), GetSuppressionFlag(specificationSyntax), TokenType.NewLine),
+            };
+
+            current = this.reader.Peek();
+            var asClause = current.Type switch
+            {
+                TokenType.EndOfFile or
+                TokenType.NewLine => this.SkipEmpty(),
+
+                _ => this.WithRecovery(() => this.ExtensionAsClause(), GetSuppressionFlag(withClause), TokenType.NewLine),
+            };
+
+            return new(leadingNodes, keyword, specificationSyntax, withClause, asClause);
+        }
+
+        private ExtensionWithClauseSyntax ExtensionWithClause()
+        {
+            var keyword = this.ExpectKeyword(LanguageConstants.WithKeyword, b => b.ExpectedWithOrAsKeywordOrNewLine());
+            var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine);
+
+            return new(keyword, config);
+        }
+
+        private AliasAsClauseSyntax ExtensionAsClause()
+        {
+            var keyword = this.ExpectKeyword(LanguageConstants.AsKeyword, b => b.ExpectedWithOrAsKeywordOrNewLine());
+            var modifier = this.IdentifierWithRecovery(b => b.ExpectedExtensionAliasName(), RecoveryFlags.None, TokenType.NewLine);
+
+            return new(keyword, modifier);
+        }
+
         private static bool CheckKeyword(Token? token, string keyword) => token?.Type == TokenType.Identifier && token.Text == keyword;
 
         protected static RecoveryFlags GetSuppressionFlag(SyntaxBase precedingNode)

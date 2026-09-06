@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 using System.Collections.Concurrent;
 using Azure.Bicep.Types.Index;
+using Azure.Deployments.Expression.Engines;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.TypeSystem.Types;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
@@ -57,6 +60,39 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             return bodyType;
         }
 
+        public (FunctionOverload, BicepSourceFileKind?) GetNamespaceFunctionOverload(Azure.Bicep.Types.Concrete.NamespaceFunctionType namespaceFunctionType)
+        {
+            var builder = new FunctionOverloadBuilder(namespaceFunctionType.Name);
+            if (namespaceFunctionType.Description is { } description)
+            {
+                builder = builder.WithDescription(description);
+            }
+
+            var returnType = GetTypeSymbol(namespaceFunctionType.OutputType.Type, false);
+            builder = builder.WithReturnType(returnType);
+
+            foreach (var parameter in namespaceFunctionType.Parameters)
+            {
+                var paramType = GetTypeSymbol(parameter.Type.Type, false);
+                var paramFlags = GetNamespaceFunctionParameterFlags(parameter);
+                builder = builder.WithParameter(parameter.Name, paramType, parameter.Description ?? "", paramFlags);
+            }
+
+            if (!string.IsNullOrWhiteSpace(namespaceFunctionType.EvaluatedLanguageExpression))
+            {
+                builder = builder.WithArmExpressionEvaluator(ExtensionNamespaceTypeHelper.GetArmExpressionEvaluator(namespaceFunctionType));
+
+                if (ExpressionsEngine.ExpressionHasFunction(namespaceFunctionType.EvaluatedLanguageExpression, LanguageConstants.ExternalInputBicepFunctionName))
+                {
+                    builder = builder.WithFlags(FunctionFlags.RequiresExternalInput);
+                }
+            }
+
+            var functionVisibility = GetNamespaceFunctionVisibility(namespaceFunctionType);
+
+            return (builder.Build(), functionVisibility);
+        }
+
         private IEnumerable<FunctionOverload> GetResourceFunctionOverloads(Azure.Bicep.Types.Concrete.ResourceType resourceType)
         {
             if (resourceType.Functions is null)
@@ -68,7 +104,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             {
                 if (value.Type.Type is not Azure.Bicep.Types.Concrete.FunctionType functionType)
                 {
-                    throw new ArgumentException();
+                    throw new ArgumentException($"Expected a FunctionType for function '{key}', but got '{value.Type.Type?.GetType().Name}'.");
                 }
 
                 var builder = new FunctionOverloadBuilder(key);
@@ -137,6 +173,36 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
             return flags;
         }
 
+        private static FunctionParameterFlags GetNamespaceFunctionParameterFlags(Azure.Bicep.Types.Concrete.NamespaceFunctionParameter input)
+        {
+            var flags = FunctionParameterFlags.None;
+
+            if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.NamespaceFunctionParameterFlags.Required))
+            {
+                flags |= FunctionParameterFlags.Required;
+            }
+            if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.NamespaceFunctionParameterFlags.CompileTimeConstant))
+            {
+                flags |= FunctionParameterFlags.Constant;
+            }
+            if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.NamespaceFunctionParameterFlags.DeployTimeConstant))
+            {
+                flags |= FunctionParameterFlags.DeployTimeConstant;
+            }
+
+            return flags;
+        }
+
+        private static BicepSourceFileKind? GetNamespaceFunctionVisibility(Azure.Bicep.Types.Concrete.NamespaceFunctionType input)
+        {
+            return input.VisibleInFileKind switch
+            {
+                Azure.Bicep.Types.Concrete.BicepSourceFileKind.ParamsFile => BicepSourceFileKind.ParamsFile,
+                Azure.Bicep.Types.Concrete.BicepSourceFileKind.BicepFile => BicepSourceFileKind.BicepFile,
+                _ => null, // default, visible in all file kinds
+            };
+        }
+
         private TypeSymbol ToTypeSymbol(Azure.Bicep.Types.Concrete.TypeBase typeBase, bool isResourceBodyType)
         {
             switch (typeBase)
@@ -168,7 +234,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Array => LanguageConstants.Array,
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.ResourceRef => LanguageConstants.ResourceRef,
 #pragma warning restore 618
-                        _ => throw new ArgumentException(),
+                        _ => throw new ArgumentException($"Unhandled BuiltInTypeKind '{builtInType.Kind}'."),
                     };
                 case Azure.Bicep.Types.Concrete.ObjectType objectType:
                     {
@@ -194,7 +260,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                         return new DiscriminatedObjectType(discriminatedObjectType.Name, GetValidationFlags(isResourceBodyType, isSensitive: false), discriminatedObjectType.Discriminator, elementReferences);
                     }
                 default:
-                    throw new ArgumentException();
+                    throw new ArgumentException($"Unsupported type: {typeBase.GetType().FullName}");
             }
         }
 
@@ -202,7 +268,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
         {
             if (!(extendedType.Type is Azure.Bicep.Types.Concrete.ObjectType objectType))
             {
-                throw new ArgumentException();
+                throw new ArgumentException($"Expected an ObjectType for the extended type in '{name}', but got '{extendedType.Type?.GetType().Name}'.");
             }
 
             var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties, isResourceBodyType) : null;

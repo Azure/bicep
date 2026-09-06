@@ -5,17 +5,16 @@ using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Configuration;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.FileSystem;
-using Bicep.LanguageServer.Configuration;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using ConfigurationManager = Bicep.Core.Configuration.ConfigurationManager;
+using ConfigurationManager = Bicep.Core.Configuration.BicepConfigurationManager;
 using LocalFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.LangServer.UnitTests.Configuration
 {
     [TestClass]
-    public class ConfigurationHelperTests
+    public class DocumentUriExtensionsTests
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -25,7 +24,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         {
             var documentUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
 
-            ConfigurationHelper.IsBicepConfigFile(documentUri).Should().Be(false);
+            documentUri.IsBicepConfigFile().Should().Be(false);
         }
 
         [TestMethod]
@@ -33,7 +32,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         {
             var documentUri = DocumentUri.FromFileSystemPath("/path/to/bicepconfig.json");
 
-            ConfigurationHelper.IsBicepConfigFile(documentUri).Should().Be(true);
+            documentUri.IsBicepConfigFile().Should().Be(true);
         }
     }
 }

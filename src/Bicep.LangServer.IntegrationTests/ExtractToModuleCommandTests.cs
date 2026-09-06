@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Helpers;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Features.Custom.Refactoring;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

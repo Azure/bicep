@@ -41,7 +41,6 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableSortedDictionary<string, ExtensionMetadata>> extensionsLazy;
         private readonly Lazy<ImmutableSortedDictionary<string, ExportMetadata>> exportsLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
-        private readonly Lazy<IApiVersionProvider> apiVersionProviderLazy;
         private readonly Lazy<EmitterSettings> emitterSettingsLazy;
         private readonly Lazy<ImportClosureInfo> importClosureInfoLazy;
         private readonly Lazy<InlineDependencyVisitor.SymbolsToInline> symbolsToInlineLazy;
@@ -52,6 +51,8 @@ namespace Bicep.Core.Semantics
 
         private readonly Lazy<ImmutableDictionary<ExtensionConfigAssignmentSymbol, ExtensionMetadata?>> extensionDeclarationsByExtensionConfigAssignment;
         private readonly Lazy<ImmutableDictionary<ExtensionMetadata, ExtensionConfigAssignmentSymbol?>> extensionConfigAssignmentsByDeclaration;
+
+        private readonly Lazy<(ExternalInputReferences references, IReadOnlyList<IDiagnostic> diagnostics)> externalInputReferencesLazy;
 
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
@@ -64,6 +65,8 @@ namespace Bicep.Core.Semantics
             this.SourceFileGrouping = sourceFileGrouping;
             this.SourceFile = sourceFile;
             this.Environment = environment;
+            this.Features = sourceFile.LoadFeatures();
+            this.Configuration = sourceFile.LoadConfiguration();
             TraceBuildOperation(sourceFile, Features, Configuration);
 
             // create this in locked mode by default
@@ -76,9 +79,6 @@ namespace Bicep.Core.Semantics
             var cycleBlockingModelLookup = ISemanticModelLookup.Excluding(modelLookup, sourceFile);
             this.SymbolContext = symbolContext;
             this.Binder = new Binder(namespaceProvider, sourceFileGrouping, cycleBlockingModelLookup, sourceFile, this.SymbolContext);
-
-            // TODO(#13239): ApiVersionProvider is only used by UseRecentApiVersionRule. Coupling the linter with the semantic model is suboptimal. A better approach would be to integrate ApiVersionProvider into IResourceTypeProvider.
-            this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(Features, this.Binder.NamespaceResolver.GetAvailableAzureResourceTypes()));
 
             this.TypeManager = new TypeManager(this, this.Binder);
 
@@ -130,7 +130,9 @@ namespace Bicep.Core.Semantics
                 foreach (var param in this.Root.ParameterDeclarations.DistinctBy(p => p.Name))
                 {
                     var description = DescriptionHelper.TryGetFromDecorator(this, param.DeclaringParameter);
-                    var isRequired = SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null && !TypeHelper.IsNullable(param.Type);
+                    var isRequired = SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null
+                        && !TypeHelper.IsNullable(param.Type)
+                        && param.DeclaringParameter.Type is not NullableTypeSyntax;
                     if (param.Type is ResourceType resourceType)
                     {
                         // Resource type parameters are a special case, we need to convert to a dedicated
@@ -150,6 +152,13 @@ namespace Bicep.Core.Semantics
             this.extensionsLazy = new(FindExtensions);
             this.extensionDeclarationsByExtensionConfigAssignment = new(InitializeExtensionDeclarationToAssignmentDictionary);
             this.extensionConfigAssignmentsByDeclaration = new(InitializeExtensionConfigAssignmentToDeclarationDictionary);
+
+            this.externalInputReferencesLazy = new(() =>
+            {
+                var diagnosticWriter = ToListDiagnosticWriter.Create();
+                var references = ExternalInputFunctionReferenceVisitor.CollectExternalInputReferences(this, diagnosticWriter);
+                return (references, diagnosticWriter.GetDiagnostics());
+            });
 
             this.exportsLazy = new(() => FindExportedTypes().Concat(FindExportedVariables()).Concat(FindExportedFunctions())
                 .DistinctBy(export => export.Name, LanguageConstants.IdentifierComparer)
@@ -198,7 +207,7 @@ namespace Bicep.Core.Semantics
                 new(f.Overload.TypeSignatureSymbol, null),
                 DescriptionHelper.TryGetFromDecorator(this, f.DeclaringFunction)));
 
-        private static void TraceBuildOperation(BicepSourceFile sourceFile, IFeatureProvider features, RootConfiguration configuration)
+        private static void TraceBuildOperation(BicepSourceFile sourceFile, IFeatureProvider features, IBicepConfiguration configuration)
         {
             var sb = new StringBuilder();
 
@@ -227,12 +236,9 @@ namespace Bicep.Core.Semantics
 
         public BicepSourceFileKind SourceFileKind => this.SourceFile.FileKind;
 
-        public RootConfiguration Configuration => this.SourceFile.Configuration;
+        public IBicepConfiguration Configuration { get; }
 
-        public IFeatureProvider Features => this.SourceFile.Features;
-
-        public IApiVersionProvider ApiVersionProvider =>
-            this.apiVersionProviderLazy.Value;
+        public IFeatureProvider Features { get; }
 
         public IBinder Binder { get; }
 
@@ -257,6 +263,8 @@ namespace Bicep.Core.Semantics
         public ImportClosureInfo ImportClosureInfo => importClosureInfoLazy.Value;
 
         public InlineDependencyVisitor.SymbolsToInline SymbolsToInline => symbolsToInlineLazy.Value;
+
+        public ExternalInputReferences ExternalInputReferences => externalInputReferencesLazy.Value.references;
 
         public ResourceAncestorGraph ResourceAncestors => resourceAncestorsLazy.Value;
 
@@ -332,13 +340,14 @@ namespace Bicep.Core.Semantics
 
         private ImmutableArray<IDiagnostic> AssembleDiagnostics()
         {
-            var diagnostics = this.Configuration.Diagnostics
+            var diagnostics = this.Configuration.GetDiagnostics()
                 .Concat(this.LexingErrorLookup)
                 .Concat(this.ParsingErrorLookup)
                 .Concat(GetSemanticDiagnostics())
                 .Concat(GetLinterDiagnostics())
                 .Concat(this.resourceScopeDataLazy.Value.diagnostics)
                 .Concat(this.moduleScopeDataLazy.Value.diagnostics)
+                .Concat(this.externalInputReferencesLazy.Value.diagnostics)
                 // TODO: This could be eliminated if we change the params type checking code to operate more on symbols
                 .Concat(GetAdditionalParamsSemanticDiagnostics())
                 .Distinct()
@@ -618,7 +627,8 @@ namespace Bicep.Core.Semantics
             }
 
             // parameters that are assigned but not declared
-            var missingAssignedParams = Root.ParameterAssignments.Where(s => TryGetParameterMetadata(s) is null);
+            var missingAssignedParams = Root.ParameterAssignments
+                .Where(s => s.Context.SourceFile == Root.Context.SourceFile && TryGetParameterMetadata(s) is null);
 
             // parameters that are declared but not assigned
             var missingRequiredParams = usingModel.Parameters
@@ -679,7 +689,7 @@ namespace Bicep.Core.Semantics
             {
                 yield return DiagnosticBuilder.ForPosition(usingDeclarationSyntax.Path!)
                     .MissingExtensionConfigAssignments(missingRequiredAssignments.Select(kvp => kvp.Key))
-                    .WithAppendedFixes(CodeFixHelper.GetCodeFixForMissingBicepExtensionConfigAssignments(Root.Syntax, SourceFile, missingRequiredAssignments));
+                    .WithAppendedFixes(CodeFixHelper.GetCodeFixForMissingBicepExtensionConfigAssignments(Root.Syntax, this, missingRequiredAssignments));
             }
 
             foreach (var assignmentAlias in assignmentAliasesWithMissingExtension)

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Pipes;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
@@ -22,12 +23,12 @@ public class BicepClientTests
     [TestInitialize]
     public async Task TestInitialize()
     {
-        var clientFactory = new BicepClientFactory(new());
+        var clientFactory = new BicepClientFactory();
         var cliName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "bicep.exe" : "bicep";
         var cliPath = Path.GetFullPath(Path.Combine(typeof(BicepClientTests).Assembly.Location, $"../{cliName}"));
 
-        Bicep = await clientFactory.InitializeFromPath(
-            cliPath,
+        Bicep = await clientFactory.Initialize(
+            new() { ExistingCliPath = cliPath },
             TestContext.CancellationTokenSource.Token);
     }
 
@@ -82,7 +83,7 @@ public class BicepClientTests
 
         var bicepCliPath = await clientFactory.Download(new()
         {
-            InstallPath = outputDir,
+            InstallBasePath = outputDir,
             OsPlatform = osPlatform,
             Architecture = architecture,
         }, TestContext.CancellationTokenSource.Token);
@@ -93,20 +94,200 @@ public class BicepClientTests
     }
 
     [TestMethod]
-    public async Task DownloadAndInitialize_validates_version_number_format()
+    public async Task Download_uses_specified_BicepVersion_without_querying_latest()
     {
-        var clientFactory = new BicepClientFactory(new());
-        await FluentActions.Invoking(() => clientFactory.DownloadAndInitialize(new() { BicepVersion = "v0.1.1" }, default))
-            .Should().ThrowAsync<ArgumentException>().WithMessage("Invalid Bicep version format 'v0.1.1'. Expected format: 'x.y.z' where x, y, and z are integers.");
+        var outputDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+        MockHttpMessageHandler mockHandler = new();
+        // Any request other than the pinned-version artifact (e.g. releases/latest) should fail the test.
+        mockHandler.Fallback.Throw(new InvalidOperationException("Unexpected request - the latest version should not be queried when BicepVersion is set."));
+
+        var randomBytes = Guid.NewGuid().ToByteArray();
+        mockHandler.When(HttpMethod.Get, "https://downloads.bicep.azure.com/v9.8.7/bicep-linux-x64")
+            .Respond(_ => new(System.Net.HttpStatusCode.OK) { Content = new ByteArrayContent(randomBytes) });
+
+        var clientFactory = new BicepClientFactory(new(mockHandler));
+
+        var bicepCliPath = await clientFactory.Download(new()
+        {
+            InstallBasePath = outputDir,
+            OsPlatform = OSPlatform.Linux,
+            Architecture = Architecture.X64,
+            BicepVersion = "9.8.7",
+        }, TestContext.CancellationTokenSource.Token);
+
+        bicepCliPath.Should().Be(Path.Combine(outputDir, "v9.8.7", "bicep"));
+        (await File.ReadAllBytesAsync(bicepCliPath)).Should().BeEquivalentTo(randomBytes);
     }
 
     [TestMethod]
-    public async Task DownloadAndInitialize_validates_path_existence()
+    public async Task Download_skips_download_when_cli_is_already_installed()
+    {
+        var outputDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var existingPath = Path.Combine(outputDir, "v9.8.7", "bicep");
+        Directory.CreateDirectory(Path.GetDirectoryName(existingPath)!);
+        await File.WriteAllTextAsync(existingPath, "already-installed");
+
+        MockHttpMessageHandler mockHandler = new();
+        // No download should occur, so any HTTP request fails the test.
+        mockHandler.Fallback.Throw(new InvalidOperationException("Unexpected request - the CLI is already installed."));
+
+        var clientFactory = new BicepClientFactory(new(mockHandler));
+
+        var bicepCliPath = await clientFactory.Download(new()
+        {
+            InstallBasePath = outputDir,
+            OsPlatform = OSPlatform.Linux,
+            Architecture = Architecture.X64,
+            BicepVersion = "9.8.7",
+        }, TestContext.CancellationTokenSource.Token);
+
+        bicepCliPath.Should().Be(existingPath);
+        (await File.ReadAllTextAsync(bicepCliPath)).Should().Be("already-installed");
+    }
+
+    [TestMethod]
+    public async Task Download_falls_back_to_obsolete_InstallPath_when_InstallBasePath_is_not_set()
+    {
+        var outputDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+        MockHttpMessageHandler mockHandler = new();
+        var randomBytes = Guid.NewGuid().ToByteArray();
+        mockHandler.When(HttpMethod.Get, "https://downloads.bicep.azure.com/v9.8.7/bicep-linux-x64")
+            .Respond(_ => new(System.Net.HttpStatusCode.OK) { Content = new ByteArrayContent(randomBytes) });
+
+        var clientFactory = new BicepClientFactory(new(mockHandler));
+
+#pragma warning disable CS0618 // Type or member is obsolete
+        var configuration = new BicepClientConfiguration
+        {
+            InstallPath = outputDir,
+            OsPlatform = OSPlatform.Linux,
+            Architecture = Architecture.X64,
+            BicepVersion = "9.8.7",
+        };
+#pragma warning restore CS0618 // Type or member is obsolete
+
+        var bicepCliPath = await clientFactory.Download(configuration, TestContext.CancellationTokenSource.Token);
+
+        bicepCliPath.Should().Be(Path.Combine(outputDir, "v9.8.7", "bicep"));
+        (await File.ReadAllBytesAsync(bicepCliPath)).Should().BeEquivalentTo(randomBytes);
+    }
+
+    [TestMethod]
+    public async Task Initialize_validates_version_number_format()
+    {
+        var clientFactory = new BicepClientFactory();
+        await FluentActions.Invoking(() => clientFactory.Initialize(new() { BicepVersion = "v0.1.1" }, default))
+            .Should().ThrowAsync<ArgumentException>().WithMessage("Invalid Bicep version format 'v0.1.1'. Expected format: 'x.y.z' where x, y, and z are integers.");
+    }
+
+    [DataTestMethod]
+    [DataRow("1.2", "Invalid Bicep version format '1.2'. Expected format: 'x.y.z' where x, y, and z are integers.")]
+    [DataRow("v1.2.3", "Invalid Bicep version format 'v1.2.3'. Expected format: 'x.y.z' where x, y, and z are integers.")]
+    [DataRow("1.2.3.4", "Invalid Bicep version format '1.2.3.4'. Expected format: 'x.y.z' where x, y, and z are integers.")]
+    [DataRow("latest", "Invalid Bicep version format 'latest'. Expected format: 'x.y.z' where x, y, and z are integers.")]
+    public void Validate_throws_for_invalid_BicepVersion(string version, string expectedMessage)
+    {
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { BicepVersion = version }))
+            .Should().Throw<ArgumentException>().WithMessage(expectedMessage);
+    }
+
+    [DataTestMethod]
+    [DataRow("1.2.3")]
+    [DataRow("0.0.0")]
+    [DataRow("100.200.300")]
+    public void Validate_accepts_valid_BicepVersion(string version)
+    {
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { BicepVersion = version }))
+            .Should().NotThrow();
+    }
+
+    [TestMethod]
+    public void Validate_throws_when_ExistingCliPath_combined_with_InstallBasePath()
+    {
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ExistingCliPath = "/some/path", InstallBasePath = "/some/base" }))
+            .Should().Throw<ArgumentException>().WithMessage("*ExistingCliPath*InstallBasePath*");
+    }
+
+    [TestMethod]
+    public void Validate_throws_when_ExistingCliPath_combined_with_BicepVersion()
+    {
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ExistingCliPath = "/some/path", BicepVersion = "1.0.0" }))
+            .Should().Throw<ArgumentException>().WithMessage("*ExistingCliPath*BicepVersion*");
+    }
+
+    [TestMethod]
+    public void Validate_throws_when_ExistingCliPath_combined_with_OsPlatform()
+    {
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ExistingCliPath = "/some/path", OsPlatform = OSPlatform.Linux }))
+            .Should().Throw<ArgumentException>().WithMessage("*ExistingCliPath*OsPlatform*");
+    }
+
+    [TestMethod]
+    public void Validate_throws_when_ExistingCliPath_combined_with_Architecture()
+    {
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ExistingCliPath = "/some/path", Architecture = Architecture.X64 }))
+            .Should().Throw<ArgumentException>().WithMessage("*ExistingCliPath*Architecture*");
+    }
+
+    [TestMethod]
+    public void Validate_throws_when_Stdio_combined_with_ConnectionTimeout()
+    {
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ConnectionMode = BicepConnectionMode.Stdio, ConnectionTimeout = TimeSpan.FromSeconds(10) }))
+            .Should().Throw<ArgumentException>().WithMessage("*ConnectionTimeout*Stdio*");
+    }
+
+    [TestMethod]
+    public void Validate_accepts_Stdio_without_ConnectionTimeout()
+    {
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ConnectionMode = BicepConnectionMode.Stdio }))
+            .Should().NotThrow();
+    }
+
+    [TestMethod]
+    public void Validate_accepts_Stdio_with_ExistingCliPath()
+    {
+        var existingPath = typeof(BicepClientTests).Assembly.Location;
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ConnectionMode = BicepConnectionMode.Stdio, ExistingCliPath = existingPath }))
+            .Should().NotThrow();
+    }
+
+    [TestMethod]
+    public async Task Initialize_validates_path_existence()
     {
         var nonExistentPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-        var clientFactory = new BicepClientFactory(new());
-        await FluentActions.Invoking(() => clientFactory.InitializeFromPath(nonExistentPath, default))
+        var clientFactory = new BicepClientFactory();
+        await FluentActions.Invoking(() => clientFactory.Initialize(new() { ExistingCliPath = nonExistentPath }, default))
             .Should().ThrowAsync<FileNotFoundException>().WithMessage($"The specified Bicep CLI path does not exist: '{nonExistentPath}'.");
+    }
+
+    [TestMethod]
+    public void Validate_throws_when_ExistingCliPath_does_not_exist()
+    {
+        var nonExistentPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        FluentActions.Invoking(() => BicepClientConfiguration.Validate(new() { ExistingCliPath = nonExistentPath }))
+            .Should().Throw<FileNotFoundException>().WithMessage($"The specified Bicep CLI path does not exist: '{nonExistentPath}'.");
+    }
+
+    [TestMethod]
+    public async Task Initialize_throws_NotSupportedException_for_unsupported_ConnectionMode()
+    {
+        var existingPath = typeof(BicepClientTests).Assembly.Location;
+        var clientFactory = new BicepClientFactory();
+        // Cast an unknown value to exercise the default branch in the factory's switch expression.
+        var unknownMode = (BicepConnectionMode)99;
+        await FluentActions.Invoking(() => clientFactory.Initialize(new() { ExistingCliPath = existingPath, ConnectionMode = unknownMode }, default))
+            .Should().ThrowAsync<NotSupportedException>();
+    }
+
+    [TestMethod]
+    public async Task WaitForPipeConnection_throws_timeout_exception_when_connection_times_out()
+    {
+        using var pipeStream = new NamedPipeServerStream(Guid.NewGuid().ToString(), PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+
+        await FluentActions.Invoking(() => BicepClient.WaitForPipeConnection(pipeStream, TimeSpan.FromMilliseconds(500), CancellationToken.None))
+            .Should().ThrowAsync<TimeoutException>().WithMessage("Timed out waiting for the Bicep CLI process to connect after * seconds.");
     }
 
     [TestMethod]
@@ -132,6 +313,28 @@ public class BicepClientTests
         """);
 
         var result = await Bicep.Compile(new(bicepFile));
+
+        result.Success.Should().BeTrue();
+        result.Contents.Should().NotBeNullOrEmpty();
+        result.Diagnostics.Should().Contain(x => x.Code == "no-unused-params");
+    }
+
+    [TestMethod]
+    public async Task Compile_runs_successfully_with_stdio()
+    {
+        var clientFactory = new BicepClientFactory();
+        var cliName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "bicep.exe" : "bicep";
+        var cliPath = Path.GetFullPath(Path.Combine(typeof(BicepClientTests).Assembly.Location, $"../{cliName}"));
+
+        using var bicep = await clientFactory.Initialize(
+            new() { ExistingCliPath = cliPath, ConnectionMode = BicepConnectionMode.Stdio },
+            TestContext.CancellationTokenSource.Token);
+
+        var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", """
+        param location string
+        """);
+
+        var result = await bicep.Compile(new(bicepFile));
 
         result.Success.Should().BeTrue();
         result.Contents.Should().NotBeNullOrEmpty();
@@ -200,12 +403,48 @@ public class BicepClientTests
 
         var result = await Bicep.GetSnapshot(new(Path.Combine(outputPath, "main.bicepparam"), new(
             TenantId: null,
+            ManagementGroupId: null,
             SubscriptionId: "0910bc80-1614-479b-a3f4-07178d3ea77b",
             ResourceGroup: "ant-test",
             Location: "West US",
             DeploymentName: "main"), []));
 
         result.Snapshot.Should().Contain("/subscriptions/0910bc80-1614-479b-a3f4-07178d3ea77b/resourceGroups/ant-test/providers/Microsoft.Storage/storageAccounts/myStgAct");
+    }
+
+    [TestMethod]
+    public async Task GetSnapshot_supports_management_group_scope()
+    {
+        var outputPath = FileHelper.SaveResultFiles(TestContext, [
+            new("main.bicep", """
+            targetScope = 'managementGroup'
+
+            param policyAssignmentName string
+
+            resource policyAssignment 'Microsoft.Authorization/policyAssignments@2022-06-01' = {
+              name: policyAssignmentName
+              properties: {
+                policyDefinitionId: '/providers/Microsoft.Management/managementGroups/${managementGroup().name}/providers/Microsoft.Authorization/policyDefinitions/00000000-0000-0000-0000-000000000000'
+              }
+            }
+            """),
+            new("main.bicepparam", """
+            using 'main.bicep'
+
+            param policyAssignmentName = 'myAssignment'
+            """),
+        ]);
+
+        var result = await Bicep.GetSnapshot(new(Path.Combine(outputPath, "main.bicepparam"), new(
+            TenantId: null,
+            ManagementGroupId: "myManagementGroup",
+            SubscriptionId: null,
+            ResourceGroup: null,
+            Location: "West US",
+            DeploymentName: "main"), []));
+
+        result.Snapshot.Should().Contain("/providers/Microsoft.Management/managementGroups/myManagementGroup/providers/Microsoft.Authorization/policyAssignments/myAssignment");
+        result.Snapshot.Should().Contain("/providers/Microsoft.Management/managementGroups/myManagementGroup/providers/Microsoft.Authorization/policyDefinitions/00000000-0000-0000-0000-000000000000");
     }
 
     [TestMethod]
@@ -222,5 +461,51 @@ public class BicepClientTests
         var result = await Bicep.GetMetadata(new(bicepFile));
 
         result.Exports[0].Description.Should().Be("A foo object");
+    }
+
+    [TestMethod]
+    public async Task GetDeploymentGraph_runs_successfully()
+    {
+        var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", """
+            resource storageAccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+              name: 'myStgAct'
+              location: 'westus'
+              kind: 'StorageV2'
+              sku: {
+                name: 'Standard_LRS'
+              }
+            }
+
+            resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2021-02-01' = {
+              parent: storageAccount
+              name: 'default'
+            }
+            """);
+
+        var result = await Bicep.GetDeploymentGraph(new(bicepFile));
+
+        result.Nodes.Should().Contain(node => node.Name == "storageAccount");
+        result.Nodes.Should().Contain(node => node.Name == "blobService");
+        result.Edges.Should().Contain(edge => edge.Source == "blobService" && edge.Target == "storageAccount");
+    }
+
+    [TestMethod]
+    public async Task GetFileReferences_runs_successfully()
+    {
+        var outputPath = FileHelper.SaveResultFiles(TestContext, [
+            new("main.bicep", """
+            module mod 'mod.bicep' = {
+              name: 'mod'
+            }
+            """),
+            new("mod.bicep", """
+            param unused string
+            """),
+        ]);
+
+        var result = await Bicep.GetFileReferences(new(Path.Combine(outputPath, "main.bicep")));
+
+        result.FilePaths.Should().Contain(path => path.EndsWith("main.bicep"));
+        result.FilePaths.Should().Contain(path => path.EndsWith("mod.bicep"));
     }
 }

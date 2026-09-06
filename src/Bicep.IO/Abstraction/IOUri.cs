@@ -71,6 +71,9 @@ namespace Bicep.IO.Abstraction
 
         public static implicit operator string(IOUri uri) => uri.ToString();
 
+        public static bool IsAbsoluteFilePath(string path) =>
+            FilePath.IsPathFullyQualified(path) || path.StartsWith('/') || path.StartsWith('\\');
+
         public static IOUri FromFilePath(string filePath)
         {
             if (!FilePath.IsPathFullyQualified(filePath) && !(filePath.StartsWith('/') || filePath.StartsWith('\\')))

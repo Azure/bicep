@@ -79,7 +79,7 @@ namespace Bicep.Core.Analyzers.Linter
                         DiagnosticLevel.Info,
                         DiagnosticSource.CoreLinter,
                         "Linter Disabled",
-                        string.Format(CoreResources.LinterDisabledFormatMessage, semanticModel.Configuration.ConfigFileUri?.ToString() ?? IConfigurationManager.BuiltInConfigurationResourceName)));
+                        string.Format(CoreResources.LinterDisabledFormatMessage, semanticModel.Configuration.ConfigFileUri?.ToString() ?? BicepConfiguration.BuiltInConfigurationResourceName)));
                 }
             }
 

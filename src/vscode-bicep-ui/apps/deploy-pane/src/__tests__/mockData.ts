@@ -6,7 +6,7 @@ import type {
   DeploymentOperation,
   DeploymentValidateResult,
   WhatIfOperationResult,
-} from "@azure/arm-resources";
+} from "@azure/arm-resourcesdeployments";
 import type { DeploymentScope } from "../models";
 
 export const fileUri = "file:///my/deployment.bicep";
@@ -41,6 +41,27 @@ export const parametersJson = `{
       "value": "ASDASD"
     }
   }
+}`;
+
+export const emptyParametersJson = `{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {}
+}`;
+
+export const allowedValuesTemplateJson = `{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environment": {
+      "type": "string",
+      "allowedValues": [
+        "dev",
+        "prod"
+      ]
+    }
+  },
+  "resources": []
 }`;
 
 export const scope: DeploymentScope & { scopeType: "resourceGroup" } = {

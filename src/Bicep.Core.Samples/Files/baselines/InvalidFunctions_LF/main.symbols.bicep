@@ -97,3 +97,13 @@ func lineBeforeComma(
   ,b string) string => 'foo'
 //@[03:04) Local b. Type: string. Declaration start char: 3, length: 8
 
+
+output likeWrongArgcount bool =like('abc')
+//@[07:24) Output likeWrongArgcount. Type: bool. Declaration start char: 0, length: 42
+output likeWrongArgcount2 bool =like('abcdef','a*','abcd*')
+//@[07:25) Output likeWrongArgcount2. Type: bool. Declaration start char: 0, length: 59
+output likeWrongType bool =like(123,'a*')
+//@[07:20) Output likeWrongType. Type: bool. Declaration start char: 0, length: 41
+output likeWrongReturnType string=like('abcd','a*')
+//@[07:26) Output likeWrongReturnType. Type: string. Declaration start char: 0, length: 51
+

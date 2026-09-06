@@ -972,9 +972,9 @@ public record DiscriminatedObjectTypeExpression(
 
 public record ParameterKeyVaultReferenceExpression(
     SyntaxBase? SourceSyntax,
-    string KeyVaultId,
-    string SecretName,
-    string? SecretVersion
+    Expression KeyVaultId,
+    Expression SecretName,
+    Expression? SecretVersion
 ) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)

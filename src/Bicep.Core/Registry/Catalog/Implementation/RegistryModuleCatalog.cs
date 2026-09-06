@@ -3,6 +3,7 @@
 
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
+using Bicep.Core.Registry.Oci;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry.Catalog.Implementation;
@@ -13,8 +14,8 @@ namespace Bicep.Core.Registry.Catalog.Implementation;
 public class RegistryModuleCatalog : IRegistryModuleCatalog
 {
     private readonly IPrivateAcrModuleMetadataProviderFactory providerFactory;
-    private readonly IContainerRegistryClientFactory containerRegistryClientFactory;
-    private readonly IConfigurationManager configurationManager;
+    private readonly IOciRegistryTransportFactory transportFactory;
+    private readonly IBicepConfigurationManager configurationManager;
     private readonly object lockObject = new();
 
     private readonly Dictionary<string, IRegistryModuleMetadataProvider> registryProviders = new();
@@ -22,18 +23,18 @@ public class RegistryModuleCatalog : IRegistryModuleCatalog
     public RegistryModuleCatalog(
         IPublicModuleMetadataProvider publicModuleMetadataProvider,
         IPrivateAcrModuleMetadataProviderFactory privateProviderFactory,
-        IContainerRegistryClientFactory containerRegistryClientFactory,
-        IConfigurationManager configurationManager
+        IOciRegistryTransportFactory transportFactory,
+        IBicepConfigurationManager configurationManager
     )
     {
         providerFactory = privateProviderFactory;
-        this.containerRegistryClientFactory = containerRegistryClientFactory;
+        this.transportFactory = transportFactory;
         this.configurationManager = configurationManager;
 
         registryProviders["mcr.microsoft.com"] = publicModuleMetadataProvider;
     }
 
-    public IRegistryModuleMetadataProvider GetProviderForRegistry(CloudConfiguration cloud, string registry)
+    public IRegistryModuleMetadataProvider GetProviderForRegistry(IBicepCloudConfiguration cloud, string registry)
     {
         lock (lockObject)
         {
@@ -42,7 +43,7 @@ public class RegistryModuleCatalog : IRegistryModuleCatalog
                 return provider;
             }
 
-            provider = providerFactory.Create(cloud, registry, containerRegistryClientFactory);
+            provider = providerFactory.Create(cloud, registry, transportFactory);
             registryProviders[registry] = provider;
 
             return provider;

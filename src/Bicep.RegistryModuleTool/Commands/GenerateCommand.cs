@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using Bicep.Core;
+using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Microsoft.Extensions.Logging;
 
@@ -27,10 +27,10 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.compiler = compiler;
             }
 
-            protected override async Task<int> InvokeInternalAsync(InvocationContext context)
+            protected override async Task<int> InvokeInternalAsync(IConsole console, CancellationToken cancellationToken)
             {
                 var mainBicepFile = await this.GenerateAndLogAsync(
-                    MainBicepFile.FileName, () => MainBicepFile.GenerateAsync(this.FileSystem, this.compiler, context.Console));
+                    MainBicepFile.FileName, () => MainBicepFile.GenerateAsync(this.FileSystem, this.compiler, console));
 
                 await this.GenerateAndLogAsync(
                     MainArmTemplateFile.FileName, () => MainArmTemplateFile.GenerateAsync(this.FileSystem, mainBicepFile));

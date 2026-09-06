@@ -16,7 +16,7 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
-using Bicep.TextFixtures.IO;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 
@@ -90,6 +90,14 @@ namespace Bicep.Core.UnitTests.Utils
             return await RestoreAndCompile(services, uriDictionary, entryUri);
         }
 
+        public static async Task<ParamsCompilationResult> RestoreAndCompileParams(ServiceBuilder services, IReadOnlyDictionary<Uri, BinaryData> uriDictionary, Uri entryUri)
+        {
+            var compiler = services.WithMockFileSystem(uriDictionary).Build().GetCompiler();
+            var compilation = await compiler.CreateCompilation(entryUri.ToIOUri());
+
+            return CompileParams(compilation);
+        }
+
         public static async Task<CompilationResult> RestoreAndCompile(ServiceBuilder services, IReadOnlyDictionary<Uri, string> uriDictionary, Uri entryUri)
         {
             var compiler = services.Build().GetCompiler();
@@ -100,6 +108,15 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static Task<ParamsCompilationResult> RestoreAndCompileParams(ServiceBuilder services, string mainBicepFileContents, string bicepParamsFileContent)
             => RestoreAndCompileParams(services, ("main.bicep", mainBicepFileContents), ("parameters.bicepparam", bicepParamsFileContent));
+
+        public static async Task<ParamsCompilationResult> RestoreAndCompileParams(ServiceBuilder services, params (string fileName, BinaryData fileContents)[] files)
+        {
+            files.Select(x => x.fileName).Should().Contain("parameters.bicepparam");
+
+            var (uriDictionary, entryUri) = CreateFileDictionary(files.Select(file => ("/path/to", file.fileName, file.fileContents)).ToArray(), "parameters.bicepparam");
+
+            return await RestoreAndCompileParams(services, uriDictionary, entryUri);
+        }
 
         public static async Task<ParamsCompilationResult> RestoreAndCompileParams(ServiceBuilder services, params (string fileName, string fileContents)[] files)
         {
@@ -120,9 +137,12 @@ namespace Bicep.Core.UnitTests.Utils
         }
 
         public static IActiveSourceFileSet CreateWorkspace(ISourceFileFactory sourceFileFactory, IReadOnlyDictionary<Uri, string> uriDictionary)
+            => CreateWorkspace(sourceFileFactory, uriDictionary.ToDictionary(x => x.Key.ToIOUri(), x => x.Value));
+
+        public static IActiveSourceFileSet CreateWorkspace(ISourceFileFactory sourceFileFactory, IReadOnlyDictionary<IOUri, string> uriDictionary)
         {
             var workspace = new ActiveSourceFileSet();
-            var sourceFiles = uriDictionary.Select(kvp => sourceFileFactory.CreateSourceFile(kvp.Key.ToIOUri(), kvp.Value));
+            var sourceFiles = uriDictionary.Select(kvp => sourceFileFactory.CreateSourceFile(kvp.Key, kvp.Value));
             workspace.UpsertSourceFiles(sourceFiles);
 
             return workspace;

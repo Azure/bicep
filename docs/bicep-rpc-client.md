@@ -234,6 +234,32 @@ var result = await client.GetSnapshot(new GetSnapshotRequest(
 var snapshot = result.Snapshot;
 ```
 
+### Generate docs
+
+> [!WARNING]
+> `GenerateDocs` supports the experimental `bicep docs` command group. Its request and response shapes
+> may change while that feature remains experimental. Requires Bicep CLI 0.47.0 or later.
+
+The `GenerateDocs` method renders Markdown documentation for a Bicep module. Unlike the
+`bicep docs generate` command, it never writes files: the rendered content is returned to you and
+your application decides where it goes. The following example renders one module and writes the
+result itself:
+
+```csharp
+var result = await client.GenerateDocs(new GenerateDocsRequest(
+    Path: "./modules/storage/main.bicep",
+    TemplateFile: null,          // Optional custom Scriban template
+    TemplateRoot: null,          // Optional root directory for template includes
+    CustomTemplateValues: null,  // Optional values exposed to the template
+    NoRestore: false
+));
+
+if (result.Contents is not null)
+{
+    await File.WriteAllTextAsync("./modules/storage/README.md", result.Contents);
+}
+```
+
 ### Get version
 
 The `GetVersion` method retrieves the version of the Bicep CLI that the client is using. The

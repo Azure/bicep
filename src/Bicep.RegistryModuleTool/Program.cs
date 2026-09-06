@@ -2,11 +2,6 @@
 // Licensed under the MIT License.
 
 using System.CommandLine;
-using System.CommandLine.Builder;
-using System.CommandLine.Hosting;
-using System.CommandLine.Invocation;
-using System.CommandLine.NamingConventionBinder;
-using System.CommandLine.Parsing;
 using Bicep.RegistryModuleTool.Commands;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.Options;
@@ -19,44 +14,56 @@ namespace Bicep.RegistryModuleTool
 {
     public class Program
     {
-        public static Task<int> Main(string[] args) => CreateParser().InvokeAsync(args);
-
-        private static Parser CreateParser()
+        public static async Task<int> Main(string[] args)
         {
-            var rootCommand = new RootCommand("Bicep registry module tool")
-                .AddSubcommand(new ValidateCommand())
-                .AddSubcommand(new GenerateCommand());
+            var host = CreateHost(args);
+            await host.StartAsync();
 
-            var parser = new CommandLineBuilder(rootCommand)
-                .UseHost(Host.CreateDefaultBuilder, ConfigureHost)
-                .UseDefaults()
-                .UseVerboseOption()
-                .Build();
+            var rootCommand = BuildRootCommand(host.Services);
+            var exitCode = await rootCommand.Parse(args).InvokeAsync();
 
-            // Have to use parser.Invoke instead of rootCommand.Invoke due to the
-            // System.CommandLine bug: https://github.com/dotnet/command-line-api/issues/1691.
-            rootCommand.Handler = CommandHandler.Create(() => parser.Invoke("-h"));
-
-            return parser;
+            await host.StopAsync();
+            return exitCode;
         }
 
-        private static void ConfigureHost(IHostBuilder builder) => builder
+        private static IHost CreateHost(string[] args) => Host.CreateDefaultBuilder()
             .ConfigureServices(services => services.AddBicepCore())
-            .UseSerilog((context, logging) => logging
-                .MinimumLevel.Is(GetMinimumLogEventLevel(context))
+            .UseSerilog((_, logging) => logging
+                .MinimumLevel.Is(GetMinimumLogEventLevel(args))
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                 .MinimumLevel.Override("System", LogEventLevel.Warning)
                 .WriteTo.Console())
-            .UseCommandHandlers();
+            .UseCommandHandlers()
+            .Build();
 
-        private static LogEventLevel GetMinimumLogEventLevel(HostBuilderContext context)
+        private static RootCommand BuildRootCommand(IServiceProvider services)
         {
-            var verboseSpecified =
-                context.Properties.TryGetValue(typeof(InvocationContext), out var value) &&
-                value is InvocationContext invocationContext &&
-                invocationContext.ParseResult.FindResultFor(GlobalOptions.Verbose) is not null;
+            var rootCommand = new RootCommand("Bicep registry module tool");
+            rootCommand.UseVerboseOption();
 
-            return verboseSpecified ? LogEventLevel.Debug : LogEventLevel.Fatal;
+            var console = new SystemConsole();
+
+            var generateCmd = new GenerateCommand();
+            generateCmd.SetAction(async (ParseResult _, CancellationToken ct) =>
+                await services.GetRequiredService<GenerateCommand.CommandHandler>().InvokeAsync(console, ct));
+
+            var validateCmd = new ValidateCommand();
+            validateCmd.SetAction(async (ParseResult _, CancellationToken ct) =>
+                await services.GetRequiredService<ValidateCommand.CommandHandler>().InvokeAsync(console, ct));
+
+            rootCommand.Add(generateCmd);
+            rootCommand.Add(validateCmd);
+
+            return rootCommand;
+        }
+
+        private static LogEventLevel GetMinimumLogEventLevel(string[] args) =>
+            args.Contains("--verbose") ? LogEventLevel.Debug : LogEventLevel.Fatal;
+
+        private sealed class SystemConsole : IConsole
+        {
+            public TextWriter Out => Console.Out;
+            public TextWriter Error => Console.Error;
         }
     }
 }

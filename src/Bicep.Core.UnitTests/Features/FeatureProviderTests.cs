@@ -1,13 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.IO.FileSystem;
-using Bicep.TextFixtures.IO;
+using Bicep.Testing;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -28,8 +30,8 @@ public class FeatureProviderTests
             }
             """));
 
-        var configManager = new ConfigurationManager(fileSet.FileExplorer);
-        var configuration = configManager.GetConfiguration(fileSet.GetUri("repo/main.bicep"));
+        var configManager = new BicepConfigurationManager(fileSet.FileExplorer);
+        var configuration = configManager.GetEffectiveConfiguration(fileSet.GetUri("repo/main.bicep"));
         var fpm = new FeatureProviderFactory(configManager, fileSet.FileExplorer);
 
         var control = fpm.GetFeatureProvider(fileSet.GetUri("main.bicep"));
@@ -54,8 +56,8 @@ public class FeatureProviderTests
                 }
                 """));
 
-        var configManager = new ConfigurationManager(fileSet.FileExplorer);
-        var configuration = configManager.GetConfiguration(fileSet.GetUri("repo/main.bicep"));
+        var configManager = new BicepConfigurationManager(fileSet.FileExplorer);
+        var configuration = configManager.GetEffectiveConfiguration(fileSet.GetUri("repo/main.bicep"));
         var fpm = new FeatureProviderFactory(configManager, fileSet.FileExplorer);
 
         var control = fpm.GetFeatureProvider(fileSet.GetUri("main.bicep"));
@@ -65,4 +67,5 @@ public class FeatureProviderTests
         var subDirFeatures = fpm.GetFeatureProvider(fileSet.GetUri("repo/subdir/module.bicep"));
         subDirFeatures.SymbolicNameCodegenEnabled.Should().BeTrue();
     }
+
 }

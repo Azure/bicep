@@ -128,7 +128,7 @@ namespace Bicep.Cli.Services
 
         private void WriteToStdout(string contents)
         {
-            io.Output.Write(contents);
+            io.Output.Writer.Write(contents);
         }
 
         public void WriteToFile(Uri fileUri, string contents)
@@ -170,5 +170,6 @@ namespace Bicep.Cli.Services
                 throw new BicepException(exception.Message, exception);
             }
         }
+
     }
 }

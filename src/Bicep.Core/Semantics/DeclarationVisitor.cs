@@ -118,8 +118,8 @@ namespace Bicep.Core.Semantics
             var scope = new LocalScope(string.Empty, syntax, bindingSyntax, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritAll);
             this.PushScope(scope);
 
-            // Add a local 'this' namespace symbol to the resource scope when the feature is enabled
-            if (this.context.SourceFile.Features.ThisNamespaceEnabled && !syntax.IsExistingResource())
+            // Add a local 'this' namespace symbol to the resource scope
+            if (!syntax.IsExistingResource())
             {
                 // Use the bindingSyntax (the resource body) as the declaring syntax to avoid conflicts
                 // with the ResourceSymbol which uses the ResourceDeclarationSyntax

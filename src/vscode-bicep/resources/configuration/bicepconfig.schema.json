@@ -1,0 +1,1195 @@
+{
+  "$comment1": "=========================================================================================================",
+  "$comment2": "IMPORTANT: This file is for intelliSense only (for VS Code), it does *not* affect the actual bicepconfig.json defaults.",
+  "$comment3": "  Actual defaults picked up by configuration at runtime are in src/Bicep.Core/Configuration/bicepconfig.json",
+  "$comment4": "  If you make changes to this file, remember to update the rule documentation.",
+  "$comment5": "                                                                                                        ",
+  "$comment6": "Also, please add appropriate tests in Bicep.Core.UnitTests.Configuration.BicepConfigSchemaTests to verify this file's contents'",
+  "$comment9": "=========================================================================================================",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Bicep Configuration",
+  "definitions": {
+    "level": {
+      "title": "Diagnostic Level",
+      "description": "Type of diagnostic to display, most rules default to warning",
+      "type": "string",
+      "enum": ["off", "info", "warning", "error"]
+    },
+    "rule-def-level-warning": {
+      "type": "object",
+      "default": {
+        "level": "warning"
+      },
+      "properties": {
+        "level": {
+          "$ref": "#/definitions/level"
+        }
+      },
+      "required": ["level"]
+    },
+    "rule-def-level-error": {
+      "type": "object",
+      "default": {
+        "level": "error"
+      },
+      "properties": {
+        "level": {
+          "$ref": "#/definitions/level"
+        }
+      },
+      "required": ["level"]
+    },
+    "rule-def-level-info": {
+      "type": "object",
+      "default": {
+        "level": "info"
+      },
+      "properties": {
+        "level": {
+          "$ref": "#/definitions/level"
+        }
+      },
+      "required": ["level"]
+    },
+    "rule-def-level-off": {
+      "type": "object",
+      "default": {
+        "level": "off"
+      },
+      "properties": {
+        "level": {
+          "$ref": "#/definitions/level"
+        }
+      },
+      "required": ["level"]
+    },
+    "cloudProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resourceManagerEndpoint", "activeDirectoryAuthority"],
+      "properties": {
+        "resourceManagerEndpoint": {
+          "title": "Resource Manager Endpoint",
+          "description": "The resource manager endpoint URL",
+          "type": "string"
+        },
+        "activeDirectoryAuthority": {
+          "title": "Active Directory Authority",
+          "description": "The active directory authority URL",
+          "type": "string"
+        }
+      }
+    },
+    "credentialType": {
+      "title": "Credential Type",
+      "description": "Type of credential to use for authentication when restoring external modules",
+      "type": "string",
+      "enum": ["Environment", "ManagedIdentity", "VisualStudio", "VisualStudioCode", "AzureCLI", "AzurePowerShell"]
+    },
+    "templateSpecModuleAlias": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["subscription", "resourceGroup"],
+      "properties": {
+        "subscription": {
+          "title": "Subscription ID",
+          "description": "The subscription ID of the alias",
+          "type": "string",
+          "pattern": "^[0-9A-Fa-f]{8}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{12}$"
+        },
+        "resourceGroup": {
+          "title": "Resource Group Name",
+          "description": "The resource group name of the alias",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 90,
+          "pattern": "^[-\\w\\.\\(\\)]{0,89}[-\\w\\(\\)]$"
+        }
+      }
+    },
+    "bicepRegistryModuleAlias": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["registry"],
+      "properties": {
+        "registry": {
+          "title": "Registry",
+          "description": "The module registry of the alias",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "modulePath": {
+          "title": "Module Path",
+          "description": "The module path of the alias",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "bicepRegistryModuleAliasMock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mapToFilePath"],
+      "properties": {
+        "mapToFilePath": {
+          "title": "Map To File Path",
+          "description": "The path relative to bicepconfig.json used to emulate a registry alias",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "extensionConfig": {
+      "type": "string"
+    },
+    "builtInConfig": {
+      "type": "object",
+      "properties": {
+        "builtIn": {
+          "type": "boolean"
+        }
+      },
+      "required": ["builtIn"],
+      "additionalProperties": false
+    }
+  },
+  "type": "object",
+  "default": {},
+  "properties": {
+    "extends": {
+      "title": "Extends",
+      "description": "Relative path to a base bicepconfig.json to inherit settings from. Absolute paths are not allowed.",
+      "type": "string"
+    },
+    "cloud": {
+      "title": "Cloud",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currentProfile"],
+      "properties": {
+        "currentProfile": {
+          "title": "Current Profile",
+          "description": "The current cloud profile",
+          "anyOf": [
+            {
+              "enum": ["AzureCloud", "AzureChinaCloud", "AzureUSGovernment"]
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "default": "AzureCloud"
+        },
+        "profiles": {
+          "title": "Profiles",
+          "description": "The clould profile definitions",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/cloudProfile"
+          }
+        },
+        "credentialPrecedence": {
+          "title": "Credential Precedence",
+          "description": "Determines which types of credentials are used to authenticate and which order when restoring external modules.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/credentialType"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "credentialOptions": {
+          "title": "Credential Options",
+          "description": "Credential options for the credential types specified in credentialPrecedence.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "managedIdentity": {
+              "title": "Managed Identity",
+              "description": "The managed identity options",
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "title": "Managed Identity Type",
+                  "description": "The managed identity type",
+                  "type": "string",
+                  "enum": ["SystemAssigned", "UserAssigned"],
+                  "default": "SystemAssigned",
+                  "enumDescriptions": ["Use a system-assigned managed identity", "Use a user-assigned managed identity"]
+                },
+                "clientId": {
+                  "title": "Client ID",
+                  "description": "The user-assigned managed identity client ID",
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "resourceId": {
+                  "title": "Resource ID",
+                  "description": "The user-assigned managed identity resource ID",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "moduleAliases": {
+      "title": "Module Aliases",
+      "type": "object",
+      "additionalProperties": false,
+      "default": {
+        "ts": {},
+        "br": {}
+      },
+      "properties": {
+        "ts": {
+          "title": "Template Spec Module Aliases",
+          "description": "Template Spec module alias definitions",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/templateSpecModuleAlias",
+            "additionalProperties": false
+          }
+        },
+        "br": {
+          "title": "Bicep Registry Module Aliases",
+          "description": "Bicep Registry module alias definitions",
+          "additionalProperties": {
+            "$ref": "#/definitions/bicepRegistryModuleAlias",
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    "moduleAliasesMock": {
+      "title": "Module Aliases Mock",
+      "description": "Mock module aliases that supersede moduleAliases when present",
+      "type": "object",
+      "additionalProperties": false,
+      "default": {
+        "br": {}
+      },
+      "properties": {
+        "br": {
+          "title": "Bicep Registry Module Aliases Mock",
+          "description": "Mock Bicep Registry module alias definitions",
+          "additionalProperties": {
+            "$ref": "#/definitions/bicepRegistryModuleAliasMock",
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    "extensions": {
+      "title": "Bicep Extensions",
+      "description": "Bicep extension references",
+      "type": "object",
+      "patternProperties": {
+        "^(?!sys$).*": {
+          "$ref": "#/definitions/extensionConfig"
+        }
+      },
+      "additionalProperties": false,
+      "default": {
+        "az": "builtin:",
+        "kubernetes": "builtin:"
+      }
+    },
+    "implicitExtensions": {
+      "title": "Implicit Bicep Extensions",
+      "description": "Bicep extensions that should be used implicitly",
+      "type": "array",
+      "default": ["az"],
+      "items": {
+        "type": "string"
+      },
+      "additionalProperties": false
+    },
+    "analyzers": {
+      "title": "Analyzers",
+      "type": "object",
+      "default": {
+        "core": {
+          "rules": {}
+        }
+      },
+      "properties": {
+        "core": {
+          "title": "Core Bicep Analyzer",
+          "description": "Core analyzer built into bicep",
+          "type": "object",
+          "required": [],
+          "properties": {
+            "verbose": {
+              "type": "boolean",
+              "default": false
+            },
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "rules": {
+              "additionalProperties": false,
+              "properties": {
+                "adminusername-should-not-be-literal": {
+                  "allOf": [
+                    {
+                      "description": "Property 'adminUserName' should not use a literal value. Use a param instead. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#adminusername-should-not-be-literal"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "artifacts-parameters": {
+                  "allOf": [
+                    {
+                      "description": "Follow best practices when including the _artifactsLocation and _artifactsLocationSasToken parameters. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#artifacts-parameters"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "decompiler-cleanup": {
+                  "allOf": [
+                    {
+                      "description": "Some decompiler imperfections may need to be cleaned up manually. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#decompiler-cleanup"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "explicit-values-for-loc-params": {
+                  "allOf": [
+                    {
+                      "description": "When consuming a module, any location-related parameters that have a default value must be assigned an explicit value. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#explicit-values-for-loc-params"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "max-asserts": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of 'assert' statements used. Defaults to 'Error'. See https://aka.ms/bicep/linter-diagnostics#max-asserts"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-error"
+                    }
+                  ]
+                },
+                "max-outputs": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of outputs used. Defaults to 'Error'. See https://aka.ms/bicep/linter-diagnostics#max-outputs"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-error"
+                    }
+                  ]
+                },
+                "max-params": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of parameters used. Defaults to 'Error'. See https://aka.ms/bicep/linter-diagnostics#max-params"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-error"
+                    }
+                  ]
+                },
+                "max-resources": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of resources used. Defaults to 'Error'. See https://aka.ms/bicep/linter-diagnostics#max-resources"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-error"
+                    }
+                  ]
+                },
+                "max-variables": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of variables used. Defaults to 'Error'. See https://aka.ms/bicep/linter-diagnostics#max-variables"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-error"
+                    }
+                  ]
+                },
+                "no-conflicting-metadata": {
+                  "allOf": [
+                    {
+                      "description": "Metadata properties whose value is set by a separate decorator should not be set via the '@metadata()' decorator. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-conflicting-metadata"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "no-deployments-resources": {
+                  "allOf": [
+                    {
+                      "description": "Bicep modules are recommended instead of representing nested or linked deployments as a resource. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-deployments-resources"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "no-explicit-any": {
+                  "allOf": [
+                    {
+                      "description": "Avoid using an explicit 'any' type whenever possible. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-explicit-any"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "no-hardcoded-env-urls": {
+                  "allOf": [
+                    {
+                      "description": "Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-hardcoded-env-urls",
+                      "type": "object",
+                      "properties": {
+                        "disallowedhosts": {
+                          "description": "Customize the list of hosts to disallow",
+                          "type": "array",
+                          "default": [
+                            "azuredatalakeanalytics.net",
+                            "azuredatalakestore.net",
+                            "batch.core.windows.net",
+                            "core.windows.net",
+                            "database.windows.net",
+                            "datalake.azure.net",
+                            "gallery.azure.com",
+                            "graph.windows.net",
+                            "login.microsoftonline.com",
+                            "management.azure.com",
+                            "management.core.windows.net",
+                            "vault.azure.net"
+                          ],
+                          "items": {
+                            "$id": "#/analyzers/core/rules/no-hardcoded-env-urls/disallowedhosts/items",
+                            "title": "Items",
+                            "type": "string",
+                            "default": "",
+                            "minLength": 1
+                          }
+                        },
+                        "excludedhosts": {
+                          "description": "Customize the list of hosts to allow even if they contain an excluded host as a substring",
+                          "type": "array",
+                          "default": ["schema.management.azure.com"],
+                          "items": {
+                            "$id": "#/analyzers/core/rules/no-hardcoded-env-urls/excludedhosts/items",
+                            "title": "Items",
+                            "type": "string",
+                            "default": "",
+                            "minLength": 0
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "no-hardcoded-location": {
+                  "allOf": [
+                    {
+                      "description": "A resource's location should not use a hard-coded string or variable value. It should use a parameter, an expression, or the string 'global'. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#no-hardcoded-location"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "no-hardcoded-outputs": {
+                  "allOf": [
+                    {
+                      "description": "Outputs should not be used for hard-coded constants. Use exported variables instead. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#no-hardcoded-outputs"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "no-loc-expr-outside-params": {
+                  "allOf": [
+                    {
+                      "description": "Functions resourceGroup().location and deployment().location should only be used as the default value of a parameter. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#no-loc-expr-outside-params"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "no-module-name": {
+                  "allOf": [
+                    {
+                      "description": "Avoid specifying an explicit module name. This simplifies code, and avoids the risk of accidental module name re-use within a deployment. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#no-module-name"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "nested-deployment-template-scoping": {
+                  "allOf": [
+                    {
+                      "description": "Nested deployment resources cannot refer to top-level symbols from within the 'template' property when inner-scoped evaluation is used. Defaults to 'Error'. See https://aka.ms/bicep/linter-diagnostics#nested-deployment-template-scoping"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-error"
+                    }
+                  ]
+                },
+                "no-unnecessary-dependson": {
+                  "allOf": [
+                    {
+                      "description": "No unnecessary dependsOn. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-unnecessary-dependson"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "no-unused-existing-resources": {
+                  "allOf": [
+                    {
+                      "description": "All existing resources must be used. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-unused-existing-resources"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "no-unused-params": {
+                  "allOf": [
+                    {
+                      "description": "All parameters must be used. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-unused-params"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "no-unused-imports": {
+                  "allOf": [
+                    {
+                      "description": "All imports must be used. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-unused-imports"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "no-unused-types": {
+                  "allOf": [
+                    {
+                      "description": "All declared types must be used. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-unused-types"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "no-unused-vars": {
+                  "allOf": [
+                    {
+                      "description": "All variables must be used. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-unused-vars"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "outputs-should-not-contain-secrets": {
+                  "allOf": [
+                    {
+                      "description": "Outputs should not contain secrets. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#outputs-should-not-contain-secrets"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "prefer-interpolation": {
+                  "allOf": [
+                    {
+                      "description": "Use string interpolation instead of the concat function. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#prefer-interpolation"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "prefer-unquoted-property-names": {
+                  "allOf": [
+                    {
+                      "description": "Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#prefer-unquoted-property-names"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "protect-commandtoexecute-secrets": {
+                  "allOf": [
+                    {
+                      "description": "Use protectedSettings for commandToExecute secrets. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#protect-commandtoexecute-secrets"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "secure-params-in-nested-deploy": {
+                  "allOf": [
+                    {
+                      "description": "Outer-scoped nested deployment resources should not be used for secure parameters or list* functions. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#secure-params-in-nested-deploy"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "secure-params-in-parameters-file": {
+                  "allOf": [
+                    {
+                      "description": "Secure parameter values should not be assigned to insecure parameters in a parameters file. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#secure-params-in-parameters-file"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "secure-secrets-in-params": {
+                  "allOf": [
+                    {
+                      "description": "Parameters that represent secrets must be secure. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#secure-secrets-in-params"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "secure-parameter-default": {
+                  "allOf": [
+                    {
+                      "description": "Secure parameters should not have hardcoded defaults (except for empty or newGuid()). Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#secure-parameter-default"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "simplify-interpolation": {
+                  "allOf": [
+                    {
+                      "description": "Remove unnecessary string interpolation. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#simplify-interpolation"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "simplify-json-null": {
+                  "allOf": [
+                    {
+                      "description": "Simplify json('null') to null. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#simplify-json-null"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "stacks-extensibility-compat": {
+                  "allOf": [
+                    {
+                      "description": "Extensibility for deployments has additional constraints for Deployment stack deployments. Defaults to 'Info'. See https://aka.ms/bicep/linter-diagnostics#stacks-extensibility-compat"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-info"
+                    }
+                  ]
+                },
+                "use-description-outputs": {
+                  "allOf": [
+                    {
+                      "description": "Outputs should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-outputs"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "use-description-params": {
+                  "allOf": [
+                    {
+                      "description": "Parameters should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-params"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "use-description-type-properties": {
+                  "allOf": [
+                    {
+                      "description": "Properties of user-defined types should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-type-properties"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "use-description-types": {
+                  "allOf": [
+                    {
+                      "description": "User-defined types should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-types"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "use-description-vars": {
+                  "allOf": [
+                    {
+                      "description": "Variables should have non-empty descriptions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-description-vars"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "use-parent-property": {
+                  "allOf": [
+                    {
+                      "description": "Use the parent property instead of formatting child resource names with '/' characters. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#use-parent-property"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "use-safe-access": {
+                  "allOf": [
+                    {
+                      "description": "Use the safe access (.?) operator. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#use-safe-access"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "use-recent-api-versions": {
+                  "allOf": [
+                    {
+                      "description": "Use recent API versions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-recent-api-versions",
+                      "type": "object",
+                      "properties": {
+                        "maxAgeInDays": {
+                          "description": "Maximum age in days before an API version is considered old (default is 730 days = 2 years)",
+                          "type": "integer",
+                          "default": 730,
+                          "minimum": 0
+                        },
+                        "gracePeriodInDays": {
+                          "description": "Number of days to wait after an API version is published before recommending it, to allow time for regional deployment (default is 90 days)",
+                          "type": "integer",
+                          "default": 90,
+                          "minimum": 0
+                        }
+                      }
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "use-recent-module-versions": {
+                  "allOf": [
+                    {
+                      "description": "Use recent module versions. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-recent-module-versions",
+                      "type": "object"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "use-resource-id-functions": {
+                  "allOf": [
+                    {
+                      "description": "Properties representing a resource ID must be generated appropriately. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-resource-id-functions"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "use-resource-symbol-reference": {
+                  "allOf": [
+                    {
+                      "description": "Use a direct resource symbol reference instead of 'reference' or 'list*' functions. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#use-resource-symbol-reference"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "use-recognized-resource-type": {
+                  "allOf": [
+                    {
+                      "description": "Warn if a 'reference' or 'list*' function call uses an unrecognized resource type. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#use-recognized-resource-type"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "use-secure-value-for-secure-inputs": {
+                  "allOf": [
+                    {
+                      "description": "Resource properties expecting secure input should be assigned secure values. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#use-secure-value-for-secure-inputs"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "use-stable-resource-identifiers": {
+                  "allOf": [
+                    {
+                      "description": "Resource identifiers should be reproducible outside of their initial deployment context. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#use-stable-resource-identifiers"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "use-stable-vm-image": {
+                  "allOf": [
+                    {
+                      "description": "Virtual machines shouldn't use preview images. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#use-stable-vm-image"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "use-user-defined-types": {
+                  "allOf": [
+                    {
+                      "description": "Use user-defined types instead of 'object' or 'array'. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#use-user-defined-types"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "what-if-short-circuiting": {
+                  "allOf": [
+                    {
+                      "description": "Runtime values should not be used to determine resource IDs. Defaults to 'Off'. See https://aka.ms/bicep/linter-diagnostics#what-if-short-circuiting"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "use-recent-az-powershell-version": {
+                  "allOf": [
+                    {
+                      "description": "Use AzPowerShell version 11.0 or higher in deployment scripts to avoid EOL Ubuntu 20.04 LTS. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#use-recent-az-powershell-version",
+                      "type": "object",
+                      "properties": {
+                        "level": { "$ref": "#/definitions/level" },
+                        "minimumVersion": {
+                          "type": "string",
+                          "description": "Minimum required AzPowerShell version (default: 11.0)",
+                          "default": "11.0"
+                        }
+                      }
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "cacheRootDirectory": {
+      "type": "string",
+      "description": "The directory in which Bicep may cache templates downloaded from remote registries"
+    },
+    "experimentalFeaturesWarning": {
+      "type": "boolean",
+      "description": "Controls whether the Bicep CLI displays a warning when experimental features are used. Defaults to true."
+    },
+    "experimentalFeaturesEnabled": {
+      "type": "object",
+      "description": "The experimental Bicep features that should be enabled or disabled for templates using this configuration file. See https://aka.ms/bicep/experimental-features for more information.",
+      "properties": {
+        "ociEnabled": {
+          "type": "boolean",
+          "description": "Enables publishing and restoring modules from non-Azure OCI registries using the generic ORAS transport. See https://aka.ms/bicep/experimental-features#ocienabled"
+        },
+        "extendableParamFiles": {
+          "type": "boolean",
+          "description": "Accepted for compatibility. Extendable parameter files are now always enabled.",
+          "deprecated": true
+        },
+        "symbolicNameCodegen": {
+          "type": "boolean",
+          "description": "Allows the ARM template layer to use a new schema to represent resources as an object dictionary rather than an array of objects. See https://aka.ms/bicep/experimental-features#symbolicnamecodegen"
+        },
+        "moduleExtensionConfigs": {
+          "type": "boolean",
+          "description": "Moves defining extension configurations to the module level rather than from within a template. The feature also includes enhancements for Deployment stacks extensibility integration. See https://aka.ms/bicep/experimental-features#moduleextensionconfigs"
+        },
+        "resourceTypedParamsAndOutputs": {
+          "type": "boolean",
+          "description": "Enables the type for a parameter or output to be of type resource to make it easier to pass resource references between modules. See https://aka.ms/bicep/experimental-features#resourcetypedparamsandoutputs"
+        },
+        "sourceMapping": {
+          "type": "boolean",
+          "description": "Enables basic source mapping to map an error location returned in the ARM template layer back to the relevant location in the Bicep file. See https://aka.ms/bicep/experimental-features#sourcemapping"
+        },
+        "legacyFormatter": {
+          "type": "boolean",
+          "description": "Enables code formatting using the legacy formatter. See https://aka.ms/bicep/experimental-features#legacyformatter"
+        },
+        "testFramework": {
+          "type": "boolean",
+          "description": "Allows you to author client-side, offline unit-test test blocks. Should be enabled in tandem with `assertions`. See https://aka.ms/bicep/experimental-features#testframework"
+        },
+        "assertions": {
+          "type": "boolean",
+          "description": "Allows you to author boolean assertions using the assert keyword. Should be enabled in tandem with 'testFramework'. See https://aka.ms/bicep/experimental-features#assertions"
+        },
+        "localDeploy": {
+          "type": "boolean",
+          "description": "Enabling this feature turns on support for local Bicep deployments. See https://aka.ms/bicep/experimental-features#localdeploy"
+        },
+        "waitUntil": {
+          "type": "boolean",
+          "description": "Allows to enable waitUntil feature on resource type. See https://aka.ms/bicep/experimental-features#waituntil"
+        },
+        "resourceInfoCodegen": {
+          "type": "boolean",
+          "description": "Enables the 'resourceInfo' function for simplified code generation. See https://aka.ms/bicep/experimental-features#resourceinfocodegen"
+        },
+        "userDefinedConstraints": {
+          "type": "boolean",
+          "description": "Allows you to use the `@validate()` decorator on types and parameters with a custom validation predicate. See https://aka.ms/bicep/experimental-features#userdefinedconstraints"
+        },
+        "deployCommands": {
+          "type": "boolean",
+          "description": "Allows you to access the 'deploy', 'what-if' and 'teardown' commands. See https://aka.ms/bicep/experimental-features#deploycommands"
+        },
+        "patch": {
+          "type": "boolean",
+          "description": "Enables the @patch() decorator for deploying resources using the PATCH HTTP method. This feature is restricted to Azure Policy DeployIfNotExists scenarios. See https://aka.ms/bicep/experimental-features#patch"
+        },
+        "runtimeValuesInTagsAndSku": {
+          "type": "boolean",
+          "description": "Allows the use of runtime values (such as references to resources or this.existingResource()) in tags and sku properties. See https://aka.ms/bicep/experimental-features#runtimevaluesintagsandsku"
+        },
+        "azExtensionConfig": {
+          "type": "boolean",
+          "description": "Enables configuration for the built-in 'az' extension to register additional resource providers at the start of a deployment. (Note: This feature will not work until the backend service support has been deployed) See https://aka.ms/bicep/experimental-features#azextensionconfig"
+        }
+      },
+      "additionalProperties": false
+    },
+    "formatting": {
+      "type": "object",
+      "description": "The Bicep format settings",
+      "properties": {
+        "indentKind": {
+          "type": "string",
+          "description": "The indentation kind",
+          "enum": ["Space", "Tab"]
+        },
+        "newlineKind": {
+          "type": "string",
+          "description": "The newline kind",
+          "enum": ["LF", "CRLF", "CR"]
+        },
+        "indentSize": {
+          "type": "integer",
+          "description": "The indentation size (applicable when \"indentKind\" is set to \"Space\")"
+        },
+        "width": {
+          "type": "integer",
+          "description": "The maximum number of characters that should appear on a line"
+        },
+        "insertFinalNewline": {
+          "type": "boolean",
+          "description": ""
+        }
+      }
+    },
+    "documentation": {
+      "type": "object",
+      "description": "The module documentation generation settings.",
+      "additionalProperties": false,
+      "properties": {
+        "output": {
+          "type": "object",
+          "description": "Configures generated documentation output.",
+          "additionalProperties": false,
+          "default": {
+            "file": "README.md"
+          },
+          "properties": {
+            "file": {
+              "description": "The generated documentation file name.",
+              "type": "string",
+              "default": "README.md",
+              "minLength": 1
+            }
+          }
+        },
+        "template": {
+          "type": "object",
+          "description": "Configures custom Scriban rendering.",
+          "additionalProperties": false,
+          "properties": {
+            "file": {
+              "description": "The Scriban template file path.",
+              "type": "string",
+              "minLength": 1
+            },
+            "includeRoot": {
+              "description": "The root directory for Scriban includes.",
+              "type": "string",
+              "minLength": 1
+            },
+            "values": {
+              "description": "The baseline custom template values.",
+              "type": "object",
+              "default": {},
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "examples": {
+          "type": "object",
+          "description": "Configures usage-example discovery and reassignment.",
+          "additionalProperties": false,
+          "properties": {
+            "sources": {
+              "description": "The ordered example sources. The first source that resolves a file wins.",
+              "type": "array",
+              "default": [
+                {
+                  "path": "examples",
+                  "include": ["*.bicep", "**/main.bicep"],
+                  "exclude": ["**/dependencies*.bicep"]
+                },
+                {
+                  "path": "tests",
+                  "include": ["**/*.test.bicep"],
+                  "exclude": ["**/dependencies*.bicep"]
+                }
+              ],
+              "items": {
+                "type": "object",
+                "description": "Configures one usage-example source.",
+                "additionalProperties": false,
+                "required": ["path"],
+                "properties": {
+                  "path": {
+                    "description": "The source directory path relative to the module root.",
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "include": {
+                    "description": "Case-insensitive include globs relative to the source directory.",
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "exclude": {
+                    "description": "Case-insensitive exclude globs relative to the source directory.",
+                    "type": "array",
+                    "default": [],
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            },
+            "reassignments": {
+              "description": "The ordered rules that reassign parent examples to direct child modules.",
+              "type": "array",
+              "default": [],
+              "items": {
+                "type": "object",
+                "description": "Reassigns matching parent examples to one direct child module.",
+                "additionalProperties": false,
+                "required": ["from", "to"],
+                "properties": {
+                  "from": {
+                    "type": "object",
+                    "description": "Selects parent example paths for reassignment.",
+                    "additionalProperties": false,
+                    "required": ["include"],
+                    "properties": {
+                      "include": {
+                        "description": "Case-insensitive include globs relative to the example source.",
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "exclude": {
+                        "description": "Case-insensitive exclude globs relative to the example source.",
+                        "type": "array",
+                        "default": [],
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    }
+                  },
+                  "to": {
+                    "description": "The direct child module directory name.",
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[000:5153) ProgramSyntax
+//@[000:5277) ProgramSyntax
 //@[000:0299) ├─TypeDeclarationSyntax
 //@[000:0028) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
@@ -956,6 +956,51 @@ type nonNullable = nullable!
 //@[019:0027) |   |   └─Token(Identifier) |nullable|
 //@[027:0028) |   └─Token(Exclamation) |!|
 //@[028:0030) ├─Token(NewLine) |\n\n|
+
+type withOptionalAnyProp = {
+//@[000:0122) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0024) | ├─IdentifierSyntax
+//@[005:0024) | | └─Token(Identifier) |withOptionalAnyProp|
+//@[025:0026) | ├─Token(Assignment) |=|
+//@[027:0122) | └─ObjectTypeSyntax
+//@[027:0028) |   ├─Token(LeftBrace) |{|
+//@[028:0029) |   ├─Token(NewLine) |\n|
+  requiredProp: string
+//@[002:0022) |   ├─ObjectTypePropertySyntax
+//@[002:0014) |   | ├─IdentifierSyntax
+//@[002:0014) |   | | └─Token(Identifier) |requiredProp|
+//@[014:0015) |   | ├─Token(Colon) |:|
+//@[016:0022) |   | └─TypeVariableAccessSyntax
+//@[016:0022) |   |   └─IdentifierSyntax
+//@[016:0022) |   |     └─Token(Identifier) |string|
+//@[022:0023) |   ├─Token(NewLine) |\n|
+  @description('An optional any-typed property')
+//@[002:0068) |   ├─ObjectTypePropertySyntax
+//@[002:0048) |   | ├─DecoratorSyntax
+//@[002:0003) |   | | ├─Token(At) |@|
+//@[003:0048) |   | | └─FunctionCallSyntax
+//@[003:0014) |   | |   ├─IdentifierSyntax
+//@[003:0014) |   | |   | └─Token(Identifier) |description|
+//@[014:0015) |   | |   ├─Token(LeftParen) |(|
+//@[015:0047) |   | |   ├─FunctionArgumentSyntax
+//@[015:0047) |   | |   | └─StringSyntax
+//@[015:0047) |   | |   |   └─Token(StringComplete) |'An optional any-typed property'|
+//@[047:0048) |   | |   └─Token(RightParen) |)|
+//@[048:0049) |   | ├─Token(NewLine) |\n|
+  optionalAny: any?
+//@[002:0013) |   | ├─IdentifierSyntax
+//@[002:0013) |   | | └─Token(Identifier) |optionalAny|
+//@[013:0014) |   | ├─Token(Colon) |:|
+//@[015:0019) |   | └─NullableTypeSyntax
+//@[015:0018) |   |   ├─TypeVariableAccessSyntax
+//@[015:0018) |   |   | └─IdentifierSyntax
+//@[015:0018) |   |   |   └─Token(Identifier) |any|
+//@[018:0019) |   |   └─Token(Question) |?|
+//@[019:0020) |   ├─Token(NewLine) |\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
 
 type typeA = {
 //@[000:0044) ├─TypeDeclarationSyntax

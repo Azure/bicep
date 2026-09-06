@@ -1,6 +1,7 @@
 targetScope = 'subscription'
 
 resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
+//@[00:08) Local this. Type: object. Declaration start char: 62, length: 60
 //@[09:11) Resource rg. Type: Microsoft.Resources/resourceGroups@2020-06-01. Declaration start char: 0, length: 122
   name: 'adotfrank-rg'
   location: deployment().location
@@ -18,6 +19,15 @@ module appPlanDeploy 'br:mock-registry-one.invalid/demo/plan:v2' = {
 module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
 //@[07:21) Module appPlanDeploy2. Type: module. Declaration start char: 0, length: 137
   name: 'planDeploy2'
+  scope: rg
+  params: {
+    namePrefix: 'hello'
+  }
+}
+
+module appPlanDeploy3 'br/mock-registry-mocked:plan:v2' = {
+//@[07:21) Module appPlanDeploy3. Type: module. Declaration start char: 0, length: 135
+  name: 'planDeploy3'
   scope: rg
   params: {
     namePrefix: 'hello'
@@ -152,3 +162,4 @@ module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
     ipv6port: 'test'
   }
 }
+

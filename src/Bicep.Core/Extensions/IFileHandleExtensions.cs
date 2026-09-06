@@ -94,7 +94,7 @@ namespace Bicep.Core.Extensions
             {
                 return operation();
             }
-            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            catch (Exception exception) when (exception.IsFileSystemException())
             {
                 return new(x => x.ErrorOccurredReadingFile(exception.Message));
             }

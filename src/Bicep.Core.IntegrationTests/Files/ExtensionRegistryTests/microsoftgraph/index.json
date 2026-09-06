@@ -11,6 +11,7 @@
     }
   },
   "resourceFunctions": {},
+  "namespaceFunctions": [],
   "settings": {
     "name": "MicrosoftGraph",
     "version": "1.2.3",

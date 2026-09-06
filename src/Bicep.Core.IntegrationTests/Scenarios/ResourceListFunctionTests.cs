@@ -72,6 +72,39 @@ output pkMethodPayload string = stg.listKeys(stg.apiVersion, {
         }
 
         [TestMethod]
+        public void List_wildcard_function_on_resource_collection_element_variable_reference()
+        {
+            var result = CompilationHelper.Compile(@"
+param location string = resourceGroup().location
+
+var storageAccountNames = [
+  'storage1${uniqueString(resourceGroup().id)}'
+  'storage2${uniqueString(resourceGroup().id)}'
+]
+
+resource storageAccounts 'Microsoft.Storage/storageAccounts@2018-02-01' = [for item in storageAccountNames: {
+  name: item
+  location: location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {}
+}]
+
+var mainStorageAccount = storageAccounts[0]
+
+output blob string = mainStorageAccount.properties.primaryEndpoints.blob
+#disable-next-line outputs-should-not-contain-secrets
+output key string = mainStorageAccount.listKeys().keys[0].value
+");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.outputs['blob'].value", "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountNames')[0]), '2018-02-01').primaryEndpoints.blob]");
+            result.Template.Should().HaveValueAtPath("$.outputs['key'].value", "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountNames')[0]), '2018-02-01').keys[0].value]");
+        }
+
+        [TestMethod]
         public void Only_list_methods_are_permitted()
         {
             var result = CompilationHelper.Compile(@"

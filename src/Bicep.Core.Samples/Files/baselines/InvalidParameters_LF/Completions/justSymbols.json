@@ -496,6 +496,27 @@
     }
   },
   {
+    "label": "distinct",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndistinct(array: array): array\n\n```  \nReturns a new array with duplicate values removed, preserving order.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_distinct",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "distinct($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "duplicateDecorators",
     "kind": "field",
     "detail": "duplicateDecorators",
@@ -1081,6 +1102,27 @@
     "textEdit": {
       "range": {},
       "newText": "length($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "like",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nlike(input: string, pattern: string): bool\n\n```  \nPerforms pattern based matching and returns true if input string matches the pattern and supports '*' as a wildcard. The comparison is case-insensitive.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_like",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "like($0)"
     },
     "command": {
       "title": "signature help",
@@ -2052,6 +2094,27 @@
     "textEdit": {
       "range": {},
       "newText": "resourceId($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "roleDefinitions",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nroleDefinitions(roleName: string): roleDefinition\n\n```  \nGets a role definition that can be used in role assignments.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_roleDefinitions",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "roleDefinitions($0)"
     },
     "command": {
       "title": "signature help",

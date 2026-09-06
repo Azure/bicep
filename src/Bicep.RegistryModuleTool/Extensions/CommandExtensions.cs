@@ -9,7 +9,7 @@ namespace Bicep.RegistryModuleTool.Extensions
     {
         public static Command AddSubcommand(this Command command, Command subcommand)
         {
-            command.AddCommand(subcommand);
+            command.Add(subcommand);
 
             return command;
         }

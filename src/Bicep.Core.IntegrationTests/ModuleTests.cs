@@ -17,10 +17,10 @@ using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
-using Bicep.TextFixtures.Assertions;
-using Bicep.TextFixtures.IO;
-using Bicep.TextFixtures.Mocks;
-using Bicep.TextFixtures.Utils;
+using Bicep.Testing;
+using Bicep.Testing.Assertions;
+using Bicep.Testing.IO;
+using Bicep.Testing.Mocks;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -182,8 +182,6 @@ module main 'main.bicep' = {
             });
         }
 
-        private delegate bool TryReadDelegate(Uri fileUri, out string? fileContents, out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder);
-
         [TestMethod]
         public void SourceFileGroupingBuilder_build_should_throw_diagnostic_exception_if_entrypoint_file_read_fails()
         {
@@ -218,7 +216,7 @@ module modulea 'modulea.bicep' = {
   }
 }
 ";
-            var result = await this.compiler.CompileInline(mainFileText);
+            var result = await this.compiler.Compile(mainFileText);
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP091", DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{TestFileUri.FromMockFileSystemPath("modulea.bicep")}'."),

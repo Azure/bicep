@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Decompiler.Rewriters;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Semantics;
+using Bicep.Testing;
+using Bicep.Testing.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -16,7 +18,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
         {
             var bicepFile = """
                 var parentName = 'resA'
-                        
+
                 resource resA 'My.Rp/resA@2020-01-01' = {
                   name: parentName
                 }
@@ -27,11 +29,11 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
                 }
                 """;
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepText(
                 """
                 var parentName = 'resA'
 
@@ -53,7 +55,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
         {
             var bicepFile = """
                 var parentName = 'resA'
-                        
+
                 resource resA 'My.Rp/resA@2020-01-01' = [
                   for i in range(0, 1): {
                     name: 'resA${i}'
@@ -68,11 +70,11 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
                 ]
                 """;
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepText(
                 """
                 var parentName = 'resA'
 
@@ -113,11 +115,11 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
                 }
                 """;
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepText(
                 """
                 param condA bool
                 param condB bool
@@ -144,7 +146,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
         {
             var bicepFile = """
                 var parentName = 'resA'
-                        
+
                 resource resA 'My.Rp/resA@2020-01-01' = {
                   name: '${parentName}'
                 }
@@ -157,11 +159,11 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
                 }
                 """;
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepText(
                 """
                 var parentName = 'resA'
 
@@ -208,11 +210,11 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
                 }
                 """;
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepText(
                 """
                 param parentName string = 'resA'
                 var parentSuffix = 'suffix'
@@ -248,7 +250,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
         {
             var bicepFile = """
                 var parentName = 'resA'
-                        
+
                 resource resA 'My.Rp/resA@2020-01-01' = {
                   name: '${parentName}'
                 }
@@ -260,11 +262,11 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
 
                 """;
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepText(
                 """
                 var parentName = 'resA'
 
@@ -305,11 +307,11 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
                 }
                 """;
 
-            var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
+            var compilation = Compile(bicepFile);
             var rewriter = new ParentChildResourceNameRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
-            PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
+            TestPrinter.Print(newProgramSyntax).Should().BeValidBicepText(
                 """
                 var resAName = 'resA'
                 var resBName = 'resB'
@@ -334,5 +336,8 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
 
                 """);
         }
+
+        private static Compilation Compile(string bicepFile) =>
+            TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(bicepFile).Compilation;
     }
 }

@@ -16,4 +16,8 @@ namespace Bicep.Local.Extension.Types;
 public interface ITypeProvider
 {
     IEnumerable<(Type type, ResourceTypeAttribute attribute)> GetResourceTypes(bool throwOnDuplicate = true);
+
+    Type? FallbackType { get; }
+
+    Type? ConfigurationType { get; }
 }

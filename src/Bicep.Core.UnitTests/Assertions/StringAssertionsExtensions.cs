@@ -8,6 +8,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using FluentAssertions;
@@ -213,7 +214,9 @@ namespace Bicep.Core.UnitTests.Assertions
 
             return new AndConstraint<StringAssertions>(instance);
 
-            static string PrettyPrintAsBicep(string s) => PrettyPrinterV2.PrintValid(CompilationHelper.Compile(s).SourceFile.ProgramSyntax, PrettyPrinterV2Options.Default);
+            static string PrettyPrintAsBicep(string s) => PrettyPrinterV2.PrintValid(
+                TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(s).Compilation.SourceFileGrouping.EntryPoint.ProgramSyntax,
+                PrettyPrinterV2Options.Default);
         }
 
         /// <summary>
@@ -310,7 +313,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public static AndConstraint<StringAssertions> DeepEqualJson(this StringAssertions instance, string json, string because = "", params object[] becauseArgs)
         {
-            json.FromJson<JToken>().Should().DeepEqual(JObject.Parse(json), because, becauseArgs);
+            instance.Subject.FromJson<JToken>().Should().DeepEqual(JObject.Parse(json), because, becauseArgs);
 
             return new(instance);
         }

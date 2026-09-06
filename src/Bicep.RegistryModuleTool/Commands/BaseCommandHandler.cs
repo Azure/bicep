@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.CommandLine.Invocation;
 using System.IO.Abstractions;
 using System.Security;
 using Bicep.Core.Exceptions;
@@ -10,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Bicep.RegistryModuleTool.Commands
 {
-    public abstract class BaseCommandHandler : ICommandHandler
+    public abstract class BaseCommandHandler
     {
         protected BaseCommandHandler(IFileSystem fileSystem, ILogger logger)
         {
@@ -22,7 +21,7 @@ namespace Bicep.RegistryModuleTool.Commands
 
         protected ILogger Logger { get; }
 
-        public async Task<int> InvokeAsync(InvocationContext context)
+        public async Task<int> InvokeAsync(IConsole console, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -34,7 +33,7 @@ namespace Bicep.RegistryModuleTool.Commands
                 // module folder structure.
                 this.ValidateWorkingDirectoryPath();
 
-                return await this.InvokeInternalAsync(context);
+                return await this.InvokeInternalAsync(console, cancellationToken);
             }
             catch (Exception exception)
             {
@@ -44,7 +43,7 @@ namespace Bicep.RegistryModuleTool.Commands
                     case IOException:
                     case UnauthorizedAccessException:
                         this.Logger.LogDebug(exception, "Command failure.");
-                        context.Console.WriteError(exception.Message);
+                        console.WriteError(exception.Message);
 
                         break;
 
@@ -57,9 +56,7 @@ namespace Bicep.RegistryModuleTool.Commands
             }
         }
 
-        public int Invoke(InvocationContext context) => throw new NotImplementedException();
-
-        protected abstract Task<int> InvokeInternalAsync(InvocationContext context);
+        protected abstract Task<int> InvokeInternalAsync(IConsole console, CancellationToken cancellationToken);
 
         private void ValidateWorkingDirectoryPath()
         {

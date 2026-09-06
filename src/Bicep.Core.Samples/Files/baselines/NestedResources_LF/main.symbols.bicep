@@ -1,4 +1,5 @@
 resource basicParent 'My.Rp/parentType@2020-12-01' = {
+//@[00:08) Local this. Type: object. Declaration start char: 53, length: 606
 //@[09:20) Resource basicParent. Type: My.Rp/parentType@2020-12-01. Declaration start char: 0, length: 659
   name: 'basicParent'
   properties: {
@@ -6,6 +7,7 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
   }
 
   resource basicChild 'childType' = {
+//@[02:10) Local this. Type: object. Declaration start char: 36, length: 313
 //@[11:21) Resource basicChild. Type: My.Rp/parentType/childType@2020-12-01. Declaration start char: 2, length: 347
     name: 'basicChild'
     properties: {
@@ -14,6 +16,7 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
     }
 
     resource basicGrandchild 'grandchildType' = {
+//@[04:12) Local this. Type: object. Declaration start char: 48, length: 150
 //@[13:28) Resource basicGrandchild. Type: My.Rp/parentType/childType/grandchildType@2020-12-01. Declaration start char: 4, length: 194
       name: 'basicGrandchild'
       properties: {
@@ -24,6 +27,7 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
   }
 
   resource basicSibling 'childType' = {
+//@[02:10) Local this. Type: object. Declaration start char: 38, length: 152
 //@[11:23) Resource basicSibling. Type: My.Rp/parentType/childType@2020-12-01. Declaration start char: 2, length: 188
     name: 'basicSibling'
     properties: {
@@ -48,6 +52,7 @@ resource existingParent 'My.Rp/parentType@2020-12-01' existing = {
     name: 'existingChild'
 
     resource existingGrandchild 'grandchildType' = {
+//@[04:12) Local this. Type: object. Declaration start char: 51, length: 159
 //@[13:31) Resource existingGrandchild. Type: My.Rp/parentType/childType/grandchildType@2020-12-01. Declaration start char: 4, length: 206
       name: 'existingGrandchild'
       properties: {
@@ -65,14 +70,17 @@ param createChild bool
 param createGrandchild bool
 //@[06:22) Parameter createGrandchild. Type: bool. Declaration start char: 0, length: 27
 resource conditionParent 'My.Rp/parentType@2020-12-01' = if (createParent) {
+//@[00:08) Local this. Type: object. Declaration start char: 75, length: 358
 //@[09:24) Resource conditionParent. Type: My.Rp/parentType@2020-12-01. Declaration start char: 0, length: 433
   name: 'conditionParent'
 
   resource conditionChild 'childType' = if (createChild) {
+//@[02:10) Local this. Type: object. Declaration start char: 57, length: 270
 //@[11:25) Resource conditionChild. Type: My.Rp/parentType/childType@2020-12-01. Declaration start char: 2, length: 325
     name: 'conditionChild'
 
     resource conditionGrandchild 'grandchildType' = if (createGrandchild) {
+//@[04:12) Local this. Type: object. Declaration start char: 74, length: 162
 //@[13:32) Resource conditionGrandchild. Type: My.Rp/parentType/childType/grandchildType@2020-12-01. Declaration start char: 4, length: 232
       name: 'conditionGrandchild'
       properties: {
@@ -89,11 +97,13 @@ var items = [
   'b'
 ]
 resource loopParent 'My.Rp/parentType@2020-12-01' = {
+//@[00:08) Local this. Type: object. Declaration start char: 52, length: 109
 //@[09:19) Resource loopParent. Type: My.Rp/parentType@2020-12-01. Declaration start char: 0, length: 161
   name: 'loopParent'
 
   resource loopChild 'childType' = [for item in items: {
 //@[40:44) Local item. Type: 'a' | 'b'. Declaration start char: 40, length: 4
+//@[02:10) Local this. Type: object[]. Declaration start char: 35, length: 48
 //@[11:20) Resource loopChild. Type: My.Rp/parentType/childType@2020-12-01[]. Declaration start char: 2, length: 81
     name: 'loopChild'
   }]

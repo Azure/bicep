@@ -19,11 +19,16 @@
   <ItemGroup>
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
     <ProjectReference Include="..\Bicep.LangServer\Bicep.LangServer.csproj" />
-    <ProjectReference Include="..\Bicep.TestFixtures\Bicep.TextFixtures\Bicep.TextFixtures.csproj" />
+    <ProjectReference Include="..\Bicep.Testing\Bicep.Testing.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="..\vscode-bicep\schemas\bicepconfig.schema.json">
+    <None Remove="./Files/**/*.*" />
+    <EmbeddedResource Include="./Files/**/*.*" LogicalName="$([System.String]::new('Files/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" WithCulture="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\vscode-bicep\resources\configuration\bicepconfig.schema.json">
       <Link>bicepconfig.schema.json</Link>
       <WithCulture>false</WithCulture>
     </EmbeddedResource>

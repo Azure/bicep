@@ -12,6 +12,7 @@ Some examples of experimental extensions that have been created:
 * [Http](https://github.com/anthony-c-martin/bicep-ext-http): Make HTTP requests.
 * [KeyVault data plane](https://github.com/anthony-c-martin/bicep-ext-keyvault): Manage KeyVault data plane operations (secrets, certificates etc).
 * [Kubernetes](https://github.com/anthony-c-martin/bicep-ext-kubernetes): Manage Kubernetes resources directly.
+* [Desired State Configuration v3](https://github.com/microsoft/bicep-types-dsc): Manage DSCv3 resources directly.
 
 These extensions can be combined as you wish - for example, you could:
 * Read kubernetes config using a bash script and deploy Kubernetes resources with the kubernetes extension
@@ -60,9 +61,9 @@ A local extension consists of the following components:
 
 All extension binaries are expected to meet the following requirements:
 1. Accept all of the following CLI arguments:
-    * `--socket <socket_name>`: The path to the domain socket to connect on
-    * `--pipe <pipe_name>`: The named pipe to connect on
-    * `--wait-for-debugger`: Signals that you want to debug the extension, and that execution should pause until you are ready.
+    * `--socket <socket_name>`: The path to the domain socket to connect on, used on Linux and macOS
+    * `--pipe <pipe_name>`: The named pipe to connect on, used on Windows
+    * `--wait-for-debugger`: Signals that you want to debug the extension, and that execution should pause until you are ready. (Note that this feature is not yet implemented.)
 1. Once started (either via domain socket or named pipe), exposes a gRPC endpoint over the relevant channel, adhereing to the [extension gRPC contract](../../src/Bicep.Local.Rpc/extension.proto).
 1. Responds to SIGTERM to request a graceful shutdown.
 

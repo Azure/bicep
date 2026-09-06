@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.UnitTests.Mock;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.ClientCapabilities;
 using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 

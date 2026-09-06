@@ -32,7 +32,7 @@ namespace Bicep.Cli.IntegrationTests
     public class BuildParamsCommandTests : TestBase
     {
         [TestMethod]
-        public async Task Build_params_with_extends_and_base_merging_succeeds()
+        public async Task Build_params_with_extends_and_base_merging_succeeds_without_bicepconfig()
         {
             var baseParamsFile = FileHelper.SaveResultFile(
                 TestContext,
@@ -85,23 +85,12 @@ namespace Bicep.Cli.IntegrationTests
                 """,
                 Path.GetDirectoryName(baseParamsFile));
 
-            FileHelper.SaveResultFile(
-                    TestContext,
-                    "bicepconfig.json",
-                    """
-                    {
-                        "experimentalFeaturesEnabled": {
-                            "extendableParamFiles": true
-                        }
-                    }
-                    """,
-                    Path.GetDirectoryName(baseParamsFile));
-
             var settings = CreateDefaultSettings();
 
             var result = await Bicep(settings, "build-params", mainParamsFile, "--stdout");
 
             result.Should().Succeed();
+            result.Stderr.Should().NotContain("experimental Bicep features");
             var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
             var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
 
@@ -112,6 +101,880 @@ namespace Bicep.Cli.IntegrationTests
             paramsObject.Should().HaveValueAtPath("parameters.objParam.value.shared.overrideMe", "main");
             paramsObject.Should().HaveValueAtPath("parameters.objParam.value.shared.addedByMain", "mainOnly");
             paramsObject.Should().HaveValueAtPath("parameters.objParam.value.arrParam", JToken.Parse("[1,2,3,4]"));
+        }
+
+        [TestMethod]
+        public async Task Build_params_with_extends_can_union_inherited_object_param()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "root.bicepparam",
+                """
+                using none
+
+                param parLocation = 'westeurope'
+                param parTags = {
+                  managedBy: 'PlatformTeam'
+                  costCenter: 'IT'
+                }
+                param parLogAnalyticsRetentionInDays = 10
+                """,
+                outputPath);
+
+            var mainParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './root.bicepparam'
+
+                param parLogAnalyticsRetentionInDays = 90
+                param parManagementTags = union(parTags, {
+                  landingZone: 'Management'
+                })
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param parTags object
+                param parManagementTags object = union(parTags, {
+                  landingZone: 'Management'
+                })
+
+                param parLocation string
+                param parLogAnalyticsRetentionInDays int
+                """,
+                outputPath);
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed();
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+
+            paramsObject.Should().HaveValueAtPath("parameters.parLocation.value", "westeurope");
+            paramsObject.Should().HaveValueAtPath("parameters.parLogAnalyticsRetentionInDays.value", 90);
+            paramsObject.Should().HaveValueAtPath("parameters.parTags.value.managedBy", "PlatformTeam");
+            paramsObject.Should().HaveValueAtPath("parameters.parTags.value.costCenter", "IT");
+            paramsObject.Should().HaveValueAtPath("parameters.parManagementTags.value.managedBy", "PlatformTeam");
+            paramsObject.Should().HaveValueAtPath("parameters.parManagementTags.value.costCenter", "IT");
+            paramsObject.Should().HaveValueAtPath("parameters.parManagementTags.value.landingZone", "Management");
+        }
+
+        [TestMethod]
+        public async Task Build_params_extends_uses_variables_from_base_file()
+        {
+            var baseParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "base.bicepparam",
+                """
+                using none
+
+                param serviceDomain = 'search'
+                param tenant = 'foo'
+                param environmentType = 'nonprod'
+
+                var suffix = '${serviceDomain}-${tenant}-${environmentType}'
+
+                param keyVaultName = 'kv-${suffix}'
+                param sharedGroupName = 'rg-${suffix}'
+                """);
+
+            var mainParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './base.bicepparam'
+                """,
+                Path.GetDirectoryName(baseParamsFile));
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param serviceDomain string
+                param tenant string
+                param environmentType string
+                param keyVaultName string
+                param sharedGroupName string
+                """,
+                Path.GetDirectoryName(baseParamsFile));
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            paramsObject.Should().HaveValueAtPath("parameters.keyVaultName.value", "kv-search-foo-nonprod");
+            paramsObject.Should().HaveValueAtPath("parameters.sharedGroupName.value", "rg-search-foo-nonprod");
+        }
+
+        [TestMethod]
+        public async Task Build_params_with_extends_ignores_inherited_params_not_declared_in_template()
+        {
+            var baseParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "shared.bicepparam",
+                """
+                using none
+
+                param location = 'switzerlandnorth'
+                param customerId = '12345'
+                param namePrefix = 'contoso'
+                """);
+
+            var mainParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './shared.bicepparam'
+
+                param rgName = '${base.namePrefix}-infra'
+                """,
+                Path.GetDirectoryName(baseParamsFile));
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param rgName string
+                """,
+                Path.GetDirectoryName(baseParamsFile));
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed();
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+
+            paramsObject.Should().HaveValueAtPath("parameters.rgName.value", "contoso-infra");
+            paramsObject.Should().NotHaveValueAtPath("parameters.location");
+            paramsObject.Should().NotHaveValueAtPath("parameters.customerId");
+            paramsObject.Should().NotHaveValueAtPath("parameters.namePrefix");
+        }
+
+        [TestMethod]
+        public async Task Build_params_with_extends_ignores_nested_inherited_params_not_declared_in_template()
+        {
+            var rootDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "shared.bicepparam",
+                """
+                using none
+
+                param customerId = '12345'
+                param namePrefix = 'contoso'
+                """,
+                rootDir);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "common.bicepparam",
+                """
+                using none
+                extends './shared.bicepparam'
+
+                param environment = 'prod'
+                """,
+                rootDir);
+
+            var mainParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './common.bicepparam'
+
+                param rgName = '${base.namePrefix}-${base.environment}-rg'
+                """,
+                rootDir);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param rgName string
+                """,
+                rootDir);
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed();
+            var paramsObject = result.Stdout.FromJson<BuildParamsStdout>().parametersJson.FromJson<JToken>();
+
+            paramsObject.Should().HaveValueAtPath("parameters.rgName.value", "contoso-prod-rg");
+            paramsObject.Should().NotHaveValueAtPath("parameters.customerId");
+            paramsObject.Should().NotHaveValueAtPath("parameters.namePrefix");
+            paramsObject.Should().NotHaveValueAtPath("parameters.environment");
+        }
+
+        [TestMethod]
+        public async Task Build_params_with_extends_and_override_keeps_filtering_inherited_params()
+        {
+            var rootDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "shared.bicepparam",
+                """
+                using none
+
+                param location = 'switzerlandnorth'
+                param namePrefix = 'contoso'
+                """,
+                rootDir);
+
+            var mainParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './shared.bicepparam'
+
+                param rgName = '${base.namePrefix}-infra'
+                """,
+                rootDir);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param rgName string
+                """,
+                rootDir);
+
+            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
+            {
+                rgName = "override-rg"
+            }.ToJson()));
+            var settings = CreateDefaultSettings() with { Environment = environment };
+
+            var result = await Bicep(settings, "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed();
+            var paramsObject = result.Stdout.FromJson<BuildParamsStdout>().parametersJson.FromJson<JToken>();
+
+            paramsObject.Should().HaveValueAtPath("parameters.rgName.value", "override-rg");
+            paramsObject.Should().NotHaveValueAtPath("parameters.location");
+            paramsObject.Should().NotHaveValueAtPath("parameters.namePrefix");
+        }
+
+        [TestMethod]
+        public async Task Build_params_with_extends_and_using_none_emits_inherited_params()
+        {
+            var rootDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "shared.bicepparam",
+                """
+                using none
+
+                param sharedName = 'from-base'
+                """,
+                rootDir);
+            var mainParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using none
+                extends './shared.bicepparam'
+
+                param localName = '${base.sharedName}-from-main'
+                """,
+                rootDir);
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed();
+            var paramsObject = result.Stdout.FromJson<BuildParamsStdout>().parametersJson.FromJson<JToken>();
+
+            paramsObject.Should().HaveValueAtPath("parameters.sharedName.value", "from-base");
+            paramsObject.Should().HaveValueAtPath("parameters.localName.value", "from-base-from-main");
+        }
+
+        [TestMethod]
+        public async Task Build_params_with_extends_keeps_error_for_local_param_not_declared_in_template()
+        {
+            var rootDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "shared.bicepparam",
+                """
+                using none
+
+                param namePrefix = 'contoso'
+                """,
+                rootDir);
+            var mainParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './shared.bicepparam'
+
+                param rgNmae = '${base.namePrefix}-infra'
+                """,
+                rootDir);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param rgName string = 'default-rg'
+                """,
+                rootDir);
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Fail().And.HaveStderrMatch("*Error BCP259: The parameter \"rgNmae\" is assigned in the params file without being declared in the Bicep file.*");
+        }
+
+        [TestMethod]
+        public async Task Build_params_with_extends_keeps_error_for_override_not_declared_in_template()
+        {
+            var rootDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "shared.bicepparam",
+                """
+                using none
+
+                param namePrefix = 'contoso'
+                """,
+                rootDir);
+            var mainParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './shared.bicepparam'
+
+                param rgName = '${base.namePrefix}-infra'
+                """,
+                rootDir);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param rgName string
+                """,
+                rootDir);
+
+            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
+            {
+                namePrefix = "wrong"
+            }.ToJson()));
+            var settings = CreateDefaultSettings() with { Environment = environment };
+
+            var result = await Bicep(settings, "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Fail().And.HaveStderrMatch("*Error BCP259: The parameter \"namePrefix\" is assigned in the params file without being declared in the Bicep file.*");
+        }
+
+        [TestMethod]
+        public async Task Build_params_with_extends_keeps_type_error_for_inherited_param_declared_in_template()
+        {
+            var rootDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "shared.bicepparam",
+                """
+                using none
+
+                param rgName = 42
+                """,
+                rootDir);
+            var mainParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './shared.bicepparam'
+                """,
+                rootDir);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param rgName string
+                """,
+                rootDir);
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Fail().And.HaveStderrMatch("*Error BCP033: Expected a value of type \"string\" but the provided value is of type \"42\".*");
+        }
+
+        [TestMethod]
+        public async Task Build_params_extends_uses_complex_variables_from_base_file()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            var constsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "consts.bicep",
+                """
+                @export()
+                var regions = {
+                primary: {
+                    envType: {
+                        nonprod: 'wus2'
+                        prod: 'wus3'
+                    }
+                }
+                secondary: {
+                    envType: {
+                        prod: 'euwe'
+                    }
+                }
+                }
+                """,
+                outputPath);
+
+            var baseParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "nonprod.bicepparam",
+                """
+                import * as consts from './consts.bicep'
+
+                using none
+
+                param environmentType = 'nonprod'
+                param serviceDomain =  'search'
+                param singletonRegion = consts.regions.primary.envType.nonprod
+                param tenant = 'foo'
+
+                var resourceSuffix = '${serviceDomain}-${tenant}-${environmentType}'
+
+                param keyVaultName = 'kv-${resourceSuffix}'
+                param sharedGroupName = 'rg-${resourceSuffix}'
+                """,
+                outputPath);
+
+            var mainParamsFile = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                import * as consts from './consts.bicep'
+
+                extends './nonprod.bicepparam'
+
+                using 'main.bicep'
+
+                param azureSearchParams = {
+                name: 'srch-search-nonprod'
+                properties: {
+                    partitionCount: 1
+                    replicaCount: 1
+                }
+                }
+
+                param serviceTag = 'ServiceTagNonProd'
+
+                param vnetConfigs = [
+                {
+                    region: consts.regions.primary.envType.nonprod
+                    subnetInfo: [
+                    {
+                        name: 'dev-frontend'
+                        ipIndex: 0
+                        serviceEndpoints: []
+                    }
+                    {
+                        name: 'nonprod-autosuggest'
+                        ipIndex: 1
+                        serviceEndpoints: []
+                    }
+                    {
+                        name: 'int-frontend'
+                        ipIndex: 2
+                        serviceEndpoints: []
+                    }
+                    ]
+                }
+                ]
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                type AzureSearchParams = {
+                name: string
+                    properties: {
+                        partitionCount: int
+                        replicaCount: int
+                    }
+                }
+                type EnvironmentType = 'nonprod' | 'prod'
+                type AzureRegion = 'cus'
+                    | 'eus'
+                    | 'eus2'
+                    | 'ncus'
+                    | 'scus'
+                    | 'wcus'
+                    | 'wus'
+                    | 'wus2'
+                    | 'wus3'
+                    | 'euwe'
+                    | 'euno'
+                    | 'ukso'
+                    | 'ukwe'
+                type Tenant = 'foo' | 'bar' | 'baz'
+                param azureSearchParams AzureSearchParams
+                param environmentType EnvironmentType
+                param keyVaultName string
+                param sharedGroupName string
+                param singletonRegion AzureRegion
+                param serviceDomain string
+                param serviceTag string
+                param tenant Tenant
+                param vnetConfigs array
+                """,
+                outputPath);
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            paramsObject.Should().HaveValueAtPath("parameters.keyVaultName.value", "kv-search-foo-nonprod");
+            paramsObject.Should().HaveValueAtPath("parameters.sharedGroupName.value", "rg-search-foo-nonprod");
+        }
+
+        [TestMethod]
+        public async Task Build_params_inline_for_expression_parameter_should_succeed()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            _ = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                "param p int[]",
+                outputPath);
+
+            var paramsPath = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+
+                param p = [for item in range(0, 4): item * 2]
+                """,
+                outputPath);
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", paramsPath, "--stdout");
+
+            result.Should().Succeed();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            paramsObject.Should().HaveValueAtPath("parameters.p.value", JToken.Parse("[0, 2, 4, 6]"));
+        }
+
+        [TestMethod]
+        public async Task Build_params_for_expression_variable_should_succeed()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            _ = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                type FleetConfig = {
+                    namePrefix: string
+                    sku: string
+                    capacity: int
+                    clusteringPolicy: string
+                }
+
+                param testMatrix FleetConfig[]
+                """,
+                outputPath);
+
+            var paramsPath = FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+
+                var matrix = [
+                    {
+                        namePrefix: 'e10impactx4'
+                        sku: 'Enterprise_E10'
+                        capacity: 4
+                    }
+                    {
+                        namePrefix: 'e10impact'
+                        sku: 'Enterprise_E10'
+                        capacity: 2
+                    }
+                ]
+
+                var type1 = [for item in matrix: {
+                    namePrefix: item.namePrefix
+                    sku: item.sku
+                    capacity: item.capacity
+                    clusteringPolicy: 'EnterpriseCluster'
+                }]
+
+                var type2 = [for item in matrix: {
+                    namePrefix: '${item.namePrefix}-ent'
+                    sku: item.sku
+                    capacity: item.capacity
+                    clusteringPolicy: 'OSSCluster'
+                }]
+
+                param testMatrix = concat(type1, type2)
+                """,
+                outputPath);
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", paramsPath, "--stdout");
+
+            result.Should().Succeed();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            paramsObject.Should().HaveValueAtPath("parameters.testMatrix.value", JToken.Parse("""
+                [
+                    {
+                        "namePrefix": "e10impactx4",
+                        "sku": "Enterprise_E10",
+                        "capacity": 4,
+                        "clusteringPolicy": "EnterpriseCluster"
+                    },
+                    {
+                        "namePrefix": "e10impact",
+                        "sku": "Enterprise_E10",
+                        "capacity": 2,
+                        "clusteringPolicy": "EnterpriseCluster"
+                    },
+                    {
+                        "namePrefix": "e10impactx4-ent",
+                        "sku": "Enterprise_E10",
+                        "capacity": 4,
+                        "clusteringPolicy": "OSSCluster"
+                    },
+                    {
+                        "namePrefix": "e10impact-ent",
+                        "sku": "Enterprise_E10",
+                        "capacity": 2,
+                        "clusteringPolicy": "OSSCluster"
+                    }
+                ]
+            """));
+        }
+
+        [TestMethod]
+        public async Task Build_params_extends_variable_uses_base_params_not_overridden()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "base.bicepparam",
+                """
+                using none
+
+                param foo = 'abc'
+                var x = foo
+                param bar = x
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './base.bicepparam'
+
+                param foo = 'def'
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param foo string
+                param bar string
+                """,
+                outputPath);
+
+            var mainParamsFile = Path.Combine(outputPath, "main.bicepparam");
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            // bar should be 'abc' because it uses base's `var x` which uses base's `foo='abc'`
+            paramsObject.Should().HaveValueAtPath("parameters.bar.value", "abc");
+            // foo should be 'def' because main overrides it
+            paramsObject.Should().HaveValueAtPath("parameters.foo.value", "def");
+        }
+
+        [TestMethod]
+        public async Task Build_params_extends_variables_are_scoped_to_file()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "base.bicepparam",
+                """
+                using none
+
+                var x = 'foo'
+                param p1 = 'p-${x}'
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './base.bicepparam'
+
+                var x = 'bar'
+                param p2 = 'p-${x}'
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param p1 string
+                param p2 string
+                """,
+                outputPath);
+
+            var mainParamsFile = Path.Combine(outputPath, "main.bicepparam");
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            // p1 should use base's `x='foo'`
+            paramsObject.Should().HaveValueAtPath("parameters.p1.value", "p-foo");
+            // p2 should use main's `x='bar'`
+            paramsObject.Should().HaveValueAtPath("parameters.p2.value", "p-bar");
+        }
+
+        [TestMethod]
+        public async Task Build_params_extends_derived_var_declared_after_param()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "base.bicepparam",
+                """
+                using none
+
+                var x = 'foo'
+                param p1 = 'p-${x}'
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './base.bicepparam'
+
+                param p2 = 'p-${x}'
+                var x = 'bar'
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param p1 string
+                param p2 string
+                """,
+                outputPath);
+
+            var mainParamsFile = Path.Combine(outputPath, "main.bicepparam");
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Succeed();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            paramsObject.Should().HaveValueAtPath("parameters.p1.value", "p-foo");
+            paramsObject.Should().HaveValueAtPath("parameters.p2.value", "p-bar");
+        }
+
+        [TestMethod]
+        public async Task Build_params_extends_base_variables_not_visible_in_derived_file()
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "base.bicepparam",
+                """
+                using none
+
+                var x = 'foo'
+                param p1 = 'p-${x}'
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicepparam",
+                """
+                using './main.bicep'
+                extends './base.bicepparam'
+
+                param p2 = 'p-${x}'
+                """,
+                outputPath);
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep",
+                """
+                param p1 string
+                param p2 string
+                """,
+                outputPath);
+
+            var mainParamsFile = Path.Combine(outputPath, "main.bicepparam");
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
+
+            result.Should().Fail().And.HaveStderrMatch("*Error BCP057: The name \"x\" does not exist in the current context.*");
         }
 
         [TestMethod]
@@ -146,18 +1009,6 @@ namespace Bicep.Cli.IntegrationTests
                 param p2 string
                 """,
                 Path.GetDirectoryName(baseParamsFile));
-
-            FileHelper.SaveResultFile(
-                    TestContext,
-                    "bicepconfig.json",
-                    """
-                    {
-                        "experimentalFeaturesEnabled": {
-                            "extendableParamFiles": true
-                        }
-                    }
-                    """,
-                    Path.GetDirectoryName(baseParamsFile));
 
             var settings = CreateDefaultSettings();
 
@@ -222,18 +1073,6 @@ namespace Bicep.Cli.IntegrationTests
                 """
                 param parentParam string
                 param base string
-                """,
-                Path.GetDirectoryName(sharedParamsFile));
-
-            FileHelper.SaveResultFile(
-                TestContext,
-                "bicepconfig.json",
-                """
-                {
-                  "experimentalFeaturesEnabled": {
-                    "extendableParamFiles": true
-                  }
-                }
                 """,
                 Path.GetDirectoryName(sharedParamsFile));
 
@@ -510,10 +1349,6 @@ param objParam = 'notAnObject'
 param objParam object
 """, rootDir);
 
-            FileHelper.SaveResultFile(TestContext, "bicepconfig.json", """
-{ "experimentalFeaturesEnabled": {"extendableParamFiles": true}}
-""", rootDir);
-
             var result = await Bicep(CreateDefaultSettings(), "build-params", childPath, "--stdout");
             result.Should().Fail();
             result.Stderr.Should().Contain("Error BCP033: Expected a value of type \"object\" but the provided value is of type \"'notAnObject'\".");
@@ -631,7 +1466,7 @@ param objParam object
 
         [TestMethod]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public async Task Build_params_to_stdout_with_experimentalfeaturenotenabled_should_fail()
+        public async Task Build_params_to_stdout_with_empty_bicepconfig_should_succeed()
         {
             var mainBicepParamPath = FileHelper.SaveResultFile(
                 TestContext,
@@ -645,7 +1480,7 @@ param objParam object
                 param objectParam = {}
                 """);
 
-            var sharedBicepParamPath = FileHelper.SaveResultFile(
+            _ = FileHelper.SaveResultFile(
                 TestContext,
                 "shared.bicepparam", """
                 using none
@@ -653,14 +1488,19 @@ param objParam object
                 """,
                 Path.GetDirectoryName(mainBicepParamPath));
 
-            var bicepConfigPath = FileHelper.SaveResultFile(
+            _ = FileHelper.SaveResultFile(
                 TestContext,
                 "bicepconfig.json", "{}",
                 Path.GetDirectoryName(mainBicepParamPath));
 
             var result = await Bicep(await CreateDefaultSettingsWithDefaultMockRegistry(), "build-params", mainBicepParamPath, "--stdout");
 
-            result.Should().Fail().And.HaveStderrMatch($"*Error BCP406: Using \"extends\" keyword requires enabling EXPERIMENTAL feature \"ExtendableParamFiles\".*");
+            result.Should().Succeed();
+            result.Stderr.Should().NotContain("experimental Bicep features");
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            paramsObject.Should().HaveValueAtPath("parameters.stringParam.value", "foo");
         }
 
         [TestMethod]
@@ -919,10 +1759,6 @@ param objParam object
                 param obj object
                 """, rootDir);
 
-            FileHelper.SaveResultFile(TestContext, "bicepconfig.json", """
-                { "experimentalFeaturesEnabled": {"extendableParamFiles": true}}
-                """, rootDir);
-
             var result = await Bicep(CreateDefaultSettings(), "build-params", mainPath, "--stdout");
             result.Should().Succeed();
             var json = result.Stdout.FromJson<BuildParamsStdout>().parametersJson.FromJson<JToken>();
@@ -959,10 +1795,6 @@ param objParam object
                 param arr array
                 """, rootDir);
 
-            FileHelper.SaveResultFile(TestContext, "bicepconfig.json", """
-                { "experimentalFeaturesEnabled": {"extendableParamFiles": true}}
-                """, rootDir);
-
             var result = await Bicep(CreateDefaultSettings(), "build-params", mainPath, "--stdout");
             result.Should().Succeed();
             var json = result.Stdout.FromJson<BuildParamsStdout>().parametersJson.FromJson<JToken>();
@@ -994,10 +1826,6 @@ param objParam object
                 param final string
                 """, rootDir);
 
-            FileHelper.SaveResultFile(TestContext, "bicepconfig.json", """
-                { "experimentalFeaturesEnabled": {"extendableParamFiles": true}}
-                """, rootDir);
-
             var result = await Bicep(CreateDefaultSettings(), "build-params", mainPath, "--stdout");
             result.Should().Succeed();
             var json = result.Stdout.FromJson<BuildParamsStdout>().parametersJson.FromJson<JToken>();
@@ -1026,13 +1854,9 @@ param objParam object
                 param objParam object
                 """, rootDir);
 
-            FileHelper.SaveResultFile(TestContext, "bicepconfig.json", """
-                { "experimentalFeaturesEnabled": {"extendableParamFiles": true}}
-                """, rootDir);
-
             var result = await Bicep(CreateDefaultSettings(), "build-params", childPath, "--stdout");
             result.Should().Fail();
-            result.Stderr.Should().Contain("Error BCP338: Failed to evaluate parameter \"objParam\"");
+            result.Stderr.Should().Contain("Error BCP402: The spread operator \"...\" can only be used in this context for an expression assignable to type \"object\".");
         }
 
         [TestMethod]
@@ -1050,13 +1874,50 @@ param objParam object
                 param p int
                 """, rootDir);
 
-            FileHelper.SaveResultFile(TestContext, "bicepconfig.json", """
-                { "experimentalFeaturesEnabled": {"extendableParamFiles": true}}
-                """, rootDir);
-
             var result = await Bicep(CreateDefaultSettings(), "build-params", path, "--stdout");
             result.Should().Fail();
             result.Stderr.Should().Contain("Error BCP278: This parameters file references itself, which is not allowed.");
+        }
+
+        [TestMethod]
+        public async Task BuildParams_Extends_WithStaleFeatureConfig_ShouldSucceedWithoutExperimentalWarning()
+        {
+            var rootDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            FileHelper.SaveResultFile(TestContext, "base.bicepparam", """
+                using none
+
+                param foo = 'foo'
+                param bar = 'my-value-${foo}'
+                """, rootDir);
+
+            var mainParamsPath = FileHelper.SaveResultFile(TestContext, "main.bicepparam", """
+                using './main.bicep'
+
+                extends './base.bicepparam'
+                """, rootDir);
+
+            FileHelper.SaveResultFile(TestContext, "main.bicep", """
+                param foo string
+                param bar string
+            """, rootDir);
+
+            FileHelper.SaveResultFile(TestContext, "bicepconfig.json", """
+                {
+                    "experimentalFeaturesEnabled": {
+                        "extendableParamFiles": true
+                    }
+                }
+                """, rootDir);
+
+            var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsPath, "--stdout");
+
+            result.Should().Succeed();
+            result.Stdout.Should().NotBeEmpty();
+            var parameters = result.Stdout.FromJson<BuildParamsStdout>().parametersJson.FromJson<JToken>();
+            parameters.Should().HaveValueAtPath("parameters.bar.value", "my-value-foo");
+            result.Stderr.Should().NotContain("experimental Bicep features");
+            result.ExitCode.Should().Be(0);
         }
 
         public async Task BuildParams_Extends_InvalidType_ThrowsError()
@@ -1322,18 +2183,6 @@ param objParam object
                 """
                 #disable-next-line no-unused-params
                 param foo object
-                """,
-                outputPath);
-
-            FileHelper.SaveResultFile(
-                TestContext,
-                "bicepconfig.json",
-                """
-                {
-                    "experimentalFeaturesEnabled": {
-                        "extendableParamFiles": true
-                    }
-                }
                 """,
                 outputPath);
 

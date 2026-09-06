@@ -3,7 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Features.Custom.Configuration;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

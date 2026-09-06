@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Common;
+using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,11 +21,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.Linter.Common
             {
                 scope.AddReportable("bicepText", bicepText);
 
-                var result = CompilationHelper.Compile(bicepText);
+                var result = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(bicepText);
                 var semanticModel = result.Compilation.GetEntrypointSemanticModel();
 
                 // Look for an output - that's what we'll use in the test
-                var output = result.BicepFile.ProgramSyntax.Children.OfType<OutputDeclarationSyntax>()
+                var output = ((BicepFile)result.EntryPointFile).ProgramSyntax.Children.OfType<OutputDeclarationSyntax>()
                     .Should().HaveCount(1, "Each testcase should contain a single output with an expression to test")
                     .And.Subject.First();
 

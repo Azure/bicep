@@ -9,7 +9,7 @@ using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Text;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -148,8 +148,8 @@ namespace Bicep.Core.UnitTests.Diagnostics
             var text = @"
 @secure()
 param param1 string = 'val'";
-            var compilationResult = CompilationHelper.Compile(text);
-            var semanticModel = compilationResult.Compilation.GetSemanticModel(compilationResult.BicepFile);
+            var compilationResult = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(text);
+            var semanticModel = compilationResult.Compilation.GetEntrypointSemanticModel();
 
             var throwRule = new LinterThrowsTestRule();
             var test = () => throwRule.Analyze(semanticModel, BicepTestConstants.EmptyServiceProvider).ToArray();

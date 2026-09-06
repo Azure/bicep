@@ -68,12 +68,14 @@ resource scopedKv1 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 // BEGIN: Test resources
 
 resource testResource1 'az:My.Rp/TestType@2020-01-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 56, length: 47
 //@[009:022) Resource testResource1. Type: My.Rp/TestType@2020-01-01. Declaration start char: 0, length: 103
   name: 'testResource1'
   properties: {}
 }
 
 resource aks 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
+//@[000:008) Local this. Type: object. Declaration start char: 71, length: 67
 //@[009:012) Resource aks. Type: Microsoft.ContainerService/managedClusters@2024-02-01. Declaration start char: 0, length: 138
   name: 'aksCluster'
   location: az.resourceGroup().location

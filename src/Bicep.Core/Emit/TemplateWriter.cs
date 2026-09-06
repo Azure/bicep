@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Helpers;
+using Azure.Deployments.Expression.Engines;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Resources;
@@ -58,12 +59,6 @@ namespace Bicep.Core.Emit
             if (targetScope.HasFlag(ResourceScope.Subscription))
             {
                 return "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#";
-            }
-
-            // The feature flag is checked during scope validation, so just always handle it here.
-            if (targetScope.HasFlag(ResourceScope.DesiredStateConfiguration))
-            {
-                return "https://aka.ms/dsc/schemas/v3/bundled/config/document.json"; // the trailing '#' is against DSC's schema
             }
 
             return "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
@@ -1236,12 +1231,16 @@ namespace Bicep.Core.Emit
                     EmitResourceExtensionReference(emitter, extensionSymbol.Name);
                 }
 
-                // Emit the options property if there are entries in the DecoratorConfig dictionary
-                if (resource.DecoratorConfig.Count > 0)
+                // Check for patch decorator once as it requires special handling separate from @options
+                var hasPatch = resource.DecoratorConfig.TryGetValue(LanguageConstants.PatchDecoratorName, out _);
+
+                // Emit the @options property for decorators (excluding patch which is handled separately)
+                var optionsDecorators = resource.DecoratorConfig.Where(kvp => kvp.Key != LanguageConstants.PatchDecoratorName);
+                if (optionsDecorators.Any())
                 {
                     emitter.EmitObjectProperty("@options", () =>
                     {
-                        foreach (var (name, items) in resource.DecoratorConfig)
+                        foreach (var (name, items) in optionsDecorators)
                         {
                             emitter.EmitArrayProperty(name, () =>
                             {
@@ -1254,9 +1253,13 @@ namespace Bicep.Core.Emit
                     });
                 }
 
-                // The DSC feature flag is checked during scope validation, so just always handle it here.
+                // Emit method: PATCH if patch decorator is present
+                if (hasPatch)
+                {
+                    emitter.EmitProperty(LanguageConstants.ResourceMethodPropertyName, LanguageConstants.ResourceMethodPatchValue);
+                }
+
                 if (metadata.IsAzResource ||
-                    this.Context.SemanticModel.TargetScope == ResourceScope.DesiredStateConfiguration ||
                     this.Context.SemanticModel.Features.ModuleExtensionConfigsEnabled)
                 {
                     emitter.EmitProperty("type", metadata.TypeReference.FormatType());
@@ -1478,7 +1481,8 @@ namespace Bicep.Core.Emit
 
                     moduleWriter.Write(moduleJsonWriter);
                     jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
-                    emitter.EmitProperty("template", moduleTextWriter.ToString());
+                    var nestedTemplate = moduleTextWriter.ToString().FromJson<JToken>();
+                    emitter.EmitProperty("template", () => ExpressionsEngine.EscapeJTokenStringValues(nestedTemplate).WriteTo(jsonWriter));
 
                     if (moduleBicepFile?.FileHandle.Uri is { } sourceUri)
                     {

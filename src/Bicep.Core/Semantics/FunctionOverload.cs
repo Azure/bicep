@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
@@ -21,16 +22,25 @@ namespace Bicep.Core.Semantics
         public delegate Expression EvaluatorDelegate(
             FunctionCallExpression expression);
 
-        public FunctionOverload(string name, string genericDescription, string description, ResultBuilderDelegate resultBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, FunctionFlags flags = FunctionFlags.Default)
+        public delegate LanguageExpression ArmExpressionEvaluatorDelegate(
+            FunctionExpression expression);
+
+        public delegate bool IsPurePredicate(
+            SemanticModel model,
+            FunctionCallSyntaxBase functionCall);
+
+        public FunctionOverload(string name, string genericDescription, string description, ResultBuilderDelegate resultBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, ArmExpressionEvaluatorDelegate? armExpressionEvaluator, FunctionFlags flags = FunctionFlags.Default, IsPurePredicate? isPure = null)
         {
             Name = name;
             GenericDescription = genericDescription;
             Description = description;
             ResultBuilder = resultBuilder;
             Evaluator = evaluator;
+            ArmExpressionEvaluator = armExpressionEvaluator;
             FixedParameters = [.. fixedParameters];
             VariableParameter = variableParameter;
             Flags = flags;
+            this.IsPure = isPure;
 
             MinimumArgumentCount = FixedParameters.Count(fp => fp.Required) + (VariableParameter?.MinimumCount ?? 0);
             MaximumArgumentCount = VariableParameter == null ? FixedParameters.Length : (int?)null;
@@ -59,13 +69,31 @@ namespace Bicep.Core.Semantics
 
         public EvaluatorDelegate? Evaluator { get; }
 
+        public ArmExpressionEvaluatorDelegate? ArmExpressionEvaluator { get; }
+
         public FunctionFlags Flags { get; }
+
+        public IsPurePredicate? IsPure { get; }
 
         public string TypeSignature { get; }
 
         public IEnumerable<string> ParameterTypeSignatures => this.FixedParameters
             .Select(fp => fp.Signature)
             .Concat(this.VariableParameter?.GenericSignature.AsEnumerable() ?? []);
+
+        public virtual FunctionOverload WithAdditionalFlags(FunctionFlags flags) =>
+            new(
+                Name,
+                GenericDescription,
+                Description,
+                ResultBuilder,
+                TypeSignatureSymbol,
+                FixedParameters,
+                VariableParameter,
+                Evaluator,
+                ArmExpressionEvaluator,
+                Flags | flags,
+                this.IsPure);
 
         public bool HasParameters => this.MinimumArgumentCount > 0 || this.MaximumArgumentCount > 0;
 

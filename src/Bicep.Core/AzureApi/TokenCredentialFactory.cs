@@ -32,12 +32,18 @@ namespace Bicep.Core.AzureApi
                 // Handle user-assigned identity.
                 if (credentialOptions?.ManagedIdentity?.ClientId is { } clientId)
                 {
-                    return new ManagedIdentityCredential(clientId, new() { AuthorityHost = authorityUri });
+                    return new ManagedIdentityCredential(new ManagedIdentityCredentialOptions(ManagedIdentityId.FromUserAssignedClientId(clientId))
+                    {
+                        AuthorityHost = authorityUri,
+                    });
                 }
 
                 if (credentialOptions?.ManagedIdentity?.ResourceId is { } resourceId)
                 {
-                    return new ManagedIdentityCredential(new ResourceIdentifier(resourceId), new() { AuthorityHost = authorityUri });
+                    return new ManagedIdentityCredential(new ManagedIdentityCredentialOptions(ManagedIdentityId.FromUserAssignedResourceId(new ResourceIdentifier(resourceId)))
+                    {
+                        AuthorityHost = authorityUri,
+                    });
                 }
 
                 // This is a defensive check. ClientId and ResourceId should already be validated when binding the cloud configuration.

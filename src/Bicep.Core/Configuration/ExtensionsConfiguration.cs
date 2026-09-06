@@ -26,7 +26,7 @@ public record ExtensionConfigEntry
         => Value;
 }
 
-public partial class ExtensionsConfiguration : ConfigurationSection<ImmutableDictionary<string, ExtensionConfigEntry>>
+public partial class ExtensionsConfiguration : ConfigurationSection<ImmutableDictionary<string, ExtensionConfigEntry>>, IBicepExtensionsConfiguration
 {
     private ExtensionsConfiguration(ImmutableDictionary<string, ExtensionConfigEntry> data) : base(data) { }
 
@@ -64,4 +64,6 @@ public partial class ExtensionsConfiguration : ConfigurationSection<ImmutableDic
 
     public bool IsSysOrBuiltIn(string extensionName)
         => extensionName == SystemNamespaceType.BuiltInName || this.Data.TryGetValue(extensionName)?.BuiltIn == true;
+
+    public IEnumerable<string> ExtensionAliases => this.Data.Keys;
 }

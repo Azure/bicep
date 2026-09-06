@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.CommandLine;
 using System.Text;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Constants;
 using Bicep.Cli.Helpers.Repl;
 using Bicep.Cli.Services;
 using Bicep.Core.Diagnostics;
@@ -11,28 +13,38 @@ using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Spectre.Console;
+using static System.ConsoleKey;
 
 namespace Bicep.Cli.Commands;
 
 /// <summary>
-/// Minimal interactive console (experimental).
+/// Minimal interactive console
 /// Supports multi-line input: enter expressions or variable declarations.
 /// Input is submitted automatically when structurally complete, or by entering a blank line once complete.
 /// </summary>
 public class ConsoleCommand(
-    ILogger logger,
     IOContext io,
     IEnvironment environment,
-    ReplEnvironment replEnvironment,
-    IAnsiConsole console) : ICommand
+    ReplEnvironment replEnvironment) : ICommand
 {
     private const string FirstLinePrefix = "> ";
 
     private Rune ReadRune(char firstChar)
         => ReadRune(firstChar, () => Console.ReadKey(intercept: true).KeyChar);
+
+    internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+    {
+        var command = new System.CommandLine.Command(Constants.Command.Console, "Opens an interactive Bicep console.");
+
+        command.SetAction((result, ct) => context.RunCommandAsync(
+            () => context.GetCommand<ConsoleCommand>().RunAsync(new ConsoleArguments())));
+
+        return command;
+    }
 
     private Rune ReadRune(char firstChar, Func<char> readNextChar)
     {
@@ -55,26 +67,95 @@ public class ConsoleCommand(
 
     public async Task<int> RunAsync(ConsoleArguments args)
     {
-        logger.LogWarning($"WARNING: The '{args.CommandName}' CLI command is an experimental feature. Experimental features should be used for testing purposes only, as there are no guarantees about the quality or stability of these features.");
-
-        if (!console.Profile.Capabilities.Interactive)
+        if (io.Input.IsRedirected)
         {
-            logger.LogError($"The '{args.CommandName}' CLI command requires an interactive console.");
-            return 1;
+            // Read all input from stdin if redirected (via pipe or file redirection)
+            var input = await io.Input.Reader.ReadToEndAsync();
+
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                return 0;
+            }
+
+            // Handle input line by line (to support multi-line strings)
+            var outputBuilder = new StringBuilder();
+            var inputBuffer = new StringBuilder();
+            var pendingTypeContinuationRedirected = false;
+
+            using var reader = new StringReader(input);
+            while (await reader.ReadLineAsync() is { } line)
+            {
+                if (pendingTypeContinuationRedirected && !IsTypeContinuationLine(line))
+                {
+                    outputBuilder.Append(EvaluateAndClearBuffer(inputBuffer));
+                    pendingTypeContinuationRedirected = false;
+
+                    if (string.IsNullOrWhiteSpace(line))
+                    {
+                        continue;
+                    }
+                }
+
+                inputBuffer.Append(line);
+                inputBuffer.Append('\n');
+
+                var current = inputBuffer.ToString();
+                var bufferState = ReplEnvironment.GetBufferState(current, line);
+                if (bufferState.ShouldSubmit)
+                {
+                    if (bufferState.IsTypeDeclaration)
+                    {
+                        pendingTypeContinuationRedirected = true;
+                    }
+                    else
+                    {
+                        outputBuilder.Append(EvaluateAndClearBuffer(inputBuffer));
+                        pendingTypeContinuationRedirected = false;
+                    }
+                }
+            }
+
+            if (inputBuffer.Length > 0)
+            {
+                outputBuilder.Append(EvaluateAndClearBuffer(inputBuffer));
+            }
+
+            var output = outputBuilder.ToString();
+            if (io.Output.IsRedirected)
+            {
+                output = AnsiHelper.RemoveCodes(output);
+            }
+            await io.Output.Writer.WriteAsync(output);
+            return 0;
         }
 
-        await io.Output.WriteLineAsync($"Bicep Console version {environment.GetVersionString()}");
-        await io.Output.WriteLineAsync("Type 'help' for available commands, press ESC to quit.");
-        await io.Output.WriteLineAsync("Multi-line input supported.");
-        await io.Output.WriteLineAsync(string.Empty);
+        await io.Output.Writer.WriteLineAsync($"Bicep Console version {environment.GetVersionString()}");
+        await io.Output.Writer.WriteLineAsync("Type 'help' for available commands, press ESC or CTRL+C to quit.");
+        await io.Output.Writer.WriteLineAsync("Multi-line input supported.");
+        await io.Output.Writer.WriteLineAsync(string.Empty);
+
+        Console.TreatControlCAsInput = true;
 
         var buffer = new StringBuilder();
+        var pendingTypeContinuation = false;
 
         while (true)
         {
-            if (await ReadLine(buffer) is not { } rawLine)
+            if (await ReadLine(buffer) is not { } inputLine)
             {
                 break;
+            }
+
+            var rawLine = inputLine.Text;
+            if (pendingTypeContinuation && !IsTypeContinuationLine(rawLine))
+            {
+                await io.Output.Writer.WriteAsync(EvaluateAndClearBuffer(buffer));
+                pendingTypeContinuation = false;
+
+                if (string.IsNullOrWhiteSpace(rawLine))
+                {
+                    continue;
+                }
             }
 
             if (buffer.Length == 0)
@@ -92,8 +173,8 @@ public class ConsoleCommand(
 
                 if (rawLine.Equals("help", StringComparison.OrdinalIgnoreCase))
                 {
-                    await io.Output.WriteLineAsync("Enter expressions or 'var name = <expr>'. Multi-line supported until structure closes.");
-                    await io.Output.WriteLineAsync("Commands: exit, clear");
+                    await io.Output.Writer.WriteLineAsync("Enter expressions or 'var name = <expr>'. Multi-line supported until structure closes.");
+                    await io.Output.Writer.WriteLineAsync("Commands: exit, clear");
                     continue;
                 }
             }
@@ -103,117 +184,157 @@ public class ConsoleCommand(
 
             var current = buffer.ToString();
 
-            if (ReplEnvironment.ShouldSubmitBuffer(current, rawLine))
+            var bufferState = ReplEnvironment.GetBufferState(current, rawLine);
+            if (bufferState.ShouldSubmit)
             {
-                buffer.Clear();
-
-                // evaluate input
-                var output = replEnvironment.EvaluateAndGetOutput(current);
-                await io.Output.WriteAsync(output);
+                if (bufferState.IsTypeDeclaration && ShouldWaitForTypeContinuation(inputLine))
+                {
+                    pendingTypeContinuation = true;
+                }
+                else
+                {
+                    pendingTypeContinuation = false;
+                    await io.Output.Writer.WriteAsync(EvaluateAndClearBuffer(buffer));
+                }
             }
         }
 
         return 0;
     }
 
-    private async Task<int> PrintHistory(StringBuilder buffer, List<Rune> lineBuffer, int cursorOffset, bool backwards)
+    private string EvaluateAndClearBuffer(StringBuilder buffer)
     {
-        if (replEnvironment.TryGetHistory(backwards) is { } history)
+        var current = buffer.ToString();
+        buffer.Clear();
+
+        return replEnvironment.EvaluateAndGetOutput(current);
+    }
+
+    private static bool IsTypeContinuationLine(string line)
+        => line.TrimStart().StartsWith('|');
+
+    private static bool ShouldWaitForTypeContinuation(InputLine inputLine)
+        => inputLine.HasBufferedInputAfterEnter ||
+            (IsTypeContinuationLine(inputLine.Text) && !inputLine.StartedWithBufferedInput);
+
+    private readonly record struct InputLine(string Text, bool StartedWithBufferedInput, bool HasBufferedInputAfterEnter);
+
+    private async Task<bool> PrintHistory(StringBuilder buffer, LineEditor editor, bool backwards, int previousCursorOffset)
+    {
+        if (replEnvironment.TryGetHistory(backwards) is not { } history)
         {
-            var prevBufferLineCount = buffer.ToString().Count(x => x == '\n');
-            buffer.Clear();
-            lineBuffer.Clear();
-
-            var finalNewline = history.LastIndexOf('\n');
-            var lineStart = finalNewline > -1 ? finalNewline + 1 : 0;
-
-            buffer.Append(history[..lineStart]);
-            lineBuffer.AddRange(GetRunes(history[lineStart..]));
-            cursorOffset = lineBuffer.Count;
-
-            var output2 = replEnvironment.HighlightInputLine(FirstLinePrefix, buffer.ToString(), lineBuffer, cursorOffset, printPrevLines: true);
-            await io.Output.WriteAsync(PrintHelper.MoveCursorUp(prevBufferLineCount));
-            await io.Output.WriteAsync(output2);
-            return cursorOffset;
+            return false;
         }
 
-        return -1;
+        var prevBufferLineCount = buffer.ToString().Count(x => x == '\n');
+        buffer.Clear();
+
+        var finalNewline = history.LastIndexOf('\n');
+        var lineStart = finalNewline > -1 ? finalNewline + 1 : 0;
+
+        buffer.Append(history[..lineStart]);
+        editor.Reset(GetRunes(history[lineStart..]));
+
+        var output = replEnvironment.HighlightInputLine(FirstLinePrefix, buffer.ToString(), editor.Buffer, editor.Cursor, printPrevLines: true, Console.WindowWidth, previousCursorOffset);
+        await io.Output.Writer.WriteAsync(PrintHelper.MoveCursorUp(prevBufferLineCount));
+        await io.Output.Writer.WriteAsync(output);
+        return true;
     }
 
     private string GetPrefix(StringBuilder buffer)
         => buffer.Length == 0 ? FirstLinePrefix : "";
 
-    private async Task<string?> ReadLine(StringBuilder buffer)
+    private async Task<InputLine?> ReadLine(StringBuilder buffer)
     {
-        await io.Output.WriteAsync(GetPrefix(buffer));
+        await io.Output.Writer.WriteAsync(GetPrefix(buffer));
 
-        var lineBuffer = new List<Rune>();
-        var cursorOffset = 0;
+        var editor = new LineEditor();
+        var startedWithBufferedInput = Console.KeyAvailable;
+
         while (true)
         {
             var keyInfo = Console.ReadKey(intercept: true);
-            var nextChar = keyInfo.KeyChar;
+            var previousCursorOffset = editor.Buffer.Take(editor.Cursor).Sum(rune => rune.Utf16SequenceLength);
 
-            if (keyInfo.Key == ConsoleKey.UpArrow)
+            switch ((keyInfo.Modifiers, keyInfo.Key))
             {
-                if (await PrintHistory(buffer, lineBuffer, cursorOffset, backwards: true) is { } newOffset and not -1)
-                {
-                    cursorOffset = newOffset;
-                    continue;
-                }
-            }
-            if (keyInfo.Key == ConsoleKey.DownArrow)
-            {
-                if (await PrintHistory(buffer, lineBuffer, cursorOffset, backwards: false) is { } newOffset and not -1)
-                {
-                    cursorOffset = newOffset;
-                    continue;
-                }
-            }
-            if (keyInfo.Key == ConsoleKey.LeftArrow)
-            {
-                cursorOffset = Math.Max(cursorOffset - 1, 0);
-            }
-            if (keyInfo.Key == ConsoleKey.RightArrow)
-            {
-                cursorOffset = Math.Min(cursorOffset + 1, lineBuffer.Count);
-            }
-            if (keyInfo.Key == ConsoleKey.Enter)
-            {
-                await io.Output.FlushAsync();
-                break;
-            }
-            else if (keyInfo.Key == ConsoleKey.Backspace)
-            {
-                if (cursorOffset > 0 && cursorOffset <= lineBuffer.Count)
-                {
-                    lineBuffer.RemoveAt(cursorOffset - 1);
-                    cursorOffset = Math.Max(cursorOffset - 1, 0);
-                }
-            }
-            else if (keyInfo.Key == ConsoleKey.Delete)
-            {
-                if (cursorOffset < lineBuffer.Count)
-                {
-                    lineBuffer.RemoveAt(cursorOffset);
-                }
-            }
-            else if (keyInfo.Key == ConsoleKey.Escape)
-            {
-                return null;
-            }
-            else if (nextChar != 0)
-            {
-                lineBuffer.Insert(cursorOffset, ReadRune(nextChar));
-                cursorOffset += 1;
+                case (_, UpArrow) or (_, DownArrow):
+                    // History navigation re-renders the whole line itself, so skip the redraw below when it handled the key.
+                    if (await PrintHistory(buffer, editor, backwards: keyInfo.Key == UpArrow, previousCursorOffset))
+                    {
+                        continue;
+                    }
+                    break;
+
+                // referenced from how NodeJS REPL handles jumping between words for MacOS:
+                // https://github.com/nodejs/node/blob/0e2126d8b1c0eb93b105ac53c0939908392cbb42/lib/internal/readline/interface.js#L1435-L1445
+                // Option key in MacOS maps to Alt
+                case (ConsoleModifiers.Control, LeftArrow) or (ConsoleModifiers.Alt, B):
+                    editor.MoveToWordBoundary(-1);
+                    break;
+
+                case (_, LeftArrow):
+                    editor.MoveLeft();
+                    break;
+
+                // referenced from how NodeJS REPL handles jumping between words for MacOS:
+                // https://github.com/nodejs/node/blob/0e2126d8b1c0eb93b105ac53c0939908392cbb42/lib/internal/readline/interface.js#L1435-L1445
+                // Option key in MacOS maps to Alt
+                case (ConsoleModifiers.Control, RightArrow) or (ConsoleModifiers.Alt, F):
+                    editor.MoveToWordBoundary(+1);
+                    break;
+
+                case (_, RightArrow):
+                    editor.MoveRight();
+                    break;
+
+                case (_, Home):
+                    editor.MoveToStart();
+                    break;
+
+                case (_, End):
+                    editor.MoveToEnd();
+                    break;
+
+                case (_, Enter):
+                    await io.Output.Writer.FlushAsync();
+                    await io.Output.Writer.WriteAsync("\n");
+                    return new(string.Concat(editor.Buffer), startedWithBufferedInput, Console.KeyAvailable);
+
+                case (_, Backspace):
+                    editor.Backspace();
+                    break;
+
+                case (_, Delete):
+                    editor.Delete();
+                    break;
+
+                case (ConsoleModifiers.Control, Z):
+                    editor.Undo();
+                    break;
+
+                case (ConsoleModifiers.Control, Y):
+                    editor.Redo();
+                    break;
+
+                case (_, Escape):
+                    return null;
+
+                case (ConsoleModifiers.Control, C):
+                    return null;
+
+                default:
+                    if (keyInfo.KeyChar != 0)
+                    {
+                        editor.Insert(ReadRune(keyInfo.KeyChar));
+                    }
+                    break;
             }
 
-            var output = replEnvironment.HighlightInputLine(GetPrefix(buffer), buffer.ToString(), lineBuffer, cursorOffset, printPrevLines: false);
-            await io.Output.WriteAsync(output);
+            editor.Track();
+
+            await io.Output.Writer.WriteAsync(
+                replEnvironment.HighlightInputLine(GetPrefix(buffer), buffer.ToString(), editor.Buffer, editor.Cursor, printPrevLines: false, Console.WindowWidth, previousCursorOffset));
         }
-
-        await io.Output.WriteAsync("\n");
-
-        return string.Concat(lineBuffer);
     }
 }

@@ -93,8 +93,8 @@ public class TeardownCommandTests : TestBase
     public async Task Teardown_should_succeed()
     {
         var deploymentProcessor = StrictMock.Of<IDeploymentProcessor>();
-        deploymentProcessor.Setup(x => x.Teardown(It.IsAny<RootConfiguration>(), It.IsAny<DeployCommandsConfig>(), It.IsAny<Action<GeneralOperationView>>(), It.IsAny<CancellationToken>()))
-            .Returns<RootConfiguration, DeployCommandsConfig, Action<GeneralOperationView>, CancellationToken>((_, config, onUpdate, _) =>
+        deploymentProcessor.Setup(x => x.Teardown(It.IsAny<IBicepConfiguration>(), It.IsAny<DeployCommandsConfig>(), It.IsAny<Action<GeneralOperationView>>(), It.IsAny<CancellationToken>()))
+            .Returns<IBicepConfiguration, DeployCommandsConfig, Action<GeneralOperationView>, CancellationToken>((_, config, onUpdate, _) =>
             {
                 onUpdate(new("Teardown", "Succeeded", null));
 
@@ -117,8 +117,8 @@ public class TeardownCommandTests : TestBase
     public async Task Errors_are_displayed()
     {
         var deploymentProcessor = StrictMock.Of<IDeploymentProcessor>();
-        deploymentProcessor.Setup(x => x.Teardown(It.IsAny<RootConfiguration>(), It.IsAny<DeployCommandsConfig>(), It.IsAny<Action<GeneralOperationView>>(), It.IsAny<CancellationToken>()))
-            .Returns<RootConfiguration, DeployCommandsConfig, Action<GeneralOperationView>, CancellationToken>((_, config, onUpdate, _) =>
+        deploymentProcessor.Setup(x => x.Teardown(It.IsAny<IBicepConfiguration>(), It.IsAny<DeployCommandsConfig>(), It.IsAny<Action<GeneralOperationView>>(), It.IsAny<CancellationToken>()))
+            .Returns<IBicepConfiguration, DeployCommandsConfig, Action<GeneralOperationView>, CancellationToken>((_, config, onUpdate, _) =>
             {
                 onUpdate(new("Teardown", "Failed", "Teardown error!"));
 

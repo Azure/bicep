@@ -36,7 +36,7 @@ namespace Bicep.Cli.Services
         public EmitResult ToStdout(Compilation compilation, OutputFormatOption outputFormat, IncludeParamsOption includeParams)
         {
             var semanticModel = compilation.GetEntrypointSemanticModel();
-            return new TemplateEmitter(semanticModel).EmitTemplateGeneratedParameterFile(io.Output, string.Empty, outputFormat, includeParams);
+            return new TemplateEmitter(semanticModel).EmitTemplateGeneratedParameterFile(io.Output.Writer, string.Empty, outputFormat, includeParams);
         }
     }
 }
