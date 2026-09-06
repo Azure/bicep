@@ -1190,6 +1190,17 @@
           }
         }
       }
+    },
+    "bicep": {
+      "type": "object",
+      "description": "Settings for the Bicep compiler itself.",
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "The version or version range of the Bicep compiler required to compile this file, e.g. \"0.31.92\" or \">=0.31.0, <1.0.0\". If omitted, no version constraint is enforced."
+        }
+      }
     }
   }
 }

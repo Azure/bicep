@@ -39,6 +39,8 @@ namespace Bicep.Core.Configuration
 
         public const string DocumentationKey = "documentation";
 
+        public const string CompilerKey = "bicep";
+
         public const string BuiltInConfigurationResourceName = "Bicep.Core.Configuration.bicepconfig.json";
 
         public static IBicepConfiguration BuiltIn => BuiltInLazy.Value;
@@ -68,6 +70,7 @@ namespace Bicep.Core.Configuration
             IBicepAnalyzersConfiguration analyzers,
             IBicepFormattingConfiguration formatting,
             IBicepDocumentationConfiguration documentation,
+            IBicepCompilerConfiguration compiler,
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
             string? cacheRootDirectory,
             bool experimentalFeaturesWarning,
@@ -82,6 +85,7 @@ namespace Bicep.Core.Configuration
             Analyzers = analyzers;
             Formatting = formatting;
             Documentation = documentation;
+            Compiler = compiler;
             ExperimentalFeaturesEnabled = experimentalFeaturesEnabled;
             CacheRootDirectory = ExpandCacheRootDirectory(cacheRootDirectory);
             ExperimentalFeaturesWarning = experimentalFeaturesWarning;
@@ -108,6 +112,9 @@ namespace Bicep.Core.Configuration
             var documentation = element.TryGetProperty(DocumentationKey, out var documentationElement)
                 ? DocumentationConfiguration.Bind(documentationElement)
                 : new DocumentationConfiguration(new());
+            var compiler = element.TryGetProperty(CompilerKey, out var compilerElement)
+                ? CompilerConfiguration.Bind(compilerElement)
+                : new CompilerConfiguration(new(), null);
 
             var extensions = ExtensionsConfiguration.Bind(element.GetProperty(ExtensionsKey));
             var implicitExtensions = ImplicitExtensionsConfiguration.Bind(element.GetProperty(ImplicitExtensionsKey));
@@ -121,6 +128,7 @@ namespace Bicep.Core.Configuration
                 analyzers: analyzers,
                 formatting: formatting,
                 documentation: documentation,
+                compiler: compiler,
                 experimentalFeaturesEnabled: experimentalFeaturesEnabled,
                 cacheRootDirectory: cacheRootDirectory,
                 experimentalFeaturesWarning: experimentalFeaturesWarning,
@@ -143,6 +151,8 @@ namespace Bicep.Core.Configuration
         public IBicepFormattingConfiguration Formatting { get; }
 
         public IBicepDocumentationConfiguration Documentation { get; }
+
+        public IBicepCompilerConfiguration Compiler { get; }
 
         public ExperimentalFeaturesEnabled ExperimentalFeaturesEnabled { get; }
 

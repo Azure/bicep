@@ -148,7 +148,8 @@ namespace Bicep.Core.UnitTests.Configuration
             ],
             "reassignments": []
           }
-        }
+        },
+        "bicep": {}
       }
       """);
         }
@@ -255,7 +256,8 @@ namespace Bicep.Core.UnitTests.Configuration
             ],
             "reassignments": []
           }
-        }
+        },
+        "bicep": {}
       }
       """);
         }
@@ -384,7 +386,8 @@ namespace Bicep.Core.UnitTests.Configuration
             ],
             "reassignments": []
           }
-        }
+        },
+        "bicep": {}
       }
       """);
         }
@@ -580,7 +583,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     ],
                     "reassignments": []
                 }
-            }
+            },
+            "bicep": {}
             }
             """);
         }
@@ -957,7 +961,8 @@ namespace Bicep.Core.UnitTests.Configuration
                       ],
                       "reassignments": []
                     }
-                  }
+                  },
+                  "bicep": {}
                 }
                 """);
         }
