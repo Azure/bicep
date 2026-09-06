@@ -5,7 +5,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/html-escaper": "^3.0.4",
-    "@types/node": "^26.4.0",
+    "@types/node": "^26.4.1",
     "@vitest/eslint-plugin": "^1.6.27",
     "cross-env": "^10.1.0",
     "eslint": "^10.9.1",
@@ -16,8 +16,8 @@
     "jsdom": "^30.0.1",
     "monaco-editor-core": "^0.56.0",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.68.0",
-    "vitest": "^4.1.11"
+    "typescript-eslint": "^8.69.0",
+    "vitest": "^5.0.0"
   },
   "overrides": {
     "dompurify": "3.4.13"
