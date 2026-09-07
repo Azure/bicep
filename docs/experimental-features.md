@@ -13,6 +13,23 @@ The following features can be optionally enabled through your `bicepconfig.json`
 
 Should be enabled in tandem with `testFramework` experimental feature flag for expected functionality. Allows you to author boolean assertions using the `assert` keyword comparing the actual value of a parameter, variable, or resource name to an expected value. Assert statements can only be written directly within the Bicep file whose resources they reference. For more information, see [Bicep Experimental Test Framework](https://github.com/Azure/bicep/issues/11967).
 
+### `azExtensionConfig`
+
+Enables configuration for the built-in `az` extension. This allows templates to specify a list of Azure resource provider namespaces via the `providers` property, which are registered at the start of a deployment. ARM will trigger a provider registration for each listed namespace on the target subscription.
+
+Example:
+
+```bicep
+extension az with {
+  providers: [
+    'Microsoft.Storage' 
+    'Microsoft.Compute'
+  ]
+}
+```
+
+(Note: This feature will not work until the backend service support has been deployed.)
+
 ### `deployCommands`
 
 Enables `deploy`, `what-if` and `teardown` command groups, as well as the `with` syntax in a `.bicepparam` file. For more information, see [Using the Deploy Commands](./experimental/deploy-commands.md).
@@ -60,6 +77,21 @@ Enables the 'resourceInfo' function for simplified code generation.
 
 Enables the type for a parameter or output to be of type resource to make it easier to pass resource references between modules. This feature is only partially implemented. See [Simplifying resource referencing](https://github.com/azure/bicep/issues/2245).
 
+### `runtimeValuesInTagsAndSku`
+
+Allows the use of runtime values (such as this.existingResource()) in `tags` and `sku` properties. By default, these properties are flagged as deploy-time constants, meaning they cannot reference runtime resource properties. Enabling this feature relaxes that restriction. (Note: This feature will not work until the backend service support has been deployed)
+
+```bicep
+resource example 'Microsoft...' = {
+  name: 'example'
+  location: resourceGroup().location
+  sku: {
+    name: this.existingResource().?sku.name ?? 'Standard'
+  }
+  tags: this.existingResource().?tags ?? {}
+}
+```
+
 ### `sourceMapping`
 
 Enables basic source mapping to map an error location returned in the ARM template layer back to the relevant location in the Bicep file.
@@ -93,3 +125,7 @@ Command that allows the publishing of extensions to container registries. For mo
 ### Bicep MCP Server
 
 See [Using Bicep MCP Server in VS Code (Preview!)](./experimental/mcp-tools.md).
+
+### `docs` CLI Command
+
+Generates module documentation. For command and template model details, see [Generate module documentation](./experimental/docs-commands.md).

@@ -1,58 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { AtomicNodeState } from "@/lib/graph/atoms/nodes";
-import type { Range } from "@/lib/messaging/messages";
+import type { AtomicNodeState } from "../atoms/nodes";
 
 import useResizeObserver from "@react-hook/resize-observer";
-import { useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { useAtomValue, useStore } from "jotai";
 import { frame } from "motion/react";
-import { useEffect, useLayoutEffect, useRef } from "react";
-import { focusedNodeIdAtom, getNodeZIndex } from "@/lib/graph/atoms/nodes";
-import { useBoxUpdate, useDragListener } from "@/lib/graph/hooks";
-import { REVEAL_FILE_RANGE_NOTIFICATION, REVEAL_NODE_SOURCE_NOTIFICATION } from "@/lib/messaging/messages";
-import { translateBox } from "@/lib/utils/math";
+import { useLayoutEffect, useRef } from "react";
+import { translateBox } from "@/lib/math";
+import { focusedNodeIdAtom, getNodeZIndex } from "../atoms/nodes";
+import { useBoxUpdate, useDragListener } from "../hooks";
 import { BaseNode } from "./BaseNode";
 import { NodeContent } from "./NodeContent";
 
 export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
   const ref = useRef<HTMLDivElement>(null);
   const store = useStore();
-  const messageChannel = useWebviewMessageChannel();
   const focusedNodeId = useAtomValue(focusedNodeIdAtom);
   const zIndex = getNodeZIndex(id, "atomic", focusedNodeId);
-
-  // Use a native dblclick listener so we can call stopPropagation()
-  // before d3-zoom's handler (on the PanZoom ancestor) fires.
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) {
-      return;
-    }
-
-    const handler = (e: MouseEvent) => {
-      e.stopPropagation();
-
-      const data = store.get(dataAtom) as { range?: Range; filePath?: string };
-      if (data?.range && data?.filePath) {
-        // Legacy push path: the node still carries an inline source location.
-        messageChannel.sendNotification({
-          method: REVEAL_FILE_RANGE_NOTIFICATION,
-          params: { filePath: data.filePath, range: data.range },
-        });
-      } else {
-        // Server-driven path: source location is resolved on demand by node id.
-        messageChannel.sendNotification({
-          method: REVEAL_NODE_SOURCE_NOTIFICATION,
-          params: { nodeId: id },
-        });
-      }
-    };
-
-    el.addEventListener("dblclick", handler);
-    return () => el.removeEventListener("dblclick", handler);
-  }, [store, dataAtom, messageChannel, id]);
 
   useLayoutEffect(() => {
     if (!ref.current) {

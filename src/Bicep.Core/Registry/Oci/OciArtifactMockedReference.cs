@@ -19,7 +19,7 @@ namespace Bicep.Core.Registry.Oci
         private readonly string? fullyQualifiedReference;
 
         public OciArtifactMockedReference(BicepSourceFile referencingFile, string modulePath, IFileHandle fileHandle, string? fullyQualifiedReference = null)
-            : base(referencingFile.Features, referencingFile.Configuration, OciArtifactReferenceFacts.MockedScheme)
+            : base(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), OciArtifactReferenceFacts.MockedScheme)
         {
             this.modulePath = modulePath;
             this.fileHandle = fileHandle;

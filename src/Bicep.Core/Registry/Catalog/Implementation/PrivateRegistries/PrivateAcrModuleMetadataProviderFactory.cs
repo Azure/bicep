@@ -14,7 +14,7 @@ namespace Bicep.Core.Registry.Catalog.Implementation.PrivateRegistries;
 /// </summary>
 public class PrivateAcrModuleMetadataProviderFactory : IPrivateAcrModuleMetadataProviderFactory
 {
-    public IRegistryModuleMetadataProvider Create(CloudConfiguration cloud, string registry, IOciRegistryTransportFactory transportFactory)
+    public IRegistryModuleMetadataProvider Create(IBicepCloudConfiguration cloud, string registry, IOciRegistryTransportFactory transportFactory)
     {
         return new PrivateAcrModuleMetadataProvider(cloud, registry, transportFactory);
     }

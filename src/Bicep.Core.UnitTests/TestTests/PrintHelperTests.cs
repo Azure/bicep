@@ -4,6 +4,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -15,7 +16,7 @@ namespace Bicep.Core.UnitTests.TestTests
         [TestMethod]
         public void PrintHelper_should_add_annotations()
         {
-            var compilation = CompilationHelper.Compile(@"
+            var compilation = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(@"
 resource domainServices 'Microsoft.MadeUpRp/madeUpType@2017-06-01' = {
   name: 'hello'
   location: location
@@ -33,7 +34,7 @@ resource domainServices 'Microsoft.MadeUpRp/madeUpType@2017-06-01' = {
             }, 1, true);
 
             output.Should().Be(
-@"1| 
+@"1|<space>
 2| resource domainServices 'Microsoft.MadeUpRp/madeUpType@2017-06-01' = {
                             ~~~~~~~~~~~~~~~~~~ what is this!?
 3|   name: 'hello'
@@ -43,13 +44,13 @@ resource domainServices 'Microsoft.MadeUpRp/madeUpType@2017-06-01' = {
 6|     someMadeUpProp: 'boo'
        ~~~~~~~~~~~~~~ i can't believe you've done this
 7|   }
-");
+".Replace("<space>", " "));
         }
 
         [TestMethod]
         public void PrintHelper_only_includes_nearby_context()
         {
-            var compilation = CompilationHelper.Compile(@"
+            var compilation = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore(@"
 var test = '''
 here's
 a
@@ -64,7 +65,7 @@ care
 about
 '''
 
-// 
+//<space>
 // give me a cursor here please!
 //
 
@@ -82,18 +83,18 @@ don't
 care
 about
 '''
-").Compilation;
+".Replace("<space>", " ")).Compilation;
 
             var output = PrintHelper.PrintWithAnnotations(compilation.GetEntrypointSemanticModel().SourceFile, new[] {
                 new PrintHelper.Annotation(new TextSpan(108, 4), "here's your cursor!"),
             }, 1, true);
 
             output.Should().Be(
-@"16| // 
+@"16| //<space>
 17| // give me a cursor here please!
                         ~~~~ here's your cursor!
 18| //
-");
+".Replace("<space>", " "));
         }
     }
 }

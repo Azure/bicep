@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import type { Atom, PrimitiveAtom } from "jotai";
-import type { Box, Point } from "@/lib/utils/math/geometry";
+import type { Box, Point } from "@/lib/math";
 
 import { atom } from "jotai";
 import { nodeConfigAtom } from "./configs";

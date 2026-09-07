@@ -3,7 +3,9 @@
 
 import type { FunctionComponent, SVGProps } from "react";
 
-import { useEffect, useRef, useState } from "react";
+import { atom, useAtomValue, useSetAtom } from "jotai";
+import { atomFamily } from "jotai-family";
+import { useEffect } from "react";
 
 type SvgComponent = FunctionComponent<SVGProps<SVGSVGElement>>;
 
@@ -285,31 +287,50 @@ const lowercaseKeyMap = new Map(
 );
 
 async function importAzureSvg(resourceType: string): Promise<SvgComponent | undefined> {
-  const svgPath = lowercaseKeyMap.get(resourceType.toLowerCase()) ?? "custom/resource";
+  const svgPath = lowercaseKeyMap.get(resourceType) ?? "custom/resource";
   const svgImport = svgImportsByPath[`../../assets/azure-architecture-icons/${svgPath}.svg`];
-
   return svgImport();
 }
 
+type SvgCacheEntry =
+  | { state: "idle" }
+  | { state: "loading" }
+  | { state: "loaded"; AzureSvg: SvgComponent | undefined }
+  | { state: "error"; error: unknown };
+
+const azureSvgAtomFamily = atomFamily((_resourceType: string) => atom<SvgCacheEntry>({ state: "idle" }));
+const loadAzureSvgAtomFamily = atomFamily((resourceType: string) =>
+  atom(null, (get, set) => {
+    const svgAtom = azureSvgAtomFamily(resourceType);
+    if (get(svgAtom).state !== "idle") {
+      return;
+    }
+
+    set(svgAtom, { state: "loading" });
+    void importAzureSvg(resourceType).then(
+      (AzureSvg) => set(svgAtom, { state: "loaded", AzureSvg }),
+      (error: unknown) => set(svgAtom, { state: "error", error }),
+    );
+  }),
+);
+
 export function useAzureSvg(resourceType: string) {
-  const svgRef = useRef<SvgComponent | undefined>(undefined);
-  const [loading, setLoading] = useState(false);
+  const cacheKey = resourceType.toLowerCase();
+  const result = useAtomValue(azureSvgAtomFamily(cacheKey));
+  const loadAzureSvg = useSetAtom(loadAzureSvgAtomFamily(cacheKey));
 
   useEffect(() => {
-    setLoading(true);
+    loadAzureSvg();
+  }, [loadAzureSvg]);
 
-    const loadIcon = async () => {
-      try {
-        svgRef.current = await importAzureSvg(resourceType);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  useEffect(() => {
+    if (result.state === "error") {
+      console.error(result.error);
+    }
+  }, [result]);
 
-    loadIcon();
-  }, [resourceType]);
-
-  return { loading, AzureSvg: svgRef.current };
+  return {
+    loading: result.state === "idle" || result.state === "loading",
+    AzureSvg: result.state === "loaded" ? result.AzureSvg : undefined,
+  };
 }

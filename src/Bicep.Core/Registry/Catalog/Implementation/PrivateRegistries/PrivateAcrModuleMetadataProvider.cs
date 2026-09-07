@@ -23,11 +23,11 @@ public class PrivateAcrModuleMetadataProvider : BaseModuleMetadataProvider, IReg
 {
     private const int MaxReturnedModules = 10000;
 
-    private readonly CloudConfiguration cloud;
+    private readonly IBicepCloudConfiguration cloud;
     private readonly IOciRegistryTransportFactory transportFactory;
 
     public PrivateAcrModuleMetadataProvider(
-        CloudConfiguration cloud,
+        IBicepCloudConfiguration cloud,
         string registry,
         IOciRegistryTransportFactory transportFactory
     ) : base(registry)

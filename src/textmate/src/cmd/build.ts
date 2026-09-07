@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { writeFile } from "fs/promises";
-import { generateGrammar, grammarPath } from "../bicep";
+import { generateGrammar, grammarPath } from "../bicep.js";
 
 async function main() {
   const grammar = await generateGrammar();

@@ -137,9 +137,12 @@ namespace Bicep.Core.UnitTests.Utils
         }
 
         public static IActiveSourceFileSet CreateWorkspace(ISourceFileFactory sourceFileFactory, IReadOnlyDictionary<Uri, string> uriDictionary)
+            => CreateWorkspace(sourceFileFactory, uriDictionary.ToDictionary(x => x.Key.ToIOUri(), x => x.Value));
+
+        public static IActiveSourceFileSet CreateWorkspace(ISourceFileFactory sourceFileFactory, IReadOnlyDictionary<IOUri, string> uriDictionary)
         {
             var workspace = new ActiveSourceFileSet();
-            var sourceFiles = uriDictionary.Select(kvp => sourceFileFactory.CreateSourceFile(kvp.Key.ToIOUri(), kvp.Value));
+            var sourceFiles = uriDictionary.Select(kvp => sourceFileFactory.CreateSourceFile(kvp.Key, kvp.Value));
             workspace.UpsertSourceFiles(sourceFiles);
 
             return workspace;

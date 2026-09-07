@@ -9,6 +9,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;

@@ -32,6 +32,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
                 yield return new object[] { "managedByExtended", "[]" };
                 yield return new object[] { "extendedLocation", "{'type': 'NotSpecified'}" };
                 yield return new object[] { "zones", "[]" };
+                yield return new object[] { "placement", "{'zonePlacementPolicy': 'Any'}" };
                 yield return new object[] { "plan", "{}" };
                 yield return new object[] { "eTag", "''" };
                 yield return new object[] { "scale", "{'capacity': 1}" };
@@ -49,6 +50,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
                 yield return new object[] { "managedByExtended", "[]" };
                 yield return new object[] { "extendedLocation", "{'type': 'NotSpecified'}" };
                 yield return new object[] { "zones", "[]" };
+                yield return new object[] { "placement", "{'zonePlacementPolicy': 'Any'}" };
                 yield return new object[] { "plan", "{}" };
                 yield return new object[] { "eTag", "''" };
                 yield return new object[] { "scale", "{'capacity': 1}" };
@@ -556,6 +558,33 @@ resource res 'My.Rp/myResource@2020-01-01' = {
             {
                 ("BCP036", DiagnosticLevel.Warning, "The property \"kind\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'otherValue'\". If this is a resource type definition inaccuracy, report it using https://aka.ms/bicep-type-issues.")
             });
+        }
+
+        // https://github.com/Azure/bicep/issues/20171
+        [TestMethod]
+        public void Placement_property_can_be_used_to_author_a_virtual_machine_scale_set_without_generating_diagnostics()
+        {
+            var compilation = Services.BuildCompilation(@"
+resource vmss 'Test.Compute/virtualMachineScaleSets@2020-01-01' = {
+  name: 'vmss'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_D2s_v3'
+    tier: 'Standard'
+    capacity: 3
+  }
+  placement: {
+    zonePlacementPolicy: 'Any'
+  }
+  properties: {
+    overprovision: true
+    upgradePolicy: {
+      mode: 'Manual'
+    }
+  }
+}
+");
+            compilation.Should().NotHaveAnyDiagnostics();
         }
     }
 }

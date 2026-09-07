@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { AccessToken } from "@azure/identity";
-import type { TelemetryProperties } from "@microsoft/vscode-azext-utils";
+import type { AccessToken } from "@azure/core-auth";
 import type { LocalDeployResponse, VscodeMessage } from "../../messages";
 import type {
   DeploymentScope,
@@ -19,7 +18,6 @@ import {
   createGetStateMessage,
   createLocalDeployMessage,
   createPickParamsFileMessage,
-  createPublishTelemetryMessage,
   createReadyMessage,
   createSaveStateMessage,
 } from "../../messages";
@@ -55,6 +53,11 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
   });
   const [scope, setScope] = useState<DeploymentScope>();
   const [localDeployResult, setLocalDeployResult] = useState<LocalDeployResponse>();
+
+  function savePersistedState(state: DeployPaneState) {
+    vscode.postMessage(createSaveStateMessage(state));
+    setPersistedState(state);
+  }
 
   useEffect(() => {
     const handleMessageEvent = (e: MessageEvent<VscodeMessage>) => {
@@ -142,11 +145,6 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function savePersistedState(state: DeployPaneState) {
-    vscode.postMessage(createSaveStateMessage(state));
-    setPersistedState(state);
-  }
-
   function pickParamsFile() {
     vscode.postMessage(createPickParamsFileMessage());
   }
@@ -157,10 +155,6 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
     }
 
     vscode.postMessage(createGetDeploymentScopeMessage(templateMetadata.scopeType));
-  }
-
-  function publishTelemetry(eventName: string, properties: TelemetryProperties) {
-    vscode.postMessage(createPublishTelemetryMessage(eventName, properties));
   }
 
   function acquireAccessToken() {
@@ -183,7 +177,6 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
     acquireAccessToken,
     pickScope,
     scope,
-    publishTelemetry,
     startLocalDeploy,
     localDeployResult,
     messageState,

@@ -18,6 +18,12 @@ namespace Bicep.Core.UnitTests.Resource
         [DataRow("@2020-01-01")]
         [DataRow("-@2020-01-01")]
         [DataRow("abc@+")]
+        [DataRow("abc@a")]
+        [DataRow("abc@@2020-01-01")]
+        [DataRow("abc//def@2020-01-01")]
+        [DataRow("abc/def/@2020-01-01")]
+        [DataRow("abc/_def@2020-01-01")]
+        [DataRow("abc/def@2020_01_01")]
         public void InvalidType_ShouldBeRejected(string value)
         {
             ResourceTypeReference.TryParse(value).Should().BeNull();
@@ -51,6 +57,16 @@ namespace Bicep.Core.UnitTests.Resource
 
             actual.Should().NotBeNull();
             actual!.FormatType().Should().Be(expectedFullyQualifiedType);
+        }
+
+        [TestMethod]
+        public void Parse_reuses_the_input_string_as_the_formatted_name()
+        {
+            var value = new string("Microsoft.Compute/virtualMachines@2019-06-01".ToCharArray());
+
+            var actual = ResourceTypeReference.Parse(value);
+
+            actual.FormatName().Should().BeSameAs(value);
         }
 
         [DataTestMethod]
@@ -109,4 +125,3 @@ namespace Bicep.Core.UnitTests.Resource
         }
     }
 }
-

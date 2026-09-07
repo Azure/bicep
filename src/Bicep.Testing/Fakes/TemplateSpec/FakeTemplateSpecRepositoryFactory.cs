@@ -15,6 +15,6 @@ namespace Bicep.Testing.Fakes.TemplateSpec
             this.repository = repository;
         }
 
-        public ITemplateSpecRepository CreateRepository(RootConfiguration configuration, string subscriptionId) => this.repository;
+        public ITemplateSpecRepository CreateRepository(IBicepConfiguration configuration, string subscriptionId) => this.repository;
     }
 }

@@ -132,9 +132,11 @@ internal static class ParameterFileImportValidator
 
     private static bool CanEvaluateFunctionWhileBuildingParametersFile(SemanticModel model, FunctionSymbol functionSymbol, FunctionCallSyntaxBase functionCall)
     {
-        var flags = model.TypeManager.GetMatchedFunctionOverload(functionCall)?.Flags ?? functionSymbol.FunctionFlags;
+        var overload = model.TypeManager.GetMatchedFunctionOverload(functionCall);
+        var flags = overload?.Flags ?? functionSymbol.FunctionFlags;
 
-        return flags.HasFlag(FunctionFlags.Pure);
+        return flags.HasFlag(FunctionFlags.Pure) ||
+            overload?.IsPure?.Invoke(model, functionCall) is true;
     }
 
     private static IEnumerable<SyntaxBase> GetValueSyntaxes(DeclaredSymbol symbol) => symbol switch

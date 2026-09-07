@@ -15,11 +15,9 @@ using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.UnitTests.Completions;
-using Bicep.LanguageServer.Completions;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Features.Language.Completion;
+using Bicep.LanguageServer.Features.Language.Completion.Snippets;
 using Bicep.LanguageServer.Settings;
-using Bicep.LanguageServer.Snippets;
-using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -52,7 +50,6 @@ namespace Bicep.LangServer.UnitTests
                 .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
                 .AddHttpClient<IPublicModuleMetadataProvider, PublicModuleMetadataProvider>()
                     .ConfigurePrimaryHttpMessageHandler(() => mockHttpMessageHandler).Services
-                .AddSingleton<ITelemetryProvider, TelemetryProvider>()
                 .AddSingleton<BicepCompletionProvider>()
                 .AddSingleton(publicModuleMetadataProvider.Object)
             );

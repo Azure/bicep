@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
+using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
@@ -57,7 +58,7 @@ public static class CodeFixHelper
             new(program.EndOfFile.Span, additionalProgram.ToString()));
     }
 
-    public static CodeFix GetCodeFixForMissingBicepExtensionConfigAssignments(ProgramSyntax program, BicepSourceFile file, IReadOnlyList<(string Alias, ObjectLikeType ExpectedConfigType)> missingExtAliasesWithExpectedType)
+    public static CodeFix GetCodeFixForMissingBicepExtensionConfigAssignments(ProgramSyntax program, SemanticModel model, IReadOnlyList<(string Alias, ObjectLikeType ExpectedConfigType)> missingExtAliasesWithExpectedType)
     {
         // Create the new syntax. Start with a double new line because this is a top-level insertion.
         var leadingNewLine = SyntaxFactory.DoubleNewlineToken;
@@ -114,7 +115,7 @@ public static class CodeFixHelper
             }
         }
 
-        var prettyPrintContext = PrettyPrinterV2Context.Create(file.Configuration.Formatting.Data, file.LexingErrorLookup, file.ParsingErrorLookup);
+        var prettyPrintContext = PrettyPrinterV2Context.Create(model.Configuration.Formatting.Data, model.LexingErrorLookup, model.ParsingErrorLookup);
         var codeReplacement = CreatePrettyPrintedInsertionCodeReplacement(program, prettyPrintContext, insertAfterSyntax, leadingNewLine, newSyntaxList, existingSyntaxProceedingInsert);
 
         return new(

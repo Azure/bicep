@@ -10,7 +10,6 @@ using Bicep.IO.Abstraction;
 using Bicep.IO.InMemory;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.JSInterop;
 using static Bicep.Core.UnitTests.Utils.RegistryHelper;
 
 namespace Bicep.Wasm.UnitTests;
@@ -38,7 +37,7 @@ public class InteropTests
         var jsRuntime = new MockJsRuntime(quickstartFiles);
         var fileExplorer = new InMemoryFileExplorer();
         using var serviceProvider = CreateServiceProvider(fileExplorer);
-        var interop = new Interop(jsRuntime, serviceProvider);
+        var interop = new Interop(jsRuntime.LoadQuickstart, serviceProvider);
 
         var result = await interop.CompileAndEmitDiagnostics(
             """
@@ -60,6 +59,32 @@ public class InteropTests
     }
 
     [TestMethod]
+    public async Task Decompile_WithInMemoryFileExplorer_UsesLocalEntrypointUri()
+    {
+        var jsRuntime = new MockJsRuntime(new Dictionary<string, string>());
+        var fileExplorer = new InMemoryFileExplorer();
+        using var serviceProvider = CreateServiceProvider(fileExplorer);
+        var interop = new Interop(jsRuntime.LoadQuickstart, serviceProvider);
+
+        var result = await interop.Decompile(
+            """
+            {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                "foo": {
+                  "type": "string"
+                }
+              },
+              "resources": []
+            }
+            """);
+
+        result.error.Should().BeNull();
+        result.bicepFile.Should().Contain("param foo string");
+    }
+
+    [TestMethod]
     public async Task CompileAndEmitDiagnostics_WithRemoteOciModule_RestoresModule()
     {
         var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
@@ -71,7 +96,7 @@ public class InteropTests
         var jsRuntime = new MockJsRuntime(new Dictionary<string, string>());
         var fileExplorer = new InMemoryFileExplorer();
         using var serviceProvider = CreateServiceProvider(fileExplorer, clientFactory);
-        var interop = new Interop(jsRuntime, serviceProvider);
+        var interop = new Interop(jsRuntime.LoadQuickstart, serviceProvider);
 
         var result = await interop.CompileAndEmitDiagnostics(
             """
@@ -93,7 +118,7 @@ public class InteropTests
         var jsRuntime = new MockJsRuntime(new Dictionary<string, string>());
         var fileExplorer = new InMemoryFileExplorer();
         using var serviceProvider = CreateServiceProvider(fileExplorer);
-        var interop = new Interop(jsRuntime, serviceProvider);
+        var interop = new Interop(jsRuntime.LoadQuickstart, serviceProvider);
 
         var result = await interop.CompileAndEmitDiagnostics(
             """
@@ -105,6 +130,70 @@ public class InteropTests
         var diagnostic = result.diagnostics.Should().BeAssignableTo<object[]>().Subject.Should().ContainSingle().Subject;
 
         GetProperty<int>(diagnostic, "startLineNumber").Should().Be(2);
+    }
+
+    [TestMethod]
+    public async Task CompileAndEmitDiagnostics_WithConcurrentRequests_DoesNotMixCompilationState()
+    {
+        var jsRuntime = new MockJsRuntime(new Dictionary<string, string>());
+        var fileExplorer = new InMemoryFileExplorer();
+        using var serviceProvider = CreateServiceProvider(fileExplorer);
+        var interop = new Interop(jsRuntime.LoadQuickstart, serviceProvider);
+
+        var firstCompilation = interop.CompileAndEmitDiagnostics(
+            "output result string = 'first'",
+            null);
+        var secondCompilation = interop.CompileAndEmitDiagnostics(
+            "output result string = 'second'",
+            null);
+
+        var results = await Task.WhenAll(firstCompilation, secondCompilation);
+
+        using var firstTemplate = JsonDocument.Parse(results[0].template);
+        using var secondTemplate = JsonDocument.Parse(results[1].template);
+        firstTemplate.RootElement
+            .GetProperty("outputs")
+            .GetProperty("result")
+            .GetProperty("value")
+            .GetString()
+            .Should()
+            .Be("first");
+        secondTemplate.RootElement
+            .GetProperty("outputs")
+            .GetProperty("result")
+            .GetProperty("value")
+            .GetString()
+            .Should()
+            .Be("second");
+    }
+
+    [TestMethod]
+    public async Task CompileAndEmitDiagnostics_WithSameContentAndDifferentSourcePath_DoesNotReuseCachedCompilation()
+    {
+        const string source = """
+            module child './modules/child.bicep' = {
+              name: 'child'
+            }
+
+            output childName string = child.outputs.name
+            """;
+        var quickstartFiles = new Dictionary<string, string>
+        {
+            ["example/modules/child.bicep"] = "output name string = 'from-child'",
+        };
+        var jsRuntime = new MockJsRuntime(quickstartFiles);
+        var fileExplorer = new InMemoryFileExplorer();
+        using var serviceProvider = CreateServiceProvider(fileExplorer);
+        var interop = new Interop(jsRuntime.LoadQuickstart, serviceProvider);
+
+        var quickstartResult = await interop.CompileAndEmitDiagnostics(source, "example/main.bicep");
+        var standaloneResult = await interop.CompileAndEmitDiagnostics(source, null);
+
+        using var quickstartTemplate = JsonDocument.Parse(quickstartResult.template);
+        quickstartTemplate.RootElement.GetProperty("resources").GetArrayLength().Should().Be(1);
+        standaloneResult.template.Should().Be("Compilation failed!");
+        standaloneResult.diagnostics.Should().BeAssignableTo<object[]>().Subject.Should().NotBeEmpty();
+        jsRuntime.LoadedPaths.Should().Equal("example/modules/child.bicep");
     }
 
     private static ServiceProvider CreateServiceProvider(IFileExplorer fileExplorer, IContainerRegistryClientFactory? clientFactory = null)
@@ -121,6 +210,7 @@ public class InteropTests
         }
 
         services.AddBicepCore();
+        services.AddBicepDecompiler();
 
         return services.BuildServiceProvider();
     }
@@ -128,27 +218,18 @@ public class InteropTests
     private static T GetProperty<T>(object @object, string propertyName)
         => (T)@object.GetType().GetProperty(propertyName)!.GetValue(@object)!;
 
-    private sealed class MockJsRuntime(IReadOnlyDictionary<string, string> files) : IJSRuntime
+    private sealed class MockJsRuntime(IReadOnlyDictionary<string, string> files)
     {
         private readonly List<string> loadedPaths = [];
 
         public IReadOnlyList<string> LoadedPaths => this.loadedPaths;
 
-        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, object?[]? args)
-            => this.InvokeAsync<TValue>(identifier, CancellationToken.None, args);
-
-        public ValueTask<TValue> InvokeAsync<TValue>(string identifier, CancellationToken cancellationToken, object?[]? args)
+        public Task<string?> LoadQuickstart(string filePath)
         {
-            identifier.Should().Be("LoadQuickstartsFile");
-            args.Should().NotBeNull();
-            args.Should().ContainSingle();
-
-            var filePath = args![0].Should().BeOfType<string>().Subject;
             this.loadedPaths.Add(filePath);
-
             files.TryGetValue(filePath, out var contents);
 
-            return ValueTask.FromResult((TValue)(object?)contents!);
+            return Task.FromResult(contents);
         }
     }
 }

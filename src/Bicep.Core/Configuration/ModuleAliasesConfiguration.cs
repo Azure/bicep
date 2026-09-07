@@ -42,7 +42,7 @@ namespace Bicep.Core.Configuration
                 : $"{Registry}";
     }
 
-    public partial class ModuleAliasesConfiguration : ConfigurationSection<ModuleAliases>
+    public partial class ModuleAliasesConfiguration : ConfigurationSection<ModuleAliases>, IBicepModuleAliasesConfiguration
     {
         private readonly IOUri? configFileUri;
 

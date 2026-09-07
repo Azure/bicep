@@ -19,6 +19,8 @@ namespace Bicep.Testing.Fakes.TypeSystem
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes() => this.resourceTypesByReference.Keys;
 
+        public bool HasType(ResourceTypeReference reference) => this.resourceTypesByReference.ContainsKey(reference);
+
         public ResourceTypeComponents LoadType(ResourceTypeReference reference) => this.resourceTypesByReference[reference];
     }
 }

@@ -4,10 +4,9 @@
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using static Bicep.Core.UnitTests.Utils.CompilationHelper;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
@@ -27,10 +26,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         // This linter rule is "Off" by default
-        private static ServiceBuilder Services => new ServiceBuilder().WithConfiguration(BicepTestConstants.BuiltInConfigurationWithStableAnalyzers);
-
-        private static CompilationResult Compile(string fileContents)
-            => CompilationHelper.Compile(Services, ("main.bicep", fileContents));
+        private static TestCompilationResult Compile(string fileContents) => TestCompiler
+            .ForInMemoryCompilation()
+            .WithConfiguration(TestConfigurations.BuiltInWithStableAnalyzers)
+            .CompileWithoutRestore(fileContents);
 
         protected void ExpectPass(string bicepText, Options? options = null)
         {

@@ -9,6 +9,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing.Extensions;
 using Bicep.Testing.IO;
 using Bicep.Testing.Mocks;
 using FluentAssertions;

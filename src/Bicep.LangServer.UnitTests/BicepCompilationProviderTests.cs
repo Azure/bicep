@@ -7,7 +7,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Compilation;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

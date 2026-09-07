@@ -2309,6 +2309,11 @@ namespace Bicep.Core.TypeSystem
                 flags |= ResourceTypeGenerationFlags.HasParentDefined;
             }
 
+            if (features.RuntimeValuesInTagsAndSkuEnabled)
+            {
+                flags |= ResourceTypeGenerationFlags.PermitRuntimeValuesInTagsAndSku;
+            }
+
             return (flags, parentType as ResourceType);
         }
     }

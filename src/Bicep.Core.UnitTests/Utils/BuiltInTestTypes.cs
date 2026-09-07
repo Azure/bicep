@@ -196,6 +196,50 @@ namespace Bicep.Core.UnitTests.Utils
                     ), null));
         }
 
+        private static ResourceTypeComponents VirtualMachineScaleSetsTestsType()
+        {
+            // Models the shape of Microsoft.Compute/virtualMachineScaleSets, including the "placement" property
+            // (https://github.com/Azure/bicep/issues/20171), to verify that a realistic resource can be authored
+            // using the "placement" top-level property without generating any diagnostics.
+            var resourceType = ResourceTypeReference.Parse("Test.Compute/virtualMachineScaleSets@2020-01-01");
+
+            var skuType = new ObjectType("Sku", TypeSymbolValidationFlags.Default, new[] {
+                new NamedTypeProperty("name", LanguageConstants.String, TypePropertyFlags.None, "The sku name."),
+                new NamedTypeProperty("tier", LanguageConstants.String, TypePropertyFlags.None, "The sku tier."),
+                new NamedTypeProperty("capacity", LanguageConstants.Int, TypePropertyFlags.None, "The sku capacity."),
+            }, null);
+
+            var upgradePolicyType = new ObjectType("UpgradePolicy", TypeSymbolValidationFlags.Default, new[] {
+                new NamedTypeProperty("mode", LanguageConstants.String, TypePropertyFlags.None, "The upgrade mode."),
+            }, null);
+
+            var propertiesType = new ObjectType("Properties", TypeSymbolValidationFlags.WarnOnPropertyTypeMismatch, new[] {
+                new NamedTypeProperty("overprovision", LanguageConstants.Bool, TypePropertyFlags.None, "Whether to overprovision the scale set."),
+                new NamedTypeProperty("upgradePolicy", upgradePolicyType, TypePropertyFlags.None, "The upgrade policy."),
+            }, null);
+
+            var placementType = new ObjectType("Placement", TypeSymbolValidationFlags.Default, new[] {
+                new NamedTypeProperty("zonePlacementPolicy", TypeHelper.CreateTypeUnion(
+                    TypeFactory.CreateStringLiteralType("NotSpecified"),
+                    TypeFactory.CreateStringLiteralType("Any"),
+                    TypeFactory.CreateStringLiteralType("None"),
+                    TypeFactory.CreateStringLiteralType("Auto"),
+                    LanguageConstants.String), TypePropertyFlags.Required, "The zone placement policy."),
+                new NamedTypeProperty("includeZones", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default), TypePropertyFlags.None, "The zones to include."),
+                new NamedTypeProperty("excludeZones", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default), TypePropertyFlags.None, "The zones to exclude."),
+            }, null);
+
+            return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None,
+                new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
+                    AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new[] {
+                        new NamedTypeProperty("location", LanguageConstants.String, TypePropertyFlags.None, "location property"),
+                        new NamedTypeProperty("sku", skuType, TypePropertyFlags.None, "sku property"),
+                        new NamedTypeProperty("zones", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default), TypePropertyFlags.None, "zones property"),
+                        new NamedTypeProperty("placement", placementType, TypePropertyFlags.None, "placement property"),
+                        new NamedTypeProperty("properties", propertiesType, TypePropertyFlags.Required, "properties property"),
+                    }), null));
+        }
+
         private static ResourceTypeComponents ListFunctionsType()
         {
             var resourceType = ResourceTypeReference.Parse("Test.Rp/listFuncTests@2020-01-01");
@@ -252,6 +296,7 @@ namespace Bicep.Core.UnitTests.Utils
             DiscriminatedPropertiesTestsType2(),
             FallbackPropertyTestsType(),
             ListFunctionsType(),
+            VirtualMachineScaleSetsTestsType(),
         ];
 
         public static INamespaceProvider Create()

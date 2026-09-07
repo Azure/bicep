@@ -15,8 +15,8 @@ using OrasProject.Oras.Content;
 using OrasProject.Oras.Oci;
 using OrasProject.Oras.Registry.Remote;
 using OrasProject.Oras.Registry.Remote.Auth;
-using OrasRepositoryClient = OrasProject.Oras.Registry.Remote.Repository;
 using OrasReference = OrasProject.Oras.Registry.Reference;
+using OrasRepositoryClient = OrasProject.Oras.Registry.Remote.Repository;
 
 namespace Bicep.Core.Registry.Oci.Oras;
 

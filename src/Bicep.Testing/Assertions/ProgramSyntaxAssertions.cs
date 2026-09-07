@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Syntax;
-using Bicep.Testing.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using FluentAssertions.Primitives;
 

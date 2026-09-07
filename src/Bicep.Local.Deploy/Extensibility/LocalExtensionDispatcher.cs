@@ -43,7 +43,7 @@ public class LocalExtensionDispatcher : IAsyncDisposable
     private readonly LocalDeploymentEngine localDeploymentEngine;
 
     public LocalExtensionDispatcher(
-        IConfigurationManager configurationManager,
+        IBicepConfigurationManager configurationManager,
         ILocalExtensionFactory localExtensionFactory,
         IArmDeploymentProvider armDeploymentProvider)
     {

@@ -48,7 +48,7 @@ public class DiagnosticLogger
                 break;
             case DiagnosticsFormat.Sarif:
                 var writer = options.SarifToStdout ? this.ioContext.Output.Writer : this.ioContext.Error.Writer;
-                LogSarifDiagnostics(writer, diagnosticsByBicepFile);
+                LogSarifDiagnostics(writer, diagnosticsByBicepFile, []);
                 break;
             default:
                 throw new NotImplementedException();
@@ -58,6 +58,17 @@ public class DiagnosticLogger
 
         return new DiagnosticSummary(
             HasErrors: hasErrors);
+    }
+
+    internal DiagnosticSummary LogSarifDiagnostics(
+        ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> diagnosticsByBicepFile,
+        ImmutableArray<(Bicep.IO.Abstraction.IOUri SourceUri, IDiagnostic Diagnostic)> diagnostics)
+    {
+        LogSarifDiagnostics(this.ioContext.Error.Writer, diagnosticsByBicepFile, diagnostics);
+
+        return new(
+            diagnosticsByBicepFile.Values.SelectMany(x => x).Any(x => x.IsError()) ||
+            diagnostics.Any(item => item.Diagnostic.IsError()));
     }
 
     private static void LogDefaultDiagnostics(ILogger logger, ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> diagnosticsByBicepFile)
@@ -78,7 +89,10 @@ public class DiagnosticLogger
         }
     }
 
-    private static void LogSarifDiagnostics(TextWriter writer, ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> diagnosticsByBicepFile)
+    private static void LogSarifDiagnostics(
+        TextWriter writer,
+        ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> diagnosticsByBicepFile,
+        ImmutableArray<(Bicep.IO.Abstraction.IOUri SourceUri, IDiagnostic Diagnostic)> additionalDiagnostics)
     {
         var results = new List<Result>();
         foreach (var (bicepFile, diagnostics) in diagnosticsByBicepFile)
@@ -88,6 +102,7 @@ public class DiagnosticLogger
                 results.Add(GetSarifDiagnostic(bicepFile, diagnostic));
             }
         }
+        results.AddRange(additionalDiagnostics.Select(item => GetSarifDiagnostic(item.SourceUri, 0, 0, item.Diagnostic)));
 
         // Add the results from the run to the sarif log, serialize and write to stderr.
         var sarifLog = new SarifLog
@@ -116,7 +131,15 @@ public class DiagnosticLogger
     private static Result GetSarifDiagnostic(BicepSourceFile sourceFile, IDiagnostic diagnostic)
     {
         (var line, var character) = TextCoordinateConverter.GetPosition(sourceFile.LineStarts, diagnostic.Span.Position);
+        return GetSarifDiagnostic(sourceFile.FileHandle.Uri, line, character, diagnostic);
+    }
 
+    private static Result GetSarifDiagnostic(
+        Bicep.IO.Abstraction.IOUri sourceUri,
+        int line,
+        int character,
+        IDiagnostic diagnostic)
+    {
         // build a a code description link if the Uri is assigned
         var codeDescription = diagnostic.Uri == null ? string.Empty : $" [{diagnostic.Uri.AbsoluteUri}]";
 
@@ -136,7 +159,7 @@ public class DiagnosticLogger
                     {
                         ArtifactLocation = new ArtifactLocation
                         {
-                            Uri = sourceFile.FileHandle.Uri.ToUri(),
+                            Uri = sourceUri.ToUri(),
                         },
                         Region = new Region
                         {

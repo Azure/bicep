@@ -25,8 +25,8 @@ using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Microsoft.Extensions.Logging;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 using OrasProject.Oras.Exceptions;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Bicep.Core.Registry
 {
@@ -69,7 +69,7 @@ namespace Bicep.Core.Registry
             // Check if the alias resolves to a mocked alias
             if (aliasName is not null)
             {
-                if (referencingFile.Configuration.ModuleAliasesMock.TryGetOciArtifactModuleAliasMock(aliasName).IsSuccess(out var mockAlias, out var _))
+                if (referencingFile.LoadConfiguration().ModuleAliasesMock.TryGetOciArtifactModuleAliasMock(aliasName).IsSuccess(out var mockAlias, out var _))
                 {
                     // Mock aliases only support modules, not extensions.
                     if (artifactType != ArtifactType.Module)
@@ -77,20 +77,24 @@ namespace Bicep.Core.Registry
                         return new(x => x.OciArtifactModuleAliasMapToFilePathOnlySupportsModules(aliasName));
                     }
 
-                    if (referencingFile.Configuration.ConfigFileUri is null)
+                    if (referencingFile.LoadConfiguration().ConfigFileUri is not { } configFileUri)
                     {
                         return new(x => x.ConfigurationFileNotFound("OciModuleAliasesMock"));
                     }
 
                     if (mockAlias.MapToFilePath is null)
                     {
-                        return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, referencingFile.Configuration.ConfigFileUri));
+                        return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, configFileUri));
                     }
+
+                    // Use the declaring config's URI so that a relative mapToFilePath inherited from a base
+                    // config is resolved from that base config's directory, not the leaf's.
+                    var resolveBaseUri = mockAlias.DeclaringConfigUri ?? configFileUri;
 
                     if (!OciArtifactMockedReference.TryParse(
                         referencingFile,
                         mockAlias.MapToFilePath,
-                        referencingFile.Configuration.ConfigFileUri,
+                        resolveBaseUri,
                         reference,
                         this.fileExplorer,
                         aliasName).IsSuccess(out var mockedRef, out var mockedFailureBuilder))
@@ -102,7 +106,7 @@ namespace Bicep.Core.Registry
                 }
             }
 
-            if (!OciArtifactReference.TryParse(referencingFile.Features, referencingFile.Configuration, artifactType, aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
+            if (!OciArtifactReference.TryParse(referencingFile.LoadFeatures(), referencingFile.LoadConfiguration(), artifactType, aliasName, reference).IsSuccess(out var @ref, out var failureBuilder))
             {
                 return new(failureBuilder);
             }
@@ -242,37 +246,37 @@ namespace Bicep.Core.Registry
             }
         }
 
-    private ImmutableDictionary<string, string>? TryGetOciAnnotations(OciArtifactReference reference)
-    {
-        try
-        {
-            return GetCachedManifest(reference).Annotations;
-        }
-        catch (Exception)
+        private ImmutableDictionary<string, string>? TryGetOciAnnotations(OciArtifactReference reference)
         {
             try
             {
-                var session = CreateSession(reference);
+                return GetCachedManifest(reference).Annotations;
+            }
+            catch (Exception)
+            {
                 try
                 {
+                    var session = CreateSession(reference);
+                    try
+                    {
 #pragma warning disable VSTHRD002
-                    var (_, manifest) = session.ResolveAsync(reference, CancellationToken.None).GetAwaiter().GetResult();
+                        var (_, manifest) = session.ResolveAsync(reference, CancellationToken.None).GetAwaiter().GetResult();
 #pragma warning restore VSTHRD002
-                    return manifest.Annotations ?? [];
+                        return manifest.Annotations ?? [];
+                    }
+                    finally
+                    {
+#pragma warning disable VSTHRD002
+                        session.DisposeAsync().AsTask().GetAwaiter().GetResult();
+#pragma warning restore VSTHRD002
+                    }
                 }
-                finally
+                catch
                 {
-#pragma warning disable VSTHRD002
-                    session.DisposeAsync().AsTask().GetAwaiter().GetResult();
-#pragma warning restore VSTHRD002
+                    return null;
                 }
-            }
-            catch
-            {
-                return null;
             }
         }
-    }
 
         public override async Task OnRestoreArtifacts(bool forceRestore)
         {
@@ -297,7 +301,7 @@ namespace Bicep.Core.Registry
             foreach (var reference in referencesEvaluated)
             {
                 // Block restore if the registry is not in the trusted list (BCP446).
-                // Invalid patterns in config are handled as warnings at config-load time (BCP447 via RootConfiguration)
+                // Invalid patterns in config are handled as warnings at config-load time (BCP447 via IBicepConfiguration)
                 // and are simply not included in the valid TrustedRegistries list, so they won't match here.
                 if (!registryConfiguration.IsRegistryTrusted(reference.Registry))
                 {
@@ -556,7 +560,7 @@ namespace Bicep.Core.Registry
 
         protected override IFileHandle GetArtifactLockFile(OciArtifactReference reference) => this.GetArtifactFile(reference, ArtifactFileType.Lock);
 
-        private async Task<(OciArtifactResult?, string? errorMessage)> TryRestoreArtifactAsync(RootConfiguration configuration, OciArtifactReference reference)
+        private async Task<(OciArtifactResult?, string? errorMessage)> TryRestoreArtifactAsync(IBicepConfiguration configuration, OciArtifactReference reference)
         {
             await using var session = CreateSession(reference);
 
@@ -603,7 +607,7 @@ namespace Bicep.Core.Registry
                     $"Set the BICEP_TRUSTED_REGISTRIES environment variable (comma-separated hostnames, e.g. \"contoso.example.com,*.contoso.io\") to allow it.");
             }
 
-            return transportFactory.CreateSession(reference, reference.Configuration.Cloud);
+            return transportFactory.CreateSession(reference, (CloudConfiguration)reference.Configuration.Cloud);
         }
 
         private static bool IsNotFoundException(Exception? exception) =>

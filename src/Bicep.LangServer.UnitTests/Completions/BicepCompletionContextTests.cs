@@ -3,7 +3,7 @@
 
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.LanguageServer.Completions;
+using Bicep.LanguageServer.Features.Language.Completion;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

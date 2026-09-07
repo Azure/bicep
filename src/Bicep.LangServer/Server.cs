@@ -8,11 +8,35 @@ using Bicep.Core.Features;
 using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
+using Bicep.LanguageServer.Features.Custom.Build;
+using Bicep.LanguageServer.Features.Custom.Configuration;
+using Bicep.LanguageServer.Features.Custom.Decompile;
+using Bicep.LanguageServer.Features.Custom.Deployments;
+using Bicep.LanguageServer.Features.Custom.ImportKubernetesManifest;
+using Bicep.LanguageServer.Features.Custom.InsertResource;
+using Bicep.LanguageServer.Features.Custom.Linter;
+using Bicep.LanguageServer.Features.Custom.LocalDeploy;
+using Bicep.LanguageServer.Features.Custom.ModuleRestore;
+using Bicep.LanguageServer.Features.Custom.Parameters;
 using Bicep.LanguageServer.Features.Custom.Visualization;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Features.Language.CodeAction;
+using Bicep.LanguageServer.Features.Language.CodeLens;
+using Bicep.LanguageServer.Features.Language.Completion;
+using Bicep.LanguageServer.Features.Language.Definition;
+using Bicep.LanguageServer.Features.Language.DocumentFormatting;
+using Bicep.LanguageServer.Features.Language.DocumentHighlight;
+using Bicep.LanguageServer.Features.Language.DocumentLink;
+using Bicep.LanguageServer.Features.Language.DocumentSymbol;
+using Bicep.LanguageServer.Features.Language.Hover;
+using Bicep.LanguageServer.Features.Language.PrepareRename;
+using Bicep.LanguageServer.Features.Language.References;
+using Bicep.LanguageServer.Features.Language.Rename;
+using Bicep.LanguageServer.Features.Language.SemanticTokens;
+using Bicep.LanguageServer.Features.Language.SignatureHelp;
+using Bicep.LanguageServer.Features.Language.TextDocumentSync;
+using Bicep.LanguageServer.Features.Workspace.DidChangeConfiguration;
+using Bicep.LanguageServer.Features.Workspace.DidChangeWatchedFiles;
 using Bicep.LanguageServer.Options;
-using Bicep.LanguageServer.Providers;
-using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Settings;
 using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,50 +57,56 @@ namespace Bicep.LanguageServer
             server = OmnisharpLanguageServer.PreInit(options =>
             {
                 options
-                    .WithHandler<BicepTextDocumentSyncHandler>()
-                    .WithHandler<BicepDocumentSymbolHandler>()
-                    .WithHandler<BicepDefinitionHandler>()
-                    .WithHandler<BicepDeploymentGraphHandler>()
-                    .WithHandler<VisualGraphUpdateHandler>()
-                    .WithHandler<VisualGraphLayoutHandler>()
-                    .WithHandler<VisualGraphNodeSourceHandler>()
-                    .WithHandler<GetDeploymentDataHandler>()
-                    .WithHandler<BicepReferencesHandler>()
-                    .WithHandler<BicepExternalSourceDocumentLinkHandler>()
-                    .WithHandler<BicepDocumentHighlightHandler>()
-                    .WithHandler<BicepDocumentFormattingHandler>()
-                    .WithHandler<BicepRenameHandler>()
-                    .WithHandler<BicepPrepareRenameHandler>()
-                    .WithHandler<BicepHoverHandler>()
-                    .WithHandler<BicepCompletionHandler>()
+                    // Language features
                     .WithHandler<BicepCodeActionHandler>()
                     .WithHandler<BicepCodeLensHandler>()
-                    .WithHandler<BicepCreateConfigFileHandler>()
-                    .WithHandler<BicepDidChangeWatchedFilesHandler>()
-                    .WithHandler<BicepEditLinterRuleCommandHandler>()
-                    .WithHandler<BicepGetRecommendedConfigLocationHandler>()
-                    .WithHandler<BicepSignatureHelpHandler>()
+                    .WithHandler<BicepCompletionHandler>()
+                    .WithHandler<BicepDefinitionHandler>()
+                    .WithHandler<BicepDocumentFormattingHandler>()
+                    .WithHandler<BicepDocumentHighlightHandler>()
+                    .WithHandler<BicepExternalSourceDocumentLinkHandler>()
+                    .WithHandler<BicepExternalSourceRequestHandler>()
+                    .WithHandler<BicepDocumentSymbolHandler>()
+                    .WithHandler<BicepHoverHandler>()
+                    .WithHandler<BicepPrepareRenameHandler>()
+                    .WithHandler<BicepReferencesHandler>()
+                    .WithHandler<BicepRenameHandler>()
                     .WithHandler<BicepSemanticTokensHandler>()
-                    .WithHandler<BicepTelemetryHandler>()
+                    .WithHandler<BicepSignatureHelpHandler>()
+                    .WithHandler<BicepTextDocumentSyncHandler>()
+
+                    // Workspace features
+                    .WithHandler<BicepDidChangeConfigurationHandler>()
+                    .WithHandler<BicepDidChangeWatchedFilesHandler>()
+
+                    // Custom features
                     .WithHandler<BicepBuildCommandHandler>()
-                    .WithHandler<BicepGenerateParamsCommandHandler>()
                     .WithHandler<BicepBuildParamsCommandHandler>()
-                    .WithHandler<BicepDeploymentStartCommandHandler>()
-                    // Base handler (ExecuteTypedResponseCommandHandlerBase) is serial. This blocks other commands on the client side.
-                    // To avoid the above issue, we'll change the RequestProcessType to parallel
-                    .WithHandler<BicepDeploymentWaitForCompletionCommandHandler>(new JsonRpcHandlerOptions() { RequestProcessType = RequestProcessType.Parallel })
+                    .WithHandler<BicepCreateConfigFileHandler>()
+                    .WithHandler<BicepGetRecommendedConfigLocationHandler>()
                     .WithHandler<BicepDecompileCommandHandler>()
                     .WithHandler<BicepDecompileSaveCommandHandler>()
                     .WithHandler<BicepDecompileForPasteCommandHandler>()
                     .WithHandler<BicepDecompileParamsCommandHandler>()
+                    .WithHandler<GetDeploymentDataHandler>()
+                    .WithHandler<BicepDeploymentStartCommandHandler>()
+                    // Base handler (ExecuteTypedResponseCommandHandlerBase) is serial. This blocks other commands on the client side.
+                    // To avoid the above issue, we'll change the RequestProcessType to parallel
+                    .WithHandler<BicepDeploymentWaitForCompletionCommandHandler>(new JsonRpcHandlerOptions() { RequestProcessType = RequestProcessType.Parallel })
                     .WithHandler<BicepDeploymentScopeRequestHandler>()
                     .WithHandler<BicepDeploymentParametersHandler>()
                     .WithHandler<ImportKubernetesManifestHandler>()
-                    .WithHandler<BicepForceModulesRestoreCommandHandler>()
-                    .WithHandler<BicepExternalSourceRequestHandler>()
                     .WithHandler<InsertResourceHandler>()
-                    .WithHandler<ConfigurationSettingsHandler>()
+                    .WithHandler<BicepEditLinterRuleCommandHandler>()
                     .WithHandler<LocalDeployHandler>()
+                    .WithHandler<BicepForceModulesRestoreCommandHandler>()
+                    .WithHandler<BicepGenerateParamsCommandHandler>()
+                    .WithHandler<VisualGraphUpdateHandler>()
+                    .WithHandler<VisualGraphLayoutHandler>()
+                    .WithHandler<VisualGraphNodeSourceHandler>()
+                    .WithHandler<VisualResourceTypeNamespacesHandler>()
+                    .WithHandler<VisualResourceTypesHandler>()
+                    .WithHandler<PrepareVisualResourceHandler>()
                     .WithServices(services => services.AddServerDependencies(bicepLangServerOptions));
 
                 onOptionsFunc(options);

@@ -15,6 +15,7 @@ using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -954,7 +955,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             parsingErrorLookup ??= EmptyDiagnosticLookup.Instance;
 
-            var model = CompilationHelper.Compile("").Compilation.GetEntrypointSemanticModel();
+            var model = TestCompiler.ForInMemoryCompilation().CompileWithoutRestore("").Compilation.GetEntrypointSemanticModel();
             var typeManager = new TypeManager(model, binderMock.Object);
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();

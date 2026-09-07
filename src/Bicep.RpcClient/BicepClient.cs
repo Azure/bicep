@@ -139,6 +139,13 @@ internal class BicepClient : IBicepClient
     }
 
     /// <inheritdoc/>
+    public async Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken)
+    {
+        await EnsureMinimumVersion("0.47.0", nameof(GenerateDocs), cancellationToken).ConfigureAwait(false);
+        return await jsonRpcClient.SendRequest<GenerateDocsRequest, GenerateDocsResponse>("bicep/generateDocs", request, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc/>
     public Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken)
         => jsonRpcClient.SendRequest<GetDeploymentGraphRequest, GetDeploymentGraphResponse>("bicep/getDeploymentGraph", request, cancellationToken);
 

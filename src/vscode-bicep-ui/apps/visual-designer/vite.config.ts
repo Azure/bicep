@@ -125,11 +125,19 @@ export default defineConfig({
     ],
   },
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       output: {
         entryFileNames: `[name].js`,
         chunkFileNames: `chunks/[name].js`,
         assetFileNames: `assets/[name].[ext]`,
+        codeSplitting: {
+          groups: [
+            {
+              name: "azure-icons",
+              test: /icon-service-.*\.js$/,
+            },
+          ],
+        },
       },
     },
   },

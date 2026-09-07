@@ -16,17 +16,18 @@ using Bicep.Core.Utils;
 using Bicep.Decompiler;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Completions;
-using Bicep.LanguageServer.Configuration;
-using Bicep.LanguageServer.Deploy;
+using Bicep.LanguageServer.BicepConfig;
+using Bicep.LanguageServer.ClientCapabilities;
+using Bicep.LanguageServer.Compilation;
+using Bicep.LanguageServer.Features.Custom.Deployments.Services;
+using Bicep.LanguageServer.Features.Custom.InsertResource;
+using Bicep.LanguageServer.Features.Custom.ModuleRestore;
 using Bicep.LanguageServer.Features.Custom.Visualization;
+using Bicep.LanguageServer.Features.Language.Completion;
+using Bicep.LanguageServer.Features.Language.Completion.Snippets;
+using Bicep.LanguageServer.Features.Language.Definition;
 using Bicep.LanguageServer.Options;
-using Bicep.LanguageServer.Providers;
-using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Settings;
-using Bicep.LanguageServer.Snippets;
-using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
 using Bicep.Local.Deploy.Azure;
 using Bicep.Local.Deploy.Extensibility;
@@ -46,14 +47,13 @@ public static class IServiceCollectionExtensions
         .AddBicepLocalDeploy()
         .AddSingleton<IActiveSourceFileSet, ActiveSourceFileSet>()
         .AddSingleton<ISnippetsProvider, SnippetsProvider>()
-        .AddSingleton<ITelemetryProvider, TelemetryProvider>()
         .AddSingleton<ICompilationManager, BicepCompilationManager>()
         .AddSingleton<ICompilationProvider, BicepCompilationProvider>()
         .AddSingleton<ISymbolResolver, BicepSymbolResolver>()
         .AddSingleton<ICompletionProvider, BicepCompletionProvider>()
         .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>()
         .AddSingleton<IAzResourceProvider, AzResourceProvider>()
-        .AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>()
+        .AddSingleton<IBicepConfigLifecycleManager, BicepConfigLifecycleManager>()
         .AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>()
         .AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>()
         .AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>()
@@ -63,6 +63,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<ISettingsProvider, SettingsProvider>()
         .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>()
         .AddSingleton<IVisualGraphLayoutEngine, MsaglVisualGraphLayoutEngine>()
+        .AddSingleton<IVisualResourceCreationService, VisualResourceCreationService>()
         .AddSingleton(bicepLangServerOptions)
         .AddSingleton<DocumentSelectorFactory>();
 }

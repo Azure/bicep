@@ -18,6 +18,9 @@ namespace Bicep.Testing.Fakes.TypeSystem
             this.provider = provider;
         }
 
+        public static FakeResourceTypeProviderFactory ForAzureResourceTypeLoader(IResourceTypeLoader resourceTypeLoader) =>
+            new(new AzResourceTypeProvider(resourceTypeLoader));
+
         public static FakeResourceTypeProviderFactory ForAzureResourceTypes(IEnumerable<ResourceTypeComponents> resourceTypes) =>
             new(new AzResourceTypeProvider(new FakeResourceTypeLoader(resourceTypes)));
 

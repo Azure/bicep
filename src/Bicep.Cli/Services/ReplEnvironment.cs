@@ -47,7 +47,7 @@ public class ReplEnvironment
         this.auxiliaryDirectory = auxiliaryFileExplorer.GetDirectory(IOUri.FromFilePath(auxiliaryFileSystem.Directory.GetCurrentDirectory()));
     }
 
-    public string HighlightInputLine(string prefix, string prevLines, IReadOnlyList<Rune> lineBuffer, int cursorOffset, bool printPrevLines)
+    public string HighlightInputLine(string prefix, string prevLines, IReadOnlyList<Rune> lineBuffer, int cursorOffset, bool printPrevLines, int terminalWidth = int.MaxValue, int? previousCursorOffset = null)
     {
         var currentLine = string.Concat(lineBuffer);
         var fullContent = $"{prevLines}{currentLine}";
@@ -61,12 +61,12 @@ public class ReplEnvironment
         {
             var historyHighlighted = PrintHelper.PrintWithSyntaxHighlighting(model, fullContent, 0);
 
-            return PrintHelper.PrintInputLine(prefix, historyHighlighted, width);
+            return PrintHelper.PrintInputLine(prefix, historyHighlighted, width, terminalWidth, previousCursorOffset);
         }
 
         var highlighted = PrintHelper.PrintWithSyntaxHighlighting(model, fullContent, lineStart);
 
-        return PrintHelper.PrintInputLine(prefix, highlighted, width);
+        return PrintHelper.PrintInputLine(prefix, highlighted, width, terminalWidth, previousCursorOffset);
     }
 
     public string HighlightSyntax(SyntaxBase syntax)

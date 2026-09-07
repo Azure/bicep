@@ -1,42 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-declare const window: Record<string, unknown>;
-
-// See https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom.
-// eslint-disable-next-line jest/require-hook
-Object.defineProperty(window, 'CSS', {
-  writable: true,
-  value: {
-    escape: (value: string) => value.replace(/[^a-zA-Z0-9_\-]/g, (c) => `\\${c}`),
-    supports: () => false,
-  },
-});
-
-// eslint-disable-next-line jest/require-hook
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: jest.fn().mockImplementation(query => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
-});
-
 import { readdirSync, existsSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
 import path, { dirname, basename, extname } from 'path';
 import { spawnSync } from 'child_process';
-import { BicepLanguage } from '../src/bicep';
+import { BicepLanguage } from '../src/bicep.js';
 import { editor, languages } from 'monaco-editor-core';
 import { escape } from 'html-escaper';
 import { env } from 'process';
-import { expectFileContents, baselineRecordEnabled } from './utils';
+import { expectFileContents, baselineRecordEnabled } from './utils.js';
 
 const tokenToHljsClass: Record<string, string | null> = {
   'string.bicep': 'string',
@@ -122,7 +95,7 @@ ${html}
   };
 }
 
-const baselinesDir = `${__dirname}/baselines`;
+const baselinesDir = path.resolve('test/baselines');
 
 const baselineFiles = readdirSync(baselinesDir)
   .filter(p => extname(p) === '.bicep' || extname(p) === '.bicepparam')
@@ -134,9 +107,8 @@ for (const filePath of baselineFiles) {
       // skip the invalid files - we don't expect them to compile
 
       it('can be compiled', async () => {
-        const cliCsproj = `${__dirname}/../../Bicep.Cli/Bicep.Cli.csproj`;
+        const cliCsproj = path.resolve('../Bicep.Cli/Bicep.Cli.csproj');
 
-        // eslint-disable-next-line jest/no-conditional-in-test
         if (!existsSync(cliCsproj)) {
           throw new Error(`Unable to find '${cliCsproj}'`);
         }

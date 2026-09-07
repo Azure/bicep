@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Features.Custom.Visualization.Models;
 using MediatR;

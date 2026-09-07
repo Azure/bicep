@@ -5,7 +5,9 @@ using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
+using Bicep.Testing;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -14,22 +16,21 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class SecureParamsInParametersFileRuleTests : LinterRuleTestsBase
     {
-        private static readonly Uri MainUri = new("file:///main.bicep");
-        private static readonly Uri ParamsUri = new("file:///main.bicepparam");
+        private static readonly IOUri MainUri = TestFileUri.FromInMemoryPath("main.bicep");
+        private static readonly IOUri ParamsUri = TestFileUri.FromInMemoryPath("main.bicepparam");
 
-        private static ServiceBuilder ServiceBuilder => new ServiceBuilder()
-            .WithConfiguration(BicepTestConstants.BuiltInConfigurationWithStableAnalyzers)
+        private static TestCompiler CreateCompiler() => TestCompiler.ForInMemoryCompilation()
+            .WithConfiguration(TestConfigurations.BuiltInWithStableAnalyzers)
             .WithEmptyAzResources();
 
         private static Compilation Compile(string mainBicep, string paramsBicep)
         {
-            var files = new Dictionary<Uri, string>
-            {
-                [MainUri] = mainBicep,
-                [ParamsUri] = paramsBicep,
-            };
+            var result = CreateCompiler().CompileWithoutRestore(
+                "main.bicepparam",
+                ("main.bicep", mainBicep),
+                ("main.bicepparam", paramsBicep));
 
-            return ServiceBuilder.BuildCompilation(files, ParamsUri);
+            return result.Compilation;
         }
 
         [TestMethod]
@@ -188,19 +189,15 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void Rule_DoesNotRunOnBicepFiles()
         {
-            var compilation = ServiceBuilder.BuildCompilation(
-                new Dictionary<Uri, string>
-                {
-                    [MainUri] = """
-                        @secure()
-                        param secureParam string
+            var compilation = CreateCompiler().CompileWithoutRestore(
+                """
+                    @secure()
+                    param secureParam string
 
-                        var insecureVar = secureParam
+                    var insecureVar = secureParam
 
-                        output insecureOutput string = insecureVar
-                        """,
-                },
-                MainUri);
+                    output insecureOutput string = insecureVar
+            """).Compilation;
 
             compilation.GetSourceFileDiagnostics(MainUri).Should().NotContainDiagnostic(SecureParamsInParametersFileRule.Code);
         }

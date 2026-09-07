@@ -24,6 +24,11 @@ public interface IBicepClient : IDisposable
     Task<FormatResponse> Format(FormatRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Renders documentation for a Bicep module.
+    /// </summary>
+    Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Returns the deployment graph for a Bicep file.
     /// </summary>
     Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken = default);

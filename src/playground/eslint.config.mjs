@@ -48,7 +48,7 @@ const copyrightNoticeRule = {
 };
 
 export default tseslint.config({
-  files: ["src/**/*.ts"],
+  files: ["playwright.config.ts", "src/**/*.ts", "tests/**/*.ts"],
   extends: [
     eslint.configs.recommended,
     eslintPluginPrettierRecommended,

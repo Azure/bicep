@@ -5,10 +5,9 @@ using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using static Bicep.Core.UnitTests.Utils.CompilationHelper;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
@@ -16,10 +15,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     public class NoHardcodedLocationRuleTests : LinterRuleTestsBase
     {
         // This linter rule is "Off" by default
-        private static ServiceBuilder Services => new ServiceBuilder().WithConfiguration(BicepTestConstants.BuiltInConfigurationWithStableAnalyzers);
+        private static TestCompiler CreateCompiler() => TestCompiler
+            .ForInMemoryCompilation()
+          .WithConfiguration(TestConfigurations.BuiltInWithStableAnalyzers);
 
-        private static CompilationResult Compile(string fileContents)
-            => CompilationHelper.Compile(Services, ("main.bicep", fileContents));
+        private static TestCompilationResult Compile(string fileContents)
+            => CreateCompiler().CompileWithoutRestore(fileContents);
 
         [TestMethod]
         public void If_ResLocationIs_Global_ShouldPass()
@@ -288,8 +289,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void If_ResLocationIs_VariableDefinedAsLiteral_UsedInResourcesAndModules_ShouldFailJustOnVariableDef_WithFixToChangeToParam()
         {
-            var result = CompilationHelper.Compile(
-                Services,
+            var result = CreateCompiler().CompileWithoutRestore(
                 ("main.bicep", @"
                     module m1 'module1.bicep' = [for i in range(0, 10): {
                       params: {
@@ -612,8 +612,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void ForLoop2_Module()
         {
-            var result = CompilationHelper.Compile(
-                Services,
+            var result = CreateCompiler().CompileWithoutRestore(
                 ("main.bicep", @"
                   module m2 'module1.bicep' = [for i in range(0, 10): {
                     params: {
@@ -636,8 +635,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestMethod]
         public void ResLoc_If_Module_HasLocationProperty_WithDefault_AndStringLiteralPassedIn_ShouldFail()
         {
-            var result = CompilationHelper.Compile(
-                Services,
+            var result = CreateCompiler().CompileWithoutRestore(
                 ("main.bicep", @"
                     module m1 'module1.bicep' = {
                       params: {

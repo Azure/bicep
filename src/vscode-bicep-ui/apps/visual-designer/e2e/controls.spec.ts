@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { expect, test } from "@playwright/test";
-import { getGraphTransform, loadSampleGraph, openVisualDesigner } from "./fixtures";
+import { getGraphTransform, loadSampleGraph, openVisualDesigner, waitForStableNodePosition } from "./fixtures";
 
 test.describe("Status bar", () => {
   test.beforeEach(async ({ page }) => {
@@ -87,6 +87,44 @@ test.describe("Control bar", () => {
 
     await page.getByTestId("control-fit-view").click();
     await expect.poll(async () => await getGraphTransform(page), { timeout: 5_000 }).not.toBe(zoomed);
+  });
+
+  test("reset layout returns a dragged node to its laid-out position", async ({ page }) => {
+    await loadSampleGraph(page, "flat");
+
+    // Nodes spring into place after layout; measuring or dragging before that settles races it.
+    const node = page.locator('[data-node-id="subnet"]');
+    const laidOut = await waitForStableNodePosition(page, "subnet");
+    const size = await node.boundingBox();
+
+    const from = { x: laidOut.x + size!.width / 2, y: laidOut.y + size!.height / 2 };
+    await page.mouse.move(from.x, from.y);
+    await page.mouse.down();
+    for (let step = 1; step <= 10; step++) {
+      await page.mouse.move(from.x + step * 14, from.y + step * 11);
+      // d3-drag tracks movement per event; dispatched back to back they can coalesce, so give each
+      // move its own frame.
+      await page.waitForTimeout(16);
+    }
+    await page.mouse.up();
+
+    await expect
+      .poll(async () => {
+        const box = await node.boundingBox();
+        return !!box && Math.abs(box.x - laidOut.x) > 100;
+      })
+      .toBe(true);
+
+    // Layout is derived from topology and measured sizes only -- the client never sends positions
+    // back -- so a reset is deterministic and restores the original coordinates exactly.
+    await page.getByTestId("control-reset-layout").click();
+
+    await expect
+      .poll(async () => {
+        const box = await node.boundingBox();
+        return !!box && Math.abs(box.x - laidOut.x) <= 1 && Math.abs(box.y - laidOut.y) <= 1;
+      })
+      .toBe(true);
   });
 });
 
