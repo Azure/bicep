@@ -106,7 +106,9 @@ namespace Bicep.Core.Emit
                 if (functionSymbol.FunctionFlags.HasFlag(FunctionFlags.DirectAssignment))
                 {
                     var (_, levelUpSymbol) = syntaxRecorder.Skip(1).SkipWhile(x => x.syntax is TernaryOperationSyntax).FirstOrDefault();
-                    if (levelUpSymbol is null)
+                    var parameterAssignment = syntaxRecorder.Select(x => x.syntax).OfType<ParameterAssignmentSyntax>().FirstOrDefault();
+                    if (levelUpSymbol is null ||
+                        (parameterAssignment is not null && !ReferenceEquals(parameterAssignment.Value, syntax)))
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).FunctionOnlyValidWithDirectAssignment(functionSymbol.Name));
                     }
