@@ -146,8 +146,8 @@ Please raise bug reports or feature requests under [Bicep Issues][04] and tag wi
 [02]: https://code.visualstudio.com/docs/copilot/overview
 [03]: https://github.com/Azure/bicep/issues/17660
 [04]: https://github.com/Azure/bicep/issues
-[05]: ../images/refresh-mcp-tools.png
-[06]: ../images/mcp-agent-mode.png
-[07]: ../images/mcp-tools-selection.png
-[08]: ../images/use-agent-mode-with-bicep.png
-[09]: ../../CONTRIBUTING.md
+[05]: images/refresh-mcp-tools.png
+[06]: images/mcp-agent-mode.png
+[07]: images/mcp-tools-selection.png
+[08]: images/use-agent-mode-with-bicep.png
+[09]: ../CONTRIBUTING.md
