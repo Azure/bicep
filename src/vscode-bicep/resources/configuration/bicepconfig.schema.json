@@ -164,6 +164,7 @@
     },
     "cloud": {
       "title": "Cloud",
+      "description": "Selects Azure cloud endpoints and credentials. Custom or modified profiles require process-level approval through BICEP_TRUSTED_CLOUDS; settings in bicepconfig.json cannot grant that approval. Set BICEP_TRUSTED_CLOUDS to a JSON array such as [{\"resourceManagerEndpoint\":\"https://management.example.com\",\"activeDirectoryAuthority\":\"https://login.example.com\"}]. Each entry approves one exact normalized endpoint pair; wildcards are not supported.",
       "type": "object",
       "additionalProperties": false,
       "required": ["currentProfile"],
@@ -173,7 +174,7 @@
           "description": "The current cloud profile",
           "anyOf": [
             {
-              "enum": ["AzureCloud", "AzureChinaCloud", "AzureUSGovernment"]
+              "enum": ["AzureCloud", "AzureBleuCloud", "AzureChinaCloud", "AzureGermanyCloud", "AzureUSGovernment"]
             },
             {
               "type": "string"
@@ -183,7 +184,7 @@
         },
         "profiles": {
           "title": "Profiles",
-          "description": "The clould profile definitions",
+          "description": "The cloud profile definitions. Canonical built-in profiles are trusted by default; custom or modified profiles require external approval.",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/cloudProfile"

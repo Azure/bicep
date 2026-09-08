@@ -22,10 +22,12 @@ public class BicepConfigurationManager : IBicepConfigurationManager
     private readonly ConcurrentDictionary<IFileHandle, ResultWithDiagnostic<IBicepConfigurationChain>> chainCache = new();
     private readonly ConcurrentDictionary<IFileHandle, ImmutableHashSet<IOUri>> chainDependencies = new();
     private readonly IFileExplorer fileExplorer;
+    private readonly CloudConfigurationTrustPolicy cloudTrustPolicy;
 
-    public BicepConfigurationManager(IFileExplorer fileExplorer)
+    public BicepConfigurationManager(IFileExplorer fileExplorer, CloudConfigurationTrustPolicy cloudTrustPolicy)
     {
         this.fileExplorer = fileExplorer;
+        this.cloudTrustPolicy = cloudTrustPolicy;
     }
 
     public IBicepConfigurationChain GetConfigurationChain(IOUri sourceFileUri)
@@ -105,7 +107,7 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         return this.chainDependencies.TryGetValue(leafHandle, out var deps) ? deps : [];
     }
 
-    private static IBicepConfigurationChain GetBuiltInChain(IEnumerable<IDiagnostic>? diagnostics = null)
+    private IBicepConfigurationChain GetBuiltInChain(IEnumerable<IDiagnostic>? diagnostics = null)
     {
         var builtInConfig = GetBuiltInConfiguration(diagnostics);
 
@@ -194,7 +196,7 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         return new(BuildChain(leafUri, rawLayers));
     }
 
-    private static IBicepConfigurationChain BuildChain(IOUri leafUri, List<(IFileHandle FileHandle, JsonElement Element)> rawLayers)
+    private IBicepConfigurationChain BuildChain(IOUri leafUri, List<(IFileHandle FileHandle, JsonElement Element)> rawLayers)
     {
         // Merge: built-in first, then base configs in reverse order, leaf last (leaf wins).
         var accumulated = BicepConfiguration.BuiltInConfigurationElement;
@@ -207,7 +209,9 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         IBicepConfiguration effectiveConfig;
         try
         {
-            effectiveConfig = BicepConfiguration.Bind(accumulated, leafUri);
+            effectiveConfig = AddCloudTrustDiagnostics(
+                BicepConfiguration.Bind(accumulated, leafUri),
+                leafUri);
         }
         catch (ConfigurationException exception)
         {
@@ -232,7 +236,9 @@ public class BicepConfigurationManager : IBicepConfigurationManager
                 {
                     var merged = BicepConfiguration.BuiltInConfigurationElement.Merge(StripExtendsProperty(layer.Element));
 
-                    return (IBicepConfiguration)BicepConfiguration.Bind(merged, layer.FileHandle.Uri);
+                    return AddCloudTrustDiagnostics(
+                        BicepConfiguration.Bind(merged, layer.FileHandle.Uri),
+                        layer.FileHandle.Uri);
                 }
                 catch (ConfigurationException)
                 {
@@ -242,6 +248,17 @@ public class BicepConfigurationManager : IBicepConfigurationManager
             .ToImmutableArray();
 
         return new BicepConfigurationChain(effectiveConfig, layers);
+    }
+
+    private IBicepConfiguration AddCloudTrustDiagnostics(IBicepConfiguration configuration, IOUri configFileUri)
+    {
+        var diagnostics = configuration.GetDiagnostics().ToImmutableArray();
+        if (!cloudTrustPolicy.IsTrusted(configuration.Cloud))
+        {
+            diagnostics = diagnostics.Add(ConfigDiagnosticBuilder.UntrustedCloudProfile(configFileUri));
+        }
+
+        return configuration.With(diagnostics: diagnostics);
     }
 
     /// <summary>

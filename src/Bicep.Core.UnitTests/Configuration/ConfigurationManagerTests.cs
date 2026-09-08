@@ -41,6 +41,10 @@ namespace Bicep.Core.UnitTests.Configuration
         "cloud": {
           "currentProfile": "AzureCloud",
           "profiles": {
+            "AzureBleuCloud": {
+              "resourceManagerEndpoint": "https://management.sovcloud-api.fr",
+              "activeDirectoryAuthority": "https://login.sovcloud-identity.fr"
+            },
             "AzureChinaCloud": {
               "resourceManagerEndpoint": "https://management.chinacloudapi.cn",
               "activeDirectoryAuthority": "https://login.chinacloudapi.cn"
@@ -48,6 +52,10 @@ namespace Bicep.Core.UnitTests.Configuration
             "AzureCloud": {
               "resourceManagerEndpoint": "https://management.azure.com",
               "activeDirectoryAuthority": "https://login.microsoftonline.com"
+            },
+            "AzureGermanyCloud": {
+              "resourceManagerEndpoint": "https://management.sovcloud-api.de",
+              "activeDirectoryAuthority": "https://login.sovcloud-identity.de"
             },
             "AzureUSGovernment": {
               "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
@@ -173,6 +181,10 @@ namespace Bicep.Core.UnitTests.Configuration
         "cloud": {
           "currentProfile": "AzureCloud",
           "profiles": {
+            "AzureBleuCloud": {
+              "resourceManagerEndpoint": "https://management.sovcloud-api.fr",
+              "activeDirectoryAuthority": "https://login.sovcloud-identity.fr"
+            },
             "AzureChinaCloud": {
               "resourceManagerEndpoint": "https://management.chinacloudapi.cn",
               "activeDirectoryAuthority": "https://login.chinacloudapi.cn"
@@ -180,6 +192,10 @@ namespace Bicep.Core.UnitTests.Configuration
             "AzureCloud": {
               "resourceManagerEndpoint": "https://management.azure.com",
               "activeDirectoryAuthority": "https://login.microsoftonline.com"
+            },
+            "AzureGermanyCloud": {
+              "resourceManagerEndpoint": "https://management.sovcloud-api.de",
+              "activeDirectoryAuthority": "https://login.sovcloud-identity.de"
             },
             "AzureUSGovernment": {
               "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
@@ -272,6 +288,10 @@ namespace Bicep.Core.UnitTests.Configuration
         "cloud": {
           "currentProfile": "AzureCloud",
           "profiles": {
+            "AzureBleuCloud": {
+              "resourceManagerEndpoint": "https://management.sovcloud-api.fr",
+              "activeDirectoryAuthority": "https://login.sovcloud-identity.fr"
+            },
             "AzureChinaCloud": {
               "resourceManagerEndpoint": "https://management.chinacloudapi.cn",
               "activeDirectoryAuthority": "https://login.chinacloudapi.cn"
@@ -279,6 +299,10 @@ namespace Bicep.Core.UnitTests.Configuration
             "AzureCloud": {
               "resourceManagerEndpoint": "https://management.azure.com",
               "activeDirectoryAuthority": "https://login.microsoftonline.com"
+            },
+            "AzureGermanyCloud": {
+              "resourceManagerEndpoint": "https://management.sovcloud-api.de",
+              "activeDirectoryAuthority": "https://login.sovcloud-identity.de"
             },
             "AzureUSGovernment": {
               "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
@@ -394,7 +418,7 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             // Arrange.
             var fileExplorer = new InMemoryFileExplorer();
-            var sut = new BicepConfigurationManager(fileExplorer);
+            var sut = new BicepConfigurationManager(fileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
             var sourceFileUri = TestFileUri.FromInMemoryPath("path/to/nonexistent/main.bicep");
 
             // Act.
@@ -409,7 +433,7 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             // Arrange.
             var fileSet = InMemoryTestFileSet.Create(("bicepconfig.json", ""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
 
             // Act & Assert.
             var diagnostics = sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep")).GetDiagnostics().ToImmutableArray();
@@ -433,7 +457,7 @@ namespace Bicep.Core.UnitTests.Configuration
             });
 
             var fileSet = new MockFileSystemTestFileSet(fileSystem);
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
 
             // Act & Assert.
             var diagnostics = sut.GetEffectiveConfiguration(mainFileUri).GetDiagnostics().ToImmutableArray();
@@ -471,6 +495,10 @@ namespace Bicep.Core.UnitTests.Configuration
             "cloud": {
                 "currentProfile": "AzureCloud",
                 "profiles": {
+                "AzureBleuCloud": {
+                    "resourceManagerEndpoint": "https://management.sovcloud-api.fr",
+                    "activeDirectoryAuthority": "https://login.sovcloud-identity.fr"
+                },
                 "AzureChinaCloud": {
                     "resourceManagerEndpoint": "https://management.chinacloudapi.cn",
                     "activeDirectoryAuthority": "https://login.chinacloudapi.cn"
@@ -478,6 +506,10 @@ namespace Bicep.Core.UnitTests.Configuration
                 "AzureCloud": {
                     "resourceManagerEndpoint": "https://management.azure.com",
                     "activeDirectoryAuthority": "https://login.microsoftonline.com"
+                },
+                "AzureGermanyCloud": {
+                    "resourceManagerEndpoint": "https://management.sovcloud-api.de",
+                    "activeDirectoryAuthority": "https://login.sovcloud-identity.de"
                 },
                 "AzureUSGovernment": {
                     "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
@@ -599,7 +631,7 @@ namespace Bicep.Core.UnitTests.Configuration
             fileSystemMock.Setup(x => x.File.Exists(It.IsAny<string>())).Throws(new IOException("Oops."));
 
             var fileExplorer = new FileSystemFileExplorer(fileSystemMock.Object);
-            var sut = new BicepConfigurationManager(fileExplorer);
+            var sut = new BicepConfigurationManager(fileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
             var configuration = sut.GetEffectiveConfiguration(new IOUri(IOUriScheme.File, "", "/foo/bar/main.bicep"));
 
             // Act & Assert.
@@ -617,7 +649,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "currentProfile": "MyCloud"
               }
             }
-            """, @"The cloud profile ""MyCloud"" does not exist. Available profiles include ""AzureChinaCloud"", ""AzureCloud"", ""AzureUSGovernment"".")]
+            """, @"The cloud profile ""MyCloud"" does not exist. Available profiles include ""AzureBleuCloud"", ""AzureChinaCloud"", ""AzureCloud"", ""AzureGermanyCloud"", ""AzureUSGovernment"".")]
         [DataRow("""
             {
               "cloud": {
@@ -670,7 +702,7 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             // Arrange.
             var fileSet = InMemoryTestFileSet.Create(("bicepconfig.json", configurationContents));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
 
             // Act & Assert.
             var diagnostics = sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep")).GetDiagnostics().ToImmutableArray();
@@ -732,7 +764,7 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             // Arrange.
             var fileSet = InMemoryTestFileSet.Create(("bicepconfig.json", configurationContents));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
 
 
             // Act.
@@ -821,7 +853,7 @@ namespace Bicep.Core.UnitTests.Configuration
                       }
                     }
                     """));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
 
             // Act.
             var configuration = sut.GetEffectiveConfiguration(fileSet.GetUri("modules/vnet.bicep"));
@@ -832,6 +864,10 @@ namespace Bicep.Core.UnitTests.Configuration
                   "cloud": {
                     "currentProfile": "MyCloud",
                     "profiles": {
+                      "AzureBleuCloud": {
+                        "resourceManagerEndpoint": "https://management.sovcloud-api.fr",
+                        "activeDirectoryAuthority": "https://login.sovcloud-identity.fr"
+                      },
                       "AzureChinaCloud": {
                         "resourceManagerEndpoint": "https://management.chinacloudapi.cn",
                         "activeDirectoryAuthority": "https://login.chinacloudapi.cn"
@@ -839,6 +875,10 @@ namespace Bicep.Core.UnitTests.Configuration
                       "AzureCloud": {
                         "resourceManagerEndpoint": "https://management.azure.com",
                         "activeDirectoryAuthority": "https://login.microsoftonline.com"
+                      },
+                      "AzureGermanyCloud": {
+                        "resourceManagerEndpoint": "https://management.sovcloud-api.de",
+                        "activeDirectoryAuthority": "https://login.sovcloud-identity.de"
                       },
                       "AzureUSGovernment": {
                         "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
@@ -986,7 +1026,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     }
                     """));
 
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
 
             // Act.
             var configuration = sut.GetEffectiveConfiguration(fileSet.GetUri("repo/modules/bicepconfig.json"));
@@ -1014,7 +1054,7 @@ namespace Bicep.Core.UnitTests.Configuration
                   }
                 }
                 """));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
 
             // Act.
             var configuration = sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep"));
@@ -1047,7 +1087,7 @@ namespace Bicep.Core.UnitTests.Configuration
                   }
                 }
                 """));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
 
             // Act.
             var configuration = sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep"));

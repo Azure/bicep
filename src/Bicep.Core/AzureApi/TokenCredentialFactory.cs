@@ -9,8 +9,16 @@ namespace Bicep.Core.AzureApi
 {
     public class TokenCredentialFactory : ITokenCredentialFactory
     {
+        private readonly CloudConfigurationTrustPolicy cloudTrustPolicy;
+
+        public TokenCredentialFactory(CloudConfigurationTrustPolicy cloudTrustPolicy)
+        {
+            this.cloudTrustPolicy = cloudTrustPolicy;
+        }
+
         public TokenCredential CreateChain(IEnumerable<CredentialType> credentialPrecedence, CredentialOptions? credentialOptions, Uri authorityUri)
         {
+            cloudTrustPolicy.ThrowIfAuthorityIsUntrusted(authorityUri);
             var tokenCredentials = credentialPrecedence.Select(credentialType => CreateSingle(credentialType, credentialOptions, authorityUri)).ToArray();
 
             return tokenCredentials.Length == 0
@@ -20,6 +28,8 @@ namespace Bicep.Core.AzureApi
 
         public TokenCredential CreateSingle(CredentialType credentialType, CredentialOptions? credentialOptions, Uri authorityUri)
         {
+            cloudTrustPolicy.ThrowIfAuthorityIsUntrusted(authorityUri);
+
             if (credentialType is CredentialType.ManagedIdentity)
             {
                 var managedIdentityType = credentialOptions?.ManagedIdentity?.Type ?? ManagedIdentityType.SystemAssigned;

@@ -16,6 +16,7 @@ public class RegistryModuleCatalog : IRegistryModuleCatalog
     private readonly IPrivateAcrModuleMetadataProviderFactory providerFactory;
     private readonly IOciRegistryTransportFactory transportFactory;
     private readonly IBicepConfigurationManager configurationManager;
+    private readonly CloudConfigurationTrustPolicy cloudTrustPolicy;
     private readonly object lockObject = new();
 
     private readonly Dictionary<string, IRegistryModuleMetadataProvider> registryProviders = new();
@@ -24,18 +25,22 @@ public class RegistryModuleCatalog : IRegistryModuleCatalog
         IPublicModuleMetadataProvider publicModuleMetadataProvider,
         IPrivateAcrModuleMetadataProviderFactory privateProviderFactory,
         IOciRegistryTransportFactory transportFactory,
-        IBicepConfigurationManager configurationManager
+        IBicepConfigurationManager configurationManager,
+        CloudConfigurationTrustPolicy cloudTrustPolicy
     )
     {
         providerFactory = privateProviderFactory;
         this.transportFactory = transportFactory;
         this.configurationManager = configurationManager;
+        this.cloudTrustPolicy = cloudTrustPolicy;
 
         registryProviders["mcr.microsoft.com"] = publicModuleMetadataProvider;
     }
 
     public IRegistryModuleMetadataProvider GetProviderForRegistry(IBicepCloudConfiguration cloud, string registry)
     {
+        cloudTrustPolicy.ThrowIfCloudIsUntrusted(cloud);
+
         lock (lockObject)
         {
             if (registryProviders.TryGetValue(registry, out var provider))

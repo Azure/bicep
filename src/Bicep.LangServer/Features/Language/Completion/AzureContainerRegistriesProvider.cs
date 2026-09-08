@@ -20,14 +20,16 @@ namespace Bicep.LanguageServer.Features.Language.Completion
     public class AzureContainerRegistriesProvider : IAzureContainerRegistriesProvider
     {
         private readonly ITokenCredentialFactory tokenCredentialFactory;
+        private readonly CloudConfigurationTrustPolicy cloudTrustPolicy;
 
         private const string queryToGetRegistryNames = @"Resources
 | where type == ""microsoft.containerregistry/registries""
 | project properties[""loginServer""]";
 
-        public AzureContainerRegistriesProvider(ITokenCredentialFactory tokenCredentialFactory)
+        public AzureContainerRegistriesProvider(ITokenCredentialFactory tokenCredentialFactory, CloudConfigurationTrustPolicy cloudTrustPolicy)
         {
             this.tokenCredentialFactory = tokenCredentialFactory;
+            this.cloudTrustPolicy = cloudTrustPolicy;
         }
 
         // Used for completions after typing "'br:"
@@ -67,6 +69,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
 
         private ArmClient GetArmClient(IBicepCloudConfiguration cloud)
         {
+            cloudTrustPolicy.ThrowIfCloudIsUntrusted(cloud);
             var credential = tokenCredentialFactory.CreateChain(cloud.CredentialPrecedence, cloud.CredentialOptions, cloud.ActiveDirectoryAuthorityUri);
 
             var options = new ArmClientOptions();

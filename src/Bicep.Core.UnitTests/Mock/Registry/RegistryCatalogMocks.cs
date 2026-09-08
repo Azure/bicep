@@ -136,7 +136,8 @@ public static class RegistryCatalogMocks
             publicProvider.Object,
             privateFactory.Object,
             StrictMock.Of<IOciRegistryTransportFactory>().Object,
-            BicepTestConstants.BuiltInOnlyConfigurationManager);
+            BicepTestConstants.BuiltInOnlyConfigurationManager,
+            BicepTestConstants.TestCloudConfigurationTrustPolicy);
 
         return indexer;
     }
