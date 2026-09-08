@@ -132,7 +132,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "documentation": {
           "output": { "file": "README.md" },
-          "template": { "values": {} },
+          "template": {},
           "examples": {
             "sources": [
               {
@@ -239,7 +239,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "documentation": {
           "output": { "file": "README.md" },
-          "template": { "values": {} },
+          "template": {},
           "examples": {
             "sources": [
               {
@@ -368,7 +368,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "documentation": {
           "output": { "file": "README.md" },
-          "template": { "values": {} },
+          "template": {},
           "examples": {
             "sources": [
               {
@@ -564,7 +564,7 @@ namespace Bicep.Core.UnitTests.Configuration
             },
             "documentation": {
                 "output": { "file": "README.md" },
-                "template": { "values": {} },
+                "template": {},
                 "examples": {
                     "sources": [
                         {
@@ -941,7 +941,7 @@ namespace Bicep.Core.UnitTests.Configuration
                   },
                   "documentation": {
                     "output": { "file": "README.md" },
-                    "template": { "values": {} },
+                    "template": {},
                     "examples": {
                       "sources": [
                         {

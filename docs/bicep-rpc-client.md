@@ -237,8 +237,7 @@ var snapshot = result.Snapshot;
 ### Generate docs
 
 > [!WARNING]
-> `GenerateDocs` supports the experimental `bicep docs` command group. Its request and response shapes
-> may change while that feature remains experimental. Requires Bicep CLI 0.47.0 or later.
+> `GenerateDocs` supports the experimental `bicep docs` command group. Requires Bicep CLI 0.47.0 or later.
 
 The `GenerateDocs` method renders Markdown documentation for a Bicep module. Unlike the
 `bicep docs generate` command, it never writes files: the rendered content is returned to you and
@@ -246,19 +245,18 @@ your application decides where it goes. The following example renders one module
 result itself:
 
 ```csharp
-var result = await client.GenerateDocs(new GenerateDocsRequest(
-    Path: "./modules/storage/main.bicep",
-    TemplateFile: null,          // Optional custom Scriban template
-    TemplateRoot: null,          // Optional root directory for template includes
-    CustomTemplateValues: null,  // Optional values exposed to the template
-    NoRestore: false
-));
+var result = await client.GenerateDocs(
+    new GenerateDocsRequest(
+        "./modules/storage/main.bicep",
+        new() { ["owner"] = "Platform Team" }));
 
 if (result.Contents is not null)
 {
     await File.WriteAllTextAsync("./modules/storage/README.md", result.Contents);
 }
 ```
+
+Template and example settings are resolved from the Bicep file's `bicepconfig.json`. Optional custom template values are supplied with the request.
 
 ### Get version
 

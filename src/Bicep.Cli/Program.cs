@@ -158,7 +158,7 @@ namespace Bicep.Cli
             rootCommand.Add(WhatIfCommand.CreateCommand(context));
             rootCommand.Add(TeardownCommand.CreateCommand(context));
             rootCommand.Add(ConsoleCommand.CreateCommand(context));
-            rootCommand.Add(DocsCommand.CreateCommand(context));
+            rootCommand.Add(DocsGenerateCommand.CreateCommand(context));
 
             return rootCommand;
         }

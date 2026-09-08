@@ -22,7 +22,6 @@ public class BicepConfigurationTests
         documentation.Output.File.Should().Be("README.md");
         documentation.Template.File.Should().BeNull();
         documentation.Template.IncludeRoot.Should().BeNull();
-        documentation.Template.Values.Should().BeEmpty();
         documentation.Examples.Sources.Should().HaveCount(2);
         documentation.Examples.Reassignments.Should().BeEmpty();
     }
@@ -39,10 +38,7 @@ public class BicepConfigurationTests
                       "file": "DOCS.md"
                     },
                     "template": {
-                      "file": "templates/readme.scriban",
-                      "values": {
-                        "owner": "Platform"
-                      }
+                      "file": "templates/readme.scriban"
                     },
                     "examples": {
                       "sources": []
@@ -56,19 +52,17 @@ public class BicepConfigurationTests
         configuration.ConfigFileUri.Should().Be(configFileUri);
         configuration.Documentation.Data.Output.File.Should().Be("DOCS.md");
         configuration.Documentation.Data.Template.File.Should().Be("templates/readme.scriban");
-        configuration.Documentation.Data.Template.Values.Should().Contain("owner", "Platform");
         configuration.Documentation.Data.Examples.Sources.Should().BeEmpty();
         configuration.ToUtf8Json().Should().ContainAll(
             "\"documentation\"",
-            "\"file\": \"DOCS.md\"",
-            "\"owner\": \"Platform\"");
+            "\"file\": \"DOCS.md\"");
     }
 
     [DataTestMethod]
     [DataRow("""{ "output": null }""", "output, template, and examples")]
     [DataRow("""{ "template": null }""", "output, template, and examples")]
     [DataRow("""{ "examples": null }""", "output, template, and examples")]
-    [DataRow("""{ "template": { "values": null } }""", "template.values")]
+    [DataRow("""{ "template": { "values": { "owner": "Platform" } } }""", "not supported")]
     [DataRow("""{ "examples": { "sources": [{ "path": "/samples" }] } }""", "relative path")]
     [DataRow("""{ "examples": { "sources": [{ "path": "\\samples" }] } }""", "relative path")]
     [DataRow("""{ "examples": { "sources": [{ "path": "C:\\samples" }] } }""", "relative path")]
