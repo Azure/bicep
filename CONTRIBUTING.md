@@ -43,7 +43,7 @@ The Bicep solution is comprised of the following main components:
   * From repo root folder: `dotnet build`
   * From src\vscode-bicep:
     * `npm i`
-    * `npm run testlocal:e2e` or run launch vscode from src\vscode-bicep and run "Launch Tests: E2E (dev)"
+    * `node ./scripts/run-e2e-tests.mjs` or run launch vscode from src\vscode-bicep and run "Launch Tests: E2E (dev)"
 
 ### Updating test baselines
 
