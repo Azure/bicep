@@ -76,7 +76,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             options.Diagnostics.ApplySharedResourceManagerSettings();
             options.Environment = new ArmEnvironment(cloud.ResourceManagerEndpointUri, cloud.AuthenticationScope);
 
-            return new ArmClient(credential);
+            return new ArmClient(credential, defaultSubscriptionId: null, options);
         }
     }
 }
