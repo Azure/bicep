@@ -245,7 +245,7 @@ public static class RegistryHelper
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        return BinaryData.FromStream(stream);
+        return await BinaryData.FromStreamAsync(stream);
     }
 
     private static IEnumerable<string> GetAllUniqueTypePaths(string pathToIndex, IFileSystem fileSystem)

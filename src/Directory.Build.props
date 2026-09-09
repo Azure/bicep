@@ -31,6 +31,11 @@
     <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --ignore-exit-code 8</TestingPlatformCommandLineArguments>
   </PropertyGroup>
 
+  <PropertyGroup Condition="$(MSBuildProjectName.Contains('Test'))">
+    <!-- VSTHRD103: Synchronous file/JSON I/O in test methods is not a deadlock risk (tests do not run on a UI/service thread) -->
+    <NoWarn>$(NoWarn);VSTHRD103</NoWarn>
+  </PropertyGroup>
+
   <!-- set default framework - each project can still override -->
   <PropertyGroup Condition=" '$(MSBuildProjectExtension)' == '.csproj' ">
     <TargetFramework>net10.0</TargetFramework>
@@ -50,7 +55,7 @@
     <!--
       do not update the checked-in tpn file by default
       we will run a scheduled GH build that will set this to true via environment variables to create PRs with TPN file updates
-    -->
+     -->
     <GenerateNoticeUpdateLocalFile Condition="'$(GenerateNoticeUpdateLocalFile)'==''">false</GenerateNoticeUpdateLocalFile>
   </PropertyGroup>
 </Project>
