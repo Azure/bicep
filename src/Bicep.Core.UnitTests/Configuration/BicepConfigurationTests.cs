@@ -5,6 +5,7 @@
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Json;
+using Bicep.Core.SemanticVersioning;
 using Bicep.IO.Abstraction;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -24,6 +25,66 @@ public class BicepConfigurationTests
         documentation.Template.IncludeRoot.Should().BeNull();
         documentation.Examples.Sources.Should().HaveCount(2);
         documentation.Examples.Reassignments.Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public void Built_in_compiler_configuration_has_no_version_constraint()
+    {
+        BicepTestConstants.BuiltInConfiguration.Compiler.Version.Should().BeNull();
+    }
+
+    [TestMethod]
+    public void Bind_and_serialize_preserve_compiler_configuration()
+    {
+        var element = BicepConfiguration.BuiltInConfigurationElement.Merge(
+            JsonElementFactory.CreateElement("""
+                {
+                  "bicep": {
+                    "version": "1.2.3"
+                  }
+                }
+                """));
+
+        var configuration = BicepConfiguration.Bind(element);
+
+        configuration.Compiler.Version!.ToString().Should().Be(VersionRange.Parse("1.2.3").ToString());
+        configuration.ToUtf8Json().Should().ContainAll(
+            "\"bicep\"",
+            "\"version\": \"1.2.3\"");
+    }
+
+    [DataTestMethod]
+    [DataRow("1.2.3")]
+    [DataRow(">=1.0.0")]
+    [DataRow(">=1.0.0, <2.0.0")]
+    public void Compiler_configuration_binds_valid_version_values(string version)
+    {
+        var configuration = CompilerConfiguration.Bind(JsonElementFactory.CreateElement($$"""{ "version": "{{version}}" }"""));
+
+        configuration.Data.Version.Should().Be(version);
+        configuration.Version!.ToString().Should().Be(VersionRange.Parse(version).ToString());
+    }
+
+    [TestMethod]
+    public void Compiler_configuration_defaults_to_null_version_when_omitted()
+    {
+        var configuration = CompilerConfiguration.Bind(JsonElementFactory.CreateElement("{}"));
+
+        configuration.Data.Version.Should().BeNull();
+        configuration.Version.Should().BeNull();
+    }
+
+    [DataTestMethod]
+    [DataRow("not-a-version")]
+    [DataRow("*")]
+    [DataRow("1.*")]
+    [DataRow("")]
+    public void Compiler_configuration_rejects_invalid_version_values(string version)
+    {
+        FluentActions.Invoking(() =>
+                CompilerConfiguration.Bind(JsonElementFactory.CreateElement($$"""{ "version": "{{version}}" }""")))
+            .Should().Throw<ConfigurationException>()
+            .WithMessage("*is not a valid Bicep version or version range*");
     }
 
     [TestMethod]
