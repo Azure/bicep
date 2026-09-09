@@ -28,7 +28,7 @@ public static class ExtensionV1Archive
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        return BinaryData.FromStream(stream);
+        return await BinaryData.FromStreamAsync(stream);
     }
 
     public static ExtensionPackage Read(BinaryData binaryData)
@@ -74,4 +74,3 @@ public static class ExtensionV1Archive
         await tarWriter.WriteEntryAsync(tarEntry);
     }
 }
-
