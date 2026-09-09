@@ -130,6 +130,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                             .Replace("<GRACE_PERIOD_PROP>", gracePeriodInDays.HasValue ? $", \"gracePeriodInDays\": {gracePeriodInDays}" : ""))),
                 original.Formatting,
                 original.Documentation,
+                original.Compiler,
                 original.ExperimentalFeaturesEnabled with
                 {
                     SymbolicNameCodegen = true,

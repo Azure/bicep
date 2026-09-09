@@ -55,12 +55,6 @@ public sealed record DocumentationTemplate
     /// Gets an optional root directory for template includes.
     /// </summary>
     public string? IncludeRoot { get; init; }
-
-    /// <summary>
-    /// Gets baseline custom template values.
-    /// </summary>
-    public ImmutableSortedDictionary<string, string> Values { get; init; } =
-        ImmutableSortedDictionary<string, string>.Empty.WithComparers(StringComparer.Ordinal);
 }
 
 /// <summary>
@@ -158,6 +152,14 @@ public sealed class DocumentationConfiguration : ConfigurationSection<Documentat
 
     public static DocumentationConfiguration Bind(JsonElement element)
     {
+        if (element.TryGetProperty("template", out var template) &&
+            template.ValueKind == JsonValueKind.Object &&
+            template.TryGetProperty("values", out _))
+        {
+            throw new ConfigurationException(
+                "The documentation template.values property is not supported. Supply custom template values through the docs command or JSON-RPC request.");
+        }
+
         var data = Normalize(element.ToNonNullObject<Documentation>());
         Validate(data);
 
@@ -171,17 +173,8 @@ public sealed class DocumentationConfiguration : ConfigurationSection<Documentat
             throw new ConfigurationException("The documentation output, template, and examples properties cannot be null.");
         }
 
-        if (data.Template.Values is null)
-        {
-            throw new ConfigurationException("The documentation template.values property cannot be null.");
-        }
-
         return data with
         {
-            Template = data.Template with
-            {
-                Values = data.Template.Values.ToImmutableSortedDictionary(StringComparer.Ordinal),
-            },
             Examples = data.Examples with
             {
                 Sources = NormalizeSources(data.Examples.Sources),
@@ -234,11 +227,6 @@ public sealed class DocumentationConfiguration : ConfigurationSection<Documentat
         if (data.Template.IncludeRoot is not null)
         {
             ValidateNonempty(data.Template.IncludeRoot, "template.includeRoot");
-        }
-
-        foreach (var key in data.Template.Values.Keys)
-        {
-            ValidateNonempty(key, "template.values key");
         }
 
         foreach (var source in data.Examples.Sources)

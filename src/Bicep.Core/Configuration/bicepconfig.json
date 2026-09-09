@@ -78,9 +78,7 @@
     "output": {
       "file": "README.md"
     },
-    "template": {
-      "values": {}
-    },
+    "template": {},
     "examples": {
       "sources": [
         {

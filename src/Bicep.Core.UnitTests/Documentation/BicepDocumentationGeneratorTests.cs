@@ -391,7 +391,6 @@ public class BicepDocumentationGeneratorTests
             {
                 File = "readme.scriban",
                 IncludeRoot = "templates",
-                Values = ImmutableSortedDictionary<string, string>.Empty.Add("owner", "Platform"),
             },
             Examples = new()
             {
@@ -422,7 +421,6 @@ public class BicepDocumentationGeneratorTests
         configuration.Output.File.Should().Be("README.md");
         configuration.Template.File.Should().BeNull();
         configuration.Template.IncludeRoot.Should().BeNull();
-        configuration.Template.Values.Should().BeEmpty();
         configuration.Examples.Sources.Should().HaveCount(2);
         configuration.Examples.Reassignments.Should().BeEmpty();
         configuration.Should().Be(clone);
@@ -430,7 +428,6 @@ public class BicepDocumentationGeneratorTests
         custom.Output.File.Should().Be("DOCS.md");
         custom.Template.File.Should().Be("readme.scriban");
         custom.Template.IncludeRoot.Should().Be("templates");
-        custom.Template.Values.Should().ContainKey("owner");
         custom.Examples.Sources.Single().Path.Should().Be("samples");
         custom.Examples.Sources.Single().Include.Should().ContainSingle();
         custom.Examples.Sources.Single().Exclude.Should().ContainSingle();
