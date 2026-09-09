@@ -57,7 +57,7 @@
     "vite-plugin-dts": "^5.0.3",
     "vite-plugin-lib-inject-css": "^2.2.1",
     "vite-plugin-svgr": "^5.2.0",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   },
   "dependencies": {
     "@react-hook/resize-observer": "^2.0.2",
