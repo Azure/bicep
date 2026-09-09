@@ -46,7 +46,7 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.1.1",
-    "@vitest/coverage-v8": "^5.0.0",
+    "@vitest/coverage-v8": "^4.1.10",
     "@vscode-elements/elements": "^2.5.1",
     "@vscode/codicons": "^0.0.45",
     "eslint-plugin-storybook": "^10.6.0",
@@ -57,7 +57,7 @@
     "vite-plugin-dts": "^5.1.0",
     "vite-plugin-lib-inject-css": "^2.2.1",
     "vite-plugin-svgr": "^5.2.0",
-    "vitest": "^5.0.0"
+    "vitest": "^4.1.10"
   },
   "dependencies": {
     "@react-hook/resize-observer": "^2.0.2",
