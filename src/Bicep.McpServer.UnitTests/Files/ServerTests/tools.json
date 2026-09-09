@@ -287,7 +287,7 @@
   },
   {
     "name": "get_azure_resource_type_schema",
-    "description": "Retrieves the complete JSON schema definition for a specific Azure resource type and API version, including all properties, nested types, and constraints.\nUse this tool to:\n- Understand what properties are available on an Azure resource\n- Learn about required vs optional properties, their types, and allowed values\n- Discover nested resource types and their schemas\n- Find available resource functions and their signatures\n- Generate accurate Bicep code with proper property names and types\nThe returned JSON schema includes resource type definitions, nested complex types, resource function signatures (like list* operations), and property constraints.\nData is sourced directly from Azure Resource Provider APIs, ensuring the most accurate and up-to-date schema information.\nSpecify the resource type (e.g., Microsoft.KeyVault/vaults) and API version (e.g., 2024-11-01 or 2024-12-01-preview).",
+    "description": "Retrieves the complete JSON schema definition for a specific Azure resource type and API version, including all properties, nested types, and constraints.\nUse this tool to:\n- Understand what properties are available on an Azure resource\n- Learn about required vs optional properties, their types, and allowed values\n- Discover nested resource types and their schemas\n- Find available resource functions and their signatures\n- Generate accurate Bicep code with proper property names and types\nThe returned JSON schema includes resource type definitions, nested complex types, resource function signatures (like list* operations), and property constraints.\nData comes from Bicep's bundled Azure resource type catalog, not a live Azure API query.\nSpecify the resource type (e.g., Microsoft.KeyVault/vaults). Omit apiVersion or pass null to select the newest API version by date, including preview versions; stable versions win same-date ties.\nPass latest-stable (case-insensitive) to select only the newest stable version, or an explicit API version (e.g., 2024-11-01 or 2024-12-01-preview) to pin the schema.\nPreview includes other prerelease versions recognized by Bicep. Unknown resource types return an error. Unsupported API versions or unavailable selections return an error listing all valid API version options for the resource type.\nThe schema title includes the selected resource type and API version, even when read-only properties are excluded.",
     "jsonSchema": {
       "type": "object",
       "properties": {
@@ -296,8 +296,12 @@
           "type": "string"
         },
         "apiVersion": {
-          "description": "The API version of the resource type; e.g. 2024-11-01 or 2024-12-01-preview",
-          "type": "string"
+          "description": "The API version of the resource type; e.g. 2024-11-01 or 2024-12-01-preview. Omit or pass null for the newest version by date in Bicep's bundled catalog, including prereleases, with stable preferred on the same date. Pass latest-stable (case-insensitive) for the newest stable version only; an error lists valid options if no stable version exists or the requested version is unsupported.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
         },
         "excludeDescriptions": {
           "description": "When true, omits description fields from the schema to reduce payload size. Default: false",
@@ -311,8 +315,7 @@
         }
       },
       "required": [
-        "resourceType",
-        "apiVersion"
+        "resourceType"
       ]
     },
     "returnJsonSchema": {

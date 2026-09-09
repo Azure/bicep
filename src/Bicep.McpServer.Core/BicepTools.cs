@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.ComponentModel;
+using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Providers.Extensibility;
@@ -98,15 +99,19 @@ public sealed class BicepTools(
     - Find available resource functions and their signatures
     - Generate accurate Bicep code with proper property names and types
     The returned JSON schema includes resource type definitions, nested complex types, resource function signatures (like list* operations), and property constraints.
-    Data is sourced directly from Azure Resource Provider APIs, ensuring the most accurate and up-to-date schema information.
-    Specify the resource type (e.g., Microsoft.KeyVault/vaults) and API version (e.g., 2024-11-01 or 2024-12-01-preview).
+    Data comes from Bicep's bundled Azure resource type catalog, not a live Azure API query.
+    Specify the resource type (e.g., Microsoft.KeyVault/vaults). Omit apiVersion or pass null to select the newest API version by date, including preview versions; stable versions win same-date ties.
+    Pass latest-stable (case-insensitive) to select only the newest stable version, or an explicit API version (e.g., 2024-11-01 or 2024-12-01-preview) to pin the schema.
+    Preview includes other prerelease versions recognized by Bicep. Unknown resource types return an error. Unsupported API versions or unavailable selections return an error listing all valid API version options for the resource type.
+    The schema title includes the selected resource type and API version, even when read-only properties are excluded.
     """)]
     public ResourceTypeSchemaResult GetAzureResourceTypeSchema(
         [Description("The resource type of the Azure resource; e.g. Microsoft.KeyVault/vaults")] string resourceType,
-        [Description("The API version of the resource type; e.g. 2024-11-01 or 2024-12-01-preview")] string apiVersion,
+        [Description("The API version of the resource type; e.g. 2024-11-01 or 2024-12-01-preview. Omit or pass null for the newest version by date in Bicep's bundled catalog, including prereleases, with stable preferred on the same date. Pass latest-stable (case-insensitive) for the newest stable version only; an error lists valid options if no stable version exists or the requested version is unsupported.")] string? apiVersion = null,
         [Description("When true, omits description fields from the schema to reduce payload size. Default: false")] bool excludeDescriptions = false,
         [Description("When true, omits read-only properties from the schema to reduce payload size. Default: false")] bool excludeReadOnlyProperties = false)
     {
+        apiVersion = ResolveApiVersion(resourceType, apiVersion);
         TypesDefinitionResult typesDefinition = resourceVisitor.LoadSingleResourceType(resourceType, apiVersion, excludeReadOnlyProperties);
         var options = new JsonSchemaWriterOptions(excludeDescriptions);
 
@@ -234,5 +239,69 @@ public sealed class BicepTools(
         }
 
         return new WellKnownExtensionsResult([.. extensions]);
+    }
+
+    private string ResolveApiVersion(string resourceType, string? apiVersion)
+    {
+        var resourceTypes = azResourceTypeLoader.GetAvailableTypes()
+            .Where(type => type.FormatType().Equals(resourceType, StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+
+        if (resourceTypes.Length == 0)
+        {
+            throw new InvalidDataException($"Resource type {resourceType} not found in Bicep's bundled Azure resource type catalog.");
+        }
+
+        var stableOnly = string.Equals(apiVersion, "latest-stable", StringComparison.OrdinalIgnoreCase);
+        if (apiVersion is not null && !stableOnly && resourceTypes.Any(type => string.Equals(type.ApiVersion, apiVersion, StringComparison.OrdinalIgnoreCase)))
+        {
+            return apiVersion;
+        }
+
+        var versions = new List<(string ApiVersion, AzureResourceApiVersion? ParsedVersion)>();
+        foreach (var type in resourceTypes)
+        {
+            if (type.ApiVersion is { } version)
+            {
+                versions.Add((version, AzureResourceApiVersion.TryParse(version, out var parsedVersion) ? parsedVersion : null));
+            }
+        }
+
+        var orderedVersions = versions
+            .OrderByDescending(version => version.ParsedVersion?.Date)
+            .ThenByDescending(version => version.ParsedVersion?.IsStable)
+            .ThenBy(version => version.ParsedVersion?.Suffix, StringComparer.Ordinal)
+            .ThenBy(version => version.ApiVersion, StringComparer.Ordinal)
+            .ToArray();
+
+        if (apiVersion is null || stableOnly)
+        {
+            var selectedVersion = orderedVersions.FirstOrDefault(version =>
+                version.ParsedVersion is { } parsedVersion && (!stableOnly || parsedVersion.IsStable)).ApiVersion;
+            if (selectedVersion is not null)
+            {
+                return selectedVersion;
+            }
+        }
+
+        var validOptions = new List<string>();
+        if (orderedVersions.Any(version => version.ParsedVersion is not null))
+        {
+            validOptions.Add("null (latest)");
+        }
+        if (orderedVersions.Any(version => version.ParsedVersion is { IsStable: true }))
+        {
+            validOptions.Add("\"latest-stable\"");
+        }
+        validOptions.AddRange(orderedVersions.Select(version => version.ApiVersion)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Select(version => $"\"{version}\""));
+
+        var error = apiVersion is null
+            ? $"No supported API versions found for resource type {resourceType} in Bicep's bundled Azure resource type catalog."
+            : stableOnly
+                ? $"No stable API versions found for resource type {resourceType} in Bicep's bundled Azure resource type catalog."
+                : $"Resource type {resourceType} with API version {apiVersion} not found.";
+        throw new InvalidDataException($"{error} Valid options: {(validOptions.Count > 0 ? string.Join(", ", validOptions) : "none")}.");
     }
 }
