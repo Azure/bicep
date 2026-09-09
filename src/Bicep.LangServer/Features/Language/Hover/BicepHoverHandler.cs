@@ -3,7 +3,6 @@
 
 using System.Text;
 using Bicep.Core;
-using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
@@ -152,10 +151,13 @@ namespace Bicep.LanguageServer.Features.Language.Hover
                 case ResourceSymbol resource:
                     var docsSuffix = TryGetTypeDocumentationLink(resource) is { } typeDocsLink ? MarkdownHelper.GetDocumentationLink(typeDocsLink) : "";
                     var description = TryGetDescription(result, resource);
+                    var descriptionWithDocs = string.IsNullOrEmpty(docsSuffix)
+                        ? MarkdownHelper.AppendNewline(description)
+                        : MarkdownHelper.JoinWithBlankLine([description, docsSuffix]);
 
                     return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
                         $"resource {resource.Name} {(resource.Type is ResourceType ? $"'{resource.Type}'" : resource.Type)}",
-                        $"{MarkdownHelper.AppendNewline(description)}{docsSuffix}"));
+                        descriptionWithDocs));
 
                 case ModuleSymbol module:
                     return await GetModuleMarkdown(request, result, moduleDispatcher, moduleRegistryProvider, module);
@@ -255,7 +257,7 @@ namespace Bicep.LanguageServer.Features.Language.Hover
                 }
             }
 
-            var descriptions = MarkdownHelper.JoinWithNewlines(descriptionLines.WhereNotNull());
+            var descriptions = MarkdownHelper.JoinWithBlankLine(descriptionLines);
             return AsMarkdown(MarkdownHelper.CodeBlockWithDescription($"module {module.Name} '{filePath}'", descriptions));
         }
 
