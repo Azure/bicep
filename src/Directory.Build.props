@@ -55,7 +55,7 @@
     <!--
       do not update the checked-in tpn file by default
       we will run a scheduled GH build that will set this to true via environment variables to create PRs with TPN file updates
-     -->
+    -->
     <GenerateNoticeUpdateLocalFile Condition="'$(GenerateNoticeUpdateLocalFile)'==''">false</GenerateNoticeUpdateLocalFile>
   </PropertyGroup>
 </Project>
