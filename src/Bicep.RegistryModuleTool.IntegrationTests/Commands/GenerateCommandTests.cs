@@ -76,7 +76,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
             var mainBicepFilePath = fileSystem.Path.GetFullPath(MainBicepFile.FileName);
             var console = new MockConsole().ExpectErrorLines(
                 @$"{mainBicepFilePath}(1,1) : Error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. [https://aka.ms/bicep/core-diagnostics#BCP007]",
-                @$"Failed to build \"{mainBicepFilePath}\".");
+                @$"Failed to build ""{mainBicepFilePath}"".");
             var sut = CreateGenerateCommand(fileSystem, console);
 
             await fileSystem.File.WriteAllTextAsync(MainBicepFile.FileName, "something");
