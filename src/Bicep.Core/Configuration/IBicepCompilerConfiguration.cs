@@ -7,8 +7,6 @@ namespace Bicep.Core.Configuration;
 
 public interface IBicepCompilerConfiguration
 {
-    CompilerOptions Data { get; }
-
     /// <summary>
     /// Gets the accepted Bicep compiler version range, or null if no constraint was specified.
     /// </summary>

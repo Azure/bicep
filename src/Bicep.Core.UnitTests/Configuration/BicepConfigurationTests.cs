@@ -31,7 +31,6 @@ public class BicepConfigurationTests
     [TestMethod]
     public void Built_in_compiler_configuration_has_no_version_constraint()
     {
-        BicepTestConstants.BuiltInConfiguration.Compiler.Data.Version.Should().BeNull();
         BicepTestConstants.BuiltInConfiguration.Compiler.Version.Should().BeNull();
     }
 
@@ -49,7 +48,6 @@ public class BicepConfigurationTests
 
         var configuration = BicepConfiguration.Bind(element);
 
-        configuration.Compiler.Data.Version.Should().Be("1.2.3");
         configuration.Compiler.Version!.ToString().Should().Be(VersionRange.Parse("1.2.3").ToString());
         configuration.ToUtf8Json().Should().ContainAll(
             "\"bicep\"",
