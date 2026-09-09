@@ -74,4 +74,3 @@ public static class ExtensionV1Archive
         await tarWriter.WriteEntryAsync(tarEntry);
     }
 }
-

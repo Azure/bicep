@@ -54,4 +54,3 @@ public static class TypesV1Archive
         return allTypeReferences.Select(r => r.RelativePath).Distinct();
     }
 }
-
