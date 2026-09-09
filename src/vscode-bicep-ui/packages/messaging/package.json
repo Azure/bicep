@@ -29,6 +29,6 @@
     "happy-dom": "^20.11.2",
     "vite": "^8.2.1",
     "vite-plugin-dts": "^5.0.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   }
 }
