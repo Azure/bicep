@@ -10,6 +10,10 @@ public sealed class CloudConfigurationTrustPolicy
 {
     public const string TrustedCloudsEnvironmentVariable = "BICEP_TRUSTED_CLOUDS";
 
+    private const string ResourceManagerEndpointPropertyName = "resourceManagerEndpoint";
+
+    private const string ActiveDirectoryAuthorityPropertyName = "activeDirectoryAuthority";
+
     private static readonly ImmutableHashSet<CloudProfileTrustPair> BuiltInTrustedProfiles = CreateBuiltInPairs();
 
     private readonly ImmutableHashSet<CloudProfileTrustPair> additionalTrustedProfiles;
@@ -101,8 +105,8 @@ public sealed class CloudConfigurationTrustPolicy
 
         var expectedProperties = new HashSet<string>(StringComparer.Ordinal)
         {
-            "resourceManagerEndpoint",
-            "activeDirectoryAuthority",
+            ResourceManagerEndpointPropertyName,
+            ActiveDirectoryAuthorityPropertyName,
         };
 
         if (element.EnumerateObject().Any(property => !expectedProperties.Contains(property.Name)))
@@ -110,8 +114,8 @@ public sealed class CloudConfigurationTrustPolicy
             return false;
         }
 
-        if (!TryGetRequiredString(element, "resourceManagerEndpoint", out var resourceManagerEndpoint) ||
-            !TryGetRequiredString(element, "activeDirectoryAuthority", out var activeDirectoryAuthority))
+        if (!TryGetRequiredString(element, ResourceManagerEndpointPropertyName, out var resourceManagerEndpoint) ||
+            !TryGetRequiredString(element, ActiveDirectoryAuthorityPropertyName, out var activeDirectoryAuthority))
         {
             return false;
         }
