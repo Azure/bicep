@@ -16,7 +16,6 @@ public class CloudConfigurationTrustPolicyTests
     [DataRow("AzureCloud")]
     [DataRow("AzureBleuCloud")]
     [DataRow("AzureChinaCloud")]
-    [DataRow("AzureGermanyCloud")]
     [DataRow("AzureUSGovernment")]
     public void BuiltInProfilesAreTrusted(string profileName)
     {
@@ -228,7 +227,6 @@ public class CloudConfigurationTrustPolicyTests
         "AzureCloud" => new("https://management.azure.com", "https://login.microsoftonline.com"),
         "AzureBleuCloud" => new("https://management.sovcloud-api.fr", "https://login.sovcloud-identity.fr"),
         "AzureChinaCloud" => new("https://management.chinacloudapi.cn", "https://login.chinacloudapi.cn"),
-        "AzureGermanyCloud" => new("https://management.sovcloud-api.de", "https://login.sovcloud-identity.de"),
         "AzureUSGovernment" => new("https://management.usgovcloudapi.net", "https://login.microsoftonline.us"),
         _ => throw new ArgumentOutOfRangeException(nameof(profileName)),
     };

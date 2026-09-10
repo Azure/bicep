@@ -174,7 +174,7 @@
           "description": "The current cloud profile",
           "anyOf": [
             {
-              "enum": ["AzureCloud", "AzureBleuCloud", "AzureChinaCloud", "AzureGermanyCloud", "AzureUSGovernment"]
+              "enum": ["AzureCloud", "AzureBleuCloud", "AzureChinaCloud", "AzureUSGovernment"]
             },
             {
               "type": "string"

@@ -66,7 +66,6 @@ namespace Bicep.Core.UnitTests.Configuration
 
         [DataTestMethod]
         [DataRow("AzureBleuCloud")]
-        [DataRow("AzureGermanyCloud")]
         [DataRow("AzureUSGovernment")]
         public void GetConfigurationChain_CanonicalCloudProfileOverride_IsTrusted(string profileName)
         {

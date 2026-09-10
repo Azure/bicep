@@ -53,10 +53,6 @@ namespace Bicep.Core.UnitTests.Configuration
               "resourceManagerEndpoint": "https://management.azure.com",
               "activeDirectoryAuthority": "https://login.microsoftonline.com"
             },
-            "AzureGermanyCloud": {
-              "resourceManagerEndpoint": "https://management.sovcloud-api.de",
-              "activeDirectoryAuthority": "https://login.sovcloud-identity.de"
-            },
             "AzureUSGovernment": {
               "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
               "activeDirectoryAuthority": "https://login.microsoftonline.us"
@@ -194,10 +190,6 @@ namespace Bicep.Core.UnitTests.Configuration
               "resourceManagerEndpoint": "https://management.azure.com",
               "activeDirectoryAuthority": "https://login.microsoftonline.com"
             },
-            "AzureGermanyCloud": {
-              "resourceManagerEndpoint": "https://management.sovcloud-api.de",
-              "activeDirectoryAuthority": "https://login.sovcloud-identity.de"
-            },
             "AzureUSGovernment": {
               "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
               "activeDirectoryAuthority": "https://login.microsoftonline.us"
@@ -301,10 +293,6 @@ namespace Bicep.Core.UnitTests.Configuration
             "AzureCloud": {
               "resourceManagerEndpoint": "https://management.azure.com",
               "activeDirectoryAuthority": "https://login.microsoftonline.com"
-            },
-            "AzureGermanyCloud": {
-              "resourceManagerEndpoint": "https://management.sovcloud-api.de",
-              "activeDirectoryAuthority": "https://login.sovcloud-identity.de"
             },
             "AzureUSGovernment": {
               "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
@@ -510,10 +498,6 @@ namespace Bicep.Core.UnitTests.Configuration
                     "resourceManagerEndpoint": "https://management.azure.com",
                     "activeDirectoryAuthority": "https://login.microsoftonline.com"
                 },
-                "AzureGermanyCloud": {
-                    "resourceManagerEndpoint": "https://management.sovcloud-api.de",
-                    "activeDirectoryAuthority": "https://login.sovcloud-identity.de"
-                },
                 "AzureUSGovernment": {
                     "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
                     "activeDirectoryAuthority": "https://login.microsoftonline.us"
@@ -653,7 +637,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 "currentProfile": "MyCloud"
               }
             }
-            """, @"The cloud profile ""MyCloud"" does not exist. Available profiles include ""AzureBleuCloud"", ""AzureChinaCloud"", ""AzureCloud"", ""AzureGermanyCloud"", ""AzureUSGovernment"".")]
+            """, @"The cloud profile ""MyCloud"" does not exist. Available profiles include ""AzureBleuCloud"", ""AzureChinaCloud"", ""AzureCloud"", ""AzureUSGovernment"".")]
         [DataRow("""
             {
               "cloud": {
@@ -879,10 +863,6 @@ namespace Bicep.Core.UnitTests.Configuration
                       "AzureCloud": {
                         "resourceManagerEndpoint": "https://management.azure.com",
                         "activeDirectoryAuthority": "https://login.microsoftonline.com"
-                      },
-                      "AzureGermanyCloud": {
-                        "resourceManagerEndpoint": "https://management.sovcloud-api.de",
-                        "activeDirectoryAuthority": "https://login.sovcloud-identity.de"
                       },
                       "AzureUSGovernment": {
                         "resourceManagerEndpoint": "https://management.usgovcloudapi.net",

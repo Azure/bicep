@@ -17,10 +17,6 @@
         "resourceManagerEndpoint": "https://management.chinacloudapi.cn",
         "activeDirectoryAuthority": "https://login.chinacloudapi.cn"
       },
-      "AzureGermanyCloud": {
-        "resourceManagerEndpoint": "https://management.sovcloud-api.de",
-        "activeDirectoryAuthority": "https://login.sovcloud-identity.de"
-      },
       "AzureUSGovernment": {
         "resourceManagerEndpoint": "https://management.usgovcloudapi.net",
         "activeDirectoryAuthority": "https://login.microsoftonline.us"
