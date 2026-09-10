@@ -334,6 +334,20 @@ namespace Bicep.Core.Semantics
         }
 
         /// <summary>
+        /// Gets the diagnostic emitted when the running compiler version does not satisfy the "bicep.version"
+        /// constraint from the effective configuration, if any.
+        /// </summary>
+        private IReadOnlyList<IDiagnostic> GetCompilerVersionDiagnostics()
+        {
+            if (CompilerVersionValidator.Validate(this.Configuration.Compiler.Version, this.Environment.CurrentVersion.Version) is { } diagnostic)
+            {
+                return [diagnostic];
+            }
+
+            return [];
+        }
+
+        /// <summary>
         /// Cached diagnostics from compilation
         /// </summary>
         public ImmutableArray<IDiagnostic> GetAllDiagnostics() => allDiagnostics.Value;
@@ -341,6 +355,7 @@ namespace Bicep.Core.Semantics
         private ImmutableArray<IDiagnostic> AssembleDiagnostics()
         {
             var diagnostics = this.Configuration.GetDiagnostics()
+                .Concat(GetCompilerVersionDiagnostics())
                 .Concat(this.LexingErrorLookup)
                 .Concat(this.ParsingErrorLookup)
                 .Concat(GetSemanticDiagnostics())
