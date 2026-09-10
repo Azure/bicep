@@ -43,6 +43,16 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             return new ResourceTypeComponents(resourceTypeReference, validParentScopes, readOnlyScopes, ToResourceFlags(resourceType), bodyType);
         }
 
+        public TypeSymbol GetConfigurationType(Azure.Bicep.Types.Concrete.TypeBase configurationType)
+        {
+            if (configurationType is not Azure.Bicep.Types.Concrete.ObjectType and not Azure.Bicep.Types.Concrete.DiscriminatedObjectType)
+            {
+                throw new ArgumentException("Configuration type must be an ObjectType or a DiscriminatedObjectType.");
+            }
+
+            return GetTypeSymbol(configurationType, isResourceBodyType: false, isResourceBodyTopLevelPropertyType: false);
+        }
+
         public IEnumerable<FunctionOverload> GetResourceFunctionOverloads(Azure.Bicep.Types.Concrete.ResourceFunctionType resourceFunctionType)
         {
             yield return new FunctionOverloadBuilder(resourceFunctionType.Name)

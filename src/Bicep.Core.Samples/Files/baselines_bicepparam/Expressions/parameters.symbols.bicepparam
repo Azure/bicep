@@ -89,4 +89,13 @@ THis
       multiline
         string!
 '''
+param kvSecret = az.getSecret('subId', 'rgName', 'kvName', 'secretName', 'secretVersion')
+//@[06:14) ParameterAssignment kvSecret. Type: string. Declaration start char: 0, length: 89
+param kvSecretExpression = az.getSecret(
+//@[06:24) ParameterAssignment kvSecretExpression. Type: string. Declaration start char: 0, length: 189
+  externalInput('subId'), 
+  externalInput('rgName'), 
+  externalInput('kvName'), 
+  externalInput('secretName'), 
+  externalInput('secretVersion'))
 

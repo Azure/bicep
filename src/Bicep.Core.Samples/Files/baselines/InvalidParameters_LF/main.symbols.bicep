@@ -218,6 +218,7 @@ param paramModifierSelfCycle string
 var sampleVar = 'sample'
 //@[04:013) Variable sampleVar. Type: 'sample'. Declaration start char: 0, length: 24
 resource sampleResource 'Microsoft.Foo/foos@2020-02-02' = {
+//@[00:008) Local this. Type: object. Declaration start char: 58, length: 17
 //@[09:023) Resource sampleResource. Type: Microsoft.Foo/foos@2020-02-02. Declaration start char: 0, length: 75
   name: 'foo'
 }

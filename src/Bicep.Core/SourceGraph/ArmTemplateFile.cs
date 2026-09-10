@@ -17,14 +17,11 @@ namespace Bicep.Core.SourceGraph
                 throw new ArgumentException($"Expected {nameof(template)} and {nameof(templateObject)} to both be non-null or both be null.");
             }
 
-            this.Uri = fileHandle.Uri.ToUri();
             this.FileHandle = fileHandle;
             this.Text = text;
             this.Template = template;
             this.TemplateObject = templateObject;
         }
-
-        public Uri Uri { get; }
 
         public IFileHandle FileHandle { get; }
 

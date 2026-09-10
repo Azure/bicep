@@ -30,6 +30,7 @@ public static class AnsiHelper
     private static readonly ImmutableDictionary<string, string> escapeCodeRegexByName = new Dictionary<string, string>
     {
         [nameof(PrintHelper.MoveCursorRight)] = "\u001b\\[(\\d+)C",
+        [nameof(PrintHelper.MoveCursorUp)] = "\u001b\\[(\\d+)A",
     }.ToImmutableDictionary();
 
     [return: NotNullIfNotNull(nameof(input))]

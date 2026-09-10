@@ -10,7 +10,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class OutputsShouldNotContainSecretsRuleTests : LinterRuleTestsBase
     {
-        private void CompileAndTest(string text, OnCompileErrors onCompileErrors, string[] expectedMessages, Func<RootConfiguration, RootConfiguration>? configurationPatchFunc = null)
+        private void CompileAndTest(string text, OnCompileErrors onCompileErrors, string[] expectedMessages, Func<IBicepConfiguration, IBicepConfiguration>? configurationPatchFunc = null)
         {
             AssertLinterRuleDiagnostics(OutputsShouldNotContainSecretsRule.Code, text, expectedMessages, new Options(onCompileErrors, IncludePosition.None, ConfigurationPatch: configurationPatchFunc));
         }

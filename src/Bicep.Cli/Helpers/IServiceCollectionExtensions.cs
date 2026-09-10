@@ -64,5 +64,5 @@ public static class IServiceCollectionExtensions
             .AddSingleton<WhatIfCommand>()
             .AddSingleton<TeardownCommand>()
             .AddSingleton<ConsoleCommand>()
-            .AddSingleton<RootCommand>();
+            .AddSingleton<DocsGenerateCommand>();
 }

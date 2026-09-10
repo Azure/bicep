@@ -90,6 +90,7 @@ module optionalWithAllParams './child/optionalParams.bicep'= {
 }
 
 resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
+//@[00:08) Local this. Type: object. Declaration start char: 65, length: 168
 //@[09:28) Resource resWithDependencies. Type: Mock.Rp/mockResource@2020-01-01. Declaration start char: 0, length: 233
   name: 'harry'
   properties: {
@@ -137,6 +138,7 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
 }
 
 resource resWithCalculatedNameDependencies 'Mock.Rp/mockResource@2020-01-01' = {
+//@[00:08) Local this. Type: object. Declaration start char: 79, length: 162
 //@[09:42) Resource resWithCalculatedNameDependencies. Type: Mock.Rp/mockResource@2020-01-01. Declaration start char: 0, length: 241
   name: '${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'
   properties: {

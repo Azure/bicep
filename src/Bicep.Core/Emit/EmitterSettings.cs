@@ -60,6 +60,15 @@ namespace Bicep.Core.Emit
                     function: (found, syntax) => found ||
                         (syntax is ResourceDeclarationSyntax rds && ResourceRequiresSymbolicNames(model, rds)),
                     resultSelector: result => result,
+                    continuationFunction: (result, syntax) => !result) ||
+                model.Root.ResourceDeclarations.Any(resource => resource.TryGetDecorator(model, SystemNamespaceType.BuiltInName, LanguageConstants.RetryOnPropertyName) is not null) ||
+                model.Root.ResourceDeclarations.Any(resource => resource.TryGetDecorator(model, SystemNamespaceType.BuiltInName, LanguageConstants.NullIfNotFoundDecoratorName) is not null) ||
+                SyntaxAggregator.Aggregate(model.SourceFile.ProgramSyntax,
+                    seed: false,
+                    function: (found, syntax) => found ||
+                        (syntax is InstanceFunctionCallSyntax ifcs &&
+                         model.Binder.GetSymbolInfo(ifcs.BaseExpression) is LocalThisNamespaceSymbol),
+                    resultSelector: result => result,
                     continuationFunction: (result, syntax) => !result);
         }
 

@@ -4,7 +4,6 @@
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
@@ -44,6 +43,7 @@ namespace Bicep.Core.Semantics
             var outputDeclarations = ImmutableArray.CreateBuilder<OutputSymbol>();
             var assertDeclarations = ImmutableArray.CreateBuilder<AssertSymbol>();
             var parameterAssignments = ImmutableArray.CreateBuilder<ParameterAssignmentSymbol>();
+            var baseParametersDeclarations = ImmutableArray.CreateBuilder<BaseParametersSymbol>();
             var testDeclarations = ImmutableArray.CreateBuilder<TestSymbol>();
             var importedTypes = ImmutableArray.CreateBuilder<ImportedTypeSymbol>();
             var importedVariables = ImmutableArray.CreateBuilder<ImportedVariableSymbol>();
@@ -95,6 +95,9 @@ namespace Bicep.Core.Semantics
                     case ParameterAssignmentSymbol parameterAssignment:
                         parameterAssignments.Add(parameterAssignment);
                         break;
+                    case BaseParametersSymbol baseParameters:
+                        baseParametersDeclarations.Add(baseParameters);
+                        break;
                     case TestSymbol test:
                         testDeclarations.Add(test);
                         break;
@@ -129,6 +132,7 @@ namespace Bicep.Core.Semantics
             OutputDeclarations = outputDeclarations.ToImmutable();
             AssertDeclarations = assertDeclarations.ToImmutable();
             ParameterAssignments = parameterAssignments.ToImmutable();
+            BaseParametersDeclarations = baseParametersDeclarations.ToImmutable();
             TestDeclarations = testDeclarations.ToImmutable();
             ImportedTypes = importedTypes.ToImmutable();
             ImportedVariables = importedVariables.ToImmutable();
@@ -156,6 +160,7 @@ namespace Bicep.Core.Semantics
             .Concat(this.OutputDeclarations)
             .Concat(this.AssertDeclarations)
             .Concat(this.ParameterAssignments)
+            .Concat(this.BaseParametersDeclarations)
             .Concat(this.TestDeclarations)
             .Concat(this.ImportedTypes)
             .Concat(this.ImportedVariables)
@@ -204,6 +209,8 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<TestSymbol> TestDeclarations { get; }
 
         public ImmutableArray<ParameterAssignmentSymbol> ParameterAssignments { get; }
+
+        public ImmutableArray<BaseParametersSymbol> BaseParametersDeclarations { get; }
 
         public ImmutableArray<ExtensionConfigAssignmentSymbol> ExtensionConfigAssignments { get; }
 
@@ -263,19 +270,16 @@ namespace Bicep.Core.Semantics
         private sealed class DuplicateIdentifierValidatorVisitor : SymbolVisitor
         {
             private readonly ImmutableDictionary<string, BuiltInNamespaceSymbol> builtInNamespaces;
-            private readonly IFeatureProvider features;
 
-            private DuplicateIdentifierValidatorVisitor(ImmutableDictionary<string, BuiltInNamespaceSymbol> builtInNamespaces, IFeatureProvider features)
+            private DuplicateIdentifierValidatorVisitor(ImmutableDictionary<string, BuiltInNamespaceSymbol> builtInNamespaces)
             {
                 this.builtInNamespaces = builtInNamespaces;
-                this.features = features;
             }
 
             public static IEnumerable<Diagnostic> GetDiagnostics(FileSymbol file)
             {
                 var visitor = new DuplicateIdentifierValidatorVisitor(
-                    file.NamespaceResolver.ImplicitNamespaces,
-                    file.Context.SourceFile.Features);
+                    file.NamespaceResolver.ImplicitNamespaces);
                 visitor.Visit(file);
 
                 return visitor.Diagnostics;
@@ -327,7 +331,7 @@ namespace Bicep.Core.Semantics
                     .Where(decl => decl.NameSource.IsValid && this.builtInNamespaces.ContainsKey(decl.Name))
                     .Select(reservedSymbol => DiagnosticBuilder.ForPosition(reservedSymbol.NameSource).SymbolicNameCannotUseReservedNamespaceName(reservedSymbol.Name, this.builtInNamespaces.Keys)));
 
-                if (this.features.ThisNamespaceEnabled && scope is FileSymbol)
+                if (scope is FileSymbol)
                 {
                     this.Diagnostics.AddRange(referenceableDeclarations
                         .Where(decl => decl.NameSource.IsValid && decl.Name == ThisNamespaceType.BuiltInName)

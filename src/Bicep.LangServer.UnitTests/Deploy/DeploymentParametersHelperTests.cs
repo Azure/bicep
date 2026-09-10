@@ -4,8 +4,8 @@
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.LanguageServer.Deploy;
-using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Features.Custom.Deployments;
+using Bicep.LanguageServer.Features.Custom.Deployments.Services;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;

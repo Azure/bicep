@@ -20,7 +20,7 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class ParameterUsingWithTests
 {
-    private static readonly ServiceBuilder Services = new ServiceBuilder()
+    private static ServiceBuilder Services => new ServiceBuilder()
         .WithFeatureOverrides(new(DeployCommandsEnabled: true));
 
     [NotNull]

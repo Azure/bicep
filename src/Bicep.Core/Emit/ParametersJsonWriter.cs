@@ -35,13 +35,17 @@ public class ParametersJsonWriter
     private JToken GenerateParametersJToken(PositionTrackingJsonTextWriter jsonWriter)
     {
         var emitter = new ExpressionEmitter(jsonWriter, this.Context);
+        var filterToDeclaredParameters = this.Context.SemanticModel.Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel) &&
+            usingModel is not EmptySemanticModel;
+        var assignmentsToEmit = this.Context.SemanticModel.Root.ParameterAssignments
+            .Where(x => !filterToDeclaredParameters || this.Context.SemanticModel.TryGetParameterMetadata(x) is not null);
 
         jsonWriter.WriteStartObject();
         emitter.EmitProperty("$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#");
         emitter.EmitProperty("contentVersion", "1.0.0.0");
         emitter.EmitObjectProperty("parameters", () =>
         {
-            foreach (var assignment in this.Context.SemanticModel.Root.ParameterAssignments)
+            foreach (var assignment in assignmentsToEmit)
             {
                 emitter.EmitObjectProperty(assignment.Name, () =>
                 {
@@ -167,18 +171,18 @@ public class ParametersJsonWriter
             });
     }
 
-    private static void WriteKeyVaultReference(ExpressionEmitter emitter, ParameterKeyVaultReferenceExpression keyVaultReference, string referencePropertyName)
+    private void WriteKeyVaultReference(ExpressionEmitter emitter, ParameterKeyVaultReferenceExpression keyVaultReference, string referencePropertyName)
     {
         emitter.EmitObjectProperty(
             referencePropertyName, () =>
             {
-                emitter.EmitObjectProperty("keyVault", () => emitter.EmitProperty("id", keyVaultReference.KeyVaultId));
+                emitter.EmitObjectProperty("keyVault", () => emitter.EmitPropertyWithTransform("id", keyVaultReference.KeyVaultId, RewriteExternalInputReferences));
 
-                emitter.EmitProperty("secretName", keyVaultReference.SecretName);
+                emitter.EmitPropertyWithTransform("secretName", keyVaultReference.SecretName, RewriteExternalInputReferences);
 
                 if (keyVaultReference.SecretVersion is { } secretVersion)
                 {
-                    emitter.EmitProperty("secretVersion", secretVersion);
+                    emitter.EmitPropertyWithTransform("secretVersion", secretVersion, RewriteExternalInputReferences);
                 }
             });
     }

@@ -146,7 +146,7 @@ resource fooRes 'fooType@v1' = {
         var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", "malformed", outputDirectory);
 
         var result = await Bicep(InvocationSettings.Default, "publish-extension", indexPath, "--target", $"br:example.com/test/extension:0.0.1");
-        result.Should().Fail().And.HaveStderrMatch("*Extension package creation failed: 'm' is an invalid start of a value.*");
+        result.Should().Fail().And.HaveStderrMatch("*Extension package creation failed:*'m' is an invalid start of a value.*");
     }
 
     [TestMethod]
@@ -225,7 +225,7 @@ resource fooRes 'fooType@v1' = {
     public async Task Publish_extension_with_namespace_functions_should_include_types_json()
     {
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
-        
+
         // Create index.json with namespace functions
         var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", """
             {
@@ -290,7 +290,7 @@ resource fooRes 'fooType@v1' = {
         var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
 
         var result = await Bicep(settings, "publish-extension", indexPath, "--target", $"br:{registryStr}/{repository}:{version}");
-        
+
         result.Should().Succeed().And.NotHaveStdout();
         result.Stderr.Should().Match("WARNING: The 'publish-extension' CLI command group is an experimental feature.*");
 

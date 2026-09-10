@@ -192,7 +192,7 @@ param firstParam string", new[] { "'one'", "'two'" }, new[] { CompletionItemKind
 using |
 ", fileTextsByUri.ToImmutableDictionary(), '|');
 
-            completions.Take(5).Should().SatisfyRespectively(
+            completions.Take(6).Should().SatisfyRespectively(
                 x =>
                 {
                     x.Label.Should().Be("main1.bicep");
@@ -202,6 +202,11 @@ using |
                 {
                     x.Label.Should().Be("module1.bicep");
                     x.Kind.Should().Be(CompletionItemKind.File);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("none");
+                    x.Kind.Should().Be(CompletionItemKind.Enum);
                 },
                 x =>
                 {
@@ -221,7 +226,7 @@ using |
         }
 
         [TestMethod]
-        public async Task Request_for_using_declaration_path_completions_should_return_correct_items_with_extendableparamsfeature_enabled()
+        public async Task Request_for_using_declaration_path_completions_should_return_none_without_feature_flag()
         {
             var mainContent = """
                 using |
@@ -234,8 +239,7 @@ using |
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 text,
-                mainUri,
-                services => services.WithFeatureOverrides(new(ExtendableParamFilesEnabled: true)));
+                mainUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestAndResolveCompletions(cursors[0]);
@@ -322,6 +326,11 @@ using './nested1/|'
                 },
                 x =>
                 {
+                    x.Label.Should().Be("none");
+                    x.Kind.Should().Be(CompletionItemKind.Enum);
+                },
+                x =>
+                {
                     x.Label.Should().Be("../");
                     x.Kind.Should().Be(CompletionItemKind.Folder);
                 });
@@ -342,6 +351,18 @@ using './nested1/|'
                 {
                     x.Label.Should().Be("extends");
                     x.Detail.Should().Be("Extends keyword");
+                    x.Kind.Should().Be(CompletionItemKind.Keyword);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("extension");
+                    x.Detail.Should().Be("Extension keyword");
+                    x.Kind.Should().Be(CompletionItemKind.Keyword);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("import");
+                    x.Detail.Should().Be("Import keyword");
                     x.Kind.Should().Be(CompletionItemKind.Keyword);
                 },
                 x =>
@@ -373,6 +394,18 @@ using 'bar.bicep'
                 {
                     x.Label.Should().Be("extends");
                     x.Detail.Should().Be("Extends keyword");
+                    x.Kind.Should().Be(CompletionItemKind.Keyword);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("extension");
+                    x.Detail.Should().Be("Extension keyword");
+                    x.Kind.Should().Be(CompletionItemKind.Keyword);
+                },
+                x =>
+                {
+                    x.Label.Should().Be("import");
+                    x.Detail.Should().Be("Import keyword");
                     x.Kind.Should().Be(CompletionItemKind.Keyword);
                 },
                 x =>
@@ -491,6 +524,146 @@ param customParam customType
         }
 
         [TestMethod]
+        public async Task Completions_are_provided_for_object_property_names_of_discriminated_union_at_root_parameter()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+
+param serviceConfig = {
+    type: 'bar'
+    value: true
+    |
+}";
+
+            var bicepText = @"
+type FooConfig = {
+    type: 'foo'
+    value: int
+}
+
+type BarConfig = {
+    type: 'bar'
+    value: bool
+    test: string?
+}
+
+@discriminator('type')
+type ServiceConfig = FooConfig | BarConfig | { type: 'baz', *: string }
+
+param serviceConfig ServiceConfig
+";
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = bicepText,
+            };
+
+            var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary(), '|');
+
+            // the discriminator value ('bar') should narrow the union to BarConfig,
+            // so the remaining (not-yet-specified) property 'test' should be offered
+            completions.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Label.Should().Be("test");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: `null | string`  \n");
+                    x.Kind.Should().Be(CompletionItemKind.Property);
+                });
+        }
+
+        [TestMethod]
+        public async Task Completions_are_provided_for_object_property_names_of_discriminated_union_nested_in_object()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+
+param serviceConfig2 = {
+    serviceConfig: {
+        type: 'bar'
+        value: true
+        |
+    }
+}";
+
+            var bicepText = @"
+type FooConfig = {
+    type: 'foo'
+    value: int
+}
+
+type BarConfig = {
+    type: 'bar'
+    value: bool
+    test: string?
+}
+
+@discriminator('type')
+type ServiceConfig = FooConfig | BarConfig | { type: 'baz', *: string }
+
+param serviceConfig2 {
+    serviceConfig: ServiceConfig
+}
+";
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = bicepText,
+            };
+
+            var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary(), '|');
+
+            // the discriminator value ('bar') should narrow the union to BarConfig,
+            // so the remaining (not-yet-specified) property 'test' should be offered
+            completions.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Label.Should().Be("test");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: `null | string`  \n");
+                    x.Kind.Should().Be(CompletionItemKind.Property);
+                });
+        }
+
+        [TestMethod]
+        public async Task Completions_for_discriminated_union_at_root_parameter_fall_back_to_discriminator_when_value_is_unknown()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+
+param serviceConfig = {
+    |
+}";
+
+            var bicepText = @"
+type FooConfig = {
+    type: 'foo'
+    value: int
+}
+
+type BarConfig = {
+    type: 'bar'
+    value: bool
+    test: string?
+}
+
+@discriminator('type')
+type ServiceConfig = FooConfig | BarConfig | { type: 'baz', *: string }
+
+param serviceConfig ServiceConfig
+";
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = bicepText,
+            };
+
+            var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary(), '|');
+
+            // no discriminator value has been provided yet, so the union cannot be narrowed to a member.
+            // only the discriminator property ('type') should be offered - member-specific properties must NOT leak.
+            completions.Where(x => x.Kind == CompletionItemKind.Property).Should().SatisfyRespectively(
+                x => x.Label.Should().Be("type"));
+            completions.Should().NotContain(x => x.Label == "value");
+            completions.Should().NotContain(x => x.Label == "test");
+        }
+
+        [TestMethod]
         public async Task Type_based_completions_are_provided_for_arrays_of_user_defined_types()
         {
             var paramTextWithCursor = @"
@@ -519,7 +692,320 @@ param customParam customType[]
             completions.Any(x => x.Label == "required-properties");
         }
 
-        private async Task<IEnumerable<CompletionItem>> RunCompletionScenario(string paramTextWithCursors, ImmutableDictionary<DocumentUri, string> fileTextsByUri, char cursorInsertionMarker)
+        [TestMethod]
+        public async Task Base_symbol_completion_is_offered_for_params_file_with_extends()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+extends './shared.bicepparam'
+param one = 'param one'
+param two = b|";
+
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+",
+                ["/path/to/shared.bicepparam"] = @"
+using none
+param three = 'param three'
+"
+            };
+
+            var completions = await RunCompletionScenario(
+                paramTextWithCursor,
+                fileTextsByUri.ToImmutableDictionary(),
+                '|');
+
+            completions.Should().ContainSingle(x => x.Label == "base" && x.Kind == CompletionItemKind.Variable);
+        }
+
+        [TestMethod]
+        public async Task Base_member_access_completion_is_offered_for_params_file_with_extends()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+extends './shared.bicepparam'
+param one = 'param one'
+param two = base.|";
+
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+",
+                ["/path/to/shared.bicepparam"] = @"
+using none
+param three = 'param three'
+"
+            };
+
+            var completions = await RunCompletionScenario(
+                paramTextWithCursor,
+                fileTextsByUri.ToImmutableDictionary(),
+                '|');
+
+            completions.Should().ContainSingle(x => x.Label == "three" && x.Kind == CompletionItemKind.Property);
+        }
+
+        [TestMethod]
+        public async Task Base_member_access_completion_with_prefix_filters_to_parent_assignment()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+extends './shared.bicepparam'
+param one = 'param one'
+param two = base.t|";
+
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+",
+                ["/path/to/shared.bicepparam"] = @"
+using none
+param three = 'param three'
+"
+            };
+
+            var completions = await RunCompletionScenario(
+                paramTextWithCursor,
+                fileTextsByUri.ToImmutableDictionary(),
+                '|');
+
+            completions.Should().ContainSingle(x => x.Label == "three" && x.Kind == CompletionItemKind.Property);
+        }
+
+        [TestMethod]
+        public async Task Base_symbol_completion_is_not_offered_when_no_extends_is_present()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+param one = 'param one'
+param two = b|";
+
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+"
+            };
+
+            var completions = await RunCompletionScenario(
+                paramTextWithCursor,
+                fileTextsByUri.ToImmutableDictionary(),
+                '|');
+
+            completions.Should().NotContain(x => x.Label == "base");
+        }
+
+        [TestMethod]
+        public async Task Unqualified_inherited_assignment_completion_still_works_with_extends()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+extends './shared.bicepparam'
+param one = 'param one'
+param two = t|";
+
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+",
+                ["/path/to/shared.bicepparam"] = @"
+using none
+param three = 'param three'
+"
+            };
+
+            var completions = await RunCompletionScenario(
+                paramTextWithCursor,
+                fileTextsByUri.ToImmutableDictionary(),
+                '|');
+
+            completions.Should().ContainSingle(x => x.Label == "three");
+        }
+
+        [TestMethod]
+        public async Task Base_member_access_returns_all_parent_assignments_in_extends_chain()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+extends './shared.bicepparam'
+param one = 'param one'
+param two = base.|";
+
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+param four string = ''
+",
+                ["/path/to/shared.bicepparam"] = @"
+using none
+param three = 'param three'
+param four = 'param four'
+"
+            };
+
+            var completions = await RunCompletionScenario(
+                paramTextWithCursor,
+                fileTextsByUri.ToImmutableDictionary(),
+                '|');
+
+            completions.Should().Contain(x => x.Label == "three" && x.Kind == CompletionItemKind.Property);
+            completions.Should().Contain(x => x.Label == "four" && x.Kind == CompletionItemKind.Property);
+        }
+
+        [TestMethod]
+        public async Task Base_member_access_includes_object_and_array_parent_assignments()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+extends './shared.bicepparam'
+param one = 'param one'
+param two = base.|";
+
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+param four object = {
+    name: 'four'
+    value: 'four'
+}
+param five array = [
+    {
+        name: 'five'
+        value: 'five'
+    }
+]
+",
+                ["/path/to/shared.bicepparam"] = @"
+using none
+param three = 'param three'
+param four = {
+    name: 'param four'
+}
+param five = [
+    {
+        name: 'param five'
+    }
+]
+"
+            };
+
+            var completions = await RunCompletionScenario(
+                    paramTextWithCursor,
+                    fileTextsByUri.ToImmutableDictionary(),
+                    '|');
+
+            completions.Should().Contain(x => x.Label == "three" && x.Kind == CompletionItemKind.Property);
+            completions.Should().Contain(x => x.Label == "four" && x.Kind == CompletionItemKind.Property);
+            completions.Should().Contain(x => x.Label == "five" && x.Kind == CompletionItemKind.Property);
+        }
+
+        [TestMethod]
+        public async Task Base_object_member_access_returns_object_property_completions()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+extends './shared.bicepparam'
+param one = 'param one'
+param two = base.three
+param four = base.four.|";
+
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+param four object = {
+    name: 'four'
+    value: 'four'
+}
+",
+                ["/path/to/shared.bicepparam"] = @"
+using none
+param three = 'param three'
+param four = {
+    name: 'param four'
+}
+"
+            };
+
+            var completions = await RunCompletionScenario(
+                    paramTextWithCursor,
+                    fileTextsByUri.ToImmutableDictionary(),
+                    '|');
+
+            completions.Should().Contain(x => x.Label == "name" && x.Kind == CompletionItemKind.Property);
+        }
+
+        [TestMethod]
+        public async Task Base_array_item_member_access_returns_item_property_completions()
+        {
+            var paramTextWithCursor = @"
+using './main.bicep'
+extends './shared.bicepparam'
+param one = 'param one'
+param two = base.three
+param five = [
+    base.five[0].|
+]";
+
+            var fileTextsByUri = new Dictionary<DocumentUri, string>
+            {
+                ["/path/to/main.bicep"] = @"
+param one string = ''
+param two string = ''
+param three string = ''
+param five array = [
+    {
+        name: 'five'
+        value: 'five'
+    }
+]
+",
+                ["/path/to/shared.bicepparam"] = @"
+using none
+param three = 'param three'
+param five = [
+    {
+        name: 'param five'
+    }
+]
+"
+            };
+
+            var completions = await RunCompletionScenario(
+                    paramTextWithCursor,
+                    fileTextsByUri.ToImmutableDictionary(),
+                    '|');
+
+            completions.Should().Contain(x => x.Label == "name" && x.Kind == CompletionItemKind.Property);
+        }
+
+        private async Task<IEnumerable<CompletionItem>> RunCompletionScenario(
+            string paramTextWithCursors,
+            ImmutableDictionary<DocumentUri, string> fileTextsByUri,
+            char cursorInsertionMarker)
         {
             var paramUri = InMemoryFileResolver.GetFileUri("/path/to/param.bicepparam");
             var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramTextWithCursors, cursorInsertionMarker);
@@ -530,7 +1016,10 @@ param customParam customType[]
                 TestContext,
                 fileTextsByUri,
                 paramUri,
-                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
+                services =>
+                {
+                    services.WithNamespaceProvider(BuiltInTestTypes.Create());
+                });
 
             var paramFile = new LanguageClientFile(paramUri, paramFileTextNoCursor);
             var file = new FileRequestHelper(helper.Client, paramFile);

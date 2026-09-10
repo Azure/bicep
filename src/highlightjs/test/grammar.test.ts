@@ -4,16 +4,17 @@
 import { existsSync } from "fs";
 import { readFile, rm } from "fs/promises";
 import { spawnSync } from "child_process";
-import { expectFileContents } from "./utils";
+import { fileURLToPath } from "url";
+import { expectFileContents } from "./utils.js";
 import { build } from 'esbuild';
 
-const root = `${__dirname}/..`;
+const root = fileURLToPath(new URL('..', import.meta.url));
 
 const iifePath = `${root}/dist/bicep.min.js`;
 const esPath = `${root}/dist/bicep.es.min.js`;
 
 async function generateGrammar() {
-  const iifeTempPath = `${__dirname}/out/bicep.min.js`;
+  const iifeTempPath = fileURLToPath(new URL('./out/bicep.min.js', import.meta.url));
   const iifeHeader = '// https://github.com/Azure/bicep/blob/main/src/highlightjs/dist/bicep.min.js'
   await build({
     entryPoints: [`${root}/src/usage.ts`],
@@ -23,7 +24,7 @@ async function generateGrammar() {
     external: ['highlight.js'],
   });
 
-  const esTempPath = `${__dirname}/out/bicep.es.min.js`;
+  const esTempPath = fileURLToPath(new URL('./out/bicep.es.min.js', import.meta.url));
   const esHeader = '// https://github.com/Azure/bicep/blob/main/src/highlightjs/dist/bicep.es.min.js'
   await build({
     entryPoints: [`${root}/src/bicep.ts`],

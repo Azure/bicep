@@ -11,7 +11,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class UseResourceIdFunctionsRuleTests : LinterRuleTestsBase
     {
-        private const string allowedFunctions = "extensionResourceId, guid, if, managementGroupResourceId, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId";
+        private const string allowedFunctions = "extensionResourceId, guid, if, managementGroupResourceId, reference, resourceId, roleDefinitions, subscription, subscriptionResourceId, tenantResourceId";
 
         private static void CompileAndTest(string bicep, params string[] expectedMessages)
         {
@@ -1971,6 +1971,22 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                             twoId: empty(parTopLevelManagementGroupParentId) ? '/providers/Microsoft.Management/managementGroups/${tenant().tenantId}' : parTopLevelManagementGroupParentId
                           }
                         }
+                      }
+                    }
+",
+                expectedMessages: []);
+        }
+
+        [TestMethod]
+        public void RoleDefinitionFunctionPropertyAccessShouldPass()
+        {
+            CompileAndTest(
+                @"
+                    resource sample 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+                      name: '00000000-0000-0000-0000-000000000000'
+                      properties: {
+                        roleDefinitionId: roleDefinitions('Monitoring Metrics Publisher').id
+                        principalId: '00000000-0000-0000-0000-000000000000'
                       }
                     }
 ",

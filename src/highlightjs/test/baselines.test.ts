@@ -7,8 +7,9 @@ import path, { dirname, basename, extname } from 'path';
 import { env } from 'process';
 import { spawnSync } from 'child_process';
 import hljs from 'highlight.js';
-import { default as bicepLanguage } from '../src/bicep';
-import { expectFileContents, baselineRecordEnabled } from './utils';
+import { fileURLToPath } from 'url';
+import { default as bicepLanguage } from '../src/bicep.js';
+import { expectFileContents, baselineRecordEnabled } from './utils.js';
 
 async function generateBaseline(filePath: string) {
   const baselineBaseName = basename(filePath, extname(filePath));
@@ -40,7 +41,7 @@ ${result.value}
   };
 }
 
-const baselinesDir = `${__dirname}/baselines`;
+const baselinesDir = fileURLToPath(new URL('./baselines', import.meta.url));
 
 const baselineFiles = readdirSync(baselinesDir)
   .filter(p => extname(p) === '.bicep' || extname(p) === '.bicepparam')
@@ -52,13 +53,12 @@ for (const filePath of baselineFiles) {
       // skip the invalid files - we don't expect them to compile
 
       it('can be compiled', async () => {
-        const cliCsproj = `${__dirname}/../../Bicep.Cli/Bicep.Cli.csproj`;
+        const cliCsproj = fileURLToPath(new URL('../../Bicep.Cli/Bicep.Cli.csproj', import.meta.url));
 
         if (!existsSync(cliCsproj)) {
-          fail(`Unable to find '${cliCsproj}'`);
-          return;
+          throw new Error(`Unable to find '${cliCsproj}'`);
         }
-        
+
         const subCommand = extname(filePath) === '.bicepparam' ? 'build-params' : 'build';
         const result = spawnSync(`dotnet`, ['run', '-p', cliCsproj, subCommand, '--stdout', filePath], {
           encoding: 'utf-8',

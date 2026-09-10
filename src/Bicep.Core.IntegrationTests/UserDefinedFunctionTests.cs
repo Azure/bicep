@@ -109,6 +109,81 @@ output outputFoo string = testFunc()
     }
 
     [TestMethod]
+    public void Resource_deploy_time_properties_are_allowed_in_user_defined_functions()
+    {
+        var result = CompilationHelper.Compile("""
+            param storageAccountName string
+
+            resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+              name: storageAccountName
+            }
+            resource storage2 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+              name: storageAccountName
+            }
+
+            var storageId = storage.id
+
+            func getStorageId() string => storageId
+            func getStorage2Id() string => storage2.id
+            func getStorage2Name() string => storage2.name
+            func getStorage2Type() string => storage2.type
+            func getStorage2ApiVersion() string => storage2.apiVersion
+
+            output s1 string = getStorageId()
+            output s2 string = getStorage2Id()
+            output s3 string = getStorage2Name()
+            output s4 string = getStorage2Type()
+            output s5 string = getStorage2ApiVersion()
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath(
+            "$.functions[0].members['getStorage2Id'].output.value",
+            "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]");
+        result.Template.Should().HaveValueAtPath(
+            "$.functions[0].members['getStorage2Name'].output.value",
+            "[parameters('storageAccountName')]");
+        result.Template.Should().HaveValueAtPath(
+            "$.functions[0].members['getStorage2Type'].output.value",
+            "Microsoft.Storage/storageAccounts");
+        result.Template.Should().HaveValueAtPath(
+            "$.functions[0].members['getStorage2ApiVersion'].output.value",
+            "2022-09-01");
+    }
+
+    [TestMethod]
+    public void Resource_runtime_properties_are_not_allowed_in_user_defined_functions()
+    {
+        var result = CompilationHelper.Compile("""
+            resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+              name: 'mystorage'
+            }
+
+            func getAccessTier() string => storage.properties.accessTier
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            ("BCP341", DiagnosticLevel.Error, """This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment. Properties of storage which can be calculated at the start include "apiVersion", "id", "name", "type".""")
+        });
+    }
+
+    [TestMethod]
+    public void Resource_references_are_not_allowed_in_user_defined_functions()
+    {
+        var result = CompilationHelper.Compile("""
+            resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
+              name: 'mystorage'
+            }
+
+            func getStorage() object => storage
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            ("BCP341", DiagnosticLevel.Error, """This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment. Properties of storage which can be calculated at the start include "apiVersion", "id", "name", "type".""")
+        });
+    }
+
+    [TestMethod]
     public void Functions_can_have_descriptions_applied()
     {
         var result = CompilationHelper.Compile(@"

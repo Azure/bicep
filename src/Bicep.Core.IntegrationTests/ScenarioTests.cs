@@ -14,6 +14,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
+using Bicep.Testing.Extensions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -5840,7 +5841,7 @@ param foo2 string[]
         var result = CompilationHelper.Compile(
             Services
                 .WithFeatureOverrides(new(TestContext))
-                .WithConfigurationPatch(x => x.WithAnalyzersConfiguration(x.Analyzers.SetValue("core.rules.use-recent-api-versions.level", "error"))),
+                .WithConfigurationPatch(x => x.WithAnalyzersConfiguration(((AnalyzersConfiguration)x.Analyzers).SetValue("core.rules.use-recent-api-versions.level", "error"))),
             ("main.bicep", """
                 extension kubernetes with {
                   kubeConfig: 'config'
@@ -7381,6 +7382,48 @@ output secret string = secret
     }
 
     [TestMethod]
+    public void Test_Issue19750()
+    {
+        var moduleLines = new List<string>
+        {
+            "output large object = {",
+        };
+
+        for (var i = 0; i < 12000; i++)
+        {
+            moduleLines.Add($"  p{i}: 'value{i}'");
+        }
+
+        moduleLines.Add("}");
+
+        var result = CompilationHelper.Compile(
+            Services.WithFeatureOverrides(new(LocalDeployEnabled: true)),
+            ("main.bicep", """
+targetScope = 'local'
+
+module mod 'mod.bicep' = {
+  name: 'mod'
+  scope: resourceGroup('00000000-0000-0000-0000-000000000000', 'rg')
+}
+"""),
+            ("mod.bicep", string.Join('\n', moduleLines)));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+
+        var nestedTemplateToken = result.Template!
+            .SelectTokens("$..template")
+            .FirstOrDefault(value => value.Type == JTokenType.Object);
+        Assert.IsNotNull(nestedTemplateToken);
+
+        var nestedTemplateText = nestedTemplateToken.ToJson();
+        Assert.IsNotNull(nestedTemplateText);
+        nestedTemplateText!.Length.Should().BeGreaterThan(131072);
+
+        JToken.Parse(nestedTemplateText);
+    }
+
+    [TestMethod]
     public async Task Test_Issue16748()
     {
         // https://github.com/Azure/bicep/issues/16748
@@ -7571,7 +7614,7 @@ output locations array = flatten(map(databases, database => database.properties.
                     secureStrings: [for i in range(0, 10): mod[i]!.outputs.foo]
                   }
                 }
-                
+
                 """),
             ("mod.bicep", """
                 @secure()
@@ -7636,8 +7679,8 @@ output locations array = flatten(map(databases, database => database.properties.
                 ]
               }
             }
-            
-            
+
+
             resource c 'Microsoft.Network/dnsZones@2018-05-01' = {
               name: 'zone'
               location: resourceGroup().location
@@ -7647,5 +7690,268 @@ output locations array = flatten(map(databases, database => database.properties.
         result.Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
         result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
+    }
+
+    [TestMethod]
+    public void Test_Issue19226_externalInputs_with_variable_references()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("main.bicep", """
+                param foo object[]
+                """),
+            ("import.bicep", """
+            @export()
+            type KeyVaultAccessPolicyPermissions = {
+                keys: string[]
+                secrets: string[]
+                certificates: string[]
+                storage: string[]
+            }
+
+            @export()
+            var KeyVaultFullAccessPermissions KeyVaultAccessPolicyPermissions = {
+                keys: [
+                    'get'
+                    'delete'
+                    'list'
+                    'create'
+                    'import'
+                    'update'
+                    'recover'
+                    'backup'
+                    'restore'
+                    'sign'
+                    'verify'
+                    'wrapKey'
+                    'unwrapKey'
+                    'encrypt'
+                    'decrypt'
+                    'purge'
+                ]
+                secrets: [
+                    'get'
+                    'delete'
+                    'list'
+                    'set'
+                    'recover'
+                    'backup'
+                    'restore'
+                    'purge'
+                ]
+                certificates: [
+                    'get'
+                    'delete'
+                    'list'
+                    'create'
+                    'import'
+                    'update'
+                    'deleteissuers'
+                    'getissuers'
+                    'listissuers'
+                    'managecontacts'
+                    'manageissuers'
+                    'setissuers'
+                    'recover'
+                    'purge'
+                ]
+                storage: [
+                    'delete'
+                    'deletesas'
+                    'get'
+                    'getsas'
+                    'list'
+                    'listsas'
+                    'regeneratekey'
+                    'set'
+                    'setsas'
+                    'update'
+                    'recover'
+                    'backup'
+                    'restore'
+                    'purge'
+                ]
+            }
+            """),
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+
+                import { KeyVaultFullAccessPermissions } from 'import.bicep'
+
+                var principals = externalInput('t', 'c')
+
+                param foo = [
+                    ...map(principals, objectId => {
+                        objectId: objectId
+                        permissions: KeyVaultFullAccessPermissions
+                    })
+                ]
+            """));
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Parameters.Should().HaveValueAtPath(
+          "parameters.foo.expression",
+          "[flatten(createArray(map(externalInputs('t_0'), lambda('objectId', createObject('objectId', lambdaVariables('objectId'), 'permissions', createObject('keys', createArray('get', 'delete', 'list', 'create', 'import', 'update', 'recover', 'backup', 'restore', 'sign', 'verify', 'wrapKey', 'unwrapKey', 'encrypt', 'decrypt', 'purge'), 'secrets', createArray('get', 'delete', 'list', 'set', 'recover', 'backup', 'restore', 'purge'), 'certificates', createArray('get', 'delete', 'list', 'create', 'import', 'update', 'deleteissuers', 'getissuers', 'listissuers', 'managecontacts', 'manageissuers', 'setissuers', 'recover', 'purge'), 'storage', createArray('delete', 'deletesas', 'get', 'getsas', 'list', 'listsas', 'regeneratekey', 'set', 'setsas', 'update', 'recover', 'backup', 'restore', 'purge')))))))]");
+
+        result.Parameters.Should().HaveJsonAtPath(
+          "externalInputDefinitions",
+          """
+          {
+            "t_0": {
+              "kind": "t",
+              "config": "c"
+            }
+          }
+          """
+        );
+    }
+
+    [TestMethod]
+    public void Test_Issue19212_externalInputs_with_variables()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using none
+
+                var example = 'example'
+
+                param varWithLiteral = [
+                  example
+                  'literal'
+                ]
+
+                param varWithExternalInput = [
+                  example
+                  externalInput('foo.bar', 'baz')
+                ]
+            """));
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Parameters.Should().HaveJsonAtPath(
+            "parameters.varWithLiteral.value",
+            """
+            [
+                "example",
+                "literal"
+            ]
+            """);
+        result.Parameters.Should().HaveValueAtPath(
+          "parameters.varWithExternalInput.expression",
+          "[createArray('example', externalInputs('foo_bar_0'))]");
+
+        result.Parameters.Should().HaveJsonAtPath(
+          "externalInputDefinitions",
+          """
+          {
+            "foo_bar_0": {
+              "kind": "foo.bar",
+              "config": "baz"
+            }
+          }
+          """
+        );
+    }
+
+    [TestMethod]
+    public void Test_Issue19228_externalInputs_analysis_should_not_cause_crash_for_invalid_syntax()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+
+                param foo = externalInput('t',)
+              """),
+            ("main.bicep", """
+                param foo string
+            """));
+        result.Should().OnlyContainDiagnostic(
+            "BCP009",
+            DiagnosticLevel.Error,
+            "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.");
+    }
+
+    [TestMethod]
+    public void Test_Issue17102_fully_qualified_functions_flags_are_validated()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                module Foo2 'module.bicep' = {
+                    name: sys.newGuid()
+                }
+
+                param foo object = az.listKeys('id', '2020-01-01')
+
+                @description(sys.utcNow())
+                param bar string
+            """),
+            ("module.bicep", """
+                param name string
+            """));
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(
+        [
+            ("BCP065", DiagnosticLevel.Error, """Function "newGuid" is not valid at this location. It can only be used as a parameter default value."""),
+            ("BCP066", DiagnosticLevel.Error, """Function "listKeys" is not valid at this location. It can only be used in resource declarations."""),
+            ("BCP065", DiagnosticLevel.Error, """Function "utcNow" is not valid at this location. It can only be used as a parameter default value."""),
+        ]);
+    }
+
+    [TestMethod]
+    // https://github.com/azure/bicep/issues/20067
+    public void Test_Issue20067_yaml_anchors_and_aliases_work()
+    {
+        var result = CompilationHelper.Compile(
+            ("settings.yaml", """
+            definitions:
+              example: &EXAMPLE
+                name: example
+                displayName: Example
+                enabled: true
+            
+            items:
+              example: *EXAMPLE
+            """),
+            ("main.bicep", """
+            var settings object = loadYamlContent('settings.yaml', 'items')
+            
+            output result object = settings
+            """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+        evaluated.Should().HaveJsonAtPath("$.outputs['result'].value", """
+        {
+          "example": {
+            "name": "example",
+            "displayName": "Example",
+            "enabled": true
+          }
+        }
+        """);
+    }
+
+    [TestMethod]
+    // https://github.com/azure/bicep/issues/20119
+    public void Test_Issue20119_yaml_scalar_anchors_and_aliases_work()
+    {
+        var result = CompilationHelper.Compile(
+            ("settings.yaml", """
+            source: &CIDR 10.0.0.0/17
+            alias: *CIDR
+            """),
+            ("main.bicep", """
+            var settings = loadYamlContent('settings.yaml')
+
+            output result object = settings
+            """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+        evaluated.Should().HaveJsonAtPath("$.outputs['result'].value", """
+        {
+          "source": "10.0.0.0/17",
+          "alias": "10.0.0.0/17"
+        }
+        """);
     }
 }

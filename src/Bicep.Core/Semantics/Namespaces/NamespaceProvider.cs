@@ -79,7 +79,7 @@ public class NamespaceProvider : INamespaceProvider
     {
         if (extension.Config is null)
         {
-            return ErrorType.Create(DiagnosticBuilder.ForDocumentStart().InvalidExtension_ImplicitExtensionMissingConfig(sourceFile.Configuration.ConfigFileUri, extension.Name));
+            return ErrorType.Create(DiagnosticBuilder.ForDocumentStart().InvalidExtension_ImplicitExtensionMissingConfig(sourceFile.LoadConfiguration().ConfigFileUri, extension.Name));
         }
 
         return GetNamespaceTypeForConfigManagedExtension(sourceFile, targetScope, extension.Artifact, syntax, extension.Name);
@@ -140,7 +140,7 @@ public class NamespaceProvider : INamespaceProvider
         // built-in extension
         if (LanguageConstants.IdentifierComparer.Equals(extensionName, SystemNamespaceType.BuiltInName))
         {
-            return SystemNamespaceType.Create(aliasName, sourceFile.Features, sourceFile.FileKind);
+            return SystemNamespaceType.Create(aliasName, sourceFile.LoadFeatures(), sourceFile.FileKind);
         }
 
         if (LanguageConstants.IdentifierComparer.Equals(extensionName, AzNamespaceType.BuiltInName))
@@ -151,12 +151,16 @@ public class NamespaceProvider : INamespaceProvider
                 _ => resourceTypeProviderFactory.GetBuiltInAzResourceTypesProvider(),
             };
 
-            return AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind);
+            var configurationType = sourceFile.LoadFeatures().AzExtensionConfigEnabled && typeProvider is AzResourceTypeProvider azProvider
+                ? azProvider.GetConfigurationType()
+                : null;
+
+            return AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind, configurationType);
         }
 
         if (LanguageConstants.IdentifierComparer.Equals(extensionName, K8sNamespaceType.BuiltInName))
         {
-            return K8sNamespaceType.Create(aliasName, sourceFile.Features);
+            return K8sNamespaceType.Create(aliasName, sourceFile.LoadFeatures());
         }
 
         // microsoftGraph built-in extension is no longer supported.
@@ -165,7 +169,7 @@ public class NamespaceProvider : INamespaceProvider
             return ErrorType.Create(diagBuilder.MicrosoftGraphBuiltinRetired(syntax));
         }
 
-        return ErrorType.Create(diagBuilder.InvalidExtension_NotABuiltInExtension(sourceFile.Configuration.ConfigFileUri, extensionName));
+        return ErrorType.Create(diagBuilder.InvalidExtension_NotABuiltInExtension(sourceFile.LoadConfiguration().ConfigFileUri, extensionName));
     }
 
     private ResultWithDiagnosticBuilder<NamespaceType> GetNamespaceTypeForArtifact(ArtifactResolutionInfo artifact, BicepSourceFile sourceFile, ResourceScope targetScope, string? aliasName)
@@ -182,8 +186,13 @@ public class NamespaceProvider : INamespaceProvider
 
         return typeProvider switch
         {
-            AzResourceTypeProvider => new(AzNamespaceType.Create(aliasName, targetScope, typeProvider, sourceFile.FileKind)),
-            ExtensionResourceTypeProvider extensionResourceTypeProvider => new(ExtensionNamespaceType.Create(aliasName, extensionResourceTypeProvider, artifact.Reference, sourceFile.Features, sourceFile.FileKind)),
+            AzResourceTypeProvider azResourceTypeProvider => new(AzNamespaceType.Create(
+                aliasName,
+                targetScope,
+                azResourceTypeProvider,
+                sourceFile.FileKind,
+                sourceFile.LoadFeatures().AzExtensionConfigEnabled ? azResourceTypeProvider.GetConfigurationType() : null)),
+            ExtensionResourceTypeProvider extensionResourceTypeProvider => new(ExtensionNamespaceType.Create(aliasName, extensionResourceTypeProvider, artifact.Reference, sourceFile.LoadFeatures(), sourceFile.FileKind)),
             _ => throw new InvalidOperationException($"Unexpected resource type provider type: {typeProvider.GetType().Name}."),
         };
     }

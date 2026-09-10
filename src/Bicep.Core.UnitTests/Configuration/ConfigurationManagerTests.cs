@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -11,7 +12,10 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.IO.Abstraction;
 using Bicep.IO.FileSystem;
 using Bicep.IO.InMemory;
-using Bicep.TextFixtures.IO;
+using Bicep.Testing;
+using Bicep.Testing.Assertions;
+using Bicep.Testing.Extensions;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -29,7 +33,7 @@ namespace Bicep.Core.UnitTests.Configuration
         public void GetBuiltInConfiguration_NoParameter_ReturnsBuiltInConfigurationWithAnalyzerSettings()
         {
             // Arrange.
-            var configuration = IConfigurationManager.GetBuiltInConfiguration();
+            var configuration = BicepConfiguration.BuiltIn;
 
             // Assert.
             configuration.Should().HaveContents(/*lang=json,strict*/ """
@@ -63,6 +67,9 @@ namespace Bicep.Core.UnitTests.Configuration
               "modulePath": "bicep"
             }
           }
+        },
+        "moduleAliasesMock": {
+         "br": {}
         },
         "extensions": {
           "az": "builtin:",
@@ -99,7 +106,7 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "experimentalFeaturesWarning": true,
         "experimentalFeaturesEnabled": {
-          "extendableParamFiles": false,
+          "ociEnabled": false,
           "symbolicNameCodegen": false,
           "moduleExtensionConfigs": false,
           "resourceTypedParamsAndOutputs": false,
@@ -107,13 +114,14 @@ namespace Bicep.Core.UnitTests.Configuration
           "legacyFormatter": false,
           "testFramework": false,
           "assertions": false,
-          "waitAndRetry": false,
+          "waitUntil": false,
           "localDeploy": false,
           "resourceInfoCodegen": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "thisNamespace": false,
-          "existingNullIfNotFound": false
+          "patch": false,
+          "runtimeValuesInTagsAndSku": false,
+          "azExtensionConfig": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -121,7 +129,27 @@ namespace Bicep.Core.UnitTests.Configuration
           "insertFinalNewline": true,
           "indentSize": 2,
           "width": 120
-        }
+        },
+        "documentation": {
+          "output": { "file": "README.md" },
+          "template": {},
+          "examples": {
+            "sources": [
+              {
+                "path": "examples",
+                "include": ["*.bicep", "**/main.bicep"],
+                "exclude": ["**/dependencies*.bicep"]
+              },
+              {
+                "path": "tests",
+                "include": ["**/*.test.bicep"],
+                "exclude": ["**/dependencies*.bicep"]
+              }
+            ],
+            "reassignments": []
+          }
+        },
+        "bicep": {}
       }
       """);
         }
@@ -129,7 +157,7 @@ namespace Bicep.Core.UnitTests.Configuration
         [TestMethod]
         public void GetBuiltInConfiguration_CoreLinterShouldDefaultToEnabled()
         {
-            var configuration = IConfigurationManager.GetBuiltInConfiguration();
+            var configuration = BicepConfiguration.BuiltIn;
 
             configuration.Analyzers.GetValue<bool>("core.enabled", false).Should().Be(true, "Core linters should default to enabled");
         }
@@ -138,7 +166,7 @@ namespace Bicep.Core.UnitTests.Configuration
         public void GetBuiltInConfiguration_DisableAllAnalyzers_ReturnsBuiltInConfigurationWithoutAnalyzerSettings()
         {
             // Arrange.
-            var configuration = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
+            var configuration = BicepConfiguration.BuiltIn.WithAllAnalyzersDisabled();
 
             // Assert.
             configuration.Should().HaveContents(/*lang=json,strict*/ """
@@ -172,6 +200,9 @@ namespace Bicep.Core.UnitTests.Configuration
               "modulePath": "bicep"
             }
           }
+        },
+        "moduleAliasesMock": {
+         "br": {}
         },
         "extensions": {
             "az": "builtin:",
@@ -183,21 +214,22 @@ namespace Bicep.Core.UnitTests.Configuration
         "analyzers": {},
         "experimentalFeaturesWarning": true,
         "experimentalFeaturesEnabled": {
-          "extendableParamFiles": false,
+          "ociEnabled": false,
           "symbolicNameCodegen": false,
           "resourceTypedParamsAndOutputs": false,
           "sourceMapping": false,
           "legacyFormatter": false,
           "testFramework": false,
           "assertions": false,
-          "waitAndRetry": false,
+          "waitUntil": false,
           "localDeploy": false,
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "thisNamespace": false,
-          "existingNullIfNotFound": false
+          "patch": false,
+          "runtimeValuesInTagsAndSku": false,
+          "azExtensionConfig": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -205,7 +237,27 @@ namespace Bicep.Core.UnitTests.Configuration
           "insertFinalNewline": true,
           "indentSize": 2,
           "width": 120
-        }
+        },
+        "documentation": {
+          "output": { "file": "README.md" },
+          "template": {},
+          "examples": {
+            "sources": [
+              {
+                "path": "examples",
+                "include": ["*.bicep", "**/main.bicep"],
+                "exclude": ["**/dependencies*.bicep"]
+              },
+              {
+                "path": "tests",
+                "include": ["**/*.test.bicep"],
+                "exclude": ["**/dependencies*.bicep"]
+              }
+            ],
+            "reassignments": []
+          }
+        },
+        "bicep": {}
       }
       """);
         }
@@ -214,7 +266,7 @@ namespace Bicep.Core.UnitTests.Configuration
         public void GetBuiltInConfiguration_DisableAnalyzers_ReturnsBuiltInConfiguration_WithSomeAnalyzersSetToLevelOff()
         {
             // Arrange.
-            var configuration = IConfigurationManager.GetBuiltInConfiguration().WithAnalyzersDisabled("no-hardcoded-env-urls", "no-unused-vars");
+            var configuration = BicepConfiguration.BuiltIn.WithAnalyzersDisabled("no-hardcoded-env-urls", "no-unused-vars");
 
             // Assert.
             configuration.Should().HaveContents(/*lang=json,strict*/ """
@@ -248,6 +300,9 @@ namespace Bicep.Core.UnitTests.Configuration
               "modulePath": "bicep"
             }
           }
+        },
+        "moduleAliasesMock": {
+         "br": {}
         },
         "extensions": {
             "az": "builtin:",
@@ -289,21 +344,22 @@ namespace Bicep.Core.UnitTests.Configuration
         },
         "experimentalFeaturesWarning": true,
         "experimentalFeaturesEnabled": {
-          "extendableParamFiles": false,
+          "ociEnabled": false,
           "symbolicNameCodegen": false,
           "resourceTypedParamsAndOutputs": false,
           "sourceMapping": false,
           "legacyFormatter": false,
           "testFramework": false,
           "assertions": false,
-          "waitAndRetry": false,
+          "waitUntil": false,
           "localDeploy": false,
           "resourceInfoCodegen": false,
           "moduleExtensionConfigs": false,
           "userDefinedConstraints": false,
           "deployCommands": false,
-          "thisNamespace": false,
-          "existingNullIfNotFound": false
+          "patch": false,
+          "runtimeValuesInTagsAndSku": false,
+          "azExtensionConfig": false
         },
         "formatting": {
           "indentKind": "Space",
@@ -311,7 +367,27 @@ namespace Bicep.Core.UnitTests.Configuration
           "insertFinalNewline": true,
           "indentSize": 2,
           "width": 120
-        }
+        },
+        "documentation": {
+          "output": { "file": "README.md" },
+          "template": {},
+          "examples": {
+            "sources": [
+              {
+                "path": "examples",
+                "include": ["*.bicep", "**/main.bicep"],
+                "exclude": ["**/dependencies*.bicep"]
+              },
+              {
+                "path": "tests",
+                "include": ["**/*.test.bicep"],
+                "exclude": ["**/dependencies*.bicep"]
+              }
+            ],
+            "reassignments": []
+          }
+        },
+        "bicep": {}
       }
       """);
         }
@@ -321,14 +397,14 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             // Arrange.
             var fileExplorer = new InMemoryFileExplorer();
-            var sut = new ConfigurationManager(fileExplorer);
+            var sut = new BicepConfigurationManager(fileExplorer);
             var sourceFileUri = TestFileUri.FromInMemoryPath("path/to/nonexistent/main.bicep");
 
             // Act.
-            var configuration = sut.GetConfiguration(sourceFileUri);
+            var configuration = sut.GetEffectiveConfiguration(sourceFileUri);
 
             // Assert.
-            configuration.Should().BeSameAs(IConfigurationManager.GetBuiltInConfiguration());
+            configuration.Should().BeSameAs(BicepConfiguration.BuiltIn);
         }
 
         [TestMethod]
@@ -336,10 +412,10 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             // Arrange.
             var fileSet = InMemoryTestFileSet.Create(("bicepconfig.json", ""));
-            var sut = new ConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
 
             // Act & Assert.
-            var diagnostics = sut.GetConfiguration(fileSet.GetUri("main.bicep")).Diagnostics;
+            var diagnostics = sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep")).GetDiagnostics().ToImmutableArray();
             diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
             diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{fileSet.GetUri("bicepconfig.json")}\" as valid JSON: The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.");
@@ -360,10 +436,10 @@ namespace Bicep.Core.UnitTests.Configuration
             });
 
             var fileSet = new MockFileSystemTestFileSet(fileSystem);
-            var sut = new ConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
 
             // Act & Assert.
-            var diagnostics = sut.GetConfiguration(mainFileUri).Diagnostics;
+            var diagnostics = sut.GetEffectiveConfiguration(mainFileUri).GetDiagnostics().ToImmutableArray();
             diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
             diagnostics[0].Message.Should().StartWith($"Could not load the Bicep configuration file \"{configFileUri}\":");
@@ -373,24 +449,25 @@ namespace Bicep.Core.UnitTests.Configuration
         public void GetBuiltInConfiguration_EnableExperimentalFeature_ReturnsBuiltInConfiguration_WithSelectedExperimentalFeatureEnabled()
         {
             // Arrange.
-            var configuration = IConfigurationManager.GetBuiltInConfiguration();
+            var configuration = BicepConfiguration.BuiltIn;
 
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled = new(
+                OciEnabled: false,
                 SymbolicNameCodegen: false,
-                ExtendableParamFiles: true,
                 ResourceTypedParamsAndOutputs: false,
                 SourceMapping: false,
                 LegacyFormatter: false,
                 TestFramework: false,
                 Assertions: false,
-                WaitAndRetry: false,
+                WaitUntil: false,
                 LocalDeploy: false,
                 ResourceInfoCodegen: false,
                 ModuleExtensionConfigs: false,
                 UserDefinedConstraints: false,
                 DeployCommands: false,
-                ThisNamespace: false,
-                ExistingNullIfNotFound: false);
+                Patch: false,
+                RuntimeValuesInTagsAndSku: false,
+                AzExtensionConfig: false);
 
             configuration.WithExperimentalFeaturesEnabled(experimentalFeaturesEnabled).Should().HaveContents(/*lang=json,strict*/ """
             {
@@ -423,6 +500,9 @@ namespace Bicep.Core.UnitTests.Configuration
                     "modulePath": "bicep"
                 }
                 }
+            },
+            "moduleAliasesMock": {
+             "br": {}
             },
             "extensions": {
                 "kubernetes": "builtin:",
@@ -461,21 +541,22 @@ namespace Bicep.Core.UnitTests.Configuration
             },
             "experimentalFeaturesWarning": true,
             "experimentalFeaturesEnabled": {
+                "ociEnabled": false,
                 "symbolicNameCodegen": false,
-                "extendableParamFiles": true,
                 "resourceTypedParamsAndOutputs": false,
                 "sourceMapping": false,
                 "legacyFormatter": false,
                 "testFramework": false,
                 "assertions": false,
-                "waitAndRetry": false,
+                "waitUntil": false,
                 "localDeploy": false,
                 "resourceInfoCodegen": false,
                 "moduleExtensionConfigs": false,
                 "userDefinedConstraints": false,
                 "deployCommands": false,
-                "thisNamespace": false,
-                "existingNullIfNotFound": false
+                "patch": false,
+                "runtimeValuesInTagsAndSku": false,
+                "azExtensionConfig": false
             },
             "formatting": {
                 "indentKind": "Space",
@@ -483,7 +564,27 @@ namespace Bicep.Core.UnitTests.Configuration
                 "insertFinalNewline": true,
                 "indentSize": 2,
                 "width": 120
-            }
+            },
+            "documentation": {
+                "output": { "file": "README.md" },
+                "template": {},
+                "examples": {
+                    "sources": [
+                        {
+                            "path": "examples",
+                            "include": ["*.bicep", "**/main.bicep"],
+                            "exclude": ["**/dependencies*.bicep"]
+                        },
+                        {
+                            "path": "tests",
+                            "include": ["**/*.test.bicep"],
+                            "exclude": ["**/dependencies*.bicep"]
+                        }
+                    ],
+                    "reassignments": []
+                }
+            },
+            "bicep": {}
             }
             """);
         }
@@ -502,15 +603,15 @@ namespace Bicep.Core.UnitTests.Configuration
             fileSystemMock.Setup(x => x.File.Exists(It.IsAny<string>())).Throws(new IOException("Oops."));
 
             var fileExplorer = new FileSystemFileExplorer(fileSystemMock.Object);
-            var sut = new ConfigurationManager(fileExplorer);
-            var configuration = sut.GetConfiguration(new IOUri(IOUriScheme.File, "", "/foo/bar/main.bicep"));
+            var sut = new BicepConfigurationManager(fileExplorer);
+            var configuration = sut.GetEffectiveConfiguration(new IOUri(IOUriScheme.File, "", "/foo/bar/main.bicep"));
 
             // Act & Assert.
-            var diagnostics = configuration.Diagnostics;
+            var diagnostics = configuration.GetDiagnostics().ToImmutableArray();
             diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Info);
             diagnostics[0].Message.Should().Be("Error scanning \"/foo/bar/\" for bicep configuration: Oops.");
-            configuration.ToUtf8Json().Should().Be(IConfigurationManager.GetBuiltInConfiguration().ToUtf8Json());
+            configuration.ToUtf8Json().Should().Be(BicepConfiguration.BuiltIn.ToUtf8Json());
         }
 
         [DataTestMethod]
@@ -573,10 +674,10 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             // Arrange.
             var fileSet = InMemoryTestFileSet.Create(("bicepconfig.json", configurationContents));
-            var sut = new ConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
 
             // Act & Assert.
-            var diagnostics = sut.GetConfiguration(fileSet.GetUri("main.bicep")).Diagnostics;
+            var diagnostics = sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep")).GetDiagnostics().ToImmutableArray();
             diagnostics.Length.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
             diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{fileSet.GetUri("bicepconfig.json")}\": {expectedExceptionMessage}");
@@ -635,11 +736,11 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             // Arrange.
             var fileSet = InMemoryTestFileSet.Create(("bicepconfig.json", configurationContents));
-            var sut = new ConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
 
 
             // Act.
-            var diagnostics = sut.GetConfiguration(fileSet.GetUri("main.bicep")).Diagnostics;
+            var diagnostics = sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep")).GetDiagnostics().ToImmutableArray();
 
             // Assert.
             diagnostics.Length.Should().Be(1);
@@ -712,7 +813,9 @@ namespace Bicep.Core.UnitTests.Configuration
                       },
                       "cacheRootDirectory": "/home/username/.bicep/cache",
                       "experimentalFeaturesWarning": false,
-                      "experimentalFeaturesEnabled": {},
+                      "experimentalFeaturesEnabled": {
+                        "ociEnabled": false
+                      },
                       "formatting": {
                         "indentKind": "Space",
                         "newlineKind": "LF",
@@ -722,10 +825,10 @@ namespace Bicep.Core.UnitTests.Configuration
                       }
                     }
                     """));
-            var sut = new ConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
 
             // Act.
-            var configuration = sut.GetConfiguration(fileSet.GetUri("modules/vnet.bicep"));
+            var configuration = sut.GetEffectiveConfiguration(fileSet.GetUri("modules/vnet.bicep"));
 
             // Assert.
             configuration.Should().HaveContents("""
@@ -781,6 +884,9 @@ namespace Bicep.Core.UnitTests.Configuration
                       }
                     }
                   },
+                  "moduleAliasesMock": {
+                   "br": {}
+                  },
                   "extensions": {
                     "az": "builtin:",
                     "kubernetes": "builtin:"
@@ -813,21 +919,22 @@ namespace Bicep.Core.UnitTests.Configuration
                   "cacheRootDirectory": "/home/username/.bicep/cache",
                   "experimentalFeaturesWarning": false,
                   "experimentalFeaturesEnabled": {
-                    "extendableParamFiles": false,
+                    "ociEnabled": false,
                     "symbolicNameCodegen": false,
                     "resourceTypedParamsAndOutputs": false,
                     "sourceMapping": false,
                     "legacyFormatter": false,
                     "testFramework": false,
                     "assertions": false,
-                    "waitAndRetry": false,
+                    "waitUntil": false,
                     "localDeploy": false,
                     "resourceInfoCodegen": false,
                     "moduleExtensionConfigs": false,
                     "userDefinedConstraints": false,
                     "deployCommands": false,
-                    "thisNamespace": false,
-                    "existingNullIfNotFound": false
+                    "patch": false,
+                    "runtimeValuesInTagsAndSku": false,
+                    "azExtensionConfig": false
                   },
                   "formatting": {
                     "indentKind": "Space",
@@ -835,7 +942,27 @@ namespace Bicep.Core.UnitTests.Configuration
                     "insertFinalNewline": true,
                     "indentSize": 2,
                     "width": 80
-                  }
+                  },
+                  "documentation": {
+                    "output": { "file": "README.md" },
+                    "template": {},
+                    "examples": {
+                      "sources": [
+                        {
+                          "path": "examples",
+                          "include": ["*.bicep", "**/main.bicep"],
+                          "exclude": ["**/dependencies*.bicep"]
+                        },
+                        {
+                          "path": "tests",
+                          "include": ["**/*.test.bicep"],
+                          "exclude": ["**/dependencies*.bicep"]
+                        }
+                      ],
+                      "reassignments": []
+                    }
+                  },
+                  "bicep": {}
                 }
                 """);
         }
@@ -864,14 +991,75 @@ namespace Bicep.Core.UnitTests.Configuration
                     }
                     """));
 
-            var sut = new ConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
 
             // Act.
-            var configuration = sut.GetConfiguration(fileSet.GetUri("repo/modules/bicepconfig.json"));
+            var configuration = sut.GetEffectiveConfiguration(fileSet.GetUri("repo/modules/bicepconfig.json"));
 
             // Assert.
             configuration.ModuleAliases.TryGetOciArtifactModuleAlias("public").IsSuccess(out var moduleAlias).Should().BeTrue();
             moduleAlias!.Registry.Should().Be("mcr.microsoft.com");
+        }
+
+        [TestMethod]
+        public void GetConfiguration_ModuleAliasesMock_SupersedesModuleAliasesForSameAlias()
+        {
+            // Arrange.
+            var fileSet = InMemoryTestFileSet.Create(("bicepconfig.json", """
+                {
+                  "moduleAliases": {
+                    "br": {
+                      "myAlias": { "registry": "real.azurecr.io", "modulePath": "real/path" }
+                    }
+                  },
+                  "moduleAliasesMock": {
+                    "br": {
+                      "myAlias": { "mapToFilePath": "mock/path" }
+                    }
+                  }
+                }
+                """));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+
+            // Act.
+            var configuration = sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep"));
+
+            // Assert.
+            configuration.ModuleAliasesMock.TryGetOciArtifactModuleAliasMock("myAlias").IsSuccess(out var mockAlias).Should().BeTrue();
+            mockAlias!.MapToFilePath.Should().Be("mock/path");
+
+            // The merged view should expose the mock definition without throwing on duplicate keys.
+            var mocks = configuration.ModuleAliasesMock.GetOciArtifactModuleAliasesMock();
+            mocks.Should().ContainKey("myAlias");
+            mocks["myAlias"].MapToFilePath.Should().Be("mock/path");
+        }
+
+        [TestMethod]
+        public void GetConfiguration_ModuleAliasesMock_FallsBackToModuleAliasesWhenAliasNotInMock()
+        {
+            // Arrange.
+            var fileSet = InMemoryTestFileSet.Create(("bicepconfig.json", """
+                {
+                  "moduleAliases": {
+                    "br": {
+                      "myAlias": { "registry": "real.azurecr.io" }
+                    }
+                  },
+                  "moduleAliasesMock": {
+                    "br": {
+                      "otherAlias": { "mapToFilePath": "mock/path" }
+                    }
+                  }
+                }
+                """));
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+
+            // Act.
+            var configuration = sut.GetEffectiveConfiguration(fileSet.GetUri("main.bicep"));
+
+            // Assert.
+            configuration.ModuleAliases.TryGetOciArtifactModuleAlias("myAlias").IsSuccess(out var alias).Should().BeTrue();
+            alias!.Registry.Should().Be("real.azurecr.io");
         }
     }
 }

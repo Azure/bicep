@@ -17,7 +17,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
         private readonly ResourceTypeCache generatedTypeCache;
 
         public ExtensionResourceTypeProvider(ExtensionResourceTypeLoader resourceTypeLoader)
-            : base([.. resourceTypeLoader.GetAvailableTypes()])
+            : base(resourceTypeLoader.GetAvailableTypes())
         {
             this.resourceTypeLoader = resourceTypeLoader;
             definedTypeCache = new ResourceTypeCache();
@@ -64,6 +64,16 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
                 {
                     // Add LoopVariant flag to required identifier properties.
                     properties = properties.SetItem(propertyName, UpdateFlags(propertyType, propertyType.Flags | TypePropertyFlags.SystemProperty | TypePropertyFlags.LoopVariant));
+                }
+            }
+
+            foreach (var (propertyName, propertyType) in properties)
+            {
+                if (propertyType.Flags.HasFlag(TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant))
+                {
+                    // Required + DeployTimeConstant means the caller owns the value fully and it cannot
+                    // be server-generated or deferred, so it is safe to read back at deploy time.
+                    properties = properties.SetItem(propertyName, UpdateFlags(propertyType, propertyType.Flags | TypePropertyFlags.ReadableAtDeployTime));
                 }
             }
 
@@ -204,7 +214,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
         }
 
         public bool HasDefinedType(ResourceTypeReference typeReference)
-            => availableResourceTypes.Contains(typeReference);
+            => resourceTypeLoader.HasType(typeReference);
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;

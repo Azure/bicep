@@ -24,6 +24,7 @@ var resourceDependency = {
 output resourceAType string = resA.type
 //@[7:20) Output resourceAType. Type: string. Declaration start char: 0, length: 39
 resource resA 'My.Rp/myResourceType@2020-01-01' = {
+//@[0:08) Local this. Type: object. Declaration start char: 50, length: 84
 //@[9:13) Resource resA. Type: My.Rp/myResourceType@2020-01-01. Declaration start char: 0, length: 134
   name: 'resA'
   properties: {
@@ -35,6 +36,7 @@ resource resA 'My.Rp/myResourceType@2020-01-01' = {
 output resourceBId string = resB.id
 //@[7:18) Output resourceBId. Type: string. Declaration start char: 0, length: 35
 resource resB 'My.Rp/myResourceType@2020-01-01' = {
+//@[0:08) Local this. Type: object. Declaration start char: 50, length: 75
 //@[9:13) Resource resB. Type: My.Rp/myResourceType@2020-01-01. Declaration start char: 0, length: 125
   name: 'resB'
   properties: {
@@ -49,6 +51,7 @@ var resourceIds = {
 }
 
 resource resC 'My.Rp/myResourceType@2020-01-01' = {
+//@[0:08) Local this. Type: object. Declaration start char: 50, length: 67
 //@[9:13) Resource resC. Type: My.Rp/myResourceType@2020-01-01. Declaration start char: 0, length: 117
   name: 'resC'
   properties: {
@@ -57,6 +60,7 @@ resource resC 'My.Rp/myResourceType@2020-01-01' = {
 }
 
 resource resD 'My.Rp/myResourceType/childType@2020-01-01' = {
+//@[0:08) Local this. Type: object. Declaration start char: 60, length: 51
 //@[9:13) Resource resD. Type: My.Rp/myResourceType/childType@2020-01-01. Declaration start char: 0, length: 111
   name: '${resC.name}/resD'
   properties: {
@@ -64,6 +68,7 @@ resource resD 'My.Rp/myResourceType/childType@2020-01-01' = {
 }
 
 resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
+//@[0:08) Local this. Type: object. Declaration start char: 60, length: 66
 //@[9:13) Resource resE. Type: My.Rp/myResourceType/childType@2020-01-01. Declaration start char: 0, length: 126
   name: 'resC/resD_2'
   properties: {

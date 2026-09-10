@@ -22,7 +22,7 @@ var other = {
 output test object = {
   foo: 'foo'
   ...other
-  baz: 'baz'  
+  baz: 'baz'
 }
 """);
 
@@ -125,7 +125,7 @@ var other = ['bar']
 var test = {
   foo: 'foo'
   ...other
-  baz: 'baz'  
+  baz: 'baz'
 }
 """);
 
@@ -144,7 +144,7 @@ var other = {
 var test = [
   'foo'
   ...other
-  'baz'  
+  'baz'
 ]
 """);
 
@@ -210,7 +210,167 @@ resource ex 'Microsoft.Network/expressRouteCircuits@2024-05-01' = {
 """);
 
         result.ExcludingLinterDiagnostics().Should().ContainDiagnostic(
-            "BCP417", Diagnostics.DiagnosticLevel.Error, """The spread operator "..." cannot be used inside objects with property for-expressions.""");
+            "BCP417", Diagnostics.DiagnosticLevel.Error, """The spread operator "..." cannot be used inside objects containing property for-expressions.""");
+    }
+
+    [TestMethod]
+    public void Nested_for_loop_without_spread_is_allowed()
+    {
+        // https://github.com/Azure/bicep/issues/19394
+        var result = CompilationHelper.Compile("""
+resource foo 'Microsoft.Storage/storageAccounts@2025-08-01' = {
+  name: uniqueString(resourceGroup().id, 'repro')
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    networkAcls: {
+      defaultAction: 'Deny'
+      ipRules: [for item in []: {
+        value: item
+        action: 'Allow'
+      }]
+    }
+  }
+}
+""");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Nested_for_loop_with_spread_returns_diagnostic()
+    {
+        // https://github.com/Azure/bicep/issues/19394
+        var result = CompilationHelper.Compile("""
+resource foo 'Microsoft.Storage/storageAccounts@2025-08-01' = {
+  name: uniqueString(resourceGroup().id, 'repro')
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    networkAcls: {
+      defaultAction: 'Deny'
+      ipRules: [for item in []: {
+        value: item
+        action: 'Allow'
+      }]
+    }
+    ...{}
+  }
+}
+""");
+
+        result.ExcludingLinterDiagnostics().Should().ContainDiagnostic(
+            "BCP417", Diagnostics.DiagnosticLevel.Error, """The spread operator "..." cannot be used inside objects containing property for-expressions.""");
+    }
+
+    [TestMethod]
+    public void Spread_is_blocked_when_property_for_loop_is_nested()
+    {
+        var result = CompilationHelper.Compile("""
+var other = {
+  bypass: 'AzureServices'
+}
+
+resource foo 'Microsoft.Storage/storageAccounts@2025-08-01' = {
+  name: uniqueString(resourceGroup().id, 'repro')
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    networkAcls: {
+      ...other
+      defaultAction: 'Deny'
+      ipRules: [for item in ['10.0.0.1']: {
+        value: item
+        action: 'Allow'
+      }]
+    }
+  }
+}
+""");
+
+        result.ExcludingLinterDiagnostics().Should().ContainDiagnostic(
+            "BCP417", Diagnostics.DiagnosticLevel.Error, """The spread operator "..." cannot be used inside objects containing property for-expressions.""");
+    }
+
+    [TestMethod]
+    public void Spread_with_nested_lambda_map_is_allowed()
+    {
+        var result = CompilationHelper.Compile("""
+var other = {
+  enabled: true
+}
+
+var test = {
+  ...other
+  settings: {
+    values: map(['one', 'two'], item => {
+      name: item
+    })
+  }
+}
+
+output result object = test
+""");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+        evaluated.Should().HaveJsonAtPath("$.outputs['result'].value", """
+{
+  "enabled": true,
+  "settings": {
+    "values": [
+      {
+        "name": "one"
+      },
+      {
+        "name": "two"
+      }
+    ]
+  }
+}
+""");
+    }
+
+    [TestMethod]
+    public void Spread_source_with_for_loop_is_allowed()
+    {
+        var result = CompilationHelper.Compile("""
+var values = [for item in ['one', 'two']: item]
+
+var other = {
+  values: values
+}
+
+var test = {
+  ...other
+  enabled: true
+}
+
+output result object = test
+""");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        var evaluated = TemplateEvaluator.Evaluate(result.Template).ToJToken();
+        evaluated.Should().HaveJsonAtPath("$.outputs['result'].value", """
+{
+  "values": [
+    "one",
+    "two"
+  ],
+  "enabled": true
+}
+""");
     }
 
     [TestMethod]

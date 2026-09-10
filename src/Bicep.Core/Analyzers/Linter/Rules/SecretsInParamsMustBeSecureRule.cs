@@ -11,6 +11,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -49,7 +50,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             foreach (var param in model.Root.ParameterDeclarations)
             {
-                if (!param.IsSecure())
+                if (!param.IsSecure() && !DeclaredTypeReferenceIsSecure(model, param))
                 {
                     if (AnalyzeUnsecuredParameter(model, diagnosticLevel, param) is IDiagnostic diag)
                     {
@@ -86,19 +87,83 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return null;
         }
 
+        private static bool DeclaredTypeReferenceIsSecure(SemanticModel model, ParameterSymbol parameterSymbol)
+            => RefersToTypeAlias(parameterSymbol.DeclaringParameter.Type, model) &&
+                model.GetDeclaredType(parameterSymbol.DeclaringParameter.Type) is { } declaredType &&
+                DeclaredTypeIsSecure(declaredType);
+
+        private static bool DeclaredTypeIsSecure(TypeSymbol type)
+        {
+            var nonNullable = TypeHelper.TryRemoveNullability(type) ?? type;
+
+            return nonNullable.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure);
+        }
+
+        private static bool RefersToTypeAlias(SyntaxBase? typeSyntax, SemanticModel model) => UnwrapNullableSyntax(typeSyntax) switch
+        {
+            TypeVariableAccessSyntax variableAccess
+                => model.Binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol or ImportedTypeSymbol or WildcardImportSymbol,
+            TypePropertyAccessSyntax typePropertyAccess => RefersToTypeAlias(typePropertyAccess.BaseExpression, model),
+            TypeAdditionalPropertiesAccessSyntax typeAdditionalPropertiesAccess => RefersToTypeAlias(typeAdditionalPropertiesAccess.BaseExpression, model),
+            TypeArrayAccessSyntax typeArrayAccess
+                => RefersToTypeAlias(typeArrayAccess.BaseExpression, model) || RefersToTypeAlias(typeArrayAccess.IndexExpression, model),
+            TypeItemsAccessSyntax typeItemsAccess => RefersToTypeAlias(typeItemsAccess.BaseExpression, model),
+            _ => false,
+        };
+
+        private static SyntaxBase? UnwrapNullableSyntax(SyntaxBase? maybeNullable) => maybeNullable switch
+        {
+            NullableTypeSyntax nullable => nullable.Base,
+            var otherwise => otherwise,
+        };
+
+        private static TypeAliasSymbol? TryGetDirectLocalTypeAlias(SyntaxBase typeSyntax, SemanticModel model) => UnwrapNullableSyntax(typeSyntax) switch
+        {
+            TypeVariableAccessSyntax variableAccess => model.Binder.GetSymbolInfo(variableAccess) as TypeAliasSymbol,
+            _ => null,
+        };
+
+        private static bool TypeCanBeMarkedSecure(TypeSymbol type)
+        {
+            var unwrapped = type is TypeType typeType ? typeType.Unwrapped : type;
+            var nonNullable = TypeHelper.TryRemoveNullability(unwrapped) ?? unwrapped;
+
+            return nonNullable.IsObject() || nonNullable.IsString();
+        }
+
         private IDiagnostic CreateDiagnostic(SemanticModel model, ParameterSymbol parameterSymbol, DiagnosticLevel diagnosticLevel)
+        {
+            var fixableDiagnostic = TryCreateCodeFix(model, parameterSymbol) is { } codeFix
+                ? CreateFixableDiagnosticForSpan(diagnosticLevel, parameterSymbol.NameSource.Span, codeFix, parameterSymbol.Name)
+                : null;
+
+            return fixableDiagnostic ?? CreateDiagnosticForSpan(diagnosticLevel, parameterSymbol.NameSource.Span, parameterSymbol.Name);
+        }
+
+        private static CodeFix? TryCreateCodeFix(SemanticModel model, ParameterSymbol parameterSymbol)
         {
             var decorator = SyntaxFactory.CreateDecorator("secure");
             var newline = model.Configuration.Formatting.Data.NewlineKind.ToEscapeSequence();
             var decoratorText = $"{decorator}{newline}";
-            var fixSpan = new TextSpan(parameterSymbol.DeclaringSyntax.Span.Position, 0);
-            var codeReplacement = new CodeReplacement(fixSpan, decoratorText);
 
-            return CreateFixableDiagnosticForSpan(
-                diagnosticLevel,
-                parameterSymbol.NameSource.Span,
-                new CodeFix("Mark parameter as secure", isPreferred: true, CodeFixKind.QuickFix, codeReplacement),
-                parameterSymbol.Name);
+            if (TryGetDirectLocalTypeAlias(parameterSymbol.DeclaringParameter.Type, model) is { } typeAliasSymbol &&
+                TypeCanBeMarkedSecure(typeAliasSymbol.Type))
+            {
+                var fixSpan = new TextSpan(typeAliasSymbol.DeclaringSyntax.Span.Position, 0);
+                var codeReplacement = new CodeReplacement(fixSpan, decoratorText);
+
+                return new CodeFix("Mark type as secure", isPreferred: true, CodeFixKind.QuickFix, codeReplacement);
+            }
+
+            if (!RefersToTypeAlias(parameterSymbol.DeclaringParameter.Type, model))
+            {
+                var fixSpan = new TextSpan(parameterSymbol.DeclaringSyntax.Span.Position, 0);
+                var codeReplacement = new CodeReplacement(fixSpan, decoratorText);
+
+                return new CodeFix("Mark parameter as secure", isPreferred: true, CodeFixKind.QuickFix, codeReplacement);
+            }
+
+            return null;
         }
     }
 }

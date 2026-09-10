@@ -1,41 +1,42 @@
 {
   "version": "0.0.0-placeholder",
   "scripts": {
-    "build-wasm": "dotnet publish -c Release ../Bicep.Wasm/Bicep.Wasm.csproj",
+    "build-wasm": "node scripts/clean-wasm-publish.mjs && dotnet publish -c Release -p:InvariantGlobalization=true -p:InvariantTimezone=true -p:WasmBuildNative=true ../Bicep.Wasm/Bicep.Wasm.csproj && node scripts/stage-wasm-assets.mjs",
     "package": "nbgv-setversion && npm run build && nbgv-setversion --reset",
     "dev": "npm run build-wasm && vite",
-    "build": "npm run build-wasm && tsc -b && vite build",
+    "build": "npm run build-wasm && vite build && node scripts/check-build.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "aiKey": "c195e410-2651-4cea-a18e-8e576714eada",
   "private": true,
   "devDependencies": {
-    "@eslint/js": "9.39.2",
-    "@types/node": "25.3.0",
-    "@types/pako": "2.0.4",
-    "@types/react": "19.2.14",
-    "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "5.1.4",
-    "eslint": "9.39.2",
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.62.1",
+    "@types/node": "26.4.1",
+    "@types/pako": "3.0.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
+    "@vitejs/plugin-react": "6.1.1",
+    "eslint": "10.9.1",
     "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-notice": "1.0.0",
-    "eslint-plugin-prettier": "5.5.5",
-    "nerdbank-gitversioning": "3.9.50",
-    "typescript": "5.9.3",
-    "typescript-eslint": "8.56.1",
-    "vite": "7.3.1",
-    "vite-plugin-ejs": "1.7.0",
-    "vite-plugin-static-copy": "3.2.0"
+    "eslint-plugin-prettier": "5.5.6",
+    "nerdbank-gitversioning": "3.10.94",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.69.0",
+    "vite": "8.2.2"
   },
   "dependencies": {
-    "@microsoft/applicationinsights-web": "3.3.11",
-    "bootstrap": "5.3.8",
-    "monaco-editor": "0.55.1",
-    "pako": "2.1.0",
-    "react": "19.2.4",
-    "react-bootstrap": "2.10.10",
-    "react-dom": "19.2.4"
+    "@microsoft/applicationinsights-web": "3.4.3",
+    "monaco-editor": "0.56.0",
+    "pako": "3.0.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "overrides": {
+    "dompurify": "3.4.13"
   }
 }

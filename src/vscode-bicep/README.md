@@ -110,4 +110,4 @@ For small issues like misspelled symbols or incorrect casing, bicep will offer a
 
 Use the "Insert Resource" command to quickly import a resource from Azure into a Bicep file.
 
-![Insert resource command](/src/vscode-bicep/readme-links/insertresource.gif)
+![Insert resource command](/src/vscode-bicep/docs/images/insert-resource.gif)

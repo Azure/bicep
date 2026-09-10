@@ -1,0 +1,26 @@
+{
+  "predictedResources": [
+    {
+      "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg/providers/Microsoft.Storage/storageAccounts/storejs26ofeqkqeve",
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "storejs26ofeqkqeve",
+      "apiVersion": "2022-09-01",
+      "location": "eastus",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2",
+      "properties": {}
+    }
+  ],
+  "diagnostics": [],
+  "outputs": {
+    "objectWithExpressions": "[createObject('foo', 'bar', 'baz', 123, 'qux', reference('/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg/providers/Microsoft.Storage/storageAccounts/storejs26ofeqkqeve', '2022-09-01').primaryEndpoints.blob)]",
+    "objectLiteral": {
+      "storageAccountType": "Standard_LRS",
+      "baz": 123
+    },
+    "storageAccountType": "Standard_LRS",
+    "blobUri": "[reference('/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/myRg/providers/Microsoft.Storage/storageAccounts/storejs26ofeqkqeve', '2022-09-01').primaryEndpoints.blob]"
+  }
+}

@@ -61,6 +61,15 @@ namespace Bicep.Decompiler {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to WARNING: The source file appears to have been generated from a .bicep file. Decompiling it may produce results that are less accurate than the original Bicep source, since information is lost when compiling to ARM JSON. If you have access to the original .bicep file, use that instead.
+        /// </summary>
+        internal static string BicepGeneratedTemplateWarning {
+            get {
+                return ResourceManager.GetString("BicepGeneratedTemplateWarning", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep Template or Bicep Parameters.
         ///You may need to fix warnings and errors in the generated bicep/bicepparam file(s), or decompilation may fail entirely if an accurate conversion is not possible.
         ///If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues..

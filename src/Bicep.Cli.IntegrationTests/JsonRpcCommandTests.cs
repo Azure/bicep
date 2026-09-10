@@ -7,14 +7,24 @@ using System.IO.Pipes;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Bicep.Cli.Rpc;
+using Bicep.Cli.Services;
+using Bicep.Core.Configuration;
+using Bicep.Core.Documentation;
+using Bicep.Core.Exceptions;
+using Bicep.Core.Features;
 using Bicep.Core.Json;
+using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.IO.Abstraction;
+using Bicep.IO.FileSystem;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Moq;
 using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
 
@@ -150,6 +160,201 @@ output bar string = foo
                 response.Exports.Should().Equal([
                     new(new(new(11, 0), new(15, 1)), "asdf", "TypeAlias", "asdf type"),
                 ]);
+            });
+    }
+
+    [TestMethod]
+    public async Task GenerateDocs_returns_rendered_documentation_without_writing_files()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/main.bicep"] = """
+                metadata name = 'RPC Module'
+                metadata description = 'Rendered through JSON-RPC.'
+
+                @description('Example value.')
+                param value string = 'default'
+                """,
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var response = await client.GenerateDocs(
+                    new("/main.bicep"),
+                    token);
+
+                response.Diagnostics.Should().ContainSingle(diagnostic =>
+                    diagnostic.Level == "Warning" &&
+                    diagnostic.Code == "no-unused-params");
+                response.Contents.Should().ContainAll("# RPC Module", "Rendered through JSON-RPC.", "`value`");
+                fileSystem.File.Exists("/README.md").Should().BeFalse();
+            });
+    }
+
+    [TestMethod]
+    public async Task GenerateDocs_custom_template_supports_includes_and_custom_values()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/main.bicep"] = "metadata name = 'RPC Module'",
+            ["/template.scriban"] = "{{ include \"_header.md\" }} {{ module.name }} {{ custom.owner }}",
+            ["/_header.md"] = "Header",
+            ["/bicepconfig.json"] = """
+                {
+                  "documentation": {
+                    "template": {
+                      "file": "template.scriban",
+                      "includeRoot": "."
+                    }
+                  }
+                }
+                """,
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var response = await client.GenerateDocs(
+                    new("/main.bicep", new() { ["owner"] = "Platform" }),
+                    token);
+
+                response.Contents.Should().Be("Header RPC Module Platform\n");
+            });
+    }
+
+    [TestMethod]
+    public async Task GenerateDocs_applies_configuration_and_request_values()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/module/main.bicep"] = "metadata name = 'RPC Config'",
+            ["/module/examples/default/main.bicep"] = "metadata name = 'ignored'",
+            ["/template.scriban"] = "{{ module.name }}|{{ custom.owner }}|{{ module.usageExamples.size }}",
+            ["/bicepconfig.json"] = """
+                {
+                  "documentation": {
+                    "template": {
+                      "file": "template.scriban"
+                    },
+                    "examples": {
+                      "sources": []
+                    }
+                  }
+                }
+                """,
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var configured = await client.GenerateDocs(
+                    new("/module/main.bicep", new() { ["owner"] = "Request" }),
+                    token);
+
+                configured.Contents.Should().Be("RPC Config|Request|0\n");
+            });
+    }
+
+    [TestMethod]
+    public async Task GenerateDocs_uses_discovered_bicep_configuration()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/module/main.bicep"] = "metadata name = 'RPC defaults'",
+            ["/bicepconfig.json"] = """
+                {
+                  "documentation": {
+                    "output": {
+                      "file": "RPC.md"
+                    }
+                  }
+                }
+                """,
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var response = await client.GenerateDocs(
+                    new("/module/main.bicep"),
+                    token);
+
+                response.Contents.Should().Contain("# RPC defaults");
+
+                // The configured output file is never written; the client owns the filesystem.
+                fileSystem.File.Exists("/module/RPC.md").Should().BeFalse();
+            });
+    }
+
+    [TestMethod]
+    public async Task GenerateDocs_never_writes_files()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/module/main.bicep"] = "metadata name = 'No Writes'",
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var before = fileSystem.AllFiles.OrderBy(file => file, StringComparer.Ordinal).ToArray();
+
+                var rendered = await client.GenerateDocs(
+                    new("/module/main.bicep"),
+                    token);
+
+                rendered.Contents.Should().Contain("# No Writes");
+                fileSystem.AllFiles.OrderBy(file => file, StringComparer.Ordinal).Should().Equal(before);
+            });
+    }
+
+    [TestMethod]
+    public async Task GenerateDocs_returns_diagnostics_for_compilation_errors()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/main.bicep"] = "param value invalidType",
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var response = await client.GenerateDocs(new("/main.bicep"), token);
+
+                response.Contents.Should().BeNull();
+                response.Diagnostics.Should().Contain(diagnostic => diagnostic.Level == "Error");
+            });
+    }
+
+    [TestMethod]
+    public async Task GenerateDocs_passes_request_cancellation_to_generation()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/main.bicep"] = "metadata name = 'Cancellation'",
+        });
+        var generator = new CancellationObservingDocumentationGenerator();
+
+        await RunServerTest(
+            services => services
+                .WithFileSystem(fileSystem)
+                .AddSingleton<IBicepDocumentationGenerator>(generator),
+            async (client, token) =>
+            {
+                var rendered = await client.GenerateDocs(
+                    new("/main.bicep"),
+                    token);
+
+                rendered.Contents.Should().Be("# Cancellation\n");
+                generator.BuildObserved.Should().BeTrue();
+                generator.RenderObserved.Should().BeTrue();
             });
     }
 
@@ -337,6 +542,7 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                 var response = await client.GetSnapshot(new("/main.bicepparam", new(
                     TenantId: null,
                     SubscriptionId: "11068ed9-6c31-4a47-8183-4eca6d84bb32",
+                    ManagementGroupId: null,
                     ResourceGroup: "myRg",
                     Location: null,
                     DeploymentName: null),
@@ -358,7 +564,8 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                           "properties": {}
                         }
                       ],
-                      "diagnostics": []
+                      "diagnostics": [],
+                      "outputs": {}
                     }
                     """));
             });
@@ -409,6 +616,7 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                 var response = await client.GetSnapshot(new("/main.bicepparam", new(
                     TenantId: null,
                     SubscriptionId: "11068ed9-6c31-4a47-8183-4eca6d84bb32",
+                    ManagementGroupId: null,
                     ResourceGroup: "myRg",
                     Location: null,
                     DeploymentName: null),
@@ -430,7 +638,8 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                           "properties": {}
                         }
                       ],
-                      "diagnostics": []
+                      "diagnostics": [],
+                      "outputs": {}
                     }
                     """));
             });
@@ -468,5 +677,53 @@ kind: 'StorageV2'
                 response.Contents.Should().Contain("  name: 'mystorageaccount'");
                 response.Contents.Should().Contain("  location: 'East US'");
             });
+    }
+
+    private sealed class CancellationObservingDocumentationGenerator : IBicepDocumentationGenerator
+    {
+        public bool BuildObserved { get; private set; }
+
+        public bool RenderObserved { get; private set; }
+
+        public void Reset()
+        {
+            BuildObserved = false;
+            RenderObserved = false;
+        }
+
+        public BicepDocumentationModel BuildModel(
+            Compilation compilation,
+            IReadOnlyDictionary<string, string>? customValues = null,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.CanBeCanceled.Should().BeTrue();
+            BuildObserved = true;
+
+            return new(
+                "Cancellation",
+                null,
+                compilation.SourceFileGrouping.EntryPoint.FileHandle.Uri.GetFilePath(),
+                "resourceGroup",
+                ImmutableSortedDictionary<string, string>.Empty,
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                []);
+        }
+
+        public string Render(
+            BicepDocumentationModel model,
+            BicepDocumentationGenerationOptions? options = null,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.CanBeCanceled.Should().BeTrue();
+            RenderObserved = true;
+
+            return "# Cancellation\n";
+        }
     }
 }

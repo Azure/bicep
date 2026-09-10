@@ -17,7 +17,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Extensions;
-using Bicep.LanguageServer.Refactor;
+using Bicep.LanguageServer.Features.Language.CodeAction;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -2655,6 +2655,11 @@ public class ExpressionAndTypeExtractorTests : CodeActionTestBase
                   managedByExtended: string[]
                   name: string
                   parent: object? /* Microsoft.Compute/virtualMachines */
+                  placement: {
+                    excludeZones: string[]
+                    includeZones: string[]
+                    zonePlacementPolicy: string /* 'Any' | 'Auto' | 'None' | 'NotSpecified' | string */
+                  }
                   plan: object
                   properties: {
                     autoUpgradeMinorVersion: bool?

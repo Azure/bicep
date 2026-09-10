@@ -28,7 +28,11 @@ namespace Bicep.Core.Configuration
 
     public record ManagedIdentity(ManagedIdentityType Type, string? ClientId, string? ResourceId);
 
-    public class CloudConfiguration : ConfigurationSection<Cloud>, IEquatable<CloudConfiguration>
+    [JsonSerializable(typeof(Cloud))]
+    [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+    internal partial class CloudSerializationContext : JsonSerializerContext { }
+
+    public class CloudConfiguration : ConfigurationSection<Cloud>, IBicepCloudConfiguration, IEquatable<CloudConfiguration>
     {
         public CloudConfiguration(Cloud data, Uri resourceManagerEndpointUri, Uri activeDirectoryAuthorityUri)
             : base(data)
@@ -54,7 +58,8 @@ namespace Bicep.Core.Configuration
 
         public static CloudConfiguration Bind(JsonElement element)
         {
-            var cloud = element.ToNonNullObject<Cloud>();
+            var cloud = element.Deserialize(CloudSerializationContext.Default.Cloud) ??
+                throw new JsonException($"Expected deserialized value of \"{element}\" to be non-null.");
             var (endpointUri, authorityUri) = ValidateCurrentProfile(cloud);
             ValidateCredentialOptions(cloud);
 

@@ -43,6 +43,7 @@ public static class SnapshotHelper
         string templateContent,
         string parametersContent,
         string? tenantId,
+        string? managementGroupId,
         string? subscriptionId,
         string? resourceGroup,
         string? deploymentName,
@@ -61,7 +62,7 @@ public static class SnapshotHelper
             scope,
             template,
             parameters: ResolveParameters(parameters, externalInputs),
-            rootDeploymentMetadata: GetDeploymentMetadata(tenantId, subscriptionId, resourceGroup, deploymentName, location, scope, template),
+            rootDeploymentMetadata: GetDeploymentMetadata(tenantId, managementGroupId, subscriptionId, resourceGroup, deploymentName, location, scope, template),
             referenceFunctionPreflightEnabled: true,
             cancellationToken: cancellationToken);
 
@@ -78,7 +79,8 @@ public static class SnapshotHelper
             ],
             [
                 .. expansionResult.diagnostics.Select(d => $"{d.Target} {d.Level} {d.Code}: {d.Message}")
-            ]);
+            ],
+            (expansionResult.outputs ?? []).ToImmutableDictionary(kvp => kvp.Key, kvp => JsonElementFactory.CreateElement(JsonExtensions.ToJson(ConvertToJToken(kvp.Value)))));
     }
 
     private static JToken? TryGetExternalInputValue(DeploymentExternalInputDefinition externalInputDefinition, ImmutableArray<ExternalInputValue> externalInputs)
@@ -169,6 +171,7 @@ public static class SnapshotHelper
 
     private static Dictionary<string, ITemplateLanguageExpression> GetDeploymentMetadata(
         string? tenantId,
+        string? managementGroupId,
         string? subscriptionId,
         string? resourceGroup,
         string? deploymentName,
@@ -205,6 +208,23 @@ public static class SnapshotHelper
                         "tenantId".AsExpression(),
                         tenantId?.AsExpression() ?? MetadataPlaceholder("tenant", "tenantId")),
                     new("displayName".AsExpression(), MetadataPlaceholder("subscription", "displayName")),
+                ],
+                position: null);
+        }
+
+        if (managementGroupId is not null)
+        {
+            if (scope is not TemplateDeploymentScope.ManagementGroup)
+            {
+                throw new InvalidOperationException($"Management group ID cannot be specified for a template of scope {scope}");
+            }
+
+            metadata[DeploymentMetadata.ManagementGroupKey] = new ObjectExpression(
+                [
+                    new("id".AsExpression(), $"/providers/Microsoft.Management/managementGroups/{managementGroupId}".AsExpression()),
+                    new("name".AsExpression(), managementGroupId.AsExpression()),
+                    new("type".AsExpression(), "Microsoft.Management/managementGroups".AsExpression()),
+                    new("properties".AsExpression(), MetadataPlaceholder("managementGroup", "properties")),
                 ],
                 position: null);
         }
@@ -274,4 +294,19 @@ public static class SnapshotHelper
 
     public static string Serialize(Snapshot newSnapshot)
         => JsonSerializer.Serialize(newSnapshot, SnapshotSerializationContext.FileSerializer.Snapshot);
+
+    private static JToken? ConvertToJToken(TemplateOutputParameterWithParsedExpressions output)
+    {
+        if (output.Value is null)
+        {
+            return null;
+        }
+
+        if (output.Value.IsLiteralValue())
+        {
+            return output.Value.SerializeToJToken();
+        }
+
+        return output.Value.SerializeToString();
+    }
 }

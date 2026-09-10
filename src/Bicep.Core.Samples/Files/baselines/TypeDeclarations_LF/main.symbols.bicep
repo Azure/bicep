@@ -126,6 +126,13 @@ type nullable = string?
 type nonNullable = nullable!
 //@[5:16) TypeAlias nonNullable. Type: Type<string>. Declaration start char: 0, length: 28
 
+type withOptionalAnyProp = {
+//@[5:24) TypeAlias withOptionalAnyProp. Type: Type<{ requiredProp: string, optionalAny: any }>. Declaration start char: 0, length: 122
+  requiredProp: string
+  @description('An optional any-typed property')
+  optionalAny: any?
+}
+
 type typeA = {
 //@[5:10) TypeAlias typeA. Type: Type<{ type: 'a', value: string }>. Declaration start char: 0, length: 44
   type: 'a'

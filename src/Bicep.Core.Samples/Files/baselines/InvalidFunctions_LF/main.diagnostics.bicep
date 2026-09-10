@@ -81,3 +81,13 @@ func lineBeforeComma(
   a string
   ,b string) string => 'foo'
 
+
+output likeWrongArgcount bool =like('abc')
+//@[35:42) [BCP071 (Error)] Expected 2 arguments, but got 1. (bicep https://aka.ms/bicep/core-diagnostics#BCP071) |('abc')|
+output likeWrongArgcount2 bool =like('abcdef','a*','abcd*')
+//@[36:59) [BCP071 (Error)] Expected 2 arguments, but got 3. (bicep https://aka.ms/bicep/core-diagnostics#BCP071) |('abcdef','a*','abcd*')|
+output likeWrongType bool =like(123,'a*')
+//@[32:35) [BCP070 (Error)] Argument of type "123" is not assignable to parameter of type "string". (bicep https://aka.ms/bicep/core-diagnostics#BCP070) |123|
+output likeWrongReturnType string=like('abcd','a*')
+//@[34:51) [BCP033 (Error)] Expected a value of type "string" but the provided value is of type "true". (bicep https://aka.ms/bicep/core-diagnostics#BCP033) |like('abcd','a*')|
+

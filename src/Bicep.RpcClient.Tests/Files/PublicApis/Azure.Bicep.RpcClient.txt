@@ -38,6 +38,7 @@ namespace Bicep.RpcClient
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.CompileResponse> Compile(Bicep.RpcClient.Models.CompileRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.CompileParamsResponse> CompileParams(Bicep.RpcClient.Models.CompileParamsRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.FormatResponse> Format(Bicep.RpcClient.Models.FormatRequest request, System.Threading.CancellationToken cancellationToken = default);
+        System.Threading.Tasks.Task<Bicep.RpcClient.Models.GenerateDocsResponse> GenerateDocs(Bicep.RpcClient.Models.GenerateDocsRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.GetDeploymentGraphResponse> GetDeploymentGraph(Bicep.RpcClient.Models.GetDeploymentGraphRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.GetFileReferencesResponse> GetFileReferences(Bicep.RpcClient.Models.GetFileReferencesRequest request, System.Threading.CancellationToken cancellationToken = default);
         System.Threading.Tasks.Task<Bicep.RpcClient.Models.GetMetadataResponse> GetMetadata(Bicep.RpcClient.Models.GetMetadataRequest request, System.Threading.CancellationToken cancellationToken = default);
@@ -52,6 +53,17 @@ namespace Bicep.RpcClient
         [System.Obsolete("Use Initialize with a BicepClientConfiguration that has ExistingCliPath set inste" +
             "ad.")]
         System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> InitializeFromPath(string bicepCliPath, System.Threading.CancellationToken cancellationToken = default);
+    }
+    public class PooledBicepClientFactory : Bicep.RpcClient.IBicepClientFactory, System.IDisposable
+    {
+        public PooledBicepClientFactory(System.Net.Http.HttpClient? httpClient = null, System.TimeSpan? inactivityInterval = default) { }
+        public void Dispose() { }
+        [System.Obsolete("Use Initialize instead.")]
+        public System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> DownloadAndInitialize(Bicep.RpcClient.BicepClientConfiguration configuration, System.Threading.CancellationToken cancellationToken) { }
+        public System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> Initialize(Bicep.RpcClient.BicepClientConfiguration configuration, System.Threading.CancellationToken cancellationToken) { }
+        [System.Obsolete("Use Initialize with a BicepClientConfiguration that has ExistingCliPath set inste" +
+            "ad.")]
+        public System.Threading.Tasks.Task<Bicep.RpcClient.IBicepClient> InitializeFromPath(string bicepCliPath, System.Threading.CancellationToken cancellationToken) { }
     }
 }
 namespace Bicep.RpcClient.Models
@@ -101,6 +113,18 @@ namespace Bicep.RpcClient.Models
     {
         public FormatResponse(string Contents) { }
         public string Contents { get; init; }
+    }
+    public class GenerateDocsRequest : System.IEquatable<Bicep.RpcClient.Models.GenerateDocsRequest>
+    {
+        public GenerateDocsRequest(string Path, System.Collections.Generic.Dictionary<string, string>? CustomTemplateValues = null) { }
+        public System.Collections.Generic.Dictionary<string, string>? CustomTemplateValues { get; init; }
+        public string Path { get; init; }
+    }
+    public class GenerateDocsResponse : System.IEquatable<Bicep.RpcClient.Models.GenerateDocsResponse>
+    {
+        public GenerateDocsResponse(System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DiagnosticDefinition> Diagnostics, string? Contents) { }
+        public string? Contents { get; init; }
+        public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.DiagnosticDefinition> Diagnostics { get; init; }
     }
     public class GetDeploymentGraphRequest : System.IEquatable<Bicep.RpcClient.Models.GetDeploymentGraphRequest>
     {
@@ -194,9 +218,10 @@ namespace Bicep.RpcClient.Models
         }
         public class MetadataDefinition : System.IEquatable<Bicep.RpcClient.Models.GetSnapshotRequest.MetadataDefinition>
         {
-            public MetadataDefinition(string? TenantId, string? SubscriptionId, string? ResourceGroup, string? Location, string? DeploymentName) { }
+            public MetadataDefinition(string? TenantId, string? ManagementGroupId, string? SubscriptionId, string? ResourceGroup, string? Location, string? DeploymentName) { }
             public string? DeploymentName { get; init; }
             public string? Location { get; init; }
+            public string? ManagementGroupId { get; init; }
             public string? ResourceGroup { get; init; }
             public string? SubscriptionId { get; init; }
             public string? TenantId { get; init; }

@@ -8,7 +8,7 @@ namespace Bicep.Local.Deploy.Azure;
 
 public interface IArmDeploymentProvider
 {
-    Task<LocalDeploymentResult> CheckDeployment(RootConfiguration configuration, DeploymentLocator deploymentLocator, CancellationToken cancellationToken);
+    Task<LocalDeploymentResult> CheckDeployment(IBicepConfiguration configuration, DeploymentLocator deploymentLocator, CancellationToken cancellationToken);
 
-    Task StartDeployment(RootConfiguration configuration, DeploymentLocator deploymentLocator, string templateString, string parametersString, CancellationToken cancellationToken);
+    Task StartDeployment(IBicepConfiguration configuration, DeploymentLocator deploymentLocator, string templateString, string parametersString, CancellationToken cancellationToken);
 }

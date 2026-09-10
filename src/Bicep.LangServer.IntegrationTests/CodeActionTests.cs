@@ -243,17 +243,12 @@ resource test";
             var compilation = Services.BuildCompilation(files, uri);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
-            diagnostics.Should().HaveCount(2);
+            diagnostics.Should().HaveCount(1);
             diagnostics.Should().SatisfyRespectively(
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP068");
-                },
-                x =>
-                {
-                    x.Level.Should().Be(DiagnosticLevel.Error);
-                    x.Code.Should().Be("BCP029");
                 });
 
             using var helper = await LanguageServerHelper.StartServerWithText(

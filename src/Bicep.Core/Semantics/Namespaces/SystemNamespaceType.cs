@@ -780,6 +780,19 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
                     .Build();
 
+                yield return new FunctionOverloadBuilder("distinct")
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("distinct", LanguageConstants.Array), LanguageConstants.Array)
+                    .WithGenericDescription("Returns a new array with duplicate values removed, preserving order.")
+                    .WithRequiredParameter("array", LanguageConstants.Array, "The array to process.")
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("like")
+                    .WithReturnResultBuilder(TryDeriveLiteralReturnType("like", LanguageConstants.Bool), LanguageConstants.Bool)
+                    .WithGenericDescription("Performs pattern based matching and returns true if input string matches the pattern and supports '*' as a wildcard. The comparison is case-insensitive.")
+                    .WithRequiredParameter("input", LanguageConstants.String, "The string to evaluate.")
+                    .WithRequiredParameter("pattern", LanguageConstants.String, "The value to match.")
+                    .Build();
+
                 static long? MinOf(TypeSymbol type) => type switch
                 {
                     IntegerType @int => @int.MinValue,
@@ -1305,9 +1318,14 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
 
+            static FunctionOverload MarkPureIfEvaluableInParameterFile(FunctionOverload overload) =>
+                LanguageConstants.IdentifierComparer.Equals(overload.Name, "fail") || overload.Flags.HasFlag(FunctionFlags.ParamDefaultsOnly)
+                    ? overload
+                    : overload.WithAdditionalFlags(FunctionFlags.Pure);
+
             foreach (var overload in GetAlwaysPermittedOverloads())
             {
-                yield return new(overload, (_, _) => true);
+                yield return new(MarkPureIfEvaluableInParameterFile(overload), (_, _) => true);
             }
 
             foreach (var overload in GetParamsFilePermittedOverloads(featureProvider))
@@ -2017,7 +2035,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     })
                     .Build();
 
-                if (featureProvider.WaitAndRetryEnabled)
+                if (featureProvider.WaitUntilEnabled)
                 {
                     yield return new DecoratorBuilder(LanguageConstants.WaitUntilPropertyName)
                         .WithDescription("Causes the resource deployment to wait until the given condition is satisfied")
@@ -2034,16 +2052,15 @@ namespace Bicep.Core.Semantics.Namespaces
                         .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
                         .WithEvaluator(AddDecoratorConfigToResource)
                         .Build();
-
-                    yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
-                        .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")
-                        .WithParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
-                        .WithParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.", FunctionParameterFlags.Constant)
-                        .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
-                        .WithEvaluator(AddDecoratorConfigToResource)
-                        .Build();
                 }
 
+                yield return new DecoratorBuilder(LanguageConstants.RetryOnPropertyName)
+                    .WithDescription("Causes the resource deployment to retry when deployment failed with one of the exceptions listed")
+                    .WithParameter("exceptionCodes", LanguageConstants.StringArray, "List of exceptions.", FunctionParameterFlags.Required | FunctionParameterFlags.Constant)
+                    .WithParameter("retryCount", TypeFactory.CreateIntegerType(minValue: 1), "Maximum number if retries on the exception.", FunctionParameterFlags.Constant)
+                    .WithFlags(FunctionFlags.ResourceDecorator)// the decorator is constrained to resources
+                    .WithEvaluator(AddDecoratorConfigToResource)
+                    .Build();
 
                 yield return new DecoratorBuilder(LanguageConstants.OnlyIfNotExistsPropertyName)
                     .WithDescription("Causes the resource deployment to be skipped if the resource already exists")
@@ -2051,22 +2068,28 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithEvaluator(AddDecoratorConfigToResource)
                     .Build();
 
-                if (featureProvider.ExistingNullIfNotFoundEnabled)
+                if (featureProvider.PatchEnabled)
                 {
-                    yield return new DecoratorBuilder(LanguageConstants.NullIfNotFoundDecoratorName)
-                        .WithDescription("Marks an existing resource as nullable, returning null if the resource doesn't exist at deployment time instead of failing.")
+                    yield return new DecoratorBuilder(LanguageConstants.PatchDecoratorName)
+                        .WithDescription("Causes the resource to be deployed using the PATCH HTTP method. This feature is restricted to Azure Policy DeployIfNotExists scenarios.")
                         .WithFlags(FunctionFlags.ResourceDecorator)
-                        .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
-                        {
-                            var decoratorTarget = binder.GetParent(decoratorSyntax);
-                            if (decoratorTarget is ResourceDeclarationSyntax resourceDeclaration && !resourceDeclaration.IsExistingResource())
-                            {
-                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).NullIfNotFoundOnlyValidOnExistingResources());
-                            }
-                        })
                         .WithEvaluator(AddDecoratorConfigToResource)
                         .Build();
                 }
+
+                yield return new DecoratorBuilder(LanguageConstants.NullIfNotFoundDecoratorName)
+                    .WithDescription("Marks an existing resource as nullable, returning null if the resource doesn't exist at deployment time instead of failing.")
+                    .WithFlags(FunctionFlags.ResourceDecorator)
+                    .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
+                    {
+                        var decoratorTarget = binder.GetParent(decoratorSyntax);
+                        if (decoratorTarget is ResourceDeclarationSyntax resourceDeclaration && !resourceDeclaration.IsExistingResource())
+                        {
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).NullIfNotFoundOnlyValidOnExistingResources());
+                        }
+                    })
+                    .WithEvaluator(AddDecoratorConfigToResource)
+                    .Build();
 
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
