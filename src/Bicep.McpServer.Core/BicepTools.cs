@@ -101,17 +101,18 @@ public sealed class BicepTools(
     The returned JSON schema includes resource type definitions, nested complex types, resource function signatures (like list* operations), and property constraints.
     Data comes from Bicep's bundled Azure resource type catalog, not a live Azure API query.
     Specify the resource type (e.g., Microsoft.KeyVault/vaults). Omit apiVersion or pass null to select the newest API version by date, including preview versions; stable versions win same-date ties.
-    Pass latest-stable (case-insensitive) to select only the newest stable version, or an explicit API version (e.g., 2024-11-01 or 2024-12-01-preview) to pin the schema.
+    Set includePreview to false to select only the newest stable version, with no preview fallback. An explicit API version (e.g., 2024-11-01 or 2024-12-01-preview) pins the schema and overrides includePreview.
     Preview includes other prerelease versions recognized by Bicep. Unknown resource types return an error. Unsupported API versions or unavailable selections return an error listing all valid API version options for the resource type.
     The schema title includes the selected resource type and API version, even when read-only properties are excluded.
     """)]
     public ResourceTypeSchemaResult GetAzureResourceTypeSchema(
         [Description("The resource type of the Azure resource; e.g. Microsoft.KeyVault/vaults")] string resourceType,
-        [Description("The API version of the resource type; e.g. 2024-11-01 or 2024-12-01-preview. Omit or pass null for the newest version by date in Bicep's bundled catalog, including prereleases, with stable preferred on the same date. Pass latest-stable (case-insensitive) for the newest stable version only; an error lists valid options if no stable version exists or the requested version is unsupported.")] string? apiVersion = null,
+        [Description("The explicit API version of the resource type; e.g. 2024-11-01 or 2024-12-01-preview. Omit or pass null for the newest version by date in Bicep's bundled catalog, subject to includePreview, with stable preferred on the same date. An explicit version overrides includePreview. Errors list valid options.")] string? apiVersion = null,
         [Description("When true, omits description fields from the schema to reduce payload size. Default: false")] bool excludeDescriptions = false,
-        [Description("When true, omits read-only properties from the schema to reduce payload size. Default: false")] bool excludeReadOnlyProperties = false)
+        [Description("When true, omits read-only properties from the schema to reduce payload size. Default: false")] bool excludeReadOnlyProperties = false,
+        [Description("When apiVersion is omitted or null, includes preview and other Bicep-recognized prerelease versions in automatic selection. Set to false for the newest stable version only; returns an error if none exists. Ignored for explicit API versions. Default: true")] bool includePreview = true)
     {
-        apiVersion = ResolveApiVersion(resourceType, apiVersion);
+        apiVersion = ResolveApiVersion(resourceType, apiVersion, includePreview);
         TypesDefinitionResult typesDefinition = resourceVisitor.LoadSingleResourceType(resourceType, apiVersion, excludeReadOnlyProperties);
         var options = new JsonSchemaWriterOptions(excludeDescriptions);
 
@@ -241,7 +242,7 @@ public sealed class BicepTools(
         return new WellKnownExtensionsResult([.. extensions]);
     }
 
-    private string ResolveApiVersion(string resourceType, string? apiVersion)
+    private string ResolveApiVersion(string resourceType, string? apiVersion, bool includePreview)
     {
         var resourceTypes = azResourceTypeLoader.GetAvailableTypes()
             .Where(type => type.FormatType().Equals(resourceType, StringComparison.OrdinalIgnoreCase))
@@ -252,8 +253,7 @@ public sealed class BicepTools(
             throw new InvalidDataException($"Resource type {resourceType} not found in Bicep's bundled Azure resource type catalog.");
         }
 
-        var stableOnly = string.Equals(apiVersion, "latest-stable", StringComparison.OrdinalIgnoreCase);
-        if (apiVersion is not null && !stableOnly && resourceTypes.Any(type => string.Equals(type.ApiVersion, apiVersion, StringComparison.OrdinalIgnoreCase)))
+        if (apiVersion is not null && resourceTypes.Any(type => string.Equals(type.ApiVersion, apiVersion, StringComparison.OrdinalIgnoreCase)))
         {
             return apiVersion;
         }
@@ -274,10 +274,10 @@ public sealed class BicepTools(
             .ThenBy(version => version.ApiVersion, StringComparer.Ordinal)
             .ToArray();
 
-        if (apiVersion is null || stableOnly)
+        if (apiVersion is null)
         {
             var selectedVersion = orderedVersions.FirstOrDefault(version =>
-                version.ParsedVersion is { } parsedVersion && (!stableOnly || parsedVersion.IsStable)).ApiVersion;
+                version.ParsedVersion is { } parsedVersion && (includePreview || parsedVersion.IsStable)).ApiVersion;
             if (selectedVersion is not null)
             {
                 return selectedVersion;
@@ -287,21 +287,21 @@ public sealed class BicepTools(
         var validOptions = new List<string>();
         if (orderedVersions.Any(version => version.ParsedVersion is not null))
         {
-            validOptions.Add("null (latest)");
+            validOptions.Add("apiVersion = null with includePreview = true (latest)");
         }
         if (orderedVersions.Any(version => version.ParsedVersion is { IsStable: true }))
         {
-            validOptions.Add("\"latest-stable\"");
+            validOptions.Add("apiVersion = null with includePreview = false (latest stable)");
         }
         validOptions.AddRange(orderedVersions.Select(version => version.ApiVersion)
             .Distinct(StringComparer.OrdinalIgnoreCase)
-            .Select(version => $"\"{version}\""));
+            .Select(version => $"apiVersion = \"{version}\""));
 
         var error = apiVersion is null
-            ? $"No supported API versions found for resource type {resourceType} in Bicep's bundled Azure resource type catalog."
-            : stableOnly
-                ? $"No stable API versions found for resource type {resourceType} in Bicep's bundled Azure resource type catalog."
-                : $"Resource type {resourceType} with API version {apiVersion} not found.";
+            ? includePreview
+                ? $"No supported API versions found for resource type {resourceType} in Bicep's bundled Azure resource type catalog."
+                : $"No stable API versions found for resource type {resourceType} in Bicep's bundled Azure resource type catalog."
+            : $"Resource type {resourceType} with API version {apiVersion} not found.";
         throw new InvalidDataException($"{error} Valid options: {(validOptions.Count > 0 ? string.Join(", ", validOptions) : "none")}.");
     }
 }

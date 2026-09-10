@@ -89,13 +89,13 @@ public class BicepToolsTests
     }
 
     [TestMethod]
-    [DataRow(null)]
-    [DataRow("latest-stable")]
-    public void GetAzureResourceTypeSchema_resolves_versions_from_bundled_catalog(string? apiVersion)
+    [DataRow(true)]
+    [DataRow(false)]
+    public void GetAzureResourceTypeSchema_resolves_versions_from_bundled_catalog(bool includePreview)
     {
         const string resourceType = "Microsoft.KeyVault/vaults";
 
-        var response = tools.GetAzureResourceTypeSchema(resourceType, apiVersion);
+        var response = tools.GetAzureResourceTypeSchema(resourceType, includePreview: includePreview);
 
         using var schema = JsonDocument.Parse(response.Schema);
         var selectedResourceType = ResourceTypeReference.Parse(schema.RootElement.GetProperty("title").GetString()!);
@@ -104,7 +104,7 @@ public class BicepToolsTests
         tools.ListAzureResourceTypes("Microsoft.KeyVault").ResourceTypes.Should().Contain(selectedResourceType.FormatName());
         response.Schema.Should().Be(tools.GetAzureResourceTypeSchema(resourceType, selectedResourceType.ApiVersion).Schema);
 
-        if (apiVersion == "latest-stable")
+        if (!includePreview)
         {
             AzureResourceApiVersion.Parse(selectedResourceType.ApiVersion!).IsStable.Should().BeTrue();
         }
@@ -132,6 +132,7 @@ public class BicepToolsTests
 
         response.Schema.Should().Be(catalogTools.GetAzureResourceTypeSchema("Test.Rp/widgets", expectedVersion).Schema);
         response.Schema.Should().Be(catalogTools.GetAzureResourceTypeSchema("Test.Rp/widgets", null).Schema);
+        response.Schema.Should().Be(catalogTools.GetAzureResourceTypeSchema("Test.Rp/widgets", includePreview: true).Schema);
         using var schema = JsonDocument.Parse(response.Schema);
         schema.RootElement.GetProperty("title").GetString().Should().Be($"Test.Rp/widgets@{expectedVersion}");
         schema.RootElement.GetProperty("x-bicep-resource-functions").EnumerateArray().Should()
@@ -139,18 +140,19 @@ public class BicepToolsTests
     }
 
     [TestMethod]
-    [DataRow("latest-stable", "2024-01-01", new[] { "2023-01-01", "2024-01-01", "2025-01-01-preview" })]
-    [DataRow("LATEST-STABLE", "2024-01-01", new[] { "2025-01-01-privatepreview", "2024-01-01", "2025-01-01-alpha" })]
-    [DataRow("Latest-Stable", "2024-01-01", new[] { "2024-01-01-preview", "2024-01-01", "v1.0" })]
-    [DataRow("latest-stable", "2025-01-01", new[] { "2024-01-01", "2025-01-01" })]
-    public void GetAzureResourceTypeSchema_selects_latest_stable_version(string selector, string expectedVersion, string[] versions)
+    [DataRow("2024-01-01", new[] { "2023-01-01", "2024-01-01", "2025-01-01-preview" })]
+    [DataRow("2024-01-01", new[] { "2025-01-01-privatepreview", "2024-01-01", "2025-01-01-alpha" })]
+    [DataRow("2024-01-01", new[] { "2024-01-01-preview", "2024-01-01", "v1.0" })]
+    [DataRow("2025-01-01", new[] { "2024-01-01", "2025-01-01" })]
+    public void GetAzureResourceTypeSchema_selects_latest_stable_version(string expectedVersion, string[] versions)
     {
         using var services = GetServiceProviderWithResourceTypes([.. versions.Select(version => $"Test.Rp/widgets@{version}")]);
         var catalogTools = services.GetRequiredService<BicepTools>();
 
-        var response = catalogTools.GetAzureResourceTypeSchema("Test.Rp/widgets", selector);
+        var response = catalogTools.GetAzureResourceTypeSchema("Test.Rp/widgets", includePreview: false);
 
         response.Schema.Should().Be(catalogTools.GetAzureResourceTypeSchema("Test.Rp/widgets", expectedVersion).Schema);
+        response.Schema.Should().Be(catalogTools.GetAzureResourceTypeSchema("Test.Rp/widgets", null, includePreview: false).Schema);
         using var schema = JsonDocument.Parse(response.Schema);
         schema.RootElement.GetProperty("title").GetString().Should().Be($"Test.Rp/widgets@{expectedVersion}");
         schema.RootElement.GetProperty("x-bicep-resource-functions").EnumerateArray().Should()
@@ -158,10 +160,13 @@ public class BicepToolsTests
     }
 
     [TestMethod]
-    [DataRow("2023-01-01")]
-    [DataRow("2025-01-01-preview")]
-    [DataRow("v1.0")]
-    public void GetAzureResourceTypeSchema_honors_explicit_version(string apiVersion)
+    [DataRow("2023-01-01", true)]
+    [DataRow("2023-01-01", false)]
+    [DataRow("2025-01-01-preview", true)]
+    [DataRow("2025-01-01-preview", false)]
+    [DataRow("v1.0", true)]
+    [DataRow("v1.0", false)]
+    public void GetAzureResourceTypeSchema_honors_explicit_version(string apiVersion, bool includePreview)
     {
         using var services = GetServiceProviderWithResourceTypes(
             "Test.Rp/widgets@2023-01-01",
@@ -170,7 +175,7 @@ public class BicepToolsTests
             "Test.Rp/widgets@v1.0");
         var catalogTools = services.GetRequiredService<BicepTools>();
 
-        var response = catalogTools.GetAzureResourceTypeSchema("Test.Rp/widgets", apiVersion);
+        var response = catalogTools.GetAzureResourceTypeSchema("Test.Rp/widgets", apiVersion, includePreview: includePreview);
 
         using var schema = JsonDocument.Parse(response.Schema);
         schema.RootElement.GetProperty("title").GetString().Should().Be($"Test.Rp/widgets@{apiVersion}");
@@ -179,12 +184,12 @@ public class BicepToolsTests
     }
 
     [TestMethod]
-    [DataRow("test.rp/WIDGETS", null, "Test.Rp/widgets@2024-01-01")]
-    [DataRow("test.rp/WIDGETS", "latest-stable", "Test.Rp/widgets@2024-01-01")]
-    [DataRow("test.rp/WIDGETS", "2024-01-01", "Test.Rp/widgets@2024-01-01")]
-    [DataRow("Test.Rp/widgets/children", null, "Test.Rp/widgets/children@2025-01-01")]
-    [DataRow("Test.Rp/widgets/children", "latest-stable", "Test.Rp/widgets/children@2025-01-01")]
-    public void GetAzureResourceTypeSchema_matches_full_type_case_insensitively(string resourceType, string? apiVersion, string expectedTitle)
+    [DataRow("test.rp/WIDGETS", null, true, "Test.Rp/widgets@2024-01-01")]
+    [DataRow("test.rp/WIDGETS", null, false, "Test.Rp/widgets@2024-01-01")]
+    [DataRow("test.rp/WIDGETS", "2024-01-01", false, "Test.Rp/widgets@2024-01-01")]
+    [DataRow("Test.Rp/widgets/children", null, true, "Test.Rp/widgets/children@2025-01-01")]
+    [DataRow("Test.Rp/widgets/children", null, false, "Test.Rp/widgets/children@2025-01-01")]
+    public void GetAzureResourceTypeSchema_matches_full_type_case_insensitively(string resourceType, string? apiVersion, bool includePreview, string expectedTitle)
     {
         using var services = GetServiceProviderWithResourceTypes(
             "Test.Rp/widgets@2024-01-01",
@@ -192,7 +197,7 @@ public class BicepToolsTests
             "Test.Rp/widgetsOther@2026-01-01",
             "Other.Rp/widgets@2027-01-01");
 
-        var response = services.GetRequiredService<BicepTools>().GetAzureResourceTypeSchema(resourceType, apiVersion);
+        var response = services.GetRequiredService<BicepTools>().GetAzureResourceTypeSchema(resourceType, apiVersion, includePreview: includePreview);
 
         using var schema = JsonDocument.Parse(response.Schema);
         schema.RootElement.GetProperty("title").GetString().Should().Be(expectedTitle);
@@ -213,7 +218,7 @@ public class BicepToolsTests
         var catalogTools = services.GetRequiredService<BicepTools>();
 
         var defaultVersionAction = () => catalogTools.GetAzureResourceTypeSchema(resourceType);
-        var stableVersionAction = () => catalogTools.GetAzureResourceTypeSchema(resourceType, "latest-stable");
+        var stableVersionAction = () => catalogTools.GetAzureResourceTypeSchema(resourceType, includePreview: false);
         var explicitVersionAction = () => catalogTools.GetAzureResourceTypeSchema(resourceType, "2024-01-01");
 
         defaultVersionAction.Should().Throw<InvalidDataException>()
@@ -229,6 +234,8 @@ public class BicepToolsTests
     [DataRow(" ")]
     [DataRow("latest")]
     [DataRow("latest-preview")]
+    [DataRow("latest-stable")]
+    [DataRow("LATEST-STABLE")]
     [DataRow("latest-stable ")]
     [DataRow("2099-01-01")]
     [DataRow("2024-01-01 ")]
@@ -247,14 +254,15 @@ public class BicepToolsTests
 
         action.Should().Throw<InvalidDataException>()
             .WithMessage($"Resource type Test.Rp/widgets with API version {apiVersion} not found. " +
-                "Valid options: null (latest), \"latest-stable\", \"2025-01-01-preview\", \"2024-01-01\", \"2024-01-01-preview\", \"2023-01-01\", \"v1.0\".");
+                "Valid options: apiVersion = null with includePreview = true (latest), apiVersion = null with includePreview = false (latest stable), " +
+                "apiVersion = \"2025-01-01-preview\", apiVersion = \"2024-01-01\", apiVersion = \"2024-01-01-preview\", apiVersion = \"2023-01-01\", apiVersion = \"v1.0\".");
     }
 
     [TestMethod]
-    [DataRow("latest-stable", "No stable API versions found for resource type Test.Rp/widgets in Bicep's bundled Azure resource type catalog.")]
-    [DataRow("LATEST-STABLE", "No stable API versions found for resource type Test.Rp/widgets in Bicep's bundled Azure resource type catalog.")]
-    [DataRow("latest-preview", "Resource type Test.Rp/widgets with API version latest-preview not found.")]
-    public void GetAzureResourceTypeSchema_lists_only_usable_options_for_preview_only_resources(string apiVersion, string expectedError)
+    [DataRow(null, false, "No stable API versions found for resource type Test.Rp/widgets in Bicep's bundled Azure resource type catalog.")]
+    [DataRow("latest-stable", true, "Resource type Test.Rp/widgets with API version latest-stable not found.")]
+    [DataRow("latest-preview", false, "Resource type Test.Rp/widgets with API version latest-preview not found.")]
+    public void GetAzureResourceTypeSchema_lists_only_usable_options_for_preview_only_resources(string? apiVersion, bool includePreview, string expectedError)
     {
         using var services = GetServiceProviderWithResourceTypes(
             "Test.Rp/widgets@2024-01-01-preview",
@@ -262,22 +270,23 @@ public class BicepToolsTests
             "Test.Rp/widgets@2025-01-01-alpha",
             "Test.Rp/widgets/children@2026-01-01");
 
-        var action = () => services.GetRequiredService<BicepTools>().GetAzureResourceTypeSchema("Test.Rp/widgets", apiVersion);
+        var action = () => services.GetRequiredService<BicepTools>().GetAzureResourceTypeSchema("Test.Rp/widgets", apiVersion, includePreview: includePreview);
 
         action.Should().Throw<InvalidDataException>()
-            .WithMessage($"{expectedError} Valid options: null (latest), \"2025-01-01-alpha\", \"2025-01-01-privatepreview\", \"2024-01-01-preview\".");
+            .WithMessage($"{expectedError} Valid options: apiVersion = null with includePreview = true (latest), " +
+                "apiVersion = \"2025-01-01-alpha\", apiVersion = \"2025-01-01-privatepreview\", apiVersion = \"2024-01-01-preview\".");
     }
 
     [TestMethod]
-    [DataRow("Test.Rp/widgets@v1.0", null, "supported", "\"v1.0\"")]
-    [DataRow("Test.Rp/widgets@v1.0", "latest-stable", "stable", "\"v1.0\"")]
-    [DataRow("Test.Rp/widgets", null, "supported", "none")]
-    [DataRow("Test.Rp/widgets", "latest-stable", "stable", "none")]
-    public void GetAzureResourceTypeSchema_rejects_catalog_without_usable_versions(string resourceTypeName, string? apiVersion, string versionKind, string expectedOptions)
+    [DataRow("Test.Rp/widgets@v1.0", true, "supported", "apiVersion = \"v1.0\"")]
+    [DataRow("Test.Rp/widgets@v1.0", false, "stable", "apiVersion = \"v1.0\"")]
+    [DataRow("Test.Rp/widgets", true, "supported", "none")]
+    [DataRow("Test.Rp/widgets", false, "stable", "none")]
+    public void GetAzureResourceTypeSchema_rejects_catalog_without_usable_versions(string resourceTypeName, bool includePreview, string versionKind, string expectedOptions)
     {
         using var services = GetServiceProviderWithResourceTypes(resourceTypeName);
 
-        var action = () => services.GetRequiredService<BicepTools>().GetAzureResourceTypeSchema("Test.Rp/widgets", apiVersion);
+        var action = () => services.GetRequiredService<BicepTools>().GetAzureResourceTypeSchema("Test.Rp/widgets", includePreview: includePreview);
 
         action.Should().Throw<InvalidDataException>()
             .WithMessage($"No {versionKind} API versions found for resource type Test.Rp/widgets in Bicep's bundled Azure resource type catalog. Valid options: {expectedOptions}.");
@@ -299,7 +308,7 @@ public class BicepToolsTests
         response.Schema.Should().Be(catalogTools.GetAzureResourceTypeSchema(
             "Test.Rp/widgets", "2024-01-01", excludeDescriptions, excludeReadOnlyProperties).Schema);
         response.Schema.Should().Be(catalogTools.GetAzureResourceTypeSchema(
-            "Test.Rp/widgets", "latest-stable", excludeDescriptions, excludeReadOnlyProperties).Schema);
+            "Test.Rp/widgets", null, excludeDescriptions, excludeReadOnlyProperties, includePreview: false).Schema);
         using var schema = JsonDocument.Parse(response.Schema);
         schema.RootElement.GetProperty("title").GetString().Should().Be("Test.Rp/widgets@2024-01-01");
         var properties = schema.RootElement.GetProperty("properties");

@@ -8,7 +8,7 @@ We have built a Bicep MCP server with agentic tools to support Bicep code genera
 
 - `get_bicep_best_practices`: Lists up-to-date recommended Bicep best-practices for authoring templates. These practices help improve maintainability, security, and reliability of your Bicep files. This is helpful additional context if you've been asked to generate Bicep code.
 - `list_azure_resource_types`: Lists all available Azure resource types and their API versions for a specific Azure resource provider namespace. Data is sourced from Azure Resource Provider APIs.
-- `get_azure_resource_type_schema`: Gets the schema for a specific Azure resource type from Bicep's bundled Azure resource type catalog. The optional `apiVersion` defaults to the newest version by date, including preview versions, with stable preferred on the same date. Pass `latest-stable` to select only stable versions, or an explicit version to pin the schema.
+- `get_azure_resource_type_schema`: Gets the schema for a specific Azure resource type from Bicep's bundled Azure resource type catalog. The optional `apiVersion` defaults to the newest version by date, including preview versions, with stable preferred on the same date. Set `includePreview` to `false` for stable-only automatic selection, or supply an explicit version to pin the schema.
 - `list_extension_resource_types`: Lists all available resource types for a Bicep extension. Accepts a canonical OCI artifact reference (e.g., `br:mcr.microsoft.com/bicep/extensions/microsoftgraph/v1.0:1.0.0`).
 - `get_extension_resource_type_schema`: Gets the schema for a specific extension resource type. Accepts a canonical OCI artifact reference, resource type, and API version.
 - `list_well_known_extensions`: Lists well-known Bicep extensions (e.g., Microsoft Graph) with their dynamically-discovered version tags from MCR. This is not an exhaustive list; other extensions may exist. Use this to discover extensions and their versions for use with the extension resource type tools.
@@ -28,15 +28,15 @@ Call `get_azure_resource_type_schema` with only a resource type to select the ne
 { "resourceType": "Microsoft.KeyVault/vaults" }
 ```
 
-Passing `"apiVersion": null` has the same behavior as omitting it. Preview includes other prerelease versions recognized by Bicep, not just versions ending in `-preview`.
+Passing `"apiVersion": null` has the same behavior as omitting it. The `includePreview` flag defaults to `true`. Preview includes other prerelease versions recognized by Bicep, not just versions ending in `-preview`.
 
-To select the newest stable version only, pass `latest-stable` (case-insensitive). This returns an error if the resource type has no stable versions; it does not fall back to preview:
+To select the newest stable version only, omit `apiVersion` or pass `null` and set `includePreview` to `false`. This returns an error if the resource type has no stable versions; it does not fall back to preview:
 
 ```json
-{ "resourceType": "Microsoft.KeyVault/vaults", "apiVersion": "latest-stable" }
+{ "resourceType": "Microsoft.KeyVault/vaults", "includePreview": false }
 ```
 
-For reproducible results, supply an explicit version:
+For reproducible results, supply an explicit version. Explicit versions override `includePreview`, so an explicit preview version is honored even when `includePreview` is `false`:
 
 ```json
 { "resourceType": "Microsoft.KeyVault/vaults", "apiVersion": "2024-11-01" }
@@ -44,9 +44,9 @@ For reproducible results, supply an explicit version:
 
 The schema's `title` contains the selected resource type and API version, including when `excludeDescriptions` or `excludeReadOnlyProperties` is enabled.
 
-Unsupported API versions and unavailable selections return an error listing all valid API version options for the resource type. The list contains all available explicit versions, plus `null` (latest) and `latest-stable` only when those selections can resolve successfully. Unknown resource types return a resource-type-not-found error, with no API version options to list. Empty or whitespace versions and the literals `"latest"` and `"latest-preview"` are invalid; they do not trigger default selection.
+Unsupported API versions and unavailable selections return an error listing all valid API version options for the resource type. The list contains all available explicit versions, plus the combinations of `apiVersion = null` with `includePreview = true` (latest) or `includePreview = false` (latest stable) only when those selections can resolve successfully. Unknown resource types return a resource-type-not-found error, with no API version options to list. Empty or whitespace versions and the literals `"latest"`, `"latest-preview"`, and `"latest-stable"` are invalid; they do not trigger automatic selection.
 
-The catalog is bundled with Bicep, not queried live from Azure. The default and `latest-stable` versions may change when Bicep's bundled types are updated and do not guarantee availability in a particular cloud, region, or subscription.
+The catalog is bundled with Bicep, not queried live from Azure. Automatically selected versions may change when Bicep's bundled types are updated and do not guarantee availability in a particular cloud, region, or subscription.
 
 ## Transport
 

@@ -18,11 +18,11 @@ public class AzureResourceSchemaServerTests
     public TestContext? TestContext { get; set; }
 
     [TestMethod]
-    [DataRow(false, null, "2025-01-01-preview")]
-    [DataRow(true, null, "2025-01-01-preview")]
-    [DataRow(true, "latest-stable", "2024-01-01")]
-    [DataRow(true, "2023-01-01", "2023-01-01")]
-    public async Task GetAzureResourceTypeSchema_accepts_optional_api_version(bool includeApiVersion, string? apiVersion, string expectedVersion)
+    [DataRow(false, null, null, "2025-01-01-preview")]
+    [DataRow(true, null, true, "2025-01-01-preview")]
+    [DataRow(true, null, false, "2024-01-01")]
+    [DataRow(true, "2025-01-01-preview", false, "2025-01-01-preview")]
+    public async Task GetAzureResourceTypeSchema_accepts_optional_api_version(bool includeApiVersion, string? apiVersion, bool? includePreview, string expectedVersion)
     {
         await using var helper = await McpServerHelper.StartServer(TestContext, services =>
             services.AddSingleton(ResourceTypeCatalogHelper.CreateTypeLoader(
@@ -36,6 +36,10 @@ public class AzureResourceSchemaServerTests
         if (includeApiVersion)
         {
             arguments["apiVersion"] = apiVersion;
+        }
+        if (includePreview is { } includePreviewValue)
+        {
+            arguments["includePreview"] = includePreviewValue;
         }
 
         var response = await helper.Client.CallToolAsync("get_azure_resource_type_schema", arguments);
@@ -70,7 +74,8 @@ public class AzureResourceSchemaServerTests
         response.Content.Should().ContainSingle().Which.Should().BeOfType<TextContentBlock>()
             .Which.Text.Should().Be(resourceType != "Test.Rp/widgets"
                 ? $"Error: Resource type {resourceType} not found in Bicep's bundled Azure resource type catalog."
-                : $"Error: Resource type {resourceType} with API version {apiVersion} not found. Valid options: null (latest), \"latest-stable\", \"2024-01-01\".");
+                : $"Error: Resource type {resourceType} with API version {apiVersion} not found. " +
+                    "Valid options: apiVersion = null with includePreview = true (latest), apiVersion = null with includePreview = false (latest stable), apiVersion = \"2024-01-01\".");
     }
 
     [TestMethod]
@@ -82,12 +87,12 @@ public class AzureResourceSchemaServerTests
         var response = await helper.Client.CallToolAsync("get_azure_resource_type_schema", new Dictionary<string, object?>
         {
             ["resourceType"] = "Test.Rp/widgets",
-            ["apiVersion"] = "latest-stable",
+            ["includePreview"] = false,
         });
 
         response.IsError.Should().BeTrue();
         response.Content.Should().ContainSingle().Which.Should().BeOfType<TextContentBlock>()
             .Which.Text.Should().Be("Error: No stable API versions found for resource type Test.Rp/widgets in Bicep's bundled Azure resource type catalog. " +
-                "Valid options: null (latest), \"2024-01-01-preview\".");
+                "Valid options: apiVersion = null with includePreview = true (latest), apiVersion = \"2024-01-01-preview\".");
     }
 }
