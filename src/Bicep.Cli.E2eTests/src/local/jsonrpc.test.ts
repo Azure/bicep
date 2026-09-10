@@ -21,7 +21,7 @@ describe("bicep jsonrpc", () => {
 
   beforeAll(async () => (connection = await openConnection()));
 
-  afterAll(() => connection.dispose());
+  afterAll(() => connection?.dispose());
 
   it("should return a version number", async () => {
     const result = await version(connection);
