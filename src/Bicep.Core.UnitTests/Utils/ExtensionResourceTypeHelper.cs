@@ -340,6 +340,112 @@ public static class ExtensionResourceTypeHelper
             ("types.json", StreamHelper.GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes()))));
     }
 
+    public static BinaryData GetMockMsGraphTypesTgz(string extensionName, string extensionVersion, string apiVersion)
+    {
+        var factory = new TypeFactory([]);
+
+        var stringType = factory.Create(() => new StringType());
+        var booleanType = factory.Create(() => new BooleanType());
+        var anyType = factory.Create(() => new AnyType());
+        var stringArrayType = factory.Create(() => new ArrayType(factory.GetReference(stringType)));
+        var anyArrayType = factory.Create(() => new ArrayType(factory.GetReference(anyType)));
+
+        var stringTypeRef = factory.GetReference(stringType);
+        var booleanTypeRef = factory.GetReference(booleanType);
+        var anyTypeRef = factory.GetReference(anyType);
+        var stringArrayTypeRef = factory.GetReference(stringArrayType);
+        var anyArrayTypeRef = factory.GetReference(anyArrayType);
+
+        ObjectTypeProperty Property(ITypeReference typeRef, ObjectTypePropertyFlags flags = ObjectTypePropertyFlags.None) => new(typeRef, flags, null);
+
+        ResourceType Resource(string name, Dictionary<string, ObjectTypeProperty> properties)
+        {
+            var bodyType = factory.Create(() => new ObjectType(name, properties, null));
+
+            return factory.Create(() => new ResourceType(
+                name,
+                factory.GetReference(bodyType),
+                null,
+                writableScopes_in: ScopeType.All,
+                readableScopes_in: ScopeType.All));
+        }
+
+        Dictionary<string, ObjectTypeProperty> ApplicationProperties() => new()
+        {
+            ["uniqueName"] = Property(stringTypeRef, ObjectTypePropertyFlags.Required),
+            ["displayName"] = Property(stringTypeRef),
+            ["appId"] = Property(stringTypeRef, ObjectTypePropertyFlags.ReadOnly),
+            ["id"] = Property(stringTypeRef, ObjectTypePropertyFlags.ReadOnly),
+            ["appRoles"] = Property(anyArrayTypeRef),
+            ["api"] = Property(anyTypeRef),
+        };
+
+        ResourceType[] resourceTypes = apiVersion switch
+        {
+            "beta" =>
+            [
+                Resource("Microsoft.Graph/applications@beta", ApplicationProperties()),
+                Resource("Microsoft.Graph/servicePrincipals@beta", new()
+                {
+                    ["appId"] = Property(stringTypeRef, ObjectTypePropertyFlags.Required),
+                    ["id"] = Property(stringTypeRef, ObjectTypePropertyFlags.ReadOnly),
+                }),
+                Resource("Microsoft.Graph/oauth2PermissionGrants@beta", new()
+                {
+                    ["clientId"] = Property(stringTypeRef),
+                    ["consentType"] = Property(stringTypeRef),
+                    ["resourceId"] = Property(stringTypeRef),
+                    ["scope"] = Property(stringTypeRef),
+                    ["id"] = Property(stringTypeRef, ObjectTypePropertyFlags.ReadOnly),
+                }),
+                Resource("Microsoft.Graph/appRoleAssignedTo@beta", new()
+                {
+                    ["appRoleId"] = Property(stringTypeRef),
+                    ["principalId"] = Property(stringTypeRef),
+                    ["resourceId"] = Property(stringTypeRef),
+                    ["id"] = Property(stringTypeRef, ObjectTypePropertyFlags.ReadOnly),
+                }),
+                Resource("Microsoft.Graph/groups@beta", new()
+                {
+                    ["uniqueName"] = Property(stringTypeRef, ObjectTypePropertyFlags.Required),
+                    ["displayName"] = Property(stringTypeRef),
+                    ["mailEnabled"] = Property(booleanTypeRef),
+                    ["mailNickname"] = Property(stringTypeRef),
+                    ["securityEnabled"] = Property(booleanTypeRef),
+                    ["groupTypes"] = Property(stringArrayTypeRef),
+                    ["owners"] = Property(stringArrayTypeRef),
+                    ["id"] = Property(stringTypeRef, ObjectTypePropertyFlags.ReadOnly),
+                }),
+            ],
+            "v1.0" =>
+            [
+                Resource("Microsoft.Graph/applications@v1.0", ApplicationProperties()),
+                Resource("Microsoft.Graph/applications/federatedIdentityCredentials@v1.0", new()
+                {
+                    ["name"] = Property(stringTypeRef, ObjectTypePropertyFlags.Required),
+                    ["audiences"] = Property(stringArrayTypeRef),
+                    ["description"] = Property(stringTypeRef),
+                    ["issuer"] = Property(stringTypeRef),
+                    ["subject"] = Property(stringTypeRef),
+                    ["id"] = Property(stringTypeRef, ObjectTypePropertyFlags.ReadOnly),
+                }),
+            ],
+            _ => throw new ArgumentException($"Unsupported Microsoft Graph API version '{apiVersion}'.", nameof(apiVersion)),
+        };
+
+        var settings = new TypeSettings(name: extensionName, version: extensionVersion, isSingleton: false, configurationType: null!);
+        var index = new TypeIndex(
+            resourceTypes.ToDictionary(x => x.Name, x => new CrossFileTypeReference("types.json", factory.GetIndex(x))),
+            new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+            [],
+            settings,
+            null);
+
+        return GetTypesTgzBytesFromFiles(
+            ("index.json", StreamHelper.GetString(stream => TypeSerializer.SerializeIndex(stream, index))),
+            ("types.json", StreamHelper.GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes()))));
+    }
+
     public static BinaryData GetTypesTgzBytesFromFiles(params (string filePath, string contents)[] files)
     {
         var stream = new MemoryStream();
