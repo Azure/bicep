@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     # The job below will use the built-in "Request reviewers for a pull request" script to assign reviewers
     steps:
-      - name: Assign reviewer from Bicep External Maintainers team
+      - name: Assign Bicep external maintainers as reviewers
         uses: actions/github-script@v7
         with:
           script: |
@@ -26,5 +26,13 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number,
-              team_reviewers: ['bicep-external-maintainers']
+              reviewers: [
+                'shenglol',
+                'levimatheri',
+                'majastrz',
+                'harshpatel17',
+                'anthony-c-martin',
+                'stephaniezyen',
+                'tsmallig33'
+              ]
             })
