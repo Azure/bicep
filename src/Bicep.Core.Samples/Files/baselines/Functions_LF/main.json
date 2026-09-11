@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16013494690126396150"
+      "templateHash": "14070404464161621587"
     }
   },
   "definitions": {
@@ -270,6 +270,10 @@
     "distinctTest3": {
       "type": "array",
       "value": "[distinct(createArray(createObject('a', 1), createObject('a', 1), createObject('b', 2)))]"
+    },
+    "roleAssignmentName": {
+      "type": "string",
+      "value": "[getRoleAssignmentName(createObject('scope', resourceGroup().id, 'principalId', '00000000-0000-0000-0000-000000000000', 'roleDefinitionId', '00000000-0000-0000-0000-000000000001'))]"
     }
   }
 }

@@ -189,6 +189,13 @@ namespace Bicep.Core.Semantics.Namespaces
             return new(GetRoleDefinitionReturnType());
         }
 
+        private static ObjectType GetRoleAssignmentNameParameterType()
+            => new("inputs", TypeSymbolValidationFlags.Default, [
+                new NamedTypeProperty("scope", LanguageConstants.String, TypePropertyFlags.Required, Description: "The scope at which the role assignment is created."),
+                new NamedTypeProperty("principalId", LanguageConstants.String, TypePropertyFlags.Required, Description: "The principal ID to assign the role to."),
+                new NamedTypeProperty("roleDefinitionId", LanguageConstants.String, TypePropertyFlags.Required, Description: "The ID of the role definition to assign."),
+            ]);
+
         private static ObjectType GetProvidersSingleResourceReturnType()
         {
             // from https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions-resource?tabs=json#providers
@@ -567,6 +574,14 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithGenericDescription("Gets a role definition that can be used in role assignments.")
                     .WithDescription("Returns information about the specified role definition including id and roleDefinitionId.")
                     .WithRequiredParameter("roleName", LanguageConstants.String, "The display name of the role definition")
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("getRoleAssignmentName")
+                    .WithReturnResultBuilder(SystemNamespaceType.TryDeriveLiteralReturnType("getRoleAssignmentName", LanguageConstants.String), LanguageConstants.String)
+                    .WithReturnType(LanguageConstants.String)
+                    .WithGenericDescription("Returns a deterministic name for a role assignment.")
+                    .WithRequiredParameter("inputs", GetRoleAssignmentNameParameterType(), "The role assignment inputs")
+                    .WithFlags(FunctionFlags.Pure)
                     .Build();
 
                 const string providersDescription = "Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.";

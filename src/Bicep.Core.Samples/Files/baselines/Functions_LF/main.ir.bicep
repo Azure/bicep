@@ -1,5 +1,5 @@
 func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
-//@[000:2050) ProgramExpression
+//@[000:2253) ProgramExpression
 //@[000:0141) ├─DeclaredFunctionExpression { Name = buildUrl }
 //@[013:0141) | └─LambdaExpression
 //@[020:0024) |   ├─AmbientTypeReferenceExpression { Name = bool }
@@ -250,20 +250,39 @@ output distinctTest2 array = distinct([1,2,3,1,2,4])
 //@[047:0048) |     ├─IntegerLiteralExpression { Value = 2 }
 //@[049:0050) |     └─IntegerLiteralExpression { Value = 4 }
 output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])
-//@[000:0060) └─DeclaredOutputExpression { Name = distinctTest3 }
-//@[021:0026)   ├─AmbientTypeReferenceExpression { Name = array }
-//@[029:0060)   └─FunctionCallExpression { Name = distinct }
-//@[038:0059)     └─ArrayExpression
-//@[039:0044)       ├─ObjectExpression
-//@[040:0043)       | └─ObjectPropertyExpression
-//@[040:0041)       |   ├─StringLiteralExpression { Value = a }
-//@[042:0043)       |   └─IntegerLiteralExpression { Value = 1 }
-//@[046:0051)       ├─ObjectExpression
-//@[047:0050)       | └─ObjectPropertyExpression
-//@[047:0048)       |   ├─StringLiteralExpression { Value = a }
-//@[049:0050)       |   └─IntegerLiteralExpression { Value = 1 }
-//@[053:0058)       └─ObjectExpression
-//@[054:0057)         └─ObjectPropertyExpression
-//@[054:0055)           ├─StringLiteralExpression { Value = b }
-//@[056:0057)           └─IntegerLiteralExpression { Value = 2 }
+//@[000:0060) ├─DeclaredOutputExpression { Name = distinctTest3 }
+//@[021:0026) | ├─AmbientTypeReferenceExpression { Name = array }
+//@[029:0060) | └─FunctionCallExpression { Name = distinct }
+//@[038:0059) |   └─ArrayExpression
+//@[039:0044) |     ├─ObjectExpression
+//@[040:0043) |     | └─ObjectPropertyExpression
+//@[040:0041) |     |   ├─StringLiteralExpression { Value = a }
+//@[042:0043) |     |   └─IntegerLiteralExpression { Value = 1 }
+//@[046:0051) |     ├─ObjectExpression
+//@[047:0050) |     | └─ObjectPropertyExpression
+//@[047:0048) |     |   ├─StringLiteralExpression { Value = a }
+//@[049:0050) |     |   └─IntegerLiteralExpression { Value = 1 }
+//@[053:0058) |     └─ObjectExpression
+//@[054:0057) |       └─ObjectPropertyExpression
+//@[054:0055) |         ├─StringLiteralExpression { Value = b }
+//@[056:0057) |         └─IntegerLiteralExpression { Value = 2 }
+output roleAssignmentName string = getRoleAssignmentName({
+//@[000:0202) └─DeclaredOutputExpression { Name = roleAssignmentName }
+//@[026:0032)   ├─AmbientTypeReferenceExpression { Name = string }
+//@[035:0202)   └─FunctionCallExpression { Name = getRoleAssignmentName }
+//@[057:0201)     └─ObjectExpression
+  scope: resourceGroup().id
+//@[002:0027)       ├─ObjectPropertyExpression
+//@[002:0007)       | ├─StringLiteralExpression { Value = scope }
+//@[009:0027)       | └─PropertyAccessExpression { PropertyName = id }
+//@[009:0024)       |   └─FunctionCallExpression { Name = resourceGroup }
+  principalId: '00000000-0000-0000-0000-000000000000'
+//@[002:0053)       ├─ObjectPropertyExpression
+//@[002:0013)       | ├─StringLiteralExpression { Value = principalId }
+//@[015:0053)       | └─StringLiteralExpression { Value = 00000000-0000-0000-0000-000000000000 }
+  roleDefinitionId: '00000000-0000-0000-0000-000000000001'
+//@[002:0058)       └─ObjectPropertyExpression
+//@[002:0018)         ├─StringLiteralExpression { Value = roleDefinitionId }
+//@[020:0058)         └─StringLiteralExpression { Value = 00000000-0000-0000-0000-000000000001 }
+})
 

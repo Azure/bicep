@@ -62,6 +62,25 @@
     ]
   },
   {
+    "name": "getRoleAssignmentName",
+    "description": "Returns a deterministic name for a role assignment.",
+    "fixedParameters": [
+      {
+        "name": "inputs",
+        "description": "The role assignment inputs",
+        "type": "inputs",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "pure",
+    "typeSignature": "(inputs: inputs): string",
+    "parameterTypeSignatures": [
+      "inputs: inputs"
+    ]
+  },
+  {
     "name": "managementGroup",
     "description": "Returns the scope for a named management group.",
     "fixedParameters": [
