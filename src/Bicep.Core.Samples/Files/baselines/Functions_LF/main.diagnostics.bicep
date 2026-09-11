@@ -67,4 +67,9 @@ output distinctTest2 array = distinct([1,2,3,1,2,4])
 //@[21:26) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
 output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])
 //@[21:26) [use-user-defined-types (Warning)] Use user-defined types instead of 'object' or 'array'. (bicep core linter https://aka.ms/bicep/linter-diagnostics#use-user-defined-types) |array|
+output roleAssignmentName string = getRoleAssignmentName({
+  scope: resourceGroup().id
+  principalId: '00000000-0000-0000-0000-000000000000'
+  roleDefinitionId: '00000000-0000-0000-0000-000000000001'
+})
 

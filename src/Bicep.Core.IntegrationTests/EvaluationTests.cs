@@ -1010,6 +1010,63 @@ param param2 = union(param1, { reference: 'param2' })
     }
 
     [TestMethod]
+    public void Az_getRoleAssignmentName_functions_are_evaluated_successfully()
+    {
+        var (template, diagnostics, _) = CompilationHelper.Compile(@"
+output resourceGroupScope string = az.getRoleAssignmentName({
+  scope: '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/myRg'
+  principalId: '22222222-2222-2222-2222-222222222222'
+  roleDefinitionId: '/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.Authorization/roleDefinitions/33333333-3333-3333-3333-333333333333'
+})
+output resourceGroupScopeTenantRoleDefinition string = az.getRoleAssignmentName({
+  scope: '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/myRg'
+  principalId: '22222222-2222-2222-2222-222222222222'
+  roleDefinitionId: '/providers/Microsoft.Authorization/roleDefinitions/33333333-3333-3333-3333-333333333333'
+})
+output resourceGroupScopeManagementGroupRoleDefinition string = az.getRoleAssignmentName({
+  scope: '/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/myRg'
+  principalId: '22222222-2222-2222-2222-222222222222'
+  roleDefinitionId: '/providers/Microsoft.Management/managementGroups/myMg/providers/Microsoft.Authorization/roleDefinitions/33333333-3333-3333-3333-333333333333'
+})
+output upperCasedInputs string = az.getRoleAssignmentName({
+  scope: '/SUBSCRIPTIONS/11111111-1111-1111-1111-111111111111/RESOURCEGROUPS/MYRG'
+  principalId: '22222222-2222-2222-2222-222222222222'
+  roleDefinitionId: '/SUBSCRIPTIONS/11111111-1111-1111-1111-111111111111/PROVIDERS/MICROSOFT.AUTHORIZATION/ROLEDEFINITIONS/33333333-3333-3333-3333-333333333333'
+})
+output tenantScope string = az.getRoleAssignmentName({
+  scope: '/'
+  principalId: '22222222-2222-2222-2222-222222222222'
+  roleDefinitionId: '/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.Authorization/roleDefinitions/33333333-3333-3333-3333-333333333333'
+})
+output managementGroupScope string = az.getRoleAssignmentName({
+  scope: '/providers/Microsoft.Management/managementGroups/myMg'
+  principalId: '22222222-2222-2222-2222-222222222222'
+  roleDefinitionId: '/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.Authorization/roleDefinitions/33333333-3333-3333-3333-333333333333'
+})
+output subscriptionScopeDifferentPrincipal string = az.getRoleAssignmentName({
+  scope: '/subscriptions/11111111-1111-1111-1111-111111111111'
+  principalId: '99999999-9999-9999-9999-999999999999'
+  roleDefinitionId: '/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.Authorization/roleDefinitions/33333333-3333-3333-3333-333333333333'
+})
+");
+
+        using (new AssertionScope())
+        {
+            diagnostics.Should().NotHaveAnyDiagnostics();
+
+            var evaluated = TemplateEvaluator.Evaluate(template).ToJToken();
+
+            evaluated.Should().HaveValueAtPath("$.outputs['resourceGroupScope'].value", "eec47c62-a9a9-54dd-b8d8-f9e2839fab35");
+            evaluated.Should().HaveValueAtPath("$.outputs['resourceGroupScopeTenantRoleDefinition'].value", "eec47c62-a9a9-54dd-b8d8-f9e2839fab35");
+            evaluated.Should().HaveValueAtPath("$.outputs['resourceGroupScopeManagementGroupRoleDefinition'].value", "eec47c62-a9a9-54dd-b8d8-f9e2839fab35");
+            evaluated.Should().HaveValueAtPath("$.outputs['upperCasedInputs'].value", "eec47c62-a9a9-54dd-b8d8-f9e2839fab35");
+            evaluated.Should().HaveValueAtPath("$.outputs['tenantScope'].value", "c095807d-5244-5404-8bce-e0e762e70618");
+            evaluated.Should().HaveValueAtPath("$.outputs['managementGroupScope'].value", "6aab5ec9-d102-539e-8b65-b053c060e64f");
+            evaluated.Should().HaveValueAtPath("$.outputs['subscriptionScopeDifferentPrincipal'].value", "54e40269-cc30-57bd-8031-5ca4efc75fd5");
+        }
+        }
+
+    [TestMethod]
     public void Az_getsecret_params_cannot_be_dereferenced()
     {
         var bicepTemplateText = @"

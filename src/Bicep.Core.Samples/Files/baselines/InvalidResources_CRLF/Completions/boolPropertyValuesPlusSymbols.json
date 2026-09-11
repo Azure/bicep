@@ -2517,6 +2517,27 @@
     }
   },
   {
+    "label": "getRoleAssignmentName",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ngetRoleAssignmentName(inputs: inputs): string\n\n```  \nReturns a deterministic name for a role assignment.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_getRoleAssignmentName",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "getRoleAssignmentName($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "groupBy",
     "kind": "function",
     "documentation": {
