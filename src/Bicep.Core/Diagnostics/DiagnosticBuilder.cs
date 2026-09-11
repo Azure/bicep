@@ -2084,6 +2084,14 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic BicepConfigExtendsChainTooDeep(IOUri configFileUri) => CoreError(
                 "BCP455",
                 $"The Bicep configuration \"extends\" chain starting from \"{configFileUri}\" exceeds the maximum allowed depth of 64.");
+
+            public Diagnostic UntrustedCloudProfile(IOUri configFileUri) => CoreError(
+                "BCP456",
+                $"The cloud profile selected by the Bicep configuration file \"{configFileUri}\" is not trusted. Use a canonical built-in cloud profile or approve the exact custom profile through the BICEP_TRUSTED_CLOUDS environment variable.");
+
+            public Diagnostic ArtifactRestoreBlockedByCloud() => CoreError(
+                "BCP457",
+                "Artifact restore is blocked because the selected cloud configuration is not trusted. Use a canonical built-in cloud configuration or approve the exact configuration through the BICEP_TRUSTED_CLOUDS environment variable.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

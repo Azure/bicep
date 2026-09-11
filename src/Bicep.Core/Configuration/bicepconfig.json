@@ -9,6 +9,10 @@
         "resourceManagerEndpoint": "https://management.azure.com",
         "activeDirectoryAuthority": "https://login.microsoftonline.com"
       },
+      "AzureBleuCloud": {
+        "resourceManagerEndpoint": "https://management.sovcloud-api.fr",
+        "activeDirectoryAuthority": "https://login.sovcloud-identity.fr"
+      },
       "AzureChinaCloud": {
         "resourceManagerEndpoint": "https://management.chinacloudapi.cn",
         "activeDirectoryAuthority": "https://login.chinacloudapi.cn"

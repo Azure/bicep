@@ -15,13 +15,14 @@ namespace Bicep.Wasm
     {
         public WasmModuleRegistryProvider(
             RegistryConfiguration registryConfiguration,
+            CloudConfigurationTrustPolicy cloudTrustPolicy,
             IPublicModuleMetadataProvider publicModuleMetadataProvider,
             IOciRegistryTransportFactory transportFactory,
             IFileExplorer fileExplorer,
             ILogger<OciArtifactRegistry>? logger = null)
             : base([
                 new LocalModuleRegistry(),
-                new OciArtifactRegistry(registryConfiguration, transportFactory, publicModuleMetadataProvider, fileExplorer, logger ?? NullLogger<OciArtifactRegistry>.Instance),
+                new OciArtifactRegistry(registryConfiguration, cloudTrustPolicy, transportFactory, publicModuleMetadataProvider, fileExplorer, logger ?? NullLogger<OciArtifactRegistry>.Instance),
             ])
         {
         }

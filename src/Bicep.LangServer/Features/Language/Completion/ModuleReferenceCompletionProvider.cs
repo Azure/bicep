@@ -36,6 +36,7 @@ namespace Bicep.LanguageServer.Features.Language.Completion
         private readonly IRegistryModuleCatalog registryModuleCatalog;
         private readonly ISettingsProvider settingsProvider;
         private readonly RegistryConfiguration registryConfiguration;
+        private readonly CloudConfigurationTrustPolicy cloudTrustPolicy;
 
         private enum ModuleCompletionPriority
         {
@@ -142,12 +143,14 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
             IRegistryModuleCatalog registryModuleCatalog,
             ISettingsProvider settingsProvider,
-            RegistryConfiguration registryConfiguration)
+            RegistryConfiguration registryConfiguration,
+            CloudConfigurationTrustPolicy cloudTrustPolicy)
         {
             this.azureContainerRegistriesProvider = azureContainerRegistriesProvider;
             this.registryModuleCatalog = registryModuleCatalog;
             this.settingsProvider = settingsProvider;
             this.registryConfiguration = registryConfiguration;
+            this.cloudTrustPolicy = cloudTrustPolicy;
         }
 
         public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(BicepSourceFile sourceFile, BicepCompletionContext context, CancellationToken cancellationToken)
@@ -338,6 +341,12 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                 return [];
             }
 
+            // Security: do not contact registries resolved through an untrusted cloud profile.
+            if (!cloudTrustPolicy.IsTrusted(rootConfiguration.Cloud))
+            {
+                return [];
+            }
+
             List<CompletionItem> completions = new();
 
             if (await registryModuleCatalog.GetProviderForRegistry((CloudConfiguration)rootConfiguration.Cloud, parts.ResolvedRegistry)
@@ -468,6 +477,12 @@ namespace Bicep.LanguageServer.Features.Language.Completion
                 return [];
             }
 
+            // Security: do not contact registries resolved through an untrusted cloud profile.
+            if (!cloudTrustPolicy.IsTrusted(rootConfiguration.Cloud))
+            {
+                return [];
+            }
+
             List<CompletionItem> completions = new();
 
             var modules = await registryModuleCatalog
@@ -570,6 +585,11 @@ namespace Bicep.LanguageServer.Features.Language.Completion
         // This is for completions after typing "br:"
         private async Task<IEnumerable<CompletionItem>> GetACRRegistryNameCompletionsFromAzure(string trimmedText, BicepCompletionContext context, IBicepConfiguration rootConfiguration, CancellationToken cancellationToken)
         {
+            if (!cloudTrustPolicy.IsTrusted(rootConfiguration.Cloud))
+            {
+                return [];
+            }
+
             List<CompletionItem> completions = new();
 
             try

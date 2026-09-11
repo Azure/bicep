@@ -18,7 +18,7 @@ namespace Bicep.Core.UnitTests.Configuration
 
         private static IBicepConfigurationChain GetChain(TestFileSet fileSet, string sourceFile = "main.bicep")
         {
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
             return sut.GetConfigurationChain(fileSet.GetUri(sourceFile));
         }
 
@@ -62,6 +62,102 @@ namespace Bicep.Core.UnitTests.Configuration
             chain.GetEffectiveConfiguration().IsBuiltIn.Should().BeFalse();
             chain.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeTrue();
             chain.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
+        }
+
+        [DataTestMethod]
+        [DataRow("AzureBleuCloud")]
+        [DataRow("AzureUSGovernment")]
+        public void GetConfigurationChain_CanonicalCloudProfileOverride_IsTrusted(string profileName)
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                    ("main.bicep", ""),
+                    ("bicepconfig.json", $$"""
+                                {
+                                    "cloud": {
+                                        "currentProfile": "{{profileName}}"
+                                    }
+                                }
+                                """));
+
+            GetChain(fileSet).GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_CustomCloudProfile_ReportsUntrustedProfile()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                    ("main.bicep", ""),
+                    ("bicepconfig.json", """
+                                {
+                                    "cloud": {
+                                        "currentProfile": "Custom",
+                                        "profiles": {
+                                            "Custom": {
+                                                "resourceManagerEndpoint": "https://management.example.invalid",
+                                                "activeDirectoryAuthority": "https://login.example.invalid"
+                                            }
+                                        }
+                                    }
+                                }
+                                """));
+
+            GetChain(fileSet).GetEffectiveConfiguration().GetDiagnostics()
+                    .Should().ContainSingle(diagnostic => diagnostic.Code == "BCP456");
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_RepositoryEnvironmentCredential_DoesNotRequireSeparateTrust()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                    ("main.bicep", ""),
+                    ("bicepconfig.json", """{ "cloud": { "credentialPrecedence": ["Environment"] } }"""));
+
+            GetChain(fileSet).GetEffectiveConfiguration().GetDiagnostics()
+                    .Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_ExactExternalTrustApprovesCustomProfile()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                    ("main.bicep", ""),
+                    ("bicepconfig.json", """
+                                {
+                                    "cloud": {
+                                        "currentProfile": "Custom",
+                                        "profiles": {
+                                            "Custom": {
+                                                "resourceManagerEndpoint": "https://management.example.invalid",
+                                                "activeDirectoryAuthority": "https://login.example.invalid"
+                                            }
+                                        },
+                                        "credentialPrecedence": ["Environment"]
+                                    }
+                                }
+                                """));
+            var trustPolicy = CloudConfigurationTrustPolicy.FromEnvironmentValue("""
+                                [{
+                                    "resourceManagerEndpoint": "https://management.example.invalid",
+                                    "activeDirectoryAuthority": "https://login.example.invalid"
+                                }]
+                                """);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, trustPolicy);
+
+            sut.GetConfigurationChain(fileSet.GetUri("main.bicep"))
+                    .GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_MalformedExternalTrust_DoesNotBlockBuiltInCloud()
+        {
+            var fileSet = InMemoryTestFileSet.Create(("main.bicep", ""));
+            var sut = new BicepConfigurationManager(
+                    fileSet.FileExplorer,
+                    CloudConfigurationTrustPolicy.FromEnvironmentValue("*"));
+
+            sut.GetConfigurationChain(fileSet.GetUri("main.bicep"))
+                    .GetEffectiveConfiguration().GetDiagnostics()
+                    .Should().BeEmpty();
         }
 
         // ── Simple two-level extends ──────────────────────────────────────────
@@ -151,7 +247,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 }
                 """));
 
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
 
             // Act — load chain once.
             var chain1 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
@@ -304,7 +400,7 @@ namespace Bicep.Core.UnitTests.Configuration
         {
             // Arrange — source file is a remote URI (e.g. from a registry).
             var fileSet = InMemoryTestFileSet.Create();
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
             var remoteUri = new IOUri(new IOUriScheme("https"), "management.azure.com", "/bicep/main.bicep");
 
             // Act.
@@ -325,7 +421,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 ("main.bicep", ""),
                 ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""));
 
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
 
             // Act.
             var chain1 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
@@ -343,7 +439,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 ("main.bicep", ""),
                 ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""));
 
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
 
             // Act.
             var chain1 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
@@ -365,7 +461,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }"""),
                 ("base/bicepconfig.base.json", """{ "experimentalFeaturesWarning": false }"""));
 
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
 
             // Load chain — should reflect base value (false).
             var chain1 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
@@ -392,7 +488,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var fileSet = InMemoryTestFileSet.Create(
                 ("main.bicep", ""),
                 ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
             sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
 
             var deps = sut.GetDependenciesForLeaf(fileSet.GetUri("bicepconfig.json"));
@@ -407,7 +503,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 ("main.bicep", ""),
                 ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }"""),
                 ("base/bicepconfig.base.json", """{ "experimentalFeaturesWarning": true }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
             sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
 
             var deps = sut.GetDependenciesForLeaf(fileSet.GetUri("bicepconfig.json"));
@@ -425,7 +521,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 ("bicepconfig.json", """{ "extends": "./b/bicepconfig.b.json" }"""),
                 ("b/bicepconfig.b.json", """{ "extends": "../c/bicepconfig.c.json" }"""),
                 ("c/bicepconfig.c.json", """{ "experimentalFeaturesWarning": true }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
             sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
 
             var deps = sut.GetDependenciesForLeaf(fileSet.GetUri("bicepconfig.json"));
@@ -445,7 +541,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 ("main.bicep", ""),
                 ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }"""),
                 ("base/bicepconfig.base.json", """{ "experimentalFeaturesWarning": true }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
             var chain1 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
 
             // Verify chain1 has correct content before purge.
@@ -469,7 +565,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""),
                 ("other/other.bicep", ""),
                 ("other/bicepconfig.json", """{ "experimentalFeaturesWarning": false }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
             var chain1 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
 
             // Verify chain1 has correct content before purge.
@@ -490,7 +586,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var fileSet = InMemoryTestFileSet.Create(
                 ("main.bicep", ""),
                 ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
             var chain1 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
 
             // Verify chain1 has correct content before purge.
@@ -514,7 +610,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 ("bicepconfig.json", """{ "extends": "./b/bicepconfig.b.json" }"""),
                 ("b/bicepconfig.b.json", """{ "extends": "../c/bicepconfig.c.json" }"""),
                 ("c/bicepconfig.c.json", """{ "experimentalFeaturesWarning": true }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
             var chain1 = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
 
             // Verify chain1 has correct content — value inherited from deepest C.
@@ -539,7 +635,7 @@ namespace Bicep.Core.UnitTests.Configuration
                 ("other/other.bicep", ""),
                 ("other/bicepconfig.json", """{ "experimentalFeaturesWarning": false }"""),
                 ("shared/bicepconfig.shared.json", """{ "experimentalFeaturesWarning": true }"""));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
             var chainMain = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
             var chainOther = sut.GetConfigurationChain(fileSet.GetUri("other/other.bicep"));
 
@@ -579,7 +675,7 @@ namespace Bicep.Core.UnitTests.Configuration
                       }
                     }
                     """));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
 
             var chain = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
             var alias = chain.GetEffectiveConfiguration().ModuleAliasesMock
@@ -605,7 +701,7 @@ namespace Bicep.Core.UnitTests.Configuration
                       }
                     }
                     """));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
 
             var chain = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
             var alias = chain.GetEffectiveConfiguration().ModuleAliasesMock
@@ -641,7 +737,7 @@ namespace Bicep.Core.UnitTests.Configuration
                       }
                     }
                     """));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
 
             var chain = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
             var alias = chain.GetEffectiveConfiguration().ModuleAliasesMock

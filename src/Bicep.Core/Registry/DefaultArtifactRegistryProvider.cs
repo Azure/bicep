@@ -14,6 +14,7 @@ namespace Bicep.Core.Registry
     {
         public DefaultArtifactRegistryProvider(
             RegistryConfiguration registryConfiguration,
+            CloudConfigurationTrustPolicy cloudTrustPolicy,
             IOciRegistryTransportFactory transportFactory,
             IPublicModuleMetadataProvider publicModuleMetadataProvider,
             ITemplateSpecRepositoryFactory templateSpecRepositoryFactory,
@@ -24,12 +25,13 @@ namespace Bicep.Core.Registry
                     new LocalModuleRegistry(),
                     new OciArtifactRegistry(
                         registryConfiguration,
+                        cloudTrustPolicy,
                         transportFactory,
                         publicModuleMetadataProvider,
                         fileExplorer,
                         logger ?? NullLogger<OciArtifactRegistry>.Instance),
                     new OciArtifactMockedRegistry(),
-                    new TemplateSpecModuleRegistry(templateSpecRepositoryFactory),
+                    new TemplateSpecModuleRegistry(templateSpecRepositoryFactory, cloudTrustPolicy),
                 })
         {
         }

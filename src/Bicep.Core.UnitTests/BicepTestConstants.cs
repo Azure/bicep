@@ -92,10 +92,12 @@ namespace Bicep.Core.UnitTests
             var transportFactory = new OciRegistryTransportFactory(transport, dockerCredentials);
             var publicMetadataProvider = (services.GetService(typeof(IPublicModuleMetadataProvider)) as IPublicModuleMetadataProvider)
                 ?? StrictMock.Of<IPublicModuleMetadataProvider>().Object;
-            return new DefaultArtifactRegistryProvider(TestRegistryConfiguration, transportFactory, publicMetadataProvider, TemplateSpecRepositoryFactory, FileExplorer);
+            return new DefaultArtifactRegistryProvider(TestRegistryConfiguration, TestCloudConfigurationTrustPolicy, transportFactory, publicMetadataProvider, TemplateSpecRepositoryFactory, FileExplorer);
         }
 
         public static readonly RegistryConfiguration TestRegistryConfiguration = new(PermitUntrustedRegistries: true);
+
+        public static readonly CloudConfigurationTrustPolicy TestCloudConfigurationTrustPolicy = new();
 
         public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) => new ModuleDispatcher(CreateRegistryProvider(services));
 
@@ -152,7 +154,7 @@ namespace Bicep.Core.UnitTests
         public static BicepConfigurationManager CreateFilesystemConfigurationManager()
         {
             var fileExplorer = new FileSystemFileExplorer(new OnDiskFileSystem());
-            return new BicepConfigurationManager(fileExplorer);
+            return new BicepConfigurationManager(fileExplorer, TestCloudConfigurationTrustPolicy);
         }
 
         public static IFeatureProviderFactory CreateFeatureProviderFactory(FeatureProviderOverrides featureOverrides, IBicepConfigurationManager? configurationManager = null)

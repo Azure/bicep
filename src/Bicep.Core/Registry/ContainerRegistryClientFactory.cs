@@ -12,15 +12,18 @@ namespace Bicep.Core.Registry
     {
         private readonly ITokenCredentialFactory credentialFactory;
         private readonly RegistryConfiguration registryConfiguration;
+        private readonly CloudConfigurationTrustPolicy cloudTrustPolicy;
 
-        public ContainerRegistryClientFactory(RegistryConfiguration registryConfiguration, ITokenCredentialFactory credentialFactory)
+        public ContainerRegistryClientFactory(RegistryConfiguration registryConfiguration, ITokenCredentialFactory credentialFactory, CloudConfigurationTrustPolicy cloudTrustPolicy)
         {
             this.registryConfiguration = registryConfiguration;
             this.credentialFactory = credentialFactory;
+            this.cloudTrustPolicy = cloudTrustPolicy;
         }
 
         public ContainerRegistryContentClient CreateAuthenticatedBlobClient(IBicepCloudConfiguration cloud, Uri registryUri, string repository)
         {
+            cloudTrustPolicy.ThrowIfCloudIsUntrusted(cloud);
             ThrowIfRegistryNotTrusted(registryUri);
 
             var options = CreateClientOptions(cloud);
@@ -31,6 +34,7 @@ namespace Bicep.Core.Registry
 
         public ContainerRegistryContentClient CreateAnonymousBlobClient(IBicepCloudConfiguration cloud, Uri registryUri, string repository)
         {
+            cloudTrustPolicy.ThrowIfCloudIsUntrusted(cloud);
             ThrowIfRegistryNotTrusted(registryUri);
 
             var options = CreateClientOptions(cloud);
@@ -39,6 +43,7 @@ namespace Bicep.Core.Registry
 
         public ContainerRegistryClient CreateAuthenticatedContainerClient(IBicepCloudConfiguration cloud, Uri registryUri)
         {
+            cloudTrustPolicy.ThrowIfCloudIsUntrusted(cloud);
             ThrowIfRegistryNotTrusted(registryUri);
 
             var options = CreateClientOptions(cloud);
@@ -49,6 +54,7 @@ namespace Bicep.Core.Registry
 
         public ContainerRegistryClient CreateAnonymousContainerClient(IBicepCloudConfiguration cloud, Uri registryUri)
         {
+            cloudTrustPolicy.ThrowIfCloudIsUntrusted(cloud);
             ThrowIfRegistryNotTrusted(registryUri);
 
             var options = CreateClientOptions(cloud);

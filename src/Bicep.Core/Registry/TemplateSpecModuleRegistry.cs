@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Modules;
 using Bicep.Core.Semantics;
@@ -16,10 +17,12 @@ namespace Bicep.Core.Registry
     public class TemplateSpecModuleRegistry : ExternalArtifactRegistry<TemplateSpecModuleReference, TemplateSpecEntity>
     {
         private readonly ITemplateSpecRepositoryFactory repositoryFactory;
+        private readonly CloudConfigurationTrustPolicy cloudTrustPolicy;
 
-        public TemplateSpecModuleRegistry(ITemplateSpecRepositoryFactory repositoryFactory)
+        public TemplateSpecModuleRegistry(ITemplateSpecRepositoryFactory repositoryFactory, CloudConfigurationTrustPolicy cloudTrustPolicy)
         {
             this.repositoryFactory = repositoryFactory;
+            this.cloudTrustPolicy = cloudTrustPolicy;
         }
 
         public override string Scheme => ArtifactReferenceSchemes.TemplateSpecs;
@@ -57,6 +60,12 @@ namespace Bicep.Core.Registry
 
             foreach (var reference in references)
             {
+                if (!cloudTrustPolicy.IsTrusted(reference.Configuration.Cloud))
+                {
+                    statuses.Add(reference, x => x.ArtifactRestoreBlockedByCloud());
+                    continue;
+                }
+
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectory(reference).Uri.GetFilePath()}");
                 try
                 {

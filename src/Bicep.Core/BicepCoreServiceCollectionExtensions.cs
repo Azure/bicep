@@ -55,6 +55,11 @@ public static class BicepCoreServiceCollectionExtensions
             var additionalTrustedRegistries = RegistryConfiguration.ParseTrustedRegistries(environment.GetVariable("BICEP_TRUSTED_REGISTRIES"));
             return new RegistryConfiguration(PermitUntrustedRegistries: false, additionalTrustedRegistries);
         });
+        services.TryAddSingleton<CloudConfigurationTrustPolicy>(serviceProvider =>
+        {
+            var environment = serviceProvider.GetRequiredService<IEnvironment>();
+            return CloudConfigurationTrustPolicy.FromEnvironmentValue(environment.GetVariable(CloudConfigurationTrustPolicy.TrustedCloudsEnvironmentVariable));
+        });
         services.TryAddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>();
         services.TryAddSingleton<ITokenCredentialFactory, TokenCredentialFactory>();
         services.TryAddSingleton<IEnvironment, Environment>();
