@@ -3,6 +3,7 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.SemanticVersioning;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Configuration
 {
@@ -16,8 +17,10 @@ namespace Bicep.Core.Configuration
         /// Validates <paramref name="runningVersion"/> against <paramref name="constraint"/>. Returns a diagnostic
         /// when the constraint is violated, a warning diagnostic when the running version cannot be parsed (so the
         /// constraint could not be checked), or null when there is no constraint or the constraint is satisfied.
+        /// <paramref name="configFileUri"/> is the effective bicepconfig.json that declared the constraint (or
+        /// null if it came from the built-in defaults), and is included in any diagnostic produced.
         /// </summary>
-        public static IDiagnostic? Validate(VersionRange? constraint, string runningVersion)
+        public static IDiagnostic? Validate(VersionRange? constraint, string runningVersion, IOUri? configFileUri)
         {
             if (constraint is null)
             {
@@ -30,7 +33,7 @@ namespace Bicep.Core.Configuration
             {
                 // The running version can't be parsed, so we can't meaningfully compare it. Warn rather than
                 // silently skipping, so users are aware the "bicep.version" constraint was not actually checked.
-                return DiagnosticBuilder.ForDocumentStart().BicepVersionConstraintCouldNotBeChecked(constraint.ToString(), runningVersion);
+                return DiagnosticBuilder.ForDocumentStart().BicepVersionConstraintCouldNotBeChecked(constraint.ToString(), runningVersion, configFileUri);
             }
 
             if (constraint.IsSatisfiedBy(parsedRunningVersion))
@@ -38,7 +41,7 @@ namespace Bicep.Core.Configuration
                 return null;
             }
 
-            return DiagnosticBuilder.ForDocumentStart().BicepVersionConstraintNotSatisfied(constraint.ToString(), runningVersion);
+            return DiagnosticBuilder.ForDocumentStart().BicepVersionConstraintNotSatisfied(constraint.ToString(), runningVersion, configFileUri);
         }
     }
 }

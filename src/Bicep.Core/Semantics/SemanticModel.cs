@@ -339,7 +339,11 @@ namespace Bicep.Core.Semantics
         /// </summary>
         private IReadOnlyList<IDiagnostic> GetCompilerVersionDiagnostics()
         {
-            if (CompilerVersionValidator.Validate(this.Configuration.Compiler.Version, this.Environment.CurrentVersion.Version) is { } diagnostic)
+            // Prefer the URI of the config file that actually declared "bicep.version" (walking the "extends"
+            // chain), falling back to the leaf config's URI defensively if that couldn't be determined.
+            var configFileUri = this.Configuration.Compiler.DeclaringConfigUri ?? this.Configuration.ConfigFileUri;
+
+            if (CompilerVersionValidator.Validate(this.Configuration.Compiler.Version, this.Environment.CurrentVersion.Version, configFileUri) is { } diagnostic)
             {
                 return [diagnostic];
             }

@@ -4,6 +4,7 @@
 using System.Text.Json;
 using Bicep.Core.Extensions;
 using Bicep.Core.SemanticVersioning;
+using Bicep.IO.Abstraction;
 
 namespace Bicep.Core.Configuration;
 
@@ -23,13 +24,16 @@ public sealed record CompilerOptions
 /// </summary>
 public sealed class CompilerConfiguration : ConfigurationSection<CompilerOptions>, IBicepCompilerConfiguration
 {
-    public CompilerConfiguration(CompilerOptions data, VersionRange? version)
+    public CompilerConfiguration(CompilerOptions data, VersionRange? version, IOUri? declaringConfigUri = null)
         : base(data)
     {
         Version = version;
+        DeclaringConfigUri = declaringConfigUri;
     }
 
     public VersionRange? Version { get; }
+
+    public IOUri? DeclaringConfigUri { get; }
 
     public static CompilerConfiguration Bind(JsonElement element)
     {
@@ -46,4 +50,10 @@ public sealed class CompilerConfiguration : ConfigurationSection<CompilerOptions
 
         return new(data, version);
     }
+
+    /// <summary>
+    /// Returns a copy of this configuration annotated with the URI of the config file that declared
+    /// "bicep.version".
+    /// </summary>
+    public CompilerConfiguration WithDeclaringUri(IOUri declaringConfigUri) => new(Data, Version, declaringConfigUri);
 }

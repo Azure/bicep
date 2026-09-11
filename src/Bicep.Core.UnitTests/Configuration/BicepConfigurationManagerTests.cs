@@ -652,5 +652,115 @@ namespace Bicep.Core.UnitTests.Configuration
             mockAlias!.DeclaringConfigUri.Should().Be(fileSet.GetUri("bicepconfig.json"));
             mockAlias.MapToFilePath.Should().Be("./leaf-modules");
         }
+
+        // ── "bicep.version" declaring URI ───────────────────────────────────────
+
+        [TestMethod]
+        public void GetConfigurationChain_VersionInLeafOnly_DeclaringConfigUriIsLeaf()
+        {
+            // No extends at all — the only config file is both the leaf and the declarer.
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "bicep": { "version": ">=0.30.0" } }"""));
+
+            var chain = GetChain(fileSet);
+
+            chain.GetEffectiveConfiguration().Compiler.DeclaringConfigUri.Should().Be(fileSet.GetUri("bicepconfig.json"));
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_VersionInBaseOnly_DeclaringConfigUriIsBase()
+        {
+            // "bicep.version" is declared only in the base — DeclaringConfigUri should be the base URI, not the leaf.
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }"""),
+                ("base/bicepconfig.base.json", """{ "bicep": { "version": ">=0.30.0" } }"""));
+
+            var chain = GetChain(fileSet);
+            var compiler = chain.GetEffectiveConfiguration().Compiler;
+
+            compiler.Version.Should().NotBeNull();
+            compiler.DeclaringConfigUri.Should().Be(fileSet.GetUri("base/bicepconfig.base.json"));
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_VersionInBothLeafAndBase_LeafWinsAndDeclaringConfigUriIsLeaf()
+        {
+            // Leaf and base both declare "bicep.version" with different constraints — leaf overrides base, and
+            // DeclaringConfigUri must point at the leaf (the file that actually determines the effective value).
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """
+                    {
+                      "extends": "./base/bicepconfig.base.json",
+                      "bicep": { "version": ">=0.40.0" }
+                    }
+                    """),
+                ("base/bicepconfig.base.json", """{ "bicep": { "version": ">=0.30.0" } }"""));
+
+            var chain = GetChain(fileSet);
+            var compiler = chain.GetEffectiveConfiguration().Compiler;
+
+            compiler.Version!.ToString().Should().Be(">=0.40.0");
+            compiler.DeclaringConfigUri.Should().Be(fileSet.GetUri("bicepconfig.json"));
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_VersionDeepInChain_DeclaringConfigUriIsDeclaringLayerNotLeaf()
+        {
+            // main -> b -> c, with "bicep.version" declared only at the deepest layer (c). Neither the leaf
+            // (bicepconfig.json) nor the middle layer (b) declare it, so DeclaringConfigUri must be c's URI.
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "extends": "./b/bicepconfig.b.json" }"""),
+                ("b/bicepconfig.b.json", """{ "extends": "../c/bicepconfig.c.json" }"""),
+                ("c/bicepconfig.c.json", """{ "bicep": { "version": ">=0.30.0" } }"""));
+
+            var chain = GetChain(fileSet);
+            var compiler = chain.GetEffectiveConfiguration().Compiler;
+
+            compiler.Version.Should().NotBeNull();
+            compiler.DeclaringConfigUri.Should().Be(fileSet.GetUri("c/bicepconfig.c.json"));
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_NoVersionAnywhereInChain_DeclaringConfigUriIsNull()
+        {
+            // Neither leaf nor base declares "bicep.version" — Version and DeclaringConfigUri should both be null.
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }"""),
+                ("base/bicepconfig.base.json", """{ "experimentalFeaturesWarning": true }"""));
+
+            var chain = GetChain(fileSet);
+            var compiler = chain.GetEffectiveConfiguration().Compiler;
+
+            compiler.Version.Should().BeNull();
+            compiler.DeclaringConfigUri.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_VersionExplicitlyNullInBase_DoesNotCountAsDeclaringAndFallsThroughToDeeperLayer()
+        {
+            // Base sets "version": null (JSON null, not omitted) — this must not count as "declaring" the
+            // property, so the search should continue past it to the next layer that actually sets a value.
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }"""),
+                ("base/bicepconfig.base.json", """
+                    {
+                      "extends": "../root/bicepconfig.root.json",
+                      "bicep": { "version": null }
+                    }
+                    """),
+                ("root/bicepconfig.root.json", """{ "bicep": { "version": ">=0.30.0" } }"""));
+
+            var chain = GetChain(fileSet);
+            var compiler = chain.GetEffectiveConfiguration().Compiler;
+
+            compiler.Version.Should().NotBeNull();
+            compiler.DeclaringConfigUri.Should().Be(fileSet.GetUri("root/bicepconfig.root.json"));
+        }
     }
 }
