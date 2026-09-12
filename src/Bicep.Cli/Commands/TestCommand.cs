@@ -67,13 +67,13 @@ namespace Bicep.Cli.Commands
             var declarations = semanticModel.Root.TestDeclarations;
             var testResults = TestRunner.Run(declarations);
 
-            LogResults(testResults);
+            LogResults(testResults, summary.HasErrors);
 
-            // return non-zero exit code on errors
-            return testResults.Success ? 0 : 1;
+            // Return a non-zero exit code for compilation and test evaluation errors.
+            return summary.HasErrors || !testResults.Success ? 1 : 0;
         }
 
-        private void LogResults(TestResults testResults)
+        private void LogResults(TestResults testResults, bool hasCompilationErrors)
         {
             foreach (var (testDeclaration, evaluation) in testResults.Results)
             {
@@ -95,11 +95,12 @@ namespace Bicep.Cli.Commands
                     }
                 }
             }
-            if (testResults.Success)
+            // Do not report overall success when compilation diagnostics contain errors.
+            if (testResults.Success && !hasCompilationErrors)
             {
                 io.Output.Writer.WriteLine($"All {testResults.TotalEvaluations} evaluations passed!");
             }
-            else
+            else if (!testResults.Success)
             {
                 io.Error.Writer.WriteLine($"Evaluation Summary: Failure!");
                 io.Error.Writer.WriteLine($"Total: {testResults.TotalEvaluations} - Success: {testResults.SuccessfulEvaluations} - Skipped: {testResults.SkippedEvaluations} - Failed: {testResults.FailedEvaluations}");
