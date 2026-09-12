@@ -330,7 +330,7 @@ jobs:
         with:
           vs-version: '[18.0,)'
 
-      - name: Build Bicep.sln
+      - name: Build Bicep.slnx
         run: dotnet build --configuration release
 
       - name: Build BicepInVisualStudio.sln

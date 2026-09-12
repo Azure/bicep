@@ -3,7 +3,7 @@
     "yaml.schemas": {
         "https://json.schemastore.org/github-workflow.json": "/.github/workflows/*.yml"
     },
-    "dotnet.defaultSolution": "Bicep.sln",
+    "dotnet.defaultSolution": "Bicep.slnx",
     "cSpell.words": [
         "azureacr",
         "bicepconfig",
