@@ -18,7 +18,6 @@ namespace Bicep.Core.AzureApi
 
         public TokenCredential CreateChain(IEnumerable<CredentialType> credentialPrecedence, CredentialOptions? credentialOptions, Uri authorityUri)
         {
-            cloudTrustPolicy.ThrowIfAuthorityIsUntrusted(authorityUri);
             var tokenCredentials = credentialPrecedence.Select(credentialType => CreateSingle(credentialType, credentialOptions, authorityUri)).ToArray();
 
             return tokenCredentials.Length == 0

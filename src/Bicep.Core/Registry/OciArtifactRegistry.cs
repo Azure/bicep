@@ -34,8 +34,6 @@ namespace Bicep.Core.Registry
     {
         private readonly RegistryConfiguration registryConfiguration;
 
-        private readonly CloudConfigurationTrustPolicy cloudTrustPolicy;
-
         private readonly IOciRegistryTransportFactory transportFactory;
 
         private readonly IPublicModuleMetadataProvider publicModuleMetadataProvider;
@@ -46,14 +44,12 @@ namespace Bicep.Core.Registry
 
         public OciArtifactRegistry(
             RegistryConfiguration registryConfiguration,
-            CloudConfigurationTrustPolicy cloudTrustPolicy,
             IOciRegistryTransportFactory transportFactory,
             IPublicModuleMetadataProvider publicModuleMetadataProvider,
             IFileExplorer fileExplorer,
             ILogger<OciArtifactRegistry> logger)
         {
             this.registryConfiguration = registryConfiguration;
-            this.cloudTrustPolicy = cloudTrustPolicy;
             this.transportFactory = transportFactory;
             this.publicModuleMetadataProvider = publicModuleMetadataProvider;
             this.fileExplorer = fileExplorer;
@@ -600,16 +596,6 @@ namespace Bicep.Core.Registry
 
         private IRegistrySession CreateSession(OciArtifactReference reference)
         {
-            // Security: never open a session using an untrusted cloud profile. The deeper factory and
-            // credential layers also fail closed, but this boundary surfaces an actionable, catchable
-            // error for callers such as the publish command.
-            if (!cloudTrustPolicy.IsTrusted(reference.Configuration.Cloud))
-            {
-                throw new ExternalArtifactException(
-                    $"Cannot connect to registry \"{reference.Registry}\" because the selected cloud profile is not trusted. " +
-                    $"Use a built-in cloud profile, or set the {BicepEnvironmentVariables.TrustedClouds} environment variable to approve the exact resource manager endpoint and Active Directory authority pair.");
-            }
-
             // Security: never open an authenticated session to a registry that is not trusted.
             // This is the single choke point for all session-based operations (restore, publish,
             // existence checks, hover/annotations) and covers every transport (Azure SDK and ORAS),

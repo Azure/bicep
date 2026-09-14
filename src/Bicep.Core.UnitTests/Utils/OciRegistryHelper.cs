@@ -88,7 +88,6 @@ namespace Bicep.Core.UnitTests.Utils
             var transportFactory = new OciRegistryTransportFactory(azureTransport, dockerCredentials);
             var registry = new OciArtifactRegistry(
                 BicepTestConstants.TestRegistryConfiguration,
-                BicepTestConstants.TestCloudConfigurationTrustPolicy,
                 transportFactory,
                 StrictMock.Of<IPublicModuleMetadataProvider>().Object,
                 new FileSystemFileExplorer(new MockFileSystem()),

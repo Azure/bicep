@@ -58,39 +58,6 @@ namespace Bicep.Core.UnitTests.Registry
             artifactReference!.Should().NotBeNull();
         }
 
-        [TestMethod]
-        public async Task PublishModule_WithUntrustedCloud_ThrowsExternalArtifactExceptionWithoutCreatingSession()
-        {
-            var configuration = BicepTestConstants.CreateMockConfiguration(new()
-            {
-                ["cloud.currentProfile"] = "Custom",
-                ["cloud.profiles.Custom.resourceManagerEndpoint"] = "https://management.example.invalid",
-                ["cloud.profiles.Custom.activeDirectoryAuthority"] = "https://login.example.invalid/adfs",
-            });
-            var referencingFile = BicepTestConstants.CreateDummyBicepFile(configuration);
-            var reference = OciRegistryHelper.CreateModuleReferenceMock(referencingFile, "mcr.microsoft.com", "bicep/test", digest: null, tag: "v1");
-            var transportFactory = StrictMock.Of<IOciRegistryTransportFactory>();
-            var registry = new OciArtifactRegistry(
-              BicepTestConstants.TestRegistryConfiguration,
-              new CloudConfigurationTrustPolicy(),
-              transportFactory.Object,
-              StrictMock.Of<IPublicModuleMetadataProvider>().Object,
-              BicepTestConstants.FileExplorer,
-              NullLogger<OciArtifactRegistry>.Instance);
-
-            // `bicep publish` only handles ExternalArtifactException, so the session boundary must surface
-            // untrusted clouds as one rather than letting an InvalidOperationException escape.
-            await FluentActions.Invoking(() => registry.PublishModule(reference, BinaryData.FromString("{}"), null, null, null))
-                .Should().ThrowAsync<ExternalArtifactException>()
-                .WithMessage("*BICEP_TRUSTED_CLOUDS*");
-
-            await FluentActions.Invoking(() => registry.CheckArtifactExists(ArtifactType.Module, reference))
-                .Should().ThrowAsync<ExternalArtifactException>()
-                .WithMessage("*BICEP_TRUSTED_CLOUDS*");
-
-            transportFactory.VerifyNoOtherCalls();
-        }
-
         #region GetDocumentationUri
 
         [DataRow("")]

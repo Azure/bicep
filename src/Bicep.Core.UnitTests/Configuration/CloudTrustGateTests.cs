@@ -32,29 +32,6 @@ public class CloudTrustGateTests
     }
 
     [TestMethod]
-    public void ContainerRegistryClientFactory_WithUntrustedCloud_ThrowsBeforeAcquiringCredentials()
-    {
-        var credentialFactory = StrictMock.Of<ITokenCredentialFactory>();
-        var factory = new ContainerRegistryClientFactory(
-            new RegistryConfiguration(PermitUntrustedRegistries: true),
-            credentialFactory.Object,
-            BuiltInOnlyTrustPolicy);
-        var cloud = CreateUntrustedConfiguration().Cloud;
-        var registryUri = new Uri("https://contoso.azurecr.io");
-
-        FluentActions.Invoking(() => factory.CreateAuthenticatedBlobClient(cloud, registryUri, "test/repo"))
-            .Should().Throw<InvalidOperationException>();
-        FluentActions.Invoking(() => factory.CreateAnonymousBlobClient(cloud, registryUri, "test/repo"))
-            .Should().Throw<InvalidOperationException>();
-        FluentActions.Invoking(() => factory.CreateAuthenticatedContainerClient(cloud, registryUri))
-            .Should().Throw<InvalidOperationException>();
-        FluentActions.Invoking(() => factory.CreateAnonymousContainerClient(cloud, registryUri))
-            .Should().Throw<InvalidOperationException>();
-
-        credentialFactory.VerifyNoOtherCalls();
-    }
-
-    [TestMethod]
     public void TokenCredentialFactory_WithAttackerControlledAdfsAuthority_ThrowsForEveryCredentialType()
     {
         var factory = new TokenCredentialFactory(BuiltInOnlyTrustPolicy);
