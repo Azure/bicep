@@ -26,5 +26,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number,
-              team_reviewers: ['bicep-external-maintainers']
+              team_reviewers: ['azure-deployments-and-bicep-code-reviewers']
             })
