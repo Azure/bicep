@@ -26,12 +26,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number,
-              reviewers: [
-                'shenglol',
-                'levimatheri',
-                'majastrz',
-                'harshpatel17',
-                'anthony-c-martin',
-                'tsmallig33'
-              ]
+              team_reviewers: ['azure-deployments-and-bicep-code-reviewers']
             })
