@@ -224,6 +224,14 @@ public class BicepConfigurationManager : IBicepConfigurationManager
             effectiveConfig = effectiveConfig.With(moduleAliasesMock: annotatedMock);
         }
 
+        // Track the config file that declared "bicep.version", so version-constraint diagnostics can point users at the exact file to edit.
+        if (FindCompilerVersionDeclaringUri(rawLayers) is { } compilerVersionDeclaringUri)
+        {
+            var annotatedCompiler = ((CompilerConfiguration)effectiveConfig.Compiler)
+                .WithDeclaringUri(compilerVersionDeclaringUri);
+            effectiveConfig = effectiveConfig.With(compiler: annotatedCompiler);
+        }
+
         // Build per-layer configs so diagnostics can be attributed to the exact file that caused them.
         var layers = rawLayers
             .Select(layer =>
@@ -273,6 +281,26 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         }
 
         return map.ToImmutable();
+    }
+
+    /// <summary>
+    /// Finds the URI of the config file layer that declares "bicep.version", walking leaf-first so the
+    /// most-derived declaration wins. Returns null if no layer declares it.
+    /// </summary>
+    private static IOUri? FindCompilerVersionDeclaringUri(
+        List<(IFileHandle FileHandle, JsonElement Element)> rawLayers)
+    {
+        foreach (var (fileHandle, element) in rawLayers) // leaf first
+        {
+            if (element.TryGetProperty(BicepConfiguration.CompilerKey, out var compilerElement) &&
+                compilerElement.TryGetProperty("version", out var versionElement) &&
+                versionElement.ValueKind != JsonValueKind.Null)
+            {
+                return fileHandle.Uri;
+            }
+        }
+
+        return null;
     }
 
     private static JsonElement StripExtendsProperty(JsonElement element)
