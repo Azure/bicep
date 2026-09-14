@@ -12,17 +12,22 @@ namespace Bicep.Core.IntegrationTests;
 
 /// <summary>
 /// End-to-end tests for the "bicep.version" compiler constraint, exercised through the full compilation pipeline.
-/// These use the running compiler version (via <see cref="TestEnvironment.Default"/>.
+/// The compiler version is pinned via <see cref="ServiceBuilderExtensions.WithBicepVersion"/> to a fixed, realistic
+/// value rather than depending on whichever version happens to be running the test binary 
 /// </summary>
 [TestClass]
 public class CompilerVersionValidatorEndToEndTests
 {
-    private static string RunningVersion => TestEnvironment.Default.CurrentVersion.Version;
+    // A fixed, realistic "installed" compiler version used by every test below, so constraints can be written
+    // as realistic, human-plausible version ranges instead of depending on the real running build's version.
+    private const string RunningVersion = "0.47.5";
+
+    private static ServiceBuilder ServiceBuilderWithFixedVersion => new ServiceBuilder().WithBicepVersion(RunningVersion);
 
     [TestMethod]
     public void Compile_WithSatisfiedVersionConstraint_ProducesNoBcp456()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder(),
+        var result = CompilationHelper.Compile(ServiceBuilderWithFixedVersion,
             ("main.bicep", "param foo string = 'bar'"),
             ("bicepconfig.json", $$"""{ "bicep": { "version": "{{RunningVersion}}" } }"""));
 
@@ -32,15 +37,15 @@ public class CompilerVersionValidatorEndToEndTests
     [TestMethod]
     public void Compile_WithViolatedVersionConstraint_ProducesBcp456WithConfigFilePath()
     {
-        // A version floor no real build will ever satisfy, so this constraint is always violated.
-        const string constraint = ">=99999.0.0";
+        // A realistic future version floor that the fixed RunningVersion (0.47.5) does not satisfy.
+        const string constraint = ">=1.0.0";
 
         var fileSet = new MockFileSystemTestFileSet();
         fileSet.AddFile("main.bicep", "param foo string = 'bar'");
         fileSet.AddFile("bicepconfig.json", $$"""{ "bicep": { "version": "{{constraint}}" } }""");
         var configFileUri = fileSet.GetUri("bicepconfig.json");
 
-        var result = CompilationHelper.Compile(new ServiceBuilder(), fileSet, fileSet.GetUri("main.bicep"));
+        var result = CompilationHelper.Compile(ServiceBuilderWithFixedVersion, fileSet, fileSet.GetUri("main.bicep"));
 
         var diagnostic = result.Diagnostics.Should().ContainSingle(d => d.Code == "BCP456").Subject;
         diagnostic.Level.Should().Be(DiagnosticLevel.Error);
@@ -51,7 +56,7 @@ public class CompilerVersionValidatorEndToEndTests
     [TestMethod]
     public void Compile_WithNoVersionConstraint_ProducesNoBcp456()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder(), ("main.bicep", "param foo string = 'bar'"));
+        var result = CompilationHelper.Compile(ServiceBuilderWithFixedVersion, ("main.bicep", "param foo string = 'bar'"));
 
         result.Diagnostics.Should().NotContain(d => d.Code == "BCP456");
     }
@@ -62,7 +67,7 @@ public class CompilerVersionValidatorEndToEndTests
         // "bicep.version" is only declared in the base config (reached via "extends"). The diagnostic should
         // point at the base file — the one a user actually needs to edit — not the leaf, which doesn't even
         // mention "bicep.version".
-        const string constraint = ">=99999.0.0";
+        const string constraint = ">=1.0.0";
 
         var fileSet = new MockFileSystemTestFileSet();
         fileSet.AddFile("main.bicep", "param foo string = 'bar'");
@@ -70,7 +75,7 @@ public class CompilerVersionValidatorEndToEndTests
         fileSet.AddFile("base/bicepconfig.base.json", $$"""{ "bicep": { "version": "{{constraint}}" } }""");
         var baseConfigFileUri = fileSet.GetUri("base/bicepconfig.base.json");
 
-        var result = CompilationHelper.Compile(new ServiceBuilder(), fileSet, fileSet.GetUri("main.bicep"));
+        var result = CompilationHelper.Compile(ServiceBuilderWithFixedVersion, fileSet, fileSet.GetUri("main.bicep"));
 
         var diagnostic = result.Diagnostics.Should().ContainSingle(d => d.Code == "BCP456").Subject;
         diagnostic.Message.Should().Be(
@@ -82,8 +87,8 @@ public class CompilerVersionValidatorEndToEndTests
     {
         // Both leaf and base declare "bicep.version" with different (both violated) constraints. The leaf's
         // value wins, so the diagnostic must reference the leaf's constraint and the leaf's file path.
-        const string leafConstraint = ">=99999.0.0";
-        const string baseConstraint = ">=88888.0.0";
+        const string leafConstraint = ">=1.0.0";
+        const string baseConstraint = ">=2.0.0";
 
         var fileSet = new MockFileSystemTestFileSet();
         fileSet.AddFile("main.bicep", "param foo string = 'bar'");
@@ -96,7 +101,7 @@ public class CompilerVersionValidatorEndToEndTests
         fileSet.AddFile("base/bicepconfig.base.json", $$"""{ "bicep": { "version": "{{baseConstraint}}" } }""");
         var leafConfigFileUri = fileSet.GetUri("bicepconfig.json");
 
-        var result = CompilationHelper.Compile(new ServiceBuilder(), fileSet, fileSet.GetUri("main.bicep"));
+        var result = CompilationHelper.Compile(ServiceBuilderWithFixedVersion, fileSet, fileSet.GetUri("main.bicep"));
 
         var diagnostic = result.Diagnostics.Should().ContainSingle(d => d.Code == "BCP456").Subject;
         diagnostic.Message.Should().Be(
@@ -116,9 +121,9 @@ public class CompilerVersionValidatorEndToEndTests
               "bicep": { "version": "{{RunningVersion}}" }
             }
             """);
-        fileSet.AddFile("base/bicepconfig.base.json", """{ "bicep": { "version": ">=99999.0.0" } }""");
+        fileSet.AddFile("base/bicepconfig.base.json", """{ "bicep": { "version": ">=1.0.0" } }""");
 
-        var result = CompilationHelper.Compile(new ServiceBuilder(), fileSet, fileSet.GetUri("main.bicep"));
+        var result = CompilationHelper.Compile(ServiceBuilderWithFixedVersion, fileSet, fileSet.GetUri("main.bicep"));
 
         result.Diagnostics.Should().NotContain(d => d.Code == "BCP456");
     }
@@ -129,7 +134,7 @@ public class CompilerVersionValidatorEndToEndTests
         // Base's constraint would be satisfied on its own, but the leaf overrides it with a violated constraint
         // — the effective constraint (the leaf's) is what should be checked, and the leaf is now the file the
         // user needs to edit.
-        const string leafConstraint = ">=99999.0.0";
+        const string leafConstraint = ">=1.0.0";
 
         var fileSet = new MockFileSystemTestFileSet();
         fileSet.AddFile("main.bicep", "param foo string = 'bar'");
@@ -142,7 +147,7 @@ public class CompilerVersionValidatorEndToEndTests
         fileSet.AddFile("base/bicepconfig.base.json", $$"""{ "bicep": { "version": "{{RunningVersion}}" } }""");
         var leafConfigFileUri = fileSet.GetUri("bicepconfig.json");
 
-        var result = CompilationHelper.Compile(new ServiceBuilder(), fileSet, fileSet.GetUri("main.bicep"));
+        var result = CompilationHelper.Compile(ServiceBuilderWithFixedVersion, fileSet, fileSet.GetUri("main.bicep"));
 
         var diagnostic = result.Diagnostics.Should().ContainSingle(d => d.Code == "BCP456").Subject;
         diagnostic.Message.Should().Be(
