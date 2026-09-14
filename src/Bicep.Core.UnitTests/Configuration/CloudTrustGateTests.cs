@@ -26,7 +26,7 @@ public class CloudTrustGateTests
 
         FluentActions.Invoking(() => provider.CreateArmClient(CreateUntrustedConfiguration(), defaultSubscriptionId: null))
             .Should().Throw<InvalidOperationException>()
-            .WithMessage($"*{CloudConfigurationTrustPolicy.TrustedCloudsEnvironmentVariable}*");
+            .WithMessage($"*{BicepEnvironmentVariables.TrustedClouds}*");
 
         credentialFactory.VerifyNoOtherCalls();
     }
@@ -64,12 +64,12 @@ public class CloudTrustGateTests
         {
             FluentActions.Invoking(() => factory.CreateSingle(credentialType, null, authorityUri))
                 .Should().Throw<InvalidOperationException>()
-                .WithMessage($"*{CloudConfigurationTrustPolicy.TrustedCloudsEnvironmentVariable}*");
+                .WithMessage($"*{BicepEnvironmentVariables.TrustedClouds}*");
         }
 
         FluentActions.Invoking(() => factory.CreateChain([CredentialType.Environment], null, authorityUri))
             .Should().Throw<InvalidOperationException>()
-            .WithMessage($"*{CloudConfigurationTrustPolicy.TrustedCloudsEnvironmentVariable}*");
+            .WithMessage($"*{BicepEnvironmentVariables.TrustedClouds}*");
     }
 
     private static IBicepConfiguration CreateUntrustedConfiguration() => BicepTestConstants.CreateMockConfiguration(new()

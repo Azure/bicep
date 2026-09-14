@@ -535,6 +535,37 @@ output myOutput string = 'hello!'
             error.Should().StartWith($"{inputFile}(1,1) : Error BCP271: Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 0.");
         }
 
+        [TestMethod]
+        public async Task Build_WithUntrustedCloudConfiguration_ShouldProduceConfigurationError()
+        {
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
+            var configurationPath = FileHelper.SaveResultFile(
+                this.TestContext,
+                "bicepconfig.json",
+                """
+                {
+                  "cloud": {
+                    "currentProfile": "Custom",
+                    "profiles": {
+                      "Custom": {
+                        "resourceManagerEndpoint": "https://management.example.invalid",
+                        "activeDirectoryAuthority": "https://login.example.invalid"
+                      }
+                    }
+                  }
+                }
+                """,
+                testOutputPath);
+
+            var (output, error, result) = await Bicep("build", inputFile);
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().StartWith($"{inputFile}(1,1) : Error BCP456: The cloud profile selected by the Bicep configuration file \"{configurationPath}\" is not trusted.");
+            File.Exists(PathHelper.GetJsonOutputPath(inputFile)).Should().BeFalse();
+        }
+
         [DataRow([])]
         [DataRow(["--diagnostics-format", "defAULt"])]
         [DataTestMethod]

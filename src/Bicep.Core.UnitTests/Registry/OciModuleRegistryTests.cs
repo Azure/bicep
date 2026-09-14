@@ -59,33 +59,6 @@ namespace Bicep.Core.UnitTests.Registry
         }
 
         [TestMethod]
-        public async Task RestoreArtifacts_WithUntrustedCloud_DoesNotCreateTransportSession()
-        {
-            var configuration = BicepTestConstants.CreateMockConfiguration(new()
-            {
-                ["cloud.currentProfile"] = "Custom",
-                ["cloud.profiles.Custom.resourceManagerEndpoint"] = "https://management.example.invalid",
-                ["cloud.profiles.Custom.activeDirectoryAuthority"] = "https://login.example.invalid",
-            });
-            var referencingFile = BicepTestConstants.CreateDummyBicepFile(configuration);
-            var reference = OciRegistryHelper.CreateModuleReferenceMock(referencingFile, "mcr.microsoft.com", "bicep/test", digest: null, tag: "v1");
-            var transportFactory = StrictMock.Of<IOciRegistryTransportFactory>();
-            var registry = new OciArtifactRegistry(
-              BicepTestConstants.TestRegistryConfiguration,
-              new CloudConfigurationTrustPolicy(),
-              transportFactory.Object,
-              StrictMock.Of<IPublicModuleMetadataProvider>().Object,
-              BicepTestConstants.FileExplorer,
-              NullLogger<OciArtifactRegistry>.Instance);
-
-            var failures = await registry.RestoreArtifacts([reference]);
-
-            failures.Should().ContainSingle();
-            failures[reference].Should().HaveCode("BCP457");
-            transportFactory.VerifyNoOtherCalls();
-        }
-
-        [TestMethod]
         public async Task PublishModule_WithUntrustedCloud_ThrowsExternalArtifactExceptionWithoutCreatingSession()
         {
             var configuration = BicepTestConstants.CreateMockConfiguration(new()

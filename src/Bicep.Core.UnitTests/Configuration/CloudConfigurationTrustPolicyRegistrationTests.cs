@@ -23,7 +23,7 @@ public class CloudConfigurationTrustPolicyRegistrationTests
     [TestMethod]
     public void TrustPolicyIsBuiltFromTheTrustedCloudsEnvironmentVariable()
     {
-        var policy = BuildPolicy((CloudConfigurationTrustPolicy.TrustedCloudsEnvironmentVariable, CustomCloudTrustJson));
+        var policy = BuildPolicy((BicepEnvironmentVariables.TrustedClouds, CustomCloudTrustJson));
 
         policy.IsTrusted(CreateCustomCloud("https://management.example.invalid", "https://login.example.invalid")).Should().BeTrue();
         policy.IsTrusted(CreateCustomCloud("https://management.example.invalid", "https://login.other.invalid")).Should().BeFalse();

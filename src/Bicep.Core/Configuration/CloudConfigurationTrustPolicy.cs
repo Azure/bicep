@@ -3,24 +3,21 @@
 
 using System.Collections.Immutable;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Bicep.Core.Configuration;
 
 public sealed class CloudConfigurationTrustPolicy
 {
-    public const string TrustedCloudsEnvironmentVariable = "BICEP_TRUSTED_CLOUDS";
-
-    private const string ResourceManagerEndpointPropertyName = "resourceManagerEndpoint";
-
-    private const string ActiveDirectoryAuthorityPropertyName = "activeDirectoryAuthority";
-
     private static readonly ImmutableHashSet<CloudProfileTrustPair> BuiltInTrustedProfiles = CreateBuiltInPairs();
 
     private readonly ImmutableHashSet<CloudProfileTrustPair> additionalTrustedProfiles;
 
     public CloudConfigurationTrustPolicy(IEnumerable<CloudProfileTrustPair>? additionalTrustedProfiles = null)
     {
-        this.additionalTrustedProfiles = additionalTrustedProfiles?.ToImmutableHashSet() ?? [];
+        this.additionalTrustedProfiles = additionalTrustedProfiles?
+            .Select(NormalizeGrant)
+            .ToImmutableHashSet() ?? [];
     }
 
     public bool IsTrusted(IBicepCloudConfiguration cloud) =>
@@ -36,7 +33,7 @@ public sealed class CloudConfigurationTrustPolicy
     {
         if (!IsTrusted(cloud))
         {
-            throw new InvalidOperationException($"The selected cloud profile is not trusted. To use a custom cloud, add its endpoint and authority to the {TrustedCloudsEnvironmentVariable} environment variable.");
+            throw new InvalidOperationException($"The selected cloud profile is not trusted. To use a custom cloud, add its endpoint and authority to the {BicepEnvironmentVariables.TrustedClouds} environment variable.");
         }
     }
 
@@ -44,49 +41,14 @@ public sealed class CloudConfigurationTrustPolicy
     {
         if (!IsAuthorityTrusted(authorityUri))
         {
-            throw new InvalidOperationException($"The cloud authority is not trusted. Configure the complete cloud profile through the {TrustedCloudsEnvironmentVariable} environment variable before acquiring credentials.");
+            throw new InvalidOperationException($"The cloud authority is not trusted. Configure the complete cloud profile through the {BicepEnvironmentVariables.TrustedClouds} environment variable before acquiring credentials.");
         }
     }
 
-    public static CloudConfigurationTrustPolicy FromEnvironmentValue(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return new();
-        }
-
-        JsonDocument document;
-        try
-        {
-            document = JsonDocument.Parse(value);
-        }
-        catch (JsonException)
-        {
-            // A malformed document grants no additional trust.
-            return new();
-        }
-
-        using (document)
-        {
-            if (document.RootElement.ValueKind is not JsonValueKind.Array)
-            {
-                return new();
-            }
-
-            // Each entry is validated independently so that a single malformed entry does not
-            // silently invalidate the remaining, well-formed grants.
-            var pairs = new List<CloudProfileTrustPair>();
-            foreach (var element in document.RootElement.EnumerateArray())
-            {
-                if (TryParseGrant(element, out var pair))
-                {
-                    pairs.Add(pair);
-                }
-            }
-
-            return new(pairs);
-        }
-    }
+    public static CloudConfigurationTrustPolicy FromEnvironmentValue(string? value) =>
+        new(value is { }
+            ? JsonSerializer.Deserialize(value, CloudConfigurationTrustPolicySerializationContext.Default.CloudProfileTrustPairs)
+            : null);
 
     public static bool TryCreatePair(IBicepCloudConfiguration cloud, out CloudProfileTrustPair pair) =>
         TryCreatePair(
@@ -94,49 +56,10 @@ public sealed class CloudConfigurationTrustPolicy
             cloud.ActiveDirectoryAuthorityUri.AbsoluteUri,
             out pair);
 
-    private static bool TryParseGrant(JsonElement element, out CloudProfileTrustPair pair)
-    {
-        pair = default;
-
-        if (element.ValueKind is not JsonValueKind.Object)
-        {
-            return false;
-        }
-
-        var expectedProperties = new HashSet<string>(StringComparer.Ordinal)
-        {
-            ResourceManagerEndpointPropertyName,
-            ActiveDirectoryAuthorityPropertyName,
-        };
-
-        if (element.EnumerateObject().Any(property => !expectedProperties.Contains(property.Name)))
-        {
-            return false;
-        }
-
-        if (!TryGetRequiredString(element, ResourceManagerEndpointPropertyName, out var resourceManagerEndpoint) ||
-            !TryGetRequiredString(element, ActiveDirectoryAuthorityPropertyName, out var activeDirectoryAuthority))
-        {
-            return false;
-        }
-
-        return TryCreatePair(resourceManagerEndpoint, activeDirectoryAuthority, out pair);
-    }
-
-    private static bool TryGetRequiredString(JsonElement element, string propertyName, out string value)
-    {
-        value = "";
-
-        if (!element.TryGetProperty(propertyName, out var property) ||
-            property.ValueKind is not JsonValueKind.String ||
-            property.GetString() is not { } propertyValue)
-        {
-            return false;
-        }
-
-        value = propertyValue;
-        return true;
-    }
+    private static CloudProfileTrustPair NormalizeGrant(CloudProfileTrustPair grant) =>
+        TryCreatePair(grant.ResourceManagerEndpoint, grant.ActiveDirectoryAuthority, out var pair)
+            ? pair
+            : throw new JsonException($"The {BicepEnvironmentVariables.TrustedClouds} environment variable contains an invalid cloud profile.");
 
     private static bool TryCreatePair(
         string resourceManagerEndpoint,
@@ -193,5 +116,11 @@ public sealed class CloudConfigurationTrustPolicy
 }
 
 public readonly record struct CloudProfileTrustPair(
-    string ResourceManagerEndpoint,
-    string ActiveDirectoryAuthority);
+    [property: JsonRequired] string ResourceManagerEndpoint,
+    [property: JsonRequired] string ActiveDirectoryAuthority);
+
+[JsonSerializable(typeof(CloudProfileTrustPair[]), TypeInfoPropertyName = "CloudProfileTrustPairs")]
+[JsonSourceGenerationOptions(
+    PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
+    UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow)]
+internal partial class CloudConfigurationTrustPolicySerializationContext : JsonSerializerContext;

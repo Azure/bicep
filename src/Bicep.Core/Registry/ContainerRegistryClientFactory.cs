@@ -23,10 +23,7 @@ namespace Bicep.Core.Registry
 
         public ContainerRegistryContentClient CreateAuthenticatedBlobClient(IBicepCloudConfiguration cloud, Uri registryUri, string repository)
         {
-            cloudTrustPolicy.ThrowIfCloudIsUntrusted(cloud);
-            ThrowIfRegistryNotTrusted(registryUri);
-
-            var options = CreateClientOptions(cloud);
+            var options = CreateValidatedClientOptions(cloud, registryUri);
             var credential = this.credentialFactory.CreateChain(cloud.CredentialPrecedence, cloud.CredentialOptions, cloud.ActiveDirectoryAuthorityUri);
 
             return new(registryUri, repository, credential, options);
@@ -34,19 +31,13 @@ namespace Bicep.Core.Registry
 
         public ContainerRegistryContentClient CreateAnonymousBlobClient(IBicepCloudConfiguration cloud, Uri registryUri, string repository)
         {
-            cloudTrustPolicy.ThrowIfCloudIsUntrusted(cloud);
-            ThrowIfRegistryNotTrusted(registryUri);
-
-            var options = CreateClientOptions(cloud);
+            var options = CreateValidatedClientOptions(cloud, registryUri);
             return new(registryUri, repository, options);
         }
 
         public ContainerRegistryClient CreateAuthenticatedContainerClient(IBicepCloudConfiguration cloud, Uri registryUri)
         {
-            cloudTrustPolicy.ThrowIfCloudIsUntrusted(cloud);
-            ThrowIfRegistryNotTrusted(registryUri);
-
-            var options = CreateClientOptions(cloud);
+            var options = CreateValidatedClientOptions(cloud, registryUri);
             var credential = this.credentialFactory.CreateChain(cloud.CredentialPrecedence, cloud.CredentialOptions, cloud.ActiveDirectoryAuthorityUri);
 
             return new(registryUri, credential, options);
@@ -54,15 +45,15 @@ namespace Bicep.Core.Registry
 
         public ContainerRegistryClient CreateAnonymousContainerClient(IBicepCloudConfiguration cloud, Uri registryUri)
         {
-            cloudTrustPolicy.ThrowIfCloudIsUntrusted(cloud);
-            ThrowIfRegistryNotTrusted(registryUri);
-
-            var options = CreateClientOptions(cloud);
+            var options = CreateValidatedClientOptions(cloud, registryUri);
             return new(registryUri, options);
         }
 
-        private static ContainerRegistryClientOptions CreateClientOptions(IBicepCloudConfiguration cloud)
+        private ContainerRegistryClientOptions CreateValidatedClientOptions(IBicepCloudConfiguration cloud, Uri registryUri)
         {
+            cloudTrustPolicy.ThrowIfCloudIsUntrusted(cloud);
+            ThrowIfRegistryNotTrusted(registryUri);
+
             var options = new ContainerRegistryClientOptions();
             options.Diagnostics.ApplySharedContainerRegistrySettings();
             options.Audience = new ContainerRegistryAudience(cloud.ResourceManagerAudience);

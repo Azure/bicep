@@ -27,7 +27,7 @@ namespace Bicep.Core.Registry
 
         /// <summary>
         /// Additional trusted registries supplied by the user (e.g. via the
-        /// BICEP_TRUSTED_REGISTRIES environment variable). Uses the same matching rules as
+        /// <see cref="BicepEnvironmentVariables.TrustedRegistries"/> environment variable). Uses the same matching rules as
         /// <see cref="BuiltInTrustedRegistries"/>: "*.suffix" for subdomain wildcards, otherwise exact match.
         /// </summary>
         private readonly ImmutableArray<string> additionalTrustedRegistries;
@@ -62,7 +62,7 @@ namespace Bicep.Core.Registry
 
         /// <summary>
         /// Parses a delimited list of registry hostnames/patterns (comma or semicolon separated),
-        /// e.g. the value of the BICEP_TRUSTED_REGISTRIES environment variable.
+        /// e.g. the value of the <see cref="BicepEnvironmentVariables.TrustedRegistries"/> environment variable.
         /// </summary>
         public static IEnumerable<string> ParseTrustedRegistries(string? value)
         {

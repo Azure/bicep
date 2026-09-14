@@ -134,8 +134,7 @@ namespace Bicep.Core.Registry
 
             // Security-first: if the registry is untrusted, always mark restore as required so that
             // RestoreArtifacts() will be called and can emit the appropriate diagnostic (BCP446).
-            if (!registryConfiguration.IsRegistryTrusted(reference.Registry) ||
-                !cloudTrustPolicy.IsTrusted(reference.Configuration.Cloud))
+            if (!registryConfiguration.IsRegistryTrusted(reference.Registry))
             {
                 return true;
             }
@@ -305,12 +304,6 @@ namespace Bicep.Core.Registry
             // CONSIDER: Run these in parallel
             foreach (var reference in referencesEvaluated)
             {
-                if (!cloudTrustPolicy.IsTrusted(reference.Configuration.Cloud))
-                {
-                    failures[reference] = x => x.ArtifactRestoreBlockedByCloud();
-                    continue;
-                }
-
                 // Block restore if the registry is not in the trusted list (BCP446).
                 // Invalid patterns in config are handled as warnings at config-load time (BCP447 via IBicepConfiguration)
                 // and are simply not included in the valid TrustedRegistries list, so they won't match here.
@@ -614,7 +607,7 @@ namespace Bicep.Core.Registry
             {
                 throw new ExternalArtifactException(
                     $"Cannot connect to registry \"{reference.Registry}\" because the selected cloud profile is not trusted. " +
-                    $"Use a built-in cloud profile, or set the {CloudConfigurationTrustPolicy.TrustedCloudsEnvironmentVariable} environment variable to approve the exact resource manager endpoint and Active Directory authority pair.");
+                    $"Use a built-in cloud profile, or set the {BicepEnvironmentVariables.TrustedClouds} environment variable to approve the exact resource manager endpoint and Active Directory authority pair.");
             }
 
             // Security: never open an authenticated session to a registry that is not trusted.
@@ -625,7 +618,7 @@ namespace Bicep.Core.Registry
             {
                 throw new ExternalArtifactException(
                     $"Cannot connect to registry \"{reference.Registry}\" because it is not in the list of trusted registries. " +
-                    $"Set the BICEP_TRUSTED_REGISTRIES environment variable (comma-separated hostnames, e.g. \"contoso.example.com,*.contoso.io\") to allow it.");
+                    $"Set the {BicepEnvironmentVariables.TrustedRegistries} environment variable (comma-separated hostnames, e.g. \"contoso.example.com,*.contoso.io\") to allow it.");
             }
 
             return transportFactory.CreateSession(reference, (CloudConfiguration)reference.Configuration.Cloud);

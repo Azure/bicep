@@ -31,7 +31,7 @@ namespace Bicep.Core.Registry
                         fileExplorer,
                         logger ?? NullLogger<OciArtifactRegistry>.Instance),
                     new OciArtifactMockedRegistry(),
-                    new TemplateSpecModuleRegistry(templateSpecRepositoryFactory, cloudTrustPolicy),
+                    new TemplateSpecModuleRegistry(templateSpecRepositoryFactory),
                 })
         {
         }

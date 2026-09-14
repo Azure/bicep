@@ -83,7 +83,7 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void GetConfigurationChain_CustomCloudProfile_ReportsUntrustedProfile()
+        public void GetConfigurationChain_CustomCloudProfile_FallsBackToBuiltInConfiguration()
         {
             var fileSet = InMemoryTestFileSet.Create(
                     ("main.bicep", ""),
@@ -101,8 +101,12 @@ namespace Bicep.Core.UnitTests.Configuration
                                 }
                                 """));
 
-            GetChain(fileSet).GetEffectiveConfiguration().GetDiagnostics()
-                    .Should().ContainSingle(diagnostic => diagnostic.Code == "BCP456");
+            var configuration = GetChain(fileSet).GetEffectiveConfiguration();
+
+            configuration.IsBuiltIn.Should().BeTrue();
+            configuration.Cloud.ResourceManagerEndpointUri.Should().Be(BicepConfiguration.BuiltIn.Cloud.ResourceManagerEndpointUri);
+            configuration.Cloud.ActiveDirectoryAuthorityUri.Should().Be(BicepConfiguration.BuiltIn.Cloud.ActiveDirectoryAuthorityUri);
+            configuration.GetDiagnostics().Should().ContainSingle(diagnostic => diagnostic.Code == "BCP456");
         }
 
         [TestMethod]
@@ -145,19 +149,6 @@ namespace Bicep.Core.UnitTests.Configuration
 
             sut.GetConfigurationChain(fileSet.GetUri("main.bicep"))
                     .GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
-        }
-
-        [TestMethod]
-        public void GetConfigurationChain_MalformedExternalTrust_DoesNotBlockBuiltInCloud()
-        {
-            var fileSet = InMemoryTestFileSet.Create(("main.bicep", ""));
-            var sut = new BicepConfigurationManager(
-                    fileSet.FileExplorer,
-                    CloudConfigurationTrustPolicy.FromEnvironmentValue("*"));
-
-            sut.GetConfigurationChain(fileSet.GetUri("main.bicep"))
-                    .GetEffectiveConfiguration().GetDiagnostics()
-                    .Should().BeEmpty();
         }
 
         // ── Simple two-level extends ──────────────────────────────────────────

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Text.Json;
 using Bicep.Core.Configuration;
 using Bicep.Core.Json;
 using FluentAssertions;
@@ -106,36 +107,29 @@ public class CloudConfigurationTrustPolicyTests
     [DataRow("[{\"resourceManagerEndpoint\":\"https://management.example.invalid\"}]")]
     [DataRow("[{\"resourceManagerEndpoint\":\"https://management.example.invalid\",\"activeDirectoryAuthority\":\"https://login.example.invalid\",\"extra\":true}]")]
     [DataRow("[{\"resourceManagerEndpoint\":\"https://management.example.invalid:443.evil.invalid\",\"activeDirectoryAuthority\":\"https://login.example.invalid\"}]")]
-    public void InvalidExternalTrustConfigurationFailsClosed(string value)
+    public void InvalidExternalTrustConfigurationThrows(string value)
     {
-        var policy = CloudConfigurationTrustPolicy.FromEnvironmentValue(value);
-
-        policy.IsTrusted((CloudConfiguration)BicepConfiguration.BuiltIn.Cloud).Should().BeTrue();
-        policy.IsTrusted(CreateCloud("Custom", new("https://management.example.invalid", "https://login.example.invalid"))).Should().BeFalse();
+        FluentActions.Invoking(() => CloudConfigurationTrustPolicy.FromEnvironmentValue(value))
+            .Should().Throw<JsonException>();
     }
 
     [TestMethod]
-    public void MalformedEntriesDoNotInvalidateValidEntriesInTheSameArray()
+    public void InvalidEntryRejectsTheEntireDocument()
     {
-        var policy = CloudConfigurationTrustPolicy.FromEnvironmentValue("""
-            [
-                "not-an-object",
-                { "resourceManagerEndpoint": "https://management.example.invalid" },
-                {
-                    "resourceManagerEndpoint": "https://management.valid.invalid",
-                    "activeDirectoryAuthority": "https://login.valid.invalid"
-                },
-                {
-                    "resourceManagerEndpoint": "https://management.other.invalid",
-                    "activeDirectoryAuthority": "https://login.other.invalid",
-                    "unexpected": "value"
-                }
-            ]
-            """);
-
-        policy.IsTrusted(CreateCloud("Custom", new("https://management.valid.invalid", "https://login.valid.invalid"))).Should().BeTrue();
-        policy.IsTrusted(CreateCloud("Custom", new("https://management.other.invalid", "https://login.other.invalid"))).Should().BeFalse();
-        policy.IsTrusted(CreateCloud("Custom", new("https://management.example.invalid", "https://login.example.invalid"))).Should().BeFalse();
+        FluentActions.Invoking(() => CloudConfigurationTrustPolicy.FromEnvironmentValue("""
+                [
+                    {
+                        "resourceManagerEndpoint": "https://management.valid.invalid",
+                        "activeDirectoryAuthority": "https://login.valid.invalid"
+                    },
+                    {
+                        "resourceManagerEndpoint": "https://management.other.invalid",
+                        "activeDirectoryAuthority": "https://login.other.invalid",
+                        "unexpected": "value"
+                    }
+                ]
+                """))
+            .Should().Throw<JsonException>();
     }
 
     [TestMethod]
@@ -144,12 +138,10 @@ public class CloudConfigurationTrustPolicyTests
     [DataRow("{ not json")]
     [DataRow("\"https://management.example.invalid\"")]
     [DataRow("123")]
-    public void MalformedOrNonArrayDocumentsGrantNoAdditionalTrust(string value)
+    public void MalformedOrNonArrayDocumentsThrow(string value)
     {
-        var policy = CloudConfigurationTrustPolicy.FromEnvironmentValue(value);
-
-        policy.IsTrusted((CloudConfiguration)BicepConfiguration.BuiltIn.Cloud).Should().BeTrue();
-        policy.IsTrusted(CreateCloud("Custom", new("https://management.example.invalid", "https://login.example.invalid"))).Should().BeFalse();
+        FluentActions.Invoking(() => CloudConfigurationTrustPolicy.FromEnvironmentValue(value))
+            .Should().Throw<JsonException>();
     }
 
     [TestMethod]

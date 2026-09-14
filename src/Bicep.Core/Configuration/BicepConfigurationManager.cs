@@ -209,13 +209,16 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         IBicepConfiguration effectiveConfig;
         try
         {
-            effectiveConfig = AddCloudTrustDiagnostics(
-                BicepConfiguration.Bind(accumulated, leafUri),
-                leafUri);
+            effectiveConfig = BicepConfiguration.Bind(accumulated, leafUri);
         }
         catch (ConfigurationException exception)
         {
             return GetBuiltInChain(diagnostics: [DiagnosticBuilder.ForDocumentStart().InvalidBicepConfigFile(leafUri, exception.Message)]);
+        }
+
+        if (!cloudTrustPolicy.IsTrusted(effectiveConfig.Cloud))
+        {
+            return GetBuiltInChain(diagnostics: [ConfigDiagnosticBuilder.UntrustedCloudProfile(leafUri)]);
         }
 
         // Annotate moduleAliasesMock aliases with the URI of the config file that declared each one.
@@ -236,9 +239,7 @@ public class BicepConfigurationManager : IBicepConfigurationManager
                 {
                     var merged = BicepConfiguration.BuiltInConfigurationElement.Merge(StripExtendsProperty(layer.Element));
 
-                    return AddCloudTrustDiagnostics(
-                        BicepConfiguration.Bind(merged, layer.FileHandle.Uri),
-                        layer.FileHandle.Uri);
+                    return BicepConfiguration.Bind(merged, layer.FileHandle.Uri);
                 }
                 catch (ConfigurationException)
                 {
@@ -248,17 +249,6 @@ public class BicepConfigurationManager : IBicepConfigurationManager
             .ToImmutableArray();
 
         return new BicepConfigurationChain(effectiveConfig, layers);
-    }
-
-    private IBicepConfiguration AddCloudTrustDiagnostics(IBicepConfiguration configuration, IOUri configFileUri)
-    {
-        var diagnostics = configuration.GetDiagnostics().ToImmutableArray();
-        if (!cloudTrustPolicy.IsTrusted(configuration.Cloud))
-        {
-            diagnostics = diagnostics.Add(ConfigDiagnosticBuilder.UntrustedCloudProfile(configFileUri));
-        }
-
-        return configuration.With(diagnostics: diagnostics);
     }
 
     /// <summary>

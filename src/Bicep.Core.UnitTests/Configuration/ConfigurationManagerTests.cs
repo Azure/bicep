@@ -841,7 +841,13 @@ namespace Bicep.Core.UnitTests.Configuration
                       }
                     }
                     """));
-            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
+            var trustPolicy = CloudConfigurationTrustPolicy.FromEnvironmentValue("""
+                [{
+                  "resourceManagerEndpoint": "https://bicep.example.com",
+                  "activeDirectoryAuthority": "https://login.bicep.example.com"
+                }]
+                """);
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, trustPolicy);
 
             // Act.
             var configuration = sut.GetEffectiveConfiguration(fileSet.GetUri("modules/vnet.bicep"));
