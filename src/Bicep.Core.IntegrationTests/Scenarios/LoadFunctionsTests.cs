@@ -945,6 +945,34 @@ var fileObj = loadYamlContent('file.yaml')
         }
 
         [DataTestMethod]
+        // A block scalar's trailing line break must survive as '\n' and never as NUL (U+0000). Clip chomping keeps
+        // a single trailing line break if the file has one, and adds none if the block ran to the end of the file.
+        [DataRow("script: |\n  line one\n  line two\n", "line one\nline two\n", DisplayName = "block scalar, file ends with a newline")]
+        [DataRow("script: |\n  line one\n  line two", "line one\nline two", DisplayName = "block scalar, file does not end with a newline")]
+        [DataRow("script: |\r\n  line one\r\n  line two\r\n", "line one\nline two\n", DisplayName = "block scalar, CRLF line endings")]
+        [DataRow("script: |+\n  line one\n  line two\n", "line one\nline two\n", DisplayName = "block scalar, keep chomping")]
+        [DataRow("script: |-\n  line one\n  line two\n", "line one\nline two", DisplayName = "block scalar, strip chomping")]
+        [DataRow("script: >\n  line one\n  line two\n", "line one line two\n", DisplayName = "folded scalar")]
+        [DataRow("script: >\n  line one\n  line two", "line one line two", DisplayName = "folded scalar, file does not end with a newline")]
+        public void LoadYamlFunction_blockScalarTrailingLineBreakIsPreserved(string yamlContent, string expectedValue)
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+    ("main.bicep", @"
+var y = loadYamlContent('kql.yaml')
+output s string = y.script
+"),
+    ("kql.yaml", yamlContent));
+
+            using (new AssertionScope())
+            {
+                template!.Should().NotBeNull();
+                diags.ExcludingLinterDiagnostics().Should().BeEmpty();
+            }
+
+            template!.SelectToken("$.variables['$fxv#0'].script")!.ToString().Should().Be(expectedValue);
+        }
+
+        [DataTestMethod]
         [DataRow("$")]
         [DataRow(".propObject")]
         [DataRow(".propArrayFloat[0]")]
