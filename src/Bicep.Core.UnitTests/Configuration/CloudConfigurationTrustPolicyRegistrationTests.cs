@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Text.Json;
 using Bicep.Core.Configuration;
 using Bicep.Core.Json;
 using Bicep.Core.UnitTests.Utils;
@@ -57,7 +58,7 @@ public class CloudConfigurationTrustPolicyRegistrationTests
 
         policy.IsTrusted((CloudConfiguration)BicepConfiguration.BuiltIn.Cloud).Should().BeTrue();
         policy.Invoking(x => x.IsTrusted(CreateCustomCloud("https://management.example.invalid", "https://login.example.invalid")))
-            .Should().Throw<ConfigurationException>();
+            .Should().Throw<JsonException>();
     }
 
     private static CloudConfigurationTrustPolicy BuildPolicy(params (string key, string? value)[] variables)

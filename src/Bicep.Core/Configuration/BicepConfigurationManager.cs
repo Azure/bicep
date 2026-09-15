@@ -223,7 +223,7 @@ public class BicepConfigurationManager : IBicepConfigurationManager
                 return GetBuiltInChain(diagnostics: [ConfigDiagnosticBuilder.UntrustedCloudProfile(leafUri)]);
             }
         }
-        catch (ConfigurationException exception)
+        catch (JsonException exception)
         {
             return GetBuiltInChain(diagnostics: [ConfigDiagnosticBuilder.InvalidTrustedCloudsEnvironmentVariable(exception.Message)]);
         }

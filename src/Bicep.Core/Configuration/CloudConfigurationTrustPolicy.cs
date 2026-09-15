@@ -13,12 +13,9 @@ public sealed class CloudConfigurationTrustPolicy
 
     private readonly Lazy<ImmutableHashSet<CloudProfileTrustPair>> additionalTrustedProfiles;
 
-    public CloudConfigurationTrustPolicy(IEnumerable<CloudProfileTrustPair>? additionalTrustedProfiles = null)
+    public CloudConfigurationTrustPolicy()
     {
-        var normalizedProfiles = additionalTrustedProfiles?
-            .Select(NormalizeGrant)
-            .ToImmutableHashSet() ?? [];
-        this.additionalTrustedProfiles = new(() => normalizedProfiles);
+        this.additionalTrustedProfiles = new(() => []);
     }
 
     private CloudConfigurationTrustPolicy(string? environmentValue)
@@ -26,14 +23,18 @@ public sealed class CloudConfigurationTrustPolicy
         this.additionalTrustedProfiles = new(() => ParseEnvironmentValue(environmentValue));
     }
 
-    public bool IsTrusted(IBicepCloudConfiguration cloud) =>
-        TryCreatePair(cloud, out var pair) &&
-        (BuiltInTrustedProfiles.Contains(pair) || additionalTrustedProfiles.Value.Contains(pair));
+    public bool IsTrusted(IBicepCloudConfiguration cloud)
+    {
+        var pair = new CloudProfileTrustPair(
+            cloud.ResourceManagerEndpointUri,
+            cloud.ActiveDirectoryAuthorityUri);
+
+        return BuiltInTrustedProfiles.Contains(pair) || additionalTrustedProfiles.Value.Contains(pair);
+    }
 
     public bool IsAuthorityTrusted(Uri authorityUri) =>
-        TryNormalizeUri(authorityUri.AbsoluteUri, out var normalizedAuthority) &&
-        (BuiltInTrustedProfiles.Any(pair => pair.ActiveDirectoryAuthority == normalizedAuthority) ||
-            additionalTrustedProfiles.Value.Any(pair => pair.ActiveDirectoryAuthority == normalizedAuthority));
+        BuiltInTrustedProfiles.Any(pair => pair.ActiveDirectoryAuthority == authorityUri) ||
+        additionalTrustedProfiles.Value.Any(pair => pair.ActiveDirectoryAuthority == authorityUri);
 
     public void ThrowIfCloudIsUntrusted(IBicepCloudConfiguration cloud)
     {
@@ -55,63 +56,24 @@ public sealed class CloudConfigurationTrustPolicy
 
     private static ImmutableHashSet<CloudProfileTrustPair> ParseEnvironmentValue(string? value)
     {
-        try
+        var profiles = value is { }
+            ? JsonSerializer.Deserialize(value, CloudConfigurationTrustPolicySerializationContext.Default.CloudProfileTrustPairs) ?? []
+            : [];
+
+        if (profiles.Any(pair =>
+            !IsValidTrustUri(pair.ResourceManagerEndpoint) ||
+            !IsValidTrustUri(pair.ActiveDirectoryAuthority)))
         {
-            return value is { }
-                ? (JsonSerializer.Deserialize(value, CloudConfigurationTrustPolicySerializationContext.Default.CloudProfileTrustPairs) ?? [])
-                    .Select(NormalizeGrant)
-                    .ToImmutableHashSet()
-                : [];
+            throw new JsonException($"The {BicepEnvironmentVariables.TrustedClouds} environment variable contains an invalid cloud profile.");
         }
-        catch (JsonException exception)
-        {
-            throw new ConfigurationException(exception.Message);
-        }
+
+        return profiles.ToImmutableHashSet();
     }
 
-    public static bool TryCreatePair(IBicepCloudConfiguration cloud, out CloudProfileTrustPair pair) =>
-        TryCreatePair(
-            cloud.ResourceManagerEndpointUri.AbsoluteUri,
-            cloud.ActiveDirectoryAuthorityUri.AbsoluteUri,
-            out pair);
-
-    private static CloudProfileTrustPair NormalizeGrant(CloudProfileTrustPair grant) =>
-        TryCreatePair(grant.ResourceManagerEndpoint, grant.ActiveDirectoryAuthority, out var pair)
-            ? pair
-            : throw new JsonException($"The {BicepEnvironmentVariables.TrustedClouds} environment variable contains an invalid cloud profile.");
-
-    private static bool TryCreatePair(
-        string resourceManagerEndpoint,
-        string activeDirectoryAuthority,
-        out CloudProfileTrustPair pair)
-    {
-        pair = default;
-
-        if (!TryNormalizeUri(resourceManagerEndpoint, out var normalizedResourceManagerEndpoint) ||
-            !TryNormalizeUri(activeDirectoryAuthority, out var normalizedActiveDirectoryAuthority))
-        {
-            return false;
-        }
-
-        pair = new(
-            normalizedResourceManagerEndpoint,
-            normalizedActiveDirectoryAuthority);
-        return true;
-    }
-
-    private static bool TryNormalizeUri(string value, out string normalized)
-    {
-        normalized = "";
-        if (!Uri.TryCreate(value, UriKind.Absolute, out var uri) ||
-            (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps) ||
-            !string.IsNullOrEmpty(uri.UserInfo))
-        {
-            return false;
-        }
-
-        normalized = uri.AbsoluteUri;
-        return true;
-    }
+    private static bool IsValidTrustUri(Uri? uri) =>
+        uri is { IsAbsoluteUri: true } &&
+        (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps) &&
+        string.IsNullOrEmpty(uri.UserInfo);
 
     private static ImmutableHashSet<CloudProfileTrustPair> CreateBuiltInPairs()
     {
@@ -121,22 +83,23 @@ public sealed class CloudConfigurationTrustPolicy
         foreach (var profile in cloud.Data.Profiles.Values)
         {
             if (profile.ResourceManagerEndpoint is not { } resourceManagerEndpoint ||
-                profile.ActiveDirectoryAuthority is not { } activeDirectoryAuthority ||
-                !TryCreatePair(resourceManagerEndpoint, activeDirectoryAuthority, out var pair))
+                profile.ActiveDirectoryAuthority is not { } activeDirectoryAuthority)
             {
-                throw new InvalidOperationException("A built-in cloud trust pair is invalid.");
+                throw new InvalidOperationException("A built-in cloud trust pair is incomplete.");
             }
 
-            pairs.Add(pair);
+            pairs.Add(new(
+                new Uri(resourceManagerEndpoint, UriKind.Absolute),
+                new Uri(activeDirectoryAuthority, UriKind.Absolute)));
         }
 
         return pairs.ToImmutable();
     }
 }
 
-public readonly record struct CloudProfileTrustPair(
-    [property: JsonRequired] string ResourceManagerEndpoint,
-    [property: JsonRequired] string ActiveDirectoryAuthority);
+internal readonly record struct CloudProfileTrustPair(
+    [property: JsonRequired] Uri ResourceManagerEndpoint,
+    [property: JsonRequired] Uri ActiveDirectoryAuthority);
 
 [JsonSerializable(typeof(CloudProfileTrustPair[]), TypeInfoPropertyName = "CloudProfileTrustPairs")]
 [JsonSourceGenerationOptions(

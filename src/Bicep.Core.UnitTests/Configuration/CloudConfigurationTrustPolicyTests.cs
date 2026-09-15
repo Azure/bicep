@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.Text.Json;
 using Bicep.Core.Configuration;
 using Bicep.Core.Json;
 using FluentAssertions;
@@ -93,11 +94,14 @@ public class CloudConfigurationTrustPolicyTests
         string activeDirectoryAuthority)
     {
         var cloud = CreateCloud("Custom", new("https://management.example.invalid", "https://login.example.invalid"));
-        var trusted = new CloudProfileTrustPair(
-            resourceManagerEndpoint,
-            activeDirectoryAuthority);
+        var policy = CloudConfigurationTrustPolicy.FromEnvironmentValue($$"""
+            [{
+                "resourceManagerEndpoint": "{{resourceManagerEndpoint}}",
+                "activeDirectoryAuthority": "{{activeDirectoryAuthority}}"
+            }]
+            """);
 
-        new CloudConfigurationTrustPolicy([trusted]).IsTrusted(cloud).Should().BeFalse();
+        policy.IsTrusted(cloud).Should().BeFalse();
     }
 
     [TestMethod]
@@ -106,13 +110,17 @@ public class CloudConfigurationTrustPolicyTests
     [DataRow("[{\"resourceManagerEndpoint\":\"https://management.example.invalid\"}]")]
     [DataRow("[{\"resourceManagerEndpoint\":\"https://management.example.invalid\",\"activeDirectoryAuthority\":\"https://login.example.invalid\",\"extra\":true}]")]
     [DataRow("[{\"resourceManagerEndpoint\":\"https://management.example.invalid:443.evil.invalid\",\"activeDirectoryAuthority\":\"https://login.example.invalid\"}]")]
+    [DataRow("[{\"resourceManagerEndpoint\":null,\"activeDirectoryAuthority\":\"https://login.example.invalid\"}]")]
+    [DataRow("[{\"resourceManagerEndpoint\":\"relative\",\"activeDirectoryAuthority\":\"https://login.example.invalid\"}]")]
+    [DataRow("[{\"resourceManagerEndpoint\":\"ftp://management.example.invalid\",\"activeDirectoryAuthority\":\"https://login.example.invalid\"}]")]
+    [DataRow("[{\"resourceManagerEndpoint\":\"https://user@management.example.invalid\",\"activeDirectoryAuthority\":\"https://login.example.invalid\"}]")]
     public void InvalidExternalTrustConfigurationFailsClosed(string value)
     {
         var policy = CloudConfigurationTrustPolicy.FromEnvironmentValue(value);
         var cloud = CreateCloud("Custom", new("https://management.example.invalid", "https://login.example.invalid"));
 
         policy.IsTrusted((CloudConfiguration)BicepConfiguration.BuiltIn.Cloud).Should().BeTrue();
-        policy.Invoking(x => x.IsTrusted(cloud)).Should().Throw<ConfigurationException>();
+        policy.Invoking(x => x.IsTrusted(cloud)).Should().Throw<JsonException>();
     }
 
     [TestMethod]
@@ -133,7 +141,7 @@ public class CloudConfigurationTrustPolicyTests
                 """);
         var cloud = CreateCloud("Custom", new("https://management.valid.invalid", "https://login.valid.invalid"));
 
-        policy.Invoking(x => x.IsTrusted(cloud)).Should().Throw<ConfigurationException>();
+        policy.Invoking(x => x.IsTrusted(cloud)).Should().Throw<JsonException>();
     }
 
     [TestMethod]
@@ -148,11 +156,11 @@ public class CloudConfigurationTrustPolicyTests
         var cloud = CreateCloud("Custom", new("https://management.example.invalid", "https://login.example.invalid"));
 
         policy.IsTrusted((CloudConfiguration)BicepConfiguration.BuiltIn.Cloud).Should().BeTrue();
-        policy.Invoking(x => x.IsTrusted(cloud)).Should().Throw<ConfigurationException>();
+        policy.Invoking(x => x.IsTrusted(cloud)).Should().Throw<JsonException>();
     }
 
     [TestMethod]
-    public void ExternalTrustNormalizesHostCaseButDoesNotMatchLookalikesOrNonDefaultPorts()
+    public void ExternalTrustUsesUriEqualityWithoutMatchingLookalikesOrNonDefaultPorts()
     {
         var policy = CloudConfigurationTrustPolicy.FromEnvironmentValue("""
             [{
