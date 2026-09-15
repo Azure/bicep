@@ -6,10 +6,10 @@ We are very happy to accept community contributions to Bicep, whether those are 
 
 ## Getting Started
 
-* If you haven't already, you will need .NET SDK and node installed locally to build and run this project.
+* If you haven't already, you will need the .NET SDK and Node.js installed locally to build and run this project.
   * Install the [.NET SDK](https://dotnet.microsoft.com/download) that matches the version in [global.json](./global.json)
-  * Install [node](https://nodejs.org/en/download/) 20 or later.
-* You are free to work on Bicep on any platform using any editor, but you may find it quickest to get started using [VSCode](https://code.visualstudio.com/Download) with the [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp).
+  * Install [Node.js](https://nodejs.org/en/download/) 24.
+* You can work on Bicep on Windows, Linux, or macOS using any editor, but you may find it quickest to get started using [VSCode](https://code.visualstudio.com/Download) with the [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp).
 * Fork this repo (see [this forking guide](https://guides.github.com/activities/forking/) for more information).
 * Checkout the repo locally with `git clone git@github.com:{your_username}/bicep.git`.
 * If `git status` shows untracked files in the `bicep-types-az` directory, remove the directory via `rm -r bicep-types-az` on Linux/Mac or `rmdir /S bicep-types-az` on Windows. (This is only needed once.)
@@ -36,14 +36,14 @@ The Bicep solution is comprised of the following main components:
   * `dotnet test`
 
 * Running VS Code extension unit tests
-  * From src\vscode-bicep:
+  * From `src/vscode-bicep`:
     * `npm i`
-    * `npm run test:unit` or run launch vscode from src\vscode-bicep and run "Launch Tests: Unit Tests (dev)"
+    * `npm run test:unit`
+  * To debug the tests, open `src/vscode-bicep` in VSCode and run the "Launch Tests: Unit Tests" launch configuration.
 * Running VS Code extension end-to-end tests
-  * From repo root folder: `dotnet build`
-  * From src\vscode-bicep:
-    * `npm i`
-    * `node ./scripts/run-e2e-tests.mjs` or launch VS Code from src\vscode-bicep and run "Launch Tests: E2E (dev)"
+  * From `src/vscode-bicep`, run `node ./scripts/run-e2e-tests.mjs`. This installs extension and UI dependencies, builds the UI, language server, MCP server, extension, and E2E test bootstrap, then runs the tests with the local servers.
+  * To debug the tests, first run `node ./scripts/setup-development.mjs` from `src/vscode-bicep`, then open that folder in VSCode and run the "Launch Tests: E2E (dev)" launch configuration.
+  * See the [E2E test README](./src/vscode-bicep/tests/e2e/README.md) for details and troubleshooting.
 
 ### Updating test baselines
 
@@ -77,8 +77,8 @@ If you have an active branch pushed to your GitHub fork, you can use the "Update
   1. Add an entry to `src/Bicep.Core.Samples/DataSets.cs`
      * prefix with Invalid if the expectation is that it doesn't compile.
      * The suffix should match the type of newline the file uses, so just pick one (_LF or _CRLF) - that's just to ensure we have support for both.
-     * The name of the entry should match the name of the folder you create (same casing), and there should be a main.bicep file in that folder.
-  1. Make changes to main.bicep.
+     * Create `src/Bicep.Core.Samples/Files/baselines/<Name>/`, where `<Name>` matches the entry name exactly (including casing), and add a `main.bicep` file in that folder.
+  1. Write the test scenario in `main.bicep`.
   1. Create empty `main.<suffix>.bicep` assertion files in the folder. You need to create following suffixes: `diagnostics`, `formatted`, `symbols`, `syntax`, `tokens`
      * If the dataset is expected to compile successfully, add additional bicep files with suffixes `ir`, `sourcemap` and two json files `main.json` and `main.symbolicnames.json` with initial content `{}`.
   1. Follow [Updating test baselines](#updating-test-baselines) to generate baseline files.
@@ -87,16 +87,16 @@ If you have an active branch pushed to your GitHub fork, you can use the "Update
 
 ### Running the Bicep VSCode extension
 
-* On the first run, you'll need to ensure you have installed all the npm packages required by the Bicep VSCode extension with the following:
+* On the first run, install the extension and UI dependencies and build the UI and local language and MCP servers:
   * `cd src/vscode-bicep`
-  * `npm i`
-* In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "VSCode Extension" task, and press the "Start" button. This will launch a new VSCode window with the Bicep extension and LanguageServer containing your changes. When running on WSL, create a symbolic link in `src/vscode-bicep` named `bicepLanguageServer` to `../Bicep.LangServer/bin/Debug/net10.0`.
-* If you want the ability to set breakpoints and step through the C# code, you can also use the "Attach" run configuration once the extension host has launched, and select the Bicep LanguageServer process by searching for "dotnet" processes with a command line containing "...\Bicep.LangServer.dll --pipe=..." (Windows) or "vscode-*.sock" (MacOs).
+  * `node ./scripts/setup-development.mjs`
+* In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "VSCode Extension" launch configuration, and press the "Start" button. Its build tasks prepare the extension, UI, and servers, then launch a new VSCode window containing your changes.
+* To set breakpoints and step through the C# code, open a `.bicep` file in the new VSCode window to activate the extension and start the language server. Then, in the original VSCode window, run the "Attach" launch configuration and select the `dotnet` process whose command line contains `Bicep.LangServer.dll` (Windows, Linux, or macOS).
 
 ### Running the Bicep CLI
 
-* In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "Bicep CLI" task, and press the "Start" button. This will build and run the Bicep CLI and allow you to step through the code.
-* Note that usually you will want to pass your own custom arguments to the Bicep CLI. This can be done by modifying the `launch.json` configuration to add arguments to the "args" array for the "Bicep CLI" task.
+* In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "CLI" launch configuration, and press the "Start" button. This will build and run the Bicep CLI and allow you to step through the code.
+* To pass custom arguments to the Bicep CLI, modify the "args" array for the "CLI" launch configuration in [.vscode/launch.json](./.vscode/launch.json).
 
 ### 3rd party Syntax Highlighting libraries
 See [Syntax Highlighting Libraries](./docs/highlighting.md) for information on the various 3rd party highlighting libraries that Bicep supports, where they are used, and how to contribute to them.
