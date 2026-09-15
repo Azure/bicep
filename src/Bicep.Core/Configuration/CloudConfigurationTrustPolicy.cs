@@ -11,23 +11,29 @@ public sealed class CloudConfigurationTrustPolicy
 {
     private static readonly ImmutableHashSet<CloudProfileTrustPair> BuiltInTrustedProfiles = CreateBuiltInPairs();
 
-    private readonly ImmutableHashSet<CloudProfileTrustPair> additionalTrustedProfiles;
+    private readonly Lazy<ImmutableHashSet<CloudProfileTrustPair>> additionalTrustedProfiles;
 
     public CloudConfigurationTrustPolicy(IEnumerable<CloudProfileTrustPair>? additionalTrustedProfiles = null)
     {
-        this.additionalTrustedProfiles = additionalTrustedProfiles?
+        var normalizedProfiles = additionalTrustedProfiles?
             .Select(NormalizeGrant)
             .ToImmutableHashSet() ?? [];
+        this.additionalTrustedProfiles = new(() => normalizedProfiles);
+    }
+
+    private CloudConfigurationTrustPolicy(string? environmentValue)
+    {
+        this.additionalTrustedProfiles = new(() => ParseEnvironmentValue(environmentValue));
     }
 
     public bool IsTrusted(IBicepCloudConfiguration cloud) =>
         TryCreatePair(cloud, out var pair) &&
-        (BuiltInTrustedProfiles.Contains(pair) || additionalTrustedProfiles.Contains(pair));
+        (BuiltInTrustedProfiles.Contains(pair) || additionalTrustedProfiles.Value.Contains(pair));
 
     public bool IsAuthorityTrusted(Uri authorityUri) =>
         TryNormalizeUri(authorityUri.AbsoluteUri, out var normalizedAuthority) &&
         (BuiltInTrustedProfiles.Any(pair => pair.ActiveDirectoryAuthority == normalizedAuthority) ||
-            additionalTrustedProfiles.Any(pair => pair.ActiveDirectoryAuthority == normalizedAuthority));
+            additionalTrustedProfiles.Value.Any(pair => pair.ActiveDirectoryAuthority == normalizedAuthority));
 
     public void ThrowIfCloudIsUntrusted(IBicepCloudConfiguration cloud)
     {
@@ -45,17 +51,21 @@ public sealed class CloudConfigurationTrustPolicy
         }
     }
 
-    public static CloudConfigurationTrustPolicy FromEnvironmentValue(string? value)
+    public static CloudConfigurationTrustPolicy FromEnvironmentValue(string? value) => new(value);
+
+    private static ImmutableHashSet<CloudProfileTrustPair> ParseEnvironmentValue(string? value)
     {
         try
         {
-            return new(value is { }
-                ? JsonSerializer.Deserialize(value, CloudConfigurationTrustPolicySerializationContext.Default.CloudProfileTrustPairs)
-                : null);
+            return value is { }
+                ? (JsonSerializer.Deserialize(value, CloudConfigurationTrustPolicySerializationContext.Default.CloudProfileTrustPairs) ?? [])
+                    .Select(NormalizeGrant)
+                    .ToImmutableHashSet()
+                : [];
         }
         catch (JsonException exception)
         {
-            throw new ConfigurationException($"The {BicepEnvironmentVariables.TrustedClouds} environment variable is invalid: {exception.Message}");
+            throw new ConfigurationException(exception.Message);
         }
     }
 

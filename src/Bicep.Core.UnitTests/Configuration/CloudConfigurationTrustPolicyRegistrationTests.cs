@@ -50,6 +50,16 @@ public class CloudConfigurationTrustPolicyRegistrationTests
         policy.IsTrusted((CloudConfiguration)BicepConfiguration.BuiltIn.Cloud).Should().BeTrue();
     }
 
+    [TestMethod]
+    public void InvalidEnvironmentVariableDoesNotAffectBuiltInTrustAndFailsWhenCustomTrustIsChecked()
+    {
+        var policy = BuildPolicy((BicepEnvironmentVariables.TrustedClouds, "{ not json"));
+
+        policy.IsTrusted((CloudConfiguration)BicepConfiguration.BuiltIn.Cloud).Should().BeTrue();
+        policy.Invoking(x => x.IsTrusted(CreateCustomCloud("https://management.example.invalid", "https://login.example.invalid")))
+            .Should().Throw<ConfigurationException>();
+    }
+
     private static CloudConfigurationTrustPolicy BuildPolicy(params (string key, string? value)[] variables)
         => new ServiceBuilder()
             .WithRegistration(services => services.WithEnvironmentVariables(variables))

@@ -110,6 +110,48 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         [TestMethod]
+        public void GetConfigurationChain_InvalidTrustedCloudsEnvironmentVariable_ProducesWarningAndFallsBackToBuiltInTrust()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """
+                    {
+                      "cloud": {
+                        "currentProfile": "Custom",
+                        "profiles": {
+                          "Custom": {
+                            "resourceManagerEndpoint": "https://management.example.invalid",
+                            "activeDirectoryAuthority": "https://login.example.invalid"
+                          }
+                        }
+                      }
+                    }
+                    """));
+            var trustPolicy = CloudConfigurationTrustPolicy.FromEnvironmentValue("{ not json");
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, trustPolicy);
+
+            var configuration = sut.GetConfigurationChain(fileSet.GetUri("main.bicep")).GetEffectiveConfiguration();
+
+            configuration.IsBuiltIn.Should().BeTrue();
+            configuration.GetDiagnostics().Should().ContainSingle(diagnostic =>
+                diagnostic.Code == "BCP459" &&
+                diagnostic.Level == DiagnosticLevel.Warning);
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_InvalidTrustedCloudsEnvironmentVariable_DoesNotWarnForBuiltInCloud()
+        {
+            var fileSet = InMemoryTestFileSet.Create(("main.bicep", ""));
+            var trustPolicy = CloudConfigurationTrustPolicy.FromEnvironmentValue("{ not json");
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, trustPolicy);
+
+            var configuration = sut.GetConfigurationChain(fileSet.GetUri("main.bicep")).GetEffectiveConfiguration();
+
+            configuration.IsBuiltIn.Should().BeTrue();
+            configuration.GetDiagnostics().Should().BeEmpty();
+        }
+
+        [TestMethod]
         public void GetConfigurationChain_RepositoryEnvironmentCredential_DoesNotRequireSeparateTrust()
         {
             var fileSet = InMemoryTestFileSet.Create(

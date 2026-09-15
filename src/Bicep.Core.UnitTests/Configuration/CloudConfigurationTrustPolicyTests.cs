@@ -106,17 +106,19 @@ public class CloudConfigurationTrustPolicyTests
     [DataRow("[{\"resourceManagerEndpoint\":\"https://management.example.invalid\"}]")]
     [DataRow("[{\"resourceManagerEndpoint\":\"https://management.example.invalid\",\"activeDirectoryAuthority\":\"https://login.example.invalid\",\"extra\":true}]")]
     [DataRow("[{\"resourceManagerEndpoint\":\"https://management.example.invalid:443.evil.invalid\",\"activeDirectoryAuthority\":\"https://login.example.invalid\"}]")]
-    public void InvalidExternalTrustConfigurationThrows(string value)
+    public void InvalidExternalTrustConfigurationFailsClosed(string value)
     {
-        FluentActions.Invoking(() => CloudConfigurationTrustPolicy.FromEnvironmentValue(value))
-            .Should().Throw<ConfigurationException>()
-            .WithMessage($"The {BicepEnvironmentVariables.TrustedClouds} environment variable is invalid:*");
+        var policy = CloudConfigurationTrustPolicy.FromEnvironmentValue(value);
+        var cloud = CreateCloud("Custom", new("https://management.example.invalid", "https://login.example.invalid"));
+
+        policy.IsTrusted((CloudConfiguration)BicepConfiguration.BuiltIn.Cloud).Should().BeTrue();
+        policy.Invoking(x => x.IsTrusted(cloud)).Should().Throw<ConfigurationException>();
     }
 
     [TestMethod]
     public void InvalidEntryRejectsTheEntireDocument()
     {
-        FluentActions.Invoking(() => CloudConfigurationTrustPolicy.FromEnvironmentValue("""
+        var policy = CloudConfigurationTrustPolicy.FromEnvironmentValue("""
                 [
                     {
                         "resourceManagerEndpoint": "https://management.valid.invalid",
@@ -128,9 +130,10 @@ public class CloudConfigurationTrustPolicyTests
                         "unexpected": "value"
                     }
                 ]
-                """))
-            .Should().Throw<ConfigurationException>()
-            .WithMessage($"The {BicepEnvironmentVariables.TrustedClouds} environment variable is invalid:*");
+                """);
+        var cloud = CreateCloud("Custom", new("https://management.valid.invalid", "https://login.valid.invalid"));
+
+        policy.Invoking(x => x.IsTrusted(cloud)).Should().Throw<ConfigurationException>();
     }
 
     [TestMethod]
@@ -139,11 +142,13 @@ public class CloudConfigurationTrustPolicyTests
     [DataRow("{ not json")]
     [DataRow("\"https://management.example.invalid\"")]
     [DataRow("123")]
-    public void MalformedOrNonArrayDocumentsThrow(string value)
+    public void MalformedOrNonArrayDocumentsFailClosed(string value)
     {
-        FluentActions.Invoking(() => CloudConfigurationTrustPolicy.FromEnvironmentValue(value))
-            .Should().Throw<ConfigurationException>()
-            .WithMessage($"The {BicepEnvironmentVariables.TrustedClouds} environment variable is invalid:*");
+        var policy = CloudConfigurationTrustPolicy.FromEnvironmentValue(value);
+        var cloud = CreateCloud("Custom", new("https://management.example.invalid", "https://login.example.invalid"));
+
+        policy.IsTrusted((CloudConfiguration)BicepConfiguration.BuiltIn.Cloud).Should().BeTrue();
+        policy.Invoking(x => x.IsTrusted(cloud)).Should().Throw<ConfigurationException>();
     }
 
     [TestMethod]

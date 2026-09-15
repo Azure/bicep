@@ -2096,6 +2096,10 @@ namespace Bicep.Core.Diagnostics
             public Diagnostic UntrustedCloudProfile(IOUri configFileUri) => CoreError(
                 "BCP458",
                 $"The cloud profile selected by the Bicep configuration file \"{configFileUri}\" is not trusted. Use a built-in cloud profile or approve the exact custom profile through the {BicepEnvironmentVariables.TrustedClouds} environment variable.");
+
+            public Diagnostic InvalidTrustedCloudsEnvironmentVariable(string parsingError) => CoreWarning(
+                "BCP459",
+                $"The {BicepEnvironmentVariables.TrustedClouds} environment variable is invalid and custom cloud trust entries were ignored: {parsingError}");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

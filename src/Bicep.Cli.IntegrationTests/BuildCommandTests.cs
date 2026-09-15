@@ -567,10 +567,27 @@ output myOutput string = 'hello!'
         }
 
         [TestMethod]
-        public async Task Build_WithInvalidTrustedCloudsEnvironmentVariable_ShouldProduceActionableError()
+        public async Task Build_WithInvalidTrustedCloudsEnvironmentVariable_ShouldProduceActionableWarning()
         {
             string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
+            FileHelper.SaveResultFile(
+                this.TestContext,
+                "bicepconfig.json",
+                """
+                {
+                  "cloud": {
+                    "currentProfile": "Custom",
+                    "profiles": {
+                      "Custom": {
+                        "resourceManagerEndpoint": "https://management.example.invalid",
+                        "activeDirectoryAuthority": "https://login.example.invalid"
+                      }
+                    }
+                  }
+                }
+                """,
+                testOutputPath);
             var settings = InvocationSettings.Default with
             {
                 Environment = TestEnvironment.Default.WithVariables(
@@ -579,12 +596,12 @@ output myOutput string = 'hello!'
 
             var (output, error, result) = await Bicep(settings, "build", inputFile);
 
-            result.Should().Be(1);
+            result.Should().Be(0);
             output.Should().BeEmpty();
-            error.Should().StartWith($"The {BicepEnvironmentVariables.TrustedClouds} environment variable is invalid:");
+            error.Should().StartWith($"{inputFile}(1,1) : Warning BCP459: The {BicepEnvironmentVariables.TrustedClouds} environment variable is invalid and custom cloud trust entries were ignored:");
             error.Should().NotContain("System.Text.Json.JsonException");
             error.Should().NotContain(" at ");
-            File.Exists(PathHelper.GetJsonOutputPath(inputFile)).Should().BeFalse();
+            File.Exists(PathHelper.GetJsonOutputPath(inputFile)).Should().BeTrue();
         }
 
         [DataRow([])]
