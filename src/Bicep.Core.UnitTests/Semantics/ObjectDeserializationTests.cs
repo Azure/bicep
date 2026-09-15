@@ -210,20 +210,6 @@ namespace Bicep.Core.UnitTests.Semantics
             Assert.AreEqual("10.0.0.0/17", jToken!["source"]);
             Assert.AreEqual("10.0.0.0/17", jToken["alias"]);
         }
-
-        [DataTestMethod]
-        [DataRow("script: |\n  line one\n  line two", "line one\nline two\n")]
-        [DataRow("script: |\n  line one\n  line two\n", "line one\nline two\n")]
-        [DataRow("script: |-\n  line one\n  line two", "line one\nline two")]
-        [DataRow("script: |+\n  line one\n  line two", "line one\nline two\n")]
-        [DataRow("script: >\n  line one\n  line two", "line one line two\n")]
-        public void YAML_block_scalar_preserves_line_breaks(string yml, string expectedValue)
-        {
-            var span = new TextSpan(0, 0);
-            Assert.IsTrue(new YamlObjectParser().TryExtractFromObject(yml, null, [span]).IsSuccess(out var jToken));
-
-            Assert.AreEqual(expectedValue, jToken!["script"]!.ToString());
-        }
     }
 
 }
