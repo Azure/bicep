@@ -2085,9 +2085,17 @@ namespace Bicep.Core.Diagnostics
                 "BCP455",
                 $"The Bicep configuration \"extends\" chain starting from \"{configFileUri}\" exceeds the maximum allowed depth of 64.");
 
-            public Diagnostic UntrustedCloudProfile(IOUri configFileUri) => CoreError(
+            public Diagnostic BicepVersionConstraintNotSatisfied(string constraint, string runningVersion, IOUri? configFileUri) => CoreError(
                 "BCP456",
-                $"The cloud profile selected by the Bicep configuration file \"{configFileUri}\" is not trusted. Use a canonical built-in cloud profile or approve the exact custom profile through the {BicepEnvironmentVariables.TrustedClouds} environment variable.");
+                $"The installed Bicep CLI version \"{runningVersion}\" does not satisfy the version constraint \"{constraint}\" specified by the \"bicep.version\" property in the {BuildBicepConfigurationClause(configFileUri)}.");
+
+            public Diagnostic BicepVersionConstraintCouldNotBeChecked(string constraint, string runningVersion, IOUri? configFileUri) => CoreWarning(
+                "BCP457",
+                $"The installed Bicep CLI version \"{runningVersion}\" could not be parsed, so the \"bicep.version\" constraint \"{constraint}\" specified by the {BuildBicepConfigurationClause(configFileUri)} could not be checked.");
+
+            public Diagnostic UntrustedCloudProfile(IOUri configFileUri) => CoreError(
+                "BCP458",
+                $"The cloud profile selected by the Bicep configuration file \"{configFileUri}\" is not trusted. Use a built-in cloud profile or approve the exact custom profile through the {BicepEnvironmentVariables.TrustedClouds} environment variable.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

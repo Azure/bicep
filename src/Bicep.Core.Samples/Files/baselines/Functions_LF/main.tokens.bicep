@@ -516,5 +516,37 @@ output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])
 //@[058:059) RightSquare |]|
 //@[059:060) RightParen |)|
 //@[060:061) NewLine |\n|
+output roleAssignmentName string = getRoleAssignmentName({
+//@[000:006) Identifier |output|
+//@[007:025) Identifier |roleAssignmentName|
+//@[026:032) Identifier |string|
+//@[033:034) Assignment |=|
+//@[035:056) Identifier |getRoleAssignmentName|
+//@[056:057) LeftParen |(|
+//@[057:058) LeftBrace |{|
+//@[058:059) NewLine |\n|
+  scope: resourceGroup().id
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:022) Identifier |resourceGroup|
+//@[022:023) LeftParen |(|
+//@[023:024) RightParen |)|
+//@[024:025) Dot |.|
+//@[025:027) Identifier |id|
+//@[027:028) NewLine |\n|
+  principalId: '00000000-0000-0000-0000-000000000000'
+//@[002:013) Identifier |principalId|
+//@[013:014) Colon |:|
+//@[015:053) StringComplete |'00000000-0000-0000-0000-000000000000'|
+//@[053:054) NewLine |\n|
+  roleDefinitionId: '00000000-0000-0000-0000-000000000001'
+//@[002:018) Identifier |roleDefinitionId|
+//@[018:019) Colon |:|
+//@[020:058) StringComplete |'00000000-0000-0000-0000-000000000001'|
+//@[058:059) NewLine |\n|
+})
+//@[000:001) RightBrace |}|
+//@[001:002) RightParen |)|
+//@[002:003) NewLine |\n|
 
 //@[000:000) EndOfFile ||

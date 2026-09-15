@@ -23,8 +23,8 @@ public static class MarkdownHelper
     public static string AppendNewline(string? input)
         => input is null ? string.Empty : $"{input}{MarkdownNewLine}";
 
-    public static string JoinWithNewlines(IEnumerable<string> inputs)
-        => string.Join(MarkdownNewLine, inputs);
+    public static string JoinWithBlankLine(IEnumerable<string?> parts)
+        => string.Join("\n\n", parts.Where(part => !string.IsNullOrEmpty(part)));
 
     public static string? GetDocumentationLink(string? documentationUri)
         => documentationUri is null ? null : $"[View Documentation]({documentationUri})";
