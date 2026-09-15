@@ -47,6 +47,29 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
+        public async Task Test_CompilationErrors_ShouldFail_WithoutReportingOverallSuccess()
+        {
+            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: true, AssertsEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
+            Directory.CreateDirectory(outputFileDir);
+
+            // Include a valid test to verify that a compilation error prevents an overall success result.
+            FileHelper.SaveResultFile(TestContext, "test.bicep", "// Valid test target.", outputFileDir);
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", @"test valid 'test.bicep' = {}
+test missing 'missing.bicep' = {}", outputFileDir);
+
+            var (output, error, result) = await Bicep(settings, "test", bicepPath);
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(1);
+                output.Should().Contain("Evaluation valid Passed!");
+                output.Should().NotContain("All 1 evaluations passed!");
+                error.Should().Contain("Error BCP091");
+            }
+        }
+
+        [TestMethod]
         public async Task Test_commandNoParams_ShouldSucceed()
         {
             // Test should succeed when there are no required params

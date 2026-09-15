@@ -83,6 +83,9 @@ public static class ServiceBuilderExtensions
     public static ServiceBuilder WithEnvironmentVariables(this ServiceBuilder serviceBuilder, params (string key, string? value)[] variables)
         => serviceBuilder.WithRegistration(x => x.WithEnvironmentVariables(variables));
 
+    public static ServiceBuilder WithBicepVersion(this ServiceBuilder serviceBuilder, string version, string? commitRef = null)
+        => serviceBuilder.WithRegistration(x => x.WithBicepVersion(version, commitRef));
+
     public static ServiceBuilder WithFileSystem(this ServiceBuilder serviceBuilder, IFileSystem fileSystem)
         => serviceBuilder.WithRegistration(x => x.WithFileSystem(fileSystem));
 

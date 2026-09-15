@@ -19,12 +19,12 @@ jobs:
     # The job below will use the built-in "Request reviewers for a pull request" script to assign reviewers
     steps:
       - name: Assign reviewer from Bicep External Maintainers team
-        uses: actions/github-script@v7
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
             await github.rest.pulls.requestReviewers({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.payload.pull_request.number,
-              team_reviewers: ['bicep-external-maintainers']
+              team_reviewers: ['azure-deployments-and-bicep-code-reviewers']
             })
