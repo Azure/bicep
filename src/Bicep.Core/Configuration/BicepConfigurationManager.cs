@@ -22,10 +22,12 @@ public class BicepConfigurationManager : IBicepConfigurationManager
     private readonly ConcurrentDictionary<IFileHandle, ResultWithDiagnostic<IBicepConfigurationChain>> chainCache = new();
     private readonly ConcurrentDictionary<IFileHandle, ImmutableHashSet<IOUri>> chainDependencies = new();
     private readonly IFileExplorer fileExplorer;
+    private readonly CloudConfigurationTrustPolicy cloudTrustPolicy;
 
-    public BicepConfigurationManager(IFileExplorer fileExplorer)
+    public BicepConfigurationManager(IFileExplorer fileExplorer, CloudConfigurationTrustPolicy cloudTrustPolicy)
     {
         this.fileExplorer = fileExplorer;
+        this.cloudTrustPolicy = cloudTrustPolicy;
     }
 
     public IBicepConfigurationChain GetConfigurationChain(IOUri sourceFileUri)
@@ -105,7 +107,7 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         return this.chainDependencies.TryGetValue(leafHandle, out var deps) ? deps : [];
     }
 
-    private static IBicepConfigurationChain GetBuiltInChain(IEnumerable<IDiagnostic>? diagnostics = null)
+    private IBicepConfigurationChain GetBuiltInChain(IEnumerable<IDiagnostic>? diagnostics = null)
     {
         var builtInConfig = GetBuiltInConfiguration(diagnostics);
 
@@ -194,7 +196,7 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         return new(BuildChain(leafUri, rawLayers));
     }
 
-    private static IBicepConfigurationChain BuildChain(IOUri leafUri, List<(IFileHandle FileHandle, JsonElement Element)> rawLayers)
+    private IBicepConfigurationChain BuildChain(IOUri leafUri, List<(IFileHandle FileHandle, JsonElement Element)> rawLayers)
     {
         // Merge: built-in first, then base configs in reverse order, leaf last (leaf wins).
         var accumulated = BicepConfiguration.BuiltInConfigurationElement;
@@ -212,6 +214,18 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         catch (ConfigurationException exception)
         {
             return GetBuiltInChain(diagnostics: [DiagnosticBuilder.ForDocumentStart().InvalidBicepConfigFile(leafUri, exception.Message)]);
+        }
+
+        try
+        {
+            if (!cloudTrustPolicy.IsTrusted(effectiveConfig.Cloud))
+            {
+                return GetBuiltInChain(diagnostics: [ConfigDiagnosticBuilder.UntrustedCloudProfile(leafUri)]);
+            }
+        }
+        catch (JsonException exception)
+        {
+            return GetBuiltInChain(diagnostics: [ConfigDiagnosticBuilder.InvalidTrustedCloudsEnvironmentVariable(exception.Message)]);
         }
 
         // Annotate moduleAliasesMock aliases with the URI of the config file that declared each one.
@@ -240,7 +254,7 @@ public class BicepConfigurationManager : IBicepConfigurationManager
                 {
                     var merged = BicepConfiguration.BuiltInConfigurationElement.Merge(StripExtendsProperty(layer.Element));
 
-                    return (IBicepConfiguration)BicepConfiguration.Bind(merged, layer.FileHandle.Uri);
+                    return BicepConfiguration.Bind(merged, layer.FileHandle.Uri);
                 }
                 catch (ConfigurationException)
                 {

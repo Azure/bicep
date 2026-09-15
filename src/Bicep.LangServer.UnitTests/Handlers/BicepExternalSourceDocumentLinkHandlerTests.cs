@@ -52,7 +52,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             this.MockFileSystem = new();
 
             var mockFileExplorer = new FileSystemFileExplorer(this.MockFileSystem);
-            var mockConfigurationManager = new BicepConfigurationManager(mockFileExplorer);
+            var mockConfigurationManager = new BicepConfigurationManager(mockFileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
             var featureProviderFactory = new FeatureProviderFactory(mockConfigurationManager, mockFileExplorer);
 
             this.CacheRootDirectory = featureProviderFactory.GetFeatureProvider(new IOUri("file", "", "/dummy.bicep")).CacheRootDirectory;

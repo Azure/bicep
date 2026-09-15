@@ -353,7 +353,7 @@ namespace Bicep.Cli.IntegrationTests
                 """,
                 rootDir);
 
-            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
+            var environment = TestEnvironment.Default.WithVariables((BicepEnvironmentVariables.ParametersOverrides, new
             {
                 rgName = "override-rg"
             }.ToJson()));
@@ -474,7 +474,7 @@ namespace Bicep.Cli.IntegrationTests
                 """,
                 rootDir);
 
-            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
+            var environment = TestEnvironment.Default.WithVariables((BicepEnvironmentVariables.ParametersOverrides, new
             {
                 namePrefix = "wrong"
             }.ToJson()));
@@ -1189,7 +1189,7 @@ namespace Bicep.Cli.IntegrationTests
             var settings = CreateDefaultSettings() with
             {
                 Environment = TestEnvironment.Default.WithVariables(
-                    ("BICEP_PARAMETERS_OVERRIDES", paramsOverrides)
+                    (BicepEnvironmentVariables.ParametersOverrides, paramsOverrides)
                 )
             };
 
@@ -1233,7 +1233,7 @@ output foo string = foo
 """,
                 Path.GetDirectoryName(bicepparamsPath));
 
-            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
+            var environment = TestEnvironment.Default.WithVariables((BicepEnvironmentVariables.ParametersOverrides, new
             {
                 foo = "bar"
             }.ToJson()));
@@ -1277,7 +1277,7 @@ output foo string = foo
 """,
                 Path.GetDirectoryName(bicepparamsPath));
 
-            var environment = TestEnvironment.Default.WithVariables(("BICEP_PARAMETERS_OVERRIDES", new
+            var environment = TestEnvironment.Default.WithVariables((BicepEnvironmentVariables.ParametersOverrides, new
             {
                 wrongName = "bar"
             }.ToJson()));
@@ -1316,7 +1316,7 @@ output foo string = foo
             var settings = CreateDefaultSettings() with
             {
                 Environment = TestEnvironment.Default.WithVariables(
-                    ("BICEP_PARAMETERS_OVERRIDES", paramsOverrides)
+                    (BicepEnvironmentVariables.ParametersOverrides, paramsOverrides)
                 )
             };
 

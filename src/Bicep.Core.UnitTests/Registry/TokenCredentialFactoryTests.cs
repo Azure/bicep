@@ -14,7 +14,8 @@ namespace Bicep.Core.UnitTests.Registry
     [TestClass]
     public class TokenCredentialFactoryTests
     {
-        private static readonly Uri exampleAuthorityUri = new("https://bicep.test.invalid");
+        private static readonly Uri exampleAuthorityUri = new("https://login.microsoftonline.com");
+        private static readonly CloudConfigurationTrustPolicy cloudTrustPolicy = new();
 
         [DataTestMethod]
         [DataRow(CredentialType.Environment, null, typeof(EnvironmentCredential))]
@@ -25,7 +26,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataRow(CredentialType.AzurePowerShell, null, typeof(AzurePowerShellCredential))]
         public void ShouldCreateExpectedSingleCredential(CredentialType credentialType, CredentialOptions? credentialOptions, Type expectedCredentialType)
         {
-            var f = new TokenCredentialFactory();
+            var f = new TokenCredentialFactory(cloudTrustPolicy);
             f.CreateSingle(credentialType, credentialOptions, exampleAuthorityUri).Should().BeOfType(expectedCredentialType);
         }
 
@@ -33,21 +34,21 @@ namespace Bicep.Core.UnitTests.Registry
         [DynamicData(nameof(CreateManagedIdentityOptionsData), DynamicDataSourceType.Method)]
         public void ShouldCreateExpectedSingleManagedIdentityCredential(CredentialOptions? credentialOptions)
         {
-            var f = new TokenCredentialFactory();
+            var f = new TokenCredentialFactory(cloudTrustPolicy);
             f.CreateSingle(CredentialType.ManagedIdentity, credentialOptions, exampleAuthorityUri).Should().BeOfType(typeof(ManagedIdentityCredential));
         }
 
         [TestMethod]
         public void EmptyListOfCredentialTypesShouldThrow()
         {
-            var f = new TokenCredentialFactory();
+            var f = new TokenCredentialFactory(cloudTrustPolicy);
             FluentActions.Invoking(() => f.CreateChain([], null, exampleAuthorityUri)).Should().Throw<ArgumentException>();
         }
 
         [TestMethod]
         public void ShouldCreateExpectedSingleItemChain()
         {
-            var f = new TokenCredentialFactory();
+            var f = new TokenCredentialFactory(cloudTrustPolicy);
             var credential = f.CreateChain(new[] { CredentialType.VisualStudioCode }, null, exampleAuthorityUri);
             AssertCredentialTypes(credential, typeof(VisualStudioCodeCredential));
         }
@@ -55,9 +56,19 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public void ShouldCreateExpectedMultiItemChain()
         {
-            var f = new TokenCredentialFactory();
+            var f = new TokenCredentialFactory(cloudTrustPolicy);
             var credential = f.CreateChain(new[] { CredentialType.AzureCLI, CredentialType.ManagedIdentity, CredentialType.VisualStudio }, null, exampleAuthorityUri);
             AssertCredentialTypes(credential, typeof(AzureCliCredential), typeof(ManagedIdentityCredential), typeof(VisualStudioCredential));
+        }
+
+        [TestMethod]
+        public void UntrustedAuthorityShouldThrowBeforeCreatingCredential()
+        {
+            var f = new TokenCredentialFactory(cloudTrustPolicy);
+
+            FluentActions.Invoking(() => f.CreateSingle(CredentialType.Environment, null, new("https://login.example.invalid")))
+                .Should().Throw<InvalidOperationException>()
+                .WithMessage("*BICEP_TRUSTED_CLOUDS*");
         }
 
         private static IEnumerable<object[]> CreateManagedIdentityOptionsData()
