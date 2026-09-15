@@ -566,6 +566,27 @@ output myOutput string = 'hello!'
             File.Exists(PathHelper.GetJsonOutputPath(inputFile)).Should().BeFalse();
         }
 
+        [TestMethod]
+        public async Task Build_WithInvalidTrustedCloudsEnvironmentVariable_ShouldProduceActionableError()
+        {
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
+            var settings = InvocationSettings.Default with
+            {
+                Environment = TestEnvironment.Default.WithVariables(
+                    (BicepEnvironmentVariables.TrustedClouds, "{ not json")),
+            };
+
+            var (output, error, result) = await Bicep(settings, "build", inputFile);
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().StartWith($"The {BicepEnvironmentVariables.TrustedClouds} environment variable is invalid:");
+            error.Should().NotContain("System.Text.Json.JsonException");
+            error.Should().NotContain(" at ");
+            File.Exists(PathHelper.GetJsonOutputPath(inputFile)).Should().BeFalse();
+        }
+
         [DataRow([])]
         [DataRow(["--diagnostics-format", "defAULt"])]
         [DataTestMethod]

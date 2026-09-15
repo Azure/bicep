@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.Text.Json;
 using Bicep.Core.Configuration;
 using Bicep.Core.Json;
 using FluentAssertions;
@@ -110,7 +109,8 @@ public class CloudConfigurationTrustPolicyTests
     public void InvalidExternalTrustConfigurationThrows(string value)
     {
         FluentActions.Invoking(() => CloudConfigurationTrustPolicy.FromEnvironmentValue(value))
-            .Should().Throw<JsonException>();
+            .Should().Throw<ConfigurationException>()
+            .WithMessage($"The {BicepEnvironmentVariables.TrustedClouds} environment variable is invalid:*");
     }
 
     [TestMethod]
@@ -129,7 +129,8 @@ public class CloudConfigurationTrustPolicyTests
                     }
                 ]
                 """))
-            .Should().Throw<JsonException>();
+            .Should().Throw<ConfigurationException>()
+            .WithMessage($"The {BicepEnvironmentVariables.TrustedClouds} environment variable is invalid:*");
     }
 
     [TestMethod]
@@ -141,7 +142,8 @@ public class CloudConfigurationTrustPolicyTests
     public void MalformedOrNonArrayDocumentsThrow(string value)
     {
         FluentActions.Invoking(() => CloudConfigurationTrustPolicy.FromEnvironmentValue(value))
-            .Should().Throw<JsonException>();
+            .Should().Throw<ConfigurationException>()
+            .WithMessage($"The {BicepEnvironmentVariables.TrustedClouds} environment variable is invalid:*");
     }
 
     [TestMethod]

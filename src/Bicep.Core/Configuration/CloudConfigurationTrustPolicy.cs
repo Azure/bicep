@@ -45,10 +45,19 @@ public sealed class CloudConfigurationTrustPolicy
         }
     }
 
-    public static CloudConfigurationTrustPolicy FromEnvironmentValue(string? value) =>
-        new(value is { }
-            ? JsonSerializer.Deserialize(value, CloudConfigurationTrustPolicySerializationContext.Default.CloudProfileTrustPairs)
-            : null);
+    public static CloudConfigurationTrustPolicy FromEnvironmentValue(string? value)
+    {
+        try
+        {
+            return new(value is { }
+                ? JsonSerializer.Deserialize(value, CloudConfigurationTrustPolicySerializationContext.Default.CloudProfileTrustPairs)
+                : null);
+        }
+        catch (JsonException exception)
+        {
+            throw new ConfigurationException($"The {BicepEnvironmentVariables.TrustedClouds} environment variable is invalid: {exception.Message}");
+        }
+    }
 
     public static bool TryCreatePair(IBicepCloudConfiguration cloud, out CloudProfileTrustPair pair) =>
         TryCreatePair(
