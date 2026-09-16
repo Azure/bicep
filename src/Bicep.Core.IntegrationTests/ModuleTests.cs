@@ -96,6 +96,32 @@ output outputb string = '${inputa}-${inputb}'
         }
 
         [TestMethod]
+        public void Module_param_string_assignment_to_string_literal_union_should_warn_and_compile()
+        {
+            var result = CompilationHelper.Compile(
+            ("main.bicep", @"
+var foobar string = any('foo')
+
+module mod './mod.bicep' = {
+    name: 'mod'
+    params: {
+        foobar: foobar
+    }
+}
+"),
+    ("mod.bicep", @"
+@allowed(['foo', 'bar'])
+param foobar string
+"));
+
+            result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+            result.Should().HaveDiagnostics(new[]
+            {
+        ("BCP036", DiagnosticLevel.Warning, "The property \"foobar\" expected a value of type \"'bar' | 'foo'\" but the provided value is of type \"string\"."),
+        });
+        }
+
+        [TestMethod]
         public void Module_self_cycle_is_detected_correctly()
         {
             var mainUri = new Uri("file:///main.bicep");
