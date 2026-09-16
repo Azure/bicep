@@ -35,8 +35,9 @@ namespace Bicep.LanguageServer.Extensions
             var level = diagnostic.Level;
 
             // BCP456 (the "bicep.version" constraint violation) is shown as a warning instead of an error
-            // when surfaced through the VS Code, so an out-of-date local Bicep
-            // extension/CLI doesn't block editing or other language features while the user updates it.
+            // when surfaced through VS Code. This stems from the current coupling where the language
+            // server ships with and runs its own bundled Bicep binary, decoupled from the CLI used for
+            // builds, so a stale extension shouldn't block editing with a false-positive error.
             if (diagnostic.Code == BicepVersionConstraintNotSatisfiedCode && level == DiagnosticLevel.Error)
             {
                 level = DiagnosticLevel.Warning;
