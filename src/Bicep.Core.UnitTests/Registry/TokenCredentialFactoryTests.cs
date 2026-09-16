@@ -65,10 +65,11 @@ namespace Bicep.Core.UnitTests.Registry
         public void UntrustedAuthorityShouldThrowBeforeCreatingCredential()
         {
             var f = new TokenCredentialFactory(cloudTrustPolicy);
+            var authorityUri = new Uri("https://login.example.invalid");
 
-            FluentActions.Invoking(() => f.CreateSingle(CredentialType.Environment, null, new("https://login.example.invalid")))
+            FluentActions.Invoking(() => f.CreateSingle(CredentialType.Environment, null, authorityUri))
                 .Should().Throw<InvalidOperationException>()
-                .WithMessage("*BICEP_TRUSTED_CLOUDS*");
+                .WithMessage($"The cloud authority \"{authorityUri}\" is not trusted. Configure the complete cloud profile through the {BicepEnvironmentVariables.TrustedClouds} environment variable before acquiring credentials.");
         }
 
         private static IEnumerable<object[]> CreateManagedIdentityOptionsData()

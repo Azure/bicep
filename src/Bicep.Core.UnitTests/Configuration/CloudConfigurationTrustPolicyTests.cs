@@ -210,9 +210,12 @@ public class CloudConfigurationTrustPolicyTests
     public void UriNormalizationBypassAttemptsAreNotTrustedForAuthoritiesAlone(string activeDirectoryAuthority)
     {
         var policy = new CloudConfigurationTrustPolicy();
+        var authorityUri = new Uri(activeDirectoryAuthority);
 
-        policy.IsAuthorityTrusted(new Uri(activeDirectoryAuthority)).Should().BeFalse();
-        policy.Invoking(x => x.ThrowIfAuthorityIsUntrusted(new Uri(activeDirectoryAuthority))).Should().Throw<InvalidOperationException>();
+        policy.IsAuthorityTrusted(authorityUri).Should().BeFalse();
+        policy.Invoking(x => x.ThrowIfAuthorityIsUntrusted(authorityUri))
+            .Should().Throw<InvalidOperationException>()
+            .WithMessage($"The cloud authority \"{authorityUri}\" is not trusted. Configure the complete cloud profile through the {BicepEnvironmentVariables.TrustedClouds} environment variable before acquiring credentials.");
     }
 
     [TestMethod]

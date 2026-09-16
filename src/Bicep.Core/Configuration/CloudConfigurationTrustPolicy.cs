@@ -60,7 +60,7 @@ public sealed class CloudConfigurationTrustPolicy
     {
         if (!IsAuthorityTrusted(authorityUri))
         {
-            throw new InvalidOperationException($"The cloud authority is not trusted. Configure the complete cloud profile through the {BicepEnvironmentVariables.TrustedClouds} environment variable before acquiring credentials.");
+            throw new InvalidOperationException($"The cloud authority \"{authorityUri}\" is not trusted. Configure the complete cloud profile through the {BicepEnvironmentVariables.TrustedClouds} environment variable before acquiring credentials.");
         }
     }
 
