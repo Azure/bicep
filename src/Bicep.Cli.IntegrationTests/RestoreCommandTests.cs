@@ -483,6 +483,102 @@ output o1 string = '${p1}${p2}'");
             }
         }
 
+        [TestMethod]
+        public async Task Restore_With_Force_ShouldRestore_NestedRegistryModules_ReferencedByLocalModule()
+        {
+            var fileSystem = new MockFileSystem();
+            var fileExplorer = new FileSystemFileExplorer(fileSystem);
+
+            var clientFactory = RegistryHelper.CreateMockRegistryClient(
+                new RegistryHelper.RepoDescriptor("mockregistry.io", "bicepmodules/remote-module-01", ["default"]),
+                new RegistryHelper.RepoDescriptor("mockregistry.io", "bicepmodules/remote-module-02", ["default"]));
+
+            await RegistryHelper.PublishModuleToRegistryAsync(
+                new ServiceBuilder(),
+                clientFactory,
+                fileSystem,
+                new("br:mockregistry.io/bicepmodules/remote-module-01:default", "output name string = 'plan'", WithSource: false));
+
+            await RegistryHelper.PublishModuleToRegistryAsync(
+                new ServiceBuilder(),
+                clientFactory,
+                fileSystem,
+                new("br:mockregistry.io/bicepmodules/remote-module-02:default", "output name string = 'kv'", WithSource: false));
+
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            var mainContent = """
+module autoPlan 'br:mockregistry.io/bicepmodules/remote-module-01:default' = {
+  name: 'remote-module-01'
+}
+
+module app './local-module.bicep' = {
+  name: 'local-module'
+}
+""";
+
+            var localModuleContent = """
+module messaging 'br:mockregistry.io/bicepmodules/remote-module-02:default' = {
+  name: 'remote-module-02'
+}
+""";
+
+            var mainPath = $"{outputPath}/main.bicep";
+            var localModulePath = $"{outputPath}/local-module.bicep";
+
+            fileSystem.AddFile(mainPath, mainContent);
+            fileSystem.AddFile(localModulePath, localModuleContent);
+
+            var cacheRoot = fileExplorer.GetDirectory(IOUri.FromFilePath(outputPath));
+
+            var restoreResult = await Bicep(
+                services => services
+                    .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot, RegistryEnabled: true))
+                    .WithContainerRegistryClientFactory(clientFactory)
+                    .WithFileSystem(fileSystem)
+                    .WithFileExplorer(fileExplorer),
+                "restore",
+                mainPath,
+                "--force");
+
+            using (new AssertionScope())
+            {
+                restoreResult.Should().Succeed();
+                restoreResult.Stdout.Should().BeEmpty();
+                restoreResult.Stderr.Should().BeEmpty();
+
+                CachedModules
+                    .GetCachedModules(fileSystem, cacheRoot)
+                    .Should()
+                    .Contain(module =>
+                        module.Registry == "mockregistry.io" &&
+                        module.Repository == "bicepmodules/remote-module-01" &&
+                        module.Tag == "default")
+                    .And
+                    .Contain(module =>
+                        module.Registry == "mockregistry.io" &&
+                        module.Repository == "bicepmodules/remote-module-02" &&
+                        module.Tag == "default");
+            }
+
+            var buildResult = await Bicep(
+                services => services
+                    .WithFeatureOverrides(new(CacheRootDirectory: cacheRoot, RegistryEnabled: true))
+                    .WithContainerRegistryClientFactory(clientFactory)
+                    .WithFileSystem(fileSystem)
+                    .WithFileExplorer(fileExplorer),
+                "build",
+                mainPath,
+                "--no-restore");
+
+            using (new AssertionScope())
+            {
+                buildResult.Should().Succeed();
+                buildResult.Stdout.Should().BeEmpty();
+                buildResult.Stderr.Should().BeEmpty();
+            }
+        }
+
         [DataTestMethod]
         [DataRow(false)]
         [DataRow(true)]
