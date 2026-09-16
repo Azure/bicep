@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.ComponentModel;
+using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Registry.Catalog.Implementation.PublicRegistries;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Providers.Extensibility;
@@ -98,15 +99,20 @@ public sealed class BicepTools(
     - Find available resource functions and their signatures
     - Generate accurate Bicep code with proper property names and types
     The returned JSON schema includes resource type definitions, nested complex types, resource function signatures (like list* operations), and property constraints.
-    Data is sourced directly from Azure Resource Provider APIs, ensuring the most accurate and up-to-date schema information.
-    Specify the resource type (e.g., Microsoft.KeyVault/vaults) and API version (e.g., 2024-11-01 or 2024-12-01-preview).
+    Data comes from Bicep's bundled Azure resource type catalog, not a live Azure API query.
+    Specify the resource type (e.g., Microsoft.KeyVault/vaults). Omit apiVersion or pass null to select the newest API version by date, including preview versions; stable versions win same-date ties.
+    Set includePreview to false to select only the newest stable version, with no preview fallback. An explicit API version (e.g., 2024-11-01 or 2024-12-01-preview) pins the schema and overrides includePreview.
+    Preview includes other prerelease versions recognized by Bicep. Unknown resource types return an error. Unsupported API versions or unavailable selections return an error listing all valid API version options for the resource type.
+    The schema title includes the selected resource type and API version, even when read-only properties are excluded.
     """)]
     public ResourceTypeSchemaResult GetAzureResourceTypeSchema(
         [Description("The resource type of the Azure resource; e.g. Microsoft.KeyVault/vaults")] string resourceType,
-        [Description("The API version of the resource type; e.g. 2024-11-01 or 2024-12-01-preview")] string apiVersion,
+        [Description("The explicit API version of the resource type; e.g. 2024-11-01 or 2024-12-01-preview. Omit or pass null for the newest version by date in Bicep's bundled catalog, subject to includePreview, with stable preferred on the same date. An explicit version overrides includePreview. Errors list valid options.")] string? apiVersion = null,
         [Description("When true, omits description fields from the schema to reduce payload size. Default: false")] bool excludeDescriptions = false,
-        [Description("When true, omits read-only properties from the schema to reduce payload size. Default: false")] bool excludeReadOnlyProperties = false)
+        [Description("When true, omits read-only properties from the schema to reduce payload size. Default: false")] bool excludeReadOnlyProperties = false,
+        [Description("When apiVersion is omitted or null, includes preview and other Bicep-recognized prerelease versions in automatic selection. Set to false for the newest stable version only; returns an error if none exists. Ignored for explicit API versions. Default: true")] bool includePreview = true)
     {
+        apiVersion = ResolveApiVersion(resourceType, apiVersion, includePreview);
         TypesDefinitionResult typesDefinition = resourceVisitor.LoadSingleResourceType(resourceType, apiVersion, excludeReadOnlyProperties);
         var options = new JsonSchemaWriterOptions(excludeDescriptions);
 
@@ -234,5 +240,68 @@ public sealed class BicepTools(
         }
 
         return new WellKnownExtensionsResult([.. extensions]);
+    }
+
+    private string ResolveApiVersion(string resourceType, string? apiVersion, bool includePreview)
+    {
+        var resourceTypes = azResourceTypeLoader.GetAvailableTypes()
+            .Where(type => type.FormatType().Equals(resourceType, StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+
+        if (resourceTypes.Length == 0)
+        {
+            throw new InvalidDataException($"Resource type {resourceType} not found in Bicep's bundled Azure resource type catalog.");
+        }
+
+        if (apiVersion is not null && resourceTypes.Any(type => string.Equals(type.ApiVersion, apiVersion, StringComparison.OrdinalIgnoreCase)))
+        {
+            return apiVersion;
+        }
+
+        var versions = new List<(string ApiVersion, AzureResourceApiVersion? ParsedVersion)>();
+        foreach (var type in resourceTypes)
+        {
+            if (type.ApiVersion is { } version)
+            {
+                versions.Add((version, AzureResourceApiVersion.TryParse(version, out var parsedVersion) ? parsedVersion : null));
+            }
+        }
+
+        var orderedVersions = versions
+            .OrderByDescending(version => version.ParsedVersion?.Date)
+            .ThenByDescending(version => version.ParsedVersion?.IsStable)
+            .ThenBy(version => version.ParsedVersion?.Suffix, StringComparer.Ordinal)
+            .ThenBy(version => version.ApiVersion, StringComparer.Ordinal)
+            .ToArray();
+
+        if (apiVersion is null)
+        {
+            var selectedVersion = orderedVersions.FirstOrDefault(version =>
+                version.ParsedVersion is { } parsedVersion && (includePreview || parsedVersion.IsStable)).ApiVersion;
+            if (selectedVersion is not null)
+            {
+                return selectedVersion;
+            }
+        }
+
+        var validOptions = new List<string>();
+        if (orderedVersions.Any(version => version.ParsedVersion is not null))
+        {
+            validOptions.Add("apiVersion = null with includePreview = true (latest)");
+        }
+        if (orderedVersions.Any(version => version.ParsedVersion is { IsStable: true }))
+        {
+            validOptions.Add("apiVersion = null with includePreview = false (latest stable)");
+        }
+        validOptions.AddRange(orderedVersions.Select(version => version.ApiVersion)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Select(version => $"apiVersion = \"{version}\""));
+
+        var error = apiVersion is null
+            ? includePreview
+                ? $"No supported API versions found for resource type {resourceType} in Bicep's bundled Azure resource type catalog."
+                : $"No stable API versions found for resource type {resourceType} in Bicep's bundled Azure resource type catalog."
+            : $"Resource type {resourceType} with API version {apiVersion} not found.";
+        throw new InvalidDataException($"{error} Valid options: {(validOptions.Count > 0 ? string.Join(", ", validOptions) : "none")}.");
     }
 }
