@@ -16,7 +16,7 @@ description: "Use when writing or modifying React components, hooks, or JSX in t
 
 - Wrap event handlers and callbacks passed to children in `useCallback`.
 - Use `useMemo` only for genuinely expensive computations — don't over-memoize.
-- Extract shared logic into custom hooks (`use-*.ts`) co-located with the feature.
+- Extract shared logic into custom hooks (`use-*.ts`) in the feature's `hooks/` folder.
 - Keep hooks side-effect free during render; effects belong in `useEffect`.
 
 ## Props & Types

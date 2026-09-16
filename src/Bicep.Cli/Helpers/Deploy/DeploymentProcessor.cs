@@ -401,7 +401,7 @@ public class DeploymentProcessor(IArmClientProvider armClientProvider) : IDeploy
 
     private static string? GetError(DeploymentOperationDefinition operation)
     {
-        if (operation.Properties.StatusMessage?.TryFromJToken<ErrorResponseMessage>() is not {} errorResponse ||
+        if (operation.Properties.StatusMessage?.TryFromJToken<ErrorResponseMessage>() is not { } errorResponse ||
             errorResponse.Error is not { } error)
         {
             return null;

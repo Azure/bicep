@@ -30,14 +30,14 @@ public class AzApiVersionProvider(AzResourceTypeProvider AzResourceTypeProvider)
         {
             return [];
         }
-        
+
         return cache.GetOrAdd((scope, fullyQualifiedResourceType), key =>
         {
             var apiVersions = ImmutableSortedSet.CreateBuilder(ApiVersionComparer);
 
             foreach (var resourceTypeReference in resourceTypeReferences)
             {
-                if (resourceTypeReference.ApiVersion is {} apiVersionString &&
+                if (resourceTypeReference.ApiVersion is { } apiVersionString &&
                     AzureResourceApiVersion.TryParse(apiVersionString, out var apiVersion))
                 {
                     apiVersions.Add(apiVersion);

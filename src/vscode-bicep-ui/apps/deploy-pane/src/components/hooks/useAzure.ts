@@ -1,7 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { CloudError, Deployment, DeploymentOperation, DeploymentParameter, ErrorResponse, WhatIfChange } from "@azure/arm-resourcesdeployments";
+import type {
+  CloudError,
+  Deployment,
+  DeploymentOperation,
+  DeploymentParameter,
+  ErrorResponse,
+  WhatIfChange,
+} from "@azure/arm-resourcesdeployments";
 import type { AccessToken, TokenCredential } from "@azure/core-auth";
 import type { DeploymentScope, DeployState, ParametersMetadata, TemplateMetadata, UntypedError } from "../../models";
 

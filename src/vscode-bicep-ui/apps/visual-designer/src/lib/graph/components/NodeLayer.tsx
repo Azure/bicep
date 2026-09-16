@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { useAtomValue } from "jotai";
-import { nodesByIdAtom } from "@/lib/graph/atoms";
+import { nodesByIdAtom } from "../atoms";
 import { AtomicNode } from "./AtomicNode";
 import { CompoundNode } from "./CompoundNode";
 

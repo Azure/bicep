@@ -204,7 +204,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 var apiVersionExpression = functionCallSyntax.Arguments[1].Expression;
 
-                if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, apiVersionExpression) is {} apiVersionString
+                if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, apiVersionExpression) is { } apiVersionString
                     && AzureResourceApiVersion.TryParse(apiVersionString, out var apiVersion2))
                 {
                     apiVersion = apiVersion2;
@@ -226,7 +226,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             //   at build time, so look for the first argument that looks like a resource ID
             for (int i = 0; i < functionCallSyntax.Arguments.Length; ++i)
             {
-                if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, functionCallSyntax.Arguments[i].Expression) is {} argLiteral)
+                if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, functionCallSyntax.Arguments[i].Expression) is { } argLiteral)
                 {
                     argLiteral = argLiteral.TrimEnd('/');
 
@@ -239,7 +239,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         string folderLiterals = argLiteral;
                         for (int j = i + 1; j < functionCallSyntax.Arguments.Length; ++j)
                         {
-                            if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, functionCallSyntax.Arguments[j].Expression) is {} argLiteral2)
+                            if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, functionCallSyntax.Arguments[j].Expression) is { } argLiteral2)
                             {
                                 folderLiterals += $"/{argLiteral2}";
                             }
@@ -259,7 +259,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static string? TryGetResourceTypeIfEvaluatesToStringLiteral(SemanticModel model, SyntaxBase expression)
         {
-            if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, expression) is {} resourceIdResTypeString &&
+            if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, expression) is { } resourceIdResTypeString &&
                 LinterResourceTypePatterns.ResourceTypeRegex.IsMatch(resourceIdResTypeString))
             {
                 return resourceIdResTypeString;

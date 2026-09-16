@@ -28,6 +28,9 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableTypes.Keys;
 
+        public bool HasType(ResourceTypeReference reference)
+            => availableTypes.ContainsKey(reference);
+
         public ResourceTypeComponents LoadType(ResourceTypeReference reference)
         {
             var typeLocation = availableTypes[reference];

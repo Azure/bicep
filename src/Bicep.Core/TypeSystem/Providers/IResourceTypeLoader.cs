@@ -11,5 +11,7 @@ namespace Bicep.Core.TypeSystem.Providers
         ResourceTypeComponents LoadType(ResourceTypeReference reference);
 
         IEnumerable<ResourceTypeReference> GetAvailableTypes();
+
+        bool HasType(ResourceTypeReference reference);
     }
 }

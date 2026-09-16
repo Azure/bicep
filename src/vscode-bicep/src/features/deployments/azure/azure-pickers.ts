@@ -10,12 +10,12 @@ import { parseError } from "../../../infrastructure/errors";
 import { Disposable } from "../../../infrastructure/lifecycle";
 import { OutputChannelManager } from "../../../infrastructure/logging";
 import { PromptItem, Prompts } from "../../../infrastructure/prompts";
+import { AzureAccountManager, AzureSubscription } from "./azure-account-manager";
 import {
   createManagementGroupsClient,
   createResourceManagementClient,
   createSubscriptionClient,
 } from "./azure-clients";
-import { AzureAccountManager, AzureSubscription } from "./azure-account-manager";
 
 const resourceGroupNamePattern = /^[\p{L}\p{Nd}_.()-]+$/u;
 

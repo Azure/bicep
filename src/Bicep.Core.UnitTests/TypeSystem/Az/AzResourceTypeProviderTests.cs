@@ -186,7 +186,7 @@ resource missingRequired 'Test.Rp/readWriteTests@2020-01-01' = {
                 ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"name\".")
             });
 
-                        compilation = CreateCompilation(@"
+            compilation = CreateCompilation(@"
 resource missingRequired 'Test.Rp/readWriteTests@2020-01-01' = {
   name: 'missingRequired'
 }
@@ -196,7 +196,7 @@ resource missingRequired 'Test.Rp/readWriteTests@2020-01-01' = {
             });
 
             // Top-level properties that aren't part of the type definition - should be an error
-                        compilation = CreateCompilation(@"
+            compilation = CreateCompilation(@"
 resource unexpectedTopLevel 'Test.Rp/readWriteTests@2020-01-01' = {
   name: 'unexpectedTopLevel'
   properties: {
@@ -210,7 +210,7 @@ resource unexpectedTopLevel 'Test.Rp/readWriteTests@2020-01-01' = {
             });
 
             // Missing non top-level properties - should be a warning
-                        compilation = CreateCompilation(@"
+            compilation = CreateCompilation(@"
 resource missingRequiredProperty 'Test.Rp/readWriteTests@2020-01-01' = {
   name: 'missingRequiredProperty'
   properties: {
@@ -222,7 +222,7 @@ resource missingRequiredProperty 'Test.Rp/readWriteTests@2020-01-01' = {
             });
 
             // Non top-level properties that aren't part of the type definition - should be a warning
-                        compilation = CreateCompilation(@"
+            compilation = CreateCompilation(@"
 resource unexpectedPropertiesProperty 'Test.Rp/readWriteTests@2020-01-01' = {
   name: 'unexpectedPropertiesProperty'
   properties: {

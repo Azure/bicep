@@ -30,6 +30,8 @@ namespace Bicep.Core.Configuration
 
         IBicepDocumentationConfiguration Documentation { get; }
 
+        IBicepCompilerConfiguration Compiler { get; }
+
         ExperimentalFeaturesEnabled ExperimentalFeaturesEnabled { get; }
 
         string? CacheRootDirectory { get; }

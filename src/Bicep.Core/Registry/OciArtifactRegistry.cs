@@ -25,8 +25,8 @@ using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
 using Bicep.IO.Abstraction;
 using Microsoft.Extensions.Logging;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 using OrasProject.Oras.Exceptions;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Bicep.Core.Registry
 {
@@ -77,7 +77,7 @@ namespace Bicep.Core.Registry
                         return new(x => x.OciArtifactModuleAliasMapToFilePathOnlySupportsModules(aliasName));
                     }
 
-                    if (referencingFile.LoadConfiguration().ConfigFileUri is not {} configFileUri)
+                    if (referencingFile.LoadConfiguration().ConfigFileUri is not { } configFileUri)
                     {
                         return new(x => x.ConfigurationFileNotFound("OciModuleAliasesMock"));
                     }
@@ -87,10 +87,14 @@ namespace Bicep.Core.Registry
                         return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, configFileUri));
                     }
 
+                    // Use the declaring config's URI so that a relative mapToFilePath inherited from a base
+                    // config is resolved from that base config's directory, not the leaf's.
+                    var resolveBaseUri = mockAlias.DeclaringConfigUri ?? configFileUri;
+
                     if (!OciArtifactMockedReference.TryParse(
                         referencingFile,
                         mockAlias.MapToFilePath,
-                        configFileUri,
+                        resolveBaseUri,
                         reference,
                         this.fileExplorer,
                         aliasName).IsSuccess(out var mockedRef, out var mockedFailureBuilder))
@@ -242,37 +246,37 @@ namespace Bicep.Core.Registry
             }
         }
 
-    private ImmutableDictionary<string, string>? TryGetOciAnnotations(OciArtifactReference reference)
-    {
-        try
-        {
-            return GetCachedManifest(reference).Annotations;
-        }
-        catch (Exception)
+        private ImmutableDictionary<string, string>? TryGetOciAnnotations(OciArtifactReference reference)
         {
             try
             {
-                var session = CreateSession(reference);
+                return GetCachedManifest(reference).Annotations;
+            }
+            catch (Exception)
+            {
                 try
                 {
+                    var session = CreateSession(reference);
+                    try
+                    {
 #pragma warning disable VSTHRD002
-                    var (_, manifest) = session.ResolveAsync(reference, CancellationToken.None).GetAwaiter().GetResult();
+                        var (_, manifest) = session.ResolveAsync(reference, CancellationToken.None).GetAwaiter().GetResult();
 #pragma warning restore VSTHRD002
-                    return manifest.Annotations ?? [];
+                        return manifest.Annotations ?? [];
+                    }
+                    finally
+                    {
+#pragma warning disable VSTHRD002
+                        session.DisposeAsync().AsTask().GetAwaiter().GetResult();
+#pragma warning restore VSTHRD002
+                    }
                 }
-                finally
+                catch
                 {
-#pragma warning disable VSTHRD002
-                    session.DisposeAsync().AsTask().GetAwaiter().GetResult();
-#pragma warning restore VSTHRD002
+                    return null;
                 }
-            }
-            catch
-            {
-                return null;
             }
         }
-    }
 
         public override async Task OnRestoreArtifacts(bool forceRestore)
         {

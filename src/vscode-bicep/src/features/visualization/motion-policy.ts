@@ -10,7 +10,5 @@ export function resolveVisualizerMotionPolicy(setting: unknown): VisualizerMotio
 }
 
 export function getVisualizerMotionPolicy(): VisualizerMotionPolicy {
-  return resolveVisualizerMotionPolicy(
-    workspace.getConfiguration("workbench").get<unknown>("reduceMotion", "auto"),
-  );
+  return resolveVisualizerMotionPolicy(workspace.getConfiguration("workbench").get<unknown>("reduceMotion", "auto"));
 }

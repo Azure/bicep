@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import "@vscode-elements/elements/dist/vscode-progress-bar/vscode-progress-bar.js";
+
 import styled, { css, keyframes } from "styled-components";
 
 export type ProgressBarMotionPolicy = "system" | "reduce" | "animate";
@@ -43,11 +44,7 @@ const $ProgressBarPolicy = styled.div<{ $policy: ProgressBarMotionPolicy }>`
         : ""}
 `;
 
-export function ProgressBar({
-  ariaLabel,
-  motionPolicy = "system",
-  testId,
-}: ProgressBarProps) {
+export function ProgressBar({ ariaLabel, motionPolicy = "system", testId }: ProgressBarProps) {
   return (
     <$ProgressBarPolicy $policy={motionPolicy}>
       <vscode-progress-bar data-testid={testId} aria-label={ariaLabel}></vscode-progress-bar>

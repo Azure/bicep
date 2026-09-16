@@ -17,7 +17,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
         /// Tries to retrieve a string literal from the expression.
         /// </summary>
         public static string? TryGetEvaluatedStringLiteral(SemanticModel model, SyntaxBase? expression)
-            => (expression is {} && model.GetTypeInfo(expression).Type is TypeSystem.Types.StringLiteralType stringLiteralType) ? stringLiteralType.RawStringValue : null;
+            => (expression is { } && model.GetTypeInfo(expression).Type is TypeSystem.Types.StringLiteralType stringLiteralType) ? stringLiteralType.RawStringValue : null;
 
         /// <summary>
         /// Attempts to find a resource with the same name as the given expression
@@ -53,7 +53,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
                     // Then literal values (if they both evaluate to literal values)
                     if (evaluatedSearchNameLiteral is not null
-                        && TryGetEvaluatedStringLiteral(model, resourceName) is {} resourceNameLiteral
+                        && TryGetEvaluatedStringLiteral(model, resourceName) is { } resourceNameLiteral
                         && evaluatedSearchNameLiteral.EqualsOrdinally(resourceNameLiteral))
                     {
                         yield return resource;

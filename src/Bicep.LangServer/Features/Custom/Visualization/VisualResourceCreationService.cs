@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
-using Bicep.Core.Configuration;
 using Bicep.Core.CodeAction;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;

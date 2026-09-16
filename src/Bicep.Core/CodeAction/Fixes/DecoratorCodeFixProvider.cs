@@ -24,7 +24,7 @@ public class DecoratorCodeFixProvider : ICodeFixProvider
 
     public IEnumerable<CodeFix> GetFixes(SemanticModel semanticModel, IReadOnlyList<SyntaxBase> matchingNodes)
     {
-        if (matchingNodes.OfType<DecorableSyntax>().FirstOrDefault() is not { } decorableSyntax || decorableSyntax.Decorators.Any(IsTargetDecorator))
+        if (matchingNodes.OfType<DecorableSyntax>().LastOrDefault() is not { } decorableSyntax || decorableSyntax.Decorators.Any(IsTargetDecorator))
         {
             yield break;
         }
@@ -40,10 +40,7 @@ public class DecoratorCodeFixProvider : ICodeFixProvider
         }
 
         var decoratorSyntax = SyntaxFactory.CreateDecorator(decoratorName, GetEmptyParams());
-        var newline = semanticModel.Configuration.Formatting.Data.NewlineKind.ToEscapeSequence();
-        var decoratorText = $"{decoratorSyntax}{newline}";
-        var newSpan = new TextSpan(decorableSyntax.Span.Position, 0);
-        var codeReplacement = new CodeReplacement(newSpan, decoratorText);
+        var codeReplacement = CreateCodeReplacement(semanticModel, decorableSyntax, decoratorSyntax);
 
         yield return new CodeFix(
             $"Add @{decoratorName}",
@@ -64,20 +61,44 @@ public class DecoratorCodeFixProvider : ICodeFixProvider
         OutputDeclarationSyntax => FunctionFlags.OutputDecorator,
         ExtensionDeclarationSyntax => FunctionFlags.ExtensionDecorator,
         MetadataDeclarationSyntax => FunctionFlags.MetadataDecorator,
-        TypeDeclarationSyntax or ObjectTypePropertySyntax => FunctionFlags.TypeDecorator,
+        TypeDeclarationSyntax or ObjectTypePropertySyntax or ObjectTypeAdditionalPropertiesSyntax or TupleTypeItemSyntax => FunctionFlags.TypeDecorator,
         _ => FunctionFlags.AnyDecorator,
     };
 
     private TypeSymbol? GetPotentialTargetType(SemanticModel model, DecorableSyntax potentialTarget) => potentialTarget switch
     {
-        // The properties of explicitly declared object types will not be bound to a specific symbol, but the TypeManager will have cached the property's type
-        ObjectTypePropertySyntax objectTypeProperty when model.GetDeclaredType(objectTypeProperty) is { } typePropertyType => typePropertyType,
+        // Members of explicitly declared aggregate types will not be bound to a specific symbol,
+        // but the TypeManager will have cached the member's type.
+        ObjectTypePropertySyntax or ObjectTypeAdditionalPropertiesSyntax or TupleTypeItemSyntax
+            when model.GetDeclaredType(potentialTarget) is { } typeMemberType => typeMemberType,
         // Type declaration statements have a type of Type<T>, but decorators evaluate T (e.g., string, not Type<string>) to determine whether they can attach to a given type declaration
         TypeDeclarationSyntax typeDeclaration when model.GetDeclaredType(typeDeclaration) is { } declaredType => declaredType is TypeType typeType ? typeType.Unwrapped : declaredType,
         // All other statements should use their assigned type
         StatementSyntax declaration when model.GetSymbolInfo(declaration) is DeclaredSymbol symbol => symbol.Type,
         _ => null,
     };
+
+    private static CodeReplacement CreateCodeReplacement(SemanticModel model, DecorableSyntax syntax, DecoratorSyntax decorator)
+    {
+        var formatting = model.Configuration.Formatting.Data;
+        var newline = formatting.NewlineKind.ToEscapeSequence();
+        var position = syntax.Span.Position;
+        var (_, character) = TextCoordinateConverter.GetPosition(model.SourceFile.LineStarts, position);
+        var linePrefix = model.SourceFile.Text[(position - character)..position];
+        var indentation = linePrefix[..(linePrefix.Length - linePrefix.TrimStart(' ', '\t').Length)];
+
+        if (indentation.Length == linePrefix.Length)
+        {
+            return new(new TextSpan(position, 0), $"{decorator}{newline}{indentation}");
+        }
+
+        indentation += formatting.IndentKind == IndentKind.Tab ? "\t" : new string(' ', formatting.IndentSize);
+
+        var whitespaceLength = linePrefix.Length - linePrefix.TrimEnd(' ', '\t').Length;
+        var replacementSpan = new TextSpan(position - whitespaceLength, whitespaceLength);
+
+        return new(replacementSpan, $"{newline}{indentation}{decorator}{newline}{indentation}");
+    }
 
     private SyntaxBase[] GetEmptyParams()
     {

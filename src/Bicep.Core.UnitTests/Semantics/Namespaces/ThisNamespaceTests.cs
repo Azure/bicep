@@ -90,6 +90,7 @@ resource testResource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 
                 // Check that this.exists() is compiled to not(empty(target('full')))
                 template.Should().HaveValueAtPath("$.resources.testResource.properties.allowBlobPublicAccess", "[not(empty(target('full')))]");
+                template.Should().HaveValueAtPath("$.languageVersion", "2.0");
             }
         }
 

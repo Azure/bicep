@@ -11,9 +11,9 @@ using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using SymbolKind = OmniSharp.Extensions.LanguageServer.Protocol.Models.SymbolKind;
 using LspClientCapabilities = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.ClientCapabilities;
 using LspDocumentSymbol = OmniSharp.Extensions.LanguageServer.Protocol.Models.DocumentSymbol;
+using SymbolKind = OmniSharp.Extensions.LanguageServer.Protocol.Models.SymbolKind;
 
 namespace Bicep.LanguageServer.Features.Language.DocumentSymbol
 {

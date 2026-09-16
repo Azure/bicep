@@ -28,6 +28,7 @@ namespace Bicep.Core.Configuration
             ExperimentalFeaturesEnabled? experimentalFeaturesEnabled = null,
             IBicepFormattingConfiguration? formatting = null,
             IBicepDocumentationConfiguration? documentation = null,
+            IBicepCompilerConfiguration? compiler = null,
             IOUri? configFileIdentifier = null,
             IEnumerable<IDiagnostic>? diagnostics = null)
         {
@@ -40,6 +41,7 @@ namespace Bicep.Core.Configuration
                 analyzers: analyzers ?? configuration.Analyzers,
                 formatting: formatting ?? configuration.Formatting,
                 documentation: documentation ?? configuration.Documentation,
+                compiler: compiler ?? configuration.Compiler,
                 experimentalFeaturesEnabled: experimentalFeaturesEnabled ?? configuration.ExperimentalFeaturesEnabled,
                 cacheRootDirectory: cacheRootDirectory ?? configuration.CacheRootDirectory,
                 experimentalFeaturesWarning: experimentalFeaturesWarning ?? configuration.ExperimentalFeaturesWarning,
@@ -90,6 +92,9 @@ namespace Bicep.Core.Configuration
 
                 writer.WritePropertyName(BicepConfiguration.DocumentationKey);
                 ((IWritableConfigurationSection)configuration.Documentation).WriteTo(writer);
+
+                writer.WritePropertyName(BicepConfiguration.CompilerKey);
+                ((IWritableConfigurationSection)configuration.Compiler).WriteTo(writer);
 
                 writer.WriteEndObject();
             }

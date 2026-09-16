@@ -50,34 +50,31 @@ export function Accordion({ children, value, defaultValue = [], multiple = false
     }
   }, []);
 
-  const focusHeader = useCallback(
-    (itemId: AccordionItemId, direction: "first" | "last" | "next" | "previous") => {
-      const headerEntries = [...headersRef.current.entries()]
-        .filter(([, element]) => element.isConnected)
-        .sort(([, left], [, right]) => {
-          if (left === right) {
-            return 0;
-          }
-          return left.compareDocumentPosition(right) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
-        });
-      if (headerEntries.length === 0) {
-        return;
-      }
+  const focusHeader = useCallback((itemId: AccordionItemId, direction: "first" | "last" | "next" | "previous") => {
+    const headerEntries = [...headersRef.current.entries()]
+      .filter(([, element]) => element.isConnected)
+      .sort(([, left], [, right]) => {
+        if (left === right) {
+          return 0;
+        }
+        return left.compareDocumentPosition(right) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+      });
+    if (headerEntries.length === 0) {
+      return;
+    }
 
-      const currentIndex = headerEntries.findIndex(([registeredId]) => registeredId === itemId);
-      const targetIndex =
-        direction === "first"
-          ? 0
-          : direction === "last"
-            ? headerEntries.length - 1
-            : direction === "next"
-              ? (currentIndex + 1) % headerEntries.length
-              : (currentIndex - 1 + headerEntries.length) % headerEntries.length;
+    const currentIndex = headerEntries.findIndex(([registeredId]) => registeredId === itemId);
+    const targetIndex =
+      direction === "first"
+        ? 0
+        : direction === "last"
+          ? headerEntries.length - 1
+          : direction === "next"
+            ? (currentIndex + 1) % headerEntries.length
+            : (currentIndex - 1 + headerEntries.length) % headerEntries.length;
 
-      headerEntries[targetIndex]?.[1].focus();
-    },
-    [],
-  );
+    headerEntries[targetIndex]?.[1].focus();
+  }, []);
 
   const context = useMemo(
     () => ({ activeItemIds, toggleItem, registerHeader, focusHeader }),

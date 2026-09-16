@@ -51,7 +51,7 @@ test.describe("Node interactions", () => {
     expect(elevated).toBeGreaterThan(1);
   });
 
-  test("double-clicking a node sends a reveal-node-source notification", async ({ page }) => {
+  test("double-clicking a node reveals its source without bubbling to pan-zoom", async ({ page }) => {
     // The FakeMessageChannel logs reveal notifications to the console;
     // sniff that channel as a proxy for the outgoing message.
     const reveals: string[] = [];
@@ -61,10 +61,22 @@ test.describe("Node interactions", () => {
       }
     });
 
+    const canvas = page.getByTestId("graph-canvas");
+    await canvas.evaluate((element) => {
+      element.addEventListener(
+        "dblclick",
+        () => {
+          element.setAttribute("data-node-double-click-bubbled", "true");
+        },
+        { once: true },
+      );
+    });
+
     await page.locator('[data-node-id="nsg"]').dblclick();
 
     await expect.poll(() => reveals.length, { timeout: 5_000 }).toBeGreaterThan(0);
     expect(reveals[0]).toContain("nsg");
+    await expect(canvas).not.toHaveAttribute("data-node-double-click-bubbled");
   });
 
   test("a graph swap survives multiple updates without losing nodes", async ({ page }) => {

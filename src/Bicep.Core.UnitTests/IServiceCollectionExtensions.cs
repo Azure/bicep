@@ -8,7 +8,6 @@ using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
-using Bicep.Testing.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -31,6 +30,7 @@ using Bicep.IO.FileSystem;
 using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Features.Custom.Deployments.Services;
 using Bicep.LanguageServer.Features.Custom.InsertResource;
+using Bicep.Testing.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using LocalFileSystem = System.IO.Abstractions.FileSystem;
@@ -65,6 +65,9 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection WithEnvironmentVariables(this IServiceCollection services, params (string key, string? value)[] variables)
         => WithEnvironment(services, TestEnvironment.Default.WithVariables(variables));
+
+    public static IServiceCollection WithBicepVersion(this IServiceCollection services, string version, string? commitRef = null)
+        => WithEnvironment(services, TestEnvironment.Default.WithVersion(version, commitRef));
 
     public static IServiceCollection WithEnvironment(this IServiceCollection services, IEnvironment environment)
         => Register(services, environment);

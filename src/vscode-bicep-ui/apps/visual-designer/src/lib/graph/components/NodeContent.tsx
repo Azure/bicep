@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 import type { Atom } from "jotai";
-import type { NodeKind } from "@/lib/graph/atoms";
+import type { NodeKind } from "../atoms";
 
 import { useAtomValue } from "jotai";
-import { nodeConfigAtom } from "@/lib/graph/atoms";
+import { nodeConfigAtom } from "../atoms";
 
 export interface NodeContentProps {
   id: string;

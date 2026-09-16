@@ -33,3 +33,16 @@ export const graphStatusAtom = atom<GraphStatus>((get) => {
 
   return { kind: "ready" };
 });
+
+/**
+ * Publishes the graph facts that status is derived from. Owning the write here keeps
+ * `features/status` the sole authority on how status is computed: callers report what the
+ * graph contains, not what the status bar should say.
+ */
+export const reportGraphStatusAtom = atom(
+  null,
+  (_get, set, { errorCount, hasNodes }: { errorCount: number; hasNodes: boolean }) => {
+    set(errorCountAtom, errorCount);
+    set(hasNodesAtom, hasNodes);
+  },
+);

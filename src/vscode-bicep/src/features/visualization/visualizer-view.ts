@@ -437,12 +437,6 @@ export class BicepVisualizerView extends Disposable {
           this.render();
           return;
 
-        case "revealFileRange": {
-          const payload = notification.params as { filePath: string; range: Range };
-          this.revealFileRange(payload.filePath, payload.range);
-          return;
-        }
-
         case "revealNodeSource": {
           const payload = notification.params as { nodeId: string };
           void this.handleRevealNodeSource(payload.nodeId);

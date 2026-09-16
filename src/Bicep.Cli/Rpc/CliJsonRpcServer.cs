@@ -9,6 +9,7 @@ using Bicep.Cli.Helpers;
 using Bicep.Cli.Services;
 using Bicep.Core;
 using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Documentation;
 using Bicep.Core.Emit;
 using Bicep.Core.Exceptions;
@@ -280,14 +281,18 @@ public class CliJsonRpcServer(
     public async Task<GenerateDocsResponse> GenerateDocs(GenerateDocsRequest request, CancellationToken cancellationToken)
     {
         var compilation = await GetCompilation(compiler, request.Path);
-        var model = compilation.GetEntrypointSemanticModel();
         var diagnostics = GetDiagnostics(compilation).ToImmutableArray();
+        if (compilation.GetAllDiagnosticsByBicepFile().Values
+            .SelectMany(fileDiagnostics => fileDiagnostics)
+            .Any(diagnostic => diagnostic.IsError()))
+        {
+            return new(diagnostics, null);
+        }
 
+        var model = compilation.GetEntrypointSemanticModel();
         var options = docsOptionsResolver.Resolve(
             model.Configuration,
-            request.TemplateFile,
-            request.TemplateRoot,
-            request.CustomTemplateValues?.ToImmutableDictionary() ?? []);
+            request.CustomTemplateValues ?? []);
 
         var result = documentationGenerator.Generate(compilation, options, cancellationToken);
 

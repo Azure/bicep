@@ -6,7 +6,7 @@ import { hasNodesAtom } from "@/features/status";
 
 export interface GraphControlAvailability {
   canFitView: boolean;
-  canResetLayout: boolean;
+  canResetGraphLayout: boolean;
   canExportGraph: boolean;
 }
 
@@ -18,7 +18,7 @@ export const graphControlAvailabilityAtom = atom<GraphControlAvailability>((get)
 
   return {
     canFitView: hasNodes,
-    canResetLayout: hasNodes,
+    canResetGraphLayout: hasNodes,
     canExportGraph: hasNodes,
   };
 });

@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions;
-using Azure.Containers.ContainerRegistry;
 using Azure.Bicep.Types.Az;
+using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;

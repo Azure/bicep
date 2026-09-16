@@ -37,7 +37,7 @@ Source: "SetPath.ps1"; DestDir: "{app}\setup"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Run]
-Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -Command ""& '{app}\setup\SetPath.ps1' -AppPath '{app}' -Remove $false"" "; WorkingDir: {app}; Flags: runhidden
+Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""& '{app}\setup\SetPath.ps1' -AppPath '{app}' -Remove $false"" "; WorkingDir: {app}; Flags: runhidden
 
 [UninstallRun]
-Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -Command ""& '{app}\setup\SetPath.ps1' -AppPath '{app}' -Remove $true"" "; WorkingDir: {app}; Flags: runhidden
+Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""& '{app}\setup\SetPath.ps1' -AppPath '{app}' -Remove $true"" "; WorkingDir: {app}; Flags: runhidden

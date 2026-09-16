@@ -10,10 +10,10 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Testing.Mocks;
 using Bicep.Local.Extension.Host.Handlers;
 using Bicep.Local.Extension.Types.Attributes;
 using Bicep.Local.Extension.UnitTests.Assertions;
+using Bicep.Testing.Mocks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

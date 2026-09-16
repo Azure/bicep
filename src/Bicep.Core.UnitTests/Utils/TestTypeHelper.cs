@@ -33,6 +33,9 @@ namespace Bicep.Core.UnitTests.Utils
 
             public IEnumerable<ResourceTypeReference> GetAvailableTypes()
                 => resourceTypes.Keys;
+
+            public bool HasType(ResourceTypeReference reference)
+                => resourceTypes.ContainsKey(reference);
         }
 
         public static IResourceTypeProvider CreateAzResourceTypeProviderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)

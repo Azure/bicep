@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import type { AccessToken, TokenCredential } from "@azure/core-auth";
+
 import {
   authentication,
   AuthenticationGetSessionOptions,

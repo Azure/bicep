@@ -137,9 +137,7 @@ function configureExistingDotnetPath(userDataDir: string, dotnetRuntimePath: str
   const settingsPath = path.resolve(userDataDir, "User/settings.json");
   fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
 
-  const settings = fs.existsSync(settingsPath)
-    ? JSON.parse(fs.readFileSync(settingsPath, { encoding: "utf-8" }))
-    : {};
+  const settings = fs.existsSync(settingsPath) ? JSON.parse(fs.readFileSync(settingsPath, { encoding: "utf-8" })) : {};
 
   settings["dotnetAcquisitionExtension.existingDotnetPath"] = [
     { extensionId: "ms-azuretools.vscode-bicep", path: resolvedDotnetPath },

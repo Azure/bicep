@@ -35,7 +35,7 @@ dotnet build Bicep.sln
 # Run all tests
 dotnet test
 
-# Build VS Code extension (requires Node.js 20+)
+# Build VS Code extension (requires Node.js 22+)
 cd src/vscode-bicep && npm ci && npm run build
 
 # Build vscode-bicep-ui

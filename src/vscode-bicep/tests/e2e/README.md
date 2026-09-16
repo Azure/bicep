@@ -139,10 +139,10 @@ Marketplace, and that extension downloads a .NET runtime when the Bicep extensio
 under network isolation cannot reach either endpoint, so two optional environment variables let them supply
 both locally:
 
-| Variable | Purpose |
-| --- | --- |
-| `BICEP_DOTNET_EXTENSION_VSIX_PATH` | Path to a pre-downloaded `.vsix` for the .NET Install Tool, installed instead of resolving the extension from the Marketplace. |
-| `BICEP_DOTNET_RUNTIME_PATH` | Path to an existing `dotnet` executable. The runner writes it to `dotnetAcquisitionExtension.existingDotnetPath` so the .NET Install Tool skips its download. |
+| Variable                           | Purpose                                                                                                                                                       |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BICEP_DOTNET_EXTENSION_VSIX_PATH` | Path to a pre-downloaded `.vsix` for the .NET Install Tool, installed instead of resolving the extension from the Marketplace.                                |
+| `BICEP_DOTNET_RUNTIME_PATH`        | Path to an existing `dotnet` executable. The runner writes it to `dotnetAcquisitionExtension.existingDotnetPath` so the .NET Install Tool skips its download. |
 
 Both are unset for local development and public CI, which keep the default Marketplace and download behavior.
 

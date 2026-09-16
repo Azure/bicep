@@ -23,9 +23,14 @@ export type SampleGraphKey = keyof typeof SAMPLE_GRAPHS;
  * Navigate to the visual designer and wait for the React app to mount
  * and the initial sample graph (the dev fake channel pushes the
  * "Module graph" 50 ms after the READY notification) to render.
+ *
+ * `query` is appended to the URL to drive the dev fake channel, for example
+ * `{ catalogDelay: "3000" }` to hold resource-catalog loading states open.
  */
-export async function openVisualDesigner(page: Page): Promise<void> {
-  await page.goto("/");
+export async function openVisualDesigner(page: Page, query: Record<string, string> = {}): Promise<void> {
+  const search = new URLSearchParams(query).toString();
+
+  await page.goto(search ? `/?${search}` : "/");
   await expect(page.getByTestId("app-root")).toBeVisible();
   await expect(page.getByTestId("graph-canvas")).toBeVisible();
   await expect(page.getByTestId("dev-toolbar")).toBeVisible();
@@ -67,4 +72,34 @@ export async function getGraphTransform(page: Page): Promise<string> {
     if (!layer) return "";
     return layer.style.transform || getComputedStyle(layer).transform;
   });
+}
+
+/**
+ * Wait until a node has stopped moving.
+ *
+ * Two animations run after a graph loads: the fit-view transform, and each node's ~0.6s spring to its
+ * laid-out position. They are independent, so a settled transform does not mean settled nodes — and a
+ * node measured or dragged mid-spring keeps travelling to its target afterwards.
+ */
+export async function waitForStableNodePosition(page: Page, nodeId: string): Promise<{ x: number; y: number }> {
+  const node = page.locator(`[data-node-id="${nodeId}"]`);
+  let previous: string | null = null;
+
+  await expect
+    .poll(
+      async () => {
+        const box = await node.boundingBox();
+        const current = box ? `${Math.round(box.x)},${Math.round(box.y)}` : null;
+        const stable = current !== null && current === previous;
+        previous = current;
+
+        return stable;
+      },
+      { timeout: 10_000 },
+    )
+    .toBe(true);
+
+  const settled = await node.boundingBox();
+
+  return { x: settled!.x, y: settled!.y };
 }

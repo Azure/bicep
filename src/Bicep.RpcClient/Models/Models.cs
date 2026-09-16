@@ -287,26 +287,16 @@ public record FormatResponse(
 /// caller and is never written to disk.
 /// </summary>
 /// <param name="Path">Bicep file path to process.</param>
-/// <param name="TemplateFile">An optional custom Scriban template path.</param>
-/// <param name="TemplateRoot">An optional root directory for template includes.</param>
-/// <param name="CustomTemplateValues">Optional string values exposed to the template.</param>
-/// <param name="NoRestore">Whether external artifact restore is skipped.</param>
+/// <param name="CustomTemplateValues">Optional string values exposed to the configured template.</param>
 public record GenerateDocsRequest(
     string Path,
-    string? TemplateFile,
-    string? TemplateRoot,
-    Dictionary<string, string>? CustomTemplateValues,
-    bool NoRestore);
+    Dictionary<string, string>? CustomTemplateValues = null);
 
 /// <summary>
 /// Contains rendered documentation and diagnostics for one module.
 /// </summary>
-/// <param name="Diagnostics">Compiler and documentation diagnostics for the module.</param>
+/// <param name="Diagnostics">Compiler diagnostics for the module.</param>
 /// <param name="Contents">Rendered documentation, or <see langword="null"/> on failure.</param>
-/// <remarks>
-/// This record supports the experimental <c>bicep docs</c> command group and may change while that
-/// feature remains experimental.
-/// </remarks>
 public record GenerateDocsResponse(
     ImmutableArray<DiagnosticDefinition> Diagnostics,
     string? Contents);

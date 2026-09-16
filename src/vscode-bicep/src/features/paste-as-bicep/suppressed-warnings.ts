@@ -12,8 +12,10 @@ export class SuppressedWarningsManager {
   };
 
   public constructor(
-    private readonly provideBicepConfiguration: () => Pick<WorkspaceConfiguration, "get" | "update"> =
-      getBicepConfiguration,
+    private readonly provideBicepConfiguration: () => Pick<
+      WorkspaceConfiguration,
+      "get" | "update"
+    > = getBicepConfiguration,
   ) {
     // noop
   }

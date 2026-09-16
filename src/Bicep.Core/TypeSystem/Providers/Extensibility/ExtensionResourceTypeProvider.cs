@@ -17,7 +17,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
         private readonly ResourceTypeCache generatedTypeCache;
 
         public ExtensionResourceTypeProvider(ExtensionResourceTypeLoader resourceTypeLoader)
-            : base([.. resourceTypeLoader.GetAvailableTypes()])
+            : base(resourceTypeLoader.GetAvailableTypes())
         {
             this.resourceTypeLoader = resourceTypeLoader;
             definedTypeCache = new ResourceTypeCache();
@@ -214,7 +214,7 @@ namespace Bicep.Core.TypeSystem.Providers.Extensibility
         }
 
         public bool HasDefinedType(ResourceTypeReference typeReference)
-            => availableResourceTypes.Contains(typeReference);
+            => resourceTypeLoader.HasType(typeReference);
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;

@@ -13,20 +13,7 @@ namespace Bicep.Core.Emit
         public EmitterSettings(SemanticModel model)
         {
             FileKind = model.SourceFileKind;
-            UseExperimentalTemplateLanguageVersion = model.Features.EnabledFeatureMetadata.Any(feature => feature.usesExperimentalArmEngineFeature) ||
-                // @nullIfNotFound and this namespace are GA'd Bicep features but still require the experimental ARM engine language version.
-                model.DeclaredResources.Any(r => SemanticModelHelper.TryGetDecoratorInNamespace(
-                    model,
-                    r.Symbol.DeclaringResource,
-                    SystemNamespaceType.BuiltInName,
-                    LanguageConstants.NullIfNotFoundDecoratorName) is not null) ||
-                SyntaxAggregator.Aggregate(model.SourceFile.ProgramSyntax,
-                    seed: false,
-                    function: (found, syntax) => found ||
-                        (syntax is InstanceFunctionCallSyntax ifcs &&
-                         model.Binder.GetSymbolInfo(ifcs.BaseExpression) is LocalThisNamespaceSymbol),
-                    resultSelector: result => result,
-                    continuationFunction: (result, syntax) => !result);
+            UseExperimentalTemplateLanguageVersion = model.Features.EnabledFeatureMetadata.Any(feature => feature.usesExperimentalArmEngineFeature);
 
             // Symbolic names are used if (evaluated in increasing order of computational cost):
             EnableSymbolicNames =
@@ -74,7 +61,15 @@ namespace Bicep.Core.Emit
                         (syntax is ResourceDeclarationSyntax rds && ResourceRequiresSymbolicNames(model, rds)),
                     resultSelector: result => result,
                     continuationFunction: (result, syntax) => !result) ||
-                model.Root.ResourceDeclarations.Any(resource => resource.TryGetDecorator(model, SystemNamespaceType.BuiltInName, LanguageConstants.RetryOnPropertyName) is not null);
+                model.Root.ResourceDeclarations.Any(resource => resource.TryGetDecorator(model, SystemNamespaceType.BuiltInName, LanguageConstants.RetryOnPropertyName) is not null) ||
+                model.Root.ResourceDeclarations.Any(resource => resource.TryGetDecorator(model, SystemNamespaceType.BuiltInName, LanguageConstants.NullIfNotFoundDecoratorName) is not null) ||
+                SyntaxAggregator.Aggregate(model.SourceFile.ProgramSyntax,
+                    seed: false,
+                    function: (found, syntax) => found ||
+                        (syntax is InstanceFunctionCallSyntax ifcs &&
+                         model.Binder.GetSymbolInfo(ifcs.BaseExpression) is LocalThisNamespaceSymbol),
+                    resultSelector: result => result,
+                    continuationFunction: (result, syntax) => !result);
         }
 
         /// <summary>
