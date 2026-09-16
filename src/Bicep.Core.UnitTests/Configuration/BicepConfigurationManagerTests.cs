@@ -680,7 +680,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var chain = GetChain(fileSet);
             var compiler = chain.GetEffectiveConfiguration().Compiler;
 
-            compiler.Version.Should().NotBeNull();
+            compiler.Version!.ToString().Should().Be(">=0.30.0");
             compiler.DeclaringConfigUri.Should().Be(fileSet.GetUri("base/bicepconfig.base.json"));
         }
 
@@ -720,7 +720,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var chain = GetChain(fileSet);
             var compiler = chain.GetEffectiveConfiguration().Compiler;
 
-            compiler.Version.Should().NotBeNull();
+            compiler.Version!.ToString().Should().Be(">=0.30.0");
             compiler.DeclaringConfigUri.Should().Be(fileSet.GetUri("c/bicepconfig.c.json"));
         }
 
@@ -759,7 +759,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var chain = GetChain(fileSet);
             var compiler = chain.GetEffectiveConfiguration().Compiler;
 
-            compiler.Version.Should().NotBeNull();
+            compiler.Version!.ToString().Should().Be(">=0.30.0");
             compiler.DeclaringConfigUri.Should().Be(fileSet.GetUri("root/bicepconfig.root.json"));
         }
     }
