@@ -2093,9 +2093,9 @@ namespace Bicep.Core.Diagnostics
                 "BCP457",
                 $"The installed Bicep CLI version \"{runningVersion}\" could not be parsed, so the \"bicep.version\" constraint \"{constraint}\" specified by the {BuildBicepConfigurationClause(configFileUri)} could not be checked.");
 
-            public Diagnostic UntrustedCloudProfile(IOUri configFileUri) => CoreError(
+            public Diagnostic UntrustedCloudProfile(IOUri configFileUri, string profileName) => CoreError(
                 "BCP458",
-                $"The cloud profile selected by the Bicep configuration file \"{configFileUri}\" is not trusted. Use a built-in cloud profile or approve the exact custom profile through the {BicepEnvironmentVariables.TrustedClouds} environment variable.");
+                $"The cloud profile \"{profileName}\" selected by the Bicep configuration file \"{configFileUri}\" is not trusted. Use a built-in cloud profile or approve the exact custom profile through the {BicepEnvironmentVariables.TrustedClouds} environment variable.");
 
             public Diagnostic InvalidTrustedCloudsEnvironmentVariable(string parsingError) => CoreWarning(
                 "BCP459",

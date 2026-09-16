@@ -82,7 +82,9 @@ public class CloudConfigurationTrustPolicyTests
 
         policy.IsTrusted(cloud).Should().BeFalse();
         policy.IsAuthorityTrusted(cloud.ActiveDirectoryAuthorityUri).Should().BeFalse();
-        policy.Invoking(x => x.ThrowIfCloudIsUntrusted(cloud)).Should().Throw<InvalidOperationException>();
+        policy.Invoking(x => x.ThrowIfCloudIsUntrusted(cloud))
+            .Should().Throw<InvalidOperationException>()
+            .WithMessage($"The selected cloud profile \"Custom\" is not trusted. To use a custom cloud, add its endpoint and authority to the {BicepEnvironmentVariables.TrustedClouds} environment variable.");
         policy.Invoking(x => x.ThrowIfAuthorityIsUntrusted(cloud.ActiveDirectoryAuthorityUri)).Should().Throw<InvalidOperationException>();
     }
 
@@ -121,6 +123,8 @@ public class CloudConfigurationTrustPolicyTests
 
         policy.IsTrusted((CloudConfiguration)BicepConfiguration.BuiltIn.Cloud).Should().BeTrue();
         policy.Invoking(x => x.IsTrusted(cloud)).Should().Throw<JsonException>();
+        policy.TryGetIsTrusted(cloud).IsSuccess(out _, out var diagnostic).Should().BeFalse();
+        diagnostic!.Code.Should().Be("BCP459");
     }
 
     [TestMethod]

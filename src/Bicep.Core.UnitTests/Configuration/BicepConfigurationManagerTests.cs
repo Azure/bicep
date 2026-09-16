@@ -106,7 +106,9 @@ namespace Bicep.Core.UnitTests.Configuration
             configuration.IsBuiltIn.Should().BeTrue();
             configuration.Cloud.ResourceManagerEndpointUri.Should().Be(BicepConfiguration.BuiltIn.Cloud.ResourceManagerEndpointUri);
             configuration.Cloud.ActiveDirectoryAuthorityUri.Should().Be(BicepConfiguration.BuiltIn.Cloud.ActiveDirectoryAuthorityUri);
-            configuration.GetDiagnostics().Should().ContainSingle(diagnostic => diagnostic.Code == "BCP458");
+            configuration.GetDiagnostics().Should().ContainSingle(diagnostic =>
+                diagnostic.Code == "BCP458" &&
+                diagnostic.Message == $"The cloud profile \"Custom\" selected by the Bicep configuration file \"{fileSet.GetUri("bicepconfig.json")}\" is not trusted. Use a built-in cloud profile or approve the exact custom profile through the {BicepEnvironmentVariables.TrustedClouds} environment variable.");
         }
 
         [TestMethod]

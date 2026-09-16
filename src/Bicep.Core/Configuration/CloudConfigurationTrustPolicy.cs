@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Configuration;
 
@@ -13,9 +14,8 @@ public sealed class CloudConfigurationTrustPolicy
 
     private readonly Lazy<ImmutableHashSet<CloudProfileTrustPair>> additionalTrustedProfiles;
 
-    public CloudConfigurationTrustPolicy()
+    public CloudConfigurationTrustPolicy() : this(null)
     {
-        this.additionalTrustedProfiles = new(() => []);
     }
 
     private CloudConfigurationTrustPolicy(string? environmentValue)
@@ -32,6 +32,18 @@ public sealed class CloudConfigurationTrustPolicy
         return BuiltInTrustedProfiles.Contains(pair) || additionalTrustedProfiles.Value.Contains(pair);
     }
 
+    public ResultWithDiagnostic<bool> TryGetIsTrusted(IBicepCloudConfiguration cloud)
+    {
+        try
+        {
+            return IsTrusted(cloud);
+        }
+        catch (JsonException exception)
+        {
+            return new(DiagnosticBuilder.ForDocumentStart().InvalidTrustedCloudsEnvironmentVariable(exception.Message));
+        }
+    }
+
     public bool IsAuthorityTrusted(Uri authorityUri) =>
         BuiltInTrustedProfiles.Any(pair => pair.ActiveDirectoryAuthority == authorityUri) ||
         additionalTrustedProfiles.Value.Any(pair => pair.ActiveDirectoryAuthority == authorityUri);
@@ -40,7 +52,7 @@ public sealed class CloudConfigurationTrustPolicy
     {
         if (!IsTrusted(cloud))
         {
-            throw new InvalidOperationException($"The selected cloud profile is not trusted. To use a custom cloud, add its endpoint and authority to the {BicepEnvironmentVariables.TrustedClouds} environment variable.");
+            throw new InvalidOperationException($"The selected cloud profile \"{cloud.CurrentProfileName}\" is not trusted. To use a custom cloud, add its endpoint and authority to the {BicepEnvironmentVariables.TrustedClouds} environment variable.");
         }
     }
 

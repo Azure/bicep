@@ -562,7 +562,7 @@ output myOutput string = 'hello!'
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().StartWith($"{inputFile}(1,1) : Error BCP458: The cloud profile selected by the Bicep configuration file \"{configurationPath}\" is not trusted.");
+            error.Should().StartWith($"{inputFile}(1,1) : Error BCP458: The cloud profile \"Custom\" selected by the Bicep configuration file \"{configurationPath}\" is not trusted.");
             File.Exists(PathHelper.GetJsonOutputPath(inputFile)).Should().BeFalse();
         }
 

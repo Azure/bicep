@@ -216,16 +216,14 @@ public class BicepConfigurationManager : IBicepConfigurationManager
             return GetBuiltInChain(diagnostics: [DiagnosticBuilder.ForDocumentStart().InvalidBicepConfigFile(leafUri, exception.Message)]);
         }
 
-        try
+        if (!cloudTrustPolicy.TryGetIsTrusted(effectiveConfig.Cloud).IsSuccess(out var isTrusted, out var diagnostic))
         {
-            if (!cloudTrustPolicy.IsTrusted(effectiveConfig.Cloud))
-            {
-                return GetBuiltInChain(diagnostics: [ConfigDiagnosticBuilder.UntrustedCloudProfile(leafUri)]);
-            }
+            return GetBuiltInChain(diagnostics: [diagnostic]);
         }
-        catch (JsonException exception)
+
+        if (!isTrusted)
         {
-            return GetBuiltInChain(diagnostics: [ConfigDiagnosticBuilder.InvalidTrustedCloudsEnvironmentVariable(exception.Message)]);
+            return GetBuiltInChain(diagnostics: [ConfigDiagnosticBuilder.UntrustedCloudProfile(leafUri, effectiveConfig.Cloud.CurrentProfileName)]);
         }
 
         // Annotate moduleAliasesMock aliases with the URI of the config file that declared each one.
