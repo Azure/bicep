@@ -10,7 +10,8 @@ using Bicep.Core.Tracing;
 namespace Bicep.Core.AzureApi;
 
 public class ArmClientProvider(
-    ITokenCredentialFactory credentialFactory
+    ITokenCredentialFactory credentialFactory,
+    CloudConfigurationTrustPolicy cloudTrustPolicy
 ) : IArmClientProvider
 {
     public ArmClient CreateArmClient(TokenCredential credential, string? defaultSubscriptionId, ArmClientOptions options)
@@ -20,6 +21,8 @@ public class ArmClientProvider(
 
     public ArmClient CreateArmClient(IBicepConfiguration configuration, string? defaultSubscriptionId)
     {
+        cloudTrustPolicy.ThrowIfCloudIsUntrusted(configuration.Cloud);
+
         var options = new ArmClientOptions();
         options.Diagnostics.ApplySharedResourceManagerSettings();
         options.Environment = new ArmEnvironment(configuration.Cloud.ResourceManagerEndpointUri, configuration.Cloud.AuthenticationScope);

@@ -100,7 +100,7 @@ public class BuildParamsCommand(
 
     private async Task<ActiveSourceFileSet?> CreateWorkspaceWithParameterOverridesIfPresent(IOUri paramsFileUri)
     {
-        var parameterOverridesJson = environment.GetVariable("BICEP_PARAMETERS_OVERRIDES");
+        var parameterOverridesJson = environment.GetVariable(BicepEnvironmentVariables.ParametersOverrides);
 
         if (string.IsNullOrEmpty(parameterOverridesJson))
         {

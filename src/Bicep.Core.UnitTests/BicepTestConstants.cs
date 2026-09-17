@@ -97,6 +97,8 @@ namespace Bicep.Core.UnitTests
 
         public static readonly RegistryConfiguration TestRegistryConfiguration = new(PermitUntrustedRegistries: true);
 
+        public static readonly CloudConfigurationTrustPolicy TestCloudConfigurationTrustPolicy = new();
+
         public static IModuleDispatcher CreateModuleDispatcher(IServiceProvider services) => new ModuleDispatcher(CreateRegistryProvider(services));
 
         public static readonly NamespaceResolver DefaultNamespaceResolver = NamespaceResolver.Create([
@@ -152,7 +154,7 @@ namespace Bicep.Core.UnitTests
         public static BicepConfigurationManager CreateFilesystemConfigurationManager()
         {
             var fileExplorer = new FileSystemFileExplorer(new OnDiskFileSystem());
-            return new BicepConfigurationManager(fileExplorer);
+            return new BicepConfigurationManager(fileExplorer, TestCloudConfigurationTrustPolicy);
         }
 
         public static IFeatureProviderFactory CreateFeatureProviderFactory(FeatureProviderOverrides featureOverrides, IBicepConfigurationManager? configurationManager = null)

@@ -535,6 +535,75 @@ output myOutput string = 'hello!'
             error.Should().StartWith($"{inputFile}(1,1) : Error BCP271: Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 0.");
         }
 
+        [TestMethod]
+        public async Task Build_WithUntrustedCloudConfiguration_ShouldProduceConfigurationError()
+        {
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
+            var configurationPath = FileHelper.SaveResultFile(
+                this.TestContext,
+                "bicepconfig.json",
+                """
+                {
+                  "cloud": {
+                    "currentProfile": "Custom",
+                    "profiles": {
+                      "Custom": {
+                        "resourceManagerEndpoint": "https://management.example.invalid",
+                        "activeDirectoryAuthority": "https://login.example.invalid"
+                      }
+                    }
+                  }
+                }
+                """,
+                testOutputPath);
+
+            var (output, error, result) = await Bicep("build", inputFile);
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().StartWith($"{inputFile}(1,1) : Error BCP458: The cloud profile \"Custom\" selected by the Bicep configuration file \"{configurationPath}\" is not trusted.");
+            File.Exists(PathHelper.GetJsonOutputPath(inputFile)).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public async Task Build_WithInvalidTrustedCloudsEnvironmentVariable_ShouldProduceActionableWarning()
+        {
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
+            FileHelper.SaveResultFile(
+                this.TestContext,
+                "bicepconfig.json",
+                """
+                {
+                  "cloud": {
+                    "currentProfile": "Custom",
+                    "profiles": {
+                      "Custom": {
+                        "resourceManagerEndpoint": "https://management.example.invalid",
+                        "activeDirectoryAuthority": "https://login.example.invalid"
+                      }
+                    }
+                  }
+                }
+                """,
+                testOutputPath);
+            var settings = InvocationSettings.Default with
+            {
+                Environment = TestEnvironment.Default.WithVariables(
+                    (BicepEnvironmentVariables.TrustedClouds, "{ not json")),
+            };
+
+            var (output, error, result) = await Bicep(settings, "build", inputFile);
+
+            result.Should().Be(0);
+            output.Should().BeEmpty();
+            error.Should().StartWith($"{inputFile}(1,1) : Warning BCP459: The {BicepEnvironmentVariables.TrustedClouds} environment variable is invalid and custom cloud trust entries were ignored:");
+            error.Should().NotContain("System.Text.Json.JsonException");
+            error.Should().NotContain(" at ");
+            File.Exists(PathHelper.GetJsonOutputPath(inputFile)).Should().BeTrue();
+        }
+
         [DataRow([])]
         [DataRow(["--diagnostics-format", "defAULt"])]
         [DataTestMethod]
