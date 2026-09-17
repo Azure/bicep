@@ -1,0 +1,72 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmName": { "type": "string" },
+    "vnetName": { "type": "string" }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2024-03-01",
+      "name": "[parameters('vmName')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "hardwareProfile": { "vmSize": "Standard_D2s_v5" }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "newVnet",
+      "properties": {
+        "mode": "Incremental",
+        "expressionEvaluationOptions": { "scope": "outer" },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2023-11-01",
+              "name": "[parameters('vnetName')]",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "addressSpace": { "addressPrefixes": ["10.0.0.0/16"] },
+                "subnets": [
+                  {
+                    "name": "default",
+                    "properties": { "addressPrefix": "10.0.0.0/24" }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2022-09-01",
+              "name": "storage",
+              "properties": {
+                "mode": "Incremental",
+                "expressionEvaluationOptions": { "scope": "inner" },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "resources": [
+                    {
+                      "type": "Microsoft.Storage/storageAccounts",
+                      "apiVersion": "2023-05-01",
+                      "name": "hackathonstorage",
+                      "location": "westus",
+                      "kind": "StorageV2",
+                      "sku": { "name": "Standard_LRS" }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
