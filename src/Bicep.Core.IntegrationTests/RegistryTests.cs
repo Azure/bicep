@@ -199,8 +199,8 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetModuleInfoData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetModuleInfoData))]
         public async Task ModuleRestoreWithStuckFileLockShouldFailAfterTimeout(IEnumerable<ExternalModuleInfo> moduleInfos, int moduleCount, bool publishSource)
         {
             var dataSet = DataSets.Registry_LF;
@@ -263,8 +263,8 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetModuleInfoData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetModuleInfoData))]
         public async Task ForceModuleRestoreWithStuckFileLockShouldFailAfterTimeout(IEnumerable<ExternalModuleInfo> moduleInfos, int moduleCount, bool publishSource)
         {
             var dataSet = DataSets.Registry_LF;
@@ -333,8 +333,8 @@ namespace Bicep.Core.IntegrationTests
 
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetModuleInfoData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetModuleInfoData))]
         public async Task ForceModuleRestoreShouldRestoreAllModules(IEnumerable<ExternalModuleInfo> moduleInfos, int moduleCount, bool publishSource)
         {
             var dataSet = DataSets.Registry_LF;

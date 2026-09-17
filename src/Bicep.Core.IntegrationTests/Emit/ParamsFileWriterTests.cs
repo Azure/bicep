@@ -11,7 +11,7 @@ namespace Bicep.Core.IntegrationTests.Emit
     [TestClass]
     public class ParamsFileWriterTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(@"
 using 'main.bicep'
 

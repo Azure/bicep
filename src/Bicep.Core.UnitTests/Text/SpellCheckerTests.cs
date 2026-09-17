@@ -9,7 +9,7 @@ namespace Bicep.Core.UnitTests.Text
     [TestClass]
     public class SpellCheckerTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow([])]
         public void GetSpellingSuggestion_NullOrEmptyCandidatesEnumerable_ReturnsNull(string[] candidates)
         {
@@ -18,7 +18,7 @@ namespace Bicep.Core.UnitTests.Text
             result.Should().BeNull();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         public void GetSpellingSuggestion_EmptyCandidate_ReturnsNull()
         {
             var candidates = new[] { "", "" };
@@ -38,7 +38,7 @@ namespace Bicep.Core.UnitTests.Text
             result.Should().BeNull();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // maxLengthDifference = 1
         [DataRow("ooo", "ooooo", "oooooo")]
         [DataRow("ooooo", "ooo", "ooooooo")]
@@ -52,7 +52,7 @@ namespace Bicep.Core.UnitTests.Text
             result.Should().BeNull();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // maxLengthDifference = 1, maxDistance = 1
         [DataRow("ooo", "ooooo", "oooooo", "oxo", "oOO")]
         [DataRow("ooooo", "ooo", "ooooooo", "oooooo", "oOoOO")]
@@ -66,7 +66,7 @@ namespace Bicep.Core.UnitTests.Text
             result.Should().Be(candidates[^1]);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         // maxLengthDifference = 1, maxDistance = 1
         [DataRow("ooo", "ooooo", "oooooo", "oxx", "oooo", "oxo", "xoo")]
         [DataRow("ooo", "ooooo", "oooooo", "oxx", "oxo", "xoo", "oooo")]

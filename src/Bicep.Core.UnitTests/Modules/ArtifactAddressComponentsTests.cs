@@ -66,8 +66,8 @@ namespace Bicep.Core.UnitTests.Modules
             ExampleRegistryOfMaxLength.Should().HaveLength(255);
         }
 
-        [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
-        [DataTestMethod]
+        [DynamicData(nameof(GetValidCases), DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
         public void ValidReferenceShouldBeEqualToItself(ValidCase @case)
         {
             OciArtifactAddressComponents first = Parse(@case.Value);
@@ -75,8 +75,8 @@ namespace Bicep.Core.UnitTests.Modules
             VerifyEqual(first, second);
         }
 
-        [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
-        [DataTestMethod]
+        [DynamicData(nameof(GetValidCases), DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
         public void ValidReferenceShouldBeEqualWithCaseChanged(ValidCase @case)
         {
             OciArtifactAddressComponents first = Parse(@case.Value);
@@ -88,8 +88,8 @@ namespace Bicep.Core.UnitTests.Modules
             VerifyEqual(firstLower, firstUpper);
         }
 
-        [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
-        [DataTestMethod]
+        [DynamicData(nameof(GetValidCases), DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
         public void CharacterChanged_ShouldNotBeEqual(ValidCase @case)
         {
             string ModifyCharAt(string a, int index)

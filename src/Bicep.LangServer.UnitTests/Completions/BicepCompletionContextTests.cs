@@ -112,7 +112,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("var foo1 = [|]")]
         [DataRow("var foo2 = [ | ]")]
         [DataRow("var foo3 = [| ]")]
@@ -123,7 +123,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a value area in a single line array");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("var foo1 = [,|]")]
         [DataRow("var foo2 = [, |]")]
         [DataRow("var foo3 = [|,]")]
@@ -137,7 +137,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a value area in a single line array");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("var foo1 = [|, aSymbol]")]
         [DataRow("var foo2 = [ |, aSymbol]")]
         [DataRow("var foo3 = [ | , aSymbol]")]
@@ -148,7 +148,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a first value area in a single line array");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("var foo1 = [aSymbol,|, aSymbol]")]
         [DataRow("var foo2 = [aSymbol, |, aSymbol]")]
         [DataRow("var foo3 = [aSymbol,| , aSymbol]")]
@@ -161,7 +161,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a middle value area in a single line array");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("var foo1 = [aSymbol,|]")]
         [DataRow("var foo2 = [aSymbol, |]")]
         [DataRow("var foo3 = [aSymbol, | ]")]
@@ -172,7 +172,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a last value area in a single line array");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("var foo1 = |[]")]
         [DataRow("var foo2 = []|")]
         [DataRow("var foo3 = |[aSymbol]")]
@@ -187,7 +187,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
             context.Kind.Should().NotHaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is outside a closed single line array");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("var foo1 = [a|]")]
         [DataRow("var foo2 = [aSymbol, b|]")]
         [DataRow("var foo3 = [a|, bSymbol]")]
@@ -200,7 +200,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a value area in a single line array");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("module dummy 'modules/dummy.bicep' |")]
         [DataRow("module dummy 'modules/dummy.bicep' | {}")]
         public void ContextKind_Is_ModulePathFollower(string text)
@@ -210,7 +210,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
                 $"cursor in '{text}' should be a module path follower context");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("var foo1 = [a |]")]
         [DataRow("var foo2 = [| a]")]
         [DataRow("var foo3 = [aSymbol, b |]")]
@@ -223,7 +223,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
             context.Kind.Should().HaveFlag(BicepCompletionContextKind.ArrayItem, $"cursor in {text} is a value area in a single line array");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("var foo1 = [(|)]")]
         [DataRow("var foo2 = [((|))]")]
         [DataRow("var foo3 = [(( | ))]")]

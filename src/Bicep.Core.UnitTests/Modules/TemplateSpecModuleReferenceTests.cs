@@ -19,30 +19,30 @@ namespace Bicep.Core.UnitTests.Modules
     {
         private static readonly BicepFile DummyReferencingFile = BicepTestConstants.SourceFileFactory.CreateBicepFile(DummyFileHandle.Default, "");
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetEqualData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetEqualData))]
         public void Equals_SameReferences_ReturnsTrue(TemplateSpecModuleReference first, TemplateSpecModuleReference second) =>
             first.Equals(second).Should().BeTrue();
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetNotEqualData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetNotEqualData))]
         public void Equals_DifferentReferences_ReturnsFalse(TemplateSpecModuleReference first, TemplateSpecModuleReference second) =>
             first.Equals(second).Should().BeFalse();
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetEqualData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetEqualData))]
         public void GetHashCode_SameReferences_ReturnsEqualHashCode(TemplateSpecModuleReference first, TemplateSpecModuleReference second) =>
             first.GetHashCode().Should().Be(second.GetHashCode());
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetNotEqualData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetNotEqualData))]
         public void GetHashCode_DifferentReferences_ReturnsEqualHashCode(TemplateSpecModuleReference first, TemplateSpecModuleReference second) =>
             first.GetHashCode().Should().NotBe(second.GetHashCode());
 
         [DataRow("D9EEC7DB-8454-4EC1-8CD3-BB79D4CFEBEE/myRG/myTemplateSpec1:v123")]
         [DataRow("5AA8419E-AFEB-45F2-9078-ED2167AAF51C/test-rg/deploy:1.0.0")]
         [DataRow("D9EEC7DB-8454-4EC1-8CD3-BB79D4CFEBEE/myRG/myTemplateSpec1:v1")]
-        [DataTestMethod]
+        [TestMethod]
         public void TryParse_ValidReference_ReturnsParsedReference(string value)
         {
             var reference = Parse(value);
@@ -61,7 +61,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("Test-RG/ts1:v1.")]
         [DataRow("Test-RG/.:v2")]
         [DataRow(":v100")]
-        [DataTestMethod]
+        [TestMethod]
         public void TryParse_InvalidReference_ReturnsFalseAndSetsFailureBuilder(string rawValue)
         {
             TemplateSpecModuleReference.TryParse(DummyReferencingFile.LoadFeatures(), DummyReferencingFile.LoadConfiguration(), null, rawValue).IsSuccess(out var parsed, out var failureBuilder).Should().BeFalse();
@@ -70,7 +70,7 @@ namespace Bicep.Core.UnitTests.Modules
             failureBuilder!.Should().NotBeNull();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("prodRG", "mySpec:v1", null, "BCP212", "The Template Spec module alias name \"prodRG\" does not exist in the built-in Bicep configuration.")]
         [DataRow("testRG", "myModule:v2", "/bicepconfig.json", "BCP212", "The Template Spec module alias name \"testRG\" does not exist in the Bicep configuration \"/bicepconfig.json\".")]
         public void TryParse_AliasNotInConfiguration_ReturnsFalseAndSetsError(string aliasName, string referenceValue, string? configurationPath, string expectedCode, string expectedMessage)
@@ -86,7 +86,7 @@ namespace Bicep.Core.UnitTests.Modules
             errorBuilder!.Should().HaveMessage(expectedMessage);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("")]
         [DataRow(" ")]
         [DataRow("****")]
@@ -102,8 +102,8 @@ namespace Bicep.Core.UnitTests.Modules
             errorBuilder!.Should().HaveMessage($"The module alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetInvalidData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetInvalidData))]
         public void TryParse_InvalidAlias_ReturnsFalseAndSetsError(string aliasName, string referenceValue, IBicepConfiguration configuration, string expectedCode, string expectedMessage)
         {
             var bicepFile = CreateBicepFile(configuration);
@@ -115,8 +115,8 @@ namespace Bicep.Core.UnitTests.Modules
             errorBuilder!.Should().HaveMessage(expectedMessage);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidData), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetValidData))]
         public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName, string referenceValue, string fullyQualifiedReferenceValue, IBicepConfiguration configuration)
         {
             var bicepFile = CreateBicepFile(configuration);
@@ -175,7 +175,7 @@ namespace Bicep.Core.UnitTests.Modules
                 "testRG",
                 "mySpec:v1",
                 BicepTestConstants.CreateMockConfiguration(new()
-                {
+        {
                     ["moduleAliases.ts.testRG.resourceGroup"] = "production-resource-group",
                 }),
                 "BCP214",
@@ -187,7 +187,7 @@ namespace Bicep.Core.UnitTests.Modules
                 "prodRG",
                 "mySpec:v1",
                 BicepTestConstants.CreateMockConfiguration(new()
-                {
+        {
                     ["moduleAliases.ts.prodRG.subscription"] = "1E7593D0-FCD1-4570-B132-51E4FD254967",
                 },
                 "/bicepconfig.json"),
@@ -204,7 +204,7 @@ namespace Bicep.Core.UnitTests.Modules
                 "mySpec:v1",
                 "ts:1E7593D0-FCD1-4570-B132-51E4FD254967/production-resource-group/mySpec:v1",
                 BicepTestConstants.CreateMockConfiguration(new()
-                {
+        {
                     ["moduleAliases.ts.prodRG.subscription"] = "1E7593D0-FCD1-4570-B132-51E4FD254967",
                     ["moduleAliases.ts.prodRG.resourceGroup"] = "production-resource-group",
                 }),
@@ -216,7 +216,7 @@ namespace Bicep.Core.UnitTests.Modules
                 "mySpec:v2",
                 "ts:1E7593D0-FCD1-4570-B132-51E4FD254967/test-resource-group/mySpec:v2",
                 BicepTestConstants.CreateMockConfiguration(new()
-                {
+        {
                     ["moduleAliases.ts.testRG.subscription"] = "1E7593D0-FCD1-4570-B132-51E4FD254967",
                     ["moduleAliases.ts.testRG.resourceGroup"] = "test-resource-group",
                 }),

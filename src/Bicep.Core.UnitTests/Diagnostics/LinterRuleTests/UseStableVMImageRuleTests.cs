@@ -122,7 +122,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
               }
             }", "offer", "version")]
-        [DataTestMethod]
+        [TestMethod]
         public void TestRule(string text, params string[] useRecentApiVersions)
         {
             CompileAndTest(text, useRecentApiVersions);

@@ -182,7 +182,7 @@ public class BicepClientTests
             .Should().ThrowAsync<ArgumentException>().WithMessage("Invalid Bicep version format 'v0.1.1'. Expected format: 'x.y.z' where x, y, and z are integers.");
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("1.2", "Invalid Bicep version format '1.2'. Expected format: 'x.y.z' where x, y, and z are integers.")]
     [DataRow("v1.2.3", "Invalid Bicep version format 'v1.2.3'. Expected format: 'x.y.z' where x, y, and z are integers.")]
     [DataRow("1.2.3.4", "Invalid Bicep version format '1.2.3.4'. Expected format: 'x.y.z' where x, y, and z are integers.")]
@@ -193,7 +193,7 @@ public class BicepClientTests
             .Should().Throw<ArgumentException>().WithMessage(expectedMessage);
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("1.2.3")]
     [DataRow("0.0.0")]
     [DataRow("100.200.300")]

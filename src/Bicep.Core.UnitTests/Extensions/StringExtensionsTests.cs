@@ -34,7 +34,7 @@ namespace Bicep.Core.UnitTests.Extensions
             "^br:(?<registry>.+?)/(?<repo>.+?)[:@](?<tag>.+?)$",
             new string[] { "repo", "registry", "tag" },
             new string[] { "test/module1", "mockregistry.io", "v1" })]
-        [DataTestMethod]
+        [TestMethod]
         public void ExtractRegexGroups_ByGroupNames_Valid(string s, string regex, string[] groupNames, string[] expected)
         {
             var result = s.ExtractRegexGroups(regex, groupNames);
@@ -46,10 +46,10 @@ namespace Bicep.Core.UnitTests.Extensions
             "(?<one>:\\w)",
             new string[] { "one" },
             "No matches were found for regex (?<one>:\\w) in string \"hello there\"")]
-        [DataTestMethod]
+        [TestMethod]
         public void ExtractRegexGroups_ByGroupNames_Invalid(string s, string regex, string[] groupNames, string expectedError)
         {
-            var ex = Assert.ThrowsException<Exception>(() => s.ExtractRegexGroups(regex, groupNames));
+            var ex = Assert.Throws<Exception>(() => s.ExtractRegexGroups(regex, groupNames));
             ex.Message.Should().Be(nameof(StringExtensions.ExtractRegexGroups) + ": " + expectedError);
         }
 
@@ -69,7 +69,7 @@ namespace Bicep.Core.UnitTests.Extensions
             "br:mockregistry.io/test/module1:v1",
             "^br:(?<registry>.+?)/(?<repo>.+?)[:@](?<tag>.+?)$",
             new string[] { "mockregistry.io", "test/module1", "v1" })]
-        [DataTestMethod]
+        [TestMethod]
         public void ExtractRegexGroups_AllGroups_Valid(string s, string regex, string[] expected)
         {
             var result = s.ExtractRegexGroups(regex);
@@ -88,10 +88,10 @@ namespace Bicep.Core.UnitTests.Extensions
             "123456789",
             "[0-9]+",
             "No groups were found in regex [0-9]+")]
-        [DataTestMethod]
+        [TestMethod]
         public void ExtractRegexGroups_AllGroups_Invalid(string s, string regex, string expectedError)
         {
-            var ex = Assert.ThrowsException<Exception>(() => s.ExtractRegexGroups(regex));
+            var ex = Assert.Throws<Exception>(() => s.ExtractRegexGroups(regex));
             ex.Message.Should().Be(nameof(StringExtensions.ExtractRegexGroups) + ": " + expectedError);
         }
     }

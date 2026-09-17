@@ -15,7 +15,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     {
         [DataRow("prop", ".prop", "prop")]
         [DataRow("'complex-prop'", "['complex-prop']", "complex-prop")]
-        [DataTestMethod]
+        [TestMethod]
         public void NameofFunction_OnObjectProperty_ReturnsPropertyName(string propertyName, string propertyAccess, string expectedResult)
         {
             var result = CompilationHelper.Compile($$"""
@@ -217,7 +217,7 @@ output name string = nameof(sqlServer::databases[100].properties.collation)
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("name", "name")]
         [DataRow("type", "type")]
         [DataRow("location", "location")]
@@ -261,7 +261,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("'abc'")]
         [DataRow("123")]
         [DataRow("1+2-3")]

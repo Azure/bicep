@@ -60,7 +60,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         ",
             $"{description} Found possible secret: secure value 'indirection'"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void If_OutputReferencesSecureParam_ShouldFail(string text, params string[] expectedMessages)
         {
             CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages);
@@ -130,7 +130,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         ",
             $"{description} Found possible secret: secure value 'obj.secureProp'"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void If_OutputReferencesSecureParamProperty_ShouldFail(string text, params string[] expectedMessages)
         {
             CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages);
@@ -213,7 +213,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         ",
             $"{description} Found possible secret: secure value 'p.prop.nestedSecret'"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void If_OutputReferencesParamWithSecureProperty_ShouldFail(string text, params string[] expectedMessages)
         {
             CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages);
@@ -256,7 +256,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             output badResult string = p.prop.nestedInnocuousProperty
         "
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void If_OutputReferencesNonSecureParamProperty_ShouldPass(string text, params string[] expectedMessages)
         {
             CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages);
@@ -280,7 +280,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }
         "
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void If_ParamNotSecure_ShouldPass(string text, params string[] expectedMessages)
         {
             CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages);
@@ -322,7 +322,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }
         "
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void If_ListFunctionInOutput_AsResourceMethod_ShouldPass(string text, params string[] expectedMessages)
         {
             CompileAndTest(text, OnCompileErrors.Ignore, expectedMessages);
@@ -343,7 +343,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         ",
             $"{description} Found possible secret: function 'listAnything'"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void If_ListFunctionInOutput_AsResourceMethod_ThroughVariable_ShouldFail(string text, params string[] expectedMessages)
         {
             CompileAndTest(text, OnCompileErrors.Ignore, expectedMessages);
@@ -377,7 +377,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             // Output contains secret: badResult
             $"{description} Found possible secret: function 'listAnything'"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void If_ListFunctionInOutput_AsStandaloneFunction_ShouldFail(string text, params string[] expectedMessages)
         {
             CompileAndTest(text, OnCompileErrors.Ignore, expectedMessages);
@@ -397,7 +397,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             // Output contains secret: badResult
             $"{description} Found possible secret: function 'listAnything'"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void If_ListFunctionInOutput_AsAzInstanceFunction_ShouldFail(string text, params string[] expectedMessages)
         {
             CompileAndTest(text, OnCompileErrors.Ignore, expectedMessages);
@@ -426,7 +426,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         ",
             $"{description} Found possible secret: output name 'passwordNumber1' suggests a secret"
         )]
-        [DataTestMethod]
+        [TestMethod]
         public void If_OutputNameLooksLikePassword_ShouldFail(string text, params string[] expectedMessages)
         {
             CompileAndTest(text, OnCompileErrors.Ignore, expectedMessages);

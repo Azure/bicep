@@ -18,8 +18,8 @@ namespace Bicep.Core.UnitTests.TypeSystem;
 [TestClass]
 public class TypeHelperTests
 {
-    [DataTestMethod]
-    [DynamicData(nameof(GetPrimitiveCollapsePositiveTestCases), DynamicDataSourceType.Method)]
+    [TestMethod]
+    [DynamicData(nameof(GetPrimitiveCollapsePositiveTestCases))]
     public void Primitive_collapse_preserves_and_fuses_refinements(TypeSymbol expected, params TypeSymbol[] toCollapse)
     {
         var actual = TypeHelper.TryCollapseTypes(toCollapse);

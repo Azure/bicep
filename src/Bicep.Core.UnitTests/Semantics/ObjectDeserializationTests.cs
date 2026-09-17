@@ -99,19 +99,19 @@ namespace Bicep.Core.UnitTests.Semantics
             var correctList = new List<int> { 1, 2 };
             var correctObject = new Dictionary<string, int> { { "nestedInt", 1 }, };
 
-            Assert.AreEqual("someVal", jToken!["string"]);
-            Assert.AreEqual(123, jToken["int"]);
+            Assert.AreEqual("someVal", jToken!["string"]?.Value<string>());
+            Assert.AreEqual(123, jToken["int"]?.Value<int>());
 
             CollectionAssert.AreEqual(correctList, jToken["array"]?.ToObject<List<int>>());
-            Assert.AreEqual(1, jToken["array"]![0]);
-            Assert.AreEqual(2, jToken["array"]![1]);
+            Assert.AreEqual(1, jToken["array"]![0]?.Value<int>());
+            Assert.AreEqual(2, jToken["array"]![1]?.Value<int>());
 
             CollectionAssert.AreEqual(correctObject, jToken["object"]?["nestedObject"]?.ToObject<Dictionary<string, int>>());
-            Assert.AreEqual("someVal", jToken["object"]?["nestedString"]);
+            Assert.AreEqual("someVal", jToken["object"]?["nestedString"]?.Value<string>());
 
-            Assert.AreEqual(1, jToken["object"]?["nestedObject"]?["nestedInt"]);
-            Assert.AreEqual(1, jToken["object"]?["nestedArray"]![0]);
-            Assert.AreEqual(2, jToken["object"]?["nestedArray"]![1]);
+            Assert.AreEqual(1, jToken["object"]?["nestedObject"]?["nestedInt"]?.Value<int>());
+            Assert.AreEqual(1, jToken["object"]?["nestedArray"]![0]?.Value<int>());
+            Assert.AreEqual(2, jToken["object"]?["nestedArray"]![1]?.Value<int>());
         }
 
         [TestMethod]
@@ -134,7 +134,7 @@ namespace Bicep.Core.UnitTests.Semantics
 
             var span = new TextSpan(0, 10 - 0);
             new YamlObjectParser().TryExtractFromObject(invalidYml, null, [span]).IsSuccess(out _, out var errorDiagnostic);
-            Assert.AreEqual(errorDiagnostic!.Code, "BCP340");
+            Assert.AreEqual("BCP340", errorDiagnostic!.Code);
         }
 
         [TestMethod]
@@ -157,7 +157,7 @@ namespace Bicep.Core.UnitTests.Semantics
 
             var span = new TextSpan(0, 10 - 0);
             new JsonObjectParser().TryExtractFromObject(invalidJson, null, [span]).IsSuccess(out _, out var errorDiagnostic);
-            Assert.AreEqual(errorDiagnostic!.Code, "BCP186");
+            Assert.AreEqual("BCP186", errorDiagnostic!.Code);
         }
 
         [TestMethod]
@@ -167,7 +167,7 @@ namespace Bicep.Core.UnitTests.Semantics
             var arguments = new FunctionArgumentSyntax[4];
             new YamlObjectParser().TryExtractFromObject(json, null, [arguments[0]]).IsSuccess(out var jToken);
             var expectedValue = "```bicep\ndateTimeFromEpoch([epochTime: int]): string\n\n```\nConverts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.\n";
-            Assert.AreEqual(expectedValue, jToken!["documentation"]!["value"]);
+            Assert.AreEqual(expectedValue, jToken!["documentation"]!["value"]?.Value<string>());
         }
 
 
@@ -190,10 +190,10 @@ namespace Bicep.Core.UnitTests.Semantics
             var arguments = new FunctionArgumentSyntax[4];
             new YamlObjectParser().TryExtractFromObject(yml, null, [arguments[0]]).IsSuccess(out var jToken);
 
-            Assert.AreEqual("George Washington", jToken!["name"]);
-            Assert.AreEqual("400", jToken["addresses"]!["home"]!["street"]!["house_number"]);
-            Assert.AreEqual(89, jToken["age"]);
-            Assert.AreEqual("Louaryland", jToken["addresses"]!["home"]!["city"]);
+            Assert.AreEqual("George Washington", jToken!["name"]?.Value<string>());
+            Assert.AreEqual("400", jToken["addresses"]!["home"]!["street"]!["house_number"]?.Value<string>());
+            Assert.AreEqual(89, jToken["age"]?.Value<int>());
+            Assert.AreEqual("Louaryland", jToken["addresses"]!["home"]!["city"]?.Value<string>());
         }
 
         [TestMethod]
@@ -207,8 +207,8 @@ namespace Bicep.Core.UnitTests.Semantics
             var span = new TextSpan(0, 0);
             Assert.IsTrue(new YamlObjectParser().TryExtractFromObject(yml, null, [span]).IsSuccess(out var jToken));
 
-            Assert.AreEqual("10.0.0.0/17", jToken!["source"]);
-            Assert.AreEqual("10.0.0.0/17", jToken["alias"]);
+            Assert.AreEqual("10.0.0.0/17", jToken!["source"]?.Value<string>());
+            Assert.AreEqual("10.0.0.0/17", jToken["alias"]?.Value<string>());
         }
     }
 

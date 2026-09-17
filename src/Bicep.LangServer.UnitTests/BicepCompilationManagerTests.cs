@@ -49,7 +49,7 @@ namespace Bicep.LangServer.UnitTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(".arm")]
         [DataRow(".json")]
         [DataRow(".jsonc")]
@@ -80,7 +80,7 @@ namespace Bicep.LangServer.UnitTests
             document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Never);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(".arm")]
         [DataRow(".json")]
         [DataRow(".jsonc")]
@@ -116,7 +116,7 @@ namespace Bicep.LangServer.UnitTests
             document.Verify(m => m.SendNotification(It.IsAny<PublishDiagnosticsParams>()), Times.Never);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(LanguageConstants.LanguageId)]
         [DataRow(LanguageConstants.ParamsLanguageId)]
         public void UpsertCompilation_BicepFile_ShouldUpsertSuccessfully(string languageId)

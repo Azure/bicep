@@ -34,7 +34,7 @@ resource foo 'Microsoft.Resources/deployments@2021-04-01' existing = {
   name: name
 }
 """)]
-    [DataTestMethod]
+    [TestMethod]
     public void Linter_validation_should_warn_for_nested_deployment_resources(string text)
     {
         CompileAndTest(text, 1);
@@ -53,7 +53,7 @@ resource foo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   location: location
 }
 """)]
-    [DataTestMethod]
+    [TestMethod]
     public void Linter_validation_should_not_warn_for_non_deployment_resource_types(string text)
     {
         CompileAndTest(text, 0);

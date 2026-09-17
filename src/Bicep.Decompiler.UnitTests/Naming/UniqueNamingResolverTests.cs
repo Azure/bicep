@@ -10,7 +10,7 @@ namespace Bicep.Decompiler.UnitTests.Naming
     [TestClass]
     public class UniqueNamingResolverTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("testName", "test")]
         [DataRow("testRename", "testRename")]
         [DataRow("testName2", "test2")]
