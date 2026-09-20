@@ -1064,7 +1064,7 @@ output subscriptionScopeDifferentPrincipal string = az.getRoleAssignmentName({
             evaluated.Should().HaveValueAtPath("$.outputs['managementGroupScope'].value", "6aab5ec9-d102-539e-8b65-b053c060e64f");
             evaluated.Should().HaveValueAtPath("$.outputs['subscriptionScopeDifferentPrincipal'].value", "54e40269-cc30-57bd-8031-5ca4efc75fd5");
         }
-        }
+    }
 
     [TestMethod]
     public void Az_getsecret_params_cannot_be_dereferenced()
