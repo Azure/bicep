@@ -10,10 +10,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.Analyzers.Linter.Common;
 
 [TestClass]
-public class ModuleReferenceGraphTests
+public class ModuleReferenceEnumerationTests
 {
     [TestMethod]
-    public void Build_SimpleChain_IncludesAllFilesWithCorrectParentPointers()
+    public void EnumerateAllLocalModuleModelsTransitively_SimpleChain_IncludesEveryFileInTheChain()
     {
         var result = CompilationHelper.Compile(
             ("main.bicep", """
@@ -31,20 +31,15 @@ public class ModuleReferenceGraphTests
                 """));
 
         var entryPoint = result.Compilation.GetEntrypointSemanticModel();
-        var graph = entryPoint.GetModuleReferenceGraph();
+        var models = entryPoint.EnumerateAllLocalModuleModelsTransitively().ToList();
 
-        var entryPointUri = entryPoint.SourceFile.FileHandle.Uri;
-        var aUri = graph.Nodes.Keys.Single(uri => uri.ToString().EndsWith("a.bicep"));
-        var bUri = graph.Nodes.Keys.Single(uri => uri.ToString().EndsWith("b.bicep"));
-
-        graph.Nodes.Should().HaveCount(3);
-        graph.Nodes[entryPointUri].Parent.Should().BeNull();
-        graph.Nodes[aUri].Parent.Should().Be(entryPointUri);
-        graph.Nodes[bUri].Parent.Should().Be(aUri);
+        models.Should().HaveCount(2);
+        models.Select(m => m.SourceFile.FileHandle.Uri.ToString()).Should().Contain(uri => uri.EndsWith("a.bicep"));
+        models.Select(m => m.SourceFile.FileHandle.Uri.ToString()).Should().Contain(uri => uri.EndsWith("b.bicep"));
     }
 
     [TestMethod]
-    public void Build_DiamondDependency_VisitsSharedModuleOnlyOnce()
+    public void EnumerateAllLocalModuleModelsTransitively_DiamondDependency_VisitsSharedModuleOnlyOnce()
     {
         var result = CompilationHelper.Compile(
             ("main.bicep", """
@@ -70,14 +65,14 @@ public class ModuleReferenceGraphTests
                 """));
 
         var entryPoint = result.Compilation.GetEntrypointSemanticModel();
-        var graph = entryPoint.GetModuleReferenceGraph();
+        var models = entryPoint.EnumerateAllLocalModuleModelsTransitively().ToList();
 
-        // main + a + b + shared - shared must be visited exactly once, not twice.
-        graph.Nodes.Should().HaveCount(4);
+        // a + b + shared - shared must be visited exactly once, not twice.
+        models.Should().HaveCount(3);
     }
 
     [TestMethod]
-    public void Build_SameModuleReferencedTwiceFromSameFile_VisitsItOnlyOnce()
+    public void EnumerateLocalModuleModels_SameModuleReferencedTwiceFromSameFile_YieldsItOnlyOnceWhenDeduped()
     {
         var result = CompilationHelper.Compile(
             ("main.bicep", """
@@ -93,13 +88,13 @@ public class ModuleReferenceGraphTests
                 """));
 
         var entryPoint = result.Compilation.GetEntrypointSemanticModel();
-        var graph = entryPoint.GetModuleReferenceGraph();
 
-        graph.Nodes.Should().HaveCount(2);
+        var models = entryPoint.EnumerateAllLocalModuleModelsTransitively().ToList();
+        models.Should().HaveCount(1);
     }
 
     [TestMethod]
-    public void Build_BrokenModuleReference_SkipsGracefullyWithoutThrowing()
+    public void EnumerateAllLocalModuleModelsTransitively_BrokenModuleReference_SkipsGracefullyWithoutThrowing()
     {
         var result = CompilationHelper.Compile(
             ("main.bicep", """
@@ -109,16 +104,14 @@ public class ModuleReferenceGraphTests
                 """));
 
         var entryPoint = result.Compilation.GetEntrypointSemanticModel();
+        var models = entryPoint.EnumerateAllLocalModuleModelsTransitively().ToList();
 
-        var graph = entryPoint.GetModuleReferenceGraph();
-
-        // The broken reference contributes no node - only the entrypoint itself is present.
-        graph.Nodes.Should().HaveCount(1);
-        graph.Nodes.Values.Single().Parent.Should().BeNull();
+        // The broken reference contributes no model.
+        models.Should().BeEmpty();
     }
 
     [TestMethod]
-    public void Build_BrokenModuleReferenceAlongsideValidOne_KeepsValidNodeAndSkipsBrokenOne()
+    public void EnumerateAllLocalModuleModelsTransitively_BrokenModuleReferenceAlongsideValidOne_KeepsValidModelAndSkipsBrokenOne()
     {
         // main references one broken module and one valid module - the broken one shouldn't
         // affect the valid sibling.
@@ -136,14 +129,14 @@ public class ModuleReferenceGraphTests
                 """));
 
         var entryPoint = result.Compilation.GetEntrypointSemanticModel();
-        var graph = entryPoint.GetModuleReferenceGraph();
+        var models = entryPoint.EnumerateAllLocalModuleModelsTransitively().ToList();
 
-        // main + valid - the broken reference contributes no node.
-        graph.Nodes.Should().HaveCount(2);
+        models.Should().HaveCount(1);
+        models.Single().SourceFile.FileHandle.Uri.ToString().Should().EndWith("valid.bicep");
     }
 
     [TestMethod]
-    public void Build_BrokenModuleReferenceDeepInTheChain_DoesNotAffectAncestorsOrThrow()
+    public void EnumerateAllLocalModuleModelsTransitively_BrokenModuleReferenceDeepInTheChain_DoesNotAffectAncestorsOrThrow()
     {
         // main -> a (valid) -> broken. The break happens two levels down, not at the entrypoint.
         var result = CompilationHelper.Compile(
@@ -159,19 +152,18 @@ public class ModuleReferenceGraphTests
                 """));
 
         var entryPoint = result.Compilation.GetEntrypointSemanticModel();
-        var graph = entryPoint.GetModuleReferenceGraph();
+        var models = entryPoint.EnumerateAllLocalModuleModelsTransitively().ToList();
 
-        // main + a - the broken grandchild contributes no node and doesn't affect "a" itself.
-        graph.Nodes.Should().HaveCount(2);
-        graph.Nodes.Values.Should().Contain(n => ReferenceEquals(n.Parent, null)); // main
-        graph.Nodes.Values.Should().Contain(n => !ReferenceEquals(n.Parent, null)); // a
+        // Only "a" - the broken grandchild contributes no model and doesn't affect "a" itself.
+        models.Should().HaveCount(1);
+        models.Single().SourceFile.FileHandle.Uri.ToString().Should().EndWith("a.bicep");
     }
 
     [TestMethod]
-    public void Build_UnreferencedFileInCompilation_IsNotIncludedInGraph()
+    public void EnumerateAllLocalModuleModelsTransitively_UnreferencedFileInCompilation_IsNotIncluded()
     {
-        // "orphan.bicep" is in the compilation but unreferenced - the graph only includes files
-        // reached via `module`, not every file in the compilation.
+        // "orphan.bicep" is in the compilation but unreferenced - only files reached via `module`
+        // are included, not every file in the compilation.
         var result = CompilationHelper.Compile(
             ("main.bicep", """
                 module a 'a.bicep' = {
@@ -186,14 +178,14 @@ public class ModuleReferenceGraphTests
                 """));
 
         var entryPoint = result.Compilation.GetEntrypointSemanticModel();
-        var graph = entryPoint.GetModuleReferenceGraph();
+        var models = entryPoint.EnumerateAllLocalModuleModelsTransitively().ToList();
 
-        graph.Nodes.Should().HaveCount(2);
-        graph.Nodes.Keys.Should().NotContain(uri => uri.ToString().EndsWith("orphan.bicep"));
+        models.Should().HaveCount(1);
+        models.Select(m => m.SourceFile.FileHandle.Uri.ToString()).Should().NotContain(uri => uri.EndsWith("orphan.bicep"));
     }
 
     [TestMethod]
-    public void Build_EntrypointWithNoModules_ContainsOnlyTheEntrypoint()
+    public void EnumerateAllLocalModuleModelsTransitively_EntrypointWithNoModules_YieldsNothing()
     {
         var result = CompilationHelper.Compile(
             ("main.bicep", """
@@ -201,17 +193,16 @@ public class ModuleReferenceGraphTests
                 """));
 
         var entryPoint = result.Compilation.GetEntrypointSemanticModel();
-        var graph = entryPoint.GetModuleReferenceGraph();
+        var models = entryPoint.EnumerateAllLocalModuleModelsTransitively().ToList();
 
-        graph.Nodes.Should().HaveCount(1);
-        graph.Nodes.Values.Single().Model.Should().BeSameAs(entryPoint);
+        models.Should().BeEmpty();
     }
 
     [TestMethod]
-    public void Build_EachFileResolvesItsOwnBicepVersionConstraint_NotTheEntrypoints()
+    public void EnumerateAllLocalModuleModelsTransitively_EachYieldedModelResolvesItsOwnBicepVersionConstraint()
     {
         // main.bicep and a.bicep have different bicepconfig.json constraints (>=0.30.0 vs
-        // >=0.40.0). Each node's Constraint should reflect its own file, not the entrypoint's.
+        // >=0.40.0). Each model's Configuration should reflect its own file, not the entrypoint's.
         var result = CompilationHelper.Compile(
             ("main.bicep", """
                 module a 'a/a.bicep' = {
@@ -225,17 +216,14 @@ public class ModuleReferenceGraphTests
             ("a/bicepconfig.json", """{ "bicep": { "version": ">=0.40.0" } }"""));
 
         var entryPoint = result.Compilation.GetEntrypointSemanticModel();
-        var graph = entryPoint.GetModuleReferenceGraph();
+        var aModel = entryPoint.EnumerateAllLocalModuleModelsTransitively().Single();
 
-        var entryPointUri = entryPoint.SourceFile.FileHandle.Uri;
-        var aUri = graph.Nodes.Keys.Single(uri => uri.ToString().EndsWith("a.bicep"));
-
-        graph.Nodes[entryPointUri].Constraint!.ToString().Should().Be(">=0.30.0");
-        graph.Nodes[aUri].Constraint!.ToString().Should().Be(">=0.40.0");
+        entryPoint.Configuration.Compiler.Version!.ToString().Should().Be(">=0.30.0");
+        aModel.Configuration.Compiler.Version!.ToString().Should().Be(">=0.40.0");
     }
 
     [TestMethod]
-    public async Task Build_RegistryModuleReference_IsExcludedFromGraph()
+    public async Task EnumerateAllLocalModuleModelsTransitively_RegistryModuleReference_IsExcluded()
     {
         var fileSystem = new MockFileSystem();
         var clientFactory = await RegistryHelper.CreateMockRegistryClientWithPublishedModulesAsync(
@@ -252,8 +240,8 @@ public class ModuleReferenceGraphTests
                 """));
 
         var entryPoint = result.Compilation.GetEntrypointSemanticModel();
-        var graph = entryPoint.GetModuleReferenceGraph();
+        var models = entryPoint.EnumerateAllLocalModuleModelsTransitively().ToList();
 
-        graph.Nodes.Should().HaveCount(1);
+        models.Should().BeEmpty();
     }
 }
