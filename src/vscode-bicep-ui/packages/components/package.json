@@ -36,32 +36,32 @@
     "@storybook/addon-links": "^10.6.0",
     "@storybook/addon-themes": "^10.6.0",
     "@storybook/react-vite": "^10.6.0",
-    "@testing-library/dom": "^10.4.1",
+    "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
     "@types/d3-drag": "^3.0.7",
-    "@types/d3-selection": "^3.0.10",
+    "@types/d3-selection": "^3.0.12",
     "@types/d3-transition": "^3.0.8",
     "@types/d3-zoom": "^3.0.8",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.1.1",
-    "@vitest/coverage-v8": "^4.1.11",
+    "@vitest/coverage-v8": "^5.0.1",
     "@vscode-elements/elements": "^2.5.1",
     "@vscode/codicons": "^0.0.45",
     "eslint-plugin-storybook": "^10.6.0",
-    "happy-dom": "^20.14.3",
+    "happy-dom": "^20.14.5",
     "storybook": "^10.5.8",
     "styled-components": "^6.5.3",
     "vite": "^8.3.0",
     "vite-plugin-dts": "^5.1.0",
     "vite-plugin-lib-inject-css": "^2.2.1",
     "vite-plugin-svgr": "^5.2.0",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.1"
   },
   "dependencies": {
     "@react-hook/resize-observer": "^2.0.2",
     "jotai-family": "^1.1.0",
-    "motion": "^13.2.0"
+    "motion": "^13.4.0"
   }
 }
