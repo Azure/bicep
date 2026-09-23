@@ -633,10 +633,10 @@
   <data name="NoModuleNameRule_CodeFix" xml:space="preserve">
     <value>Remove module name</value>
   </data>
-  <data name="NoConflictingVersionConstraintsRuleDescription" xml:space="preserve">
+  <data name="NoConflictingVersionConstraintsRule_Description" xml:space="preserve">
     <value>The 'bicep.version' constraints declared across all Bicep files reachable from the entrypoint via local module references should combine into a single valid version range.</value>
   </data>
-  <data name="NoConflictingVersionConstraintsRuleMessageFormat" xml:space="preserve">
+  <data name="NoConflictingVersionConstraintsRule_MessageFormat" xml:space="preserve">
     <value>The "bicep.version" constraint "{0}" required by "{1}" cannot be satisfied together with the constraint "{2}" required by "{3}". No single Bicep version can satisfy both.</value>
   </data>
   <data name="NoLooserVersionConstraintInEntrypointRuleDescription" xml:space="preserve">

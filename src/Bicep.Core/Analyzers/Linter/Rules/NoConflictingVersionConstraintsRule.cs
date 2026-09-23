@@ -15,12 +15,12 @@ public sealed class NoConflictingVersionConstraintsRule : LinterRuleBase
 
     public NoConflictingVersionConstraintsRule() : base(
         code: Code,
-        description: CoreResources.NoConflictingVersionConstraintsRuleDescription,
+        description: CoreResources.NoConflictingVersionConstraintsRule_Description,
         LinterRuleCategory.DeploymentError)
     { }
 
     public override string FormatMessage(params object[] values)
-        => string.Format(CoreResources.NoConflictingVersionConstraintsRuleMessageFormat, values);
+        => string.Format(CoreResources.NoConflictingVersionConstraintsRule_MessageFormat, values);
 
     public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
     {
