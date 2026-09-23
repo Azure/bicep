@@ -14,12 +14,12 @@ public sealed class NoLooserVersionConstraintInEntrypointRule : LinterRuleBase
 
     public NoLooserVersionConstraintInEntrypointRule() : base(
         code: Code,
-        description: CoreResources.NoLooserVersionConstraintInEntrypointRuleDescription,
+        description: CoreResources.NoLooserVersionConstraintInEntrypointRule_Description,
         LinterRuleCategory.DeploymentError)
     { }
 
     public override string FormatMessage(params object[] values)
-        => string.Format(CoreResources.NoLooserVersionConstraintInEntrypointRuleMessageFormat, values);
+        => string.Format(CoreResources.NoLooserVersionConstraintInEntrypointRule_MessageFormat, values);
 
     public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
     {

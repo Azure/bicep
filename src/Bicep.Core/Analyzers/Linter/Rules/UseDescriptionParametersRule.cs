@@ -11,11 +11,11 @@ public sealed class UseDescriptionParametersRule : UseDescriptionRuleBase
 
     public UseDescriptionParametersRule() : base(
         code: Code,
-        description: CoreResources.UseDescriptionParametersRuleDescription)
+        description: CoreResources.UseDescriptionParametersRule_Description)
     { }
 
     public override string FormatMessage(params object[] values)
-        => string.Format(CoreResources.UseDescriptionParametersRuleMessageFormat, values);
+        => string.Format(CoreResources.UseDescriptionParametersRule_MessageFormat, values);
 
     protected override IEnumerable<DescriptionTarget> GetTargets(SemanticModel model)
         => model.Root.ParameterDeclarations

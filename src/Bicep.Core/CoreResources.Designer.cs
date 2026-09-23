@@ -414,18 +414,18 @@ namespace Bicep.Core {
         /// <summary>
         ///   Looks up a localized string similar to The &apos;bicep.version&apos; constraints declared across all Bicep files reachable from the entrypoint via local module references should combine into a single valid version range..
         /// </summary>
-        internal static string NoConflictingVersionConstraintsRuleDescription {
+        internal static string NoConflictingVersionConstraintsRule_Description {
             get {
-                return ResourceManager.GetString("NoConflictingVersionConstraintsRuleDescription", resourceCulture);
+                return ResourceManager.GetString("NoConflictingVersionConstraintsRule_Description", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to The &quot;bicep.version&quot; constraint &quot;{0}&quot; required by &quot;{1}&quot; cannot be satisfied together with the constraint &quot;{2}&quot; required by &quot;{3}&quot;. No single Bicep version can satisfy both..
         /// </summary>
-        internal static string NoConflictingVersionConstraintsRuleMessageFormat {
+        internal static string NoConflictingVersionConstraintsRule_MessageFormat {
             get {
-                return ResourceManager.GetString("NoConflictingVersionConstraintsRuleMessageFormat", resourceCulture);
+                return ResourceManager.GetString("NoConflictingVersionConstraintsRule_MessageFormat", resourceCulture);
             }
         }
         
@@ -585,18 +585,18 @@ namespace Bicep.Core {
         /// <summary>
         ///   Looks up a localized string similar to The &apos;bicep.version&apos; constraint declared in the entrypoint file should not be looser than the constraints declared in any of its referenced Bicep files..
         /// </summary>
-        internal static string NoLooserVersionConstraintInEntrypointRuleDescription {
+        internal static string NoLooserVersionConstraintInEntrypointRule_Description {
             get {
-                return ResourceManager.GetString("NoLooserVersionConstraintInEntrypointRuleDescription", resourceCulture);
+                return ResourceManager.GetString("NoLooserVersionConstraintInEntrypointRule_Description", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to The entrypoint&apos;s &apos;bicep.version&apos; constraint ({0}) is looser than the constraint &apos;{1}&apos; required by referenced file &apos;{2}&apos;. External tools that only inspect the entrypoint&apos;s constraint could install a Bicep version that is incompatible with the referenced file..
         /// </summary>
-        internal static string NoLooserVersionConstraintInEntrypointRuleMessageFormat {
+        internal static string NoLooserVersionConstraintInEntrypointRule_MessageFormat {
             get {
-                return ResourceManager.GetString("NoLooserVersionConstraintInEntrypointRuleMessageFormat", resourceCulture);
+                return ResourceManager.GetString("NoLooserVersionConstraintInEntrypointRule_MessageFormat", resourceCulture);
             }
         }
         

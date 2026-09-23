@@ -540,16 +540,16 @@
   <data name="NoDeploymentsResourcesRuleMessageFormat" xml:space="preserve">
     <value>Resource '{0}' of type '{1}' should instead be declared as a Bicep module.</value>
   </data>
-  <data name="NoConflictingVersionConstraintsRuleDescription" xml:space="preserve">
+  <data name="NoConflictingVersionConstraintsRule_Description" xml:space="preserve">
     <value>The 'bicep.version' constraints declared across all Bicep files reachable from the entrypoint via local module references should combine into a single valid version range.</value>
   </data>
-  <data name="NoConflictingVersionConstraintsRuleMessageFormat" xml:space="preserve">
+  <data name="NoConflictingVersionConstraintsRule_MessageFormat" xml:space="preserve">
     <value>The "bicep.version" constraint "{0}" required by "{1}" cannot be satisfied together with the constraint "{2}" required by "{3}". No single Bicep version can satisfy both.</value>
   </data>
-  <data name="NoLooserVersionConstraintInEntrypointRuleDescription" xml:space="preserve">
+  <data name="NoLooserVersionConstraintInEntrypointRule_Description" xml:space="preserve">
     <value>The 'bicep.version' constraint declared in the entrypoint file should not be looser than the constraints declared in any of its referenced Bicep files.</value>
   </data>
-  <data name="NoLooserVersionConstraintInEntrypointRuleMessageFormat" xml:space="preserve">
+  <data name="NoLooserVersionConstraintInEntrypointRule_MessageFormat" xml:space="preserve">
     <value>The entrypoint's 'bicep.version' constraint ({0}) is looser than the constraint '{1}' required by referenced file '{2}'. External tools that only inspect the entrypoint's constraint could install a Bicep version that is incompatible with the referenced file.</value>
   </data>
   <data name="ExperimentalFeatureNames_Asserts" xml:space="preserve">
