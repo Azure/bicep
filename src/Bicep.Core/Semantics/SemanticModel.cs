@@ -731,7 +731,12 @@ namespace Bicep.Core.Semantics
                     foreach (var diagnostic in diagnostics.GetDiagnostics())
                     {
                         yield return !isFromSameFile && extendsPath is not null && diagnostic is Diagnostic concreteDiagnostic
-                            ? concreteDiagnostic with { Span = extendsPath.Span, Fixes = [] }
+                            ? concreteDiagnostic with
+                            {
+                                Span = extendsPath.Span,
+                                Message = $"The value inherited for parameter \"{assignmentSymbol.Name}\" from \"{assignmentSymbol.Context.SourceFile.GetFileName()}\": {concreteDiagnostic.Message}",
+                                Fixes = [],
+                            }
                             : diagnostic;
                     }
                 }
