@@ -130,8 +130,8 @@ namespace Bicep.Cli.IntegrationTests
             error.Should().MatchRegex(@"The --documentation-uri should be a well formed uri string.");
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSetsWithDocUriAndPublishSource), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSetsWithDocUriAndPublishSource), DynamicDataDisplayName = nameof(GetTestDisplayName))]
         public async Task Publish_AllValidDataSets_ShouldSucceed(string testName, DataSet dataSet, string documentationUri, bool publishSource)
         {
             TestContext.WriteLine(testName);
@@ -248,8 +248,8 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetValidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Publish_ValidArmTemplateFile_AllValidDataSets_ShouldSucceed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -393,8 +393,8 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetInvalidDataSets), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Publish_InvalidFile_ShouldFail_WithExpectedErrorMessage(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -415,7 +415,7 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(
             null,
             "param description string",

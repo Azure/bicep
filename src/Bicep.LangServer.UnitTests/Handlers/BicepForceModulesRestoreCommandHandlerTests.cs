@@ -36,7 +36,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Handle_WithInvalidPath_ShouldThrowArgumentException(string path)
         {
             var compilationManager = StrictMock.Of<ICompilationManager>().Object;

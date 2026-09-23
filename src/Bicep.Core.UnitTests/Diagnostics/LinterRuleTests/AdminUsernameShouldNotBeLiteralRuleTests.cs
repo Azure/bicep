@@ -25,7 +25,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_UsesStringLiteral_ShouldFail(int diagnosticCount, string text)
         {
             CompileAndTest(text, diagnosticCount);
@@ -42,7 +42,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
             ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_UsesStringLiteral_And_AdminUserNameMismatchesCase_ShouldStillFail(int diagnosticCount, string text)
         {
             CompileAndTest(text, diagnosticCount);
@@ -61,7 +61,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_UsesStringLiteral_AndInsideChildResource_ShouldFail(int diagnosticCount, string text)
         {
             CompileAndTest(text, diagnosticCount);
@@ -91,7 +91,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_MultipleResources_FindsAllErrors(int diagnosticCount, string text)
         {
             CompileAndTest(text, diagnosticCount);
@@ -113,7 +113,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_MultiplePropertiesLevels_FindsAllErrors(int diagnosticCount, string text)
         {
             CompileAndTest(text, diagnosticCount);
@@ -132,7 +132,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_UsesParameter_ShouldPass(string text)
         {
             CompileAndTest(text, 0);
@@ -153,7 +153,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_UsesObjectParameterPropertyRef_ShouldPass(string text)
         {
             CompileAndTest(text, 0);
@@ -173,7 +173,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_UsesStringVariable_ShouldFail(int diagnosticCount, string text)
         {
             CompileAndTest(text, diagnosticCount);
@@ -191,7 +191,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_UsesStringInterpolation_ShouldPass(string text)
         {
             CompileAndTest(text, 0);
@@ -208,7 +208,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_UsesExpression_ShouldPass(string text)
         {
             CompileAndTest(text, 0);
@@ -233,7 +233,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_UsesObjectVariable_ThatResolvesToParameter_ShouldPass(string text)
         {
             CompileAndTest(text, 0);
@@ -258,7 +258,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_UsesObjectVariable_ThatResolvesToStringExpression_ShouldPass(string text)
         {
             CompileAndTest(text, 0);
@@ -283,7 +283,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_UsesObjectVariable_ThatResolvesToUndefined_ShouldPass(string text)
         {
             CompileAndTest(text, 0, new Options(OnCompileErrors.Ignore));
@@ -308,7 +308,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_UsesObjectVariables_ThatContainsSyntaxError_ShouldPass(string text)
         {
             CompileAndTest(text, 0, new Options(OnCompileErrors.Ignore));
@@ -333,7 +333,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_UsesObjectVariables_AndReferencesInvalidProperty_ShouldPass(string text)
         {
             CompileAndTest(text, 0, new Options(OnCompileErrors.Ignore));
@@ -356,7 +356,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_UsesObjectVariable_ThatResolvesToStringLiteral_ShouldFail(int diagnosticCount, string text)
         {
             CompileAndTest(text, diagnosticCount);
@@ -381,7 +381,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_UsesNestedObjectVariable_ThatResolvesToStringLiteral_ShouldFail(int diagnosticCount, string text)
         {
             CompileAndTest(text, diagnosticCount);
@@ -406,7 +406,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             }
         ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_UsesObjectVariable_ThatResolvesDeeplyToStringLiteral_ShouldFail(int diagnosticCount, string text)
         {
             CompileAndTest(text, diagnosticCount);
@@ -431,7 +431,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 adminUsername: 'hello'
             }
             ")]
-        [DataTestMethod]
+        [TestMethod]
         public void If_NotInsideResource_ShouldPass(string text)
         {
             CompileAndTest(text, 0);

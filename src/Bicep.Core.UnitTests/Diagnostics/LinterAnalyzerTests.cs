@@ -45,7 +45,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         }
 
         // No need to add new rules here, just checking a few known ones
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(AdminUsernameShouldNotBeLiteralRule.Code)]
         [DataRow(ExplicitValuesForLocationParamsRule.Code)]
         [DataRow(NoHardcodedEnvironmentUrlsRule.Code)]
@@ -98,14 +98,14 @@ namespace Bicep.Core.UnitTests.Diagnostics
             numberEnabled.Should().BeGreaterThan(ruleSet.Length / 2, "most rules should probably be enabled by default");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [TestData]
         public void AllRulesHaveDescription(IBicepAnalyzerRule rule)
         {
             rule.Description.Length.Should().BeGreaterThan(0);
         }
 
-        [DataTestMethod()]
+        [TestMethod]
         [TestData]
         public void RulesShouldNotSpecifyOverriddenDiagnosticLevel_UnlessDifferingFromCategoryDefault(IBicepAnalyzerRule rule)
         {

@@ -13,7 +13,7 @@ namespace Bicep.Core.UnitTests.SourceGraph
     [TestClass]
     public class RelativePathTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("C:\\Code\\file.txt")]
         [DataRow("d:/code/file.txt")]
         [DataRow("/home/code/file.txt")]
@@ -26,7 +26,7 @@ namespace Bicep.Core.UnitTests.SourceGraph
             error.Should().HaveMessage("The specified path seems to reference an absolute path. Files must be referenced using relative paths.");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("code/file.txt")]
         public void Relative_file_paths_succeed(string filePath)
         {
@@ -35,7 +35,7 @@ namespace Bicep.Core.UnitTests.SourceGraph
         }
 
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("code\\file.txt")]
         public void File_paths_with_backslash_fail(string filePath)
         {

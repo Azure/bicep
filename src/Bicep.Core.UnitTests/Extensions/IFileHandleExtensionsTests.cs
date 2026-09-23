@@ -20,7 +20,7 @@ namespace Bicep.Core.UnitTests.Extensions
     [TestClass]
     public class IFileHandleExtensionsTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("/main.json", true)]
         [DataRow("/main.jsonc", true)]
         [DataRow("/main.arm", true)]
@@ -38,7 +38,7 @@ namespace Bicep.Core.UnitTests.Extensions
             result.Should().Be(expectedResult);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("/main.bicep", true)]
         [DataRow("/main.txt", false)]
         public void IsBicepFile_VariousExtensions_ReturnsExpectedResult(string filePath, bool expectedResult)
@@ -54,7 +54,7 @@ namespace Bicep.Core.UnitTests.Extensions
             result.Should().Be(expectedResult);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("/main.bicepparam", true)]
         [DataRow("/main.txt", false)]
         public void IsBicepParamsFile_VariousExtensions_ReturnsExpectedResult(string filePath, bool expectedResult)
@@ -70,7 +70,7 @@ namespace Bicep.Core.UnitTests.Extensions
             result.Should().Be(expectedResult);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("Peek at this contents", 5, "Peek ")]
         [DataRow("Short", 10, "Short")]
         public void TryPeek_PositiveLength_ReturnsContentsUpToLength(string contents, int length, string expectedContents)

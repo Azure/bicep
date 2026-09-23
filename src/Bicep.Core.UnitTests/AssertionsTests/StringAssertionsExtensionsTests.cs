@@ -20,7 +20,7 @@ namespace Bicep.Core.UnitTests.AssertionsTests
             new[] { "Hello", "Dolly" },
             StringComparison.InvariantCultureIgnoreCase,
             "Did not expect string \"hello there\" to contain any of the strings: {\"Hello\"} because I said so.")]
-        [DataTestMethod]
+        [TestMethod]
         public void NotContainAny_WithStringComparison(string text, IEnumerable<string> values, StringComparison stringComparison, string? expectedFailureMessage)
         {
             string? actualMessage;

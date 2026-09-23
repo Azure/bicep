@@ -119,7 +119,7 @@ namespace Bicep.Core.IntegrationTests
                     "[join(map(references('multiModules'), lambda('m', lambdaVariables('m').outputs.modOutput1.value)), ',')]");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("""
 var loopVar = [for i in range(0, 2): {
   prop: map(containerWorkers, (w) => w.properties.ipAddress.ip)

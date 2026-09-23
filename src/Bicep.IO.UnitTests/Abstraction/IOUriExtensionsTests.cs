@@ -11,7 +11,7 @@ namespace Bicep.IO.UnitTests.Abstraction
     [TestClass]
     public class IOUriExtensionsTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("/a/b/c.txt", ".txt")]
         [DataRow("/a/b/c.tar.gz", ".gz")]
         [DataRow("/a/b/c", "")]
@@ -29,7 +29,7 @@ namespace Bicep.IO.UnitTests.Abstraction
             extension.ToString().Should().Be(expectedExtension);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("/a/b/c.txt", ".bak", "/a/b/c.bak")]
         [DataRow("/a/b/c.tar.gz", ".zip", "/a/b/c.tar.zip")]
         [DataRow("/a/b/c.tar.gz", "zip", "/a/b/c.tar.zip")]
@@ -48,7 +48,7 @@ namespace Bicep.IO.UnitTests.Abstraction
             newResourceIdentifier.Path.Should().Be(expectedPath);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("/a/b/c.txt", ".txt", true)]
         [DataRow("/a/b/c.txt", "txt", true)]
         [DataRow("/a/b/c.tar.gz", ".gz", true)]

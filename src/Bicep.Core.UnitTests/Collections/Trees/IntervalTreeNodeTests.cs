@@ -11,7 +11,7 @@ namespace Bicep.Core.UnitTests.Collections.Trees
     [TestClass]
     public class IntervalTreeNodeTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(0, -1)]
         [DataRow(100, 20)]
         [DataRow(10, 0)]
@@ -23,7 +23,7 @@ namespace Bicep.Core.UnitTests.Collections.Trees
                 .WithMessage($"The argument {nameof(end)} ({end}) cannot be smaller than the argument {nameof(start)} ({start}).");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(0, 0)]
         [DataRow(100, 200)]
         [DataRow(20, 21)]

@@ -28,7 +28,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataRow("ABCDABCDABCDABCDABCDABCDABCDABCDA", "ABCDABCDABCDABCDABCDABCDABCDABCDA$1ffffffff")]
         [DataRow("ABCDABCDABCDABCDABCDABCDABCDABCDAbC", "ABCDABCDABCDABCDABCDABCDABCDABCDAbC$5ffffffff")]
         [DataRow(OciArtifactModuleReferenceTests.ExampleTagOfMaxLength, OciArtifactModuleReferenceTests.ExampleTagOfMaxLength + "$ffffff800000000000")]
-        [DataTestMethod]
+        [TestMethod]
         public void EncoderShouldProduceExpectedOutput(string tag, string expected) => TagEncoder.Encode(tag).Should().Be(expected);
 
         [TestMethod]

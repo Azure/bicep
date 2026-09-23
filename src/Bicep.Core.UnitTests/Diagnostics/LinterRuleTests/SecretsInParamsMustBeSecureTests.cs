@@ -53,7 +53,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(@"@secure()
                    param password string")]
         [DataRow(@"param key string")]
-        [DataTestMethod]
+        [TestMethod]
         public void ExpectingPass(string bicep)
         {
             CompileAndTest(bicep, 0);
@@ -68,7 +68,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                    param password string", true)]
         [DataRow(@"@secure()
                    param password object", true)]
-        [DataTestMethod]
+        [TestMethod]
         public void ShouldOnlyFailForStringAndObject(string bicep, bool shouldPass)
         {
             CompileAndTest(bicep, shouldPass ? 0 : 1);
@@ -119,7 +119,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(true, @"param pass_secretname string")]
         [DataRow(true, @"param pass_keyVaultSecretName object")]
         [DataRow(false, @"param fail_secretNombre string")]
-        [DataTestMethod]
+        [TestMethod]
         public void AllowedListExceptions(bool shouldPass, string bicep)
         {
             CompileAndTest(bicep, shouldPass ? 0 : 1);

@@ -21,7 +21,7 @@ namespace Bicep.Core.UnitTests.FileSystem
             PathHelper.PathComparer.Should().BeSameAs(StringComparer.Ordinal);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("foo.json")]
         public void GetBuildOutputPath_ShouldThrowOnJsonExtensions_Linux(string path)
         {
@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests.FileSystem
             badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already has the '.json' extension.");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("foo.bicep")]
         public void GetDecompileOutputPath_ShouldThrowOnBicepExtensions_Linux(string path)
         {
@@ -44,7 +44,7 @@ namespace Bicep.Core.UnitTests.FileSystem
             PathHelper.PathComparer.Should().BeSameAs(StringComparer.OrdinalIgnoreCase);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("foo.json")]
         [DataRow("foo.JSON")]
         [DataRow("foo.JsOn")]
@@ -54,7 +54,7 @@ namespace Bicep.Core.UnitTests.FileSystem
             badExtension.Should().Throw<ArgumentException>().WithMessage("The specified file already has the '.json' extension.");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("foo.bicep")]
         [DataRow("foo.BICEP")]
         [DataRow("foo.BiCeP")]
@@ -65,29 +65,29 @@ namespace Bicep.Core.UnitTests.FileSystem
         }
 #endif
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetResolvePathData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetResolvePathData), DynamicDataDisplayName = nameof(GetDisplayName))]
         public void ResolvePath_ShouldResolveCorrectly(string path, string expectedPath)
         {
             PathHelper.ResolvePath(path).Should().Be(expectedPath);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetFilePathToFileUrlData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetFilePathToFileUrlData), DynamicDataDisplayName = nameof(GetDisplayName))]
         public void FilePathToFileUrl_ShouldResolveCorrectly(string path, string expectedPath)
         {
             PathHelper.FilePathToFileUrl(path).LocalPath.Should().Be(expectedPath);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetBuildOutputPathData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetBuildOutputPathData), DynamicDataDisplayName = nameof(GetDisplayName))]
         public void GetDefaultBuildOutputPath_ShouldChangeExtensionCorrectly(string path, string expectedPath)
         {
             PathHelper.GetJsonOutputPath(path).Should().Be(expectedPath);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetDecompileOutputPathData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetDecompileOutputPathData), DynamicDataDisplayName = nameof(GetDisplayName))]
         public void GetDefaultDecompileOutputPath_ShouldChangeExtensionCorrectly(string path, string expectedPath)
         {
             PathHelper.GetBicepOutputPath(path).Should().Be(expectedPath);

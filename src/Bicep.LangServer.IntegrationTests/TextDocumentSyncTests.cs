@@ -24,7 +24,7 @@ namespace Bicep.LangServer.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("/template.bicep")]
         [DataRow("untitled:Untitled-1")]
         public async Task DidOpenTextDocument_should_trigger_PublishDiagnostics(string uri)

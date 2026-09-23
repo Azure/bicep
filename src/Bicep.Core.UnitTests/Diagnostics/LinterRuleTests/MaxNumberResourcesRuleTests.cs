@@ -32,7 +32,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
                 """,
             new string[] { "Too many resources. Number of resources is limited to 800." })]
-        [DataTestMethod]
+        [TestMethod]
         public void TooManyResources(int i, int j, string pattern, string[] expectedMessages)
         {
             CompileAndTest(GenerateText(i, j, pattern), MaxNumberResourcesRule.Code, Core.Diagnostics.DiagnosticLevel.Error, expectedMessages);

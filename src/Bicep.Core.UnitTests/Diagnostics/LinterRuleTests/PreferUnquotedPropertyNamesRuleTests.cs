@@ -53,7 +53,7 @@ public class PreferUnquotedPropertyNamesRuleTests : LinterRuleTestsBase
             }",
         "myProp1"
     )]
-    [DataTestMethod]
+    [TestMethod]
     public void ObjectPropertyDeclaration(string text, string expectedFix)
     {
         ExpectDiagnosticWithFix(text, expectedFix);
@@ -71,7 +71,7 @@ public class PreferUnquotedPropertyNamesRuleTests : LinterRuleTestsBase
                 'my-property': {}
             }"
     )]
-    [DataTestMethod]
+    [TestMethod]
     public void ObjectPropertyDeclaration_NotValidIdentifier(string text)
     {
         ExpectPass(text);
@@ -89,7 +89,7 @@ public class PreferUnquotedPropertyNamesRuleTests : LinterRuleTestsBase
                 myProperty: {}
             }"
     )]
-    [DataTestMethod]
+    [TestMethod]
     public void ObjectPropertyDeclaration_AlreadyBare(string text)
     {
         ExpectPass(text);
@@ -113,7 +113,7 @@ public class PreferUnquotedPropertyNamesRuleTests : LinterRuleTestsBase
             var v1 = AnObject['myProp1']",
         ".myProp1"
     )]
-    [DataTestMethod]
+    [TestMethod]
     public void ObjectPropertyDereference(string text, string expectedFix)
     {
         ExpectDiagnosticWithFix(text, expectedFix);
@@ -129,7 +129,7 @@ public class PreferUnquotedPropertyNamesRuleTests : LinterRuleTestsBase
             param AnObject object
             var v1 = AnObject['my-property']"
     )]
-    [DataTestMethod]
+    [TestMethod]
     public void ObjectPropertyDereference_NotValidIdentifier(string text)
     {
         ExpectPass(text);
@@ -144,7 +144,7 @@ public class PreferUnquotedPropertyNamesRuleTests : LinterRuleTestsBase
                 location: AutomationAccountLocation
             }"
     )]
-    [DataTestMethod]
+    [TestMethod]
     public void NoPropertyDeclarationOrDereference_Passes(string text)
     {
         ExpectPass(text);

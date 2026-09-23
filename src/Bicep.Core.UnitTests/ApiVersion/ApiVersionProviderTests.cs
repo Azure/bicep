@@ -17,7 +17,7 @@ namespace Bicep.Core.UnitTests.ApiVersions
         [DataRow("invalid-text")]
         [DataRow("fake.Network/dnszones", "2415-05-04-preview", "2416-04-01", "2417-09-01", "2417-10-01", "2418-03-01-preview", "2418-05-01")]
         [DataRow("fAKE.NETWORK/DNSZONES", "2415-05-04-preview", "2416-04-01", "2417-09-01", "2417-10-01", "2418-03-01-preview", "2418-05-01")]
-        [DataTestMethod]
+        [TestMethod]
         public void GetApiVersions(string fullyQualifiedName, params string[] expected)
         {
             var apiVersionProvider = FakeResourceTypes.GetFakeApiVersionProvider(FakeResourceTypes.ResourceScopeTypes);

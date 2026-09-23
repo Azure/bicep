@@ -46,8 +46,8 @@ namespace Bicep.LangServer.IntegrationTests
         private const string RemoveUnusedVariableTitle = "Remove unused variable";
         private const string RemoveUnusedImportTitle = "Remove unused import";
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetData), DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task RequestingCodeActionWithFixableDiagnosticsShouldProduceQuickFixes(DataSet dataSet)
         {
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(this.TestContext);
@@ -362,7 +362,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
         [DataRow("array", "@maxLength()", MaxLengthTitle)]
         [DataRow("int", "@minValue()", MinValueTitle)]
         [DataRow("int", "@maxValue()", MaxValueTitle)]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Parameter_decorator_actions_are_suggested(string type, string decorator, string title)
         {
             (var codeActions, var bicepFile) = await RunParameterSyntaxTest(type);
@@ -396,7 +396,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
         [DataRow("object", "@maxLength()", MaxLengthTitle)]
         [DataRow("int", "@minValue()", MinValueTitle)]
         [DataRow("int", "@maxValue()", MaxValueTitle)]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Parameter_duplicate_decorators_are_not_suggested(string type, string decorator, string title)
         {
             (var codeActions, var bicepFile) = await RunParameterSyntaxTest(type, decorator);
@@ -420,7 +420,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
         [DataRow("bool", MaxValueTitle)]
         [DataRow("string", MaxValueTitle)]
         [DataRow("array", MaxValueTitle)]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Parameter_decorators_are_not_suggested_for_unsupported_type(string type, string title)
         {
             (var codeActions, var bicepFile) = await RunParameterSyntaxTest(type);
@@ -449,7 +449,7 @@ resource ap|p2 'Microsoft.Web/sites@2021-03-01' existing = {
                 name: 'app1'
             }
 ")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Unused_existing_resource_actions_are_suggested(string fileWithCursors, string expectedText)
         {
             (var codeActions, var bicepFile) = await GetCodeActionsForSyntaxTest(fileWithCursors, '|');
@@ -484,7 +484,7 @@ var foo2 = 'foo2'", "var foo2 = 'foo2'")]
         [DataRow(@"/* asdfds */var fo|o = 'asdf'", "")]
         [DataRow(@"/* asdf */var fo|o = 'asdf'
 var bar = 'asdf'", "var bar = 'asdf'")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Unused_variable_actions_are_suggested(string fileWithCursors, string expectedText)
         {
             (var codeActions, var bicepFile) = await GetCodeActionsForSyntaxTest(fileWithCursors, '|');
@@ -503,7 +503,7 @@ param as|df string = '123'", "#disable-next-line foo\n")]
         [DataRow(@"@secure()
 param fo|o string
 param foo2 string", "param foo2 string")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Unused_parameter_actions_are_suggested(string fileWithCursors, string expectedText)
         {
             (var codeActions, var bicepFile) = await GetCodeActionsForSyntaxTest(fileWithCursors, '|');
@@ -596,7 +596,7 @@ param foo2 string", "param foo2 string")]
         type t = string
         ",
         "import {  } from '../mod.bicep'")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Unused_import_actions_are_suggested(string fileWithCursors, string importFileText, string expectedText)
         {
             var importFile = new LanguageClientFile("/mod.bicep", importFileText);
@@ -631,7 +631,7 @@ param foo2 string", "param foo2 string")]
             "import * as mod |")]
         [DataRow(
             "import * as mod from '|'")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Unused_import_actions_are_not_suggested_for_invalid_import(string fileWithCursors)
         {
             var importFile = new LanguageClientFile("/mod.bicep", """
@@ -657,7 +657,7 @@ param foo2 string", "param foo2 string")]
 
         [DataRow("var|")]
         [DataRow("var |")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Unused_variable_actions_are_not_suggested_for_invalid_variables(string fileWithCursors)
         {
             var (codeActions, _) = await GetCodeActionsForSyntaxTest(fileWithCursors, '|');
@@ -666,7 +666,7 @@ param foo2 string", "param foo2 string")]
 
         [DataRow("param|")]
         [DataRow("param |")]
-        [DataTestMethod]
+        [TestMethod]
         public async Task Unused_parameter_actions_are_not_suggested_for_invalid_parameters(string fileWithCursors)
         {
             var (codeActions, _) = await GetCodeActionsForSyntaxTest(fileWithCursors, '|');

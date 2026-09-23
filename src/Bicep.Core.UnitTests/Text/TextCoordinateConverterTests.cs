@@ -27,7 +27,7 @@ namespace Bicep.Core.UnitTests.Text
             lineStarts[0].Should().Be(0);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("\r", new[] { 0, 1 })]
         [DataRow("\r\r\r\r", new[] { 0, 1, 2, 3, 4 })]
         [DataRow("foobar\r", new[] { 0, 7 })]
@@ -43,7 +43,7 @@ namespace Bicep.Core.UnitTests.Text
             lineStarts.Should().BeEquivalentTo(expectedLineStarts);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("\n", new[] { 0, 1 })]
         [DataRow("\n\n\n\n", new[] { 0, 1, 2, 3, 4 })]
         [DataRow("foobar\n", new[] { 0, 7 })]
@@ -59,7 +59,7 @@ namespace Bicep.Core.UnitTests.Text
             lineStarts.Should().BeEquivalentTo(expectedLineStarts);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("\r\n", new[] { 0, 2 })]
         [DataRow("\r\n\r\n\r\n\r\n", new[] { 0, 2, 4, 6, 8 })]
         [DataRow("foobar\r\n", new[] { 0, 8 })]
@@ -75,7 +75,7 @@ namespace Bicep.Core.UnitTests.Text
             lineStarts.Should().BeEquivalentTo(expectedLineStarts);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("\n\r", new[] { 0, 1, 2 })]
         [DataRow("\n\r\n", new[] { 0, 1, 3 })]
         [DataRow("\n\r\r", new[] { 0, 1, 2, 3 })]
@@ -118,16 +118,16 @@ namespace Bicep.Core.UnitTests.Text
             sut.Should().Throw<ArgumentException>().WithMessage("*must not be a negative number*");
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetTestDataForGetPosition), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetTestDataForGetPosition))]
         public void GetPosition_ValidLineStartsAndOffset_ReturnsConvertedPosition(int[] lineStarts, int offset, (int line, int character) expectedPosition)
         {
             var position = TextCoordinateConverter.GetPosition(lineStarts, offset);
             position.Should().Be(expectedPosition);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetTestDataForGetPosition), DynamicDataSourceType.Method)]
+        [TestMethod]
+        [DynamicData(nameof(GetTestDataForGetPosition))]
         public void GetOffset_ValidLineStartsAndOffset_ReturnsConvertedOffset(int[] lineStarts, int expectedOffset, (int line, int character) position)
         {
             var offset = TextCoordinateConverter.GetOffset(lineStarts, position.line, position.character);
