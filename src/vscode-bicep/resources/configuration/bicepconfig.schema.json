@@ -435,6 +435,16 @@
                     }
                   ]
                 },
+                "no-conflicting-version-constraints": {
+                  "allOf": [
+                    {
+                      "description": "The 'bicep.version' constraints declared across all Bicep files reachable from the entrypoint via local module references should combine into a single valid version range. Defaults to 'Error'. See https://aka.ms/bicep/linter-diagnostics#no-conflicting-version-constraints"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-error"
+                    }
+                  ]
+                },
                 "no-deployments-resources": {
                   "allOf": [
                     {
@@ -532,6 +542,16 @@
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "no-loose-entrypoint-version": {
+                  "allOf": [
+                    {
+                      "description": "The 'bicep.version' constraint declared in the entrypoint file should not be looser than the constraints declared in any of its referenced Bicep files. Defaults to 'Error'. See https://aka.ms/bicep/linter-diagnostics#no-loose-entrypoint-version"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-error"
                     }
                   ]
                 },
