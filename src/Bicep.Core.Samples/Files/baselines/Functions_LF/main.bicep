@@ -55,3 +55,8 @@ output likewildcardtest6 bool = like('aXbYa', 'a*b*a')
 output distinctTest array = distinct(['a','b','a','c','b'])
 output distinctTest2 array = distinct([1,2,3,1,2,4])
 output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])
+output roleAssignmentName string = getRoleAssignmentName({
+  scope: resourceGroup().id
+  principalId: '00000000-0000-0000-0000-000000000000'
+  roleDefinitionId: '00000000-0000-0000-0000-000000000001'
+})

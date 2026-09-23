@@ -30,7 +30,7 @@ public class FeatureProviderTests
             }
             """));
 
-        var configManager = new BicepConfigurationManager(fileSet.FileExplorer);
+        var configManager = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
         var configuration = configManager.GetEffectiveConfiguration(fileSet.GetUri("repo/main.bicep"));
         var fpm = new FeatureProviderFactory(configManager, fileSet.FileExplorer);
 
@@ -56,7 +56,7 @@ public class FeatureProviderTests
                 }
                 """));
 
-        var configManager = new BicepConfigurationManager(fileSet.FileExplorer);
+        var configManager = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy);
         var configuration = configManager.GetEffectiveConfiguration(fileSet.GetUri("repo/main.bicep"));
         var fpm = new FeatureProviderFactory(configManager, fileSet.FileExplorer);
 

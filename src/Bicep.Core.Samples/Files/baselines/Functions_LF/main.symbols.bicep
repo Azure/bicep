@@ -103,4 +103,10 @@ output distinctTest2 array = distinct([1,2,3,1,2,4])
 //@[07:020) Output distinctTest2. Type: array. Declaration start char: 0, length: 52
 output distinctTest3 array = distinct([{a:1}, {a:1}, {b:2}])
 //@[07:020) Output distinctTest3. Type: array. Declaration start char: 0, length: 60
+output roleAssignmentName string = getRoleAssignmentName({
+//@[07:025) Output roleAssignmentName. Type: string. Declaration start char: 0, length: 202
+  scope: resourceGroup().id
+  principalId: '00000000-0000-0000-0000-000000000000'
+  roleDefinitionId: '00000000-0000-0000-0000-000000000001'
+})
 

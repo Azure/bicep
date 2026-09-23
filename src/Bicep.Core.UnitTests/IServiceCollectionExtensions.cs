@@ -66,6 +66,9 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithEnvironmentVariables(this IServiceCollection services, params (string key, string? value)[] variables)
         => WithEnvironment(services, TestEnvironment.Default.WithVariables(variables));
 
+    public static IServiceCollection WithBicepVersion(this IServiceCollection services, string version, string? commitRef = null)
+        => WithEnvironment(services, TestEnvironment.Default.WithVersion(version, commitRef));
+
     public static IServiceCollection WithEnvironment(this IServiceCollection services, IEnvironment environment)
         => Register(services, environment);
 
