@@ -27,4 +27,21 @@
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
   </ItemGroup>
 
+  <!-- Copy the bicep CLI AppHost to the test output directory so tests can find it via Assembly.Location.
+       Uses AfterTargets="Build" (always runs even on incremental builds) and adds to @(FileWrites)
+       so IncrementalClean doesn't treat bicep as a stale file on subsequent builds. -->
+  <Target Name="CopyBicepAppHost" AfterTargets="Build">
+    <PropertyGroup>
+      <BicepExeName Condition="$([MSBuild]::IsOSPlatform('Windows'))">bicep.exe</BicepExeName>
+      <BicepExeName Condition="!$([MSBuild]::IsOSPlatform('Windows'))">bicep</BicepExeName>
+      <BicepCliAppHostPath>$(MSBuildThisFileDirectory)../Bicep.Cli/bin/$(Configuration)/$(TargetFramework)/$(BicepExeName)</BicepCliAppHostPath>
+      <BicepTargetPath>$(OutDir)$(BicepExeName)</BicepTargetPath>
+    </PropertyGroup>
+    <Message Text="CopyBicepAppHost: source=$(BicepCliAppHostPath) exists=$([System.IO.File]::Exists('$(BicepCliAppHostPath)'))" Importance="normal" />
+    <Copy SourceFiles="$(BicepCliAppHostPath)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" Condition="Exists('$(BicepCliAppHostPath)')" />
+    <ItemGroup Condition="Exists('$(BicepCliAppHostPath)')">
+      <FileWrites Include="$(BicepTargetPath)" />
+    </ItemGroup>
+  </Target>
+
 </Project>

@@ -45,6 +45,8 @@ namespace Bicep.Core.Configuration
 
         public CredentialOptions? CredentialOptions => this.Data.CredentialOptions;
 
+        public string CurrentProfileName => this.Data.CurrentProfileName;
+
         public Uri ResourceManagerEndpointUri { get; }
 
         public Uri ActiveDirectoryAuthorityUri { get; }

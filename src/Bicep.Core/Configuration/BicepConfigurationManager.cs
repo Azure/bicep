@@ -22,10 +22,12 @@ public class BicepConfigurationManager : IBicepConfigurationManager
     private readonly ConcurrentDictionary<IFileHandle, ResultWithDiagnostic<IBicepConfigurationChain>> chainCache = new();
     private readonly ConcurrentDictionary<IFileHandle, ImmutableHashSet<IOUri>> chainDependencies = new();
     private readonly IFileExplorer fileExplorer;
+    private readonly CloudConfigurationTrustPolicy cloudTrustPolicy;
 
-    public BicepConfigurationManager(IFileExplorer fileExplorer)
+    public BicepConfigurationManager(IFileExplorer fileExplorer, CloudConfigurationTrustPolicy cloudTrustPolicy)
     {
         this.fileExplorer = fileExplorer;
+        this.cloudTrustPolicy = cloudTrustPolicy;
     }
 
     public IBicepConfigurationChain GetConfigurationChain(IOUri sourceFileUri)
@@ -105,7 +107,7 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         return this.chainDependencies.TryGetValue(leafHandle, out var deps) ? deps : [];
     }
 
-    private static IBicepConfigurationChain GetBuiltInChain(IEnumerable<IDiagnostic>? diagnostics = null)
+    private IBicepConfigurationChain GetBuiltInChain(IEnumerable<IDiagnostic>? diagnostics = null)
     {
         var builtInConfig = GetBuiltInConfiguration(diagnostics);
 
@@ -194,7 +196,7 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         return new(BuildChain(leafUri, rawLayers));
     }
 
-    private static IBicepConfigurationChain BuildChain(IOUri leafUri, List<(IFileHandle FileHandle, JsonElement Element)> rawLayers)
+    private IBicepConfigurationChain BuildChain(IOUri leafUri, List<(IFileHandle FileHandle, JsonElement Element)> rawLayers)
     {
         // Merge: built-in first, then base configs in reverse order, leaf last (leaf wins).
         var accumulated = BicepConfiguration.BuiltInConfigurationElement;
@@ -214,6 +216,16 @@ public class BicepConfigurationManager : IBicepConfigurationManager
             return GetBuiltInChain(diagnostics: [DiagnosticBuilder.ForDocumentStart().InvalidBicepConfigFile(leafUri, exception.Message)]);
         }
 
+        if (!cloudTrustPolicy.TryGetIsTrusted(effectiveConfig.Cloud).IsSuccess(out var isTrusted, out var diagnostic))
+        {
+            return GetBuiltInChain(diagnostics: [diagnostic]);
+        }
+
+        if (!isTrusted)
+        {
+            return GetBuiltInChain(diagnostics: [ConfigDiagnosticBuilder.UntrustedCloudProfile(leafUri, effectiveConfig.Cloud.CurrentProfileName)]);
+        }
+
         // Annotate moduleAliasesMock aliases with the URI of the config file that declared each one.
         // Walk rawLayers, leaf-first: the first layer that contains an alias is the declaring layer.
         var declaringUriMap = BuildAliasDeclaringUriMap(rawLayers);
@@ -224,6 +236,14 @@ public class BicepConfigurationManager : IBicepConfigurationManager
             effectiveConfig = effectiveConfig.With(moduleAliasesMock: annotatedMock);
         }
 
+        // Track the config file that declared "bicep.version", so version-constraint diagnostics can point users at the exact file to edit.
+        if (FindCompilerVersionDeclaringUri(rawLayers) is { } compilerVersionDeclaringUri)
+        {
+            var annotatedCompiler = ((CompilerConfiguration)effectiveConfig.Compiler)
+                .WithDeclaringUri(compilerVersionDeclaringUri);
+            effectiveConfig = effectiveConfig.With(compiler: annotatedCompiler);
+        }
+
         // Build per-layer configs so diagnostics can be attributed to the exact file that caused them.
         var layers = rawLayers
             .Select(layer =>
@@ -232,7 +252,7 @@ public class BicepConfigurationManager : IBicepConfigurationManager
                 {
                     var merged = BicepConfiguration.BuiltInConfigurationElement.Merge(StripExtendsProperty(layer.Element));
 
-                    return (IBicepConfiguration)BicepConfiguration.Bind(merged, layer.FileHandle.Uri);
+                    return BicepConfiguration.Bind(merged, layer.FileHandle.Uri);
                 }
                 catch (ConfigurationException)
                 {
@@ -273,6 +293,26 @@ public class BicepConfigurationManager : IBicepConfigurationManager
         }
 
         return map.ToImmutable();
+    }
+
+    /// <summary>
+    /// Finds the URI of the config file layer that declares "bicep.version", walking leaf-first so the
+    /// most-derived declaration wins. Returns null if no layer declares it.
+    /// </summary>
+    private static IOUri? FindCompilerVersionDeclaringUri(
+        List<(IFileHandle FileHandle, JsonElement Element)> rawLayers)
+    {
+        foreach (var (fileHandle, element) in rawLayers) // leaf first
+        {
+            if (element.TryGetProperty(BicepConfiguration.CompilerKey, out var compilerElement) &&
+                compilerElement.TryGetProperty("version", out var versionElement) &&
+                versionElement.ValueKind != JsonValueKind.Null)
+            {
+                return fileHandle.Uri;
+            }
+        }
+
+        return null;
     }
 
     private static JsonElement StripExtendsProperty(JsonElement element)

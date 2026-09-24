@@ -184,7 +184,7 @@ public class DockerCredentialProvider : ICredentialProvider
         try
         {
             using var stream = fileSystem.File.OpenRead(configPath);
-            using var document = JsonDocument.Parse(stream);
+            using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
 
             if (document.RootElement.TryGetProperty("auths", out var auths) && auths.ValueKind == JsonValueKind.Object)
             {

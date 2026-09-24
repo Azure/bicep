@@ -330,7 +330,7 @@ jobs:
         with:
           vs-version: '[18.0,)'
 
-      - name: Build Bicep.sln
+      - name: Build Bicep.slnx
         run: dotnet build --configuration release
 
       - name: Build BicepInVisualStudio.sln
@@ -844,7 +844,7 @@ jobs:
         run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
 
       - name: Az CLI login
-        uses: azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c # v3
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3
         with:
           environment: ${{ (matrix.environment == 'prod' && 'AzureCloud') || 'AzureUSGovernment' }}
           client-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_CLIENT_ID_PROD) || secrets.LIVE_TEST_CLIENT_ID_FF }}
@@ -903,7 +903,7 @@ jobs:
         run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
 
       - name: Az CLI login
-        uses: azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c # v3
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3
         with:
           environment: ${{ (matrix.environment == 'prod' && 'AzureCloud') || 'AzureUSGovernment' }}
           client-id: ${{ (matrix.environment == 'prod' && secrets.LIVE_TEST_CLIENT_ID_PROD) || secrets.LIVE_TEST_CLIENT_ID_FF }}
