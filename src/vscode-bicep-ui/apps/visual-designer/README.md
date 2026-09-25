@@ -29,6 +29,39 @@ npm run e2e
 `npm run dev` loads a fake extension host. E2E tests use query parameters such as `catalogDelay` to
 make loading and concurrency states deterministic.
 
+The bottom-center creation dock is gated by the experimental resource-creation setting. Resources
+opens a compact popover; Modules and Notes are keyboard-discoverable, disabled coming-soon tools.
+Each resource shows its API version as a pill: quiet text at rest, with pill chrome revealed on row
+hover or focus, and kept when the selection differs from the host default. Clicking it (or pressing
+Arrow keys, Enter, or Space
+while it is focused) opens a version list; versions load on first focus or open. Resources are added
+only by dragging the icon/type area onto the canvas, which inserts the selected version where it is
+dropped; clicking or pressing keys on a resource does not insert. A press becomes a drag only after
+the pointer moves 4px, so clicks never flash a drag preview, and Escape during a drag cancels only the drag. Choices
+survive browsing, searching, and closing the palette until the provider catalog changes. Escape or
+toggling Resources closes the popover and restores focus to the dock. The passive top-left target
+scope remains visible independently of creation enablement. The palette offers only resource types
+that can be deployed at the opened file's `targetScope`, since resources are inserted there as
+top-level declarations; changing the scope refreshes the catalog and resets version choices.
+
+The version list opens immediately and shows progress, or an error with retry, until versions
+arrive. It renders in the top layer so the palette's scroll area never clips it; Escape closes only
+the list, and scrolling or resizing dismisses it.
+
+Fake-host controls include **Document target scope** and **Change catalog**. Query parameters:
+
+| Parameter                | Purpose                                                                               |
+| ------------------------ | ------------------------------------------------------------------------------------- |
+| `resourceCreation=false` | Hide the entire creation dock                                                         |
+| `targetScope=tenant`     | Initial document scope (`resourceGroup`, `subscription`, `managementGroup`, `tenant`) |
+| `catalogDelay=5000`      | Delay type/search responses in milliseconds                                           |
+| `versionsDelay=1000`     | Delay per-type API-version responses in milliseconds                                  |
+| `versionFailures=1`      | Fail the first N version requests to exercise retry                                   |
+| `catalogSize=2300`       | Add N synthetic types shaped like the real Azure catalog, for profiling at scale      |
+
+The fake catalog includes stable, preview, and preview-only fixtures with per-type deployment scopes,
+filtered by the selected document target scope like the language server.
+
 ## Architecture
 
 | Area           | Responsibility                                                            |
@@ -151,6 +184,7 @@ The coordinator enforces these rules:
 - A `graphChanged` layout response schedules reconciliation and retries the same layout mode.
 - Source mutations run serially.
 - An update response that overlaps a mutation is discarded and fetched again.
+- A response superseded by a document notification is discarded, including its target-scope metadata.
 - Request promises settle when all currently pending work has completed.
 
 See [Architecture](./docs/architecture.md) for graph synchronization, layout, and resource creation.

@@ -23,6 +23,7 @@ import { CanvasActionsContext } from "../context/CanvasActionsContext";
 import { useCanvasController } from "../hooks/use-canvas-controller";
 import { NodeContentProvider } from "./nodes/NodeContentProvider";
 import { PendingResourceLayer } from "./PendingResourceLayer";
+import { ScopeIndicator } from "./ScopeIndicator";
 
 const $CanvasWrapper = styled.div`
   position: absolute;
@@ -110,19 +111,12 @@ export function Canvas({ children }: CanvasProps) {
   );
 
   const createResource = useCallback(
-    async (resourceType: ResourceTypeReference, clientPoint?: Point) => {
+    async (resourceType: ResourceTypeReference, clientPoint: Point) => {
       if (!canvasElement) {
         return;
       }
 
-      const bounds = canvasElement.getBoundingClientRect();
-      // No point means "wherever this surface puts things by default", which for keyboard
-      // activation is the middle of the visible canvas.
-      const point = clientPoint ?? {
-        x: bounds.left + bounds.width / 2,
-        y: bounds.top + bounds.height / 2,
-      };
-      const origin = viewportToGraphPoint(point, bounds, getPanZoomTransform());
+      const origin = viewportToGraphPoint(clientPoint, canvasElement.getBoundingClientRect(), getPanZoomTransform());
 
       if (origin) {
         await createResourceAt(resourceType, origin);
@@ -150,6 +144,7 @@ export function Canvas({ children }: CanvasProps) {
         </ThemeProvider>
       </NodeContentProvider>
       <ExportPreviewLayer />
+      <ScopeIndicator />
       {children}
     </CanvasActionsContext.Provider>
   );

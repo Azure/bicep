@@ -46,12 +46,26 @@ declare module "styled-components" {
     panel: {
       background: string;
       border: string;
+      /**
+       * Frosted-glass surface for popovers: a canvas-toned tint at partial opacity, so the canvas
+       * shows through without shifting lightness. High-contrast themes use an opaque color.
+       */
+      popoverBackground: string;
+      /** `backdrop-filter` behind popovers (blur, plus saturation to keep light glass from going milky). */
+      popoverBackdropFilter: string;
+      /** Box-shadow for popovers and menus that float above other chrome. */
+      popoverShadow: string;
     };
     /** Icon button states, used inside panels and toolbars. */
     iconButton: {
       color: string;
       hoverBackground: string;
       activeBackground: string;
+    };
+    /** Overlay scrollbar thumb, at rest and while pointed at or dragged. */
+    scrollbar: {
+      thumb: string;
+      thumbActive: string;
     };
     focusBorder: string;
     error: string;

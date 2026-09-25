@@ -47,7 +47,6 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 model,
                 request.ProviderNamespace,
                 request.Query,
-                request.IncludePreview,
                 request.PageSize,
                 request.ContinuationToken);
 

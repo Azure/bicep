@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { ChangeEvent } from "react";
+import type { TargetScope } from "@/features/canvas";
+
+import { useCallback } from "react";
 import { styled } from "styled-components";
 import { FakeMessageChannel, GRAPH_MUTATIONS, SAMPLE_GRAPHS } from "../fakes/fake-message-channel";
 
@@ -68,6 +72,11 @@ const $Button = styled.button`
  * {@link FakeMessageChannel}, simulating extension graph-change notifications.
  */
 export function DevToolbar({ channel }: DevToolbarProps) {
+  const changeScope = useCallback(
+    (event: ChangeEvent<HTMLSelectElement>) => channel.setTargetScope(event.target.value as TargetScope),
+    [channel],
+  );
+  const changeCatalog = useCallback(() => channel.changeCatalog(), [channel]);
   const applyMutation = (
     apply: (graph: import("../fakes/sample-graph").SampleGraph) => import("../fakes/sample-graph").SampleGraph,
   ) => {
@@ -79,6 +88,20 @@ export function DevToolbar({ channel }: DevToolbarProps) {
   return (
     <$Toolbar data-testid="dev-toolbar">
       <$Label>DEV</$Label>
+      <select
+        aria-label="Document target scope"
+        title="Document target scope"
+        defaultValue={new URLSearchParams(window.location.search).get("targetScope") ?? "resourceGroup"}
+        onChange={changeScope}
+      >
+        <option value="resourceGroup">Resource group</option>
+        <option value="subscription">Subscription</option>
+        <option value="managementGroup">Management group</option>
+        <option value="tenant">Tenant</option>
+      </select>
+      <$Button title="Replace the resource type catalog" onClick={changeCatalog}>
+        Change catalog
+      </$Button>
       <$SectionLabel>Graphs</$SectionLabel>
       {Object.entries(SAMPLE_GRAPHS).map(([name, graph]) => (
         <$Button key={name} onClick={() => channel.pushGraph(graph)} data-testid={`dev-graph-${slugify(name)}`}>

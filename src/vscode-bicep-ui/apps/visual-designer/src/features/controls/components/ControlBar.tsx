@@ -20,7 +20,8 @@ const $ControlBar = styled(FloatingPanel)`
 
 const $Divider = styled.div`
   height: 1px;
-  margin: 2px 4px;
+  /* 1px flex gap + 4px margin = the bar's border + padding, so each group sits centered. */
+  margin: 4px;
   background-color: ${({ theme }) => theme.panel.border};
 `;
 

@@ -38,4 +38,16 @@ test.describe("Application bootstrap", () => {
     const count = await page.getByTestId("graph-node").count();
     expect(count).toBeGreaterThan(0);
   });
+
+  test("chrome matches the host theme on first load", async ({ page }) => {
+    // The dev playground applies its persisted theme asynchronously, after the theme atom is created
+    // with the light default. That used to leave app chrome light while the canvas followed the host.
+    // Start on a non-light theme so the race is observable, and reload because it is timing-dependent.
+    await page.addInitScript(() => localStorage.setItem("vscode-playground:theme", "dark-v2"));
+    for (let attempt = 0; attempt < 3; attempt++) {
+      await openVisualDesigner(page);
+      await expect(page.locator("body")).toHaveAttribute("data-vscode-theme-kind", "vscode-dark");
+      await expect(page.getByTestId("creation-dock")).toHaveCSS("background-color", "rgba(38, 38, 38, 0.92)");
+    }
+  });
 });

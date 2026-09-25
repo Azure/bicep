@@ -50,6 +50,18 @@ test.describe("Control bar", () => {
     await expect(page.getByTestId("control-export")).toBeDisabled();
   });
 
+  test("button groups are evenly inset from the divider and the bar edges", async ({ page }) => {
+    const bar = (await page.getByTestId("control-bar").boundingBox())!;
+    const first = (await page.getByTestId("control-zoom-in").boundingBox())!;
+    const reset = (await page.getByTestId("control-reset-layout").boundingBox())!;
+    const exportButton = (await page.getByTestId("control-export").boundingBox())!;
+    const edgeInset = first.y - bar.y;
+
+    expect(bar.y + bar.height - (exportButton.y + exportButton.height)).toBeCloseTo(edgeInset, 0);
+    // The divider is 1px tall and sits between the two groups; each side of it matches the edge inset.
+    expect(exportButton.y - (reset.y + reset.height)).toBeCloseTo(edgeInset * 2 + 1, 0);
+  });
+
   test("re-enables graph-dependent controls when a graph is loaded", async ({ page }) => {
     await loadSampleGraph(page, "empty");
     await expect(page.getByTestId("control-fit-view")).toBeDisabled();

@@ -39,7 +39,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             }
 
             var model = context.Compilation.GetEntrypointSemanticModel();
-            return Task.FromResult(this.visualResourceCreationService.GetResourceTypeNamespaces(model, request.IncludePreview));
+            return Task.FromResult(this.visualResourceCreationService.GetResourceTypeNamespaces(model));
         }
     }
 }

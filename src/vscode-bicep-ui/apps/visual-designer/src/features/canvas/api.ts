@@ -89,7 +89,10 @@ export interface GetGraphUpdateParams {
 
 export interface GetGraphUpdateResult {
   patches: GraphPatch[];
+  targetScope: TargetScope | null;
 }
+
+export type TargetScope = "resourceGroup" | "subscription" | "managementGroup" | "tenant";
 
 export const getGraphLayout = defineRequest<GetGraphLayoutParams, GetGraphLayoutResult>("getGraphLayout");
 

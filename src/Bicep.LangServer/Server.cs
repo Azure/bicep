@@ -106,7 +106,8 @@ namespace Bicep.LanguageServer
                     .WithHandler<VisualGraphNodeSourceHandler>()
                     .WithHandler<VisualResourceTypeNamespacesHandler>()
                     .WithHandler<VisualResourceTypesHandler>()
-                    .WithHandler<PrepareVisualResourceHandler>()
+                    .WithHandler<VisualResourceTypeVersionsHandler>()
+                    .WithHandler<CreateResourceDeclarationInsertionHandler>()
                     .WithServices(services => services.AddServerDependencies(bicepLangServerOptions));
 
                 onOptionsFunc(options);

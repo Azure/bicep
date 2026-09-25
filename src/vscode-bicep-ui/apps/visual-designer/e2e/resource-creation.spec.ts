@@ -66,7 +66,7 @@ test.describe("resource creation", () => {
     const canvasBefore = await page.getByTestId("graph-canvas").boundingBox();
 
     await page.getByRole("button", { name: "Add Resources" }).click();
-    await page.getByRole("button", { name: "Close Resource Palette" }).click();
+    await page.getByRole("button", { name: "Add Resources" }).click();
 
     const canvasAfter = await page.getByTestId("graph-canvas").boundingBox();
     expect(canvasAfter).toEqual(canvasBefore);
@@ -108,12 +108,12 @@ test.describe("resource creation", () => {
 
     const filter = page.getByRole("textbox", { name: "Filter resource types" });
     await filter.fill("storageAccounts");
-    await expect(page.getByRole("button", { name: /storageAccounts/ })).toBeVisible();
+    await expect(page.getByTestId("resource-type-drag-handle").filter({ hasText: "storageAccounts" })).toBeVisible();
     await expect(page.locator("mark").filter({ hasText: "storageAccounts" })).toBeVisible();
-    await expect(page.getByRole("button", { name: /Microsoft\.Storage/ })).toHaveAttribute("aria-expanded", "true");
+    await expect(page.getByRole("button", { name: /^Microsoft\.Storage/ })).toHaveAttribute("aria-expanded", "true");
 
     await filter.fill("virtualNetworks");
-    await expect(page.getByRole("button", { name: /virtualNetworks/ })).toBeVisible();
+    await expect(page.getByTestId("resource-type-drag-handle").filter({ hasText: "virtualNetworks" })).toBeVisible();
     await expect(page.getByTestId("resource-palette-progress")).toHaveCount(0);
   });
 
@@ -140,39 +140,24 @@ test.describe("resource creation", () => {
     await expect(page.getByTestId("pending-resource-node")).toHaveCount(0);
   });
 
-  test("places a keyboard-activated resource at the canvas center", async ({ page }) => {
+  test("resources are drag-only: not focusable and not keyboard-insertable", async ({ page }) => {
     await openVisualDesigner(page);
     const initialCount = await nodeCount(page);
-    const canvasBox = await page.getByTestId("graph-canvas").boundingBox();
-    expect(canvasBox).not.toBeNull();
 
     await page.getByRole("button", { name: "Add Resources" }).click();
     await page.getByText("Microsoft.Storage", { exact: true }).click();
-    const resourceButton = page.getByRole("button", { name: /storageAccounts/ });
-    await resourceButton.focus();
-    await resourceButton.press("Enter");
+    const handle = page.getByTestId("resource-type-drag-handle").filter({ hasText: "storageAccounts" });
+    await expect(handle).toBeVisible();
+    expect(await handle.evaluate((element) => element.tabIndex)).toBe(-1);
+    await expect(page.getByRole("button", { name: /storageAccounts/ })).toHaveCount(0);
 
-    await expect(page.getByTestId("graph-node")).toHaveCount(initialCount + 1);
-
-    // The node animates in and the graph springs to its layout over ~0.6s, so poll for the settled
-    // centre rather than sampling once. Under parallel load a single read lands mid-animation.
-    const createdNode = page.locator('[data-node-id="storageAccount"]');
-    const canvasCentreX = canvasBox!.x + canvasBox!.width / 2;
-    const canvasCentreY = canvasBox!.y + canvasBox!.height / 2;
-
-    await expect
-      .poll(async () => {
-        const box = await createdNode.boundingBox();
-
-        if (!box) {
-          return null;
-        }
-
-        const offsetX = Math.abs(box.x + box.width / 2 - canvasCentreX);
-        const offsetY = Math.abs(box.y + box.height / 2 - canvasCentreY);
-
-        return Math.max(offsetX, offsetY) <= 1;
-      })
-      .toBe(true);
+    // Tabbing past the group header lands on the version pill, never on the resource itself.
+    await page.getByRole("button", { name: "Microsoft.Storage" }).focus();
+    await page.keyboard.press("Tab");
+    await expect(
+      page.getByRole("combobox", { name: /API version for Microsoft\.Storage\/storageAccounts/ }),
+    ).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(page.getByTestId("graph-node")).toHaveCount(initialCount);
   });
 });

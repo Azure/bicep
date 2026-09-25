@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import type { Point } from "@/lib/math";
+import type { TargetScope } from "./api";
 import type { ResourceTypeReference } from "./types";
 
 import { atom } from "jotai";
@@ -15,6 +16,7 @@ export interface PendingResource {
 }
 
 export const pendingResourcesAtom = atom<PendingResource[]>([]);
+export const targetScopeAtom = atom<TargetScope | null>(null);
 export const resourceCreationErrorAtom = atom<string | null>(null);
 export const resourceNodeIsCommittingAtomFamily = atomFamily((_nodeId: string) => atom(false));
 

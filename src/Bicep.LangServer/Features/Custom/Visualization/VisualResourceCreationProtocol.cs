@@ -29,8 +29,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
     [Method("textDocument/visualResourceTypeNamespaces", Direction.ClientToServer)]
     public record VisualResourceTypeNamespacesParams(
-        TextDocumentIdentifier TextDocument,
-        bool IncludePreview) : ITextDocumentIdentifierParams, IRequest<VisualResourceTypeNamespacesResult>;
+        TextDocumentIdentifier TextDocument) : ITextDocumentIdentifierParams, IRequest<VisualResourceTypeNamespacesResult>;
 
     public record VisualResourceTypeNamespacesResult(
         string CatalogId,
@@ -41,7 +40,6 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         TextDocumentIdentifier TextDocument,
         string? ProviderNamespace,
         string? Query,
-        bool IncludePreview,
         int PageSize,
         string? ContinuationToken) : ITextDocumentIdentifierParams, IRequest<VisualResourceTypesResult>;
 
@@ -50,13 +48,22 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         IReadOnlyList<VisualResourceTypeCatalogEntry> Items,
         string? ContinuationToken);
 
+    [Method("textDocument/visualResourceTypeVersions", Direction.ClientToServer)]
+    public record VisualResourceTypeVersionsParams(
+        TextDocumentIdentifier TextDocument,
+        string FullyQualifiedType) : ITextDocumentIdentifierParams, IRequest<VisualResourceTypeVersionsResult>;
+
+    public record VisualResourceTypeVersionsResult(
+        string CatalogId,
+        IReadOnlyList<string> ApiVersions);
+
     [Method("textDocument/prepareVisualResource", Direction.ClientToServer)]
-    public record PrepareVisualResourceParams(
+    public record CreateResourceDeclarationInsertionParams(
         VersionedTextDocumentIdentifier TextDocument,
         string OperationId,
-        VisualResourceTypeIdentifier ResourceType) : IRequest<PrepareVisualResourceResult>;
+        VisualResourceTypeIdentifier ResourceType) : IRequest<ResourceDeclarationInsertion>;
 
-    public record PrepareVisualResourceResult(
+    public record ResourceDeclarationInsertion(
         string OperationId,
         string ExpectedNodeId,
         string SymbolicName,

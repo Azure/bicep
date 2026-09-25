@@ -19,6 +19,7 @@ import {
   commitPendingResourcesAtom,
   failResourceCreationAtom,
   resourceNodeIsCommittingAtomFamily,
+  targetScopeAtom,
 } from "../atoms";
 import { centerGraphLayout, extractGraphLayout, patchMayAffectLayout } from "../graph-layout";
 import { applyGraphPatch, buildRenderedGraph, createClientGraph, renderedGraphsEqual } from "../graph-model";
@@ -86,6 +87,7 @@ export function useCanvasController(
 
   const applyUpdate = useCallback(
     async (response: GetGraphUpdateResult): Promise<{ layoutRequired: boolean }> => {
+      store.set(targetScopeAtom, response.targetScope);
       const graph = clientGraphsRef.current.graph;
       const nodeLayouts = new Map<string, NodeLayout>();
       const newNodeOrigins = new Map<string, Point>();

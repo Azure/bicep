@@ -28,7 +28,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
     /// delta transforming the submitted graph into the server's latest graph. The client decides whether the
     /// patches may affect rendered size and whether to send a follow-up <see cref="VisualGraphLayoutParams"/> request.
     /// </summary>
-    public record VisualGraphUpdateResult(IReadOnlyList<GraphPatch> Patches);
+    public record VisualGraphUpdateResult(IReadOnlyList<GraphPatch> Patches, string? TargetScope);
 
     /// <summary>
     /// Request sent after the webview has applied graph update patches and measured actual node sizes. The
