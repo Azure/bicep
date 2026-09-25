@@ -63,7 +63,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                         var resourceType = resourceSymbol.TryGetResourceTypeReference()?.FormatType() ?? "<unknown>";
                         var resourceSpan = resourceSymbol.DeclaringResource.Span;
                         var range = resourceSpan.ToRange(semanticModel.SourceFile.LineStarts);
-                        var hasError = errors.Any(error => TextSpan.AreOverlapping(resourceSpan, error.Span));
+                        var hasError = errors.Any(error => ContainsDiagnostic(resourceSpan, error.Span));
 
                         nodesBySymbol[symbol] = new GraphNode(
                             Id: id,
@@ -87,7 +87,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
                         var moduleSpan = moduleSymbol.DeclaringModule.Span;
                         var range = moduleSpan.ToRange(semanticModel.SourceFile.LineStarts);
-                        var hasError = errors.Any(error => TextSpan.AreOverlapping(moduleSpan, error.Span));
+                        var hasError = errors.Any(error => ContainsDiagnostic(moduleSpan, error.Span));
 
                         var hasChildren = false;
 
@@ -144,5 +144,11 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
             return (graph, sources);
         }
+
+        private static bool ContainsDiagnostic(TextSpan declarationSpan, TextSpan diagnosticSpan) =>
+            TextSpan.AreOverlapping(declarationSpan, diagnosticSpan) ||
+            (diagnosticSpan.Length == 0 &&
+                diagnosticSpan.Position >= declarationSpan.Position &&
+                diagnosticSpan.Position <= declarationSpan.Position + declarationSpan.Length);
     }
 }

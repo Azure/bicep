@@ -76,7 +76,8 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             var resource = GeneratedResourceDeclaration.Create(
                 typeReference,
                 ResolveDeployableResourceType(model, typeReference),
-                model.Root.Declarations.Select(declaration => declaration.Name));
+                model.Root.Declarations.Select(declaration => declaration.Name),
+                model);
             var insertion = resource.CreateInsertionEdit(compiler, context);
 
             var edit = new WorkspaceEdit

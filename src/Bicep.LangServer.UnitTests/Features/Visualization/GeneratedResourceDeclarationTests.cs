@@ -6,6 +6,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Features.Custom.Visualization;
 using FluentAssertions;
@@ -49,28 +50,82 @@ public class GeneratedResourceDeclarationTests
     }
 
     [TestMethod]
-    public void Body_IncludesRequiredStringLiteralPropertiesAsLiterals()
-    {
-        var resource = Create(body: TestTypeHelper.CreateObjectType(
-            "Body",
-            ("location", TypeFactory.CreateStringLiteralType("global"), TypePropertyFlags.Required)));
-
-        resource.UnresolvedRequiredProperties.Should().BeEmpty();
-        var property = resource.Declaration.GetBody().Properties.Should().ContainSingle().Subject;
-        property.TryGetKeyText().Should().Be("location");
-        ((StringSyntax)property.Value).TryGetLiteralValue().Should().Be("global");
-    }
-
-    [TestMethod]
-    public void Body_ReportsRequiredNonLiteralPropertiesAsUnresolved()
+    public void Body_IncludesRequiredSingletonLiteralPropertiesAsLiterals()
     {
         var resource = Create(body: TestTypeHelper.CreateObjectType(
             "Body",
             ("location", TypeFactory.CreateStringLiteralType("global"), TypePropertyFlags.Required),
-            ("name", LanguageConstants.String, TypePropertyFlags.Required)));
+            ("count", TypeFactory.CreateIntegerLiteralType(3), TypePropertyFlags.Required),
+            ("enabled", TypeFactory.CreateBooleanLiteralType(true), TypePropertyFlags.Required)));
 
-        resource.Declaration.GetBody().Properties.Select(property => property.TryGetKeyText()).Should().Equal("location");
-        resource.UnresolvedRequiredProperties.Should().Equal("name");
+        resource.UnresolvedRequiredProperties.Should().BeEmpty();
+        var body = resource.Declaration.GetBody();
+        ((StringSyntax)body.TryGetPropertyByName("location")!.Value).TryGetLiteralValue().Should().Be("global");
+        body.TryGetPropertyByName("count")!.Value.ToString().Should().Be("3");
+        body.TryGetPropertyByName("enabled")!.Value.ToString().Should().Be("true");
+    }
+
+    [TestMethod]
+    public void Body_GeneratesNameAndLeavesRequiredLocationForUserInputWhenIncompatible()
+    {
+        var resource = Create(body: TestTypeHelper.CreateObjectType(
+            "Body",
+            ("location", LanguageConstants.String, TypePropertyFlags.Required),
+            ("name", LanguageConstants.String, TypePropertyFlags.Required)),
+            content: "param location int");
+
+        resource.Declaration.GetBody().Properties.Select(property => property.TryGetKeyText()).Should().Equal("name", "location");
+        ((StringSyntax)resource.Declaration.GetBody().TryGetPropertyByName("name")!.Value)
+            .TryGetLiteralValue().Should().Be("widget");
+        resource.Declaration.GetBody().TryGetPropertyByName("location")!.Value
+            .Should().BeOfType<VariableAccessSyntax>().Which.Name.IdentifierName
+            .Should().Be("__bicep_visual_resource_creation_required_property__");
+        resource.UnresolvedRequiredProperties.Should().Equal("location");
+    }
+
+    [TestMethod]
+    public void Body_UsesCompatibleLocationParameter()
+    {
+        var resource = Create(body: TestTypeHelper.CreateObjectType(
+            "Body", ("location", LanguageConstants.String, TypePropertyFlags.Required)),
+            content: "param location string");
+
+        resource.UnresolvedRequiredProperties.Should().BeEmpty();
+        resource.Declaration.GetBody().TryGetPropertyByName("location")!.Value.ToString().Should().Be("location");
+    }
+
+    [TestMethod]
+    public void Body_UsesResourceGroupLocationOnlyAtResourceGroupScope()
+    {
+        var body = TestTypeHelper.CreateObjectType(
+            "Body", ("location", LanguageConstants.String, TypePropertyFlags.Required));
+
+        var resourceGroup = Create(body: body);
+        resourceGroup.UnresolvedRequiredProperties.Should().BeEmpty();
+        resourceGroup.Declaration.GetBody().TryGetPropertyByName("location")!.Value.ToString()
+            .Should().Be("resourceGroup().location");
+
+        var subscription = Create(body: body, content: "targetScope = 'subscription'");
+        subscription.UnresolvedRequiredProperties.Should().Equal("location");
+    }
+
+    [TestMethod]
+    public void Body_RecursivelyIncludesRequiredNestedProperties()
+    {
+        var settings = TestTypeHelper.CreateObjectType(
+            "Settings",
+            ("name", LanguageConstants.String, TypePropertyFlags.Required),
+            ("kind", TypeFactory.CreateStringLiteralType("singleton"), TypePropertyFlags.Required),
+            ("optional", LanguageConstants.String, TypePropertyFlags.None));
+        var resource = Create(body: TestTypeHelper.CreateObjectType(
+            "Body", ("settings", settings, TypePropertyFlags.Required)));
+
+        resource.UnresolvedRequiredProperties.Should().Equal("settings");
+        var nested = resource.Declaration.GetBody().TryGetPropertyByName("settings")!.Value
+            .Should().BeOfType<ObjectSyntax>().Subject;
+        nested.Properties.Select(property => property.TryGetKeyText()).Should().Equal("name", "kind");
+        nested.TryGetPropertyByName("name")!.Value.Should().BeOfType<VariableAccessSyntax>();
+        ((StringSyntax)nested.TryGetPropertyByName("kind")!.Value).TryGetLiteralValue().Should().Be("singleton");
     }
 
     [TestMethod]
@@ -99,14 +154,16 @@ public class GeneratedResourceDeclarationTests
 
         var resource = Create(body: TestTypeHelper.CreateDiscriminatedObjectType("Body", "kind", memberA, memberB));
 
-        resource.Declaration.GetBody().Properties.Should().BeEmpty();
+        resource.Declaration.GetBody().Properties.Should().ContainSingle()
+            .Which.TryGetKeyText().Should().Be("kind");
         resource.UnresolvedRequiredProperties.Should().Equal("kind");
     }
 
     private static GeneratedResourceDeclaration Create(
         string fullyQualifiedType = "Test.Rp/widgets",
         ITypeReference? body = null,
-        string[]? existingNames = null)
+        string[]? existingNames = null,
+        string content = "")
     {
         var typeReference = new ResourceTypeReference(fullyQualifiedType, "2020-01-01");
         var resourceType = new ResourceType(
@@ -118,6 +175,8 @@ public class GeneratedResourceDeclarationTests
             body ?? TestTypeHelper.CreateObjectType("Body", ("description", LanguageConstants.String, TypePropertyFlags.None)),
             []);
 
-        return GeneratedResourceDeclaration.Create(typeReference, resourceType, existingNames ?? []);
+        var model = CompilationHelper.Compile(new ServiceBuilder().WithAzResources(BuiltInTestTypes.Types), content)
+            .Compilation.GetEntrypointSemanticModel();
+        return GeneratedResourceDeclaration.Create(typeReference, resourceType, existingNames ?? [], model);
     }
 }

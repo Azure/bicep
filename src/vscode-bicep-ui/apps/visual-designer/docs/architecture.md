@@ -245,11 +245,17 @@ sequenceDiagram
 The language server validates the exact resource type and API version, then generates:
 
 - A deterministic symbolic name with a numeric suffix when needed
-- Compiler-known string literals for required properties
+- Required property names, including nested required object structure
+- A resource name derived from the symbolic name
+- An exact `location` parameter, or `resourceGroup().location` at resource-group scope when none exists
+- Unambiguous singleton literal values
+- Empty values for all other properties that require user input
 - Formatted Bicep syntax in a versioned `WorkspaceEdit`
 
-Properties without deterministic values are reported through `unresolvedRequiredProperties` and are
-left to compiler diagnostics.
+Required-property generation shares completion's ordering, escaping, and requiredness rules. A
+discriminated body includes only its empty discriminator property because creation has no branch
+selection UI. Value heuristics are visual-creation behavior and do not affect completion.
+`unresolvedRequiredProperties` remains in the response for protocol compatibility.
 
 The extension verifies the document version immediately before applying the edit. The edit uses
 native dirty-file and undo/redo behavior and does not save the document.
@@ -285,15 +291,15 @@ expected-node placement map. Canvas actions are exposed through `useCanvasAction
 
 ## Errors and limitations
 
-| Case                                        | Behavior                                               |
-| ------------------------------------------- | ------------------------------------------------------ |
-| Layout computation fails                    | Keep current positions and reveal the graph            |
-| Catalog request fails                       | Show retry UI                                          |
-| Drop is outside the canvas                  | Cancel without changing source                         |
-| Resource type or API version is unavailable | Remove pending state and show an error                 |
-| Document version changed                    | Reject the edit                                        |
-| Workspace edit rejected                     | Remove pending state and show an error                 |
-| Required values are unresolved              | Apply the declaration and rely on compiler diagnostics |
+| Case                                        | Behavior                                    |
+| ------------------------------------------- | ------------------------------------------- |
+| Layout computation fails                    | Keep current positions and reveal the graph |
+| Catalog request fails                       | Show retry UI                               |
+| Drop is outside the canvas                  | Cancel without changing source              |
+| Resource type or API version is unavailable | Remove pending state and show an error      |
+| Document version changed                    | Reject the edit                             |
+| Workspace edit rejected                     | Remove pending state and show an error      |
+| Required values are unresolved              | Emit empty values for later source editing  |
 
 Current limitations:
 

@@ -9,21 +9,24 @@ using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Resources;
 using Bicep.Core.Rewriters;
+using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.IO.InMemory;
 using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Extensions;
+using Bicep.LanguageServer.Features.Language.Completion.Snippets;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Features.Custom.Visualization
 {
     /// <summary>
-    /// A new top-level resource declaration. Its body holds only the required properties that have a deterministic
-    /// literal value; the other required properties are reported as unresolved, and no placeholder values are generated.
+    /// A new top-level resource declaration with required properties. Values needing user input remain empty
+    /// in the formatted insertion and are reported as unresolved.
     /// </summary>
     internal sealed record GeneratedResourceDeclaration(
         string SymbolicName,
@@ -31,12 +34,17 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         ImmutableArray<string> UnresolvedRequiredProperties)
     {
         private const string FallbackSymbolicName = "resource";
+        private const string RequiredPropertyPlaceholder = "__bicep_visual_resource_creation_required_property__";
 
         /// <param name="existingNames">Names already declared in the document, which the new symbolic name must avoid.</param>
-        public static GeneratedResourceDeclaration Create(ResourceTypeReference typeReference, ResourceType resourceType, IEnumerable<string> existingNames)
+        public static GeneratedResourceDeclaration Create(
+            ResourceTypeReference typeReference,
+            ResourceType resourceType,
+            IEnumerable<string> existingNames,
+            SemanticModel model)
         {
             var symbolicName = GenerateSymbolicName(typeReference, existingNames);
-            var (properties, unresolvedRequiredProperties) = GenerateBody(resourceType);
+            var (body, unresolvedRequiredProperties) = GenerateBody(resourceType, model, symbolicName);
             var declaration = new ResourceDeclarationSyntax(
                 [],
                 SyntaxFactory.ResourceKeywordToken,
@@ -45,7 +53,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 null,
                 SyntaxFactory.CreateToken(TokenType.Assignment),
                 [],
-                SyntaxFactory.CreateObject(properties));
+                body);
 
             return new(symbolicName, declaration, unresolvedRequiredProperties);
         }
@@ -98,14 +106,21 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 model => new TypeCasingFixerRewriter(model),
                 model => new ReadOnlyPropertyRemovalRewriter(model));
 
-            // The generated code must be syntactically valid. It need not be semantically complete: unresolved required
-            // properties surface as ordinary compiler diagnostics once inserted.
+            // Temporary values keep the declaration valid while rewriters and formatting run. The final edit leaves
+            // unresolved values empty so the editor can surface their diagnostics after insertion.
             if (bicepFile.LexingErrorLookup.Any() || bicepFile.ParsingErrorLookup.Any())
             {
                 throw new VisualResourceCreationException("Generated resource declaration failed self-validation.");
             }
 
-            return PrettyPrinterV2.PrintValid(bicepFile.ProgramSyntax, options);
+            var printed = PrettyPrinterV2.PrintValid(bicepFile.ProgramSyntax, options);
+            printed = printed.Replace($" {RequiredPropertyPlaceholder}", string.Empty, StringComparison.Ordinal);
+            if (printed.Contains(RequiredPropertyPlaceholder, StringComparison.Ordinal))
+            {
+                throw new VisualResourceCreationException("Generated resource declaration contains an unresolved formatting placeholder.");
+            }
+
+            return printed;
         }
 
         /// <summary>
@@ -133,39 +148,105 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             return $"{baseName}{suffix}";
         }
 
-        private static (ImmutableArray<ObjectPropertySyntax> Properties, ImmutableArray<string> UnresolvedRequiredProperties) GenerateBody(
-            ResourceType resourceType)
+        private static (ObjectSyntax Body, ImmutableArray<string> UnresolvedRequiredProperties) GenerateBody(
+            ResourceType resourceType,
+            SemanticModel model,
+            string symbolicName)
         {
-            switch (resourceType.Body.Type)
+            var locationParameters = model.Root.ParameterDeclarations
+                .Where(parameter => LanguageConstants.IdentifierComparer.Equals(parameter.Name, LanguageConstants.ResourceLocationPropertyName))
+                .Take(2)
+                .ToArray();
+
+            SyntaxBase CreatePlaceholder() => SyntaxFactory.CreateVariableAccess(RequiredPropertyPlaceholder);
+
+            SyntaxBase CreateValue(NamedTypeProperty property, bool isTopLevel) =>
+                TryGeneratePropertyValue(property, isTopLevel, symbolicName, locationParameters, model.TargetScope) ??
+                CreatePlaceholder();
+
+            return resourceType.Body.Type switch
             {
-                // The discriminator selects which of several bodies applies, so nothing else can be generated without it.
-                case DiscriminatedObjectType discriminatedObjectType:
-                    return ([], [discriminatedObjectType.DiscriminatorKey]);
-
-                case ObjectType objectType:
-                    var properties = ImmutableArray.CreateBuilder<ObjectPropertySyntax>();
-                    var unresolvedRequiredProperties = ImmutableArray.CreateBuilder<string>();
-
-                    foreach (var property in objectType.Properties.Values.Where(TypeHelper.IsRequired))
-                    {
-                        if (property.TypeReference.Type is StringLiteralType stringLiteralType)
-                        {
-                            properties.Add(SyntaxFactory.CreateObjectProperty(
-                                property.Name,
-                                SyntaxFactory.CreateStringLiteral(stringLiteralType.RawStringValue)));
-                        }
-                        else
-                        {
-                            unresolvedRequiredProperties.Add(property.Name);
-                        }
-                    }
-
-                    return (properties.ToImmutable(), unresolvedRequiredProperties.ToImmutable());
-
-                default:
-                    return ([], []);
-            }
+                DiscriminatedObjectType discriminatedObjectType => (
+                    RequiredPropertiesSyntaxBuilder.Build(discriminatedObjectType, CreatePlaceholder),
+                    [discriminatedObjectType.DiscriminatorKey]),
+                ObjectType objectType => (
+                    RequiredPropertiesSyntaxBuilder.Build(objectType, CreateValue),
+                    objectType.Properties.Values
+                        .Where(TypeHelper.IsRequired)
+                        .Where(property => RequiresUserInput(property, isTopLevel: true, symbolicName, locationParameters, model.TargetScope))
+                        .Select(property => property.Name)
+                        .ToImmutableArray()),
+                _ => (SyntaxFactory.CreateObject([]), []),
+            };
         }
+
+        private static bool RequiresUserInput(
+            NamedTypeProperty property,
+            bool isTopLevel,
+            string symbolicName,
+            IReadOnlyList<ParameterSymbol> locationParameters,
+            ResourceScope targetScope) =>
+            property.TypeReference.Type switch
+            {
+                ObjectType objectType => objectType.Properties.Values
+                    .Where(TypeHelper.IsRequired)
+                    .Any(nestedProperty => RequiresUserInput(nestedProperty, isTopLevel: false, symbolicName, locationParameters, targetScope)),
+                _ => TryGeneratePropertyValue(property, isTopLevel, symbolicName, locationParameters, targetScope) is null,
+            };
+
+        private static SyntaxBase? TryGeneratePropertyValue(
+            NamedTypeProperty property,
+            bool isTopLevel,
+            string symbolicName,
+            IReadOnlyList<ParameterSymbol> locationParameters,
+            ResourceScope targetScope)
+        {
+            var valueType = property.TypeReference.Type;
+            if (TryCreateLiteral(valueType) is { } literal)
+            {
+                return literal;
+            }
+
+            if (isTopLevel &&
+                LanguageConstants.IdentifierComparer.Equals(property.Name, AzResourceTypeProvider.ResourceNamePropertyName) &&
+                TypeValidator.AreTypesAssignable(TypeFactory.CreateStringLiteralType(symbolicName), valueType))
+            {
+                return SyntaxFactory.CreateStringLiteral(symbolicName);
+            }
+
+            if (!isTopLevel ||
+                !LanguageConstants.IdentifierComparer.Equals(property.Name, LanguageConstants.ResourceLocationPropertyName))
+            {
+                return null;
+            }
+
+            if (locationParameters.Count == 1)
+            {
+                var locationParameter = locationParameters[0];
+                return TypeValidator.AreTypesAssignable(locationParameter.Type, valueType)
+                    ? SyntaxFactory.CreateVariableAccess(locationParameter.Name)
+                    : null;
+            }
+
+            if (locationParameters.Count == 0 &&
+                targetScope == ResourceScope.ResourceGroup &&
+                TypeValidator.AreTypesAssignable(LanguageConstants.String, valueType))
+            {
+                return SyntaxFactory.CreateAccessSyntax(
+                    SyntaxFactory.CreateFunctionCall("resourceGroup"),
+                    LanguageConstants.ResourceLocationPropertyName);
+            }
+
+            return null;
+        }
+
+        private static SyntaxBase? TryCreateLiteral(TypeSymbol type) => type switch
+        {
+            StringLiteralType stringLiteral => SyntaxFactory.CreateStringLiteral(stringLiteral.RawStringValue),
+            IntegerLiteralType integerLiteral => SyntaxFactory.CreatePositiveOrNegativeInteger(integerLiteral.Value),
+            BooleanLiteralType booleanLiteral => SyntaxFactory.CreateBooleanLiteral(booleanLiteral.Value),
+            _ => null,
+        };
 
         private static string Singularize(string value)
         {

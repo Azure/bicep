@@ -3,7 +3,6 @@
 
 using System.Collections.Immutable;
 using Bicep.Core;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -324,7 +323,7 @@ public class VisualResourceCreationServiceTests
         response.OperationId.Should().Be("operation-1");
         response.SymbolicName.Should().Be("basicTest");
         response.ExpectedNodeId.Should().Be("basicTest");
-        response.UnresolvedRequiredProperties.Should().Equal("name");
+        response.UnresolvedRequiredProperties.Should().BeEmpty();
 
         var textDocumentEdit = response.Edit.DocumentChanges.Should().ContainSingle().Subject.TextDocumentEdit;
         textDocumentEdit.Should().NotBeNull();
@@ -332,17 +331,13 @@ public class VisualResourceCreationServiceTests
         textDocumentEdit.TextDocument.Version.Should().Be(request.TextDocument.Version);
 
         var updatedContent = ApplyEdit(string.Empty, context.LineStarts, response.Edit);
-        updatedContent.Should().Contain("resource basicTest 'Test.Rp/basicTests@2020-01-01' = {");
-
-        // The generated declaration is syntactically valid Bicep, but - per design - is not required to be
-        // semantically complete: "name" is required and non-literal, so it is reported as unresolved rather
-        // than invented, and the applied edit is expected to leave the normal, authoritative compiler
-        // diagnostic for that missing property in place.
+        updatedContent.ReplaceLineEndings("\n").Should().Be("""
+            resource basicTest 'Test.Rp/basicTests@2020-01-01' = {
+              name: 'basicTest'
+            }
+            """);
         var (_, updatedResult) = CompileWithResourceTypes(BuiltInTestTypes.Types, updatedContent);
-        updatedResult.Should().OnlyContainDiagnostic(
-            "BCP035",
-            DiagnosticLevel.Error,
-            "The specified \"resource\" declaration is missing the following required properties: \"name\".");
+        updatedResult.Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
@@ -369,11 +364,8 @@ public class VisualResourceCreationServiceTests
         response.SymbolicName.Should().Be("basicTest1");
 
         var updatedContent = ApplyEdit(content, context.LineStarts, response.Edit);
-        var (_, updatedResult) = CompileWithResourceTypes(BuiltInTestTypes.Types, updatedContent);
-        updatedResult.Should().OnlyContainDiagnostic(
-            "BCP035",
-            DiagnosticLevel.Error,
-            "The specified \"resource\" declaration is missing the following required properties: \"name\".");
+        updatedContent.ReplaceLineEndings("\n").Should().Contain(
+            "resource basicTest1 'Test.Rp/basicTests@2020-01-01' = {\n  name: 'basicTest1'\n}");
     }
 
     [TestMethod]
@@ -444,7 +436,41 @@ public class VisualResourceCreationServiceTests
 
         var response = service.CreateResourceDeclarationInsertion(compiler, context, request);
 
-        response.UnresolvedRequiredProperties.Should().Equal("name", "properties");
+        response.UnresolvedRequiredProperties.Should().Equal("properties");
+        ApplyEdit(string.Empty, context.LineStarts, response.Edit).ReplaceLineEndings("\n").Should().Be("""
+            resource readWriteTest 'Test.Rp/readWriteTests@2020-01-01' = {
+              name: 'readWriteTest'
+              properties: {
+                required:
+              }
+            }
+            """);
+    }
+
+    [TestMethod]
+    public void CreateResourceDeclarationInsertion_UsesConfiguredFormattingForIncompleteValues()
+    {
+        var bicepConfig = """
+            {
+              "formatting": {
+                "indentKind": "Tab",
+                "newlineKind": "CRLF"
+              }
+            }
+            """;
+        var (compiler, compilationResult) = CompileWithResourceTypes(BuiltInTestTypes.Types, string.Empty, bicepConfig);
+        var context = new CompilationContext(compilationResult.Compilation);
+        var request = CreateRequest("Test.Rp/readWriteTests", "2020-01-01");
+
+        var response = new VisualResourceCreationService().CreateResourceDeclarationInsertion(compiler, context, request);
+
+        ApplyEdit(string.Empty, context.LineStarts, response.Edit).Should().Be(
+            "resource readWriteTest 'Test.Rp/readWriteTests@2020-01-01' = {\r\n" +
+            "\tname: 'readWriteTest'\r\n" +
+            "\tproperties: {\r\n" +
+            "\t\trequired:\r\n" +
+            "\t}\r\n" +
+            "}");
     }
 
     [TestMethod]
@@ -462,6 +488,11 @@ public class VisualResourceCreationServiceTests
         var response = service.CreateResourceDeclarationInsertion(compiler, context, request);
 
         response.UnresolvedRequiredProperties.Should().Equal("kind");
+        ApplyEdit(string.Empty, context.LineStarts, response.Edit).ReplaceLineEndings("\n").Should().Be("""
+            resource discriminatorTest 'Test.Rp/discriminatorTests@2020-01-01' = {
+              kind:
+            }
+            """);
     }
 
     [TestMethod]
@@ -523,10 +554,14 @@ public class VisualResourceCreationServiceTests
     // supplied CompilationContext so its internal self-validation recompile of the generated resource
     // declaration succeeds.
     private static (BicepCompiler Compiler, CompilationHelper.CompilationResult Result) CompileWithResourceTypes(
-        IEnumerable<ResourceTypeComponents> resourceTypes, string content)
+        IEnumerable<ResourceTypeComponents> resourceTypes, string content, string? bicepConfig = null)
     {
         var fileSet = new MockFileSystemTestFileSet();
         fileSet.AddFile("main.bicep", content);
+        if (bicepConfig is not null)
+        {
+            fileSet.AddFile("bicepconfig.json", bicepConfig);
+        }
 
         var compiler = new ServiceBuilder()
             .WithAzResources(resourceTypes)
