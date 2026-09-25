@@ -10,6 +10,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { documentDidChange } from "@/hooks";
 import { usePaletteApi } from "../api";
 import { acceptVersionCatalogAtom } from "../atoms";
+import { orderNamespaces } from "../namespace-order";
 
 /** Edits arrive in bursts, so refreshes are debounced. The first load is immediate. */
 const REFRESH_DEBOUNCE_MS = 250;
@@ -68,7 +69,10 @@ export function useResourceTypeCatalog(): ResourceTypeCatalogSource {
               }
               currentCatalogIdRef.current = catalog.catalogId;
               acceptVersionCatalog(catalog.catalogId);
-              setNamespaceCatalogState({ status: "loaded", catalog });
+              setNamespaceCatalogState({
+                status: "loaded",
+                catalog: { ...catalog, namespaces: orderNamespaces(catalog.namespaces) },
+              });
             }
           },
           (error: unknown) => {

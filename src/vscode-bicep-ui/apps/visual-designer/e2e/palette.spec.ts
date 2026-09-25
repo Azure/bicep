@@ -122,6 +122,19 @@ test("dock groups are evenly inset from the separator and the dock edges", async
   expect(notes.x - (separator.x + separator.width)).toBeCloseTo(rightEdgeInset, 0);
 });
 
+test("browse shows featured resource providers before other namespaces", async ({ page }) => {
+  await openVisualDesigner(page);
+  await page.getByRole("button", { name: "Add Resources" }).click();
+
+  const providers = page
+    .getByRole("complementary", { name: "Resource Palette" })
+    .getByRole("button", { name: /^Microsoft\./ });
+  await expect(providers).toHaveCount(3);
+  await expect(providers.nth(0)).toHaveAccessibleName("Microsoft.Network");
+  await expect(providers.nth(1)).toHaveAccessibleName("Microsoft.Storage");
+  await expect(providers.nth(2)).toHaveAccessibleName("Microsoft.Preview");
+});
+
 test("versions load lazily, persist across browse/search/reopen and insert the selected version", async ({ page }) => {
   await recordCreations(page);
   await openVisualDesigner(page);

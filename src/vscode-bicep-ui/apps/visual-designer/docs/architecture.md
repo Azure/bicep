@@ -149,7 +149,11 @@ only durable source of truth.
 ### Catalog and placement
 
 - Opening the palette loads provider namespaces. The response also carries per-namespace type counts,
-  which the palette does not display.
+  which the palette does not display. Browsing puts a curated set of common providers first (compute,
+  networking, storage, app hosting, containers, secrets, identity and authorization, deployments,
+  databases, caching, AI services, monitoring, and messaging), then lists other `Microsoft.*`
+  namespaces alphabetically, followed by non-Microsoft namespaces alphabetically. Search results
+  retain their catalog order.
 - Expanding a provider loads and caches its resource types.
 - Search loads the complete searchable catalog once and filters it locally.
 - Catalog responses carry a `catalogId`; stale responses are discarded.
