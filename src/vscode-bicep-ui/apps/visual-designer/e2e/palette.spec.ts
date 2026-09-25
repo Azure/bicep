@@ -385,6 +385,35 @@ test("clicking a resource neither inserts it nor flashes a drag preview", async 
   await expect(page.getByRole("complementary")).toBeVisible();
 });
 
+test("drag preview follows pointer movement without waiting for a React render", async ({ page }) => {
+  await openVisualDesigner(page);
+  await openStorage(page);
+  const resourceBox = (await dragHandle(page, STORAGE_TYPE).boundingBox())!;
+
+  await page.mouse.move(resourceBox.x + 40, resourceBox.y + resourceBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(resourceBox.x + 50, resourceBox.y - 20);
+  await expect(page.getByTestId("palette-drag-preview")).toBeVisible();
+
+  const position = await page.evaluate(() => {
+    const preview = document.querySelector<HTMLElement>('[data-testid="palette-drag-preview"]');
+    if (!preview) {
+      throw new Error("Drag preview is missing.");
+    }
+    const x = parseFloat(preview.style.left) + 32;
+    const y = parseFloat(preview.style.top) - 16;
+    window.dispatchEvent(new PointerEvent("pointermove", { pointerId: 1, clientX: x, clientY: y }));
+
+    return { left: preview.style.left, top: preview.style.top, x, y };
+  });
+  expect(position.left).toBe(`${position.x}px`);
+  expect(position.top).toBe(`${position.y}px`);
+
+  await page.keyboard.press("Escape");
+  await page.mouse.up();
+  await expect(page.getByTestId("palette-drag-preview")).toHaveCount(0);
+});
+
 test("Escape cancels an in-progress drag without closing the palette", async ({ page }) => {
   await recordCreations(page);
   await openVisualDesigner(page);

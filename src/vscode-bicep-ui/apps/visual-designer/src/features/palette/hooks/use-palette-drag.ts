@@ -24,10 +24,13 @@ export function usePaletteDrag(
   onDrop: (item: PaletteDragState["item"], clientX: number, clientY: number) => void,
 ) {
   const activeDragRef = useRef<PendingDrag | null>(null);
+  const positionRef = useRef<{ clientX: number; clientY: number } | null>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
   const setDragState = useSetAtom(paletteDragAtom);
 
   const cancelDrag = useCallback(() => {
     activeDragRef.current = null;
+    positionRef.current = null;
     setDragState(null);
   }, [setDragState]);
 
@@ -43,10 +46,17 @@ export function usePaletteDrag(
         return;
       }
 
-      drag.dragging = true;
       drag.clientX = event.clientX;
       drag.clientY = event.clientY;
-      setDragState({ item: drag.item, clientX: event.clientX, clientY: event.clientY });
+      positionRef.current = { clientX: event.clientX, clientY: event.clientY };
+      if (!drag.dragging) {
+        drag.dragging = true;
+        setDragState({ item: drag.item, clientX: event.clientX, clientY: event.clientY });
+      }
+      if (previewRef.current) {
+        previewRef.current.style.left = `${event.clientX}px`;
+        previewRef.current.style.top = `${event.clientY}px`;
+      }
     };
     const handlePointerUp = (event: PointerEvent) => {
       const drag = activeDragRef.current;
@@ -99,5 +109,5 @@ export function usePaletteDrag(
     };
   }, []);
 
-  return { startDrag };
+  return { startDrag, previewRef, positionRef };
 }

@@ -37,7 +37,8 @@ Arrow keys, Enter, or Space
 while it is focused) opens a version list; versions load on first focus or open. Resources are added
 only by dragging the icon/type area onto the canvas, which inserts the selected version where it is
 dropped; clicking or pressing keys on a resource does not insert. A press becomes a drag only after
-the pointer moves 4px, so clicks never flash a drag preview, and Escape during a drag cancels only the drag. Choices
+the pointer moves 4px, so clicks never flash a drag preview, and Escape during a drag cancels only the drag.
+The preview follows pointer movement without rerendering the resource card on every move. Choices
 survive browsing, searching, and closing the palette until the provider catalog changes. Escape or
 toggling Resources closes the popover and restores focus to the dock. The passive top-left target
 scope remains visible independently of creation enablement. The palette offers only resource types

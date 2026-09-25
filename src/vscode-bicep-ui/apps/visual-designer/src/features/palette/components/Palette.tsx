@@ -44,7 +44,7 @@ export function Palette({ isOpen }: { isOpen: boolean }) {
     [createResource],
   );
 
-  const { startDrag } = usePaletteDrag(canPlaceResourceAt, placeResource);
+  const { startDrag, previewRef, positionRef } = usePaletteDrag(canPlaceResourceAt, placeResource);
 
   return (
     <>
@@ -62,7 +62,7 @@ export function Palette({ isOpen }: { isOpen: boolean }) {
           />
         </$PalettePopover>
       )}
-      <PaletteDragOverlay />
+      <PaletteDragOverlay previewRef={previewRef} positionRef={positionRef} />
     </>
   );
 }
