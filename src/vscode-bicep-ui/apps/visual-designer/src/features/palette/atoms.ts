@@ -29,6 +29,21 @@ export const namespaceResourceTypesAtomFamily = atomFamily((_key: string) =>
 );
 export const resourceTypeCatalogLoadingCountAtom = atom(0);
 
+export type ResourceVersionsState =
+  { status: "loading" } | { status: "loaded"; apiVersions: string[] } | { status: "error"; message: string };
+
+export const versionCatalogIdAtom = atom<string | undefined>();
+export const resourceVersionsAtom = atom<Record<string, ResourceVersionsState>>({});
+export const selectedVersionsAtom = atom<Record<string, string>>({});
+
+export const acceptVersionCatalogAtom = atom(null, (get, set, catalogId: string) => {
+  if (get(versionCatalogIdAtom) !== catalogId) {
+    set(versionCatalogIdAtom, catalogId);
+    set(resourceVersionsAtom, {});
+    set(selectedVersionsAtom, {});
+  }
+});
+
 export function getNamespaceResourceTypesKey(catalogId: string, providerNamespace: string): string {
   return `${catalogId}\0${providerNamespace.toLocaleLowerCase()}`;
 }

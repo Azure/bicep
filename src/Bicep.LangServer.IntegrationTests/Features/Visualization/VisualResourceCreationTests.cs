@@ -24,7 +24,7 @@ namespace Bicep.LangServer.IntegrationTests
             using var helper = await StartServerAndOpenAsync();
             var client = helper.Helper.Client;
             var result = await client.SendRequest(
-                new VisualResourceTypeNamespacesParams(new TextDocumentIdentifier(helper.MainUri), IncludePreview: false),
+                new VisualResourceTypeNamespacesParams(new TextDocumentIdentifier(helper.MainUri)),
                 default);
 
             result.CatalogId.Should().NotBeNullOrEmpty();
@@ -43,7 +43,7 @@ namespace Bicep.LangServer.IntegrationTests
             var client = helper.Helper.Client;
 
             var result = await client.SendRequest(
-                new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), ProviderNamespace: null, Query: null, IncludePreview: true, PageSize: 50, ContinuationToken: null),
+                new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), ProviderNamespace: null, Query: null, PageSize: 50, ContinuationToken: null),
                 default);
 
             result.Should().NotBeNull();
@@ -68,7 +68,7 @@ namespace Bicep.LangServer.IntegrationTests
             var client = helper.Helper.Client;
 
             var result = await client.SendRequest(
-                new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), ProviderNamespace: null, Query: "READWRITE", IncludePreview: true, PageSize: 50, ContinuationToken: null),
+                new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), ProviderNamespace: null, Query: "READWRITE", PageSize: 50, ContinuationToken: null),
                 default);
 
             result.Items.Should().ContainSingle().Which.FullyQualifiedType.Should().Be("Test.Rp/readWriteTests");
@@ -81,7 +81,7 @@ namespace Bicep.LangServer.IntegrationTests
             var client = helper.Helper.Client;
 
             var full = await client.SendRequest(
-                new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), ProviderNamespace: null, Query: null, IncludePreview: true, PageSize: 200, ContinuationToken: null),
+                new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), ProviderNamespace: null, Query: null, PageSize: 200, ContinuationToken: null),
                 default);
 
             var seen = new List<VisualResourceTypeCatalogEntry>();
@@ -89,7 +89,7 @@ namespace Bicep.LangServer.IntegrationTests
             do
             {
                 var page = await client.SendRequest(
-                    new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), ProviderNamespace: null, Query: null, IncludePreview: true, PageSize: 1, ContinuationToken: continuationToken),
+                    new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), ProviderNamespace: null, Query: null, PageSize: 1, ContinuationToken: continuationToken),
                     default);
 
                 page.Items.Should().HaveCountLessOrEqualTo(1);
@@ -111,7 +111,7 @@ namespace Bicep.LangServer.IntegrationTests
             var client = helper.Helper.Client;
 
             var result = await client.SendRequest(
-                new PrepareVisualResourceParams(
+                new CreateResourceDeclarationInsertionParams(
                     new VersionedTextDocumentIdentifier { Uri = helper.MainUri, Version = 1 },
                     "operation-1",
                     new VisualResourceTypeIdentifier("Test.Rp/basicTests", "2020-01-01")),
@@ -120,7 +120,7 @@ namespace Bicep.LangServer.IntegrationTests
             result.OperationId.Should().Be("operation-1");
             result.SymbolicName.Should().Be("basicTest");
             result.ExpectedNodeId.Should().Be("basicTest");
-            result.UnresolvedRequiredProperties.Should().Equal("name");
+            result.UnresolvedRequiredProperties.Should().BeEmpty();
 
             var textDocumentEdit = result.Edit.DocumentChanges.Should().ContainSingle().Subject.TextDocumentEdit;
             textDocumentEdit.Should().NotBeNull();
@@ -128,7 +128,11 @@ namespace Bicep.LangServer.IntegrationTests
             textDocumentEdit.TextDocument.Version.Should().Be(1);
 
             var updatedContent = ApplyEdit(helper.MainContent, result.Edit);
-            updatedContent.Should().Contain("resource basicTest 'Test.Rp/basicTests@2020-01-01' = {");
+            updatedContent.ReplaceLineEndings("\n").Should().Be("""
+                resource basicTest 'Test.Rp/basicTests@2020-01-01' = {
+                  name: 'basicTest'
+                }
+                """);
         }
 
         [TestMethod]
@@ -144,7 +148,7 @@ namespace Bicep.LangServer.IntegrationTests
             var client = helper.Helper.Client;
 
             var first = await client.SendRequest(
-                new PrepareVisualResourceParams(
+                new CreateResourceDeclarationInsertionParams(
                     new VersionedTextDocumentIdentifier { Uri = helper.MainUri, Version = 1 },
                     "operation-1",
                     new VisualResourceTypeIdentifier("Test.Rp/basicTests", "2020-01-01")),
@@ -152,7 +156,7 @@ namespace Bicep.LangServer.IntegrationTests
             first.SymbolicName.Should().Be("basicTest1");
 
             var second = await client.SendRequest(
-                new PrepareVisualResourceParams(
+                new CreateResourceDeclarationInsertionParams(
                     new VersionedTextDocumentIdentifier { Uri = helper.MainUri, Version = 1 },
                     "operation-2",
                     new VisualResourceTypeIdentifier("Test.Rp/basicTests", "2020-01-01")),
@@ -167,13 +171,18 @@ namespace Bicep.LangServer.IntegrationTests
             var client = helper.Helper.Client;
 
             var result = await client.SendRequest(
-                new PrepareVisualResourceParams(
+                new CreateResourceDeclarationInsertionParams(
                     new VersionedTextDocumentIdentifier { Uri = helper.MainUri, Version = 1 },
                     "operation-1",
                     new VisualResourceTypeIdentifier("Test.Rp/discriminatorTests", "2020-01-01")),
                 default);
 
             result.UnresolvedRequiredProperties.Should().Equal("kind");
+            ApplyEdit(helper.MainContent, result.Edit).ReplaceLineEndings("\n").Should().Be("""
+                resource discriminatorTest 'Test.Rp/discriminatorTests@2020-01-01' = {
+                  kind:
+                }
+                """);
         }
 
         [TestMethod]
@@ -183,7 +192,7 @@ namespace Bicep.LangServer.IntegrationTests
             var client = helper.Helper.Client;
 
             Func<Task> request = async () => await client.SendRequest(
-                new PrepareVisualResourceParams(
+                new CreateResourceDeclarationInsertionParams(
                     new VersionedTextDocumentIdentifier { Uri = helper.MainUri, Version = 1 },
                     "operation-1",
                     new VisualResourceTypeIdentifier("Test.Rp/doesNotExist", "2020-01-01")),
@@ -231,7 +240,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         // The generated code replacement is always a zero-length insertion appended at the end of the
-        // document (see VisualResourceCreationService.GetAppendInsertContext), so applying it is a plain
+        // document (see GeneratedResourceDeclaration), so applying it is a plain
         // string insertion at the offset the single TextEdit's range describes.
         private static string ApplyEdit(string content, WorkspaceEdit edit)
         {

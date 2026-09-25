@@ -24,8 +24,8 @@ import { getLogger } from "../../infrastructure/logging";
 import { debounce } from "../../infrastructure/timing";
 import { getVisualizerMotionPolicy } from "./motion-policy";
 import {
-  prepareVisualResourceRequestType,
-  PrepareVisualResourceResult,
+  createResourceDeclarationInsertionRequestType,
+  ResourceDeclarationInsertion,
   visualGraphLayoutRequestType,
   VisualGraphLayoutResult,
   visualGraphNodeSourceRequestType,
@@ -36,6 +36,7 @@ import {
   visualResourceTypeNamespacesRequestType,
   VisualResourceTypeReference,
   visualResourceTypesRequestType,
+  visualResourceTypeVersionsRequestType,
 } from "./protocol";
 import { getApplyEditFailureCode, hasDocumentChanged } from "./resource-creation";
 import { isResourceCreationEnabled } from "./resource-creation-setting";
@@ -191,7 +192,7 @@ export class BicepVisualizerView extends Disposable {
 
   private async handleGetGraphUpdate(id: string, params: unknown): Promise<void> {
     const current = (params as { current?: VisualGraphRendered | null })?.current ?? null;
-    let result: VisualGraphUpdateResult = { patches: [] };
+    let result: VisualGraphUpdateResult = { patches: [], targetScope: null };
 
     try {
       const document = await workspace.openTextDocument(this.documentUri);
@@ -284,8 +285,8 @@ export class BicepVisualizerView extends Disposable {
     try {
       const document = await workspace.openTextDocument(this.documentUri);
       const requestedVersion = document.version;
-      const result: PrepareVisualResourceResult = await this.languageClient.sendRequest(
-        prepareVisualResourceRequestType,
+      const result: ResourceDeclarationInsertion = await this.languageClient.sendRequest(
+        createResourceDeclarationInsertionRequestType,
         {
           textDocument: this.languageClient.code2ProtocolConverter.asVersionedTextDocumentIdentifier(document),
           operationId: request.operationId,
@@ -342,7 +343,6 @@ export class BicepVisualizerView extends Disposable {
       const document = await workspace.openTextDocument(this.documentUri);
       const result = await this.languageClient.sendRequest(visualResourceTypeNamespacesRequestType, {
         textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
-        includePreview: false,
       });
 
       await this.postResponse(id, result);
@@ -377,7 +377,6 @@ export class BicepVisualizerView extends Disposable {
           textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
           providerNamespace,
           query,
-          includePreview: false,
           pageSize: 200,
           continuationToken,
         });
@@ -393,6 +392,32 @@ export class BicepVisualizerView extends Disposable {
     } catch (error) {
       getLogger().error(`Resource type catalog request failed: ${parseError(error).message}`);
       await this.postErrorResponse(id, { message: "Failed to load resource types for this Bicep file." });
+    }
+  }
+
+  private async handleGetResourceTypeVersions(id: string, params: unknown): Promise<void> {
+    if (
+      typeof params !== "object" ||
+      params === null ||
+      !("fullyQualifiedType" in params) ||
+      typeof params.fullyQualifiedType !== "string" ||
+      !params.fullyQualifiedType.trim()
+    ) {
+      await this.postErrorResponse(id, { message: "A resource type is required." });
+      return;
+    }
+
+    try {
+      const document = await workspace.openTextDocument(this.documentUri);
+      const result = await this.languageClient.sendRequest(visualResourceTypeVersionsRequestType, {
+        textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
+        fullyQualifiedType: params.fullyQualifiedType.trim(),
+      });
+
+      await this.postResponse(id, result);
+    } catch (error) {
+      getLogger().error(`Resource type API versions request failed: ${parseError(error).message}`);
+      await this.postErrorResponse(id, { message: "Failed to load API versions for this resource type." });
     }
   }
 
@@ -472,6 +497,10 @@ export class BicepVisualizerView extends Disposable {
 
         case "resourceTypeCatalog/namespaces":
           void this.handleGetResourceTypeNamespaces(request.id);
+          return;
+
+        case "resourceTypeCatalog/versions":
+          void this.handleGetResourceTypeVersions(request.id, request.params);
           return;
 
         case "motionPolicy/get":

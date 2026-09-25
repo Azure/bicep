@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { GetGraphUpdateResult } from "../api";
 import type { GraphLayoutMode, GraphLayoutResult, GraphUpdateOperations } from "../graph-update-coordinator";
 
+import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
+import { targetScopeAtom } from "../atoms";
 import { GraphUpdateCoordinator } from "../graph-update-coordinator";
 
 /** A promise the test resolves by hand, so request completion order is exact rather than timed. */
@@ -149,8 +152,33 @@ describe("update and layout ordering", () => {
     gate.resolve();
     await Promise.all([first, second, third]);
 
-    // Three notifications, two passes: the one running plus a single coalesced follow-up.
-    expect(harness.calls).toEqual(["fetch", "apply", "fetch", "apply"]);
+    // Three notifications, two fetches: only the current response is applied.
+    expect(harness.calls).toEqual(["fetch", "fetch", "apply"]);
+  });
+
+  it("does not publish a stale target scope after a newer document notification", async () => {
+    const store = createStore();
+    const stale = deferred<GetGraphUpdateResult>();
+    let request = 0;
+    const accepted: GetGraphUpdateResult["targetScope"][] = [];
+    const coordinator = new GraphUpdateCoordinator<GetGraphUpdateResult>({
+      fetchUpdate: () => (++request === 1 ? stale.promise : Promise.resolve({ patches: [], targetScope: "tenant" })),
+      applyUpdate: async (update) => {
+        store.set(targetScopeAtom, update.targetScope);
+        accepted.push(store.get(targetScopeAtom));
+        return { layoutRequired: false };
+      },
+      runGraphLayout: async () => {
+        throw new Error("Scope metadata must not request layout.");
+      },
+    });
+    const first = coordinator.requestUpdate();
+    const second = coordinator.requestUpdate();
+    stale.resolve({ patches: [], targetScope: "subscription" });
+    await Promise.all([first, second]);
+
+    expect(accepted).toEqual(["tenant"]);
+    expect(store.get(targetScopeAtom)).toBe("tenant");
   });
 });
 

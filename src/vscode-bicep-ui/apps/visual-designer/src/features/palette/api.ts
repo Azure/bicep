@@ -38,6 +38,15 @@ export const loadResourceTypeCatalog = defineRequest<LoadResourceTypeCatalogPara
   "resourceTypeCatalog/load",
 );
 
+export type ResourceTypeVersions = {
+  catalogId: string;
+  apiVersions: string[];
+};
+
+export const getResourceTypeVersions = defineRequest<{ fullyQualifiedType: string }, ResourceTypeVersions>(
+  "resourceTypeCatalog/versions",
+);
+
 /**
  * The palette's operations against the extension host.
  *
@@ -55,6 +64,7 @@ export function usePaletteApi() {
     () => ({
       getNamespaces: () => channel.request(getResourceTypeNamespaces),
       loadCatalog: (params: LoadResourceTypeCatalogParams) => channel.request(loadResourceTypeCatalog, params),
+      getVersions: (fullyQualifiedType: string) => channel.request(getResourceTypeVersions, { fullyQualifiedType }),
     }),
     [channel],
   );

@@ -49,11 +49,18 @@ export const lightTheme: DefaultTheme = {
   panel: {
     background: "rgba(255, 255, 255, 0.92)",
     border: "rgba(0, 0, 0, 0.08)",
+    popoverBackground: "rgba(244, 245, 247, 0.5)",
+    popoverBackdropFilter: "blur(16px) saturate(180%)",
+    popoverShadow: "0 1px 2px rgba(0, 0, 0, 0.06), 0 4px 12px -2px rgba(0, 0, 0, 0.1)",
   },
   iconButton: {
     color: "#4b5563",
     hoverBackground: "rgba(0, 0, 0, 0.05)",
     activeBackground: "rgba(0, 0, 0, 0.09)",
+  },
+  scrollbar: {
+    thumb: "rgba(0, 0, 0, 0.18)",
+    thumbActive: "rgba(0, 0, 0, 0.32)",
   },
   focusBorder: "#0078d4",
   error: "#dc2626",
@@ -97,11 +104,18 @@ export const darkTheme: DefaultTheme = {
   panel: {
     background: "rgba(38, 38, 38, 0.92)",
     border: "rgba(255, 255, 255, 0.08)",
+    popoverBackground: "rgba(38, 38, 38, 0.6)",
+    popoverBackdropFilter: "blur(16px) saturate(180%)",
+    popoverShadow: "0 1px 2px rgba(0, 0, 0, 0.24), 0 4px 12px -2px rgba(0, 0, 0, 0.36)",
   },
   iconButton: {
     color: "#a1a1aa",
     hoverBackground: "rgba(255, 255, 255, 0.06)",
     activeBackground: "rgba(255, 255, 255, 0.10)",
+  },
+  scrollbar: {
+    thumb: "rgba(255, 255, 255, 0.2)",
+    thumbActive: "rgba(255, 255, 255, 0.36)",
   },
   focusBorder: "#4da6ff",
   error: "#f87171",
@@ -145,11 +159,18 @@ export const highContrastTheme: DefaultTheme = {
   panel: {
     background: "#000000",
     border: "#ffd700",
+    popoverBackground: "#000000",
+    popoverBackdropFilter: "none",
+    popoverShadow: "none",
   },
   iconButton: {
     color: "#ffffff",
     hoverBackground: "rgba(255, 215, 0, 0.2)",
     activeBackground: "rgba(255, 215, 0, 0.3)",
+  },
+  scrollbar: {
+    thumb: "rgba(255, 215, 0, 0.6)",
+    thumbActive: "#ffd700",
   },
   focusBorder: "#ffd700",
   error: "#ff00ff",
@@ -193,11 +214,18 @@ export const highContrastLightTheme: DefaultTheme = {
   panel: {
     background: "#ffffff",
     border: "#000000",
+    popoverBackground: "#ffffff",
+    popoverBackdropFilter: "none",
+    popoverShadow: "none",
   },
   iconButton: {
     color: "#000000",
     hoverBackground: "rgba(0, 0, 0, 0.1)",
     activeBackground: "rgba(0, 0, 0, 0.2)",
+  },
+  scrollbar: {
+    thumb: "rgba(0, 0, 0, 0.6)",
+    thumbActive: "#000000",
   },
   focusBorder: "#0000cd",
   error: "#ff0000",

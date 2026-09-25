@@ -5,9 +5,12 @@ import type { GetResourceTypeNamespacesResult, LoadResourceTypeCatalogParams } f
 import type { ResourceTypeCatalog, ResourceTypeNamespace } from "../types";
 
 import { useNotification } from "@vscode-bicep-ui/messaging";
+import { useSetAtom } from "jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { documentDidChange } from "@/hooks";
 import { usePaletteApi } from "../api";
+import { acceptVersionCatalogAtom } from "../atoms";
+import { orderNamespaces } from "../namespace-order";
 
 /** Edits arrive in bursts, so refreshes are debounced. The first load is immediate. */
 const REFRESH_DEBOUNCE_MS = 250;
@@ -22,6 +25,7 @@ export interface ResourceTypeCatalogSource {
   namespaces?: ResourceTypeNamespace[];
   namespaceError?: unknown;
   loadNamespace: (providerNamespace: string) => Promise<ResourceTypeCatalog>;
+  loadVersions: (fullyQualifiedType: string) => Promise<string[]>;
   search: (query: string) => Promise<ResourceTypeCatalog>;
   refresh: () => void;
 }
@@ -36,10 +40,12 @@ export interface ResourceTypeCatalogSource {
  */
 export function useResourceTypeCatalog(): ResourceTypeCatalogSource {
   const api = usePaletteApi();
+  const acceptVersionCatalog = useSetAtom(acceptVersionCatalogAtom);
   const [namespaceCatalogState, setNamespaceCatalogState] = useState<NamespaceCatalogState>({ status: "loading" });
   const [refreshGeneration, setRefreshGeneration] = useState(0);
   const namespaceRequestGenerationRef = useRef(0);
   const searchableCatalogRef = useRef<ResourceTypeCatalog | undefined>(undefined);
+  const currentCatalogIdRef = useRef<string | undefined>(undefined);
 
   const refresh = useCallback(() => {
     setRefreshGeneration((generation) => generation + 1);
@@ -61,7 +67,12 @@ export function useResourceTypeCatalog(): ResourceTypeCatalogSource {
               if (searchableCatalogRef.current?.catalogId !== catalog.catalogId) {
                 searchableCatalogRef.current = undefined;
               }
-              setNamespaceCatalogState({ status: "loaded", catalog });
+              currentCatalogIdRef.current = catalog.catalogId;
+              acceptVersionCatalog(catalog.catalogId);
+              setNamespaceCatalogState({
+                status: "loaded",
+                catalog: { ...catalog, namespaces: orderNamespaces(catalog.namespaces) },
+              });
             }
           },
           (error: unknown) => {
@@ -74,23 +85,43 @@ export function useResourceTypeCatalog(): ResourceTypeCatalogSource {
       refreshGeneration === 0 ? 0 : REFRESH_DEBOUNCE_MS,
     );
 
-    return () => window.clearTimeout(timeout);
-  }, [api, refreshGeneration]);
+    return () => {
+      window.clearTimeout(timeout);
+      namespaceRequestGenerationRef.current = requestGeneration + 1;
+    };
+  }, [acceptVersionCatalog, api, refreshGeneration]);
 
   const requestCatalog = useCallback(
     async (params: LoadResourceTypeCatalogParams): Promise<ResourceTypeCatalog> => {
+      const requestedCatalogId = currentCatalogIdRef.current;
       const catalog = await api.loadCatalog(params);
-      const currentCatalogId =
-        namespaceCatalogState.status === "loaded" ? namespaceCatalogState.catalog.catalogId : undefined;
+      const currentCatalogId = currentCatalogIdRef.current;
 
-      if (!currentCatalogId || currentCatalogId !== catalog.catalogId) {
+      if (!currentCatalogId || requestedCatalogId !== currentCatalogId || currentCatalogId !== catalog.catalogId) {
         refresh();
         throw new Error("The resource type catalog changed. Refreshing the Resource Palette.");
       }
 
       return catalog;
     },
-    [api, namespaceCatalogState, refresh],
+    [api, refresh],
+  );
+
+  const loadVersions = useCallback(
+    async (fullyQualifiedType: string) => {
+      const requestedCatalogId = currentCatalogIdRef.current;
+      const result = await api.getVersions(fullyQualifiedType);
+      if (
+        !requestedCatalogId ||
+        requestedCatalogId !== currentCatalogIdRef.current ||
+        result.catalogId !== currentCatalogIdRef.current
+      ) {
+        refresh();
+        throw new Error("The resource type catalog changed. Refreshing the Resource Palette.");
+      }
+      return result.apiVersions;
+    },
+    [api, refresh],
   );
 
   const loadNamespace = useCallback(
@@ -104,8 +135,12 @@ export function useResourceTypeCatalog(): ResourceTypeCatalogSource {
       let catalog = searchableCatalogRef.current;
       if (!catalog) {
         catalog = await requestCatalog({ loadAll: true });
-        searchableCatalogRef.current = catalog;
       }
+      if (catalog.catalogId !== currentCatalogIdRef.current) {
+        refresh();
+        throw new Error("The resource type catalog changed. Refreshing the Resource Palette.");
+      }
+      searchableCatalogRef.current = catalog;
 
       const normalizedQuery = query.toLocaleLowerCase();
       return {
@@ -120,7 +155,7 @@ export function useResourceTypeCatalog(): ResourceTypeCatalogSource {
           .filter((group) => group.resourceTypes.length > 0),
       };
     },
-    [requestCatalog],
+    [refresh, requestCatalog],
   );
 
   return {
@@ -128,6 +163,7 @@ export function useResourceTypeCatalog(): ResourceTypeCatalogSource {
     namespaces: namespaceCatalogState.status === "loaded" ? namespaceCatalogState.catalog.namespaces : undefined,
     namespaceError: namespaceCatalogState.status === "error" ? namespaceCatalogState.error : undefined,
     loadNamespace,
+    loadVersions,
     search,
     refresh,
   };

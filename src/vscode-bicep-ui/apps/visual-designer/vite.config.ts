@@ -76,7 +76,7 @@ function previewMock(): Plugin {
         } else if (msg && msg.method === "getGraphUpdate") {
           window.postMessage({
             id: msg.id,
-            result: { patches: graphUpdatePatches(msg.params && msg.params.current) },
+            result: { patches: graphUpdatePatches(msg.params && msg.params.current), targetScope: "resourceGroup" },
           }, "*");
         } else if (msg && msg.method === "getGraphLayout") {
           window.postMessage({
@@ -112,6 +112,12 @@ function previewMock(): Plugin {
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), previewMock()],
+  server: {
+    watch: {
+      // Playwright trace snapshots are HTML, but are not application entry points to hot-reload.
+      ignored: ["**/e2e/.results/**", "**/e2e/.report/**"],
+    },
+  },
   resolve: {
     alias: [
       {

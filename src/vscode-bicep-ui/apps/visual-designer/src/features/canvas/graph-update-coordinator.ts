@@ -90,6 +90,7 @@ export class GraphUpdateCoordinator<TUpdate> {
   private pending: PendingWork = NOTHING_PENDING;
   private draining = false;
   private mutating = false;
+  private updateGeneration = 0;
   private mutationQueue: Promise<void> = Promise.resolve();
   private idleWaiters: PromiseWithResolvers<void> | null = null;
 
@@ -104,6 +105,7 @@ export class GraphUpdateCoordinator<TUpdate> {
 
   /** The document may have changed. Coalesces with any pass already running. */
   requestUpdate(): Promise<void> {
+    this.updateGeneration++;
     this.pending = pendUpdate(this.pending);
 
     return this.drain();
@@ -119,6 +121,7 @@ export class GraphUpdateCoordinator<TUpdate> {
   /** Run a source mutation, serialized against other mutations and against reconciliation. */
   runMutation(mutate: () => Promise<void>): Promise<void> {
     const run = async () => {
+      this.updateGeneration++;
       this.mutating = true;
 
       try {
@@ -199,15 +202,16 @@ export class GraphUpdateCoordinator<TUpdate> {
   /**
    * Reconcile once.
    *
-   * Returns false when a mutation began while the response was in flight. That response may already
-   * contain the created node, but its expected id is not yet bound to the drop origin, so applying it
-   * would place the node by layout instead of where the user dropped it. The mutation re-drains once
-   * it has recorded the binding.
+   * Returns false when a notification or mutation superseded the in-flight response. In addition to
+   * stale document metadata, a response overlapping a mutation may contain a created node before its
+   * expected id is bound to the drop origin. Re-fetch rather than applying either stale scope or an
+   * unbound placement.
    */
   private async runUpdatePass(): Promise<boolean> {
+    const generation = this.updateGeneration;
     const update = await this.requireOperations().fetchUpdate();
 
-    if (this.mutating) {
+    if (this.mutating || generation !== this.updateGeneration) {
       this.pending = pendUpdate(this.pending);
       return false;
     }

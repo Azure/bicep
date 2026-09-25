@@ -4,8 +4,7 @@
 import styled from "styled-components";
 
 /**
- * A panel that floats above the viewport: the chrome shared by the control bar and the palette
- * launcher.
+ * A panel that floats above the viewport: the chrome shared by the control bar and creation dock.
  */
 export const FloatingPanel = styled.div`
   display: flex;

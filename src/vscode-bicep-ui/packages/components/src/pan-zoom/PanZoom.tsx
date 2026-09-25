@@ -6,7 +6,6 @@ import type { PropsWithChildren, ReactElement } from "react";
 
 import { select } from "d3-selection";
 import { zoom, zoomIdentity } from "d3-zoom";
-import { RESET } from "jotai/utils";
 import { frame } from "motion/react";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { panZoomControlAtom, panZoomDimensionsAtom, panZoomTransformAtom, useSetAtom } from "./atoms";
@@ -128,7 +127,7 @@ export function PanZoom({
 
     return () => {
       panZoomBehavior.on("zoom", null);
-      setPanZoomControl(RESET);
+      setPanZoomControl(null);
     };
   }, [maximumScale, minimumScale, defaultScaleFactor, setPanZoomControl, setPanZoomTransform, transition.duration]);
 

@@ -41,6 +41,7 @@ export interface VisualGraphUpdateParams {
 
 export interface VisualGraphUpdateResult {
   patches: unknown[];
+  targetScope: "resourceGroup" | "subscription" | "managementGroup" | "tenant" | null;
 }
 
 export const visualGraphUpdateRequestType = new ProtocolRequestType<
@@ -104,7 +105,6 @@ export interface VisualResourceTypeNamespace {
 
 export interface VisualResourceTypeNamespacesParams {
   textDocument: TextDocumentIdentifier;
-  includePreview: boolean;
 }
 
 export interface VisualResourceTypeNamespacesResult {
@@ -124,7 +124,6 @@ export interface VisualResourceTypesParams {
   textDocument: TextDocumentIdentifier;
   providerNamespace?: string;
   query?: string;
-  includePreview: boolean;
   pageSize: number;
   continuationToken?: string;
 }
@@ -143,13 +142,31 @@ export const visualResourceTypesRequestType = new ProtocolRequestType<
   void
 >("textDocument/visualResourceTypes");
 
-export interface PrepareVisualResourceParams {
+export interface VisualResourceTypeVersionsParams {
+  textDocument: TextDocumentIdentifier;
+  fullyQualifiedType: string;
+}
+
+export interface VisualResourceTypeVersionsResult {
+  catalogId: string;
+  apiVersions: string[];
+}
+
+export const visualResourceTypeVersionsRequestType = new ProtocolRequestType<
+  VisualResourceTypeVersionsParams,
+  VisualResourceTypeVersionsResult,
+  never,
+  void,
+  void
+>("textDocument/visualResourceTypeVersions");
+
+export interface CreateResourceDeclarationInsertionParams {
   textDocument: VersionedTextDocumentIdentifier;
   operationId: string;
   resourceType: VisualResourceTypeReference;
 }
 
-export interface PrepareVisualResourceResult {
+export interface ResourceDeclarationInsertion {
   operationId: string;
   expectedNodeId: string;
   symbolicName: string;
@@ -157,9 +174,9 @@ export interface PrepareVisualResourceResult {
   edit: WorkspaceEdit;
 }
 
-export const prepareVisualResourceRequestType = new ProtocolRequestType<
-  PrepareVisualResourceParams,
-  PrepareVisualResourceResult,
+export const createResourceDeclarationInsertionRequestType = new ProtocolRequestType<
+  CreateResourceDeclarationInsertionParams,
+  ResourceDeclarationInsertion,
   never,
   void,
   void

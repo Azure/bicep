@@ -16,13 +16,19 @@ import type {
   GetGraphLayoutResult,
   GetGraphUpdateParams,
   GetGraphUpdateResult,
+  TargetScope,
 } from "@/features/canvas";
 import type { SampleGraph } from "./sample-graph";
 
 // The fake host implements the whole protocol, so it is the one legitimate consumer of every
 // feature's `api` surface.
 import { createResource, getGraphLayout, getGraphUpdate, revealNodeSource } from "@/features/canvas";
-import { getResourceCreationEnablement, getResourceTypeNamespaces, loadResourceTypeCatalog } from "@/features/palette";
+import {
+  getResourceCreationEnablement,
+  getResourceTypeNamespaces,
+  getResourceTypeVersions,
+  loadResourceTypeCatalog,
+} from "@/features/palette";
 import { showProblemsPanel } from "@/features/status";
 import { documentDidChange, getMotionPolicy, ready } from "@/hooks";
 import { diffGraph, layoutGraph } from "./fake-graph-differ";
@@ -504,6 +510,40 @@ function getScope(id: string): string {
 }
 
 /**
+ * Synthesizes `size` extra resource types shaped like the real Azure catalog (one namespace the size of
+ * Microsoft.Network, the rest about ten types each) so rendering and search can be profiled at scale.
+ */
+function createSyntheticCatalog(size: number, scopes: TargetScope[]) {
+  if (!Number.isFinite(size) || size <= 0) {
+    return [];
+  }
+
+  const largeNamespaceSize = Math.min(166, size);
+  const groups = [
+    {
+      group: "Microsoft.SyntheticLarge",
+      resourceTypes: Array.from({ length: largeNamespaceSize }, (_, index) => ({
+        resourceType: `resource${index}`,
+        apiVersion: "2024-01-01",
+        scopes,
+      })),
+    },
+  ];
+  for (let offset = largeNamespaceSize, groupIndex = 0; offset < size; offset += 10, groupIndex++) {
+    groups.push({
+      group: `Microsoft.Synthetic${String(groupIndex).padStart(3, "0")}`,
+      resourceTypes: Array.from({ length: Math.min(10, size - offset) }, (_, index) => ({
+        resourceType: `resource${index}`,
+        apiVersion: "2024-01-01",
+        scopes,
+      })),
+    });
+  }
+
+  return groups;
+}
+
+/**
  * Resource-catalog responses are deliberately delayed so the dev shell exercises loading states.
  * The `catalogDelay` query parameter overrides that delay (in milliseconds) so end-to-end tests can
  * hold the loading state open long enough to assert on it instead of racing the default timing.
@@ -706,6 +746,9 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
  * and layout responses through the same request flow used in production.
  */
 export class FakeMessageChannel implements WebviewMessageChannelApi {
+  private catalogRevision = 0;
+  private versionRequestCount = 0;
+  private targetScope: TargetScope = "resourceGroup";
   private readonly notificationSubscriptions: Record<string, Set<WebviewNotificationCallback>> = {};
   private readonly onWindowMessage = (event: MessageEvent) => {
     if (
@@ -719,6 +762,10 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
   };
 
   constructor() {
+    const scope = new URLSearchParams(window.location.search).get("targetScope");
+    if (scope === "subscription" || scope === "managementGroup" || scope === "tenant") {
+      this.targetScope = scope;
+    }
     window.addEventListener("message", this.onWindowMessage);
   }
 
@@ -739,23 +786,55 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
       return Promise.resolve((new URLSearchParams(window.location.search).get("resourceCreation") !== "false") as T);
     }
 
+    const catalogId = `dev-catalog-${this.catalogRevision}-${this.targetScope}`;
+    // Mirrors the language server: only types deployable at the document's target scope are offered.
+    const everyScope: TargetScope[] = ["resourceGroup", "subscription", "managementGroup", "tenant"];
     const resourceTypeCatalog = [
       {
         group: "Microsoft.Storage",
-        resourceTypes: [{ resourceType: "storageAccounts", apiVersion: "2025-01-01" }],
+        resourceTypes: [
+          {
+            resourceType: "storageAccounts",
+            apiVersion: this.catalogRevision ? "2026-01-01" : "2025-01-01",
+            scopes: ["resourceGroup"],
+          },
+        ],
       },
       {
         group: "Microsoft.Network",
-        resourceTypes: [{ resourceType: "virtualNetworks", apiVersion: "2024-07-01" }],
+        resourceTypes: [{ resourceType: "virtualNetworks", apiVersion: "2024-07-01", scopes: ["resourceGroup"] }],
       },
-    ];
+      {
+        group: "Microsoft.Resources",
+        resourceTypes: [{ resourceType: "resourceGroups", apiVersion: "2025-04-01", scopes: ["subscription"] }],
+      },
+      {
+        group: "Microsoft.Management",
+        resourceTypes: [{ resourceType: "managementGroups", apiVersion: "2023-04-01", scopes: ["tenant"] }],
+      },
+      {
+        group: "Microsoft.Preview",
+        resourceTypes: [{ resourceType: "widgets", apiVersion: "2026-01-01-preview", scopes: everyScope }],
+      },
+      ...createSyntheticCatalog(
+        Number(new URLSearchParams(window.location.search).get("catalogSize") ?? 0),
+        everyScope,
+      ),
+    ]
+      .map((group) => ({
+        group: group.group,
+        resourceTypes: group.resourceTypes
+          .filter((resourceType) => resourceType.scopes.includes(this.targetScope))
+          .map(({ resourceType, apiVersion }) => ({ resourceType, apiVersion })),
+      }))
+      .filter((group) => group.resourceTypes.length > 0);
 
     if (requestMessage.method === getResourceTypeNamespaces.method) {
       return new Promise<T>((resolve) => {
         setTimeout(
           () =>
             resolve({
-              catalogId: "dev-catalog",
+              catalogId,
               namespaces: resourceTypeCatalog.map((group) => ({
                 name: group.group,
                 resourceTypeCount: group.resourceTypes.length,
@@ -786,14 +865,45 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
         .filter((group) => group.resourceTypes.length > 0);
 
       return new Promise<T>((resolve) => {
-        setTimeout(() => resolve({ catalogId: "dev-catalog", groups } as T), getCatalogDelayMs(loadAll ? 600 : 200));
+        setTimeout(() => resolve({ catalogId, groups } as T), getCatalogDelayMs(loadAll ? 600 : 200));
+      });
+    }
+
+    if (requestMessage.method === getResourceTypeVersions.method) {
+      const { fullyQualifiedType } = requestMessage.params as { fullyQualifiedType: string };
+      const fixtureVersions: Record<string, string[]> = {
+        "Microsoft.Storage/storageAccounts": this.catalogRevision
+          ? ["2026-02-01-preview", "2026-01-01"]
+          : ["2026-02-01-preview", "2025-01-01", "2024-01-01"],
+        "Microsoft.Network/virtualNetworks": ["2025-01-01-preview", "2024-07-01", "2023-11-01"],
+        "Microsoft.Resources/resourceGroups": ["2025-04-01", "2022-09-01"],
+        "Microsoft.Management/managementGroups": ["2023-04-01", "2021-04-01"],
+        "Microsoft.Preview/widgets": ["2026-01-01-preview", "2025-01-01-preview"],
+      };
+      const params = new URLSearchParams(window.location.search);
+      const shouldFail = this.versionRequestCount++ < Number(params.get("versionFailures") ?? 0);
+      const delay = Number(params.get("versionsDelay") ?? 200);
+      return new Promise<T>((resolve, reject) => {
+        setTimeout(
+          () => {
+            if (shouldFail) {
+              reject(new Error("Failed to load API versions."));
+            } else {
+              resolve({ catalogId, apiVersions: fixtureVersions[fullyQualifiedType] ?? [] } as T);
+            }
+          },
+          Number.isFinite(delay) && delay >= 0 ? delay : 200,
+        );
       });
     }
 
     if (requestMessage.method === getGraphUpdate.method) {
       const { current } = requestMessage.params as GetGraphUpdateParams;
       const patches = diffGraph(current, this.currentGraph);
-      return Promise.resolve({ patches } as GetGraphUpdateResult as T);
+      return Promise.resolve({
+        patches,
+        targetScope: this.currentGraph ? this.targetScope : null,
+      } satisfies GetGraphUpdateResult as T);
     }
 
     if (requestMessage.method === getGraphLayout.method) {
@@ -808,6 +918,7 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
 
     if (requestMessage.method === createResource.method) {
       const request = requestMessage.params as CreateResourceParams;
+      window.dispatchEvent(new CustomEvent("dev-resource-create", { detail: request.resourceType }));
       const current = this.currentGraph ?? { nodes: [], edges: [], errorCount: 0 };
       const baseName = request.resourceType.fullyQualifiedType.split("/").slice(-1)[0]?.replace(/s$/, "") ?? "resource";
       let symbolicName = baseName.charAt(0).toLocaleLowerCase() + baseName.slice(1);
@@ -884,6 +995,16 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
   /** Returns the most recently pushed graph (for mutations). */
   getCurrentGraph(): SampleGraph | null {
     return this.currentGraph;
+  }
+
+  setTargetScope(scope: TargetScope) {
+    this.targetScope = scope;
+    this.pushGraph(this.currentGraph);
+  }
+
+  changeCatalog() {
+    this.catalogRevision++;
+    this.pushGraph(this.currentGraph);
   }
 
   /** Simulate the extension host announcing that the graph may have changed. */

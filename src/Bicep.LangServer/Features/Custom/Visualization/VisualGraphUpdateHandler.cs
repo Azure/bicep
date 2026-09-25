@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core;
+using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Features.Custom.Visualization.Models;
@@ -39,13 +41,22 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 this.logger.LogError("Visual graph update request arrived before file {Uri} could be compiled.", request.TextDocument.Uri);
 
                 // The client keeps what it has; the next document change reconciles once compilation is ready.
-                return Task.FromResult(new VisualGraphUpdateResult([]));
+                return Task.FromResult(new VisualGraphUpdateResult([], null));
             }
 
             var target = VisualGraphBuilder.Build(context, request.TextDocument.Uri.ToIOUri());
             var patches = VisualGraphDiffer.Diff(request.Current, target);
 
-            return Task.FromResult(new VisualGraphUpdateResult(patches));
+            var targetScope = context.Compilation.GetEntrypointSemanticModel().TargetScope switch
+            {
+                ResourceScope.ResourceGroup => LanguageConstants.TargetScopeTypeResourceGroup,
+                ResourceScope.Subscription => LanguageConstants.TargetScopeTypeSubscription,
+                ResourceScope.ManagementGroup => LanguageConstants.TargetScopeTypeManagementGroup,
+                ResourceScope.Tenant => LanguageConstants.TargetScopeTypeTenant,
+                _ => null,
+            };
+
+            return Task.FromResult(new VisualGraphUpdateResult(patches, targetScope));
         }
     }
 

@@ -49,22 +49,6 @@ function computeGraphBounds(store: Store) {
 }
 
 /**
- * Find the PanZoomTransformed element inside the canvas.
- * It's the div whose inline style.transform contains "translate".
- */
-function findTransformedElement(root: HTMLElement): HTMLElement | null {
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
-  let node = walker.nextNode() as HTMLElement | null;
-  while (node) {
-    if (node.style?.transform?.includes("translate")) {
-      return node;
-    }
-    node = walker.nextNode() as HTMLElement | null;
-  }
-  return null;
-}
-
-/**
  * Capture the graph by cloning the canvas into an off-screen element.
  *
  * This avoids touching the live canvas at all — no flicker, no
@@ -107,15 +91,13 @@ export async function captureGraphElement(
   document.body.appendChild(wrapper);
 
   try {
-    // Fix overflow on the PanZoom container inside the clone.
-    const panZoomContainer = clone.querySelector('[data-testid="pan-zoom"]') as HTMLElement | null;
-    if (panZoomContainer) {
-      panZoomContainer.style.overflow = "visible";
-    }
+    const viewportContainer = clone.querySelector<HTMLElement>("[data-export-viewport]");
+    if (!viewportContainer) throw new Error("Graph viewport not found in clone");
+    viewportContainer.style.overflow = "visible";
 
-    // Set the export transform on the cloned PanZoomTransformed.
-    const transformedEl = findTransformedElement(clone);
-    if (!transformedEl) throw new Error("PanZoomTransformed not found in clone");
+    // Set the export transform on the cloned graph, not the pending-resource layer.
+    const transformedEl = clone.querySelector<HTMLElement>("[data-export-graph]");
+    if (!transformedEl) throw new Error("Graph content not found in clone");
 
     const offsetX = padding - bounds.minX;
     const offsetY = padding - bounds.minY;

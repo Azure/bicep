@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { PropsWithChildren } from "react";
+
 import { PanZoomTransformed } from "@vscode-bicep-ui/components";
 import { useAtomValue } from "jotai";
 import { styled } from "styled-components";
@@ -24,14 +26,15 @@ const $SharedDefs = styled.svg`
   pointer-events: none;
 `;
 
-export function Graph() {
+export function Graph({ children }: PropsWithChildren) {
   const layoutReady = useAtomValue(layoutReadyAtom);
 
   return (
-    <$PanZoomTransformed $visible={layoutReady}>
+    <$PanZoomTransformed $visible={layoutReady} data-export-graph="">
       <$SharedDefs>
         <EdgeMarkerDefs />
       </$SharedDefs>
+      {children}
       <OuterEdgeLayer />
       <NodeLayer />
       <InnerEdgeLayer />

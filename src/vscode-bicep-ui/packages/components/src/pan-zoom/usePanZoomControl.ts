@@ -1,15 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { panZoomControlAtom, useAtomValue } from "./atoms";
+import { useMemo } from "react";
+import { resetPanZoomAtom, transformPanZoomAtom, useSetAtom, zoomInAtom, zoomOutAtom } from "./atoms";
 
 /**
- * A hook that provides access to the pan-zoom control, allowing for zooming in, zooming out, and resetting the pan-zoom transform values.
+ * Provides pan-zoom commands without subscribing to the controller that PanZoom registers on mount.
+ * Commands require a mounted PanZoom surface.
  *
  * @returns The pan-zoom control object, which includes functions for zooming in, zooming out, and resetting.
  */
 export function usePanZoomControl() {
-  const panZoomControl = useAtomValue(panZoomControlAtom);
+  const zoomIn = useSetAtom(zoomInAtom);
+  const zoomOut = useSetAtom(zoomOutAtom);
+  const reset = useSetAtom(resetPanZoomAtom);
+  const transform = useSetAtom(transformPanZoomAtom);
 
-  return panZoomControl;
+  return useMemo(() => ({ zoomIn, zoomOut, reset, transform }), [reset, transform, zoomIn, zoomOut]);
 }

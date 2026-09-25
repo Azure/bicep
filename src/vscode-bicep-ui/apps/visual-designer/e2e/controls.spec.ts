@@ -1,8 +1,27 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { Page } from "@playwright/test";
+
 import { expect, test } from "@playwright/test";
 import { getGraphTransform, loadSampleGraph, openVisualDesigner, waitForStableNodePosition } from "./fixtures";
+
+async function interceptExportedImage(page: Page) {
+  await page.evaluate(() => {
+    const output = window as Window & { capturedExport?: Blob };
+    Object.defineProperty(window, "showSaveFilePicker", {
+      configurable: true,
+      value: async () => ({
+        createWritable: async () => ({
+          write: async (blob: Blob) => {
+            output.capturedExport = blob;
+          },
+          close: async () => {},
+        }),
+      }),
+    });
+  });
+}
 
 test.describe("Status bar", () => {
   test.beforeEach(async ({ page }) => {
@@ -48,6 +67,18 @@ test.describe("Control bar", () => {
     await expect(page.getByTestId("control-fit-view")).toBeDisabled();
     await expect(page.getByTestId("control-reset-layout")).toBeDisabled();
     await expect(page.getByTestId("control-export")).toBeDisabled();
+  });
+
+  test("button groups are evenly inset from the divider and the bar edges", async ({ page }) => {
+    const bar = (await page.getByTestId("control-bar").boundingBox())!;
+    const first = (await page.getByTestId("control-zoom-in").boundingBox())!;
+    const reset = (await page.getByTestId("control-reset-layout").boundingBox())!;
+    const exportButton = (await page.getByTestId("control-export").boundingBox())!;
+    const edgeInset = first.y - bar.y;
+
+    expect(bar.y + bar.height - (exportButton.y + exportButton.height)).toBeCloseTo(edgeInset, 0);
+    // The divider is 1px tall and sits between the two groups; each side of it matches the edge inset.
+    expect(exportButton.y - (reset.y + reset.height)).toBeCloseTo(edgeInset * 2 + 1, 0);
   });
 
   test("re-enables graph-dependent controls when a graph is loaded", async ({ page }) => {
@@ -142,5 +173,116 @@ test.describe("Export overlay", () => {
 
     await page.keyboard.press("Escape");
     await expect(page.getByTestId("export-overlay")).toHaveCount(0);
+  });
+
+  test("solid background follows zoom and fills the exported image", async ({ page }) => {
+    await waitForStableNodePosition(page, "pip");
+    await interceptExportedImage(page);
+    await page.getByTestId("control-export").click();
+    await page.getByRole("toolbar", { name: "Export settings" }).getByRole("combobox").first().click();
+    await page.getByRole("option", { name: "Solid" }).click();
+
+    const cover = page.locator("[data-export-background]");
+    await expect(cover).toBeVisible();
+    const originalWidth = (await cover.boundingBox())!.width;
+    const backgroundColor = await cover.evaluate((element) => getComputedStyle(element).backgroundColor);
+
+    await page.getByTestId("control-zoom-in").click();
+    await expect.poll(async () => (await cover.boundingBox())?.width).toBeGreaterThan(originalWidth * 1.4);
+    await page.getByTestId("control-zoom-out").click();
+    await expect.poll(async () => (await cover.boundingBox())?.width).toBeCloseTo(originalWidth, 0);
+
+    await page.getByRole("toolbar", { name: "Export settings" }).getByRole("button", { name: "Export", exact: true }).click();
+    await expect
+      .poll(() => page.evaluate(() => Boolean((window as Window & { capturedExport?: Blob }).capturedExport)))
+      .toBe(true);
+
+    const corners = await page.evaluate(async () => {
+      const blob = (window as Window & { capturedExport?: Blob }).capturedExport;
+      if (!blob) throw new Error("Exported image not found");
+      const bitmap = await createImageBitmap(blob);
+      const canvas = document.createElement("canvas");
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Could not inspect exported image");
+      context.drawImage(bitmap, 0, 0);
+      return [
+        [...context.getImageData(1, 1, 1, 1).data],
+        [...context.getImageData(canvas.width - 2, canvas.height - 2, 1, 1).data],
+      ];
+    });
+    const colorComponents = backgroundColor.match(/\d+/g)?.map(Number);
+    if (!colorComponents || colorComponents.length !== 3) throw new Error(`Unexpected background color: ${backgroundColor}`);
+    for (const corner of corners) {
+      expect(corner).toEqual([...colorComponents, 255]);
+    }
+  });
+
+  test("captures every node after zooming the graph", async ({ page }) => {
+    await waitForStableNodePosition(page, "pip");
+    const graphScale = () =>
+      page.locator("[data-export-graph]").evaluate((element) => new DOMMatrixReadOnly(element.style.transform).a);
+    const initialScale = await graphScale();
+    await page.getByTestId("control-zoom-in").click();
+    await expect.poll(graphScale).toBeGreaterThan(initialScale * 1.4);
+
+    const expectedCenters = await page.evaluate(() => {
+      const graph = document.querySelector<HTMLElement>("[data-export-graph]");
+      if (!graph) throw new Error("Graph content not found");
+      const { left, top } = graph.getBoundingClientRect();
+      const scale = new DOMMatrixReadOnly(graph.style.transform).a;
+      const boxes = [...graph.querySelectorAll<HTMLElement>("[data-node-id]")].map((node) => {
+        const rect = node.getBoundingClientRect();
+        return {
+          left: (rect.left - left) / scale,
+          top: (rect.top - top) / scale,
+          width: rect.width / scale,
+          height: rect.height / scale,
+        };
+      });
+      const minX = Math.min(...boxes.map((box) => box.left));
+      const minY = Math.min(...boxes.map((box) => box.top));
+      return boxes.map((box) => ({
+        x: Math.round((box.left - minX + box.width / 2 + 40) * 2),
+        y: Math.round((box.top - minY + box.height / 2 + 40) * 2),
+      }));
+    });
+    expect(expectedCenters).toHaveLength(4);
+
+    await interceptExportedImage(page);
+
+    await page.getByTestId("control-export").click();
+    await page.getByRole("toolbar", { name: "Export settings" }).getByRole("button", { name: "Export", exact: true }).click();
+    await expect
+      .poll(() => page.evaluate(() => Boolean((window as Window & { capturedExport?: Blob }).capturedExport)))
+      .toBe(true);
+
+    const capture = await page.evaluate(async (centers) => {
+      const blob = (window as Window & { capturedExport?: Blob }).capturedExport;
+      if (!blob) throw new Error("Exported image not found");
+      const bitmap = await createImageBitmap(blob);
+      const canvas = document.createElement("canvas");
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Could not inspect exported image");
+      context.drawImage(bitmap, 0, 0);
+      const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+      return {
+        width: canvas.width,
+        height: canvas.height,
+        alphas: centers.map(({ x, y }) => pixels[(y * canvas.width + x) * 4 + 3]),
+      };
+    }, expectedCenters);
+
+    for (const { x, y } of expectedCenters) {
+      expect(x).toBeGreaterThan(0);
+      expect(y).toBeGreaterThan(0);
+      expect(x).toBeLessThan(capture.width);
+      expect(y).toBeLessThan(capture.height);
+    }
+    expect(capture.alphas).toHaveLength(4);
+    expect(capture.alphas.every((alpha) => alpha !== undefined && alpha > 0)).toBe(true);
   });
 });
