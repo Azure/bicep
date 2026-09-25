@@ -421,6 +421,213 @@ param stringParam =  /*TODO*/
         }
 
         [TestMethod]
+        public void Invalid_inherited_user_defined_type_should_report_diagnostics_on_extends_path()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", """
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              """),
+              ("shared.bicepparam", """
+                using none
+
+                param person = {
+                  test: 'testing'
+                }
+              """),
+              ("main.bicep", """
+                param person personType
+
+                type personType = {
+                  name: string
+                  age: int
+                  address: string
+                }
+              """));
+
+            var extendsPath = result.Compilation.GetEntrypointSemanticModel().SourceFile.ProgramSyntax.Declarations
+                .OfType<ExtendsDeclarationSyntax>()
+                .Single()
+                .Path;
+            var diagnostics = result.ExcludingLinterDiagnostics().Diagnostics.ToArray();
+
+            diagnostics.Should().HaveDiagnostics([
+                ("BCP035", DiagnosticLevel.Error, "The value inherited for parameter \"person\" from \"shared.bicepparam\": The specified \"param\" declaration is missing the following required properties: \"address\", \"age\", \"name\"."),
+                ("BCP037", DiagnosticLevel.Warning, "The value inherited for parameter \"person\" from \"shared.bicepparam\": The property \"test\" is not allowed on objects of type \"{ name: string, age: int, address: string }\". Permissible properties include \"address\", \"age\", \"name\"."),
+            ]);
+            diagnostics.Should().AllSatisfy(diagnostic =>
+            {
+                diagnostic.Span.Should().Be(extendsPath.Span);
+                diagnostic.Should().BeOfType<Diagnostic>().Which.Fixes.Should().BeEmpty();
+            });
+        }
+
+        [TestMethod]
+        public void Valid_inherited_user_defined_type_should_compile()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", """
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              """),
+              ("shared.bicepparam", """
+                using none
+
+                param person = {
+                  name: 'Ada'
+                  age: 36
+                  address: 'London'
+                }
+              """),
+              ("main.bicep", """
+                param person personType
+
+                type personType = {
+                  name: string
+                  age: int
+                  address: string
+                }
+              """));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().HaveJsonAtPath("parameters.person.value", """
+              {
+                "name": "Ada",
+                "age": 36,
+                "address": "London"
+              }
+              """);
+        }
+
+        [TestMethod]
+        public void Sealed_invalid_inherited_user_defined_type_should_preserve_error_severity()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", """
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              """),
+              ("shared.bicepparam", """
+                using none
+
+                param person = {
+                  test: 'testing'
+                }
+              """),
+              ("main.bicep", """
+                param person personType
+
+                @sealed()
+                type personType = {
+                  name: string
+                }
+              """));
+
+            var extendsPath = result.Compilation.GetEntrypointSemanticModel().SourceFile.ProgramSyntax.Declarations
+                .OfType<ExtendsDeclarationSyntax>()
+                .Single()
+                .Path;
+            var diagnostics = result.ExcludingLinterDiagnostics().Diagnostics.ToArray();
+
+            diagnostics.Should().HaveDiagnostics([
+                ("BCP035", DiagnosticLevel.Error, "The value inherited for parameter \"person\" from \"shared.bicepparam\": The specified \"param\" declaration is missing the following required properties: \"name\"."),
+                ("BCP037", DiagnosticLevel.Error, "The value inherited for parameter \"person\" from \"shared.bicepparam\": The property \"test\" is not allowed on objects of type \"{ name: string }\". Permissible properties include \"name\"."),
+            ]);
+            diagnostics.Should().AllSatisfy(diagnostic => diagnostic.Span.Should().Be(extendsPath.Span));
+        }
+
+        [TestMethod]
+        public void Nested_invalid_inherited_user_defined_type_should_report_diagnostic_on_direct_extends_path()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", """
+                using 'main.bicep'
+                extends 'middle.bicepparam'
+              """),
+              ("middle.bicepparam", """
+                using none
+                extends 'base.bicepparam'
+              """),
+              ("base.bicepparam", """
+                using none
+
+                param person = {
+                  name: 42
+                  test: 'testing'
+                }
+              """),
+              ("main.bicep", """
+                param person personType
+
+                type personType = {
+                  name: string
+                  age: int
+                }
+              """));
+
+            var extendsPath = result.Compilation.GetEntrypointSemanticModel().SourceFile.ProgramSyntax.Declarations
+                .OfType<ExtendsDeclarationSyntax>()
+                .Single()
+                .Path;
+            var diagnostics = result.ExcludingLinterDiagnostics().Diagnostics.ToArray();
+
+            diagnostics.Should().HaveDiagnostics([
+                ("BCP035", DiagnosticLevel.Error, "The value inherited for parameter \"person\" from \"base.bicepparam\": The specified \"param\" declaration is missing the following required properties: \"age\"."),
+                ("BCP036", DiagnosticLevel.Error, "The value inherited for parameter \"person\" from \"base.bicepparam\": The property \"name\" expected a value of type \"string\" but the provided value is of type \"42\"."),
+                ("BCP037", DiagnosticLevel.Warning, "The value inherited for parameter \"person\" from \"base.bicepparam\": The property \"test\" is not allowed on objects of type \"{ name: string, age: int }\". Permissible properties include \"age\"."),
+            ]);
+            diagnostics.Should().AllSatisfy(diagnostic =>
+            {
+                diagnostic.Span.Should().Be(extendsPath.Span);
+                diagnostic.Should().BeOfType<Diagnostic>().Which.Fixes.Should().BeEmpty();
+            });
+        }
+
+        [TestMethod]
+        public void Invalid_nested_object_in_inherited_parameter_should_report_contextual_diagnostics()
+        {
+            var result = CompilationHelper.CompileParams(
+              ("parameters.bicepparam", """
+                using 'main.bicep'
+                extends 'shared.bicepparam'
+              """),
+              ("shared.bicepparam", """
+                using none
+
+                param person = {
+                  address: {
+                    unexpected: 'testing'
+                  }
+                }
+              """),
+              ("main.bicep", """
+                param person personType
+
+                type personType = {
+                  address: {
+                    street: string
+                  }
+                }
+              """));
+
+            var extendsPath = result.Compilation.GetEntrypointSemanticModel().SourceFile.ProgramSyntax.Declarations
+                .OfType<ExtendsDeclarationSyntax>()
+                .Single()
+                .Path;
+            var diagnostics = result.ExcludingLinterDiagnostics().Diagnostics.ToArray();
+
+            diagnostics.Should().HaveDiagnostics([
+                ("BCP035", DiagnosticLevel.Error, "The value inherited for parameter \"person\" from \"shared.bicepparam\": The specified \"object\" declaration is missing the following required properties: \"street\"."),
+                ("BCP037", DiagnosticLevel.Warning, "The value inherited for parameter \"person\" from \"shared.bicepparam\": The property \"unexpected\" is not allowed on objects of type \"{ street: string }\". Permissible properties include \"street\"."),
+            ]);
+            diagnostics.Should().AllSatisfy(diagnostic =>
+            {
+                diagnostic.Span.Should().Be(extendsPath.Span);
+                diagnostic.Should().BeOfType<Diagnostic>().Which.Fixes.Should().BeEmpty();
+            });
+        }
+
+        [TestMethod]
         public void Invalid_extends_reference_does_not_exist_should_fail()
         {
             var result = CompilationHelper.CompileParams(
