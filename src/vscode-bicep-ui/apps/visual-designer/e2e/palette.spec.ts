@@ -73,15 +73,18 @@ test("dock has keyboard-discoverable disabled tools and does not move the graph"
   await waitForStableNodePosition(page, "networkInterface");
   const transform = await getGraphTransform(page);
   const canvas = await page.getByTestId("graph-canvas").boundingBox();
-  const dock = await page.getByTestId("creation-dock").boundingBox();
+  const dockLocator = page.getByTestId("creation-dock");
+  const dock = await dockLocator.boundingBox();
   expect(dock!.height).toBe(50);
   expect(dock!.x + dock!.width / 2).toBeCloseTo(canvas!.x + canvas!.width / 2, 0);
+  await expect(dockLocator).toHaveCSS("caret-color", "rgba(0, 0, 0, 0)");
+  await expect(dockLocator).toHaveCSS("user-select", "none");
 
   for (const name of ["Modules", "Notes"]) {
-    const button = page.getByRole("button", { name: `${name} — coming soon` });
+    const button = page.getByRole("button", { name: `${name} - coming soon` });
     await expect(button).toHaveAttribute("aria-disabled", "true");
     await button.focus();
-    await expect(page.getByRole("tooltip", { name: `${name} — coming soon` })).toBeVisible();
+    await expect(page.getByRole("tooltip", { name: `${name} - coming soon` })).toBeVisible();
     await button.press("Enter");
     await button.press("Space");
     await expect(page.getByRole("complementary")).toHaveCount(0);
@@ -108,8 +111,8 @@ test("dock groups are evenly inset from the separator and the dock edges", async
   await openVisualDesigner(page);
   const dock = (await page.getByTestId("creation-dock").boundingBox())!;
   const resources = (await page.getByRole("button", { name: "Add Resources" }).boundingBox())!;
-  const modules = (await page.getByRole("button", { name: "Modules — coming soon" }).boundingBox())!;
-  const notes = (await page.getByRole("button", { name: "Notes — coming soon" }).boundingBox())!;
+  const modules = (await page.getByRole("button", { name: "Modules - coming soon" }).boundingBox())!;
+  const notes = (await page.getByRole("button", { name: "Notes - coming soon" }).boundingBox())!;
   const separator = (await page.getByTestId("creation-dock-separator").boundingBox())!;
 
   const leftEdgeInset = resources.x - dock.x;

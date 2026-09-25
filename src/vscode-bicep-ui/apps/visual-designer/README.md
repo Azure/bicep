@@ -111,6 +111,7 @@ src/
     controls/
     export/
     palette/
+    dock/
     status/
   hooks/
   lib/
@@ -161,7 +162,7 @@ interface CanvasActions {
 }
 ```
 
-`ControlBar` and `Palette` consume them through `useCanvasActions`.
+`ControlBar` and `Dock` consume them through `useCanvasActions`.
 
 ## Canvas reconciliation
 

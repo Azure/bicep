@@ -5,7 +5,7 @@ import { PanZoomProvider } from "@vscode-bicep-ui/components";
 import { styled } from "styled-components";
 import { Canvas, ResourceCreationError } from "@/features/canvas";
 import { ControlBar } from "@/features/controls";
-import { Palette } from "@/features/palette";
+import { Dock } from "@/features/dock";
 import { StatusBar } from "@/features/status";
 import { AppEnvironment } from "./AppEnvironment";
 
@@ -22,7 +22,7 @@ export function App() {
         <PanZoomProvider>
           <Canvas>
             <ControlBar />
-            <Palette />
+            <Dock />
           </Canvas>
         </PanZoomProvider>
         <ResourceCreationError />

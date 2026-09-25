@@ -274,6 +274,7 @@ Placement and pending state last for the visualizer session only.
 | Area            | State                                                                           |
 | --------------- | ------------------------------------------------------------------------------- |
 | Canvas          | Client graph, pending resources, placement correlation, and update coordination |
+| Dock            | Creation tools and palette launcher                                             |
 | Palette         | Enablement, catalog, search, drag state, and preview                            |
 | Export          | Export options, preview visibility, target element, and progress                |
 | Status          | User-facing graph status                                                        |
