@@ -136,9 +136,10 @@ export function Canvas({ children }: CanvasProps) {
         <ThemeProvider theme={exportTheme}>
           <$CanvasWrapper ref={handleCanvasRef}>
             <Viewport>
-              <ExportAreaCover />
               <PendingResourceLayer />
-              <Graph />
+              <Graph>
+                <ExportAreaCover />
+              </Graph>
             </Viewport>
           </$CanvasWrapper>
         </ThemeProvider>

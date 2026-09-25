@@ -128,7 +128,7 @@ export function Viewport({ children, showBackground = true }: ViewportProps) {
   }, [store]);
 
   return (
-    <$Container ref={containerRef} data-testid="graph-canvas">
+    <$Container ref={containerRef} data-testid="graph-canvas" data-export-viewport="">
       <$PanZoom>
         {showBackground && <ViewportBackground />}
         {children}
