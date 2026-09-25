@@ -588,6 +588,31 @@ test("large catalogs render progressively and a new query starts over", async ({
   await expect(more).toHaveCount(1);
 });
 
+test("expanding a namespace keeps existing headers mounted and reveals large groups progressively", async ({
+  page,
+}) => {
+  await openVisualDesigner(page, { catalogSize: "2312", catalogDelay: "0" });
+  await page.getByRole("button", { name: "Add Resources" }).click();
+  const lastHeader = page.getByRole("button", { name: "Microsoft.Synthetic046" });
+  await expect(lastHeader).toBeAttached();
+  const originalHeader = await lastHeader.elementHandle();
+  await page.getByRole("button", { name: "Microsoft.Synthetic000" }).click();
+  await expect(page.getByTestId("resource-type-row")).toHaveCount(10);
+  expect(await originalHeader!.evaluate((element) => element.isConnected)).toBe(true);
+
+  await openVisualDesigner(page, { catalogSize: "166", catalogDelay: "0" });
+  await page.getByRole("button", { name: "Add Resources" }).click();
+  await page.getByRole("button", { name: "Microsoft.SyntheticLarge" }).click();
+  const rows = page.getByTestId("resource-type-row");
+  const more = page.getByTestId("resource-palette-more");
+  await expect(rows.first()).toBeVisible();
+  await expect(more).toHaveCount(1);
+  const firstBatch = await rows.count();
+  expect(firstBatch).toBeLessThan(166);
+  await more.scrollIntoViewIfNeeded();
+  await expect.poll(() => rows.count()).toBeGreaterThan(firstBatch);
+});
+
 test("small catalogs render completely without a load-more sentinel", async ({ page }) => {
   await openVisualDesigner(page);
   await page.getByRole("button", { name: "Add Resources" }).click();

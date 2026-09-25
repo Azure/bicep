@@ -186,9 +186,11 @@ only durable source of truth.
   full search catalog in about 15 ms), so the list is rendered progressively rather than paged or
   streamed: a shared budget of headers and rows starts at 50 and grows by 100 as the end of the rendered
   list scrolls within reach, collapsed groups cost only their header, and a new search query starts
-  over. Rows are memoized so growing renders only the new rows, and growth runs as a React transition so
-  it yields to scrolling and typing. At catalog scale (about 2,300 types) a search that matches
-  everything renders about 700 palette DOM nodes instead of about 35,000.
+  over. Browsing keeps headers already revealed by the budget mounted when a large group opens; its
+  continuation marker follows the truncated rows rather than the later headers. Loaded browse rows
+  appear without a fade. Rows are memoized so growing renders only the new rows, and growth runs as a
+  React transition so it yields to scrolling and typing. At catalog scale (about 2,300 types) a search
+  that matches everything renders about 700 palette DOM nodes instead of about 35,000.
 - The list uses an overlay scrollbar (`ui/OverlayScrollArea`): the native bar is hidden so no width is
   reserved, and a thin thumb fades in while the list is hovered, scrolled (for 800 ms afterward), or the
   thumb is dragged. It stays hidden when nothing overflows. The thumb is a 4px pill in the theme's

@@ -8,7 +8,6 @@ import type { PaletteContentProps } from "./PaletteContent";
 
 import { Accordion, Codicon, useAccordionItem } from "@vscode-bicep-ui/components";
 import { useAtomValue, useSetAtom, useStore } from "jotai";
-import { motion } from "motion/react";
 import { memo, useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import { getErrorMessage } from "@/utils";
@@ -229,6 +228,7 @@ function LazyResourceTypeGroup({
   catalogId,
   namespace,
   rowLimit,
+  sentinelRef,
   loadNamespace,
   loadVersions,
   onResourceTypePointerDown,
@@ -236,6 +236,7 @@ function LazyResourceTypeGroup({
   catalogId: string;
   namespace: ResourceTypeNamespace;
   rowLimit: number;
+  sentinelRef?: (element: HTMLDivElement | null) => void;
   loadNamespace: PaletteContentProps["loadNamespace"];
   loadVersions: PaletteContentProps["loadVersions"];
   onResourceTypePointerDown?: PaletteContentProps["onResourceTypePointerDown"];
@@ -284,11 +285,7 @@ function LazyResourceTypeGroup({
         ) : state.status === "loaded" && state.resourceTypes.length === 0 ? (
           <PaletteMessage>No resource types available.</PaletteMessage>
         ) : state.status === "loaded" ? (
-          <motion.div
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.16, ease: [0.2, 0.8, 0.2, 1] }}
-          >
+          <>
             <ResourceTypeItems
               loadVersions={loadVersions}
               group={namespace.name}
@@ -296,7 +293,8 @@ function LazyResourceTypeGroup({
               rowLimit={rowLimit}
               onResourceTypePointerDown={onResourceTypePointerDown}
             />
-          </motion.div>
+            {sentinelRef && <$MoreSentinel ref={sentinelRef} aria-hidden="true" data-testid="resource-palette-more" />}
+          </>
         ) : null}
       </ResourceTypeGroupFrame>
     </Accordion.Item>
@@ -365,12 +363,13 @@ export function LazyResourceTypeGroups({
 }) {
   const [expandedGroups, setExpandedGroups] = useState<readonly string[]>([]);
   const { budget, sentinelRef } = useProgressiveBudget(`browse:${catalogId}`);
-  const { rowsPerGroup, hasMore } = allocateProgressiveRows(
+  const { rowsPerGroup, hasMore, truncatedGroupIndex } = allocateProgressiveRows(
     namespaces.map((namespace) => ({
       rowCount: namespace.resourceTypeCount,
       expanded: expandedGroups.includes(namespace.name),
     })),
     budget,
+    Math.min(budget, namespaces.length),
   );
 
   return (
@@ -383,12 +382,15 @@ export function LazyResourceTypeGroups({
             catalogId={catalogId}
             namespace={namespace}
             rowLimit={rowsPerGroup[index] ?? 0}
+            sentinelRef={index === truncatedGroupIndex ? sentinelRef : undefined}
             loadNamespace={loadNamespace}
             onResourceTypePointerDown={onResourceTypePointerDown}
           />
         ))}
       </Accordion>
-      {hasMore && <$MoreSentinel ref={sentinelRef} aria-hidden="true" data-testid="resource-palette-more" />}
+      {hasMore && truncatedGroupIndex === undefined && (
+        <$MoreSentinel ref={sentinelRef} aria-hidden="true" data-testid="resource-palette-more" />
+      )}
     </$Groups>
   );
 }
