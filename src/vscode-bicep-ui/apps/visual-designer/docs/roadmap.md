@@ -21,9 +21,9 @@ description of shipped behavior or a commitment to a particular release. See
 
 ## Current baseline
 
-- `bicep.visualizer.experimental.enableResourceCreation` defaults to false and hides the creation
-  dock. Viewer interactions remain available. The setting is currently named for **resource
-  creation**, not for every future editing feature.
+- `bicep.visualizer.experimental.enableResourceEditing` defaults to false and currently hides the
+  creation dock. Viewer interactions remain available; resource creation is the only implemented
+  resource-editing feature so far.
 - The dock has working Resources and disabled Modules/Notes affordances. The resource palette is
   drag-only, with a type catalog, API-version choice, and common provider namespaces sorted first.
 - The visualizer follows the VS Code theme **kind** (light, dark, high contrast) using curated graph
@@ -68,9 +68,9 @@ within stages 3 and 4 can respond to user feedback; dependencies, not calendar d
    applying an asynchronously prepared edit. Hiding the webview control is insufficient. Keep
    document-version validation and explicit failure reporting; handle an opt-out during a pending
    operation.
-4. Decide how to introduce a broader experimental editing capability without silently expanding
-   what the existing *resource-creation* setting promises. Default all new source-changing actions
-   to off until explicitly enabled.
+4. Use the resource-editing opt-in for new resource actions. Decide separately whether module and
+   note editing should share it or require a broader experimental opt-in. Default all new
+   source-changing actions to off until explicitly enabled.
 5. Define undo ownership now: source changes use VS Code's edit history; local graph movements need
    their own session history. Test the interaction between the two before exposing a generic Undo
    button. See [Undo and redo](#undo-and-redo).
@@ -218,8 +218,9 @@ interactions, theme/export, and source/visual undo scenarios.
 
 ## Decisions to confirm before implementation
 
-1. Replace, broaden, or complement the creation-specific experimental setting for other editing
-   actions? Recommendation: keep its existing meaning and add an explicit broader editing opt-in.
+1. Should module and note editing share the resource-editing setting or require a broader editing
+   opt-in? Recommendation: keep resource actions under this setting and decide on a broader gate
+   before introducing non-resource editing.
 2. Should "Match VS Code theme" become the default or remain optional after contrast/export testing?
 3. Which undo affordances should appear before source and visual histories can be safely unified?
 4. If a module drop introduces edges or child nodes, when is limited reflow acceptable versus an

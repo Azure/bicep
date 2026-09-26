@@ -29,8 +29,9 @@ npm run e2e
 `npm run dev` loads a fake extension host. E2E tests use query parameters such as `catalogDelay` to
 make loading and concurrency states deterministic.
 
-The bottom-center creation dock is gated by the experimental resource-creation setting. Resources
-opens a compact popover; Modules and Notes are keyboard-discoverable, disabled coming-soon tools.
+The bottom-center creation dock is gated by the experimental resource-editing setting. Currently it
+enables resource creation only: the Resources button opens a compact popover; Modules and Notes are
+keyboard-discoverable, disabled coming-soon tools.
 Each resource shows its API version as a pill: quiet text at rest, with pill chrome revealed on row
 hover or focus, and kept when the selection differs from the host default. Clicking it (or pressing
 Arrow keys, Enter, or Space

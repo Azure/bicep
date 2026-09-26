@@ -137,10 +137,10 @@ compilation and validates measured layout input before computing positions.
 
 ## Resource creation
 
-Resource creation is enabled with:
+Resource creation is currently enabled by the experimental resource-editing setting:
 
 ```json
-"bicep.visualizer.experimental.enableResourceCreation": true
+"bicep.visualizer.experimental.enableResourceEditing": true
 ```
 
 It creates top-level Azure resources from the Resource Palette. The Bicep source file remains the
