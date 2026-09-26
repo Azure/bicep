@@ -209,4 +209,5 @@ Lint runs with zero warnings and rejects unused disable directives.
 ## Further reading
 
 - [Architecture](./docs/architecture.md)
+- [Proposed roadmap](./docs/roadmap.md)
 - [Project instructions](./.github/instructions/)
