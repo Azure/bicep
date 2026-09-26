@@ -176,4 +176,67 @@ public class VersionRangeTests
         range.LowerBound.Should().NotBeNull();
         range.UpperBound.Should().BeNull();
     }
+
+    [DataTestMethod]
+    // Fully open ranges always overlap.
+    [DataRow(">=0.31.0", ">=0.15.0", true, ">=0.31.0")]
+    [DataRow(">=0.31.0", "<1.0.0", true, ">=0.31.0, <1.0.0")]
+    // Overlapping ranges combine to the narrower of each bound.
+    [DataRow(">=0.31.0, <1.0.0", ">=0.50.0, <2.0.0", true, ">=0.50.0, <1.0.0")]
+    [DataRow(">=0.31.0, <0.40.0", ">=0.31.0, <0.40.0", true, ">=0.31.0, <0.40.0")]
+    // Disjoint ranges 
+    [DataRow(">=0.31.0, <0.32.0", ">=0.15.0, <0.16.0", false, null)]
+    [DataRow(">=1.0.0", "<0.9.0", false, null)]
+    // Touching bounds where at least one side is exclusive admit no version.
+    [DataRow(">=1.0.0", "<1.0.0", false, null)]
+    [DataRow(">1.0.0", "<=1.0.0", false, null)]
+    // Touching inclusive bounds admit exactly the shared version.
+    [DataRow(">=1.0.0", "<=1.0.0", true, "1.0.0")]
+    // Exact versions.
+    [DataRow("1.2.3", "1.2.3", true, "1.2.3")]
+    [DataRow("1.2.3", "1.2.4", false, null)]
+    public void TryGetOverlap_ReturnsExpectedResult(string first, string second, bool expectedResult, string? expectedOverlap)
+    {
+        var result = VersionRange.Parse(first).TryGetOverlap(VersionRange.Parse(second), out var overlap);
+
+        result.Should().Be(expectedResult);
+        if (expectedResult)
+        {
+            overlap!.ToString().Should().Be(expectedOverlap);
+        }
+        else
+        {
+            overlap.Should().BeNull();
+        }
+    }
+
+    [TestMethod]
+    public void TryGetOverlap_IsSymmetric()
+    {
+        var a = VersionRange.Parse(">=0.31.0, <1.0.0");
+        var b = VersionRange.Parse(">=0.50.0, <2.0.0");
+
+        a.TryGetOverlap(b, out var ab).Should().BeTrue();
+        b.TryGetOverlap(a, out var ba).Should().BeTrue();
+
+        ab!.ToString().Should().Be(ba!.ToString());
+    }
+
+    [DataTestMethod]
+    // A range is always a subset of itself and of a fully open range.
+    [DataRow(">=0.31.0, <1.0.0", ">=0.31.0, <1.0.0", true)]
+    [DataRow(">=0.31.0, <1.0.0", ">=0.15.0", true)]
+    // The "looser entrypoint" example: an unbounded-above entrypoint constraint is not a subset of a
+    // referenced file's upper-bounded constraint, since it admits versions the reference would reject.
+    [DataRow(">=0.15.0", "<0.17.0", false)]
+    // A narrower range is a subset of a wider range, but not vice versa.
+    [DataRow(">=0.50.0, <0.60.0", ">=0.31.0, <1.0.0", true)]
+    [DataRow(">=0.31.0, <1.0.0", ">=0.50.0, <0.60.0", false)]
+    // Exclusive bounds are a subset of the equivalent inclusive bound, but not the reverse.
+    [DataRow(">1.0.0", ">=1.0.0", true)]
+    [DataRow(">=1.0.0", ">1.0.0", false)]
+    public void IsSubsetOf_ReturnsExpectedResult(string first, string second, bool expected)
+    {
+        VersionRange.Parse(first).IsSubsetOf(VersionRange.Parse(second)).Should().Be(expected);
+    }
 }
