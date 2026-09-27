@@ -192,7 +192,10 @@ test.describe("Export overlay", () => {
     await page.getByTestId("control-zoom-out").click();
     await expect.poll(async () => (await cover.boundingBox())?.width).toBeCloseTo(originalWidth, 0);
 
-    await page.getByRole("toolbar", { name: "Export settings" }).getByRole("button", { name: "Export", exact: true }).click();
+    await page
+      .getByRole("toolbar", { name: "Export settings" })
+      .getByRole("button", { name: "Export", exact: true })
+      .click();
     await expect
       .poll(() => page.evaluate(() => Boolean((window as Window & { capturedExport?: Blob }).capturedExport)))
       .toBe(true);
@@ -213,7 +216,8 @@ test.describe("Export overlay", () => {
       ];
     });
     const colorComponents = backgroundColor.match(/\d+/g)?.map(Number);
-    if (!colorComponents || colorComponents.length !== 3) throw new Error(`Unexpected background color: ${backgroundColor}`);
+    if (!colorComponents || colorComponents.length !== 3)
+      throw new Error(`Unexpected background color: ${backgroundColor}`);
     for (const corner of corners) {
       expect(corner).toEqual([...colorComponents, 255]);
     }
@@ -253,7 +257,10 @@ test.describe("Export overlay", () => {
     await interceptExportedImage(page);
 
     await page.getByTestId("control-export").click();
-    await page.getByRole("toolbar", { name: "Export settings" }).getByRole("button", { name: "Export", exact: true }).click();
+    await page
+      .getByRole("toolbar", { name: "Export settings" })
+      .getByRole("button", { name: "Export", exact: true })
+      .click();
     await expect
       .poll(() => page.evaluate(() => Boolean((window as Window & { capturedExport?: Blob }).capturedExport)))
       .toBe(true);
