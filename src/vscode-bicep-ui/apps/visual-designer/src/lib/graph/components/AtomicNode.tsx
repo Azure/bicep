@@ -6,9 +6,10 @@ import type { AtomicNodeState } from "../atoms/nodes";
 import useResizeObserver from "@react-hook/resize-observer";
 import { useAtomValue, useStore } from "jotai";
 import { frame } from "motion/react";
-import { useLayoutEffect, useRef } from "react";
+import { useContext, useLayoutEffect, useRef } from "react";
 import { translateBox } from "@/lib/math";
 import { focusedNodeIdAtom, getNodeZIndex } from "../atoms/nodes";
+import { NodeDragCallbacksContext } from "../context/NodeDragCallbacksContext";
 import { useBoxUpdate, useDragListener } from "../hooks";
 import { BaseNode } from "./BaseNode";
 import { NodeContent } from "./NodeContent";
@@ -17,6 +18,7 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
   const ref = useRef<HTMLDivElement>(null);
   const store = useStore();
   const focusedNodeId = useAtomValue(focusedNodeIdAtom);
+  const { onNodeDragStart, onNodeDragEnd } = useContext(NodeDragCallbacksContext);
   const zIndex = getNodeZIndex(id, "atomic", focusedNodeId);
 
   useLayoutEffect(() => {
@@ -62,8 +64,12 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
     }));
   });
 
-  useDragListener(ref, (dx: number, dy: number) => {
-    store.set(boxAtom, (box) => translateBox(box, dx, dy));
+  useDragListener(ref, {
+    onDragStart: () => onNodeDragStart(id),
+    onDrag: (dx, dy) => {
+      store.set(boxAtom, (box) => translateBox(box, dx, dy));
+    },
+    onDragEnd: () => onNodeDragEnd(id),
   });
 
   useBoxUpdate(store, boxAtom, ({ min }) => {

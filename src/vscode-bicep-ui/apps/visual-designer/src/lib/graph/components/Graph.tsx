@@ -2,11 +2,14 @@
 // Licensed under the MIT License.
 
 import type { PropsWithChildren } from "react";
+import type { NodeDragCallbacks } from "../context/NodeDragCallbacksContext";
 
 import { PanZoomTransformed } from "@vscode-bicep-ui/components";
 import { useAtomValue } from "jotai";
+import { useMemo } from "react";
 import { styled } from "styled-components";
 import { layoutReadyAtom } from "../atoms";
+import { ignoreNodeDrag, NodeDragCallbacksContext } from "../context/NodeDragCallbacksContext";
 import { InnerEdgeLayer, OuterEdgeLayer } from "./EdgeLayer";
 import { EdgeMarkerDefs } from "./EdgeMarkerDefs";
 import { NodeLayer } from "./NodeLayer";
@@ -26,18 +29,23 @@ const $SharedDefs = styled.svg`
   pointer-events: none;
 `;
 
-export function Graph({ children }: PropsWithChildren) {
+export type GraphProps = PropsWithChildren<Partial<NodeDragCallbacks>>;
+
+export function Graph({ children, onNodeDragStart = ignoreNodeDrag, onNodeDragEnd = ignoreNodeDrag }: GraphProps) {
   const layoutReady = useAtomValue(layoutReadyAtom);
+  const nodeDragCallbacks = useMemo(() => ({ onNodeDragStart, onNodeDragEnd }), [onNodeDragEnd, onNodeDragStart]);
 
   return (
-    <$PanZoomTransformed $visible={layoutReady} data-export-graph="">
-      <$SharedDefs>
-        <EdgeMarkerDefs />
-      </$SharedDefs>
-      {children}
-      <OuterEdgeLayer />
-      <NodeLayer />
-      <InnerEdgeLayer />
-    </$PanZoomTransformed>
+    <NodeDragCallbacksContext.Provider value={nodeDragCallbacks}>
+      <$PanZoomTransformed $visible={layoutReady} data-export-graph="">
+        <$SharedDefs>
+          <EdgeMarkerDefs />
+        </$SharedDefs>
+        {children}
+        <OuterEdgeLayer />
+        <NodeLayer />
+        <InnerEdgeLayer />
+      </$PanZoomTransformed>
+    </NodeDragCallbacksContext.Provider>
   );
 }
