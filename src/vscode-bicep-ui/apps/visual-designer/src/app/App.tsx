@@ -5,7 +5,8 @@ import type { MouseEvent } from "react";
 
 import { PanZoomProvider } from "@vscode-bicep-ui/components";
 import { styled } from "styled-components";
-import { Canvas, ResourceCreationError } from "@/features/canvas";
+import { GraphActionsProvider } from "@/core";
+import { Canvas } from "@/features/canvas";
 import { ControlBar } from "@/features/controls";
 import { Dock } from "@/features/dock";
 import { StatusBar } from "@/features/status";
@@ -33,12 +34,12 @@ export function App() {
     <AppEnvironment>
       <$AppContainer data-testid="app-root" onContextMenu={suppressHostContextMenu}>
         <PanZoomProvider>
-          <Canvas>
+          <GraphActionsProvider>
+            <Canvas />
             <ControlBar />
             <Dock />
-          </Canvas>
+          </GraphActionsProvider>
         </PanZoomProvider>
-        <ResourceCreationError />
         <StatusBar />
       </$AppContainer>
     </AppEnvironment>

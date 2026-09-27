@@ -3,15 +3,8 @@
 
 import type { ResourceTypeCatalog, ResourceTypeNamespace } from "./types";
 
-import { defineNotification, defineRequest, useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
+import { defineRequest, useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { useMemo } from "react";
-
-// ── Experimental resource creation ──
-// The palette is hidden entirely when the host reports the feature as disabled.
-
-export const getResourceCreationEnablement = defineRequest<void, boolean>("resourceCreation/isEnabled");
-
-export const resourceCreationEnablementDidChange = defineNotification<boolean>("resourceCreation/enablementDidChange");
 
 // ── Resource type catalog ──
 // The catalog is versioned by `catalogId`. The host derives it from the document's resource type

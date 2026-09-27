@@ -7,7 +7,7 @@ import type { ResourceTypeCatalog, ResourceTypeNamespace } from "../types";
 import { useNotification } from "@vscode-bicep-ui/messaging";
 import { useSetAtom } from "jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { documentDidChange } from "@/hooks";
+import { documentDidChange } from "@/core";
 import { usePaletteApi } from "../api";
 import { acceptVersionCatalogAtom } from "../atoms";
 import { orderNamespaces } from "../namespace-order";

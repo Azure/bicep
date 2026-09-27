@@ -3,36 +3,44 @@
 
 import type { createStore } from "jotai";
 import type { Box, Point } from "@/lib/math";
-import type { GetGraphUpdateResult, NodeLayout, RenderedGraph } from "../api";
+import type { GetGraphUpdateResult, GraphPatch, NodeLayout, RenderedGraph } from "../api";
+import type { GraphActions } from "../context/GraphActionsContext";
 import type { ClientGraph } from "../graph-model";
 import type { GraphLayoutMode, GraphLayoutResult } from "../graph-update-coordinator";
-import type { ResourceTypeReference } from "../types";
+import type { NodePositions } from "../node-positions";
 
 import { useStore } from "jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { nodesByIdAtom } from "@/lib/graph";
 import { getErrorMessage } from "@/utils";
-import { useCanvasApi } from "../api";
+import { useGraphApi } from "../api";
 import {
-  beginResourceCreationAtom,
-  bindExpectedNodeAtom,
   commitPendingResourcesAtom,
-  failResourceCreationAtom,
+  pendingPlacementsAtom,
+  pendingRemovalNodeIdsAtom,
   resourceNodeIsCommittingAtomFamily,
   targetScopeAtom,
+  undoHistoryAtom,
 } from "../atoms";
 import { centerGraphLayout, extractGraphLayout, patchMayAffectLayout } from "../graph-layout";
 import { applyGraphPatch, buildRenderedGraph, createClientGraph, renderedGraphsEqual } from "../graph-model";
 import { GraphUpdateCoordinator } from "../graph-update-coordinator";
+import { captureNodePositions, getAtomicNodeIds } from "../node-positions";
+import { forgetRemovedNodes, recordLayoutChange } from "../undo-history";
 import { useApplyGraph } from "./use-apply-graph";
 import { useApplyGraphLayout } from "./use-apply-graph-layout";
+import { useResourceCreation } from "./use-resource-creation";
+import { useTrackGraphChange } from "./use-track-graph-change";
+import { useUndoRedo } from "./use-undo-redo";
+
+type Store = ReturnType<typeof createStore>;
 
 function waitForAnimationFrame(): Promise<void> {
   return new Promise((resolve) => requestAnimationFrame(() => resolve()));
 }
 
 /** Snapshot the measured box of every mounted node, keyed by id. */
-function measureNodes(store: ReturnType<typeof createStore>): Map<string, Box> {
+function measureNodes(store: Store): Map<string, Box> {
   const renderedNodes = store.get(nodesByIdAtom);
   const boxes = new Map<string, Box>();
 
@@ -43,26 +51,44 @@ function measureNodes(store: ReturnType<typeof createStore>): Map<string, Box> {
   return boxes;
 }
 
-export interface CanvasController {
+/** The node a patch adds, removes, or updates, if any. */
+function getPatchedNodeId(patch: GraphPatch): string | null {
+  switch (patch.op) {
+    case "addNode":
+      return patch.node.id;
+    case "removeNode":
+    case "updateNode":
+      return patch.nodeId;
+    default:
+      return null;
+  }
+}
+
+export interface GraphSync extends GraphActions {
+  /** The Bicep file may have changed: fetch and apply the graph delta. */
   requestGraphUpdate: () => Promise<void>;
-  resetGraphLayout: () => Promise<void>;
-  createResourceAt: (resourceType: ResourceTypeReference, origin: Point) => Promise<void>;
 }
 
 /**
- * Owns one canvas's client graph and asynchronous update lifecycle.
+ * Keeps the client graph in step with the Bicep file: graph updates, layout, and recording node
+ * drags and Reset Layout in the undo history. Mounted once, by `GraphActionsProvider`.
+ *
+ * Resource creation and undo/redo live in their own hooks. They share state with this one only
+ * through atoms: the undo history, the pending resources and removals, and the graph changes in
+ * progress.
  *
  * Ordering lives in `GraphUpdateCoordinator`, which has no React dependency and is unit tested
  * directly — the rules there govern hazards that are impractical to force end to end.
  */
-export function useCanvasController(
-  getViewportCenter: () => Point,
-  fitViewToBounds: (bounds: Box) => void,
-): CanvasController {
+export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (bounds: Box) => void): GraphSync {
   const store = useStore();
   const applyGraph = useApplyGraph(getViewportCenter);
-  const applyGraphLayout = useApplyGraphLayout();
-  const api = useCanvasApi();
+  const { applyGraphLayout, animateNodePositions, stopNodeAnimations } = useApplyGraphLayout();
+  const api = useGraphApi();
+  const trackGraphChange = useTrackGraphChange();
+  const [coordinator] = useState(() => new GraphUpdateCoordinator<GetGraphUpdateResult>());
+  const createResourceAt = useResourceCreation(coordinator);
+  const { undo, redo } = useUndoRedo(coordinator, { animateNodePositions, stopNodeAnimations });
 
   /**
    * The two graphs the client holds: its copy of the server's canonical graph, and the last
@@ -74,8 +100,29 @@ export function useCanvasController(
     rendered: null,
   });
 
-  /** Expected node ids mapped to the graph position the user dropped them at. */
-  const placementsRef = useRef<Map<string, Point>>(new Map());
+  /** For each node drag in progress, the positions of the dragged subtree when it started moving. */
+  const dragStartPositionsRef = useRef(new Map<string, NodePositions>());
+
+  const handleNodeDragStart = useCallback(
+    (nodeId: string) => {
+      stopNodeAnimations();
+      dragStartPositionsRef.current.set(nodeId, captureNodePositions(store, nodeId));
+    },
+    [stopNodeAnimations, store],
+  );
+
+  const handleNodeDragEnd = useCallback(
+    (nodeId: string) => {
+      const positionsBefore = dragStartPositionsRef.current.get(nodeId);
+      dragStartPositionsRef.current.delete(nodeId);
+
+      if (positionsBefore) {
+        const positionsAfter = captureNodePositions(store, nodeId);
+        store.set(undoHistoryAtom, (history) => recordLayoutChange(history, positionsBefore, positionsAfter));
+      }
+    },
+    [store],
+  );
 
   const fetchUpdate = useCallback(() => {
     const graph = clientGraphsRef.current.graph;
@@ -89,21 +136,39 @@ export function useCanvasController(
     async (response: GetGraphUpdateResult): Promise<{ layoutRequired: boolean }> => {
       store.set(targetScopeAtom, response.targetScope);
       const graph = clientGraphsRef.current.graph;
+      const placements = store.get(pendingPlacementsAtom);
+      const pendingRemovalNodeIds = new Set(store.get(pendingRemovalNodeIdsAtom));
       const nodeLayouts = new Map<string, NodeLayout>();
       const newNodeOrigins = new Map<string, Point>();
-      const explicitlyPlacedNodeIds = new Set(placementsRef.current.keys());
+      const explicitlyPlacedNodeIds = new Set(placements.keys());
       let layoutMayBeStale = false;
 
       for (const patch of response.patches) {
-        layoutMayBeStale ||= patchMayAffectLayout(graph, patch, explicitlyPlacedNodeIds);
+        layoutMayBeStale ||= patchMayAffectLayout(graph, patch, { explicitlyPlacedNodeIds, pendingRemovalNodeIds });
+
+        // Once a graph update touches a node, any removal the designer was expecting has happened.
+        const patchedNodeId = getPatchedNodeId(patch);
+        if (patchedNodeId !== null) {
+          pendingRemovalNodeIds.delete(patchedNodeId);
+        }
+
         if (patch.op === "addNode") {
-          const origin = placementsRef.current.get(patch.node.id);
+          const origin = placements.get(patch.node.id);
           if (origin) {
             newNodeOrigins.set(patch.node.id, origin);
           }
         }
+
         applyGraphPatch(graph, nodeLayouts, patch);
       }
+
+      // A `clearGraph` patch removes nodes without a `removeNode` patch for each of them.
+      for (const nodeId of pendingRemovalNodeIds) {
+        if (!graph.nodes.has(nodeId)) {
+          pendingRemovalNodeIds.delete(nodeId);
+        }
+      }
+      store.set(pendingRemovalNodeIdsAtom, pendingRemovalNodeIds);
 
       const layoutRequired = layoutMayBeStale && graph.nodes.size > 0;
 
@@ -118,12 +183,14 @@ export function useCanvasController(
 
       // Apply the new topology. Visibility is preserved for incremental edits (so nodes animate in
       // place) and gated for major changes; positions arrive with the layout.
+      const previousNodesById = store.get(nodesByIdAtom);
       applyGraph(graph, newNodeOrigins);
+      if (store.get(nodesByIdAtom) !== previousNodesById) {
+        const liveNodeIds = new Set([...getAtomicNodeIds(store), ...placements.keys()]);
+        store.set(undoHistoryAtom, (history) => forgetRemovedNodes(history, liveNodeIds));
+      }
 
       if (newNodeOrigins.size > 0) {
-        for (const nodeId of newNodeOrigins.keys()) {
-          placementsRef.current.delete(nodeId);
-        }
         store.set(commitPendingResourcesAtom, new Set(newNodeOrigins.keys()));
 
         if (!layoutRequired) {
@@ -180,49 +247,51 @@ export function useCanvasController(
       );
       clientGraphsRef.current.rendered = measuredGraph;
 
-      // Fit the viewport to the server-computed graph bounds before the nodes settle there. A reset
-      // re-arranges the same graph the user is already looking at, so it must not move their camera.
-      if (bounds && !isReset) {
-        fitViewToBounds(bounds);
+      if (!isReset) {
+        // Fit the viewport to the server-computed graph bounds before the nodes settle there.
+        if (bounds) {
+          fitViewToBounds(bounds);
+        }
+        await applyGraphLayout(centeredNodeLayouts);
+        return "completed";
       }
 
+      // A reset re-arranges the graph the user is already looking at, so it keeps their camera. It is
+      // one undoable step, from where the nodes are now (stopping any animation) to the new layout.
+      stopNodeAnimations();
+      const positionsBefore = captureNodePositions(store);
       await applyGraphLayout(centeredNodeLayouts);
+      store.set(undoHistoryAtom, (history) => recordLayoutChange(history, positionsBefore, centeredNodeLayouts));
 
       return "completed";
     },
-    [api, applyGraphLayout, fitViewToBounds, getViewportCenter, store],
+    [api, applyGraphLayout, fitViewToBounds, getViewportCenter, stopNodeAnimations, store],
   );
-
-  const [coordinator] = useState(() => new GraphUpdateCoordinator<GetGraphUpdateResult>());
 
   useEffect(() => {
     coordinator.setOperations({ fetchUpdate, applyUpdate, runGraphLayout });
   }, [applyUpdate, coordinator, fetchUpdate, runGraphLayout]);
 
-  const createResourceAt = useCallback(
-    (resourceType: ResourceTypeReference, origin: Point): Promise<void> => {
-      const operationId = window.crypto.randomUUID();
-      store.set(beginResourceCreationAtom, { operationId, resourceType, origin });
+  const requestGraphUpdate = useCallback(() => coordinator.requestUpdate(), [coordinator]);
 
-      return coordinator.runMutation(async () => {
-        try {
-          const { expectedNodeId } = await api.createResource({ version: 1, operationId, resourceType });
-
-          placementsRef.current.set(expectedNodeId, origin);
-          store.set(bindExpectedNodeAtom, { operationId, expectedNodeId });
-        } catch (error) {
-          store.set(failResourceCreationAtom, {
-            operationId,
-            message: getErrorMessage(error, "Failed to create the resource."),
-          });
-        }
-      });
-    },
-    [api, coordinator, store],
+  const resetGraphLayout = useCallback(
+    () =>
+      trackGraphChange(() => coordinator.requestResetGraphLayout()).catch((error: unknown) => {
+        console.error(
+          "Visual designer layout reset failed:",
+          getErrorMessage(error, "Failed to reset the graph layout."),
+        );
+      }),
+    [coordinator, trackGraphChange],
   );
 
-  const requestGraphUpdate = useCallback(() => coordinator.requestUpdate(), [coordinator]);
-  const resetGraphLayout = useCallback(() => coordinator.requestResetGraphLayout(), [coordinator]);
-
-  return { requestGraphUpdate, resetGraphLayout, createResourceAt };
+  return {
+    requestGraphUpdate,
+    resetGraphLayout,
+    createResourceAt,
+    handleNodeDragStart,
+    handleNodeDragEnd,
+    undo,
+    redo,
+  };
 }

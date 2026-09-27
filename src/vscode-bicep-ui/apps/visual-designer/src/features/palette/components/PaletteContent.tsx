@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import type { PointerEvent } from "react";
-import type { ResourceTypeReference } from "@/features/canvas";
+import type { ResourceTypeReference } from "@/core";
 import type { ResourceTypeCatalog, ResourceTypeNamespace } from "../types";
 
 import { useAtomValue } from "jotai";

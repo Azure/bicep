@@ -7,7 +7,6 @@ import type { ClientGraph } from "../graph-model";
 
 import { useSetAtom, useStore } from "jotai";
 import { useCallback, useRef } from "react";
-import { reportGraphStatusAtom } from "@/features/status";
 import {
   addAtomicNodeAtom,
   addCompoundNodeAtom,
@@ -17,6 +16,7 @@ import {
   nodesByIdAtom,
   removeNodesAtom,
 } from "@/lib/graph";
+import { graphErrorCountAtom, graphHasNodesAtom } from "../atoms";
 import { clientGraphsRenderEqually } from "../graph-model";
 
 type Store = ReturnType<typeof createStore>;
@@ -56,11 +56,8 @@ export function useApplyGraph(getViewportCenter: () => Point) {
 
   return useCallback(
     (graph: ClientGraph | null, newNodeOrigins: ReadonlyMap<string, Point> = new Map()) => {
-      // Report the graph facts that features/status derives its display from.
-      store.set(reportGraphStatusAtom, {
-        errorCount: graph?.errorCount ?? 0,
-        hasNodes: (graph?.nodes.size ?? 0) > 0,
-      });
+      store.set(graphErrorCountAtom, graph?.errorCount ?? 0);
+      store.set(graphHasNodesAtom, (graph?.nodes.size ?? 0) > 0);
 
       // Nothing the canvas shows has changed, so leave the mounted nodes alone rather than tearing
       // the graph down and re-laying it out. Most keystrokes land here.

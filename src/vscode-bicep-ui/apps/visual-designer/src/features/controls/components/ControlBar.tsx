@@ -4,7 +4,7 @@
 import { Codicon, usePanZoomControl } from "@vscode-bicep-ui/components";
 import { useAtomValue, useSetAtom } from "jotai";
 import { styled } from "styled-components";
-import { useCanvasActions } from "@/features/canvas";
+import { isGraphChangeInProgressAtom, useGraphActions, useUndoRedoAvailability } from "@/core";
 import { openExportOverlayAtom } from "@/features/export";
 import { useFitView } from "@/lib/graph";
 import { FloatingPanel, IconButton } from "@/ui";
@@ -28,9 +28,11 @@ const $Divider = styled.div`
 export function ControlBar() {
   const { zoomIn, zoomOut } = usePanZoomControl();
   const fitView = useFitView();
-  const { resetGraphLayout: requestResetGraphLayout } = useCanvasActions();
+  const { resetGraphLayout: requestResetGraphLayout, undo, redo } = useGraphActions();
   const resetGraphLayout = useResetGraphLayout(requestResetGraphLayout);
   const controls = useAtomValue(graphControlAvailabilityAtom);
+  const isGraphChangeInProgress = useAtomValue(isGraphChangeInProgressAtom);
+  const { canUndo, canRedo } = useUndoRedoAvailability();
   const openExportOverlay = useSetAtom(openExportOverlayAtom);
 
   return (
@@ -54,12 +56,19 @@ export function ControlBar() {
         onClick={resetGraphLayout}
         title="Reset Layout"
         aria-label="Reset Layout"
-        disabled={!controls.canResetGraphLayout}
+        disabled={!controls.canResetGraphLayout || isGraphChangeInProgress}
         data-testid="control-reset-layout"
       >
         <Codicon name="type-hierarchy-sub" size={16} />
       </IconButton>
-      <$Divider />
+      <$Divider role="separator" />
+      <IconButton onClick={undo} title="Undo" aria-label="Undo" disabled={!canUndo} data-testid="control-undo">
+        <Codicon name="discard" size={16} />
+      </IconButton>
+      <IconButton onClick={redo} title="Redo" aria-label="Redo" disabled={!canRedo} data-testid="control-redo">
+        <Codicon name="redo" size={16} />
+      </IconButton>
+      <$Divider role="separator" />
       <IconButton
         onClick={() => openExportOverlay()}
         title="Export Graph"

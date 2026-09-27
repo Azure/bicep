@@ -4,7 +4,7 @@
 import type { DefaultTheme } from "styled-components";
 
 import { atom } from "jotai";
-import { documentUriAtom } from "@/hooks";
+import { documentUriAtom } from "@/core";
 import { activeThemeAtom, getThemeByName } from "@/ui/theme";
 
 export type ExportBackgroundMode = "transparent" | "solid";

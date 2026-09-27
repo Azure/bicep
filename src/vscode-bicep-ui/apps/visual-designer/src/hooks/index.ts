@@ -1,5 +1,0 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-
-export * from "./use-document-sync";
-export * from "./use-motion-policy-sync";

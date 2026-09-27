@@ -1,34 +1,34 @@
 import sharedConfig from "../../eslint.config.mjs";
 
 // Layer boundaries for this app. See README.md:
-//   app -> features, ui, hooks, lib, utils, devtools | devtools -> features, ui, hooks, lib, utils
-//   features -> ui, hooks, lib, utils | ui -> lib, utils | hooks -> lib, utils
+//   app -> features, core, ui, lib, utils, devtools | devtools -> features, core, ui, lib, utils
+//   features -> core, ui, lib, utils | core -> lib, utils | ui -> lib, utils
 //   lib -> lib, utils | utils -> utils
 // Structure rules that are not machine-checked decay.
 //
 // devtools is not a feature: it impersonates the extension host, which is why it is the one module
-// allowed to reach into every feature's api.ts. Keeping it a sibling of app makes that privilege
-// explicit, so its cross-feature imports are distinguishable from features importing each other.
+// allowed to reach into core's and every feature's api.ts. Keeping it a sibling of app makes that
+// privilege explicit, so its cross-feature imports are distinguishable from features importing each other.
 //
-// ALIAS_ONLY_LAYERS exists because "hooks" and "utils" are also folder names inside most features.
-// Matching `**/hooks/**` would flag every feature's own `../hooks/use-x` import, so those two layers
-// are matched through the `@/` alias only -- which is how cross-layer imports are written anyway.
+// ALIAS_ONLY_LAYERS exists because "utils" is also a folder name inside features. Matching
+// `**/utils/**` would flag a feature's own `../utils/x` import, so that layer is matched through the
+// `@/` alias only -- which is how cross-layer imports are written anyway.
 const LAYERS = [
   {
     layer: "utils",
-    forbids: ["features", "ui", "app", "devtools", "hooks", "lib"],
+    forbids: ["features", "core", "ui", "app", "devtools", "lib"],
   },
   {
     layer: "lib",
-    forbids: ["features", "ui", "app", "devtools", "hooks"],
+    forbids: ["features", "core", "ui", "app", "devtools"],
   },
   {
-    layer: "hooks",
+    layer: "core",
     forbids: ["features", "ui", "app", "devtools"],
   },
   {
     layer: "ui",
-    forbids: ["features", "app", "devtools", "hooks"],
+    forbids: ["features", "core", "app", "devtools"],
   },
   {
     layer: "features",
@@ -36,7 +36,7 @@ const LAYERS = [
   },
 ];
 
-const ALIAS_ONLY_LAYERS = new Set(["hooks", "utils"]);
+const ALIAS_ONLY_LAYERS = new Set(["utils"]);
 
 const layerPatterns = (layer, forbids) =>
   forbids.map((forbidden) => ({
@@ -67,14 +67,14 @@ const graphEngineBoundary = {
             group: [
               "@/features",
               "@/features/**",
+              "@/core",
+              "@/core/**",
               "@/ui",
               "@/ui/**",
               "@/app",
               "@/app/**",
               "@/devtools",
               "@/devtools/**",
-              "@/hooks",
-              "@/hooks/**",
             ],
             message: '"lib" must not import from a higher layer. See apps/visual-designer/README.md.',
           },

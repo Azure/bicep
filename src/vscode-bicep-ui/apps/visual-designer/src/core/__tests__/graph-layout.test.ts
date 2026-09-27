@@ -60,8 +60,30 @@ describe("patchMayAffectLayout", () => {
   it("does not reflow an addNode patch with an explicit placement", () => {
     const patch: GraphPatch = { op: "addNode", node: node({ id: "placed" }) };
 
-    expect(patchMayAffectLayout(graph, patch, new Set(["placed"]))).toBe(false);
-    expect(patchMayAffectLayout(graph, patch, new Set(["other"]))).toBe(true);
+    expect(patchMayAffectLayout(graph, patch, { explicitlyPlacedNodeIds: new Set(["placed"]) })).toBe(false);
+    expect(patchMayAffectLayout(graph, patch, { explicitlyPlacedNodeIds: new Set(["other"]) })).toBe(true);
+  });
+
+  it("preserves layout when undo removes only its independent placed resource", () => {
+    const removable = node({ id: "placed" });
+    const graph = graphOf(removable, node({ id: "other" }));
+    const patch: GraphPatch = { op: "removeNode", nodeId: "placed" };
+    const exemptions = { pendingRemovalNodeIds: new Set(["placed"]) };
+
+    expect(patchMayAffectLayout(graph, patch, exemptions)).toBe(false);
+    expect(patchMayAffectLayout(graph, patch)).toBe(true);
+    expect(patchMayAffectLayout(graph, { op: "removeNode", nodeId: "other" }, exemptions)).toBe(true);
+    expect(patchMayAffectLayout(graph, { op: "removeEdge", edgeId: "placed>other" }, exemptions)).toBe(true);
+  });
+
+  it("still reflows structural nodes even if an undo claims their ID", () => {
+    const module = node({ id: "module", kind: "module", type: "<module>", hasChildren: true });
+    const child = node({ id: "module::child", parentId: "module" });
+    const graph = graphOf(module, child);
+    const exemptions = { pendingRemovalNodeIds: new Set(["module", "module::child"]) };
+
+    expect(patchMayAffectLayout(graph, { op: "removeNode", nodeId: "module" }, exemptions)).toBe(true);
+    expect(patchMayAffectLayout(graph, { op: "removeNode", nodeId: "module::child" }, exemptions)).toBe(true);
   });
 
   it("treats layout and error-count patches as non-affecting", () => {

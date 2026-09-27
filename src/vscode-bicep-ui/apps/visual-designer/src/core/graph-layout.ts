@@ -10,24 +10,38 @@ import type { GraphBounds, GraphNode, GraphPatch, NodeLayout } from "./api";
  */
 const LAYOUT_AFFECTING_NODE_FIELDS = ["type", "isCollection", "hasChildren"] as const;
 
-type LayoutRelevantNode = Pick<GraphNode, (typeof LAYOUT_AFFECTING_NODE_FIELDS)[number]>;
+type LayoutRelevantNode = Pick<GraphNode, (typeof LAYOUT_AFFECTING_NODE_FIELDS)[number] | "kind" | "parentId">;
 
 interface LayoutRelevantGraph {
   nodes: ReadonlyMap<string, LayoutRelevantNode>;
+}
+
+export interface LayoutExemptions {
+  /** Nodes placed where the user dropped them. Adding one does not require a layout. */
+  explicitlyPlacedNodeIds?: ReadonlySet<string>;
+  /**
+   * Nodes removed because the user undid their creation. Removing one leaves the other nodes where
+   * they are, provided it is a top-level resource with no children.
+   */
+  pendingRemovalNodeIds?: ReadonlySet<string>;
 }
 
 /** Whether applying a patch may invalidate the current graph layout. */
 export function patchMayAffectLayout(
   graph: LayoutRelevantGraph,
   patch: GraphPatch,
-  explicitlyPlacedNodeIds: ReadonlySet<string> = new Set(),
+  { explicitlyPlacedNodeIds = new Set(), pendingRemovalNodeIds = new Set() }: LayoutExemptions = {},
 ): boolean {
   switch (patch.op) {
     case "clearGraph":
-    case "removeNode":
     case "addEdge":
     case "removeEdge":
       return true;
+    case "removeNode": {
+      const node = graph.nodes.get(patch.nodeId);
+      const isIndependentResource = node?.kind === "resource" && node.parentId === null && !node.hasChildren;
+      return !(pendingRemovalNodeIds.has(patch.nodeId) && isIndependentResource);
+    }
     case "addNode":
       return !explicitlyPlacedNodeIds.has(patch.node.id);
     case "updateNode": {

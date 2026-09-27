@@ -16,21 +16,27 @@ import type {
   GetGraphLayoutResult,
   GetGraphUpdateParams,
   GetGraphUpdateResult,
+  ReplaySourceEditParams,
+  ReplaySourceEditResult,
   TargetScope,
-} from "@/features/canvas";
-import type { SampleGraph } from "./sample-graph";
+} from "@/core";
+import type { SampleGraph, SampleGraphNode } from "./sample-graph";
 
-// The fake host implements the whole protocol, so it is the one legitimate consumer of every
-// feature's `api` surface.
-import { createResource, getGraphLayout, getGraphUpdate, revealNodeSource } from "@/features/canvas";
+// The fake host implements the whole protocol, so it is the one legitimate consumer of the core's
+// and every feature's `api` surface.
 import {
-  getResourceCreationEnablement,
-  getResourceTypeNamespaces,
-  getResourceTypeVersions,
-  loadResourceTypeCatalog,
-} from "@/features/palette";
+  createResource,
+  documentDidChange,
+  getGraphLayout,
+  getGraphUpdate,
+  getMotionPolicy,
+  getResourceEditingEnablement,
+  ready,
+  replaySourceEdit,
+  revealNodeSource,
+} from "@/core";
+import { getResourceTypeNamespaces, getResourceTypeVersions, loadResourceTypeCatalog } from "@/features/palette";
 import { showProblemsPanel } from "@/features/status";
-import { documentDidChange, getMotionPolicy, ready } from "@/hooks";
 import { diffGraph, layoutGraph } from "./fake-graph-differ";
 
 const FAKE_FILE_PATH = "file:///main.bicep";
@@ -746,9 +752,12 @@ export const GRAPH_MUTATIONS: GraphMutation[] = [
  * and layout responses through the same request flow used in production.
  */
 export class FakeMessageChannel implements WebviewMessageChannelApi {
+  /** Resources created through the designer, keyed by operation ID, and whether each is currently in source. */
+  private readonly createdResources = new Map<string, { node: SampleGraphNode; isInSource: boolean }>();
   private catalogRevision = 0;
   private versionRequestCount = 0;
   private targetScope: TargetScope = "resourceGroup";
+  private skipNextGraphUpdateAfterUndo = false;
   private readonly notificationSubscriptions: Record<string, Set<WebviewNotificationCallback>> = {};
   private readonly onWindowMessage = (event: MessageEvent) => {
     if (
@@ -762,10 +771,12 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
   };
 
   constructor() {
-    const scope = new URLSearchParams(window.location.search).get("targetScope");
+    const params = new URLSearchParams(window.location.search);
+    const scope = params.get("targetScope");
     if (scope === "subscription" || scope === "managementGroup" || scope === "tenant") {
       this.targetScope = scope;
     }
+    this.skipNextGraphUpdateAfterUndo = params.get("skipGraphUpdateAfterUndo") === "true";
     window.addEventListener("message", this.onWindowMessage);
   }
 
@@ -779,10 +790,11 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
 
   sendRequest<T>(requestMessage: { method: string; params?: unknown }): Promise<T> {
     if (requestMessage.method === getMotionPolicy.method) {
-      return Promise.resolve("animate" as T);
+      const policy = new URLSearchParams(window.location.search).get("motionPolicy");
+      return Promise.resolve((policy === "reduce" || policy === "system" ? policy : "animate") as T);
     }
 
-    if (requestMessage.method === getResourceCreationEnablement.method) {
+    if (requestMessage.method === getResourceEditingEnablement.method) {
       return Promise.resolve((new URLSearchParams(window.location.search).get("resourceCreation") !== "false") as T);
     }
 
@@ -898,6 +910,27 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
     }
 
     if (requestMessage.method === getGraphUpdate.method) {
+      if (
+        new URLSearchParams(window.location.search).get("withholdGraphUpdatesAfterCreation") === "true" &&
+        [...this.createdResources.values()].some((creation) => creation.isInSource)
+      ) {
+        return Promise.resolve({
+          patches: [],
+          targetScope: this.currentGraph ? this.targetScope : null,
+        } satisfies GetGraphUpdateResult as T);
+      }
+
+      if (
+        this.skipNextGraphUpdateAfterUndo &&
+        [...this.createdResources.values()].some((creation) => !creation.isInSource)
+      ) {
+        this.skipNextGraphUpdateAfterUndo = false;
+        return Promise.resolve({
+          patches: [],
+          targetScope: this.currentGraph ? this.targetScope : null,
+        } satisfies GetGraphUpdateResult as T);
+      }
+
       const { current } = requestMessage.params as GetGraphUpdateParams;
       const patches = diffGraph(current, this.currentGraph);
       return Promise.resolve({
@@ -917,7 +950,13 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
     }
 
     if (requestMessage.method === createResource.method) {
+      if (new URLSearchParams(window.location.search).get("resourceCreation") === "false") {
+        return Promise.reject({ code: "editingDisabled", message: "Resource editing is disabled." });
+      }
       const request = requestMessage.params as CreateResourceParams;
+      if (this.createdResources.has(request.operationId)) {
+        return Promise.reject({ code: "duplicateOperation", message: "This creation was already applied." });
+      }
       window.dispatchEvent(new CustomEvent("dev-resource-create", { detail: request.resourceType }));
       const current = this.currentGraph ?? { nodes: [], edges: [], errorCount: 0 };
       const baseName = request.resourceType.fullyQualifiedType.split("/").slice(-1)[0]?.replace(/s$/, "") ?? "resource";
@@ -931,19 +970,18 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
 
       return new Promise<T>((resolve) => {
         setTimeout(() => {
+          const node: SampleGraphNode = {
+            id: symbolicName,
+            type: request.resourceType.fullyQualifiedType,
+            isCollection: false,
+            hasChildren: false,
+            hasError: true,
+          };
           this.pushGraph({
             ...current,
-            nodes: [
-              ...current.nodes,
-              {
-                id: symbolicName,
-                type: request.resourceType.fullyQualifiedType,
-                isCollection: false,
-                hasChildren: false,
-                hasError: true,
-              },
-            ],
+            nodes: [...current.nodes, node],
           });
+          this.createdResources.set(request.operationId, { node, isInSource: true });
 
           resolve({
             version: 1,
@@ -951,9 +989,41 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
             expectedNodeId: symbolicName,
             symbolicName,
             unresolvedRequiredProperties: ["name"],
+            historyEpoch: 0,
           } satisfies CreateResourceResult as T);
         }, 300);
       });
+    }
+
+    if (requestMessage.method === replaySourceEdit.method) {
+      const request = requestMessage.params as ReplaySourceEditParams;
+      if (request.historyEpoch !== 0) {
+        return Promise.reject({ code: "historyConflict", message: "The designer source history has changed." });
+      }
+      const creation = this.createdResources.get(request.operationId);
+      const isUndo = request.direction === "undo";
+      if (!creation || creation.isInSource !== isUndo) {
+        return Promise.reject({ code: "historyConflict", message: "The designer source history has changed." });
+      }
+
+      const current = this.currentGraph;
+      if (!current || current.nodes.some((node) => node.id === creation.node.id) !== isUndo) {
+        return Promise.reject({ code: "historyConflict", message: "The graph changed outside the designer." });
+      }
+
+      this.pushGraph({
+        ...current,
+        nodes: isUndo
+          ? current.nodes.filter((node) => node.id !== creation.node.id)
+          : [...current.nodes, creation.node],
+      });
+      creation.isInSource = !isUndo;
+      return Promise.resolve({
+        version: 1,
+        operationId: request.operationId,
+        direction: request.direction,
+        historyEpoch: 0,
+      } satisfies ReplaySourceEditResult as T);
     }
 
     return Promise.reject(new Error(`FakeMessageChannel does not support request: ${requestMessage.method}`));

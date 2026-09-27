@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 import { Codicon } from "@vscode-bicep-ui/components";
+import { useAtomValue } from "jotai";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { styled } from "styled-components";
-import { Palette, useResourceCreationEnablement } from "@/features/palette";
+import { isResourceEditingEnabledAtom } from "@/core";
+import { Palette } from "@/features/palette";
 import { FloatingPanel, IconButton } from "@/ui";
 
 // The dock is the primary creation surface, so its targets are larger than the secondary view
@@ -119,7 +121,7 @@ function EnabledDock() {
 
 /** Creation chrome is independent of the graph's layout, viewport, and passive scope indicator. */
 export function Dock() {
-  const enabled = useResourceCreationEnablement();
+  const isResourceEditingEnabled = useAtomValue(isResourceEditingEnabledAtom);
 
-  return enabled ? <EnabledDock /> : null;
+  return isResourceEditingEnabled ? <EnabledDock /> : null;
 }

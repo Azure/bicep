@@ -5,12 +5,15 @@ import type { createStore, PrimitiveAtom } from "jotai";
 import type { AnimationPlaybackControlsWithThen } from "motion";
 import type { Box } from "@/lib/math";
 import type { NodeLayout } from "../api";
+import type { NodePositions } from "../node-positions";
 
 import { useSetAtom, useStore } from "jotai";
 import { animate, transform } from "motion";
 import { useCallback, useEffect, useRef } from "react";
 import { layoutReadyAtom, nodesByIdAtom } from "@/lib/graph";
 import { translateBox } from "@/lib/math";
+import { motionPolicyAtom } from "../atoms";
+import { applyNodePositions } from "../node-positions";
 
 type Store = ReturnType<typeof createStore>;
 
@@ -19,6 +22,16 @@ const ANIMATION_DURATION_S = 0.6;
 
 function waitForAnimationFrame(): Promise<void> {
   return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+}
+
+function shouldReduceMotion(store: Store): boolean {
+  const policy = store.get(motionPolicyAtom);
+  return (
+    policy === "reduce" ||
+    (policy === "system" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+  );
 }
 
 /**
@@ -46,48 +59,60 @@ function springNodeTo(store: Store, boxAtom: PrimitiveAtom<Box>, targetX: number
   });
 }
 
-/** Applies server-computed positions and reveals the graph once its nodes have mounted. */
+/**
+ * Moves nodes to new positions and reveals the graph once its nodes have mounted.
+ *
+ * Nodes spring to their targets, or jump there when the effective motion policy reduces motion.
+ * Starting a new move cancels the previous one, so it retargets from wherever the nodes are now.
+ */
 export function useApplyGraphLayout() {
   const store = useStore();
   const setLayoutReady = useSetAtom(layoutReadyAtom);
   const activeAnimationsRef = useRef<AnimationPlaybackControlsWithThen[]>([]);
 
-  useEffect(
-    () => () => {
-      for (const animation of activeAnimationsRef.current) {
-        animation.stop();
+  const stopNodeAnimations = useCallback(() => {
+    for (const animation of activeAnimationsRef.current) {
+      animation.stop();
+    }
+    activeAnimationsRef.current = [];
+  }, []);
+
+  useEffect(() => stopNodeAnimations, [stopNodeAnimations]);
+
+  const animateNodePositions = useCallback(
+    (positions: NodePositions): void => {
+      if (positions.size === 0) {
+        return;
       }
-      activeAnimationsRef.current = [];
+
+      stopNodeAnimations();
+      if (shouldReduceMotion(store)) {
+        applyNodePositions(store, positions);
+        return;
+      }
+
+      const nodesById = store.get(nodesByIdAtom);
+      for (const [nodeId, position] of positions) {
+        const node = nodesById[nodeId];
+        if (node?.kind === "atomic") {
+          activeAnimationsRef.current.push(springNodeTo(store, node.boxAtom, position.x, position.y));
+        }
+      }
     },
-    [],
+    [stopNodeAnimations, store],
   );
 
-  return useCallback(
+  const applyGraphLayout = useCallback(
     async (nodeLayouts: ReadonlyMap<string, NodeLayout>): Promise<void> => {
       if (!store.get(layoutReadyAtom)) {
         await waitForAnimationFrame();
         setLayoutReady(true);
       }
 
-      if (nodeLayouts.size === 0) {
-        return;
-      }
-
-      for (const animation of activeAnimationsRef.current) {
-        animation.stop();
-      }
-      activeAnimationsRef.current = [];
-
-      const nodes = store.get(nodesByIdAtom);
-
-      for (const [nodeId, layout] of nodeLayouts) {
-        const node = nodes[nodeId];
-
-        if (node?.kind === "atomic") {
-          activeAnimationsRef.current.push(springNodeTo(store, node.boxAtom, layout.x, layout.y));
-        }
-      }
+      animateNodePositions(nodeLayouts);
     },
-    [setLayoutReady, store],
+    [animateNodePositions, setLayoutReady, store],
   );
+
+  return { applyGraphLayout, animateNodePositions, stopNodeAnimations };
 }

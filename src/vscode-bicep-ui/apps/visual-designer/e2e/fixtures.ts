@@ -65,6 +65,20 @@ export function nodeCount(page: Page): Promise<number> {
   return page.getByTestId("graph-node").count();
 }
 
+/** Click Undo or Redo in the control bar. */
+export async function clickHistoryButton(page: Page, action: "Undo" | "Redo") {
+  await page.getByTestId("control-bar").getByRole("button", { name: action, exact: true }).click();
+}
+
+export async function expectHistoryButtonEnabled(page: Page, action: "Undo" | "Redo", isEnabled: boolean) {
+  const button = page.getByTestId("control-bar").getByRole("button", { name: action, exact: true });
+  if (isEnabled) {
+    await expect(button).toBeEnabled();
+  } else {
+    await expect(button).toBeDisabled();
+  }
+}
+
 /** Return the current pan-zoom transform on the inner graph layer. */
 export async function getGraphTransform(page: Page): Promise<string> {
   return page.evaluate(() => {

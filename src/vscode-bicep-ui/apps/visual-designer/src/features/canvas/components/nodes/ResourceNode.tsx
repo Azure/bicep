@@ -6,10 +6,10 @@ import { useAtom, useAtomValue } from "jotai";
 import { motion } from "motion/react";
 import { useEffect } from "react";
 import { styled } from "styled-components";
+import { resourceNodeIsCommittingAtomFamily } from "@/core";
 import { focusedNodeIdAtom } from "@/lib/graph";
 import { EXPAND_TRANSITION } from "@/ui";
 import { camelCaseToWords } from "@/utils";
-import { resourceNodeIsCommittingAtomFamily } from "../../atoms";
 import { RESOURCE_NODE_PREVIEW_HEIGHT, RESOURCE_NODE_PREVIEW_WIDTH } from "./ResourceNodePreview";
 
 export interface ResourceNodeProps {

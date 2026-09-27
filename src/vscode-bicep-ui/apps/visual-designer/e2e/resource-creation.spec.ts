@@ -1,8 +1,54 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { Page } from "@playwright/test";
+
 import { expect, test } from "@playwright/test";
-import { loadSampleGraph, nodeCount, openVisualDesigner } from "./fixtures";
+import {
+  clickHistoryButton,
+  expectHistoryButtonEnabled,
+  getGraphTransform,
+  loadSampleGraph,
+  nodeCount,
+  openVisualDesigner,
+  waitForStableNodePosition,
+} from "./fixtures";
+
+async function dragStorageAccountToCanvas(page: Page) {
+  await page.getByRole("button", { name: "Add Resources" }).click();
+  await page.getByText("Microsoft.Storage", { exact: true }).click();
+
+  const handle = page.locator(
+    '[data-testid="resource-type-drag-handle"][data-resource-type="Microsoft.Storage/storageAccounts"]',
+  );
+  const handleBox = await handle.boundingBox();
+  const canvasBox = await page.getByTestId("graph-canvas").boundingBox();
+  if (!handleBox || !canvasBox) {
+    throw new Error("Resource drag handle or canvas was not available.");
+  }
+
+  await page.mouse.move(handleBox.x + 20, handleBox.y + handleBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(canvasBox.x + canvasBox.width * 0.8, canvasBox.y + canvasBox.height * 0.5, { steps: 8 });
+  await page.mouse.up();
+}
+
+async function captureFlatGraphPositions(page: Page) {
+  return Promise.all(
+    ["vnet", "subnet", "nsg", "pip"].map(async (id) => ({
+      id,
+      position: await waitForStableNodePosition(page, id),
+    })),
+  );
+}
+
+async function expectNodePositions(page: Page, positions: Awaited<ReturnType<typeof captureFlatGraphPositions>>) {
+  for (const { id, position } of positions) {
+    const box = await page.locator(`[data-node-id="${id}"]`).boundingBox();
+    expect(box?.x).toBeCloseTo(position.x, 0);
+    expect(box?.y).toBeCloseTo(position.y, 0);
+  }
+}
 
 test.describe("resource creation", () => {
   test("hides the Resource Palette when the experimental setting is disabled", async ({ page }) => {
@@ -59,6 +105,118 @@ test.describe("resource creation", () => {
 
     await expect(page.getByTestId("graph-node")).toHaveCount(initialCount + 1);
     await expect(pendingNode).toHaveCount(0);
+
+    const createdNode = page.locator('[data-node-id="storageAccount"]');
+    await expect(createdNode).toBeVisible();
+    await expectHistoryButtonEnabled(page, "Undo", true);
+    const survivingPositions = await captureFlatGraphPositions(page);
+    const camera = await getGraphTransform(page);
+
+    await clickHistoryButton(page, "Undo");
+    await expect(createdNode).toHaveCount(0);
+    await expectHistoryButtonEnabled(page, "Redo", true);
+    await waitForStableNodePosition(page, "subnet");
+    expect(await getGraphTransform(page)).toBe(camera);
+    await expectNodePositions(page, survivingPositions);
+
+    await clickHistoryButton(page, "Redo");
+    await expect(createdNode).toBeVisible();
+    await expect(page.getByTestId("graph-node")).toHaveCount(initialCount + 1);
+    await waitForStableNodePosition(page, "subnet");
+    expect(await getGraphTransform(page)).toBe(camera);
+    await expectNodePositions(page, survivingPositions);
+
+    await waitForStableNodePosition(page, "storageAccount");
+    const originalPosition = await createdNode.evaluate((element) => (element as HTMLElement).style.translate);
+    const nodeBox = await createdNode.boundingBox();
+    if (!nodeBox) {
+      throw new Error("The recreated node has no bounds.");
+    }
+    const from = { x: nodeBox.x + nodeBox.width / 2, y: nodeBox.y + nodeBox.height / 2 };
+    await page.mouse.move(from.x, from.y);
+    await page.mouse.down();
+    await page.mouse.move(from.x + 110, from.y + 70, { steps: 10 });
+    await page.mouse.up();
+    await expectHistoryButtonEnabled(page, "Undo", true);
+    const movedPosition = await createdNode.evaluate((element) => (element as HTMLElement).style.translate);
+    expect(movedPosition).not.toBe(originalPosition);
+
+    await clickHistoryButton(page, "Undo");
+    await expect
+      .poll(() => createdNode.evaluate((element) => (element as HTMLElement).style.translate))
+      .toBe(originalPosition);
+    await expectHistoryButtonEnabled(page, "Undo", true);
+    await clickHistoryButton(page, "Undo");
+    await expect(createdNode).toHaveCount(0);
+
+    await clickHistoryButton(page, "Redo");
+    await expect(createdNode).toBeVisible();
+    await expectHistoryButtonEnabled(page, "Redo", true);
+    await clickHistoryButton(page, "Redo");
+    await expect
+      .poll(() => createdNode.evaluate((element) => (element as HTMLElement).style.translate))
+      .toBe(movedPosition);
+    await expectHistoryButtonEnabled(page, "Redo", false);
+  });
+
+  test("undo clears an unresolved creation preview and redo restores it", async ({ page }) => {
+    await openVisualDesigner(page, { withholdGraphUpdatesAfterCreation: "true" });
+    await loadSampleGraph(page, "flat");
+    await dragStorageAccountToCanvas(page);
+
+    const pending = page.getByTestId("pending-resource-node");
+    await expect(pending).toBeVisible();
+    await expectHistoryButtonEnabled(page, "Undo", true);
+
+    await clickHistoryButton(page, "Undo");
+    await expect(pending).toHaveCount(0);
+    await expectHistoryButtonEnabled(page, "Redo", true);
+
+    await clickHistoryButton(page, "Redo");
+    await expect(pending).toBeVisible();
+  });
+
+  test("undo preserves layout when the graph removal arrives after a delayed update", async ({ page }) => {
+    await openVisualDesigner(page, { skipGraphUpdateAfterUndo: "true" });
+    await loadSampleGraph(page, "flat");
+    await dragStorageAccountToCanvas(page);
+    const createdNode = page.locator('[data-node-id="storageAccount"]');
+    await expect(createdNode).toBeVisible();
+    const survivingPositions = await captureFlatGraphPositions(page);
+    const camera = await getGraphTransform(page);
+
+    await clickHistoryButton(page, "Undo");
+    await expectHistoryButtonEnabled(page, "Redo", true);
+    await expect(createdNode).toBeVisible();
+
+    await page.getByRole("button", { name: "Change catalog" }).click();
+    await expect(createdNode).toHaveCount(0);
+    await waitForStableNodePosition(page, "subnet");
+    expect(await getGraphTransform(page)).toBe(camera);
+    await expectNodePositions(page, survivingPositions);
+  });
+
+  test("redo cancels a pending undo exemption so unrelated removal still lays out", async ({ page }) => {
+    await openVisualDesigner(page, { skipGraphUpdateAfterUndo: "true" });
+    await loadSampleGraph(page, "flat");
+    await dragStorageAccountToCanvas(page);
+    const createdNode = page.locator('[data-node-id="storageAccount"]');
+    await expect(createdNode).toBeVisible();
+
+    await clickHistoryButton(page, "Undo");
+    await expectHistoryButtonEnabled(page, "Redo", true);
+    await expect(createdNode).toBeVisible();
+    await clickHistoryButton(page, "Redo");
+    await expectHistoryButtonEnabled(page, "Undo", true);
+
+    const beforeZoom = await getGraphTransform(page);
+    await page.getByTestId("control-zoom-in").click();
+    await expect.poll(() => getGraphTransform(page)).not.toBe(beforeZoom);
+    const zoomedCamera = await getGraphTransform(page);
+
+    await page.getByRole("button", { name: /Remove last node/ }).click();
+    await expect(createdNode).toHaveCount(0);
+    await expect.poll(() => getGraphTransform(page)).not.toBe(zoomedCamera);
   });
 
   test("collapses the Resource Palette without changing canvas size", async ({ page }) => {

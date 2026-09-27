@@ -6,6 +6,36 @@ import type { ResourceTypeReference } from "./types";
 import { defineNotification, defineRequest, useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { useMemo } from "react";
 
+// ── Document ──
+// `ready` and `documentDidChange` are two halves of one exchange: the webview announces it is
+// mounted, and the host answers by sending the document and re-announcing it on every edit.
+
+/** "The webview has mounted; start sending me the document." */
+export const ready = defineNotification("ready");
+
+export interface DocumentDidChangeParams {
+  documentUri: string;
+}
+
+/** "The document changed; re-fetch whatever you derive from it." */
+export const documentDidChange = defineNotification<DocumentDidChangeParams>("documentDidChange");
+
+// ── Resource editing setting ──
+// The wire names still say `resourceCreation` because creation was the first gated action.
+
+export const getResourceEditingEnablement = defineRequest<void, boolean>("resourceCreation/isEnabled");
+
+export const resourceEditingEnablementDidChange = defineNotification<boolean>("resourceCreation/enablementDidChange");
+
+// ── Motion policy ──
+// The host resolves the effective policy from the VS Code setting and the OS reduced-motion preference.
+
+export type MotionPolicy = "system" | "reduce" | "animate";
+
+export const getMotionPolicy = defineRequest<void, MotionPolicy>("motionPolicy/get");
+
+export const motionPolicyDidChange = defineNotification<MotionPolicy>("motionPolicy/didChange");
+
 // ── Source locations ──
 
 interface Position {
@@ -44,6 +74,36 @@ export interface CreateResourceResult {
   expectedNodeId: string;
   symbolicName: string;
   unresolvedRequiredProperties: string[];
+  /** The extension's source-history epoch. It changes whenever the extension discards its tracked edits. */
+  historyEpoch: number;
+  /** Set when the resource was created but the extension could not track it, so it cannot be undone. */
+  historyTrackingError?: string;
+}
+
+// ── Undo history ──
+
+export type ReplayDirection = "undo" | "redo";
+
+/** Undo or redo a source edit the designer made earlier, identified by the operation that made it. */
+export const replaySourceEdit = defineRequest<ReplaySourceEditParams, ReplaySourceEditResult>(
+  "undoHistory/replaySourceEdit",
+);
+
+export interface ReplaySourceEditParams {
+  version: 1;
+  operationId: string;
+  direction: ReplayDirection;
+  historyEpoch: number;
+}
+
+export type ReplaySourceEditResult = ReplaySourceEditParams;
+
+/** Kept, like `CreateResourceErrorResult` below, to document the codes the extension can send. */
+export interface ReplaySourceEditErrorResult {
+  code: "invalidHistoryRequest" | "editingDisabled" | "historyConflict" | "editRejected" | "replayFailed";
+  message: string;
+  retryable: boolean;
+  historyEpoch?: number;
 }
 
 /**
@@ -61,6 +121,8 @@ export interface CreateResourceErrorResult {
   code:
     | "unsupportedContract"
     | "invalidResourceType"
+    | "duplicateOperation"
+    | "editingDisabled"
     | "documentChanged"
     | "documentReadOnly"
     | "editRejected"
@@ -205,7 +267,7 @@ export type GraphPatch =
  * Only imperative calls belong here. Subscriptions stay declarative at the call site via
  * `useNotification(descriptor, handler)`, which composes better with React's lifecycle.
  */
-export function useCanvasApi() {
+export function useGraphApi() {
   const channel = useWebviewMessageChannel();
 
   return useMemo(
@@ -213,6 +275,7 @@ export function useCanvasApi() {
       fetchUpdate: (current: RenderedGraph | null) => channel.request(getGraphUpdate, { current }),
       fetchGraphLayout: (current: RenderedGraph) => channel.request(getGraphLayout, { current }),
       createResource: (params: CreateResourceParams) => channel.request(createResource, params),
+      replaySourceEdit: (params: ReplaySourceEditParams) => channel.request(replaySourceEdit, params),
       revealNodeSource: (nodeId: string) => channel.notify(revealNodeSource, { nodeId }),
     }),
     [channel],

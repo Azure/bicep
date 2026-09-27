@@ -20,7 +20,7 @@ interface PendingDrag extends PaletteDragState {
 const DRAG_THRESHOLD = 4;
 
 export function usePaletteDrag(
-  canPlaceResourceAt: (clientPoint: { x: number; y: number }) => boolean,
+  canDropResourceAt: (clientPoint: { x: number; y: number }) => boolean,
   onDrop: (item: PaletteDragState["item"], clientX: number, clientY: number) => void,
 ) {
   const activeDragRef = useRef<PendingDrag | null>(null);
@@ -65,7 +65,7 @@ export function usePaletteDrag(
       }
 
       // A press that never crossed the threshold is not a drag and inserts nothing.
-      if (drag.dragging && canPlaceResourceAt({ x: event.clientX, y: event.clientY })) {
+      if (drag.dragging && canDropResourceAt({ x: event.clientX, y: event.clientY })) {
         onDrop(drag.item, event.clientX, event.clientY);
       }
       cancelDrag();
@@ -89,7 +89,7 @@ export function usePaletteDrag(
       window.removeEventListener("pointercancel", cancelDrag);
       window.removeEventListener("keydown", handleKeyDown, true);
     };
-  }, [canPlaceResourceAt, cancelDrag, onDrop, setDragState]);
+  }, [canDropResourceAt, cancelDrag, onDrop, setDragState]);
 
   const startDrag = useCallback((item: PaletteDragState["item"], event: ReactPointerEvent<HTMLElement>) => {
     if (event.button !== 0) {
