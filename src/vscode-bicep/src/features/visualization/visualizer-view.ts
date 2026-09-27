@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import type { ReplayDirection } from "./source-edit-history";
+
 import crypto from "crypto";
 import path from "path";
 import {
@@ -16,6 +18,7 @@ import {
   WebviewPanelOnDidChangeViewStateEvent,
   window,
   workspace,
+  WorkspaceEdit,
 } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { parseError } from "../../infrastructure/errors";
@@ -41,6 +44,7 @@ import {
 import { getApplyEditFailureCode, hasDocumentChanged } from "./resource-creation";
 import { isResourceEditingEnabled } from "./resource-editing-setting";
 import { buildResourceTypeCatalog } from "./resource-palette";
+import { SourceEditHistory, SourceEditHistoryConflict } from "./source-edit-history";
 
 export class BicepVisualizerView extends Disposable {
   public static viewType = "bicep.visualizer";
@@ -51,6 +55,7 @@ export class BicepVisualizerView extends Disposable {
   private resolveReady!: () => void;
 
   private readyToRender = false;
+  private readonly sourceEditHistory = new SourceEditHistory();
 
   private constructor(
     private readonly languageClient: LanguageClient,
@@ -257,7 +262,7 @@ export class BicepVisualizerView extends Disposable {
   }
 
   private async handleCreateResource(id: string, params: unknown): Promise<void> {
-    const request = params as {
+    const request = (params && typeof params === "object" ? params : {}) as {
       version?: number;
       operationId?: string;
       resourceType?: VisualResourceTypeReference;
@@ -265,9 +270,12 @@ export class BicepVisualizerView extends Disposable {
 
     if (
       request.version !== 1 ||
-      !request.operationId ||
-      !request.resourceType?.fullyQualifiedType ||
-      !request.resourceType.apiVersion
+      typeof request.operationId !== "string" ||
+      !request.operationId.trim() ||
+      typeof request.resourceType?.fullyQualifiedType !== "string" ||
+      !request.resourceType.fullyQualifiedType.trim() ||
+      typeof request.resourceType.apiVersion !== "string" ||
+      !request.resourceType.apiVersion.trim()
     ) {
       await this.postErrorResponse(id, {
         version: 1,
@@ -277,6 +285,21 @@ export class BicepVisualizerView extends Disposable {
           request.version === 1
             ? "The resource type selection is invalid."
             : "The resource creation contract version is not supported.",
+        retryable: false,
+      });
+      return;
+    }
+
+    if (await this.rejectIfResourceEditingDisabled(id, request.operationId)) {
+      return;
+    }
+
+    if (this.sourceEditHistory.hasOperation(request.operationId)) {
+      await this.postErrorResponse(id, {
+        version: 1,
+        operationId: request.operationId,
+        code: "duplicateOperation",
+        message: "This resource creation request has already been applied.",
         retryable: false,
       });
       return;
@@ -293,7 +316,19 @@ export class BicepVisualizerView extends Disposable {
           resourceType: request.resourceType,
         },
       );
+      const changes = result.edit.documentChanges;
+      if (
+        changes?.length !== 1 ||
+        !("textDocument" in changes[0]) ||
+        changes[0].textDocument.version !== requestedVersion
+      ) {
+        throw new Error("Resource creation returned an unsupported or stale workspace edit.");
+      }
       const edit = await this.languageClient.protocol2CodeConverter.asWorkspaceEdit(result.edit);
+
+      if (await this.rejectIfResourceEditingDisabled(id, request.operationId)) {
+        return;
+      }
 
       if (hasDocumentChanged(requestedVersion, document.version, document.isClosed)) {
         await this.postErrorResponse(id, {
@@ -306,6 +341,7 @@ export class BicepVisualizerView extends Disposable {
         return;
       }
 
+      const pendingInsertion = this.sourceEditHistory.prepareInsertion(document, edit);
       const applied = await workspace.applyEdit(edit);
 
       if (!applied) {
@@ -319,12 +355,28 @@ export class BicepVisualizerView extends Disposable {
         return;
       }
 
+      // The resource was created either way; a tracking failure only means the designer cannot undo it.
+      let historyEpoch: number;
+      let historyTrackingError: string | undefined;
+      try {
+        historyEpoch = this.sourceEditHistory.recordInsertion(document, request.operationId, pendingInsertion);
+      } catch (error) {
+        if (!(error instanceof SourceEditHistoryConflict)) {
+          throw error;
+        }
+        historyEpoch = this.sourceEditHistory.epoch;
+        historyTrackingError = error.message;
+        getLogger().error(`Visual resource creation history failed: ${error.message}`);
+      }
+
       await this.postResponse(id, {
         version: 1,
         operationId: result.operationId,
         expectedNodeId: result.expectedNodeId,
         symbolicName: result.symbolicName,
         unresolvedRequiredProperties: result.unresolvedRequiredProperties,
+        historyEpoch,
+        historyTrackingError,
       });
     } catch (error) {
       getLogger().error(`Visual resource creation request failed: ${parseError(error).message}`);
@@ -336,6 +388,117 @@ export class BicepVisualizerView extends Disposable {
         retryable: true,
       });
     }
+  }
+
+  private async handleReplaySourceEdit(id: string, params: unknown): Promise<void> {
+    const request = (params && typeof params === "object" ? params : {}) as {
+      version?: number;
+      operationId?: string;
+      direction?: ReplayDirection;
+      historyEpoch?: number;
+    };
+    if (
+      request.version !== 1 ||
+      typeof request.operationId !== "string" ||
+      !request.operationId.trim() ||
+      (request.direction !== "undo" && request.direction !== "redo") ||
+      typeof request.historyEpoch !== "number" ||
+      !Number.isSafeInteger(request.historyEpoch) ||
+      request.historyEpoch < 0
+    ) {
+      await this.postErrorResponse(id, {
+        code: "invalidHistoryRequest",
+        message: "The designer undo/redo request is invalid.",
+        retryable: false,
+      });
+      return;
+    }
+
+    if (await this.rejectIfResourceEditingDisabled(id, request.operationId)) {
+      return;
+    }
+
+    if (request.historyEpoch !== this.sourceEditHistory.epoch) {
+      await this.postErrorResponse(id, {
+        code: "historyConflict",
+        message: "The source edit history changed. Refresh the visualizer before undoing this edit.",
+        historyEpoch: this.sourceEditHistory.epoch,
+        retryable: false,
+      });
+      return;
+    }
+
+    try {
+      const document = await workspace.openTextDocument(this.documentUri);
+      if (this.isDisposed) {
+        return;
+      }
+
+      const plan = this.sourceEditHistory.planReplay(document, request.operationId, request.direction);
+      const edit = new WorkspaceEdit();
+      edit.replace(
+        document.uri,
+        new Range(document.positionAt(plan.startOffset), document.positionAt(plan.endOffset)),
+        plan.newText,
+      );
+
+      if (await this.rejectIfResourceEditingDisabled(id, request.operationId)) {
+        return;
+      }
+      if (document.version !== plan.documentVersionBeforeReplay) {
+        this.sourceEditHistory.invalidate();
+        throw new SourceEditHistoryConflict("The Bicep file changed before the designer action could be replayed.");
+      }
+
+      if (!(await workspace.applyEdit(edit))) {
+        await this.postErrorResponse(id, {
+          code: "editRejected",
+          message: "VS Code could not apply the designer undo/redo edit.",
+          retryable: true,
+        });
+        return;
+      }
+
+      const historyEpoch = this.sourceEditHistory.commitReplay(document, plan);
+      await this.postResponse(id, {
+        version: 1,
+        operationId: request.operationId,
+        direction: request.direction,
+        historyEpoch,
+      });
+    } catch (error) {
+      if (error instanceof SourceEditHistoryConflict) {
+        await this.postErrorResponse(id, {
+          code: "historyConflict",
+          message: error.message,
+          historyEpoch: this.sourceEditHistory.epoch,
+          retryable: false,
+        });
+        return;
+      }
+
+      getLogger().error(`Designer source undo/redo failed: ${parseError(error).message}`);
+      await this.postErrorResponse(id, {
+        code: "replayFailed",
+        message: "Failed to undo or redo the designer source edit.",
+        retryable: true,
+      });
+    }
+  }
+
+  private async rejectIfResourceEditingDisabled(id: string, operationId: string): Promise<boolean> {
+    if (isResourceEditingEnabled()) {
+      return false;
+    }
+
+    await this.postErrorResponse(id, {
+      version: 1,
+      operationId,
+      code: "editingDisabled",
+      message: "Resource editing is disabled. Enable the experimental resource-editing setting to change resources.",
+      retryable: false,
+    });
+    return true;
   }
 
   private async handleGetResourceTypeNamespaces(id: string): Promise<void> {
@@ -491,6 +654,10 @@ export class BicepVisualizerView extends Disposable {
           void this.handleCreateResource(request.id, request.params);
           return;
 
+        case "undoHistory/replaySourceEdit":
+          void this.handleReplaySourceEdit(request.id, request.params);
+          return;
+
         case "resourceTypeCatalog/load":
           void this.handleGetResourceTypeCatalog(request.id, request.params);
           return;
@@ -544,7 +711,7 @@ export class BicepVisualizerView extends Disposable {
       if (visibleEditor.document.uri.fsPath === filePath) {
         window.showTextDocument(visibleEditor.document, visibleEditor.viewColumn).then(
           (editor) => this.revealEditorRange(editor, range),
-          (err) => window.showErrorMessage(`Could not reveal file range in "${filePath}": ${parseError(err).message}`),
+          (err) => getLogger().error(`Could not reveal file range in "${filePath}": ${parseError(err).message}`),
         );
         return;
       }
@@ -557,7 +724,7 @@ export class BicepVisualizerView extends Disposable {
       .then((doc) => window.showTextDocument(doc, targetColumn))
       .then(
         (editor) => this.revealEditorRange(editor, range),
-        (err) => window.showErrorMessage(`Could not open "${filePath}": ${parseError(err).message}`),
+        (err) => getLogger().error(`Could not open "${filePath}": ${parseError(err).message}`),
       );
   }
 
