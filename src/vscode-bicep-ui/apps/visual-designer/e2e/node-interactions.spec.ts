@@ -106,6 +106,26 @@ test.describe("Node interactions", () => {
     await expect.poll(() => focusedNodeId(page)).toBe("subnet");
   });
 
+  test("suppresses VS Code's Cut/Copy/Paste menu everywhere except text fields", async ({ page }) => {
+    // VS Code's webview host listens here and opens its menu only when the event is not already handled.
+    await page.evaluate(() => {
+      const events: boolean[] = [];
+      (window as Window & { hostContextMenuOpened?: boolean[] }).hostContextMenuOpened = events;
+      window.addEventListener("contextmenu", (event) => events.push(!event.defaultPrevented));
+    });
+    const hostContextMenuOpened = () =>
+      page.evaluate(() => (window as Window & { hostContextMenuOpened?: boolean[] }).hostContextMenuOpened);
+
+    await page.getByTestId("graph-canvas").click({ button: "right", position: { x: 8, y: 8 } });
+    await page.locator('[data-node-id="vnet"]').click({ button: "right" });
+    await page.getByTestId("control-zoom-in").click({ button: "right" });
+    expect(await hostContextMenuOpened()).toEqual([false, false, false]);
+
+    await page.getByRole("button", { name: "Add Resources" }).click();
+    await page.getByRole("textbox", { name: "Filter resource types" }).click({ button: "right" });
+    expect(await hostContextMenuOpened()).toEqual([false, false, false, true]);
+  });
+
   test("slow multi-event panning does not clear focus", async ({ page }) => {
     await page.locator('[data-node-id="subnet"]').click();
     await expect.poll(() => focusedNodeId(page)).toBe("subnet");
