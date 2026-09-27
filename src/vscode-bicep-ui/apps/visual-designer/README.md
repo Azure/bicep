@@ -30,8 +30,8 @@ npm run e2e
 make loading and concurrency states deterministic.
 
 The bottom-center creation dock is gated by the experimental resource-editing setting. Currently it
-enables resource creation only: the Resources button opens a compact popover; Modules and Notes are
-keyboard-discoverable, disabled coming-soon tools.
+enables resource creation only: the Resources button opens a compact popover. Unimplemented tools
+are not shown.
 Each resource shows its API version as a pill: quiet text at rest, with pill chrome revealed on row
 hover or focus, and kept when the selection differs from the host default. Clicking it (or pressing
 Arrow keys, Enter, or Space

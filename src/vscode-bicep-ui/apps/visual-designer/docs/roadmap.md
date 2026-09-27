@@ -8,9 +8,8 @@ description of shipped behavior or a commitment to a particular release. See
 
 - Preserve the graph-viewing experience when editing is disabled: pan, zoom, local node repositioning,
   focus, double-click-to-source, reset layout, and export must continue to work.
-- Keep Bicep source as the source of truth for resources and modules. Decide explicitly whether notes
-  live in Bicep metadata or a workspace file. Visual graph positions and transient creation previews
-  must not silently modify either.
+- Keep Bicep source as the source of truth for resources and modules. Visual graph positions and
+  transient creation previews must not silently modify it.
 - Keep creation **drag-first**. Do not add click-to-create as an alternate mouse gesture; a dragged
   placeholder may open a chooser after drop, but does not become a resource until the user selects a
   valid type and version.
@@ -24,7 +23,7 @@ description of shipped behavior or a commitment to a particular release. See
 - `bicep.visualizer.experimental.enableResourceEditing` defaults to false and currently hides the
   creation dock. Viewer interactions remain available; resource creation is the only implemented
   resource-editing feature so far.
-- The dock has working Resources and disabled Modules/Notes affordances. The resource palette is
+- The dock has only a working Resources tool; unimplemented tools are not shown. The resource palette is
   drag-only, with a type catalog, API-version choice, and common provider namespaces sorted first.
 - The visualizer follows the VS Code theme **kind** (light, dark, high contrast) using curated graph
   palettes, not the current editor theme's exact colors. Export offers Current and explicit theme
@@ -44,32 +43,34 @@ These details are documented in [Architecture](./architecture.md), the
 
 ## Recommended delivery order
 
-Stages 1 and 2 can proceed independently once stage 0 establishes the viewer contract. The order
-within stages 3 and 4 can respond to user feedback; dependencies, not calendar dates, are the gate.
+Dependencies, not calendar dates, are the gate. Stage 1 is viewer-only and can start at any time.
+Stage 4 depends only on the stage 0 mutation and layout rules, so it can proceed alongside stages 2
+and 3. The order within stages 3 and 4 can respond to user feedback.
 
-| Stage | Deliverable | Exit criterion |
-| --- | --- | --- |
-| 0. Foundations | Viewer regression coverage, gesture fix, mutation gates, undo/layout rules | Disabled editing still behaves as before; every source mutation is guarded and reversible |
-| 1. Low-risk discovery | Optional VS Code theme matching; Featured/All and then Recent palette views | Theme and palette changes do not create source edits or surprise existing viewers |
-| 2. Interaction model | Experimental Select/Hand, selection state, contextual toolbar | Gestures and shortcuts are predictable without changing the default viewer mode |
-| 3. Focused source edits | LSP-backed rename, then Convert to existing | Edits preview/validate correctly, preserve graph context, and undo/redo in the editor |
-| 4. Drag-first creation | Placeholder-first resources; references to existing local modules | Cancel does not edit or lay out the graph; commit honors the placement/layout contract |
-| 5. Broader authoring | New local module files and metadata-backed notes | Multi-file edits and note persistence/visibility are specified and tested |
-| 6. Module refactoring | Multi-select and Extract to Module | A language-server refactoring safely rewrites files and references in one operation |
+| Stage | Deliverable | Depends on | Exit criterion |
+| --- | --- | --- | --- |
+| 0. Foundations | Viewer regression coverage, gesture fix, mutation rules, undo/layout rules | — | Disabled editing still behaves as before; every source mutation is version-checked and reversible |
+| 1. Low-risk discovery | Optional VS Code theme matching; Featured/All and then Recent palette views | — | Theme and palette changes do not create source edits or surprise existing viewers |
+| 2. Interaction model | Experimental Select/Hand, selection state, contextual toolbar and context menu | 0 | Gestures and shortcuts are predictable without changing the default viewer mode |
+| 3. Focused source edits | LSP-backed rename, then Convert to existing | 2 | Edits preview/validate correctly, preserve graph context, and undo/redo in the editor |
+| 4. Drag-first creation | Placeholder-first resources; references to existing local modules | 0 | Cancel does not edit or lay out the graph; commit honors the placement/layout contract |
+| 5. Module authoring | New local module files | 4 | The new file and parent declaration are one previewed, undoable operation |
+| 6. Module refactoring | Multi-select and Extract to Module | 2, 5 | A language-server refactoring safely rewrites files and references in one operation |
 
 ### Stage 0: viewer safety and undo foundation
 
 1. Fix click-versus-drag detection to use **total pointer travel since pointer-down**, rather than
-   comparing each move to the four-pixel threshold. A cancelled pointer gesture must not select a
-   node. Cover slow, multi-event drags as well as true clicks.
+   comparing each event's `movementX`/`movementY` to the four-pixel threshold (as
+   [Viewport.tsx](../src/lib/graph/components/Viewport.tsx) does today; the palette drag already
+   measures distance from the origin). A `pointercancel` must not focus or select a node; today it
+   shares the pointer-up path. Cover slow, multi-event drags as well as true clicks.
 2. Preserve the flag-off experience: no editing dock or editing-only shortcut interception; existing
    focus, local drag, background pan, zoom, double-click-to-source, status, and export stay usable.
-3. Check editing permission in the extension **for each mutating request**, including just before
-   applying an asynchronously prepared edit. Hiding the webview control is insufficient. Keep
-   document-version validation and explicit failure reporting; handle an opt-out during a pending
-   operation.
-4. Use the resource-editing opt-in for new resource actions. Decide separately whether module and
-   note editing should share it or require a broader experimental opt-in. Default all new
+3. Gate editing through the UI: when the setting is off, editing controls and gestures are not
+   rendered or bound. Keep document-version validation and explicit failure reporting for every
+   source mutation.
+4. Use the resource-editing opt-in for new resource actions. Decide separately whether module
+   editing should share it or require a broader experimental opt-in. Default all new
    source-changing actions to off until explicitly enabled.
 5. Define undo ownership now: source changes use VS Code's edit history; local graph movements need
    their own session history. Test the interaction between the two before exposing a generic Undo
@@ -95,23 +96,27 @@ whether it follows the user across workspaces or belongs to a workspace before p
   (`H`) pans even when the pointer starts on a node. Retain empty-canvas panning in Select until a
   marquee interaction is deliberately designed. Consider Space as a temporary Hand override.
 - Scope shortcuts to the focused canvas, not the whole VS Code window. Do not intercept text input
-  in palette search, inline names, note editors, or the source editor. Show the active mode and an
-  appropriate cursor.
+  in palette search, inline names, or the source editor. Show the active mode and an appropriate
+  cursor.
 - Separate *selected nodes* from the current single-node focus/z-order state as multi-selection
-  becomes necessary. A compact toolbar can start with Go to Source before adding edit actions.
-- Keep double-click-to-source. Prefer F2 and a toolbar/context-menu Rename action over making every
-  second click on a selected card enter editing; revisit label-only second-click editing after it can
-  be distinguished reliably from a double-click or drag.
+  becomes necessary. Add a compact contextual toolbar and a context menu, starting with Go to Source
+  before adding edit actions.
+- With editing enabled, double-clicking a node, or clicking a node that is already selected, enters
+  inline rename (stage 3), and Go to Source moves to the contextual toolbar and context menu. With
+  editing disabled, double-click keeps revealing source. A second click that starts a drag moves the
+  node instead of entering rename, using the stage 0 total-travel threshold.
 - Roll out mode switching without changing the existing gestures for people who have not opted into
   editing. Fix the accidental selection problem in stage 0 rather than relying on modes to hide it.
 
 ### Stage 3: focused Bicep edits
 
-**Rename symbolic name.** Resolve the selected node's current source location on demand, invoke
-the existing Bicep LSP rename instead of replacing text, validate the document version, and apply
-the result as a normal VS Code edit. Enter commits; Escape cancels; a failed blur commit keeps the
-draft and explains the error. Preserve selection and placement across the graph ID change,
-including descendants when a module's symbolic name changes. Source navigation must still work.
+**Rename symbolic name.** Double-click a node or click an already selected node to edit its name
+inline. Resolve the node's current source location on demand, invoke the existing Bicep LSP rename
+instead of replacing text, validate the document version, and apply the result as a normal VS Code
+edit. Enter commits; Escape cancels; a failed blur commit keeps the draft and explains the error.
+Preserve selection and placement across the graph ID change, including descendants when a module's
+symbolic name changes and edges whose IDs embed the renamed node, so a rename is not treated as a
+topology change. Go to Source from the toolbar or context menu must still work.
 
 **Convert a resource to `existing`.** Offer an explicit selected-resource action, not a change of
 card appearance alone: `existing` stops this declaration from deploying the resource. Show a
@@ -148,25 +153,14 @@ workspace operation. Registry modules and Extract to Module are separate workflo
 | Commit an independent explicitly placed resource | Place it where dropped; do not reflow or auto-fit |
 | Commit edges, a module subtree, or other structural changes | Lay out affected nodes if possible; preserve the drop point and camera, with explicit Tidy Layout as a fallback |
 | Reset/Tidy Layout requested by the user | Recompute layout as requested, with the existing viewport-preservation contract |
-| Add or edit a note | Never participate in deployment-dependency layout |
 
 The current layout invalidation already exempts an explicitly placed `addNode`, but edges can
 trigger reflow and automatic layout fits the viewport. Review those cases before introducing
 placeholders or module drops; do not present this policy as shipped behavior.
 
-### Stage 5: notes and broader module authoring
+### Stage 5: new module files
 
-**Notes.** Drag a note onto an annotation layer, not the deployment-dependency graph. For a
-shared, source-controlled note, use a versioned schema in Bicep metadata with stable note IDs and
-plain-text content. Decide whether notes attach to a resource/module (and follow it on re-layout)
-or float at graph coordinates (and how to restore them on reopen). Source edits or renames must not
-silently orphan an attached note. Bicep metadata is included in the compiled ARM template, not
-private designer state; make that visible to users and do not encourage storing secrets there.
-Decide whether existing notes are visible by default to viewers and included in export; keep
-note creation/editing experimental. Consider a workspace-only sidecar if the intended notes must
-*not* be included in deployment templates.
-
-**New modules.** Add a distinct "Create module file" path once existing-file references work. A
+Add a distinct "Create module file" path once existing-file references work. A
 valid file, parent declaration, required parameters, and scope are a single user action with a
 clear preview and undo behavior. An empty module may render as a leaf until it has children; do not
 promise it behaves like a visual group before its source exists.
@@ -181,8 +175,8 @@ refactoring.
 
 ## Undo and redo
 
-- A committed source change (create, rename, convert to `existing`, module edit, note metadata
-  edit) should be one VS Code undo step and one redo step. Reconciliation after undo/redo reads the
+- A committed source change (create, rename, convert to `existing`, module edit) should be one VS
+  Code undo step and one redo step. Reconciliation after undo/redo reads the
   document; it does not invent a second inverse webview edit. Multi-file operations must be tested
   together, including removal/restoration of a newly created module file.
 - A node drag and Reset/Tidy Layout should each be one local history step, recorded at gesture
@@ -199,18 +193,19 @@ refactoring.
 ## Validation and release gates
 
 - **Viewer:** with editing off, dock/edit actions are absent, and existing navigation, graph
-  interactions, export, and source reveal still work. Toggling the setting while an edit is in
-  flight cannot apply a source change after it is disabled.
+  interactions, export, and double-click-to-source still work.
 - **Gestures:** one-pixel pointer moves accumulating past the threshold do not select; true
   clicks select; cancelled drags do not; Hand never moves nodes; V/H/Space do not fire while typing.
+  With editing on, double-click and a second click on a selected node enter rename, while a second
+  click that becomes a drag only moves the node.
 - **Creation/layout:** a placeholder cancelled under pan/zoom creates no file edit, graph node, or
   layout request. An independent placed resource does not move the camera; module children and
   edge changes follow the documented structural-layout policy.
-- **Mutations:** rename, `existing` conversion, notes, and module insertion handle stale documents
+- **Mutations:** rename, `existing` conversion, and module insertion handle stale documents
   and invalid input explicitly, preserve correct graph metadata, and undo/redo through VS Code.
   Check interleaving with visual drags and direct edits in the source editor.
-- **Presentation:** light/dark custom themes, both high-contrast modes, export overrides, optional
-  notes, and `existing` resource badges remain legible and reflect actual source state.
+- **Presentation:** light/dark custom themes, both high-contrast modes, export overrides, and
+  `existing` resource badges remain legible and reflect actual source state.
 
 Use focused language-server and extension tests for source edits and gates; Vitest for graph
 metadata, layout, and history; and Playwright for viewer compatibility, pointer/keyboard
@@ -218,14 +213,11 @@ interactions, theme/export, and source/visual undo scenarios.
 
 ## Decisions to confirm before implementation
 
-1. Should module and note editing share the resource-editing setting or require a broader editing
-   opt-in? Recommendation: keep resource actions under this setting and decide on a broader gate
-   before introducing non-resource editing.
+1. Should module editing share the resource-editing setting or require a broader editing opt-in?
+   Recommendation: keep resource actions under this setting and decide on a broader gate before
+   introducing module editing.
 2. Should "Match VS Code theme" become the default or remain optional after contrast/export testing?
 3. Which undo affordances should appear before source and visual histories can be safely unified?
 4. If a module drop introduces edges or child nodes, when is limited reflow acceptable versus an
    explicit Tidy Layout prompt?
-5. Should notes be shipped in ARM metadata, kept in a workspace-only file, or offer both? How are
-   free-floating positions, anchors, visibility, and export represented?
-6. If Favorites are added, are they user-wide or workspace-specific? What accessible creation
-   alternative preserves the drag-first mouse model without adding click-to-create?
+5. If Favorites are added, are they user-wide or workspace-specific?
