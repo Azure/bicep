@@ -137,10 +137,10 @@ compilation and validates measured layout input before computing positions.
 
 ## Resource creation
 
-Resource creation is enabled with:
+Resource creation is currently enabled by the experimental resource-editing setting:
 
 ```json
-"bicep.visualizer.experimental.enableResourceCreation": true
+"bicep.visualizer.experimental.enableResourceEditing": true
 ```
 
 It creates top-level Azure resources from the Resource Palette. The Bicep source file remains the
@@ -203,8 +203,9 @@ only durable source of truth.
   nothing and never shows the preview. Escape during a drag is consumed
   in the capture phase so it cancels the drag without also dismissing the palette.
 
-The creation dock is an absolutely positioned bottom-center `FloatingPanel` and disabled Modules/Notes
-affordances. As the primary creation surface it uses larger targets (36px buttons, 20px icons) than the
+The creation dock is an absolutely positioned bottom-center `FloatingPanel` that shows only available
+tools (currently Resources) and keeps a minimum width of three tools. As the primary creation surface
+it uses larger targets (36px buttons, 20px icons) than the
 28px view controls, following FigJam's hierarchy. Its resource popover is 400px wide with a fixed 360px
 height, shrinking only to fit the canvas viewport. 400px fits the 90th-percentile Azure resource type
 name (child types included) on one line beside a stable API-version pill; longer names wrap. Search

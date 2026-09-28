@@ -13,6 +13,8 @@ const DOCK_BUTTON_SIZE = 36;
 const DOCK_ICON_SIZE = 20;
 const DOCK_PADDING = 6;
 const DOCK_HEIGHT = DOCK_BUTTON_SIZE + DOCK_PADDING * 2 + 2;
+// Room for three tools, so a dock with fewer tools doesn't shrink to a lone square.
+const DOCK_MIN_WIDTH = DOCK_BUTTON_SIZE * 3 + DOCK_PADDING * 2 + 2;
 
 const $DockAnchor = styled.div`
   --creation-dock-popover-offset: ${DOCK_HEIGHT + 8}px;
@@ -34,6 +36,8 @@ const $DockPanel = styled(FloatingPanel)`
   transform: translateX(-50%);
   flex-direction: row;
   align-items: center;
+  justify-content: center;
+  min-width: ${DOCK_MIN_WIDTH}px;
   padding: ${DOCK_PADDING}px;
   border-radius: 12px;
   caret-color: transparent;
@@ -45,60 +49,6 @@ const $DockButton = styled(IconButton)`
   width: ${DOCK_BUTTON_SIZE}px;
   height: ${DOCK_BUTTON_SIZE}px;
   border-radius: 8px;
-`;
-
-/**
- * The folder-library glyph's ink spans y 2–16 and x 0–15 on the 16-unit codicon grid, so it sits a unit
- * low and half a unit left of the other dock icons (centered at 8,8). Shift it back to its optical center.
- */
-const $FolderLibraryIcon = styled.span`
-  display: inline-flex;
-  transform: translate(${(0.48 / 16) * DOCK_ICON_SIZE}px, ${(-1 / 16) * DOCK_ICON_SIZE}px);
-`;
-
-const $GroupDivider = styled.div`
-  flex: 0 0 1px;
-  height: 24px;
-  /* 1px flex gap + margin = the dock's border + padding, so each group sits centered. */
-  margin: 0 ${DOCK_PADDING}px;
-  background: ${({ theme }) => theme.panel.border};
-  pointer-events: none;
-`;
-
-const $UnavailableButton = styled($DockButton)`
-  opacity: 0.45;
-  cursor: default;
-
-  &:hover,
-  &:active {
-    background: transparent;
-    transform: none;
-  }
-`;
-
-const $UnavailableTool = styled.div`
-  position: relative;
-
-  [role="tooltip"] {
-    position: absolute;
-    bottom: calc(100% + 12px);
-    left: 50%;
-    transform: translateX(-50%);
-    display: none;
-    padding: 5px 8px;
-    border: 1px solid ${({ theme }) => theme.panel.border};
-    border-radius: 4px;
-    color: ${({ theme }) => theme.text.primary};
-    background: ${({ theme }) => theme.panel.background};
-    white-space: nowrap;
-    font-size: 11px;
-    pointer-events: none;
-  }
-
-  &:hover [role="tooltip"],
-  &:focus-within [role="tooltip"] {
-    display: block;
-  }
 `;
 
 const $ResourceButton = styled($DockButton)`
@@ -162,35 +112,6 @@ function EnabledDock() {
         >
           <Codicon name="library" size={DOCK_ICON_SIZE} />
         </$ResourceButton>
-        <$UnavailableTool>
-          <$UnavailableButton
-            title="Modules - coming soon"
-            aria-label="Modules - coming soon"
-            aria-disabled="true"
-            aria-describedby="modules-coming-soon"
-          >
-            <$FolderLibraryIcon>
-              <Codicon name="folder-library" size={DOCK_ICON_SIZE} />
-            </$FolderLibraryIcon>
-          </$UnavailableButton>
-          <span role="tooltip" id="modules-coming-soon">
-            Modules - coming soon
-          </span>
-        </$UnavailableTool>
-        <$GroupDivider aria-hidden="true" data-testid="creation-dock-separator" />
-        <$UnavailableTool>
-          <$UnavailableButton
-            title="Notes - coming soon"
-            aria-label="Notes - coming soon"
-            aria-disabled="true"
-            aria-describedby="notes-coming-soon"
-          >
-            <Codicon name="note" size={DOCK_ICON_SIZE} />
-          </$UnavailableButton>
-          <span role="tooltip" id="notes-coming-soon">
-            Notes - coming soon
-          </span>
-        </$UnavailableTool>
       </$DockPanel>
     </$DockAnchor>
   );

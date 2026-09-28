@@ -67,7 +67,7 @@ async function creations(page: Page) {
   return page.evaluate(() => (window as typeof window & { creations: unknown[] }).creations);
 }
 
-test("dock has keyboard-discoverable disabled tools and does not move the graph", async ({ page }) => {
+test("dock shows only available tools and does not move the graph", async ({ page }) => {
   await recordCreations(page);
   await openVisualDesigner(page);
   await waitForStableNodePosition(page, "networkInterface");
@@ -80,15 +80,8 @@ test("dock has keyboard-discoverable disabled tools and does not move the graph"
   await expect(dockLocator).toHaveCSS("caret-color", "rgba(0, 0, 0, 0)");
   await expect(dockLocator).toHaveCSS("user-select", "none");
 
-  for (const name of ["Modules", "Notes"]) {
-    const button = page.getByRole("button", { name: `${name} - coming soon` });
-    await expect(button).toHaveAttribute("aria-disabled", "true");
-    await button.focus();
-    await expect(page.getByRole("tooltip", { name: `${name} - coming soon` })).toBeVisible();
-    await button.press("Enter");
-    await button.press("Space");
-    await expect(page.getByRole("complementary")).toHaveCount(0);
-  }
+  await expect(dockLocator.getByRole("button")).toHaveCount(1);
+  await expect(page.getByRole("button", { name: /coming soon/i })).toHaveCount(0);
   expect(await creations(page)).toEqual([]);
   const launcher = page.getByRole("button", { name: "Add Resources" });
   await launcher.click();
@@ -107,19 +100,13 @@ test("dock has keyboard-discoverable disabled tools and does not move the graph"
   await expect(page.getByTestId("graph-canvas").getByTestId("target-scope")).toHaveCount(0);
 });
 
-test("dock groups are evenly inset from the separator and the dock edges", async ({ page }) => {
+test("dock keeps its minimum width and centers the Resources tool", async ({ page }) => {
   await openVisualDesigner(page);
   const dock = (await page.getByTestId("creation-dock").boundingBox())!;
   const resources = (await page.getByRole("button", { name: "Add Resources" }).boundingBox())!;
-  const modules = (await page.getByRole("button", { name: "Modules - coming soon" }).boundingBox())!;
-  const notes = (await page.getByRole("button", { name: "Notes - coming soon" }).boundingBox())!;
-  const separator = (await page.getByTestId("creation-dock-separator").boundingBox())!;
 
-  const leftEdgeInset = resources.x - dock.x;
-  const rightEdgeInset = dock.x + dock.width - (notes.x + notes.width);
-  expect(rightEdgeInset).toBeCloseTo(leftEdgeInset, 0);
-  expect(separator.x - (modules.x + modules.width)).toBeCloseTo(leftEdgeInset, 0);
-  expect(notes.x - (separator.x + separator.width)).toBeCloseTo(rightEdgeInset, 0);
+  expect(dock.width).toBe(122);
+  expect(resources.x + resources.width / 2).toBeCloseTo(dock.x + dock.width / 2, 0);
 });
 
 test("browse shows featured resource providers before other namespaces", async ({ page }) => {

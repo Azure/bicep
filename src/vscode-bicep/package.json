@@ -90,10 +90,10 @@
           "description": "Enable occasional surveys to collect feedback that helps us improve the Bicep extension.",
           "default": true
         },
-        "bicep.visualizer.experimental.enableResourceCreation": {
+        "bicep.visualizer.experimental.enableResourceEditing": {
           "type": "boolean",
           "default": false,
-          "description": "Enables the experimental Resource Palette for creating resources from the Bicep visual designer.",
+          "description": "Enables experimental resource editing in the Bicep visual designer. Currently enables the Resource Palette for creating resources.",
           "scope": "window"
         },
         "bicep.completions.getAllAccessibleAzureContainerRegistries": {

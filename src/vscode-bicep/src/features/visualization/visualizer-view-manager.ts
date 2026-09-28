@@ -5,7 +5,7 @@ import { LanguageClient } from "vscode-languageclient/node";
 import { DiagnosticsRouter } from "../../infrastructure/language-client";
 import { Disposable } from "../../infrastructure/lifecycle";
 import { getLogger } from "../../infrastructure/logging";
-import { resourceCreationSetting } from "./resource-creation-setting";
+import { resourceEditingSetting } from "./resource-editing-setting";
 import { BicepVisualizerView } from "./visualizer-view";
 
 export class BicepVisualizerViewManager extends Disposable implements WebviewPanelSerializer {
@@ -33,7 +33,7 @@ export class BicepVisualizerViewManager extends Disposable implements WebviewPan
             view.notifyMotionPolicyDidChange();
           }
         }
-        if (event.affectsConfiguration(`bicep.${resourceCreationSetting}`)) {
+        if (event.affectsConfiguration(`bicep.${resourceEditingSetting}`)) {
           for (const view of this.viewsByPath.values()) {
             view.notifyResourceCreationEnablementDidChange();
           }

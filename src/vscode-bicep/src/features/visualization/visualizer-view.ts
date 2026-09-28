@@ -39,7 +39,7 @@ import {
   visualResourceTypeVersionsRequestType,
 } from "./protocol";
 import { getApplyEditFailureCode, hasDocumentChanged } from "./resource-creation";
-import { isResourceCreationEnabled } from "./resource-creation-setting";
+import { isResourceEditingEnabled } from "./resource-editing-setting";
 import { buildResourceTypeCatalog } from "./resource-palette";
 
 export class BicepVisualizerView extends Disposable {
@@ -140,7 +140,7 @@ export class BicepVisualizerView extends Disposable {
     void this.webviewPanel.webview
       .postMessage({
         method: "resourceCreation/enablementDidChange",
-        params: isResourceCreationEnabled(),
+        params: isResourceEditingEnabled(),
       })
       .then(undefined, (error: unknown) => getLogger().debug(parseError(error).message));
   }
@@ -508,7 +508,7 @@ export class BicepVisualizerView extends Disposable {
           return;
 
         case "resourceCreation/isEnabled":
-          void this.postResponse(request.id, isResourceCreationEnabled());
+          void this.postResponse(request.id, isResourceEditingEnabled());
           return;
       }
 
