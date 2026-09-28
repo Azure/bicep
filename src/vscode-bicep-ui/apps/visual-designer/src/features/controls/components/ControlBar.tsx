@@ -3,20 +3,12 @@
 
 import { Codicon, usePanZoomControl } from "@vscode-bicep-ui/components";
 import { useAtomValue, useSetAtom } from "jotai";
-import { styled } from "styled-components";
 import { isGraphChangeInProgressAtom, useGraphActions } from "@/core";
 import { openExportOverlayAtom } from "@/features/export";
 import { useFitView } from "@/lib/graph";
-import { FloatingPanel, IconButton } from "@/ui";
+import { FloatingPanel, FloatingPanelDivider, IconButton } from "@/ui";
 import { graphControlAvailabilityAtom } from "../atoms";
 import { useResetGraphLayout } from "../hooks/use-reset-graph-layout";
-
-const $Divider = styled.div`
-  height: 1px;
-  /* 1px flex gap + 4px margin = the bar's border + padding, so each group sits centered. */
-  margin: 4px;
-  background-color: ${({ theme }) => theme.panel.border};
-`;
 
 /** View controls (zoom, fit, reset layout) and export. */
 export function ControlBar() {
@@ -54,7 +46,7 @@ export function ControlBar() {
       >
         <Codicon name="type-hierarchy-sub" size={16} />
       </IconButton>
-      <$Divider role="separator" />
+      <FloatingPanelDivider />
       <IconButton
         onClick={() => openExportOverlay()}
         title="Export Graph"

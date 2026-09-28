@@ -10,13 +10,17 @@ import { Palette } from "@/features/palette";
 import { FloatingPanel, IconButton } from "@/ui";
 
 // The dock is the primary creation surface, so its targets are larger than the secondary view
-// controls (28px).
+// controls (ICON_BUTTON_SIZE).
 const DOCK_BUTTON_SIZE = 36;
+const DOCK_BUTTON_RADIUS = 6;
+// The button radius plus the padding between a button and the dock's outer edge, so the corners are concentric.
+const DOCK_RADIUS = 13;
 const DOCK_ICON_SIZE = 20;
-const DOCK_PADDING = 6;
-const DOCK_HEIGHT = DOCK_BUTTON_SIZE + DOCK_PADDING * 2 + 2;
+// Includes the panel's 1px edge line, which is drawn inside the padding.
+const DOCK_PADDING = 7;
+const DOCK_HEIGHT = DOCK_BUTTON_SIZE + DOCK_PADDING * 2;
 // Room for three tools, so a dock with fewer tools doesn't shrink to a lone square.
-const DOCK_MIN_WIDTH = DOCK_BUTTON_SIZE * 3 + DOCK_PADDING * 2 + 2;
+const DOCK_MIN_WIDTH = DOCK_BUTTON_SIZE * 3 + DOCK_PADDING * 2;
 
 const $DockAnchor = styled.div`
   --creation-dock-popover-offset: ${DOCK_HEIGHT + 8}px;
@@ -41,7 +45,7 @@ const $DockPanel = styled(FloatingPanel)`
   justify-content: center;
   min-width: ${DOCK_MIN_WIDTH}px;
   padding: ${DOCK_PADDING}px;
-  border-radius: 12px;
+  border-radius: ${DOCK_RADIUS}px;
   caret-color: transparent;
   user-select: none;
   pointer-events: auto;
@@ -50,7 +54,7 @@ const $DockPanel = styled(FloatingPanel)`
 const $DockButton = styled(IconButton)`
   width: ${DOCK_BUTTON_SIZE}px;
   height: ${DOCK_BUTTON_SIZE}px;
-  border-radius: 8px;
+  border-radius: ${DOCK_BUTTON_RADIUS}px;
 `;
 
 const $ResourceButton = styled($DockButton)`
