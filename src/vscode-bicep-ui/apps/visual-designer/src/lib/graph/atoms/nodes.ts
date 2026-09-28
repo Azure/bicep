@@ -30,7 +30,7 @@ export const nodesByIdAtom = atom<Record<string, NodeState>>({});
 
 /**
  * The ID of the currently focused node, or `null` if nothing is focused.
- * Set on mousedown; cleared when clicking the canvas background.
+ * Set after a node click; cleared after a click on the canvas background.
  */
 export const focusedNodeIdAtom = atom<string | null>(null);
 

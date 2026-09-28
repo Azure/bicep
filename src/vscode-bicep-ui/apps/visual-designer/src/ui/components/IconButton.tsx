@@ -33,7 +33,7 @@ export const IconButton = styled.button`
 
   &:disabled {
     opacity: 0.45;
-    cursor: not-allowed;
+    cursor: default;
     transform: none;
   }
 
