@@ -1,52 +1,81 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { Codicon } from "@vscode-bicep-ui/components";
 import { useAtomValue } from "jotai";
 import { useCallback } from "react";
 import { styled } from "styled-components";
+import { FLOATING_PANEL_THICKNESS, FloatingPanel } from "@/ui";
 import { useStatusApi } from "../api";
 import { graphStatusAtom } from "../atoms";
 
+const STATUS_ICON_SIZE = 14;
+
+/** Occupies the `status` area of the app's bottom chrome grid, which aligns its bottom edge with the dock's. */
 const $StatusBarContainer = styled.div`
-  position: absolute;
-  height: 32px;
-  left: 20px;
-  bottom: 20px;
+  grid-area: status;
+  justify-self: start;
   display: flex;
+  min-width: 0;
+  max-width: 100%;
+`;
+
+/** As tall as the control bar is wide, so the status reads as the same family of chrome. */
+const $StatusChip = styled(FloatingPanel)`
   flex-direction: row;
   align-items: center;
-  z-index: 100;
+  gap: 6px;
+  min-width: 0;
+  height: ${FLOATING_PANEL_THICKNESS}px;
+  padding: 0 10px 0 9px;
+  color: ${({ theme }) => theme.text.secondary};
   font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.01em;
-  color: ${({ theme }) => theme.text.secondary};
+  white-space: nowrap;
   user-select: none;
   cursor: default;
+  pointer-events: auto;
 `;
 
-const $StatusCircle = styled.div<{ $hasErrors: boolean }>`
-  width: 7px;
-  height: 7px;
-  background-color: ${({ $hasErrors, theme }) => ($hasErrors ? theme.error : theme.success)};
-  border-radius: 50%;
-  margin-right: 8px;
+const $StatusIcon = styled.span<{ $tone: "error" | "info" }>`
+  display: flex;
   flex-shrink: 0;
+  color: ${({ $tone, theme }) => ($tone === "error" ? theme.error : theme.iconButton.color)};
 `;
 
-const $ErrorLink = styled.span`
-  cursor: pointer;
+/** Lets a long message truncate rather than run under the dock. */
+const $StatusDetail = styled.span`
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const $ErrorLink = styled.button`
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: none;
   color: ${({ theme }) => theme.error};
+  font: inherit;
   font-weight: 600;
+  cursor: pointer;
   text-decoration: underline;
   text-decoration-color: transparent;
   text-underline-offset: 2px;
   transition: text-decoration-color 150ms ease;
 
   &:hover {
-    text-decoration-color: ${({ theme }) => theme.error};
+    text-decoration-color: currentColor;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.focusBorder};
+    outline-offset: 2px;
   }
 `;
 
+/** Speaks up only when the graph needs attention; a healthy graph shows nothing. */
 export function StatusBar() {
   const graphStatus = useAtomValue(graphStatusAtom);
   const api = useStatusApi();
@@ -56,23 +85,33 @@ export function StatusBar() {
   }, [api]);
 
   const errorCount = graphStatus.kind === "errors" ? graphStatus.errorCount : 0;
+  const errorLabel = `${errorCount} ${errorCount === 1 ? "error" : "errors"}`;
 
   return (
     <$StatusBarContainer data-testid="status-bar" data-status={graphStatus.kind} data-error-count={errorCount}>
-      <$StatusCircle $hasErrors={graphStatus.kind === "errors"} data-testid="status-indicator" />
       {graphStatus.kind === "errors" && (
-        <span>
-          There {graphStatus.errorCount === 1 ? "is" : "are"}{" "}
-          <$ErrorLink onClick={handleShowProblems} data-testid="status-error-link">
-            {graphStatus.errorCount} {graphStatus.errorCount === 1 ? "error" : "errors"}
-          </$ErrorLink>{" "}
-          in the file. The rendered graph may not be accurate.
-        </span>
+        <$StatusChip>
+          <$StatusIcon $tone="error" data-testid="status-indicator">
+            <Codicon name="error" size={STATUS_ICON_SIZE} />
+          </$StatusIcon>
+          <$ErrorLink
+            type="button"
+            title="Show Problems"
+            aria-label={`${errorLabel}. Show Problems`}
+            onClick={handleShowProblems}
+            data-testid="status-error-link"
+          >
+            {errorLabel}
+          </$ErrorLink>
+        </$StatusChip>
       )}
       {graphStatus.kind === "empty" && (
-        <span data-testid="status-empty-message">
-          There are no resources or modules in the file. Nothing to display.
-        </span>
+        <$StatusChip data-testid="status-empty-message" title="No resources or modules to display">
+          <$StatusIcon $tone="info" data-testid="status-indicator">
+            <Codicon name="info" size={STATUS_ICON_SIZE} />
+          </$StatusIcon>
+          <$StatusDetail>No resources or modules to display</$StatusDetail>
+        </$StatusChip>
       )}
     </$StatusBarContainer>
   );
