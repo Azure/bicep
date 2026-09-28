@@ -2,14 +2,22 @@
 // Licensed under the MIT License.
 
 import styled from "styled-components";
+import { ICON_BUTTON_SIZE } from "./IconButton";
 
 /**
  * Space between the panel's outer edge and its content, including the 1px edge line drawn inside it.
  * A whole number of CSS pixels, so the content lands on whole device pixels at any display scale.
  */
 const PADDING = 4;
-/** Space between the buttons in a panel, so neighboring hover backgrounds never touch. */
-const GAP = 2;
+/**
+ * Space between the buttons in a panel. Equal to the padding, so the buttons are as far apart as the
+ * outer buttons are from the panel's edge, and neighboring hover backgrounds never touch.
+ */
+export const FLOATING_PANEL_GAP = 4;
+/** The thickness of a panel holding a row or column of standard icon buttons. */
+export const FLOATING_PANEL_THICKNESS = ICON_BUTTON_SIZE + PADDING * 2;
+
+const GAP = FLOATING_PANEL_GAP;
 /**
  * Only slightly rounder than the 5px buttons inside. Fully concentric corners (button radius plus
  * the 4px inset, 9px) look too round on a panel this narrow, and at 1x the button's hover background
@@ -43,8 +51,9 @@ export const FloatingPanel = styled.div`
 /**
  * A line between groups of buttons in a vertical `FloatingPanel`.
  *
- * The flex gap already sits on each side of it, so the vertical margin adds only the rest: each group
- * is then as far from the line as the outer buttons are from the panel's edge.
+ * The flex gap already sits on each side of it, so the vertical margin adds only the rest (currently
+ * nothing, since the gap equals the padding): each group is then as far from the line as the outer
+ * buttons are from the panel's edge.
  */
 export const FloatingPanelDivider = styled.div.attrs({ role: "separator" })`
   height: 1px;

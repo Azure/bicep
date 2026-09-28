@@ -6,7 +6,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { isGraphChangeInProgressAtom, useGraphActions } from "@/core";
 import { openExportOverlayAtom } from "@/features/export";
 import { useFitView } from "@/lib/graph";
-import { FloatingPanel, FloatingPanelDivider, IconButton } from "@/ui";
+import { FloatingPanel, FloatingPanelDivider, ICON_BUTTON_ICON_SIZE, IconButton } from "@/ui";
 import { graphControlAvailabilityAtom } from "../atoms";
 import { useResetGraphLayout } from "../hooks/use-reset-graph-layout";
 
@@ -23,10 +23,10 @@ export function ControlBar() {
   return (
     <FloatingPanel data-testid="control-bar">
       <IconButton onClick={() => zoomIn(1.5)} title="Zoom In" aria-label="Zoom In" data-testid="control-zoom-in">
-        <Codicon name="zoom-in" size={16} />
+        <Codicon name="zoom-in" size={ICON_BUTTON_ICON_SIZE} />
       </IconButton>
       <IconButton onClick={() => zoomOut(1.5)} title="Zoom Out" aria-label="Zoom Out" data-testid="control-zoom-out">
-        <Codicon name="zoom-out" size={16} />
+        <Codicon name="zoom-out" size={ICON_BUTTON_ICON_SIZE} />
       </IconButton>
       <IconButton
         onClick={fitView}
@@ -35,7 +35,7 @@ export function ControlBar() {
         disabled={!controls.canFitView}
         data-testid="control-fit-view"
       >
-        <Codicon name="screen-full" size={16} />
+        <Codicon name="screen-full" size={ICON_BUTTON_ICON_SIZE} />
       </IconButton>
       <IconButton
         onClick={resetGraphLayout}
@@ -44,7 +44,7 @@ export function ControlBar() {
         disabled={!controls.canResetGraphLayout || isGraphChangeInProgress}
         data-testid="control-reset-layout"
       >
-        <Codicon name="type-hierarchy-sub" size={16} />
+        <Codicon name="type-hierarchy-sub" size={ICON_BUTTON_ICON_SIZE} />
       </IconButton>
       <FloatingPanelDivider />
       <IconButton
@@ -54,7 +54,7 @@ export function ControlBar() {
         disabled={!controls.canExportGraph}
         data-testid="control-export"
       >
-        <Codicon name="desktop-download" size={16} />
+        <Codicon name="desktop-download" size={ICON_BUTTON_ICON_SIZE} />
       </IconButton>
     </FloatingPanel>
   );

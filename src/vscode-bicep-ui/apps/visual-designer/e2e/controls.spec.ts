@@ -112,6 +112,25 @@ test.describe("Status bar", () => {
     await expect(page.getByTestId("status-bar")).toHaveAttribute("data-status", "ready");
     await expect(page.getByTestId("status-error-link")).toHaveCount(0);
     await expect(page.getByTestId("status-empty-message")).toHaveCount(0);
+    await expect(page.getByTestId("status-indicator")).toHaveCount(0);
+  });
+
+  test("shares the dock's bottom inset and truncates before reaching it", async ({ page }) => {
+    for (const key of ["error", "empty"] as const) {
+      await loadSampleGraph(page, key);
+      for (const width of [1440, 520]) {
+        await page.setViewportSize({ width, height: 700 });
+        const status = (await page.getByTestId("status-bar").boundingBox())!;
+        const dock = (await page.getByTestId("creation-dock").boundingBox())!;
+        const app = (await page.getByTestId("app-root").boundingBox())!;
+
+        expect(status.x - app.x).toBe(16);
+        expect(app.y + app.height - (status.y + status.height)).toBeCloseTo(16, 0);
+        expect(app.y + app.height - (dock.y + dock.height)).toBeCloseTo(16, 0);
+        expect(status.height).toBe(34);
+        expect(status.x + status.width).toBeLessThanOrEqual(dock.x - 12);
+      }
+    }
   });
 
   test("surfaces the error count for a graph that has diagnostics", async ({ page }) => {

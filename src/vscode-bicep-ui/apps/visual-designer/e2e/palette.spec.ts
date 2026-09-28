@@ -75,7 +75,7 @@ test("dock shows only available tools and does not move the graph", async ({ pag
   const canvas = await page.getByTestId("graph-canvas").boundingBox();
   const dockLocator = page.getByTestId("creation-dock");
   const dock = await dockLocator.boundingBox();
-  expect(dock!.height).toBe(50);
+  expect(dock!.height).toBe(48);
   expect(dock!.x + dock!.width / 2).toBeCloseTo(canvas!.x + canvas!.width / 2, 0);
   await expect(dockLocator).toHaveCSS("caret-color", "rgba(0, 0, 0, 0)");
   await expect(dockLocator).toHaveCSS("user-select", "none");
@@ -105,7 +105,7 @@ test("dock keeps its minimum width and centers the Resources tool", async ({ pag
   const dock = (await page.getByTestId("creation-dock").boundingBox())!;
   const resources = (await page.getByRole("button", { name: "Add Resources" }).boundingBox())!;
 
-  expect(dock.width).toBe(122);
+  expect(dock.width).toBe(120);
   expect(resources.x + resources.width / 2).toBeCloseTo(dock.x + dock.width / 2, 0);
 });
 

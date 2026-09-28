@@ -18,9 +18,9 @@ const $PalettePopover = styled.aside`
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: var(--creation-dock-popover-width);
   height: 360px;
-  max-height: calc(100% - var(--creation-dock-popover-offset));
+  max-height: var(--creation-dock-popover-max-height);
   overflow: hidden;
   border: 1px solid ${({ theme }) => theme.panel.border};
   border-radius: 12px;

@@ -7,39 +7,34 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { styled } from "styled-components";
 import { isResourceEditingEnabledAtom } from "@/core";
 import { Palette } from "@/features/palette";
-import { FloatingPanel, IconButton } from "@/ui";
+import { FLOATING_PANEL_GAP, FloatingPanel, ICON_BUTTON_RADIUS, IconButton } from "@/ui";
 
-// The dock is the primary creation surface, so its targets are larger than the secondary view
-// controls (ICON_BUTTON_SIZE).
-const DOCK_BUTTON_SIZE = 36;
-const DOCK_BUTTON_RADIUS = 6;
-// The button radius plus the padding between a button and the dock's outer edge, so the corners are concentric.
-const DOCK_RADIUS = 13;
-const DOCK_ICON_SIZE = 20;
+// The dock is the primary creation surface, so it is thicker than the view controls: a 48px panel with
+// 32px buttons and 8px padding. The extra thickness goes to padding rather than button size, because a
+// button that fills a thick panel makes its hover background look oversized.
+const DOCK_BUTTON_SIZE = 32;
+const DOCK_BUTTON_RADIUS = ICON_BUTTON_RADIUS;
 // Includes the panel's 1px edge line, which is drawn inside the padding.
-const DOCK_PADDING = 7;
+const DOCK_PADDING = 8;
+// A little rounder than concentric with the buttons (13px).
+const DOCK_RADIUS = 15;
+const DOCK_ICON_SIZE = 18;
 const DOCK_HEIGHT = DOCK_BUTTON_SIZE + DOCK_PADDING * 2;
 // Room for three tools, so a dock with fewer tools doesn't shrink to a lone square.
-const DOCK_MIN_WIDTH = DOCK_BUTTON_SIZE * 3 + DOCK_PADDING * 2;
+const DOCK_MIN_WIDTH = DOCK_BUTTON_SIZE * 3 + FLOATING_PANEL_GAP * 2 + DOCK_PADDING * 2;
 
+/** Occupies the `dock` area of the app's bottom chrome grid, which is also the popover's size container. */
 const $DockAnchor = styled.div`
   --creation-dock-popover-offset: ${DOCK_HEIGHT + 8}px;
+  --creation-dock-popover-width: min(400px, 100cqw);
+  --creation-dock-popover-max-height: calc(100cqh - var(--creation-dock-popover-offset));
 
-  position: absolute;
-  top: 16px;
-  bottom: 16px;
-  left: 50%;
-  width: min(400px, calc(100% - 32px));
-  transform: translateX(-50%);
-  z-index: 200;
-  pointer-events: none;
+  grid-area: dock;
+  position: relative;
+  display: flex;
 `;
 
 const $DockPanel = styled(FloatingPanel)`
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
   flex-direction: row;
   align-items: center;
   justify-content: center;

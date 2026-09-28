@@ -3,7 +3,7 @@
 
 import { Codicon } from "@vscode-bicep-ui/components";
 import { useGraphActions, useUndoRedoAvailability } from "@/core";
-import { FloatingPanel, IconButton } from "@/ui";
+import { FloatingPanel, ICON_BUTTON_ICON_SIZE, IconButton } from "@/ui";
 
 /** Undo and Redo, in their own panel so the view controls stay short. */
 export function HistoryBar() {
@@ -13,10 +13,10 @@ export function HistoryBar() {
   return (
     <FloatingPanel data-testid="history-bar">
       <IconButton onClick={undo} title="Undo" aria-label="Undo" disabled={!canUndo} data-testid="control-undo">
-        <Codicon name="discard" size={16} />
+        <Codicon name="discard" size={ICON_BUTTON_ICON_SIZE} />
       </IconButton>
       <IconButton onClick={redo} title="Redo" aria-label="Redo" disabled={!canRedo} data-testid="control-redo">
-        <Codicon name="redo" size={16} />
+        <Codicon name="redo" size={ICON_BUTTON_ICON_SIZE} />
       </IconButton>
     </FloatingPanel>
   );

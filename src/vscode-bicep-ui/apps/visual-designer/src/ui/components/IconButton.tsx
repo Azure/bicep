@@ -3,8 +3,13 @@
 
 import styled from "styled-components";
 
-export const ICON_BUTTON_SIZE = 24;
+export const ICON_BUTTON_SIZE = 26;
 export const ICON_BUTTON_RADIUS = 5;
+/**
+ * The codicon design size. An even size in the even-sized button leaves a whole 5px on each side, so
+ * the icon is centered on whole pixels rather than half-pixel offsets.
+ */
+export const ICON_BUTTON_ICON_SIZE = 16;
 
 /**
  * A compact square icon button sized for toolbars and floating panels.

@@ -240,10 +240,15 @@ only durable source of truth.
   nothing and never shows the preview. Escape during a drag is consumed
   in the capture phase so it cancels the drag without also dismissing the palette.
 
-The creation dock is an absolutely positioned bottom-center `FloatingPanel` that shows only available
-tools (currently Resources) and keeps a minimum width of three tools. As the primary creation surface
-it uses larger targets (36px buttons, 20px icons) than the
-28px view controls, following FigJam's hierarchy. Its resource popover is 400px wide with a fixed 360px
+The creation dock is a bottom-center `FloatingPanel` that shows only available
+tools (currently Resources) and keeps a minimum width of three tools. It shares the app's bottom chrome
+grid with the status: the status sits at the left, shows only errors (a link to the Problems panel) or
+the empty state, and truncates before it can reach the dock. Both keep the same 16px inset from the
+bottom edge that the other chrome keeps from the top, so their bottom edges line up. As the primary
+creation surface the dock is thicker than the 34px view controls and status (26px buttons with 16px
+icons, 4px padding, 4px gaps): a 48px-tall panel with 32px
+buttons, 18px icons, 8px padding, and 15px corners. The extra thickness goes to padding rather than
+button size, so the hover background doesn't fill the panel. Its resource popover is 400px wide with a fixed 360px
 height, shrinking only to fit the canvas viewport. 400px fits the 90th-percentile Azure resource type
 name (child types included) on one line beside a stable API-version pill; longer names wrap. Search
 stays pinned above scrolling results. Opening and closing
