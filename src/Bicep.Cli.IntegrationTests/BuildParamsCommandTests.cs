@@ -518,7 +518,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var result = await Bicep(CreateDefaultSettings(), "build-params", mainParamsFile, "--stdout");
 
-            result.Should().Fail().And.HaveStderrMatch("*Error BCP033: Expected a value of type \"string\" but the provided value is of type \"42\".*");
+            result.Should().Fail().And.HaveStderrMatch("*Error BCP033: The value inherited for parameter \"rgName\" from \"shared.bicepparam\": Expected a value of type \"string\" but the provided value is of type \"42\".*");
         }
 
         [TestMethod]
@@ -1920,6 +1920,7 @@ param objParam object
             result.ExitCode.Should().Be(0);
         }
 
+        [TestMethod]
         public async Task BuildParams_Extends_InvalidType_ThrowsError()
         {
             var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
@@ -1943,7 +1944,7 @@ param objParam object
             File.Exists(expectedOutputFile).Should().BeFalse();
 
             output.Should().BeEmpty();
-            error.Should().Contain("Error BCP033: Expected a value of type \"string\" but the provided value is of type \"42\".");
+            error.Should().Contain("Error BCP033: The value inherited for parameter \"tag\" from \"base.bicepparam\": Expected a value of type \"string\" but the provided value is of type \"42\".");
             result.Should().Be(1);
         }
 
@@ -1975,9 +1976,9 @@ param objParam object
             File.Exists(expectedOutputFile).Should().BeFalse();
 
             output.Should().BeEmpty();
-            error.Should().Contain("Error BCP033: Expected a value of type \"int\" but the provided value is of type \"'42'\".");
-            error.Should().Contain("Error BCP033: Expected a value of type \"string\" but the provided value is of type \"object\".");
-            error.Should().Contain("Error BCP033: Expected a value of type \"bool\" but the provided value is of type \"<empty array>\".");
+            error.Should().Contain("Error BCP033: The value inherited for parameter \"myInt\" from \"base.bicepparam\": Expected a value of type \"int\" but the provided value is of type \"'42'\".");
+            error.Should().Contain("Error BCP033: The value inherited for parameter \"myString\" from \"base.bicepparam\": Expected a value of type \"string\" but the provided value is of type \"object\".");
+            error.Should().Contain("Error BCP033: The value inherited for parameter \"myBool\" from \"base.bicepparam\": Expected a value of type \"bool\" but the provided value is of type \"<empty array>\".");
             result.Should().Be(1);
         }
 
