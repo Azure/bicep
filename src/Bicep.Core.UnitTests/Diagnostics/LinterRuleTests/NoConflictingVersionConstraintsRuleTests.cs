@@ -95,6 +95,76 @@ public class NoConflictingVersionConstraintsRuleTests
     }
 
     [TestMethod]
+    public void If_EntrypointConstraintConflictsWithSoleReferencedFile_ShouldRaise()
+    {
+        CompileAndTest(
+            1,
+            ("main.bicep", """
+                module a 'a/a.bicep' = {
+                  name: 'a'
+                }
+                """),
+            ("bicepconfig.json", """{ "bicep": { "version": ">=0.20.0" } }"""),
+            ("a/a.bicep", "output value string = 'a'"),
+            ("a/bicepconfig.json", """{ "bicep": { "version": "<0.17.0" } }"""));
+    }
+
+    [TestMethod]
+    public void If_EntrypointConstraintConflictsWithFileDeepInTheReferenceChain_ShouldRaise()
+    {
+        CompileAndTest(
+            1,
+            ("main.bicep", """
+                module a 'a/a.bicep' = {
+                  name: 'a'
+                }
+                """),
+            ("bicepconfig.json", """{ "bicep": { "version": ">=0.20.0" } }"""),
+            ("a/a.bicep", """
+                module b '../b/b.bicep' = {
+                  name: 'b'
+                }
+                """),
+            ("b/b.bicep", "output value string = 'b'"),
+            ("b/bicepconfig.json", """{ "bicep": { "version": "<0.17.0" } }"""));
+    }
+
+    [TestMethod]
+    public void If_FirstReferencedFileIsCompatible_ButLaterOneConflicts_ShouldRaise()
+    {
+        CompileAndTest(
+            1,
+            ("main.bicep", """
+                module a 'a/a.bicep' = {
+                  name: 'a'
+                }
+                module b 'b/b.bicep' = {
+                  name: 'b'
+                }
+                """),
+            ("bicepconfig.json", """{ "bicep": { "version": ">=0.20.0" } }"""),
+            ("a/a.bicep", "output value string = 'a'"),
+            ("a/bicepconfig.json", """{ "bicep": { "version": ">=0.15.0" } }"""),
+            ("b/b.bicep", "output value string = 'b'"),
+            ("b/bicepconfig.json", """{ "bicep": { "version": "<0.17.0" } }"""));
+    }
+
+    [TestMethod]
+    public void If_ConstraintsHaveAdjacentExclusiveBounds_ShouldRaise()
+    {
+        CompileAndTest(
+            1,
+            ("main.bicep", """
+                module a 'a/a.bicep' = {
+                  name: 'a'
+                }
+                """),
+            ("bicepconfig.json", """{ "bicep": { "version": ">1.2.3" } }"""),
+            ("a/a.bicep", "output value string = 'a'"),
+            ("a/bicepconfig.json", """{ "bicep": { "version": "<1.2.4" } }"""));
+    }
+
+    [TestMethod]
     public void If_ConflictIsDeepInTheReferenceChain_ShouldRaise()
     {
         // main -> a -> b, and a -> c. b and c's constraints are disjoint even though they aren't directly

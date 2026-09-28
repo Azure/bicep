@@ -8,18 +8,18 @@ using Bicep.Core.Text;
 
 namespace Bicep.Core.Analyzers.Linter.Rules;
 
-public sealed class NoLooserVersionConstraintInEntrypointRule : LinterRuleBase
+public sealed class NoIncompatibleEntrypointVersionRule : LinterRuleBase
 {
-    public new const string Code = "no-loose-entrypoint-version";
+    public new const string Code = "no-incompatible-entrypoint-version";
 
-    public NoLooserVersionConstraintInEntrypointRule() : base(
+    public NoIncompatibleEntrypointVersionRule() : base(
         code: Code,
-        description: CoreResources.NoLooserVersionConstraintInEntrypointRule_Description,
+        description: CoreResources.NoIncompatibleEntrypointVersionRule_Description,
         LinterRuleCategory.DeploymentError)
     { }
 
     public override string FormatMessage(params object[] values)
-        => string.Format(CoreResources.NoLooserVersionConstraintInEntrypointRule_MessageFormat, values);
+        => string.Format(CoreResources.NoIncompatibleEntrypointVersionRule_MessageFormat, values);
 
     public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
     {
@@ -33,10 +33,10 @@ public sealed class NoLooserVersionConstraintInEntrypointRule : LinterRuleBase
 
         if (model.Configuration.Compiler.Version is not { } entrypointConstraint)
         {
-            // The entrypoint declares no "bicep.version" constraint at all, which is the loosest constraint
-            // possible - it permits every version. If any referenced file declares a real constraint, the
-            // entrypoint is unavoidably looser than it, so an external tool that only resolves the entrypoint's
-            // config could pick a version incompatible with that referenced file.
+            // The entrypoint declares no "bicep.version" constraint at all, which permits every version. That's
+            // only compatible with a referenced file's constraint if that file also permits every version - so
+            // any referenced file that declares a real constraint is unavoidably incompatible, since an external
+            // tool that only resolves the entrypoint's config could pick a version that file rejects.
             var firstConstrained = model.EnumerateAllLocalModuleModelsTransitively()
                 .FirstOrDefault(referenced => referenced.Configuration.Compiler.Version is not null);
 

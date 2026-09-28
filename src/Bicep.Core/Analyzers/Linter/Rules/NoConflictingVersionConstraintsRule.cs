@@ -32,7 +32,12 @@ public sealed class NoConflictingVersionConstraintsRule : LinterRuleBase
             yield break;
         }
 
-        (VersionRange Range, string File)? combined = null;
+        // Start the running intersection with the entrypoint's own constraint. EnumerateAllLocalModuleModelsTransitively()
+        // only yields descendant modules, never the entrypoint itself, so without this the entrypoint's constraint
+        // would never be checked against the rest of the graph.
+        (VersionRange Range, string File)? combined = model.Configuration.Compiler.Version is { } entrypointConstraint
+            ? (entrypointConstraint, model.SourceFile.FileHandle.Uri.ToString())
+            : null;
 
         foreach (var referenced in model.EnumerateAllLocalModuleModelsTransitively())
         {
