@@ -4,7 +4,7 @@
 
 The visual designer has **one chronological, session-local history** of actions initiated in the
 designer. Stage 0 records resource creation, node drags, and Reset Layout. **Undo** and **Redo**
-traverse that history from the control-bar buttons or keyboard shortcuts while the designer has focus.
+traverse that history from the history-bar buttons or keyboard shortcuts while the designer has focus.
 They do not present separate source and layout commands.
 Source edits made directly in the Bicep editor are **not** designer actions.
 Renaming, conversion to `existing`, and module edits are future additions to this contract, not
@@ -133,7 +133,7 @@ silently pass its `WorkspaceEdit` through that handler.
   sequential source edits, and explicit rejection of malformed or stale edits.
 - Host tests cover the enablement gate, version drift, failed application, source undo/redo, and
   direct editor edits that must not be reversed.
-- Playwright tests cover flag-off viewer behavior, slow/cancelled drags, the control-bar history
+- Playwright tests cover flag-off viewer behavior, slow/cancelled drags, the history-bar
   buttons and canvas shortcuts, and creation/layout undo and redo in one timeline. They use a fake host and do not prove VS
   Code editor behavior.
 - Before enabling rename or multi-file replay, add extension-host tests with a real VS Code

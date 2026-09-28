@@ -29,7 +29,7 @@ npm run e2e
 `npm run dev` loads a fake extension host. E2E tests use query parameters such as `catalogDelay` to
 make loading and concurrency states deterministic.
 
-**Undo** and **Redo** sit in the control bar. While the designer has focus, Ctrl/Cmd+Z undoes,
+**Undo** and **Redo** sit in their own panel below the control bar. While the designer has focus, Ctrl/Cmd+Z undoes,
 Ctrl/Cmd+Shift+Z redoes, and Ctrl+Y also redoes on Windows/Linux. These shortcuts do not intercept
 text fields or the source editor. Right-click opens no menu outside text fields: VS Code's default
 Cut/Copy/Paste menu does nothing on the graph, so the designer suppresses it.
@@ -173,7 +173,7 @@ Each feature, library, and `src/core` exposes one barrel:
 
 `AppEnvironment` owns the Jotai store, real or fake message channel, theme, and the app-wide host
 synchronization from `@/core`: the document, the resource-editing setting, and motion policy. `App` mounts `PanZoomProvider`, then `GraphActionsProvider` inside it, because graph
-layout reads the viewport size and fits the camera. `Canvas`, `ControlBar`, and `Dock` are siblings
+layout reads the viewport size and fits the camera. `Canvas`, `Controls`, and `Dock` are siblings
 inside both.
 
 Use Jotai for shared observable state and local React state for component-local interaction. Prefer
@@ -193,7 +193,7 @@ interface GraphActions {
 }
 ```
 
-`ControlBar` uses them for Reset Layout, Undo, and Redo. The canvas feature adds only what depends on
+`ControlBar` uses them for Reset Layout, and `HistoryBar` for Undo and Redo. The canvas feature adds only what depends on
 its own element and camera: `useCanvasDropTarget` converts a palette drop's client point to a graph
 point. It reads the canvas element from an atom, so the palette can use it without `Canvas` being
 an ancestor.

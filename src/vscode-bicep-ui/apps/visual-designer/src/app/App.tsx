@@ -7,7 +7,7 @@ import { PanZoomProvider } from "@vscode-bicep-ui/components";
 import { styled } from "styled-components";
 import { GraphActionsProvider } from "@/core";
 import { Canvas } from "@/features/canvas";
-import { ControlBar } from "@/features/controls";
+import { Controls } from "@/features/controls";
 import { Dock } from "@/features/dock";
 import { StatusBar } from "@/features/status";
 import { isInTextInput } from "@/utils";
@@ -36,7 +36,7 @@ export function App() {
         <PanZoomProvider>
           <GraphActionsProvider>
             <Canvas />
-            <ControlBar />
+            <Controls />
             <Dock />
           </GraphActionsProvider>
         </PanZoomProvider>

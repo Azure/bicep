@@ -65,13 +65,13 @@ export function nodeCount(page: Page): Promise<number> {
   return page.getByTestId("graph-node").count();
 }
 
-/** Click Undo or Redo in the control bar. */
+/** Click Undo or Redo in the history bar. */
 export async function clickHistoryButton(page: Page, action: "Undo" | "Redo") {
-  await page.getByTestId("control-bar").getByRole("button", { name: action, exact: true }).click();
+  await page.getByTestId("history-bar").getByRole("button", { name: action, exact: true }).click();
 }
 
 export async function expectHistoryButtonEnabled(page: Page, action: "Undo" | "Redo", isEnabled: boolean) {
-  const button = page.getByTestId("control-bar").getByRole("button", { name: action, exact: true });
+  const button = page.getByTestId("history-bar").getByRole("button", { name: action, exact: true });
   if (isEnabled) {
     await expect(button).toBeEnabled();
   } else {

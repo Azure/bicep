@@ -149,22 +149,24 @@ test.describe("Control bar", () => {
     await expect(page.getByTestId("control-export")).toBeDisabled();
   });
 
-  test("groups view, history, and export controls with even spacing", async ({ page }) => {
+  test("keeps Undo and Redo in their own panel below the view controls", async ({ page }) => {
     const controlBar = page.getByTestId("control-bar");
-    await expect(controlBar.getByRole("button")).toHaveCount(7);
-    await expect(controlBar.getByRole("separator")).toHaveCount(2);
+    const historyBar = page.getByTestId("history-bar");
+    await expect(controlBar.getByRole("button")).toHaveCount(5);
+    await expect(controlBar.getByRole("separator")).toHaveCount(1);
+    await expect(historyBar.getByRole("button")).toHaveCount(2);
 
     const bar = (await controlBar.boundingBox())!;
+    const history = (await historyBar.boundingBox())!;
     const first = (await page.getByTestId("control-zoom-in").boundingBox())!;
     const reset = (await page.getByTestId("control-reset-layout").boundingBox())!;
-    const undo = (await page.getByTestId("control-undo").boundingBox())!;
-    const redo = (await page.getByTestId("control-redo").boundingBox())!;
     const exportButton = (await page.getByTestId("control-export").boundingBox())!;
     const edgeInset = first.y - bar.y;
 
     expect(bar.y + bar.height - (exportButton.y + exportButton.height)).toBeCloseTo(edgeInset, 0);
-    expect(undo.y - (reset.y + reset.height)).toBeCloseTo(edgeInset * 2 + 1, 0);
-    expect(exportButton.y - (redo.y + redo.height)).toBeCloseTo(edgeInset * 2 + 1, 0);
+    expect(exportButton.y - (reset.y + reset.height)).toBeCloseTo(edgeInset * 2 + 1, 0);
+    expect(history.y - (bar.y + bar.height)).toBeCloseTo(12, 0);
+    expect(history.x + history.width).toBeCloseTo(bar.x + bar.width, 0);
   });
 
   test("re-enables graph-dependent controls when a graph is loaded", async ({ page }) => {

@@ -53,7 +53,7 @@ test.describe("Undo/Redo shortcuts", () => {
     }
   });
 
-  test("keep working after focus moves to a control-bar button", async ({ page }) => {
+  test("keep working after focus moves to a control button", async ({ page }) => {
     const { node, original, moved } = await dragSubnet(page);
     const zoomIn = page.getByTestId("control-zoom-in");
     await zoomIn.focus();

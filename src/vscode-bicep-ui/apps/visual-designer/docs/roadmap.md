@@ -35,7 +35,7 @@ criteria. Uncompleted stages are not a commitment to a particular release. See
   focus. With resource editing off, the creation dock is absent without disabling viewer gestures.
 - Bicep source edits use a version-checked `WorkspaceEdit` and VS Code's dirty-file/undo behavior;
   the host also rejects resource creation when editing is disabled. Resource creation, node drags,
-  and Reset Layout share a session-local **Undo/Redo** timeline through the control-bar buttons
+  and Reset Layout share a session-local **Undo/Redo** timeline through the history-bar buttons
   and shortcuts while the designer has focus.
   Source replay validates document version and contents; visual layout is not persisted.
 - Graph nodes do not currently distinguish deployed from `existing` resources. Node IDs contain

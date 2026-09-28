@@ -1,4 +1,4 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-export { ControlBar } from "./components/ControlBar";
+export { Controls } from "./components/Controls";
