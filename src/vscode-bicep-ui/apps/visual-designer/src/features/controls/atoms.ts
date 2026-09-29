@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { atom } from "jotai";
-import { hasNodesAtom } from "@/features/status";
+import { graphHasNodesAtom } from "@/core";
 
 export interface GraphControlAvailability {
   canFitView: boolean;
@@ -14,7 +14,7 @@ export interface GraphControlAvailability {
  * Availability model for graph controls that require graph content.
  */
 export const graphControlAvailabilityAtom = atom<GraphControlAvailability>((get) => {
-  const hasNodes = get(hasNodesAtom);
+  const hasNodes = get(graphHasNodesAtom);
 
   return {
     canFitView: hasNodes,

@@ -4,7 +4,7 @@
 import { PanZoomTransformed } from "@vscode-bicep-ui/components";
 import { useAtomValue } from "jotai";
 import styled from "styled-components";
-import { pendingResourcesAtom } from "../atoms";
+import { pendingResourcesAtom } from "@/core";
 import { ResourceNodePreview } from "./nodes/ResourceNodePreview";
 
 const $Layer = styled(PanZoomTransformed)`

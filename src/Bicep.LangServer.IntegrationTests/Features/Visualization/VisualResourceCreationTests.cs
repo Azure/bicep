@@ -203,6 +203,34 @@ namespace Bicep.LangServer.IntegrationTests
             exception.Which.Error.Should().BeEmpty();
         }
 
+        [TestMethod]
+        public async Task PrepareVisualResourceReplay_ReturnsAnUndoEditOrNullPerCreation()
+        {
+            var insertedText = """
+                resource basicTest 'Test.Rp/basicTests@2020-01-01' = {
+                  name: 'basicTest'
+                }
+                """;
+            using var helper = await StartServerAndOpenAsync("param location string\n\n" + insertedText);
+            var client = helper.Helper.Client;
+
+            var result = await client.SendRequest(
+                new PrepareVisualResourceReplayParams(
+                    new TextDocumentIdentifier(helper.MainUri),
+                    [
+                        new("undo-op", "basicTest", VisualResourceReplayDirection.Undo, "\n\n" + insertedText),
+                        new("redo-op", "basicTest", VisualResourceReplayDirection.Redo, "\n\n" + insertedText),
+                    ]),
+                default);
+
+            result.Replays.Select(replay => replay.OperationId).Should().Equal("undo-op", "redo-op");
+            var undo = result.Replays[0].Edit;
+            undo.Should().NotBeNull();
+            undo!.NewText.Should().BeEmpty();
+            undo.Range.Should().Be(new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range(0, 21, 4, 1));
+            result.Replays[1].Edit.Should().BeNull();
+        }
+
         private async Task<TestServer> StartServerAndOpenAsync(string? mainContent = null)
         {
             mainContent ??= """

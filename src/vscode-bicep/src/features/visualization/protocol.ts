@@ -181,3 +181,37 @@ export const createResourceDeclarationInsertionRequestType = new ProtocolRequest
   void,
   void
 >("textDocument/prepareVisualResource");
+
+export type VisualResourceReplayDirection = "undo" | "redo";
+
+export interface VisualResourceReplayQuery {
+  operationId: string;
+  /** The graph node the creation produced, which is the resource's symbolic name. */
+  nodeId: string;
+  direction: VisualResourceReplayDirection;
+  /** The text the creation inserted, including its surrounding newlines, as the document contains it. */
+  insertedText: string;
+}
+
+export interface PrepareVisualResourceReplayParams {
+  textDocument: TextDocumentIdentifier;
+  replays: VisualResourceReplayQuery[];
+}
+
+export interface VisualResourceReplayEdit {
+  operationId: string;
+  /** The edit that replays the creation exactly against the current document, or null if that is not possible. */
+  edit: { range: Range; newText: string } | null;
+}
+
+export interface PrepareVisualResourceReplayResult {
+  replays: VisualResourceReplayEdit[];
+}
+
+export const prepareVisualResourceReplayRequestType = new ProtocolRequestType<
+  PrepareVisualResourceReplayParams,
+  PrepareVisualResourceReplayResult,
+  never,
+  void,
+  void
+>("textDocument/prepareVisualResourceReplay");

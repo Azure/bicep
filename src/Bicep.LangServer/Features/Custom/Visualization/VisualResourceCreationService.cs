@@ -96,6 +96,9 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             return new(request.OperationId, resource.SymbolicName, resource.SymbolicName, resource.UnresolvedRequiredProperties, edit);
         }
 
+        public PrepareVisualResourceReplayResult PrepareResourceReplays(CompilationContext context, PrepareVisualResourceReplayParams request) =>
+            ResourceCreationReplay.Prepare(context, request);
+
         /// <summary>
         /// Resources are inserted as top-level declarations without a <c>scope</c> property, so the catalog offers only
         /// types that can be deployed at the document's own target scope. Anything other than a single deployment scope

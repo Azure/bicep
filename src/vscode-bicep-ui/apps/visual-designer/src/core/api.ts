@@ -6,6 +6,42 @@ import type { ResourceTypeReference } from "./types";
 import { defineNotification, defineRequest, useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { useMemo } from "react";
 
+// ── Document ──
+// `ready` and `documentDidChange` are two halves of one exchange: the webview announces it is
+// mounted, and the host answers by sending the document and re-announcing it on every edit.
+
+/** "The webview has mounted; start sending me the document." */
+export const ready = defineNotification("ready");
+
+export interface DocumentDidChangeParams {
+  documentUri: string;
+}
+
+/** "The document changed; re-fetch whatever you derive from it." */
+export const documentDidChange = defineNotification<DocumentDidChangeParams>("documentDidChange");
+
+/**
+ * Sent on every edit, without waiting for `documentDidChange`, which is debounced. Anything derived from
+ * the previous content, such as which designer steps can be replayed, is stale until the next graph update.
+ */
+export const documentDidEdit = defineNotification("documentDidEdit");
+
+// ── Resource editing setting ──
+// The wire names still say `resourceCreation` because creation was the first gated action.
+
+export const getResourceEditingEnablement = defineRequest<void, boolean>("resourceCreation/isEnabled");
+
+export const resourceEditingEnablementDidChange = defineNotification<boolean>("resourceCreation/enablementDidChange");
+
+// ── Motion policy ──
+// The host resolves the effective policy from the VS Code setting and the OS reduced-motion preference.
+
+export type MotionPolicy = "system" | "reduce" | "animate";
+
+export const getMotionPolicy = defineRequest<void, MotionPolicy>("motionPolicy/get");
+
+export const motionPolicyDidChange = defineNotification<MotionPolicy>("motionPolicy/didChange");
+
 // ── Source locations ──
 
 interface Position {
@@ -44,6 +80,45 @@ export interface CreateResourceResult {
   expectedNodeId: string;
   symbolicName: string;
   unresolvedRequiredProperties: string[];
+  /** Set when the resource was created but the extension could not track it, so it cannot be undone. */
+  historyTrackingError?: string;
+}
+
+// ── Undo history ──
+
+export type ReplayDirection = "undo" | "redo";
+
+/** A source step in the undo history, and which way it would be replayed next. */
+export interface SourceStepReference {
+  operationId: string;
+  direction: ReplayDirection;
+}
+
+/** Undo or redo a source edit the designer made earlier, identified by the operation that made it. */
+export const replaySourceEdit = defineRequest<ReplaySourceEditParams, ReplaySourceEditResult>(
+  "undoHistory/replaySourceEdit",
+);
+
+export interface ReplaySourceEditParams extends SourceStepReference {
+  version: 1;
+}
+
+export type ReplaySourceEditResult = ReplaySourceEditParams;
+
+/**
+ * Kept, like `CreateResourceErrorResult` below, to document the codes the extension can send.
+ * `replayUnavailable` means the step can no longer be replayed exactly, so it should leave the history.
+ */
+export interface ReplaySourceEditErrorResult {
+  code:
+    | "invalidHistoryRequest"
+    | "editingDisabled"
+    | "replayUnavailable"
+    | "documentChanged"
+    | "editRejected"
+    | "replayFailed";
+  message: string;
+  retryable: boolean;
 }
 
 /**
@@ -61,6 +136,8 @@ export interface CreateResourceErrorResult {
   code:
     | "unsupportedContract"
     | "invalidResourceType"
+    | "duplicateOperation"
+    | "editingDisabled"
     | "documentChanged"
     | "documentReadOnly"
     | "editRejected"
@@ -85,11 +162,18 @@ export const getGraphUpdate = defineRequest<GetGraphUpdateParams, GetGraphUpdate
 
 export interface GetGraphUpdateParams {
   current: RenderedGraph | null;
+  /** The source steps in the undo history, so the host can say which can still be replayed exactly. */
+  sourceSteps: SourceStepReference[];
 }
 
 export interface GetGraphUpdateResult {
   patches: GraphPatch[];
   targetScope: TargetScope | null;
+  /**
+   * The requested source steps that can be replayed exactly in the document this update reflects. The rest can
+   * no longer be. Null when the host could not tell, so none should be offered until the next update.
+   */
+  replayableSourceSteps: SourceStepReference[] | null;
 }
 
 export type TargetScope = "resourceGroup" | "subscription" | "managementGroup" | "tenant";
@@ -205,14 +289,16 @@ export type GraphPatch =
  * Only imperative calls belong here. Subscriptions stay declarative at the call site via
  * `useNotification(descriptor, handler)`, which composes better with React's lifecycle.
  */
-export function useCanvasApi() {
+export function useGraphApi() {
   const channel = useWebviewMessageChannel();
 
   return useMemo(
     () => ({
-      fetchUpdate: (current: RenderedGraph | null) => channel.request(getGraphUpdate, { current }),
+      fetchUpdate: (current: RenderedGraph | null, sourceSteps: SourceStepReference[]) =>
+        channel.request(getGraphUpdate, { current, sourceSteps }),
       fetchGraphLayout: (current: RenderedGraph) => channel.request(getGraphLayout, { current }),
       createResource: (params: CreateResourceParams) => channel.request(createResource, params),
+      replaySourceEdit: (params: ReplaySourceEditParams) => channel.request(replaySourceEdit, params),
       revealNodeSource: (nodeId: string) => channel.notify(revealNodeSource, { nodeId }),
     }),
     [channel],

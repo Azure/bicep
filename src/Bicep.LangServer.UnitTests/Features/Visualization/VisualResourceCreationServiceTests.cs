@@ -532,6 +532,152 @@ public class VisualResourceCreationServiceTests
 
     #endregion
 
+    #region PrepareResourceReplays
+
+    private const string ExistingResource = """
+        param location string
+
+        resource first 'Test.Rp/basicTests@2020-01-01' = {
+          name: 'first'
+        }
+
+        output result string = first.name
+        """;
+
+    [TestMethod]
+    public void PrepareResourceReplays_Undo_RemovesTheCreationDespiteUnrelatedEdits()
+    {
+        var (created, nodeId, insertedText) = CreateResource(ExistingResource);
+        var edited = "\n" + created.Replace("output result", "\noutput result", StringComparison.Ordinal);
+
+        var undone = Replay(edited, nodeId, VisualResourceReplayDirection.Undo, insertedText);
+
+        undone.Should().Be("\n" + ExistingResource.Replace("output result", "\noutput result", StringComparison.Ordinal));
+    }
+
+    [TestMethod]
+    public void PrepareResourceReplays_Undo_KeepsBlankLinesAddedNextToTheCreation()
+    {
+        var (created, nodeId, insertedText) = CreateResource(ExistingResource);
+        var edited = created.Replace("}\n\nresource basicTest", "}\n\n\nresource basicTest", StringComparison.Ordinal);
+
+        var undone = Replay(edited, nodeId, VisualResourceReplayDirection.Undo, insertedText);
+
+        undone.Should().Be(ExistingResource.Replace("name: 'first'\n}", "name: 'first'\n}\n", StringComparison.Ordinal));
+    }
+
+    [TestMethod]
+    public void PrepareResourceReplays_Undo_RemovesAnIncompleteCreation()
+    {
+        var (created, nodeId, insertedText) = CreateResource(ExistingResource, "Test.Rp/readWriteTests");
+
+        Replay(created, nodeId, VisualResourceReplayDirection.Undo, insertedText).Should().Be(ExistingResource);
+    }
+
+    [TestMethod]
+    public void PrepareResourceReplays_Undo_IsUnavailableOnceTheDeclarationIsEdited()
+    {
+        var (created, nodeId, insertedText) = CreateResource(ExistingResource);
+        var edited = created.Replace("name: 'basicTest'", "name: 'renamed'", StringComparison.Ordinal);
+
+        Replay(edited, nodeId, VisualResourceReplayDirection.Undo, insertedText).Should().BeNull();
+    }
+
+    [TestMethod]
+    public void PrepareResourceReplays_Undo_IsUnavailableWhileTheDeclarationIsReferenced()
+    {
+        var (created, nodeId, insertedText) = CreateResource(ExistingResource);
+        var edited = created + "\noutput id string = basicTest.id\n";
+
+        Replay(edited, nodeId, VisualResourceReplayDirection.Undo, insertedText).Should().BeNull();
+    }
+
+    [TestMethod]
+    public void PrepareResourceReplays_Undo_IsUnavailableOnceTheDeclarationIsRemoved()
+    {
+        var (_, nodeId, insertedText) = CreateResource(ExistingResource);
+
+        Replay(ExistingResource, nodeId, VisualResourceReplayDirection.Undo, insertedText).Should().BeNull();
+    }
+
+    [TestMethod]
+    public void PrepareResourceReplays_Redo_ReinsertsTheCreationAfterTheLastResource()
+    {
+        var (created, nodeId, insertedText) = CreateResource(ExistingResource);
+        var edited = "\n" + ExistingResource;
+
+        Replay(edited, nodeId, VisualResourceReplayDirection.Redo, insertedText).Should().Be("\n" + created);
+    }
+
+    [TestMethod]
+    public void PrepareResourceReplays_Redo_IsUnavailableOnceTheSymbolicNameIsTaken()
+    {
+        var (_, nodeId, insertedText) = CreateResource(ExistingResource);
+        var edited = ExistingResource + "\nvar BasicTest = 'taken'\n";
+
+        Replay(edited, nodeId, VisualResourceReplayDirection.Redo, insertedText).Should().BeNull();
+    }
+
+    [TestMethod]
+    public void PrepareResourceReplays_ReturnsOneResultPerCreationInRequestOrder()
+    {
+        var (created, nodeId, insertedText) = CreateResource(ExistingResource);
+        var (_, compilationResult) = CompileWithResourceTypes(BuiltInTestTypes.Types, created);
+        var context = new CompilationContext(compilationResult.Compilation);
+
+        var result = new VisualResourceCreationService().PrepareResourceReplays(context, new(
+            new TextDocumentIdentifier(DocumentUri.From("main.bicep")),
+            [
+                new("undo-op", nodeId, VisualResourceReplayDirection.Undo, insertedText),
+                new("redo-op", nodeId, VisualResourceReplayDirection.Redo, insertedText),
+                new("unknown-op", nodeId, "sideways", insertedText),
+            ]));
+
+        result.Replays.Select(replay => replay.OperationId).Should().Equal("undo-op", "redo-op", "unknown-op");
+        result.Replays.Select(replay => replay.Edit is not null).Should().Equal(true, false, false);
+    }
+
+    /// <summary>Creates a resource the way the designer does and returns the new content, node id, and inserted text.</summary>
+    private static (string Content, string NodeId, string InsertedText) CreateResource(string content, string fullyQualifiedType = "Test.Rp/basicTests")
+    {
+        var (compiler, compilationResult) = CompileWithResourceTypes(BuiltInTestTypes.Types, content);
+        var context = new CompilationContext(compilationResult.Compilation);
+        var response = new VisualResourceCreationService().CreateResourceDeclarationInsertion(
+            compiler,
+            context,
+            CreateRequest(fullyQualifiedType, "2020-01-01"));
+        var textEdit = response.Edit.DocumentChanges!.Single().TextDocumentEdit!.Edits.Single();
+
+        return (ApplyTextEdit(content, context.LineStarts, textEdit), response.ExpectedNodeId, textEdit.NewText);
+    }
+
+    /// <summary>Returns the content after replaying a creation, or null if the replay is unavailable.</summary>
+    private static string? Replay(string content, string nodeId, string direction, string insertedText)
+    {
+        var (_, compilationResult) = CompileWithResourceTypes(BuiltInTestTypes.Types, content);
+        var context = new CompilationContext(compilationResult.Compilation);
+
+        var result = new VisualResourceCreationService().PrepareResourceReplays(context, new(
+            new TextDocumentIdentifier(DocumentUri.From("main.bicep")),
+            [new("operation", nodeId, direction, insertedText)]));
+
+        var edit = result.Replays.Should().ContainSingle().Subject.Edit;
+        return edit is null ? null : ApplyTextEdit(content, context.LineStarts, edit);
+    }
+
+    private static string ApplyTextEdit(string content, ImmutableArray<int> lineStarts, TextEdit edit) =>
+        ApplyTextEdit(content, lineStarts, new VisualResourceReplayTextEdit(edit.Range, edit.NewText));
+
+    private static string ApplyTextEdit(string content, ImmutableArray<int> lineStarts, VisualResourceReplayTextEdit edit)
+    {
+        var start = PositionHelper.GetOffset(lineStarts, edit.Range.Start);
+        var end = PositionHelper.GetOffset(lineStarts, edit.Range.End);
+
+        return content[..start] + edit.NewText + content[end..];
+    }
+
+    #endregion
+
     private static ResourceTypeComponents CreateScopedType(
         string fullyQualifiedType,
         ResourceScope scopes,

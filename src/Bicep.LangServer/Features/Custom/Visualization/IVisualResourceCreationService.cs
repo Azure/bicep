@@ -37,5 +37,13 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             BicepCompiler compiler,
             CompilationContext context,
             CreateResourceDeclarationInsertionParams request);
+
+        /// <summary>
+        /// Returns, for each designer resource creation, the edit that undoes or redoes it exactly against the current
+        /// document, or null when it can no longer be replayed exactly.
+        /// </summary>
+        PrepareVisualResourceReplayResult PrepareResourceReplays(
+            CompilationContext context,
+            PrepareVisualResourceReplayParams request);
     }
 }

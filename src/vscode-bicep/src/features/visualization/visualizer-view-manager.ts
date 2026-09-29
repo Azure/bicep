@@ -25,7 +25,7 @@ export class BicepVisualizerViewManager extends Disposable implements WebviewPan
     this.registerMultiple(
       window.registerWebviewPanelSerializer(BicepVisualizerView.viewType, this),
       workspace.onDidChangeTextDocument((event) => {
-        this.viewsByPath.get(event.document.uri.fsPath)?.render();
+        this.viewsByPath.get(event.document.uri.fsPath)?.handleDocumentDidChange();
       }),
       workspace.onDidChangeConfiguration((event) => {
         if (event.affectsConfiguration("workbench.reduceMotion")) {

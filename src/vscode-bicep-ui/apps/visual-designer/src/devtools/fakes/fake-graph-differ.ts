@@ -9,7 +9,7 @@ import type {
   GraphPatch,
   NodeLayout,
   RenderedGraph,
-} from "@/features/canvas";
+} from "@/core";
 import type { SampleGraph, SampleGraphNode } from "./sample-graph";
 
 /**

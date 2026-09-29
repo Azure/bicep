@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import type { ChangeEvent } from "react";
-import type { TargetScope } from "@/features/canvas";
+import type { TargetScope } from "@/core";
 
 import { useCallback } from "react";
 import { styled } from "styled-components";

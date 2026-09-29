@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import type { ReplayDirection, SourceStepReference } from "./source-edit-history";
+
 import crypto from "crypto";
 import path from "path";
 import {
@@ -8,6 +10,7 @@ import {
   EventEmitter,
   Range,
   Selection,
+  TextDocument,
   TextEditor,
   TextEditorRevealType,
   Uri,
@@ -16,6 +19,7 @@ import {
   WebviewPanelOnDidChangeViewStateEvent,
   window,
   workspace,
+  WorkspaceEdit,
 } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { parseError } from "../../infrastructure/errors";
@@ -25,6 +29,7 @@ import { debounce } from "../../infrastructure/timing";
 import { getVisualizerMotionPolicy } from "./motion-policy";
 import {
   createResourceDeclarationInsertionRequestType,
+  prepareVisualResourceReplayRequestType,
   ResourceDeclarationInsertion,
   visualGraphLayoutRequestType,
   VisualGraphLayoutResult,
@@ -32,6 +37,7 @@ import {
   VisualGraphRendered,
   visualGraphUpdateRequestType,
   VisualGraphUpdateResult,
+  VisualResourceReplayEdit,
   VisualResourceTypeCatalogItem,
   visualResourceTypeNamespacesRequestType,
   VisualResourceTypeReference,
@@ -41,6 +47,24 @@ import {
 import { getApplyEditFailureCode, hasDocumentChanged } from "./resource-creation";
 import { isResourceEditingEnabled } from "./resource-editing-setting";
 import { buildResourceTypeCatalog } from "./resource-palette";
+import { SourceEditHistory, SourceEditHistoryConflict } from "./source-edit-history";
+
+/** The designer's source steps sent with a graph update. Malformed entries are ignored. */
+function parseSourceSteps(value: unknown): SourceStepReference[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.flatMap((step: unknown) => {
+    if (typeof step !== "object" || step === null) {
+      return [];
+    }
+    const { operationId, direction } = step as { operationId?: unknown; direction?: unknown };
+    return typeof operationId === "string" && (direction === "undo" || direction === "redo")
+      ? [{ operationId, direction }]
+      : [];
+  });
+}
 
 export class BicepVisualizerView extends Disposable {
   public static viewType = "bicep.visualizer";
@@ -51,6 +75,7 @@ export class BicepVisualizerView extends Disposable {
   private resolveReady!: () => void;
 
   private readyToRender = false;
+  private readonly sourceEditHistory = new SourceEditHistory();
 
   private constructor(
     private readonly languageClient: LanguageClient,
@@ -159,6 +184,20 @@ export class BicepVisualizerView extends Disposable {
   // Do "fire and forget" since there's no need to wait on rendering.
   public render = debounce(() => this.doRender());
 
+  /**
+   * The Bicep file was edited. Tell the webview right away, since rendering is debounced: until the graph update
+   * that follows, it must not offer designer undo/redo checked against the previous content.
+   */
+  public handleDocumentDidChange(): void {
+    if (!this.isDisposed && this.readyToRender) {
+      void this.webviewPanel.webview
+        .postMessage({ method: "documentDidEdit" })
+        .then(undefined, (error: unknown) => getLogger().debug(parseError(error).message));
+    }
+
+    this.render();
+  }
+
   private async doRender() {
     if (this.isDisposed || !this.readyToRender) {
       return;
@@ -192,7 +231,9 @@ export class BicepVisualizerView extends Disposable {
 
   private async handleGetGraphUpdate(id: string, params: unknown): Promise<void> {
     const current = (params as { current?: VisualGraphRendered | null })?.current ?? null;
+    const sourceSteps = parseSourceSteps((params as { sourceSteps?: unknown })?.sourceSteps);
     let result: VisualGraphUpdateResult = { patches: [], targetScope: null };
+    let replayableSourceSteps: SourceStepReference[] | null = null;
 
     try {
       const document = await workspace.openTextDocument(this.documentUri);
@@ -205,6 +246,16 @@ export class BicepVisualizerView extends Disposable {
         textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
         current,
       });
+
+      // Computed with every graph update, so the designer only enables Undo and Redo for creations that can be
+      // replayed exactly in the document it is showing. Null tells the webview this is unknown.
+      try {
+        replayableSourceSteps = (await this.prepareReplays(document, sourceSteps))
+          .filter(({ edit }) => edit !== null)
+          .map(({ step }) => step);
+      } catch (error) {
+        getLogger().error(`Designer undo/redo availability request failed: ${parseError(error).message}`);
+      }
     } catch (error) {
       // Keep the webview responsive: an empty delta means "nothing changed", so it keeps what it has.
       getLogger().error(`Visual graph update request failed: ${parseError(error).message}`);
@@ -215,7 +266,7 @@ export class BicepVisualizerView extends Disposable {
     }
 
     try {
-      await this.webviewPanel.webview.postMessage({ id, result });
+      await this.webviewPanel.webview.postMessage({ id, result: { ...result, replayableSourceSteps } });
     } catch (error) {
       getLogger().debug((error as Error).message ?? error);
     }
@@ -257,7 +308,7 @@ export class BicepVisualizerView extends Disposable {
   }
 
   private async handleCreateResource(id: string, params: unknown): Promise<void> {
-    const request = params as {
+    const request = (params && typeof params === "object" ? params : {}) as {
       version?: number;
       operationId?: string;
       resourceType?: VisualResourceTypeReference;
@@ -265,9 +316,12 @@ export class BicepVisualizerView extends Disposable {
 
     if (
       request.version !== 1 ||
-      !request.operationId ||
-      !request.resourceType?.fullyQualifiedType ||
-      !request.resourceType.apiVersion
+      typeof request.operationId !== "string" ||
+      !request.operationId.trim() ||
+      typeof request.resourceType?.fullyQualifiedType !== "string" ||
+      !request.resourceType.fullyQualifiedType.trim() ||
+      typeof request.resourceType.apiVersion !== "string" ||
+      !request.resourceType.apiVersion.trim()
     ) {
       await this.postErrorResponse(id, {
         version: 1,
@@ -277,6 +331,21 @@ export class BicepVisualizerView extends Disposable {
           request.version === 1
             ? "The resource type selection is invalid."
             : "The resource creation contract version is not supported.",
+        retryable: false,
+      });
+      return;
+    }
+
+    if (await this.rejectIfResourceEditingDisabled(id, request.operationId)) {
+      return;
+    }
+
+    if (this.sourceEditHistory.hasOperation(request.operationId)) {
+      await this.postErrorResponse(id, {
+        version: 1,
+        operationId: request.operationId,
+        code: "duplicateOperation",
+        message: "This resource creation request has already been applied.",
         retryable: false,
       });
       return;
@@ -293,7 +362,19 @@ export class BicepVisualizerView extends Disposable {
           resourceType: request.resourceType,
         },
       );
+      const changes = result.edit.documentChanges;
+      if (
+        changes?.length !== 1 ||
+        !("textDocument" in changes[0]) ||
+        changes[0].textDocument.version !== requestedVersion
+      ) {
+        throw new Error("Resource creation returned an unsupported or stale workspace edit.");
+      }
       const edit = await this.languageClient.protocol2CodeConverter.asWorkspaceEdit(result.edit);
+
+      if (await this.rejectIfResourceEditingDisabled(id, request.operationId)) {
+        return;
+      }
 
       if (hasDocumentChanged(requestedVersion, document.version, document.isClosed)) {
         await this.postErrorResponse(id, {
@@ -306,6 +387,7 @@ export class BicepVisualizerView extends Disposable {
         return;
       }
 
+      const pendingInsertion = this.sourceEditHistory.prepareInsertion(document, edit);
       const applied = await workspace.applyEdit(edit);
 
       if (!applied) {
@@ -319,12 +401,25 @@ export class BicepVisualizerView extends Disposable {
         return;
       }
 
+      // The resource was created either way; a tracking failure only means the designer cannot undo it.
+      let historyTrackingError: string | undefined;
+      try {
+        this.sourceEditHistory.recordInsertion(document, request.operationId, result.expectedNodeId, pendingInsertion);
+      } catch (error) {
+        if (!(error instanceof SourceEditHistoryConflict)) {
+          throw error;
+        }
+        historyTrackingError = error.message;
+        getLogger().error(`Visual resource creation history failed: ${error.message}`);
+      }
+
       await this.postResponse(id, {
         version: 1,
         operationId: result.operationId,
         expectedNodeId: result.expectedNodeId,
         symbolicName: result.symbolicName,
         unresolvedRequiredProperties: result.unresolvedRequiredProperties,
+        historyTrackingError,
       });
     } catch (error) {
       getLogger().error(`Visual resource creation request failed: ${parseError(error).message}`);
@@ -336,6 +431,132 @@ export class BicepVisualizerView extends Disposable {
         retryable: true,
       });
     }
+  }
+
+  private async handleReplaySourceEdit(id: string, params: unknown): Promise<void> {
+    const request = (params && typeof params === "object" ? params : {}) as {
+      version?: number;
+      operationId?: string;
+      direction?: ReplayDirection;
+    };
+    if (
+      request.version !== 1 ||
+      typeof request.operationId !== "string" ||
+      !request.operationId.trim() ||
+      (request.direction !== "undo" && request.direction !== "redo")
+    ) {
+      await this.postErrorResponse(id, {
+        code: "invalidHistoryRequest",
+        message: "The designer undo/redo request is invalid.",
+        retryable: false,
+      });
+      return;
+    }
+
+    if (await this.rejectIfResourceEditingDisabled(id, request.operationId)) {
+      return;
+    }
+
+    const step: SourceStepReference = { operationId: request.operationId, direction: request.direction };
+    try {
+      const document = await workspace.openTextDocument(this.documentUri);
+      const requestedVersion = document.version;
+      const [replay] = await this.prepareReplays(document, [step]);
+      if (this.isDisposed || (await this.rejectIfResourceEditingDisabled(id, request.operationId))) {
+        return;
+      }
+
+      // The designer only offers replays the language server confirmed with the last graph update, so this
+      // only happens if the file changed since then.
+      if (!replay?.edit) {
+        await this.postErrorResponse(id, {
+          code: "replayUnavailable",
+          message: "The Bicep file changed, so this designer action can no longer be undone or redone exactly.",
+          retryable: false,
+        });
+        return;
+      }
+      if (hasDocumentChanged(requestedVersion, document.version, document.isClosed)) {
+        await this.postErrorResponse(id, {
+          code: "documentChanged",
+          message: "The Bicep file changed before the designer action could be replayed.",
+          retryable: true,
+        });
+        return;
+      }
+
+      const range = this.languageClient.protocol2CodeConverter.asRange(replay.edit.range);
+      const pending = this.sourceEditHistory.prepareEdit(
+        document,
+        document.offsetAt(range.start),
+        document.offsetAt(range.end),
+        replay.edit.newText,
+      );
+      const edit = new WorkspaceEdit();
+      edit.replace(document.uri, range, replay.edit.newText);
+
+      if (!(await workspace.applyEdit(edit))) {
+        await this.postErrorResponse(id, {
+          code: "editRejected",
+          message: "VS Code could not apply the designer undo/redo edit.",
+          retryable: true,
+        });
+        return;
+      }
+
+      this.sourceEditHistory.commitReplay(document, request.operationId, request.direction, pending);
+      await this.postResponse(id, { version: 1, operationId: request.operationId, direction: request.direction });
+    } catch (error) {
+      if (error instanceof SourceEditHistoryConflict) {
+        await this.postErrorResponse(id, { code: "replayUnavailable", message: error.message, retryable: false });
+        return;
+      }
+
+      getLogger().error(`Designer source undo/redo failed: ${parseError(error).message}`);
+      await this.postErrorResponse(id, {
+        code: "replayFailed",
+        message: "Failed to undo or redo the designer source edit.",
+        retryable: true,
+      });
+    }
+  }
+
+  /** Ask the language server for the edit that replays each step exactly against the document, or null. */
+  private async prepareReplays(
+    document: TextDocument,
+    steps: readonly SourceStepReference[],
+  ): Promise<{ step: SourceStepReference; edit: VisualResourceReplayEdit["edit"] }[]> {
+    const replays = this.sourceEditHistory.getReplayQueries(steps);
+    const result =
+      replays.length === 0
+        ? { replays: [] }
+        : await this.languageClient.sendRequest(prepareVisualResourceReplayRequestType, {
+            textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
+            replays,
+          });
+
+    // The language server answers each query in order.
+    return steps.map((step) => {
+      const index = replays.findIndex(
+        (replay) => replay.operationId === step.operationId && replay.direction === step.direction,
+      );
+      const edit = result.replays[index];
+      return { step, edit: edit?.operationId === step.operationId ? edit.edit : null };
+    });
+  }
+  private async rejectIfResourceEditingDisabled(id: string, operationId: string): Promise<boolean> {
+    if (isResourceEditingEnabled()) {
+      return false;
+    }
+
+    await this.postErrorResponse(id, {
+      version: 1,
+      operationId,
+      code: "editingDisabled",
+      message: "Resource editing is disabled. Enable the experimental resource-editing setting to change resources.",
+      retryable: false,
+    });
+    return true;
   }
 
   private async handleGetResourceTypeNamespaces(id: string): Promise<void> {
@@ -491,6 +712,10 @@ export class BicepVisualizerView extends Disposable {
           void this.handleCreateResource(request.id, request.params);
           return;
 
+        case "undoHistory/replaySourceEdit":
+          void this.handleReplaySourceEdit(request.id, request.params);
+          return;
+
         case "resourceTypeCatalog/load":
           void this.handleGetResourceTypeCatalog(request.id, request.params);
           return;
@@ -544,7 +769,7 @@ export class BicepVisualizerView extends Disposable {
       if (visibleEditor.document.uri.fsPath === filePath) {
         window.showTextDocument(visibleEditor.document, visibleEditor.viewColumn).then(
           (editor) => this.revealEditorRange(editor, range),
-          (err) => window.showErrorMessage(`Could not reveal file range in "${filePath}": ${parseError(err).message}`),
+          (err) => getLogger().error(`Could not reveal file range in "${filePath}": ${parseError(err).message}`),
         );
         return;
       }
@@ -557,7 +782,7 @@ export class BicepVisualizerView extends Disposable {
       .then((doc) => window.showTextDocument(doc, targetColumn))
       .then(
         (editor) => this.revealEditorRange(editor, range),
-        (err) => window.showErrorMessage(`Could not open "${filePath}": ${parseError(err).message}`),
+        (err) => getLogger().error(`Could not open "${filePath}": ${parseError(err).message}`),
       );
   }
 

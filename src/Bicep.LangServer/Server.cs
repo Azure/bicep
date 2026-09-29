@@ -108,6 +108,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<VisualResourceTypesHandler>()
                     .WithHandler<VisualResourceTypeVersionsHandler>()
                     .WithHandler<CreateResourceDeclarationInsertionHandler>()
+                    .WithHandler<PrepareVisualResourceReplayHandler>()
                     .WithServices(services => services.AddServerDependencies(bicepLangServerOptions));
 
                 onOptionsFunc(options);

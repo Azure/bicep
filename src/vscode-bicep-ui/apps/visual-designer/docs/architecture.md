@@ -14,7 +14,7 @@ interaction.
 
 The webview message contracts are defined by feature:
 
-- [Canvas API](../src/features/canvas/api.ts): graph updates, layout, source navigation, and resource creation
+- [Core API](../src/core/api.ts): graph updates, layout, source navigation, and resource creation
 - [Palette API](../src/features/palette/api.ts): enablement and resource type catalog
 
 ## Graph synchronization
@@ -103,8 +103,11 @@ Layout may be stale after:
 - Node or edge addition/removal
 - Changes to node `type`, `isCollection`, or `hasChildren`
 
-A correlated resource node with an explicit placement does not invalidate layout by itself. Changes
-limited to `hasError`, error count, positions, or graph bounds do not invalidate layout.
+A correlated resource node with an explicit placement does not invalidate layout by itself.
+Undo of an independent top-level resource creation likewise removes only that node;
+surviving positions and the camera stay put, even if the graph update arrives late. An edge
+change or another layout-affecting patch still requests layout. Changes limited to `hasError`,
+error count, positions, or graph bounds do not invalidate layout.
 
 After an invalidating patch, the webview renders and measures the graph. It requests layout only when
 topology or dimensions differ from the last successful layout input.
@@ -112,16 +115,50 @@ topology or dimensions differ from the last successful layout input.
 - Automatic layout may skip unchanged input and fits the viewport after success.
 - **Reset Graph Layout** bypasses the unchanged-input check and preserves the viewport.
 
+### Undo history
+
+A node drag records its atomic node position at the first actual movement and commits one history
+step at the end of the gesture. Dragging a module records the positions of all its descendants in
+one step. A successful Reset Layout records one step from the current positions to the server's
+layout; a failed or unchanged layout adds none. **Undo** and **Redo** are buttons in their own panel below the control bar;
+the focused designer also accepts Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z, and Ctrl+Y (Windows/Linux). Both
+traverse one session-local timeline of layout steps **and** designer-created resource
+declarations. Layout replay uses the same spring as automatic layout
+without requesting server layout, changing the camera, or editing Bicep source. A subsequent
+layout action retargets an in-progress animation; a drag or successful source replay cancels it.
+Under the effective VS Code or system reduced-motion preference, positions snap to their target.
+
+Pan, zoom, focus, and graph reconciliation are not history steps. Reconciliation keeps layout
+history for surviving atomic node IDs and discards entries for removed IDs, including when a
+symbolic rename changes an ID. A node removed by _undo of its creation_ keeps its redo
+snapshots; other removed nodes cannot inherit stale position history. History is local to the
+visualizer session, not persisted in the Bicep file.
+
+The extension tracks a designer resource insertion by operation ID and verifies the document
+version, exact inserted text, and before/after content hashes. Designer source undo/redo sends
+that ID to the extension; the extension applies a **new**, minimal `WorkspaceEdit` only when the
+expected state matches, then reconciles the graph. Direct editor edits or native editor Undo
+invalidate designer source replay instead of risking an unrelated source change.
+
+shortcuts invoke undo history directly, never VS Code's focus-dependent Undo command.
+Text fields and the source editor retain their native undo behavior. See the
+[undo and redo design](./undo-redo.md) for transaction rules and future rename/module support.
+
 ### Client implementation
 
-| Module                                                                              | Responsibility                                                              |
-| ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| [graph-model.ts](../src/features/canvas/graph-model.ts)                             | Client graph, patch application, measured projection, and render comparison |
-| [graph-layout.ts](../src/features/canvas/graph-layout.ts)                           | Layout invalidation, response extraction, and centering                     |
-| [graph-update-coordinator.ts](../src/features/canvas/graph-update-coordinator.ts)   | Update/layout ordering, coalescing, and mutation serialization              |
-| [use-canvas-controller.ts](../src/features/canvas/hooks/use-canvas-controller.ts)   | API, model, placement, and Jotai integration                                |
-| [use-apply-graph.ts](../src/features/canvas/hooks/use-apply-graph.ts)               | Node and edge reconciliation                                                |
-| [use-apply-graph-layout.ts](../src/features/canvas/hooks/use-apply-graph-layout.ts) | Graph reveal and position animation                                         |
+| Module                                                                      | Responsibility                                                              |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| [graph-model.ts](../src/core/graph-model.ts)                                | Client graph, patch application, measured projection, and render comparison |
+| [graph-layout.ts](../src/core/graph-layout.ts)                              | Layout invalidation, response extraction, and centering                     |
+| [undo-history.ts](../src/core/undo-history.ts)                              | Pure undo/redo stacks of layout and source steps                            |
+| [node-positions.ts](../src/core/node-positions.ts)                          | Capture and restore atomic node positions                                   |
+| [graph-update-coordinator.ts](../src/core/graph-update-coordinator.ts)      | Update/layout ordering, coalescing, and mutation serialization              |
+| [use-graph-sync.ts](../src/core/hooks/use-graph-sync.ts)                    | Graph updates, layout, and node-drag and Reset Layout history               |
+| [GraphActionsProvider.tsx](../src/core/components/GraphActionsProvider.tsx) | Mounts graph sync and Undo/Redo shortcuts; provides `useGraphActions`       |
+| [use-resource-creation.ts](../src/core/hooks/use-resource-creation.ts)      | Placeholder, extension insertion, and creation history step                 |
+| [use-undo-redo.ts](../src/core/hooks/use-undo-redo.ts)                      | Undo/redo of layout and resource-creation steps                             |
+| [use-apply-graph.ts](../src/core/hooks/use-apply-graph.ts)                  | Node and edge reconciliation                                                |
+| [use-apply-graph-layout.ts](../src/core/hooks/use-apply-graph-layout.ts)    | Graph reveal and position animation                                         |
 
 The coordinator tracks pending update and layout work independently:
 
@@ -264,8 +301,11 @@ discriminated body includes only its empty discriminator property because creati
 selection UI. Value heuristics are visual-creation behavior and do not affect completion.
 `unresolvedRequiredProperties` remains in the response for protocol compatibility.
 
-The extension verifies the document version immediately before applying the edit. The edit uses
-native dirty-file and undo/redo behavior and does not save the document.
+The extension checks the resource-editing opt-in before requesting an edit and again before applying
+it, rejecting an in-flight creation if the setting was disabled. It verifies the document version
+immediately before applying the edit. The edit uses native dirty-file and undo/redo behavior and
+does not save the document. The host records a verified insertion so designer source undo/redo can
+apply an exact inverse/forward edit without relying on which VS Code editor has focus.
 
 ### Mutation interlock
 
@@ -274,6 +314,8 @@ Resource creation uses the same graph coordinator:
 - Creation mutations run one at a time.
 - A graph response that overlaps a mutation is discarded.
 - The create response binds `expectedNodeId` to the requested graph position.
+- The response reports whether the source edit was tracked in undo history; tracking failures
+  are explicit even if the source edit succeeded.
 - Reconciliation places the matching node at that position.
 - Failed mutations still trigger normal graph reconciliation.
 
@@ -284,17 +326,21 @@ Placement and pending state last for the visualizer session only.
 
 ## State ownership
 
-| Area            | State                                                                           |
-| --------------- | ------------------------------------------------------------------------------- |
-| Canvas          | Client graph, pending resources, placement correlation, and update coordination |
-| Dock            | Creation tools and palette launcher                                             |
-| Palette         | Enablement, catalog, search, drag state, and preview                            |
-| Export          | Export options, preview visibility, target element, and progress                |
-| Status          | User-facing graph status                                                        |
-| App environment | Jotai store, message channel, document sync, motion policy, and theme           |
+| Area            | State                                                                                 |
+| --------------- | ------------------------------------------------------------------------------------- |
+| Core            | Client graph, graph facts, pending resources and removals, undo history, coordination |
+| Canvas          | The rendered surface and its drop target                                              |
+| Dock            | Creation tools and palette launcher                                                   |
+| Palette         | Catalog, search, drag state, and preview                                              |
+| Export          | Export options, preview visibility, target element, and progress                      |
+| Status          | User-facing graph status, derived from core graph facts                               |
+| App environment | Jotai store, message channel, theme, and mounting the core host syncs                 |
 
-Jotai stores shared observable state. The canvas controller owns its client graph, mutation queue, and
-expected-node placement map. Canvas actions are exposed through `useCanvasActions`.
+Jotai stores shared observable state, including undo/redo availability. `useGraphSync` owns the
+client graph and the mutation queue; pending resources, pending removals, and the chronological
+undo history are core atoms. The extension owns the validated source insertion/inverse for each
+operation ID. Features change the graph through `useGraphActions`; the palette drops resources
+through the canvas's `useCanvasDropTarget`.
 
 ## Errors and limitations
 
@@ -303,15 +349,19 @@ expected-node placement map. Canvas actions are exposed through `useCanvasAction
 | Layout computation fails                    | Keep current positions and reveal the graph |
 | Catalog request fails                       | Show retry UI                               |
 | Drop is outside the canvas                  | Cancel without changing source              |
-| Resource type or API version is unavailable | Remove pending state and show an error      |
+| Resource type or API version is unavailable | Remove pending state and log the failure    |
 | Document version changed                    | Reject the edit                             |
-| Workspace edit rejected                     | Remove pending state and show an error      |
+| Resource editing disabled                   | Reject creation without changing source     |
+| Source changed outside undo history         | Reject replay; discard stale source steps   |
+| Workspace edit rejected                     | Remove pending state and log the failure    |
 | Required values are unresolved              | Emit empty values for later source editing  |
+
+Graph reconciliation silently discards stale history entries when resources disappear. Failed
+designer actions are logged to the webview console, without an in-canvas notification.
 
 Current limitations:
 
 - Update and layout responses share one `GraphPatch` union.
-- Resource-creation failure UI is not covered by the fake-host E2E suite.
 - Webview and extension protocol declarations are not generated from one schema.
 - There is no pending-operation timeout.
 - Resource lists are not virtualized.
@@ -322,6 +372,7 @@ Current limitations:
 - Language-server tests cover graph diffing, layout, catalog behavior, naming, source generation, and
   insertion.
 - Extension tests cover forwarding, settings, document version checks, and edit application.
-- Vitest covers webview atoms, graph model/layout behavior, export state, and coordinator ordering.
+- Vitest covers webview atoms, graph model/layout behavior, mixed undo history, export state, and
+  coordinator ordering.
 - Playwright covers graph interaction, export, palette behavior, loading, search, pointer placement,
-  drop rejection, and drag-only creation.
+  drop rejection, drag-only creation, flag-off viewing, and local layout undo/redo.

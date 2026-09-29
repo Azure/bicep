@@ -1,26 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { ReactNode } from "react";
-import type { Point } from "@/lib/math";
-import type { CanvasActions } from "../context/CanvasActionsContext";
-import type { ResourceTypeReference } from "../types";
-
-import { useGetPanZoomDimensions, useGetPanZoomTransform } from "@vscode-bicep-ui/components";
-import { useNotification } from "@vscode-bicep-ui/messaging";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback } from "react";
 import { styled, ThemeProvider } from "styled-components";
+import { isGraphChangeInProgressAtom, useGraphActions } from "@/core";
 import {
   effectiveExportThemeAtom,
   ExportAreaCover,
   exportCanvasElementAtom,
   ExportPreviewLayer,
 } from "@/features/export";
-import { documentDidChange } from "@/hooks";
-import { Graph, useFitViewToBounds, Viewport } from "@/lib/graph";
-import { CanvasActionsContext } from "../context/CanvasActionsContext";
-import { useCanvasController } from "../hooks/use-canvas-controller";
+import { Graph, Viewport } from "@/lib/graph";
+import { canvasElementAtom } from "../atoms";
 import { NodeContentProvider } from "./nodes/NodeContentProvider";
 import { PendingResourceLayer } from "./PendingResourceLayer";
 import { ScopeIndicator } from "./ScopeIndicator";
@@ -28,125 +20,61 @@ import { ScopeIndicator } from "./ScopeIndicator";
 const $CanvasWrapper = styled.div`
   position: absolute;
   inset: 0;
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.focusBorder};
+    outline-offset: -2px;
+  }
 `;
 
-function viewportToGraphPoint(
-  clientPoint: Point,
-  canvasBounds: Pick<DOMRect, "left" | "top">,
-  transform: { x: number; y: number; scale: number },
-): Point | null {
-  if (
-    !Number.isFinite(clientPoint.x) ||
-    !Number.isFinite(clientPoint.y) ||
-    !Number.isFinite(transform.x) ||
-    !Number.isFinite(transform.y) ||
-    !Number.isFinite(transform.scale) ||
-    transform.scale <= 0
-  ) {
-    return null;
-  }
+const $InteractionShield = styled.div`
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  cursor: progress;
+`;
 
-  return {
-    x: (clientPoint.x - canvasBounds.left - transform.x) / transform.scale,
-    y: (clientPoint.y - canvasBounds.top - transform.y) / transform.scale,
-  };
-}
-
-export interface CanvasProps {
-  /** Layered over the canvas and able to call `useCanvasActions`. */
-  children: ReactNode;
-}
-
-/** The Bicep design surface, its runtime, and the actions exposed to layered features. */
-export function Canvas({ children }: CanvasProps) {
-  const getPanZoomDimensions = useGetPanZoomDimensions();
-  const getPanZoomTransform = useGetPanZoomTransform();
-  const getViewportCenter = useCallback(() => {
-    const { width, height } = getPanZoomDimensions();
-    return { x: width / 2, y: height / 2 };
-  }, [getPanZoomDimensions]);
-  const fitViewToBounds = useFitViewToBounds();
-  const { requestGraphUpdate, resetGraphLayout, createResourceAt } = useCanvasController(
-    getViewportCenter,
-    fitViewToBounds,
-  );
+/** The surface that renders the graph. */
+export function Canvas() {
+  const { handleNodeDragStart, handleNodeDragEnd } = useGraphActions();
+  const isGraphChangeInProgress = useAtomValue(isGraphChangeInProgressAtom);
   const exportTheme = useAtomValue(effectiveExportThemeAtom);
+  const setCanvasElement = useSetAtom(canvasElementAtom);
   const setExportCanvasElement = useSetAtom(exportCanvasElementAtom);
-  const [canvasElement, setCanvasElement] = useState<HTMLDivElement | null>(null);
-
-  useNotification(
-    documentDidChange,
-    useCallback(() => {
-      void requestGraphUpdate();
-    }, [requestGraphUpdate]),
-  );
 
   const handleCanvasRef = useCallback(
     (element: HTMLDivElement | null) => {
       setCanvasElement(element);
+      // Export captures this element, but cannot import it from canvas without a dependency cycle.
       setExportCanvasElement(element);
     },
-    [setExportCanvasElement],
-  );
-
-  const canPlaceResourceAt = useCallback(
-    ({ x, y }: Point) => {
-      if (!canvasElement) {
-        return false;
-      }
-
-      const bounds = canvasElement.getBoundingClientRect();
-      const elementAtPoint = document.elementFromPoint(x, y);
-
-      return (
-        !!elementAtPoint &&
-        canvasElement.contains(elementAtPoint) &&
-        x >= bounds.left &&
-        x <= bounds.right &&
-        y >= bounds.top &&
-        y <= bounds.bottom
-      );
-    },
-    [canvasElement],
-  );
-
-  const createResource = useCallback(
-    async (resourceType: ResourceTypeReference, clientPoint: Point) => {
-      if (!canvasElement) {
-        return;
-      }
-
-      const origin = viewportToGraphPoint(clientPoint, canvasElement.getBoundingClientRect(), getPanZoomTransform());
-
-      if (origin) {
-        await createResourceAt(resourceType, origin);
-      }
-    },
-    [canvasElement, createResourceAt, getPanZoomTransform],
-  );
-
-  const actions = useMemo<CanvasActions>(
-    () => ({ createResource, canPlaceResourceAt, resetGraphLayout }),
-    [canPlaceResourceAt, createResource, resetGraphLayout],
+    [setCanvasElement, setExportCanvasElement],
   );
 
   return (
-    <CanvasActionsContext.Provider value={actions}>
+    <>
       <NodeContentProvider>
         <ThemeProvider theme={exportTheme}>
-          <$CanvasWrapper ref={handleCanvasRef}>
+          <$CanvasWrapper
+            ref={handleCanvasRef}
+            role="region"
+            aria-label="Visual designer canvas"
+            aria-busy={isGraphChangeInProgress}
+            tabIndex={0}
+          >
             <Viewport>
               <PendingResourceLayer />
-              <Graph>
+              <Graph onNodeDragStart={handleNodeDragStart} onNodeDragEnd={handleNodeDragEnd}>
                 <ExportAreaCover />
               </Graph>
             </Viewport>
+            {/* Blocks node gestures while a source edit or layout reset is in flight. */}
+            {isGraphChangeInProgress && <$InteractionShield />}
           </$CanvasWrapper>
         </ThemeProvider>
       </NodeContentProvider>
       <ExportPreviewLayer />
       <ScopeIndicator />
-      {children}
-    </CanvasActionsContext.Provider>
+    </>
   );
 }
