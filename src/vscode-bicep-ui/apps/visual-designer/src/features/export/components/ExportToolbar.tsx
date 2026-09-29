@@ -10,6 +10,7 @@ import { useAtomValue, useSetAtom, useStore } from "jotai";
 import { useCallback, useState } from "react";
 import { styled } from "styled-components";
 import { canvasElementAtom } from "@/core";
+import { graphBoundsAtom } from "@/lib/graph";
 import {
   closeExportOverlayAtom,
   exportBackgroundColorAtom,
@@ -291,7 +292,11 @@ export function ExportToolbar() {
 
     try {
       const backgroundColor = backgroundMode === "solid" ? exportBackgroundColor : undefined;
-      const dataUrl = await captureGraphElement(canvasElement, store, padding, backgroundColor);
+      const bounds = store.get(graphBoundsAtom);
+      if (!bounds) {
+        throw new Error("No graph nodes to export");
+      }
+      const dataUrl = await captureGraphElement(canvasElement, bounds, padding, backgroundColor);
       const fileStem = exportFileStem.trim() || "bicep-graph";
       await saveDataUrl(dataUrl, `${fileStem}.png`);
     } catch (error) {

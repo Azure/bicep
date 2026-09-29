@@ -27,6 +27,8 @@ export interface VisualGraphResult {
   /** Null when the document has not been compiled yet: the webview keeps what it shows. */
   graph: unknown;
   targetScope: "resourceGroup" | "subscription" | "managementGroup" | "tenant" | null;
+  /** The errors reported for the document, including those that belong to no node. */
+  errorCount: number;
 }
 
 export const visualGraphRequestType = new ProtocolRequestType<VisualGraphParams, VisualGraphResult, never, void, void>(

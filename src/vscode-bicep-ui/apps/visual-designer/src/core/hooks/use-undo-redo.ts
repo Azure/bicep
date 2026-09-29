@@ -15,16 +15,16 @@ import {
   beginResourceCreationAtom,
   bindExpectedNodeAtom,
   cancelNodeRemovalAtom,
+  canRedoAtom,
+  canUndoAtom,
   discardPendingResourceAtom,
   expectNodeRemovalAtom,
-  isGraphChangeInProgressAtom,
   nextRedoStepAtom,
   nextUndoStepAtom,
-  replayableSourceStepKeysAtom,
   undoHistoryAtom,
 } from "../atoms";
 import { getAtomicNodeIds } from "../node-positions";
-import { completeReplay, dropStep, forgetRemovedNodes, getSourceStepKey } from "../undo-history";
+import { completeReplay, dropStep, forgetRemovedNodes } from "../undo-history";
 import { useTrackGraphChange } from "./use-track-graph-change";
 
 function isReplayUnavailableError(error: unknown): boolean {
@@ -37,13 +37,12 @@ export interface NodeMotion {
 }
 
 /**
- * Returns Undo and Redo for the undo history. Both do nothing while a graph change is in progress or
- * the history is empty, and log failures rather than throwing.
+ * Returns Undo and Redo for the undo history. Each does nothing unless `canUndoAtom` or `canRedoAtom`
+ * allows it, and logs failures rather than throwing.
  *
  * - A layout step replays locally: nodes animate to the recorded positions.
  * - A resource creation step asks the extension to remove or reinsert the declaration, then the
- *   graph update removes or restores the node without disturbing the other nodes. It runs only if
- *   the latest graph update confirmed the extension can still replay it exactly.
+ *   graph update removes or restores the node without disturbing the other nodes.
  */
 export function useUndoRedo(
   coordinator: GraphUpdateCoordinator<GetGraphResult>,
@@ -114,7 +113,7 @@ export function useUndoRedo(
   const replayNextStep = useCallback(
     async (direction: ReplayDirection): Promise<void> => {
       const step = store.get(direction === "undo" ? nextUndoStepAtom : nextRedoStepAtom);
-      if (!step || store.get(isGraphChangeInProgressAtom)) {
+      if (!step || !store.get(direction === "undo" ? canUndoAtom : canRedoAtom)) {
         return;
       }
 
@@ -123,11 +122,7 @@ export function useUndoRedo(
           replayLayoutStep(step, direction);
           return;
         case "resourceCreation":
-          if (
-            store.get(replayableSourceStepKeysAtom).has(getSourceStepKey({ operationId: step.operationId, direction }))
-          ) {
-            await replayResourceCreationStep(step, direction);
-          }
+          await replayResourceCreationStep(step, direction);
           return;
       }
     },

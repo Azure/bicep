@@ -23,16 +23,23 @@ const $AreaCover = styled.div.attrs<{ $bounds: Box; $padding: number }>(({ $boun
   pointer-events: none;
 `;
 
+function VisibleExportAreaCover() {
+  const padding = useAtomValue(exportPaddingAtom);
+  const graphBounds = useAtomValue(graphBoundsAtom);
+
+  if (!graphBounds) return null;
+
+  return <$AreaCover $bounds={graphBounds} $padding={padding} data-export-background="" />;
+}
+
 /**
  * Solid background rectangle rendered behind the graph in graph-space.
  * Covers the dot pattern within the export boundary.
+ *
+ * The graph bounds change on every drag and animation frame, so they are read only while the cover shows.
  */
 export function ExportAreaCover() {
-  const padding = useAtomValue(exportPaddingAtom);
-  const graphBounds = useAtomValue(graphBoundsAtom);
   const isVisible = useAtomValue(isExportCanvasCoverVisibleAtom);
 
-  if (!isVisible || !graphBounds) return null;
-
-  return <$AreaCover $bounds={graphBounds} $padding={padding} data-export-background="" />;
+  return isVisible ? <VisibleExportAreaCover /> : null;
 }

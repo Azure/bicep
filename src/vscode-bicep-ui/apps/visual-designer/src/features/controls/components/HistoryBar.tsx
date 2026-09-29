@@ -2,13 +2,15 @@
 // Licensed under the MIT License.
 
 import { Codicon } from "@vscode-bicep-ui/components";
-import { useGraphActions, useUndoRedoAvailability } from "@/core";
+import { useAtomValue } from "jotai";
+import { canRedoAtom, canUndoAtom, useGraphActions } from "@/core";
 import { FloatingPanel, ICON_BUTTON_ICON_SIZE, IconButton } from "@/ui";
 
 /** Undo and Redo, in their own panel so the view controls stay short. */
 export function HistoryBar() {
   const { undo, redo } = useGraphActions();
-  const { canUndo, canRedo } = useUndoRedoAvailability();
+  const canUndo = useAtomValue(canUndoAtom);
+  const canRedo = useAtomValue(canRedoAtom);
 
   return (
     <FloatingPanel data-testid="history-bar">

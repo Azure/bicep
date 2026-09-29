@@ -175,7 +175,7 @@ describe("visualizer palette host requests", () => {
   });
 
   it("forwards target scope even when graph topology is unchanged", async () => {
-    const result = { graph: { nodes: [], edges: [], errorCount: 0 }, targetScope: "subscription" };
+    const result = { graph: { nodes: [], edges: [] }, targetScope: "subscription", errorCount: 2 };
     host.sendRequest.mockResolvedValue(result);
 
     request("graph/get", {});
@@ -443,7 +443,7 @@ describe("visualizer palette host requests", () => {
       return Promise.resolve(insertion);
     }
     if (type === visualGraphRequestType) {
-      return Promise.resolve({ graph: null, targetScope: null });
+      return Promise.resolve({ graph: null, targetScope: null, errorCount: 0 });
     }
     if (type === prepareVisualResourceReplayRequestType) {
       const { replays } = params as PrepareVisualResourceReplayParams;
@@ -530,6 +530,7 @@ describe("visualizer palette host requests", () => {
         result: {
           graph: null,
           targetScope: null,
+          errorCount: 0,
           replayableSourceSteps: [{ operationId: "create-1", direction: "undo" }],
         },
       }),
@@ -571,7 +572,7 @@ describe("visualizer palette host requests", () => {
     await vi.waitFor(() =>
       expect(host.postMessage).toHaveBeenCalledWith({
         id: "request-1",
-        result: { graph: null, targetScope: null, replayableSourceSteps: null },
+        result: { graph: null, targetScope: null, errorCount: 0, replayableSourceSteps: null },
       }),
     );
   });

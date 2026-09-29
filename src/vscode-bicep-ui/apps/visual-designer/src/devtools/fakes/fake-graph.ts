@@ -42,7 +42,6 @@ export function toGraph(sample: SampleGraph | null): Graph {
       sourceId,
       targetId,
     })),
-    errorCount: sample?.errorCount ?? 0,
   };
 }
 

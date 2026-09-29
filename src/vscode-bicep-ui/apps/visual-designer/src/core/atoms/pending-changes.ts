@@ -5,7 +5,6 @@ import type { Point } from "@/lib/math";
 import type { ResourceTypeReference } from "../types";
 
 import { atom } from "jotai";
-import { atomFamily } from "jotai-family";
 
 /**
  * Graph changes the designer has started but a graph update has not yet shown: resources being
@@ -80,9 +79,6 @@ export const pendingPlacementsAtom = atom((get) => {
   }
   return placements;
 });
-
-/** Whether a node has just replaced its placeholder, so it can animate in from the placeholder's size. */
-export const resourceNodeIsCommittingAtomFamily = atomFamily((_nodeId: string) => atom(false));
 
 // ── Pending removals ──
 

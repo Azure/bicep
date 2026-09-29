@@ -12,3 +12,6 @@ export const documentUriAtom = atom<string | null>(null);
 
 /** The Bicep file's `targetScope`, or null when there is no graph. */
 export const targetScopeAtom = atom<TargetScope | null>(null);
+
+/** The errors reported for the Bicep file, including those that belong to no node. */
+export const documentErrorCountAtom = atom(0);

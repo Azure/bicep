@@ -2,11 +2,9 @@
 // Licensed under the MIT License.
 
 import { AzureIcon } from "@vscode-bicep-ui/components";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import { motion } from "motion/react";
-import { useEffect } from "react";
 import { styled } from "styled-components";
-import { resourceNodeIsCommittingAtomFamily } from "@/core";
 import { focusedNodeIdAtom } from "@/lib/graph";
 import { EXPAND_TRANSITION } from "@/ui";
 import { camelCaseToWords } from "@/utils";
@@ -19,6 +17,8 @@ export interface ResourceNodeProps {
     resourceType: string;
     isCollection?: boolean;
     hasError?: boolean;
+    /** Replaces the placeholder shown where the resource was dropped, so it grows from the placeholder's size. */
+    replacesPlaceholder?: boolean;
   };
 }
 
@@ -124,7 +124,7 @@ const $ResourceTypeContainer = styled.div`
 `;
 
 export function ResourceNode({ id, data }: ResourceNodeProps) {
-  const { symbolicName, resourceType, isCollection, hasError } = data;
+  const { symbolicName, resourceType, isCollection, hasError, replacesPlaceholder = false } = data;
   const normalizedResourceType = resourceType ?? "<unknown>";
   const resourceTypeDisplayName = camelCaseToWords(normalizedResourceType.split("/").pop());
   // Modules demoted to atomic (no children) render here with
@@ -132,37 +132,24 @@ export function ResourceNode({ id, data }: ResourceNodeProps) {
   // compound module styling.
   const iconType = normalizedResourceType === "<module>" ? "folder" : normalizedResourceType;
   const focusedNodeId = useAtomValue(focusedNodeIdAtom);
-  const [isCommitting, setIsCommitting] = useAtom(resourceNodeIsCommittingAtomFamily(id));
   const isFocused = focusedNodeId === id;
   const initialCardScaleX = RESOURCE_NODE_PREVIEW_WIDTH / 220;
   const initialCardScaleY = RESOURCE_NODE_PREVIEW_HEIGHT / 76;
   const initialIconScaleX = 18 / (36 * initialCardScaleX);
   const initialIconScaleY = 18 / (36 * initialCardScaleY);
 
-  useEffect(
-    () => () => {
-      resourceNodeIsCommittingAtomFamily.remove(id);
-    },
-    [id],
-  );
-
   return (
     <$ResourceNode
-      initial={isCommitting ? { scaleX: initialCardScaleX, scaleY: initialCardScaleY } : false}
+      // Motion reads `initial` only on mount, so later updates to the node never replay the growth.
+      initial={replacesPlaceholder ? { scaleX: initialCardScaleX, scaleY: initialCardScaleY } : false}
       animate={{ scaleX: 1, scaleY: 1 }}
       transition={EXPAND_TRANSITION}
-      onAnimationComplete={() => {
-        if (isCommitting) {
-          setIsCommitting(false);
-        }
-      }}
-      data-committing={isCommitting}
       $hasError={hasError}
       $isCollection={isCollection}
       $isFocused={isFocused}
     >
       <$ResourceIcon
-        initial={isCommitting ? { scaleX: initialIconScaleX, scaleY: initialIconScaleY } : false}
+        initial={replacesPlaceholder ? { scaleX: initialIconScaleX, scaleY: initialIconScaleY } : false}
         animate={{ scaleX: 1, scaleY: 1 }}
         transition={EXPAND_TRANSITION}
       >

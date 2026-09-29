@@ -31,16 +31,14 @@ function node(overrides: Partial<GraphNode> = {}): GraphNode {
 const box = (width: number, height: number): Box => ({ min: { x: 0, y: 0 }, max: { x: width, y: height } });
 
 describe("indexGraph", () => {
-  it("indexes nodes and edges by id and keeps the error count", () => {
+  it("indexes nodes and edges by id", () => {
     const graph = indexGraph({
       nodes: [node({ id: "a" }), node({ id: "b" })],
       edges: [{ id: "a->b", sourceId: "a", targetId: "b" }],
-      errorCount: 2,
     });
 
     expect([...graph.nodes.keys()]).toEqual(["a", "b"]);
     expect(graph.edges.get("a->b")).toEqual({ id: "a->b", sourceId: "a", targetId: "b" });
-    expect(graph.errorCount).toBe(2);
   });
 });
 
@@ -49,7 +47,6 @@ describe("measureGraph", () => {
     const graph = indexGraph({
       nodes: [node({ id: "measured" }), node({ id: "unmeasured" })],
       edges: [],
-      errorCount: 0,
     });
 
     const measured = measureGraph(graph, new Map([["measured", box(220, 80)]]));
@@ -64,7 +61,6 @@ describe("measureGraph", () => {
     const graph = indexGraph({
       nodes: [node({ id: "a" })],
       edges: [{ id: "a->b", sourceId: "a", targetId: "b" }],
-      errorCount: 0,
     });
 
     expect(measureGraph(graph, new Map()).edges).toEqual([{ id: "a->b", sourceId: "a", targetId: "b" }]);
@@ -122,8 +118,8 @@ describe("measuredGraphsEqual", () => {
     expect(measuredGraphsEqual(base, rewired)).toBe(false);
   });
 });
-function makeClientGraph(nodes: GraphNode[], edges: GraphEdge[] = [], errorCount = 0): ClientGraph {
-  return indexGraph({ nodes, edges, errorCount });
+function makeClientGraph(nodes: GraphNode[], edges: GraphEdge[] = []): ClientGraph {
+  return indexGraph({ nodes, edges });
 }
 
 describe("clientGraphsRenderEqually", () => {
@@ -162,10 +158,6 @@ describe("clientGraphsRenderEqually", () => {
     const after = makeClientGraph([node(overrides as Partial<GraphNode>)]);
 
     expect(clientGraphsRenderEqually(before, after)).toBe(false);
-  });
-
-  it("reports a change when the error count differs", () => {
-    expect(clientGraphsRenderEqually(makeClientGraph([node()], [], 0), makeClientGraph([node()], [], 1))).toBe(false);
   });
 
   it("reports a change when an edge is added or retargeted", () => {

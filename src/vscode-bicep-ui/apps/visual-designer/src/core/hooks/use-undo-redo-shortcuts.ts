@@ -3,9 +3,10 @@
 
 import type { ReplayDirection } from "../api";
 
+import { useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { isInTextInput } from "@/utils";
-import { useUndoRedoAvailability } from "./use-undo-redo-availability";
+import { canRedoAtom, canUndoAtom } from "../atoms";
 
 /** Ctrl/Cmd+Z undoes. Ctrl/Cmd+Shift+Z redoes, and so does Ctrl+Y outside macOS. */
 function getShortcutDirection(event: KeyboardEvent): ReplayDirection | null {
@@ -34,7 +35,8 @@ function getShortcutDirection(event: KeyboardEvent): ReplayDirection | null {
  * undo. Text fields do too: the shortcuts never fire inside one.
  */
 export function useUndoRedoShortcuts(undo: () => Promise<void>, redo: () => Promise<void>): void {
-  const { canUndo, canRedo } = useUndoRedoAvailability();
+  const canUndo = useAtomValue(canUndoAtom);
+  const canRedo = useAtomValue(canRedoAtom);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

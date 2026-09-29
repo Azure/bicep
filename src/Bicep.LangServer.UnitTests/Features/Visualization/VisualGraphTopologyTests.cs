@@ -14,7 +14,7 @@ public class VisualGraphTopologyTests
     [TestMethod]
     public void Matches_WithEmptyMeasuredGraph_ReturnsFalseForNonEmptyLiveGraph()
     {
-        var live = new CanonicalGraph([Node("a", GraphNodeKind.Resource, parentId: null)], [], ErrorCount: 0);
+        var live = new CanonicalGraph([Node("a", GraphNodeKind.Resource, parentId: null)], []);
 
         VisualGraphTopology.Matches(new MeasuredGraph([], []), live).Should().BeFalse();
     }
@@ -35,8 +35,7 @@ public class VisualGraphTopologyTests
                 Node("a", GraphNodeKind.Resource, parentId: null),
                 Node("b", GraphNodeKind.Resource, parentId: null),
             ],
-            Edges: [Edge("a->b", "a", "b")],
-            ErrorCount: 0);
+            Edges: [Edge("a->b", "a", "b")]);
 
         VisualGraphTopology.Matches(measured, live).Should().BeTrue();
     }
@@ -49,8 +48,7 @@ public class VisualGraphTopologyTests
         // Same id, kind, and parent, but a different type and error state: a metadata-only change.
         var live = new CanonicalGraph(
             Nodes: [Node("a", GraphNodeKind.Resource, parentId: null, type: "Microsoft.Storage/storageAccounts", hasError: true)],
-            Edges: [],
-            ErrorCount: 1);
+            Edges: []);
 
         VisualGraphTopology.Matches(measured, live).Should().BeTrue();
     }
@@ -65,8 +63,7 @@ public class VisualGraphTopologyTests
                 Node("a", GraphNodeKind.Resource, parentId: null),
                 Node("b", GraphNodeKind.Resource, parentId: null),
             ],
-            Edges: [],
-            ErrorCount: 0);
+            Edges: []);
 
         VisualGraphTopology.Matches(measured, live).Should().BeFalse();
     }
@@ -87,8 +84,7 @@ public class VisualGraphTopologyTests
                 Node("m", GraphNodeKind.Module, parentId: null),
                 Node("res", GraphNodeKind.Resource, parentId: null),
             ],
-            Edges: [],
-            ErrorCount: 0);
+            Edges: []);
 
         VisualGraphTopology.Matches(measured, live).Should().BeFalse();
     }
@@ -109,8 +105,7 @@ public class VisualGraphTopologyTests
                 Node("a", GraphNodeKind.Resource, parentId: null),
                 Node("b", GraphNodeKind.Resource, parentId: null),
             ],
-            Edges: [Edge("a->b", "a", "b")],
-            ErrorCount: 0);
+            Edges: [Edge("a->b", "a", "b")]);
 
         VisualGraphTopology.Matches(measured, live).Should().BeFalse();
     }

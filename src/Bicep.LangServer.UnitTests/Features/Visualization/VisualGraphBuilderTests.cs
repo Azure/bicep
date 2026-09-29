@@ -27,7 +27,6 @@ public class VisualGraphBuilderTests
 
         var graph = VisualGraphBuilder.Build(context, result.SourceFile.FileHandle.Uri);
 
-        graph.ErrorCount.Should().BeGreaterThan(0);
         graph.Nodes.Should().ContainSingle().Which.HasError.Should().BeTrue();
     }
 
@@ -47,7 +46,6 @@ public class VisualGraphBuilderTests
 
         var graph = VisualGraphBuilder.Build(context, result.SourceFile.FileHandle.Uri);
 
-        graph.ErrorCount.Should().BeGreaterThan(0);
         graph.Nodes.Should().ContainSingle().Which.HasError.Should().BeFalse();
     }
 }

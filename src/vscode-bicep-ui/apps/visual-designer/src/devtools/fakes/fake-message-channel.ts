@@ -132,6 +132,7 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
       return Promise.resolve({
         graph: toGraph(this.servedGraph),
         targetScope: this.servedGraph ? this.targetScope : null,
+        errorCount: this.servedGraph?.errorCount ?? 0,
         replayableSourceSteps: sourceSteps.filter((step) => this.canReplay(step)),
       } satisfies GetGraphResult as T);
     }

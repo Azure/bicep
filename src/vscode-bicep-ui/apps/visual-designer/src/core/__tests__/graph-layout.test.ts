@@ -22,7 +22,7 @@ function node(overrides: Partial<GraphNode> = {}): GraphNode {
 }
 
 function graphOf(nodes: GraphNode[], edges: GraphEdge[] = []) {
-  return indexGraph({ nodes, edges, errorCount: 0 });
+  return indexGraph({ nodes, edges });
 }
 
 function edge(sourceId: string, targetId: string): GraphEdge {

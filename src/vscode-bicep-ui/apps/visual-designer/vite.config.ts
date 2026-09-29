@@ -28,7 +28,6 @@ function previewMock(): Plugin {
       { id: "nsg->subnet", sourceId: "nsg", targetId: "subnet" },
       { id: "pip->nsg", sourceId: "pip", targetId: "nsg" },
     ],
-    errorCount: 0,
   };
 
   var positions = [
@@ -52,7 +51,7 @@ function previewMock(): Plugin {
         } else if (msg && msg.method === "graph/get") {
           window.postMessage({
             id: msg.id,
-            result: { graph: graph, targetScope: "resourceGroup", replayableSourceSteps: [] },
+            result: { graph: graph, targetScope: "resourceGroup", errorCount: 0, replayableSourceSteps: [] },
           }, "*");
         } else if (msg && msg.method === "graph/layout") {
           window.postMessage({

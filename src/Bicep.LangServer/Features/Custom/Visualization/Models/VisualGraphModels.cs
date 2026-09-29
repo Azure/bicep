@@ -74,8 +74,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization.Models
     /// </summary>
     public record CanonicalGraph(
         IReadOnlyList<GraphNode> Nodes,
-        IReadOnlyList<GraphEdge> Edges,
-        int ErrorCount);
+        IReadOnlyList<GraphEdge> Edges);
 
     /// <summary>
     /// The graph the webview has rendered, with the size it measured for each node: the input to layout. The

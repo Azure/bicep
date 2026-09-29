@@ -3,11 +3,11 @@
 
 import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
-import { addAtomicNodeAtom, addCompoundNodeAtom, nodesByIdAtom } from "@/lib/graph";
+import { createAtomicNode, createCompoundNode, nodesByIdAtom } from "@/lib/graph";
 import { applyNodePositions, captureNodePositions } from "../node-positions";
 
 function addNode(store: ReturnType<typeof createStore>, nodeId: string, x: number, y: number) {
-  store.set(addAtomicNodeAtom, nodeId, { x, y }, null);
+  store.set(nodesByIdAtom, (nodes) => ({ ...nodes, [nodeId]: createAtomicNode(nodeId, { x, y }, null) }));
 }
 
 describe("node positions", () => {
@@ -16,7 +16,10 @@ describe("node positions", () => {
     addNode(store, "module::a", 10, 20);
     addNode(store, "module::nested::b", 30, 40);
     addNode(store, "other", 50, 60);
-    store.set(addCompoundNodeAtom, "module", ["module::a", "module::nested::b"], null);
+    store.set(nodesByIdAtom, (nodes) => ({
+      ...nodes,
+      module: createCompoundNode("module", ["module::a", "module::nested::b"], null),
+    }));
 
     expect(captureNodePositions(store)).toEqual(
       new Map([

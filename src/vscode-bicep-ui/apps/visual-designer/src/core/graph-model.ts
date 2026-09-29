@@ -11,16 +11,14 @@ import type { Graph, GraphEdge, GraphNode, MeasuredGraph } from "./api";
 export interface ClientGraph {
   readonly nodes: ReadonlyMap<string, GraphNode>;
   readonly edges: ReadonlyMap<string, GraphEdge>;
-  readonly errorCount: number;
 }
 
-export const EMPTY_CLIENT_GRAPH: ClientGraph = { nodes: new Map(), edges: new Map(), errorCount: 0 };
+export const EMPTY_CLIENT_GRAPH: ClientGraph = { nodes: new Map(), edges: new Map() };
 
-export function indexGraph({ nodes, edges, errorCount }: Graph): ClientGraph {
+export function indexGraph({ nodes, edges }: Graph): ClientGraph {
   return {
     nodes: new Map(nodes.map((node) => [node.id, node])),
     edges: new Map(edges.map((edge) => [edge.id, edge])),
-    errorCount,
   };
 }
 
@@ -58,11 +56,7 @@ export function clientGraphsRenderEqually(left: ClientGraph, right: ClientGraph)
     return true;
   }
 
-  if (
-    left.errorCount !== right.errorCount ||
-    left.nodes.size !== right.nodes.size ||
-    left.edges.size !== right.edges.size
-  ) {
+  if (left.nodes.size !== right.nodes.size || left.edges.size !== right.edges.size) {
     return false;
   }
 

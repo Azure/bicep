@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { ResourceVersionsState, VersionCatalog } from "../atoms";
 import type { PaletteContentProps } from "../components/PaletteContent";
 
-import { useAtomValue, useSetAtom, useStore } from "jotai";
-import { useCallback } from "react";
+import { atom, useAtomValue, useStore } from "jotai";
+import { useCallback, useMemo } from "react";
 import { getErrorMessage } from "@/utils";
-import { resourceVersionsAtom, selectedVersionsAtom, versionCatalogIdAtom } from "../atoms";
+import { versionCatalogAtom } from "../atoms";
 
 export function useResourceTypeVersions(
   fullyQualifiedType: string,
@@ -14,58 +15,56 @@ export function useResourceTypeVersions(
   loadVersions: PaletteContentProps["loadVersions"],
 ) {
   const store = useStore();
-  const versions = useAtomValue(resourceVersionsAtom);
-  const selections = useAtomValue(selectedVersionsAtom);
-  const setSelections = useSetAtom(selectedVersionsAtom);
   const key = fullyQualifiedType.toLocaleLowerCase();
-  const state = versions[key];
-  const apiVersion = selections[key] ?? defaultVersion;
+  // Each row reads only its own entries, so loading one type's versions re-renders only that row.
+  const stateAtom = useMemo(() => atom((get) => get(versionCatalogAtom).versions[key]), [key]);
+  const selectionAtom = useMemo(() => atom((get) => get(versionCatalogAtom).selections[key]), [key]);
+  const state = useAtomValue(stateAtom);
+  const apiVersion = useAtomValue(selectionAtom) ?? defaultVersion;
 
   const load = useCallback(async () => {
-    const current = store.get(resourceVersionsAtom)[key];
+    const { catalogId, versions } = store.get(versionCatalogAtom);
+    const current = versions[key];
     if (current?.status === "loading" || current?.status === "loaded") {
       return;
     }
-    const catalogId = store.get(versionCatalogIdAtom);
-    store.set(resourceVersionsAtom, (entries) => ({ ...entries, [key]: { status: "loading" } }));
+
+    // A response for a catalog that has since been replaced is dropped.
+    const update = (change: (catalog: VersionCatalog) => VersionCatalog) =>
+      store.set(versionCatalogAtom, (catalog) => (catalog.catalogId === catalogId ? change(catalog) : catalog));
+    const setState = (versionsState: ResourceVersionsState) =>
+      update((catalog) => ({ ...catalog, versions: { ...catalog.versions, [key]: versionsState } }));
+
+    setState({ status: "loading" });
     try {
       const apiVersions = await loadVersions(fullyQualifiedType);
-      if (store.get(versionCatalogIdAtom) !== catalogId) {
-        return;
-      }
       if (apiVersions.length === 0) {
         throw new Error("No API versions available.");
       }
-      store.set(resourceVersionsAtom, (entries) => ({
-        ...entries,
-        [key]: { status: "loaded", apiVersions },
-      }));
-      store.set(selectedVersionsAtom, (entries) => {
-        const selected = entries[key];
-        if (!selected || apiVersions.includes(selected)) {
-          return entries;
-        }
-        const remaining = { ...entries };
-        delete remaining[key];
-        return remaining;
+      update(({ selections, ...catalog }) => {
+        // Forget a choice the host no longer offers.
+        const { [key]: selected, ...others } = selections;
+        return {
+          ...catalog,
+          versions: { ...catalog.versions, [key]: { status: "loaded", apiVersions } },
+          selections: !selected || apiVersions.includes(selected) ? selections : others,
+        };
       });
     } catch (error) {
-      if (store.get(versionCatalogIdAtom) === catalogId) {
-        store.set(resourceVersionsAtom, (entries) => ({
-          ...entries,
-          [key]: { status: "error", message: getErrorMessage(error, "Failed to load API versions.") },
-        }));
-      }
+      setState({ status: "error", message: getErrorMessage(error, "Failed to load API versions.") });
     }
   }, [fullyQualifiedType, key, loadVersions, store]);
 
   const select = useCallback(
     (version: string) => {
       if (state?.status === "loaded" && state.apiVersions.includes(version)) {
-        setSelections((entries) => ({ ...entries, [key]: version }));
+        store.set(versionCatalogAtom, (catalog) => ({
+          ...catalog,
+          selections: { ...catalog.selections, [key]: version },
+        }));
       }
     },
-    [key, setSelections, state],
+    [key, state, store],
   );
 
   return { apiVersion, state, load, select };

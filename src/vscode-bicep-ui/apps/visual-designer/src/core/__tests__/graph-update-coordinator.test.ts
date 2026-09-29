@@ -173,8 +173,9 @@ describe("update and layout ordering", () => {
   it("does not publish a stale target scope after a newer document notification", async () => {
     const store = createStore();
     const result = (targetScope: GetGraphResult["targetScope"]): GetGraphResult => ({
-      graph: { nodes: [], edges: [], errorCount: 0 },
+      graph: { nodes: [], edges: [] },
       targetScope,
+      errorCount: 0,
       replayableSourceSteps: [],
     });
     const stale = deferred<GetGraphResult>();

@@ -139,8 +139,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
             var graph = new CanonicalGraph(
                 Nodes: nodes.OrderBy(node => node.Id, StringComparer.Ordinal).ToImmutableArray(),
-                Edges: edges.OrderBy(edge => edge.Id, StringComparer.Ordinal).ToImmutableArray(),
-                ErrorCount: entrySemanticModel.GetAllDiagnostics().Count(x => x.IsError()));
+                Edges: edges.OrderBy(edge => edge.Id, StringComparer.Ordinal).ToImmutableArray());
 
             return (graph, sources);
         }

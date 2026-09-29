@@ -52,7 +52,7 @@ namespace Bicep.LangServer.IntegrationTests
             res3.ParentId.Should().Be("mod1");
 
             graph.Edges.Select(edge => (edge.SourceId, edge.TargetId)).Should().Contain(("res2", "mod1"));
-            graph.ErrorCount.Should().Be(0);
+            result.ErrorCount.Should().Be(0);
             result.TargetScope.Should().Be("resourceGroup");
         }
 

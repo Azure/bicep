@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Compilation;
 using Bicep.LanguageServer.Extensions;
@@ -40,12 +41,13 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 this.logger.LogError("Visual graph request arrived before file {Uri} could be compiled.", request.TextDocument.Uri);
 
                 // The client keeps what it has; the next document change reconciles once compilation is ready.
-                return Task.FromResult(new VisualGraphResult(null, null));
+                return Task.FromResult(new VisualGraphResult(null, null, 0));
             }
 
             var graph = VisualGraphBuilder.Build(context, request.TextDocument.Uri.ToIOUri());
 
-            var targetScope = context.Compilation.GetEntrypointSemanticModel().TargetScope switch
+            var model = context.Compilation.GetEntrypointSemanticModel();
+            var targetScope = model.TargetScope switch
             {
                 ResourceScope.ResourceGroup => LanguageConstants.TargetScopeTypeResourceGroup,
                 ResourceScope.Subscription => LanguageConstants.TargetScopeTypeSubscription,
@@ -54,7 +56,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 _ => null,
             };
 
-            return Task.FromResult(new VisualGraphResult(graph, targetScope));
+            return Task.FromResult(new VisualGraphResult(graph, targetScope, model.GetAllDiagnostics().Count(diagnostic => diagnostic.IsError())));
         }
     }
 

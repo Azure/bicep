@@ -148,6 +148,8 @@ export interface GetGraphResult {
   /** Null when the host has no graph yet (the document is not compiled): keep what is shown. */
   graph: Graph | null;
   targetScope: TargetScope | null;
+  /** The errors reported for the document, including those that belong to no node. */
+  errorCount: number;
   /**
    * The requested source steps that can be replayed exactly in the document this graph reflects. The rest can
    * no longer be. Null when the host could not tell, so none should be offered until the next update.
@@ -183,7 +185,6 @@ type GraphNodeKind = "resource" | "module";
 export interface Graph {
   nodes: GraphNode[];
   edges: GraphEdge[];
-  errorCount: number;
 }
 
 export interface GraphNode {

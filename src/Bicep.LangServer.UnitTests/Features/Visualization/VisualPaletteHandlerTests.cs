@@ -41,6 +41,18 @@ public class VisualPaletteHandlerTests
     }
 
     [TestMethod]
+    public async Task GraphUpdate_ReportsEveryDocumentErrorEvenWithoutNodes()
+    {
+        var manager = CreateCompilationManager("var broken =\nvar alsoBroken =");
+        var handler = new VisualGraphHandler(NullLogger<VisualGraphHandler>.Instance, manager.Object);
+
+        var response = await handler.Handle(new(new() { Uri = DocumentUri }), CancellationToken.None);
+
+        response.Graph!.Nodes.Should().BeEmpty();
+        response.ErrorCount.Should().BeGreaterThanOrEqualTo(2);
+    }
+
+    [TestMethod]
     public async Task GraphUpdate_ReflectsScopeOnlyChanges()
     {
         var manager = CreateCompilationManager("targetScope = 'subscription'");

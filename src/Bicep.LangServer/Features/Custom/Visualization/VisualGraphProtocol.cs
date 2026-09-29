@@ -19,11 +19,12 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         TextDocumentIdentifier TextDocument) : ITextDocumentIdentifierParams, IRequest<VisualGraphResult>;
 
     /// <summary>
-    /// The whole graph, rather than a delta, so a response never depends on what the client showed before.
-    /// <see cref="Graph"/> is null when the document has not been compiled yet, in which case the client keeps
-    /// what it shows until the next document change.
+    /// The whole graph, rather than a delta, so a response never depends on what the client showed before, and the
+    /// document facts shown beside it. <see cref="Graph"/> is null when the document has not been compiled yet, in
+    /// which case the client keeps what it shows until the next document change.
     /// </summary>
-    public record VisualGraphResult(CanonicalGraph? Graph, string? TargetScope);
+    /// <param name="ErrorCount">The errors reported for the document, including those that belong to no node.</param>
+    public record VisualGraphResult(CanonicalGraph? Graph, string? TargetScope, int ErrorCount);
 
     /// <summary>
     /// Request sent after the webview has rendered the graph and measured its nodes. The server checks that the

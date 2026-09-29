@@ -57,8 +57,9 @@ sequenceDiagram
 
 ### Graph contract
 
-`graph/get` returns the whole graph (`nodes`, `edges`, `errorCount`) built from the live compilation,
-and a `targetScope: "resourceGroup" | "subscription" | "managementGroup" | "tenant" | null`. The graph
+`graph/get` returns the whole graph (`nodes`, `edges`) built from the live compilation, the document's
+`targetScope: "resourceGroup" | "subscription" | "managementGroup" | "tenant" | null`, and the
+document's `errorCount`, which includes errors that belong to no node. The graph
 is null when no compiled model is available, and the webview then keeps what it shows. A whole graph
 rather than a delta means no response depends on what the webview showed before, so the host keeps no
 state and responses need no ordering. The webview compares each graph with the previous one to decide

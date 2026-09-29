@@ -16,12 +16,10 @@ import { getErrorMessage } from "@/utils";
 import { useGraphApi } from "../api";
 import {
   commitPendingResourcesAtom,
-  graphErrorCountAtom,
-  graphHasNodesAtom,
+  documentErrorCountAtom,
   pendingPlacementsAtom,
   pendingRemovalNodeIdsAtom,
   replayableSourceStepKeysAtom,
-  resourceNodeIsCommittingAtomFamily,
   targetScopeAtom,
   undoHistoryAtom,
 } from "../atoms";
@@ -143,11 +141,10 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
       }
 
       store.set(targetScopeAtom, response.targetScope);
+      store.set(documentErrorCountAtom, response.errorCount);
       const previous = clientGraphsRef.current.graph;
       const graph = indexGraph(response.graph);
       clientGraphsRef.current.graph = graph;
-      store.set(graphErrorCountAtom, graph.errorCount);
-      store.set(graphHasNodesAtom, graph.nodes.size > 0);
 
       const placements = store.get(pendingPlacementsAtom);
       const pendingRemovalNodeIds = store.get(pendingRemovalNodeIdsAtom);
@@ -174,11 +171,6 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
       if (clientGraphsRenderEqually(previous, graph)) {
         return { layoutRequired };
       }
-      for (const nodeId of newNodeOrigins.keys()) {
-        // Set before applyGraph mounts the node so Motion sees the compact initial state.
-        store.set(resourceNodeIsCommittingAtomFamily(nodeId), true);
-      }
-
       // Apply the new topology. Visibility is preserved for incremental edits (so nodes animate in
       // place) and gated for major changes; positions arrive with the layout.
       const previousNodesById = store.get(nodesByIdAtom);

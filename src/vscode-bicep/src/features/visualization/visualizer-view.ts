@@ -186,7 +186,7 @@ export class BicepVisualizerView extends Disposable {
   }
 
   private async handleGetGraph(id: string, params: unknown): Promise<void> {
-    let result: VisualGraphResult = { graph: null, targetScope: null };
+    let result: VisualGraphResult = { graph: null, targetScope: null, errorCount: 0 };
     let replayableSourceSteps: SourceStepReference[] | null = null;
 
     try {
