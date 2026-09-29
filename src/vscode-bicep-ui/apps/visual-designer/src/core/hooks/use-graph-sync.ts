@@ -80,7 +80,8 @@ export interface GraphSync extends GraphActions {
 export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (bounds: Box) => void): GraphSync {
   const store = useStore();
   const applyGraph = useApplyGraph(getViewportCenter);
-  const { applyGraphLayout, animateNodePositions, stopNodeAnimations } = useApplyGraphLayout();
+  const { applyGraphLayout, animateNodePositions, stopNodeAnimations, captureSettledNodePositions } =
+    useApplyGraphLayout();
   const api = useGraphApi();
   const trackGraphChange = useTrackGraphChange();
   const [coordinator] = useState(() => new GraphUpdateCoordinator<GetGraphResult>());
@@ -246,15 +247,16 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
       }
 
       // A reset re-arranges the graph the user is already looking at, so it keeps their camera. It is
-      // one undoable step, from where the nodes are now (stopping any animation) to the new layout.
+      // one undoable step, from where the nodes were settling to the new layout: undoing it must not
+      // stop partway through an animation that the reset interrupted.
+      const positionsBefore = captureSettledNodePositions();
       stopNodeAnimations();
-      const positionsBefore = captureNodePositions(store);
       await applyGraphLayout(centeredPositions);
       store.set(undoHistoryAtom, (history) => recordLayoutChange(history, positionsBefore, centeredPositions));
 
       return "completed";
     },
-    [api, applyGraphLayout, fitViewToBounds, getViewportCenter, stopNodeAnimations, store],
+    [api, applyGraphLayout, captureSettledNodePositions, fitViewToBounds, getViewportCenter, stopNodeAnimations, store],
   );
 
   useEffect(() => {

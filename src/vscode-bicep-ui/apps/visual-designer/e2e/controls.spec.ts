@@ -275,6 +275,24 @@ test.describe("Control bar", () => {
     expect(await getGraphTransform(page)).toBe(camera);
   });
 
+  test("undoing a Reset Layout that interrupted an animation returns to where the nodes were heading", async ({
+    page,
+  }) => {
+    await loadSampleGraph(page, "flat");
+    const { before: laidOut, after: dragged } = await dragNode(page, "subnet", 140, 110);
+
+    // Redo starts a spring back to the dragged position; Reset Layout interrupts it partway.
+    await page.keyboard.press("ControlOrMeta+z");
+    await expectNodePosition(page, "subnet", laidOut);
+    await page.keyboard.press("ControlOrMeta+Shift+z");
+    await page.getByTestId("control-reset-layout").click();
+    await expectNodePosition(page, "subnet", laidOut);
+    await expectHistoryButtonEnabled(page, "Undo", true);
+
+    await clickHistoryButton(page, "Undo");
+    await expectNodePosition(page, "subnet", dragged);
+  });
+
   test("animates node positions when replaying layout history without moving the camera", async ({ page }) => {
     await loadSampleGraph(page, "flat");
     await waitForStableNodePosition(page, "subnet");

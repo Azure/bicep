@@ -112,8 +112,8 @@ topology or dimensions differ from the last successful layout input.
 
 A node drag records its atomic node position at the first actual movement and commits one history
 step at the end of the gesture. Dragging a module records the positions of all its descendants in
-one step. A successful Reset Layout records one step from the current positions to the server's
-layout; a failed or unchanged layout adds none. **Undo** and **Redo** are buttons in their own panel below the control bar;
+one step. A successful Reset Layout records one step from the positions the nodes are settling at (the
+targets of any animation it interrupts) to the server's layout; a failed or unchanged layout adds none. **Undo** and **Redo** are buttons in their own panel below the control bar;
 the focused designer also accepts Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z, and Ctrl+Y (Windows/Linux). Both
 traverse one session-local timeline of layout steps **and** designer-created resource
 declarations. Layout replay uses the same spring as automatic layout

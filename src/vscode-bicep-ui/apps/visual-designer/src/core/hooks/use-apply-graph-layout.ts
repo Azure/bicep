@@ -12,7 +12,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { layoutReadyAtom, nodesByIdAtom } from "@/lib/graph";
 import { translateBox } from "@/lib/math";
 import { motionPolicyAtom } from "../atoms";
-import { applyNodePositions } from "../node-positions";
+import { applyNodePositions, captureNodePositions } from "../node-positions";
 
 type Store = ReturnType<typeof createStore>;
 
@@ -68,13 +68,25 @@ export function useApplyGraphLayout() {
   const store = useStore();
   const setLayoutReady = useSetAtom(layoutReadyAtom);
   const activeAnimationsRef = useRef<AnimationPlaybackControlsWithThen[]>([]);
+  /** Where the running animations are taking their nodes. */
+  const animationTargetsRef = useRef<NodePositions>(new Map());
 
   const stopNodeAnimations = useCallback(() => {
     for (const animation of activeAnimationsRef.current) {
       animation.stop();
     }
     activeAnimationsRef.current = [];
+    animationTargetsRef.current = new Map();
   }, []);
+
+  /**
+   * The positions of the atomic nodes once running animations finish: where the last layout action put them,
+   * rather than wherever a spring happens to be. Read this before stopping the animations.
+   */
+  const captureSettledNodePositions = useCallback(
+    (): NodePositions => new Map([...captureNodePositions(store), ...animationTargetsRef.current]),
+    [store],
+  );
 
   useEffect(() => stopNodeAnimations, [stopNodeAnimations]);
 
@@ -97,6 +109,7 @@ export function useApplyGraphLayout() {
           activeAnimationsRef.current.push(springNodeTo(store, node.boxAtom, position.x, position.y));
         }
       }
+      animationTargetsRef.current = positions;
     },
     [stopNodeAnimations, store],
   );
@@ -113,5 +126,5 @@ export function useApplyGraphLayout() {
     [animateNodePositions, setLayoutReady, store],
   );
 
-  return { applyGraphLayout, animateNodePositions, stopNodeAnimations };
+  return { applyGraphLayout, animateNodePositions, stopNodeAnimations, captureSettledNodePositions };
 }

@@ -100,8 +100,9 @@ The extension stores each creation's node ID and inserted text, not offsets, has
 copies, so unrelated edits and designer replays never need to be reconciled with it.
 
 Node movement starts a snapshot at the first actual drag movement and commits once at gesture end.
-A module drag records all atomic descendants as one step. Reset Layout records the current and
-server target positions as one step **only after a successful layout**. History never records
+A module drag records all atomic descendants as one step. Reset Layout records the settled and
+server target positions as one step **only after a successful layout**. Settled positions are the
+targets of any animation the reset interrupts, so undoing it never stops partway through one. History never records
 pan, zoom, focus, chooser opening, cancellation, automatic layout, or animation frames.
 Layout undo/redo springs between recorded positions using the graph's existing animation. A
 new layout action retargets an in-flight spring from the current visual position; a drag stops
