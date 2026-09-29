@@ -101,13 +101,13 @@ namespace Bicep.LanguageServer
                     .WithHandler<LocalDeployHandler>()
                     .WithHandler<BicepForceModulesRestoreCommandHandler>()
                     .WithHandler<BicepGenerateParamsCommandHandler>()
-                    .WithHandler<VisualGraphUpdateHandler>()
+                    .WithHandler<VisualGraphHandler>()
                     .WithHandler<VisualGraphLayoutHandler>()
                     .WithHandler<VisualGraphNodeSourceHandler>()
-                    .WithHandler<VisualResourceTypeNamespacesHandler>()
                     .WithHandler<VisualResourceTypesHandler>()
                     .WithHandler<VisualResourceTypeVersionsHandler>()
-                    .WithHandler<CreateResourceDeclarationInsertionHandler>()
+                    .WithHandler<PrepareVisualResourceCreationHandler>()
+                    .WithHandler<PrepareVisualResourceReplayHandler>()
                     .WithServices(services => services.AddServerDependencies(bicepLangServerOptions));
 
                 onOptionsFunc(options);

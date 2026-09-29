@@ -9,7 +9,7 @@ import { createStore, Provider } from "jotai";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { acceptVersionCatalogAtom, resourceVersionsAtom, selectedVersionsAtom } from "../atoms";
+import { acceptVersionCatalogAtom, versionCatalogAtom } from "../atoms";
 import { useResourceTypeVersions } from "../hooks/use-resource-type-versions";
 
 const TYPE = "Microsoft.Storage/storageAccounts";
@@ -53,6 +53,37 @@ async function mount(loadVersions: (type: string) => Promise<string[]>) {
 }
 
 describe("lazy resource type versions", () => {
+  it("re-renders a row only for its own resource type's versions", async () => {
+    let renders = 0;
+    const store = createStore();
+    store.set(acceptVersionCatalogAtom, "catalog-1");
+    function Row() {
+      renders++;
+      useResourceTypeVersions(TYPE, "2025-01-01", async () => []);
+      return null;
+    }
+    const container = document.createElement("div");
+    document.body.append(container);
+    root = createRoot(container);
+    await act(() =>
+      root?.render(
+        <Provider store={store}>
+          <Row />
+        </Provider>,
+      ),
+    );
+    const rendersAfterMount = renders;
+
+    await act(() =>
+      store.set(versionCatalogAtom, (catalog) => ({
+        ...catalog,
+        versions: { "microsoft.network/virtualnetworks": { status: "loading" } },
+      })),
+    );
+
+    expect(renders).toBe(rendersAfterMount);
+  });
+
   it("loads on demand, deduplicates requests, and retains the exact selected version", async () => {
     const response = Promise.withResolvers<string[]>();
     const loader = vi.fn(() => response.promise);
@@ -96,7 +127,7 @@ describe("lazy resource type versions", () => {
     let pending: Promise<void> | undefined;
     await act(() => {
       pending = hook.current.load();
-      hook.store.set(selectedVersionsAtom, { [KEY]: "2024-01-01" });
+      hook.store.set(versionCatalogAtom, (catalog) => ({ ...catalog, selections: { [KEY]: "2024-01-01" } }));
       hook.store.set(acceptVersionCatalogAtom, "catalog-2");
     });
     await act(async () => {
@@ -107,8 +138,7 @@ describe("lazy resource type versions", () => {
       }
       await pending;
     });
-    expect(hook.store.get(resourceVersionsAtom)).toEqual({});
-    expect(hook.store.get(selectedVersionsAtom)).toEqual({});
+    expect(hook.store.get(versionCatalogAtom)).toEqual({ catalogId: "catalog-2", versions: {}, selections: {} });
   });
 
   it("reports an empty version result as a retryable failure", async () => {

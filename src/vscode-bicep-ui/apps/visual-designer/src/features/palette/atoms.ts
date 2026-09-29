@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { ResourceTypeReference } from "@/features/canvas";
+import type { ResourceTypeReference } from "@/core";
 
 import { atom } from "jotai";
-import { atomFamily } from "jotai-family";
 
 export interface PaletteDragState {
   item: ResourceTypeReference;
@@ -12,38 +11,26 @@ export interface PaletteDragState {
   clientY: number;
 }
 
-export type NamespaceResourceTypesState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "loaded"; resourceTypes: ResourceTypeCatalogEntry[] }
-  | { status: "error"; message: string };
-
-export interface ResourceTypeCatalogEntry {
-  resourceType: string;
-  apiVersion: string;
-}
-
 export const paletteDragAtom = atom<PaletteDragState | null>(null);
-export const namespaceResourceTypesAtomFamily = atomFamily((_key: string) =>
-  atom<NamespaceResourceTypesState>({ status: "idle" }),
-);
-export const resourceTypeCatalogLoadingCountAtom = atom(0);
 
 export type ResourceVersionsState =
   { status: "loading" } | { status: "loaded"; apiVersions: string[] } | { status: "error"; message: string };
 
-export const versionCatalogIdAtom = atom<string | undefined>();
-export const resourceVersionsAtom = atom<Record<string, ResourceVersionsState>>({});
-export const selectedVersionsAtom = atom<Record<string, string>>({});
+/**
+ * The API versions loaded and chosen for each resource type, for one resource type catalog. Keyed by the
+ * lower-cased fully qualified type.
+ */
+export interface VersionCatalog {
+  catalogId?: string;
+  versions: Record<string, ResourceVersionsState>;
+  selections: Record<string, string>;
+}
 
+export const versionCatalogAtom = atom<VersionCatalog>({ versions: {}, selections: {} });
+
+/** A different resource type catalog discards every loaded version list and choice. */
 export const acceptVersionCatalogAtom = atom(null, (get, set, catalogId: string) => {
-  if (get(versionCatalogIdAtom) !== catalogId) {
-    set(versionCatalogIdAtom, catalogId);
-    set(resourceVersionsAtom, {});
-    set(selectedVersionsAtom, {});
+  if (get(versionCatalogAtom).catalogId !== catalogId) {
+    set(versionCatalogAtom, { catalogId, versions: {}, selections: {} });
   }
 });
-
-export function getNamespaceResourceTypesKey(catalogId: string, providerNamespace: string): string {
-  return `${catalogId}\0${providerNamespace.toLocaleLowerCase()}`;
-}

@@ -9,11 +9,12 @@ import { VscodeOption, VscodeSingleSelect } from "@vscode-elements/react-element
 import { useAtomValue, useSetAtom, useStore } from "jotai";
 import { useCallback, useState } from "react";
 import { styled } from "styled-components";
+import { canvasElementAtom } from "@/core";
+import { graphBoundsAtom } from "@/lib/graph";
 import {
   closeExportOverlayAtom,
   exportBackgroundColorAtom,
   exportBackgroundModeAtom,
-  exportCanvasElementAtom,
   exportFileStemAtom,
   exportPaddingAtom,
   exportThemeOverrideAtom,
@@ -127,7 +128,7 @@ const $ExportButton = styled.button`
 
   &:disabled {
     opacity: 0.5;
-    cursor: not-allowed;
+    cursor: default;
   }
 
   &:focus-visible {
@@ -269,7 +270,7 @@ const STEP = 10;
 
 export function ExportToolbar() {
   const store = useStore();
-  const canvasElement = useAtomValue(exportCanvasElementAtom);
+  const canvasElement = useAtomValue(canvasElementAtom);
   const backgroundMode = useAtomValue(exportBackgroundModeAtom);
   const padding = useAtomValue(exportPaddingAtom);
   const exportThemeName = useAtomValue(exportThemeOverrideAtom);
@@ -291,7 +292,11 @@ export function ExportToolbar() {
 
     try {
       const backgroundColor = backgroundMode === "solid" ? exportBackgroundColor : undefined;
-      const dataUrl = await captureGraphElement(canvasElement, store, padding, backgroundColor);
+      const bounds = store.get(graphBoundsAtom);
+      if (!bounds) {
+        throw new Error("No graph nodes to export");
+      }
+      const dataUrl = await captureGraphElement(canvasElement, bounds, padding, backgroundColor);
       const fileStem = exportFileStem.trim() || "bicep-graph";
       await saveDataUrl(dataUrl, `${fileStem}.png`);
     } catch (error) {

@@ -3,7 +3,7 @@
 
 import { ProgressBar } from "@vscode-bicep-ui/components";
 import { useAtomValue } from "jotai";
-import { motionPolicyAtom } from "@/hooks";
+import { motionPolicyAtom } from "@/core";
 
 export function MotionAwareProgressBar({ testId, ariaLabel }: { testId?: string; ariaLabel: string }) {
   const policy = useAtomValue(motionPolicyAtom);

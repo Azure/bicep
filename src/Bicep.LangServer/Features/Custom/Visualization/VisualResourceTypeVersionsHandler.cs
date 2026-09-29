@@ -15,16 +15,16 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
         private readonly ICompilationManager compilationManager;
 
-        private readonly IVisualResourceCreationService visualResourceCreationService;
+        private readonly IVisualResourceTypeCatalogService catalogService;
 
         public VisualResourceTypeVersionsHandler(
             ILogger<VisualResourceTypeVersionsHandler> logger,
             ICompilationManager compilationManager,
-            IVisualResourceCreationService visualResourceCreationService)
+            IVisualResourceTypeCatalogService catalogService)
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
-            this.visualResourceCreationService = visualResourceCreationService;
+            this.catalogService = catalogService;
         }
 
         public Task<VisualResourceTypeVersionsResult> Handle(VisualResourceTypeVersionsParams request, CancellationToken cancellationToken)
@@ -40,7 +40,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             try
             {
                 var model = context.Compilation.GetEntrypointSemanticModel();
-                return Task.FromResult(this.visualResourceCreationService.GetResourceTypeVersions(
+                return Task.FromResult(this.catalogService.GetResourceTypeVersions(
                     model, request.FullyQualifiedType));
             }
             catch (VisualResourceCreationException exception)

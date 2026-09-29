@@ -29,8 +29,28 @@ npm run e2e
 `npm run dev` loads a fake extension host. E2E tests use query parameters such as `catalogDelay` to
 make loading and concurrency states deterministic.
 
-The bottom-center creation dock is gated by the experimental resource-creation setting. Resources
-opens a compact popover; Modules and Notes are keyboard-discoverable, disabled coming-soon tools.
+**Undo** and **Redo** sit in their own panel below the control bar. While the designer has focus, Ctrl/Cmd+Z undoes,
+Ctrl/Cmd+Shift+Z redoes, and Ctrl+Y also redoes on Windows/Linux. These shortcuts do not intercept
+text fields or the source editor. Right-click opens no menu outside text fields: VS Code's default
+Cut/Copy/Paste menu does nothing on the graph, so the designer suppresses it.
+Creation, node moves, and Reset Layout share one session-local history. Each drag and reset is
+one step; pan, zoom, and focus are not. Layout undo/redo animates node positions (or snaps under
+reduced motion) without editing Bicep or moving the camera.
+Undoing an independent resource creation also preserves surviving node positions and the camera.
+A resource creation can be undone only while its declaration is exactly as the designer inserted it
+and nothing references it, and redone only while its name is free. The language server checks this
+with every graph update, so Undo and Redo are enabled only when they will work; edits elsewhere in
+the file do not affect them. Failed actions are logged, not shown as canvas notifications. The
+editor's native history remains separate. See
+[Undo and redo](./docs/undo-redo.md) for the interaction and conflict policy.
+
+The bottom-center creation dock is gated by the experimental resource-editing setting. Currently it
+enables resource creation only: the Resources button opens a compact popover. Unimplemented tools
+are not shown. With editing disabled, viewing, local repositioning, focus, pan/zoom, source
+navigation, status, export, and layout undo remain available. The extension also rejects creation
+and source replay while the setting is off, including requests started before it was turned off. Module
+editing does not implicitly use this resource-only setting; it requires its own opt-in decision before
+implementation.
 Each resource shows its API version as a pill: quiet text at rest, with pill chrome revealed on row
 hover or focus, and kept when the selection differs from the host default. Clicking it (or pressing
 Arrow keys, Enter, or Space
@@ -51,38 +71,42 @@ the list, and scrolling or resizing dismisses it.
 
 Fake-host controls include **Document target scope** and **Change catalog**. Query parameters:
 
-| Parameter                | Purpose                                                                               |
-| ------------------------ | ------------------------------------------------------------------------------------- |
-| `resourceCreation=false` | Hide the entire creation dock                                                         |
-| `targetScope=tenant`     | Initial document scope (`resourceGroup`, `subscription`, `managementGroup`, `tenant`) |
-| `catalogDelay=5000`      | Delay type/search responses in milliseconds                                           |
-| `versionsDelay=1000`     | Delay per-type API-version responses in milliseconds                                  |
-| `versionFailures=1`      | Fail the first N version requests to exercise retry                                   |
-| `catalogSize=2300`       | Add N synthetic types shaped like the real Azure catalog, for profiling at scale      |
+| Parameter                                | Purpose                                                                               |
+| ---------------------------------------- | ------------------------------------------------------------------------------------- |
+| `resourceEditing=false`                  | Hide the entire creation dock                                                         |
+| `targetScope=tenant`                     | Initial document scope (`resourceGroup`, `subscription`, `managementGroup`, `tenant`) |
+| `catalogDelay=5000`                      | Delay the resource type catalog response in milliseconds                              |
+| `versionsDelay=1000`                     | Delay per-type API-version responses in milliseconds                                  |
+| `versionFailures=1`                      | Fail the first N version requests to exercise retry                                   |
+| `motionPolicy=reduce`                    | Use reduced motion for graph layout and designer undo/redo in the fake host           |
+| `withholdGraphUpdatesAfterCreation=true` | Return empty graph updates while a designer-created resource is in source             |
+| `skipGraphUpdateAfterUndo=true`          | Withhold an undone creation's removal until the graph changes again                   |
+| `sourceReplay=unavailable`               | Report every resource creation as no longer replayable, as if edited in the file      |
+| `catalogSize=2300`                       | Add N synthetic types shaped like the real Azure catalog, for profiling at scale      |
 
 The fake catalog includes stable, preview, and preview-only fixtures with per-type deployment scopes,
 filtered by the selected document target scope like the language server.
 
 ## Architecture
 
-| Area           | Responsibility                                                            |
-| -------------- | ------------------------------------------------------------------------- |
-| `src/app`      | App-wide store, host environment, synchronization, theme, and composition |
-| `src/features` | Product capabilities and Bicep-specific state                             |
-| `src/hooks`    | Cross-cutting document and motion-policy synchronization                  |
-| `src/lib`      | Reusable graph and math libraries with no Bicep protocol knowledge        |
-| `src/ui`       | Workflow-neutral components, motion tokens, and theme                     |
-| `src/devtools` | Development-only fake host and controls                                   |
-| `src/utils`    | Small shared helpers that do not belong to a library                      |
+| Area           | Responsibility                                                             |
+| -------------- | -------------------------------------------------------------------------- |
+| `src/app`      | App-wide store, host environment, synchronization, theme, and composition  |
+| `src/core`     | The graph of the Bicep file: host protocol, sync, layout, and undo history |
+| `src/features` | Product capabilities and their UI                                          |
+| `src/lib`      | Reusable graph and math libraries with no Bicep protocol knowledge         |
+| `src/ui`       | Workflow-neutral components, motion tokens, and theme                      |
+| `src/devtools` | Development-only fake host and controls                                    |
+| `src/utils`    | Small shared helpers that do not belong to a library                       |
 
 Dependency direction is enforced by ESLint:
 
 ```text
-app       -> features, hooks, lib, ui, utils, devtools
-devtools  -> features, hooks, lib, ui, utils
-features  -> hooks, lib, ui, utils, other feature barrels
+app       -> features, core, lib, ui, utils, devtools
+devtools  -> features, core, lib, ui, utils
+features  -> core, lib, ui, utils, other feature barrels
+core      -> lib, utils
 ui        -> lib, utils
-hooks     -> lib, utils
 lib       -> lib, utils
 utils     -> utils
 ```
@@ -97,24 +121,29 @@ src/
     App.tsx
     AppEnvironment.tsx
     GlobalStyle.ts
+  core/
+    atoms/            document, graph, history, pending-changes, settings
+    components/
+    context/
+    hooks/
+    __tests__/
+    api.ts
+    graph-layout.ts
+    graph-model.ts
+    graph-update-coordinator.ts
+    node-positions.ts
+    types.ts
+    undo-history.ts
   features/
     canvas/
       components/
-      context/
       hooks/
-      __tests__/
-      api.ts
       atoms.ts
-      graph-layout.ts
-      graph-model.ts
-      graph-update-coordinator.ts
-      types.ts
     controls/
     export/
     palette/
     dock/
     status/
-  hooks/
   lib/
     graph/
     math/
@@ -122,7 +151,7 @@ src/
   utils/
 ```
 
-Feature folders contain only the surfaces they need:
+`core` and feature folders contain only the surfaces they need:
 
 | Surface       | Contents                                               |
 | ------------- | ------------------------------------------------------ |
@@ -138,48 +167,60 @@ Components use PascalCase filenames. Hooks, non-component files, and folders use
 
 ### Public boundaries
 
-Each feature, library, and `src/hooks` exposes one barrel:
+Each feature, library, and `src/core` exposes one barrel:
 
-- Import other modules through `@/features/*`, `@/lib/*`, `@/ui`, `@/hooks`, or `@/utils`.
+- Import other modules through `@/core`, `@/features/*`, `@/lib/*`, `@/ui`, or `@/utils`.
 - Use relative imports within the same module.
 - Export only symbols intended for other modules.
 
 ### App environment and state
 
-`AppEnvironment` owns the Jotai store, real or fake message channel, document synchronization, motion
-policy synchronization, and theme. `PanZoomProvider` remains in `App` because it belongs to the canvas
-composition.
+`AppEnvironment` owns the Jotai store, real or fake message channel, theme, and the app-wide host
+synchronization from `@/core`: the document, the resource-editing setting, and motion policy. `App` mounts `PanZoomProvider`, then `GraphActionsProvider` inside it, because graph
+layout reads the viewport size and fits the camera. `Canvas`, `Controls`, and `Dock` are siblings
+inside both.
 
 Use Jotai for shared observable state and local React state for component-local interaction. Prefer
 derived and action atoms over exposing writable atoms across feature boundaries.
 
-`Canvas` publishes these imperative actions through `CanvasActionsContext`:
+`GraphActionsProvider` keeps the graph in step with the Bicep file and publishes the actions that
+change it through `useGraphActions`:
 
 ```ts
-interface CanvasActions {
-  createResource(resourceType, clientPoint?): Promise<void>;
-  canPlaceResourceAt(clientPoint): boolean;
+interface GraphActions {
   resetGraphLayout(): Promise<void>;
+  createResourceAt(resourceType, graphPoint): Promise<void>;
+  handleNodeDragStart(nodeId): void;
+  handleNodeDragEnd(nodeId): void;
+  undo(): Promise<void>;
+  redo(): Promise<void>;
 }
 ```
 
-`ControlBar` and `Dock` consume them through `useCanvasActions`.
+`ControlBar` uses them for Reset Layout, and `HistoryBar` for Undo and Redo. The canvas feature adds only what depends on
+its own element and camera: `useCanvasDropTarget` converts a palette drop's client point to a graph
+point. It reads the canvas element from core's `canvasElementAtom`, so the palette can use it without
+`Canvas` being an ancestor; export reads the same atom to capture the canvas.
 
-## Canvas reconciliation
+## Graph synchronization
 
-The canvas keeps a client replica of the server graph and requests layout after React has measured
+`src/core` keeps a client replica of the server graph and requests layout after React has measured
 node sizes.
 
-| Module                        | Responsibility                                                          |
-| ----------------------------- | ----------------------------------------------------------------------- |
-| `graph-model.ts`              | Client graph, patch application, measured projection, render comparison |
-| `graph-layout.ts`             | Layout invalidation, response extraction, and viewport centering        |
-| `graph-update-coordinator.ts` | Update/layout ordering, coalescing, and mutation serialization          |
-| `use-canvas-controller.ts`    | API, model, coordinator, placement, and Jotai integration               |
-| `use-apply-graph.ts`          | Reconcile graph nodes and edges                                         |
-| `use-apply-graph-layout.ts`   | Reveal and animate server-computed positions                            |
-
-The coordinator enforces these rules:
+| Module                                | Responsibility                                                         |
+| ------------------------------------- | ---------------------------------------------------------------------- |
+| `graph-model.ts`                      | Indexed client graph, measured projection, render comparison           |
+| `graph-layout.ts`                     | Layout invalidation and viewport centering                             |
+| `graph-update-coordinator.ts`         | Update/layout ordering, coalescing, and mutation serialization         |
+| `undo-history.ts`                     | Pure undo/redo stacks of layout and source steps                       |
+| `node-positions.ts`                   | Capture and restore atomic node positions                              |
+| `GraphActionsProvider.tsx`            | Mounts graph sync and the Undo/Redo shortcuts; provides `GraphActions` |
+| `use-graph-sync.ts`                   | Graph updates, layout, and node-drag and Reset Layout history          |
+| `use-resource-creation.ts`            | Placeholder, extension insertion, and creation history step            |
+| `use-undo-redo.ts`                    | Undo/redo of layout and resource-creation steps                        |
+| `use-apply-graph.ts`                  | Reconcile graph nodes and edges                                        |
+| `use-apply-graph-layout.ts`           | Reveal and animate node positions                                      |
+| The coordinator enforces these rules: |
 
 - Reconcile before layout.
 - A reset layout takes precedence over automatic layout.
@@ -201,12 +242,13 @@ Lint runs with zero warnings and rejects unused disable directives.
 
 ## Current limitations
 
-- Graph update and layout responses share one `GraphPatch` union.
-- Resource-creation failure UI is not covered by the fake-host E2E suite.
 - Webview and extension protocol declarations are not generated from a shared schema.
 - Long resource lists are not virtualized.
+
+Known issues are listed under [Errors and limitations](./docs/architecture.md#known-issues).
 
 ## Further reading
 
 - [Architecture](./docs/architecture.md)
+- [Proposed roadmap](./docs/roadmap.md)
 - [Project instructions](./.github/instructions/)

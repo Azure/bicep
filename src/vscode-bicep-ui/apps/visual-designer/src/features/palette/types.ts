@@ -1,19 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { ResourceTypeCatalogEntry } from "./atoms";
-
-export interface ResourceTypeNamespace {
-  name: string;
-  resourceTypeCount: number;
+/** One resource type in the catalog, at its default API version. */
+export interface ResourceTypeCatalogEntry {
+  resourceType: string;
+  apiVersion: string;
 }
 
-export interface ResourceTypeCatalogGroup {
+/** The catalog's types in one resource provider namespace, such as `Microsoft.Storage`. */
+export interface ResourceTypeGroup {
   group: string;
   resourceTypes: ResourceTypeCatalogEntry[];
-}
-
-export interface ResourceTypeCatalog {
-  catalogId: string;
-  groups: ResourceTypeCatalogGroup[];
 }

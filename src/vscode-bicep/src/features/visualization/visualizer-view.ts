@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import type { SourceStepReference } from "./source-edit-history";
+
 import crypto from "crypto";
 import path from "path";
 import {
@@ -21,26 +23,19 @@ import { LanguageClient } from "vscode-languageclient/node";
 import { parseError } from "../../infrastructure/errors";
 import { Disposable } from "../../infrastructure/lifecycle";
 import { getLogger } from "../../infrastructure/logging";
-import { debounce } from "../../infrastructure/timing";
 import { getVisualizerMotionPolicy } from "./motion-policy";
 import {
-  createResourceDeclarationInsertionRequestType,
-  ResourceDeclarationInsertion,
   visualGraphLayoutRequestType,
   VisualGraphLayoutResult,
   visualGraphNodeSourceRequestType,
-  VisualGraphRendered,
-  visualGraphUpdateRequestType,
-  VisualGraphUpdateResult,
-  VisualResourceTypeCatalogItem,
-  visualResourceTypeNamespacesRequestType,
-  VisualResourceTypeReference,
+  visualGraphRequestType,
+  VisualGraphResult,
+  VisualizerSettings,
   visualResourceTypesRequestType,
   visualResourceTypeVersionsRequestType,
 } from "./protocol";
-import { getApplyEditFailureCode, hasDocumentChanged } from "./resource-creation";
-import { isResourceCreationEnabled } from "./resource-creation-setting";
-import { buildResourceTypeCatalog } from "./resource-palette";
+import { ResourceEditing } from "./resource-editing";
+import { isResourceEditingEnabled } from "./resource-editing-setting";
 
 export class BicepVisualizerView extends Disposable {
   public static viewType = "bicep.visualizer";
@@ -51,6 +46,7 @@ export class BicepVisualizerView extends Disposable {
   private resolveReady!: () => void;
 
   private readyToRender = false;
+  private readonly resourceEditing: ResourceEditing;
 
   private constructor(
     private readonly languageClient: LanguageClient,
@@ -60,6 +56,11 @@ export class BicepVisualizerView extends Disposable {
   ) {
     super();
 
+    this.resourceEditing = new ResourceEditing(languageClient, documentUri, {
+      postResponse: (id, result) => this.postResponse(id, result),
+      postErrorResponse: (id, error) => this.postErrorResponse(id, error),
+      isDisposed: () => this.isDisposed,
+    });
     this.onDidDisposeEmitter = new EventEmitter<void>();
     this.onDidChangeViewStateEmitter = this.register(new EventEmitter<WebviewPanelOnDidChangeViewStateEvent>());
     this.ready = new Promise((resolve) => (this.resolveReady = resolve));
@@ -119,29 +120,18 @@ export class BicepVisualizerView extends Disposable {
     }
   }
 
-  public notifyMotionPolicyDidChange(): void {
-    if (this.isDisposed) {
+  /** Send the settings the webview depends on. Sent when it becomes ready and whenever one of them changes. */
+  public notifySettingsDidChange(): void {
+    if (this.isDisposed || !this.readyToRender) {
       return;
     }
 
+    const settings: VisualizerSettings = {
+      motionPolicy: getVisualizerMotionPolicy(),
+      isResourceEditingEnabled: isResourceEditingEnabled(),
+    };
     void this.webviewPanel.webview
-      .postMessage({
-        method: "motionPolicy/didChange",
-        params: getVisualizerMotionPolicy(),
-      })
-      .then(undefined, (error: unknown) => getLogger().debug(parseError(error).message));
-  }
-
-  public notifyResourceCreationEnablementDidChange(): void {
-    if (this.isDisposed) {
-      return;
-    }
-
-    void this.webviewPanel.webview
-      .postMessage({
-        method: "resourceCreation/enablementDidChange",
-        params: isResourceCreationEnabled(),
-      })
+      .postMessage({ method: "settings/didChange", params: settings })
       .then(undefined, (error: unknown) => getLogger().debug(parseError(error).message));
   }
 
@@ -156,8 +146,13 @@ export class BicepVisualizerView extends Disposable {
     this.onDidDisposeEmitter.dispose();
   }
 
-  // Do "fire and forget" since there's no need to wait on rendering.
-  public render = debounce(() => this.doRender());
+  /**
+   * Tell the webview the document may have changed. Not debounced: the webview withdraws anything derived from the
+   * previous content, such as which designer steps can be replayed, as soon as it hears, and paces its own graph updates.
+   */
+  public render(): void {
+    void this.doRender();
+  }
 
   private async doRender() {
     if (this.isDisposed || !this.readyToRender) {
@@ -181,7 +176,7 @@ export class BicepVisualizerView extends Disposable {
   private async notifyDocumentDidChange(): Promise<void> {
     try {
       await this.webviewPanel.webview.postMessage({
-        method: "documentDidChange",
+        method: "document/didChange",
         params: { documentUri: this.documentUri.fsPath },
       });
     } catch (error) {
@@ -190,9 +185,9 @@ export class BicepVisualizerView extends Disposable {
     }
   }
 
-  private async handleGetGraphUpdate(id: string, params: unknown): Promise<void> {
-    const current = (params as { current?: VisualGraphRendered | null })?.current ?? null;
-    let result: VisualGraphUpdateResult = { patches: [], targetScope: null };
+  private async handleGetGraph(id: string, params: unknown): Promise<void> {
+    let result: VisualGraphResult = { graph: null, targetScope: null, errorCount: 0 };
+    let replayableSourceSteps: SourceStepReference[] | null = null;
 
     try {
       const document = await workspace.openTextDocument(this.documentUri);
@@ -201,13 +196,19 @@ export class BicepVisualizerView extends Disposable {
         return;
       }
 
-      result = await this.languageClient.sendRequest(visualGraphUpdateRequestType, {
+      result = await this.languageClient.sendRequest(visualGraphRequestType, {
         textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
-        current,
       });
+
+      // Computed with every graph update, so the designer only enables Undo and Redo for creations that can be
+      // replayed exactly in the document it is showing.
+      replayableSourceSteps = await this.resourceEditing.getReplayableSourceSteps(
+        document,
+        (params as { sourceSteps?: unknown })?.sourceSteps,
+      );
     } catch (error) {
-      // Keep the webview responsive: an empty delta means "nothing changed", so it keeps what it has.
-      getLogger().error(`Visual graph update request failed: ${parseError(error).message}`);
+      // Keep the webview responsive: a null graph means "unknown", so it keeps what it has.
+      getLogger().error(`Visual graph request failed: ${parseError(error).message}`);
     }
 
     if (this.isDisposed) {
@@ -215,17 +216,17 @@ export class BicepVisualizerView extends Disposable {
     }
 
     try {
-      await this.webviewPanel.webview.postMessage({ id, result });
+      await this.webviewPanel.webview.postMessage({ id, result: { ...result, replayableSourceSteps } });
     } catch (error) {
       getLogger().debug((error as Error).message ?? error);
     }
   }
 
-  private async handleGetGraphLayout(id: string, params: unknown): Promise<void> {
-    const current = (params as { current?: VisualGraphRendered })?.current;
-    let result: VisualGraphLayoutResult = { status: "layoutFailed", patches: [] };
+  private async handleLayoutGraph(id: string, params: unknown): Promise<void> {
+    const graph = (params as { graph?: unknown })?.graph;
+    let result: VisualGraphLayoutResult = { status: "layoutFailed", positions: [], bounds: null };
 
-    if (!current) {
+    if (!graph) {
       await this.webviewPanel.webview.postMessage({ id, result });
       return;
     }
@@ -239,7 +240,7 @@ export class BicepVisualizerView extends Disposable {
 
       result = await this.languageClient.sendRequest(visualGraphLayoutRequestType, {
         textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
-        current,
+        graph,
       });
     } catch (error) {
       getLogger().error(`Visual graph layout request failed: ${parseError(error).message}`);
@@ -256,145 +257,26 @@ export class BicepVisualizerView extends Disposable {
     }
   }
 
-  private async handleCreateResource(id: string, params: unknown): Promise<void> {
-    const request = params as {
-      version?: number;
-      operationId?: string;
-      resourceType?: VisualResourceTypeReference;
-    };
-
-    if (
-      request.version !== 1 ||
-      !request.operationId ||
-      !request.resourceType?.fullyQualifiedType ||
-      !request.resourceType.apiVersion
-    ) {
-      await this.postErrorResponse(id, {
-        version: 1,
-        operationId: request.operationId,
-        code: request.version === 1 ? "invalidResourceType" : "unsupportedContract",
-        message:
-          request.version === 1
-            ? "The resource type selection is invalid."
-            : "The resource creation contract version is not supported.",
-        retryable: false,
-      });
-      return;
-    }
+  private async handleListResourceTypes(id: string, params: unknown): Promise<void> {
+    const knownCatalogId = (params as { knownCatalogId?: unknown } | undefined)?.knownCatalogId;
 
     try {
       const document = await workspace.openTextDocument(this.documentUri);
-      const requestedVersion = document.version;
-      const result: ResourceDeclarationInsertion = await this.languageClient.sendRequest(
-        createResourceDeclarationInsertionRequestType,
-        {
-          textDocument: this.languageClient.code2ProtocolConverter.asVersionedTextDocumentIdentifier(document),
-          operationId: request.operationId,
-          resourceType: request.resourceType,
-        },
-      );
-      const edit = await this.languageClient.protocol2CodeConverter.asWorkspaceEdit(result.edit);
-
-      if (hasDocumentChanged(requestedVersion, document.version, document.isClosed)) {
-        await this.postErrorResponse(id, {
-          version: 1,
-          operationId: request.operationId,
-          code: "documentChanged",
-          message: "The Bicep file changed before the generated resource declaration could be applied.",
-          retryable: true,
-        });
-        return;
-      }
-
-      const applied = await workspace.applyEdit(edit);
-
-      if (!applied) {
-        await this.postErrorResponse(id, {
-          version: 1,
-          operationId: request.operationId,
-          code: getApplyEditFailureCode(requestedVersion, document.version, document.isClosed),
-          message: "VS Code could not apply the generated resource declaration.",
-          retryable: true,
-        });
-        return;
-      }
+      const { catalogId, resourceTypes } = await this.languageClient.sendRequest(visualResourceTypesRequestType, {
+        textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
+        knownCatalogId: typeof knownCatalogId === "string" ? knownCatalogId : undefined,
+      });
 
       await this.postResponse(id, {
-        version: 1,
-        operationId: result.operationId,
-        expectedNodeId: result.expectedNodeId,
-        symbolicName: result.symbolicName,
-        unresolvedRequiredProperties: result.unresolvedRequiredProperties,
+        catalogId,
+        resourceTypes:
+          resourceTypes?.map(({ fullyQualifiedType, apiVersion }) => ({ fullyQualifiedType, apiVersion })) ?? null,
       });
-    } catch (error) {
-      getLogger().error(`Visual resource creation request failed: ${parseError(error).message}`);
-      await this.postErrorResponse(id, {
-        version: 1,
-        operationId: request.operationId,
-        code: "generationFailed",
-        message: "Failed to create the resource declaration.",
-        retryable: true,
-      });
-    }
-  }
-
-  private async handleGetResourceTypeNamespaces(id: string): Promise<void> {
-    try {
-      const document = await workspace.openTextDocument(this.documentUri);
-      const result = await this.languageClient.sendRequest(visualResourceTypeNamespacesRequestType, {
-        textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
-      });
-
-      await this.postResponse(id, result);
-    } catch (error) {
-      getLogger().error(`Resource type namespace request failed: ${parseError(error).message}`);
-      await this.postErrorResponse(id, { message: "Failed to load resource provider namespaces." });
-    }
-  }
-
-  private async handleGetResourceTypeCatalog(id: string, params: unknown): Promise<void> {
-    const request = params as { providerNamespace?: unknown; query?: unknown; loadAll?: unknown };
-    const providerNamespace =
-      typeof request.providerNamespace === "string" && request.providerNamespace.trim()
-        ? request.providerNamespace.trim()
-        : undefined;
-    const query = typeof request.query === "string" && request.query.trim() ? request.query.trim() : undefined;
-    const loadAll = request.loadAll === true;
-
-    if (!providerNamespace && !query && !loadAll) {
-      await this.postErrorResponse(id, { message: "A provider namespace or search query is required." });
-      return;
-    }
-
-    try {
-      const document = await workspace.openTextDocument(this.documentUri);
-      const items: VisualResourceTypeCatalogItem[] = [];
-      let catalogId: string | undefined;
-      let continuationToken: string | undefined;
-
-      do {
-        const response = await this.languageClient.sendRequest(visualResourceTypesRequestType, {
-          textDocument: this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(document),
-          providerNamespace,
-          query,
-          pageSize: 200,
-          continuationToken,
-        });
-        catalogId ??= response.catalogId;
-        if (catalogId !== response.catalogId) {
-          throw new Error("The resource type catalog changed while it was being loaded.");
-        }
-        items.push(...response.items);
-        continuationToken = response.continuationToken;
-      } while (continuationToken);
-
-      await this.postResponse(id, { catalogId, groups: buildResourceTypeCatalog(items) });
     } catch (error) {
       getLogger().error(`Resource type catalog request failed: ${parseError(error).message}`);
       await this.postErrorResponse(id, { message: "Failed to load resource types for this Bicep file." });
     }
   }
-
   private async handleGetResourceTypeVersions(id: string, params: unknown): Promise<void> {
     if (
       typeof params !== "object" ||
@@ -455,20 +337,21 @@ export class BicepVisualizerView extends Disposable {
       const notification = message as { method: string; params?: unknown };
 
       switch (notification.method) {
-        case "ready":
+        case "webview/ready":
           getLogger().debug(`Visualizer for ${this.documentUri.fsPath} is ready.`);
           this.readyToRender = true;
           this.resolveReady();
+          this.notifySettingsDidChange();
           this.render();
           return;
 
-        case "revealNodeSource": {
+        case "document/revealNode": {
           const payload = notification.params as { nodeId: string };
-          void this.handleRevealNodeSource(payload.nodeId);
+          void this.handleRevealNode(payload.nodeId);
           return;
         }
 
-        case "showProblemsPanel":
+        case "problems/show":
           commands.executeCommand("workbench.actions.view.problems");
           return;
       }
@@ -479,36 +362,28 @@ export class BicepVisualizerView extends Disposable {
       const request = message as { id: string; method: string; params?: unknown };
 
       switch (request.method) {
-        case "getGraphUpdate":
-          void this.handleGetGraphUpdate(request.id, request.params);
+        case "graph/get":
+          void this.handleGetGraph(request.id, request.params);
           return;
 
-        case "getGraphLayout":
-          void this.handleGetGraphLayout(request.id, request.params);
+        case "graph/layout":
+          void this.handleLayoutGraph(request.id, request.params);
           return;
 
         case "resources/create":
-          void this.handleCreateResource(request.id, request.params);
+          void this.resourceEditing.createResource(request.id, request.params);
           return;
 
-        case "resourceTypeCatalog/load":
-          void this.handleGetResourceTypeCatalog(request.id, request.params);
+        case "history/replaySourceStep":
+          void this.resourceEditing.replaySourceStep(request.id, request.params);
           return;
 
-        case "resourceTypeCatalog/namespaces":
-          void this.handleGetResourceTypeNamespaces(request.id);
+        case "resourceTypes/list":
+          void this.handleListResourceTypes(request.id, request.params);
           return;
 
-        case "resourceTypeCatalog/versions":
+        case "resourceTypes/versions":
           void this.handleGetResourceTypeVersions(request.id, request.params);
-          return;
-
-        case "motionPolicy/get":
-          void this.postResponse(request.id, getVisualizerMotionPolicy());
-          return;
-
-        case "resourceCreation/isEnabled":
-          void this.postResponse(request.id, isResourceCreationEnabled());
           return;
       }
 
@@ -516,7 +391,7 @@ export class BicepVisualizerView extends Disposable {
     }
   }
 
-  private async handleRevealNodeSource(nodeId: string): Promise<void> {
+  private async handleRevealNode(nodeId: string): Promise<void> {
     try {
       const document = await workspace.openTextDocument(this.documentUri);
 
@@ -529,7 +404,7 @@ export class BicepVisualizerView extends Disposable {
         nodeId,
       });
 
-      if (this.isDisposed || !result.found || !result.filePath || !result.range) {
+      if (this.isDisposed || !result.filePath || !result.range) {
         return;
       }
 
@@ -544,7 +419,7 @@ export class BicepVisualizerView extends Disposable {
       if (visibleEditor.document.uri.fsPath === filePath) {
         window.showTextDocument(visibleEditor.document, visibleEditor.viewColumn).then(
           (editor) => this.revealEditorRange(editor, range),
-          (err) => window.showErrorMessage(`Could not reveal file range in "${filePath}": ${parseError(err).message}`),
+          (err) => getLogger().error(`Could not reveal file range in "${filePath}": ${parseError(err).message}`),
         );
         return;
       }
@@ -557,7 +432,7 @@ export class BicepVisualizerView extends Disposable {
       .then((doc) => window.showTextDocument(doc, targetColumn))
       .then(
         (editor) => this.revealEditorRange(editor, range),
-        (err) => window.showErrorMessage(`Could not open "${filePath}": ${parseError(err).message}`),
+        (err) => getLogger().error(`Could not open "${filePath}": ${parseError(err).message}`),
       );
   }
 

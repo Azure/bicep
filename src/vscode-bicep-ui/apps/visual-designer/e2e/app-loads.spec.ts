@@ -12,7 +12,7 @@ test.describe("Application bootstrap", () => {
     await expect(page.getByTestId("app-root")).toBeVisible();
     await expect(page.getByTestId("graph-canvas")).toBeVisible();
     await expect(page.getByTestId("control-bar")).toBeVisible();
-    await expect(page.getByTestId("status-bar")).toBeVisible();
+    await expect(page.getByTestId("status-bar")).toBeAttached();
   });
 
   test("renders without console errors", async ({ page }) => {

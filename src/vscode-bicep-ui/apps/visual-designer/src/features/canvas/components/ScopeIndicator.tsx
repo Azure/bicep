@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { TargetScope } from "../api";
+import type { TargetScope } from "@/core";
 
 import { AzureIcon, Codicon } from "@vscode-bicep-ui/components";
 import { useAtomValue } from "jotai";
 import styled from "styled-components";
-import { targetScopeAtom } from "../atoms";
+import { targetScopeAtom } from "@/core";
 
 const SCOPE_PRESENTATION: Record<TargetScope, { label: string; resourceType?: string }> = {
   resourceGroup: { label: "Resource group", resourceType: "Microsoft.Resources/resourceGroups" },

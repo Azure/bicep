@@ -33,19 +33,31 @@ public class VisualPaletteHandlerTests
     public async Task GraphUpdate_ReturnsScopeEvenForEmptyOrInvalidDocuments(string text, string expectedScope)
     {
         var manager = CreateCompilationManager(text);
-        var handler = new VisualGraphUpdateHandler(NullLogger<VisualGraphUpdateHandler>.Instance, manager.Object);
+        var handler = new VisualGraphHandler(NullLogger<VisualGraphHandler>.Instance, manager.Object);
 
-        var response = await handler.Handle(new(new() { Uri = DocumentUri }, new RenderedGraph([], [])), CancellationToken.None);
+        var response = await handler.Handle(new(new() { Uri = DocumentUri }), CancellationToken.None);
 
         response.TargetScope.Should().Be(expectedScope);
+    }
+
+    [TestMethod]
+    public async Task GraphUpdate_ReportsEveryDocumentErrorEvenWithoutNodes()
+    {
+        var manager = CreateCompilationManager("var broken =\nvar alsoBroken =");
+        var handler = new VisualGraphHandler(NullLogger<VisualGraphHandler>.Instance, manager.Object);
+
+        var response = await handler.Handle(new(new() { Uri = DocumentUri }), CancellationToken.None);
+
+        response.Graph!.Nodes.Should().BeEmpty();
+        response.ErrorCount.Should().BeGreaterThanOrEqualTo(2);
     }
 
     [TestMethod]
     public async Task GraphUpdate_ReflectsScopeOnlyChanges()
     {
         var manager = CreateCompilationManager("targetScope = 'subscription'");
-        var handler = new VisualGraphUpdateHandler(NullLogger<VisualGraphUpdateHandler>.Instance, manager.Object);
-        var request = new VisualGraphUpdateParams(new() { Uri = DocumentUri }, new RenderedGraph([], []));
+        var handler = new VisualGraphHandler(NullLogger<VisualGraphHandler>.Instance, manager.Object);
+        var request = new VisualGraphParams(new() { Uri = DocumentUri });
 
         var first = await handler.Handle(request, CancellationToken.None);
         var result = CompilationHelper.Compile(new ServiceBuilder().WithAzResources([]), "targetScope = 'tenant'");
@@ -54,35 +66,35 @@ public class VisualPaletteHandlerTests
 
         first.TargetScope.Should().Be("subscription");
         second.TargetScope.Should().Be("tenant");
-        second.Patches.Should().NotContain(patch => patch is GraphPatch.AddNode);
+        second.Graph!.Nodes.Should().BeEmpty();
     }
 
     [TestMethod]
-    public async Task GraphUpdate_WithoutCompilation_ReturnsUnknownScope()
+    public async Task GraphUpdate_WithoutCompilation_ReturnsNoGraph()
     {
         var manager = new Mock<ICompilationManager>(MockBehavior.Strict);
         manager.Setup(x => x.GetCompilation(DocumentUri)).Returns((CompilationContext?)null);
-        var handler = new VisualGraphUpdateHandler(NullLogger<VisualGraphUpdateHandler>.Instance, manager.Object);
+        var handler = new VisualGraphHandler(NullLogger<VisualGraphHandler>.Instance, manager.Object);
 
-        var response = await handler.Handle(new(new() { Uri = DocumentUri }, null), CancellationToken.None);
+        var response = await handler.Handle(new(new() { Uri = DocumentUri }), CancellationToken.None);
 
         response.TargetScope.Should().BeNull();
-        response.Patches.Should().BeEmpty();
+        response.Graph.Should().BeNull();
     }
 
     [TestMethod]
     public async Task VersionsHandler_ReturnsVersionsAndSharedCatalogId()
     {
         var manager = CreateCompilationManager(string.Empty);
-        var service = new VisualResourceCreationService();
+        var service = new VisualResourceTypeCatalogService();
         var handler = new VisualResourceTypeVersionsHandler(
             NullLogger<VisualResourceTypeVersionsHandler>.Instance, manager.Object, service);
 
         var response = await handler.Handle(new(new() { Uri = DocumentUri }, "Test.Rp/widgets"), CancellationToken.None);
 
         response.ApiVersions.Should().Equal("2025-01-01-preview", "2024-01-01");
-        response.CatalogId.Should().Be(service.GetResourceTypeNamespaces(
-            manager.Object.GetCompilation(DocumentUri)!.Compilation.GetEntrypointSemanticModel()).CatalogId);
+        response.CatalogId.Should().Be(service.GetResourceTypes(
+            manager.Object.GetCompilation(DocumentUri)!.Compilation.GetEntrypointSemanticModel(), knownCatalogId: null).CatalogId);
     }
 
     [DataTestMethod]
@@ -96,7 +108,7 @@ public class VisualPaletteHandlerTests
             manager.Setup(x => x.GetCompilation(DocumentUri)).Returns((CompilationContext?)null);
         }
         var handler = new VisualResourceTypeVersionsHandler(
-            NullLogger<VisualResourceTypeVersionsHandler>.Instance, manager.Object, new VisualResourceCreationService());
+            NullLogger<VisualResourceTypeVersionsHandler>.Instance, manager.Object, new VisualResourceTypeCatalogService());
 
         Func<Task> act = () => handler.Handle(new(new() { Uri = DocumentUri }, "Test.Rp/missing"), CancellationToken.None);
 

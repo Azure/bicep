@@ -18,90 +18,38 @@ namespace Bicep.LangServer.IntegrationTests
     [TestClass]
     public class VisualResourceCreationTests
     {
-        [TestMethod]
-        public async Task VisualResourceTypeNamespaces_ReturnsProviderCounts()
-        {
-            using var helper = await StartServerAndOpenAsync();
-            var client = helper.Helper.Client;
-            var result = await client.SendRequest(
-                new VisualResourceTypeNamespacesParams(new TextDocumentIdentifier(helper.MainUri)),
-                default);
-
-            result.CatalogId.Should().NotBeNullOrEmpty();
-            result.Namespaces.Should().NotBeEmpty();
-            result.Namespaces.Should().BeInAscendingOrder(entry => entry.Name);
-            result.Namespaces.Should().OnlyContain(entry => entry.ResourceTypeCount > 0);
-        }
-
         [NotNull]
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
-        public async Task VisualResourceTypes_ReturnsAlphabeticallyOrderedCatalog()
+        public async Task VisualResourceTypes_ReturnsAlphabeticallyOrderedCatalogOnceUntilItChanges()
         {
             using var helper = await StartServerAndOpenAsync();
             var client = helper.Helper.Client;
 
             var result = await client.SendRequest(
-                new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), ProviderNamespace: null, Query: null, PageSize: 50, ContinuationToken: null),
+                new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), KnownCatalogId: null),
                 default);
 
-            result.Should().NotBeNull();
-            result.ContinuationToken.Should().BeNull();
-            result.Items.Select(entry => entry.FullyQualifiedType).Should().Contain(
+            result.CatalogId.Should().NotBeNullOrEmpty();
+            var resourceTypes = result.ResourceTypes!;
+            resourceTypes.Select(entry => entry.FullyQualifiedType).Should().Contain(
                 "Test.Rp/basicTests", "Test.Rp/readWriteTests", "Test.Rp/discriminatorTests");
 
-            // Entries are ordered by fully-qualified type so the client can render an alphabetically sorted tree
-            // without re-sorting.
-            result.Items.Select(entry => entry.FullyQualifiedType)
-                .Should().BeInAscendingOrder(StringComparer.OrdinalIgnoreCase);
+            // Entries are ordered by fully-qualified type so the client can group them without re-sorting.
+            resourceTypes.Select(entry => entry.FullyQualifiedType).Should().BeInAscendingOrder(StringComparer.OrdinalIgnoreCase);
 
-            var basicTest = result.Items.Should().ContainSingle(entry => entry.FullyQualifiedType == "Test.Rp/basicTests").Subject;
+            var basicTest = resourceTypes.Should().ContainSingle(entry => entry.FullyQualifiedType == "Test.Rp/basicTests").Subject;
             basicTest.ApiVersion.Should().Be("2020-01-01");
             basicTest.IsPreview.Should().BeFalse();
-        }
 
-        [TestMethod]
-        public async Task VisualResourceTypes_WithQuery_FiltersCaseInsensitively()
-        {
-            using var helper = await StartServerAndOpenAsync();
-            var client = helper.Helper.Client;
-
-            var result = await client.SendRequest(
-                new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), ProviderNamespace: null, Query: "READWRITE", PageSize: 50, ContinuationToken: null),
+            var unchanged = await client.SendRequest(
+                new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), result.CatalogId),
                 default);
 
-            result.Items.Should().ContainSingle().Which.FullyQualifiedType.Should().Be("Test.Rp/readWriteTests");
+            unchanged.CatalogId.Should().Be(result.CatalogId);
+            unchanged.ResourceTypes.Should().BeNull();
         }
-
-        [TestMethod]
-        public async Task VisualResourceTypes_WithSmallPageSize_PagesThroughEntireCatalogViaContinuationToken()
-        {
-            using var helper = await StartServerAndOpenAsync();
-            var client = helper.Helper.Client;
-
-            var full = await client.SendRequest(
-                new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), ProviderNamespace: null, Query: null, PageSize: 200, ContinuationToken: null),
-                default);
-
-            var seen = new List<VisualResourceTypeCatalogEntry>();
-            string? continuationToken = null;
-            do
-            {
-                var page = await client.SendRequest(
-                    new VisualResourceTypesParams(new TextDocumentIdentifier(helper.MainUri), ProviderNamespace: null, Query: null, PageSize: 1, ContinuationToken: continuationToken),
-                    default);
-
-                page.Items.Should().HaveCountLessOrEqualTo(1);
-                seen.AddRange(page.Items);
-                continuationToken = page.ContinuationToken;
-            } while (continuationToken is not null);
-
-            // Paging one entry at a time via the continuation token must reproduce the same set and order as a
-            // single unpaginated request.
-            seen.Should().Equal(full.Items);
-        }
-
         [TestMethod]
         public async Task PrepareVisualResource_HappyPath_ReturnsVersionedEditThatAppliesToCurrentDocumentVersion()
         {
@@ -111,14 +59,13 @@ namespace Bicep.LangServer.IntegrationTests
             var client = helper.Helper.Client;
 
             var result = await client.SendRequest(
-                new CreateResourceDeclarationInsertionParams(
+                new PrepareVisualResourceCreationParams(
                     new VersionedTextDocumentIdentifier { Uri = helper.MainUri, Version = 1 },
                     "operation-1",
                     new VisualResourceTypeIdentifier("Test.Rp/basicTests", "2020-01-01")),
                 default);
 
             result.OperationId.Should().Be("operation-1");
-            result.SymbolicName.Should().Be("basicTest");
             result.ExpectedNodeId.Should().Be("basicTest");
             result.UnresolvedRequiredProperties.Should().BeEmpty();
 
@@ -148,20 +95,20 @@ namespace Bicep.LangServer.IntegrationTests
             var client = helper.Helper.Client;
 
             var first = await client.SendRequest(
-                new CreateResourceDeclarationInsertionParams(
+                new PrepareVisualResourceCreationParams(
                     new VersionedTextDocumentIdentifier { Uri = helper.MainUri, Version = 1 },
                     "operation-1",
                     new VisualResourceTypeIdentifier("Test.Rp/basicTests", "2020-01-01")),
                 default);
-            first.SymbolicName.Should().Be("basicTest1");
+            first.ExpectedNodeId.Should().Be("basicTest1");
 
             var second = await client.SendRequest(
-                new CreateResourceDeclarationInsertionParams(
+                new PrepareVisualResourceCreationParams(
                     new VersionedTextDocumentIdentifier { Uri = helper.MainUri, Version = 1 },
                     "operation-2",
                     new VisualResourceTypeIdentifier("Test.Rp/basicTests", "2020-01-01")),
                 default);
-            second.SymbolicName.Should().Be("basicTest1");
+            second.ExpectedNodeId.Should().Be("basicTest1");
         }
 
         [TestMethod]
@@ -171,7 +118,7 @@ namespace Bicep.LangServer.IntegrationTests
             var client = helper.Helper.Client;
 
             var result = await client.SendRequest(
-                new CreateResourceDeclarationInsertionParams(
+                new PrepareVisualResourceCreationParams(
                     new VersionedTextDocumentIdentifier { Uri = helper.MainUri, Version = 1 },
                     "operation-1",
                     new VisualResourceTypeIdentifier("Test.Rp/discriminatorTests", "2020-01-01")),
@@ -192,7 +139,7 @@ namespace Bicep.LangServer.IntegrationTests
             var client = helper.Helper.Client;
 
             Func<Task> request = async () => await client.SendRequest(
-                new CreateResourceDeclarationInsertionParams(
+                new PrepareVisualResourceCreationParams(
                     new VersionedTextDocumentIdentifier { Uri = helper.MainUri, Version = 1 },
                     "operation-1",
                     new VisualResourceTypeIdentifier("Test.Rp/doesNotExist", "2020-01-01")),
@@ -201,6 +148,34 @@ namespace Bicep.LangServer.IntegrationTests
             var exception = await request.Should().ThrowAsync<JsonRpcException>()
                 .WithMessage("Resource type \"Test.Rp/doesNotExist@2020-01-01\" was not found.");
             exception.Which.Error.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task PrepareVisualResourceReplay_ReturnsAnUndoEditOrNullPerCreation()
+        {
+            var insertedText = """
+                resource basicTest 'Test.Rp/basicTests@2020-01-01' = {
+                  name: 'basicTest'
+                }
+                """;
+            using var helper = await StartServerAndOpenAsync("param location string\n\n" + insertedText);
+            var client = helper.Helper.Client;
+
+            var result = await client.SendRequest(
+                new PrepareVisualResourceReplayParams(
+                    new TextDocumentIdentifier(helper.MainUri),
+                    [
+                        new("undo-op", "basicTest", VisualResourceReplayDirection.Undo, "\n\n" + insertedText),
+                        new("redo-op", "basicTest", VisualResourceReplayDirection.Redo, "\n\n" + insertedText),
+                    ]),
+                default);
+
+            result.Replays.Select(replay => replay.OperationId).Should().Equal("undo-op", "redo-op");
+            var undo = result.Replays[0].Edit;
+            undo.Should().NotBeNull();
+            undo!.NewText.Should().BeEmpty();
+            undo.Range.Should().Be(new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range(0, 21, 4, 1));
+            result.Replays[1].Edit.Should().BeNull();
         }
 
         private async Task<TestServer> StartServerAndOpenAsync(string? mainContent = null)

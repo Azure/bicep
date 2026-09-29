@@ -1,50 +1,36 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { ResourceTypeCatalog, ResourceTypeNamespace } from "./types";
+import type { ResourceTypeReference } from "@/core";
 
-import { defineNotification, defineRequest, useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
+import { defineRequest, useWebviewMessageChannel } from "@vscode-bicep-ui/messaging";
 import { useMemo } from "react";
-
-// ── Experimental resource creation ──
-// The palette is hidden entirely when the host reports the feature as disabled.
-
-export const getResourceCreationEnablement = defineRequest<void, boolean>("resourceCreation/isEnabled");
-
-export const resourceCreationEnablementDidChange = defineNotification<boolean>("resourceCreation/enablementDidChange");
 
 // ── Resource type catalog ──
 // The catalog is versioned by `catalogId`. The host derives it from the document's resource type
-// provider, so editing the file (adding an `extension` declaration, say) can mint a new catalog;
-// responses carrying a stale id must be discarded rather than merged.
+// provider and target scope, so editing the file (adding an `extension` declaration, say) can mint a
+// new catalog; responses carrying a stale id must be discarded rather than merged.
 
-export interface GetResourceTypeNamespacesResult {
+export interface ListResourceTypesParams {
+  /** The catalog the webview already holds, so the host can skip sending it again. */
+  knownCatalogId?: string;
+}
+
+export interface ListResourceTypesResult {
   catalogId: string;
-  namespaces: ResourceTypeNamespace[];
+  /** Every type deployable at the document's target scope, at its default API version, or null if unchanged. */
+  resourceTypes: ResourceTypeReference[] | null;
 }
 
-export const getResourceTypeNamespaces = defineRequest<void, GetResourceTypeNamespacesResult>(
-  "resourceTypeCatalog/namespaces",
-);
+export const listResourceTypes = defineRequest<ListResourceTypesParams, ListResourceTypesResult>("resourceTypes/list");
 
-export interface LoadResourceTypeCatalogParams {
-  providerNamespace?: string;
-  query?: string;
-  /** Load every namespace at once, so searching can filter locally instead of round-tripping. */
-  loadAll?: boolean;
-}
-
-export const loadResourceTypeCatalog = defineRequest<LoadResourceTypeCatalogParams, ResourceTypeCatalog>(
-  "resourceTypeCatalog/load",
-);
-
-export type ResourceTypeVersions = {
+export interface ResourceTypeVersions {
   catalogId: string;
   apiVersions: string[];
-};
+}
 
 export const getResourceTypeVersions = defineRequest<{ fullyQualifiedType: string }, ResourceTypeVersions>(
-  "resourceTypeCatalog/versions",
+  "resourceTypes/versions",
 );
 
 /**
@@ -62,8 +48,7 @@ export function usePaletteApi() {
 
   return useMemo(
     () => ({
-      getNamespaces: () => channel.request(getResourceTypeNamespaces),
-      loadCatalog: (params: LoadResourceTypeCatalogParams) => channel.request(loadResourceTypeCatalog, params),
+      listResourceTypes: (knownCatalogId?: string) => channel.request(listResourceTypes, { knownCatalogId }),
       getVersions: (fullyQualifiedType: string) => channel.request(getResourceTypeVersions, { fullyQualifiedType }),
     }),
     [channel],

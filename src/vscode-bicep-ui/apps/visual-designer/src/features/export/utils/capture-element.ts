@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { createStore } from "jotai";
+import type { Box } from "@/lib/math";
 
 import { toPng } from "html-to-image";
-import { nodesByIdAtom } from "@/lib/graph";
 
 interface SaveFilePickerOptions {
   suggestedName?: string;
@@ -29,25 +28,6 @@ declare global {
   }
 }
 
-type Store = ReturnType<typeof createStore>;
-
-/**
- * Compute the bounding box of all graph nodes from the Jotai store.
- */
-function computeGraphBounds(store: Store) {
-  const nodes = store.get(nodesByIdAtom);
-  const nodeList = Object.values(nodes);
-  if (nodeList.length === 0) return null;
-
-  const boxes = nodeList.map((node) => store.get(node.boxAtom));
-  const minX = Math.min(...boxes.map((b) => b.min.x));
-  const minY = Math.min(...boxes.map((b) => b.min.y));
-  const maxX = Math.max(...boxes.map((b) => b.max.x));
-  const maxY = Math.max(...boxes.map((b) => b.max.y));
-
-  return { minX, minY, maxX, maxY, width: maxX - minX, height: maxY - minY };
-}
-
 /**
  * Capture the graph by cloning the canvas into an off-screen element.
  *
@@ -58,15 +38,12 @@ function computeGraphBounds(store: Store) {
  */
 export async function captureGraphElement(
   canvasElement: HTMLElement,
-  store: Store,
+  bounds: Box,
   padding: number,
   backgroundColor: string | undefined,
 ): Promise<string> {
-  const bounds = computeGraphBounds(store);
-  if (!bounds) throw new Error("No graph nodes to export");
-
-  const captureWidth = Math.round(bounds.width + padding * 2);
-  const captureHeight = Math.round(bounds.height + padding * 2);
+  const captureWidth = Math.round(bounds.max.x - bounds.min.x + padding * 2);
+  const captureHeight = Math.round(bounds.max.y - bounds.min.y + padding * 2);
 
   // Deep-clone the entire canvas subtree.
   const clone = canvasElement.cloneNode(true) as HTMLElement;
@@ -99,8 +76,8 @@ export async function captureGraphElement(
     const transformedEl = clone.querySelector<HTMLElement>("[data-export-graph]");
     if (!transformedEl) throw new Error("Graph content not found in clone");
 
-    const offsetX = padding - bounds.minX;
-    const offsetY = padding - bounds.minY;
+    const offsetX = padding - bounds.min.x;
+    const offsetY = padding - bounds.min.y;
     transformedEl.style.transition = "none";
     transformedEl.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(1)`;
 

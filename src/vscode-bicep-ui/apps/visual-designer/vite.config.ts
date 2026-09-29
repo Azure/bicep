@@ -24,64 +24,39 @@ function previewMock(): Plugin {
       { id: "pip", kind: "resource", parentId: null, type: "Microsoft.Network/publicIPAddresses", symbolName: "pip", isCollection: true, hasChildren: false, hasError: false },
     ],
     edges: [
-      { id: "subnet>vnet", sourceId: "subnet", targetId: "vnet" },
-      { id: "nsg>subnet", sourceId: "nsg", targetId: "subnet" },
-      { id: "pip>nsg", sourceId: "pip", targetId: "nsg" },
+      { id: "subnet->vnet", sourceId: "subnet", targetId: "vnet" },
+      { id: "nsg->subnet", sourceId: "nsg", targetId: "subnet" },
+      { id: "pip->nsg", sourceId: "pip", targetId: "nsg" },
     ],
-    errorCount: 0,
   };
 
-  function sameGraph(current) {
-    if (!current) return false;
-    if (current.nodes.length !== graph.nodes.length || current.edges.length !== graph.edges.length) return false;
-    return graph.nodes.every(function (node) { return current.nodes.some(function (currentNode) { return currentNode.id === node.id; }); }) &&
-      graph.edges.every(function (edge) { return current.edges.some(function (currentEdge) { return currentEdge.id === edge.id; }); });
-  }
-
-  function graphUpdatePatches(current) {
-    if (sameGraph(current)) return [];
-    return [
-      { op: "clearGraph" },
-      { op: "setErrorCount", errorCount: graph.errorCount },
-    ].concat(
-      graph.nodes.map(function (node) { return { op: "addNode", node: node }; }),
-      graph.edges.map(function (edge) { return { op: "addEdge", edge: edge }; })
-    );
-  }
-
-  function graphLayoutPatches() {
-    var positions = {
-      vnet: { x: 0, y: 0 },
-      subnet: { x: 190, y: 90 },
-      nsg: { x: 380, y: 180 },
-      pip: { x: 570, y: 270 },
-    };
-
-    return graph.nodes.map(function (node) {
-      return { op: "setNodeLayout", nodeId: node.id, layout: positions[node.id] };
-    }).concat([{ op: "setGraphBounds", bounds: { width: 760, height: 420 } }]);
-  }
+  var positions = [
+    { nodeId: "vnet", x: 0, y: 0 },
+    { nodeId: "subnet", x: 190, y: 90 },
+    { nodeId: "nsg", x: 380, y: 180 },
+    { nodeId: "pip", x: 570, y: 270 },
+  ];
 
   window.acquireVsCodeApi = function () {
     return {
       postMessage: function (msg) {
         console.log("[fake vscode-api] postMessage:", msg);
-        if (msg && msg.method === "ready") {
+        if (msg && msg.method === "webview/ready") {
           setTimeout(function () {
             window.postMessage({
-              method: "documentDidChange",
+              method: "document/didChange",
               params: { documentUri: "file:///main.bicep" },
             }, "*");
           }, 100);
-        } else if (msg && msg.method === "getGraphUpdate") {
+        } else if (msg && msg.method === "graph/get") {
           window.postMessage({
             id: msg.id,
-            result: { patches: graphUpdatePatches(msg.params && msg.params.current), targetScope: "resourceGroup" },
+            result: { graph: graph, targetScope: "resourceGroup", errorCount: 0, replayableSourceSteps: [] },
           }, "*");
-        } else if (msg && msg.method === "getGraphLayout") {
+        } else if (msg && msg.method === "graph/layout") {
           window.postMessage({
             id: msg.id,
-            result: { status: "ok", patches: graphLayoutPatches() },
+            result: { status: "ok", positions: positions, bounds: { width: 760, height: 420 } },
           }, "*");
         }
       },

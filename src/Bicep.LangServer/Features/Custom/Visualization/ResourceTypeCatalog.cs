@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Globalization;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.LanguageServer.Features.Custom.Visualization
@@ -40,30 +41,27 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         }
 
         /// <summary>
+        /// Resources are inserted as top-level declarations without a <c>scope</c> property, so the catalog offers only
+        /// types that can be deployed at the document's own target scope. Anything other than a single deployment scope
+        /// (not expected for Bicep files) disables filtering rather than hiding every type.
+        /// </summary>
+        public static ResourceScope? GetDeploymentScope(SemanticModel model) => model.TargetScope switch
+        {
+            ResourceScope.ResourceGroup or ResourceScope.Subscription or ResourceScope.ManagementGroup or ResourceScope.Tenant => model.TargetScope,
+            _ => null,
+        };
+
+        /// <summary>
         /// The catalog identity includes the target scope, so a scope change reads as a new catalog to the client: stale
         /// responses are discarded and version choices made for the previous scope are reset.
         /// </summary>
         public string GetId(ResourceScope? scope) => scope is { } targetScope ? $"{this.id}-{targetScope}" : this.id;
-
-        public ImmutableArray<VisualResourceTypeNamespace> GetNamespaces(ResourceScope? scope) =>
-            [.. this.GetResourceTypes(scope)
-                .GroupBy(type => GetProviderNamespace(type.FullyQualifiedType), StringComparer.OrdinalIgnoreCase)
-                .Select(group => new VisualResourceTypeNamespace(group.Key, group.Count()))
-                .OrderBy(providerNamespace => providerNamespace.Name, StringComparer.OrdinalIgnoreCase)];
 
         /// <summary>All types, sorted by name.</summary>
         public ImmutableArray<VisualResourceTypeCatalogEntry> GetResourceTypes(ResourceScope? scope) =>
             scope is { } targetScope
                 ? this.filteredTypes.GetOrAdd(targetScope, scope => [.. this.defaultTypes.Value.Where(type => this.IsDeployableAt(type, scope))])
                 : this.defaultTypes.Value;
-
-        public ImmutableArray<VisualResourceTypeCatalogEntry> GetResourceTypes(string providerNamespace, ResourceScope? scope) =>
-            [.. this.GetResourceTypes(scope)
-                .Where(type => string.Equals(GetProviderNamespace(type.FullyQualifiedType), providerNamespace, StringComparison.OrdinalIgnoreCase))];
-
-        public ImmutableArray<VisualResourceTypeCatalogEntry> Search(string query, ResourceScope? scope) =>
-            [.. this.GetResourceTypes(scope)
-                .Where(type => type.FullyQualifiedType.Contains(query.Trim(), StringComparison.OrdinalIgnoreCase))];
 
         /// <summary>Every API version of a type, newest first. Versions are not filtered by scope.</summary>
         public ImmutableArray<string> GetApiVersions(string fullyQualifiedType)
@@ -94,8 +92,6 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
             return [.. types.OrderBy(type => type.FullyQualifiedType, StringComparer.OrdinalIgnoreCase)];
         }
-
-        private static string GetProviderNamespace(string fullyQualifiedType) => fullyQualifiedType[..fullyQualifiedType.IndexOf('/')];
 
         private static ResourceTypeReference ToReference(VisualResourceTypeCatalogEntry type) => new(type.FullyQualifiedType, type.ApiVersion);
     }

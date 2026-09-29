@@ -10,8 +10,8 @@ import { useStore } from "jotai";
 import { useHydrateAtoms } from "jotai/utils";
 import { useEffect, useRef } from "react";
 import { styled } from "styled-components";
+import { useGraphApi } from "@/core";
 import { nodeConfigAtom } from "@/lib/graph";
-import { useCanvasApi } from "../../api";
 import { ModuleNode } from "./ModuleNode";
 import { ResourceNode } from "./ResourceNode";
 
@@ -24,7 +24,7 @@ const $NodeContent = styled.div`
 
 function CanvasNodeContent({ kind, id, data }: NodeContentRenderProps & { kind: NodeKind }) {
   const ref = useRef<HTMLDivElement>(null);
-  const api = useCanvasApi();
+  const api = useGraphApi();
 
   useEffect(() => {
     const element = ref.current;
@@ -35,7 +35,7 @@ function CanvasNodeContent({ kind, id, data }: NodeContentRenderProps & { kind: 
 
     const revealSource = (event: MouseEvent) => {
       event.stopPropagation();
-      api.revealNodeSource(id);
+      api.revealNode(id);
     };
 
     element.addEventListener("dblclick", revealSource);

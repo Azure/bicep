@@ -60,15 +60,25 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
         public TextEdit CreateInsertionEdit(BicepCompiler compiler, CompilationContext context)
         {
-            var (offset, leadingNewlines, trailingNewlines) = GetInsertionPoint(context.ProgramSyntax);
             var formattingOptions = context.Compilation.GetEntrypointSemanticModel().Configuration.Formatting.Data;
             var newline = formattingOptions.NewlineKind.ToEscapeSequence();
             var text = Format(compiler, this.Declaration, formattingOptions).Trim(newline.ToCharArray());
 
+            return CreateInsertionEdit(context, text);
+        }
+
+        /// <summary>
+        /// Inserts an already formatted declaration where a new resource goes, separated from its neighbors by a blank line.
+        /// </summary>
+        public static TextEdit CreateInsertionEdit(CompilationContext context, string declarationText)
+        {
+            var (offset, leadingNewlines, trailingNewlines) = GetInsertionPoint(context.ProgramSyntax);
+            var newline = context.Compilation.GetEntrypointSemanticModel().Configuration.Formatting.Data.NewlineKind.ToEscapeSequence();
+
             return new TextEdit
             {
                 Range = new TextSpan(offset, 0).ToRange(context.LineStarts),
-                NewText = string.Concat(Enumerable.Repeat(newline, leadingNewlines)) + text + string.Concat(Enumerable.Repeat(newline, trailingNewlines)),
+                NewText = string.Concat(Enumerable.Repeat(newline, leadingNewlines)) + declarationText + string.Concat(Enumerable.Repeat(newline, trailingNewlines)),
             };
         }
 

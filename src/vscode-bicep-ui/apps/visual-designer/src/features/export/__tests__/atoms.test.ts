@@ -6,7 +6,7 @@
 
 import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
-import { documentUriAtom } from "@/hooks";
+import { documentUriAtom } from "@/core";
 import { DEFAULT_EXPORT_FILE_STEM, exportFileStemAtom } from "../atoms";
 
 describe("export file stem", () => {

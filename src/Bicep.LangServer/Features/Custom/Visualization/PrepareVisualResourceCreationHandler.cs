@@ -1,0 +1,65 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Bicep.Core;
+using Bicep.LanguageServer.Compilation;
+using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+
+namespace Bicep.LanguageServer.Features.Custom.Visualization
+{
+    /// <summary>
+    /// Handles <c>textDocument/prepareVisualResourceCreation</c>: generates a new top-level resource declaration for
+    /// the requested resource type and returns a proposed versioned <see cref="OmniSharp.Extensions.LanguageServer.Protocol.Models.WorkspaceEdit"/>
+    /// for the active document. The client applies the edit itself (subject to its own version
+    /// checks) rather than the server pushing it via <c>workspace/applyEdit</c>, since the visual designer needs
+    /// the generated symbolic name and unresolved-property metadata alongside the edit.
+    /// </summary>
+    public class PrepareVisualResourceCreationHandler : IJsonRpcRequestHandler<PrepareVisualResourceCreationParams, PrepareVisualResourceCreationResult>
+    {
+        private readonly ILogger<PrepareVisualResourceCreationHandler> logger;
+
+        private readonly BicepCompiler compiler;
+
+        private readonly ICompilationManager compilationManager;
+
+        private readonly IVisualResourceEditingService editingService;
+
+        public PrepareVisualResourceCreationHandler(
+            ILogger<PrepareVisualResourceCreationHandler> logger,
+            BicepCompiler compiler,
+            ICompilationManager compilationManager,
+            IVisualResourceEditingService editingService)
+        {
+            this.logger = logger;
+            this.compiler = compiler;
+            this.compilationManager = compilationManager;
+            this.editingService = editingService;
+        }
+
+        public Task<PrepareVisualResourceCreationResult> Handle(PrepareVisualResourceCreationParams request, CancellationToken cancellationToken)
+        {
+            var context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
+
+            if (context is null)
+            {
+                this.logger.LogError("Create resource declaration insertion request arrived before file {Uri} could be compiled.", request.TextDocument.Uri);
+
+                throw new RpcErrorException(ErrorCodes.RequestFailed, string.Empty, $"The document \"{request.TextDocument.Uri}\" is not currently compiled.");
+            }
+
+            try
+            {
+                var result = this.editingService.PrepareResourceCreation(this.compiler, context, request);
+
+                return Task.FromResult(result);
+            }
+            catch (VisualResourceCreationException exception)
+            {
+                throw new RpcErrorException(ErrorCodes.RequestFailed, string.Empty, exception.Message);
+            }
+        }
+    }
+}

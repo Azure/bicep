@@ -2,47 +2,20 @@
 // Licensed under the MIT License.
 
 import { atom } from "jotai";
-
-/**
- * The number of diagnostics errors in the file.
- * Updated by the deployment graph notification handler.
- */
-export const errorCountAtom = atom(0);
-
-/**
- * Whether the current deployment graph has any nodes.
- * Updated by the deployment graph notification handler.
- */
-export const hasNodesAtom = atom(false);
+import { documentErrorCountAtom, graphHasNodesAtom } from "@/core";
 
 export type GraphStatus = { kind: "errors"; errorCount: number } | { kind: "empty" } | { kind: "ready" };
 
-/**
- * Semantic status of the current graph used by the status bar.
- * Keeping this decision in atoms avoids duplicating UI state logic.
- */
+/** What the status bar shows, derived from the latest graph. */
 export const graphStatusAtom = atom<GraphStatus>((get) => {
-  const errorCount = get(errorCountAtom);
+  const errorCount = get(documentErrorCountAtom);
   if (errorCount > 0) {
     return { kind: "errors", errorCount };
   }
 
-  if (!get(hasNodesAtom)) {
+  if (!get(graphHasNodesAtom)) {
     return { kind: "empty" };
   }
 
   return { kind: "ready" };
 });
-
-/**
- * Publishes the graph facts that status is derived from. Owning the write here keeps
- * `features/status` the sole authority on how status is computed: callers report what the
- * graph contains, not what the status bar should say.
- */
-export const reportGraphStatusAtom = atom(
-  null,
-  (_get, set, { errorCount, hasNodes }: { errorCount: number; hasNodes: boolean }) => {
-    set(errorCountAtom, errorCount);
-    set(hasNodesAtom, hasNodes);
-  },
-);

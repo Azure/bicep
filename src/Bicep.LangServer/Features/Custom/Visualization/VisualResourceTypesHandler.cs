@@ -10,8 +10,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 namespace Bicep.LanguageServer.Features.Custom.Visualization
 {
     /// <summary>
-    /// Handles <c>textDocument/visualResourceTypes</c>: returns a paged, filtered catalog of the resource
-    /// types available for the Az namespace in the live compilation of the active document.
+    /// Handles <c>textDocument/visualResourceTypes</c>: returns the catalog of resource types available for the Az
+    /// namespace in the live compilation of the active document.
     /// </summary>
     public class VisualResourceTypesHandler : IJsonRpcRequestHandler<VisualResourceTypesParams, VisualResourceTypesResult>
     {
@@ -19,16 +19,16 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
         private readonly ICompilationManager compilationManager;
 
-        private readonly IVisualResourceCreationService visualResourceCreationService;
+        private readonly IVisualResourceTypeCatalogService catalogService;
 
         public VisualResourceTypesHandler(
             ILogger<VisualResourceTypesHandler> logger,
             ICompilationManager compilationManager,
-            IVisualResourceCreationService visualResourceCreationService)
+            IVisualResourceTypeCatalogService catalogService)
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
-            this.visualResourceCreationService = visualResourceCreationService;
+            this.catalogService = catalogService;
         }
 
         public Task<VisualResourceTypesResult> Handle(VisualResourceTypesParams request, CancellationToken cancellationToken)
@@ -43,12 +43,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             }
 
             var model = context.Compilation.GetEntrypointSemanticModel();
-            var result = this.visualResourceCreationService.GetResourceTypes(
-                model,
-                request.ProviderNamespace,
-                request.Query,
-                request.PageSize,
-                request.ContinuationToken);
+            var result = this.catalogService.GetResourceTypes(model, request.KnownCatalogId);
 
             return Task.FromResult(result);
         }

@@ -5,7 +5,7 @@ import type { PaletteDragState } from "../atoms";
 
 import { useCallback } from "react";
 import { styled } from "styled-components";
-import { useCanvasActions } from "@/features/canvas";
+import { useCanvasDropTarget } from "@/features/canvas";
 import { usePaletteDrag } from "../hooks/use-palette-drag";
 import { useResourceTypeCatalog } from "../hooks/use-resource-type-catalog";
 import { PaletteContent } from "./PaletteContent";
@@ -18,9 +18,9 @@ const $PalettePopover = styled.aside`
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: var(--creation-dock-popover-width);
   height: 360px;
-  max-height: calc(100% - var(--creation-dock-popover-offset));
+  max-height: var(--creation-dock-popover-max-height);
   overflow: hidden;
   border: 1px solid ${({ theme }) => theme.panel.border};
   border-radius: 12px;
@@ -33,18 +33,17 @@ const $PalettePopover = styled.aside`
 `;
 
 export function Palette({ isOpen }: { isOpen: boolean }) {
-  const { createResource, canPlaceResourceAt } = useCanvasActions();
-  const { catalogId, namespaces, namespaceError, loadNamespace, loadVersions, search, refresh } =
-    useResourceTypeCatalog();
+  const { dropResourceAt, canDropResourceAt } = useCanvasDropTarget();
+  const { catalogId, groups, error, loadVersions, refresh } = useResourceTypeCatalog();
 
   const placeResource = useCallback(
     (resourceType: PaletteDragState["item"], clientX: number, clientY: number) => {
-      void createResource(resourceType, { x: clientX, y: clientY });
+      void dropResourceAt(resourceType, { x: clientX, y: clientY });
     },
-    [createResource],
+    [dropResourceAt],
   );
 
-  const { startDrag, previewRef, positionRef } = usePaletteDrag(canPlaceResourceAt, placeResource);
+  const { startDrag, previewRef, positionRef } = usePaletteDrag(canDropResourceAt, placeResource);
 
   return (
     <>
@@ -52,12 +51,10 @@ export function Palette({ isOpen }: { isOpen: boolean }) {
         <$PalettePopover aria-label="Resource Palette" id="resource-palette">
           <PaletteContent
             catalogId={catalogId}
-            namespaces={namespaces}
-            namespaceError={namespaceError}
-            loadNamespace={loadNamespace}
+            groups={groups}
+            error={error}
             loadVersions={loadVersions}
-            search={search}
-            onRetryNamespaces={refresh}
+            onRetry={refresh}
             onResourceTypePointerDown={startDrag}
           />
         </$PalettePopover>
