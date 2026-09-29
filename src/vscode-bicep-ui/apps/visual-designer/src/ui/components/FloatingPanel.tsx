@@ -32,6 +32,10 @@ const RADIUS = 7;
  * pixels, so at 1.5x scaling a 1px border takes up 0.667 CSS px. That puts the content half a device
  * pixel off, and its hover background then snaps a pixel closer to one side. An outline takes no
  * layout space, so it cannot move the content.
+ *
+ * Panels hold controls, not text, so clicking one never selects text or leaves a blinking caret in it
+ * (Chromium draws one in plain text when caret browsing is on). Nothing editable belongs inside a panel,
+ * since the caret color is inherited.
  */
 export const FloatingPanel = styled.div`
   display: flex;
@@ -46,6 +50,8 @@ export const FloatingPanel = styled.div`
     0 1px 3px rgba(0, 0, 0, 0.08),
     0 4px 12px rgba(0, 0, 0, 0.06);
   backdrop-filter: blur(12px);
+  caret-color: transparent;
+  user-select: none;
 `;
 
 /**

@@ -41,8 +41,6 @@ const $DockPanel = styled(FloatingPanel)`
   min-width: ${DOCK_MIN_WIDTH}px;
   padding: ${DOCK_PADDING}px;
   border-radius: ${DOCK_RADIUS}px;
-  caret-color: transparent;
-  user-select: none;
   pointer-events: auto;
 `;
 

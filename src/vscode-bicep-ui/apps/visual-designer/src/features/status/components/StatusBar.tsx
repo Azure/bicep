@@ -32,7 +32,6 @@ const $StatusChip = styled(FloatingPanel)`
   font-size: 12px;
   font-weight: 500;
   white-space: nowrap;
-  user-select: none;
   cursor: default;
   pointer-events: auto;
 `;
