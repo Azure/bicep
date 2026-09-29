@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { GetResourceTypeNamespacesResult, LoadResourceTypeCatalogParams } from "../api";
-import type { ResourceTypeCatalog, ResourceTypeNamespace } from "../types";
+import type { ResourceTypeGroup } from "../types";
 
 import { useNotification } from "@vscode-bicep-ui/messaging";
 import { useSetAtom } from "jotai";
@@ -10,74 +9,73 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { documentDidChange } from "@/core";
 import { usePaletteApi } from "../api";
 import { acceptVersionCatalogAtom } from "../atoms";
-import { orderNamespaces } from "../namespace-order";
+import { groupResourceTypes } from "../resource-type-groups";
 
 /** Edits arrive in bursts, so refreshes are debounced. The first load is immediate. */
 const REFRESH_DEBOUNCE_MS = 250;
 
-type NamespaceCatalogState =
+type CatalogState =
   | { status: "loading" }
-  | { status: "loaded"; catalog: GetResourceTypeNamespacesResult }
+  | { status: "loaded"; catalogId: string; groups: ResourceTypeGroup[] }
   | { status: "error"; error: unknown };
 
 export interface ResourceTypeCatalogSource {
   catalogId?: string;
-  namespaces?: ResourceTypeNamespace[];
-  namespaceError?: unknown;
-  loadNamespace: (providerNamespace: string) => Promise<ResourceTypeCatalog>;
+  groups?: ResourceTypeGroup[];
+  error?: unknown;
   loadVersions: (fullyQualifiedType: string) => Promise<string[]>;
-  search: (query: string) => Promise<ResourceTypeCatalog>;
   refresh: () => void;
 }
 
 /**
- * Loads the resource-type catalog from the host and keeps it current as the document changes.
+ * Loads the resource type catalog from the host and keeps it current as the document changes.
  *
- * The catalog is versioned by `catalogId`: the host may rebuild it at any time, and a response from an
- * older catalog cannot be mixed with newer namespace data. Every load therefore checks the id it came
- * back with and forces a refresh on mismatch, and in-flight namespace requests are matched against a
- * generation counter so a slow response cannot overwrite a newer one.
+ * The whole catalog arrives in one response and is grouped and searched locally. A document change
+ * re-checks it by `catalogId`, and the host resends the types only when the catalog changed. Loads are
+ * matched against a generation counter so a slow response cannot overwrite a newer one.
  */
 export function useResourceTypeCatalog(): ResourceTypeCatalogSource {
   const api = usePaletteApi();
   const acceptVersionCatalog = useSetAtom(acceptVersionCatalogAtom);
-  const [namespaceCatalogState, setNamespaceCatalogState] = useState<NamespaceCatalogState>({ status: "loading" });
+  const [state, setState] = useState<CatalogState>({ status: "loading" });
   const [refreshGeneration, setRefreshGeneration] = useState(0);
-  const namespaceRequestGenerationRef = useRef(0);
-  const searchableCatalogRef = useRef<ResourceTypeCatalog | undefined>(undefined);
+  const requestGenerationRef = useRef(0);
   const currentCatalogIdRef = useRef<string | undefined>(undefined);
 
   const refresh = useCallback(() => {
     setRefreshGeneration((generation) => generation + 1);
   }, []);
 
-  useNotification(
-    documentDidChange,
-    useCallback(() => refresh(), [refresh]),
-  );
+  useNotification(documentDidChange, refresh);
 
   useEffect(() => {
-    const requestGeneration = ++namespaceRequestGenerationRef.current;
+    const requestGeneration = ++requestGenerationRef.current;
     const timeout = window.setTimeout(
       () => {
-        setNamespaceCatalogState((current) => (current.status === "loaded" ? current : { status: "loading" }));
-        void api.getNamespaces().then(
-          (catalog) => {
-            if (requestGeneration === namespaceRequestGenerationRef.current) {
-              if (searchableCatalogRef.current?.catalogId !== catalog.catalogId) {
-                searchableCatalogRef.current = undefined;
-              }
-              currentCatalogIdRef.current = catalog.catalogId;
-              acceptVersionCatalog(catalog.catalogId);
-              setNamespaceCatalogState({
-                status: "loaded",
-                catalog: { ...catalog, namespaces: orderNamespaces(catalog.namespaces) },
-              });
+        void api.listResourceTypes(currentCatalogIdRef.current).then(
+          ({ catalogId, resourceTypes }) => {
+            if (requestGeneration !== requestGenerationRef.current) {
+              return;
             }
+
+            // The host omits the types only when the webview already holds this catalog.
+            if (resourceTypes === null) {
+              if (catalogId !== currentCatalogIdRef.current) {
+                currentCatalogIdRef.current = undefined;
+                refresh();
+              }
+              return;
+            }
+
+            currentCatalogIdRef.current = catalogId;
+            acceptVersionCatalog(catalogId);
+            setState({ status: "loaded", catalogId, groups: groupResourceTypes(resourceTypes) });
           },
           (error: unknown) => {
-            if (requestGeneration === namespaceRequestGenerationRef.current) {
-              setNamespaceCatalogState({ status: "error", error });
+            if (requestGeneration === requestGenerationRef.current) {
+              // The catalog is no longer shown, so a retry must ask for all of it.
+              currentCatalogIdRef.current = undefined;
+              setState({ status: "error", error });
             }
           },
         );
@@ -87,25 +85,9 @@ export function useResourceTypeCatalog(): ResourceTypeCatalogSource {
 
     return () => {
       window.clearTimeout(timeout);
-      namespaceRequestGenerationRef.current = requestGeneration + 1;
+      requestGenerationRef.current = requestGeneration + 1;
     };
-  }, [acceptVersionCatalog, api, refreshGeneration]);
-
-  const requestCatalog = useCallback(
-    async (params: LoadResourceTypeCatalogParams): Promise<ResourceTypeCatalog> => {
-      const requestedCatalogId = currentCatalogIdRef.current;
-      const catalog = await api.loadCatalog(params);
-      const currentCatalogId = currentCatalogIdRef.current;
-
-      if (!currentCatalogId || requestedCatalogId !== currentCatalogId || currentCatalogId !== catalog.catalogId) {
-        refresh();
-        throw new Error("The resource type catalog changed. Refreshing the Resource Palette.");
-      }
-
-      return catalog;
-    },
-    [api, refresh],
-  );
+  }, [acceptVersionCatalog, api, refresh, refreshGeneration]);
 
   const loadVersions = useCallback(
     async (fullyQualifiedType: string) => {
@@ -124,47 +106,11 @@ export function useResourceTypeCatalog(): ResourceTypeCatalogSource {
     [api, refresh],
   );
 
-  const loadNamespace = useCallback(
-    (providerNamespace: string) => requestCatalog({ providerNamespace }),
-    [requestCatalog],
-  );
-
-  const search = useCallback(
-    async (query: string): Promise<ResourceTypeCatalog> => {
-      // Searching needs every namespace, so the full catalog is fetched once and filtered locally.
-      let catalog = searchableCatalogRef.current;
-      if (!catalog) {
-        catalog = await requestCatalog({ loadAll: true });
-      }
-      if (catalog.catalogId !== currentCatalogIdRef.current) {
-        refresh();
-        throw new Error("The resource type catalog changed. Refreshing the Resource Palette.");
-      }
-      searchableCatalogRef.current = catalog;
-
-      const normalizedQuery = query.toLocaleLowerCase();
-      return {
-        catalogId: catalog.catalogId,
-        groups: catalog.groups
-          .map((group) => ({
-            ...group,
-            resourceTypes: group.resourceTypes.filter((resourceType) =>
-              `${group.group}/${resourceType.resourceType}`.toLocaleLowerCase().includes(normalizedQuery),
-            ),
-          }))
-          .filter((group) => group.resourceTypes.length > 0),
-      };
-    },
-    [refresh, requestCatalog],
-  );
-
   return {
-    catalogId: namespaceCatalogState.status === "loaded" ? namespaceCatalogState.catalog.catalogId : undefined,
-    namespaces: namespaceCatalogState.status === "loaded" ? namespaceCatalogState.catalog.namespaces : undefined,
-    namespaceError: namespaceCatalogState.status === "error" ? namespaceCatalogState.error : undefined,
-    loadNamespace,
+    catalogId: state.status === "loaded" ? state.catalogId : undefined,
+    groups: state.status === "loaded" ? state.groups : undefined,
+    error: state.status === "error" ? state.error : undefined,
     loadVersions,
-    search,
     refresh,
   };
 }

@@ -12,7 +12,7 @@ import {
 
 test.describe("Viewer mode with resource creation disabled", () => {
   test.beforeEach(async ({ page }) => {
-    await openVisualDesigner(page, { resourceCreation: "false" });
+    await openVisualDesigner(page, { resourceEditing: "false" });
     await loadSampleGraph(page, "flat");
   });
 
@@ -59,7 +59,9 @@ test.describe("Viewer mode with resource creation disabled", () => {
     });
 
     await page.locator('[data-node-id="nsg"]').dblclick();
-    await expect.poll(() => notifications.find((text) => text.includes("revealNodeSource"))).toContain("nsg");
+    await expect
+      .poll(() => notifications.find((text) => text.includes("[FakeMessageChannel] revealNode")))
+      .toContain("nsg");
 
     // Keep the PNG capture real while replacing only the native save dialog with an in-memory writable.
     await page.evaluate(() => {
@@ -96,7 +98,7 @@ test.describe("Viewer mode with resource creation disabled", () => {
     await expect(page.getByTestId("status-bar")).toHaveAttribute("data-status", "errors");
     await expect(page.getByTestId("status-error-link")).toHaveText(/3\s+errors/);
     await page.getByTestId("status-error-link").click();
-    await expect.poll(() => notifications.some((text) => text.includes("showProblemsPanel"))).toBe(true);
+    await expect.poll(() => notifications.some((text) => text.includes("showProblems"))).toBe(true);
 
     await loadSampleGraph(page, "empty");
     await expect(page.getByTestId("status-empty-message")).toBeVisible();

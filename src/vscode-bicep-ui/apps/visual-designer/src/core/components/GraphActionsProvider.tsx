@@ -6,11 +6,9 @@ import type { GraphActions } from "../context/GraphActionsContext";
 
 import { useGetPanZoomDimensions } from "@vscode-bicep-ui/components";
 import { useNotification } from "@vscode-bicep-ui/messaging";
-import { useSetAtom } from "jotai";
 import { useCallback, useMemo } from "react";
 import { useFitViewToBounds } from "@/lib/graph";
-import { documentDidChange, documentDidEdit } from "../api";
-import { reportSourceEditAtom } from "../atoms";
+import { documentDidChange } from "../api";
 import { GraphActionsContext } from "../context/GraphActionsContext";
 import { useGraphSync } from "../hooks/use-graph-sync";
 import { useUndoRedoShortcuts } from "../hooks/use-undo-redo-shortcuts";
@@ -27,18 +25,17 @@ export function GraphActionsProvider({ children }: { children: ReactNode }) {
     return { x: width / 2, y: height / 2 };
   }, [getPanZoomDimensions]);
   const fitViewToBounds = useFitViewToBounds();
-  const { requestGraphUpdate, resetGraphLayout, createResourceAt, handleNodeDragStart, handleNodeDragEnd, undo, redo } =
-    useGraphSync(getViewportCenter, fitViewToBounds);
+  const {
+    handleDocumentChange,
+    resetGraphLayout,
+    createResourceAt,
+    handleNodeDragStart,
+    handleNodeDragEnd,
+    undo,
+    redo,
+  } = useGraphSync(getViewportCenter, fitViewToBounds);
 
-  useNotification(
-    documentDidChange,
-    useCallback(() => {
-      void requestGraphUpdate();
-    }, [requestGraphUpdate]),
-  );
-
-  // Undo and Redo of source steps wait for the graph update that follows the edit.
-  useNotification(documentDidEdit, useSetAtom(reportSourceEditAtom));
+  useNotification(documentDidChange, handleDocumentChange);
 
   useUndoRedoShortcuts(undo, redo);
 

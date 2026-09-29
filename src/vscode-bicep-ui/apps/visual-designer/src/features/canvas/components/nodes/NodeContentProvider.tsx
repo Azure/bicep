@@ -35,7 +35,7 @@ function CanvasNodeContent({ kind, id, data }: NodeContentRenderProps & { kind: 
 
     const revealSource = (event: MouseEvent) => {
       event.stopPropagation();
-      api.revealNodeSource(id);
+      api.revealNode(id);
     };
 
     element.addEventListener("dblclick", revealSource);

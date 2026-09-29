@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { GetGraphUpdateResult, ReplayDirection } from "../api";
+import type { GetGraphResult, ReplayDirection } from "../api";
 import type { GraphUpdateCoordinator } from "../graph-update-coordinator";
 import type { NodePositions } from "../node-positions";
 import type { LayoutStep, ResourceCreationStep } from "../undo-history";
@@ -46,7 +46,7 @@ export interface NodeMotion {
  *   the latest graph update confirmed the extension can still replay it exactly.
  */
 export function useUndoRedo(
-  coordinator: GraphUpdateCoordinator<GetGraphUpdateResult>,
+  coordinator: GraphUpdateCoordinator<GetGraphResult>,
   { animateNodePositions, stopNodeAnimations }: NodeMotion,
 ) {
   const store = useStore();
@@ -73,7 +73,7 @@ export function useUndoRedo(
   const replayResourceCreationStep = useCallback(
     (step: ResourceCreationStep, direction: ReplayDirection): Promise<void> => {
       const replay = async () => {
-        await api.replaySourceEdit({ version: 1, operationId: step.operationId, direction });
+        await api.replaySourceStep({ version: 1, operationId: step.operationId, direction });
 
         stopNodeAnimations();
         const isNodeMounted = store.get(nodesByIdAtom)[step.nodeId] !== undefined;

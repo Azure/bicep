@@ -45,25 +45,11 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         /// </summary>
         public string GetId(ResourceScope? scope) => scope is { } targetScope ? $"{this.id}-{targetScope}" : this.id;
 
-        public ImmutableArray<VisualResourceTypeNamespace> GetNamespaces(ResourceScope? scope) =>
-            [.. this.GetResourceTypes(scope)
-                .GroupBy(type => GetProviderNamespace(type.FullyQualifiedType), StringComparer.OrdinalIgnoreCase)
-                .Select(group => new VisualResourceTypeNamespace(group.Key, group.Count()))
-                .OrderBy(providerNamespace => providerNamespace.Name, StringComparer.OrdinalIgnoreCase)];
-
         /// <summary>All types, sorted by name.</summary>
         public ImmutableArray<VisualResourceTypeCatalogEntry> GetResourceTypes(ResourceScope? scope) =>
             scope is { } targetScope
                 ? this.filteredTypes.GetOrAdd(targetScope, scope => [.. this.defaultTypes.Value.Where(type => this.IsDeployableAt(type, scope))])
                 : this.defaultTypes.Value;
-
-        public ImmutableArray<VisualResourceTypeCatalogEntry> GetResourceTypes(string providerNamespace, ResourceScope? scope) =>
-            [.. this.GetResourceTypes(scope)
-                .Where(type => string.Equals(GetProviderNamespace(type.FullyQualifiedType), providerNamespace, StringComparison.OrdinalIgnoreCase))];
-
-        public ImmutableArray<VisualResourceTypeCatalogEntry> Search(string query, ResourceScope? scope) =>
-            [.. this.GetResourceTypes(scope)
-                .Where(type => type.FullyQualifiedType.Contains(query.Trim(), StringComparison.OrdinalIgnoreCase))];
 
         /// <summary>Every API version of a type, newest first. Versions are not filtered by scope.</summary>
         public ImmutableArray<string> GetApiVersions(string fullyQualifiedType)
@@ -94,8 +80,6 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
             return [.. types.OrderBy(type => type.FullyQualifiedType, StringComparer.OrdinalIgnoreCase)];
         }
-
-        private static string GetProviderNamespace(string fullyQualifiedType) => fullyQualifiedType[..fullyQualifiedType.IndexOf('/')];
 
         private static ResourceTypeReference ToReference(VisualResourceTypeCatalogEntry type) => new(type.FullyQualifiedType, type.ApiVersion);
     }

@@ -29,7 +29,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         /// <summary>
         /// Builds the canonical graph together with a map from node id to its source location. The source map
         /// is consumed only by the reveal-on-demand handler; the canonical graph itself carries no source
-        /// location so that volatile range/file-path data never travels through the graph diff.
+        /// location so that volatile range/file-path data does not change the graph on every edit.
         /// </summary>
         public static (CanonicalGraph Graph, IReadOnlyDictionary<string, NodeSource> Sources) BuildWithSources(
             CompilationContext context,

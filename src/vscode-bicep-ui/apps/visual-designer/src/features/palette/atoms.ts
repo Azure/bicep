@@ -4,7 +4,6 @@
 import type { ResourceTypeReference } from "@/core";
 
 import { atom } from "jotai";
-import { atomFamily } from "jotai-family";
 
 export interface PaletteDragState {
   item: ResourceTypeReference;
@@ -12,22 +11,7 @@ export interface PaletteDragState {
   clientY: number;
 }
 
-export type NamespaceResourceTypesState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "loaded"; resourceTypes: ResourceTypeCatalogEntry[] }
-  | { status: "error"; message: string };
-
-export interface ResourceTypeCatalogEntry {
-  resourceType: string;
-  apiVersion: string;
-}
-
 export const paletteDragAtom = atom<PaletteDragState | null>(null);
-export const namespaceResourceTypesAtomFamily = atomFamily((_key: string) =>
-  atom<NamespaceResourceTypesState>({ status: "idle" }),
-);
-export const resourceTypeCatalogLoadingCountAtom = atom(0);
 
 export type ResourceVersionsState =
   { status: "loading" } | { status: "loaded"; apiVersions: string[] } | { status: "error"; message: string };
@@ -43,7 +27,3 @@ export const acceptVersionCatalogAtom = atom(null, (get, set, catalogId: string)
     set(selectedVersionsAtom, {});
   }
 });
-
-export function getNamespaceResourceTypesKey(catalogId: string, providerNamespace: string): string {
-  return `${catalogId}\0${providerNamespace.toLocaleLowerCase()}`;
-}

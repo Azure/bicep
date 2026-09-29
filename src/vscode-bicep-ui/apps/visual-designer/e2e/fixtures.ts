@@ -7,14 +7,15 @@ import { expect } from "@playwright/test";
 
 /**
  * Sample graphs exposed by the dev toolbar.  The slugs match the
- * `data-testid` values generated in {@link DevToolbar.tsx}.
+ * `data-testid` values generated in {@link DevToolbar.tsx}. `nodeId` is a node found only in that
+ * sample, so a test can tell when the sample has replaced the previous graph.
  */
 export const SAMPLE_GRAPHS = {
-  module: { slug: "dev-graph-module-graph", label: "Module graph" },
-  flat: { slug: "dev-graph-flat-graph", label: "Flat graph" },
-  error: { slug: "dev-graph-error-graph", label: "Error graph" },
-  complex: { slug: "dev-graph-complex-graph", label: "Complex graph" },
-  empty: { slug: "dev-graph-empty-null", label: "Empty (null)" },
+  module: { slug: "dev-graph-module-graph", label: "Module graph", nodeId: "networkInterface" },
+  flat: { slug: "dev-graph-flat-graph", label: "Flat graph", nodeId: "subnet" },
+  error: { slug: "dev-graph-error-graph", label: "Error graph", nodeId: "brokenStorage" },
+  complex: { slug: "dev-graph-complex-graph", label: "Complex graph", nodeId: "hubrg" },
+  empty: { slug: "dev-graph-empty-null", label: "Empty (null)", nodeId: null },
 } as const;
 
 export type SampleGraphKey = keyof typeof SAMPLE_GRAPHS;
@@ -38,21 +39,21 @@ export async function openVisualDesigner(page: Page, query: Record<string, strin
 }
 
 /**
- * Click a sample-graph button in the dev toolbar and wait for the
- * graph to settle: nodes must be present (or absent, for the empty
- * sample) and the status bar must reflect the new state.
+ * Click a sample-graph button in the dev toolbar and wait for the graph to replace the previous one:
+ * the sample's own node must be visible (or every node gone, for the empty sample), since the designer
+ * fetches the graph only once document changes pause.
  */
 export async function loadSampleGraph(page: Page, key: SampleGraphKey): Promise<void> {
-  const { slug } = SAMPLE_GRAPHS[key];
+  const { slug, nodeId } = SAMPLE_GRAPHS[key];
   await page.getByTestId(slug).click();
 
-  if (key === "empty") {
+  if (nodeId === null) {
     await expect(page.getByTestId("graph-node")).toHaveCount(0);
     await expect(page.getByTestId("status-bar")).toHaveAttribute("data-status", "empty");
     return;
   }
 
-  await waitForAnyNode(page);
+  await expect(page.locator(`[data-node-id="${nodeId}"]`)).toBeVisible();
 }
 
 /** Wait until at least one graph node has been laid out and is visible. */

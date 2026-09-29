@@ -363,7 +363,7 @@ test.describe("Control bar", () => {
   });
 
   test("keeps layout undo available when resource editing is disabled", async ({ page }) => {
-    await openVisualDesigner(page, { resourceCreation: "false" });
+    await openVisualDesigner(page, { resourceEditing: "false" });
     await loadSampleGraph(page, "flat");
     const { before: laidOut, after: dragged } = await dragNode(page, "subnet", 120, 80);
     expect(Math.abs(dragged.x - laidOut.x)).toBeGreaterThan(90);

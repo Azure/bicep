@@ -11,19 +11,10 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
     public interface IVisualResourceCreationService
     {
         /// <summary>
-        /// Lists the Azure Resource Provider namespaces of resource types deployable at the document's target scope.
+        /// Returns every resource type deployable at the document's target scope, unless the client already holds
+        /// that catalog (<paramref name="knownCatalogId"/>).
         /// </summary>
-        VisualResourceTypeNamespacesResult GetResourceTypeNamespaces(SemanticModel model);
-
-        /// <summary>
-        /// Returns a page of resource types, either of one Azure Resource Provider namespace or matching a search query.
-        /// </summary>
-        VisualResourceTypesResult GetResourceTypes(
-            SemanticModel model,
-            string? providerNamespace,
-            string? query,
-            int pageSize,
-            string? continuationToken);
+        VisualResourceTypesResult GetResourceTypes(SemanticModel model, string? knownCatalogId);
 
         VisualResourceTypeVersionsResult GetResourceTypeVersions(
             SemanticModel model,
@@ -33,10 +24,10 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         /// Generates a top-level resource declaration for the requested resource type and returns a
         /// proposed versioned <see cref="WorkspaceEdit"/> that the client can apply to the active document.
         /// </summary>
-        ResourceDeclarationInsertion CreateResourceDeclarationInsertion(
+        PrepareVisualResourceCreationResult PrepareResourceCreation(
             BicepCompiler compiler,
             CompilationContext context,
-            CreateResourceDeclarationInsertionParams request);
+            PrepareVisualResourceCreationParams request);
 
         /// <summary>
         /// Returns, for each designer resource creation, the edit that undoes or redoes it exactly against the current

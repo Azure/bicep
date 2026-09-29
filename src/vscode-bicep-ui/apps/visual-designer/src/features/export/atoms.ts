@@ -40,8 +40,6 @@ export const effectiveExportThemeAtom = atom((get) => {
 
 export const exportBackgroundColorAtom = atom((get) => get(effectiveExportThemeAtom).viewport.background);
 
-export const isExportPreviewVisibleAtom = atom((get) => get(isExportOverlayOpenAtom));
-
 export const isExportCanvasCoverVisibleAtom = atom(
   (get) => get(isExportOverlayOpenAtom) && get(exportBackgroundModeAtom) === "solid",
 );

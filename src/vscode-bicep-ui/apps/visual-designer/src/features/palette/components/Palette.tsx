@@ -34,8 +34,7 @@ const $PalettePopover = styled.aside`
 
 export function Palette({ isOpen }: { isOpen: boolean }) {
   const { dropResourceAt, canDropResourceAt } = useCanvasDropTarget();
-  const { catalogId, namespaces, namespaceError, loadNamespace, loadVersions, search, refresh } =
-    useResourceTypeCatalog();
+  const { catalogId, groups, error, loadVersions, refresh } = useResourceTypeCatalog();
 
   const placeResource = useCallback(
     (resourceType: PaletteDragState["item"], clientX: number, clientY: number) => {
@@ -52,12 +51,10 @@ export function Palette({ isOpen }: { isOpen: boolean }) {
         <$PalettePopover aria-label="Resource Palette" id="resource-palette">
           <PaletteContent
             catalogId={catalogId}
-            namespaces={namespaces}
-            namespaceError={namespaceError}
-            loadNamespace={loadNamespace}
+            groups={groups}
+            error={error}
             loadVersions={loadVersions}
-            search={search}
-            onRetryNamespaces={refresh}
+            onRetry={refresh}
             onResourceTypePointerDown={startDrag}
           />
         </$PalettePopover>

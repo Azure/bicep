@@ -38,39 +38,33 @@ public class VisualResourceCreationServiceTests
     #region Catalog
 
     [TestMethod]
-    public void GetResourceTypeNamespaces_ReturnsSortedNamespacesWithCountsAndStableCatalogId()
+    public void GetResourceTypes_ReturnsLatestStableApiVersionForEachTypeWithStableCatalogId()
     {
-        var fixture = CatalogFixture.Add(
-            TestTypeHelper.CreateCustomResourceType("Other.Rp/delta", "2022-01-01", TypeSymbolValidationFlags.Default));
-        var model = CreateModel(fixture, string.Empty);
+        var model = CreateModel(CatalogFixture, string.Empty);
         var service = new VisualResourceCreationService();
 
-        var first = service.GetResourceTypeNamespaces(model);
-        var second = service.GetResourceTypeNamespaces(model);
+        var result = service.GetResourceTypes(model, knownCatalogId: null);
 
-        first.CatalogId.Should().Be(second.CatalogId);
-        first.Namespaces.Should().Equal(
-            new VisualResourceTypeNamespace("Other.Rp", 1),
-            new VisualResourceTypeNamespace("Test.Rp", 3));
+        result.ResourceTypes!.Select(entry => (entry.FullyQualifiedType, entry.ApiVersion)).Should().Equal(
+            ("Test.Rp/alpha", "2020-01-01"),
+            ("Test.Rp/beta", "2020-06-01"),
+            ("Test.Rp/gamma", "2019-01-01"));
+        result.ResourceTypes.Should().OnlyContain(entry => !entry.IsPreview);
+        service.GetResourceTypes(model, knownCatalogId: null).CatalogId.Should().Be(result.CatalogId);
     }
 
     [TestMethod]
-    public void GetResourceTypes_ProviderNamespace_LoadsOnlyThatNamespace()
+    public void GetResourceTypes_WithTheCurrentCatalogId_OmitsTheTypes()
     {
-        var fixture = CatalogFixture.Add(
-            TestTypeHelper.CreateCustomResourceType("Other.Rp/delta", "2022-01-01", TypeSymbolValidationFlags.Default));
-        var model = CreateModel(fixture, string.Empty);
+        var model = CreateModel(CatalogFixture, string.Empty);
         var service = new VisualResourceCreationService();
+        var catalogId = service.GetResourceTypes(model, knownCatalogId: null).CatalogId;
 
-        var result = service.GetResourceTypes(
-            model,
-            providerNamespace: "other.rp",
-            query: null,
-            pageSize: 50,
-            continuationToken: null);
+        var result = service.GetResourceTypes(model, catalogId);
 
-        result.Items.Should().ContainSingle();
-        result.Items[0].FullyQualifiedType.Should().Be("Other.Rp/delta");
+        result.CatalogId.Should().Be(catalogId);
+        result.ResourceTypes.Should().BeNull();
+        service.GetResourceTypes(model, "stale-catalog").ResourceTypes.Should().HaveCount(3);
     }
 
     [TestMethod]
@@ -80,91 +74,10 @@ public class VisualResourceCreationServiceTests
             .Add(TestTypeHelper.CreateCustomResourceType("Other.Rp/delta", "2022-01-01-preview", TypeSymbolValidationFlags.Default))
             .Add(TestTypeHelper.CreateCustomResourceType("Other.Rp/delta", "2022-01-01", TypeSymbolValidationFlags.Default));
         var model = CreateModel(fixture, string.Empty);
-        var service = new VisualResourceCreationService();
 
-        var result = service.GetResourceTypes(
-            model,
-            providerNamespace: "Other.Rp",
-            query: null,
-            pageSize: 50,
-            continuationToken: null);
-
-        result.Items.Should().ContainSingle();
-        result.Items[0].ApiVersion.Should().Be("2022-01-01");
-    }
-
-    [TestMethod]
-    public void GetResourceTypes_ReturnsLatestStableApiVersionForEachType()
-    {
-        var model = CreateModel(CatalogFixture, string.Empty);
-        var service = new VisualResourceCreationService();
-
-        var result = service.GetResourceTypes(model, providerNamespace: null, query: null, pageSize: 50, continuationToken: null);
-
-        result.Items.Select(entry => (entry.FullyQualifiedType, entry.ApiVersion)).Should().Equal(
-            ("Test.Rp/alpha", "2020-01-01"),
-            ("Test.Rp/beta", "2020-06-01"),
-            ("Test.Rp/gamma", "2019-01-01"));
-        result.Items.Should().OnlyContain(entry => !entry.IsPreview);
-        result.ContinuationToken.Should().BeNull();
-    }
-
-    [TestMethod]
-    public void GetResourceTypes_QueryFilter_MatchesSubstringCaseInsensitively()
-    {
-        var model = CreateModel(CatalogFixture, string.Empty);
-        var service = new VisualResourceCreationService();
-
-        var result = service.GetResourceTypes(model, providerNamespace: null, query: "ALPHA", pageSize: 50, continuationToken: null);
-
-        result.Items.Should().ContainSingle();
-        result.Items.Should().OnlyContain(entry => entry.FullyQualifiedType == "Test.Rp/alpha");
-    }
-
-    [TestMethod]
-    public void GetResourceTypes_PagesResults_UntilContinuationTokenIsExhausted()
-    {
-        var model = CreateModel(CatalogFixture, string.Empty);
-        var service = new VisualResourceCreationService();
-
-        var firstPage = service.GetResourceTypes(model, providerNamespace: null, query: null, pageSize: 2, continuationToken: null);
-        firstPage.Items.Should().HaveCount(2);
-        firstPage.ContinuationToken.Should().Be("2");
-
-        var secondPage = service.GetResourceTypes(model, providerNamespace: null, query: null, pageSize: 2, continuationToken: firstPage.ContinuationToken);
-        secondPage.Items.Should().ContainSingle();
-        secondPage.ContinuationToken.Should().BeNull();
-
-        firstPage.Items.Concat(secondPage.Items)
-            .Select(entry => (entry.FullyQualifiedType, entry.ApiVersion))
-            .Should().Equal(
-                ("Test.Rp/alpha", "2020-01-01"),
-                ("Test.Rp/beta", "2020-06-01"),
-                ("Test.Rp/gamma", "2019-01-01"));
-    }
-
-    [TestMethod]
-    public void GetResourceTypes_NonPositivePageSize_FallsBackToDefaultPageSize()
-    {
-        var model = CreateModel(CatalogFixture, string.Empty);
-        var service = new VisualResourceCreationService();
-
-        var result = service.GetResourceTypes(model, providerNamespace: null, query: null, pageSize: 0, continuationToken: null);
-
-        result.Items.Should().HaveCount(3);
-        result.ContinuationToken.Should().BeNull();
-    }
-
-    [TestMethod]
-    public void GetResourceTypes_PageSizeAboveMax_IsClampedRatherThanRejected()
-    {
-        var model = CreateModel(CatalogFixture, string.Empty);
-        var service = new VisualResourceCreationService();
-
-        var result = service.GetResourceTypes(model, providerNamespace: null, query: null, pageSize: 10_000, continuationToken: null);
-
-        result.Items.Should().HaveCount(3);
-        result.ContinuationToken.Should().BeNull();
+        new VisualResourceCreationService().GetResourceTypes(model, knownCatalogId: null).ResourceTypes!
+            .Should().ContainSingle(entry => entry.FullyQualifiedType == "Other.Rp/delta")
+            .Which.ApiVersion.Should().Be("2022-01-01");
     }
 
     [TestMethod]
@@ -174,13 +87,10 @@ public class VisualResourceCreationServiceTests
             .Add(TestTypeHelper.CreateCustomResourceType("Test.Rp/previewOnly", "2022-01-01-preview", TypeSymbolValidationFlags.Default))
             .Add(TestTypeHelper.CreateCustomResourceType("Test.Rp/previewOnly", "2023-01-01-preview", TypeSymbolValidationFlags.Default));
         var model = CreateModel(fixture, string.Empty);
-        var service = new VisualResourceCreationService();
 
-        var catalog = service.GetResourceTypes(model, providerNamespace: null, query: "previewOnly", 50, null);
-
-        catalog.Items.Should().Equal(new VisualResourceTypeCatalogEntry("Test.Rp/previewOnly", "2023-01-01-preview", true));
-        service.GetResourceTypeNamespaces(model).Namespaces.Should().ContainSingle()
-            .Which.ResourceTypeCount.Should().Be(4);
+        new VisualResourceCreationService().GetResourceTypes(model, knownCatalogId: null).ResourceTypes!
+            .Should().ContainSingle(entry => entry.FullyQualifiedType == "Test.Rp/previewOnly")
+            .Which.Should().Be(new VisualResourceTypeCatalogEntry("Test.Rp/previewOnly", "2023-01-01-preview", true));
     }
 
     [TestMethod]
@@ -194,8 +104,7 @@ public class VisualResourceCreationServiceTests
         var versions = service.GetResourceTypeVersions(model, "test.rp/ALPHA");
 
         versions.ApiVersions.Should().Equal("2021-01-01", "2021-01-01-preview", "2020-01-01");
-        versions.CatalogId.Should().Be(service.GetResourceTypeNamespaces(model).CatalogId);
-        versions.CatalogId.Should().Be(service.GetResourceTypes(model, providerNamespace: null, query: null, 50, null).CatalogId);
+        versions.CatalogId.Should().Be(service.GetResourceTypes(model, knownCatalogId: null).CatalogId);
     }
 
     [DataTestMethod]
@@ -211,7 +120,6 @@ public class VisualResourceCreationServiceTests
 
         act.Should().Throw<VisualResourceCreationException>().WithMessage("*was not found.");
     }
-
     private static readonly ImmutableArray<ResourceTypeComponents> ScopedFixture =
     [
         CreateScopedType("Scope.Rp/resourceGroupOnly", ResourceScope.ResourceGroup),
@@ -233,29 +141,18 @@ public class VisualResourceCreationServiceTests
     public void ResourceCatalog_OffersOnlyTypesDeployableAtTheDocumentScope(string targetScope, string[] expectedTypes)
     {
         var model = CreateModel(ScopedFixture, $"targetScope = '{targetScope}'");
-        var service = new VisualResourceCreationService();
 
-        service.GetResourceTypes(model, providerNamespace: null, query: null, 50, null).Items
+        new VisualResourceCreationService().GetResourceTypes(model, knownCatalogId: null).ResourceTypes!
             .Select(entry => entry.FullyQualifiedType).Should().Equal(expectedTypes);
-
-        var expectedNamespaces = expectedTypes
-            .GroupBy(type => type[..type.IndexOf('/')])
-            .Select(group => new VisualResourceTypeNamespace(group.Key, group.Count()));
-        service.GetResourceTypeNamespaces(model).Namespaces.Should().Equal(expectedNamespaces);
-
-        service.GetResourceTypes(model, providerNamespace: "Scope.Rp", query: null, 50, null).Items
-            .Select(entry => entry.FullyQualifiedType).Should().Equal(expectedTypes.Where(type => type.StartsWith("Scope.Rp/")));
-        service.GetResourceTypes(model, providerNamespace: null, query: "only", 50, null).Items
-            .Select(entry => entry.FullyQualifiedType).Should().Equal(expectedTypes.Where(type => type.Contains("Only")));
     }
 
     [TestMethod]
     public void ResourceCatalog_ExcludesExtensionOnlyTypesThatRequireAScopeProperty()
     {
         var model = CreateModel(ScopedFixture, string.Empty);
-        var service = new VisualResourceCreationService();
 
-        service.GetResourceTypes(model, providerNamespace: null, query: "extensionOnly", 50, null).Items.Should().BeEmpty();
+        new VisualResourceCreationService().GetResourceTypes(model, knownCatalogId: null).ResourceTypes!
+            .Should().NotContain(entry => entry.FullyQualifiedType == "Scope.Rp/extensionOnly");
     }
 
     [TestMethod]
@@ -265,14 +162,12 @@ public class VisualResourceCreationServiceTests
         var resourceGroupModel = CreateModel(ScopedFixture, "targetScope = 'resourceGroup'");
         var subscriptionModel = CreateModel(ScopedFixture, "targetScope = 'subscription'");
 
-        var resourceGroupId = service.GetResourceTypeNamespaces(resourceGroupModel).CatalogId;
+        var resourceGroupId = service.GetResourceTypes(resourceGroupModel, knownCatalogId: null).CatalogId;
 
-        service.GetResourceTypeNamespaces(resourceGroupModel).CatalogId.Should().Be(resourceGroupId);
-        service.GetResourceTypes(resourceGroupModel, providerNamespace: null, query: null, 50, null).CatalogId.Should().Be(resourceGroupId);
+        service.GetResourceTypes(resourceGroupModel, knownCatalogId: null).CatalogId.Should().Be(resourceGroupId);
         service.GetResourceTypeVersions(resourceGroupModel, "Scope.Rp/everywhere").CatalogId.Should().Be(resourceGroupId);
-        service.GetResourceTypeNamespaces(subscriptionModel).CatalogId.Should().NotBe(resourceGroupId);
+        service.GetResourceTypes(subscriptionModel, knownCatalogId: null).CatalogId.Should().NotBe(resourceGroupId);
     }
-
     [TestMethod]
     public void ResourceCatalog_VersionsAreNotFilteredByScope()
     {
@@ -292,36 +187,35 @@ public class VisualResourceCreationServiceTests
     [DataTestMethod]
     [DataRow("2020-01-01")]
     [DataRow("2021-01-01-preview")]
-    public void CreateResourceDeclarationInsertion_UsesTheExplicitlySelectedVersion(string apiVersion)
+    public void PrepareResourceCreation_UsesTheExplicitlySelectedVersion(string apiVersion)
     {
         var (compiler, result) = CompileWithResourceTypes(CatalogFixture, string.Empty);
         var context = new CompilationContext(result.Compilation);
-        var request = new CreateResourceDeclarationInsertionParams(
+        var request = new PrepareVisualResourceCreationParams(
             new VersionedTextDocumentIdentifier { Uri = DocumentUri.From("main.bicep"), Version = 1 },
             "selected-version",
             new VisualResourceTypeIdentifier("Test.Rp/alpha", apiVersion));
 
-        var response = new VisualResourceCreationService().CreateResourceDeclarationInsertion(compiler, context, request);
+        var response = new VisualResourceCreationService().PrepareResourceCreation(compiler, context, request);
 
         ApplyEdit(string.Empty, context.LineStarts, response.Edit).Should().Contain($"'Test.Rp/alpha@{apiVersion}'");
     }
 
     [TestMethod]
-    public void CreateResourceDeclarationInsertion_GeneratesValidTopLevelDeclarationAndVersionedEdit()
+    public void PrepareResourceCreation_GeneratesValidTopLevelDeclarationAndVersionedEdit()
     {
         var (compiler, compilationResult) = CompileWithResourceTypes(BuiltInTestTypes.Types, string.Empty);
         var context = new CompilationContext(compilationResult.Compilation);
         var service = new VisualResourceCreationService();
 
-        var request = new CreateResourceDeclarationInsertionParams(
+        var request = new PrepareVisualResourceCreationParams(
             new VersionedTextDocumentIdentifier { Uri = DocumentUri.From("main.bicep"), Version = 7 },
             "operation-1",
             new VisualResourceTypeIdentifier("Test.Rp/basicTests", "2020-01-01"));
 
-        var response = service.CreateResourceDeclarationInsertion(compiler, context, request);
+        var response = service.PrepareResourceCreation(compiler, context, request);
 
         response.OperationId.Should().Be("operation-1");
-        response.SymbolicName.Should().Be("basicTest");
         response.ExpectedNodeId.Should().Be("basicTest");
         response.UnresolvedRequiredProperties.Should().BeEmpty();
 
@@ -341,7 +235,7 @@ public class VisualResourceCreationServiceTests
     }
 
     [TestMethod]
-    public void CreateResourceDeclarationInsertion_SymbolicNameCollision_GeneratesUniqueSuffixedName()
+    public void PrepareResourceCreation_SymbolicNameCollision_GeneratesUniqueSuffixedName()
     {
         var content = """
             resource basicTest 'Test.Rp/basicTests@2020-01-01' = {
@@ -354,14 +248,14 @@ public class VisualResourceCreationServiceTests
         var context = new CompilationContext(compilationResult.Compilation);
         var service = new VisualResourceCreationService();
 
-        var request = new CreateResourceDeclarationInsertionParams(
+        var request = new PrepareVisualResourceCreationParams(
             new VersionedTextDocumentIdentifier { Uri = DocumentUri.From("main.bicep"), Version = 1 },
             "operation-2",
             new VisualResourceTypeIdentifier("Test.Rp/basicTests", "2020-01-01"));
 
-        var response = service.CreateResourceDeclarationInsertion(compiler, context, request);
+        var response = service.PrepareResourceCreation(compiler, context, request);
 
-        response.SymbolicName.Should().Be("basicTest1");
+        response.ExpectedNodeId.Should().Be("basicTest1");
 
         var updatedContent = ApplyEdit(content, context.LineStarts, response.Edit);
         updatedContent.ReplaceLineEndings("\n").Should().Contain(
@@ -369,7 +263,7 @@ public class VisualResourceCreationServiceTests
     }
 
     [TestMethod]
-    public void CreateResourceDeclarationInsertion_WithExistingResources_InsertsAfterLastResourceAndBeforeOutput()
+    public void PrepareResourceCreation_WithExistingResources_InsertsAfterLastResourceAndBeforeOutput()
     {
         var content = """
             resource first 'Test.Rp/basicTests@2020-01-01' = {
@@ -393,7 +287,7 @@ public class VisualResourceCreationServiceTests
     }
 
     [TestMethod]
-    public void CreateResourceDeclarationInsertion_WithoutExistingResource_InsertsAfterParametersAndVariablesAndBeforeOutputs()
+    public void PrepareResourceCreation_WithoutExistingResource_InsertsAfterParametersAndVariablesAndBeforeOutputs()
     {
         var content = """
             param prefix string
@@ -411,7 +305,7 @@ public class VisualResourceCreationServiceTests
     }
 
     [TestMethod]
-    public void CreateResourceDeclarationInsertion_WithOnlyOutputs_InsertsBeforeFirstOutput()
+    public void PrepareResourceCreation_WithOnlyOutputs_InsertsBeforeFirstOutput()
     {
         var content = "output result string = 'value'";
 
@@ -423,18 +317,18 @@ public class VisualResourceCreationServiceTests
     }
 
     [TestMethod]
-    public void CreateResourceDeclarationInsertion_ReadWriteType_ReportsUnresolvedRequiredProperties()
+    public void PrepareResourceCreation_ReadWriteType_ReportsUnresolvedRequiredProperties()
     {
         var (compiler, compilationResult) = CompileWithResourceTypes(BuiltInTestTypes.Types, string.Empty);
         var context = new CompilationContext(compilationResult.Compilation);
         var service = new VisualResourceCreationService();
 
-        var request = new CreateResourceDeclarationInsertionParams(
+        var request = new PrepareVisualResourceCreationParams(
             new VersionedTextDocumentIdentifier { Uri = DocumentUri.From("main.bicep"), Version = 1 },
             "operation-3",
             new VisualResourceTypeIdentifier("Test.Rp/readWriteTests", "2020-01-01"));
 
-        var response = service.CreateResourceDeclarationInsertion(compiler, context, request);
+        var response = service.PrepareResourceCreation(compiler, context, request);
 
         response.UnresolvedRequiredProperties.Should().Equal("properties");
         ApplyEdit(string.Empty, context.LineStarts, response.Edit).ReplaceLineEndings("\n").Should().Be("""
@@ -448,7 +342,7 @@ public class VisualResourceCreationServiceTests
     }
 
     [TestMethod]
-    public void CreateResourceDeclarationInsertion_UsesConfiguredFormattingForIncompleteValues()
+    public void PrepareResourceCreation_UsesConfiguredFormattingForIncompleteValues()
     {
         var bicepConfig = """
             {
@@ -462,7 +356,7 @@ public class VisualResourceCreationServiceTests
         var context = new CompilationContext(compilationResult.Compilation);
         var request = CreateRequest("Test.Rp/readWriteTests", "2020-01-01");
 
-        var response = new VisualResourceCreationService().CreateResourceDeclarationInsertion(compiler, context, request);
+        var response = new VisualResourceCreationService().PrepareResourceCreation(compiler, context, request);
 
         ApplyEdit(string.Empty, context.LineStarts, response.Edit).Should().Be(
             "resource readWriteTest 'Test.Rp/readWriteTests@2020-01-01' = {\r\n" +
@@ -474,18 +368,18 @@ public class VisualResourceCreationServiceTests
     }
 
     [TestMethod]
-    public void CreateResourceDeclarationInsertion_DiscriminatedType_ReportsDiscriminatorKeyAsUnresolved()
+    public void PrepareResourceCreation_DiscriminatedType_ReportsDiscriminatorKeyAsUnresolved()
     {
         var (compiler, compilationResult) = CompileWithResourceTypes(BuiltInTestTypes.Types, string.Empty);
         var context = new CompilationContext(compilationResult.Compilation);
         var service = new VisualResourceCreationService();
 
-        var request = new CreateResourceDeclarationInsertionParams(
+        var request = new PrepareVisualResourceCreationParams(
             new VersionedTextDocumentIdentifier { Uri = DocumentUri.From("main.bicep"), Version = 1 },
             "operation-4",
             new VisualResourceTypeIdentifier("Test.Rp/discriminatorTests", "2020-01-01"));
 
-        var response = service.CreateResourceDeclarationInsertion(compiler, context, request);
+        var response = service.PrepareResourceCreation(compiler, context, request);
 
         response.UnresolvedRequiredProperties.Should().Equal("kind");
         ApplyEdit(string.Empty, context.LineStarts, response.Edit).ReplaceLineEndings("\n").Should().Be("""
@@ -496,7 +390,7 @@ public class VisualResourceCreationServiceTests
     }
 
     [TestMethod]
-    public void CreateResourceDeclarationInsertion_VersionNotDeployableAtTheDocumentScope_Throws()
+    public void PrepareResourceCreation_VersionNotDeployableAtTheDocumentScope_Throws()
     {
         var fixture = ImmutableArray.Create(
             CreateScopedType("Scope.Rp/widgets", ResourceScope.ResourceGroup, "2024-01-01"),
@@ -505,26 +399,26 @@ public class VisualResourceCreationServiceTests
         var context = new CompilationContext(result.Compilation);
         var service = new VisualResourceCreationService();
 
-        CreateRequest("Scope.Rp/widgets", "2024-01-01").Invoking(request => service.CreateResourceDeclarationInsertion(compiler, context, request))
+        CreateRequest("Scope.Rp/widgets", "2024-01-01").Invoking(request => service.PrepareResourceCreation(compiler, context, request))
             .Should().NotThrow();
-        CreateRequest("Scope.Rp/widgets", "2020-01-01").Invoking(request => service.CreateResourceDeclarationInsertion(compiler, context, request))
+        CreateRequest("Scope.Rp/widgets", "2020-01-01").Invoking(request => service.PrepareResourceCreation(compiler, context, request))
             .Should().Throw<VisualResourceCreationException>()
             .WithMessage("Resource type \"Scope.Rp/widgets@2020-01-01\" cannot be deployed at the \"resourceGroup\" scope.");
     }
 
     [TestMethod]
-    public void CreateResourceDeclarationInsertion_UnknownResourceType_ThrowsVisualResourceCreationException()
+    public void PrepareResourceCreation_UnknownResourceType_ThrowsVisualResourceCreationException()
     {
         var (compiler, compilationResult) = CompileWithResourceTypes(BuiltInTestTypes.Types, string.Empty);
         var context = new CompilationContext(compilationResult.Compilation);
         var service = new VisualResourceCreationService();
 
-        var request = new CreateResourceDeclarationInsertionParams(
+        var request = new PrepareVisualResourceCreationParams(
             new VersionedTextDocumentIdentifier { Uri = DocumentUri.From("main.bicep"), Version = 1 },
             "operation-5",
             new VisualResourceTypeIdentifier("Test.Rp/doesNotExist", "2020-01-01"));
 
-        Action act = () => service.CreateResourceDeclarationInsertion(compiler, context, request);
+        Action act = () => service.PrepareResourceCreation(compiler, context, request);
 
         act.Should().Throw<VisualResourceCreationException>()
             .WithMessage("Resource type \"Test.Rp/doesNotExist@2020-01-01\" was not found.");
@@ -642,7 +536,7 @@ public class VisualResourceCreationServiceTests
     {
         var (compiler, compilationResult) = CompileWithResourceTypes(BuiltInTestTypes.Types, content);
         var context = new CompilationContext(compilationResult.Compilation);
-        var response = new VisualResourceCreationService().CreateResourceDeclarationInsertion(
+        var response = new VisualResourceCreationService().PrepareResourceCreation(
             compiler,
             context,
             CreateRequest(fullyQualifiedType, "2020-01-01"));
@@ -686,7 +580,7 @@ public class VisualResourceCreationServiceTests
         TestTypeHelper.CreateCustomResourceType(
             fullyQualifiedType, apiVersion, TypeSymbolValidationFlags.Default, scopes, readOnlyScopes, ResourceFlags.None);
 
-    private static CreateResourceDeclarationInsertionParams CreateRequest(string fullyQualifiedType, string apiVersion) =>
+    private static PrepareVisualResourceCreationParams CreateRequest(string fullyQualifiedType, string apiVersion) =>
         new(
             new VersionedTextDocumentIdentifier { Uri = DocumentUri.From("main.bicep"), Version = 1 },
             "scope-check",
@@ -725,12 +619,12 @@ public class VisualResourceCreationServiceTests
         var (compiler, compilationResult) = CompileWithResourceTypes(BuiltInTestTypes.Types, content);
         var context = new CompilationContext(compilationResult.Compilation);
         var service = new VisualResourceCreationService();
-        var request = new CreateResourceDeclarationInsertionParams(
+        var request = new PrepareVisualResourceCreationParams(
             new VersionedTextDocumentIdentifier { Uri = DocumentUri.From("main.bicep"), Version = 1 },
             "operation",
             new VisualResourceTypeIdentifier("Test.Rp/basicTests", "2020-01-01"));
 
-        var response = service.CreateResourceDeclarationInsertion(compiler, context, request);
+        var response = service.PrepareResourceCreation(compiler, context, request);
         return ApplyEdit(content, context.LineStarts, response.Edit);
     }
 

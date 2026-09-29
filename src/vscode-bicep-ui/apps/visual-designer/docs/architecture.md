@@ -14,8 +14,8 @@ interaction.
 
 The webview message contracts are defined by feature:
 
-- [Core API](../src/core/api.ts): graph updates, layout, source navigation, and resource creation
-- [Palette API](../src/features/palette/api.ts): enablement and resource type catalog
+- [Core API](../src/core/api.ts): settings, graph, layout, source navigation, resource creation, and undo
+- [Palette API](../src/features/palette/api.ts): resource type catalog and API versions
 
 ## Graph synchronization
 
@@ -28,20 +28,20 @@ sequenceDiagram
     participant Ext as VS Code extension
     participant UI as Webview
 
-    Ext-->>UI: documentDidChange
-    UI->>Ext: getGraphUpdate(current)
-    Ext->>LS: textDocument/visualGraphUpdate
-    LS-->>Ext: patches + targetScope
-    Ext-->>UI: patches + targetScope
-    UI->>UI: Update client graph
+    Ext-->>UI: document/didChange
+    UI->>Ext: graph/get
+    Ext->>LS: textDocument/visualGraph
+    LS-->>Ext: graph + targetScope
+    Ext-->>UI: graph + targetScope
+    UI->>UI: Compare with the previous graph and update the canvas
 
     opt layout required
         UI->>UI: Render and measure nodes
-        UI->>Ext: getGraphLayout(measured graph)
+        UI->>Ext: graph/layout(measured graph)
         Ext->>LS: textDocument/visualGraphLayout
         alt graph still matches
-            LS-->>Ext: ok + layout patches
-            Ext-->>UI: ok + layout patches
+            LS-->>Ext: ok + positions + bounds
+            Ext-->>UI: ok + positions + bounds
             UI->>UI: Center and apply positions
         else graph changed
             LS-->>Ext: graphChanged
@@ -55,12 +55,14 @@ sequenceDiagram
     end
 ```
 
-### Update contract
+### Graph contract
 
-`getGraphUpdate` submits the graph currently rendered by the webview, or `null` on first load. The
-response contains an ordered `patches: GraphPatch[]` that transforms the submitted graph into the latest
-server graph, and a required `targetScope: "resourceGroup" | "subscription" | "managementGroup" | "tenant" | null`.
-Null means no compiled model is available. Only accepted coordinator updates publish scope to canvas
+`graph/get` returns the whole graph (`nodes`, `edges`, `errorCount`) built from the live compilation,
+and a `targetScope: "resourceGroup" | "subscription" | "managementGroup" | "tenant" | null`. The graph
+is null when no compiled model is available, and the webview then keeps what it shows. A whole graph
+rather than a delta means no response depends on what the webview showed before, so the host keeps no
+state and responses need no ordering. The webview compares each graph with the previous one to decide
+what to mount and whether layout is stale. Only accepted coordinator updates publish scope to canvas
 state; superseded responses and responses overlapping mutations cannot overwrite it. Scope-only
 changes do not invalidate graph layout or adjust zoom.
 
@@ -70,46 +72,36 @@ organization Codicon. It stays visible when resource creation is disabled.
 
 ### Layout contract
 
-`getGraphLayout` submits `RenderedGraph`, which contains topology, render-relevant metadata, and
-measured node dimensions. Positions are not sent to the server.
+`graph/layout` submits a `MeasuredGraph`: node identity and containment, measured node dimensions,
+and edges. Positions are not sent to the server. An `ok` response carries the positions of the nodes
+the engine laid out and the bounds of the whole graph.
 
 The response status controls the next step:
 
-| Status         | Client action                                  |
-| -------------- | ---------------------------------------------- |
-| `ok`           | Apply node positions and optional graph bounds |
-| `graphChanged` | Reconcile and retry the same layout mode       |
-| `layoutFailed` | Reveal the graph at its current positions      |
+| Status         | Client action                                 |
+| -------------- | --------------------------------------------- |
+| `ok`           | Apply node positions and fit the graph bounds |
+| `graphChanged` | Reconcile and retry the same layout mode      |
+| `layoutFailed` | Reveal the graph at its current positions     |
 
-Both update and layout responses currently use this patch set:
-
-```text
-clearGraph
-addNode / removeNode / updateNode
-addEdge / removeEdge
-setNodeLayout
-setGraphBounds
-setErrorCount
-```
-
-Source locations are resolved on demand through `revealNodeSource` and are not stored in graph
+Source locations are resolved on demand through `document/revealNode` and are not stored in graph
 metadata.
 
 ### Layout invalidation
 
-Layout may be stale after:
+Layout may be stale when, compared with the previous graph:
 
-- Graph clear
-- Node or edge addition/removal
-- Changes to node `type`, `isCollection`, or `hasChildren`
+- A node or edge was added or removed
+- A node changed kind or container
+- A node's `type`, `isCollection`, or `hasChildren` changed
 
 A correlated resource node with an explicit placement does not invalidate layout by itself.
 Undo of an independent top-level resource creation likewise removes only that node;
 surviving positions and the camera stay put, even if the graph update arrives late. An edge
-change or another layout-affecting patch still requests layout. Changes limited to `hasError`,
-error count, positions, or graph bounds do not invalidate layout.
+change or another layout-affecting change still requests layout. Changes limited to `hasError` or
+the error count do not invalidate layout.
 
-After an invalidating patch, the webview renders and measures the graph. It requests layout only when
+After an invalidating change, the webview renders and measures the graph. It requests layout only when
 topology or dimensions differ from the last successful layout input.
 
 - Automatic layout may skip unchanged input and fits the viewport after success.
@@ -146,25 +138,26 @@ Text fields and the source editor retain their native undo behavior. See the
 
 ### Client implementation
 
-| Module                                                                      | Responsibility                                                              |
-| --------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| [graph-model.ts](../src/core/graph-model.ts)                                | Client graph, patch application, measured projection, and render comparison |
-| [graph-layout.ts](../src/core/graph-layout.ts)                              | Layout invalidation, response extraction, and centering                     |
-| [undo-history.ts](../src/core/undo-history.ts)                              | Pure undo/redo stacks of layout and source steps                            |
-| [node-positions.ts](../src/core/node-positions.ts)                          | Capture and restore atomic node positions                                   |
-| [graph-update-coordinator.ts](../src/core/graph-update-coordinator.ts)      | Update/layout ordering, coalescing, and mutation serialization              |
-| [use-graph-sync.ts](../src/core/hooks/use-graph-sync.ts)                    | Graph updates, layout, and node-drag and Reset Layout history               |
-| [GraphActionsProvider.tsx](../src/core/components/GraphActionsProvider.tsx) | Mounts graph sync and Undo/Redo shortcuts; provides `useGraphActions`       |
-| [use-resource-creation.ts](../src/core/hooks/use-resource-creation.ts)      | Placeholder, extension insertion, and creation history step                 |
-| [use-undo-redo.ts](../src/core/hooks/use-undo-redo.ts)                      | Undo/redo of layout and resource-creation steps                             |
-| [use-apply-graph.ts](../src/core/hooks/use-apply-graph.ts)                  | Node and edge reconciliation                                                |
-| [use-apply-graph-layout.ts](../src/core/hooks/use-apply-graph-layout.ts)    | Graph reveal and position animation                                         |
+| Module                                                                      | Responsibility                                                        |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [graph-model.ts](../src/core/graph-model.ts)                                | Indexed client graph, measured projection, and render comparison      |
+| [graph-layout.ts](../src/core/graph-layout.ts)                              | Layout invalidation and centering                                     |
+| [undo-history.ts](../src/core/undo-history.ts)                              | Pure undo/redo stacks of layout and source steps                      |
+| [node-positions.ts](../src/core/node-positions.ts)                          | Capture and restore atomic node positions                             |
+| [graph-update-coordinator.ts](../src/core/graph-update-coordinator.ts)      | Update/layout ordering, coalescing, and mutation serialization        |
+| [use-graph-sync.ts](../src/core/hooks/use-graph-sync.ts)                    | Graph updates, layout, and node-drag and Reset Layout history         |
+| [GraphActionsProvider.tsx](../src/core/components/GraphActionsProvider.tsx) | Mounts graph sync and Undo/Redo shortcuts; provides `useGraphActions` |
+| [use-resource-creation.ts](../src/core/hooks/use-resource-creation.ts)      | Placeholder, extension insertion, and creation history step           |
+| [use-undo-redo.ts](../src/core/hooks/use-undo-redo.ts)                      | Undo/redo of layout and resource-creation steps                       |
+| [use-apply-graph.ts](../src/core/hooks/use-apply-graph.ts)                  | Node and edge reconciliation                                          |
+| [use-apply-graph-layout.ts](../src/core/hooks/use-apply-graph-layout.ts)    | Graph reveal and position animation                                   |
 
 The coordinator tracks pending update and layout work independently:
 
 - Reconciliation runs before layout.
 - Reset layout takes precedence over automatic layout.
-- Repeated update notifications coalesce.
+- The host sends `document/didChange` on every change. The webview discards any response in flight at
+  once and requests the update after changes pause for 200 ms; repeated requests coalesce.
 - Responses superseded by notifications or mutations are discarded before applying graph or scope state.
 - `graphChanged` schedules reconciliation and retries the same layout mode.
 - Request promises settle after all currently pending work completes.
@@ -185,17 +178,18 @@ only durable source of truth.
 
 ### Catalog and placement
 
-- Opening the palette loads provider namespaces. The response also carries per-namespace type counts,
-  which the palette does not display. Browsing puts a curated set of common providers first (compute,
+- The palette loads the whole catalog in one `resourceTypes/list` request, `{ knownCatalogId? }` →
+  `{ catalogId, resourceTypes }`, and groups it by provider namespace itself. After a document change
+  it sends the `catalogId` it holds, and the host resends the types (about 2,300) only when the catalog
+  changed. Browsing puts a curated set of common providers first (compute,
   networking, storage, app hosting, containers, secrets, identity and authorization, deployments,
   databases, caching, AI services, monitoring, and messaging), then lists other `Microsoft.*`
   namespaces alphabetically, followed by non-Microsoft namespaces alphabetically. Search results
-  retain their catalog order.
-- Expanding a provider loads and caches its resource types.
-- Search loads the complete searchable catalog once and filters it locally.
+  keep that order.
+- Search filters the loaded catalog locally, matching the fully qualified type name.
 - Catalog responses carry a `catalogId`; stale responses are discarded.
 - The host supplies a newest-stable default API version (newest preview when preview-only).
-- Focusing or opening a row's version pill requests `resourceTypeCatalog/versions` with
+- Focusing or opening a row's version pill requests `resourceTypes/versions` with
   `{ fullyQualifiedType }`, returning `{ catalogId, apiVersions: string[] }` newest first. Preview
   versions are included without a separate toggle.
 - Version loading and failure/retry states are explicit inside the version list. The resource
@@ -219,13 +213,12 @@ only durable source of truth.
   and no Bicep type is materialized. For the built-in Azure types this takes a few seconds; the
   per-type path it replaces took over thirty. The palette issues that first query when the visualizer
   opens, so the cost is normally paid before the palette is opened.
-- Catalog requests are cheap once warm (namespaces and a namespace's types in about a millisecond, the
-  full search catalog in about 15 ms), so the list is rendered progressively rather than paged or
-  streamed: a shared budget of headers and rows starts at 50 and grows by 100 as the end of the rendered
+- Catalog requests are cheap once warm (the full catalog in about 15 ms), so the list is rendered
+  progressively rather than paged or streamed: a shared budget of headers and rows starts at 50 and grows by 100 as the end of the rendered
   list scrolls within reach, collapsed groups cost only their header, and a new search query starts
   over. Browsing keeps headers already revealed by the budget mounted when a large group opens; its
-  continuation marker follows the truncated rows rather than the later headers. Loaded browse rows
-  appear without a fade. Rows are memoized so growing renders only the new rows, and growth runs as a
+  continuation marker follows the truncated rows rather than the later headers. Browse rows appear
+  without a fade. Rows are memoized so growing renders only the new rows, and growth runs as a
   React transition so it yields to scrolling and typing. At catalog scale (about 2,300 types) a search
   that matches everything renders about 700 palette DOM nodes instead of about 35,000.
 - The list uses an overlay scrollbar (`ui/OverlayScrollArea`): the native bar is hidden so no width is
@@ -277,15 +270,15 @@ sequenceDiagram
     Canvas->>Canvas: Add pending card
     Canvas->>Coordinator: Queue mutation
     Coordinator->>Ext: resources/create
-    Ext->>LS: prepareVisualResource(version, type)
+    Ext->>LS: prepareVisualResourceCreation(version, type)
     LS-->>Ext: Versioned WorkspaceEdit + expectedNodeId
     Ext->>Doc: Verify version and apply edit
     Ext-->>Coordinator: expectedNodeId
     Coordinator->>Coordinator: Bind node ID to graph position
-    Coordinator->>Ext: getGraphUpdate
-    Ext->>LS: visualGraphUpdate
-    LS-->>Ext: addNode(expectedNodeId)
-    Ext-->>Coordinator: addNode(expectedNodeId)
+    Coordinator->>Ext: graph/get
+    Ext->>LS: visualGraph
+    LS-->>Ext: graph with expectedNodeId
+    Ext-->>Coordinator: graph with expectedNodeId
     Coordinator->>Canvas: Mount node and remove pending card
 ```
 
@@ -366,7 +359,7 @@ designer actions are logged to the webview console, without an in-canvas notific
 
 Current limitations:
 
-- Update and layout responses share one `GraphPatch` union.
+- The host returns whole graphs; the webview compares consecutive graphs itself.
 - Webview and extension protocol declarations are not generated from one schema.
 - There is no pending-operation timeout.
 - Resource lists are not virtualized.

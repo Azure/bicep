@@ -2,15 +2,10 @@
 // Licensed under the MIT License.
 
 /**
- * The dev playground's stand-in for the document a language server would compile.
+ * The dev playground's stand-in for the document a language server would compile. The toolbar
+ * switches between and mutates these, and `toGraph` turns one into the graph the protocol carries.
  *
- * The real protocol never carries a whole graph — the server sends patches and the webview submits
- * what it has rendered. The fake needs a whole-graph model anyway, because that is what the toolbar
- * lets you switch between and mutate, and `diffGraph` turns the difference into the patches the
- * protocol does carry.
- *
- * Only the fields that survive the trip are modelled: anything else would be written here and
- * dropped at the boundary.
+ * Only the fields the graph needs are modelled; the rest are derived from the id and type.
  */
 export interface SampleGraph {
   nodes: SampleGraphNode[];

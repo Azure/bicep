@@ -3,20 +3,17 @@
 
 import { Codicon, usePanZoomControl } from "@vscode-bicep-ui/components";
 import { useAtomValue, useSetAtom } from "jotai";
-import { isGraphChangeInProgressAtom, useGraphActions } from "@/core";
+import { graphHasNodesAtom, isGraphChangeInProgressAtom, useGraphActions } from "@/core";
 import { openExportOverlayAtom } from "@/features/export";
 import { useFitView } from "@/lib/graph";
 import { FloatingPanel, FloatingPanelDivider, ICON_BUTTON_ICON_SIZE, IconButton } from "@/ui";
-import { graphControlAvailabilityAtom } from "../atoms";
-import { useResetGraphLayout } from "../hooks/use-reset-graph-layout";
 
 /** View controls (zoom, fit, reset layout) and export. */
 export function ControlBar() {
   const { zoomIn, zoomOut } = usePanZoomControl();
   const fitView = useFitView();
-  const { resetGraphLayout: requestResetGraphLayout } = useGraphActions();
-  const resetGraphLayout = useResetGraphLayout(requestResetGraphLayout);
-  const controls = useAtomValue(graphControlAvailabilityAtom);
+  const { resetGraphLayout } = useGraphActions();
+  const hasNodes = useAtomValue(graphHasNodesAtom);
   const isGraphChangeInProgress = useAtomValue(isGraphChangeInProgressAtom);
   const openExportOverlay = useSetAtom(openExportOverlayAtom);
 
@@ -32,7 +29,7 @@ export function ControlBar() {
         onClick={fitView}
         title="Fit View"
         aria-label="Fit View"
-        disabled={!controls.canFitView}
+        disabled={!hasNodes}
         data-testid="control-fit-view"
       >
         <Codicon name="screen-full" size={ICON_BUTTON_ICON_SIZE} />
@@ -41,7 +38,7 @@ export function ControlBar() {
         onClick={resetGraphLayout}
         title="Reset Layout"
         aria-label="Reset Layout"
-        disabled={!controls.canResetGraphLayout || isGraphChangeInProgress}
+        disabled={!hasNodes || isGraphChangeInProgress}
         data-testid="control-reset-layout"
       >
         <Codicon name="type-hierarchy-sub" size={ICON_BUTTON_ICON_SIZE} />
@@ -51,7 +48,7 @@ export function ControlBar() {
         onClick={() => openExportOverlay()}
         title="Export Graph"
         aria-label="Export Graph"
-        disabled={!controls.canExportGraph}
+        disabled={!hasNodes}
         data-testid="control-export"
       >
         <Codicon name="desktop-download" size={ICON_BUTTON_ICON_SIZE} />

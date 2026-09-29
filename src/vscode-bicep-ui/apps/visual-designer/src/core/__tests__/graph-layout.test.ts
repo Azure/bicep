@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { GraphNode, GraphPatch } from "../api";
+import type { GraphEdge, GraphNode } from "../api";
 
 import { describe, expect, it } from "vitest";
-import { centerGraphLayout, extractGraphLayout, patchMayAffectLayout } from "../graph-layout";
+import { centerGraphLayout, graphChangeMayAffectLayout } from "../graph-layout";
+import { indexGraph } from "../graph-model";
 
 function node(overrides: Partial<GraphNode> = {}): GraphNode {
   return {
@@ -20,153 +21,108 @@ function node(overrides: Partial<GraphNode> = {}): GraphNode {
   };
 }
 
-function graphOf(...nodes: GraphNode[]) {
-  return { nodes: new Map(nodes.map((graphNode) => [graphNode.id, graphNode])) };
+function graphOf(nodes: GraphNode[], edges: GraphEdge[] = []) {
+  return indexGraph({ nodes, edges, errorCount: 0 });
 }
 
-/** Mirror the server's `updateNode`: only the changed metadata fields are sent. */
-function fullUpdate(graphNode: GraphNode, changes: Partial<GraphNode> = {}): GraphPatch {
-  const merged = { ...graphNode, ...changes };
-  return {
-    op: "updateNode",
-    nodeId: graphNode.id,
-    changes: {
-      type: merged.type,
-      isCollection: merged.isCollection,
-      hasChildren: merged.hasChildren,
-      hasError: merged.hasError,
-    },
-  };
+function edge(sourceId: string, targetId: string): GraphEdge {
+  return { id: `${sourceId}->${targetId}`, sourceId, targetId };
 }
 
-describe("patchMayAffectLayout", () => {
-  const graphNode = node({ id: "a" });
-  const graph = graphOf(graphNode);
+describe("graphChangeMayAffectLayout", () => {
+  const a = node({ id: "a" });
+  const b = node({ id: "b" });
 
-  it("treats structural patches as layout-affecting", () => {
-    const structural: GraphPatch[] = [
-      { op: "clearGraph" },
-      { op: "addNode", node: node({ id: "b" }) },
-      { op: "removeNode", nodeId: "a" },
-      { op: "addEdge", edge: { id: "a>b", sourceId: "a", targetId: "b" } },
-      { op: "removeEdge", edgeId: "a>b" },
-    ];
+  it("reflows when nodes or edges are added or removed", () => {
+    const previous = graphOf([a, b], [edge("a", "b")]);
 
-    for (const patch of structural) {
-      expect(patchMayAffectLayout(graph, patch)).toBe(true);
-    }
+    expect(graphChangeMayAffectLayout(previous, graphOf([a, b, node({ id: "c" })], [edge("a", "b")]))).toBe(true);
+    expect(graphChangeMayAffectLayout(previous, graphOf([a], []))).toBe(true);
+    expect(graphChangeMayAffectLayout(previous, graphOf([a, b]))).toBe(true);
+    expect(graphChangeMayAffectLayout(previous, graphOf([a, b], [edge("b", "a")]))).toBe(true);
   });
 
-  it("does not reflow an addNode patch with an explicit placement", () => {
-    const patch: GraphPatch = { op: "addNode", node: node({ id: "placed" }) };
+  it("does not reflow an identical graph", () => {
+    const previous = graphOf([a, b], [edge("a", "b")]);
 
-    expect(patchMayAffectLayout(graph, patch, { explicitlyPlacedNodeIds: new Set(["placed"]) })).toBe(false);
-    expect(patchMayAffectLayout(graph, patch, { explicitlyPlacedNodeIds: new Set(["other"]) })).toBe(true);
+    expect(graphChangeMayAffectLayout(previous, graphOf([b, a], [edge("a", "b")]))).toBe(false);
   });
 
-  it("preserves layout when undo removes only its independent placed resource", () => {
-    const removable = node({ id: "placed" });
-    const graph = graphOf(removable, node({ id: "other" }));
-    const patch: GraphPatch = { op: "removeNode", nodeId: "placed" };
+  it("does not reflow for a node added where the user dropped it", () => {
+    const next = graphOf([a, node({ id: "placed" })]);
+
+    expect(graphChangeMayAffectLayout(graphOf([a]), next, { explicitlyPlacedNodeIds: new Set(["placed"]) })).toBe(
+      false,
+    );
+    expect(graphChangeMayAffectLayout(graphOf([a]), next, { explicitlyPlacedNodeIds: new Set(["other"]) })).toBe(true);
+  });
+
+  it("preserves layout when undo removes only its independent resource", () => {
+    const previous = graphOf([node({ id: "placed" }), a], [edge("placed", "a")]);
     const exemptions = { pendingRemovalNodeIds: new Set(["placed"]) };
 
-    expect(patchMayAffectLayout(graph, patch, exemptions)).toBe(false);
-    expect(patchMayAffectLayout(graph, patch)).toBe(true);
-    expect(patchMayAffectLayout(graph, { op: "removeNode", nodeId: "other" }, exemptions)).toBe(true);
-    expect(patchMayAffectLayout(graph, { op: "removeEdge", edgeId: "placed>other" }, exemptions)).toBe(true);
+    expect(graphChangeMayAffectLayout(previous, graphOf([a], [edge("placed", "a")]), exemptions)).toBe(false);
+    expect(graphChangeMayAffectLayout(previous, graphOf([a], [edge("placed", "a")]))).toBe(true);
+    expect(
+      graphChangeMayAffectLayout(previous, graphOf([node({ id: "placed" })], [edge("placed", "a")]), exemptions),
+    ).toBe(true);
+    expect(graphChangeMayAffectLayout(previous, graphOf([a]), exemptions)).toBe(true);
   });
 
   it("still reflows structural nodes even if an undo claims their ID", () => {
     const module = node({ id: "module", kind: "module", type: "<module>", hasChildren: true });
     const child = node({ id: "module::child", parentId: "module" });
-    const graph = graphOf(module, child);
     const exemptions = { pendingRemovalNodeIds: new Set(["module", "module::child"]) };
 
-    expect(patchMayAffectLayout(graph, { op: "removeNode", nodeId: "module" }, exemptions)).toBe(true);
-    expect(patchMayAffectLayout(graph, { op: "removeNode", nodeId: "module::child" }, exemptions)).toBe(true);
+    expect(graphChangeMayAffectLayout(graphOf([module, child]), graphOf([module]), exemptions)).toBe(true);
+    expect(graphChangeMayAffectLayout(graphOf([module, child]), graphOf([]), exemptions)).toBe(true);
   });
 
-  it("treats layout and error-count patches as non-affecting", () => {
-    expect(patchMayAffectLayout(graph, { op: "setNodeLayout", nodeId: "a", layout: { x: 1, y: 2 } })).toBe(false);
-    expect(patchMayAffectLayout(graph, { op: "setErrorCount", errorCount: 3 })).toBe(false);
+  it("reflows when a node changes kind or container", () => {
+    const previous = graphOf([a]);
+
+    expect(graphChangeMayAffectLayout(previous, graphOf([{ ...a, kind: "module" }]))).toBe(true);
+    expect(graphChangeMayAffectLayout(previous, graphOf([{ ...a, parentId: "module" }]))).toBe(true);
   });
 
-  it("does not reflow when an updateNode only toggles hasError", () => {
-    expect(patchMayAffectLayout(graph, fullUpdate(graphNode, { hasError: true }))).toBe(false);
+  it("does not reflow when a node only toggles hasError", () => {
+    expect(graphChangeMayAffectLayout(graphOf([a]), graphOf([{ ...a, hasError: true }]))).toBe(false);
   });
 
-  it("ignores null update fields as omitted metadata", () => {
-    expect(
-      patchMayAffectLayout(graph, {
-        op: "updateNode",
-        nodeId: "a",
-        changes: { type: null, isCollection: null, hasChildren: null, hasError: true },
-      }),
-    ).toBe(false);
-  });
+  it("reflows when a size-affecting field changes", () => {
+    const previous = graphOf([a]);
 
-  it("reflows when a size-affecting field actually changes", () => {
-    expect(patchMayAffectLayout(graph, fullUpdate(graphNode, { type: "Microsoft.Web/sites" }))).toBe(true);
-    expect(patchMayAffectLayout(graph, fullUpdate(graphNode, { isCollection: true }))).toBe(true);
-    expect(patchMayAffectLayout(graph, fullUpdate(graphNode, { hasChildren: true }))).toBe(true);
-  });
-
-  it("does not reflow for an updateNode targeting an unknown node", () => {
-    expect(patchMayAffectLayout(graph, fullUpdate(node({ id: "missing" })))).toBe(false);
-  });
-});
-
-describe("extractGraphLayout", () => {
-  it("extracts layout patches and ignores unrelated patches", () => {
-    const patches: GraphPatch[] = [
-      { op: "setNodeLayout", nodeId: "a", layout: { x: 1, y: 2 } },
-      { op: "setErrorCount", errorCount: 1 },
-      { op: "setNodeLayout", nodeId: "b", layout: { x: 3, y: 4 } },
-    ];
-
-    const { nodeLayouts, graphBounds } = extractGraphLayout(patches);
-
-    expect([...nodeLayouts]).toEqual([
-      ["a", { x: 1, y: 2 }],
-      ["b", { x: 3, y: 4 }],
-    ]);
-    expect(graphBounds).toBeNull();
-  });
-
-  it("takes the last bounds when several are present", () => {
-    const patches: GraphPatch[] = [
-      { op: "setGraphBounds", bounds: { width: 10, height: 10 } },
-      { op: "setGraphBounds", bounds: { width: 20, height: 30 } },
-    ];
-
-    expect(extractGraphLayout(patches).graphBounds).toEqual({ width: 20, height: 30 });
+    expect(graphChangeMayAffectLayout(previous, graphOf([{ ...a, type: "Microsoft.Web/sites" }]))).toBe(true);
+    expect(graphChangeMayAffectLayout(previous, graphOf([{ ...a, isCollection: true }]))).toBe(true);
+    expect(graphChangeMayAffectLayout(previous, graphOf([{ ...a, hasChildren: true }]))).toBe(true);
   });
 });
 
 describe("centerGraphLayout", () => {
-  it("passes layouts through untouched when there are no bounds to centre against", () => {
-    const layouts = new Map([["a", { x: 5, y: 5 }]]);
-    const result = centerGraphLayout(layouts, null, { x: 100, y: 100 });
+  it("passes positions through untouched when there are no bounds to centre against", () => {
+    const result = centerGraphLayout([{ nodeId: "a", x: 5, y: 5 }], null, { x: 100, y: 100 });
 
     expect(result.bounds).toBeNull();
-    expect(result.nodeLayouts).toBe(layouts);
+    expect([...result.positions]).toEqual([["a", { x: 5, y: 5 }]]);
   });
 
   it("shifts every node by the same offset and reports matching bounds", () => {
-    const layouts = new Map([
-      ["a", { x: 0, y: 0 }],
-      ["b", { x: 100, y: 50 }],
-    ]);
+    const { positions, bounds } = centerGraphLayout(
+      [
+        { nodeId: "a", x: 0, y: 0 },
+        { nodeId: "b", x: 100, y: 50 },
+      ],
+      { width: 100, height: 50 },
+      { x: 500, y: 300 },
+    );
 
-    const { nodeLayouts, bounds } = centerGraphLayout(layouts, { width: 100, height: 50 }, { x: 500, y: 300 });
-
-    expect(nodeLayouts.get("a")).toEqual({ x: 450, y: 275 });
-    expect(nodeLayouts.get("b")).toEqual({ x: 550, y: 325 });
+    expect(positions.get("a")).toEqual({ x: 450, y: 275 });
+    expect(positions.get("b")).toEqual({ x: 550, y: 325 });
     expect(bounds).toEqual({ min: { x: 450, y: 275 }, max: { x: 550, y: 325 } });
   });
 
   it("leaves the graph centred on the viewport centre", () => {
-    const { bounds } = centerGraphLayout(new Map(), { width: 200, height: 100 }, { x: 640, y: 400 });
+    const { bounds } = centerGraphLayout([], { width: 200, height: 100 }, { x: 640, y: 400 });
 
     expect((bounds!.min.x + bounds!.max.x) / 2).toBe(640);
     expect((bounds!.min.y + bounds!.max.y) / 2).toBe(400);

@@ -61,9 +61,9 @@ the latest confirmed list. Unconfirmed steps stay in the history, disabled, beca
 progress (a half-typed brace earlier in the file, say) can make one replayable again; a disabled
 step at the top of a stack blocks the steps beneath it until that happens.
 
-Confirmation is withdrawn as soon as the file changes. Graph updates are debounced, so the extension
-also sends `documentDidEdit` on every edit; the webview then disables every source step, and ignores
-the confirmation in any graph update it fetched before that edit, until the debounced update arrives.
+Confirmation is withdrawn as soon as the file changes. The extension sends `document/didChange` on
+every change without debouncing; the webview then disables every source step and discards any graph
+update already in flight, and fetches a new one once the edits pause.
 A step that was just recorded or replayed likewise waits for the graph update that follows it (the
 buttons are disabled for that mutation anyway). If the host cannot answer, it reports `null` and no
 source step is offered until the next update. Clicking still prepares the edit again against the

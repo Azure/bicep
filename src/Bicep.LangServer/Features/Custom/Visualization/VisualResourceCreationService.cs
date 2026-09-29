@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using Bicep.Core;
 using Bicep.Core.Resources;
@@ -20,43 +19,15 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 {
     public class VisualResourceCreationService : IVisualResourceCreationService
     {
-        // Client-supplied page sizes are clamped rather than echoed verbatim.
-        public const int DefaultPageSize = 50;
-        public const int MaxPageSize = 200;
-
         private readonly ConditionalWeakTable<IResourceTypeProvider, Lazy<ResourceTypeCatalog>> catalogs = new();
 
-        public VisualResourceTypeNamespacesResult GetResourceTypeNamespaces(SemanticModel model)
+        public VisualResourceTypesResult GetResourceTypes(SemanticModel model, string? knownCatalogId)
         {
             var (catalog, scope) = this.GetCatalog(model);
+            var catalogId = catalog.GetId(scope);
 
-            return new(catalog.GetId(scope), catalog.GetNamespaces(scope));
+            return new(catalogId, catalogId == knownCatalogId ? null : catalog.GetResourceTypes(scope));
         }
-
-        public VisualResourceTypesResult GetResourceTypes(
-            SemanticModel model,
-            string? providerNamespace,
-            string? query,
-            int pageSize,
-            string? continuationToken)
-        {
-            var (catalog, scope) = this.GetCatalog(model);
-            var resourceTypes = providerNamespace is not null
-                ? catalog.GetResourceTypes(providerNamespace, scope)
-                : string.IsNullOrWhiteSpace(query)
-                    ? catalog.GetResourceTypes(scope)
-                    : catalog.Search(query, scope);
-
-            var offset = ParseContinuationToken(continuationToken);
-            var page = resourceTypes.Skip(offset).Take(pageSize <= 0 ? DefaultPageSize : Math.Min(pageSize, MaxPageSize)).ToImmutableArray();
-            var nextOffset = offset + page.Length;
-
-            return new(
-                catalog.GetId(scope),
-                page,
-                nextOffset < resourceTypes.Length ? nextOffset.ToString(CultureInfo.InvariantCulture) : null);
-        }
-
         public VisualResourceTypeVersionsResult GetResourceTypeVersions(SemanticModel model, string fullyQualifiedType)
         {
             var (catalog, scope) = this.GetCatalog(model);
@@ -64,7 +35,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             return new(catalog.GetId(scope), catalog.GetApiVersions(fullyQualifiedType));
         }
 
-        public ResourceDeclarationInsertion CreateResourceDeclarationInsertion(BicepCompiler compiler, CompilationContext context, CreateResourceDeclarationInsertionParams request)
+        public PrepareVisualResourceCreationResult PrepareResourceCreation(BicepCompiler compiler, CompilationContext context, PrepareVisualResourceCreationParams request)
         {
             if (context.SourceFileKind != BicepSourceFileKind.BicepFile)
             {
@@ -93,7 +64,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 }),
             };
 
-            return new(request.OperationId, resource.SymbolicName, resource.SymbolicName, resource.UnresolvedRequiredProperties, edit);
+            return new(request.OperationId, resource.SymbolicName, resource.UnresolvedRequiredProperties, edit);
         }
 
         public PrepareVisualResourceReplayResult PrepareResourceReplays(CompilationContext context, PrepareVisualResourceReplayParams request) =>
@@ -152,8 +123,5 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
             return resourceType;
         }
-
-        private static int ParseContinuationToken(string? continuationToken) =>
-            int.TryParse(continuationToken, NumberStyles.None, CultureInfo.InvariantCulture, out var offset) ? offset : 0;
     }
 }

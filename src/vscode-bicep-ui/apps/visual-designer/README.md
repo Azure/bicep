@@ -73,14 +73,14 @@ Fake-host controls include **Document target scope** and **Change catalog**. Que
 
 | Parameter                                | Purpose                                                                               |
 | ---------------------------------------- | ------------------------------------------------------------------------------------- |
-| `resourceCreation=false`                 | Hide the entire creation dock                                                         |
+| `resourceEditing=false`                  | Hide the entire creation dock                                                         |
 | `targetScope=tenant`                     | Initial document scope (`resourceGroup`, `subscription`, `managementGroup`, `tenant`) |
-| `catalogDelay=5000`                      | Delay type/search responses in milliseconds                                           |
+| `catalogDelay=5000`                      | Delay the resource type catalog response in milliseconds                              |
 | `versionsDelay=1000`                     | Delay per-type API-version responses in milliseconds                                  |
 | `versionFailures=1`                      | Fail the first N version requests to exercise retry                                   |
 | `motionPolicy=reduce`                    | Use reduced motion for graph layout and designer undo/redo in the fake host           |
 | `withholdGraphUpdatesAfterCreation=true` | Return empty graph updates while a designer-created resource is in source             |
-| `skipGraphUpdateAfterUndo=true`          | Delay the first graph update after undoing a resource creation                        |
+| `skipGraphUpdateAfterUndo=true`          | Withhold an undone creation's removal until the graph changes again                   |
 | `sourceReplay=unavailable`               | Report every resource creation as no longer replayable, as if edited in the file      |
 | `catalogSize=2300`                       | Add N synthetic types shaped like the real Azure catalog, for profiling at scale      |
 
@@ -207,19 +207,19 @@ an ancestor.
 `src/core` keeps a client replica of the server graph and requests layout after React has measured
 node sizes.
 
-| Module                                | Responsibility                                                          |
-| ------------------------------------- | ----------------------------------------------------------------------- |
-| `graph-model.ts`                      | Client graph, patch application, measured projection, render comparison |
-| `graph-layout.ts`                     | Layout invalidation, response extraction, and viewport centering        |
-| `graph-update-coordinator.ts`         | Update/layout ordering, coalescing, and mutation serialization          |
-| `undo-history.ts`                     | Pure undo/redo stacks of layout and source steps                        |
-| `node-positions.ts`                   | Capture and restore atomic node positions                               |
-| `GraphActionsProvider.tsx`            | Mounts graph sync and the Undo/Redo shortcuts; provides `GraphActions`  |
-| `use-graph-sync.ts`                   | Graph updates, layout, and node-drag and Reset Layout history           |
-| `use-resource-creation.ts`            | Placeholder, extension insertion, and creation history step             |
-| `use-undo-redo.ts`                    | Undo/redo of layout and resource-creation steps                         |
-| `use-apply-graph.ts`                  | Reconcile graph nodes and edges                                         |
-| `use-apply-graph-layout.ts`           | Reveal and animate node positions                                       |
+| Module                                | Responsibility                                                         |
+| ------------------------------------- | ---------------------------------------------------------------------- |
+| `graph-model.ts`                      | Indexed client graph, measured projection, render comparison           |
+| `graph-layout.ts`                     | Layout invalidation and viewport centering                             |
+| `graph-update-coordinator.ts`         | Update/layout ordering, coalescing, and mutation serialization         |
+| `undo-history.ts`                     | Pure undo/redo stacks of layout and source steps                       |
+| `node-positions.ts`                   | Capture and restore atomic node positions                              |
+| `GraphActionsProvider.tsx`            | Mounts graph sync and the Undo/Redo shortcuts; provides `GraphActions` |
+| `use-graph-sync.ts`                   | Graph updates, layout, and node-drag and Reset Layout history          |
+| `use-resource-creation.ts`            | Placeholder, extension insertion, and creation history step            |
+| `use-undo-redo.ts`                    | Undo/redo of layout and resource-creation steps                        |
+| `use-apply-graph.ts`                  | Reconcile graph nodes and edges                                        |
+| `use-apply-graph-layout.ts`           | Reveal and animate node positions                                      |
 | The coordinator enforces these rules: |
 
 - Reconcile before layout.
@@ -242,7 +242,7 @@ Lint runs with zero warnings and rejects unused disable directives.
 
 ## Current limitations
 
-- Graph update and layout responses share one `GraphPatch` union.
+- The host returns whole graphs; the webview compares consecutive graphs itself.
 - Webview and extension protocol declarations are not generated from a shared schema.
 - Long resource lists are not virtualized.
 

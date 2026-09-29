@@ -7,60 +7,46 @@ import { defineNotification, defineRequest, useWebviewMessageChannel } from "@vs
 import { useMemo } from "react";
 
 // ── Document ──
-// `ready` and `documentDidChange` are two halves of one exchange: the webview announces it is
-// mounted, and the host answers by sending the document and re-announcing it on every edit.
+// `webview/ready` and `document/didChange` are two halves of one exchange: the webview announces it
+// is mounted, and the host answers with the settings and the document, and re-announces the document on
+// every edit.
 
 /** "The webview has mounted; start sending me the document." */
-export const ready = defineNotification("ready");
+export const ready = defineNotification("webview/ready");
 
 export interface DocumentDidChangeParams {
   documentUri: string;
 }
 
-/** "The document changed; re-fetch whatever you derive from it." */
-export const documentDidChange = defineNotification<DocumentDidChangeParams>("documentDidChange");
-
 /**
- * Sent on every edit, without waiting for `documentDidChange`, which is debounced. Anything derived from
- * the previous content, such as which designer steps can be replayed, is stale until the next graph update.
+ * "The document may have changed; re-fetch whatever you derive from it." Sent on every change without
+ * debouncing, so consumers pace their own requests.
  */
-export const documentDidEdit = defineNotification("documentDidEdit");
+export const documentDidChange = defineNotification<DocumentDidChangeParams>("document/didChange");
 
-// ── Resource editing setting ──
-// The wire names still say `resourceCreation` because creation was the first gated action.
+// ── Settings ──
+// The host sends every setting the webview depends on once it is ready, and again whenever one changes.
 
-export const getResourceEditingEnablement = defineRequest<void, boolean>("resourceCreation/isEnabled");
-
-export const resourceEditingEnablementDidChange = defineNotification<boolean>("resourceCreation/enablementDidChange");
-
-// ── Motion policy ──
-// The host resolves the effective policy from the VS Code setting and the OS reduced-motion preference.
-
+/** `system` follows the OS reduced-motion preference; the host resolves the VS Code setting to one of these. */
 export type MotionPolicy = "system" | "reduce" | "animate";
 
-export const getMotionPolicy = defineRequest<void, MotionPolicy>("motionPolicy/get");
+export interface Settings {
+  motionPolicy: MotionPolicy;
+  /**
+   * The experimental `bicep.visualizer.experimental.enableResourceEditing` setting. It gates every action
+   * that edits Bicep source; the host rechecks it before applying any edit.
+   */
+  isResourceEditingEnabled: boolean;
+}
 
-export const motionPolicyDidChange = defineNotification<MotionPolicy>("motionPolicy/didChange");
+export const settingsDidChange = defineNotification<Settings>("settings/didChange");
 
 // ── Source locations ──
+// Sent when the user wants to reveal a node's source. The graph carries no source locations — they shift
+// on edits that change nothing visible — so the host asks the server to resolve the node id on demand.
+export const revealNode = defineNotification<RevealNodeParams>("document/revealNode");
 
-interface Position {
-  line: number;
-  character: number;
-}
-
-export interface Range {
-  start: Position;
-  end: Position;
-}
-
-// ── Notification: Webview → Extension ──
-// Sent when the user wants to reveal a node's source. The canonical graph carries no source
-// locations — they shift on edits that change nothing visible, so including them would put churn in
-// every diff — and the host asks the server to resolve the node id on demand instead.
-export const revealNodeSource = defineNotification<RevealNodeSourceParams>("revealNodeSource");
-
-interface RevealNodeSourceParams {
+interface RevealNodeParams {
   nodeId: string;
 }
 
@@ -78,7 +64,6 @@ export interface CreateResourceResult {
   version: 1;
   operationId: string;
   expectedNodeId: string;
-  symbolicName: string;
   unresolvedRequiredProperties: string[];
   /** Set when the resource was created but the extension could not track it, so it cannot be undone. */
   historyTrackingError?: string;
@@ -95,21 +80,21 @@ export interface SourceStepReference {
 }
 
 /** Undo or redo a source edit the designer made earlier, identified by the operation that made it. */
-export const replaySourceEdit = defineRequest<ReplaySourceEditParams, ReplaySourceEditResult>(
-  "undoHistory/replaySourceEdit",
+export const replaySourceStep = defineRequest<ReplaySourceStepParams, ReplaySourceStepResult>(
+  "history/replaySourceStep",
 );
 
-export interface ReplaySourceEditParams extends SourceStepReference {
+export interface ReplaySourceStepParams extends SourceStepReference {
   version: 1;
 }
 
-export type ReplaySourceEditResult = ReplaySourceEditParams;
+export type ReplaySourceStepResult = ReplaySourceStepParams;
 
 /**
  * Kept, like `CreateResourceErrorResult` below, to document the codes the extension can send.
  * `replayUnavailable` means the step can no longer be replayed exactly, so it should leave the history.
  */
-export interface ReplaySourceEditErrorResult {
+export interface ReplaySourceStepErrorResult {
   code:
     | "invalidHistoryRequest"
     | "editingDisabled"
@@ -146,31 +131,25 @@ export interface CreateResourceErrorResult {
   retryable: boolean;
 }
 
-// ──────────────────────────────────────────────────────────────────────────
-// Server-driven graph protocol
-//
-// The extension announces that the graph may have changed and the webview pulls the update:
-//   1. Extension → Webview: DOCUMENT_DID_CHANGE notification ("the graph may have changed").
-//   2. Webview → Extension: GET_GRAPH_UPDATE request carrying the graph it currently displays.
-//   3. Webview → Extension: GET_GRAPH_LAYOUT request after rendered node sizes are measured.
-// ──────────────────────────────────────────────────────────────────────────
+// ── Graph ──
+// The host announces that the document may have changed and the webview pulls the graph:
+//   1. Host → webview: `document/didChange`.
+//   2. Webview → host: `graph/get` returns the whole graph, built from the live compilation.
+//   3. Webview → host: `graph/layout` once the webview has rendered and measured the nodes.
 
-// ── Request: Webview → Extension ──
-// The webview submits the graph it currently displays (null on first load) and receives a
-// complete patch delta transforming it into the server's latest graph.
-export const getGraphUpdate = defineRequest<GetGraphUpdateParams, GetGraphUpdateResult>("getGraphUpdate");
+export const getGraph = defineRequest<GetGraphParams, GetGraphResult>("graph/get");
 
-export interface GetGraphUpdateParams {
-  current: RenderedGraph | null;
+export interface GetGraphParams {
   /** The source steps in the undo history, so the host can say which can still be replayed exactly. */
   sourceSteps: SourceStepReference[];
 }
 
-export interface GetGraphUpdateResult {
-  patches: GraphPatch[];
+export interface GetGraphResult {
+  /** Null when the host has no graph yet (the document is not compiled): keep what is shown. */
+  graph: Graph | null;
   targetScope: TargetScope | null;
   /**
-   * The requested source steps that can be replayed exactly in the document this update reflects. The rest can
+   * The requested source steps that can be replayed exactly in the document this graph reflects. The rest can
    * no longer be. Null when the host could not tell, so none should be offered until the next update.
    */
   replayableSourceSteps: SourceStepReference[] | null;
@@ -178,53 +157,35 @@ export interface GetGraphUpdateResult {
 
 export type TargetScope = "resourceGroup" | "subscription" | "managementGroup" | "tenant";
 
-export const getGraphLayout = defineRequest<GetGraphLayoutParams, GetGraphLayoutResult>("getGraphLayout");
+export const layoutGraph = defineRequest<LayoutGraphParams, LayoutGraphResult>("graph/layout");
 
-export interface GetGraphLayoutParams {
-  current: RenderedGraph;
+export interface LayoutGraphParams {
+  graph: MeasuredGraph;
 }
 
-export interface GetGraphLayoutResult {
+/**
+ * `graphChanged` means the host's graph no longer matches the measured one: fetch the graph and retry.
+ * `layoutFailed` means no layout was produced: keep the current positions.
+ */
+export interface LayoutGraphResult {
   status: "ok" | "graphChanged" | "layoutFailed";
-  patches: GraphPatch[];
+  /** The nodes the layout engine positioned, in graph coordinates. */
+  positions: NodePosition[];
+  bounds: GraphBounds | null;
 }
 
 type GraphNodeKind = "resource" | "module";
 
-/** The graph as currently rendered by the webview, sent with each update request for the server to diff against. */
-export interface RenderedGraph {
-  nodes: RenderedGraphNode[];
-  edges: RenderedGraphEdge[];
-}
-
 /**
- * A node as currently rendered by the webview: its identity, the layout-irrelevant metadata it was rendered
- * with, and its client-measured size. The metadata travels with the request so the server can diff it
- * precisely and emit a metadata patch only when a field actually changed.
+ * The document's graph. Nodes carry no source location: it shifts on edits that change nothing
+ * visible, so the host resolves it on demand when a node is revealed.
  */
-export interface RenderedGraphNode {
-  id: string;
-  kind: GraphNodeKind;
-  parentId: string | null;
-  type: string;
-  isCollection: boolean;
-  hasChildren: boolean;
-  hasError: boolean;
-  width: number;
-  height: number;
+export interface Graph {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  errorCount: number;
 }
 
-interface RenderedGraphEdge {
-  id: string;
-  sourceId: string;
-  targetId: string;
-}
-
-/**
- * A node in the server's canonical graph. Sizes are measured by the webview, not sent by the server, and
- * source locations (range/filePath) are intentionally omitted: they are resolved on demand via
- * {@link REVEAL_NODE_SOURCE_NOTIFICATION} so that whitespace-only edits never produce metadata patches.
- */
 export interface GraphNode {
   id: string;
   kind: GraphNodeKind;
@@ -243,8 +204,22 @@ export interface GraphEdge {
   targetId: string;
 }
 
-/** A server-computed position in graph coordinates. */
-export interface NodeLayout {
+/** The graph as rendered, with the size measured for each node: the input to layout. */
+export interface MeasuredGraph {
+  nodes: MeasuredGraphNode[];
+  edges: GraphEdge[];
+}
+
+export interface MeasuredGraphNode {
+  id: string;
+  kind: GraphNodeKind;
+  parentId: string | null;
+  width: number;
+  height: number;
+}
+
+export interface NodePosition {
+  nodeId: string;
   x: number;
   y: number;
 }
@@ -258,27 +233,6 @@ export interface GraphBounds {
   width: number;
   height: number;
 }
-
-/** The mutable subset of a node that can change without altering topology (metadata-only updates). */
-export interface GraphNodeChanges {
-  type?: string | null;
-  isCollection?: boolean | null;
-  hasChildren?: boolean | null;
-  hasError?: boolean | null;
-}
-
-/** A typed, ordered patch. A response is a complete delta as a list of these; an empty list means no change. */
-export type GraphPatch =
-  | { op: "clearGraph" }
-  | { op: "addNode"; node: GraphNode }
-  | { op: "removeNode"; nodeId: string }
-  | { op: "updateNode"; nodeId: string; changes: GraphNodeChanges }
-  | { op: "addEdge"; edge: GraphEdge }
-  | { op: "removeEdge"; edgeId: string }
-  | { op: "setNodeLayout"; nodeId: string; layout: NodeLayout }
-  | { op: "setGraphBounds"; bounds: GraphBounds }
-  | { op: "setErrorCount"; errorCount: number };
-
 /**
  * The deployment graph's operations against the extension host.
  *
@@ -294,12 +248,11 @@ export function useGraphApi() {
 
   return useMemo(
     () => ({
-      fetchUpdate: (current: RenderedGraph | null, sourceSteps: SourceStepReference[]) =>
-        channel.request(getGraphUpdate, { current, sourceSteps }),
-      fetchGraphLayout: (current: RenderedGraph) => channel.request(getGraphLayout, { current }),
+      getGraph: (sourceSteps: SourceStepReference[]) => channel.request(getGraph, { sourceSteps }),
+      layoutGraph: (graph: MeasuredGraph) => channel.request(layoutGraph, { graph }),
       createResource: (params: CreateResourceParams) => channel.request(createResource, params),
-      replaySourceEdit: (params: ReplaySourceEditParams) => channel.request(replaySourceEdit, params),
-      revealNodeSource: (nodeId: string) => channel.notify(revealNodeSource, { nodeId }),
+      replaySourceStep: (params: ReplaySourceStepParams) => channel.request(replaySourceStep, params),
+      revealNode: (nodeId: string) => channel.notify(revealNode, { nodeId }),
     }),
     [channel],
   );

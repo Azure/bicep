@@ -11,15 +11,15 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 namespace Bicep.LanguageServer.Features.Custom.Visualization
 {
     /// <summary>
-    /// Handles <c>textDocument/prepareVisualResource</c>: generates a new top-level resource declaration for
+    /// Handles <c>textDocument/prepareVisualResourceCreation</c>: generates a new top-level resource declaration for
     /// the requested resource type and returns a proposed versioned <see cref="OmniSharp.Extensions.LanguageServer.Protocol.Models.WorkspaceEdit"/>
     /// for the active document. The client applies the edit itself (subject to its own version
     /// checks) rather than the server pushing it via <c>workspace/applyEdit</c>, since the visual designer needs
     /// the generated symbolic name and unresolved-property metadata alongside the edit.
     /// </summary>
-    public class CreateResourceDeclarationInsertionHandler : IJsonRpcRequestHandler<CreateResourceDeclarationInsertionParams, ResourceDeclarationInsertion>
+    public class PrepareVisualResourceCreationHandler : IJsonRpcRequestHandler<PrepareVisualResourceCreationParams, PrepareVisualResourceCreationResult>
     {
-        private readonly ILogger<CreateResourceDeclarationInsertionHandler> logger;
+        private readonly ILogger<PrepareVisualResourceCreationHandler> logger;
 
         private readonly BicepCompiler compiler;
 
@@ -27,8 +27,8 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
         private readonly IVisualResourceCreationService visualResourceCreationService;
 
-        public CreateResourceDeclarationInsertionHandler(
-            ILogger<CreateResourceDeclarationInsertionHandler> logger,
+        public PrepareVisualResourceCreationHandler(
+            ILogger<PrepareVisualResourceCreationHandler> logger,
             BicepCompiler compiler,
             ICompilationManager compilationManager,
             IVisualResourceCreationService visualResourceCreationService)
@@ -39,7 +39,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
             this.visualResourceCreationService = visualResourceCreationService;
         }
 
-        public Task<ResourceDeclarationInsertion> Handle(CreateResourceDeclarationInsertionParams request, CancellationToken cancellationToken)
+        public Task<PrepareVisualResourceCreationResult> Handle(PrepareVisualResourceCreationParams request, CancellationToken cancellationToken)
         {
             var context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
 
@@ -52,7 +52,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
             try
             {
-                var result = this.visualResourceCreationService.CreateResourceDeclarationInsertion(this.compiler, context, request);
+                var result = this.visualResourceCreationService.PrepareResourceCreation(this.compiler, context, request);
 
                 return Task.FromResult(result);
             }

@@ -2,19 +2,14 @@
 // Licensed under the MIT License.
 
 import type { Box, Point } from "@/lib/math";
-import type { GraphBounds, GraphNode, GraphPatch, NodeLayout } from "./api";
+import type { GraphBounds, NodePosition } from "./api";
+import type { ClientGraph } from "./graph-model";
 
 /**
  * The node metadata fields that influence rendered size and therefore layout. Keep this consistent
- * with the rendered graph comparison and the language server's layout validation.
+ * with the measured graph comparison and the language server's layout validation.
  */
 const LAYOUT_AFFECTING_NODE_FIELDS = ["type", "isCollection", "hasChildren"] as const;
-
-type LayoutRelevantNode = Pick<GraphNode, (typeof LAYOUT_AFFECTING_NODE_FIELDS)[number] | "kind" | "parentId">;
-
-interface LayoutRelevantGraph {
-  nodes: ReadonlyMap<string, LayoutRelevantNode>;
-}
 
 export interface LayoutExemptions {
   /** Nodes placed where the user dropped them. Adding one does not require a layout. */
@@ -26,86 +21,62 @@ export interface LayoutExemptions {
   pendingRemovalNodeIds?: ReadonlySet<string>;
 }
 
-/** Whether applying a patch may invalidate the current graph layout. */
-export function patchMayAffectLayout(
-  graph: LayoutRelevantGraph,
-  patch: GraphPatch,
+/** Whether replacing `previous` with `next` may invalidate the current layout. */
+export function graphChangeMayAffectLayout(
+  previous: ClientGraph,
+  next: ClientGraph,
   { explicitlyPlacedNodeIds = new Set(), pendingRemovalNodeIds = new Set() }: LayoutExemptions = {},
 ): boolean {
-  switch (patch.op) {
-    case "clearGraph":
-    case "addEdge":
-    case "removeEdge":
-      return true;
-    case "removeNode": {
-      const node = graph.nodes.get(patch.nodeId);
-      const isIndependentResource = node?.kind === "resource" && node.parentId === null && !node.hasChildren;
-      return !(pendingRemovalNodeIds.has(patch.nodeId) && isIndependentResource);
-    }
-    case "addNode":
-      return !explicitlyPlacedNodeIds.has(patch.node.id);
-    case "updateNode": {
-      const node = graph.nodes.get(patch.nodeId);
-      if (!node) {
-        return false;
+  for (const [nodeId, node] of previous.nodes) {
+    const nextNode = next.nodes.get(nodeId);
+
+    if (!nextNode) {
+      const isIndependentResource = node.kind === "resource" && node.parentId === null && !node.hasChildren;
+      if (pendingRemovalNodeIds.has(nodeId) && isIndependentResource) {
+        continue;
       }
-      const { changes } = patch;
-      return LAYOUT_AFFECTING_NODE_FIELDS.some(
-        (field) => changes[field] !== undefined && changes[field] !== null && changes[field] !== node[field],
-      );
+      return true;
     }
-    case "setNodeLayout":
-    case "setGraphBounds":
-    case "setErrorCount":
-      return false;
-  }
-}
 
-/** Extract the server-computed positions and final bounds from a graph layout patch list. */
-export function extractGraphLayout(patches: readonly GraphPatch[]): {
-  nodeLayouts: Map<string, NodeLayout>;
-  graphBounds: GraphBounds | null;
-} {
-  const nodeLayouts = new Map<string, NodeLayout>();
-  let graphBounds: GraphBounds | null = null;
-
-  for (const patch of patches) {
-    if (patch.op === "setNodeLayout") {
-      nodeLayouts.set(patch.nodeId, patch.layout);
-    } else if (patch.op === "setGraphBounds") {
-      graphBounds = patch.bounds;
+    // A node whose kind or container changed is replaced rather than updated.
+    if (
+      nextNode.kind !== node.kind ||
+      nextNode.parentId !== node.parentId ||
+      LAYOUT_AFFECTING_NODE_FIELDS.some((field) => nextNode[field] !== node[field])
+    ) {
+      return true;
     }
   }
 
-  return { nodeLayouts, graphBounds };
+  for (const nodeId of next.nodes.keys()) {
+    if (!previous.nodes.has(nodeId) && !explicitlyPlacedNodeIds.has(nodeId)) {
+      return true;
+    }
+  }
+
+  return (
+    next.edges.size !== previous.edges.size || [...next.edges.keys()].some((edgeId) => !previous.edges.has(edgeId))
+  );
 }
 
 /**
  * Shift a server layout so the graph sits centred on `viewportCenter`.
  *
- * Returns the shifted positions and the graph's bounds in the same space, which is what fit-view
- * needs.
+ * Returns the shifted positions, keyed by node id, and the graph's bounds in the same space, which is
+ * what fit-view needs.
  */
 export function centerGraphLayout(
-  nodeLayouts: Map<string, NodeLayout>,
+  positions: readonly NodePosition[],
   graphBounds: GraphBounds | null,
   viewportCenter: Point,
-): { nodeLayouts: Map<string, NodeLayout>; bounds: Box | null } {
-  if (!graphBounds) {
-    return { nodeLayouts, bounds: null };
-  }
-
-  const offsetX = viewportCenter.x - graphBounds.width / 2;
-  const offsetY = viewportCenter.y - graphBounds.height / 2;
-  const centeredLayouts = new Map<string, NodeLayout>();
-
-  for (const [nodeId, layout] of nodeLayouts) {
-    centeredLayouts.set(nodeId, { x: layout.x + offsetX, y: layout.y + offsetY });
-  }
+): { positions: Map<string, Point>; bounds: Box | null } {
+  const offsetX = graphBounds ? viewportCenter.x - graphBounds.width / 2 : 0;
+  const offsetY = graphBounds ? viewportCenter.y - graphBounds.height / 2 : 0;
+  const centered = new Map(positions.map(({ nodeId, x, y }) => [nodeId, { x: x + offsetX, y: y + offsetY }]));
 
   return {
-    nodeLayouts: centeredLayouts,
-    bounds: {
+    positions: centered,
+    bounds: graphBounds && {
       min: { x: offsetX, y: offsetY },
       max: { x: offsetX + graphBounds.width, y: offsetY + graphBounds.height },
     },

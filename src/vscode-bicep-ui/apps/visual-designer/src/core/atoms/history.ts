@@ -19,12 +19,3 @@ export const nextRedoStepAtom = atom((get) => get(undoHistoryAtom).redoStack.at(
  * replayed waits for the graph update that follows it.
  */
 export const replayableSourceStepKeysAtom = atom<ReadonlySet<string>>(new Set<string>());
-
-/** Counts edits to the Bicep file, so a graph update fetched before the latest one confirms nothing. */
-export const sourceEditGenerationAtom = atom(0);
-
-/** The Bicep file was just edited: no source step is confirmed until the graph update that follows. */
-export const reportSourceEditAtom = atom(null, (_get, set) => {
-  set(sourceEditGenerationAtom, (generation) => generation + 1);
-  set(replayableSourceStepKeysAtom, new Set<string>());
-});

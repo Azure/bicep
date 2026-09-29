@@ -6,7 +6,7 @@ import type { Point } from "@/lib/math";
 import type { ClientGraph } from "../graph-model";
 
 import { useSetAtom, useStore } from "jotai";
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import {
   addAtomicNodeAtom,
   addCompoundNodeAtom,
@@ -16,8 +16,6 @@ import {
   nodesByIdAtom,
   removeNodesAtom,
 } from "@/lib/graph";
-import { graphErrorCountAtom, graphHasNodesAtom } from "../atoms";
-import { clientGraphsRenderEqually } from "../graph-model";
 
 type Store = ReturnType<typeof createStore>;
 
@@ -44,6 +42,10 @@ function snapshotNodePositions(store: Store): Map<string, Point> {
   return positions;
 }
 
+/**
+ * Returns a function that mounts, updates, and removes canvas nodes and edges to match a graph. Positions
+ * are left to layout; new nodes start at `newNodeOrigins`, where they were dropped, or near the others.
+ */
 export function useApplyGraph(getViewportCenter: () => Point) {
   const store = useStore();
   const setEdgesAtom = useSetAtom(edgesAtom);
@@ -52,28 +54,10 @@ export function useApplyGraph(getViewportCenter: () => Point) {
   const addEdge = useSetAtom(addEdgeAtom);
   const removeNodes = useSetAtom(removeNodesAtom);
   const setLayoutReady = useSetAtom(layoutReadyAtom);
-  const appliedGraphRef = useRef<ClientGraph | null>(null);
 
   return useCallback(
-    (graph: ClientGraph | null, newNodeOrigins: ReadonlyMap<string, Point> = new Map()) => {
-      store.set(graphErrorCountAtom, graph?.errorCount ?? 0);
-      store.set(graphHasNodesAtom, (graph?.nodes.size ?? 0) > 0);
-
-      // Nothing the canvas shows has changed, so leave the mounted nodes alone rather than tearing
-      // the graph down and re-laying it out. Most keystrokes land here.
-      if (clientGraphsRenderEqually(appliedGraphRef.current, graph)) {
-        return;
-      }
-
-      // The graph is mutated in place, so keep a shallow copy: holding the live reference would
-      // compare it against itself on the next pass and report equal every time.
-      appliedGraphRef.current = graph && {
-        nodes: new Map(graph.nodes),
-        edges: new Map(graph.edges),
-        errorCount: graph.errorCount,
-      };
-
-      if (!graph || graph.nodes.size === 0) {
+    (graph: ClientGraph, newNodeOrigins: ReadonlyMap<string, Point> = new Map()) => {
+      if (graph.nodes.size === 0) {
         // Empty graph — clear everything and re-engage the
         // visibility gate so the next non-empty graph can spawn
         // from the center without flashing.

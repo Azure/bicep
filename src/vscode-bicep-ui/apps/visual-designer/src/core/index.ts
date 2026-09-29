@@ -4,8 +4,7 @@
 export { GraphActionsProvider } from "./components/GraphActionsProvider";
 export { useGraphActions } from "./context/use-graph-actions";
 export { useDocumentSync } from "./hooks/use-document-sync";
-export { useMotionPolicySync } from "./hooks/use-motion-policy-sync";
-export { useResourceEditingEnablementSync } from "./hooks/use-resource-editing-enablement-sync";
+export { useSettingsSync } from "./hooks/use-settings-sync";
 export { useUndoRedoAvailability } from "./hooks/use-undo-redo-availability";
 export {
   documentUriAtom,

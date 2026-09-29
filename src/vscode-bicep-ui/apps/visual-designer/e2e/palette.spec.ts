@@ -358,7 +358,7 @@ test("changing the target scope while the palette is open refreshes its types", 
 });
 
 test("scope remains when the entire creation dock is disabled", async ({ page }) => {
-  await openVisualDesigner(page, { resourceCreation: "false", targetScope: "tenant" });
+  await openVisualDesigner(page, { resourceEditing: "false", targetScope: "tenant" });
   await expect(page.getByTestId("creation-dock")).toHaveCount(0);
   await expect(page.getByTestId("target-scope")).toHaveAccessibleName("Target scope: Tenant");
   await page.getByRole("combobox", { name: "Document target scope" }).selectOption("subscription");
@@ -447,14 +447,24 @@ test("disabling creation during a drag removes the dock and cancels the pending 
   await page.mouse.down();
   await page.mouse.move(resourceBox!.x + 40, resourceBox!.y - 20, { steps: 4 });
   await expect(page.getByTestId("palette-drag-preview-card")).toBeVisible();
-  await page.evaluate(() => window.postMessage({ method: "resourceCreation/enablementDidChange", params: false }, "*"));
+  await page.evaluate(() =>
+    window.postMessage(
+      { method: "settings/didChange", params: { motionPolicy: "animate", isResourceEditingEnabled: false } },
+      "*",
+    ),
+  );
   await expect(page.getByTestId("creation-dock")).toHaveCount(0);
   await expect(page.getByRole("complementary")).toHaveCount(0);
   await expect(page.getByTestId("palette-drag-preview-card")).toHaveCount(0);
   await page.mouse.move(100, 300);
   await page.mouse.up();
   expect(await creations(page)).toEqual([]);
-  await page.evaluate(() => window.postMessage({ method: "resourceCreation/enablementDidChange", params: true }, "*"));
+  await page.evaluate(() =>
+    window.postMessage(
+      { method: "settings/didChange", params: { motionPolicy: "animate", isResourceEditingEnabled: true } },
+      "*",
+    ),
+  );
   await expect(page.getByTestId("creation-dock")).toBeVisible();
   await expect(page.getByTestId("palette-drag-preview-card")).toHaveCount(0);
   await expect(page.getByTestId("target-scope")).toBeVisible();
@@ -688,19 +698,21 @@ test("resource rows align with their group header in browsing and search", async
   const row = page.getByTestId("resource-type-row");
   await expect(row).toBeVisible();
 
-  const expectAligned = async () => {
-    const header = page.getByRole("button", { name: /^Microsoft\.Storage/ });
-    const name = (await header.getByText("Microsoft.Storage", { exact: true }).boundingBox())!;
-    const chevron = (await header.getByTestId("chevron-down-codicon").boundingBox())!;
-    const search = (await page.getByRole("textbox", { name: "Filter resource types" }).locator("..").boundingBox())!;
-    const searchIcon = (await page.getByTestId("search-codicon").boundingBox())!;
-    const icon = (await row.getByTestId(`${STORAGE_TYPE}-icon`).boundingBox())!;
-    const picker = (await row.getByTestId("api-version-picker").boundingBox())!;
-    expect(icon.x).toBeCloseTo(name.x, 0);
-    expect(searchIcon.x).toBeCloseTo(name.x, 0);
-    expect(picker.x + picker.width).toBeCloseTo(chevron.x + chevron.width, 0);
-    expect(search.x + search.width - (chevron.x + chevron.width)).toBeCloseTo(name.x - search.x, 0);
-  };
+  // The group opens with an animation, so measure once it has settled.
+  const expectAligned = () =>
+    expect(async () => {
+      const header = page.getByRole("button", { name: /^Microsoft\.Storage/ });
+      const name = (await header.getByText("Microsoft.Storage", { exact: true }).boundingBox())!;
+      const chevron = (await header.getByTestId("chevron-down-codicon").boundingBox())!;
+      const search = (await page.getByRole("textbox", { name: "Filter resource types" }).locator("..").boundingBox())!;
+      const searchIcon = (await page.getByTestId("search-codicon").boundingBox())!;
+      const icon = (await row.getByTestId(`${STORAGE_TYPE}-icon`).boundingBox())!;
+      const picker = (await row.getByTestId("api-version-picker").boundingBox())!;
+      expect(icon.x).toBeCloseTo(name.x, 0);
+      expect(searchIcon.x).toBeCloseTo(name.x, 0);
+      expect(picker.x + picker.width).toBeCloseTo(chevron.x + chevron.width, 0);
+      expect(search.x + search.width - (chevron.x + chevron.width)).toBeCloseTo(name.x - search.x, 0);
+    }).toPass();
 
   await expectAligned();
   await page.getByRole("textbox", { name: "Filter resource types" }).fill("storageAccounts");

@@ -3,7 +3,7 @@
 
 import type { createStore } from "jotai";
 import type { Box, Point } from "@/lib/math";
-import type { GetGraphUpdateResult, GraphPatch, NodeLayout, RenderedGraph } from "../api";
+import type { GetGraphResult, MeasuredGraph } from "../api";
 import type { GraphActions } from "../context/GraphActionsContext";
 import type { ClientGraph } from "../graph-model";
 import type { GraphLayoutMode, GraphLayoutResult } from "../graph-update-coordinator";
@@ -16,16 +16,23 @@ import { getErrorMessage } from "@/utils";
 import { useGraphApi } from "../api";
 import {
   commitPendingResourcesAtom,
+  graphErrorCountAtom,
+  graphHasNodesAtom,
   pendingPlacementsAtom,
   pendingRemovalNodeIdsAtom,
   replayableSourceStepKeysAtom,
   resourceNodeIsCommittingAtomFamily,
-  sourceEditGenerationAtom,
   targetScopeAtom,
   undoHistoryAtom,
 } from "../atoms";
-import { centerGraphLayout, extractGraphLayout, patchMayAffectLayout } from "../graph-layout";
-import { applyGraphPatch, buildRenderedGraph, createClientGraph, renderedGraphsEqual } from "../graph-model";
+import { centerGraphLayout, graphChangeMayAffectLayout } from "../graph-layout";
+import {
+  clientGraphsRenderEqually,
+  EMPTY_CLIENT_GRAPH,
+  indexGraph,
+  measuredGraphsEqual,
+  measureGraph,
+} from "../graph-model";
 import { GraphUpdateCoordinator } from "../graph-update-coordinator";
 import { captureNodePositions, getAtomicNodeIds } from "../node-positions";
 import { forgetRemovedNodes, getSourceStepKey, getSourceStepReferences, recordLayoutChange } from "../undo-history";
@@ -36,6 +43,9 @@ import { useTrackGraphChange } from "./use-track-graph-change";
 import { useUndoRedo } from "./use-undo-redo";
 
 type Store = ReturnType<typeof createStore>;
+
+/** How long document changes must pause before the graph is fetched again. */
+const GRAPH_UPDATE_DELAY_MS = 200;
 
 function waitForAnimationFrame(): Promise<void> {
   return new Promise((resolve) => requestAnimationFrame(() => resolve()));
@@ -53,22 +63,9 @@ function measureNodes(store: Store): Map<string, Box> {
   return boxes;
 }
 
-/** The node a patch adds, removes, or updates, if any. */
-function getPatchedNodeId(patch: GraphPatch): string | null {
-  switch (patch.op) {
-    case "addNode":
-      return patch.node.id;
-    case "removeNode":
-    case "updateNode":
-      return patch.nodeId;
-    default:
-      return null;
-  }
-}
-
 export interface GraphSync extends GraphActions {
-  /** The Bicep file may have changed: fetch and apply the graph delta. */
-  requestGraphUpdate: () => Promise<void>;
+  /** The Bicep file may have changed: withdraw what depended on it and fetch the graph once edits pause. */
+  handleDocumentChange: () => void;
 }
 
 /**
@@ -88,25 +85,25 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
   const { applyGraphLayout, animateNodePositions, stopNodeAnimations } = useApplyGraphLayout();
   const api = useGraphApi();
   const trackGraphChange = useTrackGraphChange();
-  const [coordinator] = useState(() => new GraphUpdateCoordinator<GetGraphUpdateResult>());
+  const [coordinator] = useState(() => new GraphUpdateCoordinator<GetGraphResult>());
   const createResourceAt = useResourceCreation(coordinator);
   const { undo, redo } = useUndoRedo(coordinator, { animateNodePositions, stopNodeAnimations });
 
   /**
-   * The two graphs the client holds: its copy of the server's canonical graph, and the last
-   * `RenderedGraph` it submitted for layout — kept so a pass can skip layout when measured sizes are
-   * unchanged.
+   * The two graphs the client holds: the latest graph from the host, and the last measured graph it
+   * submitted for layout — kept so a pass can skip layout when measured sizes are unchanged.
    */
-  const clientGraphsRef = useRef<{ graph: ClientGraph; rendered: RenderedGraph | null }>({
-    graph: createClientGraph(),
-    rendered: null,
+  const clientGraphsRef = useRef<{ graph: ClientGraph; measured: MeasuredGraph | null }>({
+    graph: EMPTY_CLIENT_GRAPH,
+    measured: null,
   });
 
   /** For each node drag in progress, the positions of the dragged subtree when it started moving. */
   const dragStartPositionsRef = useRef(new Map<string, NodePositions>());
 
-  /** The source edit generation when the pending graph update was fetched. */
-  const fetchedAtSourceEditRef = useRef(0);
+  /** The pending graph update for a document change, which waits for a pause in the edits. */
+  const updateTimerRef = useRef<number | undefined>(undefined);
+  useEffect(() => () => window.clearTimeout(updateTimerRef.current), []);
 
   const handleNodeDragStart = useCallback(
     (nodeId: string) => {
@@ -129,60 +126,54 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
     [store],
   );
 
-  const fetchUpdate = useCallback(() => {
-    const graph = clientGraphsRef.current.graph;
-    const current: RenderedGraph | null =
-      graph.nodes.size === 0 ? null : buildRenderedGraph(graph, measureNodes(store));
-
-    // The coordinator runs one fetch and apply at a time, so a ref is enough to pair them.
-    fetchedAtSourceEditRef.current = store.get(sourceEditGenerationAtom);
-    return api.fetchUpdate(current, getSourceStepReferences(store.get(undoHistoryAtom)));
-  }, [api, store]);
+  const fetchUpdate = useCallback(
+    () => api.getGraph(getSourceStepReferences(store.get(undoHistoryAtom))),
+    [api, store],
+  );
 
   const applyUpdate = useCallback(
-    async (response: GetGraphUpdateResult): Promise<{ layoutRequired: boolean }> => {
+    async (response: GetGraphResult): Promise<{ layoutRequired: boolean }> => {
+      // Offer only the source steps the host confirmed for this update. The rest stay in the history,
+      // disabled, since an edit in progress can make a step replayable again. The coordinator never
+      // applies a response fetched before the latest document change, so these match the current file.
+      store.set(replayableSourceStepKeysAtom, new Set((response.replayableSourceSteps ?? []).map(getSourceStepKey)));
+
+      if (!response.graph) {
+        return { layoutRequired: false };
+      }
+
       store.set(targetScopeAtom, response.targetScope);
-      const graph = clientGraphsRef.current.graph;
+      const previous = clientGraphsRef.current.graph;
+      const graph = indexGraph(response.graph);
+      clientGraphsRef.current.graph = graph;
+      store.set(graphErrorCountAtom, graph.errorCount);
+      store.set(graphHasNodesAtom, graph.nodes.size > 0);
+
       const placements = store.get(pendingPlacementsAtom);
-      const pendingRemovalNodeIds = new Set(store.get(pendingRemovalNodeIdsAtom));
-      const nodeLayouts = new Map<string, NodeLayout>();
-      const newNodeOrigins = new Map<string, Point>();
-      const explicitlyPlacedNodeIds = new Set(placements.keys());
-      let layoutMayBeStale = false;
+      const pendingRemovalNodeIds = store.get(pendingRemovalNodeIdsAtom);
+      const layoutRequired =
+        graph.nodes.size > 0 &&
+        graphChangeMayAffectLayout(previous, graph, {
+          explicitlyPlacedNodeIds: new Set(placements.keys()),
+          pendingRemovalNodeIds,
+        });
 
-      for (const patch of response.patches) {
-        layoutMayBeStale ||= patchMayAffectLayout(graph, patch, { explicitlyPlacedNodeIds, pendingRemovalNodeIds });
+      // A removal the designer was expecting has happened once the node is gone.
+      store.set(pendingRemovalNodeIdsAtom, new Set([...pendingRemovalNodeIds].filter((id) => graph.nodes.has(id))));
 
-        // Once a graph update touches a node, any removal the designer was expecting has happened.
-        const patchedNodeId = getPatchedNodeId(patch);
-        if (patchedNodeId !== null) {
-          pendingRemovalNodeIds.delete(patchedNodeId);
-        }
-
-        if (patch.op === "addNode") {
-          const origin = placements.get(patch.node.id);
-          if (origin) {
-            newNodeOrigins.set(patch.node.id, origin);
-          }
-        }
-
-        applyGraphPatch(graph, nodeLayouts, patch);
-      }
-
-      // A `clearGraph` patch removes nodes without a `removeNode` patch for each of them.
-      for (const nodeId of pendingRemovalNodeIds) {
-        if (!graph.nodes.has(nodeId)) {
-          pendingRemovalNodeIds.delete(nodeId);
-        }
-      }
-      store.set(pendingRemovalNodeIdsAtom, pendingRemovalNodeIds);
-
-      const layoutRequired = layoutMayBeStale && graph.nodes.size > 0;
+      const newNodeOrigins = new Map(
+        [...placements].filter(([nodeId]) => graph.nodes.has(nodeId) && !previous.nodes.has(nodeId)),
+      );
 
       if (graph.nodes.size === 0) {
-        clientGraphsRef.current.rendered = null;
+        clientGraphsRef.current.measured = null;
       }
 
+      // Nothing the canvas shows has changed, so leave the mounted nodes alone rather than tearing the
+      // graph down and re-laying it out. Most keystrokes land here.
+      if (clientGraphsRenderEqually(previous, graph)) {
+        return { layoutRequired };
+      }
       for (const nodeId of newNodeOrigins.keys()) {
         // Set before applyGraph mounts the node so Motion sees the compact initial state.
         store.set(resourceNodeIsCommittingAtomFamily(nodeId), true);
@@ -196,13 +187,6 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
         const liveNodeIds = new Set([...getAtomicNodeIds(store), ...placements.keys()]);
         store.set(undoHistoryAtom, (history) => forgetRemovedNodes(history, liveNodeIds));
       }
-
-      // Offer only the source steps the host confirmed for this update. The rest stay in the history,
-      // disabled, since an edit in progress can make a step replayable again. A response fetched before
-      // the latest edit confirms nothing: the debounced update for that edit is still to come.
-      const replayableSourceSteps =
-        fetchedAtSourceEditRef.current === store.get(sourceEditGenerationAtom) ? response.replayableSourceSteps : null;
-      store.set(replayableSourceStepKeysAtom, new Set((replayableSourceSteps ?? []).map(getSourceStepKey)));
 
       if (newNodeOrigins.size > 0) {
         store.set(commitPendingResourcesAtom, new Set(newNodeOrigins.keys()));
@@ -225,15 +209,15 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
       const graph = clientGraphsRef.current.graph;
 
       if (graph.nodes.size === 0) {
-        clientGraphsRef.current.rendered = null;
+        clientGraphsRef.current.measured = null;
         return "completed";
       }
 
       await waitForAnimationFrame();
 
-      const measuredGraph = buildRenderedGraph(graph, measureNodes(store));
+      const measuredGraph = measureGraph(graph, measureNodes(store));
 
-      if (!isReset && renderedGraphsEqual(clientGraphsRef.current.rendered, measuredGraph)) {
+      if (!isReset && measuredGraphsEqual(clientGraphsRef.current.measured, measuredGraph)) {
         // Nothing was resized since the last layout, so the positions still hold. Reveal the graph in
         // case it is still behind the visibility gate. A reset skips this: the measurements are
         // unchanged when the user has only dragged nodes, which is exactly when it must still run.
@@ -241,7 +225,7 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
         return "completed";
       }
 
-      const layoutResponse = await api.fetchGraphLayout(measuredGraph);
+      const layoutResponse = await api.layoutGraph(measuredGraph);
 
       if (layoutResponse.status === "graphChanged") {
         return "graphChanged";
@@ -253,20 +237,19 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
         return "completed";
       }
 
-      const { nodeLayouts, graphBounds } = extractGraphLayout(layoutResponse.patches);
-      const { nodeLayouts: centeredNodeLayouts, bounds } = centerGraphLayout(
-        nodeLayouts,
-        graphBounds,
+      const { positions: centeredPositions, bounds } = centerGraphLayout(
+        layoutResponse.positions,
+        layoutResponse.bounds,
         getViewportCenter(),
       );
-      clientGraphsRef.current.rendered = measuredGraph;
+      clientGraphsRef.current.measured = measuredGraph;
 
       if (!isReset) {
         // Fit the viewport to the server-computed graph bounds before the nodes settle there.
         if (bounds) {
           fitViewToBounds(bounds);
         }
-        await applyGraphLayout(centeredNodeLayouts);
+        await applyGraphLayout(centeredPositions);
         return "completed";
       }
 
@@ -274,8 +257,8 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
       // one undoable step, from where the nodes are now (stopping any animation) to the new layout.
       stopNodeAnimations();
       const positionsBefore = captureNodePositions(store);
-      await applyGraphLayout(centeredNodeLayouts);
-      store.set(undoHistoryAtom, (history) => recordLayoutChange(history, positionsBefore, centeredNodeLayouts));
+      await applyGraphLayout(centeredPositions);
+      store.set(undoHistoryAtom, (history) => recordLayoutChange(history, positionsBefore, centeredPositions));
 
       return "completed";
     },
@@ -286,7 +269,19 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
     coordinator.setOperations({ fetchUpdate, applyUpdate, runGraphLayout });
   }, [applyUpdate, coordinator, fetchUpdate, runGraphLayout]);
 
-  const requestGraphUpdate = useCallback(() => coordinator.requestUpdate(), [coordinator]);
+  const handleDocumentChange = useCallback(() => {
+    // Replay confirmations describe the previous content, so none holds until the update for this change.
+    store.set(replayableSourceStepKeysAtom, new Set<string>());
+    coordinator.invalidateUpdate();
+
+    // Edits arrive in bursts, so fetch once they pause rather than showing every intermediate graph.
+    window.clearTimeout(updateTimerRef.current);
+    updateTimerRef.current = window.setTimeout(() => {
+      coordinator.requestUpdate().catch((error: unknown) => {
+        console.error("Visual designer graph update failed:", getErrorMessage(error, "Failed to update the graph."));
+      });
+    }, GRAPH_UPDATE_DELAY_MS);
+  }, [coordinator, store]);
 
   const resetGraphLayout = useCallback(
     () =>
@@ -300,7 +295,7 @@ export function useGraphSync(getViewportCenter: () => Point, fitViewToBounds: (b
   );
 
   return {
-    requestGraphUpdate,
+    handleDocumentChange,
     resetGraphLayout,
     createResourceAt,
     handleNodeDragStart,

@@ -2,20 +2,12 @@
 // Licensed under the MIT License.
 
 import type { ReactNode } from "react";
-import type { ResourceTypeCatalogEntry } from "../atoms";
-import type { ResourceTypeCatalogGroup, ResourceTypeNamespace } from "../types";
+import type { ResourceTypeCatalogEntry, ResourceTypeGroup } from "../types";
 import type { PaletteContentProps } from "./PaletteContent";
 
 import { Accordion, Codicon, useAccordionItem } from "@vscode-bicep-ui/components";
-import { useAtomValue, useSetAtom, useStore } from "jotai";
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo } from "react";
 import styled from "styled-components";
-import { getErrorMessage } from "@/utils";
-import {
-  getNamespaceResourceTypesKey,
-  namespaceResourceTypesAtomFamily,
-  resourceTypeCatalogLoadingCountAtom,
-} from "../atoms";
 import { useProgressiveBudget } from "../hooks/use-progressive-budget";
 import { allocateProgressiveRows } from "../progressive-rows";
 import { ResourceTypeItem } from "./ResourceTypeItem";
@@ -224,106 +216,40 @@ function ResourceTypeGroupFrame({
   );
 }
 
-function LazyResourceTypeGroup({
-  catalogId,
-  namespace,
-  rowLimit,
-  sentinelRef,
-  loadNamespace,
-  loadVersions,
-  onResourceTypePointerDown,
-}: {
-  catalogId: string;
-  namespace: ResourceTypeNamespace;
-  rowLimit: number;
-  sentinelRef?: (element: HTMLDivElement | null) => void;
-  loadNamespace: PaletteContentProps["loadNamespace"];
-  loadVersions: PaletteContentProps["loadVersions"];
-  onResourceTypePointerDown?: PaletteContentProps["onResourceTypePointerDown"];
-}) {
-  const stateAtom = useMemo(
-    () => namespaceResourceTypesAtomFamily(getNamespaceResourceTypesKey(catalogId, namespace.name)),
-    [catalogId, namespace.name],
-  );
-  const state = useAtomValue(stateAtom);
-  const setState = useSetAtom(stateAtom);
-  const setLoadingCount = useSetAtom(resourceTypeCatalogLoadingCountAtom);
-  const store = useStore();
-
-  const load = useCallback(
-    async (force = false) => {
-      const current = store.get(stateAtom);
-      if ((!force && current.status !== "idle") || current.status === "loading") {
-        return;
-      }
-
-      setState({ status: "loading" });
-      setLoadingCount((count) => count + 1);
-      try {
-        const catalog = await loadNamespace(namespace.name);
-        const group = catalog.groups.find(
-          (candidate) => candidate.group.toLocaleLowerCase() === namespace.name.toLocaleLowerCase(),
-        );
-        setState({ status: "loaded", resourceTypes: group?.resourceTypes ?? [] });
-      } catch (error) {
-        setState({ status: "error", message: getErrorMessage(error, "Failed to load resource types.") });
-      } finally {
-        setLoadingCount((count) => Math.max(0, count - 1));
-      }
-    },
-    [loadNamespace, namespace.name, setLoadingCount, setState, stateAtom, store],
-  );
-
-  return (
-    <Accordion.Item itemId={namespace.name} onActiveChange={(active) => active && void load()}>
-      <ResourceTypeGroupFrame group={namespace.name}>
-        {state.status === "error" ? (
-          <PaletteMessage>
-            {state.message}
-            <PaletteRetry onClick={() => void load(true)}>Retry</PaletteRetry>
-          </PaletteMessage>
-        ) : state.status === "loaded" && state.resourceTypes.length === 0 ? (
-          <PaletteMessage>No resource types available.</PaletteMessage>
-        ) : state.status === "loaded" ? (
-          <>
-            <ResourceTypeItems
-              loadVersions={loadVersions}
-              group={namespace.name}
-              resourceTypes={state.resourceTypes}
-              rowLimit={rowLimit}
-              onResourceTypePointerDown={onResourceTypePointerDown}
-            />
-            {sentinelRef && <$MoreSentinel ref={sentinelRef} aria-hidden="true" data-testid="resource-palette-more" />}
-          </>
-        ) : null}
-      </ResourceTypeGroupFrame>
-    </Accordion.Item>
-  );
-}
-
-export function SearchResourceTypeGroups({
+/**
+ * The catalog's groups as an accordion, rendered progressively: headers and rows are added in batches as the
+ * end of what is rendered scrolls into reach. A new `budgetKey` starts over from the first batch.
+ */
+export function ResourceTypeGroups({
   groups,
   expandedGroups,
-  highlightQuery,
-  loadVersions,
   setExpandedGroups,
+  budgetKey,
+  highlightQuery,
+  keepHeadersMounted = false,
+  loadVersions,
   onResourceTypePointerDown,
 }: {
-  groups: ResourceTypeCatalogGroup[];
+  groups: readonly ResourceTypeGroup[];
   expandedGroups: readonly string[];
-  highlightQuery: string;
-  loadVersions: PaletteContentProps["loadVersions"];
   setExpandedGroups: (groups: readonly string[]) => void;
+  budgetKey: string;
+  highlightQuery?: string;
+  /** Keep the headers already revealed mounted when opening a large group uses up the budget. */
+  keepHeadersMounted?: boolean;
+  loadVersions: PaletteContentProps["loadVersions"];
   onResourceTypePointerDown?: PaletteContentProps["onResourceTypePointerDown"];
 }) {
-  const { budget, sentinelRef } = useProgressiveBudget(`search:${highlightQuery}`);
-  const { rowsPerGroup, hasMore } = allocateProgressiveRows(
+  const { budget, sentinelRef } = useProgressiveBudget(budgetKey);
+  const { rowsPerGroup, hasMore, truncatedGroupIndex } = allocateProgressiveRows(
     groups.map(({ group, resourceTypes }) => ({
       rowCount: resourceTypes.length,
       expanded: expandedGroups.includes(group),
     })),
     budget,
+    keepHeadersMounted ? Math.min(budget, groups.length) : 0,
   );
+  const sentinel = <$MoreSentinel ref={sentinelRef} aria-hidden="true" data-testid="resource-palette-more" />;
 
   return (
     <$Groups>
@@ -339,58 +265,12 @@ export function SearchResourceTypeGroups({
                 highlightQuery={highlightQuery}
                 onResourceTypePointerDown={onResourceTypePointerDown}
               />
+              {index === truncatedGroupIndex && sentinel}
             </ResourceTypeGroupFrame>
           </Accordion.Item>
         ))}
       </Accordion>
-      {hasMore && <$MoreSentinel ref={sentinelRef} aria-hidden="true" data-testid="resource-palette-more" />}
-    </$Groups>
-  );
-}
-
-export function LazyResourceTypeGroups({
-  catalogId,
-  namespaces,
-  loadNamespace,
-  loadVersions,
-  onResourceTypePointerDown,
-}: {
-  catalogId: string;
-  namespaces: ResourceTypeNamespace[];
-  loadNamespace: PaletteContentProps["loadNamespace"];
-  loadVersions: PaletteContentProps["loadVersions"];
-  onResourceTypePointerDown?: PaletteContentProps["onResourceTypePointerDown"];
-}) {
-  const [expandedGroups, setExpandedGroups] = useState<readonly string[]>([]);
-  const { budget, sentinelRef } = useProgressiveBudget(`browse:${catalogId}`);
-  const { rowsPerGroup, hasMore, truncatedGroupIndex } = allocateProgressiveRows(
-    namespaces.map((namespace) => ({
-      rowCount: namespace.resourceTypeCount,
-      expanded: expandedGroups.includes(namespace.name),
-    })),
-    budget,
-    Math.min(budget, namespaces.length),
-  );
-
-  return (
-    <$Groups>
-      <Accordion multiple value={expandedGroups} onValueChange={(value) => setExpandedGroups(value.map(String))}>
-        {namespaces.slice(0, rowsPerGroup.length).map((namespace, index) => (
-          <LazyResourceTypeGroup
-            loadVersions={loadVersions}
-            key={namespace.name}
-            catalogId={catalogId}
-            namespace={namespace}
-            rowLimit={rowsPerGroup[index] ?? 0}
-            sentinelRef={index === truncatedGroupIndex ? sentinelRef : undefined}
-            loadNamespace={loadNamespace}
-            onResourceTypePointerDown={onResourceTypePointerDown}
-          />
-        ))}
-      </Accordion>
-      {hasMore && truncatedGroupIndex === undefined && (
-        <$MoreSentinel ref={sentinelRef} aria-hidden="true" data-testid="resource-palette-more" />
-      )}
+      {hasMore && truncatedGroupIndex === undefined && sentinel}
     </$Groups>
   );
 }

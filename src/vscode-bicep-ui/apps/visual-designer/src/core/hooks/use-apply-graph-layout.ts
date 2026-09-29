@@ -3,8 +3,7 @@
 
 import type { createStore, PrimitiveAtom } from "jotai";
 import type { AnimationPlaybackControlsWithThen } from "motion";
-import type { Box } from "@/lib/math";
-import type { NodeLayout } from "../api";
+import type { Box, Point } from "@/lib/math";
 import type { NodePositions } from "../node-positions";
 
 import { useSetAtom, useStore } from "jotai";
@@ -103,13 +102,13 @@ export function useApplyGraphLayout() {
   );
 
   const applyGraphLayout = useCallback(
-    async (nodeLayouts: ReadonlyMap<string, NodeLayout>): Promise<void> => {
+    async (positions: ReadonlyMap<string, Point>): Promise<void> => {
       if (!store.get(layoutReadyAtom)) {
         await waitForAnimationFrame();
         setLayoutReady(true);
       }
 
-      animateNodePositions(nodeLayouts);
+      animateNodePositions(positions);
     },
     [animateNodePositions, setLayoutReady, store],
   );

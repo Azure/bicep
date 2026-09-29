@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import type { Point } from "@/lib/math";
-import type { GetGraphUpdateResult } from "../api";
+import type { GetGraphResult } from "../api";
 import type { GraphUpdateCoordinator } from "../graph-update-coordinator";
 import type { ResourceTypeReference } from "../types";
 import type { ResourceCreationStep } from "../undo-history";
@@ -28,7 +28,7 @@ import { useTrackGraphChange } from "./use-track-graph-change";
  * the placeholder learns its node ID, the creation becomes an undoable history step, and the next
  * graph update replaces the placeholder with the real node at the same point.
  */
-export function useResourceCreation(coordinator: GraphUpdateCoordinator<GetGraphUpdateResult>) {
+export function useResourceCreation(coordinator: GraphUpdateCoordinator<GetGraphResult>) {
   const store = useStore();
   const api = useGraphApi();
   const trackGraphChange = useTrackGraphChange();

@@ -81,7 +81,7 @@ export function StatusBar() {
   const api = useStatusApi();
 
   const handleShowProblems = useCallback(() => {
-    api.showProblemsPanel();
+    api.showProblems();
   }, [api]);
 
   const errorCount = graphStatus.kind === "errors" ? graphStatus.errorCount : 0;

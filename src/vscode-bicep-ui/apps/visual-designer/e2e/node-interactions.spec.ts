@@ -199,7 +199,7 @@ test.describe("Node interactions", () => {
     // sniff that channel as a proxy for the outgoing message.
     const reveals: string[] = [];
     page.on("console", (msg) => {
-      if (msg.type() === "log" && msg.text().includes("revealNodeSource")) {
+      if (msg.type() === "log" && msg.text().includes("[FakeMessageChannel] revealNode")) {
         reveals.push(msg.text());
       }
     });

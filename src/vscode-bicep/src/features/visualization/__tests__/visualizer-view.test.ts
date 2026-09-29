@@ -6,10 +6,10 @@ import type { PrepareVisualResourceReplayParams } from "../protocol";
 import { Uri, ViewColumn } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import {
-  createResourceDeclarationInsertionRequestType,
+  prepareVisualResourceCreationRequestType,
   prepareVisualResourceReplayRequestType,
-  visualGraphUpdateRequestType,
-  visualResourceTypeNamespacesRequestType,
+  visualGraphLayoutRequestType,
+  visualGraphRequestType,
   visualResourceTypesRequestType,
   visualResourceTypeVersionsRequestType,
 } from "../protocol";
@@ -80,7 +80,11 @@ vi.mock("vscode", () => {
         dispose: vi.fn(),
       }),
     },
-    workspace: { openTextDocument: host.openTextDocument, applyEdit: host.applyEdit },
+    workspace: {
+      openTextDocument: host.openTextDocument,
+      applyEdit: host.applyEdit,
+      getConfiguration: () => ({ get: () => "on" }),
+    },
     commands: { executeCommand: vi.fn() },
   };
 });
@@ -156,11 +160,25 @@ describe("visualizer palette host requests", () => {
     host.receiveMessage({ id: "request-1", method, params });
   }
 
-  it("forwards target scope even when graph topology is unchanged", async () => {
-    const result = { patches: [], targetScope: "subscription" };
+  it("forwards the measured graph for layout and returns the positions", async () => {
+    const graph = { nodes: [{ id: "a", kind: "resource", parentId: null, width: 200, height: 76 }], edges: [] };
+    const result = { status: "ok", positions: [{ nodeId: "a", x: 0, y: 0 }], bounds: { width: 200, height: 76 } };
     host.sendRequest.mockResolvedValue(result);
 
-    request("getGraphUpdate", { current: null });
+    request("graph/layout", { graph });
+
+    await vi.waitFor(() => expect(host.postMessage).toHaveBeenCalledWith({ id: "request-1", result }));
+    expect(host.sendRequest).toHaveBeenCalledWith(visualGraphLayoutRequestType, {
+      textDocument: { uri: "file:///main.bicep" },
+      graph,
+    });
+  });
+
+  it("forwards target scope even when graph topology is unchanged", async () => {
+    const result = { graph: { nodes: [], edges: [], errorCount: 0 }, targetScope: "subscription" };
+    host.sendRequest.mockResolvedValue(result);
+
+    request("graph/get", {});
 
     await vi.waitFor(() =>
       expect(host.postMessage).toHaveBeenCalledWith({
@@ -168,9 +186,8 @@ describe("visualizer palette host requests", () => {
         result: { ...result, replayableSourceSteps: [] },
       }),
     );
-    expect(host.sendRequest).toHaveBeenCalledWith(visualGraphUpdateRequestType, {
+    expect(host.sendRequest).toHaveBeenCalledWith(visualGraphRequestType, {
       textDocument: { uri: "file:///main.bicep" },
-      current: null,
     });
   });
 
@@ -178,7 +195,7 @@ describe("visualizer palette host requests", () => {
     const result = { catalogId: "catalog-a", apiVersions: ["2025-01-01-preview", "2024-01-01"] };
     host.sendRequest.mockResolvedValue(result);
 
-    request("resourceTypeCatalog/versions", { fullyQualifiedType: " Microsoft.Storage/storageAccounts " });
+    request("resourceTypes/versions", { fullyQualifiedType: " Microsoft.Storage/storageAccounts " });
 
     await vi.waitFor(() => expect(host.postMessage).toHaveBeenCalledWith({ id: "request-1", result }));
     expect(host.sendRequest).toHaveBeenCalledWith(visualResourceTypeVersionsRequestType, {
@@ -190,7 +207,7 @@ describe("visualizer palette host requests", () => {
   it.each([undefined, null, "", {}, { fullyQualifiedType: 42 }, { fullyQualifiedType: " " }])(
     "rejects malformed version requests: %j",
     async (params) => {
-      request("resourceTypeCatalog/versions", params);
+      request("resourceTypes/versions", params);
 
       await vi.waitFor(() =>
         expect(host.postMessage).toHaveBeenCalledWith({
@@ -205,7 +222,7 @@ describe("visualizer palette host requests", () => {
   it("reports version lookup failures instead of returning an empty successful catalog", async () => {
     host.sendRequest.mockRejectedValue(new Error("server unavailable"));
 
-    request("resourceTypeCatalog/versions", { fullyQualifiedType: "Microsoft.Storage/storageAccounts" });
+    request("resourceTypes/versions", { fullyQualifiedType: "Microsoft.Storage/storageAccounts" });
 
     await vi.waitFor(() =>
       expect(host.postMessage).toHaveBeenCalledWith({
@@ -216,58 +233,47 @@ describe("visualizer palette host requests", () => {
     expect(host.error).toHaveBeenCalledWith(expect.stringContaining("server unavailable"));
   });
 
-  it("includes preview-only types in namespace discovery", async () => {
-    const result = { catalogId: "catalog-a", namespaces: [{ name: "Test.Rp", resourceTypeCount: 1 }] };
-    host.sendRequest.mockResolvedValue(result);
-
-    request("resourceTypeCatalog/namespaces");
-
-    await vi.waitFor(() => expect(host.postMessage).toHaveBeenCalledWith({ id: "request-1", result }));
-    expect(host.sendRequest).toHaveBeenCalledWith(visualResourceTypeNamespacesRequestType, {
-      textDocument: { uri: "file:///main.bicep" },
+  it("forwards the known catalog and returns every resource type, including previews", async () => {
+    host.sendRequest.mockResolvedValue({
+      catalogId: "catalog-a",
+      resourceTypes: [
+        { fullyQualifiedType: "Test.Rp/stable", apiVersion: "2024-01-01", isPreview: false },
+        { fullyQualifiedType: "Test.Rp/previewOnly", apiVersion: "2025-01-01-preview", isPreview: true },
+      ],
     });
-  });
 
-  it("includes previews when loading paged resource types without overriding the default version", async () => {
-    host.sendRequest
-      .mockResolvedValueOnce({
-        catalogId: "catalog-a",
-        items: [{ fullyQualifiedType: "Test.Rp/stable", apiVersion: "2024-01-01", isPreview: false }],
-        continuationToken: "1",
-      })
-      .mockResolvedValueOnce({
-        catalogId: "catalog-a",
-        items: [{ fullyQualifiedType: "Test.Rp/previewOnly", apiVersion: "2025-01-01-preview", isPreview: true }],
-      });
-
-    request("resourceTypeCatalog/load", { providerNamespace: "Test.Rp" });
+    request("resourceTypes/list", { knownCatalogId: "catalog-old" });
 
     await vi.waitFor(() =>
       expect(host.postMessage).toHaveBeenCalledWith({
         id: "request-1",
         result: {
           catalogId: "catalog-a",
-          groups: [
-            {
-              group: "Test.Rp",
-              resourceTypes: [
-                { resourceType: "previewOnly", apiVersion: "2025-01-01-preview" },
-                { resourceType: "stable", apiVersion: "2024-01-01" },
-              ],
-            },
+          resourceTypes: [
+            { fullyQualifiedType: "Test.Rp/stable", apiVersion: "2024-01-01" },
+            { fullyQualifiedType: "Test.Rp/previewOnly", apiVersion: "2025-01-01-preview" },
           ],
         },
       }),
     );
-    expect(host.sendRequest).toHaveBeenNthCalledWith(2, visualResourceTypesRequestType, {
+    expect(host.sendRequest).toHaveBeenCalledWith(visualResourceTypesRequestType, {
       textDocument: { uri: "file:///main.bicep" },
-      providerNamespace: "Test.Rp",
-      query: undefined,
-      pageSize: 200,
-      continuationToken: "1",
+      knownCatalogId: "catalog-old",
     });
   });
 
+  it("reports an unchanged catalog without resending its types", async () => {
+    host.sendRequest.mockResolvedValue({ catalogId: "catalog-a", resourceTypes: null });
+
+    request("resourceTypes/list", { knownCatalogId: "catalog-a" });
+
+    await vi.waitFor(() =>
+      expect(host.postMessage).toHaveBeenCalledWith({
+        id: "request-1",
+        result: { catalogId: "catalog-a", resourceTypes: null },
+      }),
+    );
+  });
   const creationRequest = {
     version: 1,
     operationId: "create-1",
@@ -309,7 +315,6 @@ describe("visualizer palette host requests", () => {
       ],
     },
     expectedNodeId: "storage",
-    symbolicName: "storage",
     unresolvedRequiredProperties: [],
   };
 
@@ -359,7 +364,7 @@ describe("visualizer palette host requests", () => {
     request("resources/create", creationRequest);
 
     await vi.waitFor(() => expect(host.applyEdit).toHaveBeenCalledOnce());
-    expect(host.sendRequest).toHaveBeenCalledWith(createResourceDeclarationInsertionRequestType, {
+    expect(host.sendRequest).toHaveBeenCalledWith(prepareVisualResourceCreationRequestType, {
       textDocument: { uri: "file:///main.bicep", version: 1 },
       operationId: creationRequest.operationId,
       resourceType: creationRequest.resourceType,
@@ -372,7 +377,6 @@ describe("visualizer palette host requests", () => {
           version: 1,
           operationId: insertion.operationId,
           expectedNodeId: insertion.expectedNodeId,
-          symbolicName: insertion.symbolicName,
           unresolvedRequiredProperties: [],
           historyTrackingError: undefined,
         },
@@ -435,11 +439,11 @@ describe("visualizer palette host requests", () => {
 
   /** Answers like the language server: undo while the creation's text is present, redo (at the end) while it is not. */
   function answerLikeLanguageServer(type: unknown, params: unknown) {
-    if (type === createResourceDeclarationInsertionRequestType) {
+    if (type === prepareVisualResourceCreationRequestType) {
       return Promise.resolve(insertion);
     }
-    if (type === visualGraphUpdateRequestType) {
-      return Promise.resolve({ patches: [], targetScope: null });
+    if (type === visualGraphRequestType) {
+      return Promise.resolve({ graph: null, targetScope: null });
     }
     if (type === prepareVisualResourceReplayRequestType) {
       const { replays } = params as PrepareVisualResourceReplayParams;
@@ -482,20 +486,36 @@ describe("visualizer palette host requests", () => {
     return { id: "request-1", result: { version: 1, operationId: "create-1", direction } };
   }
 
-  it("tells the webview about every edit right away, since graph updates are debounced", async () => {
-    host.receiveMessage?.({ method: "ready" });
+  it("sends the settings the webview depends on once it is ready", () => {
+    host.receiveMessage?.({ method: "webview/ready" });
+
+    expect(host.postMessage).toHaveBeenCalledWith({
+      method: "settings/didChange",
+      params: { motionPolicy: "reduce", isResourceEditingEnabled: true },
+    });
+  });
+
+  it("tells the webview about every document change right away", async () => {
+    host.receiveMessage?.({ method: "webview/ready" });
+    await vi.waitFor(() =>
+      expect(host.postMessage).toHaveBeenCalledWith(expect.objectContaining({ method: "document/didChange" })),
+    );
     host.postMessage.mockClear();
 
-    view.handleDocumentDidChange();
+    view.render();
 
-    expect(host.postMessage).toHaveBeenCalledWith({ method: "documentDidEdit" });
+    await vi.waitFor(() =>
+      expect(host.postMessage).toHaveBeenCalledWith({
+        method: "document/didChange",
+        params: { documentUri: "main.bicep" },
+      }),
+    );
   });
 
   it("reports with each graph update which designer source steps can be replayed exactly", async () => {
     await createTrackedResource();
 
-    request("getGraphUpdate", {
-      current: null,
+    request("graph/get", {
       sourceSteps: [
         { operationId: "create-1", direction: "undo" },
         { operationId: "create-1", direction: "redo" },
@@ -508,7 +528,7 @@ describe("visualizer palette host requests", () => {
       expect(host.postMessage).toHaveBeenCalledWith({
         id: "request-1",
         result: {
-          patches: [],
+          graph: null,
           targetScope: null,
           replayableSourceSteps: [{ operationId: "create-1", direction: "undo" }],
         },
@@ -528,7 +548,7 @@ describe("visualizer palette host requests", () => {
     host.document.text = "base\nresource renamed";
     host.document.version++;
 
-    request("getGraphUpdate", { current: null, sourceSteps: [{ operationId: "create-1", direction: "undo" }] });
+    request("graph/get", { sourceSteps: [{ operationId: "create-1", direction: "undo" }] });
 
     await vi.waitFor(() =>
       expect(host.postMessage).toHaveBeenCalledWith({
@@ -546,12 +566,12 @@ describe("visualizer palette host requests", () => {
         : answerLikeLanguageServer(type, params),
     );
 
-    request("getGraphUpdate", { current: null, sourceSteps: [{ operationId: "create-1", direction: "undo" }] });
+    request("graph/get", { sourceSteps: [{ operationId: "create-1", direction: "undo" }] });
 
     await vi.waitFor(() =>
       expect(host.postMessage).toHaveBeenCalledWith({
         id: "request-1",
-        result: { patches: [], targetScope: null, replayableSourceSteps: null },
+        result: { graph: null, targetScope: null, replayableSourceSteps: null },
       }),
     );
   });
@@ -559,11 +579,11 @@ describe("visualizer palette host requests", () => {
   it("undoes and redoes a creation with the language server's edits", async () => {
     await createTrackedResource();
 
-    request("undoHistory/replaySourceEdit", replayRequest("undo"));
+    request("history/replaySourceStep", replayRequest("undo"));
     await vi.waitFor(() => expect(host.postMessage).toHaveBeenCalledWith(replayResponse("undo")));
     expect(host.document.text).toBe("base");
 
-    request("undoHistory/replaySourceEdit", replayRequest("redo"));
+    request("history/replaySourceStep", replayRequest("redo"));
     await vi.waitFor(() => expect(host.postMessage).toHaveBeenCalledWith(replayResponse("redo")));
     expect(host.document.text).toBe("base\nresource storage");
     expect(host.applyEdit).toHaveBeenCalledTimes(3);
@@ -574,7 +594,7 @@ describe("visualizer palette host requests", () => {
     host.document.text = `\n${host.document.text}\n`;
     host.document.version++;
 
-    request("undoHistory/replaySourceEdit", replayRequest("undo"));
+    request("history/replaySourceStep", replayRequest("undo"));
 
     await vi.waitFor(() => expect(host.postMessage).toHaveBeenCalledWith(replayResponse("undo")));
     expect(host.document.text).toBe("\nbase\n");
@@ -585,7 +605,7 @@ describe("visualizer palette host requests", () => {
     host.document.text = "base\nresource renamed";
     host.document.version++;
 
-    request("undoHistory/replaySourceEdit", replayRequest("undo"));
+    request("history/replaySourceStep", replayRequest("undo"));
 
     await vi.waitFor(() =>
       expect(host.postMessage).toHaveBeenCalledWith({
@@ -605,7 +625,7 @@ describe("visualizer palette host requests", () => {
       return result;
     });
 
-    request("undoHistory/replaySourceEdit", replayRequest("undo"));
+    request("history/replaySourceStep", replayRequest("undo"));
 
     await vi.waitFor(() =>
       expect(host.postMessage).toHaveBeenCalledWith({
@@ -624,7 +644,7 @@ describe("visualizer palette host requests", () => {
       return true;
     });
 
-    request("undoHistory/replaySourceEdit", replayRequest("undo"));
+    request("history/replaySourceStep", replayRequest("undo"));
     await vi.waitFor(() =>
       expect(host.postMessage).toHaveBeenCalledWith({
         id: "request-1",
@@ -633,7 +653,7 @@ describe("visualizer palette host requests", () => {
     );
 
     host.postMessage.mockClear();
-    request("getGraphUpdate", { current: null, sourceSteps: [{ operationId: "create-1", direction: "redo" }] });
+    request("graph/get", { sourceSteps: [{ operationId: "create-1", direction: "redo" }] });
     await vi.waitFor(() =>
       expect(host.postMessage).toHaveBeenCalledWith({
         id: "request-1",
@@ -646,7 +666,7 @@ describe("visualizer palette host requests", () => {
     await createTrackedResource();
     host.resourceEditingEnabled = false;
 
-    request("undoHistory/replaySourceEdit", replayRequest("undo"));
+    request("history/replaySourceStep", replayRequest("undo"));
 
     await vi.waitFor(() =>
       expect(host.postMessage).toHaveBeenCalledWith({
@@ -661,7 +681,7 @@ describe("visualizer palette host requests", () => {
     await createTrackedResource();
     host.applyEdit.mockResolvedValueOnce(false);
 
-    request("undoHistory/replaySourceEdit", replayRequest("undo"));
+    request("history/replaySourceStep", replayRequest("undo"));
     await vi.waitFor(() =>
       expect(host.postMessage).toHaveBeenCalledWith({
         id: "request-1",
@@ -670,7 +690,7 @@ describe("visualizer palette host requests", () => {
     );
     expect(host.document.text).toBe("base\nresource storage");
 
-    request("undoHistory/replaySourceEdit", replayRequest("undo"));
+    request("history/replaySourceStep", replayRequest("undo"));
     await vi.waitFor(() => expect(host.postMessage).toHaveBeenCalledWith(replayResponse("undo")));
     expect(host.document.text).toBe("base");
   });
@@ -678,7 +698,7 @@ describe("visualizer palette host requests", () => {
   it.each([undefined, null, { version: 1, operationId: "create-1" }, { ...replayRequest("undo"), version: 2 }])(
     "rejects malformed designer replay requests: %j",
     async (params) => {
-      request("undoHistory/replaySourceEdit", params);
+      request("history/replaySourceStep", params);
 
       await vi.waitFor(() =>
         expect(host.postMessage).toHaveBeenCalledWith({

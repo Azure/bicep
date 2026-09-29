@@ -52,7 +52,7 @@ async function expectNodePositions(page: Page, positions: Awaited<ReturnType<typ
 
 test.describe("resource creation", () => {
   test("hides the Resource Palette when the experimental setting is disabled", async ({ page }) => {
-    await page.goto("/?resourceCreation=false");
+    await page.goto("/?resourceEditing=false");
     await expect(page.getByTestId("app-root")).toBeVisible();
     await expect(page.getByRole("button", { name: "Add Resources" })).toHaveCount(0);
   });

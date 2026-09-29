@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { GetGraphUpdateResult } from "../api";
+import type { GetGraphResult } from "../api";
 import type { GraphLayoutMode, GraphLayoutResult, GraphUpdateOperations } from "../graph-update-coordinator";
 
 import { createStore } from "jotai";
@@ -156,13 +156,32 @@ describe("update and layout ordering", () => {
     expect(harness.calls).toEqual(["fetch", "fetch", "apply"]);
   });
 
+  it("discards a response in flight when the document changes, before its update is requested", async () => {
+    const harness = createHarness();
+    const gate = harness.gateFetch();
+
+    const update = harness.coordinator.requestUpdate();
+    harness.coordinator.invalidateUpdate();
+    harness.openFetchGate();
+    gate.resolve();
+    await update;
+
+    // The first response described the previous content, so it is fetched again rather than applied.
+    expect(harness.calls).toEqual(["fetch", "fetch", "apply"]);
+  });
+
   it("does not publish a stale target scope after a newer document notification", async () => {
     const store = createStore();
-    const stale = deferred<GetGraphUpdateResult>();
+    const result = (targetScope: GetGraphResult["targetScope"]): GetGraphResult => ({
+      graph: { nodes: [], edges: [], errorCount: 0 },
+      targetScope,
+      replayableSourceSteps: [],
+    });
+    const stale = deferred<GetGraphResult>();
     let request = 0;
-    const accepted: GetGraphUpdateResult["targetScope"][] = [];
-    const coordinator = new GraphUpdateCoordinator<GetGraphUpdateResult>({
-      fetchUpdate: () => (++request === 1 ? stale.promise : Promise.resolve({ patches: [], targetScope: "tenant" })),
+    const accepted: GetGraphResult["targetScope"][] = [];
+    const coordinator = new GraphUpdateCoordinator<GetGraphResult>({
+      fetchUpdate: () => (++request === 1 ? stale.promise : Promise.resolve(result("tenant"))),
       applyUpdate: async (update) => {
         store.set(targetScopeAtom, update.targetScope);
         accepted.push(store.get(targetScopeAtom));
@@ -174,7 +193,7 @@ describe("update and layout ordering", () => {
     });
     const first = coordinator.requestUpdate();
     const second = coordinator.requestUpdate();
-    stale.resolve({ patches: [], targetScope: "subscription" });
+    stale.resolve(result("subscription"));
     await Promise.all([first, second]);
 
     expect(accepted).toEqual(["tenant"]);
@@ -330,7 +349,7 @@ describe("request completion", () => {
     const harness = createHarness();
     const layoutGate = harness.gateLayout();
 
-    // A caller that deduplicates on the returned promise — as `useResetGraphLayout` does — holds its lock
+    // A caller that waits on the returned promise — as `trackGraphChange` does — keeps Reset Layout disabled
     // for as long as the layout runs, so the second request never reaches the coordinator.
     const first = harness.coordinator.requestResetGraphLayout();
     const firstState = trackSettled(first);
@@ -393,8 +412,8 @@ describe("request completion", () => {
     await expect(update).rejects.toThrow("host unavailable");
     await flush();
 
-    // Without this, the promise never settles at all: useResetGraphLayout awaits it to release its
-    // deduplication lock, so the button would stay dead for the rest of the session.
+    // Without this, the promise never settles at all: trackGraphChange awaits it to end the graph change
+    // in progress, so Undo, Redo, and Reset Layout would stay disabled for the rest of the session.
     expect(resetState.settled).toBe(true);
   });
 });

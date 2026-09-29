@@ -24,30 +24,20 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         string FullyQualifiedType,
         string ApiVersion);
 
-    public record VisualResourceTypeNamespace(
-        string Name,
-        int ResourceTypeCount);
-
-    [Method("textDocument/visualResourceTypeNamespaces", Direction.ClientToServer)]
-    public record VisualResourceTypeNamespacesParams(
-        TextDocumentIdentifier TextDocument) : ITextDocumentIdentifierParams, IRequest<VisualResourceTypeNamespacesResult>;
-
-    public record VisualResourceTypeNamespacesResult(
-        string CatalogId,
-        IReadOnlyList<VisualResourceTypeNamespace> Namespaces);
-
+    /// <summary>
+    /// Returns every resource type deployable at the document's target scope. The catalog is identified by
+    /// <c>CatalogId</c>, which changes when the document's type provider or target scope does.
+    /// </summary>
+    /// <param name="KnownCatalogId">The catalog the client already holds, if any.</param>
     [Method("textDocument/visualResourceTypes", Direction.ClientToServer)]
     public record VisualResourceTypesParams(
         TextDocumentIdentifier TextDocument,
-        string? ProviderNamespace,
-        string? Query,
-        int PageSize,
-        string? ContinuationToken) : ITextDocumentIdentifierParams, IRequest<VisualResourceTypesResult>;
+        string? KnownCatalogId) : ITextDocumentIdentifierParams, IRequest<VisualResourceTypesResult>;
 
+    /// <param name="ResourceTypes">Every type, sorted by name, or null when the client already holds this catalog.</param>
     public record VisualResourceTypesResult(
         string CatalogId,
-        IReadOnlyList<VisualResourceTypeCatalogEntry> Items,
-        string? ContinuationToken);
+        IReadOnlyList<VisualResourceTypeCatalogEntry>? ResourceTypes);
 
     [Method("textDocument/visualResourceTypeVersions", Direction.ClientToServer)]
     public record VisualResourceTypeVersionsParams(
@@ -58,16 +48,16 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         string CatalogId,
         IReadOnlyList<string> ApiVersions);
 
-    [Method("textDocument/prepareVisualResource", Direction.ClientToServer)]
-    public record CreateResourceDeclarationInsertionParams(
+    [Method("textDocument/prepareVisualResourceCreation", Direction.ClientToServer)]
+    public record PrepareVisualResourceCreationParams(
         VersionedTextDocumentIdentifier TextDocument,
         string OperationId,
-        VisualResourceTypeIdentifier ResourceType) : IRequest<ResourceDeclarationInsertion>;
+        VisualResourceTypeIdentifier ResourceType) : IRequest<PrepareVisualResourceCreationResult>;
 
-    public record ResourceDeclarationInsertion(
+    /// <param name="ExpectedNodeId">The graph node the resource will become, which is its generated symbolic name.</param>
+    public record PrepareVisualResourceCreationResult(
         string OperationId,
         string ExpectedNodeId,
-        string SymbolicName,
         IReadOnlyList<string> UnresolvedRequiredProperties,
         WorkspaceEdit Edit);
 

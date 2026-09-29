@@ -63,20 +63,6 @@ public class ResourceTypeCatalogTests
     }
 
     [TestMethod]
-    public void NamespacesAndSearch_AreCaseInsensitive()
-    {
-        var catalog = CreateCatalog("B.Rp/widgets@2020-01-01", "A.Rp/widgets@2020-01-01", "A.Rp/gadgets@2020-01-01");
-
-        catalog.GetNamespaces(scope: null).Should().Equal(
-            new VisualResourceTypeNamespace("A.Rp", 2),
-            new VisualResourceTypeNamespace("B.Rp", 1));
-        catalog.GetResourceTypes("a.rp", scope: null).Select(type => type.FullyQualifiedType)
-            .Should().Equal("A.Rp/gadgets", "A.Rp/widgets");
-        catalog.Search(" WIDGETS ", scope: null).Select(type => type.FullyQualifiedType)
-            .Should().Equal("A.Rp/widgets", "B.Rp/widgets");
-    }
-
-    [TestMethod]
     public void GetApiVersions_ListsEveryVersionNewestFirstOrReportsUnknownTypes()
     {
         var catalog = CreateCatalog("A.Rp/alpha@2020-01-01", "A.Rp/alpha@2021-01-01-preview");

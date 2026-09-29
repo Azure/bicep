@@ -12,15 +12,16 @@ import type {
 import type {
   CreateResourceParams,
   CreateResourceResult,
-  GetGraphLayoutParams,
-  GetGraphLayoutResult,
-  GetGraphUpdateParams,
-  GetGraphUpdateResult,
-  ReplaySourceEditParams,
-  ReplaySourceEditResult,
+  GetGraphParams,
+  GetGraphResult,
+  LayoutGraphParams,
+  ReplaySourceStepParams,
+  ReplaySourceStepResult,
+  Settings,
   SourceStepReference,
   TargetScope,
 } from "@/core";
+import type { ListResourceTypesParams, ListResourceTypesResult } from "@/features/palette";
 import type { SampleGraph, SampleGraphNode } from "./sample-graph";
 
 // The fake host implements the whole protocol, so it is the one legitimate consumer of the core's
@@ -28,18 +29,16 @@ import type { SampleGraph, SampleGraphNode } from "./sample-graph";
 import {
   createResource,
   documentDidChange,
-  documentDidEdit,
-  getGraphLayout,
-  getGraphUpdate,
-  getMotionPolicy,
-  getResourceEditingEnablement,
+  getGraph,
+  layoutGraph as layoutGraphRequest,
   ready,
-  replaySourceEdit,
-  revealNodeSource,
+  replaySourceStep,
+  revealNode,
+  settingsDidChange,
 } from "@/core";
-import { getResourceTypeNamespaces, getResourceTypeVersions, loadResourceTypeCatalog } from "@/features/palette";
-import { showProblemsPanel } from "@/features/status";
-import { diffGraph, layoutGraph } from "./fake-graph-differ";
+import { getResourceTypeVersions, listResourceTypes } from "@/features/palette";
+import { showProblems } from "@/features/status";
+import { layoutGraph, toGraph } from "./fake-graph";
 
 const FAKE_FILE_PATH = "file:///main.bicep";
 
@@ -759,7 +758,8 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
   private catalogRevision = 0;
   private versionRequestCount = 0;
   private targetScope: TargetScope = "resourceGroup";
-  private skipNextGraphUpdateAfterUndo = false;
+  /** Set by `skipGraphUpdateAfterUndo`: graph updates omit an undone creation until the graph changes again. */
+  private isWithholdingUndoneRemoval = false;
   private readonly notificationSubscriptions: Record<string, Set<WebviewNotificationCallback>> = {};
   private readonly onWindowMessage = (event: MessageEvent) => {
     if (
@@ -778,7 +778,6 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
     if (scope === "subscription" || scope === "managementGroup" || scope === "tenant") {
       this.targetScope = scope;
     }
-    this.skipNextGraphUpdateAfterUndo = params.get("skipGraphUpdateAfterUndo") === "true";
     window.addEventListener("message", this.onWindowMessage);
   }
 
@@ -791,15 +790,6 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
   }
 
   sendRequest<T>(requestMessage: { method: string; params?: unknown }): Promise<T> {
-    if (requestMessage.method === getMotionPolicy.method) {
-      const policy = new URLSearchParams(window.location.search).get("motionPolicy");
-      return Promise.resolve((policy === "reduce" || policy === "system" ? policy : "animate") as T);
-    }
-
-    if (requestMessage.method === getResourceEditingEnablement.method) {
-      return Promise.resolve((new URLSearchParams(window.location.search).get("resourceCreation") !== "false") as T);
-    }
-
     const catalogId = `dev-catalog-${this.catalogRevision}-${this.targetScope}`;
     // Mirrors the language server: only types deployable at the document's target scope are offered.
     const everyScope: TargetScope[] = ["resourceGroup", "subscription", "managementGroup", "tenant"];
@@ -843,46 +833,25 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
       }))
       .filter((group) => group.resourceTypes.length > 0);
 
-    if (requestMessage.method === getResourceTypeNamespaces.method) {
-      return new Promise<T>((resolve) => {
-        setTimeout(
-          () =>
-            resolve({
-              catalogId,
-              namespaces: resourceTypeCatalog.map((group) => ({
-                name: group.group,
-                resourceTypeCount: group.resourceTypes.length,
-              })),
-            } as T),
-          150,
-        );
-      });
-    }
-
-    if (requestMessage.method === loadResourceTypeCatalog.method) {
-      const { providerNamespace, query, loadAll } = (requestMessage.params ?? {}) as {
-        providerNamespace?: string;
-        query?: string;
-        loadAll?: boolean;
+    if (requestMessage.method === listResourceTypes.method) {
+      const { knownCatalogId } = (requestMessage.params ?? {}) as ListResourceTypesParams;
+      const result: ListResourceTypesResult = {
+        catalogId,
+        resourceTypes:
+          knownCatalogId === catalogId
+            ? null
+            : resourceTypeCatalog.flatMap(({ group, resourceTypes }) =>
+                resourceTypes.map(({ resourceType, apiVersion }) => ({
+                  fullyQualifiedType: `${group}/${resourceType}`,
+                  apiVersion,
+                })),
+              ),
       };
-      const normalizedQuery = query?.toLocaleLowerCase();
-      const groups = resourceTypeCatalog
-        .filter((group) => !providerNamespace || group.group === providerNamespace)
-        .map((group) => ({
-          ...group,
-          resourceTypes: group.resourceTypes.filter(
-            (resourceType) =>
-              !normalizedQuery ||
-              `${group.group}/${resourceType.resourceType}`.toLocaleLowerCase().includes(normalizedQuery),
-          ),
-        }))
-        .filter((group) => group.resourceTypes.length > 0);
 
       return new Promise<T>((resolve) => {
-        setTimeout(() => resolve({ catalogId, groups } as T), getCatalogDelayMs(loadAll ? 600 : 200));
+        setTimeout(() => resolve(result as T), getCatalogDelayMs(200));
       });
     }
-
     if (requestMessage.method === getResourceTypeVersions.method) {
       const { fullyQualifiedType } = requestMessage.params as { fullyQualifiedType: string };
       const fixtureVersions: Record<string, string[]> = {
@@ -911,53 +880,29 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
       });
     }
 
-    if (requestMessage.method === getGraphUpdate.method) {
-      const { current, sourceSteps } = requestMessage.params as GetGraphUpdateParams;
-      const replayableSourceSteps = sourceSteps.filter((step) => this.canReplay(step));
-
-      if (
-        new URLSearchParams(window.location.search).get("withholdGraphUpdatesAfterCreation") === "true" &&
-        [...this.createdResources.values()].some((creation) => creation.isInSource)
-      ) {
-        return Promise.resolve({
-          patches: [],
-          targetScope: this.currentGraph ? this.targetScope : null,
-          replayableSourceSteps,
-        } satisfies GetGraphUpdateResult as T);
+    if (requestMessage.method === getGraph.method) {
+      const { sourceSteps } = requestMessage.params as GetGraphParams;
+      const isWithholding =
+        this.isWithholdingUndoneRemoval ||
+        (new URLSearchParams(window.location.search).get("withholdGraphUpdatesAfterCreation") === "true" &&
+          [...this.createdResources.values()].some((creation) => creation.isInSource));
+      if (!isWithholding) {
+        this.servedGraph = this.currentGraph;
       }
 
-      if (
-        this.skipNextGraphUpdateAfterUndo &&
-        [...this.createdResources.values()].some((creation) => !creation.isInSource)
-      ) {
-        this.skipNextGraphUpdateAfterUndo = false;
-        return Promise.resolve({
-          patches: [],
-          targetScope: this.currentGraph ? this.targetScope : null,
-          replayableSourceSteps,
-        } satisfies GetGraphUpdateResult as T);
-      }
-
-      const patches = diffGraph(current, this.currentGraph);
       return Promise.resolve({
-        patches,
-        targetScope: this.currentGraph ? this.targetScope : null,
-        replayableSourceSteps,
-      } satisfies GetGraphUpdateResult as T);
+        graph: toGraph(this.servedGraph),
+        targetScope: this.servedGraph ? this.targetScope : null,
+        replayableSourceSteps: sourceSteps.filter((step) => this.canReplay(step)),
+      } satisfies GetGraphResult as T);
     }
 
-    if (requestMessage.method === getGraphLayout.method) {
-      const { current } = requestMessage.params as GetGraphLayoutParams;
-      const patches = layoutGraph(current, this.currentGraph);
-      const result: GetGraphLayoutResult = patches
-        ? { status: "ok", patches }
-        : { status: "graphChanged", patches: [] };
-
-      return Promise.resolve(result as T);
+    if (requestMessage.method === layoutGraphRequest.method) {
+      const { graph } = requestMessage.params as LayoutGraphParams;
+      return Promise.resolve(layoutGraph(graph, this.servedGraph) as T);
     }
-
     if (requestMessage.method === createResource.method) {
-      if (new URLSearchParams(window.location.search).get("resourceCreation") === "false") {
+      if (new URLSearchParams(window.location.search).get("resourceEditing") === "false") {
         return Promise.reject({ code: "editingDisabled", message: "Resource editing is disabled." });
       }
       const request = requestMessage.params as CreateResourceParams;
@@ -994,15 +939,14 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
             version: 1,
             operationId: request.operationId,
             expectedNodeId: symbolicName,
-            symbolicName,
             unresolvedRequiredProperties: ["name"],
           } satisfies CreateResourceResult as T);
         }, 300);
       });
     }
 
-    if (requestMessage.method === replaySourceEdit.method) {
-      const request = requestMessage.params as ReplaySourceEditParams;
+    if (requestMessage.method === replaySourceStep.method) {
+      const request = requestMessage.params as ReplaySourceStepParams;
       const creation = this.createdResources.get(request.operationId);
       const isUndo = request.direction === "undo";
       const current = this.currentGraph;
@@ -1017,11 +961,13 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
           : [...current.nodes, creation.node],
       });
       creation.isInSource = !isUndo;
+      this.isWithholdingUndoneRemoval =
+        isUndo && new URLSearchParams(window.location.search).get("skipGraphUpdateAfterUndo") === "true";
       return Promise.resolve({
         version: 1,
         operationId: request.operationId,
         direction: request.direction,
-      } satisfies ReplaySourceEditResult as T);
+      } satisfies ReplaySourceStepResult as T);
     }
 
     return Promise.reject(new Error(`FakeMessageChannel does not support request: ${requestMessage.method}`));
@@ -1029,6 +975,9 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
 
   /** The last graph pushed, so mutations can build on top of it. */
   private currentGraph: SampleGraph | null = null;
+
+  /** The graph last returned by `graph/get`, which lags `currentGraph` while an update is withheld. */
+  private servedGraph: SampleGraph | null = null;
 
   /** Like the language server: undo needs the created node present, redo needs its id to be free. */
   private canReplay({ operationId, direction }: SourceStepReference): boolean {
@@ -1045,16 +994,22 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
 
   sendNotification(notificationMessage: WebviewNotificationMessage) {
     if (notificationMessage.method === ready.method) {
+      const params = new URLSearchParams(window.location.search);
+      const motionPolicy = params.get("motionPolicy");
+      this.dispatchNotification(settingsDidChange.method, {
+        motionPolicy: motionPolicy === "reduce" || motionPolicy === "system" ? motionPolicy : "animate",
+        isResourceEditingEnabled: params.get("resourceEditing") !== "false",
+      } satisfies Settings);
       // Simulate async response from the extension host:
       // after a short delay, present the sample deployment graph.
       setTimeout(() => {
         this.pushGraph(MODULE_GRAPH);
       }, 50);
-    } else if (notificationMessage.method === revealNodeSource.method) {
+    } else if (notificationMessage.method === revealNode.method) {
       // The real host would resolve the node's source location via the language server and reveal it.
-      console.log("[FakeMessageChannel] revealNodeSource:", notificationMessage.params);
-    } else if (notificationMessage.method === showProblemsPanel.method) {
-      console.log("[FakeMessageChannel] showProblemsPanel: would open VS Code Problems panel");
+      console.log("[FakeMessageChannel] revealNode:", notificationMessage.params);
+    } else if (notificationMessage.method === showProblems.method) {
+      console.log("[FakeMessageChannel] showProblems: would open VS Code Problems panel");
     }
   }
 
@@ -1091,7 +1046,7 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
   /** Simulate the extension host announcing that the graph may have changed. */
   pushGraph(graph: SampleGraph | null) {
     this.currentGraph = graph;
-    this.dispatchNotification(documentDidEdit.method, undefined);
+    this.isWithholdingUndoneRemoval = false;
     this.dispatchNotification(documentDidChange.method, {
       documentUri: FAKE_FILE_PATH,
     });
