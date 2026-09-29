@@ -74,7 +74,7 @@ public class VisualPaletteHandlerTests
     public async Task VersionsHandler_ReturnsVersionsAndSharedCatalogId()
     {
         var manager = CreateCompilationManager(string.Empty);
-        var service = new VisualResourceCreationService();
+        var service = new VisualResourceTypeCatalogService();
         var handler = new VisualResourceTypeVersionsHandler(
             NullLogger<VisualResourceTypeVersionsHandler>.Instance, manager.Object, service);
 
@@ -96,7 +96,7 @@ public class VisualPaletteHandlerTests
             manager.Setup(x => x.GetCompilation(DocumentUri)).Returns((CompilationContext?)null);
         }
         var handler = new VisualResourceTypeVersionsHandler(
-            NullLogger<VisualResourceTypeVersionsHandler>.Instance, manager.Object, new VisualResourceCreationService());
+            NullLogger<VisualResourceTypeVersionsHandler>.Instance, manager.Object, new VisualResourceTypeCatalogService());
 
         Func<Task> act = () => handler.Handle(new(new() { Uri = DocumentUri }, "Test.Rp/missing"), CancellationToken.None);
 

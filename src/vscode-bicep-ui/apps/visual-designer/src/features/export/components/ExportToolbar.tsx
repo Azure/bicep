@@ -9,11 +9,11 @@ import { VscodeOption, VscodeSingleSelect } from "@vscode-elements/react-element
 import { useAtomValue, useSetAtom, useStore } from "jotai";
 import { useCallback, useState } from "react";
 import { styled } from "styled-components";
+import { canvasElementAtom } from "@/core";
 import {
   closeExportOverlayAtom,
   exportBackgroundColorAtom,
   exportBackgroundModeAtom,
-  exportCanvasElementAtom,
   exportFileStemAtom,
   exportPaddingAtom,
   exportThemeOverrideAtom,
@@ -269,7 +269,7 @@ const STEP = 10;
 
 export function ExportToolbar() {
   const store = useStore();
-  const canvasElement = useAtomValue(exportCanvasElementAtom);
+  const canvasElement = useAtomValue(canvasElementAtom);
   const backgroundMode = useAtomValue(exportBackgroundModeAtom);
   const padding = useAtomValue(exportPaddingAtom);
   const exportThemeName = useAtomValue(exportThemeOverrideAtom);

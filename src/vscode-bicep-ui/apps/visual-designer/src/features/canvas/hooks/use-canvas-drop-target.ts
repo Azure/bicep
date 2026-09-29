@@ -7,8 +7,7 @@ import type { Point } from "@/lib/math";
 import { useGetPanZoomTransform } from "@vscode-bicep-ui/components";
 import { useAtomValue } from "jotai";
 import { useCallback, useMemo } from "react";
-import { useGraphActions } from "@/core";
-import { canvasElementAtom } from "../atoms";
+import { canvasElementAtom, useGraphActions } from "@/core";
 
 function clientToGraphPoint(
   clientPoint: Point,

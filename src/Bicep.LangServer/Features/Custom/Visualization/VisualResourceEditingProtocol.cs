@@ -10,43 +10,11 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 namespace Bicep.LanguageServer.Features.Custom.Visualization
 {
     /// <summary>
-    /// A single entry in the resource type catalog returned by <see cref="VisualResourceTypesParams"/>.
-    /// </summary>
-    public record VisualResourceTypeCatalogEntry(
-        string FullyQualifiedType,
-        string ApiVersion,
-        bool IsPreview);
-
-    /// <summary>
     /// Identifies a specific resource type and API version selected from the Resource Palette.
     /// </summary>
     public record VisualResourceTypeIdentifier(
         string FullyQualifiedType,
         string ApiVersion);
-
-    /// <summary>
-    /// Returns every resource type deployable at the document's target scope. The catalog is identified by
-    /// <c>CatalogId</c>, which changes when the document's type provider or target scope does.
-    /// </summary>
-    /// <param name="KnownCatalogId">The catalog the client already holds, if any.</param>
-    [Method("textDocument/visualResourceTypes", Direction.ClientToServer)]
-    public record VisualResourceTypesParams(
-        TextDocumentIdentifier TextDocument,
-        string? KnownCatalogId) : ITextDocumentIdentifierParams, IRequest<VisualResourceTypesResult>;
-
-    /// <param name="ResourceTypes">Every type, sorted by name, or null when the client already holds this catalog.</param>
-    public record VisualResourceTypesResult(
-        string CatalogId,
-        IReadOnlyList<VisualResourceTypeCatalogEntry>? ResourceTypes);
-
-    [Method("textDocument/visualResourceTypeVersions", Direction.ClientToServer)]
-    public record VisualResourceTypeVersionsParams(
-        TextDocumentIdentifier TextDocument,
-        string FullyQualifiedType) : ITextDocumentIdentifierParams, IRequest<VisualResourceTypeVersionsResult>;
-
-    public record VisualResourceTypeVersionsResult(
-        string CatalogId,
-        IReadOnlyList<string> ApiVersions);
 
     [Method("textDocument/prepareVisualResourceCreation", Direction.ClientToServer)]
     public record PrepareVisualResourceCreationParams(

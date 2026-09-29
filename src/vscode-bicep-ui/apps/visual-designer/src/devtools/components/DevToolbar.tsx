@@ -6,7 +6,8 @@ import type { TargetScope } from "@/core";
 
 import { useCallback } from "react";
 import { styled } from "styled-components";
-import { FakeMessageChannel, GRAPH_MUTATIONS, SAMPLE_GRAPHS } from "../fakes/fake-message-channel";
+import { FakeMessageChannel } from "../fakes/fake-message-channel";
+import { GRAPH_MUTATIONS, SAMPLE_GRAPHS } from "../fakes/sample-graphs";
 
 interface DevToolbarProps {
   channel: FakeMessageChannel;
@@ -78,7 +79,7 @@ export function DevToolbar({ channel }: DevToolbarProps) {
   );
   const changeCatalog = useCallback(() => channel.changeCatalog(), [channel]);
   const applyMutation = (
-    apply: (graph: import("../fakes/sample-graph").SampleGraph) => import("../fakes/sample-graph").SampleGraph,
+    apply: (graph: import("../fakes/sample-graphs").SampleGraph) => import("../fakes/sample-graphs").SampleGraph,
   ) => {
     const current = channel.getCurrentGraph();
     if (!current) return;

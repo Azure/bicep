@@ -2,24 +2,17 @@
 // Licensed under the MIT License.
 
 using Bicep.Core;
-using Bicep.Core.Semantics;
 using Bicep.LanguageServer.Compilation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Features.Custom.Visualization
 {
-    public interface IVisualResourceCreationService
+    /// <summary>
+    /// Prepares the source edits the visual designer makes, and the edits that undo and redo them. The client applies
+    /// each edit itself.
+    /// </summary>
+    public interface IVisualResourceEditingService
     {
-        /// <summary>
-        /// Returns every resource type deployable at the document's target scope, unless the client already holds
-        /// that catalog (<paramref name="knownCatalogId"/>).
-        /// </summary>
-        VisualResourceTypesResult GetResourceTypes(SemanticModel model, string? knownCatalogId);
-
-        VisualResourceTypeVersionsResult GetResourceTypeVersions(
-            SemanticModel model,
-            string fullyQualifiedType);
-
         /// <summary>
         /// Generates a top-level resource declaration for the requested resource type and returns a
         /// proposed versioned <see cref="WorkspaceEdit"/> that the client can apply to the active document.

@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Globalization;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.LanguageServer.Features.Custom.Visualization
@@ -38,6 +39,17 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 () => scopeResolver.Resolve(this.defaultTypes.Value.Select(ToReference)),
                 LazyThreadSafetyMode.ExecutionAndPublication);
         }
+
+        /// <summary>
+        /// Resources are inserted as top-level declarations without a <c>scope</c> property, so the catalog offers only
+        /// types that can be deployed at the document's own target scope. Anything other than a single deployment scope
+        /// (not expected for Bicep files) disables filtering rather than hiding every type.
+        /// </summary>
+        public static ResourceScope? GetDeploymentScope(SemanticModel model) => model.TargetScope switch
+        {
+            ResourceScope.ResourceGroup or ResourceScope.Subscription or ResourceScope.ManagementGroup or ResourceScope.Tenant => model.TargetScope,
+            _ => null,
+        };
 
         /// <summary>
         /// The catalog identity includes the target scope, so a scope change reads as a new catalog to the client: stale

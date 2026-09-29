@@ -25,18 +25,18 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
         private readonly ICompilationManager compilationManager;
 
-        private readonly IVisualResourceCreationService visualResourceCreationService;
+        private readonly IVisualResourceEditingService editingService;
 
         public PrepareVisualResourceCreationHandler(
             ILogger<PrepareVisualResourceCreationHandler> logger,
             BicepCompiler compiler,
             ICompilationManager compilationManager,
-            IVisualResourceCreationService visualResourceCreationService)
+            IVisualResourceEditingService editingService)
         {
             this.logger = logger;
             this.compiler = compiler;
             this.compilationManager = compilationManager;
-            this.visualResourceCreationService = visualResourceCreationService;
+            this.editingService = editingService;
         }
 
         public Task<PrepareVisualResourceCreationResult> Handle(PrepareVisualResourceCreationParams request, CancellationToken cancellationToken)
@@ -52,7 +52,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
             try
             {
-                var result = this.visualResourceCreationService.PrepareResourceCreation(this.compiler, context, request);
+                var result = this.editingService.PrepareResourceCreation(this.compiler, context, request);
 
                 return Task.FromResult(result);
             }

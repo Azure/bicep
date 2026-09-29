@@ -2,17 +2,10 @@
 // Licensed under the MIT License.
 
 import { useAtomValue, useSetAtom } from "jotai";
-import { useCallback } from "react";
 import { styled, ThemeProvider } from "styled-components";
-import { isGraphChangeInProgressAtom, useGraphActions } from "@/core";
-import {
-  effectiveExportThemeAtom,
-  ExportAreaCover,
-  exportCanvasElementAtom,
-  ExportPreviewLayer,
-} from "@/features/export";
+import { canvasElementAtom, isGraphChangeInProgressAtom, useGraphActions } from "@/core";
+import { effectiveExportThemeAtom, ExportAreaCover, ExportPreviewLayer } from "@/features/export";
 import { Graph, Viewport } from "@/lib/graph";
-import { canvasElementAtom } from "../atoms";
 import { NodeContentProvider } from "./nodes/NodeContentProvider";
 import { PendingResourceLayer } from "./PendingResourceLayer";
 import { ScopeIndicator } from "./ScopeIndicator";
@@ -40,23 +33,13 @@ export function Canvas() {
   const isGraphChangeInProgress = useAtomValue(isGraphChangeInProgressAtom);
   const exportTheme = useAtomValue(effectiveExportThemeAtom);
   const setCanvasElement = useSetAtom(canvasElementAtom);
-  const setExportCanvasElement = useSetAtom(exportCanvasElementAtom);
-
-  const handleCanvasRef = useCallback(
-    (element: HTMLDivElement | null) => {
-      setCanvasElement(element);
-      // Export captures this element, but cannot import it from canvas without a dependency cycle.
-      setExportCanvasElement(element);
-    },
-    [setCanvasElement, setExportCanvasElement],
-  );
 
   return (
     <>
       <NodeContentProvider>
         <ThemeProvider theme={exportTheme}>
           <$CanvasWrapper
-            ref={handleCanvasRef}
+            ref={setCanvasElement}
             role="region"
             aria-label="Visual designer canvas"
             aria-busy={isGraphChangeInProgress}

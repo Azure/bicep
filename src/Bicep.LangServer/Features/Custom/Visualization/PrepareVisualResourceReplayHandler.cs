@@ -20,16 +20,16 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
         private readonly ICompilationManager compilationManager;
 
-        private readonly IVisualResourceCreationService visualResourceCreationService;
+        private readonly IVisualResourceEditingService editingService;
 
         public PrepareVisualResourceReplayHandler(
             ILogger<PrepareVisualResourceReplayHandler> logger,
             ICompilationManager compilationManager,
-            IVisualResourceCreationService visualResourceCreationService)
+            IVisualResourceEditingService editingService)
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
-            this.visualResourceCreationService = visualResourceCreationService;
+            this.editingService = editingService;
         }
 
         public Task<PrepareVisualResourceReplayResult> Handle(PrepareVisualResourceReplayParams request, CancellationToken cancellationToken)
@@ -43,7 +43,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 throw new RpcErrorException(ErrorCodes.RequestFailed, string.Empty, $"The document \"{request.TextDocument.Uri}\" is not currently compiled.");
             }
 
-            return Task.FromResult(this.visualResourceCreationService.PrepareResourceReplays(context, request));
+            return Task.FromResult(this.editingService.PrepareResourceReplays(context, request));
         }
     }
 }

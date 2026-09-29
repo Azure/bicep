@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import type { Graph, GraphBounds, GraphNode, LayoutGraphResult, MeasuredGraph, NodePosition } from "@/core";
-import type { SampleGraph, SampleGraphNode } from "./sample-graph";
+import type { SampleGraph, SampleGraphNode } from "./sample-graphs";
 
 /**
  * Dev-only stand-ins for the language server's graph and layout requests, so the dev playground can run

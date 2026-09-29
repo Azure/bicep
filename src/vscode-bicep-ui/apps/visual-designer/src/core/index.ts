@@ -7,6 +7,7 @@ export { useDocumentSync } from "./hooks/use-document-sync";
 export { useSettingsSync } from "./hooks/use-settings-sync";
 export { useUndoRedoAvailability } from "./hooks/use-undo-redo-availability";
 export {
+  canvasElementAtom,
   documentUriAtom,
   graphErrorCountAtom,
   graphHasNodesAtom,

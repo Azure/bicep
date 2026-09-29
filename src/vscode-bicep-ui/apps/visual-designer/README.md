@@ -199,8 +199,8 @@ interface GraphActions {
 
 `ControlBar` uses them for Reset Layout, and `HistoryBar` for Undo and Redo. The canvas feature adds only what depends on
 its own element and camera: `useCanvasDropTarget` converts a palette drop's client point to a graph
-point. It reads the canvas element from an atom, so the palette can use it without `Canvas` being
-an ancestor.
+point. It reads the canvas element from core's `canvasElementAtom`, so the palette can use it without
+`Canvas` being an ancestor; export reads the same atom to capture the canvas.
 
 ## Graph synchronization
 
