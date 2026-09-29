@@ -351,7 +351,7 @@ through the canvas's `useCanvasDropTarget`.
 | Resource type or API version is unavailable | Remove pending state and log the failure    |
 | Document version changed                    | Reject the edit                             |
 | Resource editing disabled                   | Reject creation without changing source     |
-| Source changed outside undo history         | Reject replay; discard stale source steps   |
+| Source step can no longer replay exactly    | Disable it until a graph update confirms it |
 | Workspace edit rejected                     | Remove pending state and log the failure    |
 | Required values are unresolved              | Emit empty values for later source editing  |
 
@@ -360,16 +360,39 @@ designer actions are logged to the webview console, without an in-canvas notific
 
 Current limitations:
 
-- The host returns whole graphs; the webview compares consecutive graphs itself.
 - Webview and extension protocol declarations are not generated from one schema.
 - There is no pending-operation timeout.
 - Resource lists are not virtualized.
 - Manual layout is not persisted.
 
+### Known issues
+
+Both are timing-dependent and have not been reproduced on demand.
+
+- **Visualization requests that arrive before the first compile fail loudly.** The palette requests
+  the resource type catalog as soon as it mounts. If the language server has not compiled the file
+  yet, `textDocument/visualResourceTypes` throws "The document … is not currently compiled", and the
+  extension logs `Resource type catalog request failed` at error level.
+  `textDocument/visualResourceTypeVersions` and the two prepare requests (creation and replay) do the
+  same. It recovers on its own: the diagnostics published after the compile trigger
+  `document/didChange`, and the palette reloads. Until then an open palette shows "Failed to load
+  resource types" with Retry, and the graph update reports undo availability as unknown. Suggested
+  fix: treat "not compiled yet" as "retry after the next document change" (as `textDocument/visualGraph`
+  already does, by returning no graph) and log it at debug level.
+- **`textDocument/documentHighlight` can throw after the designer shrinks the file.** Undoing
+  creations quickly removes whole declarations near the end of the file. A highlight request for the
+  editor cursor that is in flight during the change can be resolved against a compilation of a
+  different length, and `BicepSymbolResolver` throws an `ArgumentException` ("The specified line
+  number is not valid") from `PositionHelper.GetOffset`. VS Code drops that one highlight. This is a language
+  server race rather than a designer one (any fast edit that shortens the file under the cursor can
+  hit it); the designer only makes it likelier. Suggested fix: have `BicepSymbolResolver` return no
+  symbol when the position is outside the compiled text, as it already does when no node is found,
+  which also covers hover, definition, and references.
+
 ## Validation
 
-- Language-server tests cover graph diffing, layout, catalog behavior, naming, source generation, and
-  insertion.
+- Language-server tests cover graph building, topology checks, layout, catalog behavior, naming,
+  source generation, insertion, and replay.
 - Extension tests cover forwarding, settings, document version checks, and edit application.
 - Vitest covers webview atoms, graph model/layout behavior, mixed undo history, export state, and
   coordinator ordering.

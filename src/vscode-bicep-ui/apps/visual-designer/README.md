@@ -242,9 +242,10 @@ Lint runs with zero warnings and rejects unused disable directives.
 
 ## Current limitations
 
-- The host returns whole graphs; the webview compares consecutive graphs itself.
 - Webview and extension protocol declarations are not generated from a shared schema.
 - Long resource lists are not virtualized.
+
+Known issues are listed under [Errors and limitations](./docs/architecture.md#known-issues).
 
 ## Further reading
 
