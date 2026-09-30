@@ -38,6 +38,29 @@ public class DereferenceTests
     }
 
     [TestMethod]
+    public void Resource_name_with_collection_property_access_builds()
+    {
+        var result = CompilationHelper.Compile("""
+            param stacks array
+
+            resource eventHubNamespaces 'Microsoft.EventHub/namespaces@2022-01-01-preview' = [
+              for i in range(0, length(stacks)): {
+                name: '${empty(stacks[i].StackName) ? 'namespace' : 'namespace-${stacks[i].StackName}'}'
+                location: 'westus'
+              }
+            ]
+
+            resource eventHub 'Microsoft.EventHub/namespaces/EventHubs@2022-01-01-preview' = {
+              parent: eventHubNamespaces[0]
+              name: 'ehName'
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+    }
+
+    [TestMethod]
     public void Safe_dereference_is_not_permitted_on_resource_collections()
     {
         var result = CompilationHelper.Compile("""
