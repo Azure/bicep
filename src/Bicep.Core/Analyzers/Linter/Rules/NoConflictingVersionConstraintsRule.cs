@@ -16,7 +16,8 @@ public sealed class NoConflictingVersionConstraintsRule : LinterRuleBase
     public NoConflictingVersionConstraintsRule() : base(
         code: Code,
         description: CoreResources.NoConflictingVersionConstraintsRule_Description,
-        LinterRuleCategory.DeploymentError)
+        LinterRuleCategory.VersionConstraintCompatibility,
+        overrideCategoryDefaultDiagnosticLevel: DiagnosticLevel.Error)
     { }
 
     public override string FormatMessage(params object[] values)

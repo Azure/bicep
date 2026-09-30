@@ -15,7 +15,7 @@ public sealed class NoIncompatibleEntrypointVersionRule : LinterRuleBase
     public NoIncompatibleEntrypointVersionRule() : base(
         code: Code,
         description: CoreResources.NoIncompatibleEntrypointVersionRule_Description,
-        LinterRuleCategory.DeploymentError)
+        LinterRuleCategory.VersionConstraintCompatibility)
     { }
 
     public override string FormatMessage(params object[] values)

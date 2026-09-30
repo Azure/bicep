@@ -538,10 +538,10 @@
                 "no-incompatible-entrypoint-version": {
                   "allOf": [
                     {
-                      "description": "The entrypoint's 'bicep.version' constraint must only allow versions that satisfy every referenced Bicep file's constraint. Defaults to 'Error'. See https://aka.ms/bicep/linter-diagnostics#no-incompatible-entrypoint-version"
+                      "description": "The entrypoint's 'bicep.version' constraint must only allow versions that satisfy every referenced Bicep file's constraint. Defaults to 'Warning'. See https://aka.ms/bicep/linter-diagnostics#no-incompatible-entrypoint-version"
                     },
                     {
-                      "$ref": "#/definitions/rule-def-level-error"
+                      "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 },
