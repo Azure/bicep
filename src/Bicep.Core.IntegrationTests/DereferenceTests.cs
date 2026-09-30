@@ -588,4 +588,50 @@ public class DereferenceTests
 
         result.Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void References_to_nested_conditionally_deployed_resources_should_account_for_all_ancestor_conditions()
+    {
+        var result = CompilationHelper.Compile("""
+            param conditionA bool
+            param conditionB bool
+
+            resource account 'Microsoft.Storage/storageAccounts@2021-02-01' = if (conditionB) {
+              name: 'account'
+              location: resourceGroup().location
+              kind: 'StorageV2'
+              sku: {
+                name: 'Standard_LRS'
+              }
+
+              resource service 'blobServices' = {
+                name: 'default'
+
+                resource container 'containers' = if (conditionA) {
+                  name: 'data'
+                }
+              }
+            }
+
+            resource publicIp 'Microsoft.Network/publicIPAddresses@2018-08-01' = if (conditionA) {
+              name: 'publicIp'
+              location: resourceGroup().location
+              sku: {
+                name: 'Standard'
+              }
+              properties: {
+                dnsSettings: {
+                  domainNameLabel: format('dns-{0}', account::service::container.properties.publicAccess)
+                }
+                publicIPAllocationMethod: 'Static'
+                publicIPAddressVersion: 'IPv4'
+              }
+            }
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP318", DiagnosticLevel.Warning, "The value of type \"Microsoft.Storage/storageAccounts/blobServices/containers | null\" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail.")
+        });
+    }
 }
