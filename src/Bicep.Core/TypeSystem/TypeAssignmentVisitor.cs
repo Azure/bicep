@@ -13,6 +13,7 @@ using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Comparers;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Providers;
@@ -1830,7 +1831,7 @@ namespace Bicep.Core.TypeSystem
 
                     return GetArrayItemType(syntax, diagnostics, nonNullableBaseType, baseSymbol, indexType);
 
-                case TypeSymbol when IsPotentiallyDisabledResourceOrModule(baseSymbol):
+                case TypeSymbol when IsPotentiallyDisabledResourceOrModule(baseSymbol, syntax):
                     diagnostics.Write(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare))
                         .DereferenceOfPossiblyNullReference(TypeHelper.CreateTypeUnion(baseType, LanguageConstants.Null).Name, syntax));
 
@@ -2023,9 +2024,9 @@ namespace Bicep.Core.TypeSystem
                     }
                     else if (nextAccess.IsSafeAccess && (
                         // this access expression is a safe dereference of a resource or module property (`res.?properties` or `mod.?outputs`)
-                        IsPotentiallyDisabledResourceOrModule(baseSymbol) ||
+                        IsPotentiallyDisabledResourceOrModule(baseSymbol, syntax) ||
                         // this access expression is a safe dereference of a property of an element of a resource or module collection (`res[0].?properties` or `mod[0].?outputs`)
-                        (IsPotentiallyDisabledResourceOrModule(prevBaseSymbol) && prevAccess is ArrayAccessSyntax)))
+                        (IsPotentiallyDisabledResourceOrModule(prevBaseSymbol, syntax) && prevAccess is ArrayAccessSyntax)))
                     {
                         nullVariantRemoved = true;
                         baseSymbol = null;
@@ -2076,7 +2077,7 @@ namespace Bicep.Core.TypeSystem
                 TypeSymbol original when TypeHelper.TryRemoveNullability(original) is TypeSymbol nonNullable
                     => EmitNullablePropertyAccessDiagnosticAndEraseNullability(syntax, original, nonNullable, diagnostics),
 
-                TypeSymbol original when IsPotentiallyDisabledResourceOrModule(baseSymbol) && !IsResourceInfoProperty(baseSymbol, syntax.PropertyName.IdentifierName)
+                TypeSymbol original when IsPotentiallyDisabledResourceOrModule(baseSymbol, syntax) && !IsResourceInfoProperty(baseSymbol, syntax.PropertyName.IdentifierName)
                     => EmitNullablePropertyAccessDiagnosticAndEraseNullability(syntax, TypeHelper.CreateTypeUnion(original, LanguageConstants.Null), original, diagnostics),
 
                 // the property is not valid
@@ -2115,15 +2116,15 @@ namespace Bicep.Core.TypeSystem
             return GetNamedPropertyType(syntax, nonNullableBaseType, baseSymbol: null, diagnostics);
         }
 
-        private bool IsPotentiallyDisabledResourceOrModule(Symbol? symbol) => symbol switch
+        private bool IsPotentiallyDisabledResourceOrModule(Symbol? symbol, SyntaxBase accessingSyntax) => symbol switch
         {
-            ResourceSymbol resourceSymbol => IsResourceEnabled(resourceSymbol) is not true,
+            ResourceSymbol resourceSymbol => IsResourceEnabled(resourceSymbol, accessingSyntax) is not true,
             ModuleSymbol moduleSymbol => moduleSymbol.DeclaringModule.TryGetCondition() is { } condition &&
                 GetTypeInfo(condition) is not BooleanLiteralType { Value: true },
             _ => false,
         };
 
-        private bool? IsResourceEnabled(ResourceSymbol resource)
+        private bool? IsResourceEnabled(ResourceSymbol resource, SyntaxBase accessingSyntax)
         {
             // Resources with @nullIfNotFound() decorator may not exist at deployment time
             if (resource.DeclaringResource.IsExistingResource() &&
@@ -2140,8 +2141,14 @@ namespace Bicep.Core.TypeSystem
                         // if the resource condition is false, that's definitive
                         return false;
                     case BooleanType:
-                        // we can't resolve the resource condition at compile time
-                        return null;
+                        // A resource referenced from a resource with the same condition is enabled whenever the
+                        // referencing resource is deployed.
+                        if (!IsConditionGuaranteedByEnclosingResource(resource, condition, accessingSyntax))
+                        {
+                            return null;
+                        }
+
+                        break;
                 }
             }
 
@@ -2149,10 +2156,27 @@ namespace Bicep.Core.TypeSystem
             {
                 // nested resource conditions stack. This resource either doesn't have a condition or has a condition
                 // that is definitely `true`, so check its parent
-                return IsResourceEnabled(syntacticAncestor);
+                return IsResourceEnabled(syntacticAncestor, accessingSyntax);
             }
 
             return true;
+        }
+
+        private bool IsConditionGuaranteedByEnclosingResource(ResourceSymbol resource, SyntaxBase condition, SyntaxBase accessingSyntax)
+        {
+            for (var enclosingResource = TryGetEnclosingResource(accessingSyntax);
+                 enclosingResource is not null;
+                 enclosingResource = TryGetEnclosingResource(enclosingResource.DeclaringResource))
+            {
+                if (!ReferenceEquals(enclosingResource, resource) &&
+                    enclosingResource.DeclaringResource.TryGetCondition() is { } enclosingCondition &&
+                    SyntaxIgnoringTriviaComparer.Instance.Equals(condition, enclosingCondition))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private ResourceSymbol? TryGetEnclosingResource(SyntaxBase syntax) => binder.GetParent(syntax) switch
@@ -2346,7 +2370,7 @@ namespace Bicep.Core.TypeSystem
                 var (unwrapped, nonNullAsserted) = UnwrapParenthesesAndAssertions(syntax.BaseExpression);
 
                 if (!nonNullAsserted &&
-                    IsPotentiallyDisabledResourceOrModule(binder.GetSymbolInfo(unwrapped)))
+                    IsPotentiallyDisabledResourceOrModule(binder.GetSymbolInfo(unwrapped), syntax))
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Name)
                         .InstanceFunctionCallOnPossiblyNullBase(TypeHelper.CreateTypeUnion(baseType, LanguageConstants.Null), syntax.Name));

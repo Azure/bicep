@@ -547,4 +547,45 @@ public class DereferenceTests
 
         result.Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void References_to_conditionally_deployed_resources_with_the_same_condition_should_not_be_nullable()
+    {
+        var result = CompilationHelper.Compile("""
+            param enablePublicIp bool = true
+
+            resource lbIP 'Microsoft.Network/publicIPAddresses@2018-08-01' = if (enablePublicIp) {
+              name: 'lbip'
+              location: 'eastus'
+              sku: {
+                name: 'Standard'
+              }
+              properties: {
+                dnsSettings: {
+                  domainNameLabel: 'dnsName'
+                }
+                publicIPAllocationMethod: 'Static'
+                publicIPAddressVersion: 'IPv4'
+              }
+            }
+
+            resource lbIP2 'Microsoft.Network/publicIPAddresses@2018-08-01' = if (enablePublicIp) {
+              name: 'lbip2'
+              location: 'eastus'
+              sku: {
+                name: 'Standard'
+              }
+              properties: {
+                dnsSettings: {
+                  domainNameLabel: '${lbIP.properties.dnsSettings.domainNameLabel}2'
+                }
+                publicIPAllocationMethod: 'Static'
+                publicIPAddressVersion: 'IPv4'
+              }
+            }
+
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
 }
