@@ -84,6 +84,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepBuildParamsCommandHandler>()
                     .WithHandler<BicepCreateConfigFileHandler>()
                     .WithHandler<BicepGetRecommendedConfigLocationHandler>()
+                    .WithHandler<BicepSnapshotCommandHandler>()
                     .WithHandler<BicepDecompileCommandHandler>()
                     .WithHandler<BicepDecompileSaveCommandHandler>()
                     .WithHandler<BicepDecompileForPasteCommandHandler>()
