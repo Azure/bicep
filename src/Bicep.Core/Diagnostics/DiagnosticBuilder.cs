@@ -2030,6 +2030,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP441",
                 $"Resource type \"{resourceTypeReference.FormatName()}\" cannot be used with the 'existing' keyword.");
 
+            public Diagnostic MultiDocumentYamlNotSupported() => CoreError(
+                "BCP442",
+                "Multi-document YAML files are not supported. Please use a single YAML document.");
+
             public Diagnostic UsingWithClauseRequiredIfExperimentalFeatureEnabled() => CoreError(
                 "BCP443",
                 $"""The "{LanguageConstants.UsingKeyword}" statement requires a "{LanguageConstants.WithKeyword}" clause if the EXPERIMENTAL feature "{nameof(ExperimentalFeaturesEnabled.DeployCommands)}" is enabled.""");
