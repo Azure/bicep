@@ -9,6 +9,9 @@ public enum LinterRuleCategory
     BestPractice,
     DeploymentError,
 
+    /// Informs the user that something may go wrong at deployment time due to an external tool's choices (e.g. version selection).
+    VersionConstraintCompatibility,
+
     /// Informs the user that something will not work if the template is deployed by a Deployment stack.
     DeploymentStackIncompatibility,
     Portability,

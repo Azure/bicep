@@ -166,6 +166,7 @@ namespace Bicep.Core.Analyzers.Linter
                 LinterRuleCategory.ResourceLocationRules => DiagnosticLevel.Off,
                 LinterRuleCategory.Security => DiagnosticLevel.Warning,
                 LinterRuleCategory.Style => DiagnosticLevel.Warning,
+                LinterRuleCategory.VersionConstraintCompatibility => DiagnosticLevel.Warning,
 
                 // This is an exception to the "Warning" or "Off" only rule - these will cause actual deployment errors, so default level is Error
                 LinterRuleCategory.DeploymentError => DiagnosticLevel.Error,

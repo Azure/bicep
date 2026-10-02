@@ -11,11 +11,11 @@ public sealed class UseDescriptionOutputRule : UseDescriptionRuleBase
 
     public UseDescriptionOutputRule() : base(
         code: Code,
-        description: CoreResources.UseDescriptionOutputRuleDescription)
+        description: CoreResources.UseDescriptionOutputRule_Description)
     { }
 
     public override string FormatMessage(params object[] values)
-        => string.Format(CoreResources.UseDescriptionOutputRuleMessageFormat, values);
+        => string.Format(CoreResources.UseDescriptionOutputRule_MessageFormat, values);
 
     protected override IEnumerable<DescriptionTarget> GetTargets(SemanticModel model)
         => model.Root.OutputDeclarations

@@ -87,6 +87,84 @@ public sealed class VersionRange
         => (this.LowerBound?.IsSatisfiedBy(version) ?? true) &&
            (this.UpperBound?.IsSatisfiedBy(version) ?? true);
 
+    /// <summary>
+    /// Compute the range of versions that satisfy both this range and <paramref name="other"/>, by
+    /// combining whichever lower bound is more restrictive with whichever upper bound is more restrictive. Returns
+    /// <see langword="false"/> if the two ranges are disjoint, i.e. no version can satisfy both.
+    /// </summary>
+    public bool TryGetOverlap(VersionRange other, [NotNullWhen(true)] out VersionRange? overlap)
+    {
+        var candidate = new VersionRange(
+            StricterLowerBound(this.LowerBound, other.LowerBound),
+            StricterUpperBound(this.UpperBound, other.UpperBound));
+
+        if (candidate.IsSatisfiable)
+        {
+            overlap = candidate;
+            return true;
+        }
+
+        overlap = null;
+        return false;
+    }
+
+    /// <summary>
+    /// Determines whether every version that satisfies this range also satisfies <paramref name="other"/>. When
+    /// this is <see langword="false"/>, this range is "looser" than <paramref name="other"/>: it admits at least one
+    /// version that <paramref name="other"/> would reject.
+    /// </summary>
+    public bool IsSubsetOf(VersionRange other)
+        => StricterLowerBound(this.LowerBound, other.LowerBound) == this.LowerBound &&
+           StricterUpperBound(this.UpperBound, other.UpperBound) == this.UpperBound;
+
+    /// <summary>
+    /// Returns whichever lower bound admits fewer versions. A missing bound is treated as unbounded, i.e. the least
+    /// restrictive option. When both bounds sit at the same version, the exclusive comparator is stricter.
+    /// </summary>
+    private static VersionComparator? StricterLowerBound(VersionComparator? a, VersionComparator? b)
+    {
+        if (a is null)
+        {
+            return b;
+        }
+
+        if (b is null)
+        {
+            return a;
+        }
+
+        return a.Version.CompareTo(b.Version) switch
+        {
+            > 0 => a,
+            < 0 => b,
+            _ => a.IsInclusive ? b : a,
+        };
+    }
+
+    /// <summary>
+    /// Returns whichever upper bound admits fewer versions. A missing bound is treated as unbounded, i.e. the least
+    /// restrictive option. When both bounds sit at the same version, the exclusive comparator is stricter.
+    /// </summary>
+    private static VersionComparator? StricterUpperBound(VersionComparator? a, VersionComparator? b)
+    {
+        if (a is null)
+        {
+            return b;
+        }
+
+        if (b is null)
+        {
+            return a;
+        }
+
+        return a.Version.CompareTo(b.Version) switch
+        {
+            < 0 => a,
+            > 0 => b,
+            _ => a.IsInclusive ? b : a,
+        };
+    }
+
     public static VersionRange Parse(string value)
         => TryParse(value, out var result)
             ? result

@@ -117,9 +117,9 @@ namespace Bicep.Core.UnitTests.Diagnostics
                         "Do not specify a value for OverrideCategoryDefaultDiagnosticLevel unless it is overriding the default diagnostic level for that rule's category " +
                             "(and usually that should not be done).");
 
-                    ruleBase.DefaultDiagnosticLevel.Should().Be(DiagnosticLevel.Off,
-                        "I think the reason for overriding the default diagnostic level of a rule's category should only be to turn it to Off by default " +
-                            "(if there turn out to be valid reasons for something different, this test will need to be changed)");
+                    ruleBase.DefaultDiagnosticLevel.Should().BeOneOf(new[] { DiagnosticLevel.Off, DiagnosticLevel.Error },
+                        "I think the reason for overriding the default diagnostic level of a rule's category should only be to turn it to Off by default, or to Error for a rule such as " +
+                            "no-conflicting-version-constraints that proves no version can satisfy the constraints (if there turn out to be other valid reasons, this test will need to be changed)");
                 }
             }
         }
