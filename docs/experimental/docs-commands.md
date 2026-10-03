@@ -5,16 +5,34 @@ The experimental `docs` command group renders documentation from compiled Bicep 
 > [!WARNING]
 > `docs` is experimental. Command options, configuration, the template model, and built-in Markdown may change without a breaking-change notice.
 
-- [Experimental status](#experimental-status)
-- [Command](#command)
-- [Input and output resolution](#input-and-output-resolution)
-- [Options](#options)
-- [Configuration](#configuration)
-- [Usage example discovery](#usage-example-discovery)
-- [Custom templates and values](#custom-templates-and-values)
-- [Diagnostics and failures](#diagnostics-and-failures)
-- [Template model](#template-model)
-- [JSON-RPC](#json-rpc)
+- [Generate module documentation](#generate-module-documentation)
+  - [Experimental status](#experimental-status)
+  - [Command](#command)
+  - [Input and output resolution](#input-and-output-resolution)
+    - [Input](#input)
+    - [Output](#output)
+  - [Options](#options)
+  - [Configuration](#configuration)
+    - [Resolution behavior](#resolution-behavior)
+    - [Precedence](#precedence)
+    - [Configuration properties](#configuration-properties)
+    - [Path anchoring](#path-anchoring)
+    - [AVM-style example reassignment](#avm-style-example-reassignment)
+  - [Usage example discovery](#usage-example-discovery)
+  - [Custom templates and values](#custom-templates-and-values)
+    - [Custom values](#custom-values)
+  - [Diagnostics and failures](#diagnostics-and-failures)
+  - [Template model](#template-model)
+    - [Resource types](#resource-types)
+    - [Parameters](#parameters)
+    - [Exported types and variables](#exported-types-and-variables)
+    - [Exported functions](#exported-functions)
+    - [Outputs](#outputs)
+    - [References](#references)
+    - [Usage examples](#usage-examples)
+  - [JSON-RPC](#json-rpc)
+    - [`bicep/generateDocs`](#bicepgeneratedocs)
+    - [Calling from C#](#calling-from-c)
 
 ## Experimental status
 
@@ -102,6 +120,8 @@ Compilation and rendering complete before any output is written for that module.
 | Option | Argument | Description |
 | :-- | :-- | :-- |
 | `--stdout` | flag | Print one rendered document to stdout. |
+| `--template-file` | path | Use a custom Scriban template file. |
+| `--template-root` | directory | Set the root directory for template includes. Defaults to the module directory. |
 | `--pattern` | glob | Generate documentation for every matched Bicep file. |
 | `--outdir` | directory | Write generated documentation beneath this directory. |
 | `--outfile` | path | Write one generated document to this exact path. |
