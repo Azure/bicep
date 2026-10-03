@@ -2,7 +2,7 @@
 [![Test Azure CLI Integration](https://github.com/Azure/bicep/actions/workflows/test-azure-cli-integration.yml/badge.svg?branch=main)](https://github.com/Azure/bicep/actions/workflows/test-azure-cli-integration.yml)
 [![Needs Upvote](https://img.shields.io/github/issues/Azure/Bicep/Needs%3A%20Upvote?color=green&label=Needs%3A%20Upvote&style=flat)](https://github.com/Azure/bicep/issues?q=is%3Aopen+is%3Aissue+label%3A%22Needs%3A+Upvote%22+sort%3Areactions-%2B1-asc)
 [![Good First Issues](https://img.shields.io/github/issues/Azure/Bicep/good%20first%20issue?color=blue&label=good%20first%20issue&style=flat)](https://github.com/Azure/Bicep/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
-
+ 
 # Azure Bicep
 
 For all you need to know about the Bicep language, check out the [Bicep documentation](https://learn.microsoft.com/azure/azure-resource-manager/bicep/).
