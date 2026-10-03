@@ -112,7 +112,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
         await activatePasteAsBicepFeature(extension, prompts, commandManager, languageClient, outputChannelManager);
         await activateImportKubernetesManifestFeature(prompts, commandManager, languageClient);
         await activateExternalSourceFeature(extension, commandManager, languageClient);
-        await activateRefactoringFeature(commandManager);
+        await activateRefactoringFeature(commandManager, languageClient);
 
         await languageClient.start();
         getLogger().info("Bicep language service started.");
