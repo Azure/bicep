@@ -11,6 +11,9 @@ namespace Bicep.Core.Syntax
         /// <param name="node">The node</param>
         SyntaxBase? GetParent(SyntaxBase node);
 
+        /// <summary>
+        /// Returns whether the specified node is a descendant of the potential ancestor. Returns false if the node has not been indexed.
+        /// </summary>
         bool IsDescendant(SyntaxBase node, SyntaxBase potentialAncestor);
     }
 }
