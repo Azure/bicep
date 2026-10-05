@@ -104,6 +104,7 @@ You can also get in touch with other users through the community-created [Azure 
 * [Bicep Language Service support in Neovim](https://github.com/Azure/bicep/issues/1141#issuecomment-749372637)
 * [Bicep PowerShell Module](https://github.com/PSBicep/PSBicep)
 * [Bicep Tasks extension for Azure Pipelines](https://marketplace.visualstudio.com/items?itemName=piraces.bicep-tasks)
+* [Cloudeval](https://cloudeval.ai/answers/bicep-to-cloud-diagram) - Review Bicep and ARM templates with architecture diagrams and evidence-linked findings before deployment
 * [MegaLinter](https://megalinter.io/) - Open-source linters aggregator for CI that runs the [Bicep linter](https://megalinter.io/latest/descriptors/bicep_bicep_linter/) out of the box
 
 ## Alternatives
