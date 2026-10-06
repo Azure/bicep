@@ -47,6 +47,11 @@ namespace Bicep.LanguageServer.Features.Custom.Parameters
             var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetRefreshedCompilation(documentUri);
             var paramsResult = compilation.Emitter.Parameters();
 
+            if (paramsResult.Success == true && paramsResult.Template is null)
+            {
+                return "Generating snapshot file failed. Snapshots are only supported for parameters files that reference a local Bicep or ARM template file.";
+            }
+
             if (paramsResult.Success != true || paramsResult.Template?.Template is not { } templateContent || paramsResult.Parameters is not { } parametersContent)
             {
                 var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile();
@@ -69,14 +74,14 @@ namespace Bicep.LanguageServer.Features.Custom.Parameters
                     cancellationToken: cancellationToken,
                     externalInputs: []);
 
-                if (snapshot.Diagnostics.Length > 0)
-{
-                    var diagnosticsMessage = string.Join("\n", snapshot.Diagnostics.Select(d => $"  {d}"));
-                    return $"Snapshot generation completed with warnings:\n{diagnosticsMessage}\n\nSnapshot file created at {snapshotFileUri}";
-                }
-
                 var contents = SnapshotHelper.Serialize(snapshot);
                 await snapshotFile.WriteAllTextAsync(contents, cancellationToken);
+
+                if (snapshot.Diagnostics.Length > 0)
+                {
+                    var diagnosticsMessage = string.Join("\n", snapshot.Diagnostics.Select(d => $"  {d}"));
+                    return $"Snapshot generation completed with warnings:\n{diagnosticsMessage}\n\nCreated file {snapshotFileUri}";
+                }
 
                 return $"Snapshot generation succeeded. Created file {snapshotFileUri}";
             }
