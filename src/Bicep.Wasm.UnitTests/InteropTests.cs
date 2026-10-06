@@ -3,6 +3,7 @@
 
 using System.IO.Abstractions.TestingHelpers;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog;
@@ -100,11 +101,12 @@ public class InteropTests
 
         result.error.Should().BeNull();
         result.entrypoint.Should().Be("main.bicep");
-        result.files.Should().HaveCount(3);
-        result.files!.Keys.Should().BeEquivalentTo("main.bicep", "nested_newVnet.bicep", "nested_storage.bicep");
+        result.files.Should().HaveCount(4);
+        result.files!.Keys.Should().BeEquivalentTo("main.bicep", "nested_newVnet.bicep", "nested_storage.bicep", "nested_metadata.bicep");
         result.bicepFile.Should().Be(result.files[result.entrypoint!]);
         result.bicepFile.Should().Contain("Microsoft.Compute/virtualMachines");
         result.bicepFile.Should().Contain("vnetName: vnetName");
+        result.bicepFile.Should().Contain("'./nested_metadata.bicep'").And.Contain("innerVmName: vmName");
         result.files["nested_newVnet.bicep"].Should()
             .Contain("param vnetName string")
             .And.Contain("Microsoft.Network/virtualNetworks")
@@ -113,10 +115,14 @@ public class InteropTests
         result.files["nested_storage.bicep"].Should()
             .Contain("Microsoft.Storage/storageAccounts")
             .And.Contain("'hackathonstorage'");
+        result.files["nested_metadata.bicep"].Should()
+            .Contain("param innerVmName string")
+            .And.Contain("output name string = innerVmName");
 
         foreach (var (path, content) in result.files)
         {
-            path.Should().NotContain("\\").And.NotStartWith("/");
+            path.Should().NotContain("\\").And.NotContain(":").And.NotStartWith("/");
+            path.Split('/').Should().NotContain("..");
             foreach (Match module in Regex.Matches(content, @"(?m)^module\s+\w+\s+'([^']+)'"))
             {
                 var moduleUri = IOUri.FromFilePath($"/{path}").Resolve(module.Groups[1].Value);
@@ -155,6 +161,25 @@ public class InteropTests
         serialized.RootElement.GetProperty("bicepFile").ValueKind.Should().Be(JsonValueKind.Null);
         serialized.RootElement.GetProperty("entrypoint").ValueKind.Should().Be(JsonValueKind.Null);
         serialized.RootElement.GetProperty("files").ValueKind.Should().Be(JsonValueKind.Null);
+    }
+
+    [TestMethod]
+    public async Task Decompile_WithInvalidOuterScopedTemplate_DoesNotReturnPartialFiles()
+    {
+        var jsRuntime = new MockJsRuntime(new Dictionary<string, string>());
+        using var serviceProvider = CreateServiceProvider(new InMemoryFileExplorer());
+        var interop = new Interop(jsRuntime.LoadQuickstart, serviceProvider);
+        var template = JsonNode.Parse(await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Files", "create-vm.json")))!;
+        var nestedTemplate = template["resources"]![1]!["properties"]!["template"]!;
+        nestedTemplate["parameters"] = JsonNode.Parse("""{"unexpected": {"type": "string"}}""");
+
+        var result = await interop.Decompile(template.ToJsonString());
+
+        result.error.Should().Contain("Outer-scoped nested templates cannot contain parameters");
+        result.bicepFile.Should().BeNull();
+        result.entrypoint.Should().BeNull();
+        result.files.Should().BeNull();
+        jsRuntime.LoadedPaths.Should().BeEmpty();
     }
 
     [TestMethod]
