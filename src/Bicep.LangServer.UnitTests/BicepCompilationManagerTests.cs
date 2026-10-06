@@ -6,6 +6,7 @@ using Bicep.Core;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
@@ -522,7 +523,8 @@ module moduleB './moduleB.bicep' = {
                 fileExplorer,
                 services.Construct<IModuleDispatcher>(),
                 BicepTestConstants.LinterAnalyzer,
-                BicepTestConstants.SourceFileFactory);
+                BicepTestConstants.SourceFileFactory,
+                DiagnosticHostOptions.Default);
 
             var compilationManager = new BicepCompilationManager(
                 server.Object,

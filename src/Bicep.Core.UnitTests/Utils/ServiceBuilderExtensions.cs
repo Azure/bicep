@@ -86,6 +86,9 @@ public static class ServiceBuilderExtensions
     public static ServiceBuilder WithBicepVersion(this ServiceBuilder serviceBuilder, string version, string? commitRef = null)
         => serviceBuilder.WithRegistration(x => x.WithBicepVersion(version, commitRef));
 
+    public static ServiceBuilder WithDiagnosticHostOptions(this ServiceBuilder serviceBuilder, DiagnosticHostOptions diagnosticHostOptions)
+        => serviceBuilder.WithRegistration(x => x.WithDiagnosticHostOptions(diagnosticHostOptions));
+
     public static ServiceBuilder WithFileSystem(this ServiceBuilder serviceBuilder, IFileSystem fileSystem)
         => serviceBuilder.WithRegistration(x => x.WithFileSystem(fileSystem));
 

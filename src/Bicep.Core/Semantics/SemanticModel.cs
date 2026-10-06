@@ -58,13 +58,14 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
 
-        public SemanticModel(IBicepAnalyzer linterAnalyzer, INamespaceProvider namespaceProvider, IArtifactReferenceFactory artifactReferenceFactory, ISemanticModelLookup modelLookup, SourceFileGrouping sourceFileGrouping, IEnvironment environment, BicepSourceFile sourceFile)
+        public SemanticModel(IBicepAnalyzer linterAnalyzer, INamespaceProvider namespaceProvider, IArtifactReferenceFactory artifactReferenceFactory, ISemanticModelLookup modelLookup, SourceFileGrouping sourceFileGrouping, IEnvironment environment, BicepSourceFile sourceFile, DiagnosticHostOptions diagnosticHostOptions)
         {
             this.ArtifactReferenceFactory = artifactReferenceFactory;
             this.ModelLookup = modelLookup;
             this.SourceFileGrouping = sourceFileGrouping;
             this.SourceFile = sourceFile;
             this.Environment = environment;
+            this.DiagnosticHostOptions = diagnosticHostOptions;
             this.Features = sourceFile.LoadFeatures();
             this.Configuration = sourceFile.LoadConfiguration();
             TraceBuildOperation(sourceFile, Features, Configuration);
@@ -234,6 +235,8 @@ namespace Bicep.Core.Semantics
 
         public IEnvironment Environment { get; }
 
+        public DiagnosticHostOptions DiagnosticHostOptions { get; }
+
         public BicepSourceFileKind SourceFileKind => this.SourceFile.FileKind;
 
         public IBicepConfiguration Configuration { get; }
@@ -393,6 +396,12 @@ namespace Bicep.Core.Semantics
         /// <returns>True if analysis finds errors</returns>
         public bool HasErrors()
             => allDiagnostics.Value.Any(x => x.IsError());
+
+        public bool HasOnlyVersionConstraintErrors()
+        {
+            var errors = allDiagnostics.Value.Where(x => x.IsError()).ToImmutableArray();
+            return errors.Length > 0 && errors.All(x => x.Code == "BCP456");
+        }
 
         public bool HasParsingErrors()
             => this.ParsingErrorLookup.Any(x => x.IsError());
@@ -627,7 +636,8 @@ namespace Bicep.Core.Semantics
                 yield break;
             }
 
-            if (usingModel.HasErrors())
+            if (usingModel.HasErrors() &&
+                !SemanticModelHelper.ShouldSuppressReferencedModelCascade(this.DiagnosticHostOptions, usingModel))
             {
                 yield return usingModel is ArmTemplateSemanticModel
                     ? DiagnosticBuilder.ForPosition(usingSyntax.Path).ReferencedArmTemplateHasErrors()

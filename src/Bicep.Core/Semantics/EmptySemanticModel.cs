@@ -25,6 +25,8 @@ namespace Bicep.Core.Semantics
 
         public bool HasErrors() => false;
 
+        public bool HasOnlyVersionConstraintErrors() => false;
+
         public IFeatureProvider Features => RecordBasedFeatureProvider.AllDisabled;
     }
 }

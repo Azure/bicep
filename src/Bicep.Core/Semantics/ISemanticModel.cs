@@ -21,5 +21,10 @@ namespace Bicep.Core.Semantics
         ImmutableArray<OutputMetadata> Outputs { get; }
 
         bool HasErrors();
+
+        /// <summary>
+        /// True if this model has at least one error, and every error is BCP456 (bicep.version constraint not satisfied).
+        /// </summary>
+        bool HasOnlyVersionConstraintErrors();
     }
 }

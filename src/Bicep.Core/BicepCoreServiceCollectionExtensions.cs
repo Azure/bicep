@@ -70,6 +70,7 @@ public static class BicepCoreServiceCollectionExtensions
         services.TryAddSingleton<IBicepConfigurationManager>(sp => sp.GetRequiredService<BicepConfigurationManager>());
         services.TryAddSingleton<IBicepAnalyzer, LinterAnalyzer>();
         services.TryAddSingleton<IFeatureProviderFactory, FeatureProviderFactory>();
+        services.TryAddSingleton(DiagnosticHostOptions.Default);
         services.TryAddSingleton<ILinterRulesProvider, LinterRulesProvider>();
         services.TryAddSingleton<ISourceFileFactory, SourceFileFactory>();
         services.TryAddSingleton<IBicepDocumentationGenerator, BicepDocumentationGenerator>();

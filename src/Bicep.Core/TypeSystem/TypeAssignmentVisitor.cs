@@ -377,7 +377,8 @@ namespace Bicep.Core.TypeSystem
 
                 if (this.binder.GetSymbolInfo(syntax) is TestSymbol testSymbol &&
                    testSymbol.TryGetSemanticModel().IsSuccess(out var testSemanticModel, out var _) &&
-                   testSemanticModel.HasErrors())
+                   testSemanticModel.HasErrors() &&
+                   !SemanticModelHelper.ShouldSuppressReferencedModelCascade(this.model.DiagnosticHostOptions, testSemanticModel))
                 {
                     diagnostics.Write(testSemanticModel is ArmTemplateSemanticModel
                         ? DiagnosticBuilder.ForPosition(syntax.Path).ReferencedArmTemplateHasErrors()
@@ -454,7 +455,8 @@ namespace Bicep.Core.TypeSystem
 
                 if (this.binder.GetSymbolInfo(syntax) is ModuleSymbol moduleSymbol && moduleSymbol.TryGetSemanticModel().IsSuccess(out var moduleSemanticModel, out var _))
                 {
-                    if (moduleSemanticModel.HasErrors())
+                    if (moduleSemanticModel.HasErrors() &&
+                        !SemanticModelHelper.ShouldSuppressReferencedModelCascade(this.model.DiagnosticHostOptions, moduleSemanticModel))
                     {
                         diagnostics.Write(moduleSemanticModel is ArmTemplateSemanticModel
                             ? DiagnosticBuilder.ForPosition(syntax.Path).ReferencedArmTemplateHasErrors()

@@ -43,6 +43,7 @@ public static class IServiceCollectionExtensions
         BicepLangServerOptions bicepLangServerOptions
     ) => services
         .AddBicepCore()
+        .AddSingleton(new DiagnosticHostOptions(SuppressVersionMismatchCascade: true))
         .AddBicepDecompiler()
         .AddBicepLocalDeploy()
         .AddSingleton<IActiveSourceFileSet, ActiveSourceFileSet>()
