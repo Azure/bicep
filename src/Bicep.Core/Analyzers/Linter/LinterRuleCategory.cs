@@ -9,7 +9,7 @@ public enum LinterRuleCategory
     BestPractice,
     DeploymentError,
 
-    /// Informs the user that something may go wrong at deployment time due to an external tool's choices (e.g. version selection).
+    /// Rules concerning compatibility of bicep version constraints across Bicep files.
     VersionConstraintCompatibility,
 
     /// Informs the user that something will not work if the template is deployed by a Deployment stack.
