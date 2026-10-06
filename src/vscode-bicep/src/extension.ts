@@ -15,6 +15,7 @@ import { activateModuleRestoreFeature } from "./features/module-restore";
 import { activateParametersFeature } from "./features/parameters";
 import { activatePasteAsBicepFeature } from "./features/paste-as-bicep";
 import { activateRefactoringFeature } from "./features/refactoring";
+import { activateSnapshotFeature } from "./features/snapshot";
 import * as surveys from "./features/surveys";
 import { activateVisualizationFeature } from "./features/visualization";
 import { activateWalkthroughFeature } from "./features/walkthrough";
@@ -104,6 +105,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
         );
         await activateBuildFeature(prompts, commandManager, languageClient, outputChannelManager);
         await activateParametersFeature(prompts, commandManager, languageClient, outputChannelManager);
+        await activateSnapshotFeature(prompts, commandManager, languageClient, outputChannelManager);
         await activateConfigurationFeature(commandManager, languageClient);
         await activateDecompileFeature(extension, prompts, commandManager, languageClient, outputChannelManager);
         await activateModuleRestoreFeature(prompts, commandManager, languageClient, outputChannelManager);
