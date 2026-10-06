@@ -26,7 +26,7 @@ jobs:
 
       - name: Restore dotnet dependencies
         run: |
-          echo "Restoring dependencies for Bicep.sln"
+          echo "Restoring dependencies for Bicep.slnx"
           dotnet restore --force-evaluate
           echo "Restoring dependencies for BicepInVisualStudio.sln"
           dotnet restore src/vs-bicep/BicepInVisualStudio.sln --force-evaluate

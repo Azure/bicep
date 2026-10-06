@@ -30,7 +30,7 @@ Key classes: `Compilation` → `SemanticModel` → `TypeManager`, `Binder`, `Tem
 
 ```bash
 # Build
-dotnet build Bicep.sln
+dotnet build Bicep.slnx
 
 # Run all tests
 dotnet test

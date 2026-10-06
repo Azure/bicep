@@ -276,7 +276,7 @@ Validation for every package:
 
 - Run touched classes by `FullyQualifiedName` filter.
 - Build and test every consuming project changed by the package.
-- Run `dotnet build .\Bicep.sln --no-restore` at deletion milestones.
+- Run `dotnet build .\Bicep.slnx --no-restore` at deletion milestones.
 - Use zero-result searches for the retired symbols as completion checks.
 
 ### PR C: Remove Project References To Bicep.Core.UnitTests

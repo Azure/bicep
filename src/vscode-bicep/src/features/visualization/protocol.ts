@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { VisualizerMotionPolicy } from "./motion-policy";
+
 import {
   ProtocolRequestType,
   Range,
@@ -9,56 +11,40 @@ import {
   WorkspaceEdit,
 } from "vscode-languageserver-protocol";
 
-export type VisualGraphNodeKind = "resource" | "module";
-
-export interface VisualGraphRenderedNode {
-  id: string;
-  kind: VisualGraphNodeKind;
-  parentId: string | null;
-  type: string;
-  isCollection: boolean;
-  hasChildren: boolean;
-  hasError: boolean;
-  width: number;
-  height: number;
+/** The settings the webview depends on, sent with `settings/didChange`. */
+export interface VisualizerSettings {
+  motionPolicy: VisualizerMotionPolicy;
+  isResourceEditingEnabled: boolean;
 }
 
-export interface VisualGraphRenderedEdge {
-  id: string;
-  sourceId: string;
-  targetId: string;
-}
+// The extension forwards graphs between the webview and the language server without reading them.
 
-export interface VisualGraphRendered {
-  nodes: VisualGraphRenderedNode[];
-  edges: VisualGraphRenderedEdge[];
-}
-
-export interface VisualGraphUpdateParams {
+export interface VisualGraphParams {
   textDocument: TextDocumentIdentifier;
-  current: VisualGraphRendered | null;
 }
 
-export interface VisualGraphUpdateResult {
-  patches: unknown[];
+export interface VisualGraphResult {
+  /** Null when the document has not been compiled yet: the webview keeps what it shows. */
+  graph: unknown;
+  targetScope: "resourceGroup" | "subscription" | "managementGroup" | "tenant" | null;
+  /** The errors reported for the document, including those that belong to no node. */
+  errorCount: number;
 }
 
-export const visualGraphUpdateRequestType = new ProtocolRequestType<
-  VisualGraphUpdateParams,
-  VisualGraphUpdateResult,
-  never,
-  void,
-  void
->("textDocument/visualGraphUpdate");
+export const visualGraphRequestType = new ProtocolRequestType<VisualGraphParams, VisualGraphResult, never, void, void>(
+  "textDocument/visualGraph",
+);
 
 export interface VisualGraphLayoutParams {
   textDocument: TextDocumentIdentifier;
-  current: VisualGraphRendered;
+  /** The graph the webview rendered, with the size it measured for each node. */
+  graph: unknown;
 }
 
 export interface VisualGraphLayoutResult {
   status: "ok" | "graphChanged" | "layoutFailed";
-  patches: unknown[];
+  positions: unknown[];
+  bounds: unknown;
 }
 
 export const visualGraphLayoutRequestType = new ProtocolRequestType<
@@ -68,14 +54,12 @@ export const visualGraphLayoutRequestType = new ProtocolRequestType<
   void,
   void
 >("textDocument/visualGraphLayout");
-
 export interface VisualGraphNodeSourceParams {
   textDocument: TextDocumentIdentifier;
   nodeId: string;
 }
 
 export interface VisualGraphNodeSourceResult {
-  found: boolean;
   filePath: string | null;
   range: Range | null;
 }
@@ -93,46 +77,16 @@ export interface VisualResourceTypeReference {
   apiVersion: string;
 }
 
-export interface VisualResourceTypeCatalogItem extends VisualResourceTypeReference {
-  isPreview: boolean;
-}
-
-export interface VisualResourceTypeNamespace {
-  name: string;
-  resourceTypeCount: number;
-}
-
-export interface VisualResourceTypeNamespacesParams {
-  textDocument: TextDocumentIdentifier;
-  includePreview: boolean;
-}
-
-export interface VisualResourceTypeNamespacesResult {
-  catalogId: string;
-  namespaces: VisualResourceTypeNamespace[];
-}
-
-export const visualResourceTypeNamespacesRequestType = new ProtocolRequestType<
-  VisualResourceTypeNamespacesParams,
-  VisualResourceTypeNamespacesResult,
-  never,
-  void,
-  void
->("textDocument/visualResourceTypeNamespaces");
-
 export interface VisualResourceTypesParams {
   textDocument: TextDocumentIdentifier;
-  providerNamespace?: string;
-  query?: string;
-  includePreview: boolean;
-  pageSize: number;
-  continuationToken?: string;
+  /** The catalog the webview already holds, so the language server can skip sending it again. */
+  knownCatalogId?: string;
 }
 
 export interface VisualResourceTypesResult {
   catalogId: string;
-  items: VisualResourceTypeCatalogItem[];
-  continuationToken?: string;
+  /** Every type deployable at the document's target scope, or null when the catalog is unchanged. */
+  resourceTypes: VisualResourceTypeReference[] | null;
 }
 
 export const visualResourceTypesRequestType = new ProtocolRequestType<
@@ -142,25 +96,75 @@ export const visualResourceTypesRequestType = new ProtocolRequestType<
   void,
   void
 >("textDocument/visualResourceTypes");
+export interface VisualResourceTypeVersionsParams {
+  textDocument: TextDocumentIdentifier;
+  fullyQualifiedType: string;
+}
 
-export interface PrepareVisualResourceParams {
+export interface VisualResourceTypeVersionsResult {
+  catalogId: string;
+  apiVersions: string[];
+}
+
+export const visualResourceTypeVersionsRequestType = new ProtocolRequestType<
+  VisualResourceTypeVersionsParams,
+  VisualResourceTypeVersionsResult,
+  never,
+  void,
+  void
+>("textDocument/visualResourceTypeVersions");
+
+export interface PrepareVisualResourceCreationParams {
   textDocument: VersionedTextDocumentIdentifier;
   operationId: string;
   resourceType: VisualResourceTypeReference;
 }
 
-export interface PrepareVisualResourceResult {
+export interface PrepareVisualResourceCreationResult {
   operationId: string;
   expectedNodeId: string;
-  symbolicName: string;
   unresolvedRequiredProperties: string[];
   edit: WorkspaceEdit;
 }
 
-export const prepareVisualResourceRequestType = new ProtocolRequestType<
-  PrepareVisualResourceParams,
-  PrepareVisualResourceResult,
+export const prepareVisualResourceCreationRequestType = new ProtocolRequestType<
+  PrepareVisualResourceCreationParams,
+  PrepareVisualResourceCreationResult,
   never,
   void,
   void
->("textDocument/prepareVisualResource");
+>("textDocument/prepareVisualResourceCreation");
+
+export type VisualResourceReplayDirection = "undo" | "redo";
+
+export interface VisualResourceReplayQuery {
+  operationId: string;
+  /** The graph node the creation produced, which is the resource's symbolic name. */
+  nodeId: string;
+  direction: VisualResourceReplayDirection;
+  /** The text the creation inserted, including its surrounding newlines, as the document contains it. */
+  insertedText: string;
+}
+
+export interface PrepareVisualResourceReplayParams {
+  textDocument: TextDocumentIdentifier;
+  replays: VisualResourceReplayQuery[];
+}
+
+export interface VisualResourceReplayEdit {
+  operationId: string;
+  /** The edit that replays the creation exactly against the current document, or null if that is not possible. */
+  edit: { range: Range; newText: string } | null;
+}
+
+export interface PrepareVisualResourceReplayResult {
+  replays: VisualResourceReplayEdit[];
+}
+
+export const prepareVisualResourceReplayRequestType = new ProtocolRequestType<
+  PrepareVisualResourceReplayParams,
+  PrepareVisualResourceReplayResult,
+  never,
+  void,
+  void
+>("textDocument/prepareVisualResourceReplay");

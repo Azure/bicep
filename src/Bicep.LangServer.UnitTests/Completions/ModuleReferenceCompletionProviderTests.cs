@@ -1040,5 +1040,6 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x => x.GetProviderForRegistry(It.IsAny<CloudConfiguration>(), It.IsAny<string>()),
                 Times.Never);
         }
+
     }
 }

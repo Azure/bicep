@@ -5,47 +5,55 @@ import { Codicon } from "@vscode-bicep-ui/components";
 import styled from "styled-components";
 import { MotionAwareProgressBar } from "./MotionAwareProgressBar";
 
-const $StickyControls = styled.div`
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  padding-top: 10px;
-  background: color-mix(in srgb, var(--vscode-editorWidget-background) 96%, transparent);
-  backdrop-filter: blur(12px);
+const $Controls = styled.div`
+  position: relative;
+  flex-shrink: 0;
+  padding: 8px;
+  border-bottom: 1px solid ${({ theme }) => theme.panel.border};
 `;
 
 const $Search = styled.label`
   display: flex;
-  height: 30px;
+  height: 28px;
   align-items: center;
   gap: 6px;
-  margin: 0 10px 8px;
   padding: 0 8px;
-  border: 1px solid var(--vscode-input-border, var(--vscode-widget-border));
+  border: 1px solid ${({ theme }) => theme.panel.border};
   border-radius: 6px;
-  color: var(--vscode-input-foreground);
-  background: var(--vscode-input-background);
+  color: ${({ theme }) => theme.text.secondary};
+  background: ${({ theme }) => theme.viewport.background};
+  transition: border-color 150ms ease;
 
   &:focus-within {
-    border-color: var(--vscode-focusBorder);
+    border-color: ${({ theme }) => theme.focusBorder};
   }
 `;
 
 const $SearchInput = styled.input`
   min-width: 0;
   flex: 1;
+  padding: 0;
   border: 0;
   outline: 0;
-  color: inherit;
+  color: ${({ theme }) => theme.text.primary};
   background: transparent;
   font: inherit;
 
+  &:focus {
+    outline: none;
+    outline-offset: 0;
+  }
+
   &::placeholder {
-    color: var(--vscode-input-placeholderForeground);
+    color: ${({ theme }) => theme.text.secondary};
   }
 `;
 
 const $ProgressTrack = styled.div`
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
   height: 2px;
   overflow: hidden;
 `;
@@ -60,11 +68,13 @@ export function PaletteControls({
   showProgress: boolean;
 }) {
   return (
-    <$StickyControls>
+    <$Controls>
       <$Search>
         <Codicon name="search" size={14} />
         <$SearchInput
           aria-label="Filter resource types"
+          title="Filter resource types"
+          autoFocus
           placeholder="Filter resource types"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
@@ -75,6 +85,6 @@ export function PaletteControls({
           <MotionAwareProgressBar testId="resource-palette-progress" ariaLabel="Loading resource types" />
         )}
       </$ProgressTrack>
-    </$StickyControls>
+    </$Controls>
   );
 }

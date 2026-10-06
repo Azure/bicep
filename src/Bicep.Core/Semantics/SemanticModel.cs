@@ -720,6 +720,8 @@ namespace Bicep.Core.Semantics
 
         private IEnumerable<IDiagnostic> GatherTypeMismatchDiagnostics()
         {
+            var extendsPath = SourceFile.ProgramSyntax.Declarations.OfType<ExtendsDeclarationSyntax>().FirstOrDefault()?.Path;
+
             foreach (var assignmentSymbol in Root.ParameterAssignments)
             {
                 var isFromSameFile = assignmentSymbol.Context.SourceFile == Root.Context.SourceFile;
@@ -747,7 +749,14 @@ namespace Bicep.Core.Semantics
 
                     foreach (var diagnostic in diagnostics.GetDiagnostics())
                     {
-                        yield return diagnostic;
+                        yield return !isFromSameFile && extendsPath is not null && diagnostic is Diagnostic concreteDiagnostic
+                            ? concreteDiagnostic with
+                            {
+                                Span = extendsPath.Span,
+                                Message = $"The value inherited for parameter \"{assignmentSymbol.Name}\" from \"{assignmentSymbol.Context.SourceFile.GetFileName()}\": {concreteDiagnostic.Message}",
+                                Fixes = [],
+                            }
+                            : diagnostic;
                     }
                 }
             }

@@ -12,14 +12,18 @@ namespace Bicep.LanguageServer.Features.Custom.InsertResource
     public class AzResourceProvider : IAzResourceProvider
     {
         private readonly ITokenCredentialFactory credentialFactory;
+        private readonly CloudConfigurationTrustPolicy cloudTrustPolicy;
 
-        public AzResourceProvider(ITokenCredentialFactory credentialFactory)
+        public AzResourceProvider(ITokenCredentialFactory credentialFactory, CloudConfigurationTrustPolicy cloudTrustPolicy)
         {
             this.credentialFactory = credentialFactory;
+            this.cloudTrustPolicy = cloudTrustPolicy;
         }
 
         private ArmClient CreateArmClient(IBicepConfiguration configuration, string subscriptionId, IEnumerable<(string resourceType, string apiVersion)> resourceTypeApiVersionMapping)
         {
+            cloudTrustPolicy.ThrowIfCloudIsUntrusted(configuration.Cloud);
+
             var options = new ArmClientOptions();
             options.Diagnostics.ApplySharedResourceManagerSettings();
             options.Environment = new ArmEnvironment(configuration.Cloud.ResourceManagerEndpointUri, configuration.Cloud.AuthenticationScope);

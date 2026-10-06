@@ -62,7 +62,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
             var fileSystem = MockFileSystemFactory.CreateForSample(Sample.Valid);
             var sut = CreateGenerateCommand(fileSystem);
 
-            fileSystem.File.WriteAllText(MainBicepFile.FileName, "something");
+            await fileSystem.File.WriteAllTextAsync(MainBicepFile.FileName, "something");
 
             var exitCode = await sut.Parse("").InvokeAsync();
 
@@ -79,7 +79,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
                 @$"Failed to build ""{mainBicepFilePath}"".");
             var sut = CreateGenerateCommand(fileSystem, console);
 
-            fileSystem.File.WriteAllText(MainBicepFile.FileName, "something");
+            await fileSystem.File.WriteAllTextAsync(MainBicepFile.FileName, "something");
 
             await sut.Parse("").InvokeAsync();
 

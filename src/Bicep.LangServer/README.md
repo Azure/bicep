@@ -62,7 +62,7 @@ Features/
 | `LocalDeploy` | `bicep/localDeploy` |
 | `ModuleRestore` | `forceModulesRestore` and the module restore scheduler |
 | `Parameters` | `generateParams` |
-| `Visualization` | `textDocument/visualGraphUpdate`, `textDocument/visualGraphLayout`, and `textDocument/visualGraphNodeSource` |
+| `Visualization` | `textDocument/visualGraph`, `textDocument/visualGraphLayout`, `textDocument/visualGraphNodeSource`, `textDocument/visualResourceTypes`, `textDocument/visualResourceTypeVersions`, `textDocument/prepareVisualResourceCreation`, and `textDocument/prepareVisualResourceReplay` |
 
 `Deployments/Services` and `Visualization/Models` are feature-local subdomains with several supporting types. Their handlers, requests, and responses remain directly in the feature folder.
 

@@ -1,4 +1,4 @@
-if (!(Test-Path "Bicep.sln")) {
+if (!(Test-Path "Bicep.slnx")) {
     Write-Error "This script must be run from the repository's root directory";
     exit 1;
 }

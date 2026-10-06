@@ -30,7 +30,7 @@ export const nodesByIdAtom = atom<Record<string, NodeState>>({});
 
 /**
  * The ID of the currently focused node, or `null` if nothing is focused.
- * Set on mousedown; cleared when clicking the canvas background.
+ * Set after a node click; cleared after a click on the canvas background.
  */
 export const focusedNodeIdAtom = atom<string | null>(null);
 
@@ -113,41 +113,30 @@ export function getNodeZIndex(nodeId: string, nodeKind: NodeKind, focusedId: str
   return baseZ + boost;
 }
 
-export const addAtomicNodeAtom = atom(null, (_, set, id: string, origin: Point, data: unknown) => {
-  set(nodesByIdAtom, (nodes) => ({
-    ...nodes,
-    [id]: {
-      kind: "atomic",
-      id,
-      boxAtom: atom({ min: { ...origin }, max: { ...origin } }),
-      dataAtom: atom(data),
-    },
-  }));
-});
+/**
+ * A leaf node whose box starts as a point at `origin`; it grows to its measured size when it mounts.
+ * Add it to `nodesByIdAtom`.
+ */
+export function createAtomicNode(id: string, origin: Point, data: unknown): AtomicNodeState {
+  return {
+    kind: "atomic",
+    id,
+    boxAtom: atom({ min: { ...origin }, max: { ...origin } }),
+    dataAtom: atom(data),
+  };
+}
 
 /**
- * Write atom that removes a set of node IDs from the node record
- * in a single immutable update.
+ * A container node whose box encloses its children's boxes plus the configured padding. Add it to
+ * `nodesByIdAtom`.
  */
-export const removeNodesAtom = atom(null, (_, set, idsToRemove: Set<string>) => {
-  set(nodesByIdAtom, (nodes) => {
-    const next: Record<string, NodeState> = {};
-    for (const [id, node] of Object.entries(nodes)) {
-      if (!idsToRemove.has(id)) {
-        next[id] = node;
-      }
-    }
-    return next;
-  });
-});
-
-export const addCompoundNodeAtom = atom(null, (_, set, id: string, childIds: string[], data: unknown) => {
+export function createCompoundNode(id: string, childIds: string[], data: unknown): CompoundNodeState {
   const childIdsAtom = atom(childIds);
   const boxAtom = atom((get) => {
     const nodes = get(nodesByIdAtom);
     const { padding } = get(nodeConfigAtom);
     const childBoxes = get(childIdsAtom)
-      .map((id) => nodes[id])
+      .map((childId) => nodes[childId])
       .filter((child) => child !== undefined)
       .map((child) => get(child.boxAtom));
 
@@ -167,14 +156,5 @@ export const addCompoundNodeAtom = atom(null, (_, set, id: string, childIds: str
     };
   });
 
-  set(nodesByIdAtom, (nodes) => ({
-    ...nodes,
-    [id]: {
-      kind: "compound",
-      id,
-      childIdsAtom,
-      boxAtom,
-      dataAtom: atom(data),
-    },
-  }));
-});
+  return { kind: "compound", id, childIdsAtom, boxAtom, dataAtom: atom(data) };
+}

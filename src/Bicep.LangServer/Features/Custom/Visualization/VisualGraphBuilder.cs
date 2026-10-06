@@ -29,7 +29,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
         /// <summary>
         /// Builds the canonical graph together with a map from node id to its source location. The source map
         /// is consumed only by the reveal-on-demand handler; the canonical graph itself carries no source
-        /// location so that volatile range/file-path data never travels through the graph diff.
+        /// location so that volatile range/file-path data does not change the graph on every edit.
         /// </summary>
         public static (CanonicalGraph Graph, IReadOnlyDictionary<string, NodeSource> Sources) BuildWithSources(
             CompilationContext context,
@@ -63,7 +63,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                         var resourceType = resourceSymbol.TryGetResourceTypeReference()?.FormatType() ?? "<unknown>";
                         var resourceSpan = resourceSymbol.DeclaringResource.Span;
                         var range = resourceSpan.ToRange(semanticModel.SourceFile.LineStarts);
-                        var hasError = errors.Any(error => TextSpan.AreOverlapping(resourceSpan, error.Span));
+                        var hasError = errors.Any(error => ContainsDiagnostic(resourceSpan, error.Span));
 
                         nodesBySymbol[symbol] = new GraphNode(
                             Id: id,
@@ -87,7 +87,7 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
                         var moduleSpan = moduleSymbol.DeclaringModule.Span;
                         var range = moduleSpan.ToRange(semanticModel.SourceFile.LineStarts);
-                        var hasError = errors.Any(error => TextSpan.AreOverlapping(moduleSpan, error.Span));
+                        var hasError = errors.Any(error => ContainsDiagnostic(moduleSpan, error.Span));
 
                         var hasChildren = false;
 
@@ -139,10 +139,15 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
 
             var graph = new CanonicalGraph(
                 Nodes: nodes.OrderBy(node => node.Id, StringComparer.Ordinal).ToImmutableArray(),
-                Edges: edges.OrderBy(edge => edge.Id, StringComparer.Ordinal).ToImmutableArray(),
-                ErrorCount: entrySemanticModel.GetAllDiagnostics().Count(x => x.IsError()));
+                Edges: edges.OrderBy(edge => edge.Id, StringComparer.Ordinal).ToImmutableArray());
 
             return (graph, sources);
         }
+
+        private static bool ContainsDiagnostic(TextSpan declarationSpan, TextSpan diagnosticSpan) =>
+            TextSpan.AreOverlapping(declarationSpan, diagnosticSpan) ||
+            (diagnosticSpan.Length == 0 &&
+                diagnosticSpan.Position >= declarationSpan.Position &&
+                diagnosticSpan.Position <= declarationSpan.Position + declarationSpan.Length);
     }
 }

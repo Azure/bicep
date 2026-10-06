@@ -604,7 +604,7 @@ namespace Bicep.Core.Registry
             {
                 throw new ExternalArtifactException(
                     $"Cannot connect to registry \"{reference.Registry}\" because it is not in the list of trusted registries. " +
-                    $"Set the BICEP_TRUSTED_REGISTRIES environment variable (comma-separated hostnames, e.g. \"contoso.example.com,*.contoso.io\") to allow it.");
+                    $"Set the {BicepEnvironmentVariables.TrustedRegistries} environment variable (comma-separated hostnames, e.g. \"contoso.example.com,*.contoso.io\") to allow it.");
             }
 
             return transportFactory.CreateSession(reference, (CloudConfiguration)reference.Configuration.Cloud);

@@ -9,11 +9,17 @@ import { getThemeFromBody } from "./themes";
 export const activeThemeAtom = atom<DefaultTheme>(getThemeFromBody());
 
 activeThemeAtom.onMount = (setTheme) => {
+  let disposed = false;
   const updateTheme = () => {
-    setTheme(getThemeFromBody());
+    if (!disposed) {
+      setTheme(getThemeFromBody());
+    }
   };
 
-  updateTheme();
+  // onMount runs before the mounting subscriber's listener is attached, and Jotai does not re-read
+  // after subscribing, so a synchronous set here would be missed (e.g. when the host sets the theme
+  // kind between module evaluation and first mount). Defer the initial sync until listeners exist.
+  queueMicrotask(updateTheme);
 
   const observer = new MutationObserver(updateTheme);
   observer.observe(document.body, {
@@ -21,5 +27,8 @@ activeThemeAtom.onMount = (setTheme) => {
     attributeFilter: ["data-vscode-theme-kind"],
   });
 
-  return () => observer.disconnect();
+  return () => {
+    disposed = true;
+    observer.disconnect();
+  };
 };

@@ -41,7 +41,7 @@ public static class TypesV1Archive
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        return BinaryData.FromStream(stream);
+        return await BinaryData.FromStreamAsync(stream);
     }
 
     private static IEnumerable<string> EnumerateDistinctTypeReferences(TypeIndex index)
@@ -54,4 +54,3 @@ public static class TypesV1Archive
         return allTypeReferences.Select(r => r.RelativePath).Distinct();
     }
 }
-

@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Catalog;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.SourceLink;
@@ -21,6 +23,7 @@ using Bicep.Testing;
 using Bicep.Testing.Assertions;
 using Bicep.Testing.Dummies;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;

@@ -1,66 +1,41 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { PaletteContentProps } from "../components/PaletteContent";
-import type { ResourceTypeCatalogGroup } from "../types";
+import type { ResourceTypeGroup } from "../types";
 
-import { useEffect, useRef, useState } from "react";
-import { getErrorMessage } from "@/utils";
+import { useCallback, useDeferredValue, useMemo, useState } from "react";
+import { filterResourceTypeGroups } from "../resource-type-groups";
 
-type SearchState =
-  | { status: "idle" }
-  | { status: "loading"; query: string }
-  | { status: "loaded"; query: string; groups: ResourceTypeCatalogGroup[] }
-  | { status: "error"; query: string; message: string };
-
-export function useResourceTypeSearch(search: PaletteContentProps["search"]) {
+/**
+ * Filters the catalog by the search query. Every match's group starts expanded, and collapsing one lasts until
+ * the query changes.
+ */
+export function useResourceTypeSearch(groups: readonly ResourceTypeGroup[] | undefined) {
   const [query, setQuery] = useState("");
-  const [expandedGroups, setExpandedGroups] = useState<readonly string[]>([]);
-  const [state, setState] = useState<SearchState>({ status: "idle" });
-  const requestGenerationRef = useRef(0);
-
-  useEffect(() => {
-    const normalizedQuery = query.trim();
-    const generation = ++requestGenerationRef.current;
-    if (!normalizedQuery) {
-      return;
-    }
-
-    const timeout = window.setTimeout(() => {
-      setState({ status: "loading", query: normalizedQuery });
-      void search(normalizedQuery).then(
-        (catalog) => {
-          if (generation === requestGenerationRef.current) {
-            setState({ status: "loaded", query: normalizedQuery, groups: catalog.groups });
-            setExpandedGroups(catalog.groups.map((group) => group.group));
-          }
-        },
-        (error: unknown) => {
-          if (generation === requestGenerationRef.current) {
-            setState({
-              status: "error",
-              query: normalizedQuery,
-              message: getErrorMessage(error, "Resource type search failed."),
-            });
-          }
-        },
-      );
-    }, 250);
-
-    return () => window.clearTimeout(timeout);
-  }, [query, search]);
-
   const normalizedQuery = query.trim();
-  const activeState =
-    state.status !== "idle" && state.query === normalizedQuery ? state : ({ status: "idle" } as const);
+  // Filtering thousands of types on every keystroke would delay typing, so the results trail the input.
+  const searchQuery = useDeferredValue(normalizedQuery);
+  const results = useMemo(
+    () => (groups && searchQuery ? filterResourceTypeGroups(groups, searchQuery) : []),
+    [groups, searchQuery],
+  );
+  const [expansion, setExpansion] = useState<{ query: string; groups: readonly string[] } | null>(null);
+  const expandedGroups = useMemo(
+    () => (expansion?.query === searchQuery ? expansion.groups : results.map(({ group }) => group)),
+    [expansion, results, searchQuery],
+  );
+  const setExpandedGroups = useCallback(
+    (expanded: readonly string[]) => setExpansion({ query: searchQuery, groups: expanded }),
+    [searchQuery],
+  );
 
   return {
-    activeState,
-    expandedGroups,
-    isSearching: normalizedQuery.length > 0,
-    normalizedQuery,
     query,
-    setExpandedGroups,
     setQuery,
+    isSearching: normalizedQuery.length > 0,
+    searchQuery,
+    results,
+    expandedGroups,
+    setExpandedGroups,
   };
 }

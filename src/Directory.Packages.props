@@ -7,12 +7,12 @@
     <GlobalPackageReference Include="Nerdbank.GitVersioning" Version="3.10.94" PrivateAssets="All" />
     <GlobalPackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" PrivateAssets="All" />
     <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.401" PrivateAssets="All" />
-    <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.12.19" PrivateAssets="All" />
+    <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="18.7.23" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.60" />
-    <PackageVersion Include="Azure.Bicep.Types" Version="0.6.129" />
-    <PackageVersion Include="Azure.Bicep.Types.Az" Version="0.2.923" />
+    <PackageVersion Include="Azure.Bicep.Types" Version="0.6.144" />
+    <PackageVersion Include="Azure.Bicep.Types.Az" Version="0.2.940" />
     <PackageVersion Include="Azure.Bicep.Types.K8s" Version="0.1.644" />
     <PackageVersion Include="Azure.Containers.ContainerRegistry" Version="1.3.0" />
     <PackageVersion Include="Azure.Deployments.Engine" Version="1.765.0" />
@@ -70,7 +70,7 @@
     <PackageVersion Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="3.12.2149" />
     <PackageVersion Include="Microsoft.VisualStudio.Shell.Framework" Version="17.12.40391" />
     <PackageVersion Include="Microsoft.VisualStudio.Shell.Interop" Version="17.12.40391" />
-    <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="17.12.19" />
+    <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="18.7.23" />
     <PackageVersion Include="Microsoft.VisualStudio.Utilities" Version="17.12.40391" />
     <PackageVersion Include="Microsoft.VisualStudio.Workspace" Version="17.1.11-preview-0002" />
     <PackageVersion Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.1.11-preview-0002" />

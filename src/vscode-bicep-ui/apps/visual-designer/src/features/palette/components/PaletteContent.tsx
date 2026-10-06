@@ -2,103 +2,82 @@
 // Licensed under the MIT License.
 
 import type { PointerEvent } from "react";
-import type { ResourceTypeReference } from "@/features/canvas";
-import type { ResourceTypeCatalog, ResourceTypeNamespace } from "../types";
+import type { ResourceTypeReference } from "@/core";
+import type { ResourceTypeGroup } from "../types";
 
-import { useAtomValue } from "jotai";
-import { useEffect } from "react";
-import {
-  getNamespaceResourceTypesKey,
-  namespaceResourceTypesAtomFamily,
-  resourceTypeCatalogLoadingCountAtom,
-} from "../atoms";
+import { useState } from "react";
+import { OverlayScrollArea } from "@/ui";
+import { PaletteScrollRootContext } from "../hooks/use-progressive-budget";
 import { useResourceTypeSearch } from "../hooks/use-resource-type-search";
 import { PaletteControls } from "./PaletteControls";
-import { LazyResourceTypeGroups, PaletteMessage, PaletteRetry, SearchResourceTypeGroups } from "./ResourceTypeGroups";
+import { PaletteMessage, PaletteRetry, ResourceTypeGroups } from "./ResourceTypeGroups";
 
 export interface PaletteContentProps {
   catalogId?: string;
-  namespaces?: ResourceTypeNamespace[];
-  namespaceError?: unknown;
-  loadNamespace: (providerNamespace: string) => Promise<ResourceTypeCatalog>;
-  search: (query: string) => Promise<ResourceTypeCatalog>;
-  onRetryNamespaces: () => void;
-  onResourceTypeActivate?: (resourceType: ResourceTypeReference) => void;
-  onResourceTypePointerDown?: (resourceType: ResourceTypeReference, event: PointerEvent<HTMLButtonElement>) => void;
+  groups?: ResourceTypeGroup[];
+  error?: unknown;
+  loadVersions: (fullyQualifiedType: string) => Promise<string[]>;
+  onRetry: () => void;
+  onResourceTypePointerDown?: (resourceType: ResourceTypeReference, event: PointerEvent<HTMLElement>) => void;
 }
 
 export function PaletteContent({
   catalogId,
-  namespaces,
-  namespaceError,
-  loadNamespace,
-  search,
-  onRetryNamespaces,
-  onResourceTypeActivate,
+  groups,
+  error,
+  loadVersions,
+  onRetry,
   onResourceTypePointerDown,
 }: PaletteContentProps) {
-  const {
-    activeState: searchState,
-    expandedGroups: searchExpandedGroups,
-    isSearching,
-    normalizedQuery,
-    query,
-    setExpandedGroups: setSearchExpandedGroups,
-    setQuery,
-  } = useResourceTypeSearch(search);
-  const namespaceLoadingCount = useAtomValue(resourceTypeCatalogLoadingCountAtom);
-
-  useEffect(
-    () => () => {
-      if (catalogId && namespaces) {
-        for (const namespace of namespaces) {
-          namespaceResourceTypesAtomFamily.remove(getNamespaceResourceTypesKey(catalogId, namespace.name));
-        }
-      }
-    },
-    [catalogId, namespaces],
-  );
-
-  const searchGroups = searchState.status === "loaded" ? searchState.groups : [];
-  const showProgress =
-    (!namespaces && !namespaceError) || (isSearching && searchState.status === "loading") || namespaceLoadingCount > 0;
+  const search = useResourceTypeSearch(groups);
+  const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
+  // Browsing starts with every group collapsed, and again whenever the catalog changes.
+  const [browseExpansion, setBrowseExpansion] = useState<{ catalogId?: string; groups: readonly string[] }>({
+    groups: [],
+  });
+  const browseExpandedGroups = browseExpansion.catalogId === catalogId ? browseExpansion.groups : [];
 
   return (
     <>
-      <PaletteControls query={query} setQuery={setQuery} showProgress={showProgress} />
-      {namespaceError ? (
-        <PaletteMessage>
-          Failed to load resource provider namespaces.
-          <PaletteRetry onClick={onRetryNamespaces}>Retry</PaletteRetry>
-        </PaletteMessage>
-      ) : isSearching ? (
-        searchState.status === "error" ? (
-          <PaletteMessage>{searchState.message}</PaletteMessage>
-        ) : searchState.status === "loaded" && searchGroups.length === 0 ? (
-          <PaletteMessage>No matching resource types.</PaletteMessage>
-        ) : searchState.status === "loaded" ? (
-          <SearchResourceTypeGroups
-            groups={searchGroups}
-            expandedGroups={searchExpandedGroups}
-            highlightQuery={normalizedQuery}
-            setExpandedGroups={setSearchExpandedGroups}
-            onResourceTypeActivate={onResourceTypeActivate}
-            onResourceTypePointerDown={onResourceTypePointerDown}
-          />
-        ) : null
-      ) : !catalogId || !namespaces ? (
-        <PaletteMessage>Loading resource provider namespaces...</PaletteMessage>
-      ) : namespaces.length === 0 ? (
-        <PaletteMessage>No resource types available.</PaletteMessage>
-      ) : (
-        <LazyResourceTypeGroups
-          catalogId={catalogId}
-          namespaces={namespaces}
-          loadNamespace={loadNamespace}
-          onResourceTypeActivate={onResourceTypeActivate}
-          onResourceTypePointerDown={onResourceTypePointerDown}
-        />
-      )}
+      <PaletteControls query={search.query} setQuery={search.setQuery} showProgress={!groups && !error} />
+      <OverlayScrollArea viewportRef={setScrollRoot} viewportTestId="resource-palette-list">
+        <PaletteScrollRootContext.Provider value={scrollRoot}>
+          {error ? (
+            <PaletteMessage>
+              Failed to load resource types.
+              <PaletteRetry onClick={onRetry}>Retry</PaletteRetry>
+            </PaletteMessage>
+          ) : !catalogId || !groups ? (
+            <PaletteMessage>Loading resource types...</PaletteMessage>
+          ) : search.isSearching ? (
+            search.searchQuery && search.results.length === 0 ? (
+              <PaletteMessage>No matching resource types.</PaletteMessage>
+            ) : (
+              <ResourceTypeGroups
+                groups={search.results}
+                expandedGroups={search.expandedGroups}
+                setExpandedGroups={search.setExpandedGroups}
+                budgetKey={`search:${search.searchQuery}`}
+                highlightQuery={search.searchQuery}
+                loadVersions={loadVersions}
+                onResourceTypePointerDown={onResourceTypePointerDown}
+              />
+            )
+          ) : groups.length === 0 ? (
+            <PaletteMessage>No resource types available.</PaletteMessage>
+          ) : (
+            <ResourceTypeGroups
+              groups={groups}
+              expandedGroups={browseExpandedGroups}
+              setExpandedGroups={(expanded) => setBrowseExpansion({ catalogId, groups: expanded })}
+              budgetKey={`browse:${catalogId}`}
+              keepHeadersMounted
+              loadVersions={loadVersions}
+              onResourceTypePointerDown={onResourceTypePointerDown}
+            />
+          )}
+        </PaletteScrollRootContext.Provider>
+      </OverlayScrollArea>
     </>
   );
 }

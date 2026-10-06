@@ -18,7 +18,7 @@ public class MsaglVisualGraphLayoutEngineTests
     {
         var engine = CreateEngine();
 
-        var layout = engine.Layout(new CanonicalGraph([], [], ErrorCount: 0), NoSizes, DefaultOptions, CancellationToken.None);
+        var layout = engine.Layout(new CanonicalGraph([], []), NoSizes, DefaultOptions, CancellationToken.None);
 
         layout.Positions.Should().BeEmpty();
         layout.Bounds.Should().BeNull();
@@ -30,8 +30,7 @@ public class MsaglVisualGraphLayoutEngineTests
         var engine = CreateEngine();
         var graph = new CanonicalGraph(
             Nodes: [Node("a"), Node("b")],
-            Edges: [Edge("a", "b")],
-            ErrorCount: 0);
+            Edges: [Edge("a", "b")]);
         var cancelled = new CancellationToken(canceled: true);
 
         var act = () => engine.Layout(graph, NoSizes, DefaultOptions, cancelled);
@@ -45,8 +44,7 @@ public class MsaglVisualGraphLayoutEngineTests
         var engine = CreateEngine();
         var graph = new CanonicalGraph(
             Nodes: [Node("a"), Node("b"), Node("c")],
-            Edges: [Edge("a", "b"), Edge("b", "c")],
-            ErrorCount: 0);
+            Edges: [Edge("a", "b"), Edge("b", "c")]);
 
         var layout = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None).Positions;
 
@@ -60,8 +58,7 @@ public class MsaglVisualGraphLayoutEngineTests
         var engine = CreateEngine();
         var graph = new CanonicalGraph(
             Nodes: [Node("a"), Node("b"), Node("c")],
-            Edges: [Edge("a", "b"), Edge("a", "c")],
-            ErrorCount: 0);
+            Edges: [Edge("a", "b"), Edge("a", "c")]);
 
         var layout = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None).Positions;
 
@@ -76,8 +73,7 @@ public class MsaglVisualGraphLayoutEngineTests
         var engine = CreateEngine();
         var graph = new CanonicalGraph(
             Nodes: [Node("a"), Node("b"), Node("c")],
-            Edges: [Edge("a", "b"), Edge("a", "c")],
-            ErrorCount: 0);
+            Edges: [Edge("a", "b"), Edge("a", "c")]);
 
         var layout = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None);
 
@@ -96,8 +92,7 @@ public class MsaglVisualGraphLayoutEngineTests
         var engine = CreateEngine();
         var graph = new CanonicalGraph(
             Nodes: [Node("a"), Node("b")],
-            Edges: [Edge("a", "b")],
-            ErrorCount: 0);
+            Edges: [Edge("a", "b")]);
 
         var layout = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None).Positions;
 
@@ -111,8 +106,7 @@ public class MsaglVisualGraphLayoutEngineTests
         var engine = CreateEngine();
         var graph = new CanonicalGraph(
             Nodes: [Node("a"), Node("b"), Node("c"), Node("d")],
-            Edges: [Edge("a", "b"), Edge("a", "c"), Edge("b", "d"), Edge("c", "d")],
-            ErrorCount: 0);
+            Edges: [Edge("a", "b"), Edge("a", "c"), Edge("b", "d"), Edge("c", "d")]);
 
         var first = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None).Positions;
         var second = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None).Positions;
@@ -132,8 +126,7 @@ public class MsaglVisualGraphLayoutEngineTests
                 Node("mod::child1", parentId: "mod"),
                 Node("mod::child2", parentId: "mod"),
             ],
-            Edges: [Edge("root", "mod"), Edge("mod::child1", "mod::child2")],
-            ErrorCount: 0);
+            Edges: [Edge("root", "mod"), Edge("mod::child1", "mod::child2")]);
 
         var layout = engine.Layout(graph, NoSizes, DefaultOptions, CancellationToken.None).Positions;
 
@@ -147,8 +140,7 @@ public class MsaglVisualGraphLayoutEngineTests
         var engine = CreateEngine();
         var graph = new CanonicalGraph(
             Nodes: [Node("a"), Node("b")],
-            Edges: [Edge("a", "b")],
-            ErrorCount: 0);
+            Edges: [Edge("a", "b")]);
         var sizes = Sizes(("a", 400, 300), ("b", 400, 300));
 
         var layout = engine.Layout(graph, sizes, DefaultOptions, CancellationToken.None).Positions;
@@ -162,7 +154,7 @@ public class MsaglVisualGraphLayoutEngineTests
     public void Layout_WithCancelledToken_ThrowsOperationCancelled()
     {
         var engine = CreateEngine();
-        var graph = new CanonicalGraph(Nodes: [Node("a")], Edges: [], ErrorCount: 0);
+        var graph = new CanonicalGraph(Nodes: [Node("a")], Edges: []);
         using var cancellation = new CancellationTokenSource();
         cancellation.Cancel();
 
@@ -181,8 +173,7 @@ public class MsaglVisualGraphLayoutEngineTests
                 Node("mod", GraphNodeKind.Module, hasChildren: true),
                 Node("mod::child", parentId: "mod"),
             ],
-            Edges: [],
-            ErrorCount: 0);
+            Edges: []);
         var options = new VisualGraphLayoutOptions(
             defaultNodeSize: new NodeSize(100, 80),
             nodeSeparation: 10,
@@ -270,7 +261,7 @@ public class MsaglVisualGraphLayoutEngineTests
             }
         }
 
-        return new CanonicalGraph(nodes, edges, ErrorCount: 0);
+        return new CanonicalGraph(nodes, edges);
     }
 
     private static GraphNode Node(
