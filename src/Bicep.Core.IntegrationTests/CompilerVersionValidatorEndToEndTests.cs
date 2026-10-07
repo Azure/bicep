@@ -153,4 +153,111 @@ public class CompilerVersionValidatorEndToEndTests
         diagnostic.Message.Should().Be(
             $"The installed Bicep CLI version \"{RunningVersion}\" does not satisfy the version constraint \"{leafConstraint}\" specified by the \"bicep.version\" property in the Bicep configuration \"{leafConfigFileUri}\".");
     }
+
+    [TestMethod]
+    public void Compile_WithViolatedVersionConstraint_AndWarningConstraintViolationLevel_ProducesBcp456AsWarning()
+    {
+        // Simulates the language server's DI registration, which sets ConstraintViolationLevel to Warning so a
+        // "bicep.version" mismatch doesn't block editing in VS Code (unlike the CLI's default Error level).
+        const string constraint = ">=1.0.0";
+
+        var services = ServiceBuilderWithFixedVersion.WithCompilerVersionCheckOptions(
+            new(ConstraintViolationLevel: DiagnosticLevel.Warning));
+
+        var result = CompilationHelper.Compile(services,
+            ("main.bicep", "param foo string = 'bar'"),
+            ("bicepconfig.json", $$"""{ "bicep": { "version": "{{constraint}}" } }"""));
+
+        var diagnostic = result.Diagnostics.Should().ContainSingle(d => d.Code == "BCP456").Subject;
+        diagnostic.Level.Should().Be(DiagnosticLevel.Warning);
+    }
+
+    [TestMethod]
+    public void Compile_WithReferencedModuleHavingOnlyWarningLevelBcp456_DoesNotCascadeBcp104()
+    {
+        // With Warning level (as the language server does), a module's only BCP456 shouldn't cascade BCP104.
+        const string constraint = ">=1.0.0";
+
+        var services = ServiceBuilderWithFixedVersion.WithCompilerVersionCheckOptions(
+            new(ConstraintViolationLevel: DiagnosticLevel.Warning));
+
+        var result = CompilationHelper.Compile(services,
+            ("main.bicep", """
+                module mod './module.bicep' = {
+                  name: 'mod'
+                }
+                """),
+            ("module.bicep", "param foo string = 'bar'"),
+            ("bicepconfig.json", $$"""{ "bicep": { "version": "{{constraint}}" } }"""));
+
+        result.Diagnostics.Should().NotContain(d => d.Code == "BCP104");
+    }
+
+    [TestMethod]
+    public void Compile_WithReferencedModuleHavingErrorLevelBcp456_StillCascadesBcp104()
+    {
+        // With the default (CLI-style) Error level, a referenced module's "bicep.version" mismatch is a real
+        // error, so BCP104 must still cascade into the referencing file - this is unaffected by the DI option.
+        const string constraint = ">=1.0.0";
+
+        var result = CompilationHelper.Compile(ServiceBuilderWithFixedVersion,
+            ("main.bicep", """
+                module mod './module.bicep' = {
+                  name: 'mod'
+                }
+                """),
+            ("module.bicep", "param foo string = 'bar'"),
+            ("bicepconfig.json", $$"""{ "bicep": { "version": "{{constraint}}" } }"""));
+
+        result.Diagnostics.Should().Contain(d => d.Code == "BCP104");
+    }
+
+    [TestMethod]
+    public void Compile_WithReferencedModuleHavingOnlyWarningLevelBcp456ViaExtendedConfig_DoesNotCascadeBcp104()
+    {
+        // Same warn-only scenario as above, but the constraint comes from a base config via "extends".
+        const string constraint = ">=1.0.0";
+
+        var fileSet = new MockFileSystemTestFileSet();
+        fileSet.AddFile("main.bicep", """
+            module mod './module.bicep' = {
+              name: 'mod'
+            }
+            """);
+        fileSet.AddFile("module.bicep", "param foo string = 'bar'");
+        fileSet.AddFile("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }""");
+        fileSet.AddFile("base/bicepconfig.base.json", $$"""{ "bicep": { "version": "{{constraint}}" } }""");
+
+        var services = ServiceBuilderWithFixedVersion.WithCompilerVersionCheckOptions(
+            new(ConstraintViolationLevel: DiagnosticLevel.Warning));
+
+        var result = CompilationHelper.Compile(services, fileSet, fileSet.GetUri("main.bicep"));
+
+        var diagnostic = result.Diagnostics.Should().ContainSingle(d => d.Code == "BCP456").Subject;
+        diagnostic.Level.Should().Be(DiagnosticLevel.Warning);
+        result.Diagnostics.Should().NotContain(d => d.Code == "BCP104");
+    }
+
+    [TestMethod]
+    public void Compile_WithReferencedModuleHavingErrorLevelBcp456ViaExtendedConfig_StillCascadesBcp104()
+    {
+        // Same CLI scenario as above, but the constraint comes from a base config via "extends".
+        const string constraint = ">=1.0.0";
+
+        var fileSet = new MockFileSystemTestFileSet();
+        fileSet.AddFile("main.bicep", """
+            module mod './module.bicep' = {
+              name: 'mod'
+            }
+            """);
+        fileSet.AddFile("module.bicep", "param foo string = 'bar'");
+        fileSet.AddFile("bicepconfig.json", """{ "extends": "./base/bicepconfig.base.json" }""");
+        fileSet.AddFile("base/bicepconfig.base.json", $$"""{ "bicep": { "version": "{{constraint}}" } }""");
+
+        var result = CompilationHelper.Compile(ServiceBuilderWithFixedVersion, fileSet, fileSet.GetUri("main.bicep"));
+
+        var diagnostic = result.Diagnostics.Should().ContainSingle(d => d.Code == "BCP456").Subject;
+        diagnostic.Level.Should().Be(DiagnosticLevel.Error);
+        result.Diagnostics.Should().Contain(d => d.Code == "BCP104");
+    }
 }

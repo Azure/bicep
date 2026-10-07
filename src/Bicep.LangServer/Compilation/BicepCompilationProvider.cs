@@ -28,7 +28,7 @@ namespace Bicep.LanguageServer.Compilation
         private readonly IFileExplorer fileExplorer;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly ISourceFileFactory sourceFileFactory;
-        private readonly DiagnosticHostOptions diagnosticHostOptions;
+        private readonly CompilerVersionCheckOptions compilerVersionCheckOptions;
 
         public BicepCompilationProvider(
             IEnvironment environment,
@@ -37,7 +37,7 @@ namespace Bicep.LanguageServer.Compilation
             IModuleDispatcher moduleDispatcher,
             IBicepAnalyzer bicepAnalyzer,
             ISourceFileFactory sourceFileFactory,
-            DiagnosticHostOptions diagnosticHostOptions)
+            CompilerVersionCheckOptions compilerVersionCheckOptions)
         {
             this.environment = environment;
             this.namespaceProvider = namespaceProvider;
@@ -45,7 +45,7 @@ namespace Bicep.LanguageServer.Compilation
             this.moduleDispatcher = moduleDispatcher;
             this.bicepAnalyzer = bicepAnalyzer;
             this.sourceFileFactory = sourceFileFactory;
-            this.diagnosticHostOptions = diagnosticHostOptions;
+            this.compilerVersionCheckOptions = compilerVersionCheckOptions;
         }
 
         public CompilationContext Create(
@@ -88,7 +88,7 @@ namespace Bicep.LanguageServer.Compilation
                 moduleDispatcher,
                 sourceFileFactory,
                 modelLookup,
-                diagnosticHostOptions);
+                compilerVersionCheckOptions);
 
             return new(compilation);
         }

@@ -363,8 +363,7 @@ namespace Bicep.Core.Semantics
                 return new(modelLoadError);
             }
 
-            if (model.HasErrors() &&
-                !SemanticModelHelper.ShouldSuppressReferencedModelCascade(context.DiagnosticHostOptions, model))
+            if (model.HasErrors())
             {
                 return new(model is ArmTemplateSemanticModel
                     ? DiagnosticBuilder.ForPosition(syntax.FromClause).ReferencedArmTemplateHasErrors()

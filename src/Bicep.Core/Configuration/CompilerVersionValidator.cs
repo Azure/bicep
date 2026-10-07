@@ -15,12 +15,13 @@ namespace Bicep.Core.Configuration
     {
         /// <summary>
         /// Validates <paramref name="runningVersion"/> against <paramref name="constraint"/>. Returns a diagnostic
-        /// when the constraint is violated, a warning diagnostic when the running version cannot be parsed (so the
-        /// constraint could not be checked), or null when there is no constraint or the constraint is satisfied.
+        /// at <paramref name="constraintViolationLevel"/> when the constraint is violated, a warning diagnostic when
+        /// the running version cannot be parsed (so the constraint could not be checked), or null when there is no
+        /// constraint or the constraint is satisfied.
         /// <paramref name="configFileUri"/> is the effective bicepconfig.json that declared the constraint (or
         /// null if it came from the built-in defaults), and is included in any diagnostic produced.
         /// </summary>
-        public static IDiagnostic? Validate(VersionRange? constraint, string runningVersion, IOUri? configFileUri)
+        public static IDiagnostic? Validate(VersionRange? constraint, string runningVersion, IOUri? configFileUri, DiagnosticLevel constraintViolationLevel)
         {
             if (constraint is null)
             {
@@ -41,7 +42,7 @@ namespace Bicep.Core.Configuration
                 return null;
             }
 
-            return DiagnosticBuilder.ForDocumentStart().BicepVersionConstraintNotSatisfied(constraint.ToString(), runningVersion, configFileUri);
+            return DiagnosticBuilder.ForDocumentStart().BicepVersionConstraintNotSatisfied(constraintViolationLevel, constraint.ToString(), runningVersion, configFileUri);
         }
     }
 }

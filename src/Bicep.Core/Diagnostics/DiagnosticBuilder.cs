@@ -2085,7 +2085,8 @@ namespace Bicep.Core.Diagnostics
                 "BCP455",
                 $"The Bicep configuration \"extends\" chain starting from \"{configFileUri}\" exceeds the maximum allowed depth of 64.");
 
-            public Diagnostic BicepVersionConstraintNotSatisfied(string constraint, string runningVersion, IOUri? configFileUri) => CoreError(
+            public Diagnostic BicepVersionConstraintNotSatisfied(DiagnosticLevel level, string constraint, string runningVersion, IOUri? configFileUri) => CoreDiagnostic(
+                level,
                 "BCP456",
                 $"The installed Bicep CLI version \"{runningVersion}\" does not satisfy the version constraint \"{constraint}\" specified by the \"bicep.version\" property in the {BuildBicepConfigurationClause(configFileUri)}.");
 

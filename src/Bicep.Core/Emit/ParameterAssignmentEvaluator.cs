@@ -787,10 +787,9 @@ public class ParameterAssignmentEvaluator
         });
     }
 
-    private ResultWithDiagnosticBuilder<Template> GetTemplate(SemanticModel model)
+    private static ResultWithDiagnosticBuilder<Template> GetTemplate(SemanticModel model)
     {
-        if (model.HasErrors() &&
-            !SemanticModelHelper.ShouldSuppressReferencedModelCascade(this.semanticModel.DiagnosticHostOptions, model))
+        if (model.HasErrors())
         {
             return new(x => x.ReferencedModuleHasErrors());
         }

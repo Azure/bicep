@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceGraph;
@@ -21,7 +20,5 @@ namespace Bicep.Core.Semantics
         ISemanticModelLookup ModelLookup { get; }
 
         IArtifactReferenceFactory ArtifactReferenceFactory { get; }
-
-        DiagnosticHostOptions DiagnosticHostOptions { get; }
     }
 }

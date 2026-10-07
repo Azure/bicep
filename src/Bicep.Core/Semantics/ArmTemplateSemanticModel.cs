@@ -156,8 +156,6 @@ namespace Bicep.Core.Semantics
             return diagnosticWriter.GetDiagnostics().Count > 0;
         }
 
-        public bool HasOnlyVersionConstraintErrors() => false;
-
         private ITypeReference GetType(TemplateInputParameter parameter) => parameter.Type?.Value switch
         {
             TemplateParameterType.String when TryCreateUnboundResourceTypeParameter(GetMetadata(parameter), out var resourceType) =>

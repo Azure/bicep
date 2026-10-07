@@ -9,9 +9,6 @@ namespace Bicep.LanguageServer.Extensions
 {
     public static class DiagnosticExtensions
     {
-        // "bicep.version" constraint not satisfied (DiagnosticBuilder.BicepVersionConstraintNotSatisfied).
-        private const string BicepVersionConstraintNotSatisfiedCode = "BCP456";
-
         public static IEnumerable<LspDiagnostic> ToDiagnostics(this IEnumerable<IDiagnostic> source, ImmutableArray<int> lineStarts)
             => source.Select(diagnostic => CreateDiagnostic(diagnostic, lineStarts));
 
@@ -32,23 +29,12 @@ namespace Bicep.LanguageServer.Extensions
 
         private static DiagnosticSeverity ToDiagnosticSeverity(IDiagnostic diagnostic)
         {
-            var level = diagnostic.Level;
-
-            // BCP456 (the "bicep.version" constraint violation) is shown as a warning instead of an error
-            // when surfaced through VS Code. This stems from the current coupling where the language
-            // server ships with and runs its own bundled Bicep binary, decoupled from the CLI used for
-            // builds, so a stale extension shouldn't block editing with a false-positive error.
-            if (diagnostic.Code == BicepVersionConstraintNotSatisfiedCode && level == DiagnosticLevel.Error)
-            {
-                level = DiagnosticLevel.Warning;
-            }
-
-            return level switch
+            return diagnostic.Level switch
             {
                 DiagnosticLevel.Info => DiagnosticSeverity.Information,
                 DiagnosticLevel.Warning => DiagnosticSeverity.Warning,
                 DiagnosticLevel.Error => DiagnosticSeverity.Error,
-                _ => throw new ArgumentException($"Unrecognized level {level}"),
+                _ => throw new ArgumentException($"Unrecognized level {diagnostic.Level}"),
             };
         }
 

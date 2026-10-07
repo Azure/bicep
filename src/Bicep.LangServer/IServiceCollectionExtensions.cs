@@ -6,6 +6,7 @@ using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.AzureApi;
 using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Catalog.Implementation;
@@ -43,7 +44,7 @@ public static class IServiceCollectionExtensions
         BicepLangServerOptions bicepLangServerOptions
     ) => services
         .AddBicepCore()
-        .AddSingleton(new DiagnosticHostOptions(SuppressVersionMismatchCascade: true))
+        .AddSingleton(new CompilerVersionCheckOptions(ConstraintViolationLevel: DiagnosticLevel.Warning))
         .AddBicepDecompiler()
         .AddBicepLocalDeploy()
         .AddSingleton<IActiveSourceFileSet, ActiveSourceFileSet>()

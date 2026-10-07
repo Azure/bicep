@@ -38,7 +38,7 @@ public class BicepCompiler
     private readonly IBicepAnalyzer bicepAnalyzer;
     private readonly IFileExplorer fileExplorer;
     private readonly IModuleDispatcher moduleDispatcher;
-    private readonly DiagnosticHostOptions diagnosticHostOptions;
+    private readonly CompilerVersionCheckOptions compilerVersionCheckOptions;
 
     public BicepCompiler(
         IEnvironment environment,
@@ -47,7 +47,7 @@ public class BicepCompiler
         IFileExplorer fileExplorer,
         IModuleDispatcher moduleDispatcher,
         ISourceFileFactory sourceFileFactory,
-        DiagnosticHostOptions diagnosticHostOptions)
+        CompilerVersionCheckOptions compilerVersionCheckOptions)
     {
         this.environment = environment;
         this.namespaceProvider = namespaceProvider;
@@ -55,7 +55,7 @@ public class BicepCompiler
         this.fileExplorer = fileExplorer;
         this.moduleDispatcher = moduleDispatcher;
         this.SourceFileFactory = sourceFileFactory;
-        this.diagnosticHostOptions = diagnosticHostOptions;
+        this.compilerVersionCheckOptions = compilerVersionCheckOptions;
     }
 
     public ISourceFileFactory SourceFileFactory { get; }
@@ -117,7 +117,7 @@ public class BicepCompiler
             moduleDispatcher,
             this.SourceFileFactory,
             [],
-            diagnosticHostOptions);
+            compilerVersionCheckOptions);
 
     private static ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<ArtifactResolutionInfo> originalModulesToRestore, bool forceModulesRestore)
     {

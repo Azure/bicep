@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.SourceGraph;
 using Bicep.Core.Syntax;
@@ -15,11 +14,6 @@ namespace Bicep.Core.Semantics
 {
     public static class SemanticModelHelper
     {
-        // Used by hosts (e.g. language server) that want a single BCP456 (version constraint) error in a
-        // referenced file to surface there, rather than cascading into every file that references it.
-        public static bool ShouldSuppressReferencedModelCascade(DiagnosticHostOptions diagnosticHostOptions, ISemanticModel referencedModel)
-            => diagnosticHostOptions.SuppressVersionMismatchCascade && referencedModel.HasOnlyVersionConstraintErrors();
-
         public static IEnumerable<FunctionCallSyntaxBase> GetFunctionsByName(SemanticModel model, string @namespace, string functionName, SyntaxBase syntax)
         {
             return SyntaxAggregator.AggregateByType<FunctionCallSyntaxBase>(syntax)

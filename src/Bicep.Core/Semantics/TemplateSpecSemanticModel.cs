@@ -31,7 +31,5 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<OutputMetadata> Outputs => this.mainTemplateSemanticModel.Outputs;
 
         public bool HasErrors() => this.SourceFile.HasErrors() || this.mainTemplateSemanticModel.HasErrors();
-
-        public bool HasOnlyVersionConstraintErrors() => false;
     }
 }
