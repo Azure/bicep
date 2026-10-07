@@ -1279,6 +1279,95 @@ param myParam string
     }
 
     [TestMethod]
+    public void Sealed_decorator_is_blocked_on_resource_derived_types_reached_through_imports()
+    {
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext)),
+            ("types.bicep", """
+                @export()
+                type saProperties = resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+
+                @export()
+                type container = {
+                  nested: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+                }
+                """),
+            ("types.json", $$"""
+                {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "languageVersion": "2.0",
+                  "definitions": {
+                    "armSaProperties": {
+                      "type": "object",
+                      "metadata": {
+                        "{{LanguageConstants.MetadataExportedPropertyName}}": true,
+                        "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": {
+                          "{{LanguageConstants.MetadataResourceDerivedTypePointerPropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/properties"
+                        }
+                      }
+                    },
+                    "armContainer": {
+                      "type": "object",
+                      "metadata": {
+                        "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                      },
+                      "properties": {
+                        "nested": {
+                          "type": "object",
+                          "metadata": {
+                            "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": {
+                              "{{LanguageConstants.MetadataResourceDerivedTypePointerPropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/properties"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "resources": {}
+                }
+                """),
+            ("main.bicep", """
+                import { saProperties, container } from 'types.bicep'
+                import * as bicepTypes from 'types.bicep'
+                import { armSaProperties, armContainer } from 'types.json'
+                import * as armTypes from 'types.json'
+
+                @sealed()
+                type t1 = saProperties
+
+                @sealed()
+                type t2 = container.nested
+
+                @sealed()
+                type t3 = bicepTypes.saProperties
+
+                @sealed()
+                type t4 = bicepTypes.container.nested
+
+                @sealed()
+                type t5 = armSaProperties
+
+                @sealed()
+                type t6 = armContainer.nested
+
+                @sealed()
+                type t7 = armTypes.armSaProperties
+
+                @sealed()
+                type t8 = armTypes.armContainer.nested
+
+                @sealed()
+                type allowed = {
+                  prop: saProperties
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(Enumerable.Repeat(
+            ("BCP386", DiagnosticLevel.Error, """The decorator "sealed" may not be used on statements whose declared type is a reference to a resource-derived type."""),
+            8));
+    }
+
+    [TestMethod]
     public void Type_index_access_is_valid_type()
     {
         var result = CompilationHelper.Compile("""
