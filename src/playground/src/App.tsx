@@ -261,15 +261,17 @@ export const App: React.FC<Props> = ({
       }
 
       const jsonContents = await file.text();
-      const { bicepFile, error } = await interop.decompile(jsonContents);
+      const { entrypoint, files, error } = await interop.decompile(jsonContents);
+      const decompiledContent =
+        entrypoint === null ? undefined : files?.[entrypoint];
 
-      if (bicepFile === null) {
+      if (error !== null || typeof decompiledContent !== "string") {
         throw new Error(error ?? "The ARM template could not be decompiled.");
       }
 
       insights.trackEvent({ name: "decompileJson" });
       setSourcePath(undefined);
-      setInitialContent(bicepFile);
+      setInitialContent(decompiledContent);
       setContentRevision((revision) => revision + 1);
       setActivePane("bicep");
     });

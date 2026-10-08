@@ -21,7 +21,7 @@ namespace Bicep.Wasm
         private const string MainBicepFilePath = "/main.bicep";
         private const string QuickstartsRootPath = "/quickstarts/";
 
-        public record DecompileResult(string? bicepFile, string? error);
+        public record DecompileResult(string? error, string? entrypoint, IReadOnlyDictionary<string, string>? files);
 
         public record CompileResult(string template, object diagnostics, string? error = null);
 
@@ -82,12 +82,18 @@ namespace Bicep.Wasm
             try
             {
                 var (entrypointUri, filesToSave) = await decompiler.Decompile(IOUri.FromFilePath(MainBicepFilePath), jsonContent);
+                var rootUri = entrypointUri.Resolve(".");
+                var entrypoint = entrypointUri.GetPathRelativeTo(rootUri);
+                var files = filesToSave.ToDictionary(
+                    file => file.Key.GetPathRelativeTo(rootUri),
+                    file => file.Value,
+                    StringComparer.Ordinal);
 
-                return new DecompileResult(filesToSave[entrypointUri], null);
+                return new DecompileResult(null, entrypoint, files);
             }
             catch (Exception exception)
             {
-                return new DecompileResult(null, exception.Message);
+                return new DecompileResult(exception.Message, null, null);
             }
         }
 

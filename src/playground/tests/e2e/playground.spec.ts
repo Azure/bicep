@@ -495,6 +495,39 @@ test.describe("editing", () => {
       );
   });
 
+  test("accepts empty entrypoint contents after decompilation", async ({
+    page,
+    playground,
+  }) => {
+    await playground.replaceEditorText(
+      playground.bicepEditor,
+      "param replacedContent string",
+    );
+    await expect
+      .poll(() => playground.readEditorText(playground.bicepEditor))
+      .toContain("param replacedContent string");
+
+    await page.getByLabel("ARM template JSON file").setInputFiles({
+      name: "empty.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(
+        JSON.stringify({
+          $schema:
+            "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          contentVersion: "1.0.0.0",
+          resources: [],
+        }),
+      ),
+    });
+
+    await expect
+      .poll(async () =>
+        (await playground.readEditorText(playground.bicepEditor)).trim(),
+      )
+      .toBe("");
+    await expect(playground.error).not.toBeVisible();
+  });
+
   test("preserves source when decompilation fails", async ({
     page,
     playground,
