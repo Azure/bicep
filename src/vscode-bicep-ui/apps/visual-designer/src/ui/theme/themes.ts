@@ -12,8 +12,10 @@ import type { DefaultTheme } from "styled-components";
  *  - 8px spacing grid, modern system font stack
  *  - Transitions kept to 150–200ms ease for understated motion
  *
- * We intentionally avoid --vscode-* color variables because editor-UI
- * colors are not tuned for a node/edge canvas.
+ * By default we avoid --vscode-* color variables because editor-UI colors are
+ * not tuned for a node/edge canvas. The optional "match color theme" mode
+ * derives a theme from them (see color-theme.ts) and falls back to these
+ * palettes wherever a theme color is missing or lacks contrast.
  */
 
 export const lightTheme: DefaultTheme = {
@@ -236,20 +238,22 @@ export const highContrastLightTheme: DefaultTheme = {
   },
 };
 
-export function getThemeFromBody(): DefaultTheme {
+export type ThemeName = DefaultTheme["name"];
+
+export function getThemeNameFromBody(): ThemeName {
   switch (document.body.dataset.vscodeThemeKind) {
     case "vscode-dark":
-      return darkTheme;
+      return "dark";
     case "vscode-high-contrast":
-      return highContrastTheme;
+      return "high-contrast";
     case "vscode-high-contrast-light":
-      return highContrastLightTheme;
+      return "high-contrast-light";
     default:
-      return lightTheme;
+      return "light";
   }
 }
 
-export function getThemeByName(name: DefaultTheme["name"]): DefaultTheme {
+export function getThemeByName(name: ThemeName): DefaultTheme {
   switch (name) {
     case "dark":
       return darkTheme;

@@ -69,7 +69,18 @@ The version list opens immediately and shows progress, or an error with retry, u
 arrive. It renders in the top layer so the palette's scroll area never clips it; Escape closes only
 the list, and scrolling or resizing dismisses it.
 
-Fake-host controls include **Document target scope** and **Change catalog**. Query parameters:
+Browsing the palette has **Featured**, **Recent**, and **All** views, chosen with tabs below the
+search box (arrow keys move between them). Featured lists the common providers, Recent the types
+dropped onto the canvas this session, and All every provider alphabetically. The chosen view
+survives closing the palette. Search always covers the whole catalog and hides the tabs.
+
+The designer uses curated light, dark, and high-contrast palettes for the VS Code theme kind. The
+`bicep.visualizer.matchColorTheme` setting (off by default) colors it from the active color theme
+instead, keeping curated colors wherever a theme color is missing or lacks contrast. Export's
+"Current" theme captures what is shown. See [Theme](./docs/architecture.md#theme).
+
+Fake-host controls include **Document target scope**, **Change catalog**, and **Match color theme**.
+The playground's own theme picker switches between VS Code's built-in color themes. Query parameters:
 
 | Parameter                                | Purpose                                                                               |
 | ---------------------------------------- | ------------------------------------------------------------------------------------- |
@@ -83,6 +94,7 @@ Fake-host controls include **Document target scope** and **Change catalog**. Que
 | `skipGraphUpdateAfterUndo=true`          | Withhold an undone creation's removal until the graph changes again                   |
 | `sourceReplay=unavailable`               | Report every resource creation as no longer replayable, as if edited in the file      |
 | `catalogSize=2300`                       | Add N synthetic types shaped like the real Azure catalog, for profiling at scale      |
+| `matchColorTheme=true`                   | Start with `bicep.visualizer.matchColorTheme` on                                      |
 
 The fake catalog includes stable, preview, and preview-only fixtures with per-type deployment scopes,
 filtered by the selected document target scope like the language server.
@@ -234,8 +246,8 @@ See [Architecture](./docs/architecture.md) for graph synchronization, layout, an
 
 ## Testing
 
-- Vitest covers atoms, graph model/layout behavior, export state, and coordinator ordering.
-- Playwright covers canvas interaction, resource creation, catalog loading, search, and export.
+- Vitest covers atoms, graph model/layout behavior, export state, coordinator ordering, and color-theme derivation.
+- Playwright covers canvas interaction, resource creation, catalog loading, palette views, search, theme matching, and export.
 - E2E assertions should poll animated state rather than sample positions immediately.
 
 Lint runs with zero warnings and rejects unused disable directives.

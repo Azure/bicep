@@ -6,7 +6,11 @@ import type { Settings } from "../api";
 import { atom } from "jotai";
 
 /** VS Code settings the webview needs, as the host last sent them. */
-export const settingsAtom = atom<Settings>({ motionPolicy: "system", isResourceEditingEnabled: false });
+export const settingsAtom = atom<Settings>({
+  motionPolicy: "system",
+  isResourceEditingEnabled: false,
+  isColorThemeMatched: false,
+});
 
 /**
  * Whether the experimental `bicep.visualizer.experimental.enableResourceEditing` setting is on.
@@ -18,3 +22,6 @@ export const isResourceEditingEnabledAtom = atom((get) => get(settingsAtom).isRe
 
 /** Whether animations should play, snap, or follow the OS preference (`system`). */
 export const motionPolicyAtom = atom((get) => get(settingsAtom).motionPolicy);
+
+/** Whether the `bicep.visualizer.matchColorTheme` setting is on. It changes appearance only. */
+export const isColorThemeMatchedSettingAtom = atom((get) => get(settingsAtom).isColorThemeMatched);

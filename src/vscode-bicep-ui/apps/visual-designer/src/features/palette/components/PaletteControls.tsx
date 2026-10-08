@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import type { ReactNode } from "react";
+
 import { Codicon } from "@vscode-bicep-ui/components";
 import styled from "styled-components";
 import { MotionAwareProgressBar } from "./MotionAwareProgressBar";
@@ -62,10 +64,13 @@ export function PaletteControls({
   query,
   setQuery,
   showProgress,
+  children,
 }: {
   query: string;
   setQuery: (query: string) => void;
   showProgress: boolean;
+  /** Shown below the search box, above the progress bar. */
+  children?: ReactNode;
 }) {
   return (
     <$Controls>
@@ -80,6 +85,7 @@ export function PaletteControls({
           onChange={(event) => setQuery(event.target.value)}
         />
       </$Search>
+      {children}
       <$ProgressTrack aria-hidden={!showProgress}>
         {showProgress && (
           <MotionAwareProgressBar testId="resource-palette-progress" ariaLabel="Loading resource types" />

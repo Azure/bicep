@@ -15,6 +15,7 @@ import {
 export interface VisualizerSettings {
   motionPolicy: VisualizerMotionPolicy;
   isResourceEditingEnabled: boolean;
+  isColorThemeMatched: boolean;
 }
 
 // The extension forwards graphs between the webview and the language server without reading them.

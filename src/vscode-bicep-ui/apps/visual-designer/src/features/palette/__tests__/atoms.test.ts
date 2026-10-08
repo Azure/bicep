@@ -3,7 +3,13 @@
 
 import { createStore } from "jotai";
 import { describe, expect, it } from "vitest";
-import { acceptVersionCatalogAtom, versionCatalogAtom } from "../atoms";
+import {
+  acceptVersionCatalogAtom,
+  MAX_RECENT_RESOURCE_TYPES,
+  recentResourceTypesAtom,
+  recordRecentResourceTypeAtom,
+  versionCatalogAtom,
+} from "../atoms";
 
 const KEY = "microsoft.storage/storageaccounts";
 
@@ -35,5 +41,31 @@ describe("resource version catalog state", () => {
     store.set(acceptVersionCatalogAtom, "provider-2");
 
     expect(store.get(versionCatalogAtom)).toEqual({ catalogId: "provider-2", versions: {}, selections: {} });
+  });
+});
+
+describe("recent resource types", () => {
+  it("keeps the newest first and moves a reused type to the front without duplicating it", () => {
+    const store = createStore();
+    store.set(recordRecentResourceTypeAtom, "Microsoft.Storage/storageAccounts");
+    store.set(recordRecentResourceTypeAtom, "Microsoft.Network/virtualNetworks");
+    store.set(recordRecentResourceTypeAtom, "microsoft.storage/storageaccounts");
+
+    expect(store.get(recentResourceTypesAtom)).toEqual([
+      "microsoft.storage/storageaccounts",
+      "Microsoft.Network/virtualNetworks",
+    ]);
+  });
+
+  it("forgets the oldest types beyond the limit", () => {
+    const store = createStore();
+    for (let index = 0; index <= MAX_RECENT_RESOURCE_TYPES; index++) {
+      store.set(recordRecentResourceTypeAtom, `Microsoft.Test/type${index}`);
+    }
+
+    const recent = store.get(recentResourceTypesAtom);
+    expect(recent).toHaveLength(MAX_RECENT_RESOURCE_TYPES);
+    expect(recent[0]).toBe(`Microsoft.Test/type${MAX_RECENT_RESOURCE_TYPES}`);
+    expect(recent).not.toContain("Microsoft.Test/type0");
   });
 });

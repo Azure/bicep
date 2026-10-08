@@ -96,6 +96,12 @@
           "description": "Enables experimental resource editing in the Bicep visual designer. Currently enables the Resource Palette for creating resources.",
           "scope": "window"
         },
+        "bicep.visualizer.matchColorTheme": {
+          "type": "boolean",
+          "default": false,
+          "description": "Color the Bicep visual designer with the active color theme's colors. When off, the designer uses its own light, dark, and high contrast palettes for the current theme kind. Colors that are missing from the theme or lack contrast fall back to those palettes.",
+          "scope": "window"
+        },
         "bicep.completions.getAllAccessibleAzureContainerRegistries": {
           "type": "boolean",
           "description": "When completing 'br:' module references, query Azure for all container registries accessible to the user (may be slow). If this option is off, only registries configured under moduleAliases in bicepconfig.json will be listed.",

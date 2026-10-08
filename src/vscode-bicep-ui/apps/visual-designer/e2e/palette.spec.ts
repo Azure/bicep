@@ -44,6 +44,12 @@ function dragHandle(page: Page, fullyQualifiedType: string) {
   return page.locator(`[data-testid="resource-type-drag-handle"][data-resource-type="${fullyQualifiedType}"]`);
 }
 
+async function showView(page: Page, name: "Featured" | "Recent" | "All") {
+  const tab = page.getByRole("tab", { name, exact: true });
+  await tab.click();
+  await expect(tab).toHaveAttribute("aria-selected", "true");
+}
+
 async function dragToCanvas(page: Page, fullyQualifiedType: string) {
   const handleBox = (await dragHandle(page, fullyQualifiedType).boundingBox())!;
   const canvasBox = (await page.getByTestId("graph-canvas").boundingBox())!;
@@ -88,7 +94,7 @@ test("dock shows only available tools and does not move the graph", async ({ pag
   const search = page.getByRole("textbox", { name: "Filter resource types" });
   await expect(search).toBeFocused();
   await expect(page.getByRole("complementary")).toBeVisible();
-  await expect(page.getByRole("checkbox")).toHaveCount(0);
+  await expect(page.getByRole("complementary").getByRole("checkbox")).toHaveCount(0);
   await search.press("Escape");
   await expect(page.getByRole("complementary")).toHaveCount(0);
   await expect(launcher).toBeFocused();
@@ -109,17 +115,104 @@ test("dock keeps its minimum width and centers the Resources tool", async ({ pag
   expect(resources.x + resources.width / 2).toBeCloseTo(dock.x + dock.width / 2, 0);
 });
 
-test("browse shows featured resource providers before other namespaces", async ({ page }) => {
+test("browse opens on featured providers, and All lists every provider alphabetically", async ({ page }) => {
   await openVisualDesigner(page);
   await page.getByRole("button", { name: "Add Resources" }).click();
 
-  const providers = page
-    .getByRole("complementary", { name: "Resource Palette" })
-    .getByRole("button", { name: /^Microsoft\./ });
-  await expect(providers).toHaveCount(3);
+  const palette = page.getByRole("complementary", { name: "Resource Palette" });
+  const providers = palette.getByRole("button", { name: /^Microsoft\./ });
+  await expect(palette.getByRole("tab", { name: "Featured" })).toHaveAttribute("aria-selected", "true");
+  await expect(palette.getByRole("tabpanel")).toHaveAccessibleName("Featured");
+  await expect(providers).toHaveCount(2);
   await expect(providers.nth(0)).toHaveAccessibleName("Microsoft.Network");
   await expect(providers.nth(1)).toHaveAccessibleName("Microsoft.Storage");
-  await expect(providers.nth(2)).toHaveAccessibleName("Microsoft.Preview");
+
+  await showView(page, "All");
+  await expect(providers).toHaveCount(3);
+  await expect(providers.nth(0)).toHaveAccessibleName("Microsoft.Network");
+  await expect(providers.nth(1)).toHaveAccessibleName("Microsoft.Preview");
+  await expect(providers.nth(2)).toHaveAccessibleName("Microsoft.Storage");
+});
+
+test("views switch with arrow keys and the chosen view survives reopening the palette", async ({ page }) => {
+  await openVisualDesigner(page);
+  const launcher = page.getByRole("button", { name: "Add Resources" });
+  await launcher.click();
+  const featured = page.getByRole("tab", { name: "Featured" });
+  await featured.focus();
+
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByRole("tab", { name: "Recent" })).toBeFocused();
+  await expect(page.getByRole("tab", { name: "Recent" })).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("End");
+  await expect(page.getByRole("tab", { name: "All" })).toBeFocused();
+  await page.keyboard.press("ArrowRight");
+  await expect(featured).toBeFocused();
+  await page.keyboard.press("ArrowLeft");
+  const all = page.getByRole("tab", { name: "All" });
+  await expect(all).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("tab", { selected: false })).toHaveCount(2);
+
+  await launcher.click();
+  await expect(page.getByRole("complementary")).toHaveCount(0);
+  await launcher.click();
+  await expect(all).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("button", { name: "Microsoft.Preview" })).toBeVisible();
+});
+
+test("search covers the whole catalog and hides the views until it is cleared", async ({ page }) => {
+  await openVisualDesigner(page);
+  await page.getByRole("button", { name: "Add Resources" }).click();
+  await expect(page.getByRole("tab", { name: "Featured" })).toHaveAttribute("aria-selected", "true");
+
+  const filter = page.getByRole("textbox", { name: "Filter resource types" });
+  await filter.fill("widgets");
+  await expect(page.getByRole("tablist")).toHaveCount(0);
+  await expect(dragHandle(page, "Microsoft.Preview/widgets")).toBeVisible();
+
+  await filter.fill("");
+  await expect(page.getByRole("tab", { name: "Featured" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("button", { name: "Microsoft.Preview" })).toHaveCount(0);
+});
+
+test("Recent lists the types dropped onto the canvas, newest first", async ({ page }) => {
+  await recordCreations(page);
+  await openVisualDesigner(page);
+  await page.getByRole("button", { name: "Add Resources" }).click();
+  await showView(page, "Recent");
+  await expect(page.getByText("Resource types you drag onto the canvas appear here.")).toBeVisible();
+
+  const filter = page.getByRole("textbox", { name: "Filter resource types" });
+  await filter.fill("storageAccounts");
+  // A click is not a drag, so it neither creates nor counts as recent.
+  await dragHandle(page, STORAGE_TYPE).click();
+  await dragToCanvas(page, STORAGE_TYPE);
+  await expect.poll(async () => (await creations(page)).length).toBe(1);
+  await filter.fill("virtualNetworks");
+  await dragToCanvas(page, "Microsoft.Network/virtualNetworks");
+  await expect.poll(async () => (await creations(page)).length).toBe(2);
+  await filter.fill("");
+
+  await expect(page.getByRole("tab", { name: "Recent" })).toHaveAttribute("aria-selected", "true");
+  const handles = page.getByTestId("resource-type-drag-handle");
+  await expect(handles).toHaveCount(2);
+  await expect(handles.nth(0)).toHaveAttribute("data-resource-type", "Microsoft.Network/virtualNetworks");
+  await expect(handles.nth(0)).toContainText("virtualNetworksMicrosoft.Network");
+  await expect(handles.nth(1)).toHaveAttribute("data-resource-type", STORAGE_TYPE);
+
+  // Types the catalog no longer offers at the new scope drop out of Recent.
+  await page.getByRole("combobox", { name: "Document target scope" }).selectOption("subscription");
+  await expect(page.getByText("Resource types you drag onto the canvas appear here.")).toBeVisible();
+});
+
+test("Featured explains when no featured provider offers types and links to All", async ({ page }) => {
+  await openVisualDesigner(page, { targetScope: "tenant" });
+  await page.getByRole("button", { name: "Add Resources" }).click();
+
+  await expect(page.getByText("No featured providers offer resource types for this file.")).toBeVisible();
+  await page.getByRole("button", { name: "Show all", exact: true }).click();
+  await expect(page.getByRole("tab", { name: "All" })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("button", { name: "Microsoft.Management" })).toBeVisible();
 });
 
 test("versions load lazily, persist across browse/search/reopen and insert the selected version", async ({ page }) => {
@@ -558,6 +651,7 @@ test("palette and version list use a frosted-glass surface", async ({ page }) =>
 test("large catalogs render progressively and a new query starts over", async ({ page }) => {
   await openVisualDesigner(page, { catalogSize: "2312", catalogDelay: "0" });
   await page.getByRole("button", { name: "Add Resources" }).click();
+  await showView(page, "All");
   const headers = page.locator("#resource-palette button[aria-expanded]");
   const rows = page.getByTestId("resource-type-row");
   const more = page.getByTestId("resource-palette-more");
@@ -590,6 +684,7 @@ test("expanding a namespace keeps existing headers mounted and reveals large gro
 }) => {
   await openVisualDesigner(page, { catalogSize: "2312", catalogDelay: "0" });
   await page.getByRole("button", { name: "Add Resources" }).click();
+  await showView(page, "All");
   const lastHeader = page.getByRole("button", { name: "Microsoft.Synthetic046" });
   await expect(lastHeader).toBeAttached();
   const originalHeader = await lastHeader.elementHandle();
@@ -599,6 +694,7 @@ test("expanding a namespace keeps existing headers mounted and reveals large gro
 
   await openVisualDesigner(page, { catalogSize: "166", catalogDelay: "0" });
   await page.getByRole("button", { name: "Add Resources" }).click();
+  await showView(page, "All");
   await page.getByRole("button", { name: "Microsoft.SyntheticLarge" }).click();
   const rows = page.getByTestId("resource-type-row");
   const more = page.getByTestId("resource-palette-more");
