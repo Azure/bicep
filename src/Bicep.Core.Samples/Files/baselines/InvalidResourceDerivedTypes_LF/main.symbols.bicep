@@ -38,6 +38,70 @@ type interpolated = resourceInput<'Microsoft.${'Storage'}/storageAccounts@2022-0
 type shouldNotBeSealable = resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>
 //@[5:24) TypeAlias shouldNotBeSealable. Type: Type<Microsoft.Storage/storageAccounts>. Declaration start char: 0, length: 98
 
+@sealed()
+type shouldNotBeSealable2 = resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+//@[5:25) TypeAlias shouldNotBeSealable2. Type: Type<StorageAccountPropertiesCreateParametersOrStorageAccountProperties>. Declaration start char: 0, length: 110
+
+@sealed()
+type shouldNotBeSealable3 = resourceOutput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties?
+//@[5:25) TypeAlias shouldNotBeSealable3. Type: Type<StorageAccountPropertiesCreateParametersOrStorageAccountProperties | null>. Declaration start char: 0, length: 112
+
+@sealed()
+type shouldNotBeSealable4 = resourceInput<'Microsoft.Web/customApis@2016-06-01'>.properties.connectionParameters.*
+//@[5:25) TypeAlias shouldNotBeSealable4. Type: Type<ConnectionParameter>. Declaration start char: 0, length: 124
+
+@sealed()
+type shouldNotBeSealable5 = shouldNotBeSealable2
+//@[5:25) TypeAlias shouldNotBeSealable5. Type: Type<StorageAccountPropertiesCreateParametersOrStorageAccountProperties>. Declaration start char: 0, length: 58
+
+@sealed()
+param shouldNotBeSealable6 resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+//@[6:26) Parameter shouldNotBeSealable6. Type: StorageAccountPropertiesCreateParametersOrStorageAccountProperties. Declaration start char: 0, length: 109
+
+@sealed()
+param shouldNotBeSealable7 shouldNotBeSealable2
+//@[6:26) Parameter shouldNotBeSealable7. Type: StorageAccountPropertiesCreateParametersOrStorageAccountProperties. Declaration start char: 0, length: 57
+
+type shouldNotBeSealable8 = {
+//@[5:25) TypeAlias shouldNotBeSealable8. Type: Type<{ prop: StorageAccountPropertiesCreateParametersOrStorageAccountProperties }>. Declaration start char: 0, length: 124
+  @sealed()
+  prop: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+}
+
+type containsResourceDerivedTypes = {
+//@[5:33) TypeAlias containsResourceDerivedTypes. Type: Type<{ prop: StorageAccountPropertiesCreateParametersOrStorageAccountProperties, tuple: [string, StorageAccountPropertiesCreateParametersOrStorageAccountProperties], array: StorageAccountPropertiesCreateParametersOrStorageAccountProperties[], *: StorageAccountPropertiesCreateParametersOrStorageAccountProperties }>. Declaration start char: 0, length: 374
+  prop: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+  tuple: [string, resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties]
+  array: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties[]
+  *: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+}
+
+@sealed()
+type shouldNotBeSealable9 = containsResourceDerivedTypes.prop
+//@[5:25) TypeAlias shouldNotBeSealable9. Type: Type<StorageAccountPropertiesCreateParametersOrStorageAccountProperties>. Declaration start char: 0, length: 71
+
+@sealed()
+type shouldNotBeSealable10 = containsResourceDerivedTypes.tuple[1]
+//@[5:26) TypeAlias shouldNotBeSealable10. Type: Type<StorageAccountPropertiesCreateParametersOrStorageAccountProperties>. Declaration start char: 0, length: 76
+
+@sealed()
+type shouldNotBeSealable11 = containsResourceDerivedTypes.array[*]
+//@[5:26) TypeAlias shouldNotBeSealable11. Type: Type<StorageAccountPropertiesCreateParametersOrStorageAccountProperties>. Declaration start char: 0, length: 76
+
+@sealed()
+type shouldNotBeSealable12 = containsResourceDerivedTypes.*
+//@[5:26) TypeAlias shouldNotBeSealable12. Type: Type<StorageAccountPropertiesCreateParametersOrStorageAccountProperties>. Declaration start char: 0, length: 69
+
+@sealed()
+type shouldNotBeSealable13 = containsResourceDerivedTypes['prop']
+//@[5:26) TypeAlias shouldNotBeSealable13. Type: Type<StorageAccountPropertiesCreateParametersOrStorageAccountProperties>. Declaration start char: 0, length: 75
+
+@sealed()
+type sealableUserDefinedObject = {
+//@[5:30) TypeAlias sealableUserDefinedObject. Type: Type<{ prop: containsResourceDerivedTypes.prop }>. Declaration start char: 0, length: 88
+  prop: containsResourceDerivedTypes.prop
+}
+
 type hello = {
 //@[5:10) TypeAlias hello. Type: Type<{ bar: Astronomer.Astro/organizations }>. Declaration start char: 0, length: 113
   @discriminator('hi')

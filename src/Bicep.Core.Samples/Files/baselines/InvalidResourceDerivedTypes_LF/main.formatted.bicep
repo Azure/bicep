@@ -24,6 +24,56 @@ type interpolated = resourceInput<'Microsoft.${'Storage'}/storageAccounts@2022-0
 @sealed()
 type shouldNotBeSealable = resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>
 
+@sealed()
+type shouldNotBeSealable2 = resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+
+@sealed()
+type shouldNotBeSealable3 = resourceOutput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties?
+
+@sealed()
+type shouldNotBeSealable4 = resourceInput<'Microsoft.Web/customApis@2016-06-01'>.properties.connectionParameters.*
+
+@sealed()
+type shouldNotBeSealable5 = shouldNotBeSealable2
+
+@sealed()
+param shouldNotBeSealable6 resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+
+@sealed()
+param shouldNotBeSealable7 shouldNotBeSealable2
+
+type shouldNotBeSealable8 = {
+  @sealed()
+  prop: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+}
+
+type containsResourceDerivedTypes = {
+  prop: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+  tuple: [string, resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties]
+  array: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties[]
+  *: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+}
+
+@sealed()
+type shouldNotBeSealable9 = containsResourceDerivedTypes.prop
+
+@sealed()
+type shouldNotBeSealable10 = containsResourceDerivedTypes.tuple[1]
+
+@sealed()
+type shouldNotBeSealable11 = containsResourceDerivedTypes.array[*]
+
+@sealed()
+type shouldNotBeSealable12 = containsResourceDerivedTypes.*
+
+@sealed()
+type shouldNotBeSealable13 = containsResourceDerivedTypes['prop']
+
+@sealed()
+type sealableUserDefinedObject = {
+  prop: containsResourceDerivedTypes.prop
+}
+
 type hello = {
   @discriminator('hi')
   bar: resourceInput<'Astronomer.Astro/organizations@2023-08-01-preview'>

@@ -153,6 +153,294 @@ type shouldNotBeSealable = resourceInput<'Microsoft.Storage/storageAccounts@2022
 //@[087:088) RightChevron |>|
 //@[088:090) NewLine |\n\n|
 
+@sealed()
+//@[000:001) At |@|
+//@[001:007) Identifier |sealed|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:010) NewLine |\n|
+type shouldNotBeSealable2 = resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+//@[000:004) Identifier |type|
+//@[005:025) Identifier |shouldNotBeSealable2|
+//@[026:027) Assignment |=|
+//@[028:041) Identifier |resourceInput|
+//@[041:042) LeftChevron |<|
+//@[042:088) StringComplete |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[088:089) RightChevron |>|
+//@[089:090) Dot |.|
+//@[090:100) Identifier |properties|
+//@[100:102) NewLine |\n\n|
+
+@sealed()
+//@[000:001) At |@|
+//@[001:007) Identifier |sealed|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:010) NewLine |\n|
+type shouldNotBeSealable3 = resourceOutput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties?
+//@[000:004) Identifier |type|
+//@[005:025) Identifier |shouldNotBeSealable3|
+//@[026:027) Assignment |=|
+//@[028:042) Identifier |resourceOutput|
+//@[042:043) LeftChevron |<|
+//@[043:089) StringComplete |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[089:090) RightChevron |>|
+//@[090:091) Dot |.|
+//@[091:101) Identifier |properties|
+//@[101:102) Question |?|
+//@[102:104) NewLine |\n\n|
+
+@sealed()
+//@[000:001) At |@|
+//@[001:007) Identifier |sealed|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:010) NewLine |\n|
+type shouldNotBeSealable4 = resourceInput<'Microsoft.Web/customApis@2016-06-01'>.properties.connectionParameters.*
+//@[000:004) Identifier |type|
+//@[005:025) Identifier |shouldNotBeSealable4|
+//@[026:027) Assignment |=|
+//@[028:041) Identifier |resourceInput|
+//@[041:042) LeftChevron |<|
+//@[042:079) StringComplete |'Microsoft.Web/customApis@2016-06-01'|
+//@[079:080) RightChevron |>|
+//@[080:081) Dot |.|
+//@[081:091) Identifier |properties|
+//@[091:092) Dot |.|
+//@[092:112) Identifier |connectionParameters|
+//@[112:113) Dot |.|
+//@[113:114) Asterisk |*|
+//@[114:116) NewLine |\n\n|
+
+@sealed()
+//@[000:001) At |@|
+//@[001:007) Identifier |sealed|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:010) NewLine |\n|
+type shouldNotBeSealable5 = shouldNotBeSealable2
+//@[000:004) Identifier |type|
+//@[005:025) Identifier |shouldNotBeSealable5|
+//@[026:027) Assignment |=|
+//@[028:048) Identifier |shouldNotBeSealable2|
+//@[048:050) NewLine |\n\n|
+
+@sealed()
+//@[000:001) At |@|
+//@[001:007) Identifier |sealed|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:010) NewLine |\n|
+param shouldNotBeSealable6 resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+//@[000:005) Identifier |param|
+//@[006:026) Identifier |shouldNotBeSealable6|
+//@[027:040) Identifier |resourceInput|
+//@[040:041) LeftChevron |<|
+//@[041:087) StringComplete |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[087:088) RightChevron |>|
+//@[088:089) Dot |.|
+//@[089:099) Identifier |properties|
+//@[099:101) NewLine |\n\n|
+
+@sealed()
+//@[000:001) At |@|
+//@[001:007) Identifier |sealed|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:010) NewLine |\n|
+param shouldNotBeSealable7 shouldNotBeSealable2
+//@[000:005) Identifier |param|
+//@[006:026) Identifier |shouldNotBeSealable7|
+//@[027:047) Identifier |shouldNotBeSealable2|
+//@[047:049) NewLine |\n\n|
+
+type shouldNotBeSealable8 = {
+//@[000:004) Identifier |type|
+//@[005:025) Identifier |shouldNotBeSealable8|
+//@[026:027) Assignment |=|
+//@[028:029) LeftBrace |{|
+//@[029:030) NewLine |\n|
+  @sealed()
+//@[002:003) At |@|
+//@[003:009) Identifier |sealed|
+//@[009:010) LeftParen |(|
+//@[010:011) RightParen |)|
+//@[011:012) NewLine |\n|
+  prop: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+//@[002:006) Identifier |prop|
+//@[006:007) Colon |:|
+//@[008:021) Identifier |resourceInput|
+//@[021:022) LeftChevron |<|
+//@[022:068) StringComplete |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[068:069) RightChevron |>|
+//@[069:070) Dot |.|
+//@[070:080) Identifier |properties|
+//@[080:081) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
+type containsResourceDerivedTypes = {
+//@[000:004) Identifier |type|
+//@[005:033) Identifier |containsResourceDerivedTypes|
+//@[034:035) Assignment |=|
+//@[036:037) LeftBrace |{|
+//@[037:038) NewLine |\n|
+  prop: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+//@[002:006) Identifier |prop|
+//@[006:007) Colon |:|
+//@[008:021) Identifier |resourceInput|
+//@[021:022) LeftChevron |<|
+//@[022:068) StringComplete |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[068:069) RightChevron |>|
+//@[069:070) Dot |.|
+//@[070:080) Identifier |properties|
+//@[080:081) NewLine |\n|
+  tuple: [string, resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties]
+//@[002:007) Identifier |tuple|
+//@[007:008) Colon |:|
+//@[009:010) LeftSquare |[|
+//@[010:016) Identifier |string|
+//@[016:017) Comma |,|
+//@[018:031) Identifier |resourceInput|
+//@[031:032) LeftChevron |<|
+//@[032:078) StringComplete |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[078:079) RightChevron |>|
+//@[079:080) Dot |.|
+//@[080:090) Identifier |properties|
+//@[090:091) RightSquare |]|
+//@[091:092) NewLine |\n|
+  array: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties[]
+//@[002:007) Identifier |array|
+//@[007:008) Colon |:|
+//@[009:022) Identifier |resourceInput|
+//@[022:023) LeftChevron |<|
+//@[023:069) StringComplete |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[069:070) RightChevron |>|
+//@[070:071) Dot |.|
+//@[071:081) Identifier |properties|
+//@[081:082) LeftSquare |[|
+//@[082:083) RightSquare |]|
+//@[083:084) NewLine |\n|
+  *: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+//@[002:003) Asterisk |*|
+//@[003:004) Colon |:|
+//@[005:018) Identifier |resourceInput|
+//@[018:019) LeftChevron |<|
+//@[019:065) StringComplete |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[065:066) RightChevron |>|
+//@[066:067) Dot |.|
+//@[067:077) Identifier |properties|
+//@[077:078) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
+@sealed()
+//@[000:001) At |@|
+//@[001:007) Identifier |sealed|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:010) NewLine |\n|
+type shouldNotBeSealable9 = containsResourceDerivedTypes.prop
+//@[000:004) Identifier |type|
+//@[005:025) Identifier |shouldNotBeSealable9|
+//@[026:027) Assignment |=|
+//@[028:056) Identifier |containsResourceDerivedTypes|
+//@[056:057) Dot |.|
+//@[057:061) Identifier |prop|
+//@[061:063) NewLine |\n\n|
+
+@sealed()
+//@[000:001) At |@|
+//@[001:007) Identifier |sealed|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:010) NewLine |\n|
+type shouldNotBeSealable10 = containsResourceDerivedTypes.tuple[1]
+//@[000:004) Identifier |type|
+//@[005:026) Identifier |shouldNotBeSealable10|
+//@[027:028) Assignment |=|
+//@[029:057) Identifier |containsResourceDerivedTypes|
+//@[057:058) Dot |.|
+//@[058:063) Identifier |tuple|
+//@[063:064) LeftSquare |[|
+//@[064:065) Integer |1|
+//@[065:066) RightSquare |]|
+//@[066:068) NewLine |\n\n|
+
+@sealed()
+//@[000:001) At |@|
+//@[001:007) Identifier |sealed|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:010) NewLine |\n|
+type shouldNotBeSealable11 = containsResourceDerivedTypes.array[*]
+//@[000:004) Identifier |type|
+//@[005:026) Identifier |shouldNotBeSealable11|
+//@[027:028) Assignment |=|
+//@[029:057) Identifier |containsResourceDerivedTypes|
+//@[057:058) Dot |.|
+//@[058:063) Identifier |array|
+//@[063:064) LeftSquare |[|
+//@[064:065) Asterisk |*|
+//@[065:066) RightSquare |]|
+//@[066:068) NewLine |\n\n|
+
+@sealed()
+//@[000:001) At |@|
+//@[001:007) Identifier |sealed|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:010) NewLine |\n|
+type shouldNotBeSealable12 = containsResourceDerivedTypes.*
+//@[000:004) Identifier |type|
+//@[005:026) Identifier |shouldNotBeSealable12|
+//@[027:028) Assignment |=|
+//@[029:057) Identifier |containsResourceDerivedTypes|
+//@[057:058) Dot |.|
+//@[058:059) Asterisk |*|
+//@[059:061) NewLine |\n\n|
+
+@sealed()
+//@[000:001) At |@|
+//@[001:007) Identifier |sealed|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:010) NewLine |\n|
+type shouldNotBeSealable13 = containsResourceDerivedTypes['prop']
+//@[000:004) Identifier |type|
+//@[005:026) Identifier |shouldNotBeSealable13|
+//@[027:028) Assignment |=|
+//@[029:057) Identifier |containsResourceDerivedTypes|
+//@[057:058) LeftSquare |[|
+//@[058:064) StringComplete |'prop'|
+//@[064:065) RightSquare |]|
+//@[065:067) NewLine |\n\n|
+
+@sealed()
+//@[000:001) At |@|
+//@[001:007) Identifier |sealed|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:010) NewLine |\n|
+type sealableUserDefinedObject = {
+//@[000:004) Identifier |type|
+//@[005:030) Identifier |sealableUserDefinedObject|
+//@[031:032) Assignment |=|
+//@[033:034) LeftBrace |{|
+//@[034:035) NewLine |\n|
+  prop: containsResourceDerivedTypes.prop
+//@[002:006) Identifier |prop|
+//@[006:007) Colon |:|
+//@[008:036) Identifier |containsResourceDerivedTypes|
+//@[036:037) Dot |.|
+//@[037:041) Identifier |prop|
+//@[041:042) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
 type hello = {
 //@[000:004) Identifier |type|
 //@[005:010) Identifier |hello|

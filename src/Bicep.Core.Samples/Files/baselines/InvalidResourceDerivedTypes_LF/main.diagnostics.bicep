@@ -57,6 +57,80 @@ type shouldNotBeSealable = resourceInput<'Microsoft.Storage/storageAccounts@2022
 //@[005:024) [no-unused-types (Warning)] Type "shouldNotBeSealable" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |shouldNotBeSealable|
 //@[027:088) [BCP394 (Error)] Resource-derived type expressions must dereference a property within the resource body. Using the entire resource body type is not permitted. (bicep https://aka.ms/bicep/core-diagnostics#BCP394) |resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>|
 
+@sealed()
+//@[000:009) [BCP386 (Error)] The decorator "sealed" may not be used on statements whose declared type is a reference to a resource-derived type. (bicep https://aka.ms/bicep/core-diagnostics#BCP386) |@sealed()|
+type shouldNotBeSealable2 = resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+
+@sealed()
+//@[000:009) [BCP386 (Error)] The decorator "sealed" may not be used on statements whose declared type is a reference to a resource-derived type. (bicep https://aka.ms/bicep/core-diagnostics#BCP386) |@sealed()|
+type shouldNotBeSealable3 = resourceOutput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties?
+//@[005:025) [no-unused-types (Warning)] Type "shouldNotBeSealable3" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |shouldNotBeSealable3|
+
+@sealed()
+//@[000:009) [BCP386 (Error)] The decorator "sealed" may not be used on statements whose declared type is a reference to a resource-derived type. (bicep https://aka.ms/bicep/core-diagnostics#BCP386) |@sealed()|
+type shouldNotBeSealable4 = resourceInput<'Microsoft.Web/customApis@2016-06-01'>.properties.connectionParameters.*
+//@[005:025) [no-unused-types (Warning)] Type "shouldNotBeSealable4" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |shouldNotBeSealable4|
+
+@sealed()
+//@[000:009) [BCP386 (Error)] The decorator "sealed" may not be used on statements whose declared type is a reference to a resource-derived type. (bicep https://aka.ms/bicep/core-diagnostics#BCP386) |@sealed()|
+type shouldNotBeSealable5 = shouldNotBeSealable2
+//@[005:025) [no-unused-types (Warning)] Type "shouldNotBeSealable5" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |shouldNotBeSealable5|
+
+@sealed()
+//@[000:009) [BCP386 (Error)] The decorator "sealed" may not be used on statements whose declared type is a reference to a resource-derived type. (bicep https://aka.ms/bicep/core-diagnostics#BCP386) |@sealed()|
+param shouldNotBeSealable6 resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+//@[006:026) [no-unused-params (Warning)] Parameter "shouldNotBeSealable6" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |shouldNotBeSealable6|
+
+@sealed()
+//@[000:009) [BCP386 (Error)] The decorator "sealed" may not be used on statements whose declared type is a reference to a resource-derived type. (bicep https://aka.ms/bicep/core-diagnostics#BCP386) |@sealed()|
+param shouldNotBeSealable7 shouldNotBeSealable2
+//@[006:026) [no-unused-params (Warning)] Parameter "shouldNotBeSealable7" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-params) |shouldNotBeSealable7|
+
+type shouldNotBeSealable8 = {
+//@[005:025) [no-unused-types (Warning)] Type "shouldNotBeSealable8" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |shouldNotBeSealable8|
+  @sealed()
+//@[002:011) [BCP386 (Error)] The decorator "sealed" may not be used on statements whose declared type is a reference to a resource-derived type. (bicep https://aka.ms/bicep/core-diagnostics#BCP386) |@sealed()|
+  prop: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+}
+
+type containsResourceDerivedTypes = {
+  prop: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+  tuple: [string, resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties]
+  array: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties[]
+  *: resourceInput<'Microsoft.Storage/storageAccounts@2022-09-01'>.properties
+}
+
+@sealed()
+//@[000:009) [BCP386 (Error)] The decorator "sealed" may not be used on statements whose declared type is a reference to a resource-derived type. (bicep https://aka.ms/bicep/core-diagnostics#BCP386) |@sealed()|
+type shouldNotBeSealable9 = containsResourceDerivedTypes.prop
+//@[005:025) [no-unused-types (Warning)] Type "shouldNotBeSealable9" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |shouldNotBeSealable9|
+
+@sealed()
+//@[000:009) [BCP386 (Error)] The decorator "sealed" may not be used on statements whose declared type is a reference to a resource-derived type. (bicep https://aka.ms/bicep/core-diagnostics#BCP386) |@sealed()|
+type shouldNotBeSealable10 = containsResourceDerivedTypes.tuple[1]
+//@[005:026) [no-unused-types (Warning)] Type "shouldNotBeSealable10" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |shouldNotBeSealable10|
+
+@sealed()
+//@[000:009) [BCP386 (Error)] The decorator "sealed" may not be used on statements whose declared type is a reference to a resource-derived type. (bicep https://aka.ms/bicep/core-diagnostics#BCP386) |@sealed()|
+type shouldNotBeSealable11 = containsResourceDerivedTypes.array[*]
+//@[005:026) [no-unused-types (Warning)] Type "shouldNotBeSealable11" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |shouldNotBeSealable11|
+
+@sealed()
+//@[000:009) [BCP386 (Error)] The decorator "sealed" may not be used on statements whose declared type is a reference to a resource-derived type. (bicep https://aka.ms/bicep/core-diagnostics#BCP386) |@sealed()|
+type shouldNotBeSealable12 = containsResourceDerivedTypes.*
+//@[005:026) [no-unused-types (Warning)] Type "shouldNotBeSealable12" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |shouldNotBeSealable12|
+
+@sealed()
+//@[000:009) [BCP386 (Error)] The decorator "sealed" may not be used on statements whose declared type is a reference to a resource-derived type. (bicep https://aka.ms/bicep/core-diagnostics#BCP386) |@sealed()|
+type shouldNotBeSealable13 = containsResourceDerivedTypes['prop']
+//@[005:026) [no-unused-types (Warning)] Type "shouldNotBeSealable13" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |shouldNotBeSealable13|
+
+@sealed()
+type sealableUserDefinedObject = {
+//@[005:030) [no-unused-types (Warning)] Type "sealableUserDefinedObject" is declared but never used. (bicep core linter https://aka.ms/bicep/linter-diagnostics#no-unused-types) |sealableUserDefinedObject|
+  prop: containsResourceDerivedTypes.prop
+}
+
 type hello = {
   @discriminator('hi')
 //@[002:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (bicep https://aka.ms/bicep/core-diagnostics#BCP363) |@discriminator('hi')|
