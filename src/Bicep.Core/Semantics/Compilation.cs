@@ -3,10 +3,10 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Analyzers.Interfaces;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceGraph;

@@ -6,7 +6,6 @@ using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;

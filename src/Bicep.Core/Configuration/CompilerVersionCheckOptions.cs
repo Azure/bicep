@@ -3,7 +3,7 @@
 
 using Bicep.Core.Diagnostics;
 
-namespace Bicep.Core.Features;
+namespace Bicep.Core.Configuration;
 
 /// <summary>
 /// Host-level settings controlling how compiler version constraint (bicep.version) violations are
