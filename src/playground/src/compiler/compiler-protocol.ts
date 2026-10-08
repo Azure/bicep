@@ -9,7 +9,6 @@ export type CompileResult = {
 };
 
 export type DecompileResult = {
-  bicepFile: string | null;
   error: string | null;
   entrypoint: string | null;
   files: Record<string, string> | null;
