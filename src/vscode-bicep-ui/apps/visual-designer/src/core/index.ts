@@ -13,6 +13,7 @@ export {
   documentUriAtom,
   graphHasNodesAtom,
   isGraphChangeInProgressAtom,
+  isColorThemeMatchedSettingAtom,
   isResourceEditingEnabledAtom,
   motionPolicyAtom,
   pendingResourcesAtom,

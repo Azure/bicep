@@ -67,6 +67,15 @@ const $Button = styled.button`
   }
 `;
 
+const $Checkbox = styled.label`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #ddd;
+  white-space: nowrap;
+  user-select: none;
+`;
+
 /**
  * A floating toolbar rendered only in dev mode (`npm run dev`).
  * Each button pushes a different sample graph through the
@@ -78,6 +87,10 @@ export function DevToolbar({ channel }: DevToolbarProps) {
     [channel],
   );
   const changeCatalog = useCallback(() => channel.changeCatalog(), [channel]);
+  const changeColorThemeMatching = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => channel.setColorThemeMatched(event.target.checked),
+    [channel],
+  );
   const applyMutation = (
     apply: (graph: import("../fakes/sample-graphs").SampleGraph) => import("../fakes/sample-graphs").SampleGraph,
   ) => {
@@ -103,6 +116,15 @@ export function DevToolbar({ channel }: DevToolbarProps) {
       <$Button title="Replace the resource type catalog" onClick={changeCatalog}>
         Change catalog
       </$Button>
+      <$Checkbox title="Simulate bicep.visualizer.matchColorTheme">
+        <input
+          type="checkbox"
+          aria-label="Match color theme"
+          defaultChecked={channel.isColorThemeMatched()}
+          onChange={changeColorThemeMatching}
+        />
+        Match color theme
+      </$Checkbox>
       <$SectionLabel>Graphs</$SectionLabel>
       {Object.entries(SAMPLE_GRAPHS).map(([name, graph]) => (
         <$Button key={name} onClick={() => channel.pushGraph(graph)} data-testid={`dev-graph-${slugify(name)}`}>

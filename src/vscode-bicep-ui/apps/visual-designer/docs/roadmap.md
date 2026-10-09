@@ -24,10 +24,12 @@ criteria. Uncompleted stages are not a commitment to a particular release. See
   creation dock. Viewer interactions remain available; resource creation is the only implemented
   resource-editing feature so far.
 - The dock has only a working Resources tool; unimplemented tools are not shown. The resource palette is
-  drag-only, with a type catalog, API-version choice, and common provider namespaces sorted first.
+  drag-only, with a type catalog, API-version choice, and Featured, Recent (session-local), and All
+  browsing views; search covers the whole catalog.
 - The visualizer follows the VS Code theme **kind** (light, dark, high contrast) using curated graph
-  palettes, not the current editor theme's exact colors. Export offers Current and explicit theme
-  choices.
+  palettes by default. The optional `bicep.visualizer.matchColorTheme` setting instead derives the
+  colors from the active color theme, falling back to the curated palette where a theme color is
+  missing or lacks contrast. Export offers Current and explicit theme choices.
 - A correlated resource drop and undo of its independent creation preserve the other
   nodes' positions and the camera. Edge changes and other topology changes can still reflow the
   graph; automatic layout currently fits the viewport.
@@ -40,29 +42,45 @@ criteria. Uncompleted stages are not a commitment to a particular release. See
   Source replay validates document version and contents; visual layout is not persisted.
 - Graph nodes do not currently distinguish deployed from `existing` resources. Node IDs contain
   symbolic names; a rename can look like removal and addition to the graph.
+- The graph can expand local modules into containers with child resources. Collapsed modules
+  currently look like regular resource nodes.
 
 These details are documented in [Architecture](./architecture.md), the
 [dock](../src/features/dock/components/Dock.tsx),
 [graph-layout.ts](../src/core/graph-layout.ts),
-[theme palettes](../src/ui/theme/themes.ts), and the
+[theme palettes](../src/ui/theme/themes.ts),
+[color theme matching](../src/ui/theme/color-theme.ts), and the
 [graph builder](../../../../Bicep.LangServer/Features/Custom/Visualization/VisualGraphBuilder.cs).
 
 ## Recommended delivery order
 
-Stage 0 is complete. Dependencies, not calendar dates, gate the remaining stages. Stage 1 is
-viewer-only and can start at any time. Stage 4 depends only on the stage 0 mutation and layout
-rules, so it can proceed alongside stages 2 and 3. The order within stages 3 and 4 can respond
-to user feedback.
+Stages 0 and 1 are complete. Dependencies, not calendar dates, gate the remaining stages. Stages 2
+through 4 are viewer-only: they make no source edits, do not depend on the editing setting, and
+benefit everyone who views a graph, so they come first.
 
-| Stage                     | Deliverable                                                                    | Depends on | Exit criterion                                                                                    |
-| ------------------------- | ------------------------------------------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------- |
-| 0. Foundations (complete) | Viewer regression coverage, gesture fix, mutation rules, undo/layout rules     | —          | Disabled editing still behaves as before; every source mutation is version-checked and reversible |
-| 1. Low-risk discovery     | Optional VS Code theme matching; Featured/All and then Recent palette views    | —          | Theme and palette changes do not create source edits or surprise existing viewers                 |
-| 2. Interaction model      | Experimental Select/Hand, selection state, contextual toolbar and context menu | 0          | Gestures and shortcuts are predictable without changing the default viewer mode                   |
-| 3. Focused source edits   | LSP-backed rename, then Convert to existing                                    | 2          | Edits preview/validate correctly, preserve graph context, and undo/redo in the editor             |
-| 4. Drag-first creation    | Placeholder-first resources; references to existing local modules              | 0          | Cancel does not edit or lay out the graph; commit honors the placement/layout contract            |
-| 5. Module authoring       | New local module files                                                         | 4          | The new file and parent declaration are one previewed, undoable operation                         |
-| 6. Module refactoring     | Multi-select and Extract to Module                                             | 2, 5       | A language-server refactoring safely rewrites files and references in one operation               |
+Module presentation (stage 2) precedes the editing stages. Its partial relayout, which updates
+affected nodes while preserving the camera and unaffected positions, is the same capability that
+structural drops in stage 7 need. A collapsed module also gives module drops (stages 7 and 8) a
+compact initial form that avoids a large reflow, and lets rename (stage 6) preserve collapsed state
+from the start. Stage 4 is gated on containment design rather than code; the editing stages do not
+wait for it.
+
+Resource placeholders in stage 7 depend only on the stage 0 mutation and layout rules, so they can
+proceed alongside stages 5 and 6; module references also build on stage 2. The order within stages
+6 and 7 can respond to user feedback.
+
+| Stage                            | Deliverable                                                                    | Depends on | Exit criterion                                                                                    |
+| -------------------------------- | ------------------------------------------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------- |
+| 0. Foundations (complete)        | Viewer regression coverage, gesture fix, mutation rules, undo/layout rules     | —          | Disabled editing still behaves as before; every source mutation is version-checked and reversible |
+| 1. Low-risk discovery (complete) | Optional VS Code theme matching; Featured/All and then Recent palette views    | —          | Theme and palette changes do not create source edits or surprise existing viewers                 |
+| 2. Module presentation           | Distinct collapsed-module styling and manual collapse/expand                   | 0          | Local modules toggle without source edits or loss of graph context                                |
+| 3. Remote-module expansion       | Linked-source remote modules with child resources                              | 2          | Remote children and source links work; unavailable source is explicit                             |
+| 4. Resource containers           | Source-defined RG/MG/VNet/subnet containers                                    | Design     | Agreed containment rules yield readable nested containers in themes and exports                   |
+| 5. Interaction model             | Experimental Select/Hand, selection state, contextual toolbar and context menu | 0          | Gestures and shortcuts are predictable without changing the default viewer mode                   |
+| 6. Focused source edits          | LSP-backed rename, then Convert to existing                                    | 5          | Edits preview/validate correctly, preserve graph context, and undo/redo in the editor             |
+| 7. Drag-first creation           | Placeholder-first resources; references to existing local modules              | 0, 2       | Cancel does not edit or lay out the graph; commit honors the placement/layout contract            |
+| 8. Module authoring              | New local module files                                                         | 7          | The new file and parent declaration are one previewed, undoable operation                         |
+| 9. Module refactoring            | Multi-select and Extract to Module                                             | 5, 8       | A language-server refactoring safely rewrites files and references in one operation               |
 
 ### Stage 0: viewer safety and undo foundation (complete)
 
@@ -82,21 +100,69 @@ to user feedback.
    a validated minimal `WorkspaceEdit`, not a focus-dependent VS Code Undo command. Editor and
    text-field histories remain separate. See [Undo and redo](#undo-and-redo).
 
-### Stage 1: theme and palette
+### Stage 1: theme and palette (complete)
 
-**Match VS Code theme.** Offer an appearance-only option that follows the active theme's actual
-colors, including changes between two themes of the same light/dark kind. Keep curated graph
-contrast or fallbacks for nodes and edges rather than blindly using editor colors for every surface.
-This is useful to viewers and should not depend on the editing setting. Decide whether it becomes
-the default only after testing custom themes and both high-contrast modes. The export preview and
-"Current" export option must capture the intended colors; explicit Light/Dark exports stay stable.
+**Match VS Code theme.** The appearance-only `bicep.visualizer.matchColorTheme` setting (off by
+default, independent of the editing setting) derives the designer's colors from the active color
+theme, including changes between two themes of the same kind. The canvas is the editor background,
+so the designer matches the editor beside it, and text and accents take the closest workbench
+colors. Cards and floating bars are a lighter shade of the editor background with the same hue and
+most of its tint, in light and dark themes alike (lighter cream on Solarized Light, lighter navy on
+Ayu Dark), with a firmer border where a near-white
+background leaves little room to lighten; edges and the dot grid keep the curated separation.
+Secondary text, such as resource types, is the theme's text color faded toward the card rather
+than VS Code's default gray description color. Each text and accent
+color is checked for contrast (WCAG AA, and higher in high-contrast themes) against what it is
+painted on; a theme color that falls slightly short is strengthened along its hue, and the curated
+palette for the theme kind supplies any color that is missing, unparseable, or far too faint. Card depth (shadows, border widths) stays curated. Unit tests check every
+built-in VS Code theme, including both high-contrast modes. The export preview and "Current" export
+use the matched colors; explicit Light/Dark/high-contrast exports stay curated. Whether matching
+becomes the default remains open (see [decisions](#decisions-to-confirm-before-implementation)),
+pending testing with popular custom themes.
 
-**Palette organization.** Make the existing common-provider ordering discoverable through Featured
-and All sections; try Recent before adding Favorites. Preserve provider browsing, scope filtering,
-lazy catalog loading, search, and API-version selection. If Favorites proves valuable, decide
-whether it follows the user across workspaces or belongs to a workspace before persisting it.
+**Palette organization.** Browsing has three views, chosen with tabs below the search box and kept
+across palette reopen: **Featured** (the common providers, in the curated order), **Recent** (types
+dropped onto the canvas this session, newest first, up to eight), and **All** (every provider,
+Microsoft first, each alphabetically). Search covers the whole catalog and hides the tabs while a
+query is entered. Provider browsing, scope filtering, lazy catalog loading, progressive rendering,
+and API-version selection are unchanged. Recent is session-local; persisting it, and adding
+Favorites, waits on the same user-wide versus workspace decision.
 
-### Stage 2: navigation and selection
+### Stage 2: module presentation and controls
+
+**Collapsed appearance.** Explore a small container node with a package icon at its center,
+rather than a regular resource card. This retains the module's container identity while its
+contents are hidden. Keep the module name visible and provide a clear, accessible expansion
+affordance. Validate the size, label placement, focus treatment, contrast, and relationship to the
+expanded module boundary before committing to the design.
+
+**Manual collapse/expand.** Give local and remote modules the same controls to collapse and expand
+available contents; stage 3 supplies remote contents from linked source. Hide or reveal descendants
+without changing Bicep source, preserve dependencies across the module boundary, and keep source
+navigation usable in either state. Preserve the camera and unaffected nodes when updating layout;
+stage 7 reuses this partial relayout for structural drops. Unavailable contents must be explained
+explicitly rather than presented as an empty module.
+
+### Stage 3: remote-module expansion
+
+When a remote module has linked Bicep source files, render it as an expanded module container with
+its resources inside, using the same hierarchy as local modules and the controls from stage 2.
+Preserve source navigation for the module declaration and its child resources, and respect the
+user's collapsed state when the graph refreshes. If linked source is unavailable, keep the
+module-specific collapsed appearance and explain why its contents cannot be expanded.
+
+### Stage 4: resource containers
+
+Render container resources such as resource groups (RGs), management groups (MGs), virtual
+networks (VNets), and subnets as container nodes with their contained resources inside. Base
+containment on source-defined scope, parent, or network relationships, not arbitrary dependency
+edges or visual proximity. The supported resource types, containment rules, and visual treatment
+need design; a dashed border is a candidate, not a committed style. Keep resource containers
+distinguishable from module containers while preserving resource identity, source navigation,
+theme contrast, and export readability. Visual containment must not silently change deployment
+scope, module membership, or network configuration.
+
+### Stage 5: navigation and selection
 
 - In experimental editing mode, Select (`V`) selects nodes and permits node repositioning; Hand
   (`H`) pans even when the pointer starts on a node. Retain empty-canvas panning in Select until a
@@ -108,20 +174,20 @@ whether it follows the user across workspaces or belongs to a workspace before p
   becomes necessary. Add a compact contextual toolbar and a node-specific context menu
   with Go to Source before adding edit actions.
 - With editing enabled, double-clicking a node, or clicking a node that is already selected, enters
-  inline rename (stage 3), and Go to Source moves to the contextual toolbar and context menu. With
+  inline rename (stage 6), and Go to Source moves to the contextual toolbar and context menu. With
   editing disabled, double-click keeps revealing source. A second click that starts a drag moves the
   node instead of entering rename, using the stage 0 total-travel threshold.
 - Roll out mode switching without changing the existing gestures for people who have not opted into
   editing. Fix the accidental selection problem in stage 0 rather than relying on modes to hide it.
 
-### Stage 3: focused Bicep edits
+### Stage 6: focused Bicep edits
 
 **Rename symbolic name.** Double-click a node or click an already selected node to edit its name
 inline. Resolve the node's current source location on demand, invoke the existing Bicep LSP rename
 instead of replacing text, validate the document version, and apply the result as a normal VS Code
 edit. Enter commits; Escape cancels; a failed blur commit keeps the draft and explains the error.
-Preserve selection and placement across the graph ID change, including descendants when a module's
-symbolic name changes and edges whose IDs embed the renamed node, so a rename is not treated as a
+Preserve selection and placement across the graph ID change, including descendants and collapsed
+state when a module's symbolic name changes and edges whose IDs embed the renamed node, so a rename is not treated as a
 topology change. Go to Source from the toolbar or context menu must still work.
 
 **Convert a resource to `existing`.** Offer an explicit selected-resource action, not a change of
@@ -134,7 +200,7 @@ client protocol, and node rendering so deployed and referenced resources are dis
 Keep an unchanged card at its position when only this metadata changes; re-evaluate layout only
 if topology or measured size actually changes. Undo must restore the original declaration.
 
-### Stage 4: drag-first creation and its layout contract
+### Stage 7: drag-first creation and its layout contract
 
 **Resource placeholder.** Drag a generic resource placeholder onto the canvas, then open the
 existing searchable type/API-version picker anchored to the drop point. The placeholder is a
@@ -142,14 +208,16 @@ temporary overlay outside the authoritative graph: dragging, choosing, Escape, a
 neither modify Bicep nor request graph layout. After a valid choice, reuse the existing
 version-checked creation flow and correlate the returned node with the original graph coordinate.
 Do not add click-to-create. The post-choice pending card remains distinct from the pre-choice
-placeholder.
+placeholder. If resource containers (stage 4) are present, dropping inside one is visual placement
+only; it must not set a parent, scope, or network relationship.
 
 **Module reference.** Start with dragging a module affordance and choosing an existing local
 `.bicep` file. Validate the relative path, required parameters, scope, and generated symbolic
 name before inserting a declaration. Make opening its source and handling its child nodes clear:
-the graph can expand local modules, so module creation is not always a single-leaf add. Follow
+the graph can expand local modules, so module creation is not always a single-leaf add. Inserting
+the module collapsed with the stage 2 appearance keeps the initial layout change small. Follow
 with creating a new local module file and its parent declaration as one reviewed, undoable
-workspace operation. Registry modules and Extract to Module are separate workflows.
+workspace operation. Registry-module authoring and Extract to Module are separate workflows.
 
 **Placement/layout policy.**
 
@@ -166,14 +234,14 @@ removal on undo. Edges can still trigger reflow, and automatic structural layout
 the viewport. Review those cases before introducing placeholders or module drops; do not
 present the entire policy as shipped behavior.
 
-### Stage 5: new module files
+### Stage 8: new module files
 
 Add a distinct "Create module file" path once existing-file references work. A
 valid file, parent declaration, required parameters, and scope are a single user action with a
 clear preview and undo behavior. An empty module may render as a leaf until it has children; do not
 promise it behaves like a visual group before its source exists.
 
-### Stage 6: Extract to Module
+### Stage 9: Extract to Module
 
 Implement and test the language-server refactoring first. It must handle references across the
 selection boundary, module parameters/outputs, dependencies, scopes, file creation, and stale
@@ -220,6 +288,16 @@ refactoring.
   Check interleaving with visual drags and direct edits in the source editor.
 - **Presentation:** light/dark custom themes, both high-contrast modes, export overrides, and
   `existing` resource badges remain legible and reflect actual source state.
+- **Module presentation (stage 2):** available module contents can be manually collapsed and expanded
+  without source edits. Collapsed modules are recognizable as modules, with accessible names and
+  controls; evaluate the compact-container/package-icon candidate in themes and exports. Toggles
+  preserve boundary dependencies, camera context, and unaffected node positions.
+- **Remote modules (stage 3):** linked remote source supplies child resources with working source links
+  and the same collapse/expand controls as local modules. Unavailable source is explained explicitly,
+  and graph refreshes respect the user's collapsed state.
+- **Resource containers (stage 4):** containers reflect the agreed containment rules, including nested
+  containers, remain distinct from modules, and stay legible in themes and exports with editing
+  disabled.
 
 Use focused language-server and extension tests for source edits and gates; Vitest for graph
 metadata, layout, and history; and Playwright for viewer compatibility, pointer/keyboard
@@ -232,4 +310,12 @@ interactions, theme/export, and source/visual undo scenarios.
 2. Should "Match VS Code theme" become the default or remain optional after contrast/export testing?
 3. If a module drop introduces edges or child nodes, when is limited reflow acceptable versus an
    explicit Tidy Layout prompt?
-4. If Favorites are added, are they user-wide or workspace-specific?
+4. Should Recent persist beyond the designer session, and if Favorites are added, are both
+   user-wide or workspace-specific?
+5. Does a compact container with a centered package icon communicate a collapsed module clearly?
+   Confirm the module label, expansion affordance, focus styling, and relationship to the expanded
+   boundary before choosing the final design.
+6. Should module collapse state be session-local or persisted, and should toggles participate in
+   the designer's visual undo history?
+7. Which resource types and source relationships define containment, and how should resource
+   containers look? Evaluate dashed borders without committing to them before design review.

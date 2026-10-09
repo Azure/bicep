@@ -5,6 +5,7 @@ import { LanguageClient } from "vscode-languageclient/node";
 import { DiagnosticsRouter } from "../../infrastructure/language-client";
 import { Disposable } from "../../infrastructure/lifecycle";
 import { getLogger } from "../../infrastructure/logging";
+import { colorThemeSetting } from "./color-theme-setting";
 import { resourceEditingSetting } from "./resource-editing-setting";
 import { BicepVisualizerView } from "./visualizer-view";
 
@@ -30,7 +31,8 @@ export class BicepVisualizerViewManager extends Disposable implements WebviewPan
       workspace.onDidChangeConfiguration((event) => {
         if (
           event.affectsConfiguration("workbench.reduceMotion") ||
-          event.affectsConfiguration(`bicep.${resourceEditingSetting}`)
+          event.affectsConfiguration(`bicep.${resourceEditingSetting}`) ||
+          event.affectsConfiguration(`bicep.${colorThemeSetting}`)
         ) {
           for (const view of this.viewsByPath.values()) {
             view.notifySettingsDidChange();

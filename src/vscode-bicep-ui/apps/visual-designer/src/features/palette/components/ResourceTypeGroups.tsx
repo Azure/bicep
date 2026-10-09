@@ -80,7 +80,7 @@ export const PaletteMessage = styled.div`
   text-align: center;
 `;
 
-export const PaletteRetry = styled.button`
+export const PaletteAction = styled.button`
   margin-left: 6px;
   padding: 1px 6px;
   border: 1px solid var(--vscode-button-border, transparent);

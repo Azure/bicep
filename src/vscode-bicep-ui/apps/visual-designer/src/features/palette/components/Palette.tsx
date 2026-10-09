@@ -3,9 +3,11 @@
 
 import type { PaletteDragState } from "../atoms";
 
+import { useSetAtom } from "jotai";
 import { useCallback } from "react";
 import { styled } from "styled-components";
 import { useCanvasDropTarget } from "@/features/canvas";
+import { recordRecentResourceTypeAtom } from "../atoms";
 import { usePaletteDrag } from "../hooks/use-palette-drag";
 import { useResourceTypeCatalog } from "../hooks/use-resource-type-catalog";
 import { PaletteContent } from "./PaletteContent";
@@ -35,12 +37,14 @@ const $PalettePopover = styled.aside`
 export function Palette({ isOpen }: { isOpen: boolean }) {
   const { dropResourceAt, canDropResourceAt } = useCanvasDropTarget();
   const { catalogId, groups, error, loadVersions, refresh } = useResourceTypeCatalog();
+  const recordRecentResourceType = useSetAtom(recordRecentResourceTypeAtom);
 
   const placeResource = useCallback(
     (resourceType: PaletteDragState["item"], clientX: number, clientY: number) => {
+      recordRecentResourceType(resourceType.fullyQualifiedType);
       void dropResourceAt(resourceType, { x: clientX, y: clientY });
     },
-    [dropResourceAt],
+    [dropResourceAt, recordRecentResourceType],
   );
 
   const { startDrag, previewRef, positionRef } = usePaletteDrag(canDropResourceAt, placeResource);

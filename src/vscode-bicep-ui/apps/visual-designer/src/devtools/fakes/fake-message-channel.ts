@@ -55,6 +55,7 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
   private catalogRevision = 0;
   private versionRequestCount = 0;
   private targetScope: TargetScope = "resourceGroup";
+  private colorThemeMatched = new URLSearchParams(window.location.search).get("matchColorTheme") === "true";
   /** Set by `skipGraphUpdateAfterUndo`: graph updates omit an undone creation until the graph changes again. */
   private isWithholdingUndoneRemoval = false;
   private readonly notificationSubscriptions: Record<string, Set<WebviewNotificationCallback>> = {};
@@ -234,12 +235,7 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
 
   sendNotification(notificationMessage: WebviewNotificationMessage) {
     if (notificationMessage.method === ready.method) {
-      const params = new URLSearchParams(window.location.search);
-      const motionPolicy = params.get("motionPolicy");
-      this.dispatchNotification(settingsDidChange.method, {
-        motionPolicy: motionPolicy === "reduce" || motionPolicy === "system" ? motionPolicy : "animate",
-        isResourceEditingEnabled: params.get("resourceEditing") !== "false",
-      } satisfies Settings);
+      this.sendSettings();
       // Simulate async response from the extension host:
       // after a short delay, present the sample deployment graph.
       setTimeout(() => {
@@ -281,6 +277,26 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
   changeCatalog() {
     this.catalogRevision++;
     this.pushGraph(this.currentGraph);
+  }
+
+  isColorThemeMatched(): boolean {
+    return this.colorThemeMatched;
+  }
+
+  /** Simulate changing `bicep.visualizer.matchColorTheme`. */
+  setColorThemeMatched(matched: boolean) {
+    this.colorThemeMatched = matched;
+    this.sendSettings();
+  }
+
+  private sendSettings() {
+    const params = new URLSearchParams(window.location.search);
+    const motionPolicy = params.get("motionPolicy");
+    this.dispatchNotification(settingsDidChange.method, {
+      motionPolicy: motionPolicy === "reduce" || motionPolicy === "system" ? motionPolicy : "animate",
+      isResourceEditingEnabled: params.get("resourceEditing") !== "false",
+      isColorThemeMatched: this.colorThemeMatched,
+    } satisfies Settings);
   }
 
   /** Simulate the extension host announcing that the graph may have changed. */

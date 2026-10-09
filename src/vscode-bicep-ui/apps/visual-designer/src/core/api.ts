@@ -37,6 +37,11 @@ export interface Settings {
    * that edits Bicep source; the host rechecks it before applying any edit.
    */
   isResourceEditingEnabled: boolean;
+  /**
+   * The `bicep.visualizer.matchColorTheme` setting: color the designer with the active VS Code color
+   * theme's colors instead of the curated palette for its theme kind. Appearance only.
+   */
+  isColorThemeMatched: boolean;
 }
 
 export const settingsDidChange = defineNotification<Settings>("settings/didChange");

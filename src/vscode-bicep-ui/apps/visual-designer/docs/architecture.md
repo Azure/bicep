@@ -182,12 +182,21 @@ only durable source of truth.
 - The palette loads the whole catalog in one `resourceTypes/list` request, `{ knownCatalogId? }` →
   `{ catalogId, resourceTypes }`, and groups it by provider namespace itself. After a document change
   it sends the `catalogId` it holds, and the host resends the types (about 2,300) only when the catalog
-  changed. Browsing puts a curated set of common providers first (compute,
+  changed. Search results put a curated set of common providers first (compute,
   networking, storage, app hosting, containers, secrets, identity and authorization, deployments,
-  databases, caching, AI services, monitoring, and messaging), then lists other `Microsoft.*`
-  namespaces alphabetically, followed by non-Microsoft namespaces alphabetically. Search results
-  keep that order.
+  databases, caching, AI services, monitoring, and messaging), then list other `Microsoft.*`
+  namespaces alphabetically, followed by non-Microsoft namespaces alphabetically. The Featured view
+  shows only the curated providers, in the same order.
 - Search filters the loaded catalog locally, matching the fully qualified type name.
+- Browsing offers three views, as a tab list below the search box: **Featured** shows only the
+  curated common providers in that order, **Recent** shows a flat list of types dropped onto the
+  canvas this session (newest first, at most eight, each labeled with its provider), and **All**
+  shows every provider, Microsoft providers first and each alphabetically. Arrow keys, Home, and End
+  move between tabs. The view is a palette atom, so it survives closing the palette; each grouped
+  view keeps its own expanded groups until the catalog changes. A drop is recorded as recent when
+  the canvas accepts it. Recent shows only types the current catalog offers, at the catalog's
+  default version and the shared version choice. Search ignores the view and hides the tabs; when
+  no featured provider offers types (for example at tenant scope), Featured links to All.
 - Catalog responses carry a `catalogId`; stale responses are discarded.
 - The host supplies a newest-stable default API version (newest preview when preview-only).
 - Focusing or opening a row's version pill requests `resourceTypes/versions` with
@@ -323,6 +332,46 @@ still request layout, and Reset Graph Layout may move the node later.
 
 Placement and pending state last for the visualizer session only.
 
+## Theme
+
+The webview follows the host theme through two inputs VS Code provides: the theme kind on `<body>`
+(`data-vscode-theme-kind`, plus `data-vscode-theme-id`) and every workbench color as a `--vscode-*`
+CSS variable on `<html>`. [atoms.ts](../src/ui/theme/atoms.ts) observes both and derives
+`activeThemeAtom`; an unrelated style change does not produce a new theme object.
+
+- By default the theme is the curated palette for the kind
+  ([themes.ts](../src/ui/theme/themes.ts)): light, dark, high contrast, or high contrast light.
+- With `bicep.visualizer.matchColorTheme` on, [color-theme.ts](../src/ui/theme/color-theme.ts)
+  builds the theme from about twenty theme colors: the editor background for the canvas, the editor
+  foreground for text, focus and link colors for accents, chart colors for modules and success,
+  error colors, and toolbar and scrollbar colors. Translucent colors are composited into solid
+  surfaces. `descriptionForeground` is not used: nearly every theme leaves it at the workbench's
+  default gray.
+- The canvas is the editor background, so the designer matches the editor beside it. Cards and
+  floating chrome are a lighter shade of it in OKLCH with the same hue, aiming for the curated
+  card-to-canvas contrast. Near white the sRGB gamut narrows, so a tinted background lightens only
+  while its shade keeps 75% of its chroma: Solarized Light's `#fdf6e3` gets `#fffaec` cards, still
+  cream rather than white. Neutral backgrounds lighten all the way to white, and a pure white
+  background (Light Modern) leaves white cards on a white canvas. The card border becomes firmer in
+  proportion to the separation cards could not reach. Dark themes lighten the same way, which keeps
+  cards navy on Ayu Dark and teal on Solarized Dark rather than tinting them toward a gray text color.
+  Edges and the dot grid keep the curated separation from the canvas.
+- Each text and accent color must reach a WCAG contrast minimum (4.5:1 text and 3:1 graphics, or
+  7:1 and 4.5:1 in high contrast) against cards and canvas. A theme color that falls short is
+  darkened (or, on dark surfaces, lightened) just enough, keeping its hue; only one that would need
+  more than a 30% push is given up for the next theme color and then the curated one. Primary text
+  is strengthened along its hue to at least 7:1, as Solarized's emphasized text is, so secondary
+  text such as the resource type can fade from it toward the card (up to 40%) while keeping 4.5:1
+  and the theme's text hue. Contrast is measured on the 8-bit colors that render. Shadows, border
+  widths, and other depth tokens stay curated, and high-contrast themes use their editor background
+  for every surface and their contrast borders for cards and edges. Without an editor background
+  (outside VS Code) the curated palette is used unchanged.
+- The setting reaches the webview in `settings/didChange` as `isColorThemeMatched`. `ui` cannot
+  read core settings, so `AppEnvironment` copies it into the theme's `isColorThemeMatchedAtom` in a
+  layout effect before paint. It is appearance only and independent of resource editing.
+- Export's "Current" option captures the active (possibly matched) theme; explicit theme choices
+  always use the curated palettes.
+
 ## State ownership
 
 | Area            | State                                                                                 |
@@ -330,7 +379,7 @@ Placement and pending state last for the visualizer session only.
 | Core            | Client graph, graph facts, pending resources and removals, undo history, coordination |
 | Canvas          | The rendered surface and its drop target                                              |
 | Dock            | Creation tools and palette launcher                                                   |
-| Palette         | Catalog, search, drag state, and preview                                              |
+| Palette         | Catalog, search, browsing view, recent types, drag state, and preview                 |
 | Export          | Export options, preview visibility, target element, and progress                      |
 | Status          | User-facing graph status, derived from core graph facts                               |
 | App environment | Jotai store, message channel, theme, and mounting the core host syncs                 |
@@ -394,7 +443,9 @@ Both are timing-dependent and have not been reproduced on demand.
 - Language-server tests cover graph building, topology checks, layout, catalog behavior, naming,
   source generation, insertion, and replay.
 - Extension tests cover forwarding, settings, document version checks, and edit application.
-- Vitest covers webview atoms, graph model/layout behavior, mixed undo history, export state, and
-  coordinator ordering.
-- Playwright covers graph interaction, export, palette behavior, loading, search, pointer placement,
-  drop rejection, drag-only creation, flag-off viewing, and local layout undo/redo.
+- Vitest covers webview atoms, graph model/layout behavior, mixed undo history, export state,
+  coordinator ordering, color parsing and contrast, and color-theme derivation against every
+  built-in VS Code theme.
+- Playwright covers graph interaction, export, palette behavior and views, loading, search, pointer
+  placement, drop rejection, drag-only creation, flag-off viewing, color-theme matching, and local
+  layout undo/redo.

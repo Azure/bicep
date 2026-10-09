@@ -23,6 +23,7 @@ import { LanguageClient } from "vscode-languageclient/node";
 import { parseError } from "../../infrastructure/errors";
 import { Disposable } from "../../infrastructure/lifecycle";
 import { getLogger } from "../../infrastructure/logging";
+import { isColorThemeMatched } from "./color-theme-setting";
 import { getVisualizerMotionPolicy } from "./motion-policy";
 import {
   visualGraphLayoutRequestType,
@@ -129,6 +130,7 @@ export class BicepVisualizerView extends Disposable {
     const settings: VisualizerSettings = {
       motionPolicy: getVisualizerMotionPolicy(),
       isResourceEditingEnabled: isResourceEditingEnabled(),
+      isColorThemeMatched: isColorThemeMatched(),
     };
     void this.webviewPanel.webview
       .postMessage({ method: "settings/didChange", params: settings })

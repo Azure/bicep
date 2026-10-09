@@ -1,16 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import type { PointerEvent } from "react";
+import type { PointerEvent, ReactNode } from "react";
 import type { ResourceTypeReference } from "@/core";
 import type { ResourceTypeGroup } from "../types";
 
-import { useState } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
+import { useCallback, useMemo, useState } from "react";
 import { OverlayScrollArea } from "@/ui";
+import { paletteViewAtom, recentResourceTypesAtom } from "../atoms";
 import { PaletteScrollRootContext } from "../hooks/use-progressive-budget";
 import { useResourceTypeSearch } from "../hooks/use-resource-type-search";
+import { allResourceTypeGroups, featuredResourceTypeGroups, findResourceTypes } from "../resource-type-groups";
 import { PaletteControls } from "./PaletteControls";
-import { PaletteMessage, PaletteRetry, ResourceTypeGroups } from "./ResourceTypeGroups";
+import { PALETTE_VIEW_PANEL_ID, paletteViewTabId, PaletteViewTabs } from "./PaletteViewTabs";
+import { RecentResourceTypes } from "./RecentResourceTypes";
+import { PaletteAction, PaletteMessage, ResourceTypeGroups } from "./ResourceTypeGroups";
 
 export interface PaletteContentProps {
   catalogId?: string;
@@ -19,6 +24,13 @@ export interface PaletteContentProps {
   loadVersions: (fullyQualifiedType: string) => Promise<string[]>;
   onRetry: () => void;
   onResourceTypePointerDown?: (resourceType: ResourceTypeReference, event: PointerEvent<HTMLElement>) => void;
+}
+
+/** Which groups are expanded in each grouped view, for one catalog. */
+interface BrowseExpansion {
+  catalogId?: string;
+  featured: readonly string[];
+  all: readonly string[];
 }
 
 export function PaletteContent({
@@ -30,22 +42,87 @@ export function PaletteContent({
   onResourceTypePointerDown,
 }: PaletteContentProps) {
   const search = useResourceTypeSearch(groups);
+  const view = useAtomValue(paletteViewAtom);
+  const setView = useSetAtom(paletteViewAtom);
+  const recentTypes = useAtomValue(recentResourceTypesAtom);
   const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
   // Browsing starts with every group collapsed, and again whenever the catalog changes.
-  const [browseExpansion, setBrowseExpansion] = useState<{ catalogId?: string; groups: readonly string[] }>({
-    groups: [],
-  });
-  const browseExpandedGroups = browseExpansion.catalogId === catalogId ? browseExpansion.groups : [];
+  const [browseExpansion, setBrowseExpansion] = useState<BrowseExpansion>({ featured: [], all: [] });
+  const groupedView = view === "recent" ? undefined : view;
+  const expandedGroups = groupedView && browseExpansion.catalogId === catalogId ? browseExpansion[groupedView] : [];
+  const setExpandedGroups = useCallback(
+    (expanded: readonly string[]) => {
+      if (groupedView) {
+        setBrowseExpansion((current) => ({
+          ...(current.catalogId === catalogId ? current : { featured: [], all: [] }),
+          catalogId,
+          [groupedView]: expanded,
+        }));
+      }
+    },
+    [catalogId, groupedView],
+  );
+  const showAll = useCallback(() => setView("all"), [setView]);
+
+  const viewGroups = useMemo(
+    () =>
+      !groups || !groupedView
+        ? []
+        : groupedView === "featured"
+          ? featuredResourceTypeGroups(groups)
+          : allResourceTypeGroups(groups),
+    [groupedView, groups],
+  );
+  const recentResourceTypes = useMemo(
+    () => (groups && view === "recent" ? findResourceTypes(groups, recentTypes) : []),
+    [groups, recentTypes, view],
+  );
+
+  let browseContent: ReactNode;
+  if (view === "recent") {
+    browseContent =
+      recentResourceTypes.length === 0 ? (
+        <PaletteMessage>Resource types you drag onto the canvas appear here.</PaletteMessage>
+      ) : (
+        <RecentResourceTypes
+          resourceTypes={recentResourceTypes}
+          loadVersions={loadVersions}
+          onResourceTypePointerDown={onResourceTypePointerDown}
+        />
+      );
+  } else if (viewGroups.length === 0) {
+    browseContent = (
+      <PaletteMessage>
+        No featured providers offer resource types for this file.
+        <PaletteAction onClick={showAll}>Show all</PaletteAction>
+      </PaletteMessage>
+    );
+  } else {
+    browseContent = (
+      <ResourceTypeGroups
+        groups={viewGroups}
+        expandedGroups={expandedGroups}
+        setExpandedGroups={setExpandedGroups}
+        budgetKey={`${view}:${catalogId}`}
+        keepHeadersMounted
+        loadVersions={loadVersions}
+        onResourceTypePointerDown={onResourceTypePointerDown}
+      />
+    );
+  }
 
   return (
     <>
-      <PaletteControls query={search.query} setQuery={search.setQuery} showProgress={!groups && !error} />
+      <PaletteControls query={search.query} setQuery={search.setQuery} showProgress={!groups && !error}>
+        {/* Search covers the whole catalog, so the views apply only while browsing. */}
+        {!search.isSearching && <PaletteViewTabs />}
+      </PaletteControls>
       <OverlayScrollArea viewportRef={setScrollRoot} viewportTestId="resource-palette-list">
         <PaletteScrollRootContext.Provider value={scrollRoot}>
           {error ? (
             <PaletteMessage>
               Failed to load resource types.
-              <PaletteRetry onClick={onRetry}>Retry</PaletteRetry>
+              <PaletteAction onClick={onRetry}>Retry</PaletteAction>
             </PaletteMessage>
           ) : !catalogId || !groups ? (
             <PaletteMessage>Loading resource types...</PaletteMessage>
@@ -66,15 +143,9 @@ export function PaletteContent({
           ) : groups.length === 0 ? (
             <PaletteMessage>No resource types available.</PaletteMessage>
           ) : (
-            <ResourceTypeGroups
-              groups={groups}
-              expandedGroups={browseExpandedGroups}
-              setExpandedGroups={(expanded) => setBrowseExpansion({ catalogId, groups: expanded })}
-              budgetKey={`browse:${catalogId}`}
-              keepHeadersMounted
-              loadVersions={loadVersions}
-              onResourceTypePointerDown={onResourceTypePointerDown}
-            />
+            <div role="tabpanel" id={PALETTE_VIEW_PANEL_ID} aria-labelledby={paletteViewTabId(view)}>
+              {browseContent}
+            </div>
           )}
         </PaletteScrollRootContext.Provider>
       </OverlayScrollArea>

@@ -31,6 +31,7 @@ const host = vi.hoisted(() => ({
     positionAt: (offset: number) => ({ line: 0, character: offset }),
   },
   resourceEditingEnabled: true,
+  colorThemeMatched: true,
   error: vi.fn(),
 }));
 
@@ -110,6 +111,10 @@ vi.mock("../resource-editing-setting", () => ({
   isResourceEditingEnabled: () => host.resourceEditingEnabled,
 }));
 
+vi.mock("../color-theme-setting", () => ({
+  isColorThemeMatched: () => host.colorThemeMatched,
+}));
+
 vi.mock("../../../infrastructure/logging", () => ({
   getLogger: () => ({ error: host.error, debug: vi.fn(), warn: vi.fn() }),
 }));
@@ -121,6 +126,7 @@ describe("visualizer palette host requests", () => {
     vi.clearAllMocks();
     host.sendRequest.mockReset();
     host.resourceEditingEnabled = true;
+    host.colorThemeMatched = true;
     host.document.version = 1;
     host.document.isClosed = false;
     host.document.text = "base";
@@ -491,7 +497,20 @@ describe("visualizer palette host requests", () => {
 
     expect(host.postMessage).toHaveBeenCalledWith({
       method: "settings/didChange",
-      params: { motionPolicy: "reduce", isResourceEditingEnabled: true },
+      params: { motionPolicy: "reduce", isResourceEditingEnabled: true, isColorThemeMatched: true },
+    });
+  });
+
+  it("resends the settings when one changes", () => {
+    host.receiveMessage?.({ method: "webview/ready" });
+    host.postMessage.mockClear();
+    host.colorThemeMatched = false;
+
+    view.notifySettingsDidChange();
+
+    expect(host.postMessage).toHaveBeenCalledWith({
+      method: "settings/didChange",
+      params: { motionPolicy: "reduce", isResourceEditingEnabled: true, isColorThemeMatched: false },
     });
   });
 
