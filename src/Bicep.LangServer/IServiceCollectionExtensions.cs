@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.IO.Abstractions;
+using System.Net;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
@@ -59,6 +60,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>()
         .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>()
         .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
+        .AddSingleton<IAvmModuleDisplayNameProvider, AvmModuleDisplayNameProvider>()
         .AddSingleton<IDeploymentHelper, DeploymentHelper>()
         .AddSingleton<ISettingsProvider, SettingsProvider>()
         .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>()
@@ -66,5 +68,18 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IVisualResourceTypeCatalogService, VisualResourceTypeCatalogService>()
             .AddSingleton<IVisualResourceEditingService, VisualResourceEditingService>()
         .AddSingleton(bicepLangServerOptions)
-        .AddSingleton<DocumentSelectorFactory>();
+        .AddSingleton<DocumentSelectorFactory>()
+        .AddAvmModuleDisplayNameServices();
+
+    private static IServiceCollection AddAvmModuleDisplayNameServices(this IServiceCollection services)
+    {
+        services
+            .AddHttpClient<IAvmModuleCsvIndexHttpClient, AvmModuleCsvIndexHttpClient>()
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+            });
+
+        return services;
+    }
 }
