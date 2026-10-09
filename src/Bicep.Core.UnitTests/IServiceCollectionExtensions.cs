@@ -69,6 +69,9 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithBicepVersion(this IServiceCollection services, string version, string? commitRef = null)
         => WithEnvironment(services, TestEnvironment.Default.WithVersion(version, commitRef));
 
+    public static IServiceCollection WithCompilerVersionCheckOptions(this IServiceCollection services, CompilerVersionCheckOptions compilerVersionCheckOptions)
+        => Register(services, compilerVersionCheckOptions);
+
     public static IServiceCollection WithEnvironment(this IServiceCollection services, IEnvironment environment)
         => Register(services, environment);
 

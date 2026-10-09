@@ -86,6 +86,9 @@ public static class ServiceBuilderExtensions
     public static ServiceBuilder WithBicepVersion(this ServiceBuilder serviceBuilder, string version, string? commitRef = null)
         => serviceBuilder.WithRegistration(x => x.WithBicepVersion(version, commitRef));
 
+    public static ServiceBuilder WithCompilerVersionCheckOptions(this ServiceBuilder serviceBuilder, CompilerVersionCheckOptions compilerVersionCheckOptions)
+        => serviceBuilder.WithRegistration(x => x.WithCompilerVersionCheckOptions(compilerVersionCheckOptions));
+
     public static ServiceBuilder WithFileSystem(this ServiceBuilder serviceBuilder, IFileSystem fileSystem)
         => serviceBuilder.WithRegistration(x => x.WithFileSystem(fileSystem));
 

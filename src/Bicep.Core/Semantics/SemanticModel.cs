@@ -58,13 +58,14 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
 
-        public SemanticModel(IBicepAnalyzer linterAnalyzer, INamespaceProvider namespaceProvider, IArtifactReferenceFactory artifactReferenceFactory, ISemanticModelLookup modelLookup, SourceFileGrouping sourceFileGrouping, IEnvironment environment, BicepSourceFile sourceFile)
+        public SemanticModel(IBicepAnalyzer linterAnalyzer, INamespaceProvider namespaceProvider, IArtifactReferenceFactory artifactReferenceFactory, ISemanticModelLookup modelLookup, SourceFileGrouping sourceFileGrouping, IEnvironment environment, BicepSourceFile sourceFile, CompilerVersionCheckOptions compilerVersionCheckOptions)
         {
             this.ArtifactReferenceFactory = artifactReferenceFactory;
             this.ModelLookup = modelLookup;
             this.SourceFileGrouping = sourceFileGrouping;
             this.SourceFile = sourceFile;
             this.Environment = environment;
+            this.CompilerVersionCheckOptions = compilerVersionCheckOptions;
             this.Features = sourceFile.LoadFeatures();
             this.Configuration = sourceFile.LoadConfiguration();
             TraceBuildOperation(sourceFile, Features, Configuration);
@@ -234,6 +235,8 @@ namespace Bicep.Core.Semantics
 
         public IEnvironment Environment { get; }
 
+        public CompilerVersionCheckOptions CompilerVersionCheckOptions { get; }
+
         public BicepSourceFileKind SourceFileKind => this.SourceFile.FileKind;
 
         public IBicepConfiguration Configuration { get; }
@@ -343,7 +346,7 @@ namespace Bicep.Core.Semantics
             // chain), falling back to the leaf config's URI defensively if that couldn't be determined.
             var configFileUri = this.Configuration.Compiler.DeclaringConfigUri ?? this.Configuration.ConfigFileUri;
 
-            if (CompilerVersionValidator.Validate(this.Configuration.Compiler.Version, this.Environment.CurrentVersion.Version, configFileUri) is { } diagnostic)
+            if (CompilerVersionValidator.Validate(this.Configuration.Compiler.Version, this.Environment.CurrentVersion.Version, configFileUri, this.CompilerVersionCheckOptions.ConstraintViolationLevel) is { } diagnostic)
             {
                 return [diagnostic];
             }

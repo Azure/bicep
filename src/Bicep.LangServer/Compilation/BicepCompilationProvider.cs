@@ -3,7 +3,6 @@
 using System.Collections.Immutable;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
-using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
@@ -28,6 +27,7 @@ namespace Bicep.LanguageServer.Compilation
         private readonly IFileExplorer fileExplorer;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly ISourceFileFactory sourceFileFactory;
+        private readonly CompilerVersionCheckOptions compilerVersionCheckOptions;
 
         public BicepCompilationProvider(
             IEnvironment environment,
@@ -35,7 +35,8 @@ namespace Bicep.LanguageServer.Compilation
             IFileExplorer fileExplorer,
             IModuleDispatcher moduleDispatcher,
             IBicepAnalyzer bicepAnalyzer,
-            ISourceFileFactory sourceFileFactory)
+            ISourceFileFactory sourceFileFactory,
+            CompilerVersionCheckOptions compilerVersionCheckOptions)
         {
             this.environment = environment;
             this.namespaceProvider = namespaceProvider;
@@ -43,6 +44,7 @@ namespace Bicep.LanguageServer.Compilation
             this.moduleDispatcher = moduleDispatcher;
             this.bicepAnalyzer = bicepAnalyzer;
             this.sourceFileFactory = sourceFileFactory;
+            this.compilerVersionCheckOptions = compilerVersionCheckOptions;
         }
 
         public CompilationContext Create(
@@ -84,7 +86,8 @@ namespace Bicep.LanguageServer.Compilation
                 bicepAnalyzer,
                 moduleDispatcher,
                 sourceFileFactory,
-                modelLookup);
+                modelLookup,
+                compilerVersionCheckOptions);
 
             return new(compilation);
         }

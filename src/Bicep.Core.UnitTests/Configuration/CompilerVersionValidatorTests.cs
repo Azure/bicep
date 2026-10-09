@@ -18,7 +18,7 @@ public class CompilerVersionValidatorTests
     [TestMethod]
     public void Validate_NoConstraint_ReturnsNull()
     {
-        CompilerVersionValidator.Validate(constraint: null, runningVersion: "1.2.3", configFileUri: ConfigFileUri).Should().BeNull();
+        CompilerVersionValidator.Validate(constraint: null, runningVersion: "1.2.3", configFileUri: ConfigFileUri, constraintViolationLevel: DiagnosticLevel.Error).Should().BeNull();
     }
 
     [DataTestMethod]
@@ -28,7 +28,7 @@ public class CompilerVersionValidatorTests
     [DataRow("<2.0.0", "1.2.3")]
     public void Validate_SatisfiedConstraint_ReturnsNull(string constraint, string runningVersion)
     {
-        CompilerVersionValidator.Validate(VersionRange.Parse(constraint), runningVersion, ConfigFileUri).Should().BeNull();
+        CompilerVersionValidator.Validate(VersionRange.Parse(constraint), runningVersion, ConfigFileUri, DiagnosticLevel.Error).Should().BeNull();
     }
 
     [DataTestMethod]
@@ -40,7 +40,7 @@ public class CompilerVersionValidatorTests
     {
         var parsedConstraint = VersionRange.Parse(constraint);
 
-        var diagnostic = CompilerVersionValidator.Validate(parsedConstraint, runningVersion, ConfigFileUri);
+        var diagnostic = CompilerVersionValidator.Validate(parsedConstraint, runningVersion, ConfigFileUri, DiagnosticLevel.Error);
 
         diagnostic.Should().NotBeNull();
         diagnostic!.Level.Should().Be(DiagnosticLevel.Error);
@@ -50,11 +50,25 @@ public class CompilerVersionValidatorTests
     }
 
     [TestMethod]
+    public void Validate_ViolatedConstraint_UsesSpecifiedConstraintViolationLevel()
+    {
+        // The caller (the language server) can request BCP456 be created as a Warning instead of
+        // the CLI's default Error, so that it doesn't fail compilation / cascade into referencing files.
+        var parsedConstraint = VersionRange.Parse(">=2.0.0");
+
+        var diagnostic = CompilerVersionValidator.Validate(parsedConstraint, "1.0.0", ConfigFileUri, DiagnosticLevel.Warning);
+
+        diagnostic.Should().NotBeNull();
+        diagnostic!.Level.Should().Be(DiagnosticLevel.Warning);
+        diagnostic.Code.Should().Be("BCP456");
+    }
+
+    [TestMethod]
     public void Validate_ViolatedConstraint_WithBuiltInConfig_ReferencesBuiltInConfigInMessage()
     {
         var parsedConstraint = VersionRange.Parse(">=2.0.0");
 
-        var diagnostic = CompilerVersionValidator.Validate(parsedConstraint, "1.0.0", configFileUri: null);
+        var diagnostic = CompilerVersionValidator.Validate(parsedConstraint, "1.0.0", configFileUri: null, constraintViolationLevel: DiagnosticLevel.Error);
 
         diagnostic.Should().NotBeNull();
         diagnostic!.Message.Should().Be(
@@ -64,12 +78,11 @@ public class CompilerVersionValidatorTests
     [TestMethod]
     public void Validate_UnparsableRunningVersion_ReturnsWarningDiagnostic()
     {
-        // the running version should always be parsable (comes from
-        // AssemblyInformationalVersion), but if it somehow isn't, we should not block compilation - we should
-        // just warn that the constraint could not be checked.
+        // This path always returns BCP457 at Warning level; constraintViolationLevel only governs BCP456,
+        // so passing Error here has no effect.
         var parsedConstraint = VersionRange.Parse(">=1.0.0");
 
-        var diagnostic = CompilerVersionValidator.Validate(parsedConstraint, "not-a-version", ConfigFileUri);
+        var diagnostic = CompilerVersionValidator.Validate(parsedConstraint, "not-a-version", ConfigFileUri, DiagnosticLevel.Error);
 
         diagnostic.Should().NotBeNull();
         diagnostic!.Level.Should().Be(DiagnosticLevel.Warning);

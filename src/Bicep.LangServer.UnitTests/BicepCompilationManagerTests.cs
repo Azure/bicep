@@ -522,7 +522,8 @@ module moduleB './moduleB.bicep' = {
                 fileExplorer,
                 services.Construct<IModuleDispatcher>(),
                 BicepTestConstants.LinterAnalyzer,
-                BicepTestConstants.SourceFileFactory);
+                BicepTestConstants.SourceFileFactory,
+                CompilerVersionCheckOptions.Default);
 
             var compilationManager = new BicepCompilationManager(
                 server.Object,
