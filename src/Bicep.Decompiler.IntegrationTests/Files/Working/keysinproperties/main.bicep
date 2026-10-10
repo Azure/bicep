@@ -147,3 +147,4 @@ resource sftpContainerGroup 'Microsoft.ContainerInstance/containerGroups@2019-12
 }
 
 output containerIPv4Address string = sftpContainerGroup.properties.ipAddress.ip
+
