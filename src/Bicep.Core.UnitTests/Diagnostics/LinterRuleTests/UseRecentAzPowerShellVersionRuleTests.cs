@@ -36,7 +36,7 @@ public class UseRecentAzPowerShellVersionRuleTests : LinterRuleTestsBase
       location: resourceGroup().location
       kind: 'AzurePowerShell'
       properties: {
-        azPowerShellVersion: '11.0'
+        azPowerShellVersion: '15.0'
         scriptContent: 'Write-Output "Hello World"'
         retentionInterval: 'PT1H'
       }
