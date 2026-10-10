@@ -1213,7 +1213,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment script is using AzPowerShell version &apos;{0}&apos; which is below the recommended minimum version &apos;{1}&apos;. Consider upgrading to version 15.0 or higher to avoid EOL Ubuntu 20.04 LTS..
+        ///   Looks up a localized string similar to Deployment script is using AzPowerShell version &apos;{0}&apos; which is below the recommended minimum version &apos;{1}&apos;. Consider upgrading to version {1} or higher to avoid Ubuntu or PowerShell EOL..
         /// </summary>
         internal static string UseRecentAzPowerShellVersionRuleMessageFormat {
             get {
