@@ -27,7 +27,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            var minimumVersionString = GetConfigurationValue(model.Configuration.Analyzers, "minimumVersion", "11.0");
+            var minimumVersionString = GetConfigurationValue(model.Configuration.Analyzers, "minimumVersion", "15.0");
             if (!Version.TryParse(minimumVersionString, out var minimumVersion))
             {
                 // If the version is not valid, emit a diagnostic and skip further analysis
