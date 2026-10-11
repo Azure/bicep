@@ -3,8 +3,8 @@
 
 using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.SemanticVersioning;
 using Bicep.Core.Semantics;
+using Bicep.Core.SemanticVersioning;
 using Bicep.Core.Text;
 
 namespace Bicep.Core.Analyzers.Linter.Rules;
