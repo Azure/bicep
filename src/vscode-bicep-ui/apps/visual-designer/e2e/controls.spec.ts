@@ -157,12 +157,10 @@ test.describe("Control bar", () => {
 
   test("floating panels never show a caret or select text", async ({ page }) => {
     for (const testId of ["control-bar", "history-bar", "creation-dock"]) {
-      const style = await page
-        .getByTestId(testId)
-        .evaluate((element) => ({
-          caret: getComputedStyle(element).caretColor,
-          select: getComputedStyle(element).userSelect,
-        }));
+      const style = await page.getByTestId(testId).evaluate((element) => ({
+        caret: getComputedStyle(element).caretColor,
+        select: getComputedStyle(element).userSelect,
+      }));
 
       expect(style, testId).toEqual({ caret: "rgba(0, 0, 0, 0)", select: "none" });
     }
