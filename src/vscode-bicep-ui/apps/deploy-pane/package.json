@@ -19,14 +19,14 @@
     "@testing-library/user-event": "^14.6.7",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
-    "@vitejs/plugin-react": "^6.1.1",
-    "@vitest/coverage-v8": "^4.1.11",
+    "@vitejs/plugin-react": "^6.1.2",
+    "@vitest/coverage-v8": "^5.0.3",
     "@vscode-elements/webview-playground": "^1.8.0",
     "element-internals-polyfill": "^3.0.2",
-    "happy-dom": "^20.14.3",
-    "vite": "^8.3.0",
+    "happy-dom": "^20.14.6",
+    "vite": "^8.3.4",
     "vite-plugin-ejs": "^2.0.0",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.3"
   },
   "dependencies": {
     "@azure/arm-resourcesdeployments": "^2.0.0",
