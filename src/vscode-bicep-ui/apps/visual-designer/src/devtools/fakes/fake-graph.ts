@@ -4,6 +4,8 @@
 import type { Graph, GraphBounds, GraphNode, LayoutGraphResult, MeasuredGraph, NodePosition } from "@/core";
 import type { SampleGraph, SampleGraphNode } from "./sample-graphs";
 
+import { indexGraph, projectGraph } from "@/core/graph-model";
+
 /**
  * Dev-only stand-ins for the language server's graph and layout requests, so the dev playground can run
  * the graph loop (`documentDidChange` → `graph/get` → `graph/layout`) without an extension or language server.
@@ -90,8 +92,13 @@ function buildFakeLayout(nodes: GraphNode[]): { positions: NodePosition[]; bound
 }
 
 /** Like the language server, refuse to lay out a measured graph whose topology is out of date. */
-export function layoutGraph(measured: MeasuredGraph, sample: SampleGraph | null): LayoutGraphResult {
-  const graph = toGraph(sample);
+export function layoutGraph(
+  measured: MeasuredGraph,
+  sample: SampleGraph | null,
+  collapsedNodeIds: ReadonlySet<string>,
+): LayoutGraphResult {
+  const projected = projectGraph(indexGraph(toGraph(sample)), collapsedNodeIds);
+  const graph: Graph = { nodes: [...projected.nodes.values()], edges: [...projected.edges.values()] };
   const liveNodes = new Map(graph.nodes.map((node) => [node.id, node]));
   const liveEdgeIds = new Set(graph.edges.map((edge) => edge.id));
   const matches =

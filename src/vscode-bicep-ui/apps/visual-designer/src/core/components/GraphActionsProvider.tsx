@@ -29,6 +29,7 @@ export function GraphActionsProvider({ children }: { children: ReactNode }) {
     handleDocumentChange,
     resetGraphLayout,
     createResourceAt,
+    toggleModuleCollapsed,
     handleNodeDragStart,
     handleNodeDragEnd,
     undo,
@@ -40,8 +41,16 @@ export function GraphActionsProvider({ children }: { children: ReactNode }) {
   useUndoRedoShortcuts(undo, redo);
 
   const actions = useMemo<GraphActions>(
-    () => ({ resetGraphLayout, createResourceAt, handleNodeDragStart, handleNodeDragEnd, undo, redo }),
-    [createResourceAt, handleNodeDragEnd, handleNodeDragStart, redo, resetGraphLayout, undo],
+    () => ({
+      resetGraphLayout,
+      createResourceAt,
+      toggleModuleCollapsed,
+      handleNodeDragStart,
+      handleNodeDragEnd,
+      undo,
+      redo,
+    }),
+    [createResourceAt, handleNodeDragEnd, handleNodeDragStart, redo, resetGraphLayout, toggleModuleCollapsed, undo],
   );
 
   return <GraphActionsContext.Provider value={actions}>{children}</GraphActionsContext.Provider>;

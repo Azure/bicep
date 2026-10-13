@@ -3,13 +3,16 @@
 
 import type { EdgeAtomValue } from "../atoms/edges";
 
-import { atom, useStore } from "jotai";
+import { atom, useAtomValue, useStore } from "jotai";
+import { motion } from "motion/react";
 import { useEffect, useMemo, useRef } from "react";
 import { styled, useTheme } from "styled-components";
 import { boxesOverlap, getBoxCenter, getBoxCenterSegmentIntersection } from "@/lib/math";
-import { nodesByIdAtom } from "../atoms";
+import { fadedNodeIdsAtom, nodesByIdAtom } from "../atoms";
 
-const $EdgePath = styled.path`
+const EDGE_FADE_TRANSITION = { duration: 0.1, ease: "easeOut" } as const;
+
+const $EdgePath = styled(motion.path)`
   transition: stroke 180ms ease;
 `;
 
@@ -17,6 +20,8 @@ export function StraightEdge({ fromId, toId }: EdgeAtomValue) {
   const theme = useTheme();
   const ref = useRef<SVGPathElement>(null);
   const store = useStore();
+  const fadedNodeIds = useAtomValue(fadedNodeIdsAtom);
+  const isFaded = fadedNodeIds.has(fromId) || fadedNodeIds.has(toId);
   const edgeSegmentAtom = useMemo(
     () =>
       atom((get) => {
@@ -70,6 +75,10 @@ export function StraightEdge({ fromId, toId }: EdgeAtomValue) {
   return (
     <$EdgePath
       ref={ref}
+      // An edge that appears with a graph change fades in rather than popping into view.
+      initial={{ opacity: 0 }}
+      animate={{ opacity: isFaded ? 0 : 1 }}
+      transition={EDGE_FADE_TRANSITION}
       fill="none"
       stroke={theme.edge.color}
       strokeLinecap="round"

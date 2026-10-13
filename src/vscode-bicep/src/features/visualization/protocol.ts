@@ -40,6 +40,8 @@ export interface VisualGraphLayoutParams {
   textDocument: TextDocumentIdentifier;
   /** The graph the webview rendered, with the size it measured for each node. */
   graph: unknown;
+  /** Module IDs whose descendants are omitted from the measured graph. */
+  collapsedNodeIds: string[];
 }
 
 export interface VisualGraphLayoutResult {

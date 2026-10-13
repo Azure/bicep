@@ -20,6 +20,11 @@ export interface CompoundNodeState {
   childIdsAtom: PrimitiveAtom<string[]>;
   boxAtom: Atom<Box>;
   dataAtom: PrimitiveAtom<unknown>;
+  /**
+   * How far the box has grown from the box it entered with (0) to the box enclosing its children (1).
+   * Always 1 for a compound node created without an entry box.
+   */
+  enterProgressAtom: PrimitiveAtom<number>;
 }
 
 export type NodeState = AtomicNodeState | CompoundNodeState;
@@ -33,6 +38,12 @@ export const nodesByIdAtom = atom<Record<string, NodeState>>({});
  * Set after a node click; cleared after a click on the canvas background.
  */
 export const focusedNodeIdAtom = atom<string | null>(null);
+
+/**
+ * Nodes drawn fully transparent, along with their edges. Adding a node fades it out and removing it
+ * fades it in, so nodes can leave or arrive without popping.
+ */
+export const fadedNodeIdsAtom = atom<ReadonlySet<string>>(new Set<string>());
 
 /**
  * Extracts the parent node ID from a composite `::` delimited ID.
@@ -129,10 +140,14 @@ export function createAtomicNode(id: string, origin: Point, data: unknown): Atom
 /**
  * A container node whose box encloses its children's boxes plus the configured padding. Add it to
  * `nodesByIdAtom`.
+ *
+ * With `enterFrom`, the box starts there instead and grows to enclose the children as
+ * `enterProgressAtom` goes from 0 to 1.
  */
-export function createCompoundNode(id: string, childIds: string[], data: unknown): CompoundNodeState {
+export function createCompoundNode(id: string, childIds: string[], data: unknown, enterFrom?: Box): CompoundNodeState {
   const childIdsAtom = atom(childIds);
-  const boxAtom = atom((get) => {
+  const enterProgressAtom = atom(enterFrom ? 0 : 1);
+  const enclosingBoxAtom = atom((get) => {
     const nodes = get(nodesByIdAtom);
     const { padding } = get(nodeConfigAtom);
     const childBoxes = get(childIdsAtom)
@@ -155,6 +170,21 @@ export function createCompoundNode(id: string, childIds: string[], data: unknown
       max: { x: maxX, y: maxY },
     };
   });
+  const boxAtom = atom((get) => {
+    const box = get(enclosingBoxAtom);
+    const progress = get(enterProgressAtom);
 
-  return { kind: "compound", id, childIdsAtom, boxAtom, dataAtom: atom(data) };
+    if (!enterFrom || progress >= 1) {
+      return box;
+    }
+
+    const lerp = (from: number, to: number) => from + (to - from) * progress;
+
+    return {
+      min: { x: lerp(enterFrom.min.x, box.min.x), y: lerp(enterFrom.min.y, box.min.y) },
+      max: { x: lerp(enterFrom.max.x, box.max.x), y: lerp(enterFrom.max.y, box.max.y) },
+    };
+  });
+
+  return { kind: "compound", id, childIdsAtom, boxAtom, dataAtom: atom(data), enterProgressAtom };
 }

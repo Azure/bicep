@@ -67,6 +67,12 @@ what to mount and whether layout is stale. Only accepted coordinator updates pub
 state; superseded responses and responses overlapping mutations cannot overwrite it. Scope-only
 changes do not invalidate graph layout or adjust zoom.
 
+The webview also holds a session-local set of collapsed module IDs. It projects the authoritative
+graph before rendering: descendants of a collapsed module are omitted, dependencies wholly inside it
+are omitted, and dependencies crossing its boundary terminate at the collapsed module card. The source
+graph is unchanged. Collapse state survives graph refreshes while the same module ID and available
+children remain.
+
 The passive scope indicator is outside the export canvas subtree, like the palette and controls.
 It uses Azure resource-group, subscription-alias, and management-group icons; tenant uses the neutral
 organization Codicon. It stays visible when resource creation is disabled.
@@ -74,8 +80,10 @@ organization Codicon. It stays visible when resource creation is disabled.
 ### Layout contract
 
 `graph/layout` submits a `MeasuredGraph`: node identity and containment, measured node dimensions,
-and edges. Positions are not sent to the server. An `ok` response carries the positions of the nodes
-the engine laid out and the bounds of the whole graph.
+and edges, plus the module IDs collapsed in that projection. Positions are not sent to the server.
+The language server applies the same projection to the live graph before validating topology and
+laying it out. An `ok` response carries the positions of the visible nodes the engine laid out and
+the bounds of the projected graph.
 
 The response status controls the next step:
 
@@ -107,6 +115,15 @@ topology or dimensions differ from the last successful layout input.
 
 - Automatic layout may skip unchanged input and fits the viewport after success.
 - **Reset Graph Layout** bypasses the unchanged-input check and preserves the viewport.
+
+Collapsing a module does not run layout. Its contents and their edges fade out, then the container
+shrinks toward its center into a resource-style card. The card writes its own box on each animation
+tick, because node size measurement lags a frame, so it stays centered and edges follow it. Expanding
+reverses this: the frame grows from the card back around the restored contents, which fade in.
+Descendant positions are cached on collapse and restored on expand; if the card moved while
+collapsed, the restored subtree receives the same translation. The camera and unrelated nodes stay
+fixed. Under reduced motion the frame snaps instead of morphing. Collapse/expand is visual session
+state and is not an undo step.
 
 ### Undo history
 

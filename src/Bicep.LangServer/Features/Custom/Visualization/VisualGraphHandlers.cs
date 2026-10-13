@@ -93,7 +93,10 @@ namespace Bicep.LanguageServer.Features.Custom.Visualization
                 return new VisualGraphLayoutResult(VisualGraphLayoutStatus.GraphChanged, [], null);
             }
 
-            var target = VisualGraphBuilder.Build(context, request.TextDocument.Uri.ToIOUri());
+            var sourceGraph = VisualGraphBuilder.Build(context, request.TextDocument.Uri.ToIOUri());
+            var target = VisualGraphTopology.Project(
+                sourceGraph,
+                request.CollapsedNodeIds?.ToHashSet(StringComparer.Ordinal) ?? new HashSet<string>(StringComparer.Ordinal));
 
             if (!VisualGraphTopology.Matches(request.Graph, target))
             {

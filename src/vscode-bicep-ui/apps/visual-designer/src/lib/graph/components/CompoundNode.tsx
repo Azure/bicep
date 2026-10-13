@@ -4,7 +4,6 @@
 import type { CompoundNodeState } from "../atoms/nodes";
 
 import { useAtomValue, useStore } from "jotai";
-import { frame } from "motion/react";
 import { useContext, useRef } from "react";
 import { translateBox } from "@/lib/math";
 import { nodesByIdAtom } from "../atoms";
@@ -46,13 +45,11 @@ export function CompoundNode({ id, childIdsAtom, boxAtom, dataAtom }: CompoundNo
   });
 
   useBoxUpdate(store, boxAtom, ({ min, max }) => {
-    frame.render(() => {
-      if (ref.current) {
-        ref.current.style.translate = `${min.x}px ${min.y}px`;
-        ref.current.style.width = `${max.x - min.x}px`;
-        ref.current.style.height = `${max.y - min.y}px`;
-      }
-    });
+    if (ref.current) {
+      ref.current.style.translate = `${min.x}px ${min.y}px`;
+      ref.current.style.width = `${max.x - min.x}px`;
+      ref.current.style.height = `${max.y - min.y}px`;
+    }
   });
 
   return (

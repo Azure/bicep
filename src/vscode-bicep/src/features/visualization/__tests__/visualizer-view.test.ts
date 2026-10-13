@@ -171,12 +171,13 @@ describe("visualizer palette host requests", () => {
     const result = { status: "ok", positions: [{ nodeId: "a", x: 0, y: 0 }], bounds: { width: 200, height: 76 } };
     host.sendRequest.mockResolvedValue(result);
 
-    request("graph/layout", { graph });
+    request("graph/layout", { graph, collapsedNodeIds: ["module"] });
 
     await vi.waitFor(() => expect(host.postMessage).toHaveBeenCalledWith({ id: "request-1", result }));
     expect(host.sendRequest).toHaveBeenCalledWith(visualGraphLayoutRequestType, {
       textDocument: { uri: "file:///main.bicep" },
       graph,
+      collapsedNodeIds: ["module"],
     });
   });
 

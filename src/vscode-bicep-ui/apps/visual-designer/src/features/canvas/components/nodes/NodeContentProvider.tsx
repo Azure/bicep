@@ -44,8 +44,12 @@ function CanvasNodeContent({ kind, id, data }: NodeContentRenderProps & { kind: 
 
   return (
     <$NodeContent ref={ref}>
-      {kind === "compound" ? (
-        <ModuleNode id={id} data={data as ModuleNodeProps["data"]} />
+      {(data as { nodeKind?: string }).nodeKind === "module" || kind === "compound" ? (
+        <ModuleNode
+          id={id}
+          variant={kind === "compound" ? "container" : "card"}
+          data={data as ModuleNodeProps["data"]}
+        />
       ) : (
         <ResourceNode id={id} data={data as ResourceNodeProps["data"]} />
       )}

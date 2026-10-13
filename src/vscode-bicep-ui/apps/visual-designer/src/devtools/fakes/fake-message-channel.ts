@@ -139,8 +139,8 @@ export class FakeMessageChannel implements WebviewMessageChannelApi {
     }
 
     if (requestMessage.method === layoutGraphRequest.method) {
-      const { graph } = requestMessage.params as LayoutGraphParams;
-      return Promise.resolve(layoutGraph(graph, this.servedGraph) as T);
+      const { graph, collapsedNodeIds } = requestMessage.params as LayoutGraphParams;
+      return Promise.resolve(layoutGraph(graph, this.servedGraph, new Set(collapsedNodeIds)) as T);
     }
     if (requestMessage.method === createResource.method) {
       if (new URLSearchParams(window.location.search).get("resourceEditing") === "false") {

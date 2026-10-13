@@ -5,7 +5,6 @@ import type { AtomicNodeState } from "../atoms/nodes";
 
 import useResizeObserver from "@react-hook/resize-observer";
 import { useAtomValue, useStore } from "jotai";
-import { frame } from "motion/react";
 import { useContext, useLayoutEffect, useRef } from "react";
 import { translateBox } from "@/lib/math";
 import { focusedNodeIdAtom, getNodeZIndex } from "../atoms/nodes";
@@ -73,11 +72,9 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
   });
 
   useBoxUpdate(store, boxAtom, ({ min }) => {
-    frame.render(() => {
-      if (ref.current) {
-        ref.current.style.translate = `${min.x}px ${min.y}px`;
-      }
-    });
+    if (ref.current) {
+      ref.current.style.translate = `${min.x}px ${min.y}px`;
+    }
   });
 
   return (

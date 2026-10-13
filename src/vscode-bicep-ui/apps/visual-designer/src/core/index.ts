@@ -20,4 +20,5 @@ export {
   targetScopeAtom,
 } from "./atoms";
 export * from "./api";
+export * from "./motion";
 export * from "./types";

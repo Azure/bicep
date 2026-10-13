@@ -12,6 +12,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { layoutReadyAtom, nodesByIdAtom } from "@/lib/graph";
 import { translateBox } from "@/lib/math";
 import { motionPolicyAtom } from "../atoms";
+import { shouldReduceMotion } from "../motion";
 import { applyNodePositions, captureNodePositions } from "../node-positions";
 
 type Store = ReturnType<typeof createStore>;
@@ -21,16 +22,6 @@ const ANIMATION_DURATION_S = 0.6;
 
 function waitForAnimationFrame(): Promise<void> {
   return new Promise((resolve) => requestAnimationFrame(() => resolve()));
-}
-
-function shouldReduceMotion(store: Store): boolean {
-  const policy = store.get(motionPolicyAtom);
-  return (
-    policy === "reduce" ||
-    (policy === "system" &&
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches)
-  );
 }
 
 /**
@@ -97,7 +88,7 @@ export function useApplyGraphLayout() {
       }
 
       stopNodeAnimations();
-      if (shouldReduceMotion(store)) {
+      if (shouldReduceMotion(store.get(motionPolicyAtom))) {
         applyNodePositions(store, positions);
         return;
       }

@@ -168,6 +168,8 @@ export const layoutGraph = defineRequest<LayoutGraphParams, LayoutGraphResult>("
 
 export interface LayoutGraphParams {
   graph: MeasuredGraph;
+  /** Module IDs whose descendants are omitted from the measured graph. */
+  collapsedNodeIds: string[];
 }
 
 /**
@@ -255,7 +257,7 @@ export function useGraphApi() {
   return useMemo(
     () => ({
       getGraph: (sourceSteps: SourceStepReference[]) => channel.request(getGraph, { sourceSteps }),
-      layoutGraph: (graph: MeasuredGraph) => channel.request(layoutGraph, { graph }),
+      layoutGraph: (params: LayoutGraphParams) => channel.request(layoutGraph, params),
       createResource: (params: CreateResourceParams) => channel.request(createResource, params),
       replaySourceStep: (params: ReplaySourceStepParams) => channel.request(replaySourceStep, params),
       revealNode: (nodeId: string) => channel.notify(revealNode, { nodeId }),
