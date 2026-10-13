@@ -2,10 +2,9 @@
 // Licensed under the MIT License.
 
 import { AzureIcon } from "@vscode-bicep-ui/components";
-import { useAtomValue } from "jotai";
 import { motion } from "motion/react";
 import { styled } from "styled-components";
-import { focusedNodeIdAtom } from "@/lib/graph";
+import { useIsNodeFocused } from "@/lib/graph";
 import { EXPAND_TRANSITION } from "@/ui";
 import { camelCaseToWords } from "@/utils";
 import { RESOURCE_NODE_PREVIEW_HEIGHT, RESOURCE_NODE_PREVIEW_WIDTH } from "./ResourceNodePreview";
@@ -131,8 +130,7 @@ export function ResourceNode({ id, data }: ResourceNodeProps) {
   // resourceType "<module>".  Use the folder icon to match the
   // compound module styling.
   const iconType = normalizedResourceType === "<module>" ? "folder" : normalizedResourceType;
-  const focusedNodeId = useAtomValue(focusedNodeIdAtom);
-  const isFocused = focusedNodeId === id;
+  const isFocused = useIsNodeFocused(id);
   const initialCardScaleX = RESOURCE_NODE_PREVIEW_WIDTH / 220;
   const initialCardScaleY = RESOURCE_NODE_PREVIEW_HEIGHT / 76;
   const initialIconScaleX = 18 / (36 * initialCardScaleX);

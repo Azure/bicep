@@ -10,7 +10,7 @@ import { useMemo } from "react";
 import { styled } from "styled-components";
 import { layoutReadyAtom } from "../atoms";
 import { ignoreNodeDrag, NodeDragCallbacksContext } from "../context/NodeDragCallbacksContext";
-import { InnerEdgeLayer, OuterEdgeLayer } from "./EdgeLayer";
+import { EdgeLayer } from "./EdgeLayer";
 import { EdgeMarkerDefs } from "./EdgeMarkerDefs";
 import { NodeLayer } from "./NodeLayer";
 
@@ -42,9 +42,8 @@ export function Graph({ children, onNodeDragStart = ignoreNodeDrag, onNodeDragEn
           <EdgeMarkerDefs />
         </$SharedDefs>
         {children}
-        <OuterEdgeLayer />
+        <EdgeLayer />
         <NodeLayer />
-        <InnerEdgeLayer />
       </$PanZoomTransformed>
     </NodeDragCallbacksContext.Provider>
   );

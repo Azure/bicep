@@ -10,7 +10,7 @@ import { motion } from "motion/react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { styled, useTheme } from "styled-components";
 import { isGraphChangeInProgressAtom, MODULE_MORPH_TRANSITION, useGraphActions } from "@/core";
-import { focusedNodeIdAtom, nodesByIdAtom } from "@/lib/graph";
+import { nodesByIdAtom, useIsNodeFocused } from "@/lib/graph";
 import { ICON_BUTTON_ICON_SIZE, IconButton } from "@/ui";
 
 /** Matches `ResourceNode`, so a collapsed module reads as one more card on the graph. */
@@ -189,10 +189,9 @@ export function ModuleNode({ id, variant, data }: ModuleNodeProps) {
   const frameRef = useRef<HTMLDivElement>(null);
   // Only the mount that replaced the module's other shape morphs; later data updates must not replay it.
   const [morphFrom] = useState(data.morphFrom);
-  const focusedNodeId = useAtomValue(focusedNodeIdAtom);
+  const isFocused = useIsNodeFocused(id);
   const isGraphChangeInProgress = useAtomValue(isGraphChangeInProgressAtom);
   const { toggleModuleCollapsed } = useGraphActions();
-  const isFocused = focusedNodeId === id;
   const isCard = variant === "card";
   const borderWidth = hasError ? theme.node.errorBorderWidth : theme.node.borderWidth;
   const rowHeight = getRowHeight(variant, borderWidth);

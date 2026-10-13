@@ -20,8 +20,16 @@ export function StraightEdge({ fromId, toId }: EdgeAtomValue) {
   const theme = useTheme();
   const ref = useRef<SVGPathElement>(null);
   const store = useStore();
-  const fadedNodeIds = useAtomValue(fadedNodeIdsAtom);
-  const isFaded = fadedNodeIds.has(fromId) || fadedNodeIds.has(toId);
+  // Derived, so fading one node re-renders only its own edges.
+  const isFadedAtom = useMemo(
+    () =>
+      atom((get) => {
+        const fadedNodeIds = get(fadedNodeIdsAtom);
+        return fadedNodeIds.has(fromId) || fadedNodeIds.has(toId);
+      }),
+    [fromId, toId],
+  );
+  const isFaded = useAtomValue(isFadedAtom);
   const edgeSegmentAtom = useMemo(
     () =>
       atom((get) => {

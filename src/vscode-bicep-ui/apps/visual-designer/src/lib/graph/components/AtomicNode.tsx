@@ -4,21 +4,20 @@
 import type { AtomicNodeState } from "../atoms/nodes";
 
 import useResizeObserver from "@react-hook/resize-observer";
-import { useAtomValue, useStore } from "jotai";
+import { useStore } from "jotai";
 import { useContext, useLayoutEffect, useRef } from "react";
 import { translateBox } from "@/lib/math";
-import { focusedNodeIdAtom, getNodeZIndex } from "../atoms/nodes";
 import { NodeDragCallbacksContext } from "../context/NodeDragCallbacksContext";
-import { useBoxUpdate, useDragListener } from "../hooks";
+import { useBoxUpdate, useDragListener, useNodeZIndex } from "../hooks";
 import { BaseNode } from "./BaseNode";
 import { NodeContent } from "./NodeContent";
 
 export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
   const ref = useRef<HTMLDivElement>(null);
   const store = useStore();
-  const focusedNodeId = useAtomValue(focusedNodeIdAtom);
   const { onNodeDragStart, onNodeDragEnd } = useContext(NodeDragCallbacksContext);
-  const zIndex = getNodeZIndex(id, "atomic", focusedNodeId);
+
+  useNodeZIndex(store, ref, id, "atomic");
 
   useLayoutEffect(() => {
     if (!ref.current) {
@@ -78,7 +77,7 @@ export function AtomicNode({ id, boxAtom, dataAtom }: AtomicNodeState) {
   });
 
   return (
-    <BaseNode ref={ref} id={id} kind="atomic" zIndex={zIndex}>
+    <BaseNode ref={ref} id={id} kind="atomic">
       <NodeContent id={id} kind="atomic" dataAtom={dataAtom} />
     </BaseNode>
   );
