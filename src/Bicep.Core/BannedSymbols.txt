@@ -40,9 +40,9 @@ M:Moq.Mock`1.#ctor(System.Object[]);Don't use the default Mock constructor. Set 
 
 M:OmniSharp.Extensions.LanguageServer.Protocol.DocumentUri.ToUri();Use DocumentUri.ToUriEncoded() instead.
 
-T:System.IO.File;Don't use System.IO for file operations. Use APIs from Bicep.Core.IO.Abstraction instead.
-T:System.IO.Directory;Don't use System.IO for file operations. Use APIs from Bicep.Core.IO.Abstraction instead.
-T:System.IO.FileInfo;Don't use System.IO for file operations. Use APIs from Bicep.Core.IO.Abstraction instead.
-T:System.IO.DirectoryInfo;Don't use System.IO for file operations. Use APIs from Bicep.Core.IO.Abstraction instead.
-T:System.IO.Path;Don't use System.IO for file operations. Use APIs from Bicep.Core.IO instead.
-T:System.IO.Abstraction.IFileSystem;Don't use System.IO.Abstraction for file operations. Use APIs from Bicep.Core.IO.Abstraction instead.
+T:System.IO.File;Don't use System.IO for file operations. Use APIs from Bicep.IO.Abstraction instead.
+T:System.IO.Directory;Don't use System.IO for file operations. Use APIs from Bicep.IO.Abstraction instead.
+T:System.IO.FileInfo;Don't use System.IO for file operations. Use APIs from Bicep.IO.Abstraction instead.
+T:System.IO.DirectoryInfo;Don't use System.IO for file operations. Use APIs from Bicep.IO.Abstraction instead.
+T:System.IO.Path;Don't use System.IO for file operations. Use APIs from Bicep.IO.Abstraction instead.
+T:System.IO.Abstraction.IFileSystem;Don't use System.IO.Abstraction for file operations. Use APIs from Bicep.IO.Abstraction instead.
