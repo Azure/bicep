@@ -14,7 +14,6 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Option = Bicep.Cli.Constants.Option;
 
 namespace Bicep.Cli.Commands;
 
@@ -45,27 +44,22 @@ public class WhatIfCommand(
         await io.Output.Writer.WriteAsync(WhatIfOperationResultFormatter.Format([.. changes]));
     }
 
-    internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+    internal static Command CreateCommand(CommandLineBuilderContext context)
     {
-        var command = new System.CommandLine.Command(Constants.Command.WhatIf, "[Experimental] Previews the changes a deployment would make.")
-        {
-            TreatUnmatchedTokensAsErrors = false,
-        };
+        var inputFileArgument = CommonArguments.ParametersFile();
+        var noRestoreOption = CommonOptions.NoRestore("Do not restore modules prior to running what-if.");
+        var configOption = CommonOptions.Config();
 
-        var inputFileArgument = new System.CommandLine.Argument<string>(Constants.Argument.ParametersFile)
+        var command = new Command(CommandNames.WhatIf, "[Experimental] Previews the changes a deployment would make.")
         {
-            Description = "The path to the .bicepparam file.",
+            inputFileArgument,
+            noRestoreOption,
+            configOption,
         };
-        var noRestoreOption = new System.CommandLine.Option<bool>(Option.NoRestore)
-        {
-            Description = "Do not restore modules prior to running what-if.",
-        };
+        command.TreatUnmatchedTokensAsErrors = false;
+        command.Validators.Add(result => CommandLineBuilderContext.ValidateRequiredPositionalArgument(result, inputFileArgument));
 
-        command.Add(inputFileArgument);
-        command.Add(noRestoreOption);
-        command.Validators.Add((System.CommandLine.Parsing.CommandResult result) => CommandLineBuilderContext.ValidateRequiredPositionalArgument(result, inputFileArgument));
-
-        command.SetAction((result, ct) => context.RunCommandAsync(async () =>
+        command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
         {
             var additionalArguments = CommandLineBuilderContext.ParseAdditionalArguments(result.UnmatchedTokens);
             var args = new WhatIfArguments(

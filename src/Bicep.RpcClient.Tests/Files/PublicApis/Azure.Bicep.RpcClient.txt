@@ -71,6 +71,7 @@ namespace Bicep.RpcClient.Models
     public class CompileParamsRequest : System.IEquatable<Bicep.RpcClient.Models.CompileParamsRequest>
     {
         public CompileParamsRequest(string Path, System.Collections.Generic.Dictionary<string, System.Text.Json.Nodes.JsonNode> ParameterOverrides) { }
+        public string? ConfigPath { get; init; }
         public System.Collections.Generic.Dictionary<string, System.Text.Json.Nodes.JsonNode> ParameterOverrides { get; init; }
         public string Path { get; init; }
     }
@@ -86,6 +87,7 @@ namespace Bicep.RpcClient.Models
     public class CompileRequest : System.IEquatable<Bicep.RpcClient.Models.CompileRequest>
     {
         public CompileRequest(string Path) { }
+        public string? ConfigPath { get; init; }
         public string Path { get; init; }
     }
     public class CompileResponse : System.IEquatable<Bicep.RpcClient.Models.CompileResponse>
@@ -107,6 +109,7 @@ namespace Bicep.RpcClient.Models
     public class FormatRequest : System.IEquatable<Bicep.RpcClient.Models.FormatRequest>
     {
         public FormatRequest(string Path) { }
+        public string? ConfigPath { get; init; }
         public string Path { get; init; }
     }
     public class FormatResponse : System.IEquatable<Bicep.RpcClient.Models.FormatResponse>
@@ -117,6 +120,7 @@ namespace Bicep.RpcClient.Models
     public class GenerateDocsRequest : System.IEquatable<Bicep.RpcClient.Models.GenerateDocsRequest>
     {
         public GenerateDocsRequest(string Path, System.Collections.Generic.Dictionary<string, string>? CustomTemplateValues = null) { }
+        public string? ConfigPath { get; init; }
         public System.Collections.Generic.Dictionary<string, string>? CustomTemplateValues { get; init; }
         public string Path { get; init; }
     }
@@ -129,6 +133,7 @@ namespace Bicep.RpcClient.Models
     public class GetDeploymentGraphRequest : System.IEquatable<Bicep.RpcClient.Models.GetDeploymentGraphRequest>
     {
         public GetDeploymentGraphRequest(string Path) { }
+        public string? ConfigPath { get; init; }
         public string Path { get; init; }
     }
     public class GetDeploymentGraphResponse : System.IEquatable<Bicep.RpcClient.Models.GetDeploymentGraphResponse>
@@ -155,6 +160,7 @@ namespace Bicep.RpcClient.Models
     public class GetFileReferencesRequest : System.IEquatable<Bicep.RpcClient.Models.GetFileReferencesRequest>
     {
         public GetFileReferencesRequest(string Path) { }
+        public string? ConfigPath { get; init; }
         public string Path { get; init; }
     }
     public class GetFileReferencesResponse : System.IEquatable<Bicep.RpcClient.Models.GetFileReferencesResponse>
@@ -165,6 +171,7 @@ namespace Bicep.RpcClient.Models
     public class GetMetadataRequest : System.IEquatable<Bicep.RpcClient.Models.GetMetadataRequest>
     {
         public GetMetadataRequest(string Path) { }
+        public string? ConfigPath { get; init; }
         public string Path { get; init; }
     }
     public class GetMetadataResponse : System.IEquatable<Bicep.RpcClient.Models.GetMetadataResponse>
@@ -206,6 +213,7 @@ namespace Bicep.RpcClient.Models
     public class GetSnapshotRequest : System.IEquatable<Bicep.RpcClient.Models.GetSnapshotRequest>
     {
         public GetSnapshotRequest(string Path, Bicep.RpcClient.Models.GetSnapshotRequest.MetadataDefinition Metadata, System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.GetSnapshotRequest.ExternalInputValue>? ExternalInputs) { }
+        public string? ConfigPath { get; init; }
         public System.Collections.Immutable.ImmutableArray<Bicep.RpcClient.Models.GetSnapshotRequest.ExternalInputValue>? ExternalInputs { get; init; }
         public Bicep.RpcClient.Models.GetSnapshotRequest.MetadataDefinition Metadata { get; init; }
         public string Path { get; init; }

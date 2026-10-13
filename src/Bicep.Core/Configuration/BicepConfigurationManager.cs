@@ -23,14 +23,26 @@ public class BicepConfigurationManager : IBicepConfigurationManager
     private readonly ConcurrentDictionary<IFileHandle, ImmutableHashSet<IOUri>> chainDependencies = new();
     private readonly IFileExplorer fileExplorer;
     private readonly CloudConfigurationTrustPolicy cloudTrustPolicy;
+    private readonly ExplicitConfigurationContext explicitConfigurationContext;
 
     public BicepConfigurationManager(IFileExplorer fileExplorer, CloudConfigurationTrustPolicy cloudTrustPolicy)
+        : this(fileExplorer, cloudTrustPolicy, new ExplicitConfigurationContext())
+    {
+    }
+
+    public BicepConfigurationManager(IFileExplorer fileExplorer, CloudConfigurationTrustPolicy cloudTrustPolicy, ExplicitConfigurationContext explicitConfigurationContext)
     {
         this.fileExplorer = fileExplorer;
         this.cloudTrustPolicy = cloudTrustPolicy;
+        this.explicitConfigurationContext = explicitConfigurationContext;
     }
 
-    public IBicepConfigurationChain GetConfigurationChain(IOUri sourceFileUri)
+    public IBicepConfigurationChain GetConfigurationChain(IOUri sourceFileUri) =>
+        this.explicitConfigurationContext.ConfigFileUri is { } explicitConfigFileUri
+            ? GetConfigurationChainForConfigFile(this.fileExplorer.GetFile(explicitConfigFileUri))
+            : DiscoverConfigurationChain(sourceFileUri);
+
+    private IBicepConfigurationChain DiscoverConfigurationChain(IOUri sourceFileUri)
     {
         if (!sourceFileUri.IsFile)
         {
@@ -51,7 +63,12 @@ public class BicepConfigurationManager : IBicepConfigurationManager
             return GetBuiltInChain();
         }
 
-        if (!this.chainCache.GetOrAdd(configFileHandle, LoadChain).IsSuccess(out var chain, out var loadDiagnostic))
+        return GetConfigurationChainForConfigFile(configFileHandle);
+    }
+
+    private IBicepConfigurationChain GetConfigurationChainForConfigFile(IFileHandle leafConfigFileHandle)
+    {
+        if (!this.chainCache.GetOrAdd(leafConfigFileHandle, LoadChain).IsSuccess(out var chain, out var loadDiagnostic))
         {
             return GetBuiltInChain(diagnostics: [loadDiagnostic]);
         }

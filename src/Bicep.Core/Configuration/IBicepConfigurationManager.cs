@@ -14,7 +14,9 @@ public interface IBicepConfigurationManager
 {
     /// <summary>
     /// Returns the configuration chain for the given source file.
-    /// Walks the "extends" chain starting from the nearest bicepconfig.json,
+    /// The leaf configuration is the explicit configuration of the current operation
+    /// (see <see cref="ExplicitConfigurationContext"/>) if one is set; otherwise it is the nearest bicepconfig.json.
+    /// Walks the "extends" chain starting from the leaf configuration,
     /// detects cycles, enforces depth limits, and merges all layers.
     /// Falls back to the built-in configuration if no bicepconfig.json is found.
     /// </summary>

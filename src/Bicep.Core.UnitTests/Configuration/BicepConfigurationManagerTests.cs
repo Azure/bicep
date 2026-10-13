@@ -893,5 +893,136 @@ namespace Bicep.Core.UnitTests.Configuration
             compiler.Version!.ToString().Should().Be(">=0.30.0");
             compiler.DeclaringConfigUri.Should().Be(fileSet.GetUri("root/bicepconfig.root.json"));
         }
+
+        // ── Explicit configuration ───────────────────────────────────────────
+
+        [TestMethod]
+        public void GetConfigurationChain_WithExplicitConfiguration_ReplacesDiscoveredConfiguration()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("modules/mod.bicep", ""),
+                ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""),
+                ("modules/bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""),
+                ("eng/bicepconfig.prod.json", """{ "experimentalFeaturesWarning": false }"""));
+            var context = new ExplicitConfigurationContext();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, context);
+
+            using (context.Enter(fileSet.GetUri("eng/bicepconfig.prod.json")))
+            {
+                foreach (var sourceFile in new[] { "main.bicep", "modules/mod.bicep" })
+                {
+                    var configuration = sut.GetConfigurationChain(fileSet.GetUri(sourceFile)).GetEffectiveConfiguration();
+
+                    configuration.ConfigFileUri.Should().Be(fileSet.GetUri("eng/bicepconfig.prod.json"));
+                    configuration.ExperimentalFeaturesWarning.Should().BeFalse();
+                    configuration.GetDiagnostics().Should().BeEmpty();
+                }
+            }
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_WithExplicitConfiguration_AppliesToSourcesWithoutDiscoveredConfiguration()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.custom.json", """{ "experimentalFeaturesWarning": false }"""));
+            var context = new ExplicitConfigurationContext();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, context);
+
+            using var scope = context.Enter(fileSet.GetUri("bicepconfig.custom.json"));
+            var configuration = sut.GetConfigurationChain(fileSet.GetUri("main.bicep")).GetEffectiveConfiguration();
+
+            configuration.IsBuiltIn.Should().BeFalse();
+            configuration.ExperimentalFeaturesWarning.Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_WithExplicitConfigurationThatExtends_ResolvesBaseRelativeToExplicitFile()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("src/main.bicep", ""),
+                ("eng/bicepconfig.prod.json", """{ "extends": "./shared/bicepconfig.base.json" }"""),
+                ("eng/shared/bicepconfig.base.json", """{ "experimentalFeaturesWarning": false }"""));
+            var context = new ExplicitConfigurationContext();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, context);
+
+            using var scope = context.Enter(fileSet.GetUri("eng/bicepconfig.prod.json"));
+            var chain = sut.GetConfigurationChain(fileSet.GetUri("src/main.bicep"));
+
+            chain.LayerCount.Should().Be(2);
+            chain.GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeFalse();
+            chain.GetEffectiveConfiguration().GetDiagnostics().Should().BeEmpty();
+            sut.GetDependenciesForLeaf(fileSet.GetUri("eng/bicepconfig.prod.json")).Should().BeEquivalentTo(
+            [
+                fileSet.GetUri("eng/bicepconfig.prod.json"),
+                fileSet.GetUri("eng/shared/bicepconfig.base.json"),
+            ]);
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_WithMissingExplicitConfiguration_ReturnsBuiltInChainWithError()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "experimentalFeaturesWarning": false }"""));
+            var context = new ExplicitConfigurationContext();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, context);
+
+            using var scope = context.Enter(fileSet.GetUri("missing.json"));
+            var chain = sut.GetConfigurationChain(fileSet.GetUri("main.bicep"));
+
+            chain.GetEffectiveConfiguration().IsBuiltIn.Should().BeTrue();
+            GetSingleDiagnostic(chain).Level.Should().Be(DiagnosticLevel.Error);
+        }
+
+        [TestMethod]
+        public void GetConfigurationChain_AfterExplicitConfigurationScopeIsDisposed_DiscoversConfiguration()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("bicepconfig.json", """{ "experimentalFeaturesWarning": true }"""),
+                ("bicepconfig.custom.json", """{ "experimentalFeaturesWarning": false }"""));
+            var context = new ExplicitConfigurationContext();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, context);
+
+            using (context.Enter(fileSet.GetUri("bicepconfig.custom.json")))
+            {
+                sut.GetConfigurationChain(fileSet.GetUri("main.bicep")).GetEffectiveConfiguration().ExperimentalFeaturesWarning.Should().BeFalse();
+            }
+
+            context.ConfigFileUri.Should().BeNull();
+            var configuration = sut.GetConfigurationChain(fileSet.GetUri("main.bicep")).GetEffectiveConfiguration();
+            configuration.ConfigFileUri.Should().Be(fileSet.GetUri("bicepconfig.json"));
+            configuration.ExperimentalFeaturesWarning.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public async Task GetConfigurationChain_WithConcurrentExplicitConfigurationScopes_IsolatesEachScope()
+        {
+            var fileSet = InMemoryTestFileSet.Create(
+                ("main.bicep", ""),
+                ("a.json", """{ "experimentalFeaturesWarning": true }"""),
+                ("b.json", """{ "experimentalFeaturesWarning": false }"""));
+            var context = new ExplicitConfigurationContext();
+            var sut = new BicepConfigurationManager(fileSet.FileExplorer, BicepTestConstants.TestCloudConfigurationTrustPolicy, context);
+            var bothScopesEntered = new Barrier(2);
+
+            async Task<IOUri?> GetConfigFileUriInScope(string configFile)
+            {
+                await Task.Yield();
+                using var scope = context.Enter(fileSet.GetUri(configFile));
+                bothScopesEntered.SignalAndWait(TimeSpan.FromSeconds(10));
+
+                return sut.GetConfigurationChain(fileSet.GetUri("main.bicep")).GetEffectiveConfiguration().ConfigFileUri;
+            }
+
+            var results = await Task.WhenAll(
+                Task.Run(() => GetConfigFileUriInScope("a.json")),
+                Task.Run(() => GetConfigFileUriInScope("b.json")));
+
+            results.Should().Equal(fileSet.GetUri("a.json"), fileSet.GetUri("b.json"));
+            context.ConfigFileUri.Should().BeNull();
+        }
     }
 }

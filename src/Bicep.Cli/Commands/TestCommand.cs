@@ -112,33 +112,23 @@ namespace Bicep.Cli.Commands
                 Format: args.DiagnosticsFormat ?? DiagnosticsFormat.Default,
                 SarifToStdout: false);
 
-        internal static System.CommandLine.Command CreateCommand(CommandLineBuilderContext context)
+        internal static Command CreateCommand(CommandLineBuilderContext context)
         {
-            var command = new System.CommandLine.Command(Constants.Command.Test, "Runs tests in a .bicep file.")
-            {
-                TreatUnmatchedTokensAsErrors = true,
-            };
+            var inputFileArgument = CommonArguments.OptionalInputFile("The path to the input .bicep file.");
+            var noRestoreOption = CommonOptions.NoRestore("Do not restore modules prior to running tests.");
+            var diagnosticsFormatOption = CommonOptions.DiagnosticsFormat();
+            var configOption = CommonOptions.Config();
 
-            var inputFileArgument = new System.CommandLine.Argument<string?>(Constants.Argument.InputFile)
+            var command = new Command(CommandNames.Test, "Runs tests in a .bicep file.")
             {
-                Description = "The path to the input .bicep file.",
-                Arity = ArgumentArity.ZeroOrOne,
+                inputFileArgument,
+                noRestoreOption,
+                diagnosticsFormatOption,
+                configOption,
             };
-            var noRestoreOption = new System.CommandLine.Option<bool>(Constants.Option.NoRestore)
-            {
-                Description = "Do not restore modules prior to running tests.",
-            };
-            var diagnosticsFormatOption = new System.CommandLine.Option<DiagnosticsFormat?>(Constants.Option.DiagnosticsFormat)
-            {
-                Description = "Set the format of diagnostics (Default, SARIF).",
-            };
+            command.Validators.Add(result => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
 
-            command.Add(inputFileArgument);
-            command.Add(noRestoreOption);
-            command.Add(diagnosticsFormatOption);
-            command.Validators.Add((System.CommandLine.Parsing.CommandResult result) => CommandLineBuilderContext.ValidatePositionalArgument(result, inputFileArgument));
-
-            command.SetAction((result, ct) => context.RunCommandAsync(async () =>
+            command.SetAction((result, ct) => context.RunCommandAsync(result.GetValue(configOption), async () =>
             {
                 var inputFile = result.GetValue(inputFileArgument)
                     ?? throw new CommandLineException("The input file path was not specified");
