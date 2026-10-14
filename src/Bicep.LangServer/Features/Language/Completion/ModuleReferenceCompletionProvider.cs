@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Configuration;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core;
@@ -137,6 +138,8 @@ namespace Bicep.LanguageServer.Features.Language.Completion
 
         private const string ModuleVersionResolutionKey = "ociVersion";
         private const string ModuleResolutionKey = "oci";
+
+        private static readonly StringComparer PrivateTagComparer = StringComparer.Create(CultureInfo.InvariantCulture, CompareOptions.NumericOrdering);
 
         public ModuleReferenceCompletionProvider(
             IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
@@ -343,13 +346,16 @@ namespace Bicep.LanguageServer.Features.Language.Completion
             if (await registryModuleCatalog.GetProviderForRegistry((CloudConfiguration)rootConfiguration.Cloud, parts.ResolvedRegistry)
                 .TryGetModuleAsync($"{parts.ResolvedModulePath}") is { } module)
             {
-                var versions = (await module.TryGetVersionsAsync())
-                    .Where(v => v.IsBicepModule != false)
+                var availableVersions = (await module.TryGetVersionsAsync())
+                    .Where(v => v.IsBicepModule != false);
+                var versions = (parts.IsPublicRegistry
+                    ? availableVersions.Reverse()
+                    : availableVersions.OrderByDescending(v => v.Version, PrivateTagComparer))
                     .ToArray();
 
                 for (int i = 0; i < versions.Length; ++i)
                 {
-                    var version = versions[versions.Length - 1 - i].Version; // Show versions from most recent to oldest
+                    var version = versions[i].Version;
                     var insertText = $"'{trimmedText}{version}'$0";
 
                     // Module version is last completion, no follow-up completions triggered
