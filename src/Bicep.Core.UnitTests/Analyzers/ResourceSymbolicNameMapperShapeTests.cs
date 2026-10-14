@@ -18,14 +18,14 @@ namespace Bicep.Core.UnitTests.Analyzers
 
         private const string TwoStorageBicep = """
             resource storageA 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-              name: 'stgA123'
+              name: 'foo'
               location: 'eastus'
               sku: { name: 'Standard_LRS' }
               kind: 'StorageV2'
             }
 
             resource storageB 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-              name: 'stgB456'
+              name: 'foobar'
               location: 'eastus'
               sku: { name: 'Standard_LRS' }
               kind: 'StorageV2'

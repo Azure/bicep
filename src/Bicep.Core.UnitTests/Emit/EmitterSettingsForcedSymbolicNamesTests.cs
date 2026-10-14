@@ -6,6 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Testing.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -74,6 +75,36 @@ namespace Bicep.Core.UnitTests.Emit
             analyzer.WasInvoked.Should().BeTrue("otherwise the re-entry assertion is vacuous");
             analyzer.EmittedJson.Should().NotBeNullOrEmpty();
             JObject.Parse(analyzer.EmittedJson!)["resources"]!.Type.Should().Be(JTokenType.Object);
+        }
+
+        [TestMethod]
+        public async Task TemplateEmitter_ForcedPathPropagatesToPlainNestedModules()
+        {
+            var fileSet = MockFileSystemTestFileSet.Create(
+                ("main.bicep", """
+                    module child './child.bicep' = {
+                      name: 'child'
+                    }
+                    """),
+                ("child.bicep", VanillaResourceBicep));
+            var compiler = Services
+                .WithFileExplorer(fileSet.FileExplorer)
+                .WithFileSystem(fileSet.FileSystem)
+                .Build()
+                .GetCompiler();
+            var compilation = await compiler.CreateCompilation(fileSet.GetUri("main.bicep"));
+            var model = compilation.GetEntrypointSemanticModel();
+
+            var forcedJson = new TemplateEmitter(model).EmitWithForcedSymbolicNames();
+            var normalJson = EmitNormally(model);
+
+            forcedJson.Should().NotBeNullOrEmpty();
+            var forcedTemplate = JObject.Parse(forcedJson!);
+            forcedTemplate["resources"]!["child"]!["properties"]!["template"]!["resources"]!.Type
+                .Should().Be(JTokenType.Object);
+            var normalTemplate = JObject.Parse(normalJson);
+            normalTemplate["resources"]![0]!["properties"]!["template"]!["resources"]!.Type
+                .Should().Be(JTokenType.Array);
         }
 
         private static string EmitNormally(SemanticModel model)

@@ -20,5 +20,11 @@ namespace Bicep.Core.Emit
             SemanticModel bicepModel => new TemplateWriter(bicepModel, settings),
             _ => throw new NotSupportedException($"Emitter settings overrides are only supported for {nameof(SemanticModel)}."),
         };
+
+        internal static ITemplateWriter CreateTemplateWriter(ISemanticModel semanticModel, bool forceEnableSymbolicNames) => semanticModel switch
+        {
+            SemanticModel bicepModel => new TemplateWriter(bicepModel, new EmitterSettings(bicepModel, forceEnableSymbolicNames)),
+            _ => CreateTemplateWriter(semanticModel),
+        };
     }
 }

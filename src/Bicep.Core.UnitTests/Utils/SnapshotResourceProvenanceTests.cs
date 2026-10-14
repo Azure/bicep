@@ -82,16 +82,22 @@ namespace Bicep.Core.UnitTests.Utils
                                         }
                                         """),
                                 ("main.bicep", """
-                                        module child './child.bicep' = {
-                                            name: 'child'
+                                        module outer './outer.bicep' = {
+                                            name: 'outer'
                                         }
                                         """),
-                                ("child.bicep", """
+                                ("outer.bicep", """
+                                        module inner './inner.bicep' = {
+                                            name: 'inner'
+                                        }
+                                        """),
+                                ("inner.bicep", """
                                         extension http
 
                                         resource request 'request@v1' = {
                                             uri: 'https://example.com/forecast'
                                             format: 'raw'
+                                            method: '2023-06-01T12:00:00+05:00'
                                         }
                                         """));
                         var services = await ExtensionTestHelper.GetServiceBuilderWithPublishedExtension(
@@ -123,9 +129,11 @@ namespace Bicep.Core.UnitTests.Utils
                                 cancellationToken: default);
 
                         result.ExtensibleResources.Should().ContainSingle();
+                        result.ExtensibleResources[0].GetProperty("properties").GetProperty("method").GetString()
+                            .Should().Be("2023-06-01T12:00:00+05:00");
                         var provenance = result.ResourceProvenance.Should().ContainSingle().Subject;
                         provenance.SymbolicName.Should().Be("request");
-                        provenance.Path.Should().Be("resources.child.properties.template.resources.request");
+                        provenance.Path.Should().Be("resources.outer.properties.template.resources.inner.properties.template.resources.request");
                         provenance.IsExtensible.Should().BeTrue();
                 }
 

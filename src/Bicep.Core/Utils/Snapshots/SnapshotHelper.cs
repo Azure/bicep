@@ -26,6 +26,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.IO.Abstraction;
 using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -41,7 +42,7 @@ public static class SnapshotHelper
         }
 
         return resource.Context.DeploymentSymbolicNamePath is { } modulePath
-            ? $"resources.{modulePath}.properties.template.resources.{symbolicName}"
+            ? $"resources.{string.Join(".properties.template.resources.", modulePath.Segments)}.properties.template.resources.{symbolicName}"
             : $"resources.{symbolicName}";
     }
 
@@ -112,7 +113,12 @@ public static class SnapshotHelper
                     Identifiers = resource.Identifiers?.ToObject<JObject>(),
                     Properties = resource.Properties?.ToObject<JObject>(),
                 });
-                var forAnalysis = JObject.Parse(json);
+                using var stringReader = new StringReader(json);
+                using var jsonReader = new JsonTextReader(stringReader)
+                {
+                    DateParseHandling = DateParseHandling.None,
+                };
+                var forAnalysis = JObject.Load(jsonReader);
                 if (resource.SymbolicName is { } symbolicName)
                 {
                     forAnalysis[Analyzers.ResourceSymbolicNameMapper.BicepSymbolicNameProperty] = symbolicName;

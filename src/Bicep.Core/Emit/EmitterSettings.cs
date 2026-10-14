@@ -17,6 +17,7 @@ namespace Bicep.Core.Emit
 
         internal EmitterSettings(SemanticModel model, bool forceEnableSymbolicNames)
         {
+            ForceEnableSymbolicNames = forceEnableSymbolicNames;
             FileKind = model.SourceFileKind;
             UseExperimentalTemplateLanguageVersion = model.Features.EnabledFeatureMetadata.Any(feature => feature.usesExperimentalArmEngineFeature);
 
@@ -77,6 +78,8 @@ namespace Bicep.Core.Emit
                     resultSelector: result => result,
                     continuationFunction: (result, syntax) => !result);
         }
+
+        internal bool ForceEnableSymbolicNames { get; }
 
         /// <summary>
         /// Generate symbolic names in template output?

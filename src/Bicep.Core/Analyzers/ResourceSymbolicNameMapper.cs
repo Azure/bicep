@@ -103,13 +103,28 @@ namespace Bicep.Core.Analyzers
 
                 if (resourceName is not null)
                 {
+                    var exactMatches = candidates
+                        .Where(candidate =>
+                            candidate.Metadata.TryGetNameSyntax() is StringSyntax nameSyntax &&
+                            nameSyntax.TryGetLiteralValue() is { } bicepName &&
+                            resourceName.Equals(bicepName, StringComparison.OrdinalIgnoreCase))
+                        .Select(candidate => candidate.SymbolicName)
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToArray();
+                    if (exactMatches is [var exactMatch])
+                    {
+                        return exactMatch;
+                    }
+
+                    List<string> heuristicMatches = [];
                     foreach (var (symbolicName, metadata) in candidates)
                     {
                         if (metadata.TryGetNameSyntax() is StringSyntax nameSyntax &&
                             nameSyntax.TryGetLiteralValue() is { } bicepName &&
                             resourceName.Contains(bicepName, StringComparison.OrdinalIgnoreCase))
                         {
-                            return symbolicName;
+                            heuristicMatches.Add(symbolicName);
+                            continue;
                         }
 
                         var baseSymbolicName = symbolicName.Contains("::", StringComparison.Ordinal)
@@ -117,8 +132,16 @@ namespace Bicep.Core.Analyzers
                             : symbolicName;
                         if (resourceName.Contains(baseSymbolicName, StringComparison.OrdinalIgnoreCase))
                         {
-                            return symbolicName;
+                            heuristicMatches.Add(symbolicName);
                         }
+                    }
+
+                    var uniqueHeuristicMatches = heuristicMatches
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToArray();
+                    if (uniqueHeuristicMatches is [var heuristicMatch])
+                    {
+                        return heuristicMatch;
                     }
                 }
             }
